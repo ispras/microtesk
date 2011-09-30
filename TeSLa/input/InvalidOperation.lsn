@@ -1,0 +1,13 @@
+VAR fs : 64;
+VAR ft : 64;
+VAR cond : 64;
+
+ASSERT cond >=+ 0 AND cond <+ 16;
+
+ASSERT SNaN_double( fs ) OR SNaN_double( ft ) 
+	OR QNaN_double( fs ) OR QNaN_double( ft ) ;
+
+SITUATION  
+	SNaN_double( fs ) OR SNaN_double( ft ) 
+OR cond[3] = 1 AND ( SNaN_double( fs ) OR QNaN_double( ft ) )
+	IS InvalidOperation.

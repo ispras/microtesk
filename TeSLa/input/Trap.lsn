@@ -1,0 +1,6 @@
+/* page 356 of MIPS64_Vol_II.pdf */
+
+VAR RS : 32;
+VAR immediate : 16;
+
+SITUATION RS >=- (32)immediate IS Trap.
