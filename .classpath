@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="bin" path="src"/>
+	<classpathentry kind="src" output="bin" path="output"/>
+	<classpathentry kind="src" output="bin" path="gen"/>
+	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
+	<classpathentry kind="lib" path="jars/antlr-3.4-complete.jar"/>
+	<classpathentry kind="lib" path="jars/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="jars/junit-4.10.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
