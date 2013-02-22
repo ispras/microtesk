@@ -1,0 +1,60 @@
+/*
+ * Copyright (c) 2012 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * Shared.stg, Dec 6, 2012 4:29:53 PM Andrei Tatarnikov
+ */
+ 
+group Shared;
+ 
+shared(file, pack, imps, members) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<class(["public", "final"], 
+       "Shared",
+       false,
+       false,
+       [constructor(), members])> 
+>>
+
+constructor() ::= <<
+private Shared() {}
+>>
+
+let(name, type, value) ::= <<
+<class_const(type, name, value)>
+>>
+
+type(name, typeid, size) ::= <<
+<class_const("Type", name, new_type(typeid, size))>
+>>
+
+new_type(typeid, size) ::= <<
+new Type(ETypeID.<typeid>, <size>)
+>>
+
+type_alias(name, alias) ::= <<
+<class_const("Type", name, alias)>
+>>
+
+memory(name, kind, type, size) ::= <<
+<class_const("MemoryBase", name, new_memory(kind, name, type, size))>
+>>
+
+new_memory(kind, name, type, size) ::= <<
+new MemoryBase(EMemoryKind.<kind>, "<name>", <type>, <size>)
+>>
+
+memory_array(name, items) ::= <<
+<class_const("MemoryBase[]", name, array_items(items))>
+>>
+
+array_items(items) ::= <<
+{<items; separator=", ">}
+>>

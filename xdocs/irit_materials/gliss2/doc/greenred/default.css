@@ -1,0 +1,231 @@
+/*
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+*/
+
+body {
+	margin: 10px 0;
+	padding: 0;
+	background: #95AE36 url(images/img1.gif) repeat-y center top;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: .8em;
+	color: #999E88;
+	width: 680px;
+	left: 50%;
+	position: absolute;
+	margin-left: -340px; 
+}
+
+P:first-letter {
+	font-size: 200%;
+	font-style: italic;
+	font-weight: bold;
+	/*float: left;*/
+	color: #95AE36;
+}
+
+div.header {
+	font-size: normal;
+}
+
+pre {
+	border-top: thin solid #C73633;
+	border-bottom: thin solid #C73633;
+	margin-left: 64px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+	padding: 0;
+	letter-spacing: -2px;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-variant: small-caps;
+	color: #C73633;
+}
+
+h1 {
+	margin-top: 1em;
+	font-size: 2.5em;
+}
+
+h2 {
+	padding: 14px 0 0 0;
+	word-spacing: 5px;
+	font-size: 2.25em;
+}
+
+h3 {
+	padding: 20px 0 0 0;
+	border-bottom: 1px solid #95AE36;
+	word-spacing: 3px;
+	font-size: 1.85em;
+	color: #95AE36;
+}
+
+a {
+	color: #95AE36;
+}
+
+a:hover {
+	text-decoration: none;
+	color: #C73633;
+}
+
+.green {
+	color: #95AE36;
+}
+
+.red {
+	color: #C73633;
+}
+
+.gray {
+	color: #B9ADAC;
+}
+
+.image {
+	float: left;
+	margin: 0 20px 0 0;
+}
+
+.list, .list2c {
+	margin-left: 0;
+	padding-left: 0;
+	list-style: none;
+	line-height: 2em;
+}
+
+.list2c li {
+	float: left;
+	width: 50%;
+}
+
+code {
+	color: #95AE36;
+	font-weight: bold;
+}
+
+
+/* Header */
+
+#header {
+	width: 680px;
+	/*height: 80px;*/
+	margin: 0 auto;
+}
+
+#header h1 {
+	/*float: left;*/
+	padding: 24px 0 0 10px;
+	letter-spacing: -3px;
+	font-size: 3.5em;
+}
+
+#header h2 {
+	padding: 0px 10px 0 10px;
+	word-spacing: normal;
+	letter-spacing: -1px;
+	font-size: 2em;
+}
+
+#header h3 {
+	padding: 0px 0 20px 10px
+}
+
+#header a {
+	text-decoration: none;
+}
+
+/* Menu */
+
+#menu {
+	width: 700px;
+	height: 30px;
+	margin: 0 auto;
+}
+
+#menu ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#menu li {
+	display: inline;
+}
+
+#menu a {
+	display: block;
+	float: left;
+	width: 140px;
+	height: 25px;
+	padding: 7px 0 0 0;
+	background: #87A12C url(images/img2.gif) repeat-x left bottom;
+	text-align: center;
+	letter-spacing: -1px;
+	text-decoration: none;
+	color: #FFFFFF;
+	font-variant: small-caps;
+	font-weight: bold;
+}
+
+#menu a:hover {
+	background: #A71615 url(images/img3.gif) repeat-x left top;
+}
+
+/* Content */
+
+#content {
+	width: 660px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+#colOne {
+	float: right;
+	width: 420px;
+}
+
+#colTwo {
+	float: left;
+	width: 220px;
+}
+
+/* Footer */
+
+#footer {
+	clear: both;
+	width: 700px;
+	margin: 20px auto;
+	padding: 5px 0;
+	background: #87A12C url(images/img2.gif) repeat-x left bottom;
+	font: "Times New Roman", Times, serif;
+}
+
+#footer p, #footer a {
+	margin: 0;
+	text-align: center;
+	font-size: 10px;
+	font-weight: bold;
+	color: #FFFFFF;
+}
+
+table {
+	margin-left: 64px;
+	border-left: 0;
+	border-right: 0;
+	border-top: thin solid #C73633;
+	border-bottom: thin solid #C73633;
+}
+
+th {
+	border: 0;
+	border-bottom: thin solid #C73633;
+}
+
+td {
+	border: 0;
+}

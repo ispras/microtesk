@@ -1,0 +1,263 @@
+// state definition for PowerPC
+
+let REGS = 5
+let nDBAT = 16 // ppc755, 8 otherwise
+let nIBAT = 16 // ppc755, 8 otherwise
+let nSR = 16
+let nSPRG = 8 // ppc755, 4 otherwise
+
+// 1.1.6 otawa_kind of instructions
+// Might be used to know in which functional unit the instruction is executed
+
+let IS_COND    = 0x00001
+let IS_CONTROL = 0x00002
+let IS_CALL    = 0x00004
+let IS_RETURN  = 0x00008
+let IS_MEM     = 0x00010
+let IS_LOAD    = 0x00020
+let IS_STORE   = 0x00040
+let IS_INT     = 0x00080
+let IS_FLOAT   = 0x00100
+let IS_ALU     = 0x00200
+let IS_MUL     = 0x00400
+let IS_DIV     = 0x00800
+let IS_SHIFT   = 0x01000
+let IS_TRAP    = 0x02000
+let IS_INTERN  = 0x04000
+let IS_MULTI   = 0x08000
+let IS_SPECIAL = 0x10000
+
+// old kind of instructions
+let ARITH = IS_ALU | IS_INT  //"0"       // Integer Add and Sub Instructions
+let MULDIV = IS_ALU | IS_INT //"1"     // Integer Mul and Div Instructions
+let INTCMP = IS_ALU | IS_INT //"2"     // Integer Compare Instructions
+let LOGIC = IS_ALU | IS_INT //"3"       // Integer Logical instructions
+let SHIFTROT = IS_ALU | IS_SHIFT | IS_INT //"4" // Int shift and rotate
+let STORE = IS_MEM | IS_STORE | IS_INT //"5"       // Integer Stores including byte reverse, multiple and string
+let LOAD = IS_MEM | IS_LOAD | IS_INT //"6"         // Integer Loads including byte reverse, multiple and string
+let MEMSYNC = IS_INTERN //"7"   // Memory Synchronization Instructions
+let BRANCH = IS_CONTROL //"8"
+let CRLI = IS_INTERN //"9"         // Condition Register Logical Instructions
+let SYSTEM = IS_CONTROL | IS_TRAP //"10"     // System Linkage Instructions
+let TRAP = IS_CONTROL | IS_TRAP //"11"
+let EXT = IS_INTERN //"12"           // External Control Instructions
+let CONTROL = IS_INTERN //"13"   // Processor Control Instructions
+let CACHE = IS_INTERN //"14"       // Cache Management Instructions
+
+
+
+// 1.1.1 CR indexes (int)
+
+let LT = 3
+let GT = 2
+let EQ = 1
+let SO = 0
+
+// 1.1.2 CR indexes (float)
+let FX = 3
+let FEX= 2
+let VX = 1
+let OX = 0
+
+// 1.1.3 XER indexes
+let SO_XER = 31
+let OV_XER = 30
+let CA_XER = 29
+
+// 1.1.4 MSR indexes
+let MSR_POW = 18
+let MSR_ILE = 16
+let MSR_EE = 15
+let MSR_PR = 14
+let MSR_FP = 13
+let MSR_ME = 12
+let MSR_FE0 = 11
+let MSR_SE = 10
+let MSR_BE = 9
+let MSR_FE1 = 8
+let MSR_IP = 6
+let MSR_IR = 5
+let MSR_DR = 4
+let MSR_RI = 1
+let MSR_LE = 0
+
+// 1.1.5 exception types
+let RESET = 0
+let MACHINE_CHECK = 1
+let DSI = 2
+let ISI = 3
+let EXTERNAL = 4
+let ALIGNMENT = 5
+let PROGRAM = 6
+let FP_UNAVAIL = 7
+let DECR = 8
+let SYST_CALL = 9
+let TRACE = 10
+let FP_ASSIST = 11
+
+// ------------------------------------------------------------------------- //
+// 1.2 Types                                                                 //
+// ------------------------------------------------------------------------- //
+type bit       = card (  1 )
+type half_byte = card (  4 )
+type byte      = card (  8 )
+type half_word = card ( 16 )
+type word      = card ( 32 )
+type long      = card ( 32 )
+type double    = card ( 64 )
+type slong     = int ( 32 )
+type address   = card ( 32 )
+type index     = card ( REGS )
+type flot      = float ( 52 , 12 )
+type flots     = float ( 23 , 9 )
+type xflot     = float ( 64 , 16 )
+type sflot     = float ( 31 , 9 )
+
+// ------------------------------------------------------------------------- //
+// 1.3  Memory and registers                                                 //
+// ------------------------------------------------------------------------- //
+
+// 1.3.1 GEP registers
+
+reg PIA     [ 1 , address ]
+reg CIA     [ 1 , address ]
+reg NIA     [ 1 , address ]
+	pc = 1
+
+// 1.3.2 UISA model registers
+
+mem M       [ 32 , byte      ]
+mem M32     [ 32 , slong     ] alias = M [0]
+mem M16     [ 32 , half_word ] alias = M [0]
+reg GPR     [ 2 ** REGS , slong ]
+reg CR      [ 8 , half_byte ]
+reg XER     [ 1 , long ]
+reg FPSCR   [ 1 , long ]
+reg LR      [ 1 , long ]
+reg CTR     [ 1 , long ]
+reg UPMC	[ 4 , long ] // 750-755 specific register
+reg USIA	[ 1 , address ] // 750-755 specific register
+reg UMMCR	[ 2 , long ] // 750-755 specific register
+reg FPR     [ 2 ** REGS , flot ]
+
+reg TB		[ 1 , double ] // TBL and TBU
+
+// 1.3.4 OEA model registers
+  // Configuration registers
+reg HID		[ 2 , long ] // 750-755 specific register. HID[2] : 755 only.
+reg PVR		[ 1 , long ]
+reg MSR 	[ 1 , long ]
+  // Exception handling registers
+reg SPRG	[ nSPRG , long ]
+reg DAR		[ 1 , long ]
+reg SRR		[ 2 , long ]
+reg DSISR	[ 1 , long ]
+  // Memory management registers
+reg SDR1	[ 1 , long ]
+reg IBAT	[ nIBAT , long ]
+reg DBAT	[ nDBAT , long ]
+reg DMISS       [ 1 , long ] // 750-755 specific register
+reg DCMP        [ 1 , long ] // 750-755 specific register
+reg HASH        [ 2 , long ] // 750-755 specific register
+reg IMISS       [ 1 , long ] // 750-755 specific register
+reg ICMP        [ 1 , long ] // 750-755 specific register
+reg RPA         [ 1 , long ] // 750-755 specific register
+reg SR		[ nSR , long ]
+  // Performance monitor registers
+reg PMC		[ 4 , long ] // 750-755 specific register
+reg SIA		[ 1 , long ] // 750-755 specific register
+reg MMCR	[ 2 , long ] // 750-755 specific register
+  // Power/Thermal Management registers
+reg THRM	[ 3 , long ] // 750-755 specific register
+reg ICTC	[ 1 , long ] // 750-755 specific register
+  // Miscellaneous registers
+reg EAR 	[ 1 , long ]
+reg DEC		[ 1 , long ]
+reg DABR	[ 1 , long ]
+reg IABR	[ 1 , long ] // 750-755 specific register
+reg L2CR	[ 1 , long ] // 750-755 specific register Not supported on the 745
+reg L2PM	[ 1 , long ] // 755 specific register
+
+// ------------------------------------------------------------------------- //
+// 1.4  Internal variables                                                   //
+// ------------------------------------------------------------------------- //
+
+var TMP_RES	         [ 1 , slong ]
+var TMP_EA           [ 1 , address ]
+var TMP_RESERVE      [ 1 , int ( 8 ) ]
+var TMP_RESERVE_ADDR [ 1 , address ]
+
+// TMP_ means local variables
+var TMP_BYTE     [ 1 , byte ]
+var TMP_SBYTE    [ 1 , int ( 8 ) ]
+var TMP_HBYTE    [ 1 , half_byte ]
+var TMP_HWORD    [ 1 , card ( 16 ) ]
+var TMP_SHWORD   [ 1 , int ( 16 ) ]
+var TMP_WORD     [ 1 , word ]
+var TMP_MACRO    [ 1 , word ] // to be used in macros
+var TMP_WORD1    [ 1 , word ]
+var TMP_WORD2    [ 1 , word ]
+var TMP_WORD3    [ 1 , word ]
+var TMP_WORD4    [ 1 , word ]
+var TMP_WORD5    [ 1 , word ]
+var TMP_SWORD    [ 1 , int ( 32 ) ]
+var TMP_SWORD1   [ 1 , int ( 32 ) ]
+var TMP_SDWORD   [ 1 , int ( 64 ) ]
+var TMP_DWORD    [ 1 , card ( 64 ) ]
+var TMP_M_OP1    [ 1 , int ( 64 ) ]
+var TMP_M_OP2    [ 1 , int ( 64 ) ]
+var TMP_M_RES    [ 1 , int ( 64 ) ]
+
+
+// 1.4.1 Aliases for TB
+reg TBL [ 1 , card ( 32 ) ]
+	alias = TB [ 31 ]
+reg TBU [ 1 , card ( 32 ) ]
+	alias = TB [ 63 ]
+
+// 1.4.2 Aliases for Integer Temps
+
+reg TMP_WORD_A1 [ 1 , card ( 16 ) ]
+	alias = TMP_WORD [ 31 ]
+reg TMP_WORD_A0 [ 1 , card ( 16 ) ]
+	alias = TMP_WORD [ 15 ]
+reg TMP_M_OP1_H1 [ 1 , int ( 32 ) ]
+	alias = TMP_M_OP1 [ 63 ]
+reg TMP_M_OP1_H0 [ 1 , int ( 32 ) ]
+	alias = TMP_M_OP1 [ 31 ]
+reg TMP_M_OP2_H1 [ 1 , int ( 32 ) ]
+	alias = TMP_M_OP2 [ 63 ]
+reg TMP_M_OP2_H0 [ 1 , int ( 32 ) ]
+	alias = TMP_M_OP2 [ 31 ]
+reg TMP_M_RES_H1 [ 1 , int ( 32 ) ]
+	alias = TMP_M_RES [ 63 ]
+reg TMP_M_RES_H0 [ 1 , int ( 32 ) ]
+	alias = TMP_M_RES [ 31 ]
+
+// 1.4.3 HalfWord Integer
+
+reg TMP_SHWORD_A1 [ 1 , int ( 8 ) ]
+    alias = TMP_SHWORD [ 15 ]
+
+reg TMP_SHWORD_A0 [ 1 , int ( 8 ) ]
+    alias = TMP_SHWORD [ 7 ]
+
+// 1.4.4 Word Integers
+
+reg TMP_SWORD_A3 [ 1 , int ( 8 ) ]
+    alias = TMP_SWORD [ 31 ]
+
+reg TMP_SWORD_A2 [ 1 , int ( 8 ) ]
+    alias = TMP_SWORD [ 23 ]
+
+reg TMP_SWORD_A1 [ 1 , int ( 8 ) ]
+    alias = TMP_SWORD [ 15 ]
+
+reg TMP_SWORD_A0 [ 1 , int ( 8 ) ]
+    alias = TMP_SWORD [ 7 ]
+
+// HKC-SET
+// FPSCR bit optimization
+reg fp_clear[1, card(32)]
+// /HKC-SET
+

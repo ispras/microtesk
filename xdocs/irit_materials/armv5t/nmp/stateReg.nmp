@@ -1,0 +1,194 @@
+
+// activate only marked registers for debugging
+let gliss_debug_only = 1
+
+// constants
+let LSL = 0
+let LSR = 1
+let ASR = 2
+let ROR = 3
+
+// No of user registers
+let GPRNum = 32
+
+// No of spsr registers
+let SPSRNum = 5
+
+// Dont switch to high Vector
+let hivector = 0 
+
+//Mode of a ARM Processor
+let mode_user       = 0b10000
+let mode_FIQ        = 0b10001
+let mode_fiq        = 0b10001
+let mode_IRQ        = 0b10010
+let mode_irq        = 0b10010
+let mode_supervisor = 0b10011
+let mode_svc		= 0b10011
+let mode_abort      = 0b10111
+let mode_abt      	= 0b10111
+let mode_undefined  = 0b11011
+let mode_und  		= 0b11011
+let mode_system     = 0b11111
+let mode_sys     	= 0b11111
+
+
+// Register file
+reg GPR[GPRNum, u32]
+
+reg LR[1, u32]	alias = GPR[14]
+reg PC[1, u32] 	alias = GPR[15] pc = 1
+reg NPC[1, u32]
+reg R14_svc [1, u32] alias = GPR[24]
+
+let offset_fiq	= 16
+let offset_irq	= 23
+let offset_svc 	= 25
+let offset_abt	= 27
+let offset_und	= 29
+macro reg_id(m, i) = coerce(card(8), (((m) << 4) | (i)))
+
+macro reg_offset(i) = \
+	switch(reg_id(MBITS, i)) { \
+	case reg_id(mode_fiq, 8): offset_fiq - 8 \
+	case reg_id(mode_fiq, 9): offset_fiq - 8 \
+	case reg_id(mode_fiq, 10): offset_fiq - 8 \
+	case reg_id(mode_fiq, 11): offset_fiq - 8 \
+	case reg_id(mode_fiq, 12): offset_fiq - 8 \
+	case reg_id(mode_fiq, 13): offset_fiq - 8 \
+	case reg_id(mode_fiq, 14): offset_fiq - 8 \
+	case reg_id(mode_irq, 13): offset_irq - 13 \
+	case reg_id(mode_irq, 14): offset_irq - 13 \
+	case reg_id(mode_svc, 13): offset_svc - 13 \
+	case reg_id(mode_svc, 14): offset_svc - 13 \
+	case reg_id(mode_abt, 13): offset_abt - 13 \
+	case reg_id(mode_abt, 14): offset_abt - 13 \
+	case reg_id(mode_und, 13): offset_und - 13 \
+	case reg_id(mode_und, 14): offset_und - 13 \
+	default: 0 \
+	}
+
+macro Get_ARM_GPR(r) = GPR[r + reg_offset(r)]
+macro Set_ARM_GPR(r, v) = if r == 15 then NPC = v; else GPR[r + reg_offset(r)] = v; endif
+
+
+
+// Current Program Status Register
+reg Ucpsr [1, u32]
+	debug = 1
+	label = "CPSR"
+	fmt = "CPSR"
+reg CPSR [1, u32] alias = Ucpsr
+
+
+// Saved SR
+reg Uspsr [SPSRNum, u32]
+reg SPSR_svc [1, u32] alias = Uspsr[0]
+
+macro GetSPSR() = \
+	switch (MBITS) { \
+		case mode_user: 		Uspsr[0] \
+		case mode_supervisor: 	Uspsr[0] \
+		case mode_abort:      	Uspsr[1] \
+		case mode_undefined:  	Uspsr[2] \
+		case mode_IRQ:        	Uspsr[3] \
+		case mode_FIQ:        	Uspsr[4] \
+		default:              	0 \
+	}
+
+macro SetSPSR(x) = \
+	switch (MBITS) { \
+		case mode_user: 		Uspsr[0] = x; \
+		case mode_supervisor: 	Uspsr[0] = x; \
+		case mode_abort:      	Uspsr[1] = x; \
+		case mode_undefined:  	Uspsr[2] = x; \
+		case mode_IRQ:        	Uspsr[3] = x; \
+		case mode_FIQ:        	Uspsr[4] = x; \
+	}
+
+
+// access to SR flags
+reg NFLAG [1, u1] alias  = Ucpsr<31..31>	// N=1 if the result is negative, N=0 if it is positive or zero
+reg ZFLAG [1, u1] alias  = Ucpsr<30..30>	//Z=1 if the result of the instruction is zero and to 0 otherwise
+reg CFLAG [1, u1] alias  = Ucpsr<29..29>
+	//(*)For an addition C is set to 1 if the addition produced a carry and to 0 otherwise
+	//(*)For a substraction C is set to 0 if the substraction produced a borrow and to 1 otherwise
+	//(*)For an operation that incorporate a shift operation C is set to the last u1 shifted out  of the value by the shifter
+	//(*)Else C is normally unchanged.
+reg VFLAG [1, u1] alias  = Ucpsr<28..28>
+	//(*) For an addition V is set to 1 if signed overflow occured
+	//(*) Else V is normally unchanged
+reg QFLAG [1, u1] alias  = Ucpsr<27..27>	//Indicate if an overflow and/or saturation has occured in the DSP instruction
+
+reg EBIT [1, u1]  alias  = CPSR<9..9>		// ARM v6, load/store endianness (1 big, 0 little)
+reg ABIT [1, u1]  alias  = CPSR<8..8>		// ARM v6, 
+reg IFLAG [1, u1] alias  = Ucpsr<7..7>		//Disable IRQ interrupts when it is set
+reg FFLAG [1, u1] alias  = Ucpsr<6..6>		//Disable FIQ interrupts whenit is set
+reg TFLAG [1, u1] alias	 = Ucpsr<5..5>		//If T=0 Indicates ARM execution else if T=1 indicates Thumb execution
+reg TBIT [1, u1]  alias	 = Ucpsr<5..5>
+reg MBITS [1, u5] alias  = Ucpsr<4..0>		//Determine the mode in which the processor operates
+
+
+// Memory
+mem M 	[32, u8]  				// 8-bits word memory
+mem M16 [32, u16] alias = M[0]	// 16-bits word memory alias
+mem M32 [32, u32] alias = M[0]	// 32-bits word memory alias
+
+macro SetWord(BASE_ADDR,data) = M32[BASE_ADDR] = data
+macro GetWord(BASE_ADDR) = M32[BASE_ADDR] 
+macro SetHalfWord(BASE_ADDR,data) = M16[BASE_ADDR] = data
+macro GetHalfWord(BASE_ADDR) = M16[BASE_ADDR]
+
+
+// temporaries
+var Temp[1,u32]
+reg SBIT[1,u1]
+reg MSBIT[1,u1]
+reg LBIT[1,u1]
+reg HBIT[1,u1]
+reg B15SET[1,u1]
+
+//Bits for Load/Store instructions
+reg BBIT[1,u1]
+reg IBIT[1,u1]
+reg PBIT[1,u1]
+reg UBIT[1,u1]
+reg WBIT[1,u1]
+
+reg PSRFMODE[1,u1]
+reg PSRSMODE[1,u1]
+reg PSRXMODE[1,u1]
+reg PSRCMODE[1,u1]
+
+reg RBIT[1,u1]
+
+
+// R for debugging
+reg R[16, u32]
+	alias = GPR[0]
+	debug = 1
+	label = "Registers"
+	fmt = "R%d"
+	get = { "GLISS_GET_I"(Get_ARM_GPR("GLISS_IDX"));  }
+	set = { Set_ARM_GPR("GLISS_IDX", "GLISS_I");  }
+
+
+// initialisation
+op init ()
+	action = { 
+		PC = 0x2000;
+		GPR[14]=0x2000;
+		GPR[13]=0x800; 
+		GPR[21]=0x600; 
+		GPR[23]=0x400; 
+		GPR[25]=0x200;    
+		GPR[27]=0x1000; 
+		GPR[29]=0x1200; 
+
+		Ucpsr = mode_supervisor;	//CPSR in SuperVisor mode   
+		TFLAG = 0;
+		
+		// sp init for validator (same value as gdb)
+		GPR[13 + 10] = 0x800;
+	 }
+

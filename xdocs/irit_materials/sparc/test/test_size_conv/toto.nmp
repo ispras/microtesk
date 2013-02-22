@@ -1,0 +1,188 @@
+let proc	= "toto"
+let bit_order	= "uppermost"
+let gliss_isize = "16"
+
+type c1		= card(1)
+type c13	= card(13)
+type c27	= card(27)
+type c46	= card(46)
+
+type i1		= int(1)
+type i13	= int(13)
+type i27	= int(27)
+type i46	= int(46)
+
+type c8		= card(8)
+type c16	= card(16)
+type c32	= card(32)
+type c64	= card(64)
+
+type i8		= int(8)
+type i16	= int(16)
+type i32	= int(32)
+type i64	= int(64)
+
+let MEM_ADDR_SIZE	= 16
+
+mem M	[ MEM_ADDR_SIZE, c8 ]
+mem M16 [ MEM_ADDR_SIZE >> 1, c16 ] alias = M[0]
+mem M32 [ MEM_ADDR_SIZE >> 2, c32 ] alias = M[0]
+mem M64 [ MEM_ADDR_SIZE >> 3, c64 ] alias = M[0]
+
+reg R	[ 32, c32 ]
+reg PC	[ 1, c32 ]	__attr(pc)
+reg NPC	[ 1, c32 ]	__attr(npc)
+
+var u1	[1, c1]
+var u13	[1, c13]
+var u27	[1, c27]
+var u46	[1, c46]
+
+var s1	[1, i1]
+var s13	[1, i13]
+var s27	[1, i27]
+var s46	[1, i46]
+
+var u8	[1, c8]
+var u16	[1, c16]
+var u32	[1, c32]
+var u64 [1, c64]
+
+var s8	[1, i8]
+var s16	[1, i16]
+var s32	[1, i32]
+var s64 [1, i64]
+
+
+op init()
+action = { }
+
+
+op instruction (x : allinstr)
+syntax = x.syntax
+image = x.image
+action = { x.action; }
+
+
+op allinstr  =
+		op1 | op2
+
+
+op op1()
+syntax = "test_mem"
+image = "1100 0000 1111 1111"
+action =
+	{
+		M[R[4]] = u8;
+		M16[R[4]] = u16;
+		M32[R[4]] = u32;
+		M64[R[4]] = u64;
+		
+		u8 = M[R[5]];
+		u16 = M16[R[5]];
+		u32 = M32[R[5]];
+		u64 = M64[R[5]];
+	}
+
+
+op op2()
+syntax = "test_conv"
+image = "1101 0000 1111 1111"
+action = 
+	{
+		u8 = u1;
+		u8 = s1;
+		u8 = -23;
+		s8 = u1;
+		s8 = s1;
+		s8 = -23;
+		
+		u13 = u1;
+		u13 = s1;
+		u13 = -23;
+		s13 = u1;
+		s13 = s1;
+		s13 = -23;
+		
+		u16 = u1;
+		u16 = s1;
+		u16 = -23;
+		s16 = u1;
+		s16 = s1;
+		s16 = -23;
+		
+		u32 = u1;
+		u32 = s1;
+		u32 = -23;
+		s32 = u1;
+		s32 = s1;
+		s32 = -23;
+		
+		u64 = u1;
+		u64 = s1;
+		u64 = -23;
+		s64 = u1;
+		s64 = s1;
+		s64 = -23;
+
+		
+		u16 = u13;
+		u16 = s13;
+		u16 = -23;
+		s16 = u13;
+		s16 = s13;
+		s16 = -23;
+
+		
+		u27 = u13;
+		u27 = s13;
+		u27 = -23;
+		s27 = u13;
+		s27 = s13;
+		s27 = -23;
+		
+		u32 = u13;
+		u32 = s13;
+		u32 = -23;
+		s32 = u13;
+		s32 = s13;
+		s32 = -23;
+		
+		u64 = u13;
+		u64 = s13;
+		u64 = -23;
+		s64 = u13;
+		s64 = s13;
+		s64 = -23;
+
+		
+		u32 = u27;
+		u32 = s27;
+		u32 = -23;
+		s32 = u27;
+		s32 = s27;
+		s32 = -23;
+		
+		u46 = u27;
+		u46 = s27;
+		u46 = -23;
+		s46 = u27;
+		s46 = s27;
+		s46 = -23;
+		
+		u64 = u27;
+		u64 = s27;
+		u64 = -23;
+		s64 = u27;
+		s64 = s27;
+		s64 = -23;
+		
+
+		
+		u64 = u46;
+		u64 = s46;
+		u64 = -23;
+		s64 = u46;
+		s64 = s46;
+		s64 = -23;
+	}

@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2012 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * Instruction.stg, Dec 7, 2012 3:29:34 PM Andrei Tatarnikov
+ */
+ 
+group Instruction;
+
+instruction(name, class_name, file, pack, imps, simps, base, param_names, param_type_names, op_tree) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<if(simps)><static_imports(simps)><endif>
+<class(["public", "final"],
+       class_name,
+       base,
+       false,
+       body(name, class_name, param_names, param_type_names, op_tree))> 
+>>
+
+body(name, class_name, param_names, param_type_names, op_tree) ::= <<
+<class_string_const("String", "NAME", name)><\n>
+<instruction_params(param_names, param_type_names)><\n>
+<instruction_constructor(class_name)><\n>
+<instruction_call_factory_method()><\n>
+<instruction_call_builder(param_names, op_tree)>
+>>
+
+instruction_params(param_names, param_type_names) ::= <<
+public static final ParamDecl[] PARAMS = new ParamDecl[] 
+{
+   <param_names, param_type_names:{n, tn | <instruction_param_def(n, tn)>}; separator=",\n">
+};
+>>
+
+instruction_param_def(n, tn) ::= <<new ParamDecl("<n>", <tn>)>>
+
+instruction_constructor(name) ::= <<
+public <name>()
+{
+    super(NAME, PARAMS);
+}
+>>
+
+instruction_call_factory_method() ::= <<
+@Override
+public IInstructionCallBuilderEx createCallBuilder()
+{
+    return new Builder(); 
+}
+>>
+
+instruction_call_builder(param_names, op_tree) ::= <<
+<class(["private"], 
+       "Builder",
+       "CallBuilderBase",
+       false,
+       instruction_call_builder_body(param_names, op_tree))> 
+>>
+
+instruction_call_builder_body(param_names, op_tree) ::= <<
+public Builder()
+{
+    super(PARAMS);
+}
+
+@Override
+public IInstructionCall getCall() throws ConfigurationException
+{
+    <param_names:instruction_get_param(); separator="\n">
+
+    return new InstructionCall(
+        <op_tree>
+    );
+}
+>>
+
+instruction_get_param(n) ::= <<final IAddressingMode <n> = getArgument("<n>");>>
+
+instruction_operation(name, params) ::= <<
+new <name>(<if(params)><\n><params:instruction_parameter(); separator=",\n"><\n><endif>)
+>>
+
+instruction_parameter(p) ::= <<
+    <p>
+>>

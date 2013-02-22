@@ -1,0 +1,69 @@
+/*
+ * Copyright (c) 2012 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * Operation.stg, Dec 7, 2012 3:27:59 PM Andrei Tatarnikov
+ */
+ 
+group Operation;
+
+op(name, file, pack, imps, simps, base, arg_names, arg_types, arg_checks, attrs) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<if(simps)><static_imports(simps)><endif>
+<class(["public", "final"],
+       name,
+       base,
+       false,
+       body(name, arg_names, arg_types, arg_checks, attrs))>
+>>
+
+body(name, arg_names, arg_types, arg_checks, attrs) ::= <<
+<class_string_const("String", "NAME", name)><\n>
+<class_const("IInfo", "INFO", new_op_info(name))><\n>
+<op_constructor(name, arg_names, arg_types, arg_checks)><\n>
+<attrs; separator="\n\n">
+>>
+
+new_op_info(name) ::= <<
+new Info(<name>.class, NAME)
+>>
+
+op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
+<if(arg_names)><arg_names, arg_types:{n, t | <op_arg_def(n, t)>}; separator="\n"><\n><endif>
+public <name>(<arg_names, arg_types:{n, t | <t> <n>}; separator=", ">)
+{
+<if(arg_checks)><arg_checks; separator="\n"><\n><endif>
+<arg_names:op_arg_init(); separator="\n">
+}
+>>
+
+op_arg_def(name, type) ::= <<
+private final <type> <name>;
+>>
+
+op_arg_check_opmode(arg_type, arg_name) ::= <<
+    assert <arg_type>.INFO.isSupported(<arg_name>);
+>>
+
+op_arg_check_imm(arg_type, arg_name) ::= <<
+    assert <arg_type>.equals(<arg_name>.getType());
+>>
+
+op_arg_init(name) ::= <<
+    this.<name> = <name>;
+>>
+
+op_attribute(name, rettype, stmts) ::= <<
+@Override
+public <rettype> <name>()
+{
+    <stmts; separator="\n">
+}
+>>

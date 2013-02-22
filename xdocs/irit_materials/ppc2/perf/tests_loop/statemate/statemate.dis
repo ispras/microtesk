@@ -1,0 +1,3770 @@
+
+/home/vaillant/ppc2/perf/malardalen/ppc-eabi/gcc-4.4.2/statemate/statemate.elf:     file format elf32-powerpc
+
+
+Disassembly of section .init:
+
+01800094 <__init>:
+ 1800094:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1800098:	7c 08 02 a6 	mflr    r0
+ 180009c:	90 01 00 14 	stw     r0,20(r1)
+ 18000a0:	48 00 00 f9 	bl      1800198 <frame_dummy>
+ 18000a4:	48 00 39 81 	bl      1803a24 <__do_global_ctors_aux>
+ 18000a8:	80 01 00 14 	lwz     r0,20(r1)
+ 18000ac:	7c 08 03 a6 	mtlr    r0
+ 18000b0:	38 21 00 10 	addi    r1,r1,16
+ 18000b4:	4e 80 00 20 	blr
+
+Disassembly of section .text:
+
+018000b8 <__do_global_dtors_aux>:
+ 18000b8:	94 21 ff e8 	stwu    r1,-24(r1)
+ 18000bc:	7c 08 02 a6 	mflr    r0
+ 18000c0:	93 e1 00 14 	stw     r31,20(r1)
+ 18000c4:	3f e0 01 81 	lis     r31,385
+ 18000c8:	90 01 00 1c 	stw     r0,28(r1)
+ 18000cc:	88 1f 3d 74 	lbz     r0,15732(r31)
+ 18000d0:	93 81 00 08 	stw     r28,8(r1)
+ 18000d4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18000d8:	93 a1 00 0c 	stw     r29,12(r1)
+ 18000dc:	93 c1 00 10 	stw     r30,16(r1)
+ 18000e0:	40 9e 00 7c 	bne-    cr7,180015c <__do_global_dtors_aux+0xa4>
+ 18000e4:	3f 80 01 81 	lis     r28,385
+ 18000e8:	3f a0 01 81 	lis     r29,385
+ 18000ec:	3b 9c 3c 60 	addi    r28,r28,15456
+ 18000f0:	3b bd 3c 64 	addi    r29,r29,15460
+ 18000f4:	7f bc e8 50 	subf    r29,r28,r29
+ 18000f8:	3f c0 01 81 	lis     r30,385
+ 18000fc:	7f bd 16 70 	srawi   r29,r29,2
+ 1800100:	81 3e 3d 78 	lwz     r9,15736(r30)
+ 1800104:	3b bd ff ff 	addi    r29,r29,-1
+ 1800108:	7f 89 e8 40 	cmplw   cr7,r9,r29
+ 180010c:	40 9c 00 2c 	bge-    cr7,1800138 <__do_global_dtors_aux+0x80>
+ 1800110:	3b de 3d 78 	addi    r30,r30,15736
+ 1800114:	39 29 00 01 	addi    r9,r9,1
+ 1800118:	55 20 10 3a 	rlwinm  r0,r9,2,0,29
+ 180011c:	91 3e 00 00 	stw     r9,0(r30)
+ 1800120:	7c 1c 00 2e 	lwzx    r0,r28,r0
+ 1800124:	7c 09 03 a6 	mtctr   r0
+ 1800128:	4e 80 04 21 	bctrl
+ 180012c:	81 3e 00 00 	lwz     r9,0(r30)
+ 1800130:	7f 89 e8 40 	cmplw   cr7,r9,r29
+ 1800134:	41 9c ff e0 	blt+    cr7,1800114 <__do_global_dtors_aux+0x5c>
+ 1800138:	3d 20 00 00 	lis     r9,0
+ 180013c:	38 09 00 00 	addi    r0,r9,0
+ 1800140:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800144:	41 9e 00 10 	beq-    cr7,1800154 <__do_global_dtors_aux+0x9c>
+ 1800148:	3c 60 01 81 	lis     r3,385
+ 180014c:	38 63 3b 24 	addi    r3,r3,15140
+ 1800150:	4a 7f fe b1 	bl      0 <__init-0x1800094>
+ 1800154:	38 00 00 01 	li      r0,1
+ 1800158:	98 1f 3d 74 	stb     r0,15732(r31)
+ 180015c:	80 01 00 1c 	lwz     r0,28(r1)
+ 1800160:	83 81 00 08 	lwz     r28,8(r1)
+ 1800164:	7c 08 03 a6 	mtlr    r0
+ 1800168:	83 a1 00 0c 	lwz     r29,12(r1)
+ 180016c:	83 c1 00 10 	lwz     r30,16(r1)
+ 1800170:	83 e1 00 14 	lwz     r31,20(r1)
+ 1800174:	38 21 00 18 	addi    r1,r1,24
+ 1800178:	4e 80 00 20 	blr
+
+0180017c <call___do_global_dtors_aux>:
+ 180017c:	7c 08 02 a6 	mflr    r0
+ 1800180:	94 21 ff f8 	stwu    r1,-8(r1)
+ 1800184:	90 01 00 0c 	stw     r0,12(r1)
+ 1800188:	80 01 00 0c 	lwz     r0,12(r1)
+ 180018c:	38 21 00 08 	addi    r1,r1,8
+ 1800190:	7c 08 03 a6 	mtlr    r0
+ 1800194:	4e 80 00 20 	blr
+
+01800198 <frame_dummy>:
+ 1800198:	7c 08 02 a6 	mflr    r0
+ 180019c:	94 21 ff f8 	stwu    r1,-8(r1)
+ 18001a0:	3d 20 00 00 	lis     r9,0
+ 18001a4:	90 01 00 0c 	stw     r0,12(r1)
+ 18001a8:	38 09 00 00 	addi    r0,r9,0
+ 18001ac:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18001b0:	41 9e 00 18 	beq-    cr7,18001c8 <frame_dummy+0x30>
+ 18001b4:	3c 60 01 81 	lis     r3,385
+ 18001b8:	3c 80 01 81 	lis     r4,385
+ 18001bc:	38 63 3b 24 	addi    r3,r3,15140
+ 18001c0:	38 84 3d 7c 	addi    r4,r4,15740
+ 18001c4:	4a 7f fe 3d 	bl      0 <__init-0x1800094>
+ 18001c8:	3c 60 01 81 	lis     r3,385
+ 18001cc:	80 03 3c 68 	lwz     r0,15464(r3)
+ 18001d0:	38 63 3c 68 	addi    r3,r3,15464
+ 18001d4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18001d8:	41 9e 00 1c 	beq-    cr7,18001f4 <frame_dummy+0x5c>
+ 18001dc:	3d 20 00 00 	lis     r9,0
+ 18001e0:	38 09 00 00 	addi    r0,r9,0
+ 18001e4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18001e8:	41 9e 00 0c 	beq-    cr7,18001f4 <frame_dummy+0x5c>
+ 18001ec:	7c 09 03 a6 	mtctr   r0
+ 18001f0:	4e 80 04 21 	bctrl
+ 18001f4:	80 01 00 0c 	lwz     r0,12(r1)
+ 18001f8:	38 21 00 08 	addi    r1,r1,8
+ 18001fc:	7c 08 03 a6 	mtlr    r0
+ 1800200:	4e 80 00 20 	blr
+
+01800204 <call_frame_dummy>:
+ 1800204:	7c 08 02 a6 	mflr    r0
+ 1800208:	94 21 ff f8 	stwu    r1,-8(r1)
+ 180020c:	90 01 00 0c 	stw     r0,12(r1)
+ 1800210:	80 01 00 0c 	lwz     r0,12(r1)
+ 1800214:	38 21 00 08 	addi    r1,r1,8
+ 1800218:	7c 08 03 a6 	mtlr    r0
+ 180021c:	4e 80 00 20 	blr
+
+01800220 <interface>:
+ 1800220:	94 21 ff c8 	stwu    r1,-56(r1)
+ 1800224:	93 e1 00 34 	stw     r31,52(r1)
+ 1800228:	7c 3f 0b 78 	mr      r31,r1
+ 180022c:	3c 00 01 81 	lis     r0,385
+ 1800230:	30 00 3d 94 	addic   r0,r0,15764
+ 1800234:	7c 09 03 78 	mr      r9,r0
+ 1800238:	88 09 00 04 	lbz     r0,4(r9)
+ 180023c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800240:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800244:	41 9e 00 1c 	beq-    cr7,1800260 <interface+0x40>
+ 1800248:	3c 00 01 81 	lis     r0,385
+ 180024c:	7c 0b 03 78 	mr      r11,r0
+ 1800250:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1800254:	3c 00 01 81 	lis     r0,385
+ 1800258:	7c 0b 03 78 	mr      r11,r0
+ 180025c:	91 2b 3c 9c 	stw     r9,15516(r11)
+ 1800260:	3c 00 01 81 	lis     r0,385
+ 1800264:	30 00 3d 94 	addic   r0,r0,15764
+ 1800268:	7c 09 03 78 	mr      r9,r0
+ 180026c:	88 09 00 04 	lbz     r0,4(r9)
+ 1800270:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800274:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800278:	40 9e 00 20 	bne-    cr7,1800298 <interface+0x78>
+ 180027c:	3c 00 01 81 	lis     r0,385
+ 1800280:	30 00 3d 94 	addic   r0,r0,15764
+ 1800284:	7c 0b 03 78 	mr      r11,r0
+ 1800288:	88 0b 00 06 	lbz     r0,6(r11)
+ 180028c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800290:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800294:	41 9e 00 1c 	beq-    cr7,18002b0 <interface+0x90>
+ 1800298:	3c 00 01 81 	lis     r0,385
+ 180029c:	7c 0b 03 78 	mr      r11,r0
+ 18002a0:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 18002a4:	3c 00 01 81 	lis     r0,385
+ 18002a8:	7c 0b 03 78 	mr      r11,r0
+ 18002ac:	91 2b 3c b0 	stw     r9,15536(r11)
+ 18002b0:	3c 00 01 81 	lis     r0,385
+ 18002b4:	7c 09 03 78 	mr      r9,r0
+ 18002b8:	80 09 3d 24 	lwz     r0,15652(r9)
+ 18002bc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18002c0:	41 9e 00 84 	beq-    cr7,1800344 <interface+0x124>
+ 18002c4:	3c 00 01 81 	lis     r0,385
+ 18002c8:	7c 0b 03 78 	mr      r11,r0
+ 18002cc:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 18002d0:	3c 00 01 81 	lis     r0,385
+ 18002d4:	7c 0b 03 78 	mr      r11,r0
+ 18002d8:	80 0b 3d 24 	lwz     r0,15652(r11)
+ 18002dc:	7d 20 48 50 	subf    r9,r0,r9
+ 18002e0:	3c 00 43 30 	lis     r0,17200
+ 18002e4:	3d 60 01 80 	lis     r11,384
+ 18002e8:	c8 0b 3a b0 	lfd     f0,15024(r11)
+ 18002ec:	91 3f 00 0c 	stw     r9,12(r31)
+ 18002f0:	90 1f 00 08 	stw     r0,8(r31)
+ 18002f4:	c9 bf 00 08 	lfd     f13,8(r31)
+ 18002f8:	fd ad 00 28 	fsub    f13,f13,f0
+ 18002fc:	3c 00 01 80 	lis     r0,384
+ 1800300:	7c 09 03 78 	mr      r9,r0
+ 1800304:	c8 09 3a b8 	lfd     f0,15032(r9)
+ 1800308:	ff 8d 00 00 	fcmpu   cr7,f13,f0
+ 180030c:	4f dd f3 82 	cror    4*cr7+eq,4*cr7+gt,4*cr7+eq
+ 1800310:	7c 00 00 26 	mfcr    r0
+ 1800314:	54 00 ff fe 	rlwinm  r0,r0,31,31,31
+ 1800318:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180031c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800320:	41 9e 00 24 	beq-    cr7,1800344 <interface+0x124>
+ 1800324:	3c 00 01 81 	lis     r0,385
+ 1800328:	39 20 00 00 	li      r9,0
+ 180032c:	7c 0b 03 78 	mr      r11,r0
+ 1800330:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1800334:	3c 00 01 81 	lis     r0,385
+ 1800338:	39 20 00 00 	li      r9,0
+ 180033c:	7c 0b 03 78 	mr      r11,r0
+ 1800340:	91 2b 3d 24 	stw     r9,15652(r11)
+ 1800344:	3c 00 01 81 	lis     r0,385
+ 1800348:	7c 09 03 78 	mr      r9,r0
+ 180034c:	80 09 3c cc 	lwz     r0,15564(r9)
+ 1800350:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800354:	41 9e 00 84 	beq-    cr7,18003d8 <interface+0x1b8>
+ 1800358:	3c 00 01 81 	lis     r0,385
+ 180035c:	7c 0b 03 78 	mr      r11,r0
+ 1800360:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1800364:	3c 00 01 81 	lis     r0,385
+ 1800368:	7c 0b 03 78 	mr      r11,r0
+ 180036c:	80 0b 3c cc 	lwz     r0,15564(r11)
+ 1800370:	7d 20 48 50 	subf    r9,r0,r9
+ 1800374:	3c 00 43 30 	lis     r0,17200
+ 1800378:	3d 60 01 80 	lis     r11,384
+ 180037c:	c8 0b 3a b0 	lfd     f0,15024(r11)
+ 1800380:	91 3f 00 14 	stw     r9,20(r31)
+ 1800384:	90 1f 00 10 	stw     r0,16(r31)
+ 1800388:	c9 bf 00 10 	lfd     f13,16(r31)
+ 180038c:	fd ad 00 28 	fsub    f13,f13,f0
+ 1800390:	3c 00 01 80 	lis     r0,384
+ 1800394:	7c 09 03 78 	mr      r9,r0
+ 1800398:	c8 09 3a b8 	lfd     f0,15032(r9)
+ 180039c:	ff 8d 00 00 	fcmpu   cr7,f13,f0
+ 18003a0:	4f dd f3 82 	cror    4*cr7+eq,4*cr7+gt,4*cr7+eq
+ 18003a4:	7c 00 00 26 	mfcr    r0
+ 18003a8:	54 00 ff fe 	rlwinm  r0,r0,31,31,31
+ 18003ac:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18003b0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18003b4:	41 9e 00 24 	beq-    cr7,18003d8 <interface+0x1b8>
+ 18003b8:	3c 00 01 81 	lis     r0,385
+ 18003bc:	39 20 00 00 	li      r9,0
+ 18003c0:	7c 0b 03 78 	mr      r11,r0
+ 18003c4:	99 2b 3c ae 	stb     r9,15534(r11)
+ 18003c8:	3c 00 01 81 	lis     r0,385
+ 18003cc:	39 20 00 00 	li      r9,0
+ 18003d0:	7c 0b 03 78 	mr      r11,r0
+ 18003d4:	91 2b 3c cc 	stw     r9,15564(r11)
+ 18003d8:	3c 00 01 81 	lis     r0,385
+ 18003dc:	7c 09 03 78 	mr      r9,r0
+ 18003e0:	80 09 3d 54 	lwz     r0,15700(r9)
+ 18003e4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18003e8:	41 9e 00 84 	beq-    cr7,180046c <interface+0x24c>
+ 18003ec:	3c 00 01 81 	lis     r0,385
+ 18003f0:	7c 0b 03 78 	mr      r11,r0
+ 18003f4:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 18003f8:	3c 00 01 81 	lis     r0,385
+ 18003fc:	7c 0b 03 78 	mr      r11,r0
+ 1800400:	80 0b 3d 54 	lwz     r0,15700(r11)
+ 1800404:	7d 20 48 50 	subf    r9,r0,r9
+ 1800408:	3c 00 43 30 	lis     r0,17200
+ 180040c:	3d 60 01 80 	lis     r11,384
+ 1800410:	c8 0b 3a b0 	lfd     f0,15024(r11)
+ 1800414:	91 3f 00 1c 	stw     r9,28(r31)
+ 1800418:	90 1f 00 18 	stw     r0,24(r31)
+ 180041c:	c9 bf 00 18 	lfd     f13,24(r31)
+ 1800420:	fd ad 00 28 	fsub    f13,f13,f0
+ 1800424:	3c 00 01 80 	lis     r0,384
+ 1800428:	7c 09 03 78 	mr      r9,r0
+ 180042c:	c8 09 3a b8 	lfd     f0,15032(r9)
+ 1800430:	ff 8d 00 00 	fcmpu   cr7,f13,f0
+ 1800434:	4f dd f3 82 	cror    4*cr7+eq,4*cr7+gt,4*cr7+eq
+ 1800438:	7c 00 00 26 	mfcr    r0
+ 180043c:	54 00 ff fe 	rlwinm  r0,r0,31,31,31
+ 1800440:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800444:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800448:	41 9e 00 24 	beq-    cr7,180046c <interface+0x24c>
+ 180044c:	3c 00 01 81 	lis     r0,385
+ 1800450:	39 20 00 00 	li      r9,0
+ 1800454:	7c 0b 03 78 	mr      r11,r0
+ 1800458:	99 2b 3c ae 	stb     r9,15534(r11)
+ 180045c:	3c 00 01 81 	lis     r0,385
+ 1800460:	39 20 00 00 	li      r9,0
+ 1800464:	7c 0b 03 78 	mr      r11,r0
+ 1800468:	91 2b 3d 54 	stw     r9,15700(r11)
+ 180046c:	3c 00 01 81 	lis     r0,385
+ 1800470:	7c 09 03 78 	mr      r9,r0
+ 1800474:	80 09 3d 30 	lwz     r0,15664(r9)
+ 1800478:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180047c:	41 9e 00 74 	beq-    cr7,18004f0 <interface+0x2d0>
+ 1800480:	3c 00 01 81 	lis     r0,385
+ 1800484:	7c 0b 03 78 	mr      r11,r0
+ 1800488:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 180048c:	3c 00 01 81 	lis     r0,385
+ 1800490:	7c 0b 03 78 	mr      r11,r0
+ 1800494:	80 0b 3d 30 	lwz     r0,15664(r11)
+ 1800498:	7d 20 48 50 	subf    r9,r0,r9
+ 180049c:	3c 00 43 30 	lis     r0,17200
+ 18004a0:	3d 60 01 80 	lis     r11,384
+ 18004a4:	c8 0b 3a b0 	lfd     f0,15024(r11)
+ 18004a8:	91 3f 00 24 	stw     r9,36(r31)
+ 18004ac:	90 1f 00 20 	stw     r0,32(r31)
+ 18004b0:	c9 bf 00 20 	lfd     f13,32(r31)
+ 18004b4:	fd ad 00 28 	fsub    f13,f13,f0
+ 18004b8:	3c 00 01 80 	lis     r0,384
+ 18004bc:	7c 09 03 78 	mr      r9,r0
+ 18004c0:	c8 09 3a b8 	lfd     f0,15032(r9)
+ 18004c4:	ff 8d 00 00 	fcmpu   cr7,f13,f0
+ 18004c8:	4f dd f3 82 	cror    4*cr7+eq,4*cr7+gt,4*cr7+eq
+ 18004cc:	7c 00 00 26 	mfcr    r0
+ 18004d0:	54 00 ff fe 	rlwinm  r0,r0,31,31,31
+ 18004d4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18004d8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18004dc:	41 9e 00 14 	beq-    cr7,18004f0 <interface+0x2d0>
+ 18004e0:	3c 00 01 81 	lis     r0,385
+ 18004e4:	39 20 00 00 	li      r9,0
+ 18004e8:	7c 0b 03 78 	mr      r11,r0
+ 18004ec:	91 2b 3d 30 	stw     r9,15664(r11)
+ 18004f0:	3c 00 01 81 	lis     r0,385
+ 18004f4:	7c 09 03 78 	mr      r9,r0
+ 18004f8:	80 09 3d 1c 	lwz     r0,15644(r9)
+ 18004fc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800500:	41 9e 00 74 	beq-    cr7,1800574 <interface+0x354>
+ 1800504:	3c 00 01 81 	lis     r0,385
+ 1800508:	7c 0b 03 78 	mr      r11,r0
+ 180050c:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1800510:	3c 00 01 81 	lis     r0,385
+ 1800514:	7c 0b 03 78 	mr      r11,r0
+ 1800518:	80 0b 3d 1c 	lwz     r0,15644(r11)
+ 180051c:	7d 20 48 50 	subf    r9,r0,r9
+ 1800520:	3c 00 43 30 	lis     r0,17200
+ 1800524:	3d 60 01 80 	lis     r11,384
+ 1800528:	c8 0b 3a b0 	lfd     f0,15024(r11)
+ 180052c:	91 3f 00 2c 	stw     r9,44(r31)
+ 1800530:	90 1f 00 28 	stw     r0,40(r31)
+ 1800534:	c9 bf 00 28 	lfd     f13,40(r31)
+ 1800538:	fd ad 00 28 	fsub    f13,f13,f0
+ 180053c:	3c 00 01 80 	lis     r0,384
+ 1800540:	7c 09 03 78 	mr      r9,r0
+ 1800544:	c8 09 3a b8 	lfd     f0,15032(r9)
+ 1800548:	ff 8d 00 00 	fcmpu   cr7,f13,f0
+ 180054c:	4f dd f3 82 	cror    4*cr7+eq,4*cr7+gt,4*cr7+eq
+ 1800550:	7c 00 00 26 	mfcr    r0
+ 1800554:	54 00 ff fe 	rlwinm  r0,r0,31,31,31
+ 1800558:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180055c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800560:	41 9e 00 14 	beq-    cr7,1800574 <interface+0x354>
+ 1800564:	3c 00 01 81 	lis     r0,385
+ 1800568:	39 20 00 00 	li      r9,0
+ 180056c:	7c 0b 03 78 	mr      r11,r0
+ 1800570:	91 2b 3d 1c 	stw     r9,15644(r11)
+ 1800574:	3c 00 01 81 	lis     r0,385
+ 1800578:	30 00 3d 94 	addic   r0,r0,15764
+ 180057c:	7c 09 03 78 	mr      r9,r0
+ 1800580:	88 09 00 00 	lbz     r0,0(r9)
+ 1800584:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800588:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180058c:	40 9e 00 24 	bne-    cr7,18005b0 <interface+0x390>
+ 1800590:	3c 00 01 81 	lis     r0,385
+ 1800594:	7c 0b 03 78 	mr      r11,r0
+ 1800598:	81 2b 3c f0 	lwz     r9,15600(r11)
+ 180059c:	3c 00 01 81 	lis     r0,385
+ 18005a0:	7c 0b 03 78 	mr      r11,r0
+ 18005a4:	80 0b 3c d4 	lwz     r0,15572(r11)
+ 18005a8:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 18005ac:	41 9e 00 1c 	beq-    cr7,18005c8 <interface+0x3a8>
+ 18005b0:	3c 00 01 81 	lis     r0,385
+ 18005b4:	7c 0b 03 78 	mr      r11,r0
+ 18005b8:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 18005bc:	3c 00 01 81 	lis     r0,385
+ 18005c0:	7c 0b 03 78 	mr      r11,r0
+ 18005c4:	91 2b 3c fc 	stw     r9,15612(r11)
+ 18005c8:	39 7f 00 38 	addi    r11,r31,56
+ 18005cc:	83 eb ff fc 	lwz     r31,-4(r11)
+ 18005d0:	7d 61 5b 78 	mr      r1,r11
+ 18005d4:	4e 80 00 20 	blr
+
+018005d8 <init>:
+ 18005d8:	94 21 ff f0 	stwu    r1,-16(r1)
+ 18005dc:	93 e1 00 0c 	stw     r31,12(r1)
+ 18005e0:	7c 3f 0b 78 	mr      r31,r1
+ 18005e4:	3c 00 01 81 	lis     r0,385
+ 18005e8:	39 20 00 00 	li      r9,0
+ 18005ec:	7c 0b 03 78 	mr      r11,r0
+ 18005f0:	91 2b 3c fc 	stw     r9,15612(r11)
+ 18005f4:	3c 00 01 81 	lis     r0,385
+ 18005f8:	39 20 00 00 	li      r9,0
+ 18005fc:	7c 0b 03 78 	mr      r11,r0
+ 1800600:	91 2b 3c b0 	stw     r9,15536(r11)
+ 1800604:	3c 00 01 81 	lis     r0,385
+ 1800608:	39 20 00 00 	li      r9,0
+ 180060c:	7c 0b 03 78 	mr      r11,r0
+ 1800610:	91 2b 3c 9c 	stw     r9,15516(r11)
+ 1800614:	3c 00 01 81 	lis     r0,385
+ 1800618:	39 20 00 00 	li      r9,0
+ 180061c:	7c 0b 03 78 	mr      r11,r0
+ 1800620:	99 2b 3d 6f 	stb     r9,15727(r11)
+ 1800624:	3c 00 01 81 	lis     r0,385
+ 1800628:	39 20 00 00 	li      r9,0
+ 180062c:	7c 0b 03 78 	mr      r11,r0
+ 1800630:	99 2b 3d 2a 	stb     r9,15658(r11)
+ 1800634:	3c 00 01 81 	lis     r0,385
+ 1800638:	39 20 00 00 	li      r9,0
+ 180063c:	7c 0b 03 78 	mr      r11,r0
+ 1800640:	99 2b 3d 08 	stb     r9,15624(r11)
+ 1800644:	3c 00 01 81 	lis     r0,385
+ 1800648:	39 20 00 00 	li      r9,0
+ 180064c:	7c 0b 03 78 	mr      r11,r0
+ 1800650:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800654:	3c 00 01 81 	lis     r0,385
+ 1800658:	39 20 00 00 	li      r9,0
+ 180065c:	7c 0b 03 78 	mr      r11,r0
+ 1800660:	99 2b 3d 6d 	stb     r9,15725(r11)
+ 1800664:	3c 00 01 81 	lis     r0,385
+ 1800668:	39 20 00 00 	li      r9,0
+ 180066c:	7c 0b 03 78 	mr      r11,r0
+ 1800670:	99 2b 3d 48 	stb     r9,15688(r11)
+ 1800674:	3c 00 01 81 	lis     r0,385
+ 1800678:	39 20 00 00 	li      r9,0
+ 180067c:	7c 0b 03 78 	mr      r11,r0
+ 1800680:	99 2b 3c e0 	stb     r9,15584(r11)
+ 1800684:	3c 00 01 81 	lis     r0,385
+ 1800688:	39 20 00 00 	li      r9,0
+ 180068c:	7c 0b 03 78 	mr      r11,r0
+ 1800690:	99 2b 3c f7 	stb     r9,15607(r11)
+ 1800694:	3c 00 01 81 	lis     r0,385
+ 1800698:	39 20 00 00 	li      r9,0
+ 180069c:	7c 0b 03 78 	mr      r11,r0
+ 18006a0:	99 2b 3c b4 	stb     r9,15540(r11)
+ 18006a4:	3c 00 01 81 	lis     r0,385
+ 18006a8:	39 20 00 00 	li      r9,0
+ 18006ac:	7c 0b 03 78 	mr      r11,r0
+ 18006b0:	99 2b 3c d0 	stb     r9,15568(r11)
+ 18006b4:	3c 00 01 81 	lis     r0,385
+ 18006b8:	39 20 00 00 	li      r9,0
+ 18006bc:	7c 0b 03 78 	mr      r11,r0
+ 18006c0:	99 2b 3c b5 	stb     r9,15541(r11)
+ 18006c4:	3c 00 01 81 	lis     r0,385
+ 18006c8:	39 20 00 00 	li      r9,0
+ 18006cc:	7c 0b 03 78 	mr      r11,r0
+ 18006d0:	99 2b 3c a0 	stb     r9,15520(r11)
+ 18006d4:	3c 00 01 81 	lis     r0,385
+ 18006d8:	39 20 00 00 	li      r9,0
+ 18006dc:	7c 0b 03 78 	mr      r11,r0
+ 18006e0:	99 2b 3d 34 	stb     r9,15668(r11)
+ 18006e4:	3c 00 01 81 	lis     r0,385
+ 18006e8:	39 20 00 00 	li      r9,0
+ 18006ec:	7c 0b 03 78 	mr      r11,r0
+ 18006f0:	99 2b 3d 13 	stb     r9,15635(r11)
+ 18006f4:	3c 00 01 81 	lis     r0,385
+ 18006f8:	39 20 00 00 	li      r9,0
+ 18006fc:	7c 0b 03 78 	mr      r11,r0
+ 1800700:	99 2b 3c b6 	stb     r9,15542(r11)
+ 1800704:	3c 00 01 81 	lis     r0,385
+ 1800708:	39 20 00 00 	li      r9,0
+ 180070c:	7c 0b 03 78 	mr      r11,r0
+ 1800710:	99 2b 3c f5 	stb     r9,15605(r11)
+ 1800714:	39 7f 00 10 	addi    r11,r31,16
+ 1800718:	83 eb ff fc 	lwz     r31,-4(r11)
+ 180071c:	7d 61 5b 78 	mr      r1,r11
+ 1800720:	4e 80 00 20 	blr
+
+01800724 <generic_KINDERSICHERUNG_CTRL>:
+ 1800724:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1800728:	93 e1 00 0c 	stw     r31,12(r1)
+ 180072c:	7c 3f 0b 78 	mr      r31,r1
+ 1800730:	3c 00 01 81 	lis     r0,385
+ 1800734:	30 00 3d 94 	addic   r0,r0,15764
+ 1800738:	7c 09 03 78 	mr      r9,r0
+ 180073c:	88 09 00 0a 	lbz     r0,10(r9)
+ 1800740:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800744:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800748:	41 9e 07 e4 	beq-    cr7,1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 180074c:	3c 00 01 81 	lis     r0,385
+ 1800750:	7c 0b 03 78 	mr      r11,r0
+ 1800754:	88 0b 3d 02 	lbz     r0,15618(r11)
+ 1800758:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180075c:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 1800760:	41 9e 02 5c 	beq-    cr7,18009bc <generic_KINDERSICHERUNG_CTRL+0x298>
+ 1800764:	2f 80 00 03 	cmpwi   cr7,r0,3
+ 1800768:	41 9e 04 9c 	beq-    cr7,1800c04 <generic_KINDERSICHERUNG_CTRL+0x4e0>
+ 180076c:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1800770:	40 9e 07 84 	bne-    cr7,1800ef4 <generic_KINDERSICHERUNG_CTRL+0x7d0>
+ 1800774:	3c 00 01 81 	lis     r0,385
+ 1800778:	7c 09 03 78 	mr      r9,r0
+ 180077c:	88 09 3c f4 	lbz     r0,15604(r9)
+ 1800780:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800784:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800788:	40 9e 00 70 	bne-    cr7,18007f8 <generic_KINDERSICHERUNG_CTRL+0xd4>
+ 180078c:	3c 00 01 81 	lis     r0,385
+ 1800790:	7c 0b 03 78 	mr      r11,r0
+ 1800794:	88 0b 3d 6e 	lbz     r0,15726(r11)
+ 1800798:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180079c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18007a0:	40 9e 00 58 	bne-    cr7,18007f8 <generic_KINDERSICHERUNG_CTRL+0xd4>
+ 18007a4:	3c 00 01 81 	lis     r0,385
+ 18007a8:	39 20 00 00 	li      r9,0
+ 18007ac:	7c 0b 03 78 	mr      r11,r0
+ 18007b0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18007b4:	3c 00 01 81 	lis     r0,385
+ 18007b8:	39 20 00 00 	li      r9,0
+ 18007bc:	7c 0b 03 78 	mr      r11,r0
+ 18007c0:	99 2b 3d 65 	stb     r9,15717(r11)
+ 18007c4:	3c 00 01 81 	lis     r0,385
+ 18007c8:	39 20 00 00 	li      r9,0
+ 18007cc:	7c 0b 03 78 	mr      r11,r0
+ 18007d0:	99 2b 3c c8 	stb     r9,15560(r11)
+ 18007d4:	3c 00 01 81 	lis     r0,385
+ 18007d8:	39 20 00 03 	li      r9,3
+ 18007dc:	7c 0b 03 78 	mr      r11,r0
+ 18007e0:	99 2b 3d 02 	stb     r9,15618(r11)
+ 18007e4:	3c 00 01 81 	lis     r0,385
+ 18007e8:	39 20 00 00 	li      r9,0
+ 18007ec:	7c 0b 03 78 	mr      r11,r0
+ 18007f0:	99 2b 3d 2a 	stb     r9,15658(r11)
+ 18007f4:	48 00 07 38 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 18007f8:	3c 00 01 81 	lis     r0,385
+ 18007fc:	7c 09 03 78 	mr      r9,r0
+ 1800800:	88 09 3d 2a 	lbz     r0,15658(r9)
+ 1800804:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800808:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 180080c:	40 9e 01 98 	bne-    cr7,18009a4 <generic_KINDERSICHERUNG_CTRL+0x280>
+ 1800810:	3c 00 01 81 	lis     r0,385
+ 1800814:	7c 0b 03 78 	mr      r11,r0
+ 1800818:	88 0b 3c f4 	lbz     r0,15604(r11)
+ 180081c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800820:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800824:	41 9e 00 50 	beq-    cr7,1800874 <generic_KINDERSICHERUNG_CTRL+0x150>
+ 1800828:	3c 00 01 81 	lis     r0,385
+ 180082c:	7c 09 03 78 	mr      r9,r0
+ 1800830:	88 09 3c b9 	lbz     r0,15545(r9)
+ 1800834:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800838:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180083c:	40 9e 00 38 	bne-    cr7,1800874 <generic_KINDERSICHERUNG_CTRL+0x150>
+ 1800840:	3c 00 01 81 	lis     r0,385
+ 1800844:	39 20 00 00 	li      r9,0
+ 1800848:	7c 0b 03 78 	mr      r11,r0
+ 180084c:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800850:	3c 00 01 81 	lis     r0,385
+ 1800854:	39 20 00 01 	li      r9,1
+ 1800858:	7c 0b 03 78 	mr      r11,r0
+ 180085c:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800860:	3c 00 01 81 	lis     r0,385
+ 1800864:	39 20 00 01 	li      r9,1
+ 1800868:	7c 0b 03 78 	mr      r11,r0
+ 180086c:	99 2b 3d 2a 	stb     r9,15658(r11)
+ 1800870:	48 00 01 48 	b       18009b8 <generic_KINDERSICHERUNG_CTRL+0x294>
+ 1800874:	3c 00 01 81 	lis     r0,385
+ 1800878:	7c 09 03 78 	mr      r9,r0
+ 180087c:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 1800880:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800884:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800888:	41 9e 00 50 	beq-    cr7,18008d8 <generic_KINDERSICHERUNG_CTRL+0x1b4>
+ 180088c:	3c 00 01 81 	lis     r0,385
+ 1800890:	7c 0b 03 78 	mr      r11,r0
+ 1800894:	88 0b 3c d2 	lbz     r0,15570(r11)
+ 1800898:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180089c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18008a0:	40 9e 00 38 	bne-    cr7,18008d8 <generic_KINDERSICHERUNG_CTRL+0x1b4>
+ 18008a4:	3c 00 01 81 	lis     r0,385
+ 18008a8:	39 20 00 00 	li      r9,0
+ 18008ac:	7c 0b 03 78 	mr      r11,r0
+ 18008b0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18008b4:	3c 00 01 81 	lis     r0,385
+ 18008b8:	39 20 00 01 	li      r9,1
+ 18008bc:	7c 0b 03 78 	mr      r11,r0
+ 18008c0:	99 2b 3d 65 	stb     r9,15717(r11)
+ 18008c4:	3c 00 01 81 	lis     r0,385
+ 18008c8:	39 20 00 01 	li      r9,1
+ 18008cc:	7c 0b 03 78 	mr      r11,r0
+ 18008d0:	99 2b 3d 2a 	stb     r9,15658(r11)
+ 18008d4:	48 00 00 e4 	b       18009b8 <generic_KINDERSICHERUNG_CTRL+0x294>
+ 18008d8:	3c 00 01 81 	lis     r0,385
+ 18008dc:	7c 09 03 78 	mr      r9,r0
+ 18008e0:	88 09 3c f4 	lbz     r0,15604(r9)
+ 18008e4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18008e8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18008ec:	40 9e 00 50 	bne-    cr7,180093c <generic_KINDERSICHERUNG_CTRL+0x218>
+ 18008f0:	3c 00 01 81 	lis     r0,385
+ 18008f4:	7c 0b 03 78 	mr      r11,r0
+ 18008f8:	88 0b 3c b9 	lbz     r0,15545(r11)
+ 18008fc:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800900:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800904:	41 9e 00 38 	beq-    cr7,180093c <generic_KINDERSICHERUNG_CTRL+0x218>
+ 1800908:	3c 00 01 81 	lis     r0,385
+ 180090c:	39 20 00 00 	li      r9,0
+ 1800910:	7c 0b 03 78 	mr      r11,r0
+ 1800914:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800918:	3c 00 01 81 	lis     r0,385
+ 180091c:	39 20 00 00 	li      r9,0
+ 1800920:	7c 0b 03 78 	mr      r11,r0
+ 1800924:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800928:	3c 00 01 81 	lis     r0,385
+ 180092c:	39 20 00 01 	li      r9,1
+ 1800930:	7c 0b 03 78 	mr      r11,r0
+ 1800934:	99 2b 3d 2a 	stb     r9,15658(r11)
+ 1800938:	48 00 00 80 	b       18009b8 <generic_KINDERSICHERUNG_CTRL+0x294>
+ 180093c:	3c 00 01 81 	lis     r0,385
+ 1800940:	7c 09 03 78 	mr      r9,r0
+ 1800944:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 1800948:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180094c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800950:	40 9e 00 50 	bne-    cr7,18009a0 <generic_KINDERSICHERUNG_CTRL+0x27c>
+ 1800954:	3c 00 01 81 	lis     r0,385
+ 1800958:	7c 0b 03 78 	mr      r11,r0
+ 180095c:	88 0b 3c d2 	lbz     r0,15570(r11)
+ 1800960:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800964:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800968:	41 9e 00 38 	beq-    cr7,18009a0 <generic_KINDERSICHERUNG_CTRL+0x27c>
+ 180096c:	3c 00 01 81 	lis     r0,385
+ 1800970:	39 20 00 00 	li      r9,0
+ 1800974:	7c 0b 03 78 	mr      r11,r0
+ 1800978:	99 2b 3c e3 	stb     r9,15587(r11)
+ 180097c:	3c 00 01 81 	lis     r0,385
+ 1800980:	39 20 00 00 	li      r9,0
+ 1800984:	7c 0b 03 78 	mr      r11,r0
+ 1800988:	99 2b 3d 65 	stb     r9,15717(r11)
+ 180098c:	3c 00 01 81 	lis     r0,385
+ 1800990:	39 20 00 01 	li      r9,1
+ 1800994:	7c 0b 03 78 	mr      r11,r0
+ 1800998:	99 2b 3d 2a 	stb     r9,15658(r11)
+ 180099c:	48 00 00 1c 	b       18009b8 <generic_KINDERSICHERUNG_CTRL+0x294>
+ 18009a0:	48 00 00 18 	b       18009b8 <generic_KINDERSICHERUNG_CTRL+0x294>
+ 18009a4:	3c 00 01 81 	lis     r0,385
+ 18009a8:	39 20 00 00 	li      r9,0
+ 18009ac:	7c 0b 03 78 	mr      r11,r0
+ 18009b0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18009b4:	48 00 05 78 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 18009b8:	48 00 05 74 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 18009bc:	3c 00 01 81 	lis     r0,385
+ 18009c0:	7c 09 03 78 	mr      r9,r0
+ 18009c4:	88 09 3d 66 	lbz     r0,15718(r9)
+ 18009c8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18009cc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18009d0:	40 9e 00 70 	bne-    cr7,1800a40 <generic_KINDERSICHERUNG_CTRL+0x31c>
+ 18009d4:	3c 00 01 81 	lis     r0,385
+ 18009d8:	7c 0b 03 78 	mr      r11,r0
+ 18009dc:	88 0b 3c e6 	lbz     r0,15590(r11)
+ 18009e0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18009e4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18009e8:	40 9e 00 58 	bne-    cr7,1800a40 <generic_KINDERSICHERUNG_CTRL+0x31c>
+ 18009ec:	3c 00 01 81 	lis     r0,385
+ 18009f0:	39 20 00 00 	li      r9,0
+ 18009f4:	7c 0b 03 78 	mr      r11,r0
+ 18009f8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18009fc:	3c 00 01 81 	lis     r0,385
+ 1800a00:	39 20 00 00 	li      r9,0
+ 1800a04:	7c 0b 03 78 	mr      r11,r0
+ 1800a08:	99 2b 3d 65 	stb     r9,15717(r11)
+ 1800a0c:	3c 00 01 81 	lis     r0,385
+ 1800a10:	39 20 00 00 	li      r9,0
+ 1800a14:	7c 0b 03 78 	mr      r11,r0
+ 1800a18:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800a1c:	3c 00 01 81 	lis     r0,385
+ 1800a20:	39 20 00 03 	li      r9,3
+ 1800a24:	7c 0b 03 78 	mr      r11,r0
+ 1800a28:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800a2c:	3c 00 01 81 	lis     r0,385
+ 1800a30:	39 20 00 00 	li      r9,0
+ 1800a34:	7c 0b 03 78 	mr      r11,r0
+ 1800a38:	99 2b 3d 08 	stb     r9,15624(r11)
+ 1800a3c:	48 00 04 f0 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800a40:	3c 00 01 81 	lis     r0,385
+ 1800a44:	7c 09 03 78 	mr      r9,r0
+ 1800a48:	88 09 3d 08 	lbz     r0,15624(r9)
+ 1800a4c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800a50:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1800a54:	40 9e 01 98 	bne-    cr7,1800bec <generic_KINDERSICHERUNG_CTRL+0x4c8>
+ 1800a58:	3c 00 01 81 	lis     r0,385
+ 1800a5c:	7c 0b 03 78 	mr      r11,r0
+ 1800a60:	88 0b 3d 66 	lbz     r0,15718(r11)
+ 1800a64:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800a68:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800a6c:	41 9e 00 50 	beq-    cr7,1800abc <generic_KINDERSICHERUNG_CTRL+0x398>
+ 1800a70:	3c 00 01 81 	lis     r0,385
+ 1800a74:	7c 09 03 78 	mr      r9,r0
+ 1800a78:	88 09 3c 90 	lbz     r0,15504(r9)
+ 1800a7c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800a80:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800a84:	40 9e 00 38 	bne-    cr7,1800abc <generic_KINDERSICHERUNG_CTRL+0x398>
+ 1800a88:	3c 00 01 81 	lis     r0,385
+ 1800a8c:	39 20 00 00 	li      r9,0
+ 1800a90:	7c 0b 03 78 	mr      r11,r0
+ 1800a94:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800a98:	3c 00 01 81 	lis     r0,385
+ 1800a9c:	39 20 00 01 	li      r9,1
+ 1800aa0:	7c 0b 03 78 	mr      r11,r0
+ 1800aa4:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800aa8:	3c 00 01 81 	lis     r0,385
+ 1800aac:	39 20 00 01 	li      r9,1
+ 1800ab0:	7c 0b 03 78 	mr      r11,r0
+ 1800ab4:	99 2b 3d 08 	stb     r9,15624(r11)
+ 1800ab8:	48 00 01 48 	b       1800c00 <generic_KINDERSICHERUNG_CTRL+0x4dc>
+ 1800abc:	3c 00 01 81 	lis     r0,385
+ 1800ac0:	7c 09 03 78 	mr      r9,r0
+ 1800ac4:	88 09 3c e6 	lbz     r0,15590(r9)
+ 1800ac8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800acc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800ad0:	41 9e 00 50 	beq-    cr7,1800b20 <generic_KINDERSICHERUNG_CTRL+0x3fc>
+ 1800ad4:	3c 00 01 81 	lis     r0,385
+ 1800ad8:	7c 0b 03 78 	mr      r11,r0
+ 1800adc:	88 0b 3c a3 	lbz     r0,15523(r11)
+ 1800ae0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800ae4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800ae8:	40 9e 00 38 	bne-    cr7,1800b20 <generic_KINDERSICHERUNG_CTRL+0x3fc>
+ 1800aec:	3c 00 01 81 	lis     r0,385
+ 1800af0:	39 20 00 00 	li      r9,0
+ 1800af4:	7c 0b 03 78 	mr      r11,r0
+ 1800af8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800afc:	3c 00 01 81 	lis     r0,385
+ 1800b00:	39 20 00 01 	li      r9,1
+ 1800b04:	7c 0b 03 78 	mr      r11,r0
+ 1800b08:	99 2b 3d 65 	stb     r9,15717(r11)
+ 1800b0c:	3c 00 01 81 	lis     r0,385
+ 1800b10:	39 20 00 01 	li      r9,1
+ 1800b14:	7c 0b 03 78 	mr      r11,r0
+ 1800b18:	99 2b 3d 08 	stb     r9,15624(r11)
+ 1800b1c:	48 00 00 e4 	b       1800c00 <generic_KINDERSICHERUNG_CTRL+0x4dc>
+ 1800b20:	3c 00 01 81 	lis     r0,385
+ 1800b24:	7c 09 03 78 	mr      r9,r0
+ 1800b28:	88 09 3d 66 	lbz     r0,15718(r9)
+ 1800b2c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800b30:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800b34:	40 9e 00 50 	bne-    cr7,1800b84 <generic_KINDERSICHERUNG_CTRL+0x460>
+ 1800b38:	3c 00 01 81 	lis     r0,385
+ 1800b3c:	7c 0b 03 78 	mr      r11,r0
+ 1800b40:	88 0b 3c 90 	lbz     r0,15504(r11)
+ 1800b44:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800b48:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800b4c:	41 9e 00 38 	beq-    cr7,1800b84 <generic_KINDERSICHERUNG_CTRL+0x460>
+ 1800b50:	3c 00 01 81 	lis     r0,385
+ 1800b54:	39 20 00 00 	li      r9,0
+ 1800b58:	7c 0b 03 78 	mr      r11,r0
+ 1800b5c:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800b60:	3c 00 01 81 	lis     r0,385
+ 1800b64:	39 20 00 00 	li      r9,0
+ 1800b68:	7c 0b 03 78 	mr      r11,r0
+ 1800b6c:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800b70:	3c 00 01 81 	lis     r0,385
+ 1800b74:	39 20 00 01 	li      r9,1
+ 1800b78:	7c 0b 03 78 	mr      r11,r0
+ 1800b7c:	99 2b 3d 08 	stb     r9,15624(r11)
+ 1800b80:	48 00 00 80 	b       1800c00 <generic_KINDERSICHERUNG_CTRL+0x4dc>
+ 1800b84:	3c 00 01 81 	lis     r0,385
+ 1800b88:	7c 09 03 78 	mr      r9,r0
+ 1800b8c:	88 09 3c e6 	lbz     r0,15590(r9)
+ 1800b90:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800b94:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800b98:	40 9e 00 50 	bne-    cr7,1800be8 <generic_KINDERSICHERUNG_CTRL+0x4c4>
+ 1800b9c:	3c 00 01 81 	lis     r0,385
+ 1800ba0:	7c 0b 03 78 	mr      r11,r0
+ 1800ba4:	88 0b 3c a3 	lbz     r0,15523(r11)
+ 1800ba8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800bac:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800bb0:	41 9e 00 38 	beq-    cr7,1800be8 <generic_KINDERSICHERUNG_CTRL+0x4c4>
+ 1800bb4:	3c 00 01 81 	lis     r0,385
+ 1800bb8:	39 20 00 00 	li      r9,0
+ 1800bbc:	7c 0b 03 78 	mr      r11,r0
+ 1800bc0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800bc4:	3c 00 01 81 	lis     r0,385
+ 1800bc8:	39 20 00 00 	li      r9,0
+ 1800bcc:	7c 0b 03 78 	mr      r11,r0
+ 1800bd0:	99 2b 3d 65 	stb     r9,15717(r11)
+ 1800bd4:	3c 00 01 81 	lis     r0,385
+ 1800bd8:	39 20 00 01 	li      r9,1
+ 1800bdc:	7c 0b 03 78 	mr      r11,r0
+ 1800be0:	99 2b 3d 08 	stb     r9,15624(r11)
+ 1800be4:	48 00 00 1c 	b       1800c00 <generic_KINDERSICHERUNG_CTRL+0x4dc>
+ 1800be8:	48 00 00 18 	b       1800c00 <generic_KINDERSICHERUNG_CTRL+0x4dc>
+ 1800bec:	3c 00 01 81 	lis     r0,385
+ 1800bf0:	39 20 00 00 	li      r9,0
+ 1800bf4:	7c 0b 03 78 	mr      r11,r0
+ 1800bf8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800bfc:	48 00 03 30 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800c00:	48 00 03 2c 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800c04:	3c 00 01 81 	lis     r0,385
+ 1800c08:	7c 09 03 78 	mr      r9,r0
+ 1800c0c:	88 09 3d 12 	lbz     r0,15634(r9)
+ 1800c10:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800c14:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800c18:	40 9e 00 78 	bne-    cr7,1800c90 <generic_KINDERSICHERUNG_CTRL+0x56c>
+ 1800c1c:	3c 00 01 81 	lis     r0,385
+ 1800c20:	7c 0b 03 78 	mr      r11,r0
+ 1800c24:	88 0b 3c e6 	lbz     r0,15590(r11)
+ 1800c28:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800c2c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800c30:	41 9e 00 60 	beq-    cr7,1800c90 <generic_KINDERSICHERUNG_CTRL+0x56c>
+ 1800c34:	3c 00 01 81 	lis     r0,385
+ 1800c38:	7c 09 03 78 	mr      r9,r0
+ 1800c3c:	88 09 3d 66 	lbz     r0,15718(r9)
+ 1800c40:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800c44:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800c48:	41 9e 00 48 	beq-    cr7,1800c90 <generic_KINDERSICHERUNG_CTRL+0x56c>
+ 1800c4c:	3c 00 01 81 	lis     r0,385
+ 1800c50:	39 20 00 00 	li      r9,0
+ 1800c54:	7c 0b 03 78 	mr      r11,r0
+ 1800c58:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800c5c:	3c 00 01 81 	lis     r0,385
+ 1800c60:	39 20 00 01 	li      r9,1
+ 1800c64:	7c 0b 03 78 	mr      r11,r0
+ 1800c68:	99 2b 3d 65 	stb     r9,15717(r11)
+ 1800c6c:	3c 00 01 81 	lis     r0,385
+ 1800c70:	39 20 00 01 	li      r9,1
+ 1800c74:	7c 0b 03 78 	mr      r11,r0
+ 1800c78:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800c7c:	3c 00 01 81 	lis     r0,385
+ 1800c80:	39 20 00 02 	li      r9,2
+ 1800c84:	7c 0b 03 78 	mr      r11,r0
+ 1800c88:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800c8c:	48 00 02 a0 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800c90:	3c 00 01 81 	lis     r0,385
+ 1800c94:	7c 09 03 78 	mr      r9,r0
+ 1800c98:	88 09 3d 12 	lbz     r0,15634(r9)
+ 1800c9c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800ca0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800ca4:	40 9e 00 68 	bne-    cr7,1800d0c <generic_KINDERSICHERUNG_CTRL+0x5e8>
+ 1800ca8:	3c 00 01 81 	lis     r0,385
+ 1800cac:	7c 0b 03 78 	mr      r11,r0
+ 1800cb0:	88 0b 3c e6 	lbz     r0,15590(r11)
+ 1800cb4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800cb8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800cbc:	41 9e 00 50 	beq-    cr7,1800d0c <generic_KINDERSICHERUNG_CTRL+0x5e8>
+ 1800cc0:	3c 00 01 81 	lis     r0,385
+ 1800cc4:	7c 09 03 78 	mr      r9,r0
+ 1800cc8:	88 09 3d 66 	lbz     r0,15718(r9)
+ 1800ccc:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800cd0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800cd4:	40 9e 00 38 	bne-    cr7,1800d0c <generic_KINDERSICHERUNG_CTRL+0x5e8>
+ 1800cd8:	3c 00 01 81 	lis     r0,385
+ 1800cdc:	39 20 00 00 	li      r9,0
+ 1800ce0:	7c 0b 03 78 	mr      r11,r0
+ 1800ce4:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800ce8:	3c 00 01 81 	lis     r0,385
+ 1800cec:	39 20 00 01 	li      r9,1
+ 1800cf0:	7c 0b 03 78 	mr      r11,r0
+ 1800cf4:	99 2b 3d 65 	stb     r9,15717(r11)
+ 1800cf8:	3c 00 01 81 	lis     r0,385
+ 1800cfc:	39 20 00 02 	li      r9,2
+ 1800d00:	7c 0b 03 78 	mr      r11,r0
+ 1800d04:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800d08:	48 00 02 24 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800d0c:	3c 00 01 81 	lis     r0,385
+ 1800d10:	7c 09 03 78 	mr      r9,r0
+ 1800d14:	88 09 3d 12 	lbz     r0,15634(r9)
+ 1800d18:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800d1c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800d20:	40 9e 00 68 	bne-    cr7,1800d88 <generic_KINDERSICHERUNG_CTRL+0x664>
+ 1800d24:	3c 00 01 81 	lis     r0,385
+ 1800d28:	7c 0b 03 78 	mr      r11,r0
+ 1800d2c:	88 0b 3c e6 	lbz     r0,15590(r11)
+ 1800d30:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800d34:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800d38:	40 9e 00 50 	bne-    cr7,1800d88 <generic_KINDERSICHERUNG_CTRL+0x664>
+ 1800d3c:	3c 00 01 81 	lis     r0,385
+ 1800d40:	7c 09 03 78 	mr      r9,r0
+ 1800d44:	88 09 3d 66 	lbz     r0,15718(r9)
+ 1800d48:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800d4c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800d50:	41 9e 00 38 	beq-    cr7,1800d88 <generic_KINDERSICHERUNG_CTRL+0x664>
+ 1800d54:	3c 00 01 81 	lis     r0,385
+ 1800d58:	39 20 00 00 	li      r9,0
+ 1800d5c:	7c 0b 03 78 	mr      r11,r0
+ 1800d60:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800d64:	3c 00 01 81 	lis     r0,385
+ 1800d68:	39 20 00 01 	li      r9,1
+ 1800d6c:	7c 0b 03 78 	mr      r11,r0
+ 1800d70:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800d74:	3c 00 01 81 	lis     r0,385
+ 1800d78:	39 20 00 02 	li      r9,2
+ 1800d7c:	7c 0b 03 78 	mr      r11,r0
+ 1800d80:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800d84:	48 00 01 a8 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800d88:	3c 00 01 81 	lis     r0,385
+ 1800d8c:	7c 09 03 78 	mr      r9,r0
+ 1800d90:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 1800d94:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800d98:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800d9c:	40 9e 00 68 	bne-    cr7,1800e04 <generic_KINDERSICHERUNG_CTRL+0x6e0>
+ 1800da0:	3c 00 01 81 	lis     r0,385
+ 1800da4:	7c 0b 03 78 	mr      r11,r0
+ 1800da8:	88 0b 3c f4 	lbz     r0,15604(r11)
+ 1800dac:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800db0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800db4:	41 9e 00 50 	beq-    cr7,1800e04 <generic_KINDERSICHERUNG_CTRL+0x6e0>
+ 1800db8:	3c 00 01 81 	lis     r0,385
+ 1800dbc:	7c 09 03 78 	mr      r9,r0
+ 1800dc0:	88 09 3d 12 	lbz     r0,15634(r9)
+ 1800dc4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800dc8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800dcc:	40 9e 00 38 	bne-    cr7,1800e04 <generic_KINDERSICHERUNG_CTRL+0x6e0>
+ 1800dd0:	3c 00 01 81 	lis     r0,385
+ 1800dd4:	39 20 00 00 	li      r9,0
+ 1800dd8:	7c 0b 03 78 	mr      r11,r0
+ 1800ddc:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800de0:	3c 00 01 81 	lis     r0,385
+ 1800de4:	39 20 00 01 	li      r9,1
+ 1800de8:	7c 0b 03 78 	mr      r11,r0
+ 1800dec:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800df0:	3c 00 01 81 	lis     r0,385
+ 1800df4:	39 20 00 01 	li      r9,1
+ 1800df8:	7c 0b 03 78 	mr      r11,r0
+ 1800dfc:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800e00:	48 00 01 2c 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800e04:	3c 00 01 81 	lis     r0,385
+ 1800e08:	7c 09 03 78 	mr      r9,r0
+ 1800e0c:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 1800e10:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800e14:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800e18:	41 9e 00 60 	beq-    cr7,1800e78 <generic_KINDERSICHERUNG_CTRL+0x754>
+ 1800e1c:	3c 00 01 81 	lis     r0,385
+ 1800e20:	7c 0b 03 78 	mr      r11,r0
+ 1800e24:	88 0b 3c f4 	lbz     r0,15604(r11)
+ 1800e28:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800e2c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800e30:	41 9e 00 48 	beq-    cr7,1800e78 <generic_KINDERSICHERUNG_CTRL+0x754>
+ 1800e34:	3c 00 01 81 	lis     r0,385
+ 1800e38:	39 20 00 00 	li      r9,0
+ 1800e3c:	7c 0b 03 78 	mr      r11,r0
+ 1800e40:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800e44:	3c 00 01 81 	lis     r0,385
+ 1800e48:	39 20 00 01 	li      r9,1
+ 1800e4c:	7c 0b 03 78 	mr      r11,r0
+ 1800e50:	99 2b 3c c8 	stb     r9,15560(r11)
+ 1800e54:	3c 00 01 81 	lis     r0,385
+ 1800e58:	39 20 00 01 	li      r9,1
+ 1800e5c:	7c 0b 03 78 	mr      r11,r0
+ 1800e60:	99 2b 3d 65 	stb     r9,15717(r11)
+ 1800e64:	3c 00 01 81 	lis     r0,385
+ 1800e68:	39 20 00 01 	li      r9,1
+ 1800e6c:	7c 0b 03 78 	mr      r11,r0
+ 1800e70:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800e74:	48 00 00 b8 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800e78:	3c 00 01 81 	lis     r0,385
+ 1800e7c:	7c 09 03 78 	mr      r9,r0
+ 1800e80:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 1800e84:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800e88:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800e8c:	41 9e 00 8c 	beq-    cr7,1800f18 <generic_KINDERSICHERUNG_CTRL+0x7f4>
+ 1800e90:	3c 00 01 81 	lis     r0,385
+ 1800e94:	7c 0b 03 78 	mr      r11,r0
+ 1800e98:	88 0b 3c f4 	lbz     r0,15604(r11)
+ 1800e9c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800ea0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800ea4:	40 9e 00 7c 	bne-    cr7,1800f20 <generic_KINDERSICHERUNG_CTRL+0x7fc>
+ 1800ea8:	3c 00 01 81 	lis     r0,385
+ 1800eac:	7c 09 03 78 	mr      r9,r0
+ 1800eb0:	88 09 3d 12 	lbz     r0,15634(r9)
+ 1800eb4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800eb8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800ebc:	40 9e 00 6c 	bne-    cr7,1800f28 <generic_KINDERSICHERUNG_CTRL+0x804>
+ 1800ec0:	3c 00 01 81 	lis     r0,385
+ 1800ec4:	39 20 00 00 	li      r9,0
+ 1800ec8:	7c 0b 03 78 	mr      r11,r0
+ 1800ecc:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800ed0:	3c 00 01 81 	lis     r0,385
+ 1800ed4:	39 20 00 01 	li      r9,1
+ 1800ed8:	7c 0b 03 78 	mr      r11,r0
+ 1800edc:	99 2b 3d 65 	stb     r9,15717(r11)
+ 1800ee0:	3c 00 01 81 	lis     r0,385
+ 1800ee4:	39 20 00 01 	li      r9,1
+ 1800ee8:	7c 0b 03 78 	mr      r11,r0
+ 1800eec:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800ef0:	48 00 00 3c 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800ef4:	3c 00 01 81 	lis     r0,385
+ 1800ef8:	39 20 00 00 	li      r9,0
+ 1800efc:	7c 0b 03 78 	mr      r11,r0
+ 1800f00:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1800f04:	3c 00 01 81 	lis     r0,385
+ 1800f08:	39 20 00 03 	li      r9,3
+ 1800f0c:	7c 0b 03 78 	mr      r11,r0
+ 1800f10:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1800f14:	48 00 00 18 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800f18:	60 00 00 00 	nop
+ 1800f1c:	48 00 00 10 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800f20:	60 00 00 00 	nop
+ 1800f24:	48 00 00 08 	b       1800f2c <generic_KINDERSICHERUNG_CTRL+0x808>
+ 1800f28:	60 00 00 00 	nop
+ 1800f2c:	39 7f 00 10 	addi    r11,r31,16
+ 1800f30:	83 eb ff fc 	lwz     r31,-4(r11)
+ 1800f34:	7d 61 5b 78 	mr      r1,r11
+ 1800f38:	4e 80 00 20 	blr
+
+01800f3c <generic_FH_TUERMODUL_CTRL>:
+ 1800f3c:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1800f40:	93 e1 00 0c 	stw     r31,12(r1)
+ 1800f44:	7c 3f 0b 78 	mr      r31,r1
+ 1800f48:	3c 00 01 81 	lis     r0,385
+ 1800f4c:	30 00 3d 94 	addic   r0,r0,15764
+ 1800f50:	7c 09 03 78 	mr      r9,r0
+ 1800f54:	88 09 00 0d 	lbz     r0,13(r9)
+ 1800f58:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800f5c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800f60:	40 9e 00 64 	bne-    cr7,1800fc4 <generic_FH_TUERMODUL_CTRL+0x88>
+ 1800f64:	3c 00 01 81 	lis     r0,385
+ 1800f68:	30 00 3d 94 	addic   r0,r0,15764
+ 1800f6c:	7c 0b 03 78 	mr      r11,r0
+ 1800f70:	88 0b 00 0f 	lbz     r0,15(r11)
+ 1800f74:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800f78:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800f7c:	41 9e 00 48 	beq-    cr7,1800fc4 <generic_FH_TUERMODUL_CTRL+0x88>
+ 1800f80:	3c 00 01 81 	lis     r0,385
+ 1800f84:	30 00 3d 94 	addic   r0,r0,15764
+ 1800f88:	7c 09 03 78 	mr      r9,r0
+ 1800f8c:	88 09 00 0e 	lbz     r0,14(r9)
+ 1800f90:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800f94:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800f98:	40 9e 00 2c 	bne-    cr7,1800fc4 <generic_FH_TUERMODUL_CTRL+0x88>
+ 1800f9c:	3c 00 01 81 	lis     r0,385
+ 1800fa0:	30 00 3d 94 	addic   r0,r0,15764
+ 1800fa4:	39 20 00 00 	li      r9,0
+ 1800fa8:	7c 0b 03 78 	mr      r11,r0
+ 1800fac:	99 2b 00 04 	stb     r9,4(r11)
+ 1800fb0:	3c 00 01 81 	lis     r0,385
+ 1800fb4:	30 00 3d 94 	addic   r0,r0,15764
+ 1800fb8:	39 20 00 00 	li      r9,0
+ 1800fbc:	7c 0b 03 78 	mr      r11,r0
+ 1800fc0:	99 2b 00 06 	stb     r9,6(r11)
+ 1800fc4:	3c 00 01 81 	lis     r0,385
+ 1800fc8:	30 00 3d 94 	addic   r0,r0,15764
+ 1800fcc:	7c 09 03 78 	mr      r9,r0
+ 1800fd0:	88 09 00 0d 	lbz     r0,13(r9)
+ 1800fd4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800fd8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800fdc:	41 9e 11 74 	beq-    cr7,1802150 <generic_FH_TUERMODUL_CTRL+0x1214>
+ 1800fe0:	3c 00 01 81 	lis     r0,385
+ 1800fe4:	30 00 3d 94 	addic   r0,r0,15764
+ 1800fe8:	7c 0b 03 78 	mr      r11,r0
+ 1800fec:	88 0b 00 0a 	lbz     r0,10(r11)
+ 1800ff0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1800ff4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800ff8:	40 9e 00 14 	bne-    cr7,180100c <generic_FH_TUERMODUL_CTRL+0xd0>
+ 1800ffc:	3c 00 01 81 	lis     r0,385
+ 1801000:	39 20 00 03 	li      r9,3
+ 1801004:	7c 0b 03 78 	mr      r11,r0
+ 1801008:	99 2b 3d 02 	stb     r9,15618(r11)
+ 180100c:	3c 00 01 81 	lis     r0,385
+ 1801010:	30 00 3d 94 	addic   r0,r0,15764
+ 1801014:	39 20 00 00 	li      r9,0
+ 1801018:	7c 0b 03 78 	mr      r11,r0
+ 180101c:	99 2b 00 0b 	stb     r9,11(r11)
+ 1801020:	3c 00 01 81 	lis     r0,385
+ 1801024:	30 00 3d 94 	addic   r0,r0,15764
+ 1801028:	7c 09 03 78 	mr      r9,r0
+ 180102c:	88 09 00 13 	lbz     r0,19(r9)
+ 1801030:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801034:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801038:	40 9e 00 28 	bne-    cr7,1801060 <generic_FH_TUERMODUL_CTRL+0x124>
+ 180103c:	3c 00 01 81 	lis     r0,385
+ 1801040:	30 00 3d 94 	addic   r0,r0,15764
+ 1801044:	39 20 00 00 	li      r9,0
+ 1801048:	7c 0b 03 78 	mr      r11,r0
+ 180104c:	99 2b 00 00 	stb     r9,0(r11)
+ 1801050:	3c 00 01 81 	lis     r0,385
+ 1801054:	39 20 00 01 	li      r9,1
+ 1801058:	7c 0b 03 78 	mr      r11,r0
+ 180105c:	99 2b 3c f5 	stb     r9,15605(r11)
+ 1801060:	3c 00 01 81 	lis     r0,385
+ 1801064:	30 00 3d 94 	addic   r0,r0,15764
+ 1801068:	39 20 00 00 	li      r9,0
+ 180106c:	7c 0b 03 78 	mr      r11,r0
+ 1801070:	99 2b 00 14 	stb     r9,20(r11)
+ 1801074:	3c 00 01 81 	lis     r0,385
+ 1801078:	30 00 3d 94 	addic   r0,r0,15764
+ 180107c:	39 20 00 01 	li      r9,1
+ 1801080:	7c 0b 03 78 	mr      r11,r0
+ 1801084:	99 2b 00 0b 	stb     r9,11(r11)
+ 1801088:	3c 00 01 81 	lis     r0,385
+ 180108c:	30 00 3d 94 	addic   r0,r0,15764
+ 1801090:	39 20 00 01 	li      r9,1
+ 1801094:	7c 0b 03 78 	mr      r11,r0
+ 1801098:	99 2b 00 14 	stb     r9,20(r11)
+ 180109c:	3c 00 01 81 	lis     r0,385
+ 18010a0:	7c 09 03 78 	mr      r9,r0
+ 18010a4:	88 09 3d 6d 	lbz     r0,15725(r9)
+ 18010a8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18010ac:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 18010b0:	41 9e 00 70 	beq-    cr7,1801120 <generic_FH_TUERMODUL_CTRL+0x1e4>
+ 18010b4:	2f 80 00 03 	cmpwi   cr7,r0,3
+ 18010b8:	41 9e 02 98 	beq-    cr7,1801350 <generic_FH_TUERMODUL_CTRL+0x414>
+ 18010bc:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 18010c0:	40 9e 0d 88 	bne-    cr7,1801e48 <generic_FH_TUERMODUL_CTRL+0xf0c>
+ 18010c4:	3c 00 01 81 	lis     r0,385
+ 18010c8:	7c 0b 03 78 	mr      r11,r0
+ 18010cc:	80 0b 3d 4c 	lwz     r0,15692(r11)
+ 18010d0:	2f 80 00 3b 	cmpwi   cr7,r0,59
+ 18010d4:	40 9e 0d 98 	bne-    cr7,1801e6c <generic_FH_TUERMODUL_CTRL+0xf30>
+ 18010d8:	3c 00 01 81 	lis     r0,385
+ 18010dc:	7c 09 03 78 	mr      r9,r0
+ 18010e0:	80 09 3c c4 	lwz     r0,15556(r9)
+ 18010e4:	2f 80 00 3b 	cmpwi   cr7,r0,59
+ 18010e8:	41 9e 0d 8c 	beq-    cr7,1801e74 <generic_FH_TUERMODUL_CTRL+0xf38>
+ 18010ec:	3c 00 01 81 	lis     r0,385
+ 18010f0:	39 20 00 00 	li      r9,0
+ 18010f4:	7c 0b 03 78 	mr      r11,r0
+ 18010f8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18010fc:	3c 00 01 81 	lis     r0,385
+ 1801100:	39 20 00 03 	li      r9,3
+ 1801104:	7c 0b 03 78 	mr      r11,r0
+ 1801108:	99 2b 3d 6d 	stb     r9,15725(r11)
+ 180110c:	3c 00 01 81 	lis     r0,385
+ 1801110:	39 20 00 03 	li      r9,3
+ 1801114:	7c 0b 03 78 	mr      r11,r0
+ 1801118:	99 2b 3c f7 	stb     r9,15607(r11)
+ 180111c:	48 00 0d 5c 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 1801120:	3c 00 01 81 	lis     r0,385
+ 1801124:	7c 09 03 78 	mr      r9,r0
+ 1801128:	88 09 3d 40 	lbz     r0,15680(r9)
+ 180112c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801130:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801134:	41 9e 00 90 	beq-    cr7,18011c4 <generic_FH_TUERMODUL_CTRL+0x288>
+ 1801138:	3c 00 01 81 	lis     r0,385
+ 180113c:	7c 0b 03 78 	mr      r11,r0
+ 1801140:	88 0b 3c b8 	lbz     r0,15544(r11)
+ 1801144:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801148:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180114c:	40 9e 00 78 	bne-    cr7,18011c4 <generic_FH_TUERMODUL_CTRL+0x288>
+ 1801150:	3c 00 01 81 	lis     r0,385
+ 1801154:	7c 09 03 78 	mr      r9,r0
+ 1801158:	88 09 3d 35 	lbz     r0,15669(r9)
+ 180115c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801160:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801164:	41 9e 00 60 	beq-    cr7,18011c4 <generic_FH_TUERMODUL_CTRL+0x288>
+ 1801168:	3c 00 01 81 	lis     r0,385
+ 180116c:	39 20 00 00 	li      r9,0
+ 1801170:	7c 0b 03 78 	mr      r11,r0
+ 1801174:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801178:	3c 00 01 81 	lis     r0,385
+ 180117c:	39 20 00 00 	li      r9,0
+ 1801180:	7c 0b 03 78 	mr      r11,r0
+ 1801184:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801188:	3c 00 01 81 	lis     r0,385
+ 180118c:	7c 0b 03 78 	mr      r11,r0
+ 1801190:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1801194:	3c 00 01 81 	lis     r0,385
+ 1801198:	7c 0b 03 78 	mr      r11,r0
+ 180119c:	91 2b 3d 54 	stw     r9,15700(r11)
+ 18011a0:	3c 00 01 81 	lis     r0,385
+ 18011a4:	39 20 00 03 	li      r9,3
+ 18011a8:	7c 0b 03 78 	mr      r11,r0
+ 18011ac:	99 2b 3d 6d 	stb     r9,15725(r11)
+ 18011b0:	3c 00 01 81 	lis     r0,385
+ 18011b4:	39 20 00 03 	li      r9,3
+ 18011b8:	7c 0b 03 78 	mr      r11,r0
+ 18011bc:	99 2b 3c f7 	stb     r9,15607(r11)
+ 18011c0:	48 00 0c b8 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 18011c4:	3c 00 01 81 	lis     r0,385
+ 18011c8:	7c 09 03 78 	mr      r9,r0
+ 18011cc:	88 09 3d 6f 	lbz     r0,15727(r9)
+ 18011d0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18011d4:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 18011d8:	41 9e 00 64 	beq-    cr7,180123c <generic_FH_TUERMODUL_CTRL+0x300>
+ 18011dc:	2f 80 00 03 	cmpwi   cr7,r0,3
+ 18011e0:	41 9e 00 ac 	beq-    cr7,180128c <generic_FH_TUERMODUL_CTRL+0x350>
+ 18011e4:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 18011e8:	40 9e 01 40 	bne-    cr7,1801328 <generic_FH_TUERMODUL_CTRL+0x3ec>
+ 18011ec:	3c 00 01 81 	lis     r0,385
+ 18011f0:	7c 0b 03 78 	mr      r11,r0
+ 18011f4:	88 0b 3d 3e 	lbz     r0,15678(r11)
+ 18011f8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18011fc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801200:	40 9e 00 38 	bne-    cr7,1801238 <generic_FH_TUERMODUL_CTRL+0x2fc>
+ 1801204:	3c 00 01 81 	lis     r0,385
+ 1801208:	39 20 00 00 	li      r9,0
+ 180120c:	7c 0b 03 78 	mr      r11,r0
+ 1801210:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801214:	3c 00 01 81 	lis     r0,385
+ 1801218:	39 20 00 00 	li      r9,0
+ 180121c:	7c 0b 03 78 	mr      r11,r0
+ 1801220:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801224:	3c 00 01 81 	lis     r0,385
+ 1801228:	39 20 00 03 	li      r9,3
+ 180122c:	7c 0b 03 78 	mr      r11,r0
+ 1801230:	99 2b 3d 6f 	stb     r9,15727(r11)
+ 1801234:	48 00 01 18 	b       180134c <generic_FH_TUERMODUL_CTRL+0x410>
+ 1801238:	48 00 01 14 	b       180134c <generic_FH_TUERMODUL_CTRL+0x410>
+ 180123c:	3c 00 01 81 	lis     r0,385
+ 1801240:	7c 09 03 78 	mr      r9,r0
+ 1801244:	88 09 3d 70 	lbz     r0,15728(r9)
+ 1801248:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180124c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801250:	40 9e 00 38 	bne-    cr7,1801288 <generic_FH_TUERMODUL_CTRL+0x34c>
+ 1801254:	3c 00 01 81 	lis     r0,385
+ 1801258:	39 20 00 00 	li      r9,0
+ 180125c:	7c 0b 03 78 	mr      r11,r0
+ 1801260:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801264:	3c 00 01 81 	lis     r0,385
+ 1801268:	39 20 00 00 	li      r9,0
+ 180126c:	7c 0b 03 78 	mr      r11,r0
+ 1801270:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801274:	3c 00 01 81 	lis     r0,385
+ 1801278:	39 20 00 03 	li      r9,3
+ 180127c:	7c 0b 03 78 	mr      r11,r0
+ 1801280:	99 2b 3d 6f 	stb     r9,15727(r11)
+ 1801284:	48 00 00 c8 	b       180134c <generic_FH_TUERMODUL_CTRL+0x410>
+ 1801288:	48 00 00 c4 	b       180134c <generic_FH_TUERMODUL_CTRL+0x410>
+ 180128c:	3c 00 01 81 	lis     r0,385
+ 1801290:	7c 09 03 78 	mr      r9,r0
+ 1801294:	88 09 3d 70 	lbz     r0,15728(r9)
+ 1801298:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180129c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18012a0:	41 9e 00 38 	beq-    cr7,18012d8 <generic_FH_TUERMODUL_CTRL+0x39c>
+ 18012a4:	3c 00 01 81 	lis     r0,385
+ 18012a8:	39 20 00 00 	li      r9,0
+ 18012ac:	7c 0b 03 78 	mr      r11,r0
+ 18012b0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18012b4:	3c 00 01 81 	lis     r0,385
+ 18012b8:	39 20 00 01 	li      r9,1
+ 18012bc:	7c 0b 03 78 	mr      r11,r0
+ 18012c0:	99 2b 3c d1 	stb     r9,15569(r11)
+ 18012c4:	3c 00 01 81 	lis     r0,385
+ 18012c8:	39 20 00 02 	li      r9,2
+ 18012cc:	7c 0b 03 78 	mr      r11,r0
+ 18012d0:	99 2b 3d 6f 	stb     r9,15727(r11)
+ 18012d4:	48 00 00 78 	b       180134c <generic_FH_TUERMODUL_CTRL+0x410>
+ 18012d8:	3c 00 01 81 	lis     r0,385
+ 18012dc:	7c 09 03 78 	mr      r9,r0
+ 18012e0:	88 09 3d 3e 	lbz     r0,15678(r9)
+ 18012e4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18012e8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18012ec:	41 9e 00 38 	beq-    cr7,1801324 <generic_FH_TUERMODUL_CTRL+0x3e8>
+ 18012f0:	3c 00 01 81 	lis     r0,385
+ 18012f4:	39 20 00 00 	li      r9,0
+ 18012f8:	7c 0b 03 78 	mr      r11,r0
+ 18012fc:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801300:	3c 00 01 81 	lis     r0,385
+ 1801304:	39 20 00 01 	li      r9,1
+ 1801308:	7c 0b 03 78 	mr      r11,r0
+ 180130c:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801310:	3c 00 01 81 	lis     r0,385
+ 1801314:	39 20 00 01 	li      r9,1
+ 1801318:	7c 0b 03 78 	mr      r11,r0
+ 180131c:	99 2b 3d 6f 	stb     r9,15727(r11)
+ 1801320:	48 00 00 2c 	b       180134c <generic_FH_TUERMODUL_CTRL+0x410>
+ 1801324:	48 00 00 28 	b       180134c <generic_FH_TUERMODUL_CTRL+0x410>
+ 1801328:	3c 00 01 81 	lis     r0,385
+ 180132c:	39 20 00 00 	li      r9,0
+ 1801330:	7c 0b 03 78 	mr      r11,r0
+ 1801334:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801338:	3c 00 01 81 	lis     r0,385
+ 180133c:	39 20 00 03 	li      r9,3
+ 1801340:	7c 0b 03 78 	mr      r11,r0
+ 1801344:	99 2b 3d 6f 	stb     r9,15727(r11)
+ 1801348:	48 00 0b 30 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 180134c:	48 00 0b 2c 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 1801350:	3c 00 01 81 	lis     r0,385
+ 1801354:	7c 09 03 78 	mr      r9,r0
+ 1801358:	80 09 3d 4c 	lwz     r0,15692(r9)
+ 180135c:	2f 80 00 3c 	cmpwi   cr7,r0,60
+ 1801360:	40 9d 00 8c 	ble-    cr7,18013ec <generic_FH_TUERMODUL_CTRL+0x4b0>
+ 1801364:	3c 00 01 81 	lis     r0,385
+ 1801368:	7c 0b 03 78 	mr      r11,r0
+ 180136c:	80 0b 3c c4 	lwz     r0,15556(r11)
+ 1801370:	2f 80 00 3c 	cmpwi   cr7,r0,60
+ 1801374:	41 9d 00 78 	bgt-    cr7,18013ec <generic_FH_TUERMODUL_CTRL+0x4b0>
+ 1801378:	3c 00 01 81 	lis     r0,385
+ 180137c:	7c 09 03 78 	mr      r9,r0
+ 1801380:	88 09 3d 29 	lbz     r0,15657(r9)
+ 1801384:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801388:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180138c:	40 9e 00 60 	bne-    cr7,18013ec <generic_FH_TUERMODUL_CTRL+0x4b0>
+ 1801390:	3c 00 01 81 	lis     r0,385
+ 1801394:	7c 0b 03 78 	mr      r11,r0
+ 1801398:	88 0b 3c d9 	lbz     r0,15577(r11)
+ 180139c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18013a0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18013a4:	40 9e 00 48 	bne-    cr7,18013ec <generic_FH_TUERMODUL_CTRL+0x4b0>
+ 18013a8:	3c 00 01 81 	lis     r0,385
+ 18013ac:	39 20 00 00 	li      r9,0
+ 18013b0:	7c 0b 03 78 	mr      r11,r0
+ 18013b4:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18013b8:	3c 00 01 81 	lis     r0,385
+ 18013bc:	39 20 00 00 	li      r9,0
+ 18013c0:	7c 0b 03 78 	mr      r11,r0
+ 18013c4:	99 2b 3c ae 	stb     r9,15534(r11)
+ 18013c8:	3c 00 01 81 	lis     r0,385
+ 18013cc:	39 20 00 00 	li      r9,0
+ 18013d0:	7c 0b 03 78 	mr      r11,r0
+ 18013d4:	99 2b 3c d1 	stb     r9,15569(r11)
+ 18013d8:	3c 00 01 81 	lis     r0,385
+ 18013dc:	39 20 00 01 	li      r9,1
+ 18013e0:	7c 0b 03 78 	mr      r11,r0
+ 18013e4:	99 2b 3d 6d 	stb     r9,15725(r11)
+ 18013e8:	48 00 0a 90 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 18013ec:	3c 00 01 81 	lis     r0,385
+ 18013f0:	7c 09 03 78 	mr      r9,r0
+ 18013f4:	88 09 3d 40 	lbz     r0,15680(r9)
+ 18013f8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18013fc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801400:	41 9e 00 90 	beq-    cr7,1801490 <generic_FH_TUERMODUL_CTRL+0x554>
+ 1801404:	3c 00 01 81 	lis     r0,385
+ 1801408:	7c 0b 03 78 	mr      r11,r0
+ 180140c:	88 0b 3c b8 	lbz     r0,15544(r11)
+ 1801410:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801414:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801418:	40 9e 00 78 	bne-    cr7,1801490 <generic_FH_TUERMODUL_CTRL+0x554>
+ 180141c:	3c 00 01 81 	lis     r0,385
+ 1801420:	7c 09 03 78 	mr      r9,r0
+ 1801424:	88 09 3d 58 	lbz     r0,15704(r9)
+ 1801428:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180142c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801430:	41 9e 00 60 	beq-    cr7,1801490 <generic_FH_TUERMODUL_CTRL+0x554>
+ 1801434:	3c 00 01 81 	lis     r0,385
+ 1801438:	39 20 00 00 	li      r9,0
+ 180143c:	7c 0b 03 78 	mr      r11,r0
+ 1801440:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801444:	3c 00 01 81 	lis     r0,385
+ 1801448:	39 20 00 00 	li      r9,0
+ 180144c:	7c 0b 03 78 	mr      r11,r0
+ 1801450:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801454:	3c 00 01 81 	lis     r0,385
+ 1801458:	7c 0b 03 78 	mr      r11,r0
+ 180145c:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1801460:	3c 00 01 81 	lis     r0,385
+ 1801464:	7c 0b 03 78 	mr      r11,r0
+ 1801468:	91 2b 3d 24 	stw     r9,15652(r11)
+ 180146c:	3c 00 01 81 	lis     r0,385
+ 1801470:	39 20 00 02 	li      r9,2
+ 1801474:	7c 0b 03 78 	mr      r11,r0
+ 1801478:	99 2b 3d 6d 	stb     r9,15725(r11)
+ 180147c:	3c 00 01 81 	lis     r0,385
+ 1801480:	39 20 00 03 	li      r9,3
+ 1801484:	7c 0b 03 78 	mr      r11,r0
+ 1801488:	99 2b 3d 6f 	stb     r9,15727(r11)
+ 180148c:	48 00 09 ec 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 1801490:	3c 00 01 81 	lis     r0,385
+ 1801494:	7c 09 03 78 	mr      r9,r0
+ 1801498:	88 09 3d 40 	lbz     r0,15680(r9)
+ 180149c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18014a0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18014a4:	41 9e 00 90 	beq-    cr7,1801534 <generic_FH_TUERMODUL_CTRL+0x5f8>
+ 18014a8:	3c 00 01 81 	lis     r0,385
+ 18014ac:	7c 0b 03 78 	mr      r11,r0
+ 18014b0:	88 0b 3c b8 	lbz     r0,15544(r11)
+ 18014b4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18014b8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18014bc:	40 9e 00 78 	bne-    cr7,1801534 <generic_FH_TUERMODUL_CTRL+0x5f8>
+ 18014c0:	3c 00 01 81 	lis     r0,385
+ 18014c4:	7c 09 03 78 	mr      r9,r0
+ 18014c8:	88 09 3d 35 	lbz     r0,15669(r9)
+ 18014cc:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18014d0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18014d4:	41 9e 00 60 	beq-    cr7,1801534 <generic_FH_TUERMODUL_CTRL+0x5f8>
+ 18014d8:	3c 00 01 81 	lis     r0,385
+ 18014dc:	39 20 00 00 	li      r9,0
+ 18014e0:	7c 0b 03 78 	mr      r11,r0
+ 18014e4:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18014e8:	3c 00 01 81 	lis     r0,385
+ 18014ec:	39 20 00 00 	li      r9,0
+ 18014f0:	7c 0b 03 78 	mr      r11,r0
+ 18014f4:	99 2b 3c ae 	stb     r9,15534(r11)
+ 18014f8:	3c 00 01 81 	lis     r0,385
+ 18014fc:	7c 0b 03 78 	mr      r11,r0
+ 1801500:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1801504:	3c 00 01 81 	lis     r0,385
+ 1801508:	7c 0b 03 78 	mr      r11,r0
+ 180150c:	91 2b 3c cc 	stw     r9,15564(r11)
+ 1801510:	3c 00 01 81 	lis     r0,385
+ 1801514:	39 20 00 02 	li      r9,2
+ 1801518:	7c 0b 03 78 	mr      r11,r0
+ 180151c:	99 2b 3d 6d 	stb     r9,15725(r11)
+ 1801520:	3c 00 01 81 	lis     r0,385
+ 1801524:	39 20 00 03 	li      r9,3
+ 1801528:	7c 0b 03 78 	mr      r11,r0
+ 180152c:	99 2b 3d 6f 	stb     r9,15727(r11)
+ 1801530:	48 00 09 48 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 1801534:	3c 00 01 81 	lis     r0,385
+ 1801538:	7c 09 03 78 	mr      r9,r0
+ 180153c:	88 09 3c f7 	lbz     r0,15607(r9)
+ 1801540:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801544:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 1801548:	41 9e 02 18 	beq-    cr7,1801760 <generic_FH_TUERMODUL_CTRL+0x824>
+ 180154c:	2f 80 00 03 	cmpwi   cr7,r0,3
+ 1801550:	41 9e 07 98 	beq-    cr7,1801ce8 <generic_FH_TUERMODUL_CTRL+0xdac>
+ 1801554:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1801558:	40 9e 08 c8 	bne-    cr7,1801e20 <generic_FH_TUERMODUL_CTRL+0xee4>
+ 180155c:	3c 00 01 81 	lis     r0,385
+ 1801560:	7c 0b 03 78 	mr      r11,r0
+ 1801564:	80 0b 3d 04 	lwz     r0,15620(r11)
+ 1801568:	2f 80 01 94 	cmpwi   cr7,r0,404
+ 180156c:	40 9d 00 38 	ble-    cr7,18015a4 <generic_FH_TUERMODUL_CTRL+0x668>
+ 1801570:	3c 00 01 81 	lis     r0,385
+ 1801574:	39 20 00 00 	li      r9,0
+ 1801578:	7c 0b 03 78 	mr      r11,r0
+ 180157c:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801580:	3c 00 01 81 	lis     r0,385
+ 1801584:	39 20 00 00 	li      r9,0
+ 1801588:	7c 0b 03 78 	mr      r11,r0
+ 180158c:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801590:	3c 00 01 81 	lis     r0,385
+ 1801594:	39 20 00 03 	li      r9,3
+ 1801598:	7c 0b 03 78 	mr      r11,r0
+ 180159c:	99 2b 3c f7 	stb     r9,15607(r11)
+ 18015a0:	48 00 08 a4 	b       1801e44 <generic_FH_TUERMODUL_CTRL+0xf08>
+ 18015a4:	3c 00 01 81 	lis     r0,385
+ 18015a8:	7c 09 03 78 	mr      r9,r0
+ 18015ac:	88 09 3c b5 	lbz     r0,15541(r9)
+ 18015b0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18015b4:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 18015b8:	41 9e 00 10 	beq-    cr7,18015c8 <generic_FH_TUERMODUL_CTRL+0x68c>
+ 18015bc:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 18015c0:	41 9e 00 b0 	beq-    cr7,1801670 <generic_FH_TUERMODUL_CTRL+0x734>
+ 18015c4:	48 00 01 78 	b       180173c <generic_FH_TUERMODUL_CTRL+0x800>
+ 18015c8:	3c 00 01 81 	lis     r0,385
+ 18015cc:	7c 0b 03 78 	mr      r11,r0
+ 18015d0:	88 0b 3d 3e 	lbz     r0,15678(r11)
+ 18015d4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18015d8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18015dc:	41 9e 00 1c 	beq-    cr7,18015f8 <generic_FH_TUERMODUL_CTRL+0x6bc>
+ 18015e0:	3c 00 01 81 	lis     r0,385
+ 18015e4:	7c 09 03 78 	mr      r9,r0
+ 18015e8:	88 09 3d 01 	lbz     r0,15617(r9)
+ 18015ec:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18015f0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18015f4:	41 9e 00 34 	beq-    cr7,1801628 <generic_FH_TUERMODUL_CTRL+0x6ec>
+ 18015f8:	3c 00 01 81 	lis     r0,385
+ 18015fc:	7c 0b 03 78 	mr      r11,r0
+ 1801600:	88 0b 3d 70 	lbz     r0,15728(r11)
+ 1801604:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801608:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180160c:	41 9e 00 60 	beq-    cr7,180166c <generic_FH_TUERMODUL_CTRL+0x730>
+ 1801610:	3c 00 01 81 	lis     r0,385
+ 1801614:	7c 09 03 78 	mr      r9,r0
+ 1801618:	88 09 3c a2 	lbz     r0,15522(r9)
+ 180161c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801620:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801624:	40 9e 00 48 	bne-    cr7,180166c <generic_FH_TUERMODUL_CTRL+0x730>
+ 1801628:	3c 00 01 81 	lis     r0,385
+ 180162c:	39 20 00 00 	li      r9,0
+ 1801630:	7c 0b 03 78 	mr      r11,r0
+ 1801634:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801638:	3c 00 01 81 	lis     r0,385
+ 180163c:	39 20 00 00 	li      r9,0
+ 1801640:	7c 0b 03 78 	mr      r11,r0
+ 1801644:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801648:	3c 00 01 81 	lis     r0,385
+ 180164c:	39 20 00 03 	li      r9,3
+ 1801650:	7c 0b 03 78 	mr      r11,r0
+ 1801654:	99 2b 3c f7 	stb     r9,15607(r11)
+ 1801658:	3c 00 01 81 	lis     r0,385
+ 180165c:	39 20 00 00 	li      r9,0
+ 1801660:	7c 0b 03 78 	mr      r11,r0
+ 1801664:	99 2b 3c b5 	stb     r9,15541(r11)
+ 1801668:	48 00 00 f4 	b       180175c <generic_FH_TUERMODUL_CTRL+0x820>
+ 180166c:	48 00 00 f0 	b       180175c <generic_FH_TUERMODUL_CTRL+0x820>
+ 1801670:	3c 00 01 81 	lis     r0,385
+ 1801674:	7c 09 03 78 	mr      r9,r0
+ 1801678:	88 09 3d 3e 	lbz     r0,15678(r9)
+ 180167c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801680:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801684:	41 9e 00 40 	beq-    cr7,18016c4 <generic_FH_TUERMODUL_CTRL+0x788>
+ 1801688:	3c 00 01 81 	lis     r0,385
+ 180168c:	7c 0b 03 78 	mr      r11,r0
+ 1801690:	88 0b 3d 01 	lbz     r0,15617(r11)
+ 1801694:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801698:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180169c:	40 9e 00 28 	bne-    cr7,18016c4 <generic_FH_TUERMODUL_CTRL+0x788>
+ 18016a0:	3c 00 01 81 	lis     r0,385
+ 18016a4:	39 20 00 00 	li      r9,0
+ 18016a8:	7c 0b 03 78 	mr      r11,r0
+ 18016ac:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18016b0:	3c 00 01 81 	lis     r0,385
+ 18016b4:	39 20 00 01 	li      r9,1
+ 18016b8:	7c 0b 03 78 	mr      r11,r0
+ 18016bc:	99 2b 3c b5 	stb     r9,15541(r11)
+ 18016c0:	48 00 00 9c 	b       180175c <generic_FH_TUERMODUL_CTRL+0x820>
+ 18016c4:	3c 00 01 81 	lis     r0,385
+ 18016c8:	7c 09 03 78 	mr      r9,r0
+ 18016cc:	88 09 3d 70 	lbz     r0,15728(r9)
+ 18016d0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18016d4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18016d8:	40 9e 00 60 	bne-    cr7,1801738 <generic_FH_TUERMODUL_CTRL+0x7fc>
+ 18016dc:	3c 00 01 81 	lis     r0,385
+ 18016e0:	7c 0b 03 78 	mr      r11,r0
+ 18016e4:	88 0b 3c a2 	lbz     r0,15522(r11)
+ 18016e8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18016ec:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18016f0:	41 9e 00 48 	beq-    cr7,1801738 <generic_FH_TUERMODUL_CTRL+0x7fc>
+ 18016f4:	3c 00 01 81 	lis     r0,385
+ 18016f8:	39 20 00 00 	li      r9,0
+ 18016fc:	7c 0b 03 78 	mr      r11,r0
+ 1801700:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801704:	3c 00 01 81 	lis     r0,385
+ 1801708:	39 20 00 00 	li      r9,0
+ 180170c:	7c 0b 03 78 	mr      r11,r0
+ 1801710:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801714:	3c 00 01 81 	lis     r0,385
+ 1801718:	39 20 00 03 	li      r9,3
+ 180171c:	7c 0b 03 78 	mr      r11,r0
+ 1801720:	99 2b 3c f7 	stb     r9,15607(r11)
+ 1801724:	3c 00 01 81 	lis     r0,385
+ 1801728:	39 20 00 00 	li      r9,0
+ 180172c:	7c 0b 03 78 	mr      r11,r0
+ 1801730:	99 2b 3c b5 	stb     r9,15541(r11)
+ 1801734:	48 00 00 28 	b       180175c <generic_FH_TUERMODUL_CTRL+0x820>
+ 1801738:	48 00 00 24 	b       180175c <generic_FH_TUERMODUL_CTRL+0x820>
+ 180173c:	3c 00 01 81 	lis     r0,385
+ 1801740:	39 20 00 00 	li      r9,0
+ 1801744:	7c 0b 03 78 	mr      r11,r0
+ 1801748:	99 2b 3c e3 	stb     r9,15587(r11)
+ 180174c:	3c 00 01 81 	lis     r0,385
+ 1801750:	39 20 00 02 	li      r9,2
+ 1801754:	7c 0b 03 78 	mr      r11,r0
+ 1801758:	99 2b 3c b5 	stb     r9,15541(r11)
+ 180175c:	48 00 06 e8 	b       1801e44 <generic_FH_TUERMODUL_CTRL+0xf08>
+ 1801760:	3c 00 01 81 	lis     r0,385
+ 1801764:	7c 09 03 78 	mr      r9,r0
+ 1801768:	80 09 3d 04 	lwz     r0,15620(r9)
+ 180176c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801770:	41 9d 00 38 	bgt-    cr7,18017a8 <generic_FH_TUERMODUL_CTRL+0x86c>
+ 1801774:	3c 00 01 81 	lis     r0,385
+ 1801778:	39 20 00 00 	li      r9,0
+ 180177c:	7c 0b 03 78 	mr      r11,r0
+ 1801780:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801784:	3c 00 01 81 	lis     r0,385
+ 1801788:	39 20 00 00 	li      r9,0
+ 180178c:	7c 0b 03 78 	mr      r11,r0
+ 1801790:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801794:	3c 00 01 81 	lis     r0,385
+ 1801798:	39 20 00 03 	li      r9,3
+ 180179c:	7c 0b 03 78 	mr      r11,r0
+ 18017a0:	99 2b 3c f7 	stb     r9,15607(r11)
+ 18017a4:	48 00 06 a0 	b       1801e44 <generic_FH_TUERMODUL_CTRL+0xf08>
+ 18017a8:	3c 00 01 81 	lis     r0,385
+ 18017ac:	7c 09 03 78 	mr      r9,r0
+ 18017b0:	88 09 3c a0 	lbz     r0,15520(r9)
+ 18017b4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18017b8:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 18017bc:	41 9e 00 10 	beq-    cr7,18017cc <generic_FH_TUERMODUL_CTRL+0x890>
+ 18017c0:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 18017c4:	41 9e 02 48 	beq-    cr7,1801a0c <generic_FH_TUERMODUL_CTRL+0xad0>
+ 18017c8:	48 00 04 c8 	b       1801c90 <generic_FH_TUERMODUL_CTRL+0xd54>
+ 18017cc:	3c 00 01 81 	lis     r0,385
+ 18017d0:	7c 0b 03 78 	mr      r11,r0
+ 18017d4:	88 0b 3d 70 	lbz     r0,15728(r11)
+ 18017d8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18017dc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18017e0:	41 9e 00 1c 	beq-    cr7,18017fc <generic_FH_TUERMODUL_CTRL+0x8c0>
+ 18017e4:	3c 00 01 81 	lis     r0,385
+ 18017e8:	7c 09 03 78 	mr      r9,r0
+ 18017ec:	88 09 3c a2 	lbz     r0,15522(r9)
+ 18017f0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18017f4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18017f8:	41 9e 00 34 	beq-    cr7,180182c <generic_FH_TUERMODUL_CTRL+0x8f0>
+ 18017fc:	3c 00 01 81 	lis     r0,385
+ 1801800:	7c 0b 03 78 	mr      r11,r0
+ 1801804:	88 0b 3d 3e 	lbz     r0,15678(r11)
+ 1801808:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180180c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801810:	41 9e 00 50 	beq-    cr7,1801860 <generic_FH_TUERMODUL_CTRL+0x924>
+ 1801814:	3c 00 01 81 	lis     r0,385
+ 1801818:	7c 09 03 78 	mr      r9,r0
+ 180181c:	88 09 3d 01 	lbz     r0,15617(r9)
+ 1801820:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801824:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801828:	40 9e 00 38 	bne-    cr7,1801860 <generic_FH_TUERMODUL_CTRL+0x924>
+ 180182c:	3c 00 01 81 	lis     r0,385
+ 1801830:	39 20 00 00 	li      r9,0
+ 1801834:	7c 0b 03 78 	mr      r11,r0
+ 1801838:	99 2b 3c e3 	stb     r9,15587(r11)
+ 180183c:	3c 00 01 81 	lis     r0,385
+ 1801840:	39 20 00 00 	li      r9,0
+ 1801844:	7c 0b 03 78 	mr      r11,r0
+ 1801848:	99 2b 3c ae 	stb     r9,15534(r11)
+ 180184c:	3c 00 01 81 	lis     r0,385
+ 1801850:	39 20 00 03 	li      r9,3
+ 1801854:	7c 0b 03 78 	mr      r11,r0
+ 1801858:	99 2b 3c f7 	stb     r9,15607(r11)
+ 180185c:	48 00 04 88 	b       1801ce4 <generic_FH_TUERMODUL_CTRL+0xda8>
+ 1801860:	3c 00 01 81 	lis     r0,385
+ 1801864:	7c 09 03 78 	mr      r9,r0
+ 1801868:	88 09 3c b4 	lbz     r0,15540(r9)
+ 180186c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801870:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1801874:	41 9e 00 10 	beq-    cr7,1801884 <generic_FH_TUERMODUL_CTRL+0x948>
+ 1801878:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 180187c:	41 9e 00 a4 	beq-    cr7,1801920 <generic_FH_TUERMODUL_CTRL+0x9e4>
+ 1801880:	48 00 01 54 	b       18019d4 <generic_FH_TUERMODUL_CTRL+0xa98>
+ 1801884:	3c 00 01 81 	lis     r0,385
+ 1801888:	30 00 3d 94 	addic   r0,r0,15764
+ 180188c:	39 20 00 00 	li      r9,0
+ 1801890:	7c 0b 03 78 	mr      r11,r0
+ 1801894:	99 2b 00 17 	stb     r9,23(r11)
+ 1801898:	3c 00 01 81 	lis     r0,385
+ 180189c:	30 00 3d 94 	addic   r0,r0,15764
+ 18018a0:	7c 09 03 78 	mr      r9,r0
+ 18018a4:	88 09 00 16 	lbz     r0,22(r9)
+ 18018a8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18018ac:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18018b0:	41 9e 00 6c 	beq-    cr7,180191c <generic_FH_TUERMODUL_CTRL+0x9e0>
+ 18018b4:	3c 00 01 81 	lis     r0,385
+ 18018b8:	39 20 00 00 	li      r9,0
+ 18018bc:	7c 0b 03 78 	mr      r11,r0
+ 18018c0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18018c4:	3c 00 01 81 	lis     r0,385
+ 18018c8:	39 20 00 01 	li      r9,1
+ 18018cc:	7c 0b 03 78 	mr      r11,r0
+ 18018d0:	99 2b 3c ae 	stb     r9,15534(r11)
+ 18018d4:	3c 00 01 81 	lis     r0,385
+ 18018d8:	39 20 00 00 	li      r9,0
+ 18018dc:	7c 0b 03 78 	mr      r11,r0
+ 18018e0:	99 2b 3d 2b 	stb     r9,15659(r11)
+ 18018e4:	3c 00 01 81 	lis     r0,385
+ 18018e8:	39 20 00 02 	li      r9,2
+ 18018ec:	7c 0b 03 78 	mr      r11,r0
+ 18018f0:	99 2b 3c b4 	stb     r9,15540(r11)
+ 18018f4:	3c 00 01 81 	lis     r0,385
+ 18018f8:	39 20 00 00 	li      r9,0
+ 18018fc:	7c 0b 03 78 	mr      r11,r0
+ 1801900:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801904:	3c 00 01 81 	lis     r0,385
+ 1801908:	30 00 3d 94 	addic   r0,r0,15764
+ 180190c:	39 20 00 01 	li      r9,1
+ 1801910:	7c 0b 03 78 	mr      r11,r0
+ 1801914:	99 2b 00 11 	stb     r9,17(r11)
+ 1801918:	48 00 00 f0 	b       1801a08 <generic_FH_TUERMODUL_CTRL+0xacc>
+ 180191c:	48 00 00 ec 	b       1801a08 <generic_FH_TUERMODUL_CTRL+0xacc>
+ 1801920:	3c 00 01 81 	lis     r0,385
+ 1801924:	30 00 3d 94 	addic   r0,r0,15764
+ 1801928:	7c 09 03 78 	mr      r9,r0
+ 180192c:	88 09 00 18 	lbz     r0,24(r9)
+ 1801930:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801934:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801938:	41 9e 00 98 	beq-    cr7,18019d0 <generic_FH_TUERMODUL_CTRL+0xa94>
+ 180193c:	3c 00 01 81 	lis     r0,385
+ 1801940:	39 20 00 00 	li      r9,0
+ 1801944:	7c 0b 03 78 	mr      r11,r0
+ 1801948:	99 2b 3c e3 	stb     r9,15587(r11)
+ 180194c:	3c 00 01 81 	lis     r0,385
+ 1801950:	39 20 00 01 	li      r9,1
+ 1801954:	7c 0b 03 78 	mr      r11,r0
+ 1801958:	99 2b 3d 2b 	stb     r9,15659(r11)
+ 180195c:	3c 00 01 81 	lis     r0,385
+ 1801960:	30 00 3d 94 	addic   r0,r0,15764
+ 1801964:	39 20 00 01 	li      r9,1
+ 1801968:	7c 0b 03 78 	mr      r11,r0
+ 180196c:	99 2b 00 17 	stb     r9,23(r11)
+ 1801970:	3c 00 01 81 	lis     r0,385
+ 1801974:	39 20 00 01 	li      r9,1
+ 1801978:	7c 0b 03 78 	mr      r11,r0
+ 180197c:	99 2b 3c b4 	stb     r9,15540(r11)
+ 1801980:	3c 00 01 81 	lis     r0,385
+ 1801984:	30 00 3d 94 	addic   r0,r0,15764
+ 1801988:	39 20 00 00 	li      r9,0
+ 180198c:	7c 0b 03 78 	mr      r11,r0
+ 1801990:	99 2b 00 11 	stb     r9,17(r11)
+ 1801994:	3c 00 01 81 	lis     r0,385
+ 1801998:	39 20 00 00 	li      r9,0
+ 180199c:	7c 0b 03 78 	mr      r11,r0
+ 18019a0:	99 2b 3c ae 	stb     r9,15534(r11)
+ 18019a4:	3c 00 01 81 	lis     r0,385
+ 18019a8:	7c 0b 03 78 	mr      r11,r0
+ 18019ac:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 18019b0:	3c 00 01 81 	lis     r0,385
+ 18019b4:	7c 0b 03 78 	mr      r11,r0
+ 18019b8:	91 2b 3d 30 	stw     r9,15664(r11)
+ 18019bc:	3c 00 01 81 	lis     r0,385
+ 18019c0:	39 20 00 01 	li      r9,1
+ 18019c4:	7c 0b 03 78 	mr      r11,r0
+ 18019c8:	99 2b 3c d1 	stb     r9,15569(r11)
+ 18019cc:	48 00 00 3c 	b       1801a08 <generic_FH_TUERMODUL_CTRL+0xacc>
+ 18019d0:	48 00 00 38 	b       1801a08 <generic_FH_TUERMODUL_CTRL+0xacc>
+ 18019d4:	3c 00 01 81 	lis     r0,385
+ 18019d8:	39 20 00 00 	li      r9,0
+ 18019dc:	7c 0b 03 78 	mr      r11,r0
+ 18019e0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18019e4:	3c 00 01 81 	lis     r0,385
+ 18019e8:	39 20 00 02 	li      r9,2
+ 18019ec:	7c 0b 03 78 	mr      r11,r0
+ 18019f0:	99 2b 3c b4 	stb     r9,15540(r11)
+ 18019f4:	3c 00 01 81 	lis     r0,385
+ 18019f8:	30 00 3d 94 	addic   r0,r0,15764
+ 18019fc:	39 20 00 01 	li      r9,1
+ 1801a00:	7c 0b 03 78 	mr      r11,r0
+ 1801a04:	99 2b 00 11 	stb     r9,17(r11)
+ 1801a08:	48 00 02 dc 	b       1801ce4 <generic_FH_TUERMODUL_CTRL+0xda8>
+ 1801a0c:	3c 00 01 81 	lis     r0,385
+ 1801a10:	7c 09 03 78 	mr      r9,r0
+ 1801a14:	88 09 3d 3e 	lbz     r0,15678(r9)
+ 1801a18:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801a1c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801a20:	40 9e 00 50 	bne-    cr7,1801a70 <generic_FH_TUERMODUL_CTRL+0xb34>
+ 1801a24:	3c 00 01 81 	lis     r0,385
+ 1801a28:	7c 0b 03 78 	mr      r11,r0
+ 1801a2c:	88 0b 3d 01 	lbz     r0,15617(r11)
+ 1801a30:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801a34:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801a38:	41 9e 00 38 	beq-    cr7,1801a70 <generic_FH_TUERMODUL_CTRL+0xb34>
+ 1801a3c:	3c 00 01 81 	lis     r0,385
+ 1801a40:	39 20 00 00 	li      r9,0
+ 1801a44:	7c 0b 03 78 	mr      r11,r0
+ 1801a48:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801a4c:	3c 00 01 81 	lis     r0,385
+ 1801a50:	39 20 00 00 	li      r9,0
+ 1801a54:	7c 0b 03 78 	mr      r11,r0
+ 1801a58:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801a5c:	3c 00 01 81 	lis     r0,385
+ 1801a60:	39 20 00 03 	li      r9,3
+ 1801a64:	7c 0b 03 78 	mr      r11,r0
+ 1801a68:	99 2b 3c f7 	stb     r9,15607(r11)
+ 1801a6c:	48 00 02 78 	b       1801ce4 <generic_FH_TUERMODUL_CTRL+0xda8>
+ 1801a70:	3c 00 01 81 	lis     r0,385
+ 1801a74:	7c 09 03 78 	mr      r9,r0
+ 1801a78:	88 09 3c d0 	lbz     r0,15568(r9)
+ 1801a7c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801a80:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1801a84:	41 9e 00 10 	beq-    cr7,1801a94 <generic_FH_TUERMODUL_CTRL+0xb58>
+ 1801a88:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 1801a8c:	41 9e 00 a4 	beq-    cr7,1801b30 <generic_FH_TUERMODUL_CTRL+0xbf4>
+ 1801a90:	48 00 01 b8 	b       1801c48 <generic_FH_TUERMODUL_CTRL+0xd0c>
+ 1801a94:	3c 00 01 81 	lis     r0,385
+ 1801a98:	30 00 3d 94 	addic   r0,r0,15764
+ 1801a9c:	39 20 00 00 	li      r9,0
+ 1801aa0:	7c 0b 03 78 	mr      r11,r0
+ 1801aa4:	99 2b 00 17 	stb     r9,23(r11)
+ 1801aa8:	3c 00 01 81 	lis     r0,385
+ 1801aac:	30 00 3d 94 	addic   r0,r0,15764
+ 1801ab0:	7c 09 03 78 	mr      r9,r0
+ 1801ab4:	88 09 00 16 	lbz     r0,22(r9)
+ 1801ab8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801abc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801ac0:	41 9e 00 6c 	beq-    cr7,1801b2c <generic_FH_TUERMODUL_CTRL+0xbf0>
+ 1801ac4:	3c 00 01 81 	lis     r0,385
+ 1801ac8:	39 20 00 00 	li      r9,0
+ 1801acc:	7c 0b 03 78 	mr      r11,r0
+ 1801ad0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801ad4:	3c 00 01 81 	lis     r0,385
+ 1801ad8:	39 20 00 00 	li      r9,0
+ 1801adc:	7c 0b 03 78 	mr      r11,r0
+ 1801ae0:	99 2b 3d 3f 	stb     r9,15679(r11)
+ 1801ae4:	3c 00 01 81 	lis     r0,385
+ 1801ae8:	39 20 00 02 	li      r9,2
+ 1801aec:	7c 0b 03 78 	mr      r11,r0
+ 1801af0:	99 2b 3c d0 	stb     r9,15568(r11)
+ 1801af4:	3c 00 01 81 	lis     r0,385
+ 1801af8:	39 20 00 00 	li      r9,0
+ 1801afc:	7c 0b 03 78 	mr      r11,r0
+ 1801b00:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801b04:	3c 00 01 81 	lis     r0,385
+ 1801b08:	30 00 3d 94 	addic   r0,r0,15764
+ 1801b0c:	39 20 00 01 	li      r9,1
+ 1801b10:	7c 0b 03 78 	mr      r11,r0
+ 1801b14:	99 2b 00 11 	stb     r9,17(r11)
+ 1801b18:	3c 00 01 81 	lis     r0,385
+ 1801b1c:	39 20 00 01 	li      r9,1
+ 1801b20:	7c 0b 03 78 	mr      r11,r0
+ 1801b24:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801b28:	48 00 01 64 	b       1801c8c <generic_FH_TUERMODUL_CTRL+0xd50>
+ 1801b2c:	48 00 01 60 	b       1801c8c <generic_FH_TUERMODUL_CTRL+0xd50>
+ 1801b30:	3c 00 01 81 	lis     r0,385
+ 1801b34:	30 00 3d 94 	addic   r0,r0,15764
+ 1801b38:	7c 09 03 78 	mr      r9,r0
+ 1801b3c:	88 09 00 18 	lbz     r0,24(r9)
+ 1801b40:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801b44:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801b48:	41 9e 00 98 	beq-    cr7,1801be0 <generic_FH_TUERMODUL_CTRL+0xca4>
+ 1801b4c:	3c 00 01 81 	lis     r0,385
+ 1801b50:	39 20 00 00 	li      r9,0
+ 1801b54:	7c 0b 03 78 	mr      r11,r0
+ 1801b58:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801b5c:	3c 00 01 81 	lis     r0,385
+ 1801b60:	39 20 00 00 	li      r9,0
+ 1801b64:	7c 0b 03 78 	mr      r11,r0
+ 1801b68:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801b6c:	3c 00 01 81 	lis     r0,385
+ 1801b70:	39 20 00 01 	li      r9,1
+ 1801b74:	7c 0b 03 78 	mr      r11,r0
+ 1801b78:	99 2b 3d 3f 	stb     r9,15679(r11)
+ 1801b7c:	3c 00 01 81 	lis     r0,385
+ 1801b80:	30 00 3d 94 	addic   r0,r0,15764
+ 1801b84:	39 20 00 01 	li      r9,1
+ 1801b88:	7c 0b 03 78 	mr      r11,r0
+ 1801b8c:	99 2b 00 17 	stb     r9,23(r11)
+ 1801b90:	3c 00 01 81 	lis     r0,385
+ 1801b94:	39 20 00 01 	li      r9,1
+ 1801b98:	7c 0b 03 78 	mr      r11,r0
+ 1801b9c:	99 2b 3c d0 	stb     r9,15568(r11)
+ 1801ba0:	3c 00 01 81 	lis     r0,385
+ 1801ba4:	30 00 3d 94 	addic   r0,r0,15764
+ 1801ba8:	39 20 00 00 	li      r9,0
+ 1801bac:	7c 0b 03 78 	mr      r11,r0
+ 1801bb0:	99 2b 00 11 	stb     r9,17(r11)
+ 1801bb4:	3c 00 01 81 	lis     r0,385
+ 1801bb8:	7c 0b 03 78 	mr      r11,r0
+ 1801bbc:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1801bc0:	3c 00 01 81 	lis     r0,385
+ 1801bc4:	7c 0b 03 78 	mr      r11,r0
+ 1801bc8:	91 2b 3d 1c 	stw     r9,15644(r11)
+ 1801bcc:	3c 00 01 81 	lis     r0,385
+ 1801bd0:	39 20 00 01 	li      r9,1
+ 1801bd4:	7c 0b 03 78 	mr      r11,r0
+ 1801bd8:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801bdc:	48 00 00 b0 	b       1801c8c <generic_FH_TUERMODUL_CTRL+0xd50>
+ 1801be0:	3c 00 01 81 	lis     r0,385
+ 1801be4:	7c 09 03 78 	mr      r9,r0
+ 1801be8:	88 09 3d 70 	lbz     r0,15728(r9)
+ 1801bec:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801bf0:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801bf4:	41 9e 00 50 	beq-    cr7,1801c44 <generic_FH_TUERMODUL_CTRL+0xd08>
+ 1801bf8:	3c 00 01 81 	lis     r0,385
+ 1801bfc:	7c 0b 03 78 	mr      r11,r0
+ 1801c00:	88 0b 3c a2 	lbz     r0,15522(r11)
+ 1801c04:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801c08:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801c0c:	40 9e 00 38 	bne-    cr7,1801c44 <generic_FH_TUERMODUL_CTRL+0xd08>
+ 1801c10:	3c 00 01 81 	lis     r0,385
+ 1801c14:	39 20 00 00 	li      r9,0
+ 1801c18:	7c 0b 03 78 	mr      r11,r0
+ 1801c1c:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801c20:	3c 00 01 81 	lis     r0,385
+ 1801c24:	39 20 00 01 	li      r9,1
+ 1801c28:	7c 0b 03 78 	mr      r11,r0
+ 1801c2c:	99 2b 3c a0 	stb     r9,15520(r11)
+ 1801c30:	3c 00 01 81 	lis     r0,385
+ 1801c34:	39 20 00 00 	li      r9,0
+ 1801c38:	7c 0b 03 78 	mr      r11,r0
+ 1801c3c:	99 2b 3c d0 	stb     r9,15568(r11)
+ 1801c40:	48 00 00 4c 	b       1801c8c <generic_FH_TUERMODUL_CTRL+0xd50>
+ 1801c44:	48 00 00 48 	b       1801c8c <generic_FH_TUERMODUL_CTRL+0xd50>
+ 1801c48:	3c 00 01 81 	lis     r0,385
+ 1801c4c:	39 20 00 00 	li      r9,0
+ 1801c50:	7c 0b 03 78 	mr      r11,r0
+ 1801c54:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801c58:	3c 00 01 81 	lis     r0,385
+ 1801c5c:	39 20 00 02 	li      r9,2
+ 1801c60:	7c 0b 03 78 	mr      r11,r0
+ 1801c64:	99 2b 3c d0 	stb     r9,15568(r11)
+ 1801c68:	3c 00 01 81 	lis     r0,385
+ 1801c6c:	30 00 3d 94 	addic   r0,r0,15764
+ 1801c70:	39 20 00 01 	li      r9,1
+ 1801c74:	7c 0b 03 78 	mr      r11,r0
+ 1801c78:	99 2b 00 11 	stb     r9,17(r11)
+ 1801c7c:	3c 00 01 81 	lis     r0,385
+ 1801c80:	39 20 00 01 	li      r9,1
+ 1801c84:	7c 0b 03 78 	mr      r11,r0
+ 1801c88:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801c8c:	48 00 00 58 	b       1801ce4 <generic_FH_TUERMODUL_CTRL+0xda8>
+ 1801c90:	3c 00 01 81 	lis     r0,385
+ 1801c94:	39 20 00 00 	li      r9,0
+ 1801c98:	7c 0b 03 78 	mr      r11,r0
+ 1801c9c:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801ca0:	3c 00 01 81 	lis     r0,385
+ 1801ca4:	39 20 00 02 	li      r9,2
+ 1801ca8:	7c 0b 03 78 	mr      r11,r0
+ 1801cac:	99 2b 3c a0 	stb     r9,15520(r11)
+ 1801cb0:	3c 00 01 81 	lis     r0,385
+ 1801cb4:	39 20 00 02 	li      r9,2
+ 1801cb8:	7c 0b 03 78 	mr      r11,r0
+ 1801cbc:	99 2b 3c d0 	stb     r9,15568(r11)
+ 1801cc0:	3c 00 01 81 	lis     r0,385
+ 1801cc4:	30 00 3d 94 	addic   r0,r0,15764
+ 1801cc8:	39 20 00 01 	li      r9,1
+ 1801ccc:	7c 0b 03 78 	mr      r11,r0
+ 1801cd0:	99 2b 00 11 	stb     r9,17(r11)
+ 1801cd4:	3c 00 01 81 	lis     r0,385
+ 1801cd8:	39 20 00 01 	li      r9,1
+ 1801cdc:	7c 0b 03 78 	mr      r11,r0
+ 1801ce0:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801ce4:	48 00 01 60 	b       1801e44 <generic_FH_TUERMODUL_CTRL+0xf08>
+ 1801ce8:	3c 00 01 81 	lis     r0,385
+ 1801cec:	7c 09 03 78 	mr      r9,r0
+ 1801cf0:	88 09 3d 3e 	lbz     r0,15678(r9)
+ 1801cf4:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801cf8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801cfc:	41 9e 00 98 	beq-    cr7,1801d94 <generic_FH_TUERMODUL_CTRL+0xe58>
+ 1801d00:	3c 00 01 81 	lis     r0,385
+ 1801d04:	7c 0b 03 78 	mr      r11,r0
+ 1801d08:	88 0b 3d 01 	lbz     r0,15617(r11)
+ 1801d0c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801d10:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801d14:	40 9e 00 80 	bne-    cr7,1801d94 <generic_FH_TUERMODUL_CTRL+0xe58>
+ 1801d18:	3c 00 01 81 	lis     r0,385
+ 1801d1c:	7c 09 03 78 	mr      r9,r0
+ 1801d20:	80 09 3d 04 	lwz     r0,15620(r9)
+ 1801d24:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801d28:	40 9d 00 6c 	ble-    cr7,1801d94 <generic_FH_TUERMODUL_CTRL+0xe58>
+ 1801d2c:	3c 00 01 81 	lis     r0,385
+ 1801d30:	39 20 00 00 	li      r9,0
+ 1801d34:	7c 0b 03 78 	mr      r11,r0
+ 1801d38:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801d3c:	3c 00 01 81 	lis     r0,385
+ 1801d40:	39 20 00 02 	li      r9,2
+ 1801d44:	7c 0b 03 78 	mr      r11,r0
+ 1801d48:	99 2b 3c f7 	stb     r9,15607(r11)
+ 1801d4c:	3c 00 01 81 	lis     r0,385
+ 1801d50:	39 20 00 02 	li      r9,2
+ 1801d54:	7c 0b 03 78 	mr      r11,r0
+ 1801d58:	99 2b 3c a0 	stb     r9,15520(r11)
+ 1801d5c:	3c 00 01 81 	lis     r0,385
+ 1801d60:	39 20 00 02 	li      r9,2
+ 1801d64:	7c 0b 03 78 	mr      r11,r0
+ 1801d68:	99 2b 3c d0 	stb     r9,15568(r11)
+ 1801d6c:	3c 00 01 81 	lis     r0,385
+ 1801d70:	30 00 3d 94 	addic   r0,r0,15764
+ 1801d74:	39 20 00 01 	li      r9,1
+ 1801d78:	7c 0b 03 78 	mr      r11,r0
+ 1801d7c:	99 2b 00 11 	stb     r9,17(r11)
+ 1801d80:	3c 00 01 81 	lis     r0,385
+ 1801d84:	39 20 00 01 	li      r9,1
+ 1801d88:	7c 0b 03 78 	mr      r11,r0
+ 1801d8c:	99 2b 3c ae 	stb     r9,15534(r11)
+ 1801d90:	48 00 00 b4 	b       1801e44 <generic_FH_TUERMODUL_CTRL+0xf08>
+ 1801d94:	3c 00 01 81 	lis     r0,385
+ 1801d98:	7c 09 03 78 	mr      r9,r0
+ 1801d9c:	88 09 3d 70 	lbz     r0,15728(r9)
+ 1801da0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801da4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801da8:	41 9e 00 74 	beq-    cr7,1801e1c <generic_FH_TUERMODUL_CTRL+0xee0>
+ 1801dac:	3c 00 01 81 	lis     r0,385
+ 1801db0:	7c 0b 03 78 	mr      r11,r0
+ 1801db4:	88 0b 3c a2 	lbz     r0,15522(r11)
+ 1801db8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801dbc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801dc0:	40 9e 00 5c 	bne-    cr7,1801e1c <generic_FH_TUERMODUL_CTRL+0xee0>
+ 1801dc4:	3c 00 01 81 	lis     r0,385
+ 1801dc8:	7c 09 03 78 	mr      r9,r0
+ 1801dcc:	80 09 3d 04 	lwz     r0,15620(r9)
+ 1801dd0:	2f 80 01 94 	cmpwi   cr7,r0,404
+ 1801dd4:	41 9d 00 48 	bgt-    cr7,1801e1c <generic_FH_TUERMODUL_CTRL+0xee0>
+ 1801dd8:	3c 00 01 81 	lis     r0,385
+ 1801ddc:	39 20 00 00 	li      r9,0
+ 1801de0:	7c 0b 03 78 	mr      r11,r0
+ 1801de4:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801de8:	3c 00 01 81 	lis     r0,385
+ 1801dec:	39 20 00 01 	li      r9,1
+ 1801df0:	7c 0b 03 78 	mr      r11,r0
+ 1801df4:	99 2b 3c d1 	stb     r9,15569(r11)
+ 1801df8:	3c 00 01 81 	lis     r0,385
+ 1801dfc:	39 20 00 01 	li      r9,1
+ 1801e00:	7c 0b 03 78 	mr      r11,r0
+ 1801e04:	99 2b 3c f7 	stb     r9,15607(r11)
+ 1801e08:	3c 00 01 81 	lis     r0,385
+ 1801e0c:	39 20 00 02 	li      r9,2
+ 1801e10:	7c 0b 03 78 	mr      r11,r0
+ 1801e14:	99 2b 3c b5 	stb     r9,15541(r11)
+ 1801e18:	48 00 00 2c 	b       1801e44 <generic_FH_TUERMODUL_CTRL+0xf08>
+ 1801e1c:	48 00 00 28 	b       1801e44 <generic_FH_TUERMODUL_CTRL+0xf08>
+ 1801e20:	3c 00 01 81 	lis     r0,385
+ 1801e24:	39 20 00 00 	li      r9,0
+ 1801e28:	7c 0b 03 78 	mr      r11,r0
+ 1801e2c:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801e30:	3c 00 01 81 	lis     r0,385
+ 1801e34:	39 20 00 03 	li      r9,3
+ 1801e38:	7c 0b 03 78 	mr      r11,r0
+ 1801e3c:	99 2b 3c f7 	stb     r9,15607(r11)
+ 1801e40:	48 00 00 38 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 1801e44:	48 00 00 34 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 1801e48:	3c 00 01 81 	lis     r0,385
+ 1801e4c:	39 20 00 00 	li      r9,0
+ 1801e50:	7c 0b 03 78 	mr      r11,r0
+ 1801e54:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801e58:	3c 00 01 81 	lis     r0,385
+ 1801e5c:	39 20 00 02 	li      r9,2
+ 1801e60:	7c 0b 03 78 	mr      r11,r0
+ 1801e64:	99 2b 3d 6d 	stb     r9,15725(r11)
+ 1801e68:	48 00 00 10 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 1801e6c:	60 00 00 00 	nop
+ 1801e70:	48 00 00 08 	b       1801e78 <generic_FH_TUERMODUL_CTRL+0xf3c>
+ 1801e74:	60 00 00 00 	nop
+ 1801e78:	3c 00 01 81 	lis     r0,385
+ 1801e7c:	7c 09 03 78 	mr      r9,r0
+ 1801e80:	88 09 3d 48 	lbz     r0,15688(r9)
+ 1801e84:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801e88:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1801e8c:	40 9e 02 28 	bne-    cr7,18020b4 <generic_FH_TUERMODUL_CTRL+0x1178>
+ 1801e90:	3c 00 01 81 	lis     r0,385
+ 1801e94:	30 00 3d 94 	addic   r0,r0,15764
+ 1801e98:	39 20 00 00 	li      r9,0
+ 1801e9c:	7c 0b 03 78 	mr      r11,r0
+ 1801ea0:	99 2b 00 05 	stb     r9,5(r11)
+ 1801ea4:	3c 00 01 81 	lis     r0,385
+ 1801ea8:	7c 09 03 78 	mr      r9,r0
+ 1801eac:	88 09 3d 2c 	lbz     r0,15660(r9)
+ 1801eb0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801eb4:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1801eb8:	40 9e 00 d0 	bne-    cr7,1801f88 <generic_FH_TUERMODUL_CTRL+0x104c>
+ 1801ebc:	3c 00 01 81 	lis     r0,385
+ 1801ec0:	7c 0b 03 78 	mr      r11,r0
+ 1801ec4:	80 0b 3c b0 	lwz     r0,15536(r11)
+ 1801ec8:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801ecc:	41 9e 00 bc 	beq-    cr7,1801f88 <generic_FH_TUERMODUL_CTRL+0x104c>
+ 1801ed0:	3c 00 01 81 	lis     r0,385
+ 1801ed4:	7c 0b 03 78 	mr      r11,r0
+ 1801ed8:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1801edc:	3c 00 01 81 	lis     r0,385
+ 1801ee0:	7c 0b 03 78 	mr      r11,r0
+ 1801ee4:	80 0b 3c b0 	lwz     r0,15536(r11)
+ 1801ee8:	7c 00 48 50 	subf    r0,r0,r9
+ 1801eec:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1801ef0:	40 9e 00 98 	bne-    cr7,1801f88 <generic_FH_TUERMODUL_CTRL+0x104c>
+ 1801ef4:	3c 00 01 81 	lis     r0,385
+ 1801ef8:	7c 09 03 78 	mr      r9,r0
+ 1801efc:	88 09 3d 35 	lbz     r0,15669(r9)
+ 1801f00:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801f04:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801f08:	40 9e 00 1c 	bne-    cr7,1801f24 <generic_FH_TUERMODUL_CTRL+0xfe8>
+ 1801f0c:	3c 00 01 81 	lis     r0,385
+ 1801f10:	7c 0b 03 78 	mr      r11,r0
+ 1801f14:	88 0b 3d 58 	lbz     r0,15704(r11)
+ 1801f18:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801f1c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801f20:	41 9e 00 68 	beq-    cr7,1801f88 <generic_FH_TUERMODUL_CTRL+0x104c>
+ 1801f24:	3c 00 01 81 	lis     r0,385
+ 1801f28:	39 20 00 00 	li      r9,0
+ 1801f2c:	7c 0b 03 78 	mr      r11,r0
+ 1801f30:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1801f34:	3c 00 01 81 	lis     r0,385
+ 1801f38:	7c 09 03 78 	mr      r9,r0
+ 1801f3c:	80 09 3d 4c 	lwz     r0,15692(r9)
+ 1801f40:	31 20 00 01 	addic   r9,r0,1
+ 1801f44:	3c 00 01 81 	lis     r0,385
+ 1801f48:	7c 0b 03 78 	mr      r11,r0
+ 1801f4c:	91 2b 3d 4c 	stw     r9,15692(r11)
+ 1801f50:	3c 00 01 81 	lis     r0,385
+ 1801f54:	39 20 00 01 	li      r9,1
+ 1801f58:	7c 0b 03 78 	mr      r11,r0
+ 1801f5c:	99 2b 3d 48 	stb     r9,15688(r11)
+ 1801f60:	3c 00 01 81 	lis     r0,385
+ 1801f64:	30 00 3d 94 	addic   r0,r0,15764
+ 1801f68:	39 20 00 01 	li      r9,1
+ 1801f6c:	7c 0b 03 78 	mr      r11,r0
+ 1801f70:	99 2b 00 05 	stb     r9,5(r11)
+ 1801f74:	3c 00 01 81 	lis     r0,385
+ 1801f78:	39 20 00 01 	li      r9,1
+ 1801f7c:	7c 0b 03 78 	mr      r11,r0
+ 1801f80:	99 2b 3c e0 	stb     r9,15584(r11)
+ 1801f84:	48 00 01 84 	b       1802108 <generic_FH_TUERMODUL_CTRL+0x11cc>
+ 1801f88:	3c 00 01 81 	lis     r0,385
+ 1801f8c:	7c 09 03 78 	mr      r9,r0
+ 1801f90:	88 09 3c e0 	lbz     r0,15584(r9)
+ 1801f94:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801f98:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1801f9c:	40 9e 00 dc 	bne-    cr7,1802078 <generic_FH_TUERMODUL_CTRL+0x113c>
+ 1801fa0:	3c 00 01 81 	lis     r0,385
+ 1801fa4:	7c 0b 03 78 	mr      r11,r0
+ 1801fa8:	88 0b 3d 2c 	lbz     r0,15660(r11)
+ 1801fac:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1801fb0:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1801fb4:	40 9e 00 c0 	bne-    cr7,1802074 <generic_FH_TUERMODUL_CTRL+0x1138>
+ 1801fb8:	3c 00 01 81 	lis     r0,385
+ 1801fbc:	7c 09 03 78 	mr      r9,r0
+ 1801fc0:	80 09 3c 9c 	lwz     r0,15516(r9)
+ 1801fc4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1801fc8:	41 9e 00 ac 	beq-    cr7,1802074 <generic_FH_TUERMODUL_CTRL+0x1138>
+ 1801fcc:	3c 00 01 81 	lis     r0,385
+ 1801fd0:	7c 0b 03 78 	mr      r11,r0
+ 1801fd4:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1801fd8:	3c 00 01 81 	lis     r0,385
+ 1801fdc:	7c 0b 03 78 	mr      r11,r0
+ 1801fe0:	80 0b 3c 9c 	lwz     r0,15516(r11)
+ 1801fe4:	7c 00 48 50 	subf    r0,r0,r9
+ 1801fe8:	2f 80 00 03 	cmpwi   cr7,r0,3
+ 1801fec:	40 9e 00 88 	bne-    cr7,1802074 <generic_FH_TUERMODUL_CTRL+0x1138>
+ 1801ff0:	3c 00 01 81 	lis     r0,385
+ 1801ff4:	7c 09 03 78 	mr      r9,r0
+ 1801ff8:	88 09 3d 35 	lbz     r0,15669(r9)
+ 1801ffc:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802000:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802004:	40 9e 00 70 	bne-    cr7,1802074 <generic_FH_TUERMODUL_CTRL+0x1138>
+ 1802008:	3c 00 01 81 	lis     r0,385
+ 180200c:	7c 0b 03 78 	mr      r11,r0
+ 1802010:	88 0b 3d 58 	lbz     r0,15704(r11)
+ 1802014:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802018:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180201c:	40 9e 00 58 	bne-    cr7,1802074 <generic_FH_TUERMODUL_CTRL+0x1138>
+ 1802020:	3c 00 01 81 	lis     r0,385
+ 1802024:	7c 09 03 78 	mr      r9,r0
+ 1802028:	80 09 3d 4c 	lwz     r0,15692(r9)
+ 180202c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802030:	40 9d 00 44 	ble-    cr7,1802074 <generic_FH_TUERMODUL_CTRL+0x1138>
+ 1802034:	3c 00 01 81 	lis     r0,385
+ 1802038:	39 20 00 00 	li      r9,0
+ 180203c:	7c 0b 03 78 	mr      r11,r0
+ 1802040:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1802044:	3c 00 01 81 	lis     r0,385
+ 1802048:	7c 09 03 78 	mr      r9,r0
+ 180204c:	80 09 3d 4c 	lwz     r0,15692(r9)
+ 1802050:	31 20 ff ff 	addic   r9,r0,-1
+ 1802054:	3c 00 01 81 	lis     r0,385
+ 1802058:	7c 0b 03 78 	mr      r11,r0
+ 180205c:	91 2b 3d 4c 	stw     r9,15692(r11)
+ 1802060:	3c 00 01 81 	lis     r0,385
+ 1802064:	39 20 00 01 	li      r9,1
+ 1802068:	7c 0b 03 78 	mr      r11,r0
+ 180206c:	99 2b 3c e0 	stb     r9,15584(r11)
+ 1802070:	48 00 00 40 	b       18020b0 <generic_FH_TUERMODUL_CTRL+0x1174>
+ 1802074:	48 00 00 3c 	b       18020b0 <generic_FH_TUERMODUL_CTRL+0x1174>
+ 1802078:	3c 00 01 81 	lis     r0,385
+ 180207c:	39 20 00 00 	li      r9,0
+ 1802080:	7c 0b 03 78 	mr      r11,r0
+ 1802084:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1802088:	3c 00 01 81 	lis     r0,385
+ 180208c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802090:	39 20 00 01 	li      r9,1
+ 1802094:	7c 0b 03 78 	mr      r11,r0
+ 1802098:	99 2b 00 05 	stb     r9,5(r11)
+ 180209c:	3c 00 01 81 	lis     r0,385
+ 18020a0:	39 20 00 01 	li      r9,1
+ 18020a4:	7c 0b 03 78 	mr      r11,r0
+ 18020a8:	99 2b 3c e0 	stb     r9,15584(r11)
+ 18020ac:	48 00 00 5c 	b       1802108 <generic_FH_TUERMODUL_CTRL+0x11cc>
+ 18020b0:	48 00 00 58 	b       1802108 <generic_FH_TUERMODUL_CTRL+0x11cc>
+ 18020b4:	3c 00 01 81 	lis     r0,385
+ 18020b8:	39 20 00 00 	li      r9,0
+ 18020bc:	7c 0b 03 78 	mr      r11,r0
+ 18020c0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18020c4:	3c 00 01 81 	lis     r0,385
+ 18020c8:	39 20 00 00 	li      r9,0
+ 18020cc:	7c 0b 03 78 	mr      r11,r0
+ 18020d0:	91 2b 3d 4c 	stw     r9,15692(r11)
+ 18020d4:	3c 00 01 81 	lis     r0,385
+ 18020d8:	39 20 00 01 	li      r9,1
+ 18020dc:	7c 0b 03 78 	mr      r11,r0
+ 18020e0:	99 2b 3d 48 	stb     r9,15688(r11)
+ 18020e4:	3c 00 01 81 	lis     r0,385
+ 18020e8:	30 00 3d 94 	addic   r0,r0,15764
+ 18020ec:	39 20 00 01 	li      r9,1
+ 18020f0:	7c 0b 03 78 	mr      r11,r0
+ 18020f4:	99 2b 00 05 	stb     r9,5(r11)
+ 18020f8:	3c 00 01 81 	lis     r0,385
+ 18020fc:	39 20 00 01 	li      r9,1
+ 1802100:	7c 0b 03 78 	mr      r11,r0
+ 1802104:	99 2b 3c e0 	stb     r9,15584(r11)
+ 1802108:	3c 00 01 81 	lis     r0,385
+ 180210c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802110:	7c 09 03 78 	mr      r9,r0
+ 1802114:	88 09 00 04 	lbz     r0,4(r9)
+ 1802118:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180211c:	3c 00 01 81 	lis     r0,385
+ 1802120:	30 00 3d 94 	addic   r0,r0,15764
+ 1802124:	7c 0b 03 78 	mr      r11,r0
+ 1802128:	99 2b 00 05 	stb     r9,5(r11)
+ 180212c:	3c 00 01 81 	lis     r0,385
+ 1802130:	30 00 3d 94 	addic   r0,r0,15764
+ 1802134:	7c 09 03 78 	mr      r9,r0
+ 1802138:	88 09 00 06 	lbz     r0,6(r9)
+ 180213c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802140:	3c 00 01 81 	lis     r0,385
+ 1802144:	30 00 3d 94 	addic   r0,r0,15764
+ 1802148:	7c 0b 03 78 	mr      r11,r0
+ 180214c:	99 2b 00 07 	stb     r9,7(r11)
+ 1802150:	39 7f 00 10 	addi    r11,r31,16
+ 1802154:	83 eb ff fc 	lwz     r31,-4(r11)
+ 1802158:	7d 61 5b 78 	mr      r1,r11
+ 180215c:	4e 80 00 20 	blr
+
+01802160 <generic_EINKLEMMSCHUTZ_CTRL>:
+ 1802160:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1802164:	93 e1 00 0c 	stw     r31,12(r1)
+ 1802168:	7c 3f 0b 78 	mr      r31,r1
+ 180216c:	3c 00 01 81 	lis     r0,385
+ 1802170:	30 00 3d 94 	addic   r0,r0,15764
+ 1802174:	7c 09 03 78 	mr      r9,r0
+ 1802178:	88 09 00 10 	lbz     r0,16(r9)
+ 180217c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802180:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802184:	41 9e 01 70 	beq-    cr7,18022f4 <generic_EINKLEMMSCHUTZ_CTRL+0x194>
+ 1802188:	3c 00 01 81 	lis     r0,385
+ 180218c:	7c 0b 03 78 	mr      r11,r0
+ 1802190:	88 0b 3d 13 	lbz     r0,15635(r11)
+ 1802194:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802198:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 180219c:	41 9e 00 10 	beq-    cr7,18021ac <generic_EINKLEMMSCHUTZ_CTRL+0x4c>
+ 18021a0:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 18021a4:	41 9e 00 a0 	beq-    cr7,1802244 <generic_EINKLEMMSCHUTZ_CTRL+0xe4>
+ 18021a8:	48 00 01 04 	b       18022ac <generic_EINKLEMMSCHUTZ_CTRL+0x14c>
+ 18021ac:	3c 00 01 81 	lis     r0,385
+ 18021b0:	7c 09 03 78 	mr      r9,r0
+ 18021b4:	88 09 3c e5 	lbz     r0,15589(r9)
+ 18021b8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18021bc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18021c0:	41 9e 01 10 	beq-    cr7,18022d0 <generic_EINKLEMMSCHUTZ_CTRL+0x170>
+ 18021c4:	3c 00 01 81 	lis     r0,385
+ 18021c8:	7c 0b 03 78 	mr      r11,r0
+ 18021cc:	88 0b 3c ad 	lbz     r0,15533(r11)
+ 18021d0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18021d4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18021d8:	40 9e 01 00 	bne-    cr7,18022d8 <generic_EINKLEMMSCHUTZ_CTRL+0x178>
+ 18021dc:	3c 00 01 81 	lis     r0,385
+ 18021e0:	7c 09 03 78 	mr      r9,r0
+ 18021e4:	88 09 3d 3e 	lbz     r0,15678(r9)
+ 18021e8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18021ec:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18021f0:	41 9e 00 1c 	beq-    cr7,180220c <generic_EINKLEMMSCHUTZ_CTRL+0xac>
+ 18021f4:	3c 00 01 81 	lis     r0,385
+ 18021f8:	7c 0b 03 78 	mr      r11,r0
+ 18021fc:	88 0b 3d 70 	lbz     r0,15728(r11)
+ 1802200:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802204:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802208:	40 9e 00 d8 	bne-    cr7,18022e0 <generic_EINKLEMMSCHUTZ_CTRL+0x180>
+ 180220c:	3c 00 01 81 	lis     r0,385
+ 1802210:	39 20 00 00 	li      r9,0
+ 1802214:	7c 0b 03 78 	mr      r11,r0
+ 1802218:	99 2b 3c e3 	stb     r9,15587(r11)
+ 180221c:	3c 00 01 81 	lis     r0,385
+ 1802220:	30 00 3d 94 	addic   r0,r0,15764
+ 1802224:	39 20 00 01 	li      r9,1
+ 1802228:	7c 0b 03 78 	mr      r11,r0
+ 180222c:	99 2b 00 18 	stb     r9,24(r11)
+ 1802230:	3c 00 01 81 	lis     r0,385
+ 1802234:	39 20 00 02 	li      r9,2
+ 1802238:	7c 0b 03 78 	mr      r11,r0
+ 180223c:	99 2b 3d 13 	stb     r9,15635(r11)
+ 1802240:	48 00 00 b4 	b       18022f4 <generic_EINKLEMMSCHUTZ_CTRL+0x194>
+ 1802244:	3c 00 01 81 	lis     r0,385
+ 1802248:	30 00 3d 94 	addic   r0,r0,15764
+ 180224c:	39 20 00 00 	li      r9,0
+ 1802250:	7c 0b 03 78 	mr      r11,r0
+ 1802254:	99 2b 00 18 	stb     r9,24(r11)
+ 1802258:	3c 00 01 81 	lis     r0,385
+ 180225c:	7c 09 03 78 	mr      r9,r0
+ 1802260:	88 09 3c e5 	lbz     r0,15589(r9)
+ 1802264:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802268:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180226c:	40 9e 00 7c 	bne-    cr7,18022e8 <generic_EINKLEMMSCHUTZ_CTRL+0x188>
+ 1802270:	3c 00 01 81 	lis     r0,385
+ 1802274:	7c 0b 03 78 	mr      r11,r0
+ 1802278:	88 0b 3c ad 	lbz     r0,15533(r11)
+ 180227c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802280:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802284:	41 9e 00 6c 	beq-    cr7,18022f0 <generic_EINKLEMMSCHUTZ_CTRL+0x190>
+ 1802288:	3c 00 01 81 	lis     r0,385
+ 180228c:	39 20 00 00 	li      r9,0
+ 1802290:	7c 0b 03 78 	mr      r11,r0
+ 1802294:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1802298:	3c 00 01 81 	lis     r0,385
+ 180229c:	39 20 00 01 	li      r9,1
+ 18022a0:	7c 0b 03 78 	mr      r11,r0
+ 18022a4:	99 2b 3d 13 	stb     r9,15635(r11)
+ 18022a8:	48 00 00 4c 	b       18022f4 <generic_EINKLEMMSCHUTZ_CTRL+0x194>
+ 18022ac:	3c 00 01 81 	lis     r0,385
+ 18022b0:	39 20 00 00 	li      r9,0
+ 18022b4:	7c 0b 03 78 	mr      r11,r0
+ 18022b8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18022bc:	3c 00 01 81 	lis     r0,385
+ 18022c0:	39 20 00 01 	li      r9,1
+ 18022c4:	7c 0b 03 78 	mr      r11,r0
+ 18022c8:	99 2b 3d 13 	stb     r9,15635(r11)
+ 18022cc:	48 00 00 28 	b       18022f4 <generic_EINKLEMMSCHUTZ_CTRL+0x194>
+ 18022d0:	60 00 00 00 	nop
+ 18022d4:	48 00 00 20 	b       18022f4 <generic_EINKLEMMSCHUTZ_CTRL+0x194>
+ 18022d8:	60 00 00 00 	nop
+ 18022dc:	48 00 00 18 	b       18022f4 <generic_EINKLEMMSCHUTZ_CTRL+0x194>
+ 18022e0:	60 00 00 00 	nop
+ 18022e4:	48 00 00 10 	b       18022f4 <generic_EINKLEMMSCHUTZ_CTRL+0x194>
+ 18022e8:	60 00 00 00 	nop
+ 18022ec:	48 00 00 08 	b       18022f4 <generic_EINKLEMMSCHUTZ_CTRL+0x194>
+ 18022f0:	60 00 00 00 	nop
+ 18022f4:	39 7f 00 10 	addi    r11,r31,16
+ 18022f8:	83 eb ff fc 	lwz     r31,-4(r11)
+ 18022fc:	7d 61 5b 78 	mr      r1,r11
+ 1802300:	4e 80 00 20 	blr
+
+01802304 <generic_BLOCK_ERKENNUNG_CTRL>:
+ 1802304:	94 21 ff e8 	stwu    r1,-24(r1)
+ 1802308:	93 e1 00 14 	stw     r31,20(r1)
+ 180230c:	7c 3f 0b 78 	mr      r31,r1
+ 1802310:	3c 00 01 81 	lis     r0,385
+ 1802314:	30 00 3d 94 	addic   r0,r0,15764
+ 1802318:	7c 09 03 78 	mr      r9,r0
+ 180231c:	88 09 00 13 	lbz     r0,19(r9)
+ 1802320:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802324:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802328:	40 9e 00 50 	bne-    cr7,1802378 <generic_BLOCK_ERKENNUNG_CTRL+0x74>
+ 180232c:	3c 00 01 81 	lis     r0,385
+ 1802330:	30 00 3d 94 	addic   r0,r0,15764
+ 1802334:	7c 0b 03 78 	mr      r11,r0
+ 1802338:	88 0b 00 15 	lbz     r0,21(r11)
+ 180233c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802340:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802344:	41 9e 00 34 	beq-    cr7,1802378 <generic_BLOCK_ERKENNUNG_CTRL+0x74>
+ 1802348:	3c 00 01 81 	lis     r0,385
+ 180234c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802350:	7c 09 03 78 	mr      r9,r0
+ 1802354:	88 09 00 14 	lbz     r0,20(r9)
+ 1802358:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180235c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802360:	40 9e 00 18 	bne-    cr7,1802378 <generic_BLOCK_ERKENNUNG_CTRL+0x74>
+ 1802364:	3c 00 01 81 	lis     r0,385
+ 1802368:	30 00 3d 94 	addic   r0,r0,15764
+ 180236c:	39 20 00 00 	li      r9,0
+ 1802370:	7c 0b 03 78 	mr      r11,r0
+ 1802374:	99 2b 00 00 	stb     r9,0(r11)
+ 1802378:	3c 00 01 81 	lis     r0,385
+ 180237c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802380:	7c 09 03 78 	mr      r9,r0
+ 1802384:	88 09 00 13 	lbz     r0,19(r9)
+ 1802388:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180238c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802390:	41 9e 03 c8 	beq-    cr7,1802758 <generic_BLOCK_ERKENNUNG_CTRL+0x454>
+ 1802394:	3c 00 01 81 	lis     r0,385
+ 1802398:	7c 0b 03 78 	mr      r11,r0
+ 180239c:	88 0b 3c f5 	lbz     r0,15605(r11)
+ 18023a0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18023a4:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 18023a8:	41 9e 00 10 	beq-    cr7,18023b8 <generic_BLOCK_ERKENNUNG_CTRL+0xb4>
+ 18023ac:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 18023b0:	41 9e 00 b4 	beq-    cr7,1802464 <generic_BLOCK_ERKENNUNG_CTRL+0x160>
+ 18023b4:	48 00 03 74 	b       1802728 <generic_BLOCK_ERKENNUNG_CTRL+0x424>
+ 18023b8:	3c 00 01 81 	lis     r0,385
+ 18023bc:	7c 0b 03 78 	mr      r11,r0
+ 18023c0:	81 2b 3d 68 	lwz     r9,15720(r11)
+ 18023c4:	3c 00 01 81 	lis     r0,385
+ 18023c8:	7c 0b 03 78 	mr      r11,r0
+ 18023cc:	80 0b 3c c0 	lwz     r0,15552(r11)
+ 18023d0:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 18023d4:	41 9e 03 78 	beq-    cr7,180274c <generic_BLOCK_ERKENNUNG_CTRL+0x448>
+ 18023d8:	3c 00 01 81 	lis     r0,385
+ 18023dc:	7c 09 03 78 	mr      r9,r0
+ 18023e0:	80 09 3d 68 	lwz     r0,15720(r9)
+ 18023e4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18023e8:	40 9d 03 6c 	ble-    cr7,1802754 <generic_BLOCK_ERKENNUNG_CTRL+0x450>
+ 18023ec:	3c 00 01 81 	lis     r0,385
+ 18023f0:	39 20 00 00 	li      r9,0
+ 18023f4:	7c 0b 03 78 	mr      r11,r0
+ 18023f8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18023fc:	3c 00 01 81 	lis     r0,385
+ 1802400:	39 20 00 00 	li      r9,0
+ 1802404:	7c 0b 03 78 	mr      r11,r0
+ 1802408:	99 2b 3d 6c 	stb     r9,15724(r11)
+ 180240c:	3c 00 01 81 	lis     r0,385
+ 1802410:	39 20 00 02 	li      r9,2
+ 1802414:	7c 0b 03 78 	mr      r11,r0
+ 1802418:	99 2b 3c f5 	stb     r9,15605(r11)
+ 180241c:	3c 00 01 81 	lis     r0,385
+ 1802420:	39 20 00 00 	li      r9,0
+ 1802424:	7c 0b 03 78 	mr      r11,r0
+ 1802428:	91 2b 3c f0 	stw     r9,15600(r11)
+ 180242c:	3c 00 01 81 	lis     r0,385
+ 1802430:	39 20 00 02 	li      r9,2
+ 1802434:	7c 0b 03 78 	mr      r11,r0
+ 1802438:	91 2b 3d 38 	stw     r9,15672(r11)
+ 180243c:	3c 00 01 81 	lis     r0,385
+ 1802440:	39 20 00 03 	li      r9,3
+ 1802444:	7c 0b 03 78 	mr      r11,r0
+ 1802448:	99 2b 3c b6 	stb     r9,15542(r11)
+ 180244c:	3c 00 01 81 	lis     r0,385
+ 1802450:	30 00 3d 94 	addic   r0,r0,15764
+ 1802454:	39 20 00 01 	li      r9,1
+ 1802458:	7c 0b 03 78 	mr      r11,r0
+ 180245c:	99 2b 00 00 	stb     r9,0(r11)
+ 1802460:	48 00 02 f8 	b       1802758 <generic_BLOCK_ERKENNUNG_CTRL+0x454>
+ 1802464:	3c 00 01 81 	lis     r0,385
+ 1802468:	7c 09 03 78 	mr      r9,r0
+ 180246c:	88 09 3d 58 	lbz     r0,15704(r9)
+ 1802470:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802474:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802478:	40 9e 00 1c 	bne-    cr7,1802494 <generic_BLOCK_ERKENNUNG_CTRL+0x190>
+ 180247c:	3c 00 01 81 	lis     r0,385
+ 1802480:	7c 0b 03 78 	mr      r11,r0
+ 1802484:	88 0b 3c e7 	lbz     r0,15591(r11)
+ 1802488:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180248c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802490:	40 9e 00 34 	bne-    cr7,18024c4 <generic_BLOCK_ERKENNUNG_CTRL+0x1c0>
+ 1802494:	3c 00 01 81 	lis     r0,385
+ 1802498:	7c 09 03 78 	mr      r9,r0
+ 180249c:	88 09 3d 35 	lbz     r0,15669(r9)
+ 18024a0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18024a4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18024a8:	40 9e 00 50 	bne-    cr7,18024f8 <generic_BLOCK_ERKENNUNG_CTRL+0x1f4>
+ 18024ac:	3c 00 01 81 	lis     r0,385
+ 18024b0:	7c 0b 03 78 	mr      r11,r0
+ 18024b4:	88 0b 3c 98 	lbz     r0,15512(r11)
+ 18024b8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18024bc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18024c0:	41 9e 00 38 	beq-    cr7,18024f8 <generic_BLOCK_ERKENNUNG_CTRL+0x1f4>
+ 18024c4:	3c 00 01 81 	lis     r0,385
+ 18024c8:	39 20 00 00 	li      r9,0
+ 18024cc:	7c 0b 03 78 	mr      r11,r0
+ 18024d0:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18024d4:	3c 00 01 81 	lis     r0,385
+ 18024d8:	39 20 00 01 	li      r9,1
+ 18024dc:	7c 0b 03 78 	mr      r11,r0
+ 18024e0:	99 2b 3c f5 	stb     r9,15605(r11)
+ 18024e4:	3c 00 01 81 	lis     r0,385
+ 18024e8:	39 20 00 00 	li      r9,0
+ 18024ec:	7c 0b 03 78 	mr      r11,r0
+ 18024f0:	99 2b 3c b6 	stb     r9,15542(r11)
+ 18024f4:	48 00 02 64 	b       1802758 <generic_BLOCK_ERKENNUNG_CTRL+0x454>
+ 18024f8:	3c 00 01 81 	lis     r0,385
+ 18024fc:	7c 09 03 78 	mr      r9,r0
+ 1802500:	88 09 3c b6 	lbz     r0,15542(r9)
+ 1802504:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802508:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 180250c:	41 9e 00 18 	beq-    cr7,1802524 <generic_BLOCK_ERKENNUNG_CTRL+0x220>
+ 1802510:	2f 80 00 03 	cmpwi   cr7,r0,3
+ 1802514:	41 9e 00 6c 	beq-    cr7,1802580 <generic_BLOCK_ERKENNUNG_CTRL+0x27c>
+ 1802518:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 180251c:	40 9e 01 b0 	bne-    cr7,18026cc <generic_BLOCK_ERKENNUNG_CTRL+0x3c8>
+ 1802520:	48 00 02 04 	b       1802724 <generic_BLOCK_ERKENNUNG_CTRL+0x420>
+ 1802524:	3c 00 01 81 	lis     r0,385
+ 1802528:	7c 0b 03 78 	mr      r11,r0
+ 180252c:	80 0b 3d 38 	lwz     r0,15672(r11)
+ 1802530:	31 20 ff fe 	addic   r9,r0,-2
+ 1802534:	3c 00 01 81 	lis     r0,385
+ 1802538:	7c 0b 03 78 	mr      r11,r0
+ 180253c:	80 0b 3d 68 	lwz     r0,15720(r11)
+ 1802540:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 1802544:	40 9c 00 38 	bge-    cr7,180257c <generic_BLOCK_ERKENNUNG_CTRL+0x278>
+ 1802548:	3c 00 01 81 	lis     r0,385
+ 180254c:	39 20 00 00 	li      r9,0
+ 1802550:	7c 0b 03 78 	mr      r11,r0
+ 1802554:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1802558:	3c 00 01 81 	lis     r0,385
+ 180255c:	39 20 00 01 	li      r9,1
+ 1802560:	7c 0b 03 78 	mr      r11,r0
+ 1802564:	99 2b 3d 6c 	stb     r9,15724(r11)
+ 1802568:	3c 00 01 81 	lis     r0,385
+ 180256c:	39 20 00 01 	li      r9,1
+ 1802570:	7c 0b 03 78 	mr      r11,r0
+ 1802574:	99 2b 3c b6 	stb     r9,15542(r11)
+ 1802578:	48 00 01 ac 	b       1802724 <generic_BLOCK_ERKENNUNG_CTRL+0x420>
+ 180257c:	48 00 01 a8 	b       1802724 <generic_BLOCK_ERKENNUNG_CTRL+0x420>
+ 1802580:	3c 00 01 81 	lis     r0,385
+ 1802584:	30 00 3d 94 	addic   r0,r0,15764
+ 1802588:	39 20 00 00 	li      r9,0
+ 180258c:	7c 0b 03 78 	mr      r11,r0
+ 1802590:	99 2b 00 00 	stb     r9,0(r11)
+ 1802594:	3c 00 01 81 	lis     r0,385
+ 1802598:	7c 09 03 78 	mr      r9,r0
+ 180259c:	80 09 3c f0 	lwz     r0,15600(r9)
+ 18025a0:	2f 80 00 0b 	cmpwi   cr7,r0,11
+ 18025a4:	40 9e 00 3c 	bne-    cr7,18025e0 <generic_BLOCK_ERKENNUNG_CTRL+0x2dc>
+ 18025a8:	3c 00 01 81 	lis     r0,385
+ 18025ac:	7c 0b 03 78 	mr      r11,r0
+ 18025b0:	80 0b 3c d4 	lwz     r0,15572(r11)
+ 18025b4:	2f 80 00 0b 	cmpwi   cr7,r0,11
+ 18025b8:	41 9e 00 28 	beq-    cr7,18025e0 <generic_BLOCK_ERKENNUNG_CTRL+0x2dc>
+ 18025bc:	3c 00 01 81 	lis     r0,385
+ 18025c0:	39 20 00 00 	li      r9,0
+ 18025c4:	7c 0b 03 78 	mr      r11,r0
+ 18025c8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18025cc:	3c 00 01 81 	lis     r0,385
+ 18025d0:	39 20 00 02 	li      r9,2
+ 18025d4:	7c 0b 03 78 	mr      r11,r0
+ 18025d8:	99 2b 3c b6 	stb     r9,15542(r11)
+ 18025dc:	48 00 01 48 	b       1802724 <generic_BLOCK_ERKENNUNG_CTRL+0x420>
+ 18025e0:	3c 00 01 81 	lis     r0,385
+ 18025e4:	7c 09 03 78 	mr      r9,r0
+ 18025e8:	88 09 3c b6 	lbz     r0,15542(r9)
+ 18025ec:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18025f0:	2f 80 00 03 	cmpwi   cr7,r0,3
+ 18025f4:	40 9e 00 d4 	bne-    cr7,18026c8 <generic_BLOCK_ERKENNUNG_CTRL+0x3c4>
+ 18025f8:	3c 00 01 81 	lis     r0,385
+ 18025fc:	7c 0b 03 78 	mr      r11,r0
+ 1802600:	88 0b 3d 2c 	lbz     r0,15660(r11)
+ 1802604:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802608:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 180260c:	40 9e 00 bc 	bne-    cr7,18026c8 <generic_BLOCK_ERKENNUNG_CTRL+0x3c4>
+ 1802610:	3c 00 01 81 	lis     r0,385
+ 1802614:	7c 09 03 78 	mr      r9,r0
+ 1802618:	80 09 3c fc 	lwz     r0,15612(r9)
+ 180261c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802620:	41 9e 00 a8 	beq-    cr7,18026c8 <generic_BLOCK_ERKENNUNG_CTRL+0x3c4>
+ 1802624:	3c 00 01 81 	lis     r0,385
+ 1802628:	7c 0b 03 78 	mr      r11,r0
+ 180262c:	81 2b 3d 14 	lwz     r9,15636(r11)
+ 1802630:	3c 00 01 81 	lis     r0,385
+ 1802634:	7c 0b 03 78 	mr      r11,r0
+ 1802638:	80 0b 3c fc 	lwz     r0,15612(r11)
+ 180263c:	7d 20 48 50 	subf    r9,r0,r9
+ 1802640:	3c 00 43 30 	lis     r0,17200
+ 1802644:	3d 60 01 80 	lis     r11,384
+ 1802648:	c8 0b 3a b0 	lfd     f0,15024(r11)
+ 180264c:	91 3f 00 0c 	stw     r9,12(r31)
+ 1802650:	90 1f 00 08 	stw     r0,8(r31)
+ 1802654:	c9 bf 00 08 	lfd     f13,8(r31)
+ 1802658:	fd ad 00 28 	fsub    f13,f13,f0
+ 180265c:	3c 00 01 80 	lis     r0,384
+ 1802660:	7c 09 03 78 	mr      r9,r0
+ 1802664:	c8 09 3a c0 	lfd     f0,15040(r9)
+ 1802668:	ff 8d 00 00 	fcmpu   cr7,f13,f0
+ 180266c:	41 9e 00 08 	beq-    cr7,1802674 <generic_BLOCK_ERKENNUNG_CTRL+0x370>
+ 1802670:	48 00 00 58 	b       18026c8 <generic_BLOCK_ERKENNUNG_CTRL+0x3c4>
+ 1802674:	3c 00 01 81 	lis     r0,385
+ 1802678:	7c 0b 03 78 	mr      r11,r0
+ 180267c:	80 0b 3c f0 	lwz     r0,15600(r11)
+ 1802680:	31 20 00 01 	addic   r9,r0,1
+ 1802684:	3c 00 01 81 	lis     r0,385
+ 1802688:	7c 0b 03 78 	mr      r11,r0
+ 180268c:	91 2b 3c f0 	stw     r9,15600(r11)
+ 1802690:	3c 00 01 81 	lis     r0,385
+ 1802694:	7c 0b 03 78 	mr      r11,r0
+ 1802698:	81 2b 3d 68 	lwz     r9,15720(r11)
+ 180269c:	3c 00 01 81 	lis     r0,385
+ 18026a0:	7c 0b 03 78 	mr      r11,r0
+ 18026a4:	80 0b 3d 38 	lwz     r0,15672(r11)
+ 18026a8:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 18026ac:	40 9d 00 1c 	ble-    cr7,18026c8 <generic_BLOCK_ERKENNUNG_CTRL+0x3c4>
+ 18026b0:	3c 00 01 81 	lis     r0,385
+ 18026b4:	7c 0b 03 78 	mr      r11,r0
+ 18026b8:	81 2b 3d 68 	lwz     r9,15720(r11)
+ 18026bc:	3c 00 01 81 	lis     r0,385
+ 18026c0:	7c 0b 03 78 	mr      r11,r0
+ 18026c4:	91 2b 3d 38 	stw     r9,15672(r11)
+ 18026c8:	48 00 00 5c 	b       1802724 <generic_BLOCK_ERKENNUNG_CTRL+0x420>
+ 18026cc:	3c 00 01 81 	lis     r0,385
+ 18026d0:	39 20 00 00 	li      r9,0
+ 18026d4:	7c 0b 03 78 	mr      r11,r0
+ 18026d8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18026dc:	3c 00 01 81 	lis     r0,385
+ 18026e0:	39 20 00 00 	li      r9,0
+ 18026e4:	7c 0b 03 78 	mr      r11,r0
+ 18026e8:	91 2b 3c f0 	stw     r9,15600(r11)
+ 18026ec:	3c 00 01 81 	lis     r0,385
+ 18026f0:	39 20 00 02 	li      r9,2
+ 18026f4:	7c 0b 03 78 	mr      r11,r0
+ 18026f8:	91 2b 3d 38 	stw     r9,15672(r11)
+ 18026fc:	3c 00 01 81 	lis     r0,385
+ 1802700:	39 20 00 03 	li      r9,3
+ 1802704:	7c 0b 03 78 	mr      r11,r0
+ 1802708:	99 2b 3c b6 	stb     r9,15542(r11)
+ 180270c:	3c 00 01 81 	lis     r0,385
+ 1802710:	30 00 3d 94 	addic   r0,r0,15764
+ 1802714:	39 20 00 01 	li      r9,1
+ 1802718:	7c 0b 03 78 	mr      r11,r0
+ 180271c:	99 2b 00 00 	stb     r9,0(r11)
+ 1802720:	48 00 00 38 	b       1802758 <generic_BLOCK_ERKENNUNG_CTRL+0x454>
+ 1802724:	48 00 00 34 	b       1802758 <generic_BLOCK_ERKENNUNG_CTRL+0x454>
+ 1802728:	3c 00 01 81 	lis     r0,385
+ 180272c:	39 20 00 00 	li      r9,0
+ 1802730:	7c 0b 03 78 	mr      r11,r0
+ 1802734:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1802738:	3c 00 01 81 	lis     r0,385
+ 180273c:	39 20 00 01 	li      r9,1
+ 1802740:	7c 0b 03 78 	mr      r11,r0
+ 1802744:	99 2b 3c f5 	stb     r9,15605(r11)
+ 1802748:	48 00 00 10 	b       1802758 <generic_BLOCK_ERKENNUNG_CTRL+0x454>
+ 180274c:	60 00 00 00 	nop
+ 1802750:	48 00 00 08 	b       1802758 <generic_BLOCK_ERKENNUNG_CTRL+0x454>
+ 1802754:	60 00 00 00 	nop
+ 1802758:	39 7f 00 18 	addi    r11,r31,24
+ 180275c:	83 eb ff fc 	lwz     r31,-4(r11)
+ 1802760:	7d 61 5b 78 	mr      r1,r11
+ 1802764:	4e 80 00 20 	blr
+
+01802768 <FH_DU>:
+ 1802768:	94 21 ff f0 	stwu    r1,-16(r1)
+ 180276c:	7c 08 02 a6 	mflr    r0
+ 1802770:	90 01 00 14 	stw     r0,20(r1)
+ 1802774:	93 e1 00 0c 	stw     r31,12(r1)
+ 1802778:	7c 3f 0b 78 	mr      r31,r1
+ 180277c:	3c 00 01 81 	lis     r0,385
+ 1802780:	39 20 00 01 	li      r9,1
+ 1802784:	7c 0b 03 78 	mr      r11,r0
+ 1802788:	91 2b 3d 14 	stw     r9,15636(r11)
+ 180278c:	3c 00 01 81 	lis     r0,385
+ 1802790:	39 20 00 00 	li      r9,0
+ 1802794:	7c 0b 03 78 	mr      r11,r0
+ 1802798:	99 2b 3c e3 	stb     r9,15587(r11)
+ 180279c:	3c 00 01 81 	lis     r0,385
+ 18027a0:	39 20 00 00 	li      r9,0
+ 18027a4:	7c 0b 03 78 	mr      r11,r0
+ 18027a8:	99 2b 3d 2c 	stb     r9,15660(r11)
+ 18027ac:	48 00 10 f0 	b       180389c <FH_DU+0x1134>
+ 18027b0:	3c 00 01 81 	lis     r0,385
+ 18027b4:	39 20 00 01 	li      r9,1
+ 18027b8:	7c 0b 03 78 	mr      r11,r0
+ 18027bc:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18027c0:	3c 00 01 81 	lis     r0,385
+ 18027c4:	7c 09 03 78 	mr      r9,r0
+ 18027c8:	88 09 3d 2c 	lbz     r0,15660(r9)
+ 18027cc:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18027d0:	30 00 00 01 	addic   r0,r0,1
+ 18027d4:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18027d8:	3c 00 01 81 	lis     r0,385
+ 18027dc:	7c 0b 03 78 	mr      r11,r0
+ 18027e0:	99 2b 3d 2c 	stb     r9,15660(r11)
+ 18027e4:	3c 00 01 81 	lis     r0,385
+ 18027e8:	7c 09 03 78 	mr      r9,r0
+ 18027ec:	88 09 3d 34 	lbz     r0,15668(r9)
+ 18027f0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18027f4:	2f 80 00 02 	cmpwi   cr7,r0,2
+ 18027f8:	41 9e 00 78 	beq-    cr7,1802870 <FH_DU+0x108>
+ 18027fc:	2f 80 00 03 	cmpwi   cr7,r0,3
+ 1802800:	41 9e 01 38 	beq-    cr7,1802938 <FH_DU+0x1d0>
+ 1802804:	2f 80 00 01 	cmpwi   cr7,r0,1
+ 1802808:	40 9e 01 94 	bne-    cr7,180299c <FH_DU+0x234>
+ 180280c:	3c 00 01 81 	lis     r0,385
+ 1802810:	7c 0b 03 78 	mr      r11,r0
+ 1802814:	88 0b 3d 28 	lbz     r0,15656(r11)
+ 1802818:	54 00 06 3e 	clrlwi  r0,r0,24
+ 180281c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802820:	40 9e 01 b0 	bne-    cr7,18029d0 <FH_DU+0x268>
+ 1802824:	3c 00 01 81 	lis     r0,385
+ 1802828:	7c 09 03 78 	mr      r9,r0
+ 180282c:	88 09 3d 59 	lbz     r0,15705(r9)
+ 1802830:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802834:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802838:	41 9e 01 a0 	beq-    cr7,18029d8 <FH_DU+0x270>
+ 180283c:	3c 00 01 81 	lis     r0,385
+ 1802840:	39 20 00 00 	li      r9,0
+ 1802844:	7c 0b 03 78 	mr      r11,r0
+ 1802848:	99 2b 3c e3 	stb     r9,15587(r11)
+ 180284c:	3c 00 01 81 	lis     r0,385
+ 1802850:	39 20 00 00 	li      r9,0
+ 1802854:	7c 0b 03 78 	mr      r11,r0
+ 1802858:	91 2b 3d 0c 	stw     r9,15628(r11)
+ 180285c:	3c 00 01 81 	lis     r0,385
+ 1802860:	39 20 00 02 	li      r9,2
+ 1802864:	7c 0b 03 78 	mr      r11,r0
+ 1802868:	99 2b 3d 34 	stb     r9,15668(r11)
+ 180286c:	48 00 01 90 	b       18029fc <FH_DU+0x294>
+ 1802870:	3c 00 01 81 	lis     r0,385
+ 1802874:	7c 09 03 78 	mr      r9,r0
+ 1802878:	88 09 3d 28 	lbz     r0,15656(r9)
+ 180287c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802880:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802884:	41 9e 00 50 	beq-    cr7,18028d4 <FH_DU+0x16c>
+ 1802888:	3c 00 01 81 	lis     r0,385
+ 180288c:	7c 0b 03 78 	mr      r11,r0
+ 1802890:	88 0b 3d 59 	lbz     r0,15705(r11)
+ 1802894:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802898:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180289c:	40 9e 00 38 	bne-    cr7,18028d4 <FH_DU+0x16c>
+ 18028a0:	3c 00 01 81 	lis     r0,385
+ 18028a4:	39 20 00 00 	li      r9,0
+ 18028a8:	7c 0b 03 78 	mr      r11,r0
+ 18028ac:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18028b0:	3c 00 01 81 	lis     r0,385
+ 18028b4:	39 20 ff 9c 	li      r9,-100
+ 18028b8:	7c 0b 03 78 	mr      r11,r0
+ 18028bc:	91 2b 3d 0c 	stw     r9,15628(r11)
+ 18028c0:	3c 00 01 81 	lis     r0,385
+ 18028c4:	39 20 00 01 	li      r9,1
+ 18028c8:	7c 0b 03 78 	mr      r11,r0
+ 18028cc:	99 2b 3d 34 	stb     r9,15668(r11)
+ 18028d0:	48 00 01 2c 	b       18029fc <FH_DU+0x294>
+ 18028d4:	3c 00 01 81 	lis     r0,385
+ 18028d8:	7c 09 03 78 	mr      r9,r0
+ 18028dc:	88 09 3c a1 	lbz     r0,15521(r9)
+ 18028e0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18028e4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18028e8:	41 9e 00 f8 	beq-    cr7,18029e0 <FH_DU+0x278>
+ 18028ec:	3c 00 01 81 	lis     r0,385
+ 18028f0:	7c 0b 03 78 	mr      r11,r0
+ 18028f4:	88 0b 3d 3c 	lbz     r0,15676(r11)
+ 18028f8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18028fc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802900:	40 9e 00 e8 	bne-    cr7,18029e8 <FH_DU+0x280>
+ 1802904:	3c 00 01 81 	lis     r0,385
+ 1802908:	39 20 00 00 	li      r9,0
+ 180290c:	7c 0b 03 78 	mr      r11,r0
+ 1802910:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1802914:	3c 00 01 81 	lis     r0,385
+ 1802918:	39 20 00 64 	li      r9,100
+ 180291c:	7c 0b 03 78 	mr      r11,r0
+ 1802920:	91 2b 3d 0c 	stw     r9,15628(r11)
+ 1802924:	3c 00 01 81 	lis     r0,385
+ 1802928:	39 20 00 03 	li      r9,3
+ 180292c:	7c 0b 03 78 	mr      r11,r0
+ 1802930:	99 2b 3d 34 	stb     r9,15668(r11)
+ 1802934:	48 00 00 c8 	b       18029fc <FH_DU+0x294>
+ 1802938:	3c 00 01 81 	lis     r0,385
+ 180293c:	7c 09 03 78 	mr      r9,r0
+ 1802940:	88 09 3c a1 	lbz     r0,15521(r9)
+ 1802944:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802948:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 180294c:	40 9e 00 a4 	bne-    cr7,18029f0 <FH_DU+0x288>
+ 1802950:	3c 00 01 81 	lis     r0,385
+ 1802954:	7c 0b 03 78 	mr      r11,r0
+ 1802958:	88 0b 3d 3c 	lbz     r0,15676(r11)
+ 180295c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802960:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802964:	41 9e 00 94 	beq-    cr7,18029f8 <FH_DU+0x290>
+ 1802968:	3c 00 01 81 	lis     r0,385
+ 180296c:	39 20 00 00 	li      r9,0
+ 1802970:	7c 0b 03 78 	mr      r11,r0
+ 1802974:	99 2b 3c e3 	stb     r9,15587(r11)
+ 1802978:	3c 00 01 81 	lis     r0,385
+ 180297c:	39 20 00 00 	li      r9,0
+ 1802980:	7c 0b 03 78 	mr      r11,r0
+ 1802984:	91 2b 3d 0c 	stw     r9,15628(r11)
+ 1802988:	3c 00 01 81 	lis     r0,385
+ 180298c:	39 20 00 02 	li      r9,2
+ 1802990:	7c 0b 03 78 	mr      r11,r0
+ 1802994:	99 2b 3d 34 	stb     r9,15668(r11)
+ 1802998:	48 00 00 64 	b       18029fc <FH_DU+0x294>
+ 180299c:	3c 00 01 81 	lis     r0,385
+ 18029a0:	39 20 00 00 	li      r9,0
+ 18029a4:	7c 0b 03 78 	mr      r11,r0
+ 18029a8:	99 2b 3c e3 	stb     r9,15587(r11)
+ 18029ac:	3c 00 01 81 	lis     r0,385
+ 18029b0:	39 20 00 00 	li      r9,0
+ 18029b4:	7c 0b 03 78 	mr      r11,r0
+ 18029b8:	91 2b 3d 0c 	stw     r9,15628(r11)
+ 18029bc:	3c 00 01 81 	lis     r0,385
+ 18029c0:	39 20 00 02 	li      r9,2
+ 18029c4:	7c 0b 03 78 	mr      r11,r0
+ 18029c8:	99 2b 3d 34 	stb     r9,15668(r11)
+ 18029cc:	48 00 00 30 	b       18029fc <FH_DU+0x294>
+ 18029d0:	60 00 00 00 	nop
+ 18029d4:	48 00 00 28 	b       18029fc <FH_DU+0x294>
+ 18029d8:	60 00 00 00 	nop
+ 18029dc:	48 00 00 20 	b       18029fc <FH_DU+0x294>
+ 18029e0:	60 00 00 00 	nop
+ 18029e4:	48 00 00 18 	b       18029fc <FH_DU+0x294>
+ 18029e8:	60 00 00 00 	nop
+ 18029ec:	48 00 00 10 	b       18029fc <FH_DU+0x294>
+ 18029f0:	60 00 00 00 	nop
+ 18029f4:	48 00 00 08 	b       18029fc <FH_DU+0x294>
+ 18029f8:	60 00 00 00 	nop
+ 18029fc:	3c 00 01 81 	lis     r0,385
+ 1802a00:	30 00 3d 94 	addic   r0,r0,15764
+ 1802a04:	7c 09 03 78 	mr      r9,r0
+ 1802a08:	88 09 00 0a 	lbz     r0,10(r9)
+ 1802a0c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802a10:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802a14:	40 9e 00 14 	bne-    cr7,1802a28 <FH_DU+0x2c0>
+ 1802a18:	3c 00 01 81 	lis     r0,385
+ 1802a1c:	39 20 00 03 	li      r9,3
+ 1802a20:	7c 0b 03 78 	mr      r11,r0
+ 1802a24:	99 2b 3d 02 	stb     r9,15618(r11)
+ 1802a28:	3c 00 01 81 	lis     r0,385
+ 1802a2c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802a30:	39 20 00 00 	li      r9,0
+ 1802a34:	7c 0b 03 78 	mr      r11,r0
+ 1802a38:	99 2b 00 0b 	stb     r9,11(r11)
+ 1802a3c:	3c 00 01 81 	lis     r0,385
+ 1802a40:	30 00 3d 94 	addic   r0,r0,15764
+ 1802a44:	7c 09 03 78 	mr      r9,r0
+ 1802a48:	88 09 00 10 	lbz     r0,16(r9)
+ 1802a4c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802a50:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802a54:	40 9e 00 14 	bne-    cr7,1802a68 <FH_DU+0x300>
+ 1802a58:	3c 00 01 81 	lis     r0,385
+ 1802a5c:	39 20 00 01 	li      r9,1
+ 1802a60:	7c 0b 03 78 	mr      r11,r0
+ 1802a64:	99 2b 3d 13 	stb     r9,15635(r11)
+ 1802a68:	3c 00 01 81 	lis     r0,385
+ 1802a6c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802a70:	39 20 00 00 	li      r9,0
+ 1802a74:	7c 0b 03 78 	mr      r11,r0
+ 1802a78:	99 2b 00 11 	stb     r9,17(r11)
+ 1802a7c:	3c 00 01 81 	lis     r0,385
+ 1802a80:	30 00 3d 94 	addic   r0,r0,15764
+ 1802a84:	7c 09 03 78 	mr      r9,r0
+ 1802a88:	88 09 00 13 	lbz     r0,19(r9)
+ 1802a8c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802a90:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802a94:	40 9e 00 28 	bne-    cr7,1802abc <FH_DU+0x354>
+ 1802a98:	3c 00 01 81 	lis     r0,385
+ 1802a9c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802aa0:	39 20 00 00 	li      r9,0
+ 1802aa4:	7c 0b 03 78 	mr      r11,r0
+ 1802aa8:	99 2b 00 00 	stb     r9,0(r11)
+ 1802aac:	3c 00 01 81 	lis     r0,385
+ 1802ab0:	39 20 00 01 	li      r9,1
+ 1802ab4:	7c 0b 03 78 	mr      r11,r0
+ 1802ab8:	99 2b 3c f5 	stb     r9,15605(r11)
+ 1802abc:	3c 00 01 81 	lis     r0,385
+ 1802ac0:	30 00 3d 94 	addic   r0,r0,15764
+ 1802ac4:	39 20 00 00 	li      r9,0
+ 1802ac8:	7c 0b 03 78 	mr      r11,r0
+ 1802acc:	99 2b 00 14 	stb     r9,20(r11)
+ 1802ad0:	3c 00 01 81 	lis     r0,385
+ 1802ad4:	30 00 3d 94 	addic   r0,r0,15764
+ 1802ad8:	7c 09 03 78 	mr      r9,r0
+ 1802adc:	88 09 00 0d 	lbz     r0,13(r9)
+ 1802ae0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802ae4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802ae8:	40 9e 00 80 	bne-    cr7,1802b68 <FH_DU+0x400>
+ 1802aec:	3c 00 01 81 	lis     r0,385
+ 1802af0:	30 00 3d 94 	addic   r0,r0,15764
+ 1802af4:	39 20 00 00 	li      r9,0
+ 1802af8:	7c 0b 03 78 	mr      r11,r0
+ 1802afc:	99 2b 00 04 	stb     r9,4(r11)
+ 1802b00:	3c 00 01 81 	lis     r0,385
+ 1802b04:	30 00 3d 94 	addic   r0,r0,15764
+ 1802b08:	39 20 00 00 	li      r9,0
+ 1802b0c:	7c 0b 03 78 	mr      r11,r0
+ 1802b10:	99 2b 00 06 	stb     r9,6(r11)
+ 1802b14:	3c 00 01 81 	lis     r0,385
+ 1802b18:	39 20 00 02 	li      r9,2
+ 1802b1c:	7c 0b 03 78 	mr      r11,r0
+ 1802b20:	99 2b 3d 6d 	stb     r9,15725(r11)
+ 1802b24:	3c 00 01 81 	lis     r0,385
+ 1802b28:	39 20 00 00 	li      r9,0
+ 1802b2c:	7c 0b 03 78 	mr      r11,r0
+ 1802b30:	91 2b 3d 4c 	stw     r9,15692(r11)
+ 1802b34:	3c 00 01 81 	lis     r0,385
+ 1802b38:	39 20 00 01 	li      r9,1
+ 1802b3c:	7c 0b 03 78 	mr      r11,r0
+ 1802b40:	99 2b 3d 48 	stb     r9,15688(r11)
+ 1802b44:	3c 00 01 81 	lis     r0,385
+ 1802b48:	30 00 3d 94 	addic   r0,r0,15764
+ 1802b4c:	39 20 00 01 	li      r9,1
+ 1802b50:	7c 0b 03 78 	mr      r11,r0
+ 1802b54:	99 2b 00 05 	stb     r9,5(r11)
+ 1802b58:	3c 00 01 81 	lis     r0,385
+ 1802b5c:	39 20 00 01 	li      r9,1
+ 1802b60:	7c 0b 03 78 	mr      r11,r0
+ 1802b64:	99 2b 3c e0 	stb     r9,15584(r11)
+ 1802b68:	3c 00 01 81 	lis     r0,385
+ 1802b6c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802b70:	39 20 00 00 	li      r9,0
+ 1802b74:	7c 0b 03 78 	mr      r11,r0
+ 1802b78:	99 2b 00 0e 	stb     r9,14(r11)
+ 1802b7c:	3c 00 01 81 	lis     r0,385
+ 1802b80:	30 00 3d 94 	addic   r0,r0,15764
+ 1802b84:	39 20 00 01 	li      r9,1
+ 1802b88:	7c 0b 03 78 	mr      r11,r0
+ 1802b8c:	99 2b 00 0b 	stb     r9,11(r11)
+ 1802b90:	3c 00 01 81 	lis     r0,385
+ 1802b94:	30 00 3d 94 	addic   r0,r0,15764
+ 1802b98:	39 20 00 01 	li      r9,1
+ 1802b9c:	7c 0b 03 78 	mr      r11,r0
+ 1802ba0:	99 2b 00 11 	stb     r9,17(r11)
+ 1802ba4:	3c 00 01 81 	lis     r0,385
+ 1802ba8:	30 00 3d 94 	addic   r0,r0,15764
+ 1802bac:	39 20 00 01 	li      r9,1
+ 1802bb0:	7c 0b 03 78 	mr      r11,r0
+ 1802bb4:	99 2b 00 14 	stb     r9,20(r11)
+ 1802bb8:	3c 00 01 81 	lis     r0,385
+ 1802bbc:	30 00 3d 94 	addic   r0,r0,15764
+ 1802bc0:	39 20 00 01 	li      r9,1
+ 1802bc4:	7c 0b 03 78 	mr      r11,r0
+ 1802bc8:	99 2b 00 0e 	stb     r9,14(r11)
+ 1802bcc:	3c 00 01 81 	lis     r0,385
+ 1802bd0:	7c 09 03 78 	mr      r9,r0
+ 1802bd4:	88 09 3c f6 	lbz     r0,15606(r9)
+ 1802bd8:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802bdc:	3c 00 01 81 	lis     r0,385
+ 1802be0:	7c 0b 03 78 	mr      r11,r0
+ 1802be4:	88 0b 3d 64 	lbz     r0,15716(r11)
+ 1802be8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802bec:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 1802bf0:	41 9e 00 38 	beq-    cr7,1802c28 <FH_DU+0x4c0>
+ 1802bf4:	3c 00 01 81 	lis     r0,385
+ 1802bf8:	7c 09 03 78 	mr      r9,r0
+ 1802bfc:	88 09 3d 18 	lbz     r0,15640(r9)
+ 1802c00:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802c04:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802c08:	40 9e 00 20 	bne-    cr7,1802c28 <FH_DU+0x4c0>
+ 1802c0c:	3c 00 01 81 	lis     r0,385
+ 1802c10:	7c 0b 03 78 	mr      r11,r0
+ 1802c14:	88 0b 3c f6 	lbz     r0,15606(r11)
+ 1802c18:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802c1c:	3c 00 01 81 	lis     r0,385
+ 1802c20:	7c 0b 03 78 	mr      r11,r0
+ 1802c24:	99 2b 3d 00 	stb     r9,15616(r11)
+ 1802c28:	3c 00 01 81 	lis     r0,385
+ 1802c2c:	7c 09 03 78 	mr      r9,r0
+ 1802c30:	88 09 3d 19 	lbz     r0,15641(r9)
+ 1802c34:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802c38:	3c 00 01 81 	lis     r0,385
+ 1802c3c:	7c 0b 03 78 	mr      r11,r0
+ 1802c40:	88 0b 3d 50 	lbz     r0,15696(r11)
+ 1802c44:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802c48:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 1802c4c:	41 9e 00 38 	beq-    cr7,1802c84 <FH_DU+0x51c>
+ 1802c50:	3c 00 01 81 	lis     r0,385
+ 1802c54:	7c 09 03 78 	mr      r9,r0
+ 1802c58:	88 09 3d 18 	lbz     r0,15640(r9)
+ 1802c5c:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802c60:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802c64:	41 9e 00 20 	beq-    cr7,1802c84 <FH_DU+0x51c>
+ 1802c68:	3c 00 01 81 	lis     r0,385
+ 1802c6c:	7c 0b 03 78 	mr      r11,r0
+ 1802c70:	88 0b 3d 19 	lbz     r0,15641(r11)
+ 1802c74:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802c78:	3c 00 01 81 	lis     r0,385
+ 1802c7c:	7c 0b 03 78 	mr      r11,r0
+ 1802c80:	99 2b 3c f6 	stb     r9,15606(r11)
+ 1802c84:	3c 00 01 81 	lis     r0,385
+ 1802c88:	7c 09 03 78 	mr      r9,r0
+ 1802c8c:	88 09 3d 10 	lbz     r0,15632(r9)
+ 1802c90:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802c94:	3c 00 01 81 	lis     r0,385
+ 1802c98:	7c 0b 03 78 	mr      r11,r0
+ 1802c9c:	88 0b 3d 3d 	lbz     r0,15677(r11)
+ 1802ca0:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802ca4:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 1802ca8:	41 9e 00 38 	beq-    cr7,1802ce0 <FH_DU+0x578>
+ 1802cac:	3c 00 01 81 	lis     r0,385
+ 1802cb0:	7c 09 03 78 	mr      r9,r0
+ 1802cb4:	88 09 3d 18 	lbz     r0,15640(r9)
+ 1802cb8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802cbc:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802cc0:	40 9e 00 20 	bne-    cr7,1802ce0 <FH_DU+0x578>
+ 1802cc4:	3c 00 01 81 	lis     r0,385
+ 1802cc8:	7c 0b 03 78 	mr      r11,r0
+ 1802ccc:	88 0b 3d 10 	lbz     r0,15632(r11)
+ 1802cd0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802cd4:	3c 00 01 81 	lis     r0,385
+ 1802cd8:	7c 0b 03 78 	mr      r11,r0
+ 1802cdc:	99 2b 3c c9 	stb     r9,15561(r11)
+ 1802ce0:	3c 00 01 81 	lis     r0,385
+ 1802ce4:	7c 09 03 78 	mr      r9,r0
+ 1802ce8:	88 09 3c f8 	lbz     r0,15608(r9)
+ 1802cec:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802cf0:	3c 00 01 81 	lis     r0,385
+ 1802cf4:	7c 0b 03 78 	mr      r11,r0
+ 1802cf8:	88 0b 3d 52 	lbz     r0,15698(r11)
+ 1802cfc:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802d00:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 1802d04:	41 9e 00 38 	beq-    cr7,1802d3c <FH_DU+0x5d4>
+ 1802d08:	3c 00 01 81 	lis     r0,385
+ 1802d0c:	7c 09 03 78 	mr      r9,r0
+ 1802d10:	88 09 3d 18 	lbz     r0,15640(r9)
+ 1802d14:	54 00 06 3e 	clrlwi  r0,r0,24
+ 1802d18:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1802d1c:	41 9e 00 20 	beq-    cr7,1802d3c <FH_DU+0x5d4>
+ 1802d20:	3c 00 01 81 	lis     r0,385
+ 1802d24:	7c 0b 03 78 	mr      r11,r0
+ 1802d28:	88 0b 3c f8 	lbz     r0,15608(r11)
+ 1802d2c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802d30:	3c 00 01 81 	lis     r0,385
+ 1802d34:	7c 0b 03 78 	mr      r11,r0
+ 1802d38:	99 2b 3d 10 	stb     r9,15632(r11)
+ 1802d3c:	3c 00 01 81 	lis     r0,385
+ 1802d40:	30 00 3d 94 	addic   r0,r0,15764
+ 1802d44:	7c 09 03 78 	mr      r9,r0
+ 1802d48:	88 09 00 0c 	lbz     r0,12(r9)
+ 1802d4c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802d50:	3c 00 01 81 	lis     r0,385
+ 1802d54:	30 00 3d 94 	addic   r0,r0,15764
+ 1802d58:	7c 0b 03 78 	mr      r11,r0
+ 1802d5c:	99 2b 00 0a 	stb     r9,10(r11)
+ 1802d60:	3c 00 01 81 	lis     r0,385
+ 1802d64:	30 00 3d 94 	addic   r0,r0,15764
+ 1802d68:	7c 09 03 78 	mr      r9,r0
+ 1802d6c:	88 09 00 0f 	lbz     r0,15(r9)
+ 1802d70:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802d74:	3c 00 01 81 	lis     r0,385
+ 1802d78:	30 00 3d 94 	addic   r0,r0,15764
+ 1802d7c:	7c 0b 03 78 	mr      r11,r0
+ 1802d80:	99 2b 00 0d 	stb     r9,13(r11)
+ 1802d84:	3c 00 01 81 	lis     r0,385
+ 1802d88:	30 00 3d 94 	addic   r0,r0,15764
+ 1802d8c:	7c 09 03 78 	mr      r9,r0
+ 1802d90:	88 09 00 12 	lbz     r0,18(r9)
+ 1802d94:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802d98:	3c 00 01 81 	lis     r0,385
+ 1802d9c:	30 00 3d 94 	addic   r0,r0,15764
+ 1802da0:	7c 0b 03 78 	mr      r11,r0
+ 1802da4:	99 2b 00 10 	stb     r9,16(r11)
+ 1802da8:	3c 00 01 81 	lis     r0,385
+ 1802dac:	30 00 3d 94 	addic   r0,r0,15764
+ 1802db0:	7c 09 03 78 	mr      r9,r0
+ 1802db4:	88 09 00 15 	lbz     r0,21(r9)
+ 1802db8:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802dbc:	3c 00 01 81 	lis     r0,385
+ 1802dc0:	30 00 3d 94 	addic   r0,r0,15764
+ 1802dc4:	7c 0b 03 78 	mr      r11,r0
+ 1802dc8:	99 2b 00 13 	stb     r9,19(r11)
+ 1802dcc:	3c 00 01 81 	lis     r0,385
+ 1802dd0:	7c 09 03 78 	mr      r9,r0
+ 1802dd4:	88 09 3c e8 	lbz     r0,15592(r9)
+ 1802dd8:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802ddc:	3c 00 01 81 	lis     r0,385
+ 1802de0:	7c 0b 03 78 	mr      r11,r0
+ 1802de4:	99 2b 3d 66 	stb     r9,15718(r11)
+ 1802de8:	3c 00 01 81 	lis     r0,385
+ 1802dec:	7c 09 03 78 	mr      r9,r0
+ 1802df0:	88 09 3c c9 	lbz     r0,15561(r9)
+ 1802df4:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802df8:	3c 00 01 81 	lis     r0,385
+ 1802dfc:	7c 0b 03 78 	mr      r11,r0
+ 1802e00:	99 2b 3c f4 	stb     r9,15604(r11)
+ 1802e04:	3c 00 01 81 	lis     r0,385
+ 1802e08:	7c 09 03 78 	mr      r9,r0
+ 1802e0c:	88 09 3d 21 	lbz     r0,15649(r9)
+ 1802e10:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802e14:	3c 00 01 81 	lis     r0,385
+ 1802e18:	7c 0b 03 78 	mr      r11,r0
+ 1802e1c:	99 2b 3c e6 	stb     r9,15590(r11)
+ 1802e20:	3c 00 01 81 	lis     r0,385
+ 1802e24:	7c 09 03 78 	mr      r9,r0
+ 1802e28:	88 09 3d 00 	lbz     r0,15616(r9)
+ 1802e2c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802e30:	3c 00 01 81 	lis     r0,385
+ 1802e34:	7c 0b 03 78 	mr      r11,r0
+ 1802e38:	99 2b 3d 6e 	stb     r9,15726(r11)
+ 1802e3c:	4b ff d8 e9 	bl      1800724 <generic_KINDERSICHERUNG_CTRL>
+ 1802e40:	3c 00 01 81 	lis     r0,385
+ 1802e44:	7c 09 03 78 	mr      r9,r0
+ 1802e48:	88 09 3d 58 	lbz     r0,15704(r9)
+ 1802e4c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802e50:	3c 00 01 81 	lis     r0,385
+ 1802e54:	7c 0b 03 78 	mr      r11,r0
+ 1802e58:	99 2b 3c a1 	stb     r9,15521(r11)
+ 1802e5c:	3c 00 01 81 	lis     r0,385
+ 1802e60:	7c 09 03 78 	mr      r9,r0
+ 1802e64:	88 09 3d 35 	lbz     r0,15669(r9)
+ 1802e68:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802e6c:	3c 00 01 81 	lis     r0,385
+ 1802e70:	7c 0b 03 78 	mr      r11,r0
+ 1802e74:	99 2b 3d 28 	stb     r9,15656(r11)
+ 1802e78:	3c 00 01 81 	lis     r0,385
+ 1802e7c:	7c 0b 03 78 	mr      r11,r0
+ 1802e80:	81 2b 3d 68 	lwz     r9,15720(r11)
+ 1802e84:	3c 00 01 81 	lis     r0,385
+ 1802e88:	7c 0b 03 78 	mr      r11,r0
+ 1802e8c:	91 2b 3c 94 	stw     r9,15508(r11)
+ 1802e90:	3c 00 01 81 	lis     r0,385
+ 1802e94:	7c 09 03 78 	mr      r9,r0
+ 1802e98:	88 09 3c e5 	lbz     r0,15589(r9)
+ 1802e9c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802ea0:	3c 00 01 81 	lis     r0,385
+ 1802ea4:	7c 0b 03 78 	mr      r11,r0
+ 1802ea8:	99 2b 3c e2 	stb     r9,15586(r11)
+ 1802eac:	3c 00 01 81 	lis     r0,385
+ 1802eb0:	7c 0b 03 78 	mr      r11,r0
+ 1802eb4:	81 2b 3d 04 	lwz     r9,15620(r11)
+ 1802eb8:	3c 00 01 81 	lis     r0,385
+ 1802ebc:	7c 0b 03 78 	mr      r11,r0
+ 1802ec0:	91 2b 3d 44 	stw     r9,15684(r11)
+ 1802ec4:	3c 00 01 81 	lis     r0,385
+ 1802ec8:	7c 09 03 78 	mr      r9,r0
+ 1802ecc:	88 09 3d 51 	lbz     r0,15697(r9)
+ 1802ed0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802ed4:	3c 00 01 81 	lis     r0,385
+ 1802ed8:	7c 0b 03 78 	mr      r11,r0
+ 1802edc:	99 2b 3c d8 	stb     r9,15576(r11)
+ 1802ee0:	3c 00 01 81 	lis     r0,385
+ 1802ee4:	7c 09 03 78 	mr      r9,r0
+ 1802ee8:	88 09 3d 66 	lbz     r0,15718(r9)
+ 1802eec:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802ef0:	3c 00 01 81 	lis     r0,385
+ 1802ef4:	7c 0b 03 78 	mr      r11,r0
+ 1802ef8:	99 2b 3c e8 	stb     r9,15592(r11)
+ 1802efc:	3c 00 01 81 	lis     r0,385
+ 1802f00:	7c 09 03 78 	mr      r9,r0
+ 1802f04:	88 09 3c f4 	lbz     r0,15604(r9)
+ 1802f08:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802f0c:	3c 00 01 81 	lis     r0,385
+ 1802f10:	7c 0b 03 78 	mr      r11,r0
+ 1802f14:	99 2b 3c c9 	stb     r9,15561(r11)
+ 1802f18:	3c 00 01 81 	lis     r0,385
+ 1802f1c:	7c 09 03 78 	mr      r9,r0
+ 1802f20:	88 09 3c e6 	lbz     r0,15590(r9)
+ 1802f24:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802f28:	3c 00 01 81 	lis     r0,385
+ 1802f2c:	7c 0b 03 78 	mr      r11,r0
+ 1802f30:	99 2b 3d 21 	stb     r9,15649(r11)
+ 1802f34:	3c 00 01 81 	lis     r0,385
+ 1802f38:	7c 09 03 78 	mr      r9,r0
+ 1802f3c:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 1802f40:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802f44:	3c 00 01 81 	lis     r0,385
+ 1802f48:	7c 0b 03 78 	mr      r11,r0
+ 1802f4c:	99 2b 3d 00 	stb     r9,15616(r11)
+ 1802f50:	3c 00 01 81 	lis     r0,385
+ 1802f54:	7c 09 03 78 	mr      r9,r0
+ 1802f58:	88 09 3d 12 	lbz     r0,15634(r9)
+ 1802f5c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802f60:	3c 00 01 81 	lis     r0,385
+ 1802f64:	7c 0b 03 78 	mr      r11,r0
+ 1802f68:	99 2b 3c a4 	stb     r9,15524(r11)
+ 1802f6c:	3c 00 01 81 	lis     r0,385
+ 1802f70:	7c 09 03 78 	mr      r9,r0
+ 1802f74:	88 09 3d 40 	lbz     r0,15680(r9)
+ 1802f78:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802f7c:	3c 00 01 81 	lis     r0,385
+ 1802f80:	7c 0b 03 78 	mr      r11,r0
+ 1802f84:	99 2b 3c e1 	stb     r9,15585(r11)
+ 1802f88:	3c 00 01 81 	lis     r0,385
+ 1802f8c:	7c 09 03 78 	mr      r9,r0
+ 1802f90:	88 09 3c e8 	lbz     r0,15592(r9)
+ 1802f94:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802f98:	3c 00 01 81 	lis     r0,385
+ 1802f9c:	7c 0b 03 78 	mr      r11,r0
+ 1802fa0:	99 2b 3d 66 	stb     r9,15718(r11)
+ 1802fa4:	3c 00 01 81 	lis     r0,385
+ 1802fa8:	7c 09 03 78 	mr      r9,r0
+ 1802fac:	88 09 3c c9 	lbz     r0,15561(r9)
+ 1802fb0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802fb4:	3c 00 01 81 	lis     r0,385
+ 1802fb8:	7c 0b 03 78 	mr      r11,r0
+ 1802fbc:	99 2b 3c f4 	stb     r9,15604(r11)
+ 1802fc0:	3c 00 01 81 	lis     r0,385
+ 1802fc4:	7c 09 03 78 	mr      r9,r0
+ 1802fc8:	88 09 3d 21 	lbz     r0,15649(r9)
+ 1802fcc:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802fd0:	3c 00 01 81 	lis     r0,385
+ 1802fd4:	7c 0b 03 78 	mr      r11,r0
+ 1802fd8:	99 2b 3c e6 	stb     r9,15590(r11)
+ 1802fdc:	3c 00 01 81 	lis     r0,385
+ 1802fe0:	7c 09 03 78 	mr      r9,r0
+ 1802fe4:	88 09 3d 00 	lbz     r0,15616(r9)
+ 1802fe8:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1802fec:	3c 00 01 81 	lis     r0,385
+ 1802ff0:	7c 0b 03 78 	mr      r11,r0
+ 1802ff4:	99 2b 3d 6e 	stb     r9,15726(r11)
+ 1802ff8:	4b ff df 45 	bl      1800f3c <generic_FH_TUERMODUL_CTRL>
+ 1802ffc:	3c 00 01 81 	lis     r0,385
+ 1803000:	7c 09 03 78 	mr      r9,r0
+ 1803004:	88 09 3d 58 	lbz     r0,15704(r9)
+ 1803008:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180300c:	3c 00 01 81 	lis     r0,385
+ 1803010:	7c 0b 03 78 	mr      r11,r0
+ 1803014:	99 2b 3c a1 	stb     r9,15521(r11)
+ 1803018:	3c 00 01 81 	lis     r0,385
+ 180301c:	7c 09 03 78 	mr      r9,r0
+ 1803020:	88 09 3d 35 	lbz     r0,15669(r9)
+ 1803024:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803028:	3c 00 01 81 	lis     r0,385
+ 180302c:	7c 0b 03 78 	mr      r11,r0
+ 1803030:	99 2b 3d 28 	stb     r9,15656(r11)
+ 1803034:	3c 00 01 81 	lis     r0,385
+ 1803038:	7c 0b 03 78 	mr      r11,r0
+ 180303c:	81 2b 3d 68 	lwz     r9,15720(r11)
+ 1803040:	3c 00 01 81 	lis     r0,385
+ 1803044:	7c 0b 03 78 	mr      r11,r0
+ 1803048:	91 2b 3c 94 	stw     r9,15508(r11)
+ 180304c:	3c 00 01 81 	lis     r0,385
+ 1803050:	7c 09 03 78 	mr      r9,r0
+ 1803054:	88 09 3c e5 	lbz     r0,15589(r9)
+ 1803058:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180305c:	3c 00 01 81 	lis     r0,385
+ 1803060:	7c 0b 03 78 	mr      r11,r0
+ 1803064:	99 2b 3c e2 	stb     r9,15586(r11)
+ 1803068:	3c 00 01 81 	lis     r0,385
+ 180306c:	7c 0b 03 78 	mr      r11,r0
+ 1803070:	81 2b 3d 04 	lwz     r9,15620(r11)
+ 1803074:	3c 00 01 81 	lis     r0,385
+ 1803078:	7c 0b 03 78 	mr      r11,r0
+ 180307c:	91 2b 3d 44 	stw     r9,15684(r11)
+ 1803080:	3c 00 01 81 	lis     r0,385
+ 1803084:	7c 09 03 78 	mr      r9,r0
+ 1803088:	88 09 3d 51 	lbz     r0,15697(r9)
+ 180308c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803090:	3c 00 01 81 	lis     r0,385
+ 1803094:	7c 0b 03 78 	mr      r11,r0
+ 1803098:	99 2b 3c d8 	stb     r9,15576(r11)
+ 180309c:	3c 00 01 81 	lis     r0,385
+ 18030a0:	7c 09 03 78 	mr      r9,r0
+ 18030a4:	88 09 3d 66 	lbz     r0,15718(r9)
+ 18030a8:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18030ac:	3c 00 01 81 	lis     r0,385
+ 18030b0:	7c 0b 03 78 	mr      r11,r0
+ 18030b4:	99 2b 3c e8 	stb     r9,15592(r11)
+ 18030b8:	3c 00 01 81 	lis     r0,385
+ 18030bc:	7c 09 03 78 	mr      r9,r0
+ 18030c0:	88 09 3c f4 	lbz     r0,15604(r9)
+ 18030c4:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18030c8:	3c 00 01 81 	lis     r0,385
+ 18030cc:	7c 0b 03 78 	mr      r11,r0
+ 18030d0:	99 2b 3c c9 	stb     r9,15561(r11)
+ 18030d4:	3c 00 01 81 	lis     r0,385
+ 18030d8:	7c 09 03 78 	mr      r9,r0
+ 18030dc:	88 09 3c e6 	lbz     r0,15590(r9)
+ 18030e0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18030e4:	3c 00 01 81 	lis     r0,385
+ 18030e8:	7c 0b 03 78 	mr      r11,r0
+ 18030ec:	99 2b 3d 21 	stb     r9,15649(r11)
+ 18030f0:	3c 00 01 81 	lis     r0,385
+ 18030f4:	7c 09 03 78 	mr      r9,r0
+ 18030f8:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 18030fc:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803100:	3c 00 01 81 	lis     r0,385
+ 1803104:	7c 0b 03 78 	mr      r11,r0
+ 1803108:	99 2b 3d 00 	stb     r9,15616(r11)
+ 180310c:	3c 00 01 81 	lis     r0,385
+ 1803110:	7c 09 03 78 	mr      r9,r0
+ 1803114:	88 09 3d 12 	lbz     r0,15634(r9)
+ 1803118:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180311c:	3c 00 01 81 	lis     r0,385
+ 1803120:	7c 0b 03 78 	mr      r11,r0
+ 1803124:	99 2b 3c a4 	stb     r9,15524(r11)
+ 1803128:	3c 00 01 81 	lis     r0,385
+ 180312c:	7c 09 03 78 	mr      r9,r0
+ 1803130:	88 09 3d 40 	lbz     r0,15680(r9)
+ 1803134:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803138:	3c 00 01 81 	lis     r0,385
+ 180313c:	7c 0b 03 78 	mr      r11,r0
+ 1803140:	99 2b 3c e1 	stb     r9,15585(r11)
+ 1803144:	3c 00 01 81 	lis     r0,385
+ 1803148:	7c 09 03 78 	mr      r9,r0
+ 180314c:	88 09 3c e8 	lbz     r0,15592(r9)
+ 1803150:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803154:	3c 00 01 81 	lis     r0,385
+ 1803158:	7c 0b 03 78 	mr      r11,r0
+ 180315c:	99 2b 3d 66 	stb     r9,15718(r11)
+ 1803160:	3c 00 01 81 	lis     r0,385
+ 1803164:	7c 09 03 78 	mr      r9,r0
+ 1803168:	88 09 3c c9 	lbz     r0,15561(r9)
+ 180316c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803170:	3c 00 01 81 	lis     r0,385
+ 1803174:	7c 0b 03 78 	mr      r11,r0
+ 1803178:	99 2b 3c f4 	stb     r9,15604(r11)
+ 180317c:	3c 00 01 81 	lis     r0,385
+ 1803180:	7c 09 03 78 	mr      r9,r0
+ 1803184:	88 09 3d 21 	lbz     r0,15649(r9)
+ 1803188:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180318c:	3c 00 01 81 	lis     r0,385
+ 1803190:	7c 0b 03 78 	mr      r11,r0
+ 1803194:	99 2b 3c e6 	stb     r9,15590(r11)
+ 1803198:	3c 00 01 81 	lis     r0,385
+ 180319c:	7c 09 03 78 	mr      r9,r0
+ 18031a0:	88 09 3d 00 	lbz     r0,15616(r9)
+ 18031a4:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18031a8:	3c 00 01 81 	lis     r0,385
+ 18031ac:	7c 0b 03 78 	mr      r11,r0
+ 18031b0:	99 2b 3d 6e 	stb     r9,15726(r11)
+ 18031b4:	4b ff ef ad 	bl      1802160 <generic_EINKLEMMSCHUTZ_CTRL>
+ 18031b8:	3c 00 01 81 	lis     r0,385
+ 18031bc:	7c 09 03 78 	mr      r9,r0
+ 18031c0:	88 09 3d 58 	lbz     r0,15704(r9)
+ 18031c4:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18031c8:	3c 00 01 81 	lis     r0,385
+ 18031cc:	7c 0b 03 78 	mr      r11,r0
+ 18031d0:	99 2b 3c a1 	stb     r9,15521(r11)
+ 18031d4:	3c 00 01 81 	lis     r0,385
+ 18031d8:	7c 09 03 78 	mr      r9,r0
+ 18031dc:	88 09 3d 35 	lbz     r0,15669(r9)
+ 18031e0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18031e4:	3c 00 01 81 	lis     r0,385
+ 18031e8:	7c 0b 03 78 	mr      r11,r0
+ 18031ec:	99 2b 3d 28 	stb     r9,15656(r11)
+ 18031f0:	3c 00 01 81 	lis     r0,385
+ 18031f4:	7c 0b 03 78 	mr      r11,r0
+ 18031f8:	81 2b 3d 68 	lwz     r9,15720(r11)
+ 18031fc:	3c 00 01 81 	lis     r0,385
+ 1803200:	7c 0b 03 78 	mr      r11,r0
+ 1803204:	91 2b 3c 94 	stw     r9,15508(r11)
+ 1803208:	3c 00 01 81 	lis     r0,385
+ 180320c:	7c 09 03 78 	mr      r9,r0
+ 1803210:	88 09 3c e5 	lbz     r0,15589(r9)
+ 1803214:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803218:	3c 00 01 81 	lis     r0,385
+ 180321c:	7c 0b 03 78 	mr      r11,r0
+ 1803220:	99 2b 3c e2 	stb     r9,15586(r11)
+ 1803224:	3c 00 01 81 	lis     r0,385
+ 1803228:	7c 0b 03 78 	mr      r11,r0
+ 180322c:	81 2b 3d 04 	lwz     r9,15620(r11)
+ 1803230:	3c 00 01 81 	lis     r0,385
+ 1803234:	7c 0b 03 78 	mr      r11,r0
+ 1803238:	91 2b 3d 44 	stw     r9,15684(r11)
+ 180323c:	3c 00 01 81 	lis     r0,385
+ 1803240:	7c 09 03 78 	mr      r9,r0
+ 1803244:	88 09 3d 51 	lbz     r0,15697(r9)
+ 1803248:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180324c:	3c 00 01 81 	lis     r0,385
+ 1803250:	7c 0b 03 78 	mr      r11,r0
+ 1803254:	99 2b 3c d8 	stb     r9,15576(r11)
+ 1803258:	3c 00 01 81 	lis     r0,385
+ 180325c:	7c 09 03 78 	mr      r9,r0
+ 1803260:	88 09 3d 66 	lbz     r0,15718(r9)
+ 1803264:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803268:	3c 00 01 81 	lis     r0,385
+ 180326c:	7c 0b 03 78 	mr      r11,r0
+ 1803270:	99 2b 3c e8 	stb     r9,15592(r11)
+ 1803274:	3c 00 01 81 	lis     r0,385
+ 1803278:	7c 09 03 78 	mr      r9,r0
+ 180327c:	88 09 3c f4 	lbz     r0,15604(r9)
+ 1803280:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803284:	3c 00 01 81 	lis     r0,385
+ 1803288:	7c 0b 03 78 	mr      r11,r0
+ 180328c:	99 2b 3c c9 	stb     r9,15561(r11)
+ 1803290:	3c 00 01 81 	lis     r0,385
+ 1803294:	7c 09 03 78 	mr      r9,r0
+ 1803298:	88 09 3c e6 	lbz     r0,15590(r9)
+ 180329c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18032a0:	3c 00 01 81 	lis     r0,385
+ 18032a4:	7c 0b 03 78 	mr      r11,r0
+ 18032a8:	99 2b 3d 21 	stb     r9,15649(r11)
+ 18032ac:	3c 00 01 81 	lis     r0,385
+ 18032b0:	7c 09 03 78 	mr      r9,r0
+ 18032b4:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 18032b8:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18032bc:	3c 00 01 81 	lis     r0,385
+ 18032c0:	7c 0b 03 78 	mr      r11,r0
+ 18032c4:	99 2b 3d 00 	stb     r9,15616(r11)
+ 18032c8:	3c 00 01 81 	lis     r0,385
+ 18032cc:	7c 09 03 78 	mr      r9,r0
+ 18032d0:	88 09 3d 12 	lbz     r0,15634(r9)
+ 18032d4:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18032d8:	3c 00 01 81 	lis     r0,385
+ 18032dc:	7c 0b 03 78 	mr      r11,r0
+ 18032e0:	99 2b 3c a4 	stb     r9,15524(r11)
+ 18032e4:	3c 00 01 81 	lis     r0,385
+ 18032e8:	7c 09 03 78 	mr      r9,r0
+ 18032ec:	88 09 3d 40 	lbz     r0,15680(r9)
+ 18032f0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18032f4:	3c 00 01 81 	lis     r0,385
+ 18032f8:	7c 0b 03 78 	mr      r11,r0
+ 18032fc:	99 2b 3c e1 	stb     r9,15585(r11)
+ 1803300:	3c 00 01 81 	lis     r0,385
+ 1803304:	7c 09 03 78 	mr      r9,r0
+ 1803308:	88 09 3c e8 	lbz     r0,15592(r9)
+ 180330c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803310:	3c 00 01 81 	lis     r0,385
+ 1803314:	7c 0b 03 78 	mr      r11,r0
+ 1803318:	99 2b 3d 66 	stb     r9,15718(r11)
+ 180331c:	3c 00 01 81 	lis     r0,385
+ 1803320:	7c 09 03 78 	mr      r9,r0
+ 1803324:	88 09 3c c9 	lbz     r0,15561(r9)
+ 1803328:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180332c:	3c 00 01 81 	lis     r0,385
+ 1803330:	7c 0b 03 78 	mr      r11,r0
+ 1803334:	99 2b 3c f4 	stb     r9,15604(r11)
+ 1803338:	3c 00 01 81 	lis     r0,385
+ 180333c:	7c 09 03 78 	mr      r9,r0
+ 1803340:	88 09 3d 21 	lbz     r0,15649(r9)
+ 1803344:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803348:	3c 00 01 81 	lis     r0,385
+ 180334c:	7c 0b 03 78 	mr      r11,r0
+ 1803350:	99 2b 3c e6 	stb     r9,15590(r11)
+ 1803354:	3c 00 01 81 	lis     r0,385
+ 1803358:	7c 09 03 78 	mr      r9,r0
+ 180335c:	88 09 3d 00 	lbz     r0,15616(r9)
+ 1803360:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803364:	3c 00 01 81 	lis     r0,385
+ 1803368:	7c 0b 03 78 	mr      r11,r0
+ 180336c:	99 2b 3d 6e 	stb     r9,15726(r11)
+ 1803370:	4b ff ef 95 	bl      1802304 <generic_BLOCK_ERKENNUNG_CTRL>
+ 1803374:	3c 00 01 81 	lis     r0,385
+ 1803378:	7c 09 03 78 	mr      r9,r0
+ 180337c:	88 09 3d 58 	lbz     r0,15704(r9)
+ 1803380:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803384:	3c 00 01 81 	lis     r0,385
+ 1803388:	7c 0b 03 78 	mr      r11,r0
+ 180338c:	99 2b 3c a1 	stb     r9,15521(r11)
+ 1803390:	3c 00 01 81 	lis     r0,385
+ 1803394:	7c 09 03 78 	mr      r9,r0
+ 1803398:	88 09 3d 35 	lbz     r0,15669(r9)
+ 180339c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18033a0:	3c 00 01 81 	lis     r0,385
+ 18033a4:	7c 0b 03 78 	mr      r11,r0
+ 18033a8:	99 2b 3d 28 	stb     r9,15656(r11)
+ 18033ac:	3c 00 01 81 	lis     r0,385
+ 18033b0:	7c 0b 03 78 	mr      r11,r0
+ 18033b4:	81 2b 3d 68 	lwz     r9,15720(r11)
+ 18033b8:	3c 00 01 81 	lis     r0,385
+ 18033bc:	7c 0b 03 78 	mr      r11,r0
+ 18033c0:	91 2b 3c 94 	stw     r9,15508(r11)
+ 18033c4:	3c 00 01 81 	lis     r0,385
+ 18033c8:	7c 09 03 78 	mr      r9,r0
+ 18033cc:	88 09 3c e5 	lbz     r0,15589(r9)
+ 18033d0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18033d4:	3c 00 01 81 	lis     r0,385
+ 18033d8:	7c 0b 03 78 	mr      r11,r0
+ 18033dc:	99 2b 3c e2 	stb     r9,15586(r11)
+ 18033e0:	3c 00 01 81 	lis     r0,385
+ 18033e4:	7c 0b 03 78 	mr      r11,r0
+ 18033e8:	81 2b 3d 04 	lwz     r9,15620(r11)
+ 18033ec:	3c 00 01 81 	lis     r0,385
+ 18033f0:	7c 0b 03 78 	mr      r11,r0
+ 18033f4:	91 2b 3d 44 	stw     r9,15684(r11)
+ 18033f8:	3c 00 01 81 	lis     r0,385
+ 18033fc:	7c 09 03 78 	mr      r9,r0
+ 1803400:	88 09 3d 51 	lbz     r0,15697(r9)
+ 1803404:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803408:	3c 00 01 81 	lis     r0,385
+ 180340c:	7c 0b 03 78 	mr      r11,r0
+ 1803410:	99 2b 3c d8 	stb     r9,15576(r11)
+ 1803414:	3c 00 01 81 	lis     r0,385
+ 1803418:	7c 09 03 78 	mr      r9,r0
+ 180341c:	88 09 3d 66 	lbz     r0,15718(r9)
+ 1803420:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803424:	3c 00 01 81 	lis     r0,385
+ 1803428:	7c 0b 03 78 	mr      r11,r0
+ 180342c:	99 2b 3c e8 	stb     r9,15592(r11)
+ 1803430:	3c 00 01 81 	lis     r0,385
+ 1803434:	7c 09 03 78 	mr      r9,r0
+ 1803438:	88 09 3c f4 	lbz     r0,15604(r9)
+ 180343c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803440:	3c 00 01 81 	lis     r0,385
+ 1803444:	7c 0b 03 78 	mr      r11,r0
+ 1803448:	99 2b 3c c9 	stb     r9,15561(r11)
+ 180344c:	3c 00 01 81 	lis     r0,385
+ 1803450:	7c 09 03 78 	mr      r9,r0
+ 1803454:	88 09 3c e6 	lbz     r0,15590(r9)
+ 1803458:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180345c:	3c 00 01 81 	lis     r0,385
+ 1803460:	7c 0b 03 78 	mr      r11,r0
+ 1803464:	99 2b 3d 21 	stb     r9,15649(r11)
+ 1803468:	3c 00 01 81 	lis     r0,385
+ 180346c:	7c 09 03 78 	mr      r9,r0
+ 1803470:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 1803474:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803478:	3c 00 01 81 	lis     r0,385
+ 180347c:	7c 0b 03 78 	mr      r11,r0
+ 1803480:	99 2b 3d 00 	stb     r9,15616(r11)
+ 1803484:	3c 00 01 81 	lis     r0,385
+ 1803488:	7c 09 03 78 	mr      r9,r0
+ 180348c:	88 09 3d 12 	lbz     r0,15634(r9)
+ 1803490:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803494:	3c 00 01 81 	lis     r0,385
+ 1803498:	7c 0b 03 78 	mr      r11,r0
+ 180349c:	99 2b 3c a4 	stb     r9,15524(r11)
+ 18034a0:	3c 00 01 81 	lis     r0,385
+ 18034a4:	7c 09 03 78 	mr      r9,r0
+ 18034a8:	88 09 3d 40 	lbz     r0,15680(r9)
+ 18034ac:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18034b0:	3c 00 01 81 	lis     r0,385
+ 18034b4:	7c 0b 03 78 	mr      r11,r0
+ 18034b8:	99 2b 3c e1 	stb     r9,15585(r11)
+ 18034bc:	3c 00 01 81 	lis     r0,385
+ 18034c0:	30 00 3d 94 	addic   r0,r0,15764
+ 18034c4:	7c 09 03 78 	mr      r9,r0
+ 18034c8:	88 09 00 0a 	lbz     r0,10(r9)
+ 18034cc:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18034d0:	3c 00 01 81 	lis     r0,385
+ 18034d4:	30 00 3d 94 	addic   r0,r0,15764
+ 18034d8:	7c 0b 03 78 	mr      r11,r0
+ 18034dc:	99 2b 00 0b 	stb     r9,11(r11)
+ 18034e0:	3c 00 01 81 	lis     r0,385
+ 18034e4:	30 00 3d 94 	addic   r0,r0,15764
+ 18034e8:	7c 09 03 78 	mr      r9,r0
+ 18034ec:	88 09 00 0d 	lbz     r0,13(r9)
+ 18034f0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18034f4:	3c 00 01 81 	lis     r0,385
+ 18034f8:	30 00 3d 94 	addic   r0,r0,15764
+ 18034fc:	7c 0b 03 78 	mr      r11,r0
+ 1803500:	99 2b 00 0e 	stb     r9,14(r11)
+ 1803504:	3c 00 01 81 	lis     r0,385
+ 1803508:	30 00 3d 94 	addic   r0,r0,15764
+ 180350c:	7c 09 03 78 	mr      r9,r0
+ 1803510:	88 09 00 10 	lbz     r0,16(r9)
+ 1803514:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803518:	3c 00 01 81 	lis     r0,385
+ 180351c:	30 00 3d 94 	addic   r0,r0,15764
+ 1803520:	7c 0b 03 78 	mr      r11,r0
+ 1803524:	99 2b 00 11 	stb     r9,17(r11)
+ 1803528:	3c 00 01 81 	lis     r0,385
+ 180352c:	30 00 3d 94 	addic   r0,r0,15764
+ 1803530:	7c 09 03 78 	mr      r9,r0
+ 1803534:	88 09 00 13 	lbz     r0,19(r9)
+ 1803538:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180353c:	3c 00 01 81 	lis     r0,385
+ 1803540:	30 00 3d 94 	addic   r0,r0,15764
+ 1803544:	7c 0b 03 78 	mr      r11,r0
+ 1803548:	99 2b 00 14 	stb     r9,20(r11)
+ 180354c:	3c 00 01 81 	lis     r0,385
+ 1803550:	7c 0b 03 78 	mr      r11,r0
+ 1803554:	81 2b 3d 4c 	lwz     r9,15692(r11)
+ 1803558:	3c 00 01 81 	lis     r0,385
+ 180355c:	7c 0b 03 78 	mr      r11,r0
+ 1803560:	91 2b 3c c4 	stw     r9,15556(r11)
+ 1803564:	3c 00 01 81 	lis     r0,385
+ 1803568:	7c 0b 03 78 	mr      r11,r0
+ 180356c:	81 2b 3d 68 	lwz     r9,15720(r11)
+ 1803570:	3c 00 01 81 	lis     r0,385
+ 1803574:	7c 0b 03 78 	mr      r11,r0
+ 1803578:	91 2b 3c c0 	stw     r9,15552(r11)
+ 180357c:	3c 00 01 81 	lis     r0,385
+ 1803580:	7c 0b 03 78 	mr      r11,r0
+ 1803584:	81 2b 3c a8 	lwz     r9,15528(r11)
+ 1803588:	3c 00 01 81 	lis     r0,385
+ 180358c:	7c 0b 03 78 	mr      r11,r0
+ 1803590:	91 2b 3d 0c 	stw     r9,15628(r11)
+ 1803594:	3c 00 01 81 	lis     r0,385
+ 1803598:	7c 0b 03 78 	mr      r11,r0
+ 180359c:	81 2b 3c 94 	lwz     r9,15508(r11)
+ 18035a0:	3c 00 01 81 	lis     r0,385
+ 18035a4:	7c 0b 03 78 	mr      r11,r0
+ 18035a8:	91 2b 3c dc 	stw     r9,15580(r11)
+ 18035ac:	3c 00 01 81 	lis     r0,385
+ 18035b0:	7c 0b 03 78 	mr      r11,r0
+ 18035b4:	81 2b 3c f0 	lwz     r9,15600(r11)
+ 18035b8:	3c 00 01 81 	lis     r0,385
+ 18035bc:	7c 0b 03 78 	mr      r11,r0
+ 18035c0:	91 2b 3c d4 	stw     r9,15572(r11)
+ 18035c4:	3c 00 01 81 	lis     r0,385
+ 18035c8:	7c 09 03 78 	mr      r9,r0
+ 18035cc:	88 09 3d 6e 	lbz     r0,15726(r9)
+ 18035d0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18035d4:	3c 00 01 81 	lis     r0,385
+ 18035d8:	7c 0b 03 78 	mr      r11,r0
+ 18035dc:	99 2b 3c d2 	stb     r9,15570(r11)
+ 18035e0:	3c 00 01 81 	lis     r0,385
+ 18035e4:	7c 09 03 78 	mr      r9,r0
+ 18035e8:	88 09 3c e6 	lbz     r0,15590(r9)
+ 18035ec:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18035f0:	3c 00 01 81 	lis     r0,385
+ 18035f4:	7c 0b 03 78 	mr      r11,r0
+ 18035f8:	99 2b 3c a3 	stb     r9,15523(r11)
+ 18035fc:	3c 00 01 81 	lis     r0,385
+ 1803600:	7c 09 03 78 	mr      r9,r0
+ 1803604:	88 09 3c f4 	lbz     r0,15604(r9)
+ 1803608:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180360c:	3c 00 01 81 	lis     r0,385
+ 1803610:	7c 0b 03 78 	mr      r11,r0
+ 1803614:	99 2b 3c b9 	stb     r9,15545(r11)
+ 1803618:	3c 00 01 81 	lis     r0,385
+ 180361c:	7c 09 03 78 	mr      r9,r0
+ 1803620:	88 09 3d 66 	lbz     r0,15718(r9)
+ 1803624:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803628:	3c 00 01 81 	lis     r0,385
+ 180362c:	7c 0b 03 78 	mr      r11,r0
+ 1803630:	99 2b 3c 90 	stb     r9,15504(r11)
+ 1803634:	3c 00 01 81 	lis     r0,385
+ 1803638:	7c 09 03 78 	mr      r9,r0
+ 180363c:	88 09 3d 6c 	lbz     r0,15724(r9)
+ 1803640:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803644:	3c 00 01 81 	lis     r0,385
+ 1803648:	7c 0b 03 78 	mr      r11,r0
+ 180364c:	99 2b 3d 40 	stb     r9,15680(r11)
+ 1803650:	3c 00 01 81 	lis     r0,385
+ 1803654:	7c 09 03 78 	mr      r9,r0
+ 1803658:	88 09 3d 40 	lbz     r0,15680(r9)
+ 180365c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803660:	3c 00 01 81 	lis     r0,385
+ 1803664:	7c 0b 03 78 	mr      r11,r0
+ 1803668:	99 2b 3c b8 	stb     r9,15544(r11)
+ 180366c:	3c 00 01 81 	lis     r0,385
+ 1803670:	7c 09 03 78 	mr      r9,r0
+ 1803674:	88 09 3d 65 	lbz     r0,15717(r9)
+ 1803678:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180367c:	3c 00 01 81 	lis     r0,385
+ 1803680:	7c 0b 03 78 	mr      r11,r0
+ 1803684:	99 2b 3d 3e 	stb     r9,15678(r11)
+ 1803688:	3c 00 01 81 	lis     r0,385
+ 180368c:	7c 09 03 78 	mr      r9,r0
+ 1803690:	88 09 3d 3e 	lbz     r0,15678(r9)
+ 1803694:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803698:	3c 00 01 81 	lis     r0,385
+ 180369c:	7c 0b 03 78 	mr      r11,r0
+ 18036a0:	99 2b 3d 01 	stb     r9,15617(r11)
+ 18036a4:	3c 00 01 81 	lis     r0,385
+ 18036a8:	7c 09 03 78 	mr      r9,r0
+ 18036ac:	88 09 3c c8 	lbz     r0,15560(r9)
+ 18036b0:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18036b4:	3c 00 01 81 	lis     r0,385
+ 18036b8:	7c 0b 03 78 	mr      r11,r0
+ 18036bc:	99 2b 3d 70 	stb     r9,15728(r11)
+ 18036c0:	3c 00 01 81 	lis     r0,385
+ 18036c4:	7c 09 03 78 	mr      r9,r0
+ 18036c8:	88 09 3d 70 	lbz     r0,15728(r9)
+ 18036cc:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18036d0:	3c 00 01 81 	lis     r0,385
+ 18036d4:	7c 0b 03 78 	mr      r11,r0
+ 18036d8:	99 2b 3c a2 	stb     r9,15522(r11)
+ 18036dc:	3c 00 01 81 	lis     r0,385
+ 18036e0:	7c 09 03 78 	mr      r9,r0
+ 18036e4:	88 09 3c ae 	lbz     r0,15534(r9)
+ 18036e8:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18036ec:	3c 00 01 81 	lis     r0,385
+ 18036f0:	7c 0b 03 78 	mr      r11,r0
+ 18036f4:	99 2b 3d 35 	stb     r9,15669(r11)
+ 18036f8:	3c 00 01 81 	lis     r0,385
+ 18036fc:	7c 09 03 78 	mr      r9,r0
+ 1803700:	88 09 3d 35 	lbz     r0,15669(r9)
+ 1803704:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803708:	3c 00 01 81 	lis     r0,385
+ 180370c:	7c 0b 03 78 	mr      r11,r0
+ 1803710:	99 2b 3c 98 	stb     r9,15512(r11)
+ 1803714:	3c 00 01 81 	lis     r0,385
+ 1803718:	7c 09 03 78 	mr      r9,r0
+ 180371c:	88 09 3c d1 	lbz     r0,15569(r9)
+ 1803720:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803724:	3c 00 01 81 	lis     r0,385
+ 1803728:	7c 0b 03 78 	mr      r11,r0
+ 180372c:	99 2b 3d 58 	stb     r9,15704(r11)
+ 1803730:	3c 00 01 81 	lis     r0,385
+ 1803734:	7c 09 03 78 	mr      r9,r0
+ 1803738:	88 09 3d 58 	lbz     r0,15704(r9)
+ 180373c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803740:	3c 00 01 81 	lis     r0,385
+ 1803744:	7c 0b 03 78 	mr      r11,r0
+ 1803748:	99 2b 3c e7 	stb     r9,15591(r11)
+ 180374c:	3c 00 01 81 	lis     r0,385
+ 1803750:	7c 09 03 78 	mr      r9,r0
+ 1803754:	88 09 3c e5 	lbz     r0,15589(r9)
+ 1803758:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180375c:	3c 00 01 81 	lis     r0,385
+ 1803760:	7c 0b 03 78 	mr      r11,r0
+ 1803764:	99 2b 3c ad 	stb     r9,15533(r11)
+ 1803768:	3c 00 01 81 	lis     r0,385
+ 180376c:	7c 09 03 78 	mr      r9,r0
+ 1803770:	88 09 3c e2 	lbz     r0,15586(r9)
+ 1803774:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803778:	3c 00 01 81 	lis     r0,385
+ 180377c:	7c 0b 03 78 	mr      r11,r0
+ 1803780:	99 2b 3c bb 	stb     r9,15547(r11)
+ 1803784:	3c 00 01 81 	lis     r0,385
+ 1803788:	7c 09 03 78 	mr      r9,r0
+ 180378c:	88 09 3d 10 	lbz     r0,15632(r9)
+ 1803790:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803794:	3c 00 01 81 	lis     r0,385
+ 1803798:	7c 0b 03 78 	mr      r11,r0
+ 180379c:	99 2b 3d 3d 	stb     r9,15677(r11)
+ 18037a0:	3c 00 01 81 	lis     r0,385
+ 18037a4:	7c 09 03 78 	mr      r9,r0
+ 18037a8:	88 09 3c f6 	lbz     r0,15606(r9)
+ 18037ac:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18037b0:	3c 00 01 81 	lis     r0,385
+ 18037b4:	7c 0b 03 78 	mr      r11,r0
+ 18037b8:	99 2b 3d 64 	stb     r9,15716(r11)
+ 18037bc:	3c 00 01 81 	lis     r0,385
+ 18037c0:	7c 09 03 78 	mr      r9,r0
+ 18037c4:	88 09 3d 19 	lbz     r0,15641(r9)
+ 18037c8:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18037cc:	3c 00 01 81 	lis     r0,385
+ 18037d0:	7c 0b 03 78 	mr      r11,r0
+ 18037d4:	99 2b 3d 50 	stb     r9,15696(r11)
+ 18037d8:	3c 00 01 81 	lis     r0,385
+ 18037dc:	7c 09 03 78 	mr      r9,r0
+ 18037e0:	88 09 3c f8 	lbz     r0,15608(r9)
+ 18037e4:	54 09 06 3e 	clrlwi  r9,r0,24
+ 18037e8:	3c 00 01 81 	lis     r0,385
+ 18037ec:	7c 0b 03 78 	mr      r11,r0
+ 18037f0:	99 2b 3d 52 	stb     r9,15698(r11)
+ 18037f4:	3c 00 01 81 	lis     r0,385
+ 18037f8:	7c 09 03 78 	mr      r9,r0
+ 18037fc:	88 09 3c ba 	lbz     r0,15546(r9)
+ 1803800:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803804:	3c 00 01 81 	lis     r0,385
+ 1803808:	7c 0b 03 78 	mr      r11,r0
+ 180380c:	99 2b 3c e1 	stb     r9,15585(r11)
+ 1803810:	3c 00 01 81 	lis     r0,385
+ 1803814:	7c 09 03 78 	mr      r9,r0
+ 1803818:	88 09 3c e1 	lbz     r0,15585(r9)
+ 180381c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803820:	3c 00 01 81 	lis     r0,385
+ 1803824:	7c 0b 03 78 	mr      r11,r0
+ 1803828:	99 2b 3d 20 	stb     r9,15648(r11)
+ 180382c:	3c 00 01 81 	lis     r0,385
+ 1803830:	7c 09 03 78 	mr      r9,r0
+ 1803834:	88 09 3d 71 	lbz     r0,15729(r9)
+ 1803838:	54 09 06 3e 	clrlwi  r9,r0,24
+ 180383c:	3c 00 01 81 	lis     r0,385
+ 1803840:	7c 0b 03 78 	mr      r11,r0
+ 1803844:	99 2b 3d 28 	stb     r9,15656(r11)
+ 1803848:	3c 00 01 81 	lis     r0,385
+ 180384c:	7c 09 03 78 	mr      r9,r0
+ 1803850:	88 09 3d 28 	lbz     r0,15656(r9)
+ 1803854:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803858:	3c 00 01 81 	lis     r0,385
+ 180385c:	7c 0b 03 78 	mr      r11,r0
+ 1803860:	99 2b 3d 59 	stb     r9,15705(r11)
+ 1803864:	3c 00 01 81 	lis     r0,385
+ 1803868:	7c 09 03 78 	mr      r9,r0
+ 180386c:	88 09 3c ac 	lbz     r0,15532(r9)
+ 1803870:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803874:	3c 00 01 81 	lis     r0,385
+ 1803878:	7c 0b 03 78 	mr      r11,r0
+ 180387c:	99 2b 3c a1 	stb     r9,15521(r11)
+ 1803880:	3c 00 01 81 	lis     r0,385
+ 1803884:	7c 09 03 78 	mr      r9,r0
+ 1803888:	88 09 3c a1 	lbz     r0,15521(r9)
+ 180388c:	54 09 06 3e 	clrlwi  r9,r0,24
+ 1803890:	3c 00 01 81 	lis     r0,385
+ 1803894:	7c 0b 03 78 	mr      r11,r0
+ 1803898:	99 2b 3d 3c 	stb     r9,15676(r11)
+ 180389c:	3c 00 01 81 	lis     r0,385
+ 18038a0:	7c 09 03 78 	mr      r9,r0
+ 18038a4:	88 09 3c e3 	lbz     r0,15587(r9)
+ 18038a8:	54 00 06 3e 	clrlwi  r0,r0,24
+ 18038ac:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18038b0:	41 9e ef 00 	beq+    cr7,18027b0 <FH_DU+0x48>
+ 18038b4:	39 7f 00 10 	addi    r11,r31,16
+ 18038b8:	80 0b 00 04 	lwz     r0,4(r11)
+ 18038bc:	7c 08 03 a6 	mtlr    r0
+ 18038c0:	83 eb ff fc 	lwz     r31,-4(r11)
+ 18038c4:	7d 61 5b 78 	mr      r1,r11
+ 18038c8:	4e 80 00 20 	blr
+
+018038cc <main>:
+ 18038cc:	94 21 ff e0 	stwu    r1,-32(r1)
+ 18038d0:	7c 08 02 a6 	mflr    r0
+ 18038d4:	90 01 00 24 	stw     r0,36(r1)
+ 18038d8:	93 e1 00 1c 	stw     r31,28(r1)
+ 18038dc:	7c 3f 0b 78 	mr      r31,r1
+ 18038e0:	48 00 00 91 	bl      1803970 <__eabi>
+ 18038e4:	38 00 0f a0 	li      r0,4000
+ 18038e8:	90 1f 00 08 	stw     r0,8(r31)
+ 18038ec:	48 00 00 1c 	b       1803908 <main+0x3c>
+ 18038f0:	4b ff cc e9 	bl      18005d8 <init>
+ 18038f4:	4b ff c9 2d 	bl      1800220 <interface>
+ 18038f8:	4b ff ee 71 	bl      1802768 <FH_DU>
+ 18038fc:	80 1f 00 08 	lwz     r0,8(r31)
+ 1803900:	30 00 ff ff 	addic   r0,r0,-1
+ 1803904:	90 1f 00 08 	stw     r0,8(r31)
+ 1803908:	80 1f 00 08 	lwz     r0,8(r31)
+ 180390c:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1803910:	40 9e ff e0 	bne+    cr7,18038f0 <main+0x24>
+ 1803914:	38 00 00 00 	li      r0,0
+ 1803918:	7c 03 03 78 	mr      r3,r0
+ 180391c:	39 7f 00 20 	addi    r11,r31,32
+ 1803920:	80 0b 00 04 	lwz     r0,4(r11)
+ 1803924:	7c 08 03 a6 	mtlr    r0
+ 1803928:	83 eb ff fc 	lwz     r31,-4(r11)
+ 180392c:	7d 61 5b 78 	mr      r1,r11
+ 1803930:	4e 80 00 20 	blr
+
+01803934 <_exit>:
+ 1803934:	94 21 ff e8 	stwu    r1,-24(r1)
+ 1803938:	93 e1 00 14 	stw     r31,20(r1)
+ 180393c:	7c 3f 0b 78 	mr      r31,r1
+ 1803940:	90 7f 00 08 	stw     r3,8(r31)
+ 1803944:	48 00 00 00 	b       1803944 <_exit+0x10>
+
+01803948 <_start>:
+ 1803948:	94 21 ff f0 	stwu    r1,-16(r1)
+ 180394c:	7c 08 02 a6 	mflr    r0
+ 1803950:	90 01 00 14 	stw     r0,20(r1)
+ 1803954:	93 e1 00 0c 	stw     r31,12(r1)
+ 1803958:	7c 3f 0b 78 	mr      r31,r1
+ 180395c:	38 60 00 00 	li      r3,0
+ 1803960:	38 80 00 00 	li      r4,0
+ 1803964:	4b ff ff 69 	bl      18038cc <main>
+ 1803968:	38 60 00 00 	li      r3,0
+ 180396c:	4b ff ff c9 	bl      1803934 <_exit>
+
+01803970 <__eabi>:
+ 1803970:	3d 40 01 81 	lis     r10,385
+ 1803974:	3d 60 01 81 	lis     r11,385
+ 1803978:	81 2a 3c 8c 	lwz     r9,15500(r10)
+ 180397c:	39 6b 3c 6c 	addi    r11,r11,15468
+ 1803980:	29 09 00 00 	cmplwi  cr2,r9,0
+ 1803984:	4c 8a 00 20 	bnelr   cr2
+ 1803988:	90 2a 3c 8c 	stw     r1,15500(r10)
+ 180398c:	80 6b 00 08 	lwz     r3,8(r11)
+ 1803990:	80 8b 00 0c 	lwz     r4,12(r11)
+ 1803994:	7c 83 20 00 	cmpw    cr1,r3,r4
+ 1803998:	41 86 00 08 	beq-    cr1,18039a0 <__eabi+0x30>
+ 180399c:	81 ab 00 04 	lwz     r13,4(r11)
+ 18039a0:	80 6b 00 14 	lwz     r3,20(r11)
+ 18039a4:	80 8b 00 18 	lwz     r4,24(r11)
+ 18039a8:	7c 83 20 00 	cmpw    cr1,r3,r4
+ 18039ac:	41 a6 00 08 	beq+    cr1,18039b4 <__eabi+0x44>
+ 18039b0:	80 4b 00 10 	lwz     r2,16(r11)
+ 18039b4:	4b ff c6 e0 	b       1800094 <__init>
+
+018039b8 <__eabi_convert>:
+ 18039b8:	7c 83 20 40 	cmplw   cr1,r3,r4
+ 18039bc:	7c a3 20 50 	subf    r5,r3,r4
+ 18039c0:	4c 84 00 20 	bgelr   cr1
+ 18039c4:	7c a5 16 70 	srawi   r5,r5,2
+ 18039c8:	38 63 ff fc 	addi    r3,r3,-4
+ 18039cc:	7c a9 03 a6 	mtctr   r5
+ 18039d0:	84 c3 00 04 	lwzu    r6,4(r3)
+ 18039d4:	2c 06 00 00 	cmpwi   r6,0
+ 18039d8:	41 82 00 0c 	beq-    18039e4 <__eabi_convert+0x2c>
+ 18039dc:	7c c6 62 14 	add     r6,r6,r12
+ 18039e0:	90 c3 00 00 	stw     r6,0(r3)
+ 18039e4:	42 00 ff ec 	bdnz+   18039d0 <__eabi_convert+0x18>
+ 18039e8:	4e 80 00 20 	blr
+
+018039ec <__eabi_uconvert>:
+ 18039ec:	7c 83 20 40 	cmplw   cr1,r3,r4
+ 18039f0:	7c a3 20 50 	subf    r5,r3,r4
+ 18039f4:	4c 84 00 20 	bgelr   cr1
+ 18039f8:	7c a5 16 70 	srawi   r5,r5,2
+ 18039fc:	38 63 ff fc 	addi    r3,r3,-4
+ 1803a00:	7c a9 03 a6 	mtctr   r5
+ 1803a04:	84 c3 00 04 	lwzu    r6,4(r3)
+ 1803a08:	7c c6 62 14 	add     r6,r6,r12
+ 1803a0c:	80 e6 00 00 	lwz     r7,0(r6)
+ 1803a10:	90 c3 00 00 	stw     r6,0(r3)
+ 1803a14:	7c e7 62 14 	add     r7,r7,r12
+ 1803a18:	90 e6 00 00 	stw     r7,0(r6)
+ 1803a1c:	42 00 ff e8 	bdnz+   1803a04 <__eabi_uconvert+0x18>
+ 1803a20:	4e 80 00 20 	blr
+
+01803a24 <__do_global_ctors_aux>:
+ 1803a24:	7c 08 02 a6 	mflr    r0
+ 1803a28:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1803a2c:	93 e1 00 0c 	stw     r31,12(r1)
+ 1803a30:	3f e0 01 81 	lis     r31,385
+ 1803a34:	90 01 00 14 	stw     r0,20(r1)
+ 1803a38:	3b ff 3c 5c 	addi    r31,r31,15452
+ 1803a3c:	80 1f ff fc 	lwz     r0,-4(r31)
+ 1803a40:	2f 80 ff ff 	cmpwi   cr7,r0,-1
+ 1803a44:	41 9e 00 1c 	beq-    cr7,1803a60 <__do_global_ctors_aux+0x3c>
+ 1803a48:	3b ff ff fc 	addi    r31,r31,-4
+ 1803a4c:	7c 09 03 a6 	mtctr   r0
+ 1803a50:	4e 80 04 21 	bctrl
+ 1803a54:	84 1f ff fc 	lwzu    r0,-4(r31)
+ 1803a58:	2f 80 ff ff 	cmpwi   cr7,r0,-1
+ 1803a5c:	40 9e ff f0 	bne+    cr7,1803a4c <__do_global_ctors_aux+0x28>
+ 1803a60:	80 01 00 14 	lwz     r0,20(r1)
+ 1803a64:	83 e1 00 0c 	lwz     r31,12(r1)
+ 1803a68:	38 21 00 10 	addi    r1,r1,16
+ 1803a6c:	7c 08 03 a6 	mtlr    r0
+ 1803a70:	4e 80 00 20 	blr
+
+01803a74 <call___do_global_ctors_aux>:
+ 1803a74:	7c 08 02 a6 	mflr    r0
+ 1803a78:	94 21 ff f8 	stwu    r1,-8(r1)
+ 1803a7c:	90 01 00 0c 	stw     r0,12(r1)
+ 1803a80:	80 01 00 0c 	lwz     r0,12(r1)
+ 1803a84:	38 21 00 08 	addi    r1,r1,8
+ 1803a88:	7c 08 03 a6 	mtlr    r0
+ 1803a8c:	4e 80 00 20 	blr
+
+Disassembly of section .fini:
+
+01803a90 <__fini>:
+ 1803a90:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1803a94:	7c 08 02 a6 	mflr    r0
+ 1803a98:	90 01 00 14 	stw     r0,20(r1)
+ 1803a9c:	4b ff c6 1d 	bl      18000b8 <__do_global_dtors_aux>
+ 1803aa0:	80 01 00 14 	lwz     r0,20(r1)
+ 1803aa4:	7c 08 03 a6 	mtlr    r0
+ 1803aa8:	38 21 00 10 	addi    r1,r1,16
+ 1803aac:	4e 80 00 20 	blr

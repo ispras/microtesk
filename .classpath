@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="D:/SVN/microtesk/jars/aspectrace.jar"/>
-	<classpathentry kind="lib" path="D:/SVN/microtesk/jars/coverage.jar"/>
-	<classpathentry kind="lib" path="D:/SVN/microtesk/jars/wstx-asl.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

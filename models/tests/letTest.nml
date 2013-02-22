@@ -1,0 +1,60 @@
+
+// One-line comment (should be ignored by the translator)
+let AFTER_ONELINE_COMMENT1 = "bla-bla-bla" // Another one-line comment
+
+/* Another comment */ let AFTER_ONELINE_COMMENT2 = 10 
+
+/*********************************************************************
+*
+* Multi-line comment (should be ignored by the translator)
+*
+**********************************************************************/ 
+
+// More comment tests
+
+/*TEST*/ let X = 1 * ((2 + 3) + 3 * (3 - 1)) 
+let Y /* comment */ = 1 /*one!*/+ 2 ** 2 // +4
+let Y1 = 1 + 2 ** 2
+
+
+let protected          = 10 // Reserved keyword - error
+let while              = 5  // Reserved keyword - error
+
+let REDECLARED         = 10 
+let REDECLARED         = 5
+let UDECLARED          = SOME_UNDECLARED_CONST
+
+let SIMPLE_INTEGER     = 10
+let SIMPLE_INTEGER_REF = SIMPLE_INTEGER
+
+let SIMPLE_STRING      = "SIMPLE_STRING"
+let SIMPLE_STRING_REF  = SIMPLE_STRING
+
+let SIMPLE_DOUBLE      = 3.14
+let SIMPLE_DOUBLE_REF  = SIMPLE_DOUBLE
+
+let SIMPLE_UNARY       = -1 ** 2
+let SIMPLE_UNARY2      = -1.0 * -2.0
+
+let HEX_CONST          = 0xFFFFFFFF
+let BIN_CONST          = 0b101
+let FIXED_CONST        = 3.14123456789
+let TOO_LONG_HEX_CONST = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF // Error!
+
+let BINOP_SEQUENCE     = 2 * 4 + 8 * 2
+let BINOP_REF_SEQUENCE = SIMPLE_NUMBER + 2 ** SIMPLE_BINOP + 1
+
+let BRACKET_EXPR1      = (1 * (2 + 3) * (((4 - 5)))) 
+let BRACKET_EXPR2      = 3 * 2 + 3 + 4 - 5
+
+let A                  = 2 + 3 + 4
+let B                  = 2 + (3 + 4) 
+
+let LEFT_SHIFT         = 2 + (1 <<< 2)
+let RIGHT_SHIFT        = 2 + (2 >>> 1)
+
+let LEFT_SHIFT2        = 2 + (1 <<< 2.0)  // Error
+let RIGHT_SHIFT2       = 2 + (2 >>> 1.0)  // Error
+
+let COMPOUND_EXPR      = 3 + 2 + 1 + 20 < 10 || 1 > 3 >> 2
+

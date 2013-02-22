@@ -1,0 +1,63 @@
+// ****************************************************************************
+//                                   ppc.nmp
+//                              ------------------
+//    date            : May 2003
+//    copyright       : Institut de Recherche en Informatique de Toulouse
+//    author          : Marc Finet
+//    email           : sainrat@irit.fr
+// ****************************************************************************
+//
+// ****************************************************************************
+// *                                                                          *
+// *   This program is free software; you can redistribute it and/or modify   *
+// *   it under the terms of the GNU General Public License as published by   *
+// *   the Free Software Foundation; either version 2 of the License, or      *
+// *   (at your option) any later version.                                    *
+// *                                                                          *
+// ****************************************************************************
+
+
+            //***********************************************//
+            //       PowerPc 755 description in nMP          //
+            //    By: Daniel Gracia Perez & Marc Finet       //
+            //    Revised by: Pascal Sainrat, Hugues Casse,  //
+			//        Tahiry Ratsiambahotra                  //
+            //     Original ppc603: Subhash Chandra Y        //
+            //          Last Modified: 17/05/2006            //
+            //***********************************************//
+
+
+include "nmp/state.nmp"
+include op "nmp/uisa_fp_instr.nmp"
+include op "nmp/vea_instr.nmp"
+include op "nmp/oea_instr.nmp"
+include op "nmp/ppc32.nmp"
+
+// ========================================================================= //
+// 1. Definitions                                                            //
+// ========================================================================= //
+
+let proc = "ppc"
+let bit_order = "uppermost" // Be careful ; this is not the convention used in PPC manuals.
+let M_is_little = "MSR & (0x01<<MSR_LE)" // MSR should be correctly initialized in the init rule below
+
+let gliss_isize = "32"
+
+// ========================================================================= //
+//  2. Instructions                                                          //
+// ========================================================================= //
+
+op instruction ( x : allinstr)
+	syntax = x.syntax
+	image = x.image
+	action = {
+		PIA = CIA;
+		CIA = NIA;
+		NIA = NIA + 4;
+		x.action;
+	}
+	otawa_kind = x.otawa_kind
+
+op allinstr  =    uisa_instr
+                | vea_instr
+                | oea_instr

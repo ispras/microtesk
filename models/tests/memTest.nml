@@ -1,0 +1,28 @@
+mem TEST_MEM_ERR1 [2*4, card(32.0)]
+mem TEST_MEM_ERR2 [card(32.0)]
+
+
+let REGS = 16
+
+type BYTE           = card(8.0)
+type CHAR           = int(8)
+
+type WORD           = card(16)
+type SHORT          = int(16)
+
+type DWORD          = card(32)
+type LONG           = int(32)
+  
+type bit 			= card(1)
+type byte1			= card(8)
+
+type UCHAR = BYTE1
+
+mem TEST_MEM1 [REGS*2, card(32)]
+reg TEST_REG1 [REGS,   DWORD]
+var TEST_VAR1 [REGS,   LONG]
+
+mem TEST_MEM2 [2*REGS,    card(32)]
+reg TEST_REG2 [2*REGS+1,  card(2**8)]
+
+mem TEST_MEM_X [REGS*2, card(32 * 2)]

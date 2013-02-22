@@ -1,0 +1,65 @@
+
+////////////////////////////////////////////////////
+// Temp var declarations                          //
+////////////////////////////////////////////////////
+
+//Flag
+
+var TMP_DOUBLE     [1, u64]
+var TMP_REGSWORD   [1, s32]
+
+//Signed 
+var TMP_DWORD[1, s64]
+var TMP_REG1 [1, s32]
+var TMP_REG2 [1, s32]
+var TMP_REG3 [1, s32]
+var TMP_REG4 [1, s32]
+var TMP_REG5 [1, s32]
+var TMP_REG6 [1, s32]
+
+var TMP64_REG1 [1, s64]
+var TMP64_REG2 [1, s64]
+var TMP64_REG3 [1, s64]
+var TMP64_REG4 [1, s64]
+var TMP64_REG5 [1, s64]
+var TMP64_REG6 [1, s64]
+
+//Unsigned 
+var TMP_UDWORD[1, u64]
+var TMP_UREG1 [1, u32]
+var TMP_UREG2 [1, u32]
+var TMP_UREG3 [1, u32]
+var TMP_UREG4 [1, u32]
+var TMP_UREG5 [1, u32]
+var TMP_UREG6 [1, u32]
+
+var TMP64_UREG1[1, u64]
+var TMP64_UREG2[1, u64]
+var TMP64_UREG3[1, u64]
+var TMP64_UREG4[1, u64]
+var TMP64_UREG5[1, u64]
+var TMP64_UREG6[1, u64]
+
+
+var TMP_REGLIST  [ 1 , u16 ]
+var TMP_SWORD    [ 1 , s32 ]
+var TMP_BYTE     [ 1 , s8 ]
+var TMP_INC	 [ 1 , s8 ]
+var TMP_LIMIT    [ 1 , s8 ]
+var TMP_ROT      [ 1 , u4]
+var TMP_IMM      [ 1 , u8]
+var TMP_IMM2     [ 1 , u8]
+var TMP_IMM3  [ 1 , u8]
+var TMP_IMM4  [ 1 , u8]
+var TMP_EA       [ 1 , address ]
+var TMP_SETBIT   [ 1 , s8 ]
+var TMP_START_ADDR	 [ 1 , u32]
+var TMP_END_ADDR	 [ 1 , u32]
+var TMP_CUR_ADDR     [ 1 , u32]
+var TMP_BIT       [1, u1]
+var TMP_ELEV      [1, s11]
+var TMP_FIVE      [1, u5]
+var TMP_INDEX1 [1, u4]
+var TMP_INDEX2 [1, u4]
+var TMP_INDEX3 [1, u4]
+var TMP_HALF [1, s16]

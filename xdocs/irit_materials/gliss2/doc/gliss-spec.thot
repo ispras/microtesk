@@ -1,0 +1,314 @@
+====== NML @(GLISS) Extensions ======
+
+This section describes the extension of @(GLISS) to the NMP language.
+
+===== State Attributes =====
+
+In @(GLISS), some properties may be linked to state declarations
+(registers, memories, etc) thanks to attributes. This properties are
+used to help the generation of the simulator or to express specific information.
+Such an attribute is declared as attributes of ''op'' and ''mode'' specifications.
+
+Any application using the IRG implementation of @(GLISS) can have
+access to the state attribute definitions and this attributes may be used for any goal.
+
+In @(GLISS) V2, the following attributes are used:
+
+^ Attribute ^ Item | Description ^
+| ''pc'' = 1 | register | designs the program counter (address of  executed instruction) |
+| ''fmt'' = STRING | register | defines a string format to display the register name |
+|  | (if register is multiple, the string must contains a ''%d'') |
+
+
+===== Specific Symbols =====
+
+To control its work, @(GLISS) V2 uses a set of symbols defined in the NMP
+file.
+
+==== Processor Name ====
+
+The ISA name (often the microprocessor name) is given through
+the constant definition of ''proc'' symbol, expressed as a string.
+
+For example, the PowerPC ISA may be defined as below:
+<code>
+let proc = "ppc"
+</code>
+
+
+
+==== Bit Order Definition ====
+
+There is no standard for the order of bits in the instruction representation
+as used either in bit fields, or in image format. To define this,
+the constant definition ''bit_order'' can be used. It can only takes
+two values:
+  * "UPPERMOST" -- the leftmost bit is the uppermost bit (default)
+  * "LOWERMOST" -- the leftmost bit is the lowermost bit.
+
+==== Bit Image Order Definition ====
+
+In $(GLISS), the instruction image bits are retrieved in the same order
+as found in the image définition. In the example below, the byte
+''0b00011010'' is first read then the other bytes to the end of the instruction word.
+
+<code>
+op dummy(a: card(5), b: card(5), c: card(5))
+	image = format("00011010 %5b %5b %5b 1 00001100", a, b, c)
+</code>
+
+Yet, in some instruction set documentations, the bit order may be inversed
+as in the example below:
+<code>
+op dummy(a: card(5), b: card(5), c: card(5))
+	image = format(" %5b %5b %5b 1 00001100 00011010", a, b, c)
+</code>
+
+In fact, in memory, the instruction is composed of ''0b00011010'' as
+first byte (at instruction address), ''0b00001100'' as second byte
+(at instruction address + 1) and so on.
+
+In this case, you can either invert all images of your NMP file or
+you can ask $(GLISS) to do the job. The latest choice is often
+preferable as it maintains consistency between the NMP file and
+the instruction set documentation.
+
+To do this, just add the following declaration to the NMP file:
+<code>
+let bit_image_order =  1
+</code>
+
+
+==== Instruction Size ====
+
+An important issue in defining the ISA images is to not forget constants
+bits or to perform mistakes in image size. To prevent this, one can define the list
+of supported sizes in the ''gliss_isize'' definition. This constant
+takes as value a string where all possible size are listed separated
+by commas.
+
+If the @(GLISS) V2 detects an instruction image size that does not fit
+one of sizes in the ''gliss_isize'' definition, the generation stops and
+displays details about the error.
+
+For example, a 32-bits fixed-size ISA is declared by:
+<code>
+let gliss_isize="32"
+</code>
+
+In the opposite, the TriCore ISA supports two sizes of instructions,
+16-bits and 32-bits and ''gliss_isize'' is declared as:
+<code>
+let gliss_isize="32,16"
+</code>
+
+
+
+===== Declaration of canonical functions =====
+
+Canonical functions are C functions, defined in external C files and used in NMP files
+but they cannot be correctly typed as is. To ensure type verification of operands and result, you have
+to give a prototype of each canonical function in the NML file(s) where they are used.
+Writing such a prototype in NML is done with the ''canon'' keyword as in these examples:
+
+First we define some types to make things more readable,
+<code>
+type f32 = float(23, 9)
+type u32 = card(32)
+</code>
+
+Then we can define functions with one, several or no argument,
+<code>
+canon f32 "fsqrt32"(f32)
+canon f32 "fmul32"(f32, f32)
+canon u32 "rand"()
+</code>
+
+or procedures with zero or more arguments.
+<code>
+canon "print_msg"(string)
+canon "do_stuff_with_several_things"(u32, f32, u32, card(5))
+</code>
+
+Finally, we can also declare canonical external constants or variables:
+<code>
+canon card(32) "NULL"
+</code>
+
+Here is the syntax:
+<code>
+CanonicFunctionDefinition ::= 'canon' TypeResult function_name ('(' TypeParams? ')')?
+
+TypeResult ::= TypeExpr		// NML type of the result
+TypeParams ::=				// NML type of the params
+		TypeExpr
+	|	TypeParams ',' TypeExpr
+function_name ::= string	// name of the canonical function
+</code>
+
+**WARNING** Whatever the canonical you declare, do not forget
+to put a pair of '"' around the name.
+
+
+===== Definition of several instruction sets in the same description =====
+
+Some processors supports more than one instruction set. For example, the ARM processor family
+supports its default 32-bit instruction set
+and several pure 16-bit (THUMB1) or 16-bit/32-bit mixed THUMB2 instruction set.
+According to its state, such a processor can pass from a decoding scheme to the another one,
+just with a special instruction. As codes compiled for different instruction sets can be
+mixed into a single program, we added the support for multiple instruction sets in a same description.
+
+If several instruction sets have to be defined in a same descritpion, you just need to change the root
+node from ''instruction'' to ''multi'', each child of this operation and its resulting tree is considered as
+autonomous instruction set and a separate fetch tables is generated for each one.
+
+Each node from the resulting tree of a child of the ''multi'' node must have specific attributes defined
+to drive the fetch process. Practically, these attribute should be defined
+directly at the root of the child a sub-trees, ie. in a direct child of ''multi''):
+  * ''instruction_set_select'': boolean (or boolean like) expression based on processor register values,
+it will be translated into C sources and evaluated to know if a given instruction set has to be used
+to fecth and decode the next instruction,
+  * ''instruction_set_name'': name of the defined instruction set, in a human readable form.
+
+**Example with the ARM processor (standard and THUMB instruction set)**
+
+<code>
+op multi = ARM | THUMB  // and not op instruction!
+
+op ARM(x : ARM_instr)
+	image = x.image
+	syntax = x.syntax
+	action = {
+                PIA = CIA;
+                CIA = NIA;
+                NIA = NIA + 4;
+		x.action;
+	}
+	instruction_set_select = TFLAG == 0 // ARM mode if state bit TFLAG is cleared
+	instruction_set_name = "ARM"        // human readable name for the ARM instruction set
+
+              
+op ARM_instr = ... // (tree of ARM instructions)
+
+op THUMB(x : THUMB_instr)
+	image = x.image
+	syntax = x.syntax
+	action = {
+                PIA = CIA;
+                CIA = NIA;
+                NIA = NIA + 2;
+		x.action;
+	}
+	instruction_set_select = TFLAG == 1 // THUMB mode if state bit TFLAG is set
+	instruction_set_name = "THUMB"      // human readable name
+
+op THUMB_instr = ... // (tree of ARM instructions)
+</code>
+
+
+
+===== Debugger Support =====
+
+@(GLISS) allows to easily generate a debugger from the SimNML description.
+Basicallt, the //debug// modules provides an API to get mainly the list
+of registers of an ISA.
+
+==== Register Access ====
+
+In addition, the way this information is generated may be customized
+according to the different needs. Basically, all registers of the ISA are included
+in the debugging information. This behaviour may be switched by defining a constant
+named ''gliss_debug_only'' as below:
+
+<code>
+let gliss_debug_only = 1
+</code>
+
+When this constant is defined, only the registers with an attribute called ''debug''
+are output in the debugging information. This may be useful with complex ISA
+to hide a bit of the complexity to the debugger user. In addition, the following
+attributes may be added to customize the debugging information:
+  ? ''label'' : this a more friendly way to name the register bank (as the default, this is the name of the bank);
+  ? ''fmt'' : allows to give the way the register are named, it must be a litteral string containing a %d that will be replaced
+by the register number;
+  ? ''get'' : to read a register, a simple indexed access is made on the bank; with this attribute, the read may be customized (see below);
+  ? ''set'' : to write a register, a simple indexed access is made on the bank; with this attribute, the write may be customized (see below);
+
+''get'' attributes, to be effective, must be perform a call to a specific canonical function
+to get the register value. The function name depends on the type of the register and its first argument
+is the index of the register in the bank and second the value of the register:
+  ? ''"GLISS_GET_I"'' : for //card// or //int// register with at most 32-bits,
+  ? ''"GLISS_GET_L"'' : for //card// or //int// register with at most 64-bits,
+  ? ''"GLISS_GET_F"'' : for //float// register of 32-bits,
+  ? ''"GLISS_GET_D"'' : for //float// register of 64-bits.
+
+''set'' attributes, to be effective, must be perform an access to a specific canonical variable
+write the register. The variable name depends on the type of the register:
+  ? ''"GLISS_I"'' : for //card// or //int// register with at most 32-bits,
+  ? ''"GLISS_L"'' : for //card// or //int// register with at most 64-bits,
+  ? ''"GLISS_F"'' : for //float// register of 32-bits,
+  ? ''"GLISS_D"'' : for //float// register of 64-bits.
+
+Therefore, a ''get'' operation must copy the register value in this variable while
+a ''set'' operation must modify the register with value contained in this register.
+For indexed register, a specific canonical variable ''"GLISS_IDX"'' is available and contains the index
+of the accessed register.
+
+==== Exception Handling ====
+
+In addition to register access, this API provides a way to easily implements semantics
+of exception. The set of possible exceptions is defined as AND op nodes children
+of an OR op node called ''exception''. The AND op nodes must take no parameters but the following
+attributes are allowed:
+  ? is_irq : if defined, the exception is an interrupt
+  ? action : a statement attribute representing the semantics of the exception raise
+
+As a kind of example, the code below shows the definition of some exception of the ARMv5T:
+<code>
+op exceptions = IRQ | FIQ | ABT
+
+op IRQ()
+	action = {
+		SetSPSR(Ucpsr);
+		MBITS = mode_irq;
+		IFLAG = 1;
+		Set_ARM_GPR(14, PC + 4);
+		PC = 0x18;
+	}
+	is_irq = 1
+
+op FIQ()
+	action = {
+		SetSPSR(Ucpsr);
+		MBITS = mode_fiq;
+		IFLAG = 1;
+		Set_ARM_GPR(14, PC + 4);
+		PC = 0x1C;
+	}
+	is_irq = 1
+
+op ABT()
+	action = {
+		SetSPSR(Ucpsr);
+		MBITS = mode_abt;
+		Set_ARM_GPR(14, PC + 4);
+		PC = 0x0C;
+	}
+</code>
+
+The exceptions definitions are described by the structure below:
+<code c>
+typedef struct PROC_exception_t {
+	const char *name;
+	void (*fun)(PROC_state_t *state);
+	int is_irq;
+} PROC_exception_t;
+</code>
+
+  ? name : name string of the exception,
+  ? fun : function launching the action of the exception,
+  ? is_irq : non-zero if the ''is_irq'' attribute is defined.
+
+The function ''PROC_exceptions()'' get the array exceptions ended by a descriptor
+with a null-name.

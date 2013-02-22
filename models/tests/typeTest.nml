@@ -1,0 +1,26 @@
+let N               = 32
+let REGS            = 16
+
+type Boolean        = bool  
+type bit 			= card(1)
+type byte1			= card(8)
+type word 			= card(N)
+type long1 			= card(N)
+type signed_long 	= int(N)
+type address 		= card(N)
+type index 			= card(REGS * 2)
+type breakcode		= card(20)
+type flot           = float(52,12 )
+type flots          = float(23, 9 )
+type cond_code      = card ( 3 )
+type cond           = card ( 4 )
+type range          = [2 .. 16]
+
+type cond_alias1    = cond
+type cond_alias2    = address
+
+type bad_alias1     = REGS
+type bad_alias2     = undefined_type
+
+
+

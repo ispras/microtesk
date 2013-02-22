@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2012 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * AddressingModeOr.stg, Dec 7, 2012 1:58:00 PM Andrei Tatarnikov
+ */
+ 
+group AddressingModeOr;
+
+modeor(name, file, pack, imps, base, modes) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<class(["public", "abstract"], 
+       name,
+       base,
+       false,
+       body(name, modes))> 
+>>
+
+body(name, modes) ::= <<
+private <name>() {}<\n>
+<class_string_const("String", "NAME", name)><\n>
+<class_const("IInfo", "INFO", new_mode_list(modes))> 
+>>
+
+new_mode_list(modes) ::= <<
+new InfoOrRule(NAME,
+    <modes; separator=".INFO,\n">.INFO
+)
+>>
+

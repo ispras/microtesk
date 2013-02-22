@@ -1,0 +1,120 @@
+====== Commands ======
+
+===== mkirg =====
+
+<code sh>
+> mkirg [options] FILE IRG_FILE
+</code>
+
+This commands converts its input //FILE//, ''.nmp'' or ''.nml'' files,
+to //IRG_FILE// file, that is, to intermediate representation.
+
+Options includes only:
+  * ''-help'', ''--help'' -- display help information
+
+
+
+===== print_irg =====
+
+<code sh>
+> print_irg [options] FILE
+</code>
+
+Display in a textual form, as scanned by @(GLISS), its input FILE
+that may be ''.nmp'', ''.nml'' or ''.irg''.
+
+Options are:
+  * ''-help'', ''--help'' -- display help information
+  * ''-i'' -- display operations wholy unfolded, that is, with
+    parameters evaluated
+
+
+===== gep =====
+
+<code sh>
+> gep [options] FILE
+</code>
+
+''gep'' is the main generator of @(GLISS) responsible for producing
+all sources required to produce an ISS.
+
+The //FILE// may be one of ''.nmp'', ''.nml'' or ''.irg''.
+
+Options are:
+  * ''-a'' //SOURCE// -- add the given source file to the generated library
+  * ''-help'', ''--help'' -- display help information
+  * ''-m'' //INTERFACE//://MODULE// -- involve the given module
+in the generation
+  * ''-off'' //SYMBOL// -- consider the given symbol as true in
+the generation templates
+  * ''-on'' //SYMBOL// -- consider the given symbol as false in
+the generation templates
+  * ''-q'' -- quiet mode, does not display anything except errors
+  * ''-S'' -- generate also the default ISS
+  * ''-D'' -- activate complex arguments decoding, allows to deal with "complex" arguments in a instruction's image (like a<2..4>, a<<2, a+2, etc)
+  * ''-s'' //SIZE// -- request image size check against the given size
+  * ''-v'' -- display verbose information about the generation
+  * ''-gen-with-trace'' -- Generate simulator with decoding of dynamic traces of instructions (faster). module decode32_dtrace must be use with this option
+  * ''-p'' //PROFILING FILE// -- Optimized generation with a profiling file given its path. Instructions handlers are sorted to optimized host simulator cache
+  * ''-PJ'' //PROFILED SWITCH SIZE// -- Stands for profiled jumps : enable better branch prediction if -p option is also activated
+  * ''-off'' //SWITCH// -- unactivate the given switch
+  * ''-on'' //SWITCH// -- activate the given switch
+  * ''-fstat'' -- generates stats about fetch tables in the file <proc_name>_fetch_tables.stat
+  * ''-O'' -- activates instruction tree various optimizations as implemented in optirg
+
+
+===== gliss-nmp2nml.pl =====
+
+<code>
+> gliss-nmp2nml.pl NMP_FILE NML_FILE
+</code>
+
+Preprocessor of the macro and includes commands found in the given
+//NMP_FILE// file and generates the given //NML_FILE//.
+
+
+===== gliss-disasm =====
+
+<code sh>
+> gliss-disasm [options] FILE
+</code>
+
+Generate the disassembler code, that is, the disassembler primitives
+linked in the ISS library and the disassembler command. //FILE// may
+be one ''.nmp'', ''.nml'' or ''.irg'' file.
+
+Options are:
+  * ''-help'', ''--help'' -- display help information
+  * ''-q'' -- quiet mode, does not display anything except errors
+  * ''-v'' -- display verbose information about the generation
+
+
+===== gliss-attr =====
+
+<code sh>
+> gliss-attr [options] FILE -a ATTRIBUTE -t TEMPLATE -d DEFAULT
+</code>
+
+This command allows to generate special processing associated with
+instruction. In @(GLISS) V2, you can add custom attributes (different
+of standard ones ''syntax'', ''image'' or ''action'') to associate
+a special processing with each instruction. Then, a C source file may
+be generated with this command.
+
+The generated source is obtained from the //TEMPLATE// file that
+is interpreted as the template files of GEP (see section "Generation Templates").
+It may contain reference to the given //ATTRIBUTE//. If it exists an
+instruction which the attribute is not defined for, the //DEFAULT//
+value is used instead.
+
+Options are:
+  * ''-a'' ATTRIBUTTE -- attribute name to generate for,
+  * ''-d'' DEFAULT -- default value,
+  * ''-e'' FILE -- an extension file to add definitions to the NML definition,
+  * ''-f'' -- the attribute is an expression attribute,
+  * ''-o'' FILE -- generate output to the given file,
+  * ''-p'' -- the attribute is an action attribute,
+  * ''-q'' -- quiet mode,
+  * ''-t'' TEMPLATE -- select the template flag,
+  * ''-v'' -- verbose mode.
+

@@ -1,0 +1,660 @@
+//
+// GLISS V2 -- ARM branch instructions
+// Copyright (c) 2010, IRIT - UPS <casse@irit.fr>
+//
+// This file is part of GLISS2.
+//
+// GLISS2 is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// GLISS2 is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GLISS2; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+//
+
+
+// macros
+macro LDRB(rd) = \
+		TMP_EA = TMP_REG2;\
+		Set_ARM_GPR(rd,M[TMP_EA]);
+
+
+macro LDR(rd) = \
+		TMP_EA = TMP_REG2;\
+		TMP_SWORD = GetWord(TMP_EA);\
+		if (rd == 15) then\
+			NPC = TMP_SWORD & 0xFFFFFFFE; \
+			TFLAG = TMP_SWORD<0..0>; \
+		else \
+			Set_ARM_GPR(rd,TMP_SWORD);\
+		endif;
+
+
+macro STRB() = \
+		TMP_EA = TMP_REG2;\
+		M[TMP_EA] = TMP_REG1;
+
+macro STR() = \
+		TMP_EA = TMP_REG2;\
+		TMP_SWORD = TMP_REG1;\
+		SetWord(TMP_EA,TMP_SWORD);
+
+macro STRH() = \
+		TMP_EA = TMP_REG2;\
+		SetHalfWord(TMP_EA,TMP_REG1);
+
+macro LDRH() = \
+		TMP_EA = TMP_REG2;\
+		if TMP_EA<0..0> == 0 then \
+			TMP_HALF = GetHalfWord(TMP_EA);\
+		else\
+			TMP_HALF = 0;\
+		// not aligned UNPREDICTABLE
+		endif;\
+		TMP_REG1 = coerce(u16, TMP_HALF);\
+		if (rd == 15) && (TMP_REG1 == 0) then\
+			GPR[0] = (2 << 16) + 38;\
+		endif;\
+		Set_ARM_GPR(rd,TMP_REG1);
+
+macro LDRSB() = \
+      TMP_EA = TMP_REG2;\
+      TMP_BYTE = M[TMP_EA];\
+      Set_ARM_GPR(rd, coerce(s32, TMP_BYTE));\
+
+
+macro LDRSH() = \
+      TMP_EA = TMP_REG2;\
+      TMP_HALF = M[TMP_EA];\
+      Set_ARM_GPR(rd, coerce(s32, TMP_HALF));\
+
+macro ldst_shift_result(r, shiftKind, shiftAmt) = \
+	switch (shiftKind) { \
+		case LSL: Get_ARM_GPR(r) << shiftAmt \
+		case LSR: if shiftAmt == 0 then 0 else coerce(u32, Get_ARM_GPR(r)) >> shiftAmt endif \
+		case ASR: \
+			if shiftAmt == 0 then \
+				if Get_ARM_GPR(r)<31..31> == 1 then 0xffffffff else 0 endif \
+			else \
+				coerce(s32, Get_ARM_GPR(r)) >> shiftAmt \
+			endif \
+		case ROR: \
+			if shiftAmt == 0 then \
+				(CFLAG :: (Get_ARM_GPR(r)))<32..1> \
+			else \
+				(Get_ARM_GPR(r)) >>> shiftAmt \
+			endif \
+	} \
+
+
+mode loadstoreSpecifiedShift(shiftAmt: u5, shiftKind: u2, r: REG_INDEX) = ldst_shift_result(r, shiftKind, shiftAmt)
+	syntax = format("%s, %s #%d", r.syntax, 
+	switch (shiftKind) {
+		case LSL: "lsl"
+		case LSR: "lsr"
+		case ASR: "asr"
+		case ROR: "ror" }, 
+	shiftAmt)
+	image  = format("%5b %2b 0 %s", shiftAmt, shiftKind, r.image)
+
+
+
+// instructions
+
+// LDR(B) + CLREX (arm v7)
+op LDR_imm(cond: condition, setpre: u1, setu: u1, setb: u1, setw: u1, rn: REG_INDEX, rd: REG_INDEX, offset12: OFFSET_12)
+	clrex = cond.value == 15 && setpre == 1 && setu == 0 && setb == 1 && setw == 1 & rn.number == 15 && rd.number == 15 && offset12 == 0x1f
+	syntax =
+		if clrex then "clrex"
+		else
+			format("ldr%s%s%s %s, [%s%s,%s%s%s%s",
+				cond.syntax,
+				if setb then "b" else "" endif ,
+				if setw then  if (setpre == 0) then  "T" else "" endif else "" endif,
+				rd.syntax,
+				rn.syntax,
+				if setpre then "" else "]" endif ,
+				if setu then "" else "-" endif ,
+				offset12.syntax,
+				if setpre then "]" else "" endif ,
+				if setw then "!" else "" endif )
+			endif
+
+	image = format("%s010%1b%1b%1b%1b1%s%s%s", cond.image, setpre,
+		setu, setb, setw, rn.image,rd.image,offset12.image)
+
+	action = {	   
+		TMP_REG3 = coerce(u32, offset12);
+		if(cond) then
+			if setu == 0 then TMP_REG3 = -TMP_REG3; endif;
+			if (setpre == 0)  && (setw == 1) then
+		   		TMP_FIVE = MBITS;
+				MBITS = mode_user;
+		   	endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then TMP_REG2 = TMP_REG2 + TMP_REG3; endif;
+			if (setb == 1) then
+				LDRB(rd);	  
+			else
+				LDR(rd);
+			endif;	
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;
+			if (setpre == 0)  && (setw == 1) then
+				MBITS = TMP_FIVE;
+			endif;
+		endif;              
+	}
+
+
+op STR_imm(cond: condition, setpre: u1, setu: u1, setb: u1, setw: u1, rn: REG_INDEX, rd: REG_INDEX, offset12: OFFSET_12)
+	syntax = format("str%s%s%s %s, [%s%s,%s%s%s%s",
+		cond.syntax,
+		if setb then "b" else "" endif ,
+		if setw then 
+			if (setpre == 0) then  "T"					 
+			else		  ""
+			endif
+		else "" endif,
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif ,
+		if setu then "" else "-" endif ,
+		offset12.syntax,
+		if setpre then "]" else "" endif ,
+		if setw then "!" else "" endif ) 
+
+	image = format("%s010%1b%1b%1b%1b0%s%s%s", cond.image, setpre,
+		setu, setb, setw, rn.image,rd.image,offset12.image)
+
+	action = {	   
+		TMP_REG3 = coerce(u32, offset12);
+		if (cond) then
+			if setu == 0 then TMP_REG3 = - TMP_REG3; endif;
+			if (setpre == 0)  && (setw == 1) then
+		   		TMP_FIVE = MBITS;
+				MBITS = mode_user;
+		   	endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			if (setb == 1) then
+					STRB();
+			else
+					STR();
+			endif;	
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;
+			if (setpre == 0)  && (setw == 1) then
+				MBITS = TMP_FIVE;
+			endif;
+		endif;
+              
+	}
+
+op LDR_shr(cond: condition, setpre: u1, setu: u1, setb: u1, setw: u1, rn: REG_INDEX, rd: REG_INDEX, shifter_operand: loadstoreSpecifiedShift)
+			 
+	syntax = format("ldrr%s%s%s %s, [%s%s, %s%s%s%s",
+		cond.syntax,
+		if setb then "b" else "" endif,
+		if setw then if (setpre == 0) then "t" else	"" endif else  "" endif,
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif ,
+		shifter_operand.syntax,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+
+	image = format("%s011%1b%1b%1b%1b1%s%s%s", cond.image, setpre,
+		setu, setb, setw, rn.image,rd.image,shifter_operand.image)
+	action = {
+		if (cond) then
+			if (setpre == 0)  && (setw == 1) then
+				TMP_FIVE = MBITS;
+				MBITS = mode_user;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG3 = shifter_operand;
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			if (setb == 1) then
+					LDRB(rd);  
+			else
+					LDR(rd);
+			endif;	 
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;
+			if (setpre == 0)  && (setw == 1) then               
+				MBITS = TMP_FIVE; 
+			endif;
+		endif;
+
+	}
+
+
+op STR_shr(cond: condition, setpre: u1, setu: u1, setb: u1, setw: u1, rn: REG_INDEX, rd: REG_INDEX, shifter_operand: loadstoreSpecifiedShift)
+			 
+	syntax = format("str%s%s%s %s, [%s%s, %s%s%s%s",
+		cond.syntax,
+		if setb then "b" else "" endif,
+		if setw then if (setpre == 0) then "t" else	"" endif else "" endif,
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif ,
+		shifter_operand.syntax,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif)
+
+	image = format("%s011%1b%1b%1b%1b0%s%s%s", cond.image, setpre, setu, setb, setw, rn.image,rd.image,shifter_operand.image)
+
+	action = {
+		if (cond) then
+			if (setpre == 0)  && (setw == 1) then
+				TMP_FIVE = MBITS;
+				MBITS = mode_user;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG3 = shifter_operand;
+			if setu == 0 then TMP_REG3 = - TMP_REG3; endif;
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then TMP_REG2 = TMP_REG2 + TMP_REG3; endif;
+			if (setb == 1) then
+				STRB();			  
+			else
+				STR();
+			endif;	 
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;
+			if (setpre == 0)  && (setw == 1) then               
+				MBITS = TMP_FIVE; 
+			endif;
+		endif;
+
+	}
+
+
+op STRH_imm(cond: condition, setpre: u1,setu:u1,setw:u1,rn : REG_INDEX, rd :	 REG_INDEX , immh: u4, imml:u4)
+
+	syntax = format("str%sh %s, [%s%s,%s#%lu%s%s",
+		cond.syntax, 
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif,
+		immh::imml,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+ 
+	image = format("%s000%1b%1b1%1b0%s%s%4b1011%4b", cond.image, setpre,setu, setw,rn.image,rd.image,immh,imml)
+	action = {
+		TMP_REG3 = immh::imml;
+		if (cond) then
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			STRH();
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;	 
+		endif;
+       }
+
+
+op STRH_shr(cond: condition, setpre:u1,setu:u1,setw:u1,rn : REG_INDEX, rd : REG_INDEX , rm: REG_INDEX)
+	syntax = format("str%sh %s, [%s%s,%s%s%s%s",
+		cond.syntax, 
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif ,
+		rm.syntax,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+
+	image = format("%s000%1b%1b0%1b0%s%s00001011%s", cond.image,
+				setpre,setu, setw,rn.image,rd.image,rm.image)
+	action = {
+		TMP_REG3 = Get_ARM_GPR(rm);
+		if (cond) then
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			STRH();
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;
+		endif;
+       }
+
+
+op LDRH_imm(cond: condition, setpre:u1,setu:u1,setw:u1,rn : REG_INDEX, rd : REG_INDEX , immh: u4, imml:u4)
+	syntax = format("ldr%sh %s, [%s%s,%s#%lu%s%s",
+		cond.syntax, 
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif,
+		immh::imml,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+	 
+
+	image = format("%s000%1b%1b1%1b1%s%s%4b1011%4b", cond.image, setpre,setu, setw,rn.image,rd.image,immh,imml)
+
+	action = {
+		TMP_REG3 = immh::imml;
+		if (cond) then
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			LDRH();
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;	 
+		endif;
+       }
+
+
+op LDRH_shr(cond: condition, setpre:u1,setu:u1,setw:u1,rn : REG_INDEX, rd : REG_INDEX , rm: REG_INDEX)
+
+	syntax = format("ldr%sh %s, [%s%s,%s%s%s%s",
+		cond.syntax, 
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif ,
+		rm.syntax,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+	image = format("%s000%1b%1b0%1b1%s%s00001011%s", cond.image, setpre,setu, setw,rn.image,rd.image,rm.image)
+
+	action = {
+		TMP_REG3 = Get_ARM_GPR(rm);
+		if (cond) then
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			LDRH();
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;
+		endif;
+       }
+ 
+
+
+op LDRSB_imm(cond: condition, setpre:u1,setu:u1,setw:u1,rn : REG_INDEX, rd : REG_INDEX , immh: u4, imml:u4)
+
+	syntax = format("ldr%ssb %s, [%s%s,%s#%lu%s%s",
+		cond.syntax, 
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif,
+		immh::imml,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+
+	image = format("%s000%1b%1b1%1b1%s%s%4b1101%4b", cond.image, setpre,setu, setw,rn.image,rd.image,immh,imml)
+	action = {
+		TMP_REG3 = immh::imml;
+		if (cond) then
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			LDRSB();
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+				Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;	 
+		endif;
+       }
+
+op LDRSB_shr(cond: condition, setpre:u1,setu:u1,setw:u1,rn : REG_INDEX, rd :REG_INDEX , rm: REG_INDEX)
+	syntax = format("ldr%ssb %s, [%s%s,%s%s%s%s",
+		cond.syntax, 
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif ,
+		rm.syntax,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+
+	image = format("%s000%1b%1b0%1b1%s%s00001101%s", cond.image, setpre,setu, setw,rn.image,rd.image,rm.image)
+
+	action = {
+		TMP_REG3 = Get_ARM_GPR(rm);
+		if (cond) then
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			LDRSB();
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;
+		endif;
+       } 
+
+
+op LDRSH_imm(cond: condition, setpre:u1,setu:u1,setw:u1,rn : REG_INDEX, rd :REG_INDEX , immh: u4, imml:u4)
+
+	syntax = format("ldr%ssh %s, [%s%s,%s#%lu%s%s",
+	cond.syntax, 
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif,
+		immh::imml,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+
+	image = format("%s000%1b%1b1%1b1%s%s%4b1111%4b", cond.image, setpre,setu, setw,rn.image,rd.image,immh,imml)
+
+	action = {
+		TMP_REG3 = immh::imml;
+		if (cond) then
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			LDRSH();
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;	 
+		endif;
+       }
+
+op LDRSH_shr(cond: condition, setpre:u1,setu:u1,setw:u1,rn : REG_INDEX, rd : REG_INDEX , rm: REG_INDEX)
+	syntax = format("ldr%ssh %s, [%s%s,%s%s%s%s",
+		cond.syntax, 
+		rd.syntax,
+		rn.syntax,
+		if setpre then "" else "]" endif,
+		if setu then "" else "-" endif ,
+		rm.syntax,
+		if setpre then "]" else "" endif,
+		if setw then "!" else "" endif )
+
+	image = format("%s000%1b%1b0%1b1%s%s00001111%s", cond.image, setpre,setu, setw,rn.image,rd.image,rm.image)
+
+	action = {
+		if (cond) then
+			if setu == 0 then
+				TMP_REG3 = - TMP_REG3;
+			endif;
+			TMP_REG1 = Get_ARM_GPR(rd);
+			TMP_REG2 = Get_ARM_GPR(rn);
+			if (setpre == 1) then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+			endif;
+			LDRSH();
+			if setpre == 0 then
+				TMP_REG2 = TMP_REG2 + TMP_REG3;
+				Set_ARM_GPR(rn,TMP_REG2);	
+			else 
+				if (setw == 1 ) then		     		     
+					Set_ARM_GPR(rn,TMP_REG2);		     
+				endif; 
+			endif;	 
+		endif;
+
+       }
+
+
+
+// ****** SWP family ******
+
+macro  SWPB(rn,rd,rm) = \
+	TMP_EA = Get_ARM_GPR(rn);\
+	TMP_BYTE = M[TMP_EA];\
+	M[TMP_EA] = Get_ARM_GPR(rm);\
+	Set_ARM_GPR(rd,TMP_BYTE);
+
+macro  SWPW(rn, rd, rm) = \
+	TMP_EA = Get_ARM_GPR(rn);\
+	TMP_REGSWORD = GetWord(TMP_EA);\
+	if (TMP_EA<1..0> == 0b00) then\
+		TMP_SWORD = TMP_REGSWORD;\
+	else\
+		if (TMP_EA<1..0> == 0b01) then\
+			TMP_SWORD = TMP_REGSWORD >>> 8;\
+		else\
+			if (TMP_EA<1..0> == 0b10) then\
+				TMP_SWORD = TMP_REGSWORD >>> 16;\
+			else\
+				if (TMP_EA<1..0> == 0b11) then\
+					TMP_SWORD = TMP_REGSWORD >>> 24;\
+				endif;\
+			endif;\
+		endif;\	
+	endif;\
+	TMP_REG3 = Get_ARM_GPR(rm);\
+	SetWord(TMP_EA,TMP_REG3);\
+	Set_ARM_GPR(rd,TMP_SWORD);
+
+op SWP(cond: condition, setb: setB, rn: REG_INDEX, rd: REG_INDEX, rm: REG_INDEX)
+	syntax = format("swp%s%s %s, %s, [%s]", cond.syntax, setb.syntax, rd.syntax, rm.syntax ,rn.syntax)
+	image = format("%s00010%s00%s%s00001001%s",cond.image,setb.image,rn.image,rd.image,rm.image)
+	action = {
+		setb.action;
+		if (cond) then
+			if (BBIT == 1) then
+				SWPB(rn,rd,rm);
+			else
+				SWPW(rn,rd,rm);
+			endif;
+		endif;	
+	}
+
+
+

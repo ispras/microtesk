@@ -1,0 +1,29 @@
+
+let proc="mine"
+let gliss_isize = "32"
+let bit_order = "UPPERMOST"
+
+reg pc[1, card(32)] pc = 1
+reg r[1, card(32)]
+
+op init()
+	action = { }
+
+op instruction()
+	image = "00000000 00000000 00000000 00000000"
+	syntax = "bof"
+	action = {
+
+		// field
+		r = r<15..0>;
+		r = r<4*4-1 .. 4*0>;
+		r = r<0..15>;
+		r = r<r + 3 .. r>;
+
+		// set field
+		r<15..0> = 0;
+		r<4*4-1 .. 4*0> = 0;
+		r<0..15> = 0;
+		r<r + 3 .. r> = 0;
+	}
+

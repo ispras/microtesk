@@ -1,0 +1,750 @@
+op controlinst = call|calli|calla|j|ja|jeq|jge|ji|jl|jlt|jne|jned|jnei|jnz|jz|ret|loop
+
+op jl(disp24: int(32), foo1: card(16), foo2: card(8))
+	predecode	= {
+		disp24<0..15> = foo1<0..15>;
+		disp24<16..23> = foo2<0..7>;
+		if foo2<7..7> == 1 then
+			disp24<24..31> = 0xff;
+		else
+			disp24<24..31> = 0;
+		endif;
+	}
+	syntax		= format("jl 0x%08x", __IADDR + disp24 * 2)
+	image		= format("%16b%8b01011101%0b", foo1, foo2, disp24)
+	action		= { A[11] = PC; PC = PC + disp24 * 2; }
+	otawa_sem	= "SETI(A11, IADDR + 4); SETI(T1, IADDR + 2 * ((S8(2) << 16) + U16(1))); BRANCH(T1);"
+
+op call(const:card(32), d1:card(16), d2:card(8))
+   predecode = {	
+	     const<16..23> = d2<0..7>;
+	     const<0..15> = d1<0..15>;
+	     const = 2*const;
+	     if (const<24..24>==1)then 
+		const<25..31>=0xff; 
+	     endif;
+   }
+   syntax = format("call 0x%08x", __IADDR + const)
+   image = format("%16b%8b01101101%0b",d1,d2,const)
+   action = 	{ 
+	  	if (FCX == 0)
+		then
+			;//TRAP(FCU)
+		endif;
+		cdc_incr(TMP_1);
+		if (CDEFLAG && TMP_1)
+		then
+			;//TRAP(CDO)
+		endif;
+		CDEFLAG = 1;
+		TMP_1 = PC+4;
+		TMP_2 = FCX;
+		TMP_3 = FCXS::0b000000::FCXO::0b000000;
+		loadWord(TMP_4,TMP_3);
+		storeWord(PCXI,TMP_3);
+		storeWord(PSW,TMP_3+4);
+		storeWord(A[10],TMP_3+8);
+		storeWord(A[11],TMP_3+12);
+		storeWord(D[8],TMP_3+16);
+		storeWord(D[9],TMP_3+20);
+		storeWord(D[10],TMP_3+24);
+		storeWord(D[11],TMP_3+28);
+		storeWord(A[12],TMP_3+32);
+		storeWord(A[13],TMP_3+36);
+		storeWord(A[14],TMP_3+40);
+		storeWord(A[15],TMP_3+44);
+		storeWord(D[12],TMP_3+48);
+		storeWord(D[13],TMP_3+52);
+		storeWord(D[14],TMP_3+56);
+		storeWord(D[15],TMP_3+60);
+		PCPN = CCPN;
+		PIE = IE;
+		UL = 1;
+		PCXI<0..19> = FCX<0..19>;
+		FCX<0..19> = TMP_4<0..19>;
+		PC = PC-4+const;
+		A[11] = TMP_1;
+		if (TMP_2 == LCX)
+		then 
+			;//TRAP(FCD)
+		endif;
+   		}
+	otawa_sem	= "SAVE_CONTEXT; SETI(A11, IADDR + 4); SETI(T1, IADDR + 2 * ((S8(2) << 16) + U16(1))); BRANCH(T1); "
+		
+	
+
+op calla(const:card(32), d1:card(16), d2:card(8))
+   predecode = {
+		const = 0;	
+	     	const<16..23> = d2<0..7>;
+	     	const<0..15> = d1<0..15>;
+   }
+   syntax = format("calla 0x%08x", const<20..23>::0b0000000::const<0..19>::0b0)
+   image = format("%16b%8b11101101%0b",d1,d2,const)
+   action = 	{ 
+	  	if (FCX == 0)
+		then
+			;//TRAP(FCU)
+		endif;
+		cdc_incr(TMP_1);
+		if (CDEFLAG && TMP_1)
+		then
+			;//TRAP(CDO)
+		endif;
+		CDEFLAG = 1;
+		TMP_1 = PC+4;
+		TMP_2 = FCX;
+		TMP_3 = FCXS::0b000000::FCXO::0b000000;
+		loadWord(TMP_4,TMP_3);
+		storeWord(PCXI,TMP_3);
+		storeWord(PSW,TMP_3+4);
+		storeWord(A[10],TMP_3+8);
+		storeWord(A[11],TMP_3+12);
+		storeWord(D[8],TMP_3+16);
+		storeWord(D[9],TMP_3+20);
+		storeWord(D[10],TMP_3+24);
+		storeWord(D[11],TMP_3+28);
+		storeWord(A[12],TMP_3+32);
+		storeWord(A[13],TMP_3+36);
+		storeWord(A[14],TMP_3+40);
+		storeWord(A[15],TMP_3+44);
+		storeWord(D[12],TMP_3+48);
+		storeWord(D[13],TMP_3+52);
+		storeWord(D[14],TMP_3+56);
+		storeWord(D[15],TMP_3+60);
+		PCPN = CCPN;
+		PIE = IE;
+		UL = 1;
+		PCXI<0..19> = FCX<0..19>;
+		FCX<0..19> = TMP_4<0..19>;
+		PC = const<20..23>::0b0000000::const<0..19>::0b0;
+		A[11] = TMP_1;
+		if (TMP_2 == LCX)
+		then 
+			;//TRAP(FCD)
+		endif;
+   		}
+	otawa_sem	= "SETI(A11, IADDR + 4); SETI(T1, (U8(2) << 24) + (U16(1) << 6)); SAVE_CONTEXT; BRANCH(T1); "
+
+
+op calli(a:reg_a, foo1:card(4), foo2:card(8))
+   syntax = format("calli %s", a.syntax)
+   image = format("%4b00000000%8b%s00101101",foo1,foo2,a.image)
+   action = 	{ 
+	  	if (FCX == 0)
+		then
+			;//TRAP(FCU)
+		endif;
+		cdc_incr(TMP_1);
+		if (CDEFLAG && TMP_1)
+		then
+			;//TRAP(CDO)
+		endif;
+		CDEFLAG = 1;
+		TMP_1 = PC+4;
+		TMP_2 = FCX;
+		TMP_3 = FCXS::0b000000::FCXO::0b000000;
+		loadWord(TMP_4,TMP_3);
+		storeWord(PCXI,TMP_3);
+		storeWord(PSW,TMP_3+4);
+		storeWord(A[10],TMP_3+8);
+		storeWord(A[11],TMP_3+12);
+		storeWord(D[8],TMP_3+16);
+		storeWord(D[9],TMP_3+20);
+		storeWord(D[10],TMP_3+24);
+		storeWord(D[11],TMP_3+28);
+		storeWord(A[12],TMP_3+32);
+		storeWord(A[13],TMP_3+36);
+		storeWord(A[14],TMP_3+40);
+		storeWord(A[15],TMP_3+44);
+		storeWord(D[12],TMP_3+48);
+		storeWord(D[13],TMP_3+52);
+		storeWord(D[14],TMP_3+56);
+		storeWord(D[15],TMP_3+60);
+		PCPN = CCPN;
+		PIE = IE;
+		UL = 1;
+		PCXI<0..19> = FCX<0..19>;
+		FCX<0..19> = TMP_4<0..19>;
+		PC = a<1..31>::0b0;
+		A[11] = TMP_1;
+		if (TMP_2 == LCX)
+		then 
+			;//TRAP(FCD)
+		endif;
+   		}
+	otawa_sem	= "SETI(A11, IADDR + 4); SETI(T2, 2); SHL(T1, A(0), T2); SAVE_CONTEXT; BRANCH(T1); "
+
+op j (const:card(32), d1:card(16), d2:card(8))
+   predecode = { 
+		const = 0;
+	        const<16..23> = d2<0..7>;
+		const<0..15> = d1<0..15>;
+		if (const<23..23>==1)
+		then
+			const<24..31>=0xff;
+		endif;
+		const = 2*const;
+   }
+   syntax = format("j %08x", __IADDR + const)
+   image = format("%16b%8b00011101%0b",d1,d2,const)
+   action = 	{ 
+		PC = PC-4+const;
+   		}
+   	otawa_sem = "SETI(T1, IADDR + 2 * ((S8(2) << 16) + U16(1))); BRANCH(T1);"
+
+op ja (const:card(32), d1:card(16), d2:card(8))
+   predecode = {
+		const = 0;
+	        const<16..23> = d2<0..7>;
+		const<0..15> = d1<0..15>;
+   }
+   syntax = format("ja 0x%08x", const<20..23>::0b0000000::const<16..23>::0b0)
+   image = format("%16b%8b10011101%0b",d1,d2,const)
+   action = 	{
+		TMP_1 = 0;
+		TMP_1<0..3> = const<20..23>;
+		TMP_1<1..20> = const<0..19>;
+	  	PC = TMP_1;
+   		}
+   	otawa_sem = "SETI(T1, ((U8(2) >> 4) << 28) + ((((U8(2) & 0x0f) << 16) + U16(1)) << 1)); BRANCH(T1);"
+
+op jeq = jeq_reg | jeq_const4 | jeq_a
+
+op jeq_reg (disp:card(32), disp15:card(15), a:reg_d, b:reg_d)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<31..15>=0b11111111111111111;
+	     endif;
+	     disp = 2 * disp;
+   }
+   syntax = format ("jeq %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("0%15b%s%s01011111%0b",disp15,b.image,a.image,disp)
+   action = 	{ 
+	  	if (a==b)
+		then 
+	     		PC = PC-4+disp; 
+	  	endif;
+  		}
+  	otawa_sem = "CMP(T1, D(2), D(3)); IF(EQ, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jeq_const4 (disp:card(32), disp15:card(15), a:reg_d, const4:card(4), const:card(32))
+   predecode = {  
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+	     const= const4;
+	     if (const4<3..3>==1)then
+		const<4..31>=0xffffff; 
+	     endif;
+    }
+    syntax = format ("jeq %s, %d, 0x%08x", a.syntax, const, __IADDR + disp)
+    image = format ("0%15b%4b%s11011111%0b%0b",disp15,const4,a.image,disp,const)
+    action =  	{ 
+	   	if (a==const)
+		then 
+	      		PC = PC-4+disp; 
+	   	endif;
+    		}
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); IF(EQ, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jeq_a (disp:card(32), disp15:card(15), a:reg_a, b:reg_a)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+   }
+   syntax = format ("jeq.a %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("0%15b%s%s01111101%0b",disp15,b.image,a.image,disp)
+   action = 	{ 
+	  	if (a==b)
+		then 
+	     		PC = PC-4+disp; 
+	  	endif;
+   		}
+  	otawa_sem = "CMP(T1, A(2), A(3)); IF(EQ, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jge = jge_reg | jge_const4 | jge_u | jge_u_const4
+
+op jge_reg (disp:card(32),disp15:card(15),a:reg_d,b:reg_d)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111;
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jge %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("0%15b%s%s01111111%0b",disp15,b.image,a.image,disp)
+   action = 	{ 
+	  	if (a>=b)
+		then 
+	     		PC = PC-4+disp; 
+	  	endif;
+   		}
+  	otawa_sem = "CMP(T1, D(2), D(3)); IF(GE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jge_const4 (disp:card(32),disp15:card(15),a:reg_d,const4:card(4),const:card(32))
+   predecode = {  
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+	     const = const4;
+	     if (const4<3..3>==1)then 
+		const<4..31>=0xffffff; 
+	     endif;
+    }
+    syntax = format ("jge %s, %d, 0x%08x", a.syntax, const, __IADDR + disp)
+    image = format ("0%15b%4b%s11111111%0b%0b",disp15,const4,a.image,disp,const)
+    action =  	{ 
+	   	if (a>=const)
+		then 
+	      		PC = PC-4+disp; 
+	   	endif; 
+   		}
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); IF(GE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jge_u (disp:card(32),disp15:card(15),a:reg_d,b:reg_d)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jge.u %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("1%15b%s%s01111111%0b",disp15,b.image,a.image,disp)
+   action = 	{ 
+	  	if (a>=b)
+		then 
+	     		PC = PC-4+disp; 
+	  	endif;
+   		}
+  	otawa_sem = "CMP(T1, D(2), D(3)); IF(UGE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jge_u_const4 (disp:card(32),disp15:card(15),a:reg_d,const4:card(4),const:card(32))
+   predecode = {  
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b0; 
+	     endif;
+	     disp = 2 * disp;
+	     const = const4;
+	     if (const4<3..3>==1)then 
+		const<4..31>=0x0000000;
+	     endif;
+
+    }
+    syntax = format ("jge.u %s, %d, 0x%08x", a.syntax, const, __IADDR + disp)
+    image = format ("1%15b%4b%s11111111%0b%0b",disp15,const4,a.image,disp,const)
+    action =  	{ 
+	   	if (a>=const)
+		then 
+	      		PC = PC-4+disp; 
+	   	endif;
+    		}
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); IF(UGE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op ji (a:reg_a, foo1:card(4), foo2:card(8))
+   syntax = format ("ji %s", a.syntax)
+   image = format ("%4b00000011%8b%s00101101",foo1,foo2,a.image)
+   action = 	{
+		TMP_1 = (a<1..31>)::(0b0);
+		PC = TMP_1;
+		}
+	otawa_sem = "SETI(T2, 1); SHL(T1, A(0), T2); BRANCH(T1);"
+
+op jlt =  jlt_reg |  jlt_const4 | jlt_u |  jlt_u_const4 
+
+op jlt_reg (disp:card(32),disp15:card(15),a:reg_d,b:reg_d)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jlt %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("0%15b%s%s00111111%0b",disp15,b.image,a.image,disp)
+   action = 	{ 
+	  	if (a<b)
+		then 
+	     		PC = PC-4+disp; 
+	  	endif;
+   		}
+  	otawa_sem = "CMP(T1, D(2), D(3)); IF(LT, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jlt_const4 (disp:card(32),disp15:card(15),a:reg_d,const4:card(4),const:card(32))
+   predecode = {  
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+		endif;
+	     disp = 2 * disp;
+	     const = const4;
+	     if (const4<3..3>==1)then 
+		const<4..31>=0xffffff; 
+	     endif;
+    }
+    syntax = format ("jlt %s, %d, 0x%08x", a.syntax, const, __IADDR + disp)
+    image = format ("0%15b%4b%s10111111%0b%0b",disp15,const4,a.image,disp,const)
+    action =  	{ 
+	   	if (a<const)
+		then 
+	      		PC =  disp; 
+	   	endif; 
+    		}
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); IF(LT, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jlt_u (disp:card(32),disp15:card(15),a:reg_d,b:reg_d)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+   }
+   syntax = format ("jlt.u %s, %s, %d", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("1%15b%s%s00111111%0b",disp15,b.image,a.image,disp)
+   action = 	{ 
+	  	if (a<b)
+		then 
+	     		PC = PC-4+disp; 
+	  	endif;
+   		}
+  	otawa_sem = "CMP(T1, D(2), D(3)); IF(ULT, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jlt_u_const4 (disp:card(32),disp15:card(15),a:reg_d,const4:card(4),const:card(32))
+   predecode = {  
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0xffff;
+	     endif;
+	     disp = 2 * disp;
+	     const = const4;
+	     if (const4<3..3>==1)then 
+		const<4..31>=0x0000000;
+	     endif;
+    }
+    syntax = format ("jlt.u %s, %d, 0x%08x", a.syntax, const, __IADDR + disp)
+    image = format ("1%15b%4b%s10111111%0b%0b",disp15,const4,a.image,disp,const)
+    action =  	{ 
+	   	if (a<const)
+		then 
+	     		PC = PC-4+disp; 
+	   	endif; 
+   		}
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); IF(ULT, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+
+op jne = jne_reg | jne_const4 | jne_a
+
+op jne_reg (disp:card(32),disp15:card(15),a:reg_d,b:reg_d)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jne %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("1%15b%s%s01011111%0b",disp15,b.image,a.image,disp)
+   action = 	{ 
+	  	if (a==b)
+		then 
+	     		PC = PC-4+disp; 
+	  	endif;
+   		}
+  	otawa_sem = "CMP(T1, D(2), D(3)); IF(NE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jne_const4 (disp:card(32),disp15:card(15),a:reg_d,const4:card(4),const:card(32))
+   predecode = {  
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+	     const = const4;
+	     if (const4<3..3>==1)then 
+		const<4..31>=0xffffff; 
+	     endif;
+    }
+    syntax = format ("jne %s, %d, 0x%08x", a.syntax, const, __IADDR + disp)
+    image = format ("1%15b%4b%s11011111%0b%0b",disp15,const4,a.image,disp,const)
+    action =  	{ 
+	   	if (a!=const)
+		then 
+	      		PC = PC + disp; 
+	   	endif; 
+    		}
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); IF(NE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jne_a (disp:card(32),disp15:card(15),a:reg_a,b:reg_a)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jne.a %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("1%15b%s%s01111101%0b",disp15,b.image,a.image,disp)
+   action = 	{ 
+	  	if (a!=b)
+		then 
+	     		PC = PC + disp; 
+	  	endif;
+   		}
+  	otawa_sem = "CMP(T1, A(2), A(3)); IF(NE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jned = jned_reg | jned_const4
+
+op jned_reg (disp:card(32), disp15:card(15), a:reg_d, b:reg_d)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jned %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("1%15b%s%s00011111%0b",disp15,b.image,a.image,disp)
+   action = { 
+	  if (a==b)then 
+	     PC = PC + disp; 
+	  endif; 
+	  a=a-1;
+   }
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); SETI(T2, 1); SUB(D(2), D(2), T2); IF(EQ, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jned_const4 (disp:card(32),disp15:card(15),a:reg_d,const4:card(4),const:card(32))
+   predecode = {  
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+	     const = const4;
+	     if (const4<3..3>==1)then 
+		const<4..31>=0xffffff; 
+	     endif;
+    }
+    syntax = format ("jned %s, %d, 0x%08x", a.syntax, const, __IADDR + disp)
+    image = format ("1%15b%4b%s10011111%0b%0b",disp15,const4,a.image,disp,const)
+    action =  	{
+	   	if (a!=const)
+		then 
+	      		PC = PC + disp; 
+	   	endif;
+	   	a=a-1;
+   		}
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); SETI(T2, 1); SUB(D(2), D(2), T2); IF(NE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jnei = jnei_reg | jnei_const4
+
+op jnei_reg (disp:card(32),disp15:card(15),a:reg_d,b:reg_d)
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jnei %s, %s, 0x%08x", a.syntax, b.syntax, __IADDR + disp)
+   image = format ("0%15b%s%s00011111%0b",disp15,b.image,a.image,disp)
+   action = { 
+	  if (a==b)then 
+	     PC = PC + disp; 
+	  endif; 
+	  a=a+1;
+   }
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); SETI(T2, 1); ADD(D(2), D(2), T2); IF(EQ, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jnei_const4 (disp:card(32),disp15:card(15),a:reg_d,const4:card(4),const:card(32))
+   predecode = {  
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+	     const  = const4;
+	     if (const4<3..3>==1)then 
+		const<4..31>=0xffffff; 
+	     endif;
+    }
+    syntax = format ("jnei %s, %d, 0x%08x", a.syntax, const, __IADDR + disp)
+    image = format ("0%15b%4b%s10011111%0b%0b",disp15,const4,a.image,disp,const)
+    action =  { 
+	   if (a!=const)then 
+	      PC = PC + disp; 
+	   endif; 
+	   a=a+1;
+    }
+  	otawa_sem = "SETI(T1, S4(3)); CMP(T1, D(2), T1); SETI(T2, 1); ADD(D(2), D(2), T2); IF(NE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jnz = jnz_a | jnz_t
+
+op jnz_a (disp:card(32), disp15:card(15), a:reg_a, foo:card(4))
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jnz.a %s, 0x%08x", a.syntax, __IADDR + disp)
+   image = format("1%15b%4b%s10111101%0b",disp15,foo,a.image,disp)
+   action = 	{
+	  	if (a!=0) 
+		then 
+	     		PC = PC + disp; 
+	  	endif;
+   		}
+  	otawa_sem = "SETI(T1, 0); CMP(T1, A(2), T1); IF(NE, T1, 2); SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jnz_t (disp:card(32), disp15:card(15), a:reg_d, n4:card(4), n1:card(1), n:card(5))
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+	     n<4..4>=n1<0..0>; 
+	     n<0..3>=n4<0..3>;
+   }
+   syntax = format ("jnz.t %s, %d, 0x%08x", a.syntax, n, __IADDR + disp)
+   image = format("1%15b%4b%s%1b1101111%0b%0b",disp15,n4,a.image,n1,disp,n)
+   action = 	{
+	  	if (a<n..n>) 
+		then 
+	     		PC = PC + disp; 
+	  	endif; 
+   		}
+  	otawa_sem = "SCRATCH(T1); IF(NE, T1, 1); CONT; SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jz = jz_a | jz_t
+
+op jz_a (disp:card(32),disp15:card(15),a:reg_a,foo:card(4))
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp; 
+   }
+   syntax = format ("jz.a %s, 0x%08x", a.syntax, __IADDR + disp)
+   image = format("0%15b%4b%s10111101%0b",disp15,foo,a.image,disp)
+   action = 	{
+	  	if (a==0) 
+		then 
+	     		PC = PC + disp; 
+	  	endif; 
+   		}
+  	otawa_sem = "SETI(T1, 0); CMP(T1, A(2), T1); IF(NE, T1, 1); CONT; SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op jz_t (disp:card(32),disp15:card(15),a:reg_d,n4:card(4),n1:card(1),n:card(5))
+   predecode = { 
+	     disp=disp15;
+	     disp = 2 * disp;
+	     if ( disp15<14..14>==1)then 
+		disp<16..31>=0xffff; 
+	     endif;
+	     n<4..4>=n1<0..0>; 
+	     n<0..3>=n4<0..3>;
+   }
+   syntax = format ("jz.t %s,%d, 0x%08x", a.syntax, n, __IADDR + disp)
+   image = format("0%15b%4b%s%1b1101111%0b%0b",disp15,n4,a.image,n1,disp,n)
+   action = 	{
+	  	if ((a<n..n>) == 0) 
+		then 
+	     		PC = PC + disp; 
+	  	endif; 
+   }
+  	otawa_sem = "SCRATCH(T1); IF(NE, T1, 1); CONT; SETI(T1, IADDR + S15(1) * 2); BRANCH(T1);"
+
+op ret (foo1:card(4),foo2:card(14))
+   syntax = "ret"
+   image = format ("%4b000110%14b00001101",foo1,foo2)
+   action = 	{
+		cdc_decr(TMP_1);
+		if (CDEFLAG && TMP_1)
+		then
+			;//TRAP(CDU)
+		endif;
+		if(PCXI<0..19> == 0)
+		then
+			;//TRAP(CSU)
+		endif;
+		if (UL == 0)
+		then
+			;//TRAP(CTYP)
+		endif;
+		PC = A[11]<1..31>::0b0;
+		TMP_3 = PCXS::0b000000::PCXO::0b000000;
+		loadWord(TMP_1,TMP_3);
+		loadWord(TMP_2,TMP_3+4);
+		loadWord(A[10],TMP_3+8);
+		loadWord(A[11],TMP_3+12);
+		loadWord(D[8],TMP_3+16);
+		loadWord(D[9],TMP_3+20);
+		loadWord(D[10],TMP_3+24);
+		loadWord(D[11],TMP_3+28);
+		loadWord(A[12],TMP_3+32);
+		loadWord(A[13],TMP_3+36);
+		loadWord(A[14],TMP_3+40);
+		loadWord(A[15],TMP_3+44);
+		loadWord(D[12],TMP_3+48);
+		loadWord(D[13],TMP_3+52);
+		loadWord(D[14],TMP_3+56);
+		loadWord(D[15],TMP_3+60);
+		
+		loadWord(TMP_1,TMP_3);
+		loadWord(PSW,TMP_3+4);
+		loadWord(A[10],TMP_3+8);
+		loadWord(A[11],TMP_3+12);
+		loadWord(D[8],TMP_3+16);
+		loadWord(D[9],TMP_3+20);
+		loadWord(D[10],TMP_3+24);
+		loadWord(D[11],TMP_3+28);
+		loadWord(A[12],TMP_3+32);
+		loadWord(A[13],TMP_3+36);
+		loadWord(A[14],TMP_3+40);
+		loadWord(A[15],TMP_3+44);
+		loadWord(D[12],TMP_3+48);
+		loadWord(D[13],TMP_3+52);
+		loadWord(D[14],TMP_3+56);
+		loadWord(D[15],TMP_3+60);
+
+		storeWord(FCX,TMP_3);
+		FCX<0..19> = PCXI<0..19>;
+		PCXI = TMP_1;
+		PSW = TMP_1<26..31>::PSW<24..25>::TMP_1<0..23>;
+   		}
+	otawa_sem	= "BRANCH(A11); LOAD_CONTEXT;"
+
+op loop(disp:card(32), b:reg_a, disp15:card(15), foo:card(4))
+   predecode = { 
+	     disp=disp15;
+	     if ( disp15<14..14>==1)then 
+		disp<15..31>=0b11111111111111111; 
+	     endif;
+	     disp = 2 * disp;
+   }
+   syntax = format("loop %s, 0x%08x", b.syntax, __IADDR + disp)
+   image = format("0%15b%s%4b11111101%0b",disp15,b.image,foo,disp)
+   action = 	{ 
+	  	if (b!=0) 
+		then 
+	     		PC = PC + disp;
+	  	endif;
+		b = b-1;
+   		}
+   	otawa_sem = "SETI(T1, 0), CMP(T1, D(1), T1); SETI(T2, 1); SUB(D(1), D(1), T2); IF(NE, T1, 1); CONT; SETI(T1, IADDR + S15(2) * 2); BRANCH(T1);"
+

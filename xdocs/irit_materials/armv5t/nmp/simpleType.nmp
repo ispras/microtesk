@@ -1,0 +1,38 @@
+///////////////////////////////////////////
+// TYPES DEFINITIONS
+///////////////////////////////////////////
+
+
+// basic unsigned types
+type u64 = card(64)
+type u32 = card(32)
+type u16 = card(16)
+type u8  = card(8)
+type u1  = card(1)
+
+// basic signed types
+type s64 = int(64)
+type s32 = int(32)
+type s24 = int(24)
+type s16 = int(16)
+type s11 = int(11)
+type s8  = int(8)
+type s1  = int(1)
+
+// Miscellaneous bit-string types needed for instruction formats (binary images).
+type u2    = card(2)
+type u3    = card(3)
+type u4    = card(4)
+type u5    = card(5)
+type u7    = card(7)
+type u11   = card(11)
+type u12   = card(12)
+type u24   = card(24)
+
+type address = int(32)
+
+// We need 4 bit index to address 16 GPRs
+type index = card(4)
+// 3bit only for THUMB (8 reg.)
+type thumb_index = card(3)
+

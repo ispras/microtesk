@@ -1,0 +1,1105 @@
+<!DOCTYPE QtCreatorProject>
+<qtcreator>
+ <data>
+  <variable>RunConfiguration0-BaseEnvironmentBase</variable>
+  <value type="int">2</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-CommandLineArguments</variable>
+  <valuelist type="QVariantList"/>
+ </data>
+ <data>
+  <variable>RunConfiguration0-ProFile</variable>
+  <value type="QString">prj.pro</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-RunConfiguration.name</variable>
+  <value type="QString">prj</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UseDyldImageSuffix</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UseTerminal</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UserEnvironmentChanges</variable>
+  <valuelist type="QVariantList"/>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UserSetName</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UserSetWorkingDirectory</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UserWorkingDirectory</variable>
+  <value type="QString"></value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-type</variable>
+  <value type="QString">Qt4ProjectManager.Qt4RunConfiguration</value>
+ </data>
+ <data>
+  <variable>RunConfiguration1-Arguments</variable>
+  <valuelist type="QVariantList">
+   <value type="QString">/home/vaillant/ppc2/perf/tests_loop/adpcm/adpcm.elf</value>
+   <value type="QString">-s</value>
+   <value type="QString">-more-stats</value>
+  </valuelist>
+ </data>
+ <data>
+  <variable>RunConfiguration1-BaseEnvironmentBase</variable>
+  <value type="int">2</value>
+ </data>
+ <data>
+  <variable>RunConfiguration1-Executable</variable>
+  <value type="QString">/home/vaillant/ppc2/sim/ppc-sim</value>
+ </data>
+ <data>
+  <variable>RunConfiguration1-RunConfiguration.name</variable>
+  <value type="QString">GLISS</value>
+ </data>
+ <data>
+  <variable>RunConfiguration1-UseTerminal</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration1-UserEnvironmentChanges</variable>
+  <valuelist type="QVariantList"/>
+ </data>
+ <data>
+  <variable>RunConfiguration1-UserName</variable>
+  <value type="QString">GLISS</value>
+ </data>
+ <data>
+  <variable>RunConfiguration1-UserSetName</variable>
+  <value type="bool">true</value>
+ </data>
+ <data>
+  <variable>RunConfiguration1-WorkingDirectory</variable>
+  <value type="QString">/home/vaillant/ppc2/sim</value>
+ </data>
+ <data>
+  <variable>RunConfiguration1-type</variable>
+  <value type="QString">ProjectExplorer.CustomExecutableRunConfiguration</value>
+ </data>
+ <data>
+  <variable>RunConfiguration2-Arguments</variable>
+  <valuelist type="QVariantList"/>
+ </data>
+ <data>
+  <variable>RunConfiguration2-BaseEnvironmentBase</variable>
+  <value type="int">2</value>
+ </data>
+ <data>
+  <variable>RunConfiguration2-Executable</variable>
+  <value type="QString">/home/vaillant/ppc2/perf/perf.py</value>
+ </data>
+ <data>
+  <variable>RunConfiguration2-RunConfiguration.name</variable>
+  <value type="QString">GLISS perf</value>
+ </data>
+ <data>
+  <variable>RunConfiguration2-UseTerminal</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration2-UserEnvironmentChanges</variable>
+  <valuelist type="QVariantList"/>
+ </data>
+ <data>
+  <variable>RunConfiguration2-UserName</variable>
+  <value type="QString">GLISS perf</value>
+ </data>
+ <data>
+  <variable>RunConfiguration2-UserSetName</variable>
+  <value type="bool">true</value>
+ </data>
+ <data>
+  <variable>RunConfiguration2-WorkingDirectory</variable>
+  <value type="QString">/home/vaillant/ppc2/sim</value>
+ </data>
+ <data>
+  <variable>RunConfiguration2-type</variable>
+  <value type="QString">ProjectExplorer.CustomExecutableRunConfiguration</value>
+ </data>
+ <data>
+  <variable>RunConfiguration3-Arguments</variable>
+  <valuelist type="QVariantList"/>
+ </data>
+ <data>
+  <variable>RunConfiguration3-BaseEnvironmentBase</variable>
+  <value type="int">2</value>
+ </data>
+ <data>
+  <variable>RunConfiguration3-Executable</variable>
+  <value type="QString">/home/vaillant/ppc2/test/gliss1/test.sh</value>
+ </data>
+ <data>
+  <variable>RunConfiguration3-RunConfiguration.name</variable>
+  <value type="QString">GLISS Co-simulation</value>
+ </data>
+ <data>
+  <variable>RunConfiguration3-UseTerminal</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration3-UserEnvironmentChanges</variable>
+  <valuelist type="QVariantList"/>
+ </data>
+ <data>
+  <variable>RunConfiguration3-UserName</variable>
+  <value type="QString">GLISS Co-simulation</value>
+ </data>
+ <data>
+  <variable>RunConfiguration3-UserSetName</variable>
+  <value type="bool">true</value>
+ </data>
+ <data>
+  <variable>RunConfiguration3-WorkingDirectory</variable>
+  <value type="QString">/home/vaillant/ppc2/sim</value>
+ </data>
+ <data>
+  <variable>RunConfiguration3-type</variable>
+  <value type="QString">ProjectExplorer.CustomExecutableRunConfiguration</value>
+ </data>
+ <data>
+  <variable>activeRunConfiguration</variable>
+  <value type="int">1</value>
+ </data>
+ <data>
+  <variable>activebuildconfiguration</variable>
+  <value type="QString">Debug</value>
+ </data>
+ <data>
+  <variable>buildConfiguration-Debug</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+   <value key="QtVersionId" type="int">0</value>
+   <value key="ToolChain" type="int">0</value>
+   <value key="addQDumper" type=""></value>
+   <value key="buildConfiguration" type="int">2</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildConfiguration-Release</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <value key="QtVersionId" type="int">0</value>
+   <value key="ToolChain" type="int">0</value>
+   <value key="addQDumper" type=""></value>
+   <value key="buildConfiguration" type="int">2</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-buildstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-XtRQK0tz6h,guid=cea6c2b82ccf43afeaf10cb24c51227a</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2041:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/27168,unix/numitor.irit.fr:/tmp/.ICE-unix/27168</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1280385658.408245-369387501</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/src</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/src</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-buildstep1</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-XtRQK0tz6h,guid=cea6c2b82ccf43afeaf10cb24c51227a</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2041:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/27168,unix/numitor.irit.fr:/tmp/.ICE-unix/27168</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1280385658.408245-369387501</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">clean</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-buildstep2</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-XtRQK0tz6h,guid=cea6c2b82ccf43afeaf10cb24c51227a</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2041:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/27168,unix/numitor.irit.fr:/tmp/.ICE-unix/27168</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1280385658.408245-369387501</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-buildstep3</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-XtRQK0tz6h,guid=cea6c2b82ccf43afeaf10cb24c51227a</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2041:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/27168,unix/numitor.irit.fr:/tmp/.ICE-unix/27168</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1280385658.408245-369387501</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">clean</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool">false</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/test/gliss1</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/test/gliss1</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-buildstep4</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-XtRQK0tz6h,guid=cea6c2b82ccf43afeaf10cb24c51227a</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2041:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/27168,unix/numitor.irit.fr:/tmp/.ICE-unix/27168</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1280385658.408245-369387501</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool">false</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/test/gliss1</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/test/gliss1</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-cleanstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-OFGP795mez,guid=8a60214f6ed42e66c97127114c0de10f</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2019:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/2098,unix/numitor.irit.fr:/tmp/.ICE-unix/2098</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1275977998.895938-1051663475</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">clean</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/src</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/src</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-cleanstep1</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-OFGP795mez,guid=8a60214f6ed42e66c97127114c0de10f</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2019:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/2098,unix/numitor.irit.fr:/tmp/.ICE-unix/2098</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1275977998.895938-1051663475</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">clean</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">/usr/bin/make</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-O5Y0YFjjcb,guid=5b6978b6cc7cec6887e16d504c0e1bd2</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2004:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant/qtcreator-1.3.1/bin</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/11746,unix/numitor.irit.fr:/tmp/.ICE-unix/11746</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1275993042.594112-2019501240</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">make</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/src</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/src</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep1</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">BROWSER=/usr/bin/www-browser</value>
+    <value type="QString">CANBERRA_DRIVER=pulse</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-O5Y0YFjjcb,guid=5b6978b6cc7cec6887e16d504c0e1bd2</value>
+    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DISPLAY=:0.0</value>
+    <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
+    <value type="QString">GCONF_TMPDIR=/tmp</value>
+    <value type="QString">GPG_AGENT_INFO=/home/vaillant/.gnupg/S.gpg-agent:2004:1</value>
+    <value type="QString">GS_LIB=/home/vaillant/.fonts</value>
+    <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">G_FILENAME_ENCODING=@locale</value>
+    <value type="QString">HISTCONTROL=ignoredups</value>
+    <value type="QString">HISTSIZE=1000</value>
+    <value type="QString">HOME=/home/vaillant</value>
+    <value type="QString">HOSTNAME=numitor.irit.fr</value>
+    <value type="QString">INPUTRC=/etc/inputrc</value>
+    <value type="QString">KDE_FULL_SESSION=true</value>
+    <value type="QString">KDE_MULTIHEAD=false</value>
+    <value type="QString">KDE_SESSION_UID=9488</value>
+    <value type="QString">KDE_SESSION_VERSION=4</value>
+    <value type="QString">LANG=en_GB.UTF-8</value>
+    <value type="QString">LANGUAGE=en_GB.UTF-8:en_GB:en</value>
+    <value type="QString">LC_ADDRESS=fr_FR.UTF-8</value>
+    <value type="QString">LC_COLLATE=en_GB.UTF-8</value>
+    <value type="QString">LC_CTYPE=en_GB.UTF-8</value>
+    <value type="QString">LC_IDENTIFICATION=fr_FR.UTF-8</value>
+    <value type="QString">LC_MEASUREMENT=fr_FR.UTF-8</value>
+    <value type="QString">LC_MESSAGES=en_GB.UTF-8</value>
+    <value type="QString">LC_MONETARY=fr_FR.UTF-8</value>
+    <value type="QString">LC_NAME=fr_FR.UTF-8</value>
+    <value type="QString">LC_NUMERIC=fr_FR.UTF-8</value>
+    <value type="QString">LC_PAPER=fr_FR.UTF-8</value>
+    <value type="QString">LC_SOURCED=1</value>
+    <value type="QString">LC_TELEPHONE=fr_FR.UTF-8</value>
+    <value type="QString">LC_TIME=en_GB.UTF-8</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/vaillant/qtcreator-1.3.1/lib/qtcreator:</value>
+    <value type="QString">LESS=-MM</value>
+    <value type="QString">LESSCHARSET=utf-8</value>
+    <value type="QString">LESSKEY=/etc/.less</value>
+    <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
+    <value type="QString">LOGNAME=vaillant</value>
+    <value type="QString">LS_COLORS=</value>
+    <value type="QString">MAIL=/var/spool/mail/vaillant</value>
+    <value type="QString">MALLOC_CHECK_=2</value>
+    <value type="QString">MDV_MENU_STYLE=mandriva</value>
+    <value type="QString">META_CLASS=download</value>
+    <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
+    <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin</value>
+    <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PWD=/home/vaillant/qtcreator-1.3.1/bin</value>
+    <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
+    <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
+    <value type="QString">PYTHONSTARTUP=/etc/pythonrc.py</value>
+    <value type="QString">QT4DOCDIR=/usr/share/doc/qt4/doc</value>
+    <value type="QString">QTDIR=/usr/lib/qt4</value>
+    <value type="QString">QTINC=/usr/lib/qt3/include</value>
+    <value type="QString">QTLIB=/usr/lib</value>
+    <value type="QString">QT_PLUGIN_PATH=/home/vaillant/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString">QT_XFT=0</value>
+    <value type="QString">SCREENDIR=/home/vaillant/tmp</value>
+    <value type="QString">SESSION_MANAGER=local/numitor.irit.fr:@/tmp/.ICE-unix/11746,unix/numitor.irit.fr:/tmp/.ICE-unix/11746</value>
+    <value type="QString">SHELL=/bin/tcsh</value>
+    <value type="QString">SHLVL=1</value>
+    <value type="QString">TMP=/tmp/</value>
+    <value type="QString">TMPDIR=/tmp/</value>
+    <value type="QString">USER=vaillant</value>
+    <value type="QString">WINDOWPATH=7</value>
+    <value type="QString">XCURSOR_THEME=default</value>
+    <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
+    <value type="QString">XDG_MENU_PREFIX=kde-</value>
+    <value type="QString">XDG_SESSION_COOKIE=8e12f218aae0aed1d343f0c14c04dd44-1275993042.594112-2019501240</value>
+    <value type="QString">XDM_MANAGED=method=classic</value>
+    <value type="QString">XMODIFIERS=@im=none</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">make clean</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep2</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <value key="abstractProcess.command" type="QString">make</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep3</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep4</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-cleanstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <value key="abstractProcess.command" type="QString">make clean</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/src</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-cleanstep1</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <value key="abstractProcess.command" type="QString">clean</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="workingDirectory" type="QString">/home/vaillant/ppc2/sim</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfigurations</variable>
+  <valuelist type="QVariantList">
+   <value type="QString">Release</value>
+   <value type="QString">Debug</value>
+  </valuelist>
+ </data>
+ <data>
+  <variable>buildstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+   <value key="ProjectExplorer.ProcessStep.DisplayName" type="QString">make de la lib</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildstep1</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+   <value key="ProjectExplorer.ProcessStep.DisplayName" type="QString">make clean du simulateur</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildstep2</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+   <value key="ProjectExplorer.ProcessStep.DisplayName" type="QString">make du simulateur</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildstep3</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+   <value key="ProjectExplorer.ProcessStep.DisplayName" type="QString">make clean comp</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildstep4</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+   <value key="ProjectExplorer.ProcessStep.DisplayName" type="QString">make comp</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildsteps</variable>
+  <valuelist type="QVariantList">
+   <value type="QString">projectexplorer.processstep</value>
+   <value type="QString">projectexplorer.processstep</value>
+   <value type="QString">projectexplorer.processstep</value>
+   <value type="QString">projectexplorer.processstep</value>
+   <value type="QString">projectexplorer.processstep</value>
+  </valuelist>
+ </data>
+ <data>
+  <variable>cleanstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+   <value key="ProjectExplorer.ProcessStep.DisplayName" type="QString">clean lib</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>cleanstep1</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+   <value key="ProjectExplorer.ProcessStep.DisplayName" type="QString">clean simulateur</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>cleansteps</variable>
+  <valuelist type="QVariantList">
+   <value type="QString">projectexplorer.processstep</value>
+   <value type="QString">projectexplorer.processstep</value>
+  </valuelist>
+ </data>
+ <data>
+  <variable>defaultFileEncoding</variable>
+  <value type="QByteArray">System</value>
+ </data>
+ <data>
+  <variable>project</variable>
+  <valuemap type="QVariantMap"/>
+ </data>
+</qtcreator>

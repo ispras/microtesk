@@ -1,0 +1,226 @@
+
+// mode names
+let MULT_DA = 0
+let MULT_IA = 1
+let MULT_DB = 2
+let MULT_IB = 3 
+
+
+///////////////////////////////////
+//B bit for Load/Store instruction
+///////////////////////////////////
+
+
+op setBon()
+	syntax = "B"
+	image = "1"
+	action = {
+		BBIT = 1;
+	}
+
+op setBoff()
+	syntax = ""
+	image = "0"
+	action = {
+		BBIT = 0;
+	}
+
+
+
+///////////////////////////////////////////
+// Load/Store Instructions Multiple
+///////////////////////////////////////////
+
+op  LDM(cond: condition, adr_mode: u2, sets: u1, setw: u1, rn: REG_INDEX, reglist: REG_LIST)
+	syntax = format("ldm%s%s %s%s, {%s}%s",
+		cond.syntax,
+		switch (adr_mode) {
+			case 1: "ia"
+			case 3:	"ib"
+			case 0:	"da"
+			case 2: "db"
+		},
+		rn.syntax,
+		if setw then "!" else "" endif,
+		reglist.syntax,
+		if sets then "^" else "" endif)
+
+	image = format("%s100%2b%1b%1b1%s%16b", cond.image, adr_mode,sets, setw, rn.image, reglist) 
+
+	action = {
+		if (cond) then
+			TMP_REGLIST = reglist;	  
+
+			//Compute number of set bits in the register list to compute the start address
+			TMP_BYTE  = 0;
+			TMP_SETBIT = 0;
+			B15SET = 0;
+			number_of_set_bits_in;		// set B15SET (PC modified), TMP_SETBIT (number of register in list)
+			
+			// compute start and end address
+			TMP_REG3 = Get_ARM_GPR(rn);  
+			TMP_START_ADDR = TMP_REG3;
+			TMP_REGLIST = reglist;
+			switch(adr_mode) {
+			case MULT_DA:
+				TMP_START_ADDR = TMP_START_ADDR - 4 * TMP_SETBIT + 4;
+				TMP_END_ADDR = TMP_START_ADDR - 4;
+			case MULT_IA:
+				TMP_START_ADDR = TMP_START_ADDR;
+				TMP_END_ADDR = TMP_START_ADDR + 4 * TMP_SETBIT;
+			case MULT_DB:
+				TMP_START_ADDR = TMP_START_ADDR - 4 * TMP_SETBIT;
+				TMP_END_ADDR = TMP_START_ADDR;
+			case MULT_IB:
+				TMP_START_ADDR = TMP_START_ADDR + 4;
+				TMP_END_ADDR = TMP_START_ADDR + 4 * TMP_SETBIT - 4;
+			};
+			
+			// perform the load/store
+			TMP_BYTE = 0;
+
+			// from 0 to 14
+			recurs_ldm;
+				
+			// special case for PC
+			if (B15SET == 1) then
+				if (sets == 0) then
+					LDM1_NIA();
+				else
+					TMP_SWORD = GetSPSR();
+					Ucpsr = TMP_SWORD;
+					LDM3_NIA();
+				endif;
+			endif;
+			
+			// update base	  
+			if (setw == 1) then
+				Set_ARM_GPR(rn, TMP_END_ADDR);;
+			endif;
+		endif;
+
+	}	       
+
+	number_of_set_bits_in = {
+			//Count the amount of bits into the list
+			if (TMP_BYTE != 16) then
+				if ((TMP_REGLIST & 1) == 1) then
+					TMP_SETBIT = TMP_SETBIT + 1;
+					if (TMP_BYTE == 15) then
+						B15SET = 1;
+					endif;		     
+				endif;
+				TMP_REGLIST = TMP_REGLIST >> 1;
+				TMP_BYTE = TMP_BYTE + 1;
+				number_of_set_bits_in;
+			endif;
+	}  
+
+	recurs_ldm = {
+		//We will test all of the 16 bits of the register list
+		//If a bit is set then we must retrieve the value of the corresponding register
+		//from the stack.
+		if (TMP_BYTE != 15) then
+		
+			// load the register
+			if ((TMP_REGLIST & 1) == 1) then
+				LDM1(TMP_BYTE);
+			endif;
+		
+			//Get the next bit
+			TMP_REGLIST = TMP_REGLIST >> 1;
+			TMP_BYTE = TMP_BYTE + 1;
+			recurs_ldm;
+		endif;
+	}
+	       
+
+op STM(cond: condition, adr_mode: u2, sets: u1, setw: u1, rn: REG_INDEX, reglist: REG_LIST)
+	syntax = format("stm%s%s %s%s, {%s}%s",
+		cond.syntax,
+		switch (adr_mode) {
+			case 1: "ia"
+			case 3:	"ib"
+			case 0:	"da"
+			case 2: "db"
+		},
+		rn.syntax,
+		if setw then "!" else "" endif,
+		reglist.syntax,
+		if sets then "^" else "" endif)
+
+	image = format("%s100%2b%1b%1b0%s%16b", cond.image, adr_mode,sets, setw, rn.image, reglist) 
+
+	action = {
+		if (cond) then
+			TMP_REGLIST = reglist;	  
+
+			//Compute number of set bits in the register list to compute the start address
+			TMP_BYTE  = 0;
+			TMP_SETBIT = 0;
+			B15SET = 0;
+			number_of_set_bits_in;		// set B15SET (PC modified), TMP_SETBIT (number of register in list)
+			
+			// compute start and end address
+			TMP_REG3 = Get_ARM_GPR(rn);  
+			TMP_START_ADDR = TMP_REG3;
+			TMP_REGLIST = reglist;
+			switch(adr_mode) {
+			case MULT_DA:
+				TMP_START_ADDR = TMP_START_ADDR - 4 * TMP_SETBIT + 4;
+				TMP_END_ADDR = TMP_START_ADDR - 4;
+			case MULT_IA:
+				TMP_START_ADDR = TMP_START_ADDR;
+				TMP_END_ADDR = TMP_START_ADDR + 4 * TMP_SETBIT;
+			case MULT_DB:
+				TMP_START_ADDR = TMP_START_ADDR - 4 * TMP_SETBIT;
+				TMP_END_ADDR = TMP_START_ADDR;
+			case MULT_IB:
+				TMP_START_ADDR = TMP_START_ADDR + 4;
+				TMP_END_ADDR = TMP_START_ADDR + 4 * TMP_SETBIT - 4;
+			};
+			
+			// perform the load/store
+			TMP_BYTE = 0;
+			recurs_stm;
+			
+			// update base	  
+			if (setw == 1) then
+				Set_ARM_GPR(rn, TMP_END_ADDR);;
+			endif;
+		endif;
+
+	}	       
+
+	number_of_set_bits_in = {
+			//Count the amount of bits into the list
+			if (TMP_BYTE != 16) then
+				if ((TMP_REGLIST & 1) == 1) then
+					TMP_SETBIT = TMP_SETBIT + 1;
+					if (TMP_BYTE == 15) then
+						B15SET = 1;
+					endif;		     
+				endif;
+				TMP_REGLIST = TMP_REGLIST >> 1;
+				TMP_BYTE = TMP_BYTE + 1;
+				number_of_set_bits_in;
+			endif;
+	}  
+
+	recurs_stm = {
+			//We will test all of the 16 bits of the register list
+			//If a bit is set then we must add the value of the corresponding register
+			//to the stack.
+			if (TMP_BYTE != 16) then
+			
+				// process the current bit
+				if ((TMP_REGLIST & 1) == 1) then
+					STM_(TMP_BYTE, sets);
+				endif;	
+
+				//Get the next bit
+				TMP_REGLIST = TMP_REGLIST >> 1;
+				TMP_BYTE = TMP_BYTE + 1;
+				recurs_stm;
+			endif;
+	}

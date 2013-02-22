@@ -1,0 +1,5165 @@
+// **************************************************************************** 
+//                                   ppc.nmp                                    
+//                              ------------------                              
+//    date            : May 2003                                               
+//    copyright       : Institut de Recherche en Informatique de Toulouse       
+//    author          : Marc Finet                                              
+//    email           : sainrat@irit.fr                        
+// ****************************************************************************
+//                                                                              
+// **************************************************************************** 
+// *                                                                          * 
+// *   This program is free software; you can redistribute it and/or modify   * 
+// *   it under the terms of the GNU General Public License as published by   * 
+// *   the Free Software Foundation; either version 2 of the License, or      * 
+// *   (at your option) any later version.                                    * 
+// *                                                                          * 
+// ****************************************************************************
+
+
+            //***********************************************//
+            //       PowerPc 755 description in nMP          //
+            //    By: Daniel Gracia Perez & Marc Finet       //
+            //    Revised by: Pascal Sainrat, Hugues Casse,  //
+	    //        Tahiry Ratsiambahotra                 //
+            //     Original ppc603: Subhash Chandra Y        //
+            //          Last Modified: 17/05/2006            //
+            //***********************************************//
+
+
+
+//include op "uisa_fp_instr.nmp"
+//include op "vea_instr.nmp"
+//include op "oea_instr.nmp"
+
+// ========================================================================= //
+// 1. Definitions                                                            //
+// ========================================================================= //
+
+let proc = "ppc"         
+let bit_order = "uppermost" // Be careful ; this is not the convention used in PPC manuals.
+let M_is_little = "MSR & (0x01<<MSR_LE)" // MSR should be correctly initialized in the init rule below
+
+// ------------------------------------------------------------------------- //
+// 1.1 Constants                                                             //
+// ------------------------------------------------------------------------- //
+
+let REGS = 5
+let nDBAT = 16 // ppc755, 8 otherwise
+let nIBAT = 16 // ppc755, 8 otherwise
+let nSR = 16
+let nSPRG = 8 // ppc755, 4 otherwise
+
+// 1.1.1 CR indexes (int)
+
+let LT = 3
+let GT = 2
+let EQ = 1
+let SO = 0
+
+// 1.1.2 CR indexes (float)
+let FX = 3
+let FEX= 2 
+let VX = 1
+let OX = 0
+
+// 1.1.3 XER indexes 
+let SO_XER = 31
+let OV_XER = 30
+let CA_XER = 29
+
+// 1.1.4 MSR indexes
+let MSR_POW = 18
+let MSR_ILE = 16
+let MSR_EE = 15
+let MSR_PR = 14
+let MSR_FP = 13
+let MSR_ME = 12
+let MSR_FE0 = 11
+let MSR_SE = 10
+let MSR_BE = 9
+let MSR_FE1 = 8
+let MSR_IP = 6
+let MSR_IR = 5
+let MSR_DR = 4
+let MSR_RI = 1
+let MSR_LE = 0
+
+// 1.1.5 exception types
+let RESET = 0
+let MACHINE_CHECK = 1
+let DSI = 2
+let ISI = 3
+let EXTERNAL = 4
+let ALIGNMENT = 5
+let PROGRAM = 6
+let FP_UNAVAIL = 7
+let DECR = 8
+let SYST_CALL = 9
+let TRACE = 10
+let FP_ASSIST = 11
+
+// 1.1.6 Category of instructions
+// Might be used to know in which functional unit the instruction is executed
+let ARITH = "0"       // Integer Add and Sub Instructions
+let MULDIV = "1"     // Integer Mul and Div Instructions
+let INTCMP = "2"     // Integer Compare Instructions
+let LOGIC = "3"       // Integer Logical instructions
+let SHIFTROT = "4" // Int shift and rotate
+let STORE = "5"       // Integer Stores including byte reverse, multiple and string
+let LOAD = "6"         // Integer Loads including byte reverse, multiple and string
+let MEMSYNC = "7"   // Memory Synchronization Instructions
+let BRANCH = "8"
+let CRLI = "9"         // Condition Register Logical Instructions
+let SYSTEM = "10"     // System Linkage Instructions
+let TRAP = "11"
+let EXT = "12"           // External Control Instructions
+let CONTROL = "13"   // Processor Control Instructions
+let CACHE = "14"       // Cache Management Instructions
+
+
+
+// ------------------------------------------------------------------------- //
+// 1.2 Types                                                                 //
+// ------------------------------------------------------------------------- //
+type bit       = card ( 1 )
+type half_byte = card ( 4 )
+type byte      = card ( 8 )
+type word      = card ( 32 )
+type long      = card ( 32 )
+type double    = card ( 64 )
+type slong     = int ( 32 )
+type address   = card ( 32 )
+type index     = card ( REGS )
+type flot      = float ( 52 , 12 )
+type flots     = float ( 23 , 9 )
+type xflot     = float ( 64 , 16 )
+type sflot     = float ( 31 , 9 )
+
+// ------------------------------------------------------------------------- //
+// 1.3  Memory and registers                                                 //
+// ------------------------------------------------------------------------- //
+
+// 1.3.1 GEP registers
+
+reg PIA     [ 1 , address ] __attr(ppc)
+
+reg CIA     [ 1 , address ] __attr(pc)
+reg NIA     [ 1 , address ] __attr(npc)
+
+// 1.3.2 UISA model registers
+
+mem M       [ 32 , byte ]
+reg GPR     [ 2 ** REGS , slong ]
+reg CR      [ 8 , half_byte ]
+reg XER     [ 1 , long ]
+reg FPSCR   [ 1 , long ]
+reg LR      [ 1 , long ]
+reg CTR     [ 1 , long ]
+reg UPMC	[ 4 , long ] // 750-755 specific register
+reg USIA	[ 1 , address ] // 750-755 specific register
+reg UMMCR	[ 2 , long ] // 750-755 specific register
+reg FPR     [ 2 ** REGS , flot ]
+
+// 1.3.3 VEA model registers
+reg TB		[ 1 , double ] // TBL and TBU
+
+// 1.3.4 OEA model registers
+  // Configuration registers
+reg HID		[ 2 , long ] // 750-755 specific register. HID[2] : 755 only.
+reg PVR		[ 1 , long ]
+reg MSR 	[ 1 , long ]
+  // Exception handling registers
+reg SPRG	[ nSPRG , long ]
+reg DAR		[ 1 , long ]
+reg SRR		[ 2 , long ]
+reg DSISR	[ 1 , long ]
+  // Memory management registers
+reg SDR1	[ 1 , long ]
+reg IBAT	[ nIBAT , long ]
+reg DBAT	[ nDBAT , long ]
+reg DMISS       [ 1 , long ] // 750-755 specific register
+reg DCMP        [ 1 , long ] // 750-755 specific register
+reg HASH        [ 2 , long ] // 750-755 specific register
+reg IMISS       [ 1 , long ] // 750-755 specific register
+reg ICMP        [ 1 , long ] // 750-755 specific register
+reg RPA         [ 1 , long ] // 750-755 specific register
+reg SR		[ nSR , long ]
+  // Performance monitor registers
+reg PMC		[ 4 , long ] // 750-755 specific register
+reg SIA		[ 1 , long ] // 750-755 specific register
+reg MMCR	[ 2 , long ] // 750-755 specific register
+  // Power/Thermal Management registers
+reg THRM	[ 3 , long ] // 750-755 specific register
+reg ICTC	[ 1 , long ] // 750-755 specific register
+  // Miscellaneous registers
+reg EAR 	[ 1 , long ]
+reg DEC		[ 1 , long ]
+reg DABR	[ 1 , long ]
+reg IABR	[ 1 , long ] // 750-755 specific register
+reg L2CR	[ 1 , long ] // 750-755 specific register Not supported on the 745
+reg L2PM	[ 1 , long ] // 755 specific register
+
+
+// ------------------------------------------------------------------------- //
+// 1.4  Internal variables                                                   //
+// ------------------------------------------------------------------------- //
+
+var TMP_RES	         [ 1 , slong ]
+var TMP_EA           [ 1 , address ]
+var TMP_RESERVE      [ 1 , int ( 8 ) ]
+var TMP_RESERVE_ADDR [ 1 , address ]
+
+// TMP_ means local variables
+var TMP_BYTE     [ 1 , byte ]
+var TMP_SBYTE    [ 1 , int ( 8 ) ]
+var TMP_HBYTE    [ 1 , half_byte ]
+var TMP_HWORD    [ 1 , card ( 16 ) ]
+var TMP_SHWORD   [ 1 , int ( 16 ) ]
+var TMP_WORD     [ 1 , word ]
+var TMP_MACRO    [ 1 , word ] // to be used in macros
+var TMP_WORD1    [ 1 , word ]
+var TMP_WORD2    [ 1 , word ]
+var TMP_WORD3    [ 1 , word ]
+var TMP_WORD4    [ 1 , word ]
+var TMP_WORD5    [ 1 , word ]
+var TMP_SWORD    [ 1 , int ( 32 ) ]
+var TMP_SWORD1   [ 1 , int ( 32 ) ]
+var TMP_SDWORD   [ 1 , int ( 64 ) ]
+var TMP_DWORD    [ 1 , card ( 64 ) ]
+var TMP_M_OP1    [ 1 , int ( 64 ) ]
+var TMP_M_OP2    [ 1 , int ( 64 ) ]
+var TMP_M_RES    [ 1 , int ( 64 ) ]
+
+
+
+// 1.4.1 Aliases for TB
+reg TBL [ 1 , card ( 32 ) ]
+	alias = TB [ 31 ]
+reg TBU [ 1 , card ( 32 ) ]
+	alias = TB [ 63 ]
+
+// 1.4.2 Aliases for Integer Temps
+
+reg TMP_WORD_A1 [ 1 , card ( 16 ) ]
+	alias = TMP_WORD [ 31 ]
+reg TMP_WORD_A0 [ 1 , card ( 16 ) ]
+	alias = TMP_WORD [ 15 ]
+reg TMP_M_OP1_H1 [ 1 , int ( 32 ) ]
+	alias = TMP_M_OP1 [ 63 ]
+reg TMP_M_OP1_H0 [ 1 , int ( 32 ) ]
+	alias = TMP_M_OP1 [ 31 ]
+reg TMP_M_OP2_H1 [ 1 , int ( 32 ) ]
+	alias = TMP_M_OP2 [ 63 ]
+reg TMP_M_OP2_H0 [ 1 , int ( 32 ) ]
+	alias = TMP_M_OP2 [ 31 ]
+reg TMP_M_RES_H1 [ 1 , int ( 32 ) ]
+	alias = TMP_M_RES [ 63 ]
+reg TMP_M_RES_H0 [ 1 , int ( 32 ) ]
+	alias = TMP_M_RES [ 31 ]
+	
+// 1.4.3 HalfWord Integer
+
+reg TMP_SHWORD_A1 [ 1 , int ( 8 ) ]
+    alias = TMP_SHWORD [ 15 ]
+
+reg TMP_SHWORD_A0 [ 1 , int ( 8 ) ]
+    alias = TMP_SHWORD [ 7 ]
+
+// 1.4.4 Word Integers
+
+reg TMP_SWORD_A3 [ 1 , int ( 8 ) ]
+    alias = TMP_SWORD [ 31 ]
+	
+reg TMP_SWORD_A2 [ 1 , int ( 8 ) ]
+    alias = TMP_SWORD [ 23 ]
+
+reg TMP_SWORD_A1 [ 1 , int ( 8 ) ]
+    alias = TMP_SWORD [ 15 ]
+
+reg TMP_SWORD_A0 [ 1 , int ( 8 ) ]
+    alias = TMP_SWORD [ 7 ]
+
+
+// ------------------------------------------------------------------------- //
+// 1.5 Addressing Modes                                                      //
+// ------------------------------------------------------------------------- //
+
+
+mode REG_IND_ZERO ( r : index ) =
+     if r == 0 then
+        0
+     else
+        GPR [ r ]
+     endif
+   syntax = format ( "r%d", r )
+   image  = format ( "%5b", r )
+
+mode REG_IND ( r : index ) = GPR [ r ]
+   syntax = format ( "r%d", r )
+   image  = format ( "%5b", r )
+
+mode IMM24 ( n : int ( 24 ) ) = n
+   syntax = format ( "%d", n )
+   image  = format ( "%24b", n )
+
+mode IMM16 ( n : int ( 16 ) ) = n
+   syntax = format ( "%d", n )
+   image  = format ( "%16b", n )
+
+mode LS_COUNT ( NB : card ( 5 ) ) =
+     if NB == 0 then 
+        32
+     else
+        NB
+     endif
+   syntax = format ( "%d", NB )
+   image  = format ( "%5b", NB )
+
+mode IADDR ( d : int ( 16 ) ) = d
+   syntax = format ( "%d", d )
+   image  = format ( "%16b", d )
+
+mode SIMM ( n : int ( 14 ) ) = n
+   syntax = format ( "%d", n )
+   image  = format ( "%14b", n )
+
+mode SIMM5 ( n : int ( 5 ) ) = n
+	syntax = format ( "%d", n )
+	image  = format ( "%5b", n ) 
+
+mode SIMM16 ( n : int ( 16 ) ) = n
+	syntax = format ( "%d", n )
+	image  = format ( "%16b", n )
+
+mode UIMM16 ( n : card ( 16 ) ) = n
+   syntax = format ( "%d", n )
+   image  = format ( "%16b", n )
+
+// ------------------------------------------------------------------------- //
+// 1.6 Macros                                                                //
+// ------------------------------------------------------------------------- //
+
+
+
+
+
+		
+// ========================================================================= //
+//  2. Instructions                                                          //
+// ========================================================================= //
+
+op instruction ( x : allinstr)
+  syntax = x.syntax
+  image = x.image
+  action = { x.action ; }
+  user0 = "0"  // Default : R0 is R0 not 0
+
+op allinstr  =  uisa_instr
+                | vea_instr
+                | oea_instr
+
+
+op uisa_instr   = uisa_base_instr
+                | uisa_fp_instr
+
+op init ()
+   action = {
+        MSR = 0; 
+	MSR<MSR_FP..MSR_FP> = 1;
+	MSR<MSR_PR..MSR_PR> = 0;
+	MSR<MSR_FE1..MSR_FE1> = 0;
+	MSR<MSR_FE0..MSR_FE0> = 0;
+        MSR<MSR_LE..MSR_LE> = 0;
+	TB = 0;
+FPR[0]=0; FPR[1]=0; FPR[2]=0; FPR[3]=0; FPR[4]=0; FPR[5]=0; FPR[6]=0; FPR[7]=0; FPR[8]=0; FPR[9]=0;
+FPR[10]=0; FPR[11]=0; FPR[12]=0; FPR[13]=0; FPR[14]=0; FPR[15]=0; FPR[16]=0; FPR[17]=0; FPR[18]=0; FPR[19]=0;
+FPR[20]=0; FPR[21]=0; FPR[22]=0; FPR[23]=0; FPR[24]=0; FPR[25]=0; FPR[26]=0; FPR[27]=0; FPR[28]=0; FPR[29]=0;
+FPR[30]=0; FPR[31]=0;
+CR[0]=0; CR[1]=0; CR[2]=0; CR[3]=0; CR[4]=0; CR[5]=0; CR[6]=0; CR[7]=0; 
+L2PM = 0;
+
+           }
+
+op uisa_base_instr  = branch_instr
+                    | non_branch_instr
+
+// ------------------------------------------------------------------------- //
+// 2.1 Branch Instructions
+// ------------------------------------------------------------------------- //
+
+op branch_instr ( x : branch_instr_action )
+   image   = x.image
+   syntax  = x.syntax
+   action  = { x.action; }
+   category = BRANCH                
+
+op branch_instr_action  = branch_uncond 
+                        | branch_cond
+
+op branch_cond          = branch_cond_mem
+                        | branch_cond_reg
+
+// Unconditional Branch Instructions
+
+op branch_uncond    = branch_rel
+                    | branch_abs
+                    | call_uncond
+
+op call_uncond      = branch_link
+                    | branch_link_abs
+
+
+op branch_rel ( BRANCH_ADDR : IMM24 )
+   syntax = format ( "b %s", BRANCH_ADDR.syntax )
+   image  = format ( "01001 0%24b00", BRANCH_ADDR.image )
+   action = {
+               TMP_SWORD = BRANCH_ADDR; // sign extension
+               NIA = CIA + ( TMP_SWORD << 2 );
+            }
+
+op branch_abs ( BRANCH_ADDR : IMM24 )
+   syntax = format ( "ba %s", BRANCH_ADDR.syntax )
+   image  = format ( "010010%24b10", BRANCH_ADDR.image )
+   action = {
+               TMP_SWORD = BRANCH_ADDR; // sign extension
+               NIA = ( TMP_SWORD << 2 );
+            }
+			   
+op branch_link ( BRANCH_ADDR : IMM24 )
+   syntax = format ( "bl %s", BRANCH_ADDR.syntax )
+   image  = format ( "010010%24b01", BRANCH_ADDR.image )
+   action = {
+                TMP_SWORD = BRANCH_ADDR; // sign extension
+                NIA = CIA + ( TMP_SWORD << 2 ); 
+                LR  = CIA + 4;
+             }
+
+op branch_link_abs ( BRANCH_ADDR : IMM24 )
+   syntax = format ( "bla %s", BRANCH_ADDR.syntax )
+   image  = format ( "010010%24b11", BRANCH_ADDR.image )
+   action = {
+               TMP_SWORD = BRANCH_ADDR; // sign extension
+               NIA = ( TMP_SWORD << 2 );
+               LR  = CIA + 4;
+            }
+
+// Conditional Branch Instructions
+
+op branch_cond_mem ( x : bran_cond_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { 
+               x.action; 
+            } 
+
+// Conditional Branch Instructions
+
+op bran_cond_action =   bran_cond_rel
+                      | bran_cond_abs
+                      | bran_cond_link
+                      | bran_cond_link_abs
+                      
+op bran_cond_rel ( BO : card ( 5 ), BI : card ( 5 ), BD : SIMM )
+   syntax = format ( "bc %d,%d,%s", BO, BI, BD.syntax )
+   image  = format ( "010000%5b%5b%14b00", BO, BI, BD.image )
+   action = {
+		if (!BO<2..2>) then
+			CTR = CTR - 1;
+		endif;
+		TMP_SWORD = 31 - BI;
+		TMP_SWORD1 = TMP_SWORD/4;
+		TMP_SWORD = TMP_SWORD - TMP_SWORD1 * 4;
+		if  ( ( BO<2..2> | ( CTR!=0 ^ BO<1..1> ) ) & 
+			  ( BO<4..4> | ( CR[TMP_SWORD1]<TMP_SWORD..TMP_SWORD> ^ !BO<3..3> ) ) ) then
+			TMP_SWORD = BD;
+            NIA = CIA + ( TMP_SWORD << 2 );
+		endif;
+
+		}
+
+op bran_cond_abs ( BO : card ( 5 ), BI : card ( 5 ), BD : SIMM )
+   syntax = format ( "bca %d,%d,%s", BO, BI, BD.syntax )
+   image  = format ( "010000%5b%5b%14b10", BO, BI, BD.image )
+   action = {
+		if !BO<2..2> then
+			CTR = CTR - 1;
+		endif;
+		TMP_SWORD = 31 - BI;
+		TMP_SWORD1 = TMP_SWORD/4;
+		TMP_SWORD = (TMP_SWORD - TMP_SWORD1 * 4);
+		if  ( ( BO<2..2> | ( CTR!=0 ^ BO<1..1> ) ) & 
+			  ( BO<4..4> | ( CR[TMP_SWORD1]<TMP_SWORD..TMP_SWORD> ^ ! BO<3..3> ) ) ) then
+			TMP_SWORD = BD;
+            NIA = ( TMP_SWORD << 2 );
+		endif;
+
+	    }
+            
+op bran_cond_link ( BO : card ( 5 ), BI : card ( 5 ), BD : SIMM )
+   syntax = format ( "bcl %d,%d,%s", BO, BI, BD.syntax )
+   image  = format ( "010000%5b%5b%14b01", BO, BI, BD.image )
+   action = {
+		if !BO<2..2> then
+			CTR = CTR - 1;
+		endif;
+		TMP_SWORD = 31 - BI;
+		TMP_SWORD1 = TMP_SWORD/4;
+		TMP_SWORD = (TMP_SWORD - TMP_SWORD1 * 4);
+		if  ( ( BO<2..2> | ( CTR!=0 ^ BO<1..1> ) ) & 
+			  ( BO<4..4> | ( CR[TMP_SWORD1]<TMP_SWORD..TMP_SWORD> ^ !BO<3..3> ) ) ) then
+			TMP_SWORD = BD;
+            NIA = CIA + ( TMP_SWORD << 2 );
+		endif;
+
+		LR = CIA + 4;
+        
+		}
+
+op bran_cond_link_abs ( BO : card ( 5 ), BI : card ( 5 ), BD : SIMM )
+   syntax = format ( "bcla %d,%d,%s", BO, BI, BD.syntax )
+   image  = format ( "010000%5b%5b%14b11", BO, BI, BD.image )
+   action = {
+		if !BO<2..2> then
+			CTR = CTR - 1;
+		endif;
+		TMP_SWORD = 31 - BI;
+		TMP_SWORD1 = TMP_SWORD/4;
+		TMP_SWORD = (TMP_SWORD - TMP_SWORD1 * 4);
+		if  ( ( BO<2..2> | ( CTR!=0 ^ BO<1..1> ) ) & 
+			  ( BO<4..4> | ( CR[TMP_SWORD1]<TMP_SWORD..TMP_SWORD> ^ !BO<3..3> ) ) ) then
+			TMP_SWORD = BD;
+            NIA = ( TMP_SWORD << 2 );
+		endif;
+		LR = CIA + 4;
+        
+		}
+
+// Branch Conditonal with Registers CTR and LR
+
+op branch_cond_reg ( x : bran_cond_reg_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { 
+               x.action; 
+            } 
+
+// Branch Conditional on LR and CTR
+
+op bran_cond_reg_action =   bran_cond_ctr
+                          | bran_cond_lr
+
+op bran_cond_ctr =   branch_cond_ctr
+                   | branch_cond_ctr_link
+
+
+op branch_cond_ctr ( BO : card ( 5 ), BI : card ( 5 ) )
+   syntax = format ( "bcctr %d,%d", BO, BI )
+   image  = format ( "010011%5b%5b0000010000100000", BO, BI )
+   action = {
+		TMP_SWORD = 31 - BI;
+		TMP_SWORD1 = TMP_SWORD/4;
+		TMP_SWORD = (TMP_SWORD - TMP_SWORD1 * 4);
+		if ( BO<4..4> | ( CR[TMP_SWORD1]<TMP_SWORD..TMP_SWORD>  ^ !BO <3..3> ) ) then
+			NIA = (CTR & 0xfffffffc);
+		endif;
+		}
+
+op branch_cond_ctr_link ( BO : card ( 5 ), BI : card ( 5 ) )
+   syntax = format ( "bcctrl %d,%d", BO, BI )
+   image  = format ( "010011%5b%5b0000010000100001", BO, BI )
+   action = {
+		TMP_SWORD = 31 - BI;
+		TMP_SWORD1 = TMP_SWORD/4;
+		TMP_SWORD = (TMP_SWORD - TMP_SWORD1 * 4);
+		if ( BO<4..4> | ( CR[TMP_SWORD1]<TMP_SWORD..TMP_SWORD>  ^ !BO <3..3> ) ) then
+			NIA = ( CTR & 0xfffffffc );
+		endif;
+		LR = ( CIA + 4 );
+		}
+
+op bran_cond_lr =   branch_cond_lr
+                  | branch_cond_lr_link
+
+op branch_cond_lr ( BO : card ( 5 ), BI : card ( 5 ) )
+   syntax = format ( "bclr %d,%d", BO, BI)
+   image  = format ( "010011%5b%5b0000000000100000", BO, BI )
+   action = {
+		if !BO<2..2> then
+			CTR = CTR - 1;
+		endif;
+		TMP_SWORD = 31 - BI;
+		TMP_SWORD1 = TMP_SWORD/4;
+		TMP_SWORD = (TMP_SWORD - TMP_SWORD1 * 4);
+		if  ( ( BO<2..2> | ( CTR!=0 ^ BO<1..1> ) ) & 
+			  ( BO<4..4> | ( CR[TMP_SWORD1]<TMP_SWORD..TMP_SWORD> ^ !BO<3..3> ) ) ) then
+			NIA = ( LR & 0xfffffffc );
+		endif;
+		} 
+
+op branch_cond_lr_link ( BO : card ( 5 ), BI : card ( 5 ) )
+   syntax = format ( "bclrl %d,%d", BO, BI )
+   image  = format ( "010011%5b%5b0000000000100001", BO, BI )
+   action = {
+		if !BO<2..2> then
+			CTR = CTR - 1;
+		endif;
+		TMP_SWORD = 31 - BI;
+		TMP_SWORD1 = TMP_SWORD/4;
+		TMP_SWORD = (TMP_SWORD - TMP_SWORD1 * 4);
+		if  ( ( BO<2..2> | ( CTR!=0 ^ BO<1..1> ) ) & 
+			  ( BO<4..4> | ( CR[TMP_SWORD1]<TMP_SWORD..TMP_SWORD> ^ !BO<3..3> ) ) ) then
+			NIA = ( LR & 0xfffffffc );
+		endif;
+		LR = ( CIA + 4 );
+		}
+ 
+// ------------------------------------------------------------------------- //
+// 2.2 Non Branch Instructions
+// ------------------------------------------------------------------------- //
+
+op non_branch_instr ( x : non_branch_instr_action )
+   action = { x.action; }
+   syntax = x.syntax
+   image  = x.image
+
+op non_branch_instr_action =   sys_call
+                             | load_store_instr
+                             | int_instr
+                             | flow_control_instr
+                             | proce_control_instr
+			     | mem_sync_instr
+			     | trap_instr
+
+// 2.2.1 System Call
+
+op sys_call ( )
+   syntax = "sc"
+   image  = "01000100000000000000000000000010"
+   action = { "sc_impl"("instr","state",M);}
+   category = SYSTEM
+
+// 2.2.2 Load and Store Instructions
+
+op load_store_instr ( x : load_store_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+
+op load_store_instr_action =   int_load
+                             | int_store
+
+// Integer Load Instructions
+op int_load ( x : int_load_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = LOAD
+
+op int_load_action =   int_load_byte
+              | int_load_half_word
+              | int_load_word
+              | int_load_byte_rev   // New
+              | int_load_multiple   // New
+              | int_load_string     // New
+
+// Integer Load Byte Instructions
+
+op int_load_byte =   lb_zero
+                   | lb_zero_indexed
+                   | lb_zero_update
+                   | lb_zero_update_indexed
+
+op lb_zero ( rd : index, ra : REG_IND_ZERO, d : IADDR )
+   syntax = format ( "lbz r%d,%s(%s)", rd, d.syntax, ra.syntax )
+   image  = format ( "100010%5b%s%16b", rd, ra.image, d.image )
+   action = {
+               TMP_EA = ra + d;
+               TMP_BYTE = M [ TMP_EA ];
+               GPR [ rd ] = TMP_BYTE;
+               GPR [ rd ] = ( 0x000000ff & GPR [ rd ] );
+            }
+  user0 = "1"
+
+               
+op lb_zero_indexed ( rd : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "lbzx r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00010101110", rd, ra.image, rb.image )
+   action = {
+               TMP_EA = ra + rb;
+               TMP_BYTE = M [ TMP_EA ];
+               GPR [ rd ] = TMP_BYTE;
+               GPR [ rd ] = ( 0x000000ff & GPR [ rd ] );
+            }
+  user0 = "2"
+
+
+op lb_zero_update ( rd : index, ra : index, d : IADDR )
+   syntax = format ( "lbzu r%d,%s(r%d)", rd, d.syntax, ra ) 
+   image  = format ( "100011%5b%5b%16b", rd, ra, d.image )
+   action = {
+	       if ((ra==0) || (ra == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+               TMP_EA = GPR [ ra ] + d;
+               TMP_BYTE = M [ TMP_EA ];
+               GPR [ rd ] = TMP_BYTE;
+               GPR [ rd ] = ( 0x000000ff & GPR [ rd ] );
+               GPR [ ra ] = TMP_EA;
+            }
+
+op lb_zero_update_indexed ( rd : index, ra : index, rb : REG_IND )
+   syntax = format ( "lbzux r%d,r%d,%s", rd, ra, rb.syntax )
+   image  = format ( "011111%5b%5b%s00011101110", rd, ra, rb.image )
+   action = {
+	       if ((ra==0) || (ra == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+               TMP_EA = GPR [ ra ] + rb;
+               TMP_BYTE = M [ TMP_EA ];
+               GPR [ rd ] = TMP_BYTE;
+               GPR [ rd ] = ( 0x000000ff & GPR [ rd ] );
+               GPR [ ra ] = TMP_EA;
+            }
+
+// Integer Load Half Word Instructions
+
+op int_load_half_word =   lhw_zero
+                        | lhw_zero_indexed
+                        | lhw_zero_update
+                        | lhw_zero_update_indexed
+                        | lhw_alg
+                        | lhw_alg_indexed
+                        | lhw_alg_update
+                        | lhw_alg_update_indexed
+
+op lhw_zero ( rd : index, ra : REG_IND_ZERO, d : IADDR )
+   syntax = format ( "lhz r%d,%s(%s)", rd, d.syntax, ra.syntax )
+   image  = format ( "101000%5b%s%16b", rd, ra.image, d.image )
+   action = {
+
+               TMP_EA = ra + d;
+               //GPR [ rd ] = 0;
+             
+               TMP_SHWORD_A1 = M [ TMP_EA ];
+               TMP_SHWORD_A0 = M [ TMP_EA + 1 ];
+
+               GPR [ rd ] = TMP_SHWORD;
+
+               GPR [ rd ] = (GPR [ rd ] & 0x0000ffff);
+
+            }
+  user0 = "1"
+               
+op lhw_zero_indexed ( rd : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "lhzx r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s01000101110", rd, ra.image, rb.image )
+   action = {
+
+               TMP_EA = ra + rb;
+             
+               TMP_SHWORD_A1 = M [ TMP_EA ];
+               TMP_SHWORD_A0 = M [ TMP_EA + 1 ];
+
+               GPR [ rd ] = TMP_SHWORD;
+
+               GPR [ rd ] = (GPR [ rd ] & 0x0000ffff);
+            }
+   user0 = "2"
+
+op lhw_zero_update ( rd : index, ra : index, d : IADDR )
+   syntax = format ( "lhzu r%d,%s(r%d)", rd, d.syntax, ra )
+   image  = format ( "101001%5b%5b%16b", rd, ra, d.image )
+   action = {
+ 	       if ((ra==0) || (ra == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+               TMP_EA = GPR [ ra ] + d;
+               GPR [ rd ] = 0;
+               TMP_SHWORD_A1 = M [ TMP_EA ];
+               TMP_SHWORD_A0 = M [ TMP_EA + 1 ];
+               GPR [ rd ] = TMP_SHWORD;
+               GPR [ ra ] = TMP_EA;
+               GPR [ rd ] = (GPR [ rd ] & 0x0000ffff);
+            }
+
+op lhw_zero_update_indexed ( rd : index, ra : index, rb : REG_IND )
+   syntax = format ( "lhzux r%d,r%d,%s", rd, ra, rb.syntax )
+   image  = format ( "011111%5b%5b%s01001101110", rd, ra, rb.image )
+   action = {
+	       if ((ra==0) || (ra == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+               TMP_EA = GPR [ ra ] + rb;
+               //GPR [ rd ] = 0;
+               TMP_SHWORD_A1 = M [ TMP_EA ];
+               TMP_SHWORD_A0 = M [ TMP_EA + 1 ];
+               GPR [ rd ] = TMP_SHWORD;
+               GPR [ ra ] = TMP_EA;
+               GPR [ rd ] = (GPR [ rd ] & 0x0000ffff);
+            }
+
+op lhw_alg ( rd : index, ra : REG_IND_ZERO, d : IADDR )
+   syntax = format ( "lha r%d,%s(%s)", rd, d.syntax, ra.syntax )
+   image  = format ( "101010%5b%s%16b", rd, ra.image, d.image )
+   action = {
+
+               TMP_EA = ra + d;
+               GPR [ rd ] = 0;
+               TMP_BYTE = M [ TMP_EA ];
+               TMP_SHWORD_A1 = M [ TMP_EA ];
+               TMP_SHWORD_A0 = M [ TMP_EA + 1 ];
+               GPR [ rd ] = TMP_SHWORD;
+               GPR [ rd ] = (GPR [ rd ] & 0x0000ffff);
+               if TMP_BYTE < 7..7 > then
+                  GPR [ rd ] =  0xffff0000 | GPR [ rd ];
+               endif;
+            }
+  user0 = "1"
+               
+op lhw_alg_indexed ( rd : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "lhax r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s01010101110", rd, ra.image, rb.image )
+   action = {
+               TMP_EA = ra + rb;
+               GPR [ rd ] = 0;
+               TMP_BYTE = M [ TMP_EA ];
+               TMP_SHWORD_A1 = M [ TMP_EA ];
+               TMP_SHWORD_A0 = M [ TMP_EA + 1 ];
+               GPR [ rd ] = TMP_SHWORD;
+               GPR [ rd ] = (GPR [ rd ] & 0x0000ffff);
+               if TMP_BYTE < 7..7 > then
+                  GPR [ rd ] =  0xffff0000 | GPR [ rd ];
+               endif;
+
+            }
+   user0 = "2"
+
+op lhw_alg_update ( rd : index, ra : index, d : IADDR )
+   syntax = format ( "lhau r%d,%s(r%d)", rd, d.syntax, ra )
+   image  = format ( "101011%5b%5b%16b", rd, ra, d.image )
+   action = {
+	       if ((ra==0) || (ra == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+               TMP_EA = GPR [ ra ] + d;
+               GPR [ rd ] = 0;
+               TMP_BYTE = M [ TMP_EA ];
+             
+               TMP_SHWORD_A1 = M [ TMP_EA ];
+               TMP_SHWORD_A0 = M [ TMP_EA + 1 ];
+
+               GPR [ rd ] = TMP_SHWORD;
+
+               GPR [ rd ] = (GPR [ rd ] & 0x0000ffff);
+
+               if TMP_BYTE < 7..7 > then
+                  GPR [ rd ] =  0xffff0000 | GPR [ rd ];
+               endif;
+
+               GPR [ ra ] = TMP_EA;
+
+            }
+
+op lhw_alg_update_indexed ( rd : index, ra : index, rb : REG_IND )
+   syntax = format ( "lhaux r%d,r%d,%s", rd, ra, rb.syntax )
+   image  = format ( "011111%5b%5b%s01011101110", rd, ra, rb.image )
+   action = {
+	       if ((ra==0) || (ra == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+               TMP_EA = GPR [ ra ] + rb;
+               GPR [ rd ] = 0;
+               TMP_BYTE = M [ TMP_EA ];
+             
+               TMP_SHWORD_A1 = M [ TMP_EA ];
+               TMP_SHWORD_A0 = M [ TMP_EA + 1 ];
+
+               GPR [ rd ] = TMP_SHWORD;
+
+               GPR [ rd ] = (GPR [ rd ] & 0x0000ffff);
+
+               if TMP_BYTE < 7..7 > then
+                  GPR [ rd ] =  0xffff0000 | GPR [ rd ];
+               endif;
+
+               GPR [ ra ] = TMP_EA;
+
+            }
+
+// Interger Load Word Instructions
+
+op int_load_word =   lw_zero
+                   | lw_zero_indexed
+                   | lw_zero_update
+                   | lw_zero_update_indexed
+
+op lw_zero ( rd : index, ra : REG_IND_ZERO, d : IADDR )
+   syntax = format ( "lwz r%d,%s(%s)", rd, d.syntax, ra.syntax )
+   image  = format ( "100000%5b%s%16b", rd, ra.image, d.image )
+   action = {
+
+               TMP_EA = ra + d;
+
+               TMP_SWORD_A3 = M [ TMP_EA ];
+               TMP_SWORD_A2 = M [ TMP_EA + 1 ];
+               TMP_SWORD_A1 = M [ TMP_EA + 2 ];
+               TMP_SWORD_A0 = M [ TMP_EA + 3 ];
+
+               GPR [ rd ] = TMP_SWORD;
+
+            }
+  user0 = "1"
+               
+op lw_zero_indexed ( rd : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "lwzx r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00000101110", rd, ra.image, rb.image )
+   action = {
+
+               TMP_EA = ra + rb;
+
+               TMP_SWORD_A3 = M [ TMP_EA ];
+               TMP_SWORD_A2 = M [ TMP_EA + 1 ];
+               TMP_SWORD_A1 = M [ TMP_EA + 2 ];
+               TMP_SWORD_A0 = M [ TMP_EA + 3 ];
+
+               GPR [ rd ] = TMP_SWORD;
+
+            }
+   user0 = "2"
+
+op lw_zero_update ( rd : index, ra : index, d : IADDR )
+   syntax = format ( "lwzu r%d,%s(r%d)", rd, d.syntax, ra )
+   image  = format ( "100001%5b%5b%16b", rd, ra, d.image )
+   action = {
+	       if ((ra==0) || (ra == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+               TMP_EA = GPR [ ra ] + d;
+
+               TMP_SWORD_A3 = M [ TMP_EA ];
+               TMP_SWORD_A2 = M [ TMP_EA + 1 ];
+               TMP_SWORD_A1 = M [ TMP_EA + 2 ];
+               TMP_SWORD_A0 = M [ TMP_EA + 3 ];
+
+               GPR [ rd ] = TMP_SWORD;
+
+               GPR [ ra ] = TMP_EA;
+
+            }
+
+op lw_zero_update_indexed ( rd : index, ra : index, rb : REG_IND )
+   syntax = format ( "lwzux r%d,r%d,%s", rd, ra, rb.syntax )
+   image  = format ( "011111%5b%5b%s00001101110", rd, ra, rb.image )
+   action = {
+	       if ((ra==0) || (ra == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+               TMP_EA = GPR [ ra ] + rb;
+
+               TMP_SWORD_A3 = M [ TMP_EA ];
+               TMP_SWORD_A2 = M [ TMP_EA + 1 ];
+               TMP_SWORD_A1 = M [ TMP_EA + 2 ];
+               TMP_SWORD_A0 = M [ TMP_EA + 3 ];
+
+               GPR [ rd ] = TMP_SWORD;
+
+               GPR [ ra ] = TMP_EA;
+
+            }
+
+// Integer Load with Byte reversal Instructions
+
+op int_load_byte_rev =   lhw_br_index
+                       | lw_br_index
+
+op lhw_br_index ( rd : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "lhbrx r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s11000101100", rd, ra.image, rb.image )
+   action = {
+
+               TMP_EA = ra + rb;
+               //GPR [ rd ] = 0;
+
+               TMP_SHWORD_A1 = M [ TMP_EA + 1 ];
+               TMP_SHWORD_A0 = M [ TMP_EA ];
+
+               GPR [ rd ] = TMP_SHWORD;
+			   GPR [ rd ] = GPR [ rd ] & 0x0000ffff;
+            }
+   user0 = "2"
+
+op lw_br_index ( rd : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "lwbrx r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10000101100", rd, ra.image, rb.image )
+   action = {
+
+               TMP_EA = ra + rb;
+               //GPR [ rd ] = 0;
+
+               TMP_SWORD_A3 = M [ TMP_EA + 3 ];
+               TMP_SWORD_A2 = M [ TMP_EA + 2 ];
+               TMP_SWORD_A1 = M [ TMP_EA + 1 ];
+               TMP_SWORD_A0 = M [ TMP_EA ];
+
+               GPR [ rd ] = TMP_SWORD;
+
+            }
+   user0 = "2"
+
+// Integer Load Multiple Instructions
+
+op int_load_multiple ( rd : index, ra : REG_IND_ZERO, d : IMM16 )
+   syntax = format ( "lmw r%d,%s(%s)", rd , d.syntax, ra.syntax )
+   image  = format ( "101110%5b%s%s", rd, ra.image, d.image )
+   action = {
+
+               TMP_EA = ra + d;
+               TMP_BYTE =  rd;
+               recurs;      
+
+            }
+    recurs = {
+
+                if TMP_BYTE <= 31 then
+                   
+                   TMP_SWORD_A3 = M [ TMP_EA ];
+                   TMP_SWORD_A2 = M [ TMP_EA + 1 ];
+                   TMP_SWORD_A1 = M [ TMP_EA + 2 ];
+                   TMP_SWORD_A0 = M [ TMP_EA + 3 ];
+
+                   GPR [ TMP_BYTE ] = TMP_SWORD;
+
+                   TMP_BYTE = TMP_BYTE + 1;
+                   TMP_EA = TMP_EA + 4;
+                   recurs; // recursiveness is OK : it is compiled as labels and gotos
+                endif; 
+ 
+             } 
+  user0 = "7"
+               
+// Integer Load String Instructions
+
+op int_load_string =   lstw_imm
+                     | lstw_index
+
+op lstw_imm ( rd : index, ra : REG_IND_ZERO, NB : LS_COUNT )
+   syntax = format ( "lswi r%d,%s,%s", rd, ra.syntax, NB.syntax )
+   image  = format ( "011111%5b%s%5b10010101010", rd, ra.image, NB.image )
+   action = {
+
+               TMP_WORD = rd - 1;
+               TMP_BYTE = 0;
+               TMP_EA = ra;
+			   TMP_SHWORD = NB;
+               recurs;
+
+            }
+   recurs = {
+
+               if TMP_SHWORD >= 0 then
+
+                  if TMP_BYTE == 0 then
+                     TMP_WORD = ( TMP_WORD + 1 ) % 32;
+                     GPR [ TMP_WORD ] = 0;
+                  endif;
+
+                  TMP_WORD1 = M [ TMP_EA ];
+                  TMP_WORD1 = TMP_WORD1 << ( ( 31 - TMP_BYTE ) - 7);
+                  TMP_WORD1 = TMP_WORD1 & ( 0x000000ff << ( ( 31 - TMP_BYTE ) - 7));
+                  GPR [ TMP_WORD ] = GPR [ TMP_WORD ] | TMP_WORD1;
+
+                  TMP_BYTE = TMP_BYTE + 8;
+				  if TMP_BYTE == 32 then TMP_BYTE = 0; endif;
+                  TMP_EA = TMP_EA + 1;
+                  TMP_SHWORD = TMP_SHWORD - 1;
+                  recurs;
+
+               endif;
+
+           }
+  user0 = "7"
+
+op lstw_index ( rd : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "lswx r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10000101010", rd, ra.image, rb.image )
+   action = {
+	       if (((ra==0) && (rd == 0)) || (ra == rd) || (rb == rd))
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+
+               TMP_WORD = rd - 1;
+               TMP_SBYTE = XER < 6..0 >;
+               TMP_BYTE = 0;
+               TMP_EA = ra + rb;
+               recurs;
+
+            }
+   recurs = {
+
+               if TMP_SBYTE >= 0 then
+
+                  if TMP_BYTE == 0 then
+                     TMP_WORD = ( TMP_WORD + 1 ) % 32;
+                     GPR [ TMP_WORD ] = 0;
+                  endif;
+
+                  TMP_WORD1 = M [ TMP_EA ];
+                  TMP_WORD1 = TMP_WORD1 << ( ( 31 - TMP_BYTE ) - 7);
+                  TMP_WORD1 = TMP_WORD1 & ( 0x000000ff << ( ( 31 - TMP_BYTE ) - 7));
+                  GPR [ TMP_WORD ] = GPR [ TMP_WORD ] | TMP_WORD1;
+
+                  TMP_BYTE = TMP_BYTE + 8;
+				  if TMP_BYTE == 32 then TMP_BYTE = 0; endif;
+                  TMP_EA = TMP_EA + 1;
+                  TMP_SBYTE = TMP_SBYTE - 1;
+                  recurs;
+
+               endif;
+
+           }
+          user0 = "7"        
+                  
+
+// Integer Store Instructions
+op int_store ( x : int_store_action )
+   image   = x.image
+   syntax  = x.syntax
+   action  = { x.action; }
+   category = STORE               
+
+op int_store_action =   int_store_byte
+               | int_store_half_word 
+               | int_store_word 
+               | int_store_byte_rev   // New
+               | int_store_multiple   // New
+               | int_store_string     // New
+
+// Integer Store Byte Instructions
+
+op int_store_byte =   st_byte
+                    | st_byte_indexed
+                    | st_byte_update
+                    | st_byte_update_indexed
+
+op st_byte ( rs : index, ra : REG_IND_ZERO, d : IADDR )
+   syntax = format ( "stb r%d,%s(%s)", rs, d.syntax, ra.syntax )
+   image  = format ( "100110%5b%s%16b", rs, ra.image, d.image )
+   action = {
+
+               TMP_EA = ra + d;
+
+               TMP_SWORD = GPR [ rs ];
+
+               M [ TMP_EA ] = TMP_SWORD_A0;
+
+            }
+  user0 = "4"
+               
+op st_byte_indexed ( rs : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "stbx r%d,%s,%s", rs, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00110101110", rs, ra.image, rb.image )
+   action = {
+
+               TMP_EA = ra + rb;
+
+               TMP_SWORD = GPR [ rs ];
+
+               M [ TMP_EA ] = TMP_SWORD_A0;
+
+            }
+  user0 = "3"
+
+op st_byte_update ( rs : index, ra : index, d : IADDR )
+   syntax = format ( "stbu r%d,%s(r%d)", rs, d.syntax, ra )
+   image  = format ( "100111%5b%5b%16b", rs, ra, d.image )
+   action = {
+	       if (ra==0)
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+		TMP_EA = GPR [ ra ] + d;
+
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A0;
+
+		GPR [ ra ] = TMP_EA;
+
+		}
+
+op st_byte_update_indexed ( rs : index, ra : index, rb : REG_IND )
+   syntax = format ( "stbux r%d,r%d,%s", rs, ra, rb.syntax )
+   image  = format ( "011111%5b%5b%s00111101110", rs, ra, rb.image )
+   action = {
+	       if (ra==0)
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+		TMP_EA = GPR [ ra ] + rb;
+
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A0;
+
+		GPR [ ra ] = TMP_EA;
+
+		}
+
+// Integer Store Half Word Instructions
+
+op int_store_half_word =   st_half_word
+                         | st_half_word_indexed
+                         | st_half_word_update
+                         | st_half_word_update_indexed
+
+op st_half_word ( rs : index, ra : REG_IND_ZERO, d : IADDR )
+   syntax = format ( "sth r%d,%s(%s)", rs, d.syntax, ra.syntax )
+   image  = format ( "101100%5b%s%16b", rs, ra.image, d.image )
+   action = {
+
+               TMP_EA = ra + d;
+
+               TMP_SWORD = GPR [ rs ];
+
+               M [ TMP_EA ] = TMP_SWORD_A1;
+               M [ TMP_EA + 1 ] = TMP_SWORD_A0;
+
+            }
+    user0 = "4"
+
+               
+op st_half_word_indexed ( rs : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "sthx r%d,%s,%s", rs, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s01100101110", rs, ra.image, rb.image )
+   action = {
+
+               TMP_EA = ra + rb;
+
+               TMP_SWORD = GPR [ rs ];
+
+               M [ TMP_EA ] = TMP_SWORD_A1;
+               M [ TMP_EA + 1 ] = TMP_SWORD_A0;
+
+            }
+   user0 = "3"
+
+op st_half_word_update ( rs : index, ra : index, d : IADDR )
+   syntax = format ( "sthu r%d,%s(r%d)", rs, d.syntax, ra )
+   image  = format ( "101101%5b%5b%16b", rs, ra, d.image )
+   action = {
+	       if (ra==0)
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+		TMP_EA = GPR [ ra ] + d;
+
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A1;
+		M [ TMP_EA + 1 ] = TMP_SWORD_A0;
+
+		GPR [ ra ] = TMP_EA;
+
+		}
+
+op st_half_word_update_indexed ( rs : index, ra : index, rb : REG_IND )
+   syntax = format ( "sthux r%d,r%d,%s", rs, ra, rb.syntax )
+   image  = format ( "011111%5b%5b%s01101101110", rs, ra, rb.image )
+   action = {
+	       if (ra==0)
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+		TMP_EA = GPR [ ra ] + rb;
+
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A1;
+		M [ TMP_EA + 1 ] = TMP_SWORD_A0;
+
+		GPR [ ra ] = TMP_EA;
+
+		}
+
+// Integer Store Word Instructions
+
+op int_store_word =   st_word
+                    | st_word_indexed
+                    | st_word_update
+                    | st_word_update_indexed
+
+op st_word ( rs : index, ra : REG_IND_ZERO, d : IADDR )
+   syntax = format ( "stw r%d,%s(%s)", rs, d.syntax, ra.syntax )
+   image  = format ( "100100%5b%s%16b", rs, ra.image, d.image )
+   action = {
+
+		TMP_EA = ra + d;
+
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A3;
+		M [ TMP_EA + 1 ] = TMP_SWORD_A2;
+		M [ TMP_EA + 2 ] = TMP_SWORD_A1;
+		M [ TMP_EA + 3 ] = TMP_SWORD_A0;
+
+		}
+   user0 = "4"
+               
+op st_word_indexed ( rs : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "stwx r%d,%s,%s", rs, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00100101110", rs, ra.image, rb.image )
+   action = {
+
+		TMP_EA = ra + rb;
+
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A3;
+		M [ TMP_EA + 1 ] = TMP_SWORD_A2;
+		M [ TMP_EA + 2 ] = TMP_SWORD_A1;
+		M [ TMP_EA + 3 ] = TMP_SWORD_A0;
+
+		}
+   user0 = "3"
+
+op st_word_update ( rs : index, ra : index, d : IADDR )
+   syntax = format ( "stwu r%d,%s(r%d)", rs, d.syntax, ra )
+   image  = format ( "100101%5b%5b%16b", rs, ra, d.image )
+   action = {
+	       if (ra==0)
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+		TMP_EA = GPR [ ra ] + d;
+
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A3;
+		M [ TMP_EA + 1 ] = TMP_SWORD_A2;
+		M [ TMP_EA + 2 ] = TMP_SWORD_A1;
+		M [ TMP_EA + 3 ] = TMP_SWORD_A0;
+
+		GPR [ ra ] = TMP_EA;
+
+		}
+
+op st_word_update_indexed ( rs : index, ra : index, rb : REG_IND )
+   syntax = format ( "stwux r%d,r%d,%s", rs, ra, rb.syntax )
+   image  = format ( "011111%5b%5b%s00101101110", rs, ra, rb.image )
+   action = {
+	       if (ra==0)
+               then
+		  "launch_exception"("instr",PROGRAM);
+               endif;
+
+		TMP_EA = GPR [ ra ] + rb;
+
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A3;
+		M [ TMP_EA + 1 ] = TMP_SWORD_A2;
+		M [ TMP_EA + 2 ] = TMP_SWORD_A1;
+		M [ TMP_EA + 3 ] = TMP_SWORD_A0;
+
+		GPR [ ra ] = TMP_EA;
+
+		}
+
+// Integer Store with Byte reversal Instructions
+
+op int_store_byte_rev =   sthw_br_index
+                        | stw_br_index
+
+op sthw_br_index ( rs : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "sthbrx r%d,%s,%s", rs, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s11100101100", rs, ra.image, rb.image )
+   action = {
+
+		TMP_EA = ra + rb;
+		TMP_SHWORD = GPR [ rs ];
+
+		M [ TMP_EA ]  = TMP_SHWORD_A0; 
+		M [ TMP_EA + 1 ]  = TMP_SHWORD_A1; 
+
+		}
+   user0 = "3"
+
+op stw_br_index ( rs : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "stwbrx r%d,%s,%s", rs, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10100101100", rs, ra.image, rb.image )
+   action = {
+
+		TMP_EA = ra + rb;
+		TMP_SWORD = GPR [ rs ];
+
+		M [ TMP_EA ] = TMP_SWORD_A0;
+		M [ TMP_EA + 1 ] = TMP_SWORD_A1;
+		M [ TMP_EA + 2 ] = TMP_SWORD_A2;
+		M [ TMP_EA + 3 ] = TMP_SWORD_A3;
+
+		}
+   user0 = "3"
+
+// Integer Store Multiple Instructions
+
+op int_store_multiple ( rs : index, ra : REG_IND_ZERO, d : IMM16 )
+   syntax = format ( "stmw r%d,%s(%s)", rs, d.syntax, ra.syntax )
+   image  = format ( "101111%5b%s%s", rs, ra.image, d.image )
+   action = {
+
+		TMP_EA = ra + d;
+		TMP_WORD = rs;
+		recurs;
+// ToDo: TMP_EA must be a multiple of four. Otherwise aljgnment exception or results boundedly undefined			
+
+		}
+    recurs = {
+
+		if TMP_WORD <= 31 then
+			TMP_SWORD = GPR [ TMP_WORD ];
+			M [ TMP_EA ] = TMP_SWORD_A3;
+			M [ TMP_EA + 1 ] = TMP_SWORD_A2;
+			M [ TMP_EA + 2 ] = TMP_SWORD_A1;
+			M [ TMP_EA + 3 ] = TMP_SWORD_A0;
+			TMP_WORD = TMP_WORD + 1;
+			TMP_EA = TMP_EA + 4;
+			recurs;
+		endif; 
+ 
+		} 
+   user0 = "7"
+               
+// Integer Store Stirng Instructions
+
+op int_store_string =   ststw_imm
+                      | ststw_index
+
+op ststw_imm ( rs : index, ra : REG_IND_ZERO, NB : LS_COUNT )
+   syntax = format ( "stswi r%d,%s,%s", rs, ra.syntax, NB.syntax )
+   image  = format ( "011111%5b%s%5b10110101010", rs, ra.image, NB.image )
+   action = {
+
+		TMP_WORD = rs - 1;
+		TMP_BYTE = 0;
+		TMP_EA = ra;
+		if NB == 0 then
+			TMP_SWORD = 32;
+		else
+			TMP_SWORD = NB;
+		endif;
+		recurs;
+
+		}
+   recurs = {
+
+		if TMP_SWORD >= 0 then
+
+			if TMP_BYTE == 0 then
+				TMP_WORD = ( TMP_WORD + 1 ) % 32;
+			endif;
+
+			M [ TMP_EA ] = GPR [ TMP_WORD ] < (31-TMP_BYTE)..( (31-TMP_BYTE) -7) >;
+			TMP_BYTE = TMP_BYTE + 8;
+
+			if TMP_BYTE == 32 then
+				TMP_BYTE = 0;
+			endif;
+
+			TMP_EA = TMP_EA + 1;
+			TMP_SWORD = TMP_SWORD - 1;
+			recurs;
+
+		endif;
+
+		}
+   user0 = "7"
+
+op ststw_index ( rs : index, ra : REG_IND_ZERO, rb : REG_IND )
+   syntax = format ( "stswx r%d,%s,%s", rs, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10100101010", rs, ra.image, rb.image )
+   action = {
+
+		TMP_WORD = rs - 1;
+		TMP_SBYTE = XER < 6..0 >;
+		TMP_BYTE = 0;
+		TMP_EA = ra + rb;
+		recurs;
+
+		}
+   recurs = {
+
+		if TMP_SBYTE >= 0 then
+
+			if TMP_BYTE == 0 then
+				TMP_WORD = ( TMP_WORD + 1 ) % 32;
+			endif;
+
+			M [ TMP_EA ] = GPR [ TMP_WORD ] < (31-TMP_BYTE)..( (31-TMP_BYTE) - 7 ) >;
+			TMP_BYTE = TMP_BYTE + 8;
+
+			if TMP_BYTE == 32 then
+				TMP_BYTE = 0;
+			endif;
+
+			TMP_EA = TMP_EA + 1;
+			TMP_SBYTE = TMP_SBYTE - 1;
+			recurs;
+
+		endif;
+
+		}
+   user0 = "7"
+
+// 2.2.3 Integer Instructions
+
+op int_instr ( x : int_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+
+op int_instr_action =   int_arithmetic
+                      | int_compare
+                      | int_logical
+                      | int_rotate_shift
+                
+// Integer Arithmetic Instructions
+
+op int_arithmetic =   int_add
+                    | int_subtract
+                    | int_multiply
+                    | int_divide
+                    | int_negate
+
+// Integer Add Instructions
+op int_add ( x : int_add_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = ARITH
+
+op int_add_action =   add
+             | add_immediate
+             | add_carry
+             | add_extended
+             | add_mone_extended
+             | add_zero_extended
+                  
+
+// Add Instructions
+op add ( rd : index, ra : REG_IND, rb : REG_IND ,Rc : card (1) , Oe : card(1))
+   syntax = format ( "add r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s%1b100001010%1b", rd, ra.image, rb.image, Oe, Rc )
+   action = {
+
+		TMP_RES = ra + rb;
+		if Oe then
+				if (ra >= 0 &&  rb >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 &&  rb < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+		endif;               
+        
+		GPR[rd] = TMP_RES;
+		
+		if Rc then
+				CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+       	endif;
+        }
+
+
+// Add Immediate Instructions
+
+op add_immediate =   add_imm
+                   | add_imm_shifted
+                   | add_imm_carry
+                   | add_imm_carry_record
+
+op add_imm ( rd : index, ra : REG_IND_ZERO, da : SIMM16 )
+   syntax = format ( "addi r%d,%s,%s", rd, ra.syntax, da.syntax)
+   image  = format ( "001110%5b%s%s", rd, ra.image, da.image)
+   action = {
+                GPR [ rd ] = ra + da;
+            }
+  user0 = "1"
+
+op add_imm_shifted ( rd : index, ra : REG_IND_ZERO, da : SIMM16 ) 
+   syntax = format ( "addis r%d,%s,%s", rd, ra.syntax, da.syntax)
+   image  = format ( "001111%5b%s%s", rd, ra.image, da.image)
+   action = {
+               TMP_SWORD = da;
+                GPR [ rd ] = ra + ( TMP_SWORD << 16 );
+            }
+  user0 = "1"
+
+op add_imm_carry ( rd : index, ra : REG_IND, imm : SIMM16 )
+   syntax = format ( "addic r%d,%s,%s", rd, ra.syntax, imm.syntax )
+   image  = format ( "001100%5b%s%s", rd, ra.image, imm.image )
+   action = {
+ 
+		TMP_RES = ra + imm;         // Set carry bit
+			if (ra >= 0 &&  imm >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  imm<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+
+       	}
+
+op add_imm_carry_record ( rd : index, ra : REG_IND, imm : SIMM16 )
+   syntax = format ( "addic. r%d,%s,%s", rd, ra.syntax, imm.syntax )
+   image  = format ( "001101%5b%s%s", rd, ra.image, imm.image )
+   action = {
+
+		TMP_RES = ra + imm;         // Set carry bit
+			if (ra >= 0 &&  imm >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  imm<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+;		
+
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+  		}
+
+// Add with carry Instructions
+
+op add_carry =   add_carrying
+               | add_carry_cr_update
+               | add_carry_overflow
+               | add_carry_overflow_cr_update
+
+op add_carrying ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "addc r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00000010100", rd, ra.image, rb.image )
+   action = {
+ 
+		TMP_RES = ra + rb;
+			if (ra >= 0 &&  rb >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  rb<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+        }
+
+op add_carry_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "addc. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00000010101", rd, ra.image, rb.image )
+   action = {
+ 
+		TMP_RES = ra + rb; 
+			if (ra >= 0 &&  rb >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  rb<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+		
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;        
+        }
+
+op add_carry_overflow ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "addco r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10000010100", rd, ra.image, rb.image )
+   action = {
+ 
+		TMP_RES = ra + rb; 
+	
+			if (ra >= 0 &&  rb >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  rb<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+;
+			if (ra >= 0 &&  rb >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 &&  rb < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+
+		GPR[rd] = TMP_RES;
+      	}
+
+op add_carry_overflow_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "addco. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10000010101", rd, ra.image, rb.image )
+   action = {
+ 
+		TMP_RES = ra + rb; 
+	
+			if (ra >= 0 &&  rb >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  rb<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+;
+			if (ra >= 0 &&  rb >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 &&  rb < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+	  	}
+
+// Add extended Instructions
+
+op add_extended =   add_extend
+                  | add_extend_cr_update
+                  | add_extend_overflow
+                  | add_extd_overflow_cr_upd
+
+op add_extend ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "adde r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00100010100", rd, ra.image, rb.image )
+   action = {
+
+    	TMP_RES = ra + rb + XER < CA_XER..CA_XER >;
+			//if (XER < CA_XER..CA_XER> == 1 && ra == 0 &&  rb == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER < CA_XER..CA_XER> == 0 || (((ra>=0 &&  rb>=0) || (ra<0 &&  rb<0)) &&  TMP_RES!=0) ) then 
+				if (ra >= 0 &&  rb >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  rb<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;		
+		GPR[rd] = TMP_RES;
+		
+       	}
+
+op add_extend_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "adde. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00100010101", rd, ra.image, rb.image )
+   action = {
+
+      	TMP_RES = ra + rb + XER <CA_XER..CA_XER>;
+			//if (XER < CA_XER..CA_XER> == 1 && ra == 0 &&  rb == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER < CA_XER..CA_XER> == 0 || (((ra>=0 &&  rb>=0) || (ra<0 &&  rb<0)) &&  TMP_RES!=0) ) then 
+				if (ra >= 0 &&  rb >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  rb<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+		GPR[rd] = TMP_RES;
+		
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		}
+
+op add_extend_overflow ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "addeo r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10100010100", rd, ra.image, rb.image )
+   action = {
+
+      	TMP_RES = ra + rb + XER <CA_XER..CA_XER>;
+			//if (XER < CA_XER..CA_XER> == 1 && ra == 0 &&  rb == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER < CA_XER..CA_XER> == 0 || (((ra>=0 &&  rb>=0) || (ra<0 &&  rb<0)) &&  TMP_RES!=0) ) then 
+				if (ra >= 0 &&  rb >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  rb<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+			if (ra >= 0 &&  rb >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 &&  rb < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+		TMP_RES = GPR[rd];
+
+     	}
+
+op add_extd_overflow_cr_upd ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "addeo. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10100010101", rd, ra.image, rb.image )
+   action = {
+
+      	TMP_RES = ra + rb + XER <CA_XER..CA_XER>;
+			//if (XER < CA_XER..CA_XER >  == 1 && ra == 0 &&  rb == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER < CA_XER..CA_XER >  == 0 || (((ra>=0 &&  rb>=0) || (ra<0 &&  rb<0)) &&  TMP_RES!=0) ) then 
+				if (ra >= 0 &&  rb >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 &&  rb<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+			if (ra >= 0 &&  rb >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 &&  rb < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+	
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+  		}
+
+// Add minus one Instructions
+
+op add_mone_extended =   add_me
+                       | add_me_cr_update
+                       | add_me_overflow
+                       | add_me_overflow_cr_update
+
+op add_me ( rd : index, ra : REG_IND)
+   syntax = format ( "addme r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000111010100", rd, ra.image )
+   action = {
+            
+ 		TMP_RES = ra + XER <CA_XER..CA_XER> + 0xffffffff;
+			//if (XER<CA_XER..CA_XER> == 1 && ra == 0 && -1 == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER<CA_XER..CA_XER> == 0 || (((ra>=0 && -1>=0) || (ra<0 && -1<0)) && TMP_RES!=0) ) then 
+				if (ra >= 0 && -1 >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 && -1<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+		GPR[rd] = TMP_RES;
+       	}
+
+op add_me_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "addme. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000111010101", rd, ra.image )
+   action = {
+            
+ 		TMP_RES = ra + XER <CA_XER..CA_XER> + 0xffffffff;
+			//if (XER <CA_XER..CA_XER> == 1 && ra == 0 && -1 == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER <CA_XER..CA_XER> == 0 || (((ra>=0 && -1>=0) || (ra<0 && -1<0)) && TMP_RES!=0) ) then 
+				if (ra >= 0 && -1 >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 && -1<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;     	}
+
+op add_me_overflow ( rd : index, ra : REG_IND)
+   syntax = format ( "addmeo r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010111010100", rd, ra.image )
+   action = {
+            
+ 		TMP_RES = ra + XER <CA_XER..CA_XER> + 0xffffffff;
+			//if (XER <CA_XER..CA_XER> == 1 && ra == 0 && -1 == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER <CA_XER..CA_XER> == 0 || (((ra>=0 && -1>=0) || (ra<0 && -1<0)) && TMP_RES!=0) ) then 
+				if (ra >= 0 && -1 >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 && -1<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+			if (ra >= 0 &&  -1 >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 &&  -1 < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+		GPR[rd] = TMP_RES;
+		
+    	}
+
+op add_me_overflow_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "addmeo. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010111010101", rd, ra.image )
+   action = {
+            
+ 		TMP_RES = ra + XER <CA_XER..CA_XER> + 0xffffffff;
+			//if (XER <CA_XER..CA_XER> == 1 && ra == 0 && -1 == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER <CA_XER..CA_XER> == 0 || (((ra>=0 && -1>=0) || (ra<0 && -1<0)) && TMP_RES!=0) ) then 
+				if (ra >= 0 && -1 >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 && -1<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+			if (ra >= 0 &&  -1 >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 &&  -1 < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+  		}
+
+// Add zero extended Instructions
+
+op add_zero_extended =   add_ze
+                       | add_ze_cr_update
+                       | add_ze_overflow
+                       | add_ze_overflow_cr_update
+
+op add_ze ( rd : index, ra : REG_IND)
+   syntax = format ( "addze r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000110010100", rd, ra.image )
+   action = {
+            
+ 		TMP_RES = ra + XER <CA_XER..CA_XER>;
+			//if (XER<CA_XER..CA_XER> == 1 && ra == 0 && 0 == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER<CA_XER..CA_XER> == 0 || (((ra>=0 && 0>=0) || (ra<0 && 0<0)) && TMP_RES!=0) ) then 
+				if (ra >= 0 && 0 >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 && 0<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+		GPR[rd] = TMP_RES;
+
+  		}
+
+op add_ze_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "addze. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000110010101", rd, ra.image )
+   action = {
+ 		TMP_RES = ra + XER <CA_XER..CA_XER>;
+			//if (XER<CA_XER..CA_XER> == 1 && ra == 0 && 0 == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER<CA_XER..CA_XER> == 0 || (((ra>=0 && 0>=0) || (ra<0 && 0<0)) && TMP_RES!=0) ) then 
+				if (ra >= 0 && 0 >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 && 0<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+		GPR[rd] = TMP_RES;
+		
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;            
+      	}
+
+op add_ze_overflow ( rd : index, ra : REG_IND)
+   syntax = format ( "addzeo r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010110010100", rd, ra.image )
+   action = {
+
+ 		TMP_RES = ra + XER <CA_XER..CA_XER>;
+			//if (XER<CA_XER..CA_XER> == 1 && ra == 0 && 0 == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER<CA_XER..CA_XER> == 0 || (((ra>=0 && 0>=0) || (ra<0 && 0<0)) && TMP_RES!=0) ) then 
+				if (ra >= 0 && 0 >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 && 0<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+			if (ra >= 0 && 0 >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 && 0 < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+		GPR[rd] = TMP_RES;
+
+		}
+
+op add_ze_overflow_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "addzeo. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010110010101", rd, ra.image )
+   action = {
+            
+ 		TMP_RES = ra + XER <CA_XER..CA_XER>;
+			//if (XER<CA_XER..CA_XER> == 1 && ra == 0 && 0 == -1) then \
+	//	XER <CA_XER..CA_XER> = 0; \
+	//else \
+		if (XER<CA_XER..CA_XER> == 0 || (((ra>=0 && 0>=0) || (ra<0 && 0<0)) && TMP_RES!=0) ) then 
+				if (ra >= 0 && 0 >= 0) then 
+		XER <CA_XER..CA_XER> = 0; 
+	else 
+		if (ra<0 && 0<0) then 
+			XER <CA_XER..CA_XER> = 1; 
+		else 
+			if (TMP_RES>=0) then 
+				XER <CA_XER..CA_XER> = 1; 
+			else 
+				XER <CA_XER..CA_XER> = 0; 
+			endif; 
+		endif; 
+	endif; 
+; 
+		else 
+			XER <CA_XER..CA_XER> = 1; 
+		endif; 
+	//endif; \
+;
+			if (ra >= 0 && 0 >= 0 && TMP_RES < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (ra < 0 && 0 < 0 && TMP_RES >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;      	
+		}
+
+// Integer Subtract Instructions
+op int_subtract (x: int_subtract_action)
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = ARITH
+
+op int_subtract_action =   sub_from
+                  | sub_imm_carry_rec
+                  | sub_carry
+                  | sub_extended
+                  | sub_mone_extended
+                  | sub_zero_extended
+
+op sub_from =   sub
+              | sub_cr_update
+              | sub_overflow_enable
+              | sub_crup_overen
+
+// Subtract Instructions
+
+op sub ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subf r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00001010000", rd, ra.image, rb.image )
+   action = {
+
+               GPR [ rd ] = ~ra + rb + 1;
+
+            }
+
+op sub_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subf. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00001010001", rd, ra.image, rb.image )
+   action = {
+
+		TMP_RES = ~ra + rb + 1;
+	  	GPR [ rd ] = TMP_RES;	
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		}
+
+op sub_overflow_enable ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfo r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10001010000", rd, ra.image, rb.image )
+   action = {
+
+      	TMP_RES = ~ra + rb + 1;
+
+			if ra >= 0 then 
+		if  rb >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if TMP_RES < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if  rb < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if TMP_RES < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+;
+  		GPR[rd] = TMP_RES;
+		}
+
+op sub_crup_overen ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfo. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10001010001", rd, ra.image, rb.image )
+   action = {
+
+      	TMP_RES = ~ra + rb + 1;
+			if ra >= 0 then 
+		if  rb >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if TMP_RES < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if  rb < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if TMP_RES < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+;
+		GPR[rd]=TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;	
+		}
+
+// Subtract Immediate Instruction
+
+op sub_imm_carry_rec ( rd : index, ra : REG_IND, imm : IMM16 )
+   syntax = format ( "subfic r%d,%s,%s", rd, ra.syntax, imm.syntax )
+   image  = format ( "001000%5b%s%s", rd, ra.image, imm.image )
+   action = {
+		
+		TMP_RES = ~ra + 1 + imm;
+        	if (ra >= 0 && imm < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && imm >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if 1 == 1 then 
+				if ra > imm then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= imm then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+		GPR[rd] = TMP_RES;
+
+    	}
+
+// Subtract with carry Instructions
+
+op sub_carry =   sub_carrying
+               | sub_carry_cr_update
+               | sub_carry_overflow
+               | sub_carry_overflow_cr_update
+
+op sub_carrying ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfc r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00000010000", rd, ra.image, rb.image )
+   action = {
+ 
+  		TMP_RES = ~ra + rb + 1;
+			if (ra >= 0 && rb < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && rb >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if 1 == 1 then 
+				if ra > rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+		GPR[rd] = TMP_RES;
+   		}
+
+op sub_carry_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfc. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00000010001", rd, ra.image, rb.image )
+   action = {
+ 
+    	TMP_RES = ~ra + rb + 1; 
+
+			if (ra >= 0 && rb < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && rb >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if 1 == 1 then 
+				if ra > rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+		GPR[rd] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+     	}
+
+op sub_carry_overflow ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfco r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10000010000", rd, ra.image, rb.image )
+   action = {
+ 
+    	TMP_RES = ~ra + rb + 1; 
+
+			if (ra >= 0 && rb < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && rb >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if 1 == 1 then 
+				if ra > rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+			if ra >= 0 then 
+		if rb >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if TMP_RES < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if rb < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if TMP_RES < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+;
+
+		GPR[rd] = TMP_RES;
+		}
+
+op sub_carry_overflow_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfco. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10000010001", rd, ra.image, rb.image )
+   action = {
+ 
+    	TMP_RES = ~ra + rb + 1; 
+
+			if (ra >= 0 && rb < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && rb >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if 1 == 1 then 
+				if ra > rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+			if ra >= 0 then 
+		if rb >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if TMP_RES < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if rb < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if TMP_RES < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+;
+
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+     	}
+
+// Subtract extended Instructions
+
+op sub_extended =   sub_extend
+                  | sub_extend_cr_update
+                  | sub_extend_overflow
+                  | sub_extd_overflow_cr_upd
+
+op sub_extend ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfe r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00100010000", rd, ra.image, rb.image )
+   action = {
+		
+		TMP_RES = ~ra + rb + XER <CA_XER..CA_XER>;
+			if (ra >= 0 && rb < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && rb >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;	
+		GPR[rd] = TMP_RES;
+		
+     	}
+
+op sub_extend_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfe. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00100010001", rd, ra.image, rb.image )
+   action = {
+
+		TMP_RES = ~ra + rb + XER <CA_XER..CA_XER>;
+			if (ra >= 0 && rb < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && rb >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;	
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;      	}
+
+op sub_extend_overflow ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfeo r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10100010000", rd, ra.image, rb.image )
+   action = {
+
+		TMP_RES = ~ra + rb + XER <CA_XER..CA_XER>;
+			if (ra >= 0 && rb < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && rb >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;	
+			if TMP_RES==0 then 
+			if (~ra >= 0 && rb >= 0 && XER<CA_XER..CA_XER> < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (~ra < 0 && rb < 0 && XER<CA_XER..CA_XER> >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	; 
+	else 
+			if ra >= 0 then 
+		if rb >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if rb < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if XER<CA_XER..CA_XER> < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+; 
+	endif; 
+;
+    	GPR[rd] = TMP_RES;
+	
+		}
+
+op sub_extd_overflow_cr_upd ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "subfeo. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10100010001", rd, ra.image, rb.image )
+   action = {
+
+		TMP_RES = ~ra + rb + XER <CA_XER..CA_XER>;
+			if (ra >= 0 && rb < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && rb >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= rb then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;	
+			if TMP_RES==0 then 
+			if (~ra >= 0 && rb >= 0 && XER<CA_XER..CA_XER> < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (~ra < 0 && rb < 0 && XER<CA_XER..CA_XER> >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	; 
+	else 
+			if ra >= 0 then 
+		if rb >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if rb < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if XER<CA_XER..CA_XER> < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;      	
+		}
+
+// Subtract minus one Instructions
+
+op sub_mone_extended =   sub_me
+                       | sub_me_cr_update
+                       | sub_me_overflow
+                       | sub_me_overflow_cr_update
+
+op sub_me ( rd : index, ra : REG_IND)
+   syntax = format ( "subfme r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000111010000", rd, ra.image )
+   action = {
+            
+     	TMP_RES = ~ra + XER <CA_XER..CA_XER> + 0xffffffff;
+			if (ra >= 0 && -1 < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && -1 >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > -1 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= -1 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+		GPR[rd] = TMP_RES;
+       	}
+
+op sub_me_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "subfme. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000111010001", rd, ra.image )
+   action = {
+                        
+     	TMP_RES = ~ra + XER <CA_XER..CA_XER> + 0xffffffff;
+			if (ra >= 0 && -1 < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && -1 >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > -1 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= -1 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+       	}
+
+op sub_me_overflow ( rd : index, ra : REG_IND)
+   syntax = format ( "subfmeo r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010111010000", rd, ra.image )
+   action = {
+     	TMP_RES = ~ra + XER <CA_XER..CA_XER> + 0xffffffff;
+			if (ra >= 0 && -1 < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && -1 >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > -1 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= -1 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+			if TMP_RES==0 then 
+			if (~ra >= 0 && -1 >= 0 && XER<CA_XER..CA_XER> < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (~ra < 0 && -1 < 0 && XER<CA_XER..CA_XER> >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	; 
+	else 
+			if ra >= 0 then 
+		if -1 >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if -1 < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if XER<CA_XER..CA_XER> < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+
+		}
+
+op sub_me_overflow_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "subfmeo. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010111010001", rd, ra.image )
+   action = {
+            
+     	TMP_RES = ~ra + XER <CA_XER..CA_XER> + 0xffffffff;
+			if (ra >= 0 && -1 < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && -1 >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > -1 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= -1 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+			if TMP_RES==0 then 
+			if (~ra >= 0 && -1 >= 0 && XER<CA_XER..CA_XER> < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (~ra < 0 && -1 < 0 && XER<CA_XER..CA_XER> >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	; 
+	else 
+			if ra >= 0 then 
+		if -1 >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if -1 < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if XER<CA_XER..CA_XER> < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+	
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+       	}
+
+// Subtract zero extended Instructions
+
+op sub_zero_extended =   sub_ze
+                       | sub_ze_cr_update
+                       | sub_ze_overflow
+                       | sub_ze_overflow_cr_update
+
+op sub_ze ( rd : index, ra : REG_IND)
+   syntax = format ( "subfze r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000110010000", rd, ra.image )
+   action = {
+            
+		TMP_RES = ~ra + XER <CA_XER..CA_XER>;
+			if (ra >= 0 && 0 < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && 0 >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > 0 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= 0 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+		GPR[rd] = TMP_RES;
+		}
+
+op sub_ze_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "subfze. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000110010001", rd, ra.image )
+   action = {
+            
+		TMP_RES = ~ra + XER <CA_XER..CA_XER>;
+			if (ra >= 0 && 0 < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && 0 >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > 0 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= 0 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+       	}
+
+op sub_ze_overflow ( rd : index, ra : REG_IND)
+   syntax = format ( "subfzeo r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010110010000", rd, ra.image )
+   action = {
+
+		TMP_RES = ~ra + XER <CA_XER..CA_XER>;
+			if (ra >= 0 && 0 < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && 0 >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > 0 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= 0 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+			if TMP_RES==0 then 
+			if (~ra >= 0 && 0 >= 0 && XER<CA_XER..CA_XER> < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (~ra < 0 && 0 < 0 && XER<CA_XER..CA_XER> >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	; 
+	else 
+			if ra >= 0 then 
+		if 0 >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if 0 < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if XER<CA_XER..CA_XER> < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+
+		}
+
+op sub_ze_overflow_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "subfzeo. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010110010001", rd, ra.image )
+   action = {
+		TMP_RES = ~ra + XER <CA_XER..CA_XER>;
+			if (ra >= 0 && 0 < 0) then 
+		XER <CA_XER..CA_XER> = 1; 
+	else 
+		if (ra < 0 && 0 >= 0) then 
+			XER <CA_XER..CA_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> == 1 then 
+				if ra > 0 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			else 
+				if ra >= 0 then 
+					XER <CA_XER..CA_XER> = 0; 
+				else 
+					XER <CA_XER..CA_XER> = 1; 
+				endif; 
+			endif; 
+		endif; 
+	endif;
+;
+			if TMP_RES==0 then 
+			if (~ra >= 0 && 0 >= 0 && XER<CA_XER..CA_XER> < 0) then 
+		XER <OV_XER..OV_XER> = 1; 
+      	XER <SO_XER..SO_XER> = 1; 
+    else 
+		if (~ra < 0 && 0 < 0 && XER<CA_XER..CA_XER> >= 0) then 
+			XER <OV_XER..OV_XER> = 1; 
+          	XER <SO_XER..SO_XER> = 1; 
+     	else 
+          	XER <OV_XER..OV_XER> = 0; 
+		endif; 
+	endif;
+	; 
+	else 
+			if ra >= 0 then 
+		if 0 >= 0 then 
+          	XER <OV_XER..OV_XER> = 0; 
+		else 
+			if XER<CA_XER..CA_XER> < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				XER <OV_XER..OV_XER> = 1; 
+	    	  	XER <SO_XER..SO_XER> = 1; 
+			endif; 
+		endif; 
+	else 
+		if ra == 0x80000000 then 
+			XER <OV_XER..OV_XER> = 1; 
+    	  	XER <SO_XER..SO_XER> = 1; 
+		else 
+			if 0 < 0 then 
+	          	XER <OV_XER..OV_XER> = 0; 
+			else 
+				if XER<CA_XER..CA_XER> < 0 then 
+					XER <OV_XER..OV_XER> = 1; 
+      				XER <SO_XER..SO_XER> = 1; 
+				else 
+		          	XER <OV_XER..OV_XER> = 0; 
+				endif; 
+			endif; 
+		endif; 
+	endif; 
+; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+  		}
+
+// Integer Multiply Instructions
+op int_multiply ( x : int_multiply_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = MULDIV
+
+op int_multiply_action =   mult_low
+                  | mult_low_imm
+                  | mult_high
+                  | mult_high_unsig
+
+// Multiply Low Instructions
+
+op mult_low =   mult_lw
+              | mult_lw_cr_update
+              | mult_lw_overflow
+              | mult_lw_overflow_cr_upd
+
+op mult_lw ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "mullw r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00111010110", rd, ra.image, rb.image )
+   action = {
+ 
+		GPR [ rd ] = ra * rb;
+
+       	} 
+
+op mult_lw_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "mullw. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00111010111", rd, ra.image, rb.image )
+   action = {
+      
+		 TMP_RES = ra * rb;
+		 GPR [ rd ] = TMP_RES ;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+        }
+
+op mult_lw_overflow ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "mullwo r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10111010110", rd, ra.image, rb.image )
+   action = {
+
+     	TMP_RES = ra * rb;
+			TMP_M_OP1_H0 = ra; 
+	TMP_M_OP2_H0 =  rb; 
+	TMP_M_RES_H0 = TMP_RES ; 
+	
+	if ra < 0 then 
+		TMP_M_OP1_H1 = 0xffffffff; 
+	else 
+		TMP_M_OP1_H1 = 0; 
+	endif; 
+	if  rb < 0 then 
+		TMP_M_OP2_H1 = 0xffffffff; 
+	else 
+		TMP_M_OP2_H1 = 0; 
+	endif; 
+	if TMP_RES  < 0 then 
+		TMP_M_RES_H1 = 0xffffffff; 
+	else 
+		TMP_M_RES_H1 = 0; 
+	endif; 
+	
+	if TMP_M_OP1*TMP_M_OP2 != TMP_M_RES then 
+		XER <OV_XER..OV_XER> = 1; 
+    	XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER <OV_XER..OV_XER> = 0; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+		
+		}
+
+op mult_lw_overflow_cr_upd ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "mullwo. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s10111010111", rd, ra.image, rb.image )
+   action = {
+
+     	TMP_RES = ra * rb;
+			TMP_M_OP1_H0 = ra; 
+	TMP_M_OP2_H0 =  rb; 
+	TMP_M_RES_H0 = TMP_RES ; 
+	
+	if ra < 0 then 
+		TMP_M_OP1_H1 = 0xffffffff; 
+	else 
+		TMP_M_OP1_H1 = 0; 
+	endif; 
+	if  rb < 0 then 
+		TMP_M_OP2_H1 = 0xffffffff; 
+	else 
+		TMP_M_OP2_H1 = 0; 
+	endif; 
+	if TMP_RES  < 0 then 
+		TMP_M_RES_H1 = 0xffffffff; 
+	else 
+		TMP_M_RES_H1 = 0; 
+	endif; 
+	
+	if TMP_M_OP1*TMP_M_OP2 != TMP_M_RES then 
+		XER <OV_XER..OV_XER> = 1; 
+    	XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER <OV_XER..OV_XER> = 0; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+        }
+
+// Multiply Low Immediate
+
+op mult_low_imm ( rd : index, ra : REG_IND, imm : IMM16 )
+   syntax = format ( "mulli r%d,%s,%s", rd, ra.syntax, imm.syntax )
+   image  = format ( "000111%5b%s%s", rd, ra.image, imm.image )
+   action = {
+
+   		GPR [ rd ] = ra * imm;
+
+      	}
+
+// Multiply High Word
+
+op mult_high =   mult_hi
+               | mult_hi_cr_update
+
+op mult_hi ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "mulhw r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00010010110", rd, ra.image, rb.image )
+   action = {
+
+   		TMP_SDWORD = ra;
+		TMP_SDWORD = TMP_SDWORD * rb;
+        GPR [ rd ] = TMP_SDWORD < 63..32 >;
+
+        } 
+
+op mult_hi_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "mulhw. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00010010111", rd, ra.image, rb.image )
+   action = {
+
+		TMP_SDWORD = ra;
+		TMP_SDWORD = TMP_SDWORD * rb;
+		GPR [ rd ] = TMP_SDWORD < 63..32 >;
+
+			CR[7]<LT..LT> = ((TMP_SDWORD < 63..32 >)<0); 
+    CR[7]<GT..GT> = ((TMP_SDWORD < 63..32 >)>0); 
+	CR[7]<EQ..EQ> = ((TMP_SDWORD < 63..32 >)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		} 
+
+// Multiply High word unsigned
+
+op mult_high_unsig =   mult_hi_us
+                     | mult_hi_us_cr_update
+
+op mult_hi_us ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "mulhwu r%d,%s,%s", rd , ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00000010110", rd, ra.image, rb.image)
+   action = {
+		TMP_DWORD = coerce ( card ( 32 ) , ra );
+		TMP_DWORD = TMP_DWORD * coerce ( card ( 32 ) , rb );
+		GPR [ rd ] = TMP_DWORD < 63..32 >;
+
+        }
+
+op mult_hi_us_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "mulhwu. r%d,%s,%s", rd , ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s00000010111", rd, ra.image, rb.image)
+   action = {
+
+        TMP_DWORD = coerce ( card ( 32 ) , ra ); 
+	TMP_DWORD = TMP_DWORD * coerce ( card ( 32 ) , rb );
+        GPR [ rd ] = TMP_DWORD < 63..32 >;
+
+			CR[7]<LT..LT> = ((TMP_DWORD < 63..32 >)<0); 
+    CR[7]<GT..GT> = ((TMP_DWORD < 63..32 >)>0); 
+	CR[7]<EQ..EQ> = ((TMP_DWORD < 63..32 >)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		} 
+
+// Integer Divide Instructions
+op int_divide ( x : int_divide_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = MULDIV
+
+op int_divide_action =   div_word
+                | div_word_unsig
+
+op div_word =   divw
+              | divw_cr_update
+              | divw_overflow
+              | divw_overflow_cr_upd
+
+op divw ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "divw r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s01111010110", rd, ra.image, rb.image )
+   action = {
+	
+		if ( rb == 0 || ( ra == 0x80000000 & rb == -1 ) ) then
+			GPR [ rd ] = 0;
+		else
+			GPR [ rd ] = ra / rb;
+		endif;
+        }
+
+op divw_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "divw. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s01111010111", rd, ra.image, rb.image )
+   action = {
+
+		if ( rb == 0 || ( ra == 0x80000000 & rb == -1 ) ) then
+			GPR [ rd ] = 0;
+		else
+	         TMP_RES = ra / rb;
+		 GPR [ rd ] = TMP_RES;
+		 	CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		endif;
+
+		}
+
+op divw_overflow ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "divwo r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s11111010110", rd, ra.image, rb.image )
+   action = {
+
+		if ( rb == 0 || ( ra == 0x80000000 & rb == -1 ) ) then
+			TMP_RES = 0;
+			
+		else
+	        TMP_RES = ra / rb;
+		endif;
+	
+			if ((ra == 0x80000000 && rb == -1) || (rb == 0)) then 
+		XER <OV_XER..OV_XER> = 1; 
+		XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER<OV_XER..OV_XER> = 0; 
+	endif; 
+ ;
+		GPR[rd] = TMP_RES;
+
+		}
+
+op divw_overflow_cr_upd ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "divwo. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s11111010111", rd, ra.image, rb.image )
+   action = {
+
+		if ( rb == 0 || ( ra == 0x80000000 & rb == -1 ) ) then
+			TMP_RES = 0;
+				if ((ra == 0x80000000 && rb == -1) || (rb == 0)) then 
+		XER <OV_XER..OV_XER> = 1; 
+		XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER<OV_XER..OV_XER> = 0; 
+	endif; 
+ ;
+			GPR[rd] = TMP_RES;
+			CR[7]<SO..SO> = XER<SO_XER..SO_XER>;
+		else
+	        TMP_RES = ra / rb;
+				if ((ra == 0x80000000 && rb == -1) || (rb == 0)) then 
+		XER <OV_XER..OV_XER> = 1; 
+		XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER<OV_XER..OV_XER> = 0; 
+	endif; 
+ ;
+			GPR[rd] = TMP_RES;
+				CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		endif;
+		}
+
+// Divide word unsigned
+
+op div_word_unsig =   divwus
+                    | divwus_cr_update
+                    | divwus_overflow
+                    | divwus_overflow_cr_upd
+
+ 
+op divwus ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "divwu r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s01110010110", rd, ra.image, rb.image )
+   action = {
+
+		if rb == 0 then
+			GPR [ rd ] = 0;
+		else
+			GPR [ rd ] = coerce ( card ( 32 ) , ra ) / coerce ( card ( 32 ) , rb );
+		endif;
+		}
+
+op divwus_cr_update ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "divwu. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s01110010111", rd, ra.image, rb.image )
+   action = {
+
+		if rb == 0 then
+			GPR [ rd ] = 0;
+		else
+			TMP_RES = coerce ( card ( 32 ) , ra ) / coerce ( card ( 32 ) , rb );
+			GPR [ rd ] = TMP_RES;
+				CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		endif;		
+
+		}
+
+op divwus_overflow ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "divwuo r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s11110010110", rd, ra.image, rb.image )
+   action = {
+
+		if rb == 0 then
+			TMP_RES = 0;
+		else
+			TMP_RES = coerce ( card ( 32 ) , ra ) / coerce ( card ( 32 ) , rb );
+		endif;
+
+			if ((coerce ( card ( 32 ) , ra ) == 0x80000000 && coerce ( card ( 32 ) , rb ) == -1) || (coerce ( card ( 32 ) , rb ) == 0)) then 
+		XER <OV_XER..OV_XER> = 1; 
+		XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER<OV_XER..OV_XER> = 0; 
+	endif; 
+ ;
+		GPR[rd] = TMP_RES;
+		
+		}
+
+op divwus_overflow_cr_upd ( rd : index, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "divwuo. r%d,%s,%s", rd, ra.syntax, rb.syntax )
+   image  = format ( "011111%5b%s%s11110010111", rd, ra.image, rb.image )
+   action = {
+
+		if rb == 0 then
+			TMP_RES = 0;
+				if ((coerce ( card ( 32 ) , ra ) == 0x80000000 && coerce ( card ( 32 ) , rb ) == -1) || (coerce ( card ( 32 ) , rb ) == 0)) then 
+		XER <OV_XER..OV_XER> = 1; 
+		XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER<OV_XER..OV_XER> = 0; 
+	endif; 
+ ;
+			GPR[rd] = TMP_RES;
+			CR[7]<SO..SO> =XER<SO_XER..SO_XER>;
+		else
+			TMP_RES = coerce ( card ( 32 ) , ra ) / coerce ( card ( 32 ) , rb );
+				if ((coerce ( card ( 32 ) , ra ) == 0x80000000 && coerce ( card ( 32 ) , rb ) == -1) || (coerce ( card ( 32 ) , rb ) == 0)) then 
+		XER <OV_XER..OV_XER> = 1; 
+		XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER<OV_XER..OV_XER> = 0; 
+	endif; 
+ ;
+			GPR[rd] = TMP_RES;
+				CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		endif;
+		}
+
+// Integer Negate Instruction
+op int_negate ( x : int_negate_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = ARITH
+
+op int_negate_action =   neg
+                | neg_cr_update
+                | neg_overflow
+                | neg_overflow_cr_upd
+
+op neg ( rd : index, ra : REG_IND)
+   syntax = format ( "neg r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000011010000", rd, ra.image )
+   action = {
+
+		GPR [ rd ] = ~ra + 1;
+
+        }
+
+op neg_cr_update ( rd : index, ra : REG_IND)
+   syntax = format ( "neg. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000000011010001", rd, ra.image )
+   action = {
+
+		TMP_RES = ~ra + 1;
+		GPR [ rd ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+        }
+
+op neg_overflow ( rd : index, ra : REG_IND)
+   syntax = format ( "nego r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010011010000", rd, ra.image )
+   action = {
+
+		TMP_RES = ~ra + 1;
+			if ra == 0x80000000 then 
+		XER <OV_XER..OV_XER> = 1; 
+		XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER<OV_XER..OV_XER> = 0; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+
+        }
+
+op neg_overflow_cr_upd ( rd : index, ra : REG_IND)
+   syntax = format ( "nego. r%d,%s", rd, ra.syntax )
+   image  = format ( "011111%5b%s0000010011010001", rd, ra.image )
+   action = {
+
+		TMP_RES = ~ra + 1;
+			if ra == 0x80000000 then 
+		XER <OV_XER..OV_XER> = 1; 
+		XER <SO_XER..SO_XER> = 1; 
+	else 
+		XER<OV_XER..OV_XER> = 0; 
+	endif; 
+;
+		GPR[rd] = TMP_RES;
+
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+        }
+
+// Integer Compare Instructions
+
+op int_compare ( x : int_compare_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = INTCMP
+
+op int_compare_action  =   cmp_imm
+                         | cmp
+                         | cmp_log_imm
+                         | cmp_log
+
+op cmp_imm ( crfd : card ( 3 ), l : bit, ra : REG_IND, imm : IMM16 )
+   syntax = format ( "cmpi %d,%d,%s,%s", crfd, l, ra.syntax, imm.syntax )
+   image  = format ( "001011%3b0%1b%s%s", crfd, l, ra.image, imm.image )
+   action = {
+
+		TMP_BYTE = 0;
+		if ra < imm then
+        	TMP_BYTE = 8;
+        else
+        	if ra > imm then
+        		TMP_BYTE = 4;
+        	else
+        		TMP_BYTE = 2;
+        	endif;
+        endif;
+
+        //TMP_BYTE = TMP_BYTE << 1;
+
+        if XER <SO_XER..SO_XER> then
+        	TMP_BYTE = TMP_BYTE | 0x01;
+        endif;
+
+        CR[(7-crfd)] < LT..SO > = TMP_BYTE & 0x0f;
+
+        }
+
+op cmp ( crfd : card ( 3 ), l : bit, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "cmp %d,%d,%s,%s", crfd, l, ra.syntax, rb.syntax )
+   image  = format ( "011111%3b0%1b%s%s00000000000", crfd, l, ra.image, rb.image)
+   action = {
+
+        if ra < rb then
+        	TMP_BYTE = 0b100;
+        else
+        	if ra > rb then
+        		TMP_BYTE = 0b010;
+        	else
+        		TMP_BYTE = 0b001;
+        	endif;
+        endif;
+
+        TMP_BYTE = TMP_BYTE << 1;
+
+        if XER < SO_XER..SO_XER > then
+        	TMP_BYTE = TMP_BYTE | 0x01;
+        endif;
+
+        CR[(7-crfd)] < LT..SO > = TMP_BYTE & 0x0f;
+
+        }
+
+
+op cmp_log_imm ( crfd : card ( 3 ), l : bit, ra : REG_IND, imm : UIMM16 )
+   syntax = format ( "cmpli %d,%d,%s,%s", crfd, l, ra.syntax, imm.syntax )
+   image  = format ( "001010%3b0%1b%s%s", crfd, l, ra.image, imm.image )
+   action = {
+
+       	TMP_WORD = imm;
+    	if coerce ( card ( 32 ) , ra ) < ( TMP_WORD ) then
+        	TMP_BYTE = 0b100;
+        else
+        	if coerce ( card ( 32 ) , ra ) > ( TMP_WORD ) then
+        		TMP_BYTE = 0b010;
+        	else
+        		TMP_BYTE = 0b001;
+        	endif;
+        endif;
+
+        TMP_BYTE = TMP_BYTE << 1;
+
+        if XER < SO_XER..SO_XER > then
+        	TMP_BYTE = TMP_BYTE | 0x01;
+        endif;
+
+        CR[(7-crfd)] < LT..SO > = TMP_BYTE & 0x0f;
+        //CR < (31-(4*crfd)-3)..(31-(4*crfd)) > = TMP_BYTE & 0x0f;
+
+        }
+
+op cmp_log ( crfd : card ( 3 ), l : bit, ra : REG_IND, rb : REG_IND )
+   syntax = format ( "cmpl %d,%d,%s,%s", crfd, l, ra.syntax, rb.syntax )
+   image  = format ( "011111%3b0%1b%s%s00001000000", crfd, l, ra.image, rb.image)
+   action = {
+
+		if coerce ( card ( 32 ) , ra ) < coerce ( card ( 32 ) , rb ) then
+			TMP_BYTE = 0b100;
+		else
+			if coerce ( card ( 32 ) , ra ) > coerce ( card ( 32 ) , rb ) then
+				TMP_BYTE = 0b010;
+			else
+				TMP_BYTE = 0b001;
+			endif;
+		endif;
+
+		TMP_BYTE = TMP_BYTE << 1;
+
+		if XER < SO_XER..SO_XER > then
+			TMP_BYTE = TMP_BYTE | 0x01;
+		endif;
+
+		//CR < (31-(4*crfd)-3)..(31-(4*crfd)) > = TMP_BYTE & 0x0f;
+		CR[(7-crfd)] < LT..SO > = TMP_BYTE & 0x0f;
+
+		}
+
+// Integer Logical Instructions
+op int_logical ( x : int_logical_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = LOGIC
+
+op int_logical_action  =   or_instr
+                 | and_instr
+                 | xor_instr
+                 | nor_instr
+                 | nand_instr
+                 | equivalent_instr
+                 | extended_sign_instr
+                 | count_lead_zeros_instr
+
+// OR Instructions
+
+op or_instr =   simple_or
+              | or_imm
+              | or_imm_shift
+              | or_comp
+   
+op simple_or =  or
+              | or_cr_update
+
+op or ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "or r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01101111000", rs.image, ra, rb.image )
+   action = {
+
+		GPR [ ra ] = rs | rb;
+
+		}   
+
+op or_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "or. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01101111001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_RES = rs | rb;
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		}   
+
+op or_imm ( rs : REG_IND, ra : index, imm : UIMM16 )
+   syntax = format ( "ori r%d,%s,%s", ra, rs.syntax, imm.syntax )
+   image  = format ( "011000%s%5b%s", rs.image, ra, imm.image )
+   action = {
+
+		TMP_WORD_A1 = 0;
+		TMP_WORD_A0 = imm;
+		//TMP_WORD = imm & 0b00000000000000001111111111111111;
+		GPR [ ra ] = rs | TMP_WORD;
+
+		}
+
+op or_imm_shift ( rs : REG_IND, ra : index, imm : UIMM16 )
+   syntax = format ( "oris r%d,%s,%s", ra, rs.syntax, imm.syntax )
+   image  = format ( "011001%s%5b%s", rs.image, ra, imm.image )
+   action = {
+
+		TMP_WORD_A1 = imm;
+		TMP_WORD_A0 = 0;
+		GPR [ ra ] = rs | TMP_WORD;
+
+		}
+
+op or_comp =   orc
+             | orc_cr_update
+
+op orc ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "orc r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01100111000", rs.image, ra, rb.image )
+   action = {
+
+		GPR [ ra ] = rs | ( ~rb );
+
+        }
+
+op orc_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "orc. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01100111001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_RES = rs | ( ~rb );
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		}   
+
+// AND Instructions
+
+op and_instr =   simple_and
+               | and_imm
+               | and_imm_shift
+               | and_comp
+
+op simple_and =   and
+                | and_cr_update
+
+op and ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "and r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s00000111000", rs.image, ra, rb.image )
+   action = {
+
+		GPR [ ra ] = rs & rb;
+
+		}
+
+op and_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "and. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s00000111001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_RES = rs & rb;
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}   
+
+op and_imm ( rs : REG_IND, ra : index, imm : UIMM16 )
+   syntax = format ( "andi. r%d,%s,%s", ra, rs.syntax, imm.syntax )
+   image  = format ( "011100%s%5b%s", rs.image, ra, imm.image )
+   action = {
+
+		TMP_WORD_A1 = 0;
+		TMP_WORD_A0 = imm;
+		GPR [ ra ] = rs & TMP_WORD;
+
+			CR[7]<LT..LT> = ((rs & TMP_WORD)<0); 
+    CR[7]<GT..GT> = ((rs & TMP_WORD)>0); 
+	CR[7]<EQ..EQ> = ((rs & TMP_WORD)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		}   
+
+op and_imm_shift ( rs : REG_IND, ra : index, imm : UIMM16 )
+   syntax = format ( "andis. r%d,%s,%s", ra, rs.syntax, imm.syntax )
+   image  = format ( "011101%s%5b%s", rs.image, ra, imm.image )
+   action = {
+
+		TMP_WORD_A1 = imm;
+		TMP_WORD_A0 = 0;
+		GPR [ ra ] = rs & TMP_WORD;
+
+			CR[7]<LT..LT> = ((rs & TMP_WORD)<0); 
+    CR[7]<GT..GT> = ((rs & TMP_WORD)>0); 
+	CR[7]<EQ..EQ> = ((rs & TMP_WORD)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		}   
+
+op and_comp =   andc
+              | andc_cr_update 
+
+op andc ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "andc r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s00001111000", rs.image, ra, rb.image )
+   action = {
+
+		GPR [ ra ] = rs & ( ~rb );
+
+		}
+
+op andc_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "andc. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s00001111001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_RES = rs & ( ~rb );
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}   
+
+// XOR Instructions
+
+op xor_instr =   simple_xor
+               | xor_imm
+               | xor_imm_shift
+
+op simple_xor =   xor
+                | xor_cr_update
+
+op xor ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "xor r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01001111000", rs.image, ra, rb.image )
+   action = {
+
+		GPR [ ra ] = rs ^ rb;
+
+		}
+
+op xor_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "xor. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01001111001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_RES = rs ^ rb;
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}   
+
+op xor_imm ( rs : REG_IND, ra : index, imm : UIMM16 )
+   syntax = format ( "xori r%d,%s,%s", ra, rs.syntax, imm.syntax )
+   image  = format ( "011010%s%5b%s", rs.image, ra, imm.image )
+   action = {
+
+		TMP_WORD_A1 = 0;
+		TMP_WORD_A0 = imm;
+
+		GPR [ ra ] = rs ^ TMP_WORD;
+
+		}
+
+op xor_imm_shift ( rs : REG_IND, ra : index, imm : UIMM16 )
+   syntax = format ( "xoris r%d,%s,%s", ra, rs.syntax, imm.syntax )
+   image  = format ( "011011%s%5b%s", rs.image, ra, imm.image )
+   action = {
+
+		TMP_WORD_A1 = imm;
+		TMP_WORD_A0 = 0;
+		GPR [ ra ] = rs ^ TMP_WORD;
+
+		}
+
+// NOR Instructions
+
+op nor_instr =   nor
+               | nor_cr_update
+
+op nor ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "nor r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s00011111000", rs.image, ra, rb.image )
+   action = {
+
+		GPR [ ra ] = ~(  rs | rb );
+
+		}
+
+op nor_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "nor. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s00011111001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_RES = ~( rs | rb );
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+		}   
+
+// NAND Instructions
+
+op nand_instr =   nand
+                | nand_cr_update
+
+op nand ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "nand r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01110111000", rs.image, ra, rb.image )
+   action = {
+
+		GPR [ ra ] = ~( rs & rb );
+
+		}
+
+op nand_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "nand. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01110111001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_RES = ~( rs & rb );
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}   
+
+// Equivalent Instructions
+
+op equivalent_instr =   eqv
+                      | eqv_cr_update
+
+
+op eqv ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "eqv r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01000111000", rs.image, ra, rb.image )
+   action = {
+
+		GPR [ ra ] = ~( rs ^ rb );
+
+		}
+
+op eqv_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "eqv. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s01000111001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_RES = ~( rs ^ rb );
+
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}
+
+// Extended sign Instructions
+
+op extended_sign_instr =   ext_sign_byte
+                         | ext_sign_hword
+
+op ext_sign_byte =   extsb
+                   | extsb_cr_update
+
+op extsb ( rs : index, ra : index )
+   syntax = format ( "extsb r%d,r%d", ra, rs )
+   image  = format ( "011111%5b%5b0000011101110100", rs, ra )
+   action = {
+
+		//TMP_SBYTE = GPR [ rs ] < 0..7 >;
+		TMP_SBYTE = GPR [ rs ] < 7..0 >; 	
+        GPR [ ra ] = TMP_SBYTE;   // sign extension
+
+        }
+
+op extsb_cr_update ( rs : index, ra : index )
+   syntax = format ( "extsb. r%d,r%d", ra, rs )
+   image  = format ( "011111%5b%5b0000011101110101", rs, ra )
+   action = {
+
+		//TMP_SBYTE = GPR [ rs ] < 0..7 >;
+		TMP_SBYTE = GPR [ rs ] < 7..0 >; 	
+		GPR [ ra ] = TMP_SBYTE;   // sign extension
+			CR[7]<LT..LT> = ((TMP_SBYTE)<0); 
+    CR[7]<GT..GT> = ((TMP_SBYTE)>0); 
+	CR[7]<EQ..EQ> = ((TMP_SBYTE)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+
+		}
+
+op ext_sign_hword =   extsh
+                    | extsh_cr_update
+
+op extsh ( rs : index, ra : index )
+   syntax = format ( "extsh r%d,r%d", ra, rs )
+   image  = format ( "011111%5b%5b0000011100110100", rs, ra )
+   action = {
+
+		//TMP_SHWORD = GPR [ rs ] < 0..15 >;
+		TMP_SHWORD = GPR [ rs ] < 15..0 >;
+		GPR [ ra ] = TMP_SHWORD; // sign extension
+	
+		}
+
+op extsh_cr_update ( rs : index, ra : index )
+   syntax = format ( "extsh. r%d,r%d", ra, rs )
+   image  = format ( "011111%5b%5b0000011100110101", rs,ra )
+   action = {
+
+		//TMP_SHWORD = GPR [ rs ] < 0..15 >;
+		TMP_SHWORD = GPR [ rs ] < 15..0 >;
+		GPR [ ra ] = TMP_SHWORD; // sign extension
+
+			CR[7]<LT..LT> = ((TMP_SHWORD)<0); 
+    CR[7]<GT..GT> = ((TMP_SHWORD)>0); 
+	CR[7]<EQ..EQ> = ((TMP_SHWORD)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}
+
+// Count Leading zeros Instruction
+
+op count_lead_zeros_instr =   cntlzw
+                            | cntlzw_cr_update
+
+op cntlzw ( rs : REG_IND, ra : index )
+   syntax = format ( "cntlzw r%d, %s", ra, rs.syntax )
+   image  = format ( "011111%s%5b0000000000110100", rs.image, ra )
+   action = {
+               TMP_SBYTE = 31;
+               loop;
+            }
+   loop   = {
+		if TMP_SBYTE >= 0 then
+			if rs <TMP_SBYTE..TMP_SBYTE> == 0 then
+				TMP_SBYTE = TMP_SBYTE - 1;
+				loop;
+			else
+				GPR [ ra ] = 31 - TMP_SBYTE;
+				TMP_SBYTE = -1;
+			endif;
+		else
+			GPR [ ra ] = 32;
+		endif;
+		}
+                
+op cntlzw_cr_update ( rs : REG_IND, ra : index )
+   syntax = format ( "cntlzw. r%d, %s", ra, rs.syntax )
+   image  = format ( "011111%s%5b0000000000110101", rs.image, ra )
+   action = {
+		TMP_SBYTE = 31;
+		loop;
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+; 
+		CR[7] <LT..LT> = 0;
+		}
+   loop   = {
+		if TMP_SBYTE >= 0 then
+			if rs <TMP_SBYTE..TMP_SBYTE> == 0 then
+				TMP_SBYTE = TMP_SBYTE - 1;
+				loop;
+			else
+				TMP_RES = 31 - TMP_SBYTE;
+				TMP_SBYTE = -1;
+			endif;
+		else
+			TMP_RES = 32;
+		endif;
+		}
+
+
+// Integer Rotate and shift Instructions
+op  int_rotate_shift ( x : int_rotate_shift_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = SHIFTROT
+
+op int_rotate_shift_action =   int_rotate
+                      | int_shift
+
+// Rotate Instructions
+
+
+op int_rotate =   rot_lw_imm_and_mask
+                | rot_lw_and_mask
+                | rot_lw_imm_mask_ins
+
+op rot_lw_imm_and_mask =   rlwinm
+                         | rlwinm_cr_update
+
+op rlwinm ( rs : REG_IND, ra : index, sh : index, mb : index, me : index )
+   syntax = format ( "rlwinm r%d,%s,%d,%d,%d", ra, rs.syntax, sh, mb, me )
+   image  = format ( "010101%s%5b%5b%5b%5b0", rs.image, ra, sh, mb, me )
+   action = {
+
+		if (mb<=me) then
+			TMP_WORD = 0;
+			TMP_WORD < (31-mb)..(31-me) > = ~TMP_WORD < (31-mb)..(31-me) >;
+        else
+			TMP_WORD = 0xffffffff;
+			TMP_WORD < (31-me)-1..(31-mb)+1> = ~TMP_WORD < (31-me)-1..(31-mb)+1 >;
+		endif;
+			
+		GPR [ ra ] = ( ( rs <<< sh ) & TMP_WORD );
+
+        }  
+
+op rlwinm_cr_update ( rs : REG_IND, ra : index, sh : index, mb : index, me : index )
+   syntax = format ( "rlwinm. r%d,%s,%d,%d,%d", ra, rs.syntax, sh, mb, me )
+   image  = format ( "010101%s%5b%5b%5b%5b1", rs.image, ra, sh, mb, me )
+   action = {
+
+		if (mb<=me) then
+			TMP_WORD = 0;
+			TMP_WORD < (31-mb)..(31-me) > = ~TMP_WORD < (31-mb)..(31-me) >;
+        else
+			TMP_WORD = 0xffffffff;
+			TMP_WORD < (31-me)-1..(31-mb)+1> = ~TMP_WORD < (31-me)-1..(31-mb)+1 >;
+		endif;
+			
+		TMP_RES = ( ( rs <<< sh ) & TMP_WORD );
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+        }  
+
+op rot_lw_and_mask =   rlwnm
+                     | rlwnm_cr_update
+
+op rlwnm ( rs : REG_IND, ra : index, rb : index, mb : index, me : index )
+   syntax = format ( "rlwnm r%d,%s,r%d,%d,%d", ra, rs.syntax, rb, mb, me )
+   image  = format ( "010111%s%5b%5b%5b%5b0", rs.image, ra, rb, mb, me )
+   action = {
+		
+		if (mb<=me) then
+			TMP_WORD = 0;
+			TMP_WORD < (31-mb)..(31-me) > = ~TMP_WORD < (31-mb)..(31-me) >;
+        else
+			TMP_WORD = -1;
+			TMP_WORD < (31-me)-1..(31-mb)+1> = ~TMP_WORD < (31-me)-1..(31-mb)+1 >;
+		endif;
+			
+		GPR [ ra ] = ( ( rs <<< coerce ( card ( 5 ), GPR [ rb ] < 4..0 > ) ) & TMP_WORD );
+
+		}  
+
+op rlwnm_cr_update ( rs : REG_IND, ra : index, rb : index, mb : index, me : index )
+   syntax = format ( "rlwnm. r%d,%s,r%d,%d,%d", ra, rs.syntax, rb, mb, me )
+   image  = format ( "010111%s%5b%5b%5b%5b1", rs.image, ra, rb, mb, me )
+   action = {
+
+		if (mb<=me) then
+			TMP_WORD = 0;
+			TMP_WORD < (31-mb)..(31-me) > = ~TMP_WORD < (31-mb)..(31-me) >;
+        else
+			TMP_WORD = -1;
+			TMP_WORD < (31-me)-1..(31-mb)+1> = ~TMP_WORD < (31-me)-1..(31-mb)+1 >;
+		endif;
+			
+		TMP_RES = ( ( rs <<< coerce ( card ( 5 ), GPR [ rb ] < 4..0 > ) ) & TMP_WORD );
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}  
+
+op rot_lw_imm_mask_ins =   rlwimi
+                         | rlwimi_cr_update
+
+op rlwimi ( rs : REG_IND, ra : index, sh : index, mb : index, me : index )
+   syntax = format ( "rlwimi r%d,%s,%d,%d,%d", ra, rs.syntax, sh, mb, me )
+   image  = format ( "010100%s%5b%5b%5b%5b0", rs.image, ra, sh, mb, me )
+   action = {
+
+		if (mb<=me) then
+			TMP_WORD = 0;
+			TMP_WORD < (31-mb)..(31-me) > = ~TMP_WORD < (31-mb)..(31-me) >;
+        else
+			TMP_WORD = -1;
+			TMP_WORD < (31-me)-1..(31-mb)+1> = ~TMP_WORD < (31-me)-1..(31-mb)+1 >;
+		endif;
+			
+		GPR [ ra ] = ( ( rs <<< sh ) & TMP_WORD ) | ( GPR [ ra ] & ~TMP_WORD );
+
+		}  
+
+op rlwimi_cr_update ( rs : REG_IND, ra : index, sh : index, mb : index, me : index )
+   syntax = format ( "rlwimi. r%d,%s,%d,%d,%d", ra, rs.syntax, sh, mb, me )
+   image  = format ( "010100%s%5b%5b%5b%5b1", rs.image, ra, sh, mb, me )
+   action = {
+
+		if (mb<=me) then
+			TMP_WORD = 0;
+			TMP_WORD < (31-mb)..(31-me) > = ~TMP_WORD < (31-mb)..(31-me) >;
+        else
+			TMP_WORD = -1;
+			TMP_WORD < (31-me)-1..(31-mb)+1> = ~TMP_WORD < (31-me)-1..(31-mb)+1 >;
+		endif;
+			
+		TMP_RES = ( ( rs <<< sh ) & TMP_WORD ) | ( GPR [ ra ] & ~TMP_WORD );
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}  
+
+// Shift Instructions
+
+op int_shift =   shift_left_word
+               | shift_right_word
+               | shift_right_alg_wimm
+               | shift_right_alg_w
+
+op shift_left_word =   slw
+                     | slw_cr_update
+
+op slw ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "slw r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s00000110000", rs.image, ra, rb.image )
+   action = {
+
+		if rb < 5..5 > == 0 then
+			GPR [ ra ] = ( rs << coerce ( card ( 5 ), rb < 4..0 > ) ); 
+		else
+			GPR [ ra ] = 0;
+		endif;
+
+		}
+
+op slw_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "slw. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s00000110001", rs.image, ra, rb.image )
+   action = {
+
+		if rb < 5..5 > == 0 then
+			TMP_RES = ( rs << coerce ( card ( 5 ), rb < 4..0 > ) ); 
+		else
+			TMP_RES = 0;
+		endif;
+
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}
+
+op shift_right_word =   srw
+                      | srw_cr_update
+
+op srw ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "srw r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s10000110000", rs.image, ra, rb.image )
+   action = {
+
+		TMP_WORD = 0;
+		TMP_WORD1 = 31 - rb <4..0>;
+		TMP_WORD < TMP_WORD1..0 > = ~TMP_WORD <TMP_WORD1..0>;
+ 		if rb < 5..5 > == 0 then
+			GPR [ ra ] = ( rs >> coerce ( card ( 5 ), rb < 4..0 > ) ) & TMP_WORD; 
+		else
+			GPR [ ra ] = 0;
+		endif;
+
+		}
+
+op srw_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "srw. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s10000110001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_WORD = 0;
+		TMP_WORD1 = 31 - rb <4..0>;
+		TMP_WORD<TMP_WORD1..0 > = ~TMP_WORD<TMP_WORD1..0>;
+		if rb < 5..5 > == 0 then
+			TMP_RES = ( rs >> coerce ( card ( 5 ), rb < 4..0 > ) ) & TMP_WORD; 
+		else
+			TMP_RES = 0;
+		endif;
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}
+
+op shift_right_alg_wimm =   srawi
+                          | srawi_cr_update
+
+op srawi ( rs : REG_IND, ra : index, sh : index )
+   syntax = format ( "srawi r%d,%s,%d", ra, rs.syntax, sh )
+   image  = format ( "011111%s%5b%5b11001110000", rs.image, ra, sh )
+   action = {
+		
+		if rs <31..31> == 0 then
+			TMP_WORD = 0;
+			TMP_WORD<31-sh..0> =~TMP_WORD<31-sh..0>;
+			GPR [ ra ] = ( rs >> sh ) & TMP_WORD;
+			XER<CA_XER..CA_XER> =0;
+		else
+			TMP_WORD = 0;
+			TMP_WORD<31..31-sh> =~TMP_WORD<31..31-sh>;
+			GPR [ ra ] = ( rs >> sh ) | TMP_WORD;
+			TMP_WORD = 0;
+			TMP_WORD<sh..0> =~TMP_WORD<sh..0>;
+			TMP_WORD = TMP_WORD & rs;
+			if TMP_WORD != 0 then
+				XER<CA_XER..CA_XER> =1;
+			else
+				XER<CA_XER..CA_XER>=0;
+			endif;
+		endif;	
+		
+		}
+               
+op srawi_cr_update ( rs : REG_IND, ra : index, sh : index )
+   syntax = format ( "srawi. r%d,%s,%d", ra, rs.syntax, sh )
+   image  = format ( "011111%s%5b%5b11001110001", rs.image, ra, sh )
+   action = {
+
+		if rs <31..31> == 0 then
+			TMP_WORD = 0;
+			TMP_WORD<31-sh..0>=~TMP_WORD<31-sh..0>;
+			TMP_RES = ( rs >> sh ) & TMP_WORD;
+			XER<CA_XER..CA_XER>=0;
+		else
+			TMP_WORD = 0;
+			TMP_WORD<31..32-sh>=~TMP_WORD<31..32-sh>;
+			TMP_RES = ( rs >> sh ) | TMP_WORD;
+			TMP_WORD = 0;
+			TMP_WORD<sh..0>=~TMP_WORD<sh..0>;
+			TMP_WORD = TMP_WORD & rs;
+			if TMP_WORD != 0 then
+				XER<CA_XER..CA_XER>=1;
+			else
+				XER<CA_XER..CA_XER>=0;
+			endif;
+		endif;	
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+
+		}
+
+op shift_right_alg_w =   sraw
+                       | sraw_cr_update
+
+op sraw ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "sraw r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s11000110000", rs.image, ra, rb.image )
+   action = {
+		
+		TMP_WORD = 0;
+		TMP_WORD1 = rb<4..0>;
+		if rb<5..5> == 0 then
+			TMP_WORD <31-TMP_WORD1..0>=~TMP_WORD<31-TMP_WORD1..0>;
+		endif;
+		TMP_WORD1 = 0;
+		if rs<31..31> == 1 then
+			TMP_WORD1 = ~TMP_WORD1;
+		endif;
+		GPR [ ra ] = ( ( rs >> rb <4..0>) & TMP_WORD ) | ( TMP_WORD1 & ~TMP_WORD );
+		if ( rs<31..31> == 1 & ( ( rs >> rb < 4..0 >) & ~ TMP_WORD ) != 0 ) then
+			XER < CA_XER..CA_XER > = 1;
+		else
+			XER < CA_XER..CA_XER > = 0;
+		endif; 
+
+		}
+               
+op sraw_cr_update ( rs : REG_IND, ra : index, rb : REG_IND )
+   syntax = format ( "sraw. r%d,%s,%s", ra, rs.syntax, rb.syntax )
+   image  = format ( "011111%s%5b%s11000110001", rs.image, ra, rb.image )
+   action = {
+
+		TMP_WORD = 0;
+		TMP_WORD1 = rb<4..0>;
+		if rb<5..5> == 0 then
+			TMP_WORD <31-TMP_WORD1..0>=~TMP_WORD<31-TMP_WORD1..0>;
+		endif;
+		TMP_WORD1 = 0;
+		if rs<31..31> == 1 then
+			TMP_WORD1 = ~TMP_WORD1;
+		endif;
+		TMP_RES = ( ( rs >> rb <4..0>) & TMP_WORD ) | ( TMP_WORD1 & ~TMP_WORD );
+		if ( rs<31..31> == 1 & ( ( rs >> rb < 4..0 >) & ~ TMP_WORD ) != 0 ) then
+			XER < CA_XER..CA_XER > = 1;
+		else
+			XER < CA_XER..CA_XER > = 0;
+		endif; 
+
+		GPR [ ra ] = TMP_RES;
+			CR[7]<LT..LT> = ((TMP_RES)<0); 
+    CR[7]<GT..GT> = ((TMP_RES)>0); 
+	CR[7]<EQ..EQ> = ((TMP_RES)==0); 
+	CR[7]<SO..SO> = XER <SO_XER..SO_XER>; 
+;
+
+		}
+
+
+// Flow control Instructions
+
+op flow_control_instr ( x : cond_reg_log )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = CRLI
+
+// Condition Register Logic Instructions
+
+op cond_reg_log =   cr_and
+                  | cr_or
+                  | cr_xor
+                  | cr_nand
+                  | cr_nor
+                  | cr_eqv
+                  | cr_and_comp
+                  | cr_or_comp
+                  | mov_cr_field
+                  | mov_to_cr_field
+                  | mov_to_cr_xer
+
+op cr_and ( crbd : index, crba : index, crbb : index)
+   syntax = format ( "crand crb%d,crb%d,crb%d", crbd, crba, crbb )
+   image  = format ( "010011%5b%5b%5b01000000010", crbd, crba, crbb )
+   action = {
+	
+			CR[(31-(crbd))/4]<((31-(crbd))-(((31-(crbd))/4)*4))..((31-(crbd))-(((31-(crbd))/4)*4))> 
+ = 	CR[(31-(crba))/4]<((31-(crba))-(((31-(crba))/4)*4))..((31-(crba))-(((31-(crba))/4)*4))> 
+ & 	CR[(31-(crbb))/4]<((31-(crbb))-(((31-(crbb))/4)*4))..((31-(crbb))-(((31-(crbb))/4)*4))> 
+;
+
+            }
+
+op cr_or ( crbd : index, crba : index, crbb : index)
+   syntax = format ( "cror crb%d,crb%d,crb%d", crbd, crba, crbb )
+   image  = format ( "010011%5b%5b%5b01110000010", crbd, crba, crbb )
+   action = {
+
+			CR[(31-(crbd))/4]<((31-(crbd))-(((31-(crbd))/4)*4))..((31-(crbd))-(((31-(crbd))/4)*4))> 
+ = 	CR[(31-(crba))/4]<((31-(crba))-(((31-(crba))/4)*4))..((31-(crba))-(((31-(crba))/4)*4))> 
+ | 	CR[(31-(crbb))/4]<((31-(crbb))-(((31-(crbb))/4)*4))..((31-(crbb))-(((31-(crbb))/4)*4))> 
+;
+
+            }
+
+op cr_xor ( crbd : index, crba : index, crbb : index)
+   syntax = format ( "crxor crb%d,crb%d,crb%d", crbd, crba, crbb )
+   image  = format ( "010011%5b%5b%5b00110000010", crbd, crba, crbb )
+   action = {
+			CR[(31-(crbd))/4]<((31-(crbd))-(((31-(crbd))/4)*4))..((31-(crbd))-(((31-(crbd))/4)*4))> 
+ = 	CR[(31-(crba))/4]<((31-(crba))-(((31-(crba))/4)*4))..((31-(crba))-(((31-(crba))/4)*4))> 
+ ^ 	CR[(31-(crbb))/4]<((31-(crbb))-(((31-(crbb))/4)*4))..((31-(crbb))-(((31-(crbb))/4)*4))> 
+;
+
+            }
+
+op cr_nand ( crbd : index, crba : index, crbb : index)
+   syntax = format ( "crnand crb%d,crb%d,crb%d", crbd, crba, crbb )
+   image  = format ( "010011%5b%5b%5b00111000010", crbd, crba, crbb )
+   action = {
+			CR[(31-(crbd))/4]<((31-(crbd))-(((31-(crbd))/4)*4))..((31-(crbd))-(((31-(crbd))/4)*4))> 
+ = ~(	CR[(31-(crba))/4]<((31-(crba))-(((31-(crba))/4)*4))..((31-(crba))-(((31-(crba))/4)*4))> 
+ & 	CR[(31-(crbb))/4]<((31-(crbb))-(((31-(crbb))/4)*4))..((31-(crbb))-(((31-(crbb))/4)*4))> 
+);
+            }
+
+op cr_nor ( crbd : index, crba : index, crbb : index)
+   syntax = format ( "crnor crb%d,crb%d,crb%d", crbd, crba, crbb )
+   image  = format ( "010011%5b%5b%5b00001000010", crbd, crba, crbb )
+   action = {
+			CR[(31-(crbd))/4]<((31-(crbd))-(((31-(crbd))/4)*4))..((31-(crbd))-(((31-(crbd))/4)*4))> 
+ = ~(	CR[(31-(crba))/4]<((31-(crba))-(((31-(crba))/4)*4))..((31-(crba))-(((31-(crba))/4)*4))> 
+ | 	CR[(31-(crbb))/4]<((31-(crbb))-(((31-(crbb))/4)*4))..((31-(crbb))-(((31-(crbb))/4)*4))> 
+);
+             }
+
+op cr_eqv ( crbd : index, crba : index, crbb : index)
+   syntax = format ( "creqv crb%d,crb%d,crb%d", crbd, crba, crbb )
+   image  = format ( "010011%5b%5b%5b01001000010", crbd, crba, crbb )
+   action = {
+			CR[(31-(crbd))/4]<((31-(crbd))-(((31-(crbd))/4)*4))..((31-(crbd))-(((31-(crbd))/4)*4))> 
+ = 	CR[(31-(crba))/4]<((31-(crba))-(((31-(crba))/4)*4))..((31-(crba))-(((31-(crba))/4)*4))> 
+ ^ ~	CR[(31-(crbb))/4]<((31-(crbb))-(((31-(crbb))/4)*4))..((31-(crbb))-(((31-(crbb))/4)*4))> 
+;
+            }
+
+op cr_and_comp ( crbd : index, crba : index, crbb : index)
+   syntax = format ( "crandc crb%d,crb%d,crb%d", crbd, crba, crbb )
+   image  = format ( "010011%5b%5b%5b00100000010", crbd, crba, crbb )
+   action = {
+			CR[(31-(crbd))/4]<((31-(crbd))-(((31-(crbd))/4)*4))..((31-(crbd))-(((31-(crbd))/4)*4))> 
+ = 	CR[(31-(crba))/4]<((31-(crba))-(((31-(crba))/4)*4))..((31-(crba))-(((31-(crba))/4)*4))> 
+ & ~	CR[(31-(crbb))/4]<((31-(crbb))-(((31-(crbb))/4)*4))..((31-(crbb))-(((31-(crbb))/4)*4))> 
+;
+            }
+
+op cr_or_comp ( crbd : index, crba : index, crbb : index)
+   syntax = format ( "crorc crb%d,crb%d,crb%d", crbd, crba, crbb )
+   image  = format ( "010011%5b%5b%5b01101000010", crbd, crba, crbb )
+   action = {
+			CR[(31-(crbd))/4]<((31-(crbd))-(((31-(crbd))/4)*4))..((31-(crbd))-(((31-(crbd))/4)*4))> 
+ = 	CR[(31-(crba))/4]<((31-(crba))-(((31-(crba))/4)*4))..((31-(crba))-(((31-(crba))/4)*4))> 
+ | ~	CR[(31-(crbb))/4]<((31-(crbb))-(((31-(crbb))/4)*4))..((31-(crbb))-(((31-(crbb))/4)*4))> 
+;
+            }
+
+op mov_cr_field ( crfd : card ( 3 ), crfs : card ( 3 ) )
+   syntax = format ( "mcrf crf%d,crf%d", crfd, crfs )
+   image  = format ( "010011%3b00%3b000000000000000000", crfd, crfs )
+   action = {
+
+               //CR < (31-(4*crfd)-3)..(31-(4*crfd)) > =  
+               //          CR < (31-(4*crfs)-3)..(31-(4*crfs)) >; 
+               CR[7-crfd]=CR[7-crfs];
+            }
+
+op mov_to_cr_field ( rs : REG_IND, crm : card ( 8 ) )
+   syntax = format ( "mtcrf %d,%s", crm, rs.syntax )
+   image  = format ( "011111%s0%8b000100100000", rs.image, crm )
+   action = {
+               TMP_WORD = 0;
+               TMP_BYTE = 0x00ff;
+
+               if crm <7..7> then
+                  //TMP_WORD = TMP_WORD | TMP_BYTE;
+                  //TMP_WORD = TMP_WORD << 4;
+                  CR[7]=rs<4*7+3..4*7>;
+               endif;
+               if crm <6..6> then
+                  //TMP_WORD = TMP_WORD | TMP_BYTE;
+                  //TMP_WORD = TMP_WORD << 4;
+                  CR[6]=rs<4*6+3..4*6>;
+               endif;
+               if crm <5..5> then
+                  //TMP_WORD = TMP_WORD | TMP_BYTE;
+                  //TMP_WORD = TMP_WORD << 4;
+                  CR[5]=rs<4*5+3..4*5>;
+               endif;
+               if crm <4..4> then
+                  //TMP_WORD = TMP_WORD | TMP_BYTE;
+                  //TMP_WORD = TMP_WORD << 4;
+                  CR[4]=rs<4*4+3..4*4>;
+               endif;
+               if crm <3..3> then
+                  //TMP_WORD = TMP_WORD | TMP_BYTE;
+                  //TMP_WORD = TMP_WORD << 4;
+                  CR[3]=rs<4*3+3..4*3>;
+               endif;
+               if crm <2..2> then
+                  //TMP_WORD = TMP_WORD | TMP_BYTE;
+                  //TMP_WORD = TMP_WORD << 4;
+                  CR[2]=rs<4*2+3..4*2>;
+               endif;
+               if crm <1..1> then
+                  //TMP_WORD = TMP_WORD | TMP_BYTE;
+                  //TMP_WORD = TMP_WORD << 4;
+                  CR[1]=rs<4*1+3..4*1>;
+               endif;
+               if crm <0..0> then
+                  //TMP_WORD = TMP_WORD | TMP_BYTE;
+                  CR[0]=rs<3..0>;
+               endif;
+               
+               //CR = rs & TMP_WORD;
+
+             }
+
+op mov_to_cr_xer ( crfd : card ( 3 ) )
+   syntax = format ( "mcrxr crf%d", crfd )
+   image  = format ( "011111%3b00000000000010000000000", crfd )
+   action = {
+               //CR <(31-(4*crfd+3))..(31-(4*crfd))> = XER <28..31>;
+               CR[7-crfd]=XER <31..28>;
+               XER <31..28> = 0;
+            }
+
+// 2.2.4 Processor Control Instructions
+
+op proce_control_instr ( x : proce_con_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = CONTROL
+
+op proce_con_instr_action =   mov_from_cr
+                            | mov_to_spr
+                            | mov_from_spr
+
+op mov_from_cr ( rd : index )
+   syntax = format ( "mfcr r%d", rd )
+   image  = format ( "011111%5b000000000000000100110", rd )
+   action = {
+              //GPR [ rd ] = CR;  
+              GPR[rd]<4*0+3..4*0>=CR[0];
+              GPR[rd]<4*1+3..4*1>=CR[1];
+              GPR[rd]<4*2+3..4*2>=CR[2];
+              GPR[rd]<4*3+3..4*3>=CR[3];
+              GPR[rd]<4*4+3..4*4>=CR[4];
+              GPR[rd]<4*5+3..4*5>=CR[5];
+              GPR[rd]<4*6+3..4*6>=CR[6];
+              GPR[rd]<4*7+3..4*7>=CR[7];
+            }
+
+op mov_to_spr ( rs : index, spr : card ( 9 ) )
+   syntax = format ( "mtspr %d,r%d", spr, rs )
+   image  = format ( "011111%5b0%9b01110100110", rs, spr )
+   action = {
+
+              	TMP_HWORD = spr;
+	      	TMP_WORD = 0; 
+              	TMP_WORD = TMP_HWORD < 4..0 >;
+              	TMP_WORD = TMP_WORD << 5;
+	      	TMP_WORD1 = 0; 
+	      	TMP_WORD1 = TMP_HWORD<8..5>;
+              	TMP_WORD = TMP_WORD | ( TMP_WORD1 & 0x0000000f);
+
+              	if TMP_WORD > 9 then
+                	"print" ( "mtspr is only user level instruction set implementation." );
+		endif;
+            	switch ( TMP_WORD ) {
+  			case 1 : XER = GPR [ rs ];
+			case 8 : LR = GPR [ rs ];
+			case 9 : CTR = GPR [ rs ];
+			default : "print" ( "mtspr: rs error." );
+		};
+             }
+
+op mov_from_spr ( rd : index, spr : card ( 9 ) )
+   syntax = format ( "mfspr r%d,%d", rd, spr )
+   image  = format ( "011111%5b0%9b01010100110", rd, spr )
+   action = {
+
+              	TMP_HWORD = spr;
+		TMP_WORD = 0; 
+              	TMP_WORD = TMP_HWORD < 4..0 >;
+              	TMP_WORD = TMP_WORD << 5;
+              	TMP_WORD = TMP_WORD | ( TMP_HWORD < 8..5 > & 0x0000000f);
+
+              	if TMP_WORD > 9 then
+                   "print" ( "mfspr is only user level instruction set implementation." );
+		endif;
+		switch ( TMP_WORD ) {
+			case 1 : GPR[rd]=XER;
+			case 8 : GPR[rd]=LR; 
+			case 9 : GPR[rd]=CTR;
+			default : "print" ( "mfspr: rd error." );
+		};
+	}
+
+
+
+// 2.2.5 Memory Synchronization Instructions
+// LWARX, STWCX., SYNC
+
+op mem_sync_instr ( x : mem_sync_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = MEMSYNC
+
+op mem_sync_instr_action =  lwarx | stwcx | sync
+
+op lwarx ( rd: index, ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "lwarx r%d,%s,%s", rd, ra.syntax, rb.syntax)
+	image  = format ( "011111%5b%s%s00000101000", rd, ra.image, rb.image )
+	action = {
+	
+		TMP_EA = ra + rb;
+		TMP_RESERVE = 1;
+		TMP_RESERVE_ADDR = TMP_EA;
+// ToDo: TMP_EA must be a multiple of four. Otherwise aljgnment exception or results boundedly undefined			
+		TMP_SWORD_A3 = M [ TMP_EA ];
+		TMP_SWORD_A2 = M [ TMP_EA + 1 ];
+		TMP_SWORD_A1 = M [ TMP_EA + 2 ];
+		TMP_SWORD_A0 = M [ TMP_EA + 3 ];
+
+		GPR [ rd ] = TMP_SWORD;
+		
+		}
+	user0 = "2"
+
+op stwcx ( rs: REG_IND, ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "stwcx. %s,%s,%s", rs.syntax, ra.syntax, rb.syntax )
+	image  = format ( "011111%s%s%s00100101101", rs.image, ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		if TMP_RESERVE == 1 then
+			TMP_SWORD = rs;
+			M [ TMP_EA ] = TMP_SWORD_A3;
+			M [ TMP_EA + 1 ] = TMP_SWORD_A2;
+			M [ TMP_EA + 2 ] = TMP_SWORD_A1;
+			M [ TMP_EA + 3 ] = TMP_SWORD_A0;
+			CR[7] = 2;
+			CR[7]<SO..SO> = XER<SO_XER..SO_XER>;
+			TMP_RESERVE = 0;
+		else
+			CR[7] = 0;
+			CR[7]<SO..SO> = XER<SO_XER..SO_XER>;
+		endif;
+		}
+ 	user0 = "3"
+
+op sync ( )
+	syntax = "sync"
+	image  = "01111100000000000000010010101100"
+	action = {
+		}
+
+// 2.2.6 Trap Instructions
+// TW, TWI
+
+op trap_instr ( x : trap_instr_action )
+	syntax = x.syntax
+	image = x.image
+	action = { x.action; }
+        category = TRAP
+
+op trap_instr_action = tw | twi
+
+op tw ( to: card(5), ra: REG_IND, rb: REG_IND )
+	syntax = format ( "tw %d,%s,%s", to, ra.syntax, rb.syntax )
+	image  = format ( "011111%5b%s%s00000001000", to, ra.image, rb.image )
+	action = {
+		if ( to == 1 & ra < rb ) then
+			// TRAP how do we make a trap???
+		endif;
+		if ( to == 2 & ra > rb ) then
+			// TRAP how do we make a trap???
+		endif;
+		if ( to == 4 & ra == rb ) then
+			// TRAP how do we make a trap???
+		endif;
+		if ( to == 8 & ( ( ra > 0 & rb < 0 ) |
+						 ( ra > 0 & rb > 0 & ra < rb ) |
+						 ( ra < 0 & rb < 0 & ra > rb ) ) ) then
+			// TRAP how do we make a trap???
+		endif;
+		if ( to == 16 & ( ( ra < 0 & rb > 0 ) |
+						  ( ra > 0 & rb > 0 & ra > rb ) |
+						  ( ra < 0 & rb < 0 & ra < rb ) ) ) then
+			// TRAP how do we make a trap???
+		endif;
+		}
+
+op twi ( to: card(5), ra: REG_IND, b: SIMM16 )
+	syntax = format ( "twi %d,%s,%s", to, ra.syntax, b.syntax )
+	image  = format ( "000011%5b%s%s", to, ra.image, b.image )
+	action = {
+		TMP_WORD = b;
+		if ( to == 1 & ra < TMP_WORD ) then
+			// TRAP how do we make a trap???
+		endif;
+		if ( to == 2 & ra > TMP_WORD ) then
+			// TRAP how do we make a trap???
+		endif;
+		if ( to == 4 & ra == TMP_WORD ) then
+			// TRAP how do we make a trap???
+		endif;
+		if ( to == 8 & ( ( ra > 0 & TMP_WORD < 0 ) |
+						 ( ra > 0 & TMP_WORD > 0 & ra < TMP_WORD ) |
+						 ( ra < 0 & TMP_WORD < 0 & ra > TMP_WORD ) ) ) then
+			// TRAP how do we make a trap???
+		endif;
+		if ( to == 16 & ( ( ra < 0 & TMP_WORD > 0 ) |
+						  ( ra > 0 & TMP_WORD > 0 & ra > TMP_WORD ) |
+						  ( ra < 0 & TMP_WORD < 0 & ra < TMP_WORD ) ) ) then
+			// TRAP how do we make a trap???
+		endif;
+		}
+
+// End PowerPc755 Description

@@ -1,0 +1,588 @@
+@use dokuwiki
+@TITLE=NMP Manual for GLISS V2
+@AUTHORS=H. Cassé <hugues.casse@laposte.net>, J. Barre <barre@irit.fr>
+@VERSION=0.1
+@LANG=en_EN
+@ENCODING=UTF-8
+@HTML_STYLES=gliss.css
+
+This document describes the NMP language used in the GLISS tool.
+This language is freely derivated from the Sim-NML language and extended
+with useful features.
+
+
+====== NMP Syntax ======
+
+This sections described the lexical conventions used as a base of the syntactic
+representation of the NMP language.
+
+===== Notation =====
+
+All along this document, the NMP syntax is described using EBNF (Extended Backus-Naur Form):
+
+<code>
+Item ::= Form1 | Form2 | ...
+</code>
+
+The expression above describes the syntactic ''Item'' as having several alternative forms
+''Form1'', ''Form2'', etc. Each form is a sequence of symbols
+that may be constant string between quotes or other syntactic items.
+
+The sequence supports also grouping between parenthesis. Symbols or group of symbols may be suffixed by ''*'' (repetition 0 of more times), ''+'' (repetition once or more time) and ''?'' (optional item). The group may also encode alternatives by separating them with pipes ''|''.
+
+To represent lexical items, we also use some regular expression syntax:
+  * ''[abc]'', brackets represents a set of possible character whose equivalent EBNF is ''"a' | "b" | "c"'',
+  * ''[a-z]'', range represents all character between ''a'' and ''z'' (in EBNF, "a" | "b" | ... | "z"),
+  * ''[^abc]'', circumflex accent represents a set complement, that is, all characters exception ''a'', ''b'' and ''c''.
+
+
+===== Basic Lexical Items =====
+
+An NMP code is composed of ASCII characters (no support is provided
+or other text encoding for now). Blanks are usually ignored except in strings
+and new line character is not meaningful except in comments:
+
+<code>
+blanks ::= " " | "\t" | "\n"
+</code>
+
+So are the comments that starts with double ''/'' and end at the end of the current line:
+
+<code>
+comment ::= "/" "/" [^\n]* "\n"
+</code>
+
+===== Identifiers and Keywords =====
+
+NMP uses the same identifier form as C. The identifiers are used to name
+most of all elements of NMP: constants, types, memories, operations,
+modes and attributes.
+
+<code>
+Identifier ::= [a-zA-Z_] [a-zA-Z_0-9]*
+</code>
+
+Some identifier are reserved and known as keywords. They must **not*
+be used to name NMP elements. The list is given below in the array below:
+
+| _attr | action | alias | bool |
+| card | case | coerce | default |
+| else | endif | enum | error |
+| exception | false | fix | float |
+| format | if | image | initial |
+| int | let | macro | mode |
+| not | op | ports | reg |
+| resource | switch | syntax | then |
+| true | type | uses | var |
+| volatile |  |  |  |
+
+
+===== Litteral Values =====
+
+The litterals values represents constants used in the specification of NMP elements
+and in computation expressions. There are basically 4 kind of litteral values:
+boolean, integer, float and string.
+<code>
+Litteral ::= Boolean | Integer | Real | String
+</code>
+
+A boolean is simply the value ''true'' or ''false''.
+<code>
+Boolean ::= "true" | "false"
+</code>
+
+An integer litteral accepts several forms according the encoding base.
+Without prefix, decimal base is used. ''0x'' prefix is used for prefixing
+hexadecimal integer and ''0b'' for binary integer.
+<code>
+Integer ::= [1-9] [0-9]+
+          | "0" ("x" | "X") [0-9a-fA-F]+
+          | "0" ("b" | "B") [01]+
+</code>
+
+A real number is composed by an integer part followed, possibly followed
+by a fractional part and an exponent part.
+<code>
+Real ::= [0-9]+ "." [0-9]+
+        | [0-9]+ ("e" | "E") ("+" | "-")? [0-9]+
+        | [0-9]+ "." [0-9]+ ("e" | "E") ("+" | "-")? [0-9]+
+</code>
+
+Finally, a string starts with a quote, contains a sequence of character
+and ends with a quote. Special character or embedding of a quote is performed
+by prefixing them with anti-slash ''\''.
+<code>
+String ::= "\"" ([^\] | "\" [^])* "\""
+</code>
+
+===== Preprocessing =====
+
+Before parsing of the NMP code, a phase of preprocessing is performed.
+This preprocessing may be used to include external file in the main one
+or to reduce typing effort using macro expressions.
+
+The macro command has the following syntax:
+<code>
+Macro ::= "macro" "(" (Identifier ("," Identifier)*)? ")" ([^\n] | "\\" "\n") "\n"
+</code>
+
+The macro is remplaced through the code by the body text following
+its parameters. This text ends at the first encountered new line but may
+span over several line if newline are prefixed with ''\''. The macro accepts
+several parameters separated by commas. When the macro is invoked,
+one argument must be given for each parameter that will be replaced
+by the actual value in the body.
+
+There are two forms of inclusion. The first one replaces the include command
+by the file given in the string:
+<code>
+Include ::= "include" String
+</code>
+
+The second one delays the inclusion to the end of the current file.
+<code>
+DelayedInclude ::= "include" ("-" | "_")? "op" String
+</code>
+
+FIXME what's about "-" or "_" ?
+
+The given path given in the inclusion command may be absolute or relative
+to the current directory.
+
+
+====== Types ======
+
+Types are used to describe the nature of different data used in the ISA,
+that is, the state items (registers, memories) and the temporaries and
+parameters.
+
+Types are described by so-called type-expression and commonly used
+types may be named for a fast usage.
+
+===== Type Expressions =====
+
+<code>
+TypeExpression ::=
+	  BoolType
+	| IntType
+	| CardType
+	| FixType
+	| FloatType
+	| RangeType
+	| EnumType
+	| NamedType
+</code>
+
+In the following syntax definitions, ''IntegerExpression'' represents
+any SimNML expression statically evaluated to an integer value,
+supporting only constants identifiers.
+
+
+<code>
+BoolType ::= 'bool'
+</code>
+''BoolType'' is a simple boolean value with a bit value, 0 or 1.
+
+The ''IntType'' represents a signed integer on N bits, represent in
+2's complement, ranging from -2<sup>N - 1</sup> to 2<sup>N - 1</sup> - 1.
+<code>
+IntType ::= 'int' '(' N: IntegerExpression ')'
+</code>
+
+The ''CardType'' represents an unsigned integer on N bits, ranging
+from 0 to 2<sup>N</sup> - 1.
+<code>
+CardType ::= 'card' '(' N: IntegerExpression ')'
+</code>
+
+The ''FixType'' represents real values with fixed point, composed
+of an integer part of I bits and a fractional part of F bits.
+<code>
+FixType ::= 'fix' '(' I: IntegerExpression ',' F: IntegerExpression ')'
+</code>
+
+''FloatType'' allows to represents real value code with floating points.
+The mantissa expends on M bits and the exponent on E bits (2's complement
+representation).
+<code>
+FloatType ::= 'float' '(' M: IntegerExpression ',' E: IntegerExpression ')'
+</code>
+
+IEEE-754 float and double types are represented, respectively, by
+''float(23, 9)'' and ''float(52, 12)''.
+
+''RangeType'' allows to define an integer value ranging from a lower
+bound L to an upper bound U (bounds included in the range).
+<code>
+RangeType ::= '[' L: IntegerExpression '..' U: IntegerExpression ']'
+</code>
+
+''EnumType'' is a type composed of a set of identifiers. First receives
+code 0 and each following identifiers receive following codes incremented
+by one.
+<code>
+EnumType ::= 'enum' '(' Identifier (',' Identifier)* ')'
+</code>
+
+A ''NamedType'' refers to a previous definition of a type. The type
+expression passed inthe type definition is substituted to the identifier.
+<code>
+NamedType ::= Identifier
+</code>
+
+
+===== Type specification =====
+
+<code>
+TypeSpecification ::= 'type' Identifier '=' TypeExpression
+</code>
+
+A type specification provides an alias for a type expression.
+The type name must be unique and its usage in sunsequent type expressions
+is replaced  by the given type expression.
+
+
+
+
+====== Constants ======
+
+''LetSpecification'' allows to defined constants re-usable throughout
+type, operation and mode definitions. The identifier must be unique
+in the SimNML file.
+
+<code>
+LetSpecification ::= 'let Identifier '=' ConstantExpression
+</code>
+
+The ''ConstantExpression'' is an expression where only references
+to other constants are accepted.
+
+
+
+
+====== Registers and Memories ======
+
+NMP provides different ways to represent the state of processor:
+memories, registers and variables.
+
+
+===== Register =====
+
+An NMP register matches the concept of lonely register or register
+bank in a processor. A register represents a small memory that may
+be read or written by the processor. It is part of the processor state.
+
+
+==== Declaration ====
+
+The syntax to declare a register is given below:
+<code>
+RegisterSpecification ::= 'reg' id: Identifier '[' size: Expr ',' type: TypeExpr ' ]' Attributes
+</code>
+
+
+A register is accessed throughout the statement and expression thanks
+to its identifier ''id'' that must be unique throughout the NMP
+description. Its ''size'' may any expression evaluated to a constant.
+It may be 1 for a lonely register or greater for a bank of register.
+Registers of a bank are number from to 0 to the register ''size''.
+The ''type'' argument gives the type of each register item.
+
+
+In the example below, we have a lonely status register called ''SR''
+and a register bank named ''R'':
+<code>
+let R_SIZE = 16
+reg SR[1, card(32)]
+reg R[R_SIZE, card(32)]
+</code>
+
+
+==== Attributes ====
+
+The attributes allows to tune the behaviour of a register. They are
+composed as a sequence of attributes:
+<code>
+Attributes ::= Attribute*
+Attribute ::=
+  'alias' AliasLocation
+| 'initial' '=' Expr
+| 'volatile' '=' Expr
+| CustomAttribute
+</code>
+
+The ''initial'' attributes allows to define the value of the register
+at the start of execution (the expression must evaluates to a constant).
+The ''volatile'' attribute says that the value of the register may
+change randomly any time: it may used to represent input
+registers. The following argument, that must evaluates to a string,
+represents the underlaying hardware driving the register.
+
+
+The ''alias'' keyword is used not to define an actual register but
+an anlias on another register. The location follows the same rules as
+the set statement and gives a different view of the target register.
+The location must follows the rules below:
+<code>
+AliasLocation ::=
+  id: Identifier
+| id: Identifier '[' index: Expr ']'
+| id: Identifier '<' up: Expr '..' low: Expr '>'
+</code>
+
+The alias may be a simple identifier of another register: it works like
+a renaming of the existing register or a type conversion if both
+registers have not the same type. In the example below, ''FLT'' allows
+to have a float view of the integer ''INT''.
+<code>
+reg INT[1, card(32)]
+reg FLT[1, float(24, 8)] alias INT
+</code>
+
+
+With an index, it allows to access to a subpart of an existing register
+bank, possibly mapping bigger or smaller registers to the target
+registers. In the example below, a register bank may be viewed
+as a collection of 16 words with ''RL'' or as a collection of 32 half-words
+with ''rh''.
+bank
+<code>
+reg RL[16, card(32)]
+reg RH[32, card(16)] alias RH[0]
+</code>
+
+
+Finally, the last notation allows to access part of another register
+using the usual bit field notation (both upper and lower bit expression
+must evaluates to constants). A part of the x86 family register is given
+in the example below:
+<code>
+reg AX[1, card(16)]
+reg AL[1, card(8)] alias AX<7..0>
+reg AH[1, card(8)] alias AX<15..8>
+</code>
+
+
+The CustomAttribute are defined below:
+	* ''pc = 1'' -- design this register as the program counter (mandatory in the instruction set description),
+	* ''ppc = 1'' -- design this register as the previous value of PC,
+	* ''npc = 1'' -- design this regis as the new value of PC,
+	* ''sp = 1'' -- design this register as the stack pointer,
+	* ''lr = 1'' -- design this register as the link register (for subprogram call).
+
+
+===== Memories =====
+
+A memory represents the different storages of data found usually out
+of the microprocessor die. A memory is usually defined as an array of
+byte but may also be accessed with different word sizes.
+
+==== Specification ====
+
+A memory is declared as below:
+<code>
+MemorySpecification ::= 'mem' id: Identifier '[' ns: IntegerExpression (',' t: TypeExpression)? ']' MemAttribute*
+</code>
+
+A memory specified as above has for name //id//, that must be unique
+throughout the NMP file, and contains elements of type //t//. If //t//
+is omitted, the byte type, ''int(8)'', is taken as a default.
+Unlike to the register specification, the //ns// integer expression
+(expression supporting only constant referenecs) does not determine
+the number of memory elements but the number of bytes required to
+address the memory namepsace. In fact, the number of elements is
+2<sup>//ns//</sup>.
+
+An ISA description may supports several memory definitions (without
+taking into the aliases) but the program code must be contained
+in only one (and exactly one). As a default, the first declared memory
+is considered as the one containing the program.
+
+@@ but this default
+@@behaviour may be changed by marking the concerned memory with
+@@the attribute .
+
+
+==== Attributes ====
+
+The supported attributes are given below:
+<code>
+MemAttribute ::=
+	| VolatileAttribute
+	| AliasAttribute
+	| InitialAttrbute
+</code>
+
+
+The volatile attribute allows to
+<code>
+VOLATILE EQ LetExpr
+		{ Irg.VOLATILE (Sem.to_int (Sem.eval_const $3)) }
+|	ALIAS EQ MemLocation
+		{ Irg.ALIAS $3 }
+|	INITIALA EQ LetExpr
+		{ Irg.INIT (Sem.eval_const $3) }
+</code>
+
+@@ |	PORTS EQ CARD_CONST COMMA CARD_CONST
+@@		{ Irg.PORTS (Int32.to_int $3, Int32.to_int $3) }
+@@|	USES EQ UsesDef
+@@		{ Irg.USES }
+@@|	ATTR LPAREN ID OptionalAttrArgs RPAREN
+@@		{ Irg.NMP_ATTR ($3, List.rev $4) }
+
+
+====== Operation, Modes and Attributes ======
+
+===== Operation and Modes =====
+
+The basic element to describe an instruction is an operation. The operations
+are of two type: AND or OR. An OR operation provides an alternative to
+describe a family of instruction (for exammple, ALU instructions or
+memory instruction) while an AND operation describe an actual instruction.
+
+The operations follows the synax below:
+<code>
+OperationSpec ::= OR-OperationSpec | AND-OperationSpec
+
+OR-OperationSpec ::= 'op' id: Identifier '=' IdentifierList
+IdentifierList ::= Identifier | IdentifierList ',' Identifier
+
+AND-OperationSpec ::= 'op' id: Identifier '(' Parameters? ')' Attributes
+Parameters ::= Parameter | Parameters ',' Parameter
+Parameter ::= Identifier ':' (TypeExpression | Identifier)
+</code>
+
+The OR-Operation is named and made of a list of identifier, the indetifier
+of AND- or OR-operations contained in this family.
+
+In the opposite, the AND-operation defines an instruction as list of
+parameters used by the instruction and list of attributes defining
+the different aspects of an instruction.
+
+The type expressions used for parameter may design usual types or named
+type of NMP or either operations, or modes. Classicly, the use of mode
+allows to mimics the argument modes found in processor: for example,
+addressing mode.
+
+A mode looks like an operation, it exists Or- and AND-modes, but is used
+to represented mode of parameter of an instruction. The main difference
+is that a mode is associated with an expression that is evaluated when
+the parameter, whose type is the current mode, is used in an expression.
+
+The syntax of modes follows:
+<code>
+ModeSpec ::= OR-Mode | AND-Mode
+
+OR-ModeSpec ::= 'op' id: Identifier '=' IdentifierList
+IdentifierList ::= Identifier | IdentifierList ',' Identifier
+
+AND-ModeSpec ::= 'op' id: Identifier '(' Parameters? ')' '=' Expression Attributes
+Parameters ::= Parameter | Parameters ',' Parameter
+Parameter ::= Identifier ':' (TypeExpression | Identifier)
+</code>
+
+The example below show the use of a mode to wire automatically register ''r0''
+to 0 (typically used for PowerPC processor):
+<code>
+reg GPR[32, int(32)]
+var TMP[1, int(32)]
+
+mode Rwired0(num: card(5)) = if num == 0 then 0 else GPR[num]
+	set = { if num != 0 then GPR[num] = TMP; endif; }
+	...
+	
+mode R(num: card(5)) = GPR[num]
+	set = { GPR[num] = TMP; }
+	...
+
+op add(rd: Rwired0, ra: Rwired0, b: R)
+	...
+	action = {
+		TMP = ra + rb;
+		rd.set;
+	}
+</code>
+
+The example show the use of modes to represent addressing in ARM-like instruction set:
+<code>
+reg R[16, int(32)]
+mem M[32, card(8)]
+
+mode OffsetAddressMode(r: card(4), offset: int(12)) = M[R[r] + offset]
+	...
+
+mode IndexedAddressMode(r: card(4), i: card(5)) = M[R[r] + R[i]]
+	...
+
+mode AddressMode = OffsetAddressMode | IndexedAddressMode | ...
+
+op LDR(r: card(4), addr: AddressMode)
+	...
+	action = { R[r] = addr; }
+
+op STR(r: card(4), addr: AddressMode)
+	...
+	action = { addr = R[r]; }
+</code>
+
+Usually, the description of modes and operations requires at least three attributes:
+  * ''action'' -- constrains NMP statements between braces and represent the behaviour of the instruction or of the mode
+(it used to generate the simulator);
+  * ''image'' -- describes the binary image of an instruction (or of a part of an instruction word for modes) (it used
+ to decode instructions from the binary program);
+  * ''syntax'' -- describe the assembly form of an instruction (used by the disassembler).
+
+===== Image attribute =====
+
+The image attribute allows to describe the binary code of an instruction. The code is represented by a string containing basically "0" and "1" matching the actual bits of the instruction code. To make it easier to read and write, GLISS V2 extends this encoding with spaces or tabulations, to make pack of bits and with "X", to represent a bit whose value is ignored to encode the instruction.
+
+From a syntactic point of view, this attribute is represented either by a simple string or using the ''format'' special function as in the example below:
+
+EXAMPLE: format usage
+<code>
+op AddImm(ra: card(4), rb: ZeroReg, imm: int(16))
+	image = format("1111 XX00 %4b %s %16b", ra, rb, imm)
+</code>
+
+This example shows also the use of percent "%" expressions working like the ''printf'' C function. Currently, there are only two forms:
+  * ''%nb'' represents //n// bits whose value is taken from the matching argument in the ''format'' argument list,
+  * ''%s'' is used to insert the image provided by an argument of type **mode**: the actual number of bits depends on the argument mode.
+
+
+The example above creates the following code:
+^ bits ^description ^
+| 31-28 |four bits at ''1111'' |
+| 27-26 |two ignored bits |
+| 25-24 |two bits at ''00'' |
+| 23-20 |four bits replaced by value of ''ra'' parameter |
+| 19-16 |bits replaced by the image provided by ''rb'' |
+| 15-0 |16 bits provided by the ''imm'' parameter |
+
+====== Branch attribute ====== 
+
+The branch attribute is not mandatory but will allow GEP to optimize generated code.
+When adding to an instruction statement :
+<code>
+set_attr_branch = 1 
+</code>
+You told GEP that the instruction statement describded a branch instruction (wether it is a conditionnal jump or not).
+Be carreful to not forget a branch instruction because GEP won't be able to see it.
+However, as long as you are not using GEP option '-gen-with-trace' such error will have no effect.
+To learn more about optimizing output code and the option '-gen-with-trace', see section optimisation.
+
+
+
+
+
+
+
+ 
+
+
+====== Expressions ======
+
+====== Statements ======
+
+
+

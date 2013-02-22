@@ -1,0 +1,27 @@
+op sysinst16 = debug16 | nop_16
+
+
+op debug16 (foo:card(4))
+  syntax = "debug"
+  image = format("1010%4b00000000",foo)
+  action = 	{
+		if (DE)
+		then
+			switch(EVTA) {
+				case (0b000) : //none
+				case (0b001) : //pulse BRKOUT signal
+				case (0b010) : //halt and pulse BRKOUT signal
+				case (0b011) : //breakpoint trap and pulse BRKOUT signal
+				case (0b100) : //breakpoint interrupt 0 and pulse BRKOUT signal
+				case (0b101) : // ?1 and pulse BRKOUT signal
+				case (0b110) : // ?2 and pulse BRKOUT signal
+				case (0b111) : // ?3 and pulse BRKOUT signal
+			};
+		endif;
+		}
+
+op nop_16 (foo:card(4))
+   syntax = "nop"
+   image = format("0000%4b00000000",foo)
+   action = 	{
+		}

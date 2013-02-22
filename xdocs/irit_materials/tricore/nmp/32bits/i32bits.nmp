@@ -1,0 +1,6 @@
+include "32bits/aluinst.nmp"
+include "32bits/controlinst.nmp"
+include "32bits/sysinst.nmp"
+include "32bits/meminst.nmp"
+
+op i32bits = aluinst|controlinst|sysinst|meminst

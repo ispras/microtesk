@@ -1,0 +1,36 @@
+/*
+ * Copyright (c) 2012 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * Model.stg, Dec 5, 2012 4:11:52 PM Andrei Tatarnikov
+ */
+
+group Model;
+ 
+model(file, pack, imps, simps, base, members) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<if(simps)><static_imports(simps)><endif>
+<class(["public", "final"], 
+       "Model",
+       base,
+       false,
+       members)> 
+>>
+
+constructor(isaclass, reg, mem) ::= <<
+public Model()
+{
+    super(
+        new <isaclass>(),
+        <reg>,
+        <mem>
+    );
+}
+>>

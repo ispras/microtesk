@@ -1,0 +1,39 @@
+
+let proc="mine"
+let gliss_isize = "32"
+
+reg pc[1, card(32)] __attr(pc)
+
+
+reg A[16, card(32)]
+reg B[1, card(32)]
+
+
+op init()
+	action = { }
+
+
+mode reg_a (r : card(4)) = A[r]
+     syntax = format("a%d",r)
+     image = format("%4b",r)
+
+     
+op instruction(xx : reg_a)
+	image = format("00000000 00000000 00000000 0000 %s", xx.image)
+	syntax = "bof"
+	action = {
+
+		// WRONG TYPE for A[]<>, !!!card(32)!!!
+		A[0] = A[5]<31..5>::0b1;
+		A[3] = A[5]<31..5>;
+		
+		"f"(A[5]<31..5>);
+
+		// CORRECT TYPE for A[]<a..b>, card(b-a+1)
+		//A[2] = xx<31..5>::0b1;
+		//A[4] = xx<31..5>;
+		//B = xx<31..5>;
+		//B = B<31..5>;
+		//"f"(B<31..5>);
+	}
+

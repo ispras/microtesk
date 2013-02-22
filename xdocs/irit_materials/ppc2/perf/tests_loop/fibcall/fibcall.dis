@@ -1,0 +1,303 @@
+
+/home/vaillant/ppc2/perf/malardalen/ppc-eabi/gcc-4.4.2/fibcall/fibcall.elf:     file format elf32-powerpc
+
+
+Disassembly of section .init:
+
+01800094 <__init>:
+ 1800094:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1800098:	7c 08 02 a6 	mflr    r0
+ 180009c:	90 01 00 14 	stw     r0,20(r1)
+ 18000a0:	48 00 00 f9 	bl      1800198 <frame_dummy>
+ 18000a4:	48 00 03 85 	bl      1800428 <__do_global_ctors_aux>
+ 18000a8:	80 01 00 14 	lwz     r0,20(r1)
+ 18000ac:	7c 08 03 a6 	mtlr    r0
+ 18000b0:	38 21 00 10 	addi    r1,r1,16
+ 18000b4:	4e 80 00 20 	blr
+
+Disassembly of section .text:
+
+018000b8 <__do_global_dtors_aux>:
+ 18000b8:	94 21 ff e8 	stwu    r1,-24(r1)
+ 18000bc:	7c 08 02 a6 	mflr    r0
+ 18000c0:	93 e1 00 14 	stw     r31,20(r1)
+ 18000c4:	3f e0 01 81 	lis     r31,385
+ 18000c8:	90 01 00 1c 	stw     r0,28(r1)
+ 18000cc:	88 1f 05 a4 	lbz     r0,1444(r31)
+ 18000d0:	93 81 00 08 	stw     r28,8(r1)
+ 18000d4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18000d8:	93 a1 00 0c 	stw     r29,12(r1)
+ 18000dc:	93 c1 00 10 	stw     r30,16(r1)
+ 18000e0:	40 9e 00 7c 	bne-    cr7,180015c <__do_global_dtors_aux+0xa4>
+ 18000e4:	3f 80 01 81 	lis     r28,385
+ 18000e8:	3f a0 01 81 	lis     r29,385
+ 18000ec:	3b 9c 05 74 	addi    r28,r28,1396
+ 18000f0:	3b bd 05 78 	addi    r29,r29,1400
+ 18000f4:	7f bc e8 50 	subf    r29,r28,r29
+ 18000f8:	3f c0 01 81 	lis     r30,385
+ 18000fc:	7f bd 16 70 	srawi   r29,r29,2
+ 1800100:	81 3e 05 a8 	lwz     r9,1448(r30)
+ 1800104:	3b bd ff ff 	addi    r29,r29,-1
+ 1800108:	7f 89 e8 40 	cmplw   cr7,r9,r29
+ 180010c:	40 9c 00 2c 	bge-    cr7,1800138 <__do_global_dtors_aux+0x80>
+ 1800110:	3b de 05 a8 	addi    r30,r30,1448
+ 1800114:	39 29 00 01 	addi    r9,r9,1
+ 1800118:	55 20 10 3a 	rlwinm  r0,r9,2,0,29
+ 180011c:	91 3e 00 00 	stw     r9,0(r30)
+ 1800120:	7c 1c 00 2e 	lwzx    r0,r28,r0
+ 1800124:	7c 09 03 a6 	mtctr   r0
+ 1800128:	4e 80 04 21 	bctrl
+ 180012c:	81 3e 00 00 	lwz     r9,0(r30)
+ 1800130:	7f 89 e8 40 	cmplw   cr7,r9,r29
+ 1800134:	41 9c ff e0 	blt+    cr7,1800114 <__do_global_dtors_aux+0x5c>
+ 1800138:	3d 20 00 00 	lis     r9,0
+ 180013c:	38 09 00 00 	addi    r0,r9,0
+ 1800140:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800144:	41 9e 00 10 	beq-    cr7,1800154 <__do_global_dtors_aux+0x9c>
+ 1800148:	3c 60 01 81 	lis     r3,385
+ 180014c:	38 63 04 e0 	addi    r3,r3,1248
+ 1800150:	4a 7f fe b1 	bl      0 <__init-0x1800094>
+ 1800154:	38 00 00 01 	li      r0,1
+ 1800158:	98 1f 05 a4 	stb     r0,1444(r31)
+ 180015c:	80 01 00 1c 	lwz     r0,28(r1)
+ 1800160:	83 81 00 08 	lwz     r28,8(r1)
+ 1800164:	7c 08 03 a6 	mtlr    r0
+ 1800168:	83 a1 00 0c 	lwz     r29,12(r1)
+ 180016c:	83 c1 00 10 	lwz     r30,16(r1)
+ 1800170:	83 e1 00 14 	lwz     r31,20(r1)
+ 1800174:	38 21 00 18 	addi    r1,r1,24
+ 1800178:	4e 80 00 20 	blr
+
+0180017c <call___do_global_dtors_aux>:
+ 180017c:	7c 08 02 a6 	mflr    r0
+ 1800180:	94 21 ff f8 	stwu    r1,-8(r1)
+ 1800184:	90 01 00 0c 	stw     r0,12(r1)
+ 1800188:	80 01 00 0c 	lwz     r0,12(r1)
+ 180018c:	38 21 00 08 	addi    r1,r1,8
+ 1800190:	7c 08 03 a6 	mtlr    r0
+ 1800194:	4e 80 00 20 	blr
+
+01800198 <frame_dummy>:
+ 1800198:	7c 08 02 a6 	mflr    r0
+ 180019c:	94 21 ff f8 	stwu    r1,-8(r1)
+ 18001a0:	3d 20 00 00 	lis     r9,0
+ 18001a4:	90 01 00 0c 	stw     r0,12(r1)
+ 18001a8:	38 09 00 00 	addi    r0,r9,0
+ 18001ac:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18001b0:	41 9e 00 18 	beq-    cr7,18001c8 <frame_dummy+0x30>
+ 18001b4:	3c 60 01 81 	lis     r3,385
+ 18001b8:	3c 80 01 81 	lis     r4,385
+ 18001bc:	38 63 04 e0 	addi    r3,r3,1248
+ 18001c0:	38 84 05 ac 	addi    r4,r4,1452
+ 18001c4:	4a 7f fe 3d 	bl      0 <__init-0x1800094>
+ 18001c8:	3c 60 01 81 	lis     r3,385
+ 18001cc:	80 03 05 7c 	lwz     r0,1404(r3)
+ 18001d0:	38 63 05 7c 	addi    r3,r3,1404
+ 18001d4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18001d8:	41 9e 00 1c 	beq-    cr7,18001f4 <frame_dummy+0x5c>
+ 18001dc:	3d 20 00 00 	lis     r9,0
+ 18001e0:	38 09 00 00 	addi    r0,r9,0
+ 18001e4:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 18001e8:	41 9e 00 0c 	beq-    cr7,18001f4 <frame_dummy+0x5c>
+ 18001ec:	7c 09 03 a6 	mtctr   r0
+ 18001f0:	4e 80 04 21 	bctrl
+ 18001f4:	80 01 00 0c 	lwz     r0,12(r1)
+ 18001f8:	38 21 00 08 	addi    r1,r1,8
+ 18001fc:	7c 08 03 a6 	mtlr    r0
+ 1800200:	4e 80 00 20 	blr
+
+01800204 <call_frame_dummy>:
+ 1800204:	7c 08 02 a6 	mflr    r0
+ 1800208:	94 21 ff f8 	stwu    r1,-8(r1)
+ 180020c:	90 01 00 0c 	stw     r0,12(r1)
+ 1800210:	80 01 00 0c 	lwz     r0,12(r1)
+ 1800214:	38 21 00 08 	addi    r1,r1,8
+ 1800218:	7c 08 03 a6 	mtlr    r0
+ 180021c:	4e 80 00 20 	blr
+
+01800220 <fib>:
+ 1800220:	94 21 ff c8 	stwu    r1,-56(r1)
+ 1800224:	93 e1 00 34 	stw     r31,52(r1)
+ 1800228:	7c 3f 0b 78 	mr      r31,r1
+ 180022c:	90 7f 00 28 	stw     r3,40(r31)
+ 1800230:	38 00 00 01 	li      r0,1
+ 1800234:	90 1f 00 14 	stw     r0,20(r31)
+ 1800238:	38 00 00 00 	li      r0,0
+ 180023c:	90 1f 00 10 	stw     r0,16(r31)
+ 1800240:	38 00 00 02 	li      r0,2
+ 1800244:	90 1f 00 18 	stw     r0,24(r31)
+ 1800248:	48 00 00 30 	b       1800278 <fib+0x58>
+ 180024c:	80 1f 00 14 	lwz     r0,20(r31)
+ 1800250:	90 1f 00 0c 	stw     r0,12(r31)
+ 1800254:	81 3f 00 14 	lwz     r9,20(r31)
+ 1800258:	80 1f 00 10 	lwz     r0,16(r31)
+ 180025c:	7c 09 02 14 	add     r0,r9,r0
+ 1800260:	90 1f 00 14 	stw     r0,20(r31)
+ 1800264:	80 1f 00 0c 	lwz     r0,12(r31)
+ 1800268:	90 1f 00 10 	stw     r0,16(r31)
+ 180026c:	80 1f 00 18 	lwz     r0,24(r31)
+ 1800270:	30 00 00 01 	addic   r0,r0,1
+ 1800274:	90 1f 00 18 	stw     r0,24(r31)
+ 1800278:	80 1f 00 18 	lwz     r0,24(r31)
+ 180027c:	2f 80 00 1e 	cmpwi   cr7,r0,30
+ 1800280:	41 9d 00 14 	bgt-    cr7,1800294 <fib+0x74>
+ 1800284:	81 3f 00 18 	lwz     r9,24(r31)
+ 1800288:	80 1f 00 28 	lwz     r0,40(r31)
+ 180028c:	7f 89 00 00 	cmpw    cr7,r9,r0
+ 1800290:	40 9d ff bc 	ble+    cr7,180024c <fib+0x2c>
+ 1800294:	80 1f 00 14 	lwz     r0,20(r31)
+ 1800298:	90 1f 00 08 	stw     r0,8(r31)
+ 180029c:	80 1f 00 08 	lwz     r0,8(r31)
+ 18002a0:	7c 03 03 78 	mr      r3,r0
+ 18002a4:	39 7f 00 38 	addi    r11,r31,56
+ 18002a8:	83 eb ff fc 	lwz     r31,-4(r11)
+ 18002ac:	7d 61 5b 78 	mr      r1,r11
+ 18002b0:	4e 80 00 20 	blr
+
+018002b4 <main>:
+ 18002b4:	94 21 ff e0 	stwu    r1,-32(r1)
+ 18002b8:	7c 08 02 a6 	mflr    r0
+ 18002bc:	90 01 00 24 	stw     r0,36(r1)
+ 18002c0:	93 e1 00 1c 	stw     r31,28(r1)
+ 18002c4:	7c 3f 0b 78 	mr      r31,r1
+ 18002c8:	48 00 00 ad 	bl      1800374 <__eabi>
+ 18002cc:	38 00 13 88 	li      r0,5000
+ 18002d0:	90 1f 00 08 	stw     r0,8(r31)
+ 18002d4:	48 00 00 38 	b       180030c <main+0x58>
+ 18002d8:	38 00 00 32 	li      r0,50
+ 18002dc:	90 1f 00 0c 	stw     r0,12(r31)
+ 18002e0:	80 7f 00 0c 	lwz     r3,12(r31)
+ 18002e4:	4b ff ff 3d 	bl      1800220 <fib>
+ 18002e8:	80 7f 00 0c 	lwz     r3,12(r31)
+ 18002ec:	4b ff ff 35 	bl      1800220 <fib>
+ 18002f0:	80 7f 00 0c 	lwz     r3,12(r31)
+ 18002f4:	4b ff ff 2d 	bl      1800220 <fib>
+ 18002f8:	80 7f 00 0c 	lwz     r3,12(r31)
+ 18002fc:	4b ff ff 25 	bl      1800220 <fib>
+ 1800300:	80 1f 00 08 	lwz     r0,8(r31)
+ 1800304:	30 00 ff ff 	addic   r0,r0,-1
+ 1800308:	90 1f 00 08 	stw     r0,8(r31)
+ 180030c:	80 1f 00 08 	lwz     r0,8(r31)
+ 1800310:	2f 80 00 00 	cmpwi   cr7,r0,0
+ 1800314:	40 9e ff c4 	bne+    cr7,18002d8 <main+0x24>
+ 1800318:	80 1f 00 0c 	lwz     r0,12(r31)
+ 180031c:	7c 03 03 78 	mr      r3,r0
+ 1800320:	39 7f 00 20 	addi    r11,r31,32
+ 1800324:	80 0b 00 04 	lwz     r0,4(r11)
+ 1800328:	7c 08 03 a6 	mtlr    r0
+ 180032c:	83 eb ff fc 	lwz     r31,-4(r11)
+ 1800330:	7d 61 5b 78 	mr      r1,r11
+ 1800334:	4e 80 00 20 	blr
+
+01800338 <_exit>:
+ 1800338:	94 21 ff e8 	stwu    r1,-24(r1)
+ 180033c:	93 e1 00 14 	stw     r31,20(r1)
+ 1800340:	7c 3f 0b 78 	mr      r31,r1
+ 1800344:	90 7f 00 08 	stw     r3,8(r31)
+ 1800348:	48 00 00 00 	b       1800348 <_exit+0x10>
+
+0180034c <_start>:
+ 180034c:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1800350:	7c 08 02 a6 	mflr    r0
+ 1800354:	90 01 00 14 	stw     r0,20(r1)
+ 1800358:	93 e1 00 0c 	stw     r31,12(r1)
+ 180035c:	7c 3f 0b 78 	mr      r31,r1
+ 1800360:	38 60 00 00 	li      r3,0
+ 1800364:	38 80 00 00 	li      r4,0
+ 1800368:	4b ff ff 4d 	bl      18002b4 <main>
+ 180036c:	38 60 00 00 	li      r3,0
+ 1800370:	4b ff ff c9 	bl      1800338 <_exit>
+
+01800374 <__eabi>:
+ 1800374:	3d 40 01 81 	lis     r10,385
+ 1800378:	3d 60 01 81 	lis     r11,385
+ 180037c:	81 2a 05 a0 	lwz     r9,1440(r10)
+ 1800380:	39 6b 05 80 	addi    r11,r11,1408
+ 1800384:	29 09 00 00 	cmplwi  cr2,r9,0
+ 1800388:	4c 8a 00 20 	bnelr   cr2
+ 180038c:	90 2a 05 a0 	stw     r1,1440(r10)
+ 1800390:	80 6b 00 08 	lwz     r3,8(r11)
+ 1800394:	80 8b 00 0c 	lwz     r4,12(r11)
+ 1800398:	7c 83 20 00 	cmpw    cr1,r3,r4
+ 180039c:	41 86 00 08 	beq-    cr1,18003a4 <__eabi+0x30>
+ 18003a0:	81 ab 00 04 	lwz     r13,4(r11)
+ 18003a4:	80 6b 00 14 	lwz     r3,20(r11)
+ 18003a8:	80 8b 00 18 	lwz     r4,24(r11)
+ 18003ac:	7c 83 20 00 	cmpw    cr1,r3,r4
+ 18003b0:	41 a6 00 08 	beq+    cr1,18003b8 <__eabi+0x44>
+ 18003b4:	80 4b 00 10 	lwz     r2,16(r11)
+ 18003b8:	4b ff fc dc 	b       1800094 <__init>
+
+018003bc <__eabi_convert>:
+ 18003bc:	7c 83 20 40 	cmplw   cr1,r3,r4
+ 18003c0:	7c a3 20 50 	subf    r5,r3,r4
+ 18003c4:	4c 84 00 20 	bgelr   cr1
+ 18003c8:	7c a5 16 70 	srawi   r5,r5,2
+ 18003cc:	38 63 ff fc 	addi    r3,r3,-4
+ 18003d0:	7c a9 03 a6 	mtctr   r5
+ 18003d4:	84 c3 00 04 	lwzu    r6,4(r3)
+ 18003d8:	2c 06 00 00 	cmpwi   r6,0
+ 18003dc:	41 82 00 0c 	beq-    18003e8 <__eabi_convert+0x2c>
+ 18003e0:	7c c6 62 14 	add     r6,r6,r12
+ 18003e4:	90 c3 00 00 	stw     r6,0(r3)
+ 18003e8:	42 00 ff ec 	bdnz+   18003d4 <__eabi_convert+0x18>
+ 18003ec:	4e 80 00 20 	blr
+
+018003f0 <__eabi_uconvert>:
+ 18003f0:	7c 83 20 40 	cmplw   cr1,r3,r4
+ 18003f4:	7c a3 20 50 	subf    r5,r3,r4
+ 18003f8:	4c 84 00 20 	bgelr   cr1
+ 18003fc:	7c a5 16 70 	srawi   r5,r5,2
+ 1800400:	38 63 ff fc 	addi    r3,r3,-4
+ 1800404:	7c a9 03 a6 	mtctr   r5
+ 1800408:	84 c3 00 04 	lwzu    r6,4(r3)
+ 180040c:	7c c6 62 14 	add     r6,r6,r12
+ 1800410:	80 e6 00 00 	lwz     r7,0(r6)
+ 1800414:	90 c3 00 00 	stw     r6,0(r3)
+ 1800418:	7c e7 62 14 	add     r7,r7,r12
+ 180041c:	90 e6 00 00 	stw     r7,0(r6)
+ 1800420:	42 00 ff e8 	bdnz+   1800408 <__eabi_uconvert+0x18>
+ 1800424:	4e 80 00 20 	blr
+
+01800428 <__do_global_ctors_aux>:
+ 1800428:	7c 08 02 a6 	mflr    r0
+ 180042c:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1800430:	93 e1 00 0c 	stw     r31,12(r1)
+ 1800434:	3f e0 01 81 	lis     r31,385
+ 1800438:	90 01 00 14 	stw     r0,20(r1)
+ 180043c:	3b ff 05 70 	addi    r31,r31,1392
+ 1800440:	80 1f ff fc 	lwz     r0,-4(r31)
+ 1800444:	2f 80 ff ff 	cmpwi   cr7,r0,-1
+ 1800448:	41 9e 00 1c 	beq-    cr7,1800464 <__do_global_ctors_aux+0x3c>
+ 180044c:	3b ff ff fc 	addi    r31,r31,-4
+ 1800450:	7c 09 03 a6 	mtctr   r0
+ 1800454:	4e 80 04 21 	bctrl
+ 1800458:	84 1f ff fc 	lwzu    r0,-4(r31)
+ 180045c:	2f 80 ff ff 	cmpwi   cr7,r0,-1
+ 1800460:	40 9e ff f0 	bne+    cr7,1800450 <__do_global_ctors_aux+0x28>
+ 1800464:	80 01 00 14 	lwz     r0,20(r1)
+ 1800468:	83 e1 00 0c 	lwz     r31,12(r1)
+ 180046c:	38 21 00 10 	addi    r1,r1,16
+ 1800470:	7c 08 03 a6 	mtlr    r0
+ 1800474:	4e 80 00 20 	blr
+
+01800478 <call___do_global_ctors_aux>:
+ 1800478:	7c 08 02 a6 	mflr    r0
+ 180047c:	94 21 ff f8 	stwu    r1,-8(r1)
+ 1800480:	90 01 00 0c 	stw     r0,12(r1)
+ 1800484:	80 01 00 0c 	lwz     r0,12(r1)
+ 1800488:	38 21 00 08 	addi    r1,r1,8
+ 180048c:	7c 08 03 a6 	mtlr    r0
+ 1800490:	4e 80 00 20 	blr
+
+Disassembly of section .fini:
+
+01800494 <__fini>:
+ 1800494:	94 21 ff f0 	stwu    r1,-16(r1)
+ 1800498:	7c 08 02 a6 	mflr    r0
+ 180049c:	90 01 00 14 	stw     r0,20(r1)
+ 18004a0:	4b ff fc 19 	bl      18000b8 <__do_global_dtors_aux>
+ 18004a4:	80 01 00 14 	lwz     r0,20(r1)
+ 18004a8:	7c 08 03 a6 	mtlr    r0
+ 18004ac:	38 21 00 10 	addi    r1,r1,16
+ 18004b0:	4e 80 00 20 	blr

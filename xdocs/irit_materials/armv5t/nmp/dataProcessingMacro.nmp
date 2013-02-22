@@ -1,0 +1,436 @@
+
+
+//macro Get_ARM_GPR(r) = \
+//	if (r) <= 7 then \
+//		GPR[r] \
+//	else if (r) <= 12 then \
+//		if MBITS == mode_FIQ then \
+//			GPR[(r) + 8] \
+//		else \
+//			GPR[r] \
+//		endif \
+//	else if (r) <= 14 then \
+//		switch (MBITS) { \
+//			case mode_supervisor: GPR[(r) + 10] \
+//			case mode_abort:      GPR[(r) + 12] \
+//			case mode_FIQ:        GPR[(r) + 8] \
+//			case mode_IRQ:        GPR[(r) + 16] \
+//			case mode_undefined:  GPR[(r) + 14] \
+//			default:              GPR[r] \
+//		} \
+//	else \
+//		(__IADDR + 8) \
+//	endif endif endif
+
+
+///////////////////////////////////////////
+// Macro to set a value to the right requested 
+// depending on the mode (fiq,irq...)
+///////////////////////////////////////////
+
+/////////////////////////////////////////////////
+//Set a value (val2) in the selected register (r)
+/////////////////////////////////////////////////
+//macro Set_ARM_GPR(r, val2) = \
+//	if (r) <= 7 then \
+//		GPR[r] = val2; \
+//	else if (r) <= 12 then \
+//		if MBITS == mode_FIQ then \
+//			GPR[(r) + 8] = val2; \
+//		else \
+//			GPR[r] = val2; \
+//		endif; \
+//	else if (r) <= 14 then \
+//		switch (MBITS) { \
+//			case mode_supervisor: GPR[(r) + 10] = val2; \
+//			case mode_abort:      GPR[(r) + 12] = val2; \
+//			case mode_FIQ:        GPR[(r) + 8] = val2; \
+//			case mode_IRQ:        GPR[(r) + 16] = val2; \
+//			case mode_undefined:  GPR[(r) + 14] = val2; \
+//			default:              GPR[r] = val2; \
+//		}; \
+//	else \
+//		NIA = val2; \
+//	endif; endif; endif;
+
+
+
+
+/////////////////////////////////////////////////
+//Return the correct spsr (depending on the mode)
+/////////////////////////////////////////////////
+
+macro GetDis(r) = \
+	if (r) <= 7 then \
+		0 \
+	else if (r) <= 12 then \
+		if MBITS == mode_FIQ then \
+			8 \
+		else \
+			0 \
+		endif \
+	else if (r) <= 14 then \
+		switch (MBITS) { \
+			case mode_supervisor: 10 \
+			case mode_abort:      12 \
+			case mode_FIQ:        8 \
+			case mode_IRQ:        16 \
+			case mode_undefined:  14 \
+			default:              0 \
+		} \
+	else \
+		0 \
+	endif endif endif
+
+
+///////////////////////////////////////////
+//Retrieve a value from a user register (r)
+///////////////////////////////////////////
+
+macro GetGPRIndex(r) = (r) + GetDis(r) \
+
+
+
+	
+///////////////////////////////////////////
+// Usefull macro for instructions using carry
+///////////////////////////////////////////
+macro CarryFromAdd(op1,op2,res) = \
+      if (op1<31..31> == 1) && (op2<31..31> ==  1) then \
+	 1 \
+      else \
+	 if (op2<31..31> == 1) && (res<31..31> ==  0) then \
+	    1 \
+	 else \
+	    if (res<31..31> ==  0) && (op1<31..31> == 1) then \
+	        1 \
+	    else \
+		0 \
+	    endif \
+	 endif \
+      endif;
+
+macro OverflowFromAdd(op1,op2,res) = \
+      if (op1<31..31> == 1) && (op2<31..31> == 1) && (res<31..31> ==  0) then \
+	   1 \
+      else \
+	   if (op1<31..31> == 0) && (op2<31..31> == 0) && (res<31..31> == 1) then \
+	      1	 \
+	   else \
+	      0 \
+	   endif \
+      endif; 
+
+macro CarryFromSub(op1,op2,res) = \
+      	if (op1<31..31> ==  0) && (op2<31..31> == 1) then \
+	   1 \
+	else \
+	   if (op2<31..31> == 1 ) && (res<31..31> == 1) then \
+	      1 \
+	   else \
+	      if (res<31..31> == 1) && (op1<31..31> == 0 ) then \
+	          1 \
+	      else \
+		  0 \
+	      endif \
+        endif \
+      endif;
+
+macro OverflowFromSub(op1,op2,res) = \
+      if (op1<31..31> == 1) && (op2<31..31> ==  0) && (res<31..31> == 0) then \
+	   1 \
+      else \
+	   if (op1<31..31> == 0) && (op2<31..31> == 1) && (res<31..31>  == 1) then \
+	      1	 \
+	   else \
+	      0 \
+	   endif \
+      endif; 
+
+
+
+macro ADD(dest,op1,op2) = \
+		 TMP_REG1 = Get_ARM_GPR(dest);\
+		 TMP_REG2 = Get_ARM_GPR(op1);\
+		 TMP_SWORD = TMP_REG2 + op2; \
+		 Set_ARM_GPR(dest,TMP_SWORD);\
+		 TMP_REG1 = TMP_SWORD;\
+		 if (SBIT == 1) && (dest == 15) then \
+	  Ucpsr = GetSPSR(); \
+		 else \
+		if SBIT == 1 then \
+			NFLAG = TMP_REG1<31..31>; \
+			if TMP_REG1 == 0 then \
+		 ZFLAG = 1; \
+			else \
+		 ZFLAG = 0; \
+			endif; \
+			CFLAG = CarryFromAdd(TMP_REG2,op2,TMP_REG1);\
+			VFLAG = OverflowFromAdd(TMP_REG2,op2,TMP_REG1); \
+	  endif; \
+		 endif;
+
+macro ADC(dest,op1,op2) = \
+       TMP_REG1 = Get_ARM_GPR(dest);\
+       TMP_REG2 = Get_ARM_GPR(op1);\
+       TMP_SWORD = TMP_REG2 + op2 + CFLAG; \
+       Set_ARM_GPR(dest,TMP_SWORD);\
+       TMP_REG1 = TMP_SWORD;\
+       if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+       else \
+			if SBIT == 1 then \
+			  NFLAG = TMP_REG1<31..31>; \
+			  if TMP_REG1 == 0 then \
+			 	ZFLAG = 1; \
+			  else \
+			 	ZFLAG = 0; \
+			  endif; \
+			  CFLAG =  CarryFromAdd(TMP_REG2,op2,TMP_REG1);\
+			  VFLAG = OverflowFromAdd(TMP_REG2,op2,TMP_REG1); \
+			endif; \
+       endif;
+
+macro AND(dest,op1,op2) = \
+       TMP_REG1 = Get_ARM_GPR(dest);\
+       TMP_REG2 = Get_ARM_GPR(op1);\
+       TMP_SWORD = TMP_REG2 & op2; \
+       Set_ARM_GPR(dest,TMP_SWORD);\
+       TMP_REG1 = TMP_SWORD;\
+       if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+       else \
+		   if SBIT == 1 then \
+			  NFLAG = TMP_REG1<31..31>; \
+			  if TMP_REG1 == 0 then \
+			 	ZFLAG = 1; \
+			  else \
+			 	ZFLAG = 0; \
+			  endif; \
+		  endif; \
+       endif;
+
+macro  BIC(dest,op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(dest);\
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		TMP_SWORD = TMP_REG2 & ~op2; \
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if (SBIT == 1) && (dest == 15) then \
+		Ucpsr = GetSPSR(); \
+		else \
+		if SBIT == 1 then \
+		  NFLAG = TMP_REG1<31..31>; \
+		  if TMP_REG1 == 0 then \
+		 ZFLAG = 1; \
+		  else \
+		 ZFLAG = 0; \
+		  endif; \
+		endif; \
+		endif;
+
+macro CMN(op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(op1);\
+		Temp = TMP_REG1 + op2; \
+		NFLAG = Temp<31..31>; \
+		if Temp == 0 then \
+			ZFLAG = 1; \
+		else \
+			ZFLAG = 0; \
+		endif; \
+		CFLAG =  CarryFromAdd(TMP_REG1,op2,Temp); \
+		VFLAG =  OverflowFromAdd(TMP_REG1,op2,Temp);
+
+macro CMP(op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(op1);\
+		Temp = TMP_REG1 - op2; \
+		NFLAG = Temp<31..31>; \
+		if Temp == 0 then \
+			ZFLAG = 1; \
+		else \
+			ZFLAG = 0; \
+		endif; \
+		CFLAG = ! CarryFromSub(TMP_REG1,op2,Temp); \
+		VFLAG =  OverflowFromSub(TMP_REG1,op2,Temp);
+
+macro EOR(dest,op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(dest);\
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		TMP_SWORD = TMP_REG2 ^ op2; \
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+		else \
+			if SBIT == 1 then \
+				NFLAG = TMP_REG1<31..31>; \
+				if TMP_REG1 == 0 then \
+					ZFLAG = 1; \
+				else \
+					ZFLAG = 0; \
+				endif; \
+			endif; \
+		endif;
+
+macro  MOV(dest,op1) = \
+		TMP_SWORD = op1;\
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if ((TMP_SWORD == 0) && (dest == 15)) then\
+			GPR[0] = (2 << 16) + 38;\
+		endif;\
+		if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+		else \
+			if SBIT == 1 then \
+				NFLAG = TMP_REG1<31..31>; \
+				if TMP_REG1 == 0 then \
+					ZFLAG = 1; \
+				else \
+					ZFLAG = 0; \
+				endif; \
+			endif; \
+		endif;
+
+macro MVN(dest,op1) = \
+		TMP_SWORD = ~op1;\
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+		else \
+			if SBIT == 1 then \
+				NFLAG = TMP_REG1<31..31>; \
+				if TMP_REG1 == 0 then \
+					ZFLAG = 1; \
+				else \
+					ZFLAG = 0; \
+				endif; \
+			endif; \
+		endif;
+
+macro ORR(dest,op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(dest);\
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		TMP_SWORD = TMP_REG2 | op2; \
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+		else \
+			if SBIT == 1 then \
+				NFLAG = TMP_REG1<31..31>; \
+				if TMP_REG1 == 0 then \
+					ZFLAG = 1; \
+				else \
+					ZFLAG = 0; \
+				endif; \
+			endif; \
+		endif;
+
+macro RSB(dest,op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(dest);\
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		TMP_SWORD = op2 - TMP_REG2;\
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+		else \
+			if SBIT == 1 then \
+				NFLAG = TMP_REG1<31..31>; \
+				if TMP_REG1 == 0 then \
+					ZFLAG = 1; \
+				else \
+					ZFLAG = 0; \
+				endif; \
+				CFLAG =  ! CarryFromSub(op2,TMP_REG2,TMP_REG1);\
+				VFLAG = OverflowFromSub(op2,TMP_REG2,TMP_REG1); \
+			endif; \
+		endif;
+
+macro RSC(dest,op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(dest);\
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		TMP_REG2 = TMP_REG2 + !CFLAG; \
+		TMP_SWORD = op2 - TMP_REG2; \
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+		else \
+			if SBIT == 1 then \
+				NFLAG = TMP_REG1<31..31>; \
+				if TMP_REG1 == 0 then \
+					ZFLAG = 1; \
+				else \
+					ZFLAG = 0; \
+				endif; \
+				CFLAG =  ! CarryFromSub(op2,TMP_REG2,TMP_REG1);\
+				VFLAG = OverflowFromSub(op2,TMP_REG2,TMP_REG1); \
+			endif; \
+		endif;
+
+macro SBC(dest,op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(dest);\
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		//op2 = op2 + !CFLAG; 
+		TMP_SWORD = TMP_REG2 - op2; \
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+		else \
+			if SBIT == 1 then \
+				NFLAG = TMP_REG1<31..31>; \
+				if TMP_REG1 == 0 then \
+					ZFLAG = 1; \
+				else \
+					ZFLAG = 0; \
+				endif; \
+				CFLAG =  ! CarryFromSub(TMP_REG2,op2,TMP_REG1);\
+				VFLAG = OverflowFromSub(TMP_REG2,op2,TMP_REG1); \
+			endif; \
+		endif;
+
+macro SUB(dest,op1,op2) = \
+		TMP_REG1 = Get_ARM_GPR(dest);\
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		TMP_SWORD = TMP_REG2 - op2; \
+		Set_ARM_GPR(dest,TMP_SWORD);\
+		TMP_REG1 = TMP_SWORD;\
+		if (SBIT == 1) && (dest == 15) then \
+			Ucpsr = GetSPSR(); \
+		else \
+			if SBIT == 1 then \
+				NFLAG = TMP_REG1<31..31>; \
+				if TMP_REG1 == 0 then \
+					ZFLAG = 1; \
+				else \
+					ZFLAG = 0; \
+				endif; \
+				CFLAG =  ! CarryFromSub(TMP_REG2,op2,TMP_REG1);\
+				VFLAG = OverflowFromSub(TMP_REG2,op2,TMP_REG1); \
+			endif; \
+		endif;
+
+macro TEQ(op1,op2) = \
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		Temp = TMP_REG2 ^ op2; \
+		NFLAG = Temp<31..31>; \
+		if Temp == 0 then \
+			ZFLAG = 1; \
+		else \
+			ZFLAG = 0; \
+		endif; \
+
+macro  TST(op1,op2) = \
+		TMP_REG2 = Get_ARM_GPR(op1);\
+		Temp = TMP_REG2 & op2; \
+		NFLAG = Temp<31..31>; \
+		if Temp == 0 then \
+			ZFLAG = 1; \
+		else \
+			ZFLAG = 0; \
+		endif; \
+

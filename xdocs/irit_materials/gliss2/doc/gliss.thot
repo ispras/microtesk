@@ -1,0 +1,20 @@
+@use dokuwiki
+@TITLE=GLISS V2 User Manual
+@AUTHORS=H. Cassé <casse@irit.fr>, J. Barre <barre@irit.fr>, R. Vaillant
+@VERSION=0.1
+@LANG=en_EN
+@ENCODING=UTF-8
+@HTML_STYLES=gliss.css
+
+@GLISS=**//GLISS//**
+
+@include gliss-intro.thot
+@include gliss-tuto.thot
+@include gliss-cmds.thot
+@include gliss-spec.thot
+@include gliss-mods.thot
+@include gliss-src.thot
+@include gliss-temps.thot
+@include gliss-optimizing.thot
+@include gliss-hint.thot
+

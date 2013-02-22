@@ -1,0 +1,43 @@
+//
+// ARMv5T -- exception support
+// Copyright (C) 2012  IRIT - UPS
+//
+// GLISS2 ARMv5T is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GLISS2 ARMv5T is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GLISS2 ARMv5T.  If not, see <http://www.gnu.org/licenses/>.
+
+op exceptions = IRQ | FIQ
+
+var exn_tmp[1, u32]
+
+op IRQ()
+	action = {
+		exn_tmp = CPSR;
+		MBITS = mode_irq;
+		SetSPSR(exn_tmp);
+		IFLAG = 1;
+		Set_ARM_GPR(14, PC + 4);
+		PC = 0x18;
+	}
+	is_irq = 1
+
+op FIQ()
+	action = {
+		exn_tmp = CPSR;
+		MBITS = mode_fiq;
+		SetSPSR(exn_tmp);
+		IFLAG = 1;
+		Set_ARM_GPR(14, PC + 4);
+		PC = 0x1C;
+	}
+	is_irq = 1
+

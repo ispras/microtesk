@@ -1,0 +1,16 @@
+include "ressources.nmp"
+include "adressmodes.nmp"
+include "32bits/i32bits.nmp"
+include "16bits/i16bits.nmp"
+
+op instruction = i32bits|i16bits 
+
+op init()
+   action = 	{
+		PSW = 0x00000B80;
+		SYSCON = 0x00000000;
+		ICR = 0x00000000;
+		DBGSR = 0x00000000;
+		SWEVT = 0x00000000;
+		}
+

@@ -1,0 +1,405 @@
+///**************************************************************************** 
+//                                oea_instr.nmp                                 
+//                              ------------------                              
+//    date            : May 2003                                               
+//    copyright       : Institut de Recherche en Informatique de Toulouse       
+//    author          : Daniel Gracia-Perez                                              
+//    email           : sainrat@irit.fr                        
+// ****************************************************************************/
+//                                                                              
+///**************************************************************************** 
+// *                                                                          * 
+// *   This program is free software; you can redistribute it and/or modify   * 
+// *   it under the terms of the GNU General Public License as published by   * 
+// *   the Free Software Foundation; either version 2 of the License, or      * 
+// *   (at your option) any later version.                                    * 
+// *                                                                          * 
+// ****************************************************************************/
+
+
+// This file contains the nMP description of the OEA 
+// instructions of the PowerPC 
+
+// ========================================================================= //
+// 1. Definitions                                                            //
+// ========================================================================= //
+// 
+// 1.1.6 Category of instructions
+// Might be used to know in which functional unit the instruction is executed
+let SEG = "15"   // Segment Register Manipulation Instructions
+let TLB = "16"           // Lookaside Buffer Management Instructions
+
+
+// ========================================================================= //
+//  2. Instructions                                                          //
+// ========================================================================= //
+
+// checking if the processor is in superuser mode, if not exception
+op oea_instr ( x: oea_instr_action)
+	syntax = x.syntax
+	image  = x.image
+	action = {
+		if MSR<MSR_PR..MSR_PR> then
+			"launch_exception"("instr",PROGRAM);
+		else
+			x.action;
+		endif;
+		}
+	
+
+op oea_instr_action = oea_cache_man_instr       // cache management instructions
+                    | oea_proc_control_instr    // processor control instructions
+                    | oea_seg_reg_man_instr     // segment register manipulation instructions
+                    | oea_sys_link_instr        // system linkage instructions (without sc)
+                    | oea_tlb_man_instr         // lookaside buffer management instructions
+
+// ------------------------------------------------------------------------- //
+// 2.1 cache management instructions
+// ------------------------------------------------------------------------- //
+op  oea_cache_man_instr( x : oea_cache_man_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = CACHE
+
+op oea_cache_man_instr_action = oea_dcbi
+
+op oea_dcbi ( ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "dcbi %s,%s", ra.syntax, rb.syntax )
+	image  = format ( "01111100000%s%s01110101100", ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		}
+
+// ------------------------------------------------------------------------- //
+// 2.2 processor control instructions
+// ------------------------------------------------------------------------- //
+
+op  oea_proc_control_instr ( x :oea_proc_control_instr_action  )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = CONTROL
+
+op oea_proc_control_instr_action =   oea_mfmsr
+                            | oea_mfspr
+                            | oea_mtmsr
+                            | oea_mtspr
+
+op oea_mfmsr ( rd : REG_IND)
+	syntax = format ( "mfmsr %s", rd.syntax )
+	image  = format ( "011111%s000000000000010100110", rd.image )
+	action = {
+			rd = MSR;
+		}
+		
+op oea_mfspr ( rd : REG_IND, spr : card ( 9 ) )
+   syntax = format ( "mfspr %s,%d", rd.syntax , spr )
+   image  = format ( "011111%s1%9b01010100110", rd.image, spr )
+   action = {
+              	TMP_HWORD = spr;
+		TMP_WORD = 0; 
+              	TMP_WORD = TMP_HWORD < 4..0 >;
+              	TMP_WORD = TMP_WORD << 5;
+              	TMP_WORD = (TMP_WORD | ( TMP_HWORD < 8..5 > & 0x0000000f))|0x00000010;
+		switch(TMP_WORD) {
+			case 1:    GPR[rd] = XER      ;
+			case 8:    GPR[rd] = LR       ;
+			case 9:    GPR[rd] = CTR      ;
+			case 18:   GPR[rd] = DSISR    ;
+			case 19:   GPR[rd] = DAR      ;
+                        case 22:   GPR[rd] = DEC      ;
+			case 25:   GPR[rd] = SDR1     ;
+                        case 26:   GPR[rd] = SRR[0]   ;
+                        case 27:   GPR[rd] = SRR[1]   ;
+                        case 268:  GPR[rd] = TBL      ;
+                        case 269:  GPR[rd] = TBU      ;
+                        case 272:  GPR[rd] = SPRG[0]  ;
+                        case 273:  GPR[rd] = SPRG[1]  ;
+			case 274:  GPR[rd] = SPRG[2]  ;
+                        case 275:  GPR[rd] = SPRG[3]  ;
+                        case 276:  GPR[rd] = SPRG[4]  ; // mpc755 ONLY
+                        case 277:  GPR[rd] = SPRG[5]  ; // mpc755 ONLY
+                        case 278:  GPR[rd] = SPRG[6]  ; // mpc755 ONLY
+                        case 279:  GPR[rd] = SPRG[7]  ; // mpc755 ONLY
+                        case 282:  GPR[rd] = EAR      ;
+                        case 287:  GPR[rd] = PVR      ;
+                        case 528:  GPR[rd] = IBAT[0]  ;
+                        case 529:  GPR[rd] = IBAT[1]  ;
+                        case 530:  GPR[rd] = IBAT[2]  ;
+                        case 531:  GPR[rd] = IBAT[3]  ;
+                        case 532:  GPR[rd] = IBAT[4]  ;
+                        case 533:  GPR[rd] = IBAT[5]  ;
+                        case 534:  GPR[rd] = IBAT[6]  ;
+                        case 535:  GPR[rd] = IBAT[7]  ;
+                        case 536:  GPR[rd] = DBAT[0]  ;
+                        case 537:  GPR[rd] = DBAT[1]  ;
+                        case 538:  GPR[rd] = DBAT[2]  ;
+                        case 539:  GPR[rd] = DBAT[3]  ;
+                        case 540:  GPR[rd] = DBAT[4]  ;
+                        case 541:  GPR[rd] = DBAT[5]  ;
+                        case 542:  GPR[rd] = DBAT[6]  ;
+                        case 543:  GPR[rd] = DBAT[7]  ;
+                        case 560:  GPR[rd] = IBAT[8]  ; // mpc755 ONLY
+                        case 561:  GPR[rd] = IBAT[9]  ; // mpc755 ONLY
+                        case 562:  GPR[rd] = IBAT[10] ; // mpc755 ONLY
+                        case 563:  GPR[rd] = IBAT[11] ; // mpc755 ONLY
+                        case 564:  GPR[rd] = IBAT[12] ; // mpc755 ONLY
+                        case 565:  GPR[rd] = IBAT[13] ; // mpc755 ONLY
+                        case 566:  GPR[rd] = IBAT[14] ; // mpc755 ONLY
+                        case 567:  GPR[rd] = IBAT[15] ; // mpc755 ONLY
+                        case 568:  GPR[rd] = DBAT[8]  ; // mpc755 ONLY
+                        case 569:  GPR[rd] = DBAT[9]  ; // mpc755 ONLY
+                        case 570:  GPR[rd] = DBAT[10] ; // mpc755 ONLY
+                        case 571:  GPR[rd] = DBAT[11] ; // mpc755 ONLY
+                        case 572:  GPR[rd] = DBAT[12] ; // mpc755 ONLY
+                        case 573:  GPR[rd] = DBAT[13] ; // mpc755 ONLY
+                        case 574:  GPR[rd] = DBAT[14] ; // mpc755 ONLY
+                        case 575:  GPR[rd] = DBAT[15] ; // mpc755 ONLY
+                        case 936:  GPR[rd] = UMMCR[0] ; // mpc750 & mpc755 ONLY
+                        case 937:  GPR[rd] = UPMC[0]  ; // mpc750 & mpc755 ONLY
+                        case 938:  GPR[rd] = UPMC[1]  ; // mpc750 & mpc755 ONLY
+                        case 939:  GPR[rd] = USIA     ; // mpc750 & mpc755 ONLY
+                        case 940:  GPR[rd] = UMMCR[1] ; // mpc750 & mpc755 ONLY
+                        case 941:  GPR[rd] = UPMC[2]  ; // mpc750 & mpc755 ONLY
+                        case 942:  GPR[rd] = UPMC[3]  ; // mpc750 & mpc755 ONLY
+                       	case 952:  GPR[rd] = MMCR[0]  ; // mpc750 & mpc755 ONLY
+                        case 953:  GPR[rd] = PMC[0]   ; // mpc750 & mpc755 ONLY
+                        case 954:  GPR[rd] = PMC[1]   ; // mpc750 & mpc755 ONLY
+                        case 955:  GPR[rd] = SIA      ; // mpc750 & mpc755 ONLY
+                        case 956:  GPR[rd] = MMCR[1]  ; // mpc750 & mpc755 ONLY
+                        case 957:  GPR[rd] = PMC[2]   ; // mpc750 & mpc755 ONLY
+                        case 958:  GPR[rd] = PMC[3]   ; // mpc750 & mpc755 ONLY
+                        case 976:  GPR[rd] = DMISS    ; // mpc755 ONLY
+                        case 977:  GPR[rd] = DCMP     ; // mpc755 ONLY
+                        case 978:  GPR[rd] = HASH[1]  ; // mpc755 ONLY
+                        case 979:  GPR[rd] = HASH[2]  ; // mpc755 ONLY
+                        case 980:  GPR[rd] = IMISS    ; // mpc755 ONLY
+                        case 981:  GPR[rd] = ICMP     ; // mpc755 ONLY
+                        case 982:  GPR[rd] = RPA      ; // mpc755 ONLY
+                        case 1008: GPR[rd] = HID[0]   ; // mpc750 & mpc755 ONLY
+                        case 1009: GPR[rd] = HID[1]   ; // mpc750 & mpc755 ONLY
+                  	case 1010: GPR[rd] = IABR     ; // mpc750 & mpc755 ONLY
+                        case 1011: GPR[rd] = HID[2]   ; // mpc755 ONLY
+                  	case 1013: GPR[rd] = DABR     ; // mpc750 & mpc755 ONLY
+                        case 1016: GPR[rd] = L2PM     ; // mpc755 ONLY
+                  	case 1017: GPR[rd] = L2CR     ; // mpc750 & mpc755 ONLY
+                  	case 1019: GPR[rd] = ICTC     ; // mpc750 & mpc755 ONLY
+                  	case 1020: GPR[rd] = THRM[0]  ; // mpc750 & mpc755 ONLY
+                  	case 1021: GPR[rd] = THRM[1]  ; // mpc750 & mpc755 ONLY
+                  	case 1022: GPR[rd] = THRM[2]  ; // mpc750 & mpc755 ONLY
+};
+		}
+							
+op oea_mtmsr ( rs : REG_IND )
+	syntax = format ( "mtmsr %s", rs.syntax )
+	image  = format ( "011111%s000000000000100100100", rs.image )
+	action = {
+			MSR = rs;
+		}
+
+op oea_mtspr ( spr : card( 9 ) , rs : index )
+	syntax = format ( "mtspr %d,r%d", spr, rs )
+	image  = format ( "011111%5b1%9b01110100110", rs, spr )
+	action = {
+		TMP_HWORD = spr;
+		TMP_WORD = 0;
+		TMP_WORD = TMP_HWORD < 4..0 >;
+		TMP_WORD = TMP_WORD << 5;
+		TMP_WORD = (TMP_WORD | ( TMP_HWORD < 8..5 > & 0x0000000f))|0x00000010;
+
+		switch(TMP_WORD) {
+		  case 1:    XER      = GPR[rs] ;
+		  case 8:    LR       = GPR[rs] ;
+		  case 9:    CTR      = GPR[rs] ;
+		  case 18:   DSISR    = GPR[rs] ;
+		  case 19:   DAR      = GPR[rs] ;
+                  case 22:   DEC      = GPR[rs] ;
+		  case 25:   SDR1     = GPR[rs] ;
+                  case 26:   SRR[0]   = GPR[rs] ;
+                  case 27:   SRR[1]   = GPR[rs] ;
+                  case 272:  SPRG[0]  = GPR[rs] ;
+                  case 273:  SPRG[1]  = GPR[rs] ;
+		  case 274:  SPRG[2]  = GPR[rs] ;
+                  case 275:  SPRG[3]  = GPR[rs] ;
+                  case 276:  SPRG[4]  = GPR[rs] ; // mpc755 ONLY
+                  case 277:  SPRG[5]  = GPR[rs] ; // mpc755 ONLY
+                  case 278:  SPRG[6]  = GPR[rs] ; // mpc755 ONLY
+                  case 279:  SPRG[7]  = GPR[rs] ; // mpc755 ONLY
+                  case 282:  EAR      = GPR[rs] ;
+                  case 284:  TBL      = GPR[rs] ;
+                  case 285:  TBU      = GPR[rs] ;
+                  case 287:  PVR      = GPR[rs] ;
+                  case 528:  IBAT[0]  = GPR[rs] ;
+                  case 529:  IBAT[1]  = GPR[rs] ;
+                  case 530:  IBAT[2]  = GPR[rs] ;
+                  case 531:  IBAT[3]  = GPR[rs] ;
+                  case 532:  IBAT[4]  = GPR[rs] ;
+                  case 533:  IBAT[5]  = GPR[rs] ;
+                  case 534:  IBAT[6]  = GPR[rs] ;
+                  case 535:  IBAT[7]  = GPR[rs] ;
+                  case 536:  DBAT[0]  = GPR[rs] ;
+                  case 537:  DBAT[1]  = GPR[rs] ;
+                  case 538:  DBAT[2]  = GPR[rs] ;
+                  case 539:  DBAT[3]  = GPR[rs] ;
+                  case 540:  DBAT[4]  = GPR[rs] ;
+                  case 541:  DBAT[5]  = GPR[rs] ;
+                  case 542:  DBAT[6]  = GPR[rs] ;
+                  case 543:  DBAT[7]  = GPR[rs] ;
+                  case 560:  IBAT[8]  = GPR[rs] ; // mpc755 ONLY
+                  case 561:  IBAT[9]  = GPR[rs] ; // mpc755 ONLY
+                  case 562:  IBAT[10] = GPR[rs] ; // mpc755 ONLY
+                  case 563:  IBAT[11] = GPR[rs] ; // mpc755 ONLY
+                  case 564:  IBAT[12] = GPR[rs] ; // mpc755 ONLY
+                  case 565:  IBAT[13] = GPR[rs] ; // mpc755 ONLY
+      		  case 566:  IBAT[14] = GPR[rs] ; // mpc755 ONLY
+      		  case 567:  IBAT[15] = GPR[rs] ; // mpc755 ONLY
+      		  case 568:  DBAT[8]  = GPR[rs] ; // mpc755 ONLY
+      		  case 569:  DBAT[9]  = GPR[rs] ; // mpc755 ONLY
+      		  case 570:  DBAT[10] = GPR[rs] ; // mpc755 ONLY
+      		  case 571:  DBAT[11] = GPR[rs] ; // mpc755 ONLY
+      		  case 572:  DBAT[12] = GPR[rs] ; // mpc755 ONLY
+      		  case 573:  DBAT[13] = GPR[rs] ; // mpc755 ONLY
+      		  case 574:  DBAT[14] = GPR[rs] ; // mpc755 ONLY
+      		  case 575:  DBAT[15] = GPR[rs] ; // mpc755 ONLY
+          	  case 936:  UMMCR[0] = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 937:  UPMC[0]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 938:  UPMC[1]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+          	  case 939:  USIA     = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 940:  UMMCR[1] = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 941:  UPMC[2]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 942:  UPMC[3]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 952:  MMCR[0]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+            	  case 953:  PMC[0]   = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 954:  PMC[1]   = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 955:  SIA      = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 956:  MMCR[1]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 957:  PMC[2]   = GPR[rs] ; // mpc750 & mpc755 ONLY
+           	  case 958:  PMC[3]   = GPR[rs] ; // mpc750 & mpc755 ONLY
+      		  case 976:  DMISS    = GPR[rs] ; // mpc755 ONLY
+      		  case 977:  DCMP     = GPR[rs] ; // mpc755 ONLY
+      		  case 978:  HASH[1]  = GPR[rs] ; // mpc755 ONLY
+      		  case 979:  HASH[2]  = GPR[rs] ; // mpc755 ONLY
+      		  case 980:  IMISS    = GPR[rs] ; // mpc755 ONLY
+      		  case 981:  ICMP     = GPR[rs] ; // mpc755 ONLY
+      		  case 982:  RPA      = GPR[rs] ; // mpc755 ONLY
+      		  case 1008: HID[0]   = GPR[rs] ; // mpc755 ONLY
+      		  case 1009: HID[1]   = GPR[rs] ; // mpc755 ONLY
+                  case 1010: IABR     = GPR[rs] ; // mpc750 & mpc755 ONLY
+      		  case 1011: HID[2]   = GPR[rs] ; // mpc755 ONLY
+                  case 1013: DABR     = GPR[rs] ; // mpc750 & mpc755 ONLY
+                  case 1016: L2PM     = GPR[rs] ; // mpc755 ONLY
+                  case 1017: L2CR     = GPR[rs] ; // mpc750 & mpc755 ONLY
+                  case 1019: ICTC     = GPR[rs] ; // mpc750 & mpc755 ONLY
+                  case 1020: THRM[0]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+                  case 1021: THRM[1]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+                  case 1022: THRM[2]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+			};
+		}
+
+// ------------------------------------------------------------------------- //
+// 2.3 segment register manipulation instructions
+// ------------------------------------------------------------------------- //
+
+op  oea_seg_reg_man_instr ( x : oea_seg_reg_man_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = SEG
+
+op oea_seg_reg_man_instr_action  =   oea_mfsr
+                                   | oea_mfsrin
+                                   | oea_mtsr
+                                   | oea_mtsrin
+
+op oea_mfsr ( rd : REG_IND , sr : card(4) )
+	syntax = format ( "mfsr %s,%d", rd.syntax, sr )
+	image  = format ( "011111%s0%4b0000010010100110", rd.image, sr )
+	action = {
+			rd = SR[sr];
+		}
+
+op oea_mfsrin ( rd : REG_IND , rb : REG_IND )
+	syntax = format ( "mfsrin %s,%s", rd.syntax, rb.syntax )
+	image  = format ( "011111%s00000%s10100100110", rd.image, rb.image )
+	action = {
+			rd = SR [ rb <31..28> ];
+		}
+
+op oea_mtsr ( sr : card(4) , rd : REG_IND )
+	syntax = format ( "mtsr %d,%s", sr, rd.syntax )
+	image  = format ( "011111%s0%4b0000000110100100", rd.image, sr )
+	action = {
+			SR[sr] = rd;
+		}
+
+op oea_mtsrin ( rs : REG_IND , rb : REG_IND )
+	syntax = format ( "mtsrin %s,%s", rs.syntax, rb.syntax )
+	image  = format ( "011111%s00000%s00111100100", rs.image, rb.image )
+	action = {
+			SR[ rb < 31..28 > ] = rs;
+		}
+	
+// ------------------------------------------------------------------------- //
+// 2.4 system linkage instructions (without sc)
+// ------------------------------------------------------------------------- //
+op  oea_sys_link_instr ( x : oea_sys_link_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = SYSTEM
+
+op oea_sys_link_instr_action =   oea_rfi
+
+op oea_rfi ( )
+	syntax = "rfi" 
+	image  = "01001100000000000000000001100100"
+	action = {
+// Hmmm. rfi should be executed only in program order.
+// ToDo : This should be replaced by an external function which is executed only at complete.
+			MSR < 31..31 > = SRR [1] < 31..31 >;
+			MSR < 26..22 > = SRR [1] < 26..22 >;
+			MSR < 15..8 >  = SRR [1] < 15..8 >;
+			MSR < 6..4 >   = SRR [1] < 6..4 >;
+			MSR < 1..0 >   = SRR [1] < 1..0 >;
+			MSR < 18..18 > = SRR [1] < 18..18 >;
+			NIA = SRR [0] & 0xfffffffc;
+		}
+        category = SYSTEM
+// ------------------------------------------------------------------------- //
+// 2.5 translation lookaside buffer (TLB) management instructions
+// ------------------------------------------------------------------------- //
+
+op  oea_tlb_man_instr ( x : oea_tlb_man_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = TLB
+
+op oea_tlb_man_instr_action  =   oea_tlbia
+                        | oea_tlbie
+                        | oea_tlbsync
+
+op oea_tlbia ()
+	syntax = "tlbia"
+	image  = "01111100000000000000001011100100"
+	action = {
+			// TLB management is hardware-dependent
+			// Nothing to do in the iss
+		}
+
+op oea_tlbie ( rb : REG_IND )
+	syntax = format ( "tlbie %s", rb.syntax )
+	image  = format ( "0111110000000000%s01001100100", rb.image )
+	action = {
+			// TLB management is hardware-dependent
+			// Nothing to do in the iss
+		}
+
+op oea_tlbsync ()
+	syntax = "tlbsync"
+	image  = "01111100000000000000010001101100"
+	action = {
+			// TLB management is hardware-dependent
+			// Nothing to do in the iss
+		}

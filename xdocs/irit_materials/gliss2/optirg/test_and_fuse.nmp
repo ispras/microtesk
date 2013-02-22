@@ -1,0 +1,28 @@
+//
+// AND FUSE test
+//
+
+op z()
+	image="10"
+	syntax="z"
+op ou1 = ou2 | v | w
+	op ou2 = x|y
+		op x(a:z)
+			image=format("01%2b",a)
+			syntax="x"
+		op y()
+			image="110"
+			syntax="y"
+	op v() 
+		image="101"
+		syntax="v"
+	op w(a:z)
+		image=format("11%2b",a)
+		syntax="w"
+
+
+
+op instruction (x:ou1)
+	image=x.image
+	user0 = "0"
+

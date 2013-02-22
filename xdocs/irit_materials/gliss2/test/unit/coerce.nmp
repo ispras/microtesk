@@ -1,0 +1,25 @@
+
+let proc="mine"
+let gliss_isize = "32"
+
+reg pc[1, card(32)] __attr(pc)
+
+reg r32[1, card(32)]
+var a1[1, card(5)]
+var utmp[1, card(32)]
+
+op init()
+	action = { }
+
+op instruction()
+	image = "00000000 00000000 00000000 00000000"
+	syntax = "bof"
+	action = {
+		utmp = coerce(int(32), r32) >> a1;
+		//TMP_U32 = ...;
+		//TMP_S32 = coerce(s32, rs1) >> TMP_U32<4..0>;
+
+		//avec TMP_U32 : card(32), TMP_S32 : int(32), rs1 (reg du leon): card(32)
+
+	}
+

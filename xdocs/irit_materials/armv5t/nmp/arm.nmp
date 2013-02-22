@@ -1,0 +1,85 @@
+///////////////////////////////////////////////////
+//
+// New ARM description in Sim-nML
+//
+// Thinked for gliss2.
+// Based on "arm/goodies/arm_param/arm.nmp"
+// Need to be optimized by optirg. 
+//
+// July 2009
+// R. Dubot Y. Ndongo
+//
+// January 2011
+// Needs to be completed to be working
+// J. Barre
+//
+///////////////////////////////////////////////////
+
+
+let proc = "arm"
+
+include "simpleType.nmp"
+include "stateReg.nmp"
+include "tempVar.nmp"
+include "modes.nmp"
+
+// ****** instruction set ******
+
+op instruction(x : ARM_instr)
+	image = x.image
+	syntax = x.syntax
+	action = {
+		NIA = NIA + 4;
+		x.action;
+	}
+          
+op ARM_instr = dataProcessing 
+	| branch 
+	| LoadStore 
+	| LoadStoreM 
+	| interrupt 
+	| multiply 
+	| semaphore 
+	| misc 
+	| sra
+
+
+op dataProcessing = ADD_imm | ADC_shr | ADC_imm | ADD_shr | AND_shr | AND_imm | BIC_shr | BIC_imm
+				| CMN_shr | CMN_imm | CMP_shr | CMP_imm | EOR_shr | EOR_imm | MOV_shr | MOV_imm 
+				| MVN_shr | MVN_imm | ORR_shr | ORR_imm | RSB_shr | RSB_imm | RSC_shr | RSC_imm 
+				| SBC_shr | SBC_imm | SUB_shr | SUB_imm | TEQ_shr | TEQ_imm | TST_shr | TST_imm 
+
+op branch = 
+	  BX_ARM
+	| B_Cond	
+
+op LoadStore = LDR_imm | STR_imm | LDR_shr | STR_shr | STRH_imm 
+			|STRH_shr | LDRH_imm | LDRH_shr | LDRSB_imm | LDRSB_shr | LDRSH_imm | LDRSH_shr
+
+op LoadStoreM = STM | LDM
+
+op interrupt = SWI
+
+op multiply = MLA | MUL | SMULL | UMULL | SMLAL | UMLAL
+
+op semaphore = SWP
+
+op misc = CLZ
+
+op sra = MSR_imm | MSR_shr | MRS 
+
+
+// ****** includes ******
+
+include "condition.nmp"
+include "dataProcessingMacro.nmp"
+include "shiftedRegister.nmp"
+include "dataProcessing.nmp"
+include "control.nmp"
+include "loadstore.nmp"
+include "mult.nmp"
+include "system.nmp"
+include "loadStoreM_Macro.nmp"
+include "loadStoreM.nmp"
+include "thumb.nmp"
+

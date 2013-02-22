@@ -1,0 +1,14 @@
+address PA  
+{
+	width = 40;
+}
+
+buffer L1 
+{
+	sets = 4;
+	lines = 128;
+	line (tag:30, data:256);
+	index(addr:PA) = addr<9 ..8>; 
+	match(addr:PA) = line.tag == addr<39 ..10>;	
+	policy =  lru;
+}

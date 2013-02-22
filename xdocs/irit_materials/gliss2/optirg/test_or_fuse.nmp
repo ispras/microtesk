@@ -1,0 +1,57 @@
+//
+// OR FUSE test
+//
+
+reg a [1,card(32)]
+reg b [1,card(32)]
+
+
+
+mode u = x|y|z
+mode v() = 1
+	image="01"
+mode w() = 2
+	image="10"
+mode x() = 1
+	image="01"
+mode y() = 2
+	image="10"
+mode z() = 2
+	image="10"
+mode ou = u | v | w
+
+
+mode ar() = a
+	image="0011"
+
+mode br(x:ou) = b
+	image=format("00%s", x.image)
+
+
+
+
+mode r = ar | br | r2
+
+
+
+
+
+mode ar2() = a
+	image="00110"
+
+mode br2() = b
+	image="00100"
+
+mode r2 = ar2 | br2
+
+
+mode ai = r | r2
+
+
+
+op instruction (x:ai)
+  action = {
+        x = 10;
+        }
+  user0 = "0"
+

@@ -1,0 +1,68 @@
+// extensions specified in sparc v8e specification
+
+op ft_extensions =
+		mac	// only umac and smac are on LEON3
+	//	divscc	// not in LEON3
+	//	| scan	// not in LEON3
+
+
+
+// perform 16bit multiply and accumulate in 40 bits
+op mac =
+		umac
+		| smac
+
+
+op umac(rd : reg_mode_0, rs1 : reg_mode_0, i : u1, rs2 : asi_or_simm)
+syntax =
+	if i == 0 then
+		format("umac %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+	else
+		format("umac %s, %d, %s", rs1.syntax, rs2.value, rd.syntax)
+	endif
+image = format("%s 111110 %s %1b %s", rd.image, rs1.image, i, rs2.image)
+action =
+	{
+		TMP_U32 = if i == 0 then rs2 else coerce(int(32), rs2.value) endif;
+		TMP_U32 = (TMP_U32 & 0xFFFF) * (rs1 & 0xFFFF);
+		
+		TMP_U64 = ASR[18];
+		TMP_U64<39..32> = Y<7..0>;
+		TMP_U64 = TMP_U64 + TMP_U32;
+		
+		ASR[18] = TMP_U64;
+		Y<7..0> = TMP_U64<39..32>;
+
+		if rd.value != 0 then
+			SET_WIN_REG(rd.value, ASR[18]);
+		endif;
+	}
+
+
+op smac(rd : reg_mode_0, rs1 : reg_mode_0, i : u1, rs2 : asi_or_simm)
+syntax =
+	if i == 0 then
+		format("smac %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+	else
+		format("smac %s, %d, %s", rs1.syntax, rs2.value, rd.syntax)
+	endif
+image = format("%s 111111 %s %1b %s", rd.image, rs1.image, i, rs2.image)
+action =
+	{
+		TMP_S16 = (if i == 0 then rs2 else coerce(int(32), rs2.value) endif) & 0xFFFF;
+		TMP_S16a = (rs1 & 0xFFFF);
+		TMP_S32a = TMP_S16;
+		TMP_S32b = TMP_S16a;
+		TMP_S32 = TMP_S32a * TMP_S32b;
+		
+		TMP_U64 = ASR[18];
+		TMP_U64<39..32> = Y<7..0>;
+		TMP_U64 = TMP_U64 + coerce(s64, TMP_S32);
+		
+		ASR[18] = TMP_U64;
+		Y<7..0> = TMP_U64<39..32>;
+
+		if rd.value != 0 then
+			SET_WIN_REG(rd.value, ASR[18]);
+		endif;
+	}

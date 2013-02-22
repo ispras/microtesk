@@ -1,0 +1,59 @@
+
+///////////////////////////////////////////
+// II.2 Load/Store Multiple
+///////////////////////////////////////////
+
+
+macro GetGPRUser(r) = \
+	if (r <= 14) then \
+		GPR[r] \
+	else \
+		__IADDR + 8 \
+	endif
+
+// STM
+macro STM_(rd, sets) = \
+		TMP_EA = TMP_START_ADDR;\
+		if (sets == 0) then\
+			TMP_SWORD = Get_ARM_GPR(rd);\
+		else\
+			TMP_SWORD = GetGPRUser(rd);\
+		endif;\
+		SetWord(TMP_EA,TMP_SWORD);\
+		TMP_START_ADDR = TMP_START_ADDR + 4;
+
+// LDMxx1
+macro LDM1(rd) = \
+	      TMP_EA = TMP_START_ADDR;\
+	      Set_ARM_GPR(rd, GetWord(TMP_EA));\
+	      TMP_START_ADDR = TMP_START_ADDR+4;
+
+
+// LDMxx1_NIA
+macro LDM1_NIA() = \
+		TMP_EA = TMP_START_ADDR ;\
+		TMP_SWORD = GetWord(TMP_EA);\
+		if (TMP_SWORD == 0) then \
+			GPR[0] = (2 << 16) + 38;\
+		else\
+			NPC = TMP_SWORD & 0xFFFFFFFE;\
+		endif;\
+		TFLAG = TMP_SWORD & 1;\
+		TBIT = TFLAG;\
+		TMP_START_ADDR = TMP_START_ADDR+4;
+
+
+// LDMxx3_NIA
+macro LDM3_NIA() = \
+		TMP_EA = TMP_START_ADDR  ;\
+		TMP_SWORD = GetWord(TMP_EA);\
+		if (TMP_SWORD == 0) then \
+			GPR[0] = (2 << 16) + 38;\
+		endif;\
+		if (TFLAG == 1) then\
+			NPC = TMP_SWORD & 0xFFFFFFFE;\
+		else\
+			NPC = TMP_SWORD & 0xFFFFFFFC;\
+		endif;\
+		TMP_START_ADDR = TMP_START_ADDR+4;
+

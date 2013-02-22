@@ -1,0 +1,1210 @@
+op meminst = ld | st | lea |swap | svlcx
+
+op ld = ld_a | ld_b | ld_bu | ld_d | ld_da | ld_h | ld_hu | ld_w | ldmst | ld_q
+
+// ld.q instructions
+op ld_q = ld_q_pre
+
+op ld_q_pre(a: reg_d, b: reg_a, foo1: card(4), foo2: card(6), off10: int(10))
+	predecode	= {
+		off10<9..6> = foo1<3..0>;
+		off10<5..0> = foo2<5..0>;
+	}
+	syntax		= format("ld.q %s, [+%s]%d", a.syntax, b.syntax, off10)
+	image		= format("%4b011000%6b%s%s00001001%0b", foo1, foo2, b.image, a.image, off10)
+	action		= {
+		indice = b + off10;
+		a<15..0> = 0;
+		a<23..16> = M[indice];
+		a<31..24> = M[indice + 1];
+		b = indice;
+	}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(A(1), A(1), T1); LOADUH(D(0), A(1)); SETI(T1, 16); SHL(D(0), D(0), T1);"
+
+
+// svlcx instruction
+op svlcx(foo1: card(4), foo2: card(14))
+	syntax	= "svlcx"
+	image	= format("%4b001000%14b00001101", foo1, foo2)
+	action	= { }	// !!TODO!!
+	otawa_sem = "SAVE_CONTEXT;"
+
+
+// ld.a instructions
+op ld_a = ld_a_abs | ld_a_bo16 | ld_a_2 | ld_a_bo10
+
+op ld_a_abs(a: reg_a, off: card(32), off1: card(4), off2: card(4), off3: card(6), off4: card(4))
+	predecode	= {
+		off<28..31> = off4<0..3>;
+		off<14..27> = 0;
+		off<10..13> = off2<0..3>;
+		off<6..9> = off1<0..3>;
+		off<0..5> = off3<0..5>;
+	}
+	syntax		= format("ld.a %s, %d", a.syntax, off)
+	image		= format("%4b10%4b%6b%4b%s10000101%0b", off1, off2, off3, off4, a.image, off)
+	action		= {
+		indice = off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];		
+	}
+	otawa_sem = "SETI(T1, (U4(5) << 28) | (U4(3) << 14) | (U4(2) << 6) | U6(4)); LOADW(A(0), T1);"
+
+op ld_a_bo16(a:reg_a, b:reg_a, off1:card(4), off2:card(6), off3:card(6), off:card(32))
+	predecode = {
+		off<10..15> = off2<0..5>;
+		off<6..9> = off1<0..3>;
+		off<0..5> = off3<0..5>;
+		if(off<15..15> == 1) then off<16..31> = 0xffff; endif;
+	}
+   syntax = format("ld.a %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b%6b%6b%s%s10011001%0b",off1,off2,off3,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		}
+	otawa_sem = "SETI(T1, (S6(3) << 10) | (U4(2) << 6) | U6(4)); ADD(T1, T1, A(1)); LOADW(A(0), T1);"
+
+op ld_a_2(a: reg_a, b: reg_a, off1: card(4),off3: card(6), off: card(32))
+	predecode = {
+		off<6..9>=off1<0..3>;
+		off<0..5>=off3<0..5>;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;
+	}
+	syntax = format("ld.a %s,[+%s]%d",a.syntax,b.syntax,off)
+	image = format("%4b010110%6b%s%s00001001%0b",off1,off3,b.image,a.image,off)
+	action = 	{
+		TMP_1 = b+off;			// !!TODO!!
+		loadWord(a,TMP_1);
+		b = TMP_1;
+	}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADW(A(0), T1); SET(A(1), T1);"
+	
+
+op ld_a_bo10 (a:reg_a, b:reg_a, off1:card(4), off3:card(6), off:card(32))
+	predecode = {
+		off<6..9>=off1<0..3>;
+		off<0..5>=off3<0..5>;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;
+	}
+	syntax = format("ld.a %s,[%s]%d",a.syntax,b.syntax,off)
+	image = format("%4b100110%6b%s%s00001001%0b",off1,off3,b.image,a.image,off)
+	action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+	}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADW(A(0), T1);"
+
+
+// ld.b instruction
+op ld_b = ld_b_bo10 | ld_b_post | ld_b_pre | ld_b_abs
+
+op ld_b_bo10 (a:reg_d, b:reg_a, off1:card(4), off2:card(6), off:card(32))
+	predecode = {
+		off<6..9> = off1<0..3>;
+		off<0..5> = off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;
+	}
+   syntax = format("ld.b %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b100000%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		if (a<7..7> == 1)
+		then
+			a<8..31> = 0xFFFFFF;
+		else
+			a<8..31> = 0x000000;
+		endif;
+	}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADSB(D(0), T1);"
+
+op ld_b_post (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+	predecode = {
+		off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;
+	}
+   syntax = format("ld.b %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b000000%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b;
+		a<0..7> = M[indice];
+		if (a<7..7> == 1)
+		then
+			a<8..31> = 0xFFFFFF;
+		else
+			a<8..31> = 0x000000;
+		endif;
+		b = indice+off;
+		}
+	otawa_sem = "LOADSB(D(0), T1); INT10(T1, (2), (3)); ADD(A(1), A(1), T1);"
+	
+
+op ld_b_pre (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.b %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b010000%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		if (a<7..7> == 1)
+		then
+			a<8..31> = 0xFFFFFF;
+		else
+			a<8..31> = 0x000000;
+		endif;
+		b = indice;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(A(1), T1, A(1)); LOADSB(D(0), T1);"
+
+op ld_b_abs (a:reg_d, off1:card(4),off2:card(4),off3:card(6),off4:card(4),off:card(32))
+   predecode = {
+		off<0..5>=off3<0..5>;
+   		off<6..9>=off1<0..3>;
+		off<10..13>=off2<0..3>;
+		off<14..17>=off4<0..3>;
+		if (off<17..17>==1)then off<18..31>=0x3FFFF; endif;}
+   syntax = format("ld.b %s,[%d]",a.syntax,off)
+   image = format("%4b00%4b%6b%4b%s00000101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		a<0..7> = M[indice];
+		if (a<7..7> == 1)
+		then
+			a<8..31> = 0xFFFFFF;
+		else
+			a<8..31> = 0x000000;
+		endif;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); LOADSB(D(0), T1);"
+
+
+// ld.bu instruction
+op ld_bu = ld_bu_abs | ld_bu_bo10
+
+op ld_bu_abs (a:reg_d, off1:card(4),off2:card(4),off3:card(6),off4:card(4),off:card(32))
+   predecode = {
+		off<0..5>=off3<0..5>;
+		off<6..9>=off1<0..3>;
+		off<10..13>=off2<0..3>;
+		off<14..17>=off4<0..3>;
+		if (off<17..17>==1)then off<18..31>=0x3FFFF; endif;}
+   syntax = format("ld.bu %s,[%d]",a.syntax,off)
+   image = format("%4b01%4b%6b%4b%s00000101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		a<0..7> = M[indice];
+		a<8..31> = 0x000000;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); LOADUB(D(0), T1);"
+
+op ld_bu_bo10 (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.bu %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b100001%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..31> = 0x000000;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADUB(D(0), T1);"
+
+
+// ld.d instruction
+op ld_d = ld_d_bo10 | ld_d_post | ld_d_abs | ld_d_pre
+
+op ld_d_pre(a: reg_e, b: reg_a, off1: card(4), off2: card(6), off: int(9))
+	predecode	= {
+		off<9..6> = off1<3..0>;
+		off<5..0> = off2<5..0>;
+	}
+	syntax		= format("ld.d %s,[+%s]%d", a.syntax, b.syntax, off)
+	image		= format("%4b010101%6b%s%s00001001%0b", off1, off2, b.image, a.image, off)
+	action		= {
+		indice = b + off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		a<32..39> = M[indice+4];
+		a<40..47> = M[indice+5];
+		a<48..55> = M[indice+6];
+		a<56..63> = M[indice+7];
+		b = indice;
+	}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADD(E(0),T1); SET(A(1), T1);" 
+
+op ld_d_bo10 (a:reg_e, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.d %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b100101%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{ 
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		a<32..39> = M[indice+4];
+		a<40..47> = M[indice+5];
+		a<48..55> = M[indice+6];
+		a<56..63> = M[indice+7];
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADD(E(0), T1);"
+
+op ld_d_post (a:reg_e, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.d %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b000101%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		a<32..39> = M[indice+4];
+		a<40..47> = M[indice+5];
+		a<48..55> = M[indice+6];
+		a<56..63> = M[indice+7];
+		b = indice+off;
+		}
+	otawa_sem = "LOADD(E(0), A(1)); INT10(T1, (2), (3)); ADD(A(1), A(1), T1);"
+
+op ld_d_abs(a: reg_a, off1: card(4), off2: card(4), off3: card(6), off4: card(4), off: card(32))
+	predecode	= {
+		off<28..31> = off4<0..3>;
+		off<14..27> = 0;
+		off<10..13> = off2<0..3>;
+		off<6..9> = off1<0..3>;
+		off<0..5> = off3<0..5>;
+	}
+	syntax		= format("ld.d %s, %d", a.syntax, off)
+	image		= format("%4b01%4b%6b%4b%s10000101%0b", off1, off2, off3, off4, a.image, off)
+	action		= {
+		indice = off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		a<32..39> = M[indice+4];
+		a<40..47> = M[indice+5];
+		a<48..55> = M[indice+6];
+		a<56..63> = M[indice+7];
+	}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); LOADD(E(0), T1);"
+
+
+// ld.da instructions
+op ld_da = ld_da_bo10
+op ld_da_bo10 (a:reg_p, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.d %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b100111%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{ 
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		a<32..39> = M[indice+4];
+		a<40..47> = M[indice+5];
+		a<48..55> = M[indice+6];
+		a<56..63> = M[indice+7];
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADD(P(0), T1);"
+
+op ld_h = ld_h_abs | ld_h_bo10 | ld_h_rev | ld_h_circ | ld_h_post | ld_h_pre
+
+op ld_h_abs (a:reg_d, off1:card(4),off2:card(4),off3:card(6),off4:card(4),off:card(32))
+   predecode = {
+		off<0..5>=off3<0..5>;
+   		off<6..9>=off1<0..3>;
+		off<10..13>=off2<0..3>;
+		off<14..17>=off4<0..3>;
+		if (off<17..17>==1)then off<18..31>=0x3FFFF; endif;}
+   syntax = format("ld.h %s,[%d]",a.syntax,off)
+   image = format("%4b10%4b%6b%4b%s00000101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		if (a<15..15> == 1)
+		then
+			a<16..31> = 0xFFFF;
+		else
+			a<16..31> = 0x0000;
+		endif;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); LOADSH(D(0), T1);"
+
+op ld_h_bo10 (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.h %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b100010%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		if (a<15..15> == 1)
+		then
+			a<16..31> = 0xFFFF;
+		else
+			a<16..31> = 0x0000;
+		endif;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADSH(D(0), T1);"
+
+op ld_h_rev (a:reg_d, b:reg_p, foo1:card(4),foo2:card(6))
+   syntax = format("ld.h %s,[%s]",a.syntax,b.syntax)
+   image = format("%4b000010%6b%s%s00101001",foo1,foo2,b.image,a.image)
+   action = 	{
+		TMP_1 = b<32..63>;
+		TMP_2 = TMP_1<0..15>;
+		TMP_3 = TMP_1<16..31>;
+		indice = b+TMP_2;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		if (a<15..15> == 1)
+		then
+			a<16..31> = 0xFFFF;
+		else
+			a<16..31> = 0x0000;
+		endif;
+		TMP_4 = TMP_2<15..0>;
+		TMP_4 = TMP_4+TMP_3<15..0>;
+		TMP_4 = TMP_4<15..0>;
+		b<32..47> = TMP_3<0..15>;
+		b<48..63> = TMP_4<0..15>;
+		}
+	otawa_sem = "SCRATCH(T1); LOADSH(D(0), T1); SCRATCH8(A(1));"
+
+op ld_h_circ (a:reg_d, b:reg_p, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.h %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010010%6b%s%s00101001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		TMP_1 = b<32..63>;
+		TMP_2 = TMP_1<0..15>;
+		TMP_3 = TMP_1<16..31>;
+		indice = b+TMP_2;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		if (a<15..15> == 1)
+		then
+			a<16..31> = 0xFFFF;
+		else
+			a<16..31> = 0x0000;
+		endif;
+		TMP_4 = TMP_2+off;
+		TMP_4 = TMP_4+TMP_3<15..0>;
+		if (TMP_4 < 0)
+		then
+			TMP_4 = TMP_4+TMP_3;
+		else
+			TMP_4 = TMP_4%TMP_3;
+		endif;
+		b<32..47> = TMP_3<0..15>;
+		b<48..63> = TMP_4<0..15>;
+		}
+	otawa_sem = "SCRATCH(T1); LOADSH(D(0), T1); SCRATCH8(P(1)); "
+
+op ld_h_post (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.h %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b000010%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		if (a<15..15> == 1)
+		then
+			a<16..31> = 0xFFFF;
+		else
+			a<16..31> = 0x0000;
+		endif;
+		b = indice+off;
+		}
+	otawa_sem = "LOADSH(D(0), A(1)); INT10(T1, (2), (3)); ADD(A(1), A(1), T1);"
+
+op ld_h_pre (a:reg_d, b:reg_p, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.h %s,[+%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010010%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		if (a<15..15> == 1)
+		then
+			a<16..31> = 0xFFFF;
+		else
+			a<16..31> = 0x0000;
+		endif;
+		b = indice;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); LOADSH(D(0), T1); SET(A(1), T1);"
+
+
+//////////////// LD_HU //////////////////////
+op ld_hu = ld_hu_base | ld_hu_abs
+
+op ld_hu_base (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+	predecode = {
+		off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;
+	}
+   syntax = format("ld.hu %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b100011%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = {
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..31> = 0x0000;
+	}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADUH(D(0), T1);"
+
+op ld_hu_abs(a: reg_d, off1: card(4), off2: card(4), off3: card(6), off4: card(4), off: int(18))
+	predecode = {
+		off<0..5> = off3;
+		off<6..9> = off1;
+		off<10..13> = off2;
+		off<14..17> = off4;
+	}
+	syntax = format("ld.hu %s, %d", a.syntax, off)
+	image = format("%4b11%4b%6b%4b%s00000101%0b", off1, off2, off3, off4, a.image, off)
+	action = {
+		// !!TODO!!
+		//a = 0;
+	}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); LOADUH(D(0), T1);"
+
+
+op ld_w = ld_w_abs|ld_w_bo10|ld_w_post|ld_w_pre|ld_w_bo16
+
+op ld_w_bo16 (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off3:card(6),off:card(32))
+   predecode = {
+		off<0..5>=off3<0..5>;
+		off<6..9>=off1<0..3>;
+		off<10..15>=off2<0..5>;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;}
+   syntax = format("ld.w %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b%6b%6b%s%s00011001%0b",off1,off2,off3,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		}
+	otawa_sem = "INT16(T1, (3), (2), (4)); ADD(T1, T1, A(1)); LOADW(D(0), T1);"
+
+op ld_w_bo10 (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.w %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b100100%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADW(D(0), T1);"
+
+op ld_w_abs (a:reg_d, off1:card(4),off2:card(4),off3:card(6),off4:card(4), off:card(32))
+   predecode = {
+	     off<0..5>=off3<0..5>;
+	     off<6..9>=off1<0..3>;
+	     off<10..13>=off2<0..3>;
+	     off<14..17>=off4<0..3>;
+	     if (off<17..17>==1)then off<18..31>=0xffff; endif;
+   }
+   syntax = format("ld.w %s,%d",a.syntax,off)
+   image = format("%4b00%4b%6b%4b%s10000101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); LOADW(D(0), T1);"
+
+op ld_w_post (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.w %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b000100%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		b = indice+off;
+		}
+	otawa_sem = "LOADW(D(0), A(1)); INT10(T1, (2), (3)); ADD(A(1), T1, A(1));"
+
+op ld_w_pre (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.w %s,[+%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010100%6b%s%s00001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		a<0..7> = M[indice];
+		a<8..15> = M[indice+1];
+		a<16..23> = M[indice+2];
+		a<24..31> = M[indice+3];
+		b = indice;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADW(D(0), T1); SET(A(1), T1);"
+
+op ldmst = ldmst_abs | ldmst_bo10 | ldmst_post | ldmst_pre
+
+op ldmst_abs (a:reg_e, off1:card(4),off2:card(4),off3:card(6),off4:card(4), off:card(32))
+   predecode = {
+	     off<0..5>=off3<0..5>;
+	     off<6..9>=off1<0..3>;
+	     off<10..13>=off2<0..3>;
+	     off<14..17>=off4<0..3>;
+	     if (off<17..17>==1)then off<18..31>=0xffff; endif;
+   }
+   syntax = format("ldmst %s,[%d]",a.syntax,off)
+   image = format("%4b01%4b%6b%4b%s11100101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		TMP_1<0..7> = M[indice];
+		TMP_1<8..15> = M[indice+1];
+		TMP_1<16..23> = M[indice+2];
+		TMP_1<24..31> = M[indice+3];
+		TMP_2 = ( TMP_1 & (~a<32..63>) | (a<0..31> & a<32..63>));
+		M[indice] = TMP_2<0..7>;
+		M[indice+1] = TMP_2<8..15>;
+		M[indice+2] = TMP_2<16..23>;
+		M[indice+3] = TMP_2<24..31>;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); LOADD(T2, T1); SCRATCH8(T2); STORED(T2, T1);"
+
+op ldmst_bo10 (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ldmst %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b100001%6b%s%s01001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		TMP_1<0..7> = M[indice];
+		TMP_1<8..15> = M[indice+1];
+		TMP_1<16..23> = M[indice+2];
+		TMP_1<24..31> = M[indice+3];
+		TMP_2 = ( TMP_1 & (~a<32..63>) | (a<0..31> & a<32..63>));
+		M[indice] = TMP_2<0..7>;
+		M[indice+1] = TMP_2<8..15>;
+		M[indice+2] = TMP_2<16..23>;
+		M[indice+3] = TMP_2<24..31>;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADD(T2, T1); SCRATCH8(T2); STORED(T2, T1);"
+
+op ldmst_post (off1:card(4),off2:card(6),off:card(32),b:reg_p,a:reg_d)
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ldmst %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b000001%6b%s%s01001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b;
+		TMP_1<0..7> = M[indice];
+		TMP_1<8..15> = M[indice+1];
+		TMP_1<16..23> = M[indice+2];
+		TMP_1<24..31> = M[indice+3];
+		TMP_2 = ( TMP_1 & (~a<32..63>) | (a<0..31> & a<32..63>));
+		M[indice] = TMP_2<0..7>;
+		M[indice+1] = TMP_2<8..15>;
+		M[indice+2] = TMP_2<16..23>;
+		M[indice+3] = TMP_2<24..31>;
+		b = indice+off;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADD(T2, T1); SCRATCH8(T2); STORED(T2, T1); SET(A(1), T1);"
+
+op ldmst_pre (a:reg_e, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ldmst %s,[+%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010001%6b%s%s01001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		TMP_1<0..7> = M[indice];
+		TMP_1<8..15> = M[indice+1];
+		TMP_1<16..23> = M[indice+2];
+		TMP_1<24..31> = M[indice+3];
+		TMP_2 = ( TMP_1 & (~a<32..63>) | (a<0..31> & a<32..63>));
+		M[indice] = TMP_2<0..7>;
+		M[indice+1] = TMP_2<8..15>;
+		M[indice+2] = TMP_2<16..23>;
+		M[indice+3] = TMP_2<24..31>;
+		b = indice;
+		}
+	otawa_sem = "LOADD(T2, A(1)); SCRATCH8(T2); STORED(T2, A(1)); INT10(T1, (2), (3)); ADD(A(1), T1, A(1));"
+
+
+// lea instructions
+op lea = lea_18 | lea_10 | lea_16
+
+op lea_18 (a:reg_a, off1:card(4), off2:card(4), off3:card(6), off4:card(4), off:card(32))
+	predecode = {
+		off<28..31> = off4<0..3>;
+		off<14..27> = 0;
+		off<10..13> = off2<0..3>;
+		off<6..9> = off1<0..3>;
+		off<0..5> = off3<0..5>;
+	}
+	syntax	= format("lea %s, %d", a.syntax, off)
+	image	= format("%4b00%4b%6b%4b%s11000101%0b", off1, off2, off3, off4, a.image, off)
+	action	= { a = off; }
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); SET(A(0), T1);"
+
+op lea_10(a:reg_a, b:reg_a, off1:card(4), off2:card(6), off:card(10))
+	predecode = {
+		off<6..9> = off1<0..3>;
+		off<0..5> = off2<0..5>;
+		if (off<9..9>==1) then 
+			off<10..31>=0x3fffff; 
+		endif;
+	}
+	syntax	= format("lea %s, %s, %d", a.syntax, b.syntax, off)
+	image	= format("%4b101000%6b%s%s01001001%0b", off1, off2, b.image, a.image, off)
+	action	= { TMP_1 = b + off; a = TMP_1<0..31>; }
+	otawa_sem = "INT10(T1, (2), (3)); ADD(A(0), A(1), T1);"
+
+op lea_16 (a:reg_a, b:reg_a, off1:card(4), off2:card(6), off3:card(6), off:card(32))
+   predecode = 	{
+		off<10..15>=off2<0..5>;
+		off<6..9>=off1<0..3>;
+		off<0..5>=off3<0..5>;
+		if (off<15..15>==1) then  off<16..31>=0xffff;  endif;
+		}
+   syntax = format("lea %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b%6b%6b%s%s11011001%0b",off1,off2,off3,b.image,a.image,off)
+   action = 	{
+		TMP_1 = b+off;
+		a = TMP_1<0..31>;
+		}
+	otawa_sem = "INT16(T1, (3), (2), (4)); ADD(A(0), A(1), T1);"
+
+
+
+op st = st_a| st_b | st_d | st_h | st_w | st_t
+
+op st_a = st_a_abs | st_a_bo10 | st_a_rev | st_a_circ | st_a_post | st_a_pre
+
+op st_a_bo10 (a:reg_a, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.a [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b100110%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{ 
+		indice = b+off;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STOREW(A(0), T1);"
+
+op st_a_abs (a:reg_a, off1:card(4),off2:card(4),off3:card(6),off4:card(4), off:card(32))
+   predecode = {
+	     off<0..5>=off3<0..5>;
+	     off<6..9>=off1<0..3>;
+	     off<10..13>=off2<0..3>;
+	     off<14..17>=off4<0..3>;
+	     if (off<17..17>==1)then off<18..31>=0xffff; endif;
+   }
+   syntax = format("st.a %s,[%d]",a.syntax,off)
+   image = format("%4b10%4b%6b%4b%s10100101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); STOREW(A(0), T1);"
+	
+
+op st_a_rev (a:reg_a, b:reg_p, foo1:card(4),foo2:card(6))
+   syntax = format("st.a %s,[%s]",a.syntax,b.syntax)
+   image = format("%4b000110%6b%s%s10101001",foo1,foo2,b.image,a.image)
+   action = 	{
+		TMP_1 = b<32..63>;
+		TMP_2 = TMP_1<0..15>;
+		TMP_3 = TMP_1<16..31>;
+		indice = b+TMP_2;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		TMP_4 = TMP_2<15..0>;
+		TMP_4 = TMP_4+TMP_3<15..0>;
+		TMP_4 = TMP_4<15..0>;
+		b<32..47> = TMP_3<0..15>;
+		b<48..63> = TMP_4<0..15>;
+		}
+	otawa_sem = "SCRATCH(T1); STOREW(T1, A(0)); SCRATCH8(P(1));"
+
+op st_a_circ (a:reg_a, b:reg_p, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("st.a %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010110%6b%s%s10101001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		TMP_1 = b<32..63>;
+		TMP_2 = TMP_1<0..15>;
+		TMP_3 = TMP_1<16..31>;
+		indice = b+TMP_2;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		TMP_4 = TMP_2+off;
+		TMP_4 = TMP_4+TMP_3<15..0>;
+		if (TMP_4 < 0)
+		then
+			TMP_4 = TMP_4+TMP_3;
+		else
+			TMP_4 = TMP_4%TMP_3;
+		endif;
+		b<32..47> = TMP_3<0..15>;
+		b<48..63> = TMP_4<0..15>;
+		}
+	otawa_sem = "SCRATCH(T1); STOREW(T1, A(0)); SCRATCH8(P(1));"
+
+op st_a_post (a:reg_a, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("st.a %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b000110%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		b = indice+off;
+		}
+	otawa_sem = "STOREW(A(0), A(1)); INT10(T1, (2), (3)); ADD(A(1), A(1), T1);"
+
+op st_a_pre (a:reg_a, b:reg_p, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("st.a %s,[+%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010110%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		b = indice;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STOREW(A(0), T1); SET(A(1), T1);"
+
+op st_b = st_b_abs | st_b_bo10 | st_b_post | st_b_pre
+
+op st_b_bo10(a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.b [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b100000%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{ 
+		indice = b+off;
+		M[indice] = a<0..7>;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STOREB(D(0), T1);"
+
+op st_b_abs (a:reg_d, off1:card(4),off2:card(4),off3:card(6),off4:card(4), off:card(32))
+   predecode = {
+	     off<0..5>=off3<0..5>;
+	     off<6..9>=off1<0..3>;
+	     off<10..13>=off2<0..3>;
+	     off<14..17>=off4<0..3>;
+	     if (off<17..17>==1)then off<18..31>=0xffff; endif;
+   }
+   syntax = format("st.b %s,[%d]",a.syntax,off)
+   image = format("%4b00%4b%6b%4b%s00100101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		M[indice] = a<0..7>;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); STOREB(D(0), T1);"
+
+op st_b_post (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("st.b %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b000000%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b;
+		M[indice] = a<0..7>;
+		b = indice+off;
+		}
+	otawa_sem = "STOREB(D(0), A(1)); INT10(T1, (2), (3)); ADD(A(1), A(1), T1);"
+
+op st_b_pre (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("st.b %s,[+%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010000%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		M[indice] = a<0..7>;
+		b = indice;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STOREB(D(0), T1); SET(A(1), T1);"
+
+op st_d =  st_d_bo10 | st_d_post
+
+op st_d_bo10 (a:reg_e, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.d [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b100101%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{ 
+		indice = b+off;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		M[indice+4] = a<32..39>;
+		M[indice+5] = a<40..47>;
+		M[indice+6] = a<48..55>;
+		M[indice+7] = a<56..63>;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STORED(E(0), T1);"
+
+op st_d_post (a:reg_e, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.d [%s+],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b000101%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = { 
+		indice = b;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		M[indice+4] = a<32..39>;
+		M[indice+5] = a<40..47>;
+		M[indice+6] = a<48..55>;
+		M[indice+7] = a<56..63>;
+		b = indice+off;
+		}
+	otawa_sem = "STORED(E(0), A(1)); INT10(T1, (2), (3)); ADD(A(1), A(1), T1);"
+
+
+///////////// st.h instruction ///////////////
+op st_h = st_h_abs | st_h_bo10 | st_h_post | st_h_pre
+
+op st_h_bo10(a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.h [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b100010%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{ 
+		indice = b+off;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STOREH(D(0), T1);"
+
+op st_h_abs (a:reg_d, off1:card(4),off2:card(4),off3:card(6),off4:card(4), off:card(32))
+   predecode = {
+	     off<0..5>=off3<0..5>;
+	     off<6..9>=off1<0..3>;
+	     off<10..13>=off2<0..3>;
+	     off<14..17>=off4<0..3>;
+	     if (off<17..17>==1)then off<18..31>=0xffff; endif;
+   }
+   syntax = format("st.h %s,[%d]",a.syntax,off)
+   image = format("%4b10%4b%6b%4b%s00100101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); STOREH(D(0), T1);"
+
+op st_h_post (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("st.h %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%4b000010%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		b = indice+off;
+		}
+	otawa_sem = "STOREH(D(0), A(1)); INT10(T1, (2), (3)); ADD(A(1), A(1), T1);"
+
+op st_h_pre (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("st.h %s,[+%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010010%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		b = indice;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STOREH(D(0), T1); SET(A(1), T1);"
+
+op st_w = st_w_abs|st_w_bo10|st_w_rev|st_w_post|st_w_pre|st_w_circ|st_w_bo16
+
+op st_w_bo16 (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off3:card(6),off:card(32))
+   predecode = {
+		off<0..5>=off3<0..5>;
+		off<6..9>=off1<0..3>;
+		off<10..15>=off2<0..5>;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;}
+   syntax = format("st.w %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b%6b%6b%s%s01011001%0b",off1,off2,off3,b.image,a.image,off)
+   action = 	{
+			indice = b+off;
+			M[indice] = a<0..7>;
+			M[indice+1] = a<8..15>;
+			M[indice+2] = a<16..23>;
+			M[indice+3] = a<24..31>;
+		}
+	otawa_sem = "INT16(T1, (3), (2), (4)); ADD(T1, T1, A(1)); STOREW(D(0), T1);"
+
+op st_w_bo10 (a:reg_a, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.w [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b100100%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		indice = b+off;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STOREW(D(0), T1);"
+
+op st_w_pre (a:reg_e, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.w [+%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b010100%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{ 
+		indice = b+off;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		b = indice;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); STOREW(D(0), T1); SET(A(1), T1);"
+
+op st_w_post (a:reg_d, b:reg_a, off1:card(4),off2:card(6),off:card(32))
+   predecode = {off<6..9>=off1<0..3>;
+		off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.w [%s+],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b000100%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = 	{ 
+		indice = b;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		b = indice+off;
+		}
+	otawa_sem = "STOREW(D(0), A(1)); INT10(T1, (2), (3)); ADD(A(1), A(1), T1);"
+
+op st_w_abs (a:reg_d, off1:card(4),off2:card(4),off3:card(6),off4:card(4), off:card(32))
+   predecode = {
+	     off<0..5>=off3<0..5>;
+	     off<6..9>=off1<0..3>;
+	     off<10..13>=off2<0..3>;
+	     off<14..17>=off4<0..3>;
+	     if (off<17..17>==1)then off<18..31>=0xffff; endif;
+   }
+   syntax = format("st.w %s,[%d]",a.syntax,off)
+   image = format("%4b00%4b%6b%4b%s10100101%0b",off1,off2,off3,off4,a.image,off)
+   action = 	{
+		indice<0..13> = off<0..13>;
+		indice<14..27> = 0x0000;
+		indice<28..31> = off<14..17>;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); STOREW(D(0), T1);"
+
+op st_w_rev (a:reg_d, b:reg_p, foo1:card(4),foo2:card(6))
+   syntax = format("st.w %s,[%s]",a.syntax,b.syntax)
+   image = format("%4b000100%6b%s%s10101001",foo1,foo2,b.image,a.image)
+   action = 	{
+		TMP_1 = b<32..63>;
+		TMP_2 = TMP_1<0..15>;
+		TMP_3 = TMP_1<16..31>;
+		indice = b+TMP_2;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		TMP_4 = TMP_2<15..0>;
+		TMP_4 = TMP_4+TMP_3<15..0>;
+		TMP_4 = TMP_4<15..0>;
+		b<32..47> = TMP_3<0..15>;
+		b<48..63> = TMP_4<0..15>;
+		}
+	otawa_sem = "SCRATCH(T1); STOREW(D(0), T1); SCRATCH8(P(1));"
+
+op st_w_circ (off1:card(4),off2:card(6),off:card(32),b:reg_p,a:reg_d)
+   predecode = {off<6..9>=off1<0..3>;
+	        off<0..5>=off2<0..5>;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("st.w %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%4b010100%6b%s%s10101001%0b",off1,off2,b.image,a.image,off)
+   action = 	{
+		TMP_1 = b<32..63>;
+		TMP_2 = TMP_1<0..15>;
+		TMP_3 = TMP_1<16..31>;
+		indice = b+TMP_2;
+		M[indice] = a<0..7>;
+		M[indice+1] = a<8..15>;
+		M[indice+2] = a<16..23>;
+		M[indice+3] = a<24..31>;
+		TMP_4 = TMP_2+off;
+		TMP_4 = TMP_4+TMP_3<15..0>;
+		if (TMP_4 < 0)
+		then
+			TMP_4 = TMP_4+TMP_3;
+		else
+			TMP_4 = TMP_4%TMP_3;
+		endif;
+		b<32..47> = TMP_3<0..15>;
+		b<48..63> = TMP_4<0..15>;
+		}
+	otawa_sem = "SCRATCH(T1); STOREW(D(0), T1); SCRATCH8(P(1));"
+
+op st_t (b:card(1), off1:card(4),off2:card(4),off3:card(6),off4:card(4),bpos3:card(3), off18:card(18))
+   predecode = {
+		off18<0..5>=off3<0..5>;
+		off18<6..9>=off1<0..3>;
+		off18<10..13>=off2<0..3>;
+		off18<14..17>=off4<0..3>;
+	}
+   syntax = format("st.t %d,%d,%d",off18,bpos3,b)
+   image = format("%4b00%4b%6b%4b%1b%3b11010101%0b",off1,off2,off3,off4,b,bpos3,off18)
+   action = { }
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); SCRATCH(T2); STOREB(T2, T1);"
+
+op swap = swap_abs | swap_bo10
+
+op swap_abs (a:reg_d, off1:card(4), off2:card(4), off3:card(6), off4:card(4), const:card(32))
+   predecode = 	{
+		const = 0;
+		const<0..5> = off3<0..5>;
+		const<6..9> = off1<0..3>;
+		const<10..13> = off2<0..3>;
+		const<14..17> = off4<0..3>;
+		} 
+   syntax = format("swap.w %d,%s",const,a.syntax)
+   image = format ("%4b00%4b%6b%4b%s11100101%0b",off1,off2,off3,off4,a.image,const)
+   action = 	{
+		TMP_1 = const<14..17>::0b00000000000000::const<0..13>;
+		loadWord(TMP_2,TMP_1);
+		storeWord(a,TMP_1);
+		a = TMP_2;
+		}
+	otawa_sem = "INT18(T1, (4), (2), (1), (3)); LOADW(T2, T1); STOREW(D(0), T1); SET(D(0), T2);"
+
+op swap_bo10 (a:reg_d, b:reg_a, off1:card(4), off2:card(6), const:card(32))
+   predecode = 	{
+		const = 0;
+		const<6..9> = off1<0..3>;
+		const<0..5> = off2<0..5>;
+		if (const<9..9> == 1)
+		then
+			const<10..31> = 0x3FFFFF;
+		endif;
+		} 
+   syntax = format("swap.w %s,%d,%s",b.syntax,const,a.syntax)
+   image = format ("%4b100000%6b%s%s01001001%0b",off1,off2,b.image,a.image,const)
+   action = 	{
+		TMP_1 = b+const;
+		loadWord(TMP_2,TMP_1);
+		storeWord(a,TMP_1);
+		loadWord(b,TMP_1);
+		a = TMP_2;
+		}
+	otawa_sem = "INT10(T1, (2), (3)); ADD(T1, T1, A(1)); LOADW(T2, T1); STOREW(D(0), T1); SET(D(0), T2);"
+

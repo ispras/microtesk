@@ -1,0 +1,36 @@
+/*
+ * Copyright (c) 2012 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * OperationOr.stg, Dec 7, 2012 2:46:37 PM Andrei Tatarnikov
+ */
+
+group OperationOr;
+ 
+op(name, file, pack, imps, base, ops) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<class(["public", "abstract"], 
+       name,
+       base,
+       false,
+       body(name, ops))> 
+>>
+
+body(name, ops) ::= <<
+private <name>() {}<\n>
+<class_string_const("String", "NAME", name)><\n>
+<class_const("IInfo", "INFO", new_op_list(ops))>
+>>
+
+new_op_list(ops) ::= <<
+new InfoOrRule(NAME,
+    <ops; separator=".INFO,\n">.INFO
+)
+>>

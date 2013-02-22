@@ -1,0 +1,324 @@
+
+// ========================================================================= //
+// 1. Definitions                                                            //
+// ========================================================================= //
+
+let proc = "toto"         
+let bit_order = "uppermost" // Be careful ; this is not the convention used in PPC manuals.
+
+// ------------------------------------------------------------------------- //
+// 1.1 Constants                                                             //
+// ------------------------------------------------------------------------- //
+
+let REGS = 5
+
+
+
+// ------------------------------------------------------------------------- //
+// 1.2 Types                                                                 //
+// ------------------------------------------------------------------------- //
+
+type u8		= card ( 8 )
+type u16	= card(16)
+type u32	= card ( 32 )
+type u64	= card ( 64 )
+
+type u1		= card ( 1 )
+type u2		= card(2)
+type u4		= card ( 4 )
+type u20	= card(20)
+type u29	= card(29)
+
+type s8		= int ( 8 )
+type s16	= int(16)
+type s32	= int ( 32 )
+type s64	= int ( 64 )
+
+type s2		= int(2)
+type s4		= int ( 4 )
+type s20	= int(20)
+type s29	= int(29)
+
+//type fx2_2	= fix(2, 2)
+//type fx2_6	= fix(2, 6)
+//type fx6_2	= fix(6, 2)
+//type fx16_8	= fix(16, 8)
+//type fx8_16	= fix(8, 16)
+//type fx16_16	= fix(16, 16)
+//type fx22_10	= fix(22, 10)
+//type fx10_22	= fix(10, 22)
+//type fx40_24	= fix(40, 24)
+//type fx24_40	= fix(24, 40)
+//
+//type rg0_255	= [0..255]
+//type rg127_128 = [-127..128]
+//type rg0_10000	= [0..10000]
+//type rg10000_100	= [-10000..-100]
+//type rgX_X	= [-1000000000..1000000000]
+//
+//type rg23_453	= [23..453]
+//type rg2_2	= [2..2]
+//type rg0_1	= [0..1]
+//
+//type flot      = float ( 52 , 12 )
+//type flots     = float ( 23 , 9 )
+//type xflot     = float ( 64 , 16 )
+//type sflot     = float ( 31 , 9 )
+
+// ------------------------------------------------------------------------- //
+// 1.3  Memory and registers                                                 //
+// ------------------------------------------------------------------------- //
+
+// 1.3.1 GEP registers
+
+reg PIA     [ 1 , s32 ]	__attr(ppc)
+reg CIA     [ 1 , s32 ]	__attr(pc)
+reg NIA     [ 1 , s32 ]	__attr(npc)
+
+mem M		[ 32 , u8 ]
+
+// ordinary sizes
+reg R8		[8, u8]
+reg R8s		[8, s8]
+reg R16		[16, u16]
+reg R16s	[16, s16]
+reg R32s	[ 2 ** REGS , s32 ]
+reg R32		[ 2 ** REGS , u32 ]
+reg R64s	[ 2 ** REGS , s64 ]
+reg R64		[ 2 ** REGS , u64 ]
+
+// "exotic" sizes
+reg R2		[ 8 , u2 ]
+reg R2s		[ 8, s2]
+reg R4		[ 8 , u4 ]
+reg R4s		[ 8, s4]
+reg R20		[ 8 , u20 ]
+reg R20s	[ 8, s20]
+reg R29		[ 8 , u29 ]
+reg R29s	[ 8, s29]
+
+
+//reg R2_2	[ 8, fx2_2]
+//reg R2_6	[ 8, fx2_6]
+//reg R6_2	[ 8, fx6_2]
+//reg R16_8	[ 8, fx16_8]
+//reg R8_16	[ 8, fx8_16]
+//reg R16_16	[ 8, fx16_16]
+//reg R22_10	[ 8, fx22_10]
+//reg R10_22	[ 8, fx10_22]
+//reg R40_24	[ 8, fx40_24]
+//reg R24_40	[ 8, fx24_40]
+//
+//reg R0_255	[ 8, rg0_255]
+//reg R127_128	[ 8, rg127_128]
+//reg R0_10000	[ 8, rg0_10000]
+//reg R10000_100	[ 8, rg10000_100]
+//reg RX_X	[ 8, rgX_X]
+//reg R23_453	[ 8, rg23_453]
+//reg Rg2_2	[ 8, rg2_2]
+//reg R0_1	[ 8, rg0_1]
+//
+//
+//reg F		[ 2 ** REGS , flot ]
+//reg Fs		[ 2 ** REGS , flots ]
+//reg xF		[ 2 ** REGS , xflot ]
+//reg sF		[ 2 ** REGS , sflot ]
+
+
+
+
+// ------------------------------------------------------------------------- //
+// 1.4  Internal variables and aliases for subparts                          //
+// ------------------------------------------------------------------------- //
+
+
+
+
+
+
+
+
+// ------------------------------------------------------------------------- //
+// 1.5 Addressing Modes                                                      //
+// ------------------------------------------------------------------------- //
+
+
+
+
+// juste pour tester
+mode _A = _B | _C | _D
+
+mode _B(n:int(6)) = n
+	syntax = format("B%d", n)
+	image  = format("00%6b", n)
+
+mode _C(n:int(6)) = n
+	syntax = format("C%d", n)
+	image  = format("01%6b", n)
+
+mode _D = _E | _F
+
+mode _E(n:int(6)) = n
+	syntax = format("E%d", n)
+	image  = format("10%6b", n)
+
+mode _F(n:int(6)) = n
+	syntax = format("F%d", n)
+	image  = format("11%6b", n)
+
+
+
+// ------------------------------------------------------------------------- //
+// 1.6 Macros                                                                //
+// ------------------------------------------------------------------------- //
+
+
+
+
+
+		
+// ========================================================================= //
+//  2. Instructions                                                          //
+// ========================================================================= //
+
+op instruction ( x : allinstr)
+  syntax = x.syntax
+  image = x.image
+  action = { x.action ; }
+
+op allinstr = opA | opB | tmp_test
+
+op tmp_test(p: card(8))
+	syntax = format("test %d", p)
+	image = format("10010001 %5b xxxxxxxx xxxxxxxx", p)
+// !!BUG!! format("10010001 %5b", p) -> p : card(32)
+	action = {
+	}
+
+op opA(x: card(5), y : card(5), z : card(5))
+	syntax = format("opA %d,%d,%d", x, y, z)
+	image = format("010111111%5b%5b%5b", x, y, z)
+	action = {
+		
+		// signed <-> unsigned, same size
+	
+		R8[0] = coerce(u8, R8s[1]);
+		R8s[1] = coerce(s8, R8[0]);
+		R16[0] = coerce(u16, R16s[1]);
+		R16s[1] = coerce(s16, R16[0]);
+		R32[0] = coerce(u32, R32s[1]);
+		R32s[1] = coerce(s32, R32[0]);
+		R64[0] = coerce(u64, R64s[1]);
+		R64s[1] = coerce(s64, R64[0]);
+		
+		R2[0] = coerce(u2, R2s[1]);
+		R2s[1] = coerce(s2, R2[0]);
+		R4[0] = coerce(u4, R4s[1]);
+		R4s[1] = coerce(s4, R4[0]);
+		R20[0] = coerce(u20, R20s[1]);
+		R20s[1] = coerce(s20, R20[0]);
+		R29[0] = coerce(u29, R29s[1]);
+		R29s[1] = coerce(s29, R29[0]);
+		
+		
+		// size increased, same sign
+		
+		// unsigned
+		R16[0] = coerce(u16, R8[1]);
+		R32[0] = coerce(u32, R16[1]);
+		R32[0] = coerce(u32, R8[1]);
+		R64[0] = coerce(u32, R32[1]);
+		
+		// signed
+		R16s[0] = coerce(s16, R8s[1]);
+		R32s[0] = coerce(s32, R16s[1]);
+		R32s[0] = coerce(s32, R8s[1]);
+		R64s[0] = coerce(s32, R32s[1]);
+		
+		// normal sizes mixed with exotic sizes
+		R32[0] = coerce(u32, R2[2]);
+		R32[0] = coerce(u32, R4[2]);
+		R32[0] = coerce(u32, R29[2]);
+		R32s[0] = coerce(s32, R2s[2]);
+		R32s[0] = coerce(s32, R4s[2]);
+		R32s[0] = coerce(s32, R29s[2]);
+		
+		// exotic sizes
+		R4[0] = coerce(u4, R2[2]);
+		R20[0] = coerce(u20, R4[2]);
+		R29[0] = coerce(u29, R20[2]);
+		R4s[0] = coerce(s4, R2s[2]);
+		R20s[0] = coerce(s20, R4s[2]);
+		R29s[0] = coerce(s29, R20s[2]);
+	
+		
+		// size decreased, same sign
+		
+		// unsigned
+		R8[0] = coerce(u8, R16[1]);
+		R16[0] = coerce(u16, R32[1]);
+		R32[0] = coerce(u32, R64[1]);
+		
+		// signed
+		R8s[0] = coerce(s8, R16s[1]);
+		R16s[0] = coerce(s16, R32s[1]);
+		R32s[0] = coerce(s32, R64s[1]);
+		
+		// normal sizes mixed with exotic sizes
+		R2[0] = coerce(u2, R16[2]);
+		R4[0] = coerce(u4, R32[2]);
+		R20[0] = coerce(u20, R32[2]);
+		R2s[0] = coerce(s2, R16s[2]);
+		R4s[0] = coerce(s4, R32s[2]);
+		R20s[0] = coerce(s20, R32s[2]);
+		
+		// exotic sizes
+		R4[0] = coerce(u4, R20[2]);
+		R20[0] = coerce(u20, R29[2]);
+		R2[0] = coerce(u2, R20[2]);
+		R4s[0] = coerce(s4, R20s[2]);
+		R20s[0] = coerce(s20, R29s[2]);
+		R2s[0] = coerce(s2, R20s[2]);
+		
+		
+		// signed <-> unsigned, size increased
+		
+		// normal sizes
+		R16[0] = coerce(u16, R8s[2]);
+		R16s[0] = coerce(s16, R8[2]);
+		R32[0] = coerce(u32, R16s[2]);
+		R32s[0] = coerce(s32, R16[2]);
+		R64[0] = coerce(u64, R32s[2]);
+		R64s[0] = coerce(s64, R32[2]);
+		
+		// normal sizes mixed with exotic sizes
+		R8[0] = coerce(u8, R2s[2]);
+		R8s[0] = coerce(s8, R2[2]);
+		R8[0] = coerce(u8, R4s[2]);
+		R8s[0] = coerce(s8, R4[2]);
+		R32[0] = coerce(u32, R20s[2]);
+		R32s[0] = coerce(s32, R20[2]);
+		
+		// exotic sizes
+		R4[0] = coerce(u4, R2s[2]);
+		R4s[0] = coerce(s4, R2[2]);
+		R20[0] = coerce(u20, R4s[2]);
+		R20s[0] = coerce(s20, R4[2]);
+		R29[0] = coerce(u29, R20s[2]);
+		R29s[0] = coerce(s29, R20[2]);
+		
+	}
+
+op opB()
+	syntax = "opB"
+	image = "000011110000111100001111"
+	action = {
+	}
+
+
+
+
+
+op init ()
+   action = {
+           }

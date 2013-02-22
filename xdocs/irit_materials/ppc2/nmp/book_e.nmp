@@ -1,0 +1,92 @@
+/*
+ * PPC2 - BOOK E -- Book E instructions
+ * Copyright (C) 2011, TRACES - IRIT <casse@irit.fr>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+ 
+op book_e =
+	  icbt
+	| mbar
+	| mfdcr
+	| msync
+	| mtdcr
+	| tlbivax
+	| tlbre
+	| tlbsx
+	| tlbsync
+	| tlbwe
+	| wrtee
+	| wrteei
+
+op icbt(CT: card(5), rA: REG_IND_ZERO, rB: index)
+	syntax = format("icbt %d, %s, r%d", CT, rA, rB)
+	image = format("011111 %5b %s %5b 0000 0101 10X", CT, rA, rB)
+	action = { }	// not implemented
+
+op mbar(MO: card(5))
+	syntax = format("mbar %d", MO)
+	image = format("011111 %5b XXXX XXXX XX 1101 0101 10X", MO)
+	action = { }	// not implemented	
+
+op mfdcr(rD: index, DCRN: card(10))
+	syntax = format("mfdcr, r%d, %d", rD, DCRN)
+	image = format("011111 %5b %5b %5b 0101000011X", rD, DCRN<4..0>, DCRN<9..5>)
+	action = { }	// not implemented
+
+op msync()
+	syntax = "msync"
+	image = "011111 XXXX XXXX XXXX XXX 1001 0101 10X"
+	action = { }	// not implemented
+
+op mtdcr(DCRN: card(10), rD: index)
+	syntax = format("mtdcr %d, r%d", DCRN, rD)
+	image = format("011111 %5b %5b %5b 0111000011X", rD, DCRN<4..0>, DCRN<9..5>)
+	action = { }	// not implemented
+
+op tlbivax(rA: REG_IND_ZERO, rB: index)
+	syntax = format("tlbivax %s, r%d", rA, rB)
+	image = format("011111 XXXXX %s %5b 1100 0100 10X", rA, rB)
+	action = { }	// not implemented
+
+op tlbre()
+	syntax = "tlbre"
+	image = "011111 XXXX XXXX XXXX XXX 1110 1100 10X"
+	action = { }	// not implemented
+
+op tlbsx(rA: index, rB: index)
+	syntax = format("tlbsx r%d, r%d", rA, rB)
+	image = format("011111 XXXXX %5b %5b 1110 0100 10X", rA, rB)
+	action = { }	// not implemented
+
+op tlbsync()
+	syntax = "tlbsync"
+	image = "011111 XXXX XXXX XXXX XXX 10001101 10X"
+	action = { }	// not implemented
+
+op tlbwe()
+	syntax = "tlbwe"
+	image = "011111 XXXX XXXX XXXX XXX 1111 0100 10X"
+	action = { }	// not implemented
+
+op wrtee(rS: index)
+	syntax = format("wrtee r%d", rS)
+	image = format("011111 %5b XXXX XXXX XX 0010 0000 11X", rS)
+	action = { MSR<MSR_EE..MSR_EE> = GPR[rS]<15..15>; }
+
+op wrteei(E: bit)
+	syntax = format("wrtee %d", E)
+	image = format("011111 XXXX XXXX XX %1b XXXX 0010 1000 11X", E)
+	action = { MSR<MSR_EE..MSR_EE> = E; }

@@ -1,0 +1,120 @@
+
+let proc="mine"
+let gliss_isize = "32"
+
+reg pc[1, card(32)] __attr(pc)
+reg ur[1, card(32)]
+reg sr[1, int(32)]
+reg sur[1, card(25)]
+reg ssr[1, int(25)]
+
+reg r[1, card(64)]
+
+op init()
+	action = { }
+
+op instruction()
+	image = "00000000 00000000 00000000 00000000"
+	syntax = "bof"
+	action = {
+
+		// unary unsigned
+		ur = -ur;
+		ur = ~ur;
+		ur = !ur;
+		sur = -sur;
+		sur = ~sur;
+		sur = !sur;
+
+		// unary signed
+		sr = -sr;
+		sr = ~sr;
+		sr = !sr;
+		ssr = -ssr;
+		ssr = ~ssr;
+		ssr = !ssr;
+
+		// binary unsigned
+		ur = ur + ur;
+		ur = ur - ur;
+		ur = ur * ur;
+		ur = ur / ur;
+		ur = ur % ur;
+		ur = ur ** ur;
+		ur = ur << ur;
+		ur = ur >> ur;
+		ur = ur <<< ur;
+		ur = ur >>> ur;
+		ur = ur < ur;
+		ur = ur > ur;
+		ur = ur <= ur;
+		ur = ur >= ur;
+		ur = ur == ur;
+		ur = ur != ur;
+		ur = ur & ur;
+		ur = ur | ur;
+		ur = ur ^ ur;
+
+		sur = sur + sur;
+		sur = sur - sur;
+		sur = sur * sur;
+		sur = sur / sur;
+		sur = sur % sur;
+		sur = sur ** sur;
+		sur = sur << sur;
+		sur = sur >> sur;
+		sur = sur <<< sur;
+		sur = sur >>> sur;
+		sur = sur < sur;
+		sur = sur > sur;
+		sur = sur <= sur;
+		sur = sur >= sur;
+		sur = sur == sur;
+		sur = sur != sur;
+		sur = sur & sur;
+		sur = sur | sur;
+		sur = sur ^ sur;
+
+		// binary signed
+		sr = sr + sr;
+		sr = sr - sr;
+		sr = sr * sr;
+		sr = sr / sr;
+		sr = sr % sr;
+		sr = sr ** sr;
+		sr = sr << sr;
+		sr = sr >> sr;
+		sr = sr <<< sr;
+		sr = sr >>> sr;
+		sr = sr < sr;
+		sr = sr > sr;
+		sr = sr <= sr;
+		sr = sr >= sr;
+		sr = sr == sr;
+		sr = sr != sr;
+		sr = sr & sr;
+		sr = sr | sr;
+		sr = sr ^ sr;
+
+		ssr = ssr + ssr;
+		ssr = ssr - ssr;
+		ssr = ssr * ssr;
+		ssr = ssr / ssr;
+		ssr = ssr % ssr;
+		ssr = ssr ** ssr;
+		ssr = ssr << ssr;
+		ssr = ssr >> ssr;
+		ssr = ssr <<< ssr;
+		ssr = ssr >>> ssr;
+		ssr = ssr < ssr;
+		ssr = ssr > ssr;
+		ssr = ssr <= ssr;
+		ssr = ssr >= ssr;
+		ssr = ssr == ssr;
+		ssr = ssr != ssr;
+		ssr = ssr & ssr;
+		ssr = ssr | ssr;
+		ssr = ssr ^ ssr;
+
+	}
+

@@ -1,0 +1,42 @@
+/****************************************************************************
+                                    README
+                              ------------------
+    date            : 2009
+    copyright       : Institut de Recherche en Informatique de Toulouse
+    author          : Marc Finet, J. Barre, H. Cassé
+    email           : casse@irit.fr, sainrat@irit.fr
+ ****************************************************************************/
+
+/****************************************************************************
+ *                                                                          *
+ *   This program is free software; you can redistribute it and/or modify   *
+ *   it under the terms of the GNU General Public License as published by   *
+ *   the Free Software Foundation; either version 2 of the License, or      *
+ *   (at your option) any later version.                                    *
+ *                                                                          *
+ ****************************************************************************/
+
+---------[  powerpc iss library 755 v2 ]----------
+
+To perform the build :
+    . you should have a gliss distribution (>= 2.0.0) uncompacted
+      at the same directory level than this package
+    . In the makefile, you may have to tune the configuration section
+    . type make in this directory
+
+According to the configuration, you will find the following result:
+    . src/libppc.a -- PPC library containing simulator, disassembler, etc
+    . include/ppc -- header file for using the library
+    . sim/ppc-sim -- PPC simulator
+    . disasm/ppc-disasm -- PPC disassembler
+
+
+To try the iss library :
+    . go in the sim directory (cd sim)
+    . type ./ppc-sim ../prog/primes
+        or ./ppc-sim ../prog/argv ...
+
+Notes :
+    . To clean temporary files : make clean
+    . To clean all generated files : make distclean
+

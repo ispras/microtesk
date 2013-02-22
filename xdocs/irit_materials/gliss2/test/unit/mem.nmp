@@ -1,0 +1,29 @@
+
+let proc="mine"
+let gliss_isize = "32"
+
+reg pc[1, card(32)] __attr(pc)
+mem m[32, card(8)]
+mem m16[32, card(16)] alias = m[0]
+mem m32[32, card(32)] alias = m[0]
+mem m64[32, card(64)] alias = m[0]
+
+reg r[1, card(64)]
+
+op init()
+	action = { }
+
+op instruction()
+	image = "00000000 00000000 00000000 00000000"
+	syntax = "bof"
+	action = {
+		m[1] = 0;
+		m16[2] = 0;
+		m32[3] = 0;
+		m64[4] = 0;
+		r = m[1];
+		r = m16[2];
+		r = m32[3];
+		r = m64[4];
+	}
+

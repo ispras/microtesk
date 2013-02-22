@@ -1,0 +1,200 @@
+///**************************************************************************** 
+//                                vea_instr.nmp                                 
+//                              ------------------                              
+//    date            : May 2003                                               
+//    copyright       : Institut de Recherche en Informatique de Toulouse       
+//    author          : Daniel Gracia-Perez                                             
+//    email           : sainrat@irit.fr                        
+// ****************************************************************************/
+//                                                                             
+///**************************************************************************** 
+// *                                                                          * 
+// *   This program is free software; you can redistribute it and/or modify   * 
+// *   it under the terms of the GNU General Public License as published by   * 
+// *   the Free Software Foundation; either version 2 of the License, or      * 
+// *   (at your option) any later version.                                    * 
+// *                                                                          * 
+// ****************************************************************************/
+
+
+// This file contains the nMP description of the VEA 
+// instructions of the PowerPC 
+
+// ========================================================================= //
+// 1. Definitions                                                            //
+// ========================================================================= //
+// nada
+
+// ========================================================================= //
+//  2. Instructions                                                          //
+// ========================================================================= //
+
+
+op vea_instr =    vea_cache_man_instr       // cache management instructions
+                | vea_ext_control_instr     // external control instructions
+                | vea_mem_sync_instr        // memory synchronization instructions
+                | vea_proc_control_instr    // processor control instructions
+			   
+// ------------------------------------------------------------------------- //
+// 2.1 cache management instructions
+// ------------------------------------------------------------------------- //
+
+op  vea_cache_man_instr( x : vea_cache_man_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = CACHE
+
+op vea_cache_man_instr_action =   vea_dcbf
+                        | vea_dcbst
+                        | vea_dcbt
+                        | vea_dcbtst
+                        | vea_dcbz
+                        | vea_icbi
+                        | vea_dcba    
+
+op vea_dcbf ( ra: REG_IND_ZERO, rb: REG_IND )
+
+	syntax = format ( "dcbf %s,%s", ra.syntax, rb.syntax )
+	image  = format ( "01111100000%s%s00010101100", ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		}
+
+op vea_dcbst ( ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "dcbst %s,%s", ra.syntax, rb.syntax )
+	image  = format ( "01111100000%s%s00001101100", ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		}
+
+op vea_dcbt ( ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "dcbt %s,%s", ra.syntax, rb.syntax )
+	image  = format ( "01111100000%s%s01000101100", ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		}
+
+op vea_dcbtst ( ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "dcbtst %s,%s", ra.syntax, rb.syntax )
+	image  = format ( "01111100000%s%s00111101100", ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		}
+
+op vea_dcbz ( ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "dcbz %s,%s", ra.syntax, rb.syntax )
+	image  = format ( "01111100000%s%s11111101100", ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		TMP_WORD=TMP_EA-(TMP_EA%32);
+		TMP_SWORD=0;
+		recurs;
+		}
+	recurs = {
+		if TMP_SWORD<32 then
+			M[TMP_WORD+TMP_SWORD]=0;
+			TMP_SWORD=TMP_SWORD+1;
+			recurs;
+		endif;
+		}
+
+op vea_icbi ( ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "icbi %s,%s", ra.syntax, rb.syntax )
+	image  = format ( "01111100000%s%s11110101100", ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		}
+
+op vea_dcba ( ra: REG_IND_ZERO, rb: REG_IND )
+
+	syntax = format ( "dcba %s,%s", ra.syntax, rb.syntax )
+	image  = format ( "01111100000%s%s0010101100", ra.image, rb.image )
+	action = {
+		TMP_EA = ra + rb;
+		}
+
+// ------------------------------------------------------------------------- //
+// 2.2 external control instructions
+// ------------------------------------------------------------------------- //
+
+op  vea_ext_control_instr( x : vea_ext_control_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = EXT
+
+op vea_ext_control_instr_action  =   vea_eciwx
+                            | vea_ecowx
+
+
+op vea_eciwx ( rd: REG_IND, ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "eciwx %s,%s,%s",rd.syntax,ra.syntax,rb.syntax )
+	image  = format ( "011111%s%s%s01001101100", rd.image, ra.image, rb.image )
+	action = {
+		}
+	user0 = "2"
+
+op vea_ecowx ( rs: REG_IND, ra: REG_IND_ZERO, rb: REG_IND )
+	syntax = format ( "ecowx %s,%s,%s",rs.syntax,ra.syntax,rb.syntax )
+	image  = format ( "011111%s%s%s01101101100", rs.image, ra.image, rb.image )
+	action = {
+		}
+
+
+// ------------------------------------------------------------------------- //
+// 2.3 memory synchronization instructions
+// ------------------------------------------------------------------------- //
+
+op  vea_mem_sync_instr( x : vea_mem_sync_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = MEMSYNC
+
+op vea_mem_sync_instr_action =   vea_eieio
+                        | vea_isync
+
+op vea_eieio ()
+	syntax = "eieio" 
+   	image  = "01111100000000000000011010101100"
+  	action = {
+		}
+
+op vea_isync ()
+	syntax = "isync"
+	image  = "01001100000000000000000100101100"
+	action = {
+		}
+
+// ------------------------------------------------------------------------- //
+// 2.4 processor control instructions
+// ------------------------------------------------------------------------- //
+
+op  vea_proc_control_instr( x : vea_proc_control_instr_action )
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
+   category = CONTROL
+
+op vea_proc_control_instr_action = vea_mftb
+
+op vea_mftb ( rd : index, tbr : card ( 10 ) )
+	syntax = format ( "mftb r%d,%d", rd, tbr )
+	image  = format ( "011111%5b%10b01011100110", rd, tbr )
+	action = {
+		TMP_HWORD = tbr;
+		TMP_WORD = 0;
+		TMP_WORD = TMP_HWORD < 4..0 >;
+		TMP_WORD = TMP_WORD << 5;
+		TMP_WORD = TMP_WORD | ( TMP_HWORD < 9..5 > & 0x0000001f);
+
+		if TMP_WORD == 268 then
+			GPR[rd] = TBL;
+		else
+			if TMP_WORD == 269 then
+				GPR[rd] =TBU;
+			endif;
+		endif;
+		}
+		

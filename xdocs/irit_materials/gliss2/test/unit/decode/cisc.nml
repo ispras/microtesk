@@ -1,0 +1,43 @@
+
+let proc="mine"
+let gliss_isize = "32,8"
+let bit_order = "UPPERMOST"
+
+reg pc[1, card(32)] pc = 1
+reg r[32, card(32)]
+
+
+op init()
+	action = { }
+
+op instruction(x: all)
+	image = x.image
+	syntax = x.syntax
+	action = { x.action; }
+
+op all = i1 | i2 | i3 | i4 | i5
+
+op i1(a: card(4), b: card(8), c: card(12))
+	image = format("0000 0000  %4b %8b %12b", a, b, c)
+	syntax = "i1_abc"
+	action = { }
+
+op i2(c: card(12), b: card(8), a: card(4))
+	image = format("0000 0001  %4b %8b %12b", a, b, c)
+	syntax = "i2_abc"
+	action = { }
+
+op i3(a: card(4), b: card(8), c: card(12))
+	image = format("0000 0010  %12b %8b %4b", c, b, a)
+	syntax = "i3_cba"
+	action = { }
+
+op i4(a: card(4), b: card(8), c: card(12))
+	image = format("0000 0011  %4b %12b %8b", a, c, b)
+	syntax = "i4_acb"
+	action = { }
+
+op i5()
+	image = "1000 0000"
+	syntax = "i5"
+	action = { }

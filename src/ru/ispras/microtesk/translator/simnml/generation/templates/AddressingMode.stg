@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2012 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * AddressingMode.stg, Dec 7, 2012 1:58:00 PM Andrei Tatarnikov
+ */
+
+group AddressingMode;
+
+mode(name, file, pack, imps, simps, base, param_decls, param_names, attrs, ret) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<if(simps)><static_imports(simps)><endif>
+<class(["public", "final"], 
+       name,
+       base,
+       false,
+       body(name, param_decls, param_names, attrs, ret))> 
+>>
+
+body(name, param_decls, param_names, attrs, ret) ::= <<
+<class_string_const("String", "NAME", name)><\n>
+<mode_param_decl(param_decls)><\n>
+<class_const("IFactory", "FACTORY", new_mode_factory(name))><\n>
+<class_const(decl_map_type(), "DECLS", "createDeclarations(PARAMS)")>
+<class_const("IInfo", "INFO", new_mode_info(name))><\n>
+<mode_constructor(name, param_names)><\n>
+<attrs; separator="\n\n">
+<if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>;})><endif>
+>>
+
+decl_map_type() ::= <<Map\<String, Type\>>>
+data_map_type() ::= <<Map\<String, Data\>>>
+
+new_mode_factory(name) ::= <<
+new IFactory()
+{
+    @Override
+    public IAddressingMode create(<data_map_type()> args)
+    {
+        return new <name>(args);
+    }
+}
+>>
+
+new_mode_info(name) ::= <<
+new Info(<name>.class, NAME, FACTORY, DECLS)
+>>
+
+mode_param_decl(param_decls) ::= <<
+<class_const("ParamDecl[]", "PARAMS", new_mode_params(param_decls))>
+>>
+
+new_mode_params(param_decls) ::= <<
+new ParamDecl[]<\n>{
+    <param_decls; separator=",\n">
+}
+>>
+
+new_mode_param(name, type) ::= <<
+new ParamDecl("<name>", <type>)
+>>
+
+mode_constructor(name, param_names) ::= <<
+<if(param_names)><param_names:mode_param_def(); separator="\n"><\n><endif>
+public <name>(<data_map_type()> args)
+{
+    <param_names:mode_param_init(); separator="\n">
+}
+>>
+
+mode_param_def(param_name) ::= <<
+private final Location <param_name>;
+>>
+
+mode_param_init(param_name) ::= <<
+this.<param_name> = getArgument("<param_name>", DECLS, args);
+>>
+
+mode_attribute(name, rettype, stmts) ::= <<
+@Override
+public <rettype> <name>()
+{
+    <stmts; separator="\n">
+}
+>>

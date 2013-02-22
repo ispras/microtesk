@@ -1,0 +1,70 @@
+SPEC CPU2000 Benchmark Description File
+
+Benchmark Name: 186.crafty
+
+Benchmark Author: Robert Hyatt, hyatt@cis.uab.edu
+
+Benchmark Program General Category: Game playing program (plays chess)
+
+Benchmark Description: 
+Crafty is a high-performance Computer Chess program that is designed 
+around a 64bit word.  It runs on 32 bit machines using the "long long" 
+(or similar, as _int64 in Microsoft C) data type.  It is primarily an 
+integer code, with a significant number of logical operations such as 
+and, or, exclusive or and shift.  It can be configured to run a 
+reproducible set of searches to compare the integer/branch 
+prediction/pipe-lining facilities of a processor.
+
+Input Description: 
+The reference input solves 5 different chess board layouts, with 
+varying "depths" to which it will search the tree of possible moves, 
+for the next move. 
+
+Output Description: The output consists of the set of moves possible at 
+each level of the tree of possible moves, upto the maximum depth as set 
+by the input parameter. At each level, the best possible move is selected
+to begin the search at the next level. 
+
+Programming Language: Crafty is written in ANSI C. 
+
+Known portability issues: 
+186.crafty is based on a 64-bit variable. On 32-bit systems, this is 
+usually defined as "long long", which is an extension to ANSI C. 
+
+The following sets of defines need to be defined or undefined for 
+186.crafty, based on the nature of your system: 
+LONG_HAS_64BITS      if the data type "long [int]" is represented in 64 bits,
+                     either as the compiler's default option or by an
+                     appropriate switch(e.g. -Klp64)   
+HAS_LONGLONG         if the C compilation system supports the data type
+                     "long long"(which is an extension to ANSI C) and 
+                     represents data of this type with 64 bits        
+LITTLE_ENDIAN_ARCH   if the machine stores bytes in "PC" order        
+define UNIX          if the system is unix-based   
+
+chess.h has ready-made combinations of defines and undefines for
+several common platforms. 
+
+Reference: 
+http://www.cis.uab.edu/info/faculty/hyatt/hyatt.html
+
+Papers:
+1. Lewis I. Patterson, Robert M. Hyatt, Richard S. Turner, Kevin D. Reilly, "Development of a Crash-Tolerant Tuple-Space", presented at the FSU/SCRI Cluster Computing Workshop, available via anonymous FTP from SCRI (SCRI hosts this workshop annually and distributes the proceedings via anonymous FTP.) 
+
+2. Robert M. Hyatt, Lewis I. Patterson, Richard S. Turner, Kevin D. Reilly, "Tuple-Space - Future Research Plans", presented at the FSU/ SCRI Cluster Computing Workshop, available via anonymous FTP from SCRI. 
+
+3. Robert M. Hyatt, Richard S. Turner, Lewis I. Patterson, Kevin D. Reilly, "Distributed Discrete Event Simulation - Design, Implementation and Use," Proceedings of SimTec '92, (159-165). 
+
+4. Robert M. Hyatt and Harry L. Nelson, "Chess and Supercomputers, details on optimizing Cray Blitz", proceedings of Supercomputing '90 in New York (354-363). 
+
+5. Robert M. Hyatt, Harry L. Nelson, Albert E. Gower, "Cray Blitz", in Computers, Chess, and Cognition , Springer-Verlag, 1990, (111-130). 
+
+6. Robert M. Hyatt, Bruce W. Suter, and Harry Nelson, "A Parallel Alpha/Beta Tree Searching Al", Parallel Computing 10 (1989) (299-308). 
+
+7. Robert M. Hyatt, "A High-Performance Parallel Algorithm to Search Depth-First Game Trees," Ph.D. Dissertation, University of Alabama at Birmingham, 1988. 
+
+8. Harry Nelson and Robert M. Hyatt, "The Cray Blitz Draw Heuristic", Journal of the International Computer Chess Association (ICCA)". vol 11, number 1, March 1988 (3-9) 
+
+9. R. Hyatt, H. Nelson, A. Gower, "Cray Blitz - 1984 Chess Champion", Telematics and Informatics (2) (4), Pergammon Press Ltd. (1986) (299-305). 
+
+10. Hyatt, R.M., Gower, A.E., Nelson, H.L., "Cray Blitz", Advances in Computer Chess 4, Pergammon Press, 1985 (89-106). 

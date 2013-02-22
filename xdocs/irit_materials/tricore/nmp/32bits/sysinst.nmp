@@ -1,0 +1,130 @@
+op sysinst = dsync | isync | mtcr | mfcr | debug | disable | enable | nop32 | syscall | yield | tie | untie
+
+// CarCore instructions
+op yield()
+	syntax = "yield"
+	image = "00000100010000000000000000001101"
+	action = { }
+
+op tie()
+	syntax = "tie"
+	image = "00000111100000000000000000001101"
+	action = { }
+
+op untie()
+	syntax = "untie"
+	image = "00000111110000000000000000001101"
+	action = { }
+
+
+op mtcr (a:reg_d,const:card(16),foo:card(4))
+   syntax = format("mtcr %d,%s",const,a.syntax)
+   image = format("%4b%16b%s11001101",foo,const,a.image)
+   action = 	{
+		if (IO == 0b10)
+		then
+			switch (const) {
+			case (0xFE00) : PCXI = a;
+			case (0xFE04) : PSW = a;
+					CFLAG = a<31..31>;
+					VFLAG = a<30..30>;
+					SVFLAG = a<29..29>;
+					AVFLAG = a<28..28>;
+					SAVFLAG = a<27..27>;
+			case (0xFE08) : PC = a;
+			case (0xFE14) : SYSCON = a;
+			case (0xFE18) : CPU_ID = a;
+			case (0xFE28) : ISP = a;
+			case (0xFE2C) : ICR = a;
+			case (0xFE38) : FCX = a;
+			case (0xFE3C) : LCX = a;
+			};
+		endif;
+		}
+	otawa_sem = "SETI(T1, U16(1)); SETI(T2, 0xfe04); CMP(T2, T1, T2); IF(EQ, T2, 1); SCRATCH(PSW); SETI(T2, 0xfe08); CMP(T2, T1, T2); IF(EQ, T2, 1); BRANCH(D(0));"
+
+op dsync (foo1:card(4),foo2:card(14))
+   syntax = "dsync"
+   image = format("%4b010010%14b00001101",foo1,foo2)
+   action = { }
+
+op isync (foo1:card(4),foo2:card(14))
+   syntax = "isync"
+   image = format ("%4b010011%14b00001101",foo1,foo2)
+   action = { }
+
+op mfcr (c:reg_d,const16:card(16),foo:card(4))
+   syntax = format("mfcr %s,%d",c.syntax,const16)
+   image = format("%s%16b%4b01001101",c.image,const16,foo)
+   action = 	{
+		switch (const16) {
+			case (0xFE00) : c = PCXI;
+			case (0xFE04) : c = PSW;
+			case (0xFE08) : c = PC;
+			case (0xFE14) : c = SYSCON;
+			case (0xFE18) : c = CPU_ID;
+			case (0xFE28) : c = ISP;
+			case (0xFE2C) : c = ICR;
+			case (0xFE38) : c = FCX;
+			case (0xFE3C) : c = LCX;
+		};
+		if (const16 == 0xFE04)
+		then
+			CFLAG = c<31..31>;
+			VFLAG = c<30..30>;
+			SVFLAG = c<29..29>;
+			AVFLAG = c<28..28>;
+			SAVFLAG = c<27..27>;
+		endif;
+		}
+	otawa_sem = "SETI(T1, U16(1)); SETI(T2, 0xfe04); CMP(T2, T1, T2); IF(EQ, T2, 1); SET(D(0), PSW); SETI(T2, 0xfe08); CMP(T2, T1, T2); IF(EQ, T2, 2); SETI(T1, IADDR); SET(D(0), T1);"
+
+op debug (foo1:card(4),foo2:card(14))
+  syntax = "debug"
+  image = format("%4b000100%14b00001101",foo1,foo2)
+  action = 	{
+		if (DE)
+		then
+			switch(EVTA) {
+				case (0b000) : //none
+				case (0b001) : //pulse BRKOUT signal
+				case (0b010) : //halt and pulse BRKOUT signal
+				case (0b011) : //breakpoint trap and pulse BRKOUT signal
+				case (0b100) : //breakpoint interrupt 0 and pulse BRKOUT signal
+				case (0b101) : // ?1 and pulse BRKOUT signal
+				case (0b110) : // ?2 and pulse BRKOUT signal
+				case (0b111) : // ?3 and pulse BRKOUT signal
+			};
+		endif;
+		}
+
+op disable (foo1:card(4),foo2:card(14))
+   syntax = "disable"
+   image = format("%4b001101%14b00001101",foo1,foo2)
+   action =	{
+		IE = 0;
+		}
+
+op enable (foo1:card(4),foo2:card(14))
+   syntax = "enable"
+   image = format("%4b001100%14b00001101",foo1,foo2)
+   action =	{
+		IE = 1;
+		}
+
+op nop32 (foo1:card(4),foo2:card(14))
+   syntax = "nop"
+   image = format("%4b000000%14b00001101",foo1,foo2)
+   action = 	{
+		}
+
+op syscall(const:card(32),foo1:card(4),foo2:card(4),cons:card(9))
+   predecode = 	{
+		const = 0;
+		const<0..8> = cons<0..8>;
+		}
+   syntax = format("syscall %d",const)
+   image = format("%4b0000100%9b%4b10101101%0b",foo1,cons,foo2,const)
+   action = 	{
+		//TRAP(SYS,const9<0..7>)
+		}

@@ -1,0 +1,341 @@
+====== Tutorial ======
+
+This tutorial show the full cycle of use of @(GLISS) V2, from
+the NMP file writing to the generated simulator use for a small
+language composed of three instructions: ''set'', ''add'' and ''beq''.
+This is a toy assembly language used to expose the features of @(GLISS) V2.
+
+
+===== Writing the NMP file =====
+
+An NMP file is a text file writable with any text editor.
+It must contains ASCII character (common subset of any used character set
+from UTF-8 to ISO-8859-X). User comments extends from double slash ''//''
+to the end of a line. Blanks (space, tabulation or new line) are not
+meaningfull.
+
+<code>
+let proc = "toy"
+let bit_order = "uppermost"
+let gliss_isize = "16"
+</code>
+
+The three first declarations allows to give the assembly name, ''toy'',
+bit order (in bit images and bit fields) to encode instructions and
+instruction word size. ''"uppermost"'' means that uppermost bits comes
+first in the bit image of the instruction.
+Although we give here only one size (16 bits), several ones may be
+given separated by commas. This latter definition is used to check
+instruction images size as it is very common to do mistakes in the
+encoding of instructions.
+
+<code>
+let REG_BITS = 4
+let REG_CNT = 1<<REG_BITS
+let WORD_SIZE = 16
+</code>
+
+The definitions accept constant setting as above. Here we define
+a constant for the number of registers and for the word size.
+
+<code>
+type word = card(WORD_SIZE)
+type byte = card(8)
+type rindex = card(REG_BITS)
+</code>
+
+Here we have defined types used in the following ISA description.
+Bytes have 8-bits size and words are 16-bits long.
+
+<code>
+reg PC[1, word] pc=1
+reg R[REG_CNT, word]
+</code>
+
+Our ''toy'' ISA must at least provide a program counter register, ''PC'', marked
+with the attribute ''pc''. It contains also a simple register bank composed of
+''REG_CNT'' registers. You may define as many registers as you want.
+For each one, you have to define the number of registers and their type.
+
+<code>
+mem M[WORD_SIZE, byte]
+mem M16[WORD_SIZE / 2, word] alias M[0]
+</code>
+
+This is the main memory that will contains code and data. It is formed
+of byte and addresses are expressed with ''WORD_SIZE'' bits. Several
+memories may be defined (although often one is enough). The memory
+containing the code must be marked with ''_ _attr(program)''.
+The second memory is a just
+an alias to access 16-bits values from the byte memory ''M''.
+
+Registers and memories represents the state of the processor. They are
+used by the instruction semantics description to store and retrieve
+data items.
+
+<code>
+mode r(i: rind) = R[i]
+	syntax = format("r%d", i)
+	image = format("%4b", i)
+</code>
+
+The mode matches the usual address mode found in most processors.
+In NMP, it is a way to factorize state access behaviour. Here we have
+just described access to registers.
+
+<code>
+mode r0(i: rind) = if i = 0 then 0 else R[i]
+	syntax = if i = 0 then "zero" else format("r%d", i)
+	image = format("%4b", i)
+</code>
+This addressing mode is a variation of the previous one, with register
+0 wired to the 0 value.
+
+
+Then comes the descriptions of instruction as a tree of possible instructions.
+The root of the tree must be named ''instruction''.
+
+<code>
+op instruction(x: allinstr)
+	syntax = x.syntax
+	image = x.image
+	action = { x.action; PC = PC + 2; }
+</code>
+
+This instruction is an AND operation, that is, an operation providing
+a definition: a parameter and some attribute definitions. The parameter
+''x'' represents all possible instructions in an OR operation. All
+attributes are derived from this parameter. Required parameters includes:
+  * ''syntax'': assembly form of the instruction,
+  * ''image'': binary of the instruction,
+  * ''action'': semantics of the instructions.
+The expressions and statements found in the attributes may use the
+registers, the memories and the parameters. Notice that we exploit
+the factorization power of such a structure to perform the PC
+incrementation that is common to all instructions.
+
+<code>
+op allinstr = set | add | beg
+</code>
+
+This OR operation gives alternatives for building an instruction,
+the three supported instruction that are defined as AND operations.
+
+<code>
+op set(d: r, imm: int(8))
+	syntax = format("set r%d, #%d", r, imm)
+	image = format("0000 %4b %8b", r, imm)
+	action = { d = imm; }
+</code>
+
+This AND operations define the actual operation ''add''. ''syntax''
+and ''image'' use printf-like syntax where ''%'' are replaced by
+one of the following arguments (according to their order). Yet, ''image''
+expression only accepts binary representation, possibly with ''%b''
+fields. The ''action'' express only the fact that the register
+whose index is in ''r'' is set to the immediate value ''imm''.
+
+<code>
+op add(d: r, s1: r, s2: r)
+	syntax = format("add r%d, r%d, r%d", d, s1, s2)
+	image = format("0001 %4b %4b %4b", d, s1, s2)
+	action = { d = s1 + s2; }
+</code>
+This instruction defines a three-operand addition on registers.
+Be careful to have instructions with different operation codes.
+Else the @(GLISS) generator will refuse to work.
+
+<code>
+op ifeq(r1: r, r2: r0, off: int(3))
+	syntax = format("beq r%d, r%d, %d", r1, r2, __IADDR + off << 1)
+	image = format("0010 %4b %4b %4b", r1, r2, off)
+	action = { if r1 = r2 then PC = PC + off << 1; endif }
+</code>
+This descriptions models a conditional branch on equality of two
+registers. The ''PC'' is modified if the condition is met.
+Notice the use of the ''_ _IADDR'' special value in the ''syntax''
+attribute. As no processor state is available when dissassembly is
+performed, the ''_ _IADDR'' allows to get the address of the instruction
+and to get a smart disassembly display with the target address.
+
+
+
+===== Generating and compiling the sources =====
+
+Once, the NML file has been written, in the previous
+section, it is saved in a file named ''toy.nmp''. Now, the sources
+can be generated with ''gep'' that must be called as below:
+
+<code>
+> gep toy.nmp -S \
+	-m sysparm:sysparm-reg16 \
+	-m loader:old_elf \
+	-m syscall:syscall-linux \
+	-m fetch:fetch16 \
+	-m decode:decode16 \
+	-m inst_size:inst_size \
+	-m code:code \
+	-m exception:extern/exception \
+	-m fpi:extern/fpi
+</code>
+
+As it is a rather complex command, it is better to put it in a ''Makefile''.
+Basically, the ''-S'' option informs ''gep'' to generate the simulator
+command. Other options refines the configuration of the generated library.
+
+Usually, generating the instruction simulation is not enough to make
+a simulator, we have to add other modules to handle modules as various
+as binary file loading, instruction fetching, decoding, etc.
+The ''-m'' option allow to select the actual implementation for each
+of these modules:
+  * sysparm -- module to access parameters when system calls are performed,
+  * loader -- a loader for the program image from file to memory,
+  * syscall -- emulation of system calls,
+  * fetch -- module to read and recognize instructions from memory,
+  * decode -- module to get smart representation of an instruction (parameter scanning),
+  * inst_size -- module to get instruction size,
+  * code -- module containing the simulation of instructions,
+  * exception -- module to handle exceptions,
+  * fpi -- module to handle float-point simulation
+
+ITo generate assembly, the following option must be added:
+<code>
+-a disasm.c
+</code>
+This informs ''gep'' to add the module ''disasm.c'' in the generated library.
+Then, the following command allows to generate the disassembly module:
+<code sh>
+> gliss-disasm toy.nmp -o src/disasm.c -c
+</code>
+The ''-c'' option cause the generation of a disassemble command in addition.
+
+Finally, the compilation may launched from the generated Makefiles:
+<code sh>
+cd src
+make
+cd ../sim
+make
+cd ../disasm
+make
+</code>
+
+These commands generates three things:
+  * the simulation library ''src/libtoy.a'',
+  * the simulation command ''sim/toy-sim'',
+  * the disassembler command ''disasm/toy-disasm''.
+
+
+===== Using the Generated Commands =====
+
+Two commands have been generated in the previous section,
+  * ''toy-sim'' allows to launch a simulation,
+  * ''toy-disasm'' to disassemble a program.
+
+To use them, you need to have a program file compiled for the processor ''toy'',
+named ''program.elf'' in the remainging of this tutorial.
+
+To perform simulation, you have just to type:
+<code sh>
+> toy-sim program.elf
+</code>
+
+To disassemble, the command invocation is also pretty simple:
+<code sh>
+> toy-disasm program.elf
+</code>
+
+
+
+===== Using the Generated Library =====
+
+Another way to use the generated code is to write your own simulator
+with, for example, a counter on the number of executed instructions.
+You have just to write your program according to the API of @(GLISS) V2
+and to link it with the generated library.
+
+**WARNING** Notice that, in the following code, we have placed variable declarations
+inside the instructions that are initializing them. It should compile well
+with C99-compliant C compiler but produces errors on older compilers.
+Just move any variable declaration to the start of the ''main'' function.
+
+First, you have to include the header containing definitions of
+the @(GLISS) V2 API:
+<code c>
+#include <stdio.h>
+#include <stdlib.h>
+#include <toy/api.h>
+</code>
+
+The ''main'' function will get the program to simulate, the start
+address and the exit address from the command line arguments.
+Notice that the instruction address type is ''toy_address_t''.
+
+<code c>
+int main(int argc, char **argv) {
+	const char *path;
+	toy_address_t entry, exit;
+
+	if(argc < 4) {
+		fprintf(stderr, "ERROR: not enough arguments\n");
+		exit(1);
+	}
+	path = argv[1];
+	entry = strtoul(argv[2], 0, 16);
+	exit = stroul(argv[3], 0, 16);
+</code>
+
+Then, a platform is created that represents the
+machine memory and accepts several executions (threads or
+multi-processors).
+
+<code c>
+	toy_platform_t *platform;
+	platform = ppc_new_platform();
+</code>
+
+Then we can load the program in memory with the program to simulate.
+<code c>
+	if(toy_load_platform(platform, path) == -1) {
+		fprintf(stderr, "ERROR: can not load %s\n", path);
+		exit(2);
+	}
+</code>
+
+Then a new simulator state is created:
+<code>
+	toy_state_t *state;
+	state = toy_new_state(platform);
+</code>
+
+And the simulator can now be created.
+<code c>
+	toy_sim_t *sim;
+	sim = toy_new_sim(state, addr_start, addr_exit);
+</code>
+
+Next, we can loop from the entry instruction to the exit one:
+<code c>
+	int inst_cnt = 0;
+	while(!toy_is_sim_ended(sim)) {
+		toy_step(sim);
+		inst_cnt++;
+	}
+</code>
+
+Finally, we can display the number of simulated instructions:
+<code c>
+	printf("executed instructions: %d\n", inst_cnt);
+	return 0;
+}
+</code>
+
+If the C file is called ''my_interp.c'', you have to provide paths
+to the header file and to link with ''libtoy.a''. The command is
+runned from the ''toy'' directory:
+<code sh>
+> cc -o my_inter my_interp.c -Iinclude -Lsrc -ltoy
+</code>
+
+
+Notice that this little program is just an introduction to the
+@(GLISS) V2 API and more details may be found in the following sections.

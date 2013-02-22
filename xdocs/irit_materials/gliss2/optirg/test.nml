@@ -1,0 +1,41 @@
+//
+// Assigment test
+//
+
+reg a [1,card(32)]
+reg b [1,card(32)]
+
+
+
+
+mode ar() = a
+	image="0011"
+
+mode br() = b
+	image="0010"
+
+mode r = ar | br
+
+
+
+
+
+mode ar2() = a
+	image="00110"
+
+mode br2() = b
+	image="00100"
+
+mode r2 = ar2 | br2
+
+
+
+
+
+
+op instruction (x:r, y:r2)
+  action = {
+        x = y;
+        }
+  user0 = "0"
+

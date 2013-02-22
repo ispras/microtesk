@@ -1,0 +1,2 @@
+CODE_HEADER=#include "fpi.h"
+LIBADD=-lm

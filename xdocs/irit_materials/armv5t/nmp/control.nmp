@@ -1,0 +1,61 @@
+//
+// GLISS V2 -- ARM branch instructions
+// Copyright (c) 2010, IRIT - UPS <casse@irit.fr>
+//
+// This file is part of GLISS2.
+//
+// GLISS2 is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// GLISS2 is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GLISS2; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+//
+
+op B_Cond(cond: condition, setl: u1, signed_immed_24: IMM24)
+	syntax = format("b%s%s %lx", if setl then "l" else "" endif, cond.syntax, __IADDR + 8 + (coerce(int(30), signed_immed_24) :: 0b00))
+	image = format("%s101%1b%s", cond.image, setl, signed_immed_24.image) 
+	action = {	        
+		if (cond) then
+			if (setl == 1) then 
+				Set_ARM_GPR(14, __IADDR + 4);
+			endif;
+			TMP_SWORD = coerce(int(30), signed_immed_24) :: 0b00;
+			NPC = PC + TMP_SWORD;
+		endif;
+	}
+
+op BX_ARM(cond : condition, rd : REG_INDEX)
+	syntax = format("bx%s %s", cond.syntax, rd.syntax)
+	image  = format("%s000100101111111111110001%s", cond.image, rd.image) 
+	action = {
+		if (cond) then 
+			TMP_REG1 = Get_ARM_GPR(rd); 
+			TBIT = TMP_REG1<0..0>;
+			TFLAG = TBIT;
+			NPC  = (TMP_REG1 & 0xFFFFFFFE);
+		endif;
+	}
+
+op SWI(cond : condition, Immed_24: IMM24)
+	syntax = format("swi%s %s", cond.syntax, Immed_24.syntax)
+	image = format("%s1111%s",cond.image,Immed_24.image)
+	action = { 
+		if cond then
+			R14_svc = __IADDR + 4;
+			SPSR_svc = CPSR;
+			MBITS = mode_supervisor;
+			TFLAG = 0;
+			IFLAG = 1;
+			// EBIT = CP15_reg1_EEbit,	ARM v6
+			NPC = 0x00000008;
+		endif;
+	}
+

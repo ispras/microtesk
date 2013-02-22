@@ -1,0 +1,613 @@
+////////////////////////////////////////////////////////////////////
+//
+//	Description of ARM Processor in Sim-nML
+//
+////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////
+//
+//	The Instructions Currently NOT Supported
+//
+//	Coprocessor Instructions as	CDP, LDC, MCR, STC
+//	Load & Store 			LDRH tahiry implemented,
+//					LDRSB, LDRSH, LDRT,STRH,tahiry implemented 
+//	Instruction using Coprocessor	MRC
+//
+////////////////////////////////////////////////////////////////////
+
+let proc = "arm"
+let bit_order = "uppermost"
+//Set the memory to Little Endian
+let M_is_little = "Is_Elf_Little"
+
+//let UKM_is_little = 0
+
+// No of user registers
+let GPRNum = 32
+
+// No of spsr registers
+let SPSRNum = 5
+
+// Dont switch to high Vector
+let hivector = 0 
+
+let LSL = 0
+let LSR = 1
+let ASR = 2
+let ROR = 3
+
+// Resource
+resource exec_unit
+
+// Word, halfword and byte
+type doubleword = card(64)
+type word = card(32)
+type hword = card(16)
+type byte = card(8)
+type bit = card(1)
+
+// Miscellaneous bit-string types needed for instruction formats (binary images).
+type Bit     = card(1)
+type Bit2    = card(2)
+type Bit4    = card(4)
+type Bit5    = card(5)
+type Bit8    = card(8)
+type Bit11   = card(11)
+type Bit12   = card(12)
+type Int24   = card(24)
+type Bit32   = card(32)
+type Bit64   = card(64)
+type address = card(32) 
+
+// We need 4 bit index to address 16 GPRs
+type index = card(4)
+type thumb_index = card(3)
+
+//Imm Program Counter
+// Alias NOT used for alias analysis complexity
+reg CIA[1,card(32)] 	__attr(pc)
+reg NIA[1, card(32)]	__attr(npc)
+reg PIA[1,card(32)] 	__attr(ppc)
+reg Init_Addr[1, card(32)]
+
+// Register file
+reg GPR[GPRNum,card(32)]
+//reg NIA[1, card(32)] alias GPR[15]
+
+// Current Program Status Register
+reg Ucpsr[1,word]
+reg Uspsr[SPSRNum,card(32)]
+
+
+//Register containing the current register output
+reg ALU_OUT[1,word]
+
+reg Temp_image[card(5)]
+
+// The link register used in subroutine calls is register 14.
+// Alias NOT used for alias analysis complexity
+// reg LINK[word] alias = GPR[14]
+
+// Memory. For now let us assume we have only 1024k of memory.
+mem M[32, byte]  // memory is byte addressable
+//mem UKM[32, byte]  // memory is byte addressable
+reg UKCOND [1, byte]
+reg UKEA   [1, byte]  
+reg UKDONE [1, byte]
+reg TTARGET [1, word]
+reg UKGPR  [32, byte]
+reg UKVALUE [256, byte]
+reg LENGTH     [1, int ( 32 )]
+reg ADDRESS    [256, word]
+reg VALUE      [256, int ( 8 )]
+reg LENGTH_GPR [1, int ( 32 )]
+reg ADDRESS_GPR[128, word]
+reg REGNUMBER_GPR[128, int ( 32 )]
+reg BYTENUMBER_GPR[128, int ( 32 )]
+//reg LENGTH_FPR [1, int ( 32 )]
+//reg ADDRESS_FPR[256, word]
+//reg REGNUMBER_FPR[256, int ( 32 )]
+//reg BYTENUMBER_FPR[256, int ( 32 )]
+reg CONVLENGTH[1, int ( 32 )]
+reg CONVREGNUMBER[32, int ( 32 )]
+reg CONVTYPE[32, int ( 32 )]
+
+
+
+reg Temp[1,word]
+reg CONDITION[1,bit]
+reg SBIT[1,bit]
+reg MSBIT[1,bit]
+reg LBIT[1,bit]
+reg HBIT[1,bit]
+reg B15SET[1,bit]
+
+//Bits for Load/Store instructions
+reg BBIT[1,bit]
+reg IBIT[1,bit]
+reg PBIT[1,bit]
+reg UBIT[1,bit]
+reg WBIT[1,bit]
+
+reg PSRFMODE[1,bit]
+reg PSRSMODE[1,bit]
+reg PSRXMODE[1,bit]
+reg PSRCMODE[1,bit]
+
+reg RBIT[1,bit]
+
+
+//Flag
+
+
+reg ShifterCarryOut[1,bit]
+reg TMP_DOUBLE[1,doubleword]
+reg TMP_REGSWORD[1,int( 32 )]
+
+//Signed 
+reg TMP_DWORD[1,int( 64 )]
+reg TMP_REG1[1,int( 32 )]
+reg TMP_REG2[1,int( 32 )]
+//reg TMP_REG1HH[1, int(8)] alias TMP_REG1[31]
+//reg TMP_REG1HL[1, int(8)] alias TMP_REG1[23]
+//reg TMP_REG1LH[1, int(8)] alias TMP_REG1[15]
+//reg TMP_REG1LL[1, int(8)] alias TMP_REG1[7]
+reg TMP_REG3     [ 1 , int (32) ]
+reg TMP_REG4     [ 1 , int (32) ]
+reg TMP_REG5     [ 1 , int (32) ]
+reg TMP_REG6     [ 1 , int (32) ]
+reg TMP64_REG1[1,int( 64 )]
+reg TMP64_REG2[1,int( 64 )]
+reg TMP64_REG3     [ 1 , int (64) ]
+reg TMP64_REG4     [ 1 , int (64) ]
+reg TMP64_REG5     [ 1 , int (64) ]
+reg TMP64_REG6     [ 1 , int (64) ]
+
+//Unsigned 
+reg TMP_UDWORD[1,card( 64 )]
+reg TMP_UREG1[1,card( 32 )]
+reg TMP_UREG2[1,card( 32 )]
+reg TMP_UREG3[1,card( 32 )]
+reg TMP_UREG4[1,card( 32 )]
+reg TMP_UREG5[1,card( 32 )]
+reg TMP_UREG6[1,card( 32 )]
+
+reg TMP64_UREG1[1,card( 64 )]
+reg TMP64_UREG2[1,card( 64 )]
+reg TMP64_UREG3[1,card( 64 )]
+reg TMP64_UREG4[1,card( 64 )]
+reg TMP64_UREG5[1,card( 64 )]
+reg TMP64_UREG6[1,card( 64 )]
+
+
+var TMP_REGLIST  [ 1 , card(16) ]
+var TMP_SWORD    [ 1 , int ( 32 ) ]
+var TMP_BYTE     [ 1 , int (8) ]
+var TMP_INC	 [ 1 , int(8) ]
+var TMP_LIMIT    [ 1 , int(8) ]
+var TMP_ROT      [ 1 , Bit4]
+var TMP_IMM      [ 1 , Bit8]
+var TMP_IMM2     [ 1 , Bit8]
+var TMP_IMM3  [ 1 , Bit8]
+var TMP_IMM4  [ 1 , Bit8]
+var TMP_EA       [ 1 , address ]
+var TMP_SETBIT   [ 1 , int(8) ]
+var TMP_START_ADDR	 [ 1 , card(32)]
+var TMP_END_ADDR	 [ 1 , card(32)]
+var TMP_CUR_ADDR     [ 1 , card(32)]
+var TMP_BIT       [1, Bit]
+var TMP_ELEV      [1, int(11)]
+var TMP_FIVE      [1, card(5)]
+var TMP_INDEX1 [1, Bit4]
+var TMP_INDEX2 [1, Bit4]
+var TMP_INDEX3 [1, Bit4]
+var TMP_HALF [1, int(16)]
+
+mode ADR32 ( n : int ( 32 ) ) = n
+   syntax = format ( "%x", n )
+   image  = format ( "%24b", n )
+
+mode OFFSET_12(n : card(12)) = n
+     syntax = format( "#%d",n)
+     image = format( "%12b",n)
+
+mode REG ( r : index ) = r
+	syntax = format( "R%d", r )
+	image  = format( "%4b", r )
+
+///////////////////////////////////////////
+// Program status registers
+///////////////////////////////////////////
+
+//N=1 if the result is negative, N=0 if it is positive or zero
+macro NFLAG = Ucpsr<31..31>
+
+//Z=1 if the result of the instruction is zero and to 0 otherwise
+macro ZFLAG = Ucpsr<30..30>
+
+//(*)For an addition C is set to 1 if the addition produced a carry and to 0 otherwise
+//(*)For a substraction C is set to 0 if the substraction produced a borrow and to 1 otherwise
+//(*)For an operation that incorporate a shift operation C is set to the last bit shifted out 
+//   of the value by the shifter
+//(*)Else C is normally unchanged.
+macro CFLAG = Ucpsr<29..29>
+
+//(*) For an addition V is set to 1 if signed overflow occured
+//(*) Else V is normally unchanged
+macro VFLAG = Ucpsr<28..28>
+
+//Indicate if an overflow and/or saturation has occured in the DSP instruction
+macro QFLAG = Ucpsr<27..27>
+
+//Disable IRQ interrupts when it is set
+macro IFLAG = Ucpsr<7..7>
+
+//Disable FIQ interrupts whenit is set
+macro FFLAG = Ucpsr<6..6>
+
+//If T=0 Indicates ARM execution else if T=1 indicates Thumb execution
+reg  TFLAG [1, Bit] //alias = Ucpsr[5]
+macro TBIT = Ucpsr<5..5>
+//Determine the mode in which the processor operates
+macro MBITS = Ucpsr<4..0>
+
+//Mode of a ARM Processor
+let mode_user       = 0b10000
+let mode_FIQ        = 0b10001
+let mode_IRQ        = 0b10010
+let mode_supervisor = 0b10011
+let mode_abort      = 0b10111
+let mode_undefined  = 0b11011
+let mode_system     = 0b11111
+
+
+/////////////////////////////////////////////////
+//Set a value (val2) in the selected register (r)
+/////////////////////////////////////////////////
+macro SetGPRIndex(r,val2) = \
+	if (r <= 7) then \
+		GPR[r]=val2; \
+	else if (r <= 12) then \
+		if (MBITS == mode_FIQ) then\
+			GPR[r+8]=val2; \
+		else\
+			GPR[r]=val2;\
+		endif;\
+	else if (r <= 14) then \
+		if (MBITS == mode_supervisor) then\
+			GPR[r+10]=val2; \
+		else if (MBITS == mode_abort) then\
+			GPR[r+12]=val2; \
+		else if (MBITS == mode_FIQ) then\
+			GPR[r+8]=val2; \
+		else if (MBITS == mode_IRQ) then\
+			GPR[r+16]=val2; \
+		else if (MBITS == mode_undefined) then\
+			GPR[r+14]=val2; \
+		else\
+			GPR[r]=val2;\
+		endif;\
+		endif;\
+		endif;\
+		endif;\
+		endif;\
+	else \
+		NIA=val2; \
+	endif; \
+	endif; \
+	endif;
+
+
+/////////////////////////////////////////////////
+//Return the correct spsr (depending on the mode)
+/////////////////////////////////////////////////
+macro GetSPSR() = \
+	if (MBITS == mode_supervisor) then\
+		Uspsr[0] \
+	else if (MBITS == mode_abort) then\
+		Uspsr[1] \
+	else if (MBITS == mode_undefined) then\
+		Uspsr[2] \
+	else if (MBITS == mode_IRQ) then\
+		Uspsr[3] \
+	else if (MBITS == mode_FIQ) then\
+		Uspsr[4] \
+	else\
+		0\
+	endif\
+	endif\
+	endif\
+	endif\
+	endif
+
+
+macro GetGPR(r) = \
+	if (r <= 7) then \
+	 GPR[r] \
+        else \
+	 if (r <= 12) then \
+		if (MBITS == mode_FIQ) then\
+		    GPR[r+8] \
+		else\
+			GPR[r]\
+		endif\
+	 else \
+	    if (r <= 14) then \
+	        if (MBITS == mode_supervisor) then\
+		    GPR[r+10] \
+		else\
+			if (MBITS == mode_abort) then\
+			    GPR[r+12] \
+			else\
+				if (MBITS == mode_FIQ) then\
+				    GPR[r+8] \
+				else\
+					if (MBITS == mode_IRQ) then\
+					    GPR[r+16] \
+					else\
+						if (MBITS == mode_undefined) then\
+						    GPR[r+14] \
+						else\
+							GPR[r]\
+						endif\
+					endif\
+				endif\
+			endif\
+		endif\
+	    else \
+		NIA+4 \
+	    endif \
+	 endif \
+      endif
+
+
+mode setS (set: card(1)) = set
+//     predecode = {
+//       switch (set) {
+//         case 0: set = '';
+//	 case 1: set ='S';
+	        
+//       };
+//       }
+     syntax= "" // if set then "S" else "" endif
+// format("%s", set.syntax)
+     image = format("%1b", set)  
+     action = {
+     switch (set) {
+         case 0:  SBIT = 0;
+	 	case 1:  SBIT = 1;
+       };
+     }
+
+
+mode REG_INDEX(r: index) = r
+      syntax = format( "%s", r)// switch (r) {
+//         case 0: 'r0';
+//	     case 1: 'r1';
+//	     case 2: 'r2';
+//	     case 3: 'r3';
+//	     case 4: 'r4';
+//	     case 5: 'r5';
+//	     case 6: 'r6';
+//	     case 7: 'r7';           
+//	     case 8: 'r8';
+//	     case 9: 'r9';
+//	     case 10: 'sl'; 
+//         case 11: 'fp';
+//	     case 12: 'ip';
+//	     case 13: 'sp';
+//	     case 14: 'lr';
+//	     case 15: 'pc';
+ //        } )
+      image  = format( "%4b", r )
+
+mode rotatedImmediate(rotate:Bit4, v: Bit8, result: card(32)) = result
+//	predecode = {
+//		result = coerce(card(32), v);
+//		result = result >>> (rotate * 2);
+//	}
+	syntax = format("#%d",result)
+	image  = format("%4b%8b%0b", rotate,v,result)  
+	action = {
+		if rotate == 0 then
+			ShifterCarryOut = CFLAG;
+		else
+			ShifterCarryOut = result<31..31>;
+		endif;
+	}
+
+
+
+///////////////////////////////////////////
+// Instructions List
+///////////////////////////////////////////
+
+op init ()
+	action = { 
+		NIA = 0x2000;
+		CIA = 0x2000;
+		PIA = 0x2000;
+
+		//LR
+	   GPR[14]=0x2000;
+	   TFLAG = 0;
+	   //SP
+	   GPR[13]=0x800; 
+	   GPR[21]=0x600; 
+	   GPR[23]=0x400; 
+	   GPR[25]=0x200;    
+	   GPR[27]=0x1000; 
+	   GPR[29]=0x1200; 
+
+	   //CPSR in SuperVisor mode   
+	   Ucpsr = 0x13;
+}
+
+// gliss2.gep need AND_OP à root. 
+// so we add instruction followed by allinstr
+op instruction ( x : allinstr)
+  syntax = x.syntax
+  image = x.image
+  action = { x.action ; }
+  user0 = "0"  // Default : R0 is R0 not 0
+
+op allinstr = ARM 	// | THUMB
+
+
+op ARM = dataProcessing
+// | branch | LoadStore
+// | LoadStoreM | interrupt | semaphore |  multiply
+
+op dataProcessing = ADD_imm | SUB_imm
+
+//ADC_shr | ADC_imm | ADD_shr | ADD_imm | AND_shr | AND_imm | BIC_shr | BIC_imm
+//   		  | CMN_shr | CMN_imm | CMP_shr | CMP_imm | EOR_shr | EOR_imm | MOV_shr | MOV_imm 
+//                  | MVN_shr | MVN_imm | ORR_shr | ORR_imm | RSB_shr | RSB_imm | RSC_shr | RSC_imm 
+//                  | SBC_shr | SBC_imm | SUB_shr | SUB_imm | TEQ_shr | TEQ_imm | TST_shr | TST_imm 
+
+
+mode condition = EQ | NE | EVER
+//CS | CC |MI | PL | VS | VC | HI | LS | GE |LT | GT | LE | EVER | NV
+
+mode EQ() = ZFLAG == 1
+	syntax = "EQ"
+	image = "0000"
+
+mode NE() = ZFLAG == 0
+	syntax = "NE"
+	image = "0001"
+
+mode EVER() = 1
+	syntax = ""
+	image = "1110"
+
+
+
+// ADD_imm
+macro CarryFromAdd(op1,op2,res) = \
+	if (op1<31..31> == 1) && (op2<31..31> ==  1) then \
+		1 \
+	else if (op2<31..31> == 1) && (res<31..31> ==  0) then \
+		1 \
+	else if (res<31..31> ==  0) && (op1<31..31> == 1) then \
+		1 \
+	else \
+		0 \
+	endif \
+	endif \
+	endif;
+
+macro OverflowFromAdd(op1,op2,res) = \
+	if (op1<31..31> == 1) && (op2<31..31> == 1) && (res<31..31> ==  0) then \
+		1 \
+	else if (op1<31..31> == 0) && (op2<31..31> == 0) && (res<31..31> == 1) then \
+		1	 \
+	else \
+		0 \
+	endif \
+	endif; 
+
+macro  ADD(dest,op1,op2) = \
+	TMP_REG1 = GetGPR(dest);\
+	TMP_REG2 = GetGPR(op1);\
+	TMP_SWORD = TMP_REG2 + op2; \
+	SetGPRIndex(dest,TMP_SWORD);\
+	TMP_REG1 = TMP_SWORD;\
+	if (SBIT == 1) && (dest == 15) then \
+		Ucpsr = GetSPSR(); \
+	else if SBIT == 1 then \
+		NFLAG = TMP_REG1<31..31>; \
+		if TMP_REG1 == 0 then \
+			ZFLAG = 1; \
+		else \
+			ZFLAG = 0; \
+		endif; \
+		CFLAG = CarryFromAdd(TMP_REG2,op2,TMP_REG1);\
+		VFLAG = OverflowFromAdd(TMP_REG2,op2,TMP_REG1); \
+	endif; \
+	endif;
+
+op ADD_imm(cond : condition, sets : setS, rd : REG_INDEX, rn : REG_INDEX, shifter_operand	: rotatedImmediate)
+//	predecode = {
+//		rn.predecode;
+//		rd.predecode;
+//		shifter_operand.predecode;
+//		sets.predecode;
+//	} 
+	syntax = format("ADD%s%s %s, %s, %s", cond.syntax, sets.syntax, rd.syntax, rn.syntax, shifter_operand.syntax)
+	image = format("%s0010100%s%s%s%s", cond.image, sets.image, rn.image, rd.image, shifter_operand.image)
+
+	action = {
+		if cond then
+			sets.action;
+			shifter_operand.action;
+			ADD(rd,rn,shifter_operand);
+		endif;
+	}
+
+// SUB 
+
+macro CarryFromSub(op1,op2,res) = \
+      	if (op1<31..31> ==  0) && (op2<31..31> == 1) then \
+	   1 \
+	else \
+	   if (op2<31..31> == 1 ) && (res<31..31> == 1) then \
+	      1 \
+	   else \
+	      if (res<31..31> == 1) && (op1<31..31> == 0 ) then \
+	          1 \
+	      else \
+		  0 \
+	      endif \
+        endif \
+      endif;
+
+macro OverflowFromSub(op1,op2,res) = \
+      if (op1<31..31> == 1) && (op2<31..31> ==  0) && (res<31..31> == 0) then \
+	   1 \
+      else \
+	   if (op1<31..31> == 0) && (op2<31..31> == 1) && (res<31..31>  == 1) then \
+	      1	 \
+	   else \
+	      0 \
+	   endif \
+      endif; 
+
+
+
+macro  SUB(dest,op1,op2) = \
+       TMP_REG1 = GetGPR(dest);\
+       TMP_REG2 = GetGPR(op1);\
+       TMP_SWORD = TMP_REG2 - op2; \
+       SetGPRIndex(dest,TMP_SWORD);\
+       TMP_REG1 = TMP_SWORD;\
+      if (SBIT == 1) && (dest == 15) then \
+	  Ucpsr = GetSPSR(); \
+       else \
+	   if SBIT == 1 then \
+	      NFLAG = TMP_REG1<31..31>; \
+	      if TMP_REG1 == 0 then \
+		 ZFLAG = 1; \
+	      else \
+		 ZFLAG = 0; \
+	      endif; \
+	      CFLAG =  ! CarryFromSub(TMP_REG2,op2,TMP_REG1);\
+	      VFLAG = OverflowFromSub(TMP_REG2,op2,TMP_REG1); \
+	  endif; \
+       endif;
+
+//arm original: line 4935
+op SUB_imm(cond : condition, sets : setS, rd : REG_INDEX, rn : REG_INDEX, shifter_operand	: rotatedImmediate)
+ 
+	syntax = format("SUB%s%s %s, %s, %s", cond.syntax, sets.syntax, rd.syntax, rn.syntax, shifter_operand.syntax)
+	image = format("%4b0010010%s%s%s%s", cond, sets.image, rn.image, rd.image, shifter_operand.image)
+	action = {
+	  		
+		if cond then
+			sets.action;
+			shifter_operand.action;
+			SUB(rd,rn,shifter_operand)
+		endif;
+	 
+	}
+

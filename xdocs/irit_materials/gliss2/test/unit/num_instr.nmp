@@ -1,0 +1,28 @@
+
+let proc="mine"
+let gliss_isize = "32"
+let bit_order = "UPPERMOST"
+
+reg pc[1, card(32)] __attr(pc)
+reg r[1, card(32)]
+
+op init()
+	action = { }
+
+op instruction = un | deux
+
+op un()
+	image = "00000000 00000000 00000000 00000000"
+	syntax = "bof"
+	action = {
+
+		r = 1;
+	}
+
+op deux()
+	image = "11111111 11111111 11111111 11111111"
+	syntax = "prout"
+	action = {
+		r = 2;
+	}
+

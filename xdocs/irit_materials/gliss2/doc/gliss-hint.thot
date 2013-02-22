@@ -1,0 +1,11 @@
+====== Problems and Hints ======
+
+===== C Compilation Problem =====
+
+==== Inlines ====
+
+For sake of performances, @(GLISS) is using inlining of some low-level
+functions. Although most of current C compiler supports the involved
+''inline'' keywords, it may be not the case with yours. In this case,
+just add the definition ''-DCOMPAT'' to the ''CFLAGS'' definition
+of the generated ''Makefile'' to remove any use of inlined functions.

@@ -1,0 +1,980 @@
+
+// SPARC V8 processor, floating point instructions
+
+// canonical constant types, value given by C code
+canon s32 "FPI_INVALID"
+canon s32 "FPI_OVERFLOW"
+canon s32 "FPI_UNDERFLOW"
+canon s32 "FPI_DIVBYZERO"
+canon s32 "FPI_INEXACT"
+
+// canonical functions prototypes
+canon s32 "fpi_isnan32"(f32)
+canon s32 "fpi_isnan64"(f64)
+canon s32 "fpi_setround"(s32)
+canon s32 "fpi_clearexcept"(s32)
+canon s32 "fpi_testexcept"(s32)
+
+canon f32 "fpi_sqrt32"(f32)
+canon f64 "fpi_sqrt64"(f64)
+canon f32 "fpi_add32"(f32, f32)
+canon f64 "fpi_add64"(f64, f64)
+canon f32 "fpi_sub32"(f32, f32)
+canon f64 "fpi_sub64"(f64, f64)
+canon f32 "fpi_mul32"(f32, f32)
+canon f64 "fpi_mul64"(f64, f64)
+canon f32 "fpi_div32"(f32, f32)
+canon f64 "fpi_div64"(f64, f64)
+
+
+// rounding modes
+let RD_NEAR	= 0 //FPI_TONEAREST
+let RD_ZERO	= 1 //FPI_TOWARDZERO
+let RD_UP	= 2 //FPI_UPWARD
+let RD_DOWN	= 3 //FPI_DOWNWARD
+
+// temporary exception code
+var texc	[1, u5]
+// temporary cond code
+var tfcc	[1, u2]
+// both vars used in macros => careful if you change name
+
+
+var sresult	[1, f32]
+var dresult	[1, f64]
+var qresult	[1, f128]
+
+var tmpf32	[1, f32]
+var tmpf32a	[1, f32]
+var tmpf64	[1, f64]
+var tmpf64a	[1, f64]
+var tmpf128	[1, f128]
+var tmpf128a	[1, f128]
+
+
+
+macro QNAN32	= 0x7FC00000 \
+macro QNAN64	= 0x7FF8000000000000 \
+macro QNAN128	= 0x7FFF8000000000000000000000000000 \
+
+macro FP_SIGN32(x) = x<31..31> \
+macro FP_EXP32(x) = x<30..23> \
+macro FP_FRAC32(x) = x<22..0> \
+
+macro FP_SIGN64(x) = x<63..63> \
+macro FP_EXP64(x) = x<62..52> \
+macro FP_FRAC64(x) = x<51..0> \
+
+
+// check register alignment for double and quad precision
+macro CHECK_REG_ALIGN(rd, prec) = \
+	switch (prec) \
+	{ \
+		case 1: \
+			// OK here \
+		case 2: \
+			if rd.value & 1 then \
+				"gliss_error"("trap, misaligned fp reg"); \
+			endif; \
+		case 4: \
+			if rd.value & 3 then \
+				"gliss_error"("trap, misaligned fp reg"); \
+			endif; \
+	}; \
+
+// register alignment already checked
+macro READ_REG_ALIGN(rd, prec, res) = \
+	switch (prec) \
+	{ \
+		case 1: \
+			res<31..0> = rd<31..0>; \
+		case 2: \
+			res<63..32> = F[rd.value & 0xfe]<31..0>; \
+			res<31..0> = F[rd.value | 1]<31..0>; \
+			 \
+		case 4: \
+			res<127..96> = F[rd.value & 0xfc]<31..0>; \
+			res<95..64> = F[(rd.value & 0xfc) | 1]<31..0>; \
+			res<63..32> = F[(rd.value & 0xfc) | 2]<31..0>; \
+			res<31..0> = F[rd.value | 3]<31..0>; \
+	}; \
+		
+
+macro FP_SET_ROUNDING_MODE = \
+	if FSR_RD == RD_NEAR then \
+		"fpi_setround"(RD_NEAR); \
+	else \
+		if FSR_RD == RD_ZERO then \
+			"fpi_setround"(RD_ZERO); \
+		else \
+			if FSR_RD == RD_UP then \
+				"fpi_setround"(RD_UP); \
+			else \
+				"fpi_setround"(RD_DOWN); \
+			endif; \
+		endif; \
+	endif; \
+
+
+macro FP_CLEAR_EXCEPTION(except) = \
+	"fpi_clearexcept"(except); \
+
+macro FP_CLEAR_ALL_EXCEPTIONS = \
+	FP_CLEAR_EXCEPTION("FPI_INVALID"); \
+	FP_CLEAR_EXCEPTION("FPI_OVERFLOW"); \
+	FP_CLEAR_EXCEPTION("FPI_UNDERFLOW"); \
+	FP_CLEAR_EXCEPTION("FPI_DIVBYZERO"); \
+	FP_CLEAR_EXCEPTION("FPI_INEXACT"); \
+
+macro FP_COPY_FLAGS = \
+	if "fpi_testexcept"("FPI_INEXACT") then \
+		texc<f_nx..f_nx> = 1; \
+	endif; \
+	if "fpi_testexcept"("FPI_DIVBYZERO") then \
+		texc<f_dz..f_dz> = 1; \
+	endif; \
+	if "fpi_testexcept"("FPI_UNDERFLOW") then \
+		texc<f_uf..f_uf> = 1; \
+	endif; \
+	if "fpi_testexcept"("FPI_OVERFLOW") then \
+		texc<f_of..f_of> = 1; \
+	endif; \
+	if "fpi_testexcept"("FPI_INVALID") then \
+		texc<f_nv..f_nv> = 1; \
+	endif; \
+
+
+
+// return the most significative bit of a u5
+macro MSB(v) = \
+	if ((v) & 0x10) != 0 then \
+		0x10 \
+	else \
+		if ((v) & 8) != 0 then \
+			8 \
+		else \
+			if ((v) & 4) != 0 then \
+				4 \
+			else \
+				if ((v) & 2) != 0 then \
+					2 \
+				else \
+					if ((v) & 1) != 0 then \
+						1 \
+					else \
+						0 \
+					endif \
+				endif \
+			endif \
+		endif \
+	endif \
+
+// size_res is float size / 32
+// rd is a float mode value
+macro COMPLETE_FP_EXEC(size_res, rd, res, cmp) = \
+	FP_COPY_FLAGS; \
+	if (texc & FSR_TEM) != 0 then \
+		FSR_CEXC = MSB(texc & FSR_TEM); \
+		"gliss_error"("trap, fp_exception, ftt=IEEE_754_exception"); \
+	else \
+		FSR_CEXC = texc; \
+		FSR_AEXC = texc | FSR_AEXC; \
+		switch (size_res) \
+		{ \
+			// case 0: \
+				// no res output \
+			case 1: \
+				F[rd.value]<31..0> = res<31..0>; \
+			case 2: \
+				F[rd.value & 0xfe]<31..0> = res<63..32>; \
+				F[rd.value | 1]<31..0> = res<31..0>; \
+			case 4: \
+				F[rd.value & 0xfc]<31..0> = res<127..96>; \
+				F[(rd.value & 0xfc) | 1]<31..0> = res<95..64>; \
+				F[(rd.value & 0xfc) | 2]<31..0> = res<63..32>; \
+				F[rd.value | 3]<31..0> = res<31..0>; \
+		}; \
+		if cmp == 1 then \
+			FSR_FCC = tfcc; \
+		endif; \
+	endif; \
+
+
+
+
+
+
+
+
+
+op format3_fpop_instr =
+		 fpop1
+		| fpop2
+
+
+op fpop1(x : fpop1_instr)
+syntax = x.syntax
+image = format("%s 110100 %s", x.image1, x.image2)
+action =
+	{
+		if PSR_EF == 0 then
+			"gliss_error"("trap: fp_disabled.");
+		else
+			FP_CLEAR_ALL_EXCEPTIONS;
+			x.action;
+		endif;
+	}
+
+
+op fpop1_instr =
+		conv_int_to_fp
+		| conv_fp_to_int
+		| conv_fp_to_fp
+		| fp_move
+		| fp_sqrt
+		| fp_add_sub
+		| fp_mul_div
+
+
+op conv_int_to_fp =
+		fitos
+		| fitod
+//		| fitoq
+
+
+op fitos(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011000100 %s", rs2.image)
+syntax = format("fitos %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		texc = 0;
+		TMP_S32<31..0> = rs2<31..0>;
+		sresult = coerce(f32, TMP_S32);
+
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+op fitod(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011001000 %s", rs2.image)
+syntax = format("fitod %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rd, 2);
+		
+		texc = 0;
+		TMP_S32<31..0> = rs2<31..0>;
+		dresult = coerce(f64, TMP_S32);
+		
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+
+
+op fitoq(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011001100 %s", rs2.image)
+syntax = format("fitoq %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rd, 4);
+		
+		texc = 0;
+		TMP_S32<31..0> = rs2<31..0>;
+		qresult = coerce(f128, TMP_S32);
+		
+		COMPLETE_FP_EXEC(4, rd, qresult, 0);
+	}
+
+
+
+op conv_fp_to_int =
+		fstoi
+		| fdtoi
+//		| fqtoi
+
+
+op fstoi(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011010001 %s", rs2.image)
+syntax = format("fstoi %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		texc = 0;
+		TMP_S32 = coerce(s32, rs2);
+		sresult<31..0> = TMP_S32<31..0>;
+		
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+op fdtoi(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011010010 %s", rs2.image)
+syntax = format("fdtoi %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs2, 2);
+		
+		texc = 0;
+		READ_REG_ALIGN(rs2, 2, tmpf64);
+		
+		// coercing f64 to s32 directly makes gep throw an exception
+		// !!TODO!! correct gliss so we don't have to do the following patch
+		TMP_S32 = coerce(s32, coerce(f32, tmpf64));
+		sresult<31..0> = TMP_S32<31..0>;
+		
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+op fqtoi(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011010011 %s", rs2.image)
+syntax = format("fqtoi %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs2, 4);
+		
+		texc = 0;
+		READ_REG_ALIGN(rs2, 4, tmpf128);
+		
+		TMP_S32 = coerce(s32, tmpf128);
+		sresult<31..0> = TMP_S32<31..0>;
+		
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+op conv_fp_to_fp =
+		fstod
+//		| fstoq
+		| fdtos
+//		| fdtoq
+//		| fqtos
+//		| fqtod
+
+
+
+op fstod(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011001001 %s", rs2.image)
+syntax = format("fstod %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rd, 2);
+
+		texc = 0;
+		dresult = coerce(f64, rs2);
+		
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+
+
+
+op fstoq(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011001101 %s", rs2.image)
+syntax = format("fstoq %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rd, 4);
+
+		texc = 0;
+		qresult = coerce(f128, rs2);
+		
+		COMPLETE_FP_EXEC(4, rd, qresult, 0);
+	}
+
+
+
+op fdtos(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011000110 %s", rs2.image)
+syntax = format("fdtos %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs2, 2);
+
+		texc = 0;
+		READ_REG_ALIGN(rs2, 2, tmpf64);
+		
+		sresult = coerce(f32, tmpf64);
+		
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+
+op fdtoq(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011001110 %s", rs2.image)
+syntax = format("fdtoq %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs2, 2);
+		CHECK_REG_ALIGN(rd, 4);
+
+		texc = 0;
+		READ_REG_ALIGN(rs2, 2, tmpf64);
+
+		qresult = coerce(f128, tmpf64);
+		
+		COMPLETE_FP_EXEC(4, rd, qresult, 0);
+	}
+
+
+
+op fqtos(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011000111 %s", rs2.image)
+syntax = format("fqtos %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs2, 4);
+		
+		texc = 0;
+		READ_REG_ALIGN(rs2, 4, tmpf128);
+
+		sresult = coerce(f32, tmpf128);
+		
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+
+op fqtod(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 011001011 %s", rs2.image)
+syntax = format("fqtod %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs2, 4);
+		CHECK_REG_ALIGN(rd, 2);
+		
+		texc = 0;
+		READ_REG_ALIGN(rs2, 4, tmpf128);
+
+		dresult = coerce(f64, tmpf128);
+		
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+
+
+
+op fp_move =
+		fmovs
+		| fnegs
+		| fabss
+
+
+op fmovs(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 000000001 %s", rs2.image)
+syntax = format("fmovs %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		sresult = rs2;
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+op fnegs(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 000000101 %s", rs2.image)
+syntax = format("fnegs %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		sresult = rs2;
+		sresult<31..31> = sresult<31..31> ^ 1;
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+op fabss(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 000001001 %s", rs2.image)
+syntax = format("fnegs %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		sresult = rs2;
+		sresult<31..31> = 0;
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+
+op fp_sqrt =
+		fsqrts
+		| fsqrtd
+//		| fsqrtq
+
+
+op fsqrts(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 000101001 %s", rs2.image)
+syntax = format("fsqrts %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		sresult = "fpi_sqrt32"(rs2);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+op fsqrtd(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 000101010 %s", rs2.image)
+syntax = format("fsqrtd %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs2, 2);
+		CHECK_REG_ALIGN(rd, 2);
+		
+		READ_REG_ALIGN(rs2, 2, tmpf64);
+		dresult = "fpi_sqrt64"(tmpf64);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+
+
+op fsqrtq(rd : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("XXXXX 000101011 %s", rs2.image)
+syntax = format("fsqrtq %s, %s", rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs2, 4);
+		CHECK_REG_ALIGN(rd, 4);
+
+		//qresult = "fpi_sqrt"(rs2, 128);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(4, rd, qresult, 0);
+	}
+
+
+
+op fp_add_sub =
+		fp_add
+		| fp_sub
+
+
+op fp_add =
+		fadds
+		| faddd
+//		| faddq
+		
+		
+
+op fadds(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001000001 %s", rs1.image, rs2.image)
+syntax = format("fadds %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{
+		sresult = "fpi_add32"(rs1, rs2);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+		
+		
+op faddd(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001000010 %s", rs1.image, rs2.image)
+syntax = format("faddd %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{		
+		CHECK_REG_ALIGN(rs1, 2);
+		CHECK_REG_ALIGN(rs2, 2);
+		CHECK_REG_ALIGN(rd, 2);
+
+		READ_REG_ALIGN(rs1, 2, tmpf64);
+		READ_REG_ALIGN(rs2, 2, tmpf64a);
+
+		dresult = "fpi_add64"(tmpf64, tmpf64a);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+		
+		
+op faddq(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001000011 %s", rs1.image, rs2.image)
+syntax = format("faddq %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{		
+		CHECK_REG_ALIGN(rs1, 4);
+		CHECK_REG_ALIGN(rs2, 4);
+		CHECK_REG_ALIGN(rd, 4);
+		
+		//qresult = "fpi_add"(rs1, rs2, 128);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(4, rd, qresult, 0);
+	}
+
+
+
+op fp_sub =
+		fsubs
+		| fsubd
+//		| fsubq
+		
+		
+
+op fsubs(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001000101 %s", rs1.image, rs2.image)
+syntax = format("fsubs %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{
+		sresult = "fpi_sub32"(rs1, rs2);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+		
+		
+op fsubd(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001000110 %s", rs1.image, rs2.image)
+syntax = format("fsubd %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{		
+		CHECK_REG_ALIGN(rs1, 2);
+		CHECK_REG_ALIGN(rs2, 2);
+		CHECK_REG_ALIGN(rd, 2);
+
+		READ_REG_ALIGN(rs1, 2, tmpf64);
+		READ_REG_ALIGN(rs2, 2, tmpf64a);
+		dresult = "fpi_sub64"(tmpf64, tmpf64a);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+		
+		
+op fsubq(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001000111 %s", rs1.image, rs2.image)
+syntax = format("fsubq %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{		
+		CHECK_REG_ALIGN(rs1, 4);
+		CHECK_REG_ALIGN(rs2, 4);
+		CHECK_REG_ALIGN(rd, 4);
+		
+		//qresult = "fpi_sub"(rs1, rs2, 128);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(4, rd, qresult, 0);
+	}
+
+
+
+op fp_mul_div =
+		fp_mul
+		| fp_xmul
+		| fp_div
+
+
+op fp_mul =
+		fmuls
+		| fmuld
+//		| fmulq
+		
+		
+
+op fmuls(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001001001 %s", rs1.image, rs2.image)
+syntax = format("fmuls %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{
+		sresult = "fpi_mul32"(rs1, rs2);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+		
+		
+op fmuld(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001001010 %s", rs1.image, rs2.image)
+syntax = format("fmuld %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{		
+		CHECK_REG_ALIGN(rs1, 2);
+		CHECK_REG_ALIGN(rs2, 2);
+		CHECK_REG_ALIGN(rd, 2);
+
+		READ_REG_ALIGN(rs1, 2, tmpf64);
+		READ_REG_ALIGN(rs2, 2, tmpf64a);
+		dresult = "fpi_mul64"(tmpf64, tmpf64a);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+		
+		
+op fmulq(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001001011 %s", rs1.image, rs2.image)
+syntax = format("fmulq %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{		
+		CHECK_REG_ALIGN(rs1, 4);
+		CHECK_REG_ALIGN(rs2, 4);
+		CHECK_REG_ALIGN(rd, 4);
+		
+		//qresult = "fpi_mul"(rs1, rs2, 128);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(4, rd, qresult, 0);
+	}
+
+
+op fp_xmul =
+		fsmuld
+//		| fdmulq
+
+op fsmuld(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001101001 %s", rs1.image, rs2.image)
+syntax = format("fsmuld %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rd, 2);
+
+		tmpf64 = coerce(f64, rs1);
+		tmpf64a = coerce(f64, rs2);
+		
+		dresult = "fpi_mul64"(tmpf64, tmpf64a);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+
+
+op fdmulq(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001101110 %s", rs1.image, rs2.image)
+syntax = format("fdmulq %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs1, 2);
+		CHECK_REG_ALIGN(rs2, 2);
+		CHECK_REG_ALIGN(rd, 4);
+
+		READ_REG_ALIGN(rs1, 2, tmpf64);
+		READ_REG_ALIGN(rs2, 2, tmpf64a);
+
+		tmpf128 = coerce(f128, tmpf64);
+		tmpf128a = coerce(f128, tmpf64a);
+		
+		//qresult = "fpi_mul"(tmpf128, tmpf128a, 128);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(4, rd, qresult, 0);
+	}
+
+
+
+op fp_div =
+		fdivs
+		| fdivd
+//		| fdivq
+		
+		
+
+op fdivs(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001001101 %s", rs1.image, rs2.image)
+syntax = format("fdivs %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{
+		sresult = "fpi_div32"(rs1, rs2);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(1, rd, sresult, 0);
+	}
+
+
+op fdivd(rd : freg_mode, rs1 : freg_mode, rs2 : freg_mode)
+image1 = rd.image
+image2 = format("%s 001001110 %s", rs1.image, rs2.image)
+syntax = format("fdivd %s, %s, %s", rs1.syntax, rs2.syntax, rd.syntax)
+action =
+	{		
+		CHECK_REG_ALIGN(rs1, 2);
+		CHECK_REG_ALIGN(rs2, 2);
+		CHECK_REG_ALIGN(rd, 2);
+
+		READ_REG_ALIGN(rs1, 2, tmpf64);
+		READ_REG_ALIGN(rs2, 2, tmpf64a);
+		dresult = "fpi_div64"(tmpf64, tmpf64a);
+		
+		texc = 0;
+		COMPLETE_FP_EXEC(2, rd, dresult, 0);
+	}
+
+
+
+op fpop2(x : fpop2_instr)
+syntax = x.syntax
+image = format("XXXXX 110101 %s", x.image)
+action =
+	{
+		if PSR_EF == 0 then
+			"gliss_error"("trap: fp_disabled.");
+		else
+			FP_CLEAR_ALL_EXCEPTIONS;
+			x.action;
+		endif;
+	}
+
+
+
+op fpop2_instr =
+		fp_compare
+		| fp_compare_exception
+
+
+op fp_compare =
+		fcmps
+		| fcmpd
+//		| fcmpq
+
+
+op fcmps(rs1 : freg_mode, rs2 : freg_mode)
+image = format("%s 001010001 %s", rs1.image, rs2.image)
+syntax = format("fcmps %s, %s", rs1.syntax, rs2.syntax)
+action =
+	{
+		if "fpi_isnan32"(rs1) || "fpi_isnan32"(rs2) then
+			tfcc = 3;
+		else
+			if rs1 < rs2 then
+				tfcc = 1;
+			else
+				if rs1 > rs2 then
+					tfcc = 2;
+				else
+					// we suppose we have equality here
+					tfcc = 0;
+				endif;
+			endif; 
+		endif;
+		texc = 0;
+		
+		// 1st arg == 0, => 2nd & 3rd useless, can be anything
+		COMPLETE_FP_EXEC(0, rs1, sresult, 1);
+	}
+
+
+op fcmpd(rs1 : freg_mode, rs2 : freg_mode)
+image = format("%s 001010010 %s", rs1.image, rs2.image)
+syntax = format("fcmpd %s, %s", rs1.syntax, rs2.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs1, 2);
+		CHECK_REG_ALIGN(rs2, 2);
+
+		READ_REG_ALIGN(rs1, 2, tmpf64);
+		READ_REG_ALIGN(rs2, 2, tmpf64a);
+		
+		if "fpi_isnan64"(tmpf64) || "fpi_isnan64"(tmpf64a) then
+			tfcc = 3;
+		else
+			if tmpf64 < tmpf64a then
+				tfcc = 1;
+			else
+				if tmpf64 > tmpf64a then
+					tfcc = 2;
+				else
+					// we suppose we have equality here
+					tfcc = 0;
+				endif;
+			endif; 
+		endif;
+		texc = 0;
+		
+		// 1st arg == 0, => 2nd & 3rd useless, can be anything
+		COMPLETE_FP_EXEC(0, rs1, sresult, 1);
+	}
+
+
+op fp_compare_exception =
+		fcmpes
+		| fcmped
+//		| fcmpeq
+
+
+op fcmpes(rs1 : freg_mode, rs2 : freg_mode)
+image = format("%s 001010101 %s", rs1.image, rs2.image)
+syntax = format("fcmpes %s, %s", rs1.syntax, rs2.syntax)
+action =
+	{
+		if "fpi_isnan32"(rs1) || "fpi_isnan32"(rs2) then
+			tfcc = 3;
+		else
+			if rs1 < rs2 then
+				tfcc = 1;
+			else
+				if rs1 > rs2 then
+					tfcc = 2;
+				else
+					// we suppose we have equality here
+					tfcc = 0;
+				endif;
+			endif; 
+		endif;
+		texc = 0;
+		
+		// 1st arg == 0, => 2nd & 3rd useless, can be anything
+		COMPLETE_FP_EXEC(0, rs1, sresult, 1);
+	}
+
+
+op fcmped(rs1 : freg_mode, rs2 : freg_mode)
+image = format("%s 001010110 %s", rs1.image, rs2.image)
+syntax = format("fcmped %s, %s", rs1.syntax, rs2.syntax)
+action =
+	{
+		CHECK_REG_ALIGN(rs1, 2);
+		CHECK_REG_ALIGN(rs2, 2);
+
+		READ_REG_ALIGN(rs1, 2, tmpf64);
+		READ_REG_ALIGN(rs2, 2, tmpf64a);
+		
+		if "fpi_isnan64"(tmpf64) || "fpi_isnan64"(tmpf64a) then
+			tfcc = 3;
+		else
+			if tmpf64 < tmpf64a then
+				tfcc = 1;
+			else
+				if tmpf64 > tmpf64a then
+					tfcc = 2;
+				else
+					// we suppose we have equality here
+					tfcc = 0;
+				endif;
+			endif; 
+		endif;
+		texc = 0;
+		
+		// 1st arg == 0, => 2nd & 3rd useless, can be anything
+		COMPLETE_FP_EXEC(0, rs1, sresult, 1);
+	}

@@ -1,0 +1,65 @@
+
+
+reg MBITS[1, card(5)]
+
+
+let mode_usr	= 0b10000
+let mode_fiq	= 0b10001
+let mode_irq	= 0b10010
+let mode_svc	= 0b10011
+let mode_abt	= 0b10111
+let mode_und	= 0b11011
+let mode_sys	= 0b11111
+
+let offset_fiq	= 16
+let offset_irq	= 23
+let offset_svc 	= 25
+let offset_abt	= 27
+let offset_und	= 29
+
+macro reg_id(m, i) = coerce(card(8), (((m) << 4) | (i)))
+
+let proc="mine"
+let gliss_isize = "32"
+let bit_order = "UPPERMOST"
+
+reg pc[1, card(32)] pc = 1
+reg R[1, card(32)]
+
+
+
+mode REG_INDEX(i: card(4)) =
+	R[i +
+		switch(reg_id(MBITS, i)) {
+		case reg_id(mode_fiq, 8): offset_fiq - 8
+		case reg_id(mode_fiq, 9): offset_fiq - 8
+		case reg_id(mode_fiq, 10): offset_fiq - 8
+		case reg_id(mode_fiq, 11): offset_fiq - 8
+		case reg_id(mode_fiq, 12): offset_fiq - 8
+		case reg_id(mode_fiq, 13): offset_fiq - 8
+		case reg_id(mode_fiq, 14): offset_fiq - 8
+		case reg_id(mode_irq, 13): offset_irq - 13
+		case reg_id(mode_irq, 14): offset_irq - 13
+		case reg_id(mode_svc, 13): offset_svc - 13
+		case reg_id(mode_svc, 14): offset_svc - 13
+		case reg_id(mode_abt, 13): offset_abt - 13
+		case reg_id(mode_abt, 14): offset_abt - 13
+		case reg_id(mode_und, 13): offset_und - 13
+		case reg_id(mode_und, 14): offset_und - 13
+		default: 0
+		}]
+	image = format("%4b", i)
+	syntax = format("r%d", i)
+
+
+op init()
+	action = { }
+
+op instruction(d: REG_INDEX, s: REG_INDEX)
+	image = format("00000000 00000000 00000000 %s%s", d, s)
+	syntax = format("mov %s, %s", d, s)
+	action = {
+		d = s;
+	}
+
+

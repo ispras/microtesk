@@ -1,0 +1,50 @@
+// to test it: ../../gep/gliss-disasm format.nmp
+
+let proc="mine"
+
+reg pc[1, card(32)] __attr(pc)
+
+op instruction(i: ops)
+	image = i.image
+	syntax = i.syntax
+
+op ops = op1 | op2 | op3 | op4
+
+op op1(p: card(1))
+	image = format("0000 000%1b", p)
+	syntax = format("do %% %s", if p then "push" else "pop" endif)
+
+op op2(v: card(1))
+	image = format("1000 000%1b", v)
+	syntax = format("op2 %s (%d) %s", "a", v, "b")
+
+op op3(v : card(1))
+	syntax = if v == 0 then "nop" else format("op3 %d, %s", v, "a") endif
+	image = format("0100 000%1b", v)
+
+op op4(idx: card(4))
+	syntax =
+		format("rd %%psr, %s",
+			if idx < 8 then
+				format("%%g%d", idx)
+			else
+				if idx < 16 then
+					if idx == 14 then
+						"%%sp"
+					else
+						format("%%o%d", idx - 8)
+					endif
+				else
+					if idx < 24 then
+						format("%%l%d", idx - 16)
+					else
+						if idx == 30 then
+							"%%fp"
+						else
+							format("%%i%d", idx - 24)
+						endif
+					endif
+				endif
+			endif
+		)
+	image = format("1100 %4b", idx)

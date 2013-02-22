@@ -1,0 +1,651 @@
+@TITLE=PowerPC 755\\instruction-set simulator
+@AUTHORS= D. Gracia Pérez, C. Rochange, P. Sainrat and H. Cassé
+@LANG=en_EN
+@ENCODING=ISO-8859-1
+@use dokuwiki
+
+@NMP=//NMP//
+@SIMNML=//SimNML//
+
+====== Introduction ======
+
+This document describes the @(NMP) model of the Power PC 755 processor.
+It does not describe the instruction set itself since it is perfectly described
+in the manuals of IBM and Motorola \cite{PPC750}, \cite{PPCPE}, \cite{PPC755}.
+Instead, it explains how the //NMP// description language
+has been used to describe this instruction set and realize an application
+level simulator.
+
+With the help of the instruction-set simulator (iss) generator
+GLISS \cite{mangep}, this description generates a PowerPC iss which is capable
+of executing linux applications on a machine under linux OS.
+It executes correctly several programs of the Specint 2000 suite.
+
+The document starts with the explanation of the PPC755 //SimNML//
+description organization. Then, it is described how can the
+simulator be generated and used.
+
+Finally, the document tries to explain how the simulator can be modified
+and extended.
+
+====== Organization ======
+
+The PPC755 description is organized in four ''.nmp'' files and some external
+''.c'' files for things that can't be described in @(NMP).
+The main file is ''ppc.nmp''. It describes the registers
+and memory of the PPC755 and its main uisa instructions. The other uisa
+instructions are described in ''uisa_fp_instr.nmp'', these are floating
+point instructions and the management instructions of the floating point
+control registers.
+
+
+The two other ''.nmp'' files define the VEA instruction set
+(''vea_instr.nmp'') and the OEA instruction set
+(''oea_instr.nmp'').  This last file is not used by our final
+simulator, nevertheless it has been included to make easier the
+conversion of the simulator from an application level simulator
+((In this simulator system calls are replaced by the system calls of
+the host machine)) to an operating system level simulator (in which system
+calls would really be executed by the simulator).
+
+All the ''.nmp'' description files make full use of the capabilities of GLISS,
+for example defining macros or external functions calling.
+As such, it can be considered as a model for an ISA description.
+The additional fields ''user0'' and ''category'' are not used in this simulator.
+They are just here as an example of additional field.
+
+===== Files organization =====
+
+The directory ''ppc2'' contaians the simulator description divided in
+three subdirectories :
+  * ''ppc/nmp'' -- Contains the ''.nmp'' files for PowerPC 755.
+  * ''ppc/extern'' -- Contains external files.
+  * ''ppc/prog'' -- Contains some PPC755 programs to test the simulator 
+that will be produced.
+
+
+===== Description of the file ''nmp/ppc.nmp'' =====
+
+This file is the core of the PPC755 processor description.
+It defines all the user level instructions of the PPC755 processor with the
+exception of the floating point arithmetic instructions and the
+floating point control instructions. This division has been made with
+a double purpose:
+
+  * Not all the implementations of the PPC755 have a floating point
+unit, so its seems logical to separate it from the rest of uisa
+instruction set. This way a version without the floating point
+instructions of the simulator could be made just removing the include
+of the ''uisa_fp_instr.nmp'' file.
+  * It is easier to work with the description of the simulator if we
+keep the floating point instructions separate from the rest of uisa
+instruction set.  Both groups represent a big number of
+instructions, so it is easier to keep them separate to make the
+description files smaller and easier to work with.
+
+Both things were accomplished thanks to the ability of the nmp file
+parser to work with multiple files using the ''include op'' 
+"//nmp file//" statement.
+
+It contains also all the definitions of data types, memory,
+registers and memory addressing modes that will be used by the
+description of the uisa. But additionally it
+contains the registers that the oea instruction set (described in
+''nmp/oea_instr.nmp'') can use.
+
+The reason for that is that the initialization of the processor
+(see figure~\ref{frfig:initcode}) must be done in the main file of
+the description (i.e. in ''nmp/ppc.nmp''), and some registers of the oea
+instruction set have to be initialized since this simulator executes
+only applications and not an OS.
+
+So the registers initialized by the initialization operation
+(see figure \vref{frfig:initcode}) are described in the ''nmp/ppcnmp''.
+
+
+<code>
+op init ()
+    action = {
+        MSR<MSR_FP..MSR_FP> = 1;
+        MSR<MSR_PR..MSR_PR> = 0;
+        MSR<MSR_FE1..MSR_FE1> = 0;
+        MSR<MSR_FE0..MSR_FE0> = 0;
+        MSR<MSR_LE..MSR_LE> = 0;
+        TB = 0;
+    }
+</code>
+
+There is one instruction in the ''nmp/ppc.nmp'' file that breaks the
+rule that this file just defines uisa instructions. The instruction is
+''sc'' (see figure~\ref{frfig:sccode} on. This instruction was added
+to the uisa instruction because it is necessary for the application level
+simulator and it is the only oea instruction that can be executed in user mode.
+This instruction calls an external function defined in an external
+file, because its operation is difficult to describe in the @(NMP)
+language. This implementation also allows to change the operating
+system that the simulator runs easily, the user has just to redefine
+the external function to implement a different behavior.
+
+<code>
+// System Call
+op sys_call ( )
+    syntax = "sc"
+    image  = "01000100000000000000000000000010"
+    action = { "sc_impl"("instr","state",M);}
+</code>
+
+Two other special instructions appear in this file: the
+''mfspr'' and ''mtspr'' instructions (see figure~\ref{frfig:mtsprcode}).
+They are special instructions because they belong at the uisa and oea
+instructions sets. Their opcode is exactly the same in both
+instruction sets. The decision was to put these instructions in both
+description files (''nmp/ppc.nmp'' and ''oea_instr.nmp''), with the
+same syntax but with different opcode images. That can be done because
+these instructions do not access the same registers if they belong to
+user mode or supervisor mode, actually there is one bit defining the
+register to be used that is different if the instruction is executed
+in user mode or supervisor mode.  The description takes advantage of
+this fact making the image definition of the instructions different in
+one bit, this way the simulator can afterwards decide which one to
+execute, the user mode instruction or the supervisor mode
+instruction((The parser gives the user a warning if two
+instructions have the same syntax but different images, but it is just
+a warning that can be ignored in this case)).
+
+<code>
+op mov_to_spr ( rs : index, spr : card ( 9 ) )
+    syntax = format ( "mtspr %d,%d", spr, rs )
+    image  = format ( "011111%5b0%9b01110100110", rs, spr )
+    action = {
+        TMP_HWORD = spr;
+        TMP_WORD = 0;
+        TMP_WORD = TMP_HWORD < 4..0 >;
+        TMP_WORD = TMP_WORD << 5;
+        TMP_WORD1 = 0;
+        TMP_WORD1 = TMP_HWORD<8..5>;
+        TMP_WORD = TMP_WORD | ( TMP_WORD1 & 0x0000000f);
+
+        if TMP_WORD > 9 then
+                "print" ( "mtspr is only user level instruction set
+                           implementation." );
+    endif;
+        switch ( TMP_WORD ) {
+        case 1 : XER = GPR [ rs ];
+        case 8 : LR = GPR [ rs ];
+        case 9 : CTR = GPR [ rs ];
+        default : "print" ( "mtspr: rs error in user mode." );
+         };
+    }
+</code>
+
+===== Description of ''uisa_fp_instr.nmp'' file =====
+
+The ''uisa_fp_instr.nmp'' file describes the PPC755 floating point
+instructions and the corresponding control instructions.
+
+The definition of the instructions makes use of the tree operation
+structure that @(SIMNL) allows to make. That way the root operation
+checks that the floating point instruction can be executed, by looking
+at the FP bit of the MSR register, that defines if floating point
+instructions are supported.  The FP bit is set to one in the
+initialization of the simulator and it is defined in the ''init''
+operation of the ''nmp/ppc.nmp'' file.
+
+The instructions defined in this file use base functions and constants provided
+by GLISS in order to interface correctly with the floating-point model of the
+host machine. Examples are: ''fpi_setround'', ''fpi_testexception'', 
+''FPI_TOWARDSZERO'' (for rounding purposes), ''FPI\_INEXACT''
+(for testing exceptions) ...
+
+The instruction-set simulator produced by GLISS uses the floating-point
+instructions of the host machine to emulate the floating-point instructions
+of the PowerPC. Thus, the non-IEEE mode of the PowerPC cannot be implemeted
+in the simulator since it does not exist on host machines (except a PowerPC
+one of course). Furthermore, the way certain exceptions are detected in the
+PowerPC is special and cannot e reproduced as is on other machines like
+an x86 or a Sparc. Thus, the iss executes correctly floating-point instructions
+in the IEEE mode and when there are no exceptions. Exceptions will be detected
+as well on the host machine as on a PowerPC but the result might not be exactly
+the same. When an exception is raised, it is managed by an external function
+''launch_exception'' in the file ''extern/exception.c''. Changing this function
+is possible. In particular, the instruction causing the exception could be
+reexecuted with an external mathematic library. Another way is to execute all
+floating-point instructions with such a library but it would significantly
+increase the execution time.
+
+
+===== Description of the ''nmp/vea_instr.nmp'' file =====
+\label{frsec:vea}
+
+The ''nmp/vea_instr.nmp'' file describes the PPC755 vea instruction
+set. Most of the instructions defined in this file do nothing, they
+are just defined because their effects do not concern the logical view
+of the processor but the hardware one (for example, TLB management).
+For example the function that returns the value of the TB register
+of the PPC755 will return always 0 unless a cycle-level simulator added
+to this iss updates the value of the TB register.
+
+
+There are no registers defined in this file; VEA registers are defined in
+''nmp/ppc.nmp'' in order to be initialized by the ''init'' operation
+(cf. section~\ref{frsec:ppcm}).
+
+
+===== Description of the ''nmp/oea_instr.nmp' file =====
+
+The ''nmp/oea_isntr.nmp'' file describes the PPC755 OEA instruction
+set. As in the description of the VEA instruction set, some
+instructions are just defined but not implemented, because they manage
+some external components of the processor.
+
+There are no registers defined in this file; they are defined in
+''nmp/ppc.nmp'' in order to be initialized by the ''init'' operation
+(cf. section~\ref{frsec:ppcm}).
+
+As the iss executes only application-level applications and these instructions
+are executed only under superuser level, they have never been tested.
+The root of the OEA instructions (so all OEA instructions) tests if the
+processor in superuser mode and raise a ''PROGRAM'' exception if it is
+not the case (see \vref{frfig:prin_oea}).
+
+<code>
+// checking if the processor is in superuser mode,
+op oea_instr ( x: oea_instr_action)
+    syntax = x.syntax
+    image  = x.image
+    action = {
+        if MSR<MSR_PR..MSR_PR> then
+            "launch_exception"(PROGRAM);
+        else
+            x.action;
+        endif;
+    }
+</code>
+
+If an OEA instruction is executed in user mode, an
+exception is raised.
+
+As mentioned in section \vref{frsec:ppcm}, two instructions appear
+in both descriptions files ''nmp/ppc.nmp'' and ''oea_instr.nmp''.
+These instructions are ''mtspr'' et ''mfspr''.  If you check figures
+\vref{frfig:mtsprcode_oea} and \vref{frfig:mtsprcode}, you will see
+that both look the same except 1 bit in the ''image'' and the  ''action''
+which is different. In the case of ''op oea_mtspr'', the image is
+''...%5b1%9b...'' and in ''op mtspr'' it is ''...%5b0%9b...''.
+This small difference allows us to define the instructions
+''mtspr'' and ''mfspr'' in both files.
+
+</code>
+op oea_mtspr ( spr : card( 9 ) , rs : index )
+    syntax = format ( "mtspr %d,%d", spr, rs )
+    image  = format ( "011111%5b1%9b01110100110", rs, spr )
+    action = {
+        TMP_HWORD = spr;
+        TMP_WORD = 0;
+        TMP_WORD = TMP_HWORD < 4..0 >;
+        TMP_WORD = TMP_WORD << 5;
+        TMP_WORD = (TMP_WORD |
+                   ( TMP_HWORD < 8..5 > & 0x0000000f )) |
+                   0x00000010;
+
+
+     switch(TMP_WORD) {
+        case 1:    XER      = GPR[rs] ;
+        case 8:    LR       = GPR[rs] ;
+        case 9:    CTR      = GPR[rs] ;
+        case 18:   DSISR    = GPR[rs] ;
+        case 19:   DAR      = GPR[rs] ;
+
+        ...
+            case 1019: ICTC     = GPR[rs] ; // mpc750 & mpc755 ONLY
+            case 1020: THRM[0]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+            case 1021: THRM[1]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+            case 1022: THRM[2]  = GPR[rs] ; // mpc750 & mpc755 ONLY
+        default : ``print'' ( "mtspr: rs error in superuser mode." );
+      };
+    }
+</code>
+Instruction mtspr description (OEA version).
+
+
+===== Description of external files =====
+
+The external files (present in the  ''extern'' directory)
+provide functions that are needed to initialize the iss. They also
+provide some functionalities that are easier to describe using the
+c language than using @(NMP).
+
+
+==== Description of ''extern/exception.c'' ====
+This file shows how an exception manager can be written. This
+manager is very simple, it just print the state of the iss using
+function ''ppc_dump_state'' provided by GLISS in ''include/ppc/api.h''
+and finishes the execution.
+
+
+
+
+===== Customization of the simulator =====
+
+==== Description of ''src/system.c'' ====
+
+This file provides two different functionalities:
+  * a function which loads an ELF PowerPC object file (the program to simulate),
+  * a LinuxOS system call emulation  (provided by ''src/sys_call.c'').
+
+The functions provided by this file must be initialized with the
+PPC755 file to execute, its argv and argc c arguments, and three
+optionals ones:
+  * the memory page size of the system to emulate (1024 by default),
+  * a debugging option that can be activated or desactivated
+(desactivated by default),
+  * an additional system handler that the ''src/system.c'' will access
+to modify its state when doing OS functions. That handler is useful
+to link the library with an external simulator, that
+way our simulator and the external one will obtain the same results
+from the OS system emulator that \cfile{system} provides. The
+external system should interface with the library through the
+''system_handler_t'' structure (see figure~ref{frfig:emulstatecode})
+that can be found in ''src/system.h''. The ''instance'' variable
+''system_handler_t'' structure will be the first parameter
+passed to functions defined in the structure.
+
+
+<code c>
+typedef struct {
+/* Registers interface */
+    void (*write_gpr)(void *, int, int32_t);
+    int32_t (*read_gpr)(void *, int);
+    void (*reset_cr0so)(void *);
+    void (*set_cr0so)(void *);
+
+// Memory interface
+    uint8_t (*mem_read_byte)(void *, address_t);
+    void (*mem_write_byte)(void *, address_t, uint8_t);
+    uint16_t (*mem_read_half_word)(void *, address_t);
+    void (*mem_write_half_word)(void *, address_t, uint16_t);
+    uint32_t (*mem_read_word)(void *, address_t);
+    void (*mem_write_word)(void *, address_t, uint32_t);
+    uint64_t (*mem_read_dword)(void *, address_t);
+    void (*mem_write_dword)(void *, address_t, uint64_t);
+    void (*mem_set)(void *, address_t, uint8_t, int);
+    void (*mem_read)(void *, void *, address_t, int);
+    void (*mem_write)(void *, address_t, void *, int);
+
+    int memory_page_size;
+
+    void *instance;
+} system_handler_t;
+</code>
+The ''system_handler_t'' structure.
+
+The emulation of system calls by the system calls of the host
+machine (Linux) is made in function ''sc_impl'' provided in
+''src/sys_call.c''.
+
+
+
+====== Installation and use of the iss ======
+
+Sources of the iss are provided as a compressed archive.
+Extracting the files is done in the following way:
+
+<code sh>
+> tar -zxvf ppc-2.X.X.tgz}
+</code>
+
+The directory ''ppc2'' is created and contains all extracted files.
+
+To build the emulator, you must change the Makefile in the ''ppc2''
+directory in order to tune configuration. Notice that the simulator
+building requires to install GLISS v2 at the same directory level than ''ppc2''.
+
+To tune the configuration, you may desactive the building of some parts
+by commenting the definition of some variables:
+  * ''WITH_SIM'' -- do not build simulator (only the library is built)
+  * ''WITH_DISASM'' -- do not  build the disassembler.
+
+Then, you just have to type ''make'' in order to built the
+emulator. You may have some warnings, don't worry about them.
+
+Once the Makefile has finished, files are organized as follows:
+
+  * ''ppc2'' -- the root directory containing the main ''Makefile''
+    * ''ppc/extern'' -- contains all external modules
+    * ''ppc/prog'' -- contains some programs compiled for the PowerPC and
+used to test the iss.
+    * ''ppc/simul'' -- contains the main file of the iss which calls
+the functions of the library generated by GLISS. It might be replaced
+by a microarchitectural simulator.
+    * ''ppc/src'' -- contains the ''.c'' and ''.h'' files generated by GLISS
+    * ''ppc/lib'' -- contains the library created  with the srouce files above
+    * ''ppc/include'' -- contains the ''.h'' files corresponding to the library.
+
+GLISS creates a library which can be used by a simulator (in our
+case, the simplest simulator which realizes an iss). This library
+is in the directory ''ppc/src''. The library contains the
+definition of all instructions defined in the @(NMP) description
+and the functions to decode them, see their results and store them
+in the state of the simulator.  The simulator itself can also
+reads or writes this internal state. The library also contains the
+functions written in the external files.
+
+The simulator (''sim/ppc-sim.c'') is very simple. Except calling the
+main functions provided by GLISS, it calls the function to
+initialize the state of the simulator which among other is in
+charge of loading the program to execute in the memory of the
+simulator. Then, in a loop, it uses the ''ppc_step()'' function
+(see figure \vref{frfig:simul}).
+
+<code c>
+...
+
+sim = ppc_new_sim(state, addr_start, addr_exit);
+if (sim == NULL) {
+	fprintf(stderr, "ERROR: no more resources\n");
+	return 2;
+}
+...
+while(1) {
+	if (ppc_is_sim_ended(sim))
+		break;
+	ppc_step(sim);
+...
+</code>
+The body of ''sim/ppc-sim.c''.
+
+The executable ''ppc-simul'' file is created in ''ppc/sim''.
+Its arguments are given in figure \vref{frfig:simul_interface}.
+
+<code sh>
+> cd sim
+> ./ppc-sim EXECUTABLE_PATH
+</code>
+
+
+====== Modifying and extending the simulator ======
+
+===== Configuration =====
+It is very easy to create a new PowerPC processor without floating point
+units or initialize differently the registers just by modifying
+the ''init'' op in ''nmp/ppc.nmp''.
+
+You can disable the decode cache whose aim is accelerating the simulation.
+You should add the line:
+<code make>
+CFLAGS += -DEMUL_NO_CACHE_DECODE
+</code>
+It's only needed to disable it when the iss executes self-modifying code.
+
+You can also specify them on the ''make'' command line.
+
+**Example**
+<code sh>
+> make all OPT=-DEMUL_NO_CACHE_DECODE
+</code>
+
+You probably notice in the @(NMP) descriptions two additional fields:
+''otawa_kind'', ''otawa_target'' and ''otawa_used_regs''. These are used
+in applications which are not provided. To use such additional fields
+or add some of your own see the GLISS manual, you have a tool provided
+with GLISS v2 with the following command:
+
+<code sh>
+> ../gliss2/gep/gliss-attr ./ppc.irg -a otawa_kind -t ../gliss2/template/category_table.h -o kind.c
+</code>
+
+This command generates the file ''kind'' that contains an array that provides,
+for each PowerPC instruction, the kind of instruction expressed according
+the bits defined in ''nmp/ppc.nmp'' with constants ''IS_XXX''. This file
+is generated from the template below using the ''otawa_kind'' custom attribute:
+
+<code c>
+/* Generated by gep ($(date)) copyright (c) 2008 IRIT - UPS */
+
+#ifndef GLISS_$(PROC)_INCLUDE_$(PROC)_CATEGORY_TABLE_H
+#define GLISS_$(PROC)_INCLUDE_$(PROC)_CATEGORY_TABLE_H
+
+
+#if defined(__cplusplus)
+extern  "C"
+{
+#endif
+
+#include "../include/$(proc)/api.h"
+#include "../include/$(proc)/macros.h"
+
+
+#define gliss_error(e) fprintf(stderr, (e))
+
+
+static int $(proc)_category_table[] =
+{
+	$(invalid_category)$(foreach instructions),
+	$(category)$(end)
+};
+
+
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* GLISS_$(PROC)_INCLUDE_$(PROC)_CATEGORY_TABLE_H */
+</code>
+
+Please refer to GLISS v2 documentation for the special statement starting
+with a "$".
+
+
+===== Extending to microarchitectural simulation =====
+
+There are two possibilities to take into account performance and not only
+functionnality. Both consist in replacing the file ''sim/ppc-sim.c'' by 
+a simulator which is interfaced to our library.
+ 
+In our ''ppc-sim'' program, only one state is initialized. It is the state
+of the instruction-set simulator. 
+
+First you might want to priviledge fiability againt speed of simulation.
+In this case, the iss might be connected to a simulator which makes also decode,
+execution and so on but on its own logical state. This way, the iss is a
+reference and the simulator can check both states to verify that it is
+functionnal correct. The simulator can use the functions of the library
+or its own functions if they already exist. It is preferable that system
+calls are executed by the same library in order to be sure they are identical.
+The simulator can use the system call manager of our library
+(see section \vref{frsubsub:syst}).
+
+Second, you want a simulator as fast as possible. The iss is conncected
+to a micro-architectural simulator which deals only with temporal
+and purely hardware aspects. Then the mirco-architectural simulator
+calls systematically the functions of the library except for the instructions
+which have only an impact on the hardware and not on the logical state
+like ''eieio''. It is the responsibility of the simulator to take into account
+the execution of the instructions. Their action in the @(NMP) file is most
+of the time empty. Eventually, you can extend the ressources of the iss
+to purely hardware ressources. The simulator will be able to modify
+these ressources using the access macros which will be generated by GLISS.
+However, the interest is low. The principle of GLISS is to have only ressources
+which can be viewed by the programmer.
+
+To surpass the limitations on floating-point exceptions, floating-point
+operations should be executed by external functions. These functions should be
+defined in order to reflect exactly the floating-point model of the PowerPC.
+Some floating-point libraries are available on the web (for example,
+one is provided in gcc) but we don't know if it can model exactly the PowerPC.
+We didn't investigate this because the speed of the iss will be much lower and
+our applications don't have such exceptions.
+
+===== Executing instead of emulating the Operating System =====
+
+Our iss, as it is currently implemented, is intended to execute only linux
+applications and does not support the emulation of all system calls.
+Of course, it can be extended to support more system calls or
+to emulate system calls on other OS (see ''src/sys_call.c'').
+
+One could also need to execute the OS itself, especially in embedded systems 
+where the OS is quite light and applications running on this OS. In this case,
+system calls are not emulated by the system calls of the host machine.
+The external function ''sc_impl'' or the @(NMP) description of  ''sc''
+should be modified to have the correct behaviour. Furthermore, exceptions are
+not dealt correctly for such a complete system simulation. The function
+''launch_exception'' should be rewritten. Finally, note that you can write
+the ''init'' description in ''nmp/ppc.nmp''  so that it initializes all
+the logical state as if the bootstrap was executed. This significantly reduce
+simulation time.
+
+
+====== Test ======
+
+This instruction-set simulator has been tested using 5 programs
+of the Spec2000 suite in the test mode.These five programs are ''eon'',
+''parser'', ''crafty'', ''gzip'', ''twolf''.It has also been tested
+with the programs ''argv'' and ''primes'' provided in the ''ppc/prog''
+directory.
+
+All have been executed up to the end and they produced the good results.
+They have been compiled with gcc :
+<code sh>
+powerpc-linux-gcc -static -O3 -fomit-frame-pointer -o <nom_executable> <nom_fichier_source>
+</code>
+
+
+In the directory ''ppc/prog'', few test programs are provided :
+  * ''primes'' -- prime numbers calculus
+  * ''argv'' -- program which shows its environment (you can give any argument)
+  * ''crafty/crafty-base.ppc32-linux'' -- a chess program
+
+''crafty'' must receive on its standard input (''<'') one of the entries
+provided in ''ppc/prog/crafty/data'' for example 
+''ppc/prog/crafty/data/test/input/crafty.in''.
+
+====== Performances ======
+
+The simulation performance highly depends on the simulator configuration,
+especially parameters which configure the memory of the simulator
+(parameters of the function ''iss_init''). The default is a memory
+with 4 modules of 1 Mbytes and we use this option in our tests.
+This configuration is interesting for short programs using few data.
+In the case of ''parser'', the memory has been configured as 8 modules
+of 4 megabytes because simulation was very long due to a high number of swaps.
+Thus, the host machine should have enough memory. In our case, we have 512 MB
+of RAM on our machines.
+
+
+The following table gives some performance results on the programs cited
+above with the test inputs. The decode cache was activated et no mmu was used.
+Tests have been done on an Athlon TBird at 1,33GHz with 512 megabytes
+of DDR-DRAM and a  Gigabyte GA-7DX motherboard. The OS was Linux Mandrake
+9.0. Numbers given in this table are means of several executions because
+the simulation vary according to the state of the host machine.
+
+^Prog ^ inst. number ^ inst./sec ^ CPU time ^ system time ^ total time ^
+^  ^  ^  ^ (ms) ^ (ms) ^ (ms) ^
+|crafty |  9 172 715 255| 2,72| 2 582 090|       410| 2 582 500|
+|gzip   |  5 268 434 111| 4,70| 1 121 840|       250| 1 122 090|
+|bzip2  | 24 675 238 449| 4,60|    14 200| 1 125 960|          |
+|parser |  7 541 774 619| 3,32| 2 268 910|     2 590| 2 271 500|
+| mcf   |    382 615 159| 1.01|   376 890|       540|   376 890|
+
+

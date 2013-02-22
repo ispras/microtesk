@@ -1,0 +1,202 @@
+op meminst = ld|st|lea
+
+op ld = ld_a | ld_b | ld_bu | ld_d | ld_h | ld_hu | ld_w
+
+
+op ld_a = ld_a_1|ld_a_2
+
+op ld_a_1 (off1:card(4),off2:card(6),off3:card(6),off:card(32),b:reg_a,a:reg_a)
+   predecode = {off<6..9>=off1;
+	        off<10..15>=off2;
+		off<0..5>=off3;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;}
+   syntax = format("ld.a %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b%6b%6b%s%s10011001",off,off1,off2,off3,b.image,a.image)
+   action = { }
+
+op ld_a_2 (off1:card(4),off3:card(6),off:card(32),b:reg_a,a:reg_a)
+   predecode = {off<6..9>=off1;
+		off<0..5>=off3;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;}
+   syntax = format("ld.a %s,[+%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b010110%6b%s%s00001001",off,off1,off3,b.image,a.image)
+   action = { }
+
+op ld_b = ld_b_1 | ld_b_2
+
+op ld_b_1 (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+	        off<0..5>=off2;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.b %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b100000%6b%s%s00001001",off,off1,off2,b.image,a.image)
+   action = { }
+
+op ld_b_2 (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+	        off<0..5>=off2;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.b %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b000000%6b%s%s00001001",off,off1,off2,b.image,a.image)
+   action = { }
+
+op ld_bu (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+	        off<0..5>=off2;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.bu %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b100001%6b%s%s00001001",off,off1,off2,b.image,a.image)
+   action = { }
+
+op ld_d = ld_d_reg | ld_d_postinc
+
+op ld_d_reg (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_e)
+   predecode = {off<6..9>=off1;
+	        off<0..5>=off2;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.d %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b100101%6b%s%s00001001",off,off1,off2,b.image,a.image)
+   action = { }
+
+op ld_d_postinc (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_e)
+   predecode = {off<6..9>=off1;
+	        off<0..5>=off2;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.d %s,[%s+]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b000101%6b%s%s00001001",off,off1,off2,b.image,a.image)
+   action = { }
+
+op ld_h (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+	        off<0..5>=off2;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.h %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b100010%6b%s%s00001001",off,off1,off2,b.image,a.image)
+   action = { }
+
+op ld_hu (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+	        off<0..5>=off2;
+		if (off<9..9>==1)then off<10..31>=0xffffffff; endif;}
+   syntax = format("ld.hu %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b100011%6b%s%s00001001",off,off1,off2,b.image,a.image)
+   action = { }
+
+op ld_w = ld_w_1|ld_w_2
+
+op ld_w_1 (off1:card(4),off2:card(6),off3:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+	        off<10..15>=off2;
+		off<0..5>=off3;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;}
+   syntax = format("ld.w %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b%6b%6b%s%s00011001",off,off1,off2,off3,b.image,a.image)
+   action = { }
+
+op ld_w_2(a:reg_d,off:card(32),off1:card(4),off2:card(4),off3:card(6),off4:card(4))
+   predecode = {
+	     off<6..9>=off1;
+	     off<10..13>=off2;
+	     off<0..5>=off3;
+	     off<14..17>=off4;
+	     if (off<17..17>==1)then off<18..31>=0xffff; endif;
+   }
+   syntax = format("ld.w %s,%d",a.syntax,off)
+   image = format("%0b%4b00%4b%6b%4b%s10000101",off,off1,off2,off3,off4,a.image)
+   action = {}
+
+op lea (off1:card(4),off2:card(6),off3:card(6),off:card(32),b:reg_a,a:reg_a)
+   predecode = {off<6..9>=off1;
+	        off<10..15>=off2;
+		off<0..5>=off3;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;}
+   syntax = format("lea %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b%6b%6b%s%s11011001",off,off1,off2,off3,b.image,a.image)
+   action = { }
+
+op st = st_a| st_b | st_d | st_h | st_w | st_t
+
+op st_a (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_a)
+   predecode = {off<6..9>=off1;
+		off<0..5>=off2;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.a [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%4b100110%6b%s%s10001001%0b",off1,off2,b.image,a.image,off)
+   action = { M[A[b]]b = A[a] ; }
+
+op st_b (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+		off<0..5>=off2;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.b [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%0b%4b100000%6b%s%s10001001",off,off1,off2,b.image,a.image)
+   action = { M[A[b]] = D[b] ; }
+
+op st_d =  st_d_off10 | st_d_postincr
+
+op st_d_off10 (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_e)
+   predecode = {off<6..9>=off1;
+		off<0..5>=off2;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.d [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%0b%4b100101%6b%s%s10001001",off,off1,off2,b.image,a.image)
+   action = { M[A[b]] = E[a]; }
+
+op st_d_postincr (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_e)
+   predecode = {off<6..9>=off1;
+		off<0..5>=off2;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.d [%s+],%d,%s",b.syntax,off,a.syntax)
+   image = format("%0b%4b000101%6b%s%s10001001",off,off1,off2,b.image,a.image)
+   action = {M[A[b]] = E[a]; }
+
+op st_h (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+		off<0..5>=off2;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.h [%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%0b%4b100010%6b%s%s10001001",off,off1,off2,b.image,a.image)
+   action = { M[a[b]] = D[a] ; }
+
+
+op st_w = st_w_1|st_w_2|st_w_3
+
+op st_w_1 (off1:card(4),off2:card(6),off3:card(6),off:card(32),b:reg_a,a:reg_d)
+   predecode = {off<6..9>=off1;
+	        off<10..15>=off2;
+		off<0..5>=off3;
+		if (off<15..15>==1)then off<16..31>=0xffff; endif;}
+   syntax = format("st.w %s,[%s]%d",a.syntax,b.syntax,off)
+   image = format("%0b%4b%6b%6b%s%s01011001",off,off1,off2,off3,b.image,a.image)
+   action = {M[A[b]] = D[a]; }
+
+op st_w_2(a:reg_d,off:card(32),off1:card(4),off2:card(4),off3:card(6),off4:card(4))
+   predecode = {
+	     off<6..9>=off1;
+	     off<10..13>=off2;
+	     off<0..5>=off3;
+	     off<14..17>=off4;
+	     if (off<17..17>==1)then off<18..31>=0xffff; endif;
+   }
+   syntax = format("st.w %d,%s",off,a.syntax)
+   image = format("%0b%4b00%4b%6b%4b%s10100101",off,off1,off2,off3,off4,a.image)
+   action = {}
+
+op st_w_3 (off1:card(4),off2:card(6),off:card(32),b:reg_a,a:reg_e)
+   predecode = {off<6..9>=off1;
+		off<0..5>=off2;
+		if (off<9..9>==1)then off<16..31>=0xffffff; endif;}
+   syntax = format("st.w [+%s],%d,%s",b.syntax,off,a.syntax)
+   image = format("%0b%4b010100%6b%s%s10001001",off,off1,off2,b.image,a.image)
+   action = { }
+
+op st_t (b:card(1),off18:card(18),off1:card(4),off2:card(4),off3:card(6),off4:card(4),bpos3:card(3))
+   predecode = {
+	off18<6..9>=off1;
+	off18<10..13>=off2;
+	off18<0..5>=off3;
+	off18<14..17>=off4;
+	}
+   syntax = format("st.t %d,%d,%d",off18,bpos3,b)
+   image = format("%0b%4b00%4b%6b%4b%1b%3b11010101",off18,off1,off2,off3,off4,b,bpos3)
+   action = { }

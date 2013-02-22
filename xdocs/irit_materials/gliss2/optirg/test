@@ -1,0 +1,24 @@
+#!/bin/bash
+
+testd=`dirname $1`
+test=`basename $1 .nmp`
+
+make > make.log
+
+echo "Version originale : "
+../irg/mkirg $testd/$test".nmp" $test".irg" 
+
+../graphirg/graphirg $test".irg" $test".dot"
+dot -Tjpeg $test".dot" -o $test".jpg"
+
+echo "Version optimisée : "
+./optirg $test".irg" $test"_opt.irg" 
+
+../graphirg/graphirg $test"_opt.irg" $test"_opt.dot"
+dot -Tjpeg $test"_opt.dot" -o $test"_opt.jpg"
+
+../irg/print_irg $test"_opt.irg" > $test"_opt.nmp"
+
+eog $test".jpg" &
+#eog $test"_opt.jpg" 
+

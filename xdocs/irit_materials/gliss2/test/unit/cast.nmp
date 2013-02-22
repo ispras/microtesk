@@ -1,0 +1,21 @@
+
+let proc="mine"
+let gliss_isize = "32"
+
+reg pc[1, card(32)] __attr(pc)
+
+reg s32[1, int(32)]
+reg u32[1, card(32)]
+reg u64[1, card(64)]
+
+op init()
+	action = { }
+
+op instruction()
+	image = "00000000 00000000 00000000 00000000"
+	syntax = "bof"
+	action = {
+		u64 = coerce(card(32), s32);
+		u32 = s32 + u32;
+	}
+

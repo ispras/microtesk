@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="MicroTESK" default="build" basedir=".">
+
+  <!-- Directories -->
+  <property name="src"  location="src"/>
+  <property name="gen"  location="gen"/>
+  <property name="bin"  location="bin"/>
+  <property name="dist" location="dist"/>
+
+  <!-- Output JAR-file -->
+  <property name="jar" value="microtesk.jar"/>
+  <!-- Main package -->
+  <property name="main.package" value="ru/ispras/microtesk"/>
+
+  <!-- External JARs -->
+  <property name="junit.jar" value="junit-4.10.jar"/>
+  <property name="antlr.jar" value="antlr-3.4-complete.jar"/>
+  <property name="antlr.ant.jar" value="ant-antlr3.jar"/>
+  <property name="cli.jar" value="commons-cli-1.2.jar"/>
+
+  <!-- Information for the JAR manifest -->
+  <property name="jar.jars.path" value="./../jars"/>
+  <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>	
+  <property name="jar.classpath" value="${jar.jars.path}/${junit.jar} ${jar.jars.path}/${antlr.jar} ${jar.jars.path}/${cli.jar}"/>
+
+  <!-- Classpath for external libraries -->
+  <property name="jars.path" value="./jars"/>
+  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}"/>
+
+  <!-- Grammar files -->
+  <!-- Sim-nML -->
+  <property name="simnml_grammar.package" value="translator/simnml/grammar"/>
+  <property name="simnml_grammar.path"    value="${main.package}/${simnml_grammar.package}"/>
+  <property name="simnml_lexer.name"      value="SimnMLLexer.g"/>
+  <property name="simnml_parser.name"     value="SimnMLParser.g"/>
+  <property name="simnml_walker.name"     value="SimnMLTreeWalker.g"/>
+	
+  <!-- MMU --> 	
+  <property name="mmu_grammar.package" value="translator/mmu/grammar"/>
+  <property name="mmu_grammar.path"    value="${main.package}/${mmu_grammar.package}"/>
+  <property name="mmu_lexer.name"      value="MMuLexer.g"/>
+  <property name="mmu_parser.name"     value="MMuParser.g"/>
+  <property name="mmu_walker.name"     value="MMuTreeWalker.g"/>
+
+  <!-- Options -->
+  <property name="debug" value="false"/>
+
+  <!-- Macro for ANTRL targets -->
+  <macrodef name="antlr3">
+  	<attribute name="grammar.path"/>
+    <attribute name="grammar.name"/>
+	<sequential>
+	  <echo message="antlr @{grammar.name}"/>
+	  <antlr:ant-antlr3
+	    xmlns:antlr="antlib:org/apache/tools/ant/antlr"
+	    target="${src}/@{grammar.path}/@{grammar.name}"
+	    outputdirectory="${gen}/@{grammar.path}"
+	    debug="${debug}"
+	  >
+	    <classpath>
+	      <pathelement path="${classpath}"/>
+	    </classpath>
+	  </antlr:ant-antlr3>
+    </sequential>
+  </macrodef>
+
+  <!-- Default target -->
+  <target name="build" depends="init,simnml_antlr,mmu_antlr">
+    <javac
+      srcdir="${src}:${gen}"
+      destdir="${bin}"
+      source="1.6"
+      classpath="${classpath}"
+      includeantruntime="true"
+    >
+    <!-- compilerarg value="-Xlint"/ -->
+    </javac>
+    <jar destfile="${dist}/${jar}" basedir="bin">
+      <manifest>
+        <attribute name="Main-Class" value="${jar.mainclass}"/>
+      	<attribute name="Class-Path" value="${jar.classpath}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <!-- Target for generating parsers from grammars with antlr -->
+	
+  <target name="simnml_antlr">
+    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}"/>
+  	<antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}"/>
+  	<antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}"/>
+  </target>
+	
+  <target name="mmu_antlr">
+    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}"/>
+    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}"/>
+  	<antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}"/>
+  </target>
+
+  <!-- Init target, creates dirs -->
+  <target name="init">
+    <mkdir dir="${gen}/${simnml_grammar.path}"/>
+    <mkdir dir="${gen}/${mmu_grammar.path}"/>
+    <mkdir dir="${bin}"/>
+    <mkdir dir="${dist}"/>
+  </target>
+
+  <!-- Clean target, removes builded dirs and files -->
+  <target name="clean">
+    <delete dir="${dist}"/>
+    <delete dir="${bin}"/>
+    <delete dir="${gen}"/>
+  </target>
+
+</project>

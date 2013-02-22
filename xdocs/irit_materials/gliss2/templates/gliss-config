@@ -1,0 +1,28 @@
+#!/bin/bash
+
+function syntax {
+	echo "SYNTAX: gliss-config [--cflags] [--libs]"
+	echo "	--cflags -- output C flags"
+	echo "	--libs -- output linked libraries"
+}
+
+while test "$1" != ""; do
+	case "$1" in
+		--cflags)
+			echo "-I$(INCLUDE_PATH)"
+			;;
+        --libs)
+        	echo "-L$(SOURCE_PATH) -l$(proc) $(foreach modules) $(LIBADD)$(end)"
+			;;
+        --help|-h)
+        		syntax
+        		exit 0
+                ;;
+        *)
+        		echo "ERROR: unknown option $1"
+        		syntax
+                exit 1
+                ;;
+        esac
+        shift
+done

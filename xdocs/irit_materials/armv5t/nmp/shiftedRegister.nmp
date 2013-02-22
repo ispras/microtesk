@@ -1,0 +1,159 @@
+
+
+macro reg_shift_carry(kind, rs, rm) = \
+	if rs<7..0> == 0 then \
+		CFLAG \
+	else \
+		switch (kind) { \
+		case LSL: \
+			if (rs<7..0>) <= 32 then \
+				((rm >> (32 - rs<7..0>)) & 1) \
+			else \
+				0 \
+			endif \
+		case LSR: \
+			if (rs<7..0>) <= 32 then \
+				((rm >> (32 - rs<7..0>)) & 1) \
+			else \
+				0 \
+			endif \
+		case ASR: \
+			if (rs<7..0>) < 32 then \
+				((rm >> (32 - rs<7..0>)) & 1) \
+			else \
+				rm<31..31> \
+			endif \
+		case ROR: \
+			if (rs<4..0>) != 0 then \
+				((rm >> rs<4..0>) & 1) \
+			else \
+				rm<31..31> \
+			endif \
+		} \
+	endif \
+		
+
+macro imm_shift_result(kind, imm, rm) = \
+	switch (kind) { \
+	case LSL: \
+		if imm == 0 then \
+			rm \
+		else \
+			rm << imm \
+		endif \
+	case LSR: \
+		if imm == 0 then \
+			0 \
+		else \
+			// force a logical right shift \
+			coerce(u32, rm) >> imm \
+		endif \
+	case ASR: \
+		if imm == 0 then \
+			if rm<31..31> == 0 then \
+				0 \
+			else \
+				0xffffffff \
+			endif \
+		else \
+			// force arithmetical right shift \
+			coerce(s32, rm) >> imm \
+		endif \
+	case ROR: \
+		if imm == 0 then \
+			// RRX \
+			(coerce(u32, CFLAG) << 31) | (coerce(u32, rm) >> 1) \
+		else \
+			rm >>> imm \
+		endif \
+	} \
+
+
+macro imm_shift_carry(kind, imm, rm) = \
+	switch (kind) { \
+	case LSL: \
+		if imm == 0 then \
+			CFLAG \
+		else \
+			rm<(32 - imm) .. (32 - imm)> \
+		endif \
+	case LSR: \
+		if imm == 0 then \
+			rm<31..31> \
+		else \
+			rm<(imm - 1) .. (imm - 1)> \
+		endif \
+	case ASR: \
+		if imm == 0 then \
+			rm<31..31> \
+		else \
+			rm<(imm - 1) .. (imm - 1)> \
+		endif \
+	case ROR: \
+		if imm == 0 then \
+			// RRX \
+			rm<0..0> \
+		else \
+			rm<(imm - 1) .. (imm - 1)> \
+		endif \
+		 \
+	} \
+
+mode shiftedRegister = immShift | regShift
+
+
+// !!WARNING!! using r15 as shiftAmt, r or any operand for an instr using this mode, has unpredictable results
+mode regShift(shiftAmt: REG_INDEX, shiftKind: u2, r: REG_INDEX) =
+
+	//reg_shift_result(shiftKind, Get_ARM_GPR(shiftAmt), Get_ARM_GPR(r))
+	//macro reg_shift_result(kind, rs, rm) =
+		if Get_ARM_GPR(shiftAmt)<7..0> == 0 then Get_ARM_GPR(r) else
+		switch(shiftKind) {
+		case LSL:
+			if Get_ARM_GPR(shiftAmt)<7..0> < 32
+			then Get_ARM_GPR(r) << Get_ARM_GPR(shiftAmt) <7..0>
+			else 0 endif
+		case LSR:
+			if Get_ARM_GPR(shiftAmt)<7..0> < 32
+			then coerce(u32, Get_ARM_GPR(r)) >> Get_ARM_GPR(shiftAmt)<7..0>
+			else 0 endif
+		case ASR:
+			if Get_ARM_GPR(shiftAmt)<7..0> < 32
+			then coerce(s32, Get_ARM_GPR(r)) >> Get_ARM_GPR(shiftAmt)<7..0>
+			else if Get_ARM_GPR(r)<31..31> == 0 then 0
+			else 0xffffffff endif endif 
+		case ROR:
+			if Get_ARM_GPR(shiftAmt)<4..0> == 0 then Get_ARM_GPR(r)
+			else Get_ARM_GPR(r) >>> Get_ARM_GPR(shiftAmt)<4..0> endif 
+		}
+		endif
+
+	syntax = format("%s, %s %s", r.syntax,
+		switch (shiftKind) {
+			case LSL: "lsl"
+			case LSR: "lsr"
+			case ASR: "asr"
+			case ROR: "ror"
+		},
+		shiftAmt.syntax)
+	image  = format("%s 0 %2b 1 %s", shiftAmt.image, shiftKind, r.image)
+	carry_out = reg_shift_carry(shiftKind, Get_ARM_GPR(shiftAmt), Get_ARM_GPR(r))
+		
+
+// WARNING! if r15 is specified as r, the value used is the current instruction"s address + 8	
+mode immShift(shiftAmt: u5, shiftKind: u2, r: REG_INDEX) =
+	imm_shift_result(shiftKind, shiftAmt, Get_ARM_GPR(r))
+	syntax =
+		if shiftKind != ROR && shiftAmt == 0 then
+			r.syntax
+		else
+			format("%s, %s #%d", r.syntax,
+				switch (shiftKind) {
+				case LSL: "lsl"
+				case LSR: "lsr"
+				case ASR: "asr"
+				case ROR:  if (shiftAmt != 0) then "ror" else    "rrx" endif
+			}, shiftAmt)
+		endif
+	image  = format("%5b %2b 0 %s", shiftAmt, shiftKind, r.image)
+	carry_out = imm_shift_carry(shiftKind, shiftAmt, Get_ARM_GPR(r))

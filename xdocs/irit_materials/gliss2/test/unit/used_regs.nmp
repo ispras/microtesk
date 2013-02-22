@@ -1,0 +1,96 @@
+let proc="mine"
+let gliss_isize = "32"
+let bit_order = "UPPERMOST"
+
+reg pc[1, card(32)]
+	pc = 1
+reg r[32, card(32)]
+mem M[32, card(32)]
+
+op init()
+	action = { }
+
+var i[1, card(32)]
+
+mode reg_d(i: card(5)) = r[i]
+	image = format("%5b", i)
+
+op instruction(x: all)
+	no_used_regs = { pc = pc + 4; }
+	action = {
+		x.action;
+		no_used_regs;
+	}
+	
+
+op all = bof | add | sub | ldm | warning | addr
+
+op bof()
+	image = "00000000 00000000 00000000 00000000"
+	syntax = "nop"
+	action = { }
+
+op addr(a: reg_d, b: reg_d, c: reg_d)
+	image = format("00000000 00000000 1 %s %s %s", a, b, c)
+	syntax = "addr"
+	action = {
+		a = b + c;
+	}
+
+op add(a: card(5), b: card(5), c: card(5))
+	image = format("00000000 00000000 1 %5b %5b %5b", a, b, c)
+	syntax = "add"
+	action = {
+		r[a] = r[b] + r[c];
+	}
+
+op sub(a: card(5), b: card(5), c: card(5))
+	image = format("00000000 00000001 0 %5b %5b %5b", a, b, c)
+	syntax = "sub"
+	action = {
+		r[a] = r[b] - r[c];
+	}
+	used_regs = {
+		"write"(r[a]);
+		"read"(r[b]);
+		"read"(r[c]);
+		"count"(2, 1);
+	}
+
+op ldm(l: card(5), u: card(5))
+	image = format("00000000 00000001 1 00000 %5b %5b", l, u)
+	syntax = format("ldm %d, %d", l, u)
+	rec = {
+		r[i] = M[r[0]];
+		if i != u then
+			i = i + 1;
+			rec;
+		endif;
+	}
+	action = {
+		i = l;
+		rec;
+	}
+	rec_used_regs = {
+		if i <= u then
+			"write"(r[i]);
+			i = i + 1;
+			rec_used_regs;
+		endif;
+	}
+	used_regs = {
+		i = l;
+		"read"(r[0]);
+		rec_used_regs;
+		"count"(1, 32);
+	}
+
+op warning()
+	image = "10000000 00000000 00000000 00000000"
+	syntax = "warning"
+	action = {
+		r[r[0]] = 0;
+		i = r[r[0]];
+	}
+
+
