@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="MicroTESK" default="build" basedir=".">
+<project name="microtesk" default="build" basedir=".">
 
   <!-- Directories -->
   <property name="src"  location="src"/>
