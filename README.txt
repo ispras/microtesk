@@ -2,71 +2,46 @@
  MicroTESK Project
 ----------------------------------------------------------------
 
- Configuration of the Eclipse IDE:
+ Building MicroTEST from command line:
 
- 1. Create a workspace located in this directory.
+ 1. To build the project, run the build.sh script:
+
+    sh build.sh
+
+ 2. To clean the project folder, run the script with the "clean" key:
+
+    sh build.sh clean 
+
+ Working with the project in the Eclipse IDE:
+
+ 1. Create a workspace located in the "<microtesk>/trunk" directory.
 
     Use the menu item "File/Switch Workspace...".
     Browse the directory.
 
- 2. Create a project called "microtesk".
+ 2. Import an existing project called "microtesk" into the workspace.
 
-    Use the menu item "File/New/Project...".
-    Choose "Java Project".
-    Type the project name.    
+    Use the menu item "File/Import...".
+    Choose "General/Existing Project into Workspace".
+    Select the "<microtesk>/trunk/microtesk" folder as the root directory.
+    Select the "microtesk" project located in this directory.
+    The project will be opened in the Eclipse IDE.
 
- 3. Change the compiler compliance level to 6.0.
-
-    Use the menu item "Window/Preferences...".
-    Choose "Java/Compiler".
-    Select the compliance level.
-
- 4. Add a dependency from the external libraries.
-
-    Use the context menu item "Build path/Configure build path...".
-    Add the external jars jars/*.jar.
-
- The demo generator project (optionally):
-
- 1. Create the project called "microtesk-demo".
-
-    Use the menu item "File/New/Project...".
-    Choose "Java Project".
-    Type the project name.    
-
- 2. Change the compiler compliance level to 6.0.
+ 3. Set up the Ant building tool integrated into Eclipse to enable it 
+    to run ANTLR tasks.
 
     Use the menu item "Window/Preferences...".
-    Choose "Java/Compiler".
-    Select the compliance level.
+    Choose "Ant/Runtime".
+    Select the "Classpath" page.
+    Select the "Ant Home Entries (Default)" row.
+    Click the "Add JARs..." button.
+    Select the "microtesk/jars/ant-antlr3.jar" JAR file.
 
- 3. Configure the build path for the project.
+ 4. Run the "build.xml" building script.
 
-    Use the context menu item "Build Path/Configure Build Path...".
-    
-    Add the project "test-fusion"
-
- For integration with TeSLa (obsolete):
-
- 1. Install the ECLiPSE tool.
-
- 2. Add the TeSLa library.
-
-    Use the context menu item "Build path/Configure build path...".
-    Add the external jar tesla-*.*.jar
-
- 3. Add the ECLiPSe library.
-
-    Use the context menu item "Build path/Configure build path...".
-    Add the external jar eclipse.jar
-
- 4. Add the ANTLR runtime library.
-
-    Use the context menu item "Build path/Configure build path...".
-    Add the external jar antlr-runtime-3.*.*.jar.
-
- 5. Specify the ECLiPSe directory.
-
-    -Declipse.directory="C:\Program Files\EcLiPSe 5.10"
+    Right-click the "build.xml" file in Project Exlorer.
+    Select "Run As/Ant Build" from the context menu.
+    Ant will run ANRLR to generate the needed code translation classes and
+    build the project.
 
 ----------------------------------------------------------------
