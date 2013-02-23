@@ -1337,13 +1337,47 @@ op LDR_SCALED_REGISTER_OFF(cond : Condition, src1 : REG, r : index, shift : REGI
             endif;
         endif;
     }
+    
+ op LDR_IMMEDIATE_PRE_INDEXED (cond : Condition, src1 : REG, r : index, offset : Bit12, Ubit : setU)
+    syntax = format("LDR%s %s, [ R%d, #%s%d ]!",cond.syntax, src1.syntax, r, Ubit.syntax, offset)
+    image  = format("%s0101%s011%4b%s%12b", cond.image, Ubit.image, r, src1.image, offset)
+    action = {
+        cond.action;
+
+        if (Ubit == 1) then
+            amode = GPR[r] + coerce(card(32), offset);
+        else
+            amode = GPR[r] - coerce(card(32), offset);
+        endif;
+
+        if (X == 1) then 
+            if (Ubit == 1) then
+                GPR[r] = GPR[r] + coerce(card(32), offset);
+            else
+                GPR[r] = GPR[r] - coerce(card(32), offset);
+            endif;
+        endif;
+	
+        if (X == 1) then
+            temp = M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode];
+
+            if (CP15[1]<22 .. 22> == 0) then 
+                GPR[src1] = temp >>> (8 * amode<1 .. 0>);
+            else
+                GPR[src1] = temp;
+            endif;
+
+            if (src1 == 15) then
+                GPR[src1] = (GPR[src1]) & (0xfffffffc);
+            endif;
+        endif;
+	}
 
 op load_store_inst =  LDR_IMMEDIATE_OFF
                    |  LDR_REGISTER_OFF
-/*                 |  LDR_SCALED_REGISTER_OFF
-
+                   |  LDR_SCALED_REGISTER_OFF
                    |  LDR_IMMEDIATE_PRE_INDEXED
-                   |  LDR_REGISTER_PRE_INDEXED
+/*                 |  LDR_REGISTER_PRE_INDEXED
                    |  LDR_SCALED_REGISTER_PRE_INDEXED
                    |  LDR_IMMEDIATE_POST_INDEXED
                    |  LDR_REGISTER_POST_INDEXED
@@ -1480,13 +1514,13 @@ op preload_instruction(a1 : index, a2 : index)
 
 /********************************************************************************************/
 
-op inst_type =	branch_inst
+op inst_type =  branch_inst
              |	multiply_instructions
 //           |	exception_generating_inst
 //           |	semaphore_instructions
 //           |	status_register_transfer_inst
              |  data_processing_inst
-//           |	load_store_inst
+             |	load_store_inst
 //           |	load_store_multiple
 //           |	coprocessor_inst
 //           | 	miscellaneous_inst
