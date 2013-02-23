@@ -1536,6 +1536,36 @@ op LDR_SCALED_REGISTER_POST_INDEXED(cond : Condition, src1 : REG, r : index, shi
         endif;
     }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+// LDRB INSTRUCTIONS
+
+op LDRB_IMMEDIATE_OFF(cond : Condition, src1 : REG, r : index, offset : Bit12, Ubit : setU)
+    syntax = format("LDR%sB %s, [ R%d, #%s%d ]", cond.syntax, src1.syntax, r, Ubit.syntax, offset)
+    image  = format("%s0101%s101%4b%s%12b", cond.image, Ubit.image, r, src1.image, offset)
+    action = {
+        cond.action;
+
+        if (r == 15) then 
+            if (Ubit == 1) then
+                amode = (GPR[r]+4) + coerce(card(32), offset);
+            else
+                amode = (GPR[r]+4) - coerce(card(32), offset);
+            endif; 	
+        else
+            if (Ubit == 1) then
+                amode = GPR[r] + coerce(card(32), offset);
+            else
+                amode = GPR[r] - coerce(card(32), offset);
+            endif; 	
+        endif;
+
+        if (X == 1) then
+            temp<7..0> = M[amode];
+            temp<31..8> = 0;
+            GPR[src1] = temp;
+        endif;		
+    }
+
 op load_store_inst =  LDR_IMMEDIATE_OFF
                    |  LDR_REGISTER_OFF
                    |  LDR_SCALED_REGISTER_OFF
@@ -1545,9 +1575,9 @@ op load_store_inst =  LDR_IMMEDIATE_OFF
                    |  LDR_IMMEDIATE_POST_INDEXED
                    |  LDR_REGISTER_POST_INDEXED
                    |  LDR_SCALED_REGISTER_POST_INDEXED
-/*
+
                    |  LDRB_IMMEDIATE_OFF
-                   |  LDRB_REGISTER_OFF
+/*                 |  LDRB_REGISTER_OFF
                    |  LDRB_SCALED_REGISTER_OFF
                    |  LDRB_IMMEDIATE_PRE_INDEXED
                    |  LDRB_REGISTER_PRE_INDEXED
