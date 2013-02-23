@@ -1566,6 +1566,49 @@ op LDRB_IMMEDIATE_OFF(cond : Condition, src1 : REG, r : index, offset : Bit12, U
         endif;		
     }
 
+op LDRB_REGISTER_OFF (cond : Condition, src1 : REG, offset : index, Ubit : setU, r : index)
+    syntax = format("LDR%sB %s, [ R%d, %sR%d ]", cond.syntax, src1.syntax, r, Ubit.syntax, offset)
+    image  = format("%s0111%s101%4b%s00000000%4b", cond.image, Ubit.image, r, src1.image, offset)
+    action = {
+        cond.action;
+
+        if offset == 15 then
+            if r == 15 then
+                if (Ubit == 1) then
+                    amode = (GPR[r]+4) + coerce(card(32), (GPR[offset]+4));
+                else
+                    amode = (GPR[r]+4) - coerce(card(32), (GPR[offset]+4));
+                endif;
+            else
+                if (Ubit == 1) then
+                    amode = GPR[r] + coerce(card(32), (GPR[offset]+4));
+                else
+                    amode = GPR[r] - coerce(card(32), (GPR[offset]+4));
+                endif;
+            endif;
+        else
+            if r == 15 then
+                if (Ubit == 1) then
+                    amode = (GPR[r]+4) + coerce(card(32), GPR[offset]);
+                else
+                    amode = (GPR[r]+4) - coerce(card(32), GPR[offset]);
+                endif;
+            else
+                if (Ubit == 1) then
+                    amode = GPR[r] + coerce(card(32), GPR[offset]);
+                else
+                    amode = GPR[r] - coerce(card(32), GPR[offset]);
+                endif;
+            endif;
+        endif;
+
+        if (X == 1) then
+            temp<7..0> = M[amode];
+            temp<31..8> = 0;
+            GPR[src1] = temp;
+        endif;		
+    }
+
 op load_store_inst =  LDR_IMMEDIATE_OFF
                    |  LDR_REGISTER_OFF
                    |  LDR_SCALED_REGISTER_OFF
@@ -1577,8 +1620,8 @@ op load_store_inst =  LDR_IMMEDIATE_OFF
                    |  LDR_SCALED_REGISTER_POST_INDEXED
 
                    |  LDRB_IMMEDIATE_OFF
-/*                 |  LDRB_REGISTER_OFF
-                   |  LDRB_SCALED_REGISTER_OFF
+                   |  LDRB_REGISTER_OFF
+/*                 |  LDRB_SCALED_REGISTER_OFF
                    |  LDRB_IMMEDIATE_PRE_INDEXED
                    |  LDRB_REGISTER_PRE_INDEXED
                    |  LDRB_SCALED_REGISTER_PRE_INDEXED
