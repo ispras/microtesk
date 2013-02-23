@@ -94,7 +94,7 @@ mode IMMEDIATE (r : nibble, c : byte_t) = coerce(card(32), c) >>> (r*2)
             shifter_carry_out = 1;
         else
             temp = coerce(card(32), c) >>> (r*2);
-            shifter_carry_out = temp<31 .. 31>;
+            shifter_carry_out = temp<31..31>;
         endif;
     }
 
@@ -119,9 +119,9 @@ endif
     action = {
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet. 
         if amount == 0 then 
-            shifter_carry_out = CPSR<29 .. 29>;
+            shifter_carry_out = CPSR<29..29>;
         else
-            shifter_carry_out = GPR[r]<32-amount .. 32-amount>;
+            shifter_carry_out = GPR[r]<32-amount..32-amount>;
         endif;
 */
     }
@@ -138,10 +138,10 @@ endif
     action = {
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
         if amount == 0 then 
-            shifter_carry_out = GPR[r]<31 .. 31>;
+            shifter_carry_out = GPR[r]<31..31>;
         else
             temp = amount - 1;
-            shifter_carry_out = GPR[r]<temp .. temp>;
+            shifter_carry_out = GPR[r]<temp..temp>;
         endif;
 */
     }
@@ -159,12 +159,12 @@ endif
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
         if amount == 0 then
             if GPR[r]<31..31> == 0 then
-                shifter_carry_out = GPR[r]<31 .. 31>;
+                shifter_carry_out = GPR[r]<31..31>;
             else
-                shifter_carry_out = GPR[r]<31 .. 31>;
+                shifter_carry_out = GPR[r]<31..31>;
             endif;
         else
-            shifter_carry_out = GPR[r]<amount-1 .. amount-1>;
+            shifter_carry_out = GPR[r]<amount-1..amount-1>;
         endif;
 */
     }
@@ -181,25 +181,25 @@ endif
     action = {
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
         if amount == 0 then
-            shifter_carry_out = GPR[r]<0 .. 0>;
+            shifter_carry_out = GPR[r]<0..0>;
         else
-            shifter_carry_out = GPR[r]<amount-1 .. amount-1>;
+            shifter_carry_out = GPR[r]<amount-1..amount-1>;
         endif;
 */
     }
 
 // For Register specified right rotate with extend ( rotate right with carry )
-mode RRX (r : index) = (coerce(card(32),CPSR<29 .. 29>) << 31) || ((GPR[r]) >> 1) 
+mode RRX (r : index) = (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]) >> 1) 
 /*if (r == 15) then 
-    (coerce(card(32),CPSR<29 .. 29>) << 31) || ((GPR[r]+4) >> 1) 
+    (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]+4) >> 1) 
 else
-    (coerce(card(32),CPSR<29 .. 29>) << 31) || ((GPR[r]) >> 1) 
+    (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]) >> 1) 
 endif
 */
     syntax = format("R%d , RRX ", r)
     image  = format("00000110%4b", r)
     action = {
-        shifter_carry_out = GPR[r]<0 .. 0>;
+        shifter_carry_out = GPR[r]<0..0>;
     }
 
 // For Register specified left shift / right shift / right shift arithmetic / right rotate by immediate 
@@ -216,19 +216,19 @@ mode LSR_REGISTER (r : index, amount : Bit5) = GPR[r] >> GPR[amount]
     syntax = format("R%d , LSR R%d", r, amount)
     image  = format("%4b0011%4b", amount, r)
     action = {
-        if GPR[amount]<7 .. 0> == 0 then 
-            shifter_carry_out = CPSR<29 .. 29>;
+        if GPR[amount]<7..0> == 0 then 
+            shifter_carry_out = CPSR<29..29>;
         else
-            if GPR[amount]<7 .. 0> < 32 then
-                temp = (GPR[amount]<7 .. 0>) - 1;
+            if GPR[amount]<7..0> < 32 then
+                temp = (GPR[amount]<7..0>) - 1;
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
-                shifter_carry_out = GPR[r]<temp .. temp>;
+                shifter_carry_out = GPR[r]<temp..temp>;
 */
             else
-                if GPR[amount]<7 .. 0> == 32 then 
-                    shifter_carry_out = GPR[r]<31 .. 31>;
+                if GPR[amount]<7..0> == 32 then 
+                    shifter_carry_out = GPR[r]<31..31>;
                 else 
-                    if GPR[amount]<7 .. 0> > 32 then 
+                    if GPR[amount]<7..0> > 32 then 
                         shifter_carry_out = 0;
                     endif;
                 endif;
@@ -240,19 +240,19 @@ mode LSL_REGISTER (r : index, amount : index) = GPR[r] << GPR[amount]
     syntax = format("R%d , LSL R%d", r, amount)
     image  = format("%4b0001%4b", amount, r)
     action = {
-        if GPR[amount]<7 .. 0> == 0 then 
-            shifter_carry_out = CPSR<29 .. 29>;
+        if GPR[amount]<7..0> == 0 then 
+            shifter_carry_out = CPSR<29..29>;
         else
-            if GPR[amount]<7 .. 0> < 32 then
-                temp = 32 - GPR[amount]<7 .. 0>;
+            if GPR[amount]<7..0> < 32 then
+                temp = 32 - GPR[amount]<7..0>;
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
-                shifter_carry_out = GPR[r]<temp .. temp>;
+                shifter_carry_out = GPR[r]<temp..temp>;
 */
             else
-                if GPR[amount]<7 .. 0> == 32 then 
-                    shifter_carry_out = GPR[r]<0 .. 0>;
+                if GPR[amount]<7..0> == 32 then 
+                    shifter_carry_out = GPR[r]<0..0>;
                 else
-                    if GPR[amount]<7 .. 0> > 32 then 
+                    if GPR[amount]<7..0> > 32 then 
                         shifter_carry_out = 0;
                     endif;
                 endif;
@@ -264,37 +264,37 @@ mode ASR_REGISTER (r : index, amount : Bit5) = coerce(int(32), GPR[r]) >> GPR[am
     syntax = format("R%d , ASR R%d", r, amount)
     image  = format("%4b0101%4b", amount, r)
     action = {
-        if GPR[amount]<7 .. 0> == 0 then 
-            shifter_carry_out = CPSR<29 .. 29>;
+        if GPR[amount]<7..0> == 0 then 
+            shifter_carry_out = CPSR<29..29>;
         else
-            if GPR[amount]<7 .. 0> < 32 then
-                temp = (GPR[amount]<7 .. 0>) - 1; // TODO: parser issue. requires braces. needs investigation.
+            if GPR[amount]<7..0> < 32 then
+                temp = (GPR[amount]<7..0>) - 1; // TODO: parser issue. requires braces. needs investigation.
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
-                shifter_carry_out = GPR[r]<temp .. temp>;
+                shifter_carry_out = GPR[r]<temp..temp>;
 */
             else
-                if GPR[amount]<31 .. 31> == 0 then
-                    shifter_carry_out = GPR[r]<31 .. 31>;
+                if GPR[amount]<31..31> == 0 then
+                    shifter_carry_out = GPR[r]<31..31>;
                 else
-                    shifter_carry_out = GPR[r]<31 .. 31>;
+                    shifter_carry_out = GPR[r]<31..31>;
                 endif;
             endif;
         endif;
     }
 
-mode ROR_REGISTER (r : index, amount : Bit5) = GPR[r] >>> GPR[amount]<4 .. 0>
+mode ROR_REGISTER (r : index, amount : Bit5) = GPR[r] >>> GPR[amount]<4..0>
     syntax = format("R%d , ROR R%d", r, amount)
     image  = format("%4b0111%4b", amount, r)
     action = {
-        if GPR[amount]<7 .. 0> == 0 then 
-            shifter_carry_out = CPSR<29 .. 29>;
+        if GPR[amount]<7..0> == 0 then 
+            shifter_carry_out = CPSR<29..29>;
         else
-            if GPR[amount]<4 .. 0> == 0 then 
-                shifter_carry_out = GPR[r]<31 .. 31>;
+            if GPR[amount]<4..0> == 0 then 
+                shifter_carry_out = GPR[r]<31..31>;
             else
-                temp = (GPR[amount]<4 .. 0>) - 1; // TODO: parser issue. requires braces. needs investigation.
+                temp = (GPR[amount]<4..0>) - 1; // TODO: parser issue. requires braces. needs investigation.
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
-                shifter_carry_out = GPR[r]<temp .. temp>;
+                shifter_carry_out = GPR[r]<temp..temp>;
 */
             endif;
         endif;	
@@ -312,112 +312,112 @@ mode REGISTER0 () = GPR[0]
     syntax = "R0"
     image  = "000000000000"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER1 () = GPR[1]
     syntax = "R1"
     image  = "000000000001"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER2 () = GPR[2]
     syntax = "R2"
     image  = "000000000010"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER3 () = GPR[3]
     syntax = "R3"
     image  = "000000000011"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER4 () = GPR[4]
     syntax = "R4"
     image  = "000000000100"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER5 () = GPR[5]
     syntax = "R5"
     image  = "000000000101"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER6 () = GPR[6]
     syntax = "R6"
     image  = "000000000110"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER7 () = GPR[7]
     syntax = "R7"
     image  = "000000000111"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER8 () = GPR[8]
     syntax = "R8"
     image  = "000000001000"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER9 () = GPR[9]
     syntax = "R9"
     image  = "000000001001"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER10 () = GPR[10]
     syntax = "R10"
     image  = "000000001010"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER11 () = GPR[11]
     syntax = "R11"
     image  = "000000001011"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER12 () = GPR[12]
     syntax = "R12"
     image  = "000000001100"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER13 () = GPR[13]
     syntax = "R13"
     image  = "000000001101"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER14 () = GPR[14]
     syntax = "R14"
     image  = "000000001110"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode REGISTER15 () = GPR[15]+4 
     syntax = "R15"
     image  = "000000001111"
     action = {
-        shifter_carry_out = CPSR<29 .. 29>;
+        shifter_carry_out = CPSR<29..29>;
     }
 
 mode DATA_PROCESSING =  REGISTER0
@@ -525,7 +525,7 @@ mode equalcond()
     syntax = "EQ"
     image  = "0000"
     action = {
-    if CPSR<30 .. 30> == 1 then
+    if CPSR<30..30> == 1 then
         X = 1;
     else
         X = 0;
@@ -536,7 +536,7 @@ mode notEqual()
     syntax = "NE"
     image = "0001"
     action = {
-    if CPSR<30 .. 30> == 0 then
+    if CPSR<30..30> == 0 then
         X = 1;
     else
         X = 0;
@@ -547,7 +547,7 @@ mode unsignedHigherOrSame()
     syntax = "CS"
     image  = "0010"
     action = {
-    if CPSR<29 .. 29> == 1 then
+    if CPSR<29..29> == 1 then
         X = 1;
     else
         X = 0;
@@ -558,7 +558,7 @@ mode unsignedLower()
     syntax = "CC"
     image  = "0011"
     action = {
-    if CPSR<29 .. 29> == 0 then
+    if CPSR<29..29> == 0 then
         X = 1;
     else
         X = 0;
@@ -569,7 +569,7 @@ mode negative()
     syntax = "MI"
     image  = "0100"
     action = {
-    if CPSR<31 .. 31> == 1 then
+    if CPSR<31..31> == 1 then
         X = 1;
     else
         X = 0;
@@ -580,7 +580,7 @@ mode positiveOrZero()
     syntax = "PL"
     image  = "0101"
     action = {
-    if CPSR<31 .. 31> == 0 then
+    if CPSR<31..31> == 0 then
         X = 1;
     else
         X = 0;
@@ -591,7 +591,7 @@ mode withoverflow()
     syntax = "VS"
     image  = "0110"
     action = {
-    if CPSR<28 .. 28> == 1 then
+    if CPSR<28..28> == 1 then
         X = 1;
     else
         X = 0;
@@ -602,7 +602,7 @@ mode noOverflow()
     syntax = "VC"
     image  = "0111"
     action = {
-    if CPSR<28 .. 28> == 0 then
+    if CPSR<28..28> == 0 then
         X = 1;
     else
         X = 0;
@@ -613,7 +613,7 @@ mode unsignedHigher()
     syntax = "HI"
     image  = "1000"
     action = {
-    if CPSR<29 .. 29> == 1 && CPSR<30 .. 30> == 0 then
+    if CPSR<29..29> == 1 && CPSR<30..30> == 0 then
         X = 1;
     else
         X = 0;
@@ -624,7 +624,7 @@ mode unsignedLowerOrSame()
     syntax = "LS"
     image  = "1001"
     action = {
-    if CPSR<29 .. 29> == 0 || CPSR<30 .. 30> == 1 then
+    if CPSR<29..29> == 0 || CPSR<30..30> == 1 then
         X = 1;
     else
         X = 0;
@@ -635,7 +635,7 @@ mode greaterOrEqual()
     syntax = "GE"
     image = "1010"
     action = {
-    if (CPSR<31 .. 31> == 1 && CPSR<28 .. 28> == 1) || (CPSR<31 .. 31> == 1 && CPSR<28 .. 28> == 0) then
+    if (CPSR<31..31> == 1 && CPSR<28..28> == 1) || (CPSR<31..31> == 1 && CPSR<28..28> == 0) then
         X = 1;
     else
         X = 0;
@@ -646,7 +646,7 @@ mode lessThan()
     syntax = "LT"
     image = "1011"
     action = {
-    if (CPSR<31 .. 31> == 1 && CPSR<28 .. 28> == 0) || (CPSR<31 .. 31> == 0 & CPSR<28 .. 28> == 1) then
+    if (CPSR<31..31> == 1 && CPSR<28..28> == 0) || (CPSR<31..31> == 0 & CPSR<28..28> == 1) then
         X = 1;
     else
         X = 0;
@@ -657,7 +657,7 @@ mode greaterThan()
     syntax = "GT"
     image = "1100"
     action = {
-    if CPSR<30 .. 30> == 0 && ((CPSR<31 .. 31> == 1 && CPSR<28 .. 28> == 1) || (CPSR<31 .. 31> == 1 && CPSR<28 .. 28> == 0)) then
+    if CPSR<30..30> == 0 && ((CPSR<31..31> == 1 && CPSR<28..28> == 1) || (CPSR<31..31> == 1 && CPSR<28..28> == 0)) then
         X = 1;
     else
         X = 0;
@@ -668,7 +668,7 @@ mode lessThanOrEqual()
     syntax = "LE"
     image = "1101"
     action = {
-    if CPSR<30 .. 30> == 1 || ((CPSR<31 .. 31> == 1 && CPSR<28 .. 28> == 0) || (CPSR<31 .. 31> == 0 & CPSR<28 .. 28> == 1)) then
+    if CPSR<30..30> == 1 || ((CPSR<31..31> == 1 && CPSR<28..28> == 0) || (CPSR<31..31> == 0 & CPSR<28..28> == 1)) then
         X = 1;
     else
         X = 0;
@@ -737,7 +737,7 @@ op BX (cond : Condition, r : index)
     action = {
         cond.action;
         if ( X == 1 ) then
-            CPSR<5 .. 5> = GPR[r]<0 .. 0>;
+            CPSR<5..5> = GPR[r]<0..0>;
             GPR[15] = GPR[r] & 0xfffffffe;
         endif;
     }
@@ -747,7 +747,7 @@ op BLX (offset : Int24, Hbit : bit)
     image = format("1111101%1b%24b", Hbit, offset)
     action = {
         GPR[14] = GPR[15];
-        CPSR<5 .. 5> = 1;
+        CPSR<5..5> = 1;
         GPR[15] = GPR[15] + (coerce(int(30), offset) << 2) + (coerce(card(3), Hbit) << 2);
     }
 
@@ -759,7 +759,7 @@ op BLX2 (cond : Condition, r : index)
         if X == 1 then
             target = GPR[r];
             GPR[14] = GPR[15];
-            CPSR<5 .. 5> = target<0 .. 0>;
+            CPSR<5..5> = target<0..0>;
             GPR[15] = target & 0xfffffffe;
         endif;
     }
@@ -782,11 +782,11 @@ op MUL (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : REG)
         if (X == 1) then
             GPR[src1] = (GPR[src2] * GPR[src3]);
             if (sets == 1) then
-                CPSR<31 .. 31> = GPR[src1]<31 .. 31>;
+                CPSR<31..31> = GPR[src1]<31..31>;
                 if (GPR[src1] == 0) then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
             endif;
         endif;
@@ -800,11 +800,11 @@ op MLA (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : REG, src4 
         if (X == 1) then
             GPR[src1] = (GPR[src2] * GPR[src3] + GPR[src4]);
             if (sets == 1) then
-                CPSR<31 .. 31> = GPR[src1]<31 .. 31>;
+                CPSR<31..31> = GPR[src1]<31..31>;
                 if ( GPR[src1] == 0 ) then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
             endif;
         endif;
@@ -818,11 +818,11 @@ op SMULL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2
         if (X == 1) then
             GPR[high]::GPR[low] = (coerce(int(64), GPR[src1]) * coerce(int(64), GPR[src2]));
             if (sets == 1) then
-                CPSR<31 .. 31> = GPR[high]<31 .. 31>;
+                CPSR<31..31> = GPR[high]<31..31>;
                 if ((GPR[high] == 0) && (GPR[low] == 0)) then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
             endif;
         endif;
@@ -836,11 +836,11 @@ op UMULL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2
         if (X == 1) then
             GPR[high]::GPR[low] = coerce(card(64), GPR[src1]) * coerce(card(64), GPR[src2]);
             if (sets == 1) then
-                CPSR<31 .. 31> = GPR[high]<31 .. 31>;
+                CPSR<31..31> = GPR[high]<31..31>;
                 if ((GPR[high] == 0) && (GPR[low] == 0)) then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
             endif;
         endif;
@@ -853,14 +853,14 @@ op SMLAL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2
         cond.action;
         if (X == 1) then
             tempint64 = coerce(int(64), GPR[src1]) * coerce(int(64), GPR[src2]);
-            carry::GPR[low] = (tempint64<31 .. 0>) + GPR[low]; // TODO: parser issue. requires braces. needs investigation. 
-            GPR[high] = (tempint64<63 .. 32>) + GPR[high] + carry; // TODO: parser issue. requires braces. needs investigation.
+            carry::GPR[low] = (tempint64<31..0>) + GPR[low]; // TODO: parser issue. requires braces. needs investigation. 
+            GPR[high] = (tempint64<63..32>) + GPR[high] + carry; // TODO: parser issue. requires braces. needs investigation.
             if (sets == 1) then
-                CPSR<31 .. 31> = GPR[high]<31 .. 31>;
+                CPSR<31..31> = GPR[high]<31..31>;
                 if ((GPR[high] == 0) && (GPR[low] == 0)) then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
             endif;
         endif;
@@ -873,14 +873,14 @@ op UMLAL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2
         cond.action;
         if (X == 1) then
             tempcard64 = coerce(card(64), GPR[src1]) * coerce(card(64), GPR[src2]);
-            carry::GPR[low] = (tempcard64<31 .. 0>) + GPR[low]; // TODO: parser issue. requires braces. needs investigation.
-            GPR[high] = (tempcard64<63 .. 32>) + GPR[high] + carry; // TODO: parser issue. requires braces. needs investigation. 
+            carry::GPR[low] = (tempcard64<31..0>) + GPR[low]; // TODO: parser issue. requires braces. needs investigation.
+            GPR[high] = (tempcard64<63..32>) + GPR[high] + carry; // TODO: parser issue. requires braces. needs investigation. 
             if (sets == 1) then
-                CPSR<31 .. 31> = GPR[high]<31 .. 31>;
+                CPSR<31..31> = GPR[high]<31..31>;
                 if ((GPR[high] == 0) && (GPR[low] == 0)) then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
             endif;
         endif;
@@ -894,21 +894,21 @@ op SMLAxy (cond : Condition, rd : index, rn : index, rs : index, xbit : setX, yb
 
         if (X == 1) then 
             if (xbit == 0) then 
-                operand1 = coerce(int(16), GPR[rm]<15 .. 0>);
+                operand1 = coerce(int(16), GPR[rm]<15..0>);
             else
-                operand1 = coerce(int(16), GPR[rm]<31 .. 16>);
+                operand1 = coerce(int(16), GPR[rm]<31..16>);
             endif;
 
             if (ybit == 0) then 
-                operand2 = coerce(int(16), GPR[rs]<15 .. 0>);
+                operand2 = coerce(int(16), GPR[rs]<15..0>);
             else
-                operand2 = coerce(int(16), GPR[rs]<31 .. 16>);
+                operand2 = coerce(int(16), GPR[rs]<31..16>);
             endif;
 
             carry::GPR[rd] = (operand1 * operand2) + coerce(int(32), GPR[rn]);
 
             if (carry == 1) then
-                CPSR<27 .. 27> = 1;
+                CPSR<27..27> = 1;
             endif;
 
         endif;
@@ -922,15 +922,15 @@ op SMLALxy (cond : Condition, rdHi : index, rdLo:index, rs : index, xbit : setX,
 
         if (X == 1) then 
             if (xbit == 0) then 
-                operand1 = coerce(int(16), GPR[rm]<15 .. 0>);
+                operand1 = coerce(int(16), GPR[rm]<15..0>);
             else
-                operand1 = coerce(int(16), GPR[rm]<31 .. 16>);
+                operand1 = coerce(int(16), GPR[rm]<31..16>);
             endif;
 
             if (ybit == 0) then 
-                operand2 = coerce(int(16), GPR[rs]<15 .. 0>);
+                operand2 = coerce(int(16), GPR[rs]<15..0>);
             else
-                operand2 = coerce(int(16), GPR[rs]<31 .. 16>);
+                operand2 = coerce(int(16), GPR[rs]<31..16>);
             endif;
 
             carry::GPR[rdLo] = coerce(int(32), GPR[rdLo]) + (operand1 * operand2);
@@ -952,17 +952,17 @@ op SMLAWy (cond : Condition, rd : index, rn : index, rs : index, ybit : setY, rm
 
         if (X == 1) then 
             if (ybit == 0) then 
-                operand2 = coerce(int(16), GPR[rs]<15 .. 0>);
+                operand2 = coerce(int(16), GPR[rs]<15..0>);
             else
-                operand2 = coerce(int(16), GPR[rs]<31 .. 16>);
+                operand2 = coerce(int(16), GPR[rs]<31..16>);
             endif;
 
             Result48 = coerce(int(32), GPR[rm]) * operand2;
 
-            carry::GPR[rd] = (Result48<47 .. 16>) + coerce(int(32), GPR[rn]); // TODO: parser issue. requires braces. needs investigation.
+            carry::GPR[rd] = (Result48<47..16>) + coerce(int(32), GPR[rn]); // TODO: parser issue. requires braces. needs investigation.
 
             if (carry == 1) then
-                CPSR<27 .. 27> = 1;
+                CPSR<27..27> = 1;
             endif;
 
         endif;
@@ -976,15 +976,15 @@ op SMULxy (cond : Condition, rd : index, rs : index, xbit : setX, ybit : setY, r
 
         if (X == 1) then 
             if (xbit == 0) then 
-                operand1 = coerce(int(16), GPR[rm]<15 .. 0>);
+                operand1 = coerce(int(16), GPR[rm]<15..0>);
             else
-                operand1 = coerce(int(16), GPR[rm]<31 .. 16>);
+                operand1 = coerce(int(16), GPR[rm]<31..16>);
             endif;
 
             if (ybit == 0) then 
-                operand2 = coerce(int(16), GPR[rs]<15 .. 0>);
+                operand2 = coerce(int(16), GPR[rs]<15..0>);
             else
-                operand2 = coerce(int(16), GPR[rs]<31 .. 16>);
+                operand2 = coerce(int(16), GPR[rs]<31..16>);
             endif;
 
             GPR[rd] = (operand1 * operand2);
@@ -999,14 +999,14 @@ op SMULWy (cond : Condition, rd : index, rs : index, ybit : setY, rm : index)
 
         if (X == 1) then 
             if (ybit == 0) then 
-                operand2 = coerce(int(16), GPR[rs]<15 .. 0>);
+                operand2 = coerce(int(16), GPR[rs]<15..0>);
             else
-                operand2 = coerce(int(16), GPR[rs]<31 .. 16>);
+                operand2 = coerce(int(16), GPR[rs]<31..16>);
             endif;
 
             Result48 = (operand1 * operand2);
 
-            GPR[rd] = Result48<47 .. 16>;
+            GPR[rd] = Result48<47..16>;
 
         endif;
     }
@@ -1054,22 +1054,22 @@ op ADC(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCES
         src3.action;
 
         if (X == 1) then
-            carry::ALU_OUT = GPR[src2] + src3 + CPSR<29 .. 29>;
+            carry::ALU_OUT = GPR[src2] + src3 + CPSR<29..29>;
             if (sets == 1 ) && (src1 == 15) then
                 CPSR = SPSR;
             else if (sets == 1) then
-                CPSR<31 .. 31> = ALU_OUT<31 .. 31>;
+                CPSR<31..31> = ALU_OUT<31..31>;
                 if ALU_OUT == 0 then
-                    CPSR<30 .. 30> = 1;	
+                    CPSR<30..30> = 1;	
                 else 
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
 
-                CPSR<29 .. 29> = carry;
-                if (GPR[src2]<31 .. 31> == src3<31 .. 31>) && (ALU_OUT<31 .. 31> != GPR[src2]<31 .. 31>) then 
-                    CPSR<28 .. 28> = 1;
+                CPSR<29..29> = carry;
+                if (GPR[src2]<31..31> == src3<31..31>) && (ALU_OUT<31..31> != GPR[src2]<31..31>) then 
+                    CPSR<28..28> = 1;
                 else
-                    CPSR<28 .. 28> = 0;
+                    CPSR<28..28> = 0;
                 endif;
 
             endif;
@@ -1087,22 +1087,22 @@ op ADC_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : I
         src3.action;
 
         if (X == 1) then
-            carry::ALU_OUT = GPR[src2] + src3 + CPSR<29 .. 29>;
+            carry::ALU_OUT = GPR[src2] + src3 + CPSR<29..29>;
             if (sets == 1 ) && (src1 == 15) then
                 CPSR = SPSR;
             else if (sets == 1) then
-                CPSR<31 .. 31> = ALU_OUT<31 .. 31>;
+                CPSR<31..31> = ALU_OUT<31..31>;
                 if ALU_OUT == 0 then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
 
-                CPSR<29 .. 29> = carry;
-                if (GPR[src2]<31 .. 31> == src3<31 .. 31>) && (ALU_OUT<31 .. 31> != GPR[src2]<31 .. 31>) then
-                    CPSR<28 .. 28> = 1;
+                CPSR<29..29> = carry;
+                if (GPR[src2]<31..31> == src3<31..31>) && (ALU_OUT<31..31> != GPR[src2]<31..31>) then
+                    CPSR<28..28> = 1;
                 else
-                    CPSR<28 .. 28> = 0;
+                    CPSR<28..28> = 0;
                 endif;
 
             endif;
@@ -1124,18 +1124,18 @@ op ADD(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCES
             if (sets == 1 ) && (src1 == 15) then
 				CPSR = SPSR;
             else if (sets == 1) then
-                CPSR<31 .. 31> = ALU_OUT<31 .. 31>;
+                CPSR<31..31> = ALU_OUT<31..31>;
                 if ALU_OUT == 0 then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
 
-                CPSR<29 .. 29> = carry;
-                if (GPR[src2]<31 .. 31> == src3<31 .. 31>) && (ALU_OUT != GPR[src2]<31 .. 31>) then 
-                    CPSR<28 .. 28> = 1;
+                CPSR<29..29> = carry;
+                if (GPR[src2]<31..31> == src3<31..31>) && (ALU_OUT != GPR[src2]<31..31>) then 
+                    CPSR<28..28> = 1;
                 else
-                    CPSR<28 .. 28> = 0;
+                    CPSR<28..28> = 0;
                 endif;
 
             endif;
@@ -1157,18 +1157,18 @@ op ADD_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : I
             if (sets == 1 ) && (src1 == 15) then
                 CPSR = SPSR;
             else if (sets == 1) then
-                CPSR<31 .. 31> = ALU_OUT<31 .. 31>;
+                CPSR<31..31> = ALU_OUT<31..31>;
                 if ALU_OUT == 0 then
-                    CPSR<30 .. 30> = 1;
+                    CPSR<30..30> = 1;
                 else
-                    CPSR<30 .. 30> = 0;
+                    CPSR<30..30> = 0;
                 endif;
 
-                CPSR<29 .. 29> = carry;
-                if (GPR[src2]<31 .. 31> == src3<31 .. 31>) && (ALU_OUT<31 .. 31> != GPR[src2]<31 .. 31>) then 
-                    CPSR<28 .. 28> = 1;
+                CPSR<29..29> = carry;
+                if (GPR[src2]<31..31> == src3<31..31>) && (ALU_OUT<31..31> != GPR[src2]<31..31>) then 
+                    CPSR<28..28> = 1;
                 else
-                    CPSR<28 .. 28> = 0;
+                    CPSR<28..28> = 0;
                 endif;
 
             endif;
@@ -1240,8 +1240,8 @@ op LDR_IMMEDIATE_OFF (cond : Condition, src1 : REG, r : index, offset : Bit12, U
         if (X == 1) then
             temp = M[amode + 3] :: M[amode + 2] :: M[amode + 1] :: M[amode];
 
-            if (CP15[1]<22 .. 22> == 0) then 
-                GPR[src1] = temp >>> (8 * amode<1 .. 0>);
+            if (CP15[1]<22..22> == 0) then 
+                GPR[src1] = temp >>> (8 * amode<1..0>);
             else
                 GPR[src1] = temp;
             endif;
@@ -1291,8 +1291,8 @@ op LDR_REGISTER_OFF (cond : Condition, src1 : REG, offset : index, Ubit : setU, 
         if (X == 1) then
             temp = M[amode + 3] :: M[amode + 2] :: M[amode + 1] :: M[amode];
 
-            if (CP15[1]<22 .. 22> == 0) then 
-                GPR[src1] = temp >>> (8 * amode<1 .. 0>);
+            if (CP15[1]<22..22> == 0) then 
+                GPR[src1] = temp >>> (8 * amode<1..0>);
             else
                 GPR[src1] = temp;
             endif;
@@ -1326,8 +1326,8 @@ op LDR_SCALED_REGISTER_OFF(cond : Condition, src1 : REG, r : index, shift : REGI
         if (X == 1) then
             temp = M[amode + 3] :: M[amode + 2] :: M[amode + 1] :: M[amode];
 
-            if (CP15[1]<22 .. 22> == 0) then 
-                GPR[src1] = temp >>> (8 * amode<1 .. 0>);
+            if (CP15[1]<22..22> == 0) then 
+                GPR[src1] = temp >>> (8 * amode<1..0>);
             else
                 GPR[src1] = temp;
             endif;
@@ -1361,8 +1361,8 @@ op LDR_SCALED_REGISTER_OFF(cond : Condition, src1 : REG, r : index, shift : REGI
         if (X == 1) then
             temp = M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode];
 
-            if (CP15[1]<22 .. 22> == 0) then 
-                GPR[src1] = temp >>> (8 * amode<1 .. 0>);
+            if (CP15[1]<22..22> == 0) then 
+                GPR[src1] = temp >>> (8 * amode<1..0>);
             else
                 GPR[src1] = temp;
             endif;
