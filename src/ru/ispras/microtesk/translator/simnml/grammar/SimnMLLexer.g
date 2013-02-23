@@ -179,7 +179,15 @@ ID                      :    LETTER (LETTER | DIGIT | '_')* ;
 BINARY_CONST            :    '0b' b=BIN_DIG_LST { setText($b.text); };
 HEX_CONST               :    '0x' h=HEX_DIG_LST { setText($h.text); };
 CARD_CONST              :    DIGIT+ ;
-FIXED_CONST             :    (DIGIT+ '.' DIGIT)=> DIGIT+ '.' DIGIT+;
+
+// TODO: fixed numbers are NOT SUPPORTED IN THE CURRENT VERSION.
+// NOTE: When they are supported and the rule is enabled it will make bitfield
+// constructs (e.g. MEM<1..2>) invalid. They will cause a parser error that can be 
+// solved by inserting a space character between the '..' token and number expressions.
+// However, this is not elegant. To make both features work together, some more elegant
+// solution for this problem will be needed.
+//
+//FIXED_CONST           :    (DIGIT+ '.' DIGIT+)=> DIGIT+ '.' DIGIT+;
 
 STRING_CONST            :    '"' NONCONTROL* '"' { String s = $text; setText(s.substring(1, s.length()-1)); };
 
