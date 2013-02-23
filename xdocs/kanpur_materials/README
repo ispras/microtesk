@@ -1,9 +1,0 @@
-Summary:
-
-Sim-nML materials from Indian Institute of Technology Kanpur.
-
-Description:
-
-This folder (kanpur_materials) contains materials (docs, models and tools) generously provided by Indian Institute of Technology Kanpur. There are works dedicated to use of the Sim-nML ADL, models in Sim-nML for MIPS, ARM and PPC microprocessors and related tools (including source code in C).
-
-The materials are part of the "Processor Models and tools" project directed by Professor Rajat Moona (page: http://www.cse.iitk.ac.in/users/moona/, e-mail: moona@iitk.ac.in) from Indian Institute of Technology Kanpur.

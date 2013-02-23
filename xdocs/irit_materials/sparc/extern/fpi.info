@@ -1,2 +1,0 @@
-CODE_HEADER=#include <sparc/fpi.h>
-LIBADD=-lm
