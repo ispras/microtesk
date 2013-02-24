@@ -117,7 +117,7 @@ else
 endif
 */
     syntax = format("R%d , LSL #%d", r, amount)
-    image = format("%5b000%4b", amount, r )
+    image = format("%5b000%4b", amount, r)
     action = {
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet. 
         if amount == 0 then 
@@ -738,7 +738,7 @@ op BX (cond : Condition, r : index)
     image = format("%s000100100000000000000001%4b", cond.image, r)
     action = {
         cond.action;
-        if ( X == 1 ) then
+        if (X == 1) then
             CPSR<5..5> = GPR[r]<0..0>;
             GPR[15] = GPR[r] & 0xfffffffe;
         endif;
@@ -803,7 +803,7 @@ op MLA (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : REG, src4 
             GPR[src1] = (GPR[src2] * GPR[src3] + GPR[src4]);
             if (sets == 1) then
                 CPSR<31..31> = GPR[src1]<31..31>;
-                if ( GPR[src1] == 0 ) then
+                if (GPR[src1] == 0) then
                     CPSR<30..30> = 1;
                 else
                     CPSR<30..30> = 0;
@@ -1057,7 +1057,7 @@ op ADC(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCES
 
         if (X == 1) then
             carry::ALU_OUT = GPR[src2] + src3 + CPSR<29..29>;
-            if (sets == 1 ) && (src1 == 15) then
+            if (sets == 1) && (src1 == 15) then
                 CPSR = SPSR;
             else if (sets == 1) then
                 CPSR<31..31> = ALU_OUT<31..31>;
@@ -1090,7 +1090,7 @@ op ADC_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : I
 
         if (X == 1) then
             carry::ALU_OUT = GPR[src2] + src3 + CPSR<29..29>;
-            if (sets == 1 ) && (src1 == 15) then
+            if (sets == 1) && (src1 == 15) then
                 CPSR = SPSR;
             else if (sets == 1) then
                 CPSR<31..31> = ALU_OUT<31..31>;
@@ -1123,7 +1123,7 @@ op ADD(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCES
 
         if (X == 1) then
             carry::ALU_OUT = GPR[src2] + src3 ;
-            if (sets == 1 ) && (src1 == 15) then
+            if (sets == 1) && (src1 == 15) then
 				CPSR = SPSR;
             else if (sets == 1) then
                 CPSR<31..31> = ALU_OUT<31..31>;
@@ -1156,7 +1156,7 @@ op ADD_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : I
 
         if (X == 1) then
             carry::ALU_OUT = GPR[src2] + src3 ;
-            if (sets == 1 ) && (src1 == 15) then
+            if (sets == 1) && (src1 == 15) then
                 CPSR = SPSR;
             else if (sets == 1) then
                 CPSR<31..31> = ALU_OUT<31..31>;
@@ -1224,7 +1224,7 @@ op data_processing_inst =  ADC
 
 op LDR_IMMEDIATE_OFF (cond : Condition, src1 : REG, r : index, offset : Bit12, Ubit : setU)
     syntax = format("LDR%s %s, [ R%d, #%s%d ]", cond.syntax, src1.syntax, r, Ubit.syntax, offset)
-    image  = format("%s0101%s001%4b%s%12b", cond.image, Ubit.image, r, src1.image, offset )
+    image  = format("%s0101%s001%4b%s%12b", cond.image, Ubit.image, r, src1.image, offset)
     action = {
         cond.action;
 
@@ -1415,7 +1415,7 @@ op LDR_REGISTER_PRE_INDEXED(cond : Condition, src1 : REG, r : index, offset : in
 
 op LDR_SCALED_REGISTER_PRE_INDEXED(cond : Condition, src1 : REG, r : index, shift : REGISTER_SHIFT_IMMEDIATE, Ubit : setU)
     syntax = format("LDR%s %s, [ R%d, %s%s ]!",cond.syntax, src1.syntax, r, Ubit.syntax, shift.syntax)
-    image  = format("%s0111%s011%4b%s%s", cond.image, Ubit.image, r, src1.image, shift.image )
+    image  = format("%s0111%s011%4b%s%s", cond.image, Ubit.image, r, src1.image, shift.image)
     action = {
         cond.action;
 
@@ -1613,7 +1613,7 @@ op LDRB_REGISTER_OFF (cond : Condition, src1 : REG, offset : index, Ubit : setU,
 
 op LDRB_SCALED_REGISTER_OFF (cond : Condition, src1 : REG, r : index, shift : REGISTER_SHIFT_IMMEDIATE, Ubit : setU)
     syntax = format("LDR%sB %s, [ R%d, %s%s ]", cond.syntax, src1.syntax, r, Ubit.syntax, shift.syntax)
-    image  = format("%s0111%s101%4b%s%s", cond.image, Ubit.image, r, src1.image, shift.image )
+    image  = format("%s0111%s101%4b%s%s", cond.image, Ubit.image, r, src1.image, shift.image)
     action = {
         cond.action;
 
@@ -1640,7 +1640,7 @@ op LDRB_SCALED_REGISTER_OFF (cond : Condition, src1 : REG, r : index, shift : RE
 
 op LDRB_IMMEDIATE_PRE_INDEXED(cond : Condition, src1 : REG, r : index, offset : Bit12, Ubit : setU)
     syntax = format("LDR%sB %s, [ R%d, #%s%d ]!", cond.syntax, src1.syntax, r, Ubit.syntax, offset)
-    image  = format("%s0101%s111%4b%s%12b", cond.image, Ubit.image, r, src1.image, offset )
+    image  = format("%s0101%s111%4b%s%12b", cond.image, Ubit.image, r, src1.image, offset)
     action = {
         cond.action;
 
@@ -1765,7 +1765,7 @@ op LDRB_REGISTER_POST_INDEXED (cond : Condition, src1 : REG, r : index, offset :
 
 op LDRB_SCALED_REGISTER_POST_INDEXED (cond : Condition, src1 : REG, r : index, shift:REGISTER_SHIFT_IMMEDIATE, Ubit : setU)
     syntax = format("LDR%sB %s, [ R%d ], %s%s ", cond.syntax, src1.syntax, r, Ubit.syntax, shift.syntax)
-    image  = format("%s0110%s101%4b%s%s", cond.image, Ubit.image, r, src1.image, shift.image )
+    image  = format("%s0110%s101%4b%s%s", cond.image, Ubit.image, r, src1.image, shift.image)
     action = {
         cond.action;
 
@@ -1811,7 +1811,7 @@ op LDRBT_IMMEDIATE_POST_INDEXED (cond : Condition, src1 : REG, r : index, offset
         endif;
     }
 
-op LDRBT_REGISTER_POST_INDEXED(cond : Condition, src1 : REG, r : index , offset : index , Ubit : setU )
+op LDRBT_REGISTER_POST_INDEXED(cond : Condition, src1 : REG, r : index , offset : index , Ubit : setU)
     syntax = format("LDR%sBT %s, [ R%d ], %sR%d ", cond.syntax, src1.syntax, r, Ubit.syntax, offset)
     image  = format("%s0110%s111%4b%s00000000%4b", cond.image, Ubit.image, r, src1.image, offset)
     action = {
