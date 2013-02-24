@@ -1,12 +1,14 @@
-
-               ///////////////////////////////////////////////
-              //    ARM 7 TDMI Description in Sim-nML      //
-	         //        ( ARM Architecture v4 ) 		      // 
-            //                    By                     //
-           //      Amit Kulkarni and Nachiket Bhave     //
-          //                                           //
-         //          Last Modified: 04/06/2008        //
-        ///////////////////////////////////////////////
+/* 
+ * ARM 7 TDMI Description in Sim-nML (ARM Architecture v4)
+ *     by Amit Kulkarni and Nachiket Bhave (04/06/2008)
+ * 
+ * Provided by Indian Institute of Technology Kanpur
+ * 
+ *     http://www.cse.iitk.ac.in/users/moona/?page=stud
+ * 
+ * Modified at ISPRAS by Andrei Tatarnikov to adapt it to limitations 
+ * imposed on input file format by the current version of MicroTESK.
+ */
 
 //Data Types
 //We need 5 bit index to address 31 GPR's
