@@ -2063,6 +2063,103 @@ op STR_SCALED_REGISTER_OFF (cond : Condition, src1 : REG, r : index, shift : REG
         endif;
     }
 
+op STR_IMMEDIATE_PRE_INDEXED (cond : Condition, src1 : REG, r : index, offset : Bit12, Ubit : setU)
+    syntax = format("STR%s %s, [ R%d, #%s%d ]!", cond.syntax, src1.syntax, r, Ubit.syntax, offset)
+    image  = format("%s0101%s010%4b%s%12b", cond.image, Ubit.image, r, src1.image, offset)
+    action = {
+        cond.action;
+
+        if (Ubit == 1) then
+            amode = GPR[r] + coerce(card(32), offset);
+        else
+            amode = GPR[r] - coerce(card(32), offset);
+        endif; 	
+
+        if (X == 1) then 
+            if (Ubit == 1) then
+                GPR[r] = GPR[r] + coerce(card(32), offset);
+            else
+                GPR[r] = GPR[r] - coerce(card(32), offset);
+            endif;
+        endif;
+
+        if (X == 1) then
+            M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode] = GPR[src1];
+
+            /*
+            M[amode] = GPR[src1]<7..0>;
+            M[amode+1] = GPR[src1]<15..8>;
+            M[amode+2] = GPR[src1]<23..16>;
+            M[amode+3] = GPR[src1]<31..24>;
+            */
+
+        endif;
+    }
+
+op STR_REGISTER_PRE_INDEXED (cond : Condition, src1 : REG, r : index, offset : index, Ubit : setU)
+    syntax = format("STR%s %s, [ R%d, #%sR%d ]!", cond.syntax, src1.syntax, r, Ubit.syntax, offset)
+    image  = format("%s0111%s010%4b%s00000000%4b", cond.image, Ubit.image, r, src1.image, offset)
+    action = {
+        cond.action;
+
+        if (Ubit == 1) then
+            amode = GPR[r] + coerce(card(32), GPR[offset]); 
+        else
+            amode = GPR[r] - coerce(card(32), GPR[offset]);
+        endif; 	
+
+        if (X == 1) then 
+            if (Ubit == 1) then
+                GPR[r] = GPR[r] + coerce(card(32), GPR[offset]);
+            else
+                GPR[r] = GPR[r] - coerce(card(32), GPR[offset]) ;
+            endif;
+        endif;
+
+        if (X == 1) then
+            M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode] = GPR[src1];
+
+            /*
+            M[amode] = GPR[src1]<7..0>;
+            M[amode+1] = GPR[src1]<15..8>;
+            M[amode+2] = GPR[src1]<23..16>;
+            M[amode+3] = GPR[src1]<31..24>;
+            */
+        endif;
+    }
+
+op STR_SCALED_REGISTER_PRE_INDEXED (cond : Condition, src1 : REG, r : index, shift : REGISTER_SHIFT_IMMEDIATE, Ubit : setU)
+    syntax = format("STR%s %s, [ R%d, %s%s ]!", cond.syntax, src1.syntax, r, Ubit.syntax, shift.syntax)
+    image  = format("%s0111%s010%4b%s%s", cond.image, Ubit.image, r, src1.image, shift.image )
+    action = {
+        cond.action;
+
+        if (Ubit == 1) then
+            amode =  GPR[r] + shift;
+        else
+            amode = GPR[r] - shift;
+        endif; 	
+
+        if (X == 1) then 
+            if (Ubit == 1) then
+                GPR[r] = GPR[r] + shift;
+            else
+                GPR[r] = GPR[r] - shift;
+            endif;
+        endif;
+
+        if (X == 1) then
+            M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode] = GPR[src1];
+
+            /*
+            M[amode] = GPR[src1]<7..0>;
+            M[amode+1] = GPR[src1]<15..8>;
+            M[amode+2] = GPR[src1]<23..16>;
+            M[amode+3] = GPR[src1]<31..24>;
+            */
+        endif;
+    }
+
 op load_store_inst =  LDR_IMMEDIATE_OFF
                    |  LDR_REGISTER_OFF
                    |  LDR_SCALED_REGISTER_OFF
@@ -2122,10 +2219,10 @@ op load_store_inst =  LDR_IMMEDIATE_OFF
                    |  STR_IMMEDIATE_OFF
                    |  STR_REGISTER_OFF
                    |  STR_SCALED_REGISTER_OFF
-/*			|	STR_IMMEDIATE_PRE_INDEXED
-			|	STR_REGISTER_PRE_INDEXED
-			|	STR_SCALED_REGISTER_PRE_INDEXED
-			|	STR_IMMEDIATE_POST_INDEXED
+                   |  STR_IMMEDIATE_PRE_INDEXED
+                   |  STR_REGISTER_PRE_INDEXED
+                   |  STR_SCALED_REGISTER_PRE_INDEXED
+/*			|	STR_IMMEDIATE_POST_INDEXED
 			|	STR_REGISTER_POST_INDEXED
 			|	STR_SCALED_REGISTER_POST_INDEXED
 
