@@ -46,6 +46,16 @@ public interface IMetaModel
      */
 
     public Iterable<IMetaLocationStore> getMemoryStores();
+    
+    /**
+     * Returns information on a location that serves a program counter (PC).
+     * Such a location presents in each design and is named PC or referenced
+     * vi an alias named PC.  
+     * 
+     * @return Information on the location that stores the program counter (PC) value.
+     */
+
+    public IMetaLocationReference getPC();
 
     /**
      * Returns an iterator for the collection of test situations.

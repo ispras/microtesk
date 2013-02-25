@@ -89,6 +89,14 @@ public class ModelStateMonitor implements IModelStateMonitor
     }
     
     @Override
+    public IStoredValue getPC()
+    {
+        // TODO NOT IMPLEMENTED YET
+    	assert false : "NOT IMPLEMENTED";
+    	return null;
+    }
+    
+    @Override
     public IStoredValue readRegisterValue(String name)
     {
         return readRegisterValue(name, 0);

@@ -21,6 +21,13 @@ package ru.ispras.microtesk.model.api.monitor;
 
 public interface IModelStateMonitor
 {
+	/**
+	 * Returns the value stored in a register used as program counter. 
+	 * @return Program counter value.
+	 */
+
+	public IStoredValue getPC();
+	
     /**
      * Returns the value stored in the first location in the specified register array. 
      * 

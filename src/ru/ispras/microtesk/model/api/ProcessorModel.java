@@ -36,7 +36,7 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
     private final Collection<IMetaLocationStore> registerMetaData;
     private final Collection<IMetaLocationStore>   memoryMetaData;
     private final IModelStateMonitor                      monitor;
-    
+
     public ProcessorModel(
         IInstructionSet instructions,
         Collection<IMetaLocationStore> registerMetaData,
@@ -83,7 +83,7 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
     {
         return registerMetaData;
     }
-    
+
     // IMetaModel
     @Override
     public final Iterable<IMetaLocationStore> getMemoryStores()
@@ -97,6 +97,15 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
     {
         // TODO NOT IMPLEMENTED YET
         return Collections.emptyList();
+    }
+
+    // IMetaModel
+    @Override
+    public final IMetaLocationReference getPC()
+    {
+        // TODO NOT IMPLEMENTED YET
+        assert false : "NOT IMPLEMENTED";
+        return null;
     }
 
     // ISimulator
