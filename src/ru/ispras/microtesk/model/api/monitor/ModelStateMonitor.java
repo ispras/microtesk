@@ -95,7 +95,20 @@ public class ModelStateMonitor implements IModelStateMonitor
     	assert false : "NOT IMPLEMENTED";
     	return null;
     }
-    
+
+    @Override
+    public void setPC(long value)
+    {
+       setPC(BigInteger.valueOf(value));
+    }
+
+    @Override
+    public void setPC(BigInteger value)
+    {
+        // TODO NOT IMPLEMENTED YET
+        assert false : "NOT IMPLEMENTED";
+    }
+
     @Override
     public IStoredValue readRegisterValue(String name)
     {

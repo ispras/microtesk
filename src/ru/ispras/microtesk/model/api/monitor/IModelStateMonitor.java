@@ -12,6 +12,8 @@
 
 package ru.ispras.microtesk.model.api.monitor;
 
+import java.math.BigInteger;
+
 /**
  * The IModelStateMonitor interface provides methods for requesting information on
  * the current state of the model.
@@ -21,13 +23,27 @@ package ru.ispras.microtesk.model.api.monitor;
 
 public interface IModelStateMonitor
 {
-	/**
-	 * Returns the value stored in a register used as program counter. 
-	 * @return Program counter value.
-	 */
+    /**
+     * Returns the value stored in a register used as program counter (PC). 
+     * @return Program counter value.
+     */
 
-	public IStoredValue getPC();
-	
+    public IStoredValue getPC();
+
+    /**
+     * Sets the value of the microprocessor's program counter (PC).
+     * @param value New program counter value.
+     */
+
+    public void setPC(long value);
+
+    /**
+     * Sets the value of the microprocessor's program counter (PC).
+     * @param value New program counter value.
+     */
+
+    public void setPC(BigInteger value);
+
     /**
      * Returns the value stored in the first location in the specified register array. 
      * 
