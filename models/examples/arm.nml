@@ -2306,10 +2306,10 @@ op load_store_inst =  LDR_IMMEDIATE_OFF
                    |  STR_IMMEDIATE_PRE_INDEXED
                    |  STR_REGISTER_PRE_INDEXED
                    |  STR_SCALED_REGISTER_PRE_INDEXED
-/*                 |  STR_IMMEDIATE_POST_INDEXED
+                   |  STR_IMMEDIATE_POST_INDEXED
                    |  STR_REGISTER_POST_INDEXED
                    |  STR_SCALED_REGISTER_POST_INDEXED
-
+/*
                    |  STRB_IMMEDIATE_OFF
                    |  STRB_REGISTER_OFF
                    |  STRB_SCALED_REGISTER_OFF
