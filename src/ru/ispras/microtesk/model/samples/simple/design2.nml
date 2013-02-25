@@ -26,6 +26,8 @@ var SRC1[1, byte_t]
 var SRC2[1, byte_t]
 var DEST[1, byte_t]
 
+// let LABEL = PC // A let label example.
+
 mode IMM(i: byte_t)=i
 syntax = format("[%d]", i)
 image = format("11%4b", i)
