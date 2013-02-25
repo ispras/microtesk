@@ -120,8 +120,14 @@ getIR().add($id.text, $le.res);
 letExpr returns [LetExpr res]
     :  ce = constExpr[0] { if (null != $ce.res) { $res = new LetExpr($ce.res.getText(), $ce.res.getJavaType(), $ce.res.getValue());} }
     |  sc = STRING_CONST { $res = new LetExpr(String.format("\"\%s\"", $sc.text), String.class, $sc.text); } // Some string constant. E.g. let A = "some text"
+    |  labelExpr
 //  |  IF^ constNumExpr THEN! letExpr (ELSE! letExpr)? ENDIF! // NOT SUPPORTED IN THIS VERSION
 //  |  SWITCH Construction                                    // NOT SUPPORTED IN THIS VERSION
+    ;
+
+labelExpr
+    :  ^(LABEL ID)
+    |  ^(LABEL ^(LOCATION_INDEX ID staticJavaExpr))
     ;
 
 /*======================================================================================*/

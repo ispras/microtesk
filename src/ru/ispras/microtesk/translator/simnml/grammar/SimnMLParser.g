@@ -38,6 +38,7 @@ tokens {
   LOCATION_INDEX;    // node for constructions that specify access for a location by index (e.g. GPR[1])
   LOCATION_BITFIELD; // node for constructions that specify access to bitfields of a location (e.g. GPR[0]<0..8>)
 
+  LABEL; // imaginary token for let expression that specify an alias for some specified location
   CONST; // imaginary token to distingush references to Let constants (used as an expression atom)
 
   ARGS;      // node for the list of args specified in AND-rules for mode and ops
@@ -134,10 +135,16 @@ letDef
     ;
 
 letExpr returns [ESymbolKind res]
-    :  constExpr    { $res = ESymbolKind.LET_CONST;  } // Statically calculated constant expression. E.g. let A = 2 ** 4
+    :  labelExpr    { $res = ESymbolKind.LET_LABEL;  }
+    |  constExpr    { $res = ESymbolKind.LET_CONST;  } // Statically calculated constant expression. E.g. let A = 2 ** 4
     |  STRING_CONST { $res = ESymbolKind.LET_STRING; } // Some string constant. E.g. let A = "some text"
 //  |  IF^ constNumExpr THEN! letExpr (ELSE! letExpr)? ENDIF! // TODO: NOT SUPPORTED IN THE CURRENT VERSION
 //  |  SWITCH Construction // TODO: NOT SUPPORTED IN THE CURRENT VERSION
+    ;
+
+labelExpr
+    :  {isDeclaredAs(input.LT(1), ESymbolKind.MEMORY)}?
+       ID (LEFT_HOOK expr RIGHT_HOOK -> ^(LABEL ^(LOCATION_INDEX ID expr)) | -> ^(LABEL ID))
     ;
 
 /*======================================================================================*/

@@ -25,6 +25,9 @@ public enum ESymbolKind
 
     /** Constant number or static numeric expression */
     LET_CONST,
+    
+    /** Constant label that associates some ID with a location (reg, mem or var item)*/
+    LET_LABEL,
 
     /** Constant string */
     LET_STRING,
