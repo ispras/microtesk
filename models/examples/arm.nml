@@ -2471,14 +2471,7 @@ op miscellaneous_inst()
     
 /********************************************************************************************/
 
-op saturated_addsub_inst()
-    syntax = "stub"
-    image = "stub"
-    action = {}
-
-/********************************************************************************************/
-
-op preload_instruction(a1 : index, a2 : index)
+op saturated_addsub_inst(a1 : index, a2 : index)
     syntax = "stub"
     image = "stub"
     action = {
@@ -2487,6 +2480,21 @@ op preload_instruction(a1 : index, a2 : index)
        endif;
     }
 
+/********************************************************************************************/
+
+// PRELOAD INSTRUCTION 
+//
+// PLD instruction does not perform any action that will change state of programmers model.
+// This instruction is used as a hint instruction which will tell memory system that a memory
+// location specified by addressing mode will be accessed in near future.
+
+op PLD (ibit : bit, ubit : bit, rn : index, aamode : card(12))
+    syntax = format("PLD R%d,0x%x", rn, aamode)
+    image = format("111101%1b1%1b101%4b1111%12b", ibit, ubit, rn, aamode)
+    action = {
+	}
+
+op preload_instruction =  PLD
 
 /********************************************************************************************/
 
@@ -2501,7 +2509,7 @@ op inst_type =  branch_inst
 //           |  coprocessor_inst
 //           | 	miscellaneous_inst
 //           |  saturated_addsub_inst
-//           |  preload_instruction
+             |  preload_instruction 
 //           |  floating_point_inst // NOT SUPPORTED IN THE CURRENT VERSION
 
 op instruction (x : inst_type)
