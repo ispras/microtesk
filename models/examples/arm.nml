@@ -514,6 +514,18 @@ mode setUoff() = 0b0
 mode setU = setUon | setUoff
 
 /********************************************************************************************/
+
+mode FLAGREGON() = 0b1
+    syntax = "SPSR"
+    image = "1"
+
+mode FLAGREGOFF() = 0b0
+    syntax = "CPSR"
+    image = "0"
+
+mode FLAGREG = FLAGREGON | FLAGREGOFF
+
+/********************************************************************************************/
 /* Conditions Addressing Mode Components                                                    */
 /*                                                                                          */
 /* Every ARM instruction is conditionally executed and every                                */
@@ -1125,10 +1137,19 @@ op semaphore_instructions =  SWP
 
 /********************************************************************************************/
 
-op status_register_transfer_inst()
-    syntax = "stub"
-    image = "stub"
-    action = {}
+op MRS(cond : Condition, src1 : FLAGREG, src2 : index)
+    syntax = format("MRS%s R%d,%s", cond.syntax, src2, src1.syntax)
+    image = format("%s00010%s000000%4b000000000000", cond.image, src1.image, src2)
+    action = {
+        cond.action;
+        if (src1 == 1) then
+            GPR[src2] = SPSR;
+        else
+            GPR[src2] = CPSR;
+        endif; 
+    }
+
+op status_register_transfer_inst =  MRS
 
 /********************************************************************************************/
 
@@ -2473,7 +2494,7 @@ op inst_type =  branch_inst
              |  multiply_instructions
 //           |  exception_generating_inst
              |  semaphore_instructions
-//           |  status_register_transfer_inst
+             |  status_register_transfer_inst
              |  data_processing_inst
              |  load_store_inst
 //           |  load_store_multiple
