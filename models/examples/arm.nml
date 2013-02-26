@@ -2470,18 +2470,18 @@ op preload_instruction(a1 : index, a2 : index)
 /********************************************************************************************/
 
 op inst_type =  branch_inst
-             |	multiply_instructions
-//           |	exception_generating_inst
-//           |	semaphore_instructions
-//           |	status_register_transfer_inst
+             |  multiply_instructions
+//           |  exception_generating_inst
+             |  semaphore_instructions
+//           |  status_register_transfer_inst
              |  data_processing_inst
-             |	load_store_inst
-//           |	load_store_multiple
-//           |	coprocessor_inst
+             |  load_store_inst
+//           |  load_store_multiple
+//           |  coprocessor_inst
 //           | 	miscellaneous_inst
-//           |	saturated_addsub_inst
-//           |	preload_instruction
-//           |	floating_point_inst // NOT SUPPORTED IN THE CURRENT VERSION
+//           |  saturated_addsub_inst
+//           |  preload_instruction
+//           |  floating_point_inst // NOT SUPPORTED IN THE CURRENT VERSION
 
 op instruction (x : inst_type)
     syntax = x.syntax
