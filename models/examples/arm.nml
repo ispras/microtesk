@@ -1034,10 +1034,94 @@ op exception_generating_inst()
 
 /********************************************************************************************/
 
-op semaphore_instructions()
-    syntax = "stub"
-    image = "stub"
-    action = {}
+op SWP (cond : Condition, rn : REG, rd : REG, rm : REG)
+    syntax = format("SWP%s %s,%s,%s", cond.syntax, rd.syntax, rm.syntax, rn.syntax)
+    image  = format("%s00010000%s%s00001001%s", cond.image, rn.image, rd.image, rm.image)
+    action = {
+        cond.action;
+
+        if (X == 1) then 
+            amode = GPR[rn];		
+
+            if (CP15[1]<22..22> == 0) then 
+                temp = M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode];
+
+                // temp <- Memory 
+                /*
+                temp<7..0> = M[amode];
+                temp<15..8> = M[(amode)+1];
+                temp<23..16> = M[(amode)+2];
+                temp<31..24> = M[(amode)+3];
+                */
+
+                temp1 = temp >>> (8 * amode<1..0>);
+
+                // Memory <- Rm
+                M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode] = rm;
+
+                /*
+                M[amode] = rm<7..0>;
+                M[(amode)+1] = rm<15..8>;
+                M[(amode)+2] = rm<23..16>;
+                M[(amode)+3] = rm<31..24>;
+                */
+
+                // Rd <- temp
+                rd = temp1;
+            else
+                // temp <- Memory
+                temp = M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode];
+
+                /*
+                temp<7..0> = M[amode];
+                temp<15..8> = M[(amode)+1];
+                temp<23..16> = M[(amode)+2];
+                temp<31..24> = M[(amode)+3];
+                */
+
+                temp1 = temp;
+
+                // Memory <- Rm
+                M[amode+3] :: M[amode+2] :: M[amode+1] :: M[amode] = rm;
+
+                /*
+                M[amode] = rm<7..0>;
+                M[(amode)+1] = rm<15..8>;
+                M[(amode)+2] = rm<23..16>;
+                M[(amode)+3] = rm<31..24>;
+                */
+
+                // Rd <- temp
+                rd = temp1;
+            endif;	
+        endif;
+    }
+
+op SWPB (cond : Condition, rn : REG, rd : REG, rm : REG)
+    syntax = format("SWP%sB %s,%s,%s", cond.syntax, rd.syntax, rm.syntax, rn.syntax)
+    image  = format("%s00010100%s%s00001001%s", cond.image, rn.image, rd.image, rm.image)
+    action = {
+        cond.action;
+
+        if (X == 1) then
+            amode = GPR[rn];
+
+            // temp <- Memory
+            temp<7..0> = M[amode];
+            temp<15..8> = 0;
+            temp<23..16> = 0;
+            temp<31..24> = 0;
+
+            // Memory <- Rm
+            M[amode] = rm<7..0>;
+
+            // Rd <- temp
+            rd = temp;
+        endif;
+    }
+
+op semaphore_instructions =  SWP 
+                          |  SWPB
 
 /********************************************************************************************/
 
