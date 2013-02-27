@@ -2457,10 +2457,38 @@ op load_store_multiple()
 
 /********************************************************************************************/
 
-op coprocessor_inst()
-    syntax = "stub"
-    image = "stub"
+op CDP (cond     : Condition,
+        opcode_1 : nibble,
+        crn      : nibble,
+        crd      : nibble,
+        cpnum    : nibble,
+        opcode_2 : card(3),
+        crm      : nibble
+        )
+
+    syntax = format("CDP%s p%d, %d, CR%d, CR%d, CR%d, %d",
+             cond.syntax,
+             cpnum,
+             opcode_1,
+             crd,
+             crn, 
+             crm,
+             opcode_2
+             )
+
+    image  = format("%s1110%4b%4b%4b%4b%3b0%4b",
+             cond.image,
+             opcode_1,
+             crn,
+             crd,
+             cpnum,
+             opcode_2,
+             crm
+             )
+
     action = {}
+
+op coprocessor_inst	= CDP
 
 /********************************************************************************************/
 
@@ -2643,7 +2671,7 @@ op inst_type =  branch_inst
              |  data_processing_inst
              |  load_store_inst
 //           |  load_store_multiple
-//           |  coprocessor_inst
+             |  coprocessor_inst
 //           |  miscellaneous_inst
 //           |  saturated_addsub_inst // TODO: issues with 64-bit values
              |  preload_instruction 
