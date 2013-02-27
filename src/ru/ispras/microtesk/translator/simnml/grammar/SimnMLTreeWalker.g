@@ -372,6 +372,7 @@ $res = factory.createAction("action", Collections.singletonList(stmt));
 }
     |  seq=sequence
 {
+checkNotNull($seq.start, $seq.res, $seq.text);
 $res = factory.createAction("action", $seq.res);
 }
     ;
