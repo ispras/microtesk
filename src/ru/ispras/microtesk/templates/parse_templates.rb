@@ -4,6 +4,8 @@
 #        Launcher file         #
 #                              #
 
+# TODO: For debug reasons it doesn't accept command line arguments yet, gonna get fixed at the next opportunity
+
 # This version requires JRuby. CRuby version pending...
 require 'java'
 
@@ -17,16 +19,8 @@ include TemplateBuilder
 # Initialize the MicroTESK Java library
 require $MICROTESK_JAR
 
-# <TODO>
-# theoretically this line should activate MicroTESK with an
-# appropriate CPU description taken from the config
-# ...or return a model based on a given CPU description?..
-
 java_import Java::Ru.ispras.microtesk.model.samples.simple.Model
-
 model = Model.new()
-
-# Fill the template class with data from the active model in MicroTESK
 
 TemplateBuilder::build_template_class(model)
 
@@ -38,19 +32,13 @@ $template_classes = Array.new
 # For each inherited template that is_executable, require it
 # and Template#parse
 
-$TEMPLATE_FILES.each_with_index do |file, i|
-  if File.directory?(file)
-    dir = file
-    if file[file.length-1] != '/'
-      dir += '/'
-      puts dir
-    end
-    Dir[dir + "*.rb"].each {|file_req| require file_req }
-  elsif File.file?(file)
-    require file
-  else
-    puts "MTRuby: warning: File or directory '" + file.to_s + "' doesn't exist."
-  end
+file = "templates/demo_template.rb"
+
+if File.file?(file)
+  require file
+else
+  puts "MTRuby: warning: File '" + file.to_s + "' doesn't exist."
+end
 
   $template_classes.each do |template_class|
   begin
@@ -60,39 +48,12 @@ $TEMPLATE_FILES.each_with_index do |file, i|
            File.basename(template_class.instance_method(:run).source_location.first) +
            "' ..."
       template.parse
-      template.output $OUTPUT_LOCATIONS[[i, $OUTPUT_LOCATIONS.size - 1].min]
+      template.execute(model.getSimulator())
+      template.output("bin/demo.asm")
     end
   rescue Exception
     puts $!
   end
-  end
 
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# misc temp stuff
-
-# Getting appropriate class names from template filenames
-# template_class_names = Array.new
-
-#$TEMPLATE_FILES.each do |templatePath|
-#  template_path_elements = templatePath.split('/')
-#  template_path_elements.last[0] = template_path_elements.last[0].upcase
-#  template_class_names.push(
-#      template_path_elements.last.split('.').first.gsub(/_./) {
-#          |match| match[1].upcase} )
-#end

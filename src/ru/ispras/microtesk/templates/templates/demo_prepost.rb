@@ -9,7 +9,8 @@ class DemoPrepost < Template
   end
 
   def pre
-    add pc, pc
+#    super.pre
+    add mem("i" => 12), mem("i" => 13)
     newline
     text "// ^------------------- This was, in fact, a pre-condition"
     newline
@@ -19,6 +20,7 @@ class DemoPrepost < Template
     newline
     text "// v------------------- This is, in fact, a post-condition"
     newline
-    mov pc, pc
+    add mem("i" => 23), 23
+ #   super.post
   end
 end

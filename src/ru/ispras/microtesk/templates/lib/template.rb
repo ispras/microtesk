@@ -17,12 +17,10 @@ class Template
     # false by default...
     @is_executable = true
 
-    @target_file = nil
+    # instruction blocks, labels, other stuff
+    @items = Array.new
 
-    @current_instruction = nil
-    @current_situations = Array.new
-
-    @instruction_list = Array.new
+    @instruction_receiver = self
   end
 
   # This method adds every subclass of Template to the list of templates to parse
@@ -54,11 +52,36 @@ class Template
   # -------------------------------------------------- #
 
   def text(raw_text)
-    @instruction_list.push raw_text
+    if(raw_text.is_a?(String))
+      @items.push raw_text
+    end
   end
 
   def newline
-    @instruction_list.push ''
+    @items.push ''
+  end
+
+  # -------------------------------------------------- #
+  # Block-related methods                              #
+  # -------------------------------------------------- #
+
+  def atomic(situations, &block)
+    bl = InstructionBlock.new
+    temp = @instruction_receiver
+
+    @instruction_receiver = bl
+    if(block != nil)
+      block.yield
+    end
+    @instruction_receiver = temp
+
+    @items.push(bl)
+  end
+
+  def receive(instruction)
+    bl = InstructionBlock.new
+    bl.instructions.push(instruction)
+    @items.push(bl)
   end
 
   # -------------------------------------------------- #
@@ -72,40 +95,40 @@ class Template
     post
   end
 
+  def execute(j_simulator)
+    @items.each do |i|
+      if(i.is_a?(InstructionBlock))
+        i.j_build(j_simulator)
+        i.j_call
+      end
+    end
+  end
+
   # This method prints the template to file and/or stdout.
   # Can be optimized for performance boosts, but not critical right now
-  def output(out_dir)
-    # Set the target file as the template class name unless it's explicitly stated
-    @target_file ||= self.class.name
-    @target_file += '.asm' unless @target_file.include? '.'
-
-    # Figure out the full target directory and create it if necessary
-    target_dir = File.expand_path(out_dir)
-    target_dir += '/' unless target_dir =~ /\/$/
-                    # ^ target_dir[target_dir.size-1]=='/'
-
-    check_dir = File.dirname(target_dir + @target_file)
-    unless File.directory?(check_dir)
-      FileUtils.mkdir_p(check_dir)
-    end
-
-    # Print to files if necessary
-    if $TO_FILES
-      File.open(target_dir + @target_file, 'w') do |file|
-        @instruction_list.each do |inst|
-          file.puts inst
+  def output(filename)
+    if(filename != nil)
+      File.open(filename, 'w') do |file|
+        @items.each do |i|
+          if i.respond_to?(:output, false)
+            i.output(file)
+          elsif i.is_a?(String)
+            file.puts i
+          end
         end
       end
     end
 
     # Print to screen if necessary
     if $TO_STDOUT
-      @instruction_list.each do |inst|
-        puts inst
+      @items.each do |i|
+        if i.respond_to?(:outlog, false)
+          i.outlog
+        elsif i.is_a?(String)
+          puts i
+        end
       end
     end
-
   end
-
 
 end
