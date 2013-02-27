@@ -53,8 +53,8 @@ final class ExprOperatorBinary extends ExprOperator
     public Object calculate(Class<?> javaType, Object arg1, Object arg2)
     {
         assert isSupported(javaType);
-        assert javaType.equals(arg1.getClass());
-        assert javaType.equals(arg2.getClass());
+        assert javaType.equals(getPrimitive(arg1.getClass()));
+        assert javaType.equals(getPrimitive(arg2.getClass()));
 
         final IBinaryOperator operator = javaTypeOps.get(javaType);
         return operator.execute(arg1, arg2);

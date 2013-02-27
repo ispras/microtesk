@@ -22,6 +22,22 @@ import ru.ispras.microtesk.model.api.type.ETypeID;
 
 public abstract class ExprOperator
 {
+    private static final HashMap<Class<?>, Class<?>> typeTable =
+        new HashMap<Class<?>, Class<?>>();
+
+    private static void initTypeTable()
+    {
+        typeTable.put(Integer.class, int.class);
+        typeTable.put(Long.class,    long.class);
+        typeTable.put(Double.class,  double.class);
+        typeTable.put(Boolean.class, boolean.class);
+
+        typeTable.put(int.class,     int.class);
+        typeTable.put(long.class,    long.class);
+        typeTable.put(double.class,  double.class);
+        typeTable.put(boolean.class, boolean.class);        
+    }
+
     public static interface IOperator
     {
         public Class<?> getJavaType();
@@ -119,6 +135,20 @@ public abstract class ExprOperator
     public ExprOperatorRetType getRetType()
     {
         return retType;
+    }
+    
+    protected static Class<?> getPrimitive(Class<?> c)
+    {
+        if (typeTable.isEmpty())
+            initTypeTable();
+
+        final Class<?> result = typeTable.get(c);
+
+        if (null != result)
+        	return result;
+
+        assert false : "No primitive type for the specified type in the table.";
+        return c;
     }
 }
 
