@@ -2464,14 +2464,7 @@ op coprocessor_inst()
 
 /********************************************************************************************/
 
-op miscellaneous_inst()
-    syntax = "stub"
-    image = "stub"
-    action = {}
-    
-/********************************************************************************************/
-
-op saturated_addsub_inst(a1 : index, a2 : index)
+op miscellaneous_inst(a1 : index, a2 : index)
     syntax = "stub"
     image = "stub"
     action = {
@@ -2479,6 +2472,150 @@ op saturated_addsub_inst(a1 : index, a2 : index)
           a1 = a2;
        endif;
     }
+    
+/********************************************************************************************/
+    
+// SATURATED ADD and SUB INTRUCTIONS
+
+ /* TODO: Big numbers are currently not supported. Need support for the 64-bit long type in Java expressions.
+
+op QADD (cond : Condition, rn : index, rd : index, rm : index)
+    syntax = format ("QADD%s R%d, R%d, R%d", cond.syntax, rd, rm, rn)
+    image  = format ("%s00010000%4b%4b00000101%4b", cond.image, rn, rd , rm)
+    action = {
+        cond.action;
+
+        if X == 1 then 
+            op1 = coerce(int(32), GPR[rm]);
+            op2 = coerce(int(32), GPR[rn]);
+
+            sum = coerce(int(64), op1) + coerce(int(64), op2);
+
+            if (sum > 0x7fffffff) then
+                GPR[rd] = 0x7fffffff;
+                CPSR<27..27> = 1;
+            else
+                if (sum < (0xffffffff80000001)) then 
+                    GPR[rd] = 0x8000001;
+                    CPSR<27..27> = 1;
+                else
+                    GPR[rd] = op1 + op2;
+                endif;
+            endif;
+        endif;
+    }
+
+op QDADD (cond : Condition, rn : index, rd : index, rm : index)
+    syntax = format ("QDADD%s R%d, R%d, R%d", cond.syntax, rd, rm, rn)
+    image = format ("%s00010100%4b%4b00000101%4b", cond.image, rn, rd , rm)
+    action = {
+        cond.action;
+
+        if X == 1 then 
+            op1 = coerce(int(32),GPR[rm]);
+            op2 = coerce(int(32),GPR[rn]);
+
+            sum = coerce(int(64), op2) + coerce(int(64), op2);
+            if (sum > 0x7fffffff) then
+                op2 = 0x7fffffff;
+                CPSR<27..27> = 1;
+            else
+                if (sum < 0xffffffff80000001) then 
+                    op2 = 0x8000001;
+                    CPSR<27..27> = 1;
+                else 
+                    op2 = op2 * 2;
+                endif;
+            endif;
+				
+            sum = coerce(int(64), op1) + coerce(int(64), op2);
+
+            if (sum > 0x7fffffff) then
+                GPR[rd] = 0x7fffffff;
+                CPSR<27..27> = 1;
+            else
+                if (sum < 0xffffffff80000001) then 
+                    GPR[rd] = 0x80000001;
+                    CPSR<27..27> = 1;
+                else
+                    GPR[rd] = op1 + op2;
+                endif;
+            endif;
+        endif;
+    }
+
+op QSUB (cond : Condition, rn : index, rd : index, rm : index)
+    syntax = format ("QSUB%s R%d, R%d, R%d", cond.syntax, rd, rm, rn)
+    image = format ("%s00010010%4b%4b00000101%4b", cond.image, rn, rd , rm)
+    action = {
+        cond.action;
+
+        if X == 1 then 
+            op1 = coerce(int(32), GPR[rm]);
+            op2 = coerce(int(32), GPR[rn]);
+
+            sum = coerce(int(64), op1) - coerce(int(64), op2);
+
+            if (sum > 0x7fffffff) then
+                GPR[rd] = 0x7fffffff;
+                CPSR<27..27> = 1;
+            else
+                if (sum < 0xffffffff80000001) then 
+                    GPR[rd] = 0x80000001;
+                    CPSR<27..27> = 1;
+                else
+                    GPR[rd] = op1 - op2;
+                endif;
+            endif;
+        endif;
+    }
+
+op QDSUB (cond : Condition, rn : index, rd : index, rm : index)
+    syntax = format("QDSUB%s R%d, R%d, R%d", cond.syntax, rd, rm, rn)
+    image  = format("%s00010110%4b%4b00000101%4b", cond.image, rn, rd , rm)
+    action = {
+        cond.action;
+
+        if X == 1 then 
+            op1 = coerce(int(32), GPR[rm]);
+            op2 = coerce(int(32), GPR[rn]);
+
+            sum = coerce(int(64), op2) + coerce(int(64), op2);
+
+            if (sum > 0x7fffffff) then
+                op2 = 0x7fffffff;
+                CPSR<27..27> = 1;
+            else
+                if (sum < 0xffffffff80000001) then 
+                    op2 = 0x80000001;
+                    CPSR<27..27> = 1;
+                else 
+                    op2 = op2 * 2;
+                endif;
+            endif;
+				
+            sum = coerce(int(64), op1) - coerce(int(64), op2);
+
+            if (sum > 0x7fffffff) then
+                GPR[rd] = 0x7fffffff;
+                CPSR<27..27> = 1;
+            else
+                if (sum < 0xffffffff80000001) then 
+                    GPR[rd] = 0x80000001;
+                    CPSR<27..27> = 1;
+                else
+                    GPR[rd] = op1 - op2;
+                endif;
+            endif;
+        endif;
+    }
+
+op saturated_addsub_inst =  QADD
+                         |  QDADD
+                         |  QSUB
+                         |  QDSUB
+
+*/
 
 /********************************************************************************************/
 
@@ -2507,8 +2644,8 @@ op inst_type =  branch_inst
              |  load_store_inst
 //           |  load_store_multiple
 //           |  coprocessor_inst
-//           | 	miscellaneous_inst
-//           |  saturated_addsub_inst
+//           |  miscellaneous_inst
+//           |  saturated_addsub_inst // TODO: issues with 64-bit values
              |  preload_instruction 
 //           |  floating_point_inst // NOT SUPPORTED IN THE CURRENT VERSION
 
