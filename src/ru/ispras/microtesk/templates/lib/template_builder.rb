@@ -47,15 +47,24 @@ module TemplateBuilder
               arg = Argument.new
               arg.mode = mode_name
 
-              if(arguments.count != names.count)
-                raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
-              end
-              arguments.keys.each do |n|
-                if(!names.include?(n.to_s))
-                  raise "MTRuby: wrong argument '" + n + "'for addressing mode '" + mode_name + "'"
+              if arguments.is_a?(Integer) or arguments.is_a?(String)
+                if(names.count == 1)
+                  arg.values = {names.first => arguments}
+                else
+                  raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
                 end
+              else
+
+                if(arguments.count != names.count)
+                  raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
+                end
+                arguments.keys.each do |n|
+                  if(!names.include?(n.to_s))
+                    raise "MTRuby: wrong argument '" + n + "'for addressing mode '" + mode_name + "'"
+                  end
+                end
+                arg.values = arguments
               end
-              arg.values = arguments
               return arg
             end
 
@@ -91,7 +100,7 @@ module TemplateBuilder
         end
         arguments.each_with_index do |arg, ind|
           a = arg
-          if(arg.is_a?(Integer))
+          if(arg.is_a?(Integer) or arg.is_a?(String))
             a = Argument.new
             a.mode = "IMM"
             a.values[registered_modes["IMM"].first] = arg

@@ -29,8 +29,14 @@ class DemoTemplate < DemoPrepost
     #  mov m[i], m[i+1]                                   # Ruby being smart
     #end
 
-    add mem(:i => 1), mem(:i => 3)
+    add mem(:i => 1), mem(3)
     sub mem(:i => 2), 4
+
+    atomic {
+      mov mem(25), mem(26)
+      add mem(27), 28
+      sub mem(29), 30
+    }
 
   end
 end

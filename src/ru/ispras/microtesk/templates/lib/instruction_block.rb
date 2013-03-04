@@ -8,11 +8,17 @@ class InstructionBlock
   # @instructions: Array of Instruction
   # TODO > @situations: Array of Situation
 
-  def initialize
+  def initialize (template)
     @instructions = Array.new
     @situations = Array.new
     @code = Array.new
     @j_caller = nil
+    @j_monitor = template.j_monitor
+    @template = self
+
+    # Labels are maintained by the template system, TODO: doesn't really work yet
+    #@labels = Hash.new
+    #@r_labels = Hash.new
   end
 
   def outlog
@@ -45,6 +51,12 @@ class InstructionBlock
 
     @code = Array.new
 
+    # TODO: goto label code goes HERE!!!!!!!!!
+    # Logic: reset PC before every execute
+    #        execute
+    #        check if PC corresponds to any label - return the label to the template!!!!!!!
+    # no labels inside block because no 1-1 correspondence between build and call
+
     (0 .. j_caller.getCount() - 1).each do |i|
       j_call = j_caller.getCall(i)
       j_call.execute()
@@ -56,5 +68,10 @@ class InstructionBlock
   def receive(instruction)
     @instructions.push(instruction)
   end
+
+  #def receive_label(name, id)
+  #  @labels[name] = [@instructions.count, ll]
+  #  @r_labels[id] = [name, @instructions.count]
+  #end
 
 end

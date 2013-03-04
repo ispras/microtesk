@@ -8,7 +8,7 @@
 
 #    Microtesk JAR location
 
-$MICROTESK_JAR = "../../../../../dist/microtesk.jar"
+#$MICROTESK_JAR = "../../../../../dist/microtesk.jar"
 
 ##    Sim-nml CPU description location
 ## TODO: this isn't really used yet

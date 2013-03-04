@@ -4,12 +4,16 @@
 #        Template class        #
 #                              #
 
+
 require 'fileutils'
+require_relative 'instruction_group'
+require_relative 'mode_group'
+require_relative 'block_group'
 
 class Template
   attr_accessor :is_executable, :target_file
 
-  def initialize
+  def initialize (j_model)
     super
 
     # Until I find a way to properly set every subclass's
@@ -21,6 +25,15 @@ class Template
     @items = Array.new
 
     @instruction_receiver = self
+    @probability_receiver = nil
+
+    @j_model = j_model
+    @j_monitor = @j_model.getModelStateMonitor()
+
+    # Labels are maintained by the template system, TODO: doesn't really work yet
+    @labels = {:start => [0, 1000]}
+    @r_labels = {1000 => [:start, 0]}
+    @last_label = 1000
   end
 
   # This method adds every subclass of Template to the list of templates to parse
@@ -52,7 +65,7 @@ class Template
   # -------------------------------------------------- #
 
   def text(raw_text)
-    if(raw_text.is_a?(String))
+    if raw_text.is_a?(String)
       @items.push raw_text
     end
   end
@@ -65,12 +78,12 @@ class Template
   # Block-related methods                              #
   # -------------------------------------------------- #
 
-  def atomic(situations, &block)
-    bl = InstructionBlock.new
+  def atomic(situations = {}, &block)
+    bl = InstructionBlock.new (self)
     temp = @instruction_receiver
 
     @instruction_receiver = bl
-    if(block != nil)
+    if block != nil
       block.yield
     end
     @instruction_receiver = temp
@@ -79,9 +92,168 @@ class Template
   end
 
   def receive(instruction)
-    bl = InstructionBlock.new
+    bl = InstructionBlock.new (self)
     bl.instructions.push(instruction)
     @items.push(bl)
+  end
+
+  # -------------------------------------------------- #
+  # Group-related methods                              #
+  # -------------------------------------------------- #
+
+  def group(name, instructions)
+      i = InstructionGroup.new
+      if instructions.is_a?(Array)
+        i.init_with_array(instructions, self)
+      elsif instructions.is_a?(Hash)
+        i.init_with_hash(instructions, self)
+      else
+        raise "MTRuby: group must accept either an array of instructions or an instruction => probability Hash"
+      end
+
+      p = lambda do
+        return i
+      end
+
+      method_name = name
+      while Template.respond_to?(method_name)
+        method_name = "gr_" + method_name
+      end
+      Template.send(:define_method, method_name, p)
+
+  end
+
+  def mode_group(name, modes)
+      i = ModeGroup.new
+      if modes.is_a?(Array)
+        i.init_with_array(modes, self)
+      elsif modes.is_a?(Hash)
+        i.init_with_hash(modes, self)
+      else
+        raise "MTRuby: mode group must accept either an array of instructions or an instruction => probability Hash"
+      end
+
+      p = lambda do
+        return i
+      end
+
+      method_name = name
+      while Template.respond_to?(method_name)
+        method_name = "mgr_" + method_name
+      end
+      Template.send(:define_method, method_name, p)
+
+  end
+
+  def block_group(name, &block)
+    bl = BlockGroup.new(self)
+    temp = @instruction_receiver
+    p_temp = @probability_receiver
+
+    @instruction_receiver = bl
+    @probability_receiver = bl
+    if block != nil
+      block.yield
+    end
+    @instruction_receiver = temp
+    @probability_receiver = p_temp
+
+    p = lambda do
+      return bl
+    end
+
+    method_name = name
+    while Template.respond_to?(method_name)
+      method_name = "bg_" + method_name
+    end
+    Template.send(:define_method, method_name, p)
+  end
+
+  def prob(p)
+    if @probability_receiver == nil
+      puts "MTRuby: warning: probabilities can only be set inside a block group"
+    end
+    @probability_receiver.receive_probability(p)
+  end
+
+  # -------------------------------------------------- #
+  # Memory-related methods                             #
+  # -------------------------------------------------- #
+
+  def get_reg_value (string, index = nil)
+    if index == nil
+      @j_monitor.readRegisterValue(string).getValue()
+    else
+      @j_monitor.readRegisterValue(string, index).getValue()
+    end
+  end
+
+  def get_mem_value (string, index = nil)
+    if index == nil
+      @j_monitor.readMemoryValue(string).getValue()
+    else
+      @j_monitor.readMemoryValue(string, index).getValue()
+    end
+  end
+
+  def get_reg_size (string, index = nil)
+    if index == nil
+      @j_monitor.readRegisterValue(string).getBitSize()
+    else
+      @j_monitor.readRegisterValue(string, index).getBitSize()
+    end
+  end
+
+  def get_mem_size (string, index = nil)
+    if index == nil
+      @j_monitor.readMemoryValue(string).getBitSize()
+    else
+      @j_monitor.readMemoryValue(string, index).getBitSize()
+    end
+  end
+
+  def get_reg_bits (string, index = nil)
+    if index == nil
+      @j_monitor.readRegisterValue(string).toBinString()
+    else
+      @j_monitor.readRegisterValue(string, index).toBinString()
+    end
+  end
+
+  def get_mem_bits (string, index = nil)
+    if index == nil
+      @j_monitor.readMemoryValue(string).toBinString()
+    else
+      @j_monitor.readMemoryValue(string, index).toBinString()
+    end
+  end
+
+
+  # -------------------------------------------------- #
+  # TODO: Labels                                       #
+  # -------------------------------------------------- #
+
+  def label(name)
+    @last_label += 1000
+    ll = @last_label
+
+    #@instruction_receiver.
+        receive_label(name, ll)
+
+    p = lambda do
+      return ll
+    end
+
+    method_name = name
+    while Template.respond_to?(method_name)
+      method_name = "label_" + method_name
+    end
+    Template.send(:define_method, method_name, p)
+  end
+
+  def receive_label(name, id)
+    @labels[name] = [@items.count, id]
+    @r_labels[id] = [name, @items.count]
   end
 
   # -------------------------------------------------- #
@@ -96,9 +268,18 @@ class Template
   end
 
   def execute(j_simulator)
+
     @items.each do |i|
-      if(i.is_a?(InstructionBlock))
+      if i.is_a?(InstructionBlock)
         i.j_build(j_simulator)
+      end
+    end
+
+    # TODO: goto label code goes HERE!!!!!!!!! vvvvvvv
+    # when j_call returns not nil - jump to that label!!!!!!
+
+    @items.each do |i|
+      if i.is_a?(InstructionBlock)
         i.j_call
       end
     end
@@ -107,7 +288,7 @@ class Template
   # This method prints the template to file and/or stdout.
   # Can be optimized for performance boosts, but not critical right now
   def output(filename)
-    if(filename != nil)
+    if filename != nil
       File.open(filename, 'w') do |file|
         @items.each do |i|
           if i.respond_to?(:output, false)
