@@ -18,7 +18,7 @@ class BlockGroup
     @sum += p
   end
 
-  def any
+  def sample
     if @probabilities == nil
       return @instructions.sample
     else

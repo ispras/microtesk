@@ -30,7 +30,7 @@ class InstructionGroup
     @sum = @probabilities.reduce(:+)
   end
 
-  def any (*arguments, &situations)
+  def sample (*arguments, &situations)
     if @probabilities == nil
       return @instructions.sample
     else

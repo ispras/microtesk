@@ -130,7 +130,7 @@ class Template
       elsif modes.is_a?(Hash)
         i.init_with_hash(modes, self)
       else
-        raise "MTRuby: mode group must accept either an array of instructions or an instruction => probability Hash"
+        raise "MTRuby: mode group must accept either an array of modes or a mode => probability Hash"
       end
 
       p = lambda do

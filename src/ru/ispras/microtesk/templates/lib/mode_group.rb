@@ -30,7 +30,7 @@ class ModeGroup
     @sum = @probabilities.reduce(:+)
   end
 
-  def any (*arguments)
+  def sample (*arguments)
     if @probabilities == nil
       return @modes.sample
     else
