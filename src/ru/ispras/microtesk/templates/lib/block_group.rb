@@ -20,7 +20,7 @@ class BlockGroup
 
   def sample
     if @probabilities == nil
-      return @instructions.sample
+      @instruction_receiver.receive @instructions.sample
     else
       p = Random.new.rand 0.0..sum
       @instructions.each_with_index do |inst, index|

@@ -32,7 +32,7 @@ class InstructionGroup
 
   def sample (*arguments, &situations)
     if @probabilities == nil
-      return @instructions.sample
+      @instructions.sample.call(arguments, &situations)
     else
       p = Random.new.rand 0.0..sum
       @instructions.each_with_index do |inst, index|

@@ -32,7 +32,7 @@ class ModeGroup
 
   def sample (*arguments)
     if @probabilities == nil
-      return @modes.sample
+      @modes.sample.call(arguments)
     else
       p = Random.new.rand 0.0..sum
       @modes.each_with_index do |mode, index|
