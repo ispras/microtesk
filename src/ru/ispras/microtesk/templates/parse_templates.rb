@@ -11,7 +11,7 @@ if ARGV.count < 1
 end
 
 
-if $working_directory != nil
+if $working_directory == nil
   $working_directory = Dir.pwd
 end
 
@@ -43,15 +43,19 @@ require_relative 'config'
 require_relative 'lib/template_builder'
 include TemplateBuilder
 
+# Initialize the MicroTESK Java library
+
 if $MICROTESK_JAR == nil
   $MICROTESK_JAR = "../../../../../dist/microtesk.jar"
+  require $MICROTESK_JAR
 end
 
-# Initialize the MicroTESK Java library
-require $MICROTESK_JAR
-
-java_import Java::Ru.ispras.microtesk.model.samples.simple.Model
-model = Model.new()
+if $model == nil
+  java_import Java::Ru.ispras.microtesk.model.samples.simple.Model
+  model = Model.new()
+else
+  model = $model
+end
 
 TemplateBuilder::build_template_class(model)
 
@@ -73,7 +77,8 @@ end
 
   $template_classes.each do |template_class|
   begin
-    template = template_class.new (model)
+    template = template_class.new
+    template.set_model(model)
     if template.is_executable
       puts "Parsing '" +
            File.basename(template_class.instance_method(:run).source_location.first) +
@@ -83,7 +88,7 @@ end
       template.output(output)
     end
   rescue Exception
-    puts $!
+    puts $!#.to_s + caller[0] + caller[1] + caller[2] + caller[3] #+ ": " + self.class.name
   end
 
 

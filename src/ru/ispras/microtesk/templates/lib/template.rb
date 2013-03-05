@@ -11,9 +11,9 @@ require_relative 'mode_group'
 require_relative 'block_group'
 
 class Template
-  attr_accessor :is_executable, :target_file
+  attr_accessor :is_executable, :j_model, :j_monitor
 
-  def initialize (j_model)
+  def initialize
     super
 
     # Until I find a way to properly set every subclass's
@@ -27,13 +27,15 @@ class Template
     @instruction_receiver = self
     @probability_receiver = nil
 
-    @j_model = j_model
-    @j_monitor = @j_model.getModelStateMonitor()
-
     # Labels are maintained by the template system, TODO: doesn't really work yet
     @labels = {:start => [0, 1000]}
     @r_labels = {1000 => [:start, 0]}
     @last_label = 1000
+  end
+
+  def set_model  (j_model)
+    @j_model = j_model
+    @j_monitor = @j_model.getModelStateMonitor()
   end
 
   # This method adds every subclass of Template to the list of templates to parse
