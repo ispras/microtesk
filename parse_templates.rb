@@ -7,7 +7,7 @@
 # Configuration
 
 # Edit this if the MicroTESK JAR is located elsewhere
-$MICROTESK_JAR = "dist/microtesk.jar"
+$MICROTESK_JAR = "./dist/microtesk.jar"
 require $MICROTESK_JAR
 
 # Build MicroTESK, compile MicroTESK, build MicroTESK and set the CPU model class
