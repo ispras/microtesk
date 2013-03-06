@@ -291,6 +291,7 @@ class Template
   # Can be optimized for performance boosts, but not critical right now
   def output(filename)
     if filename != nil
+#     File.new filename 
       File.open(filename, 'w') do |file|
         @items.each do |i|
           if i.respond_to?(:output, false)

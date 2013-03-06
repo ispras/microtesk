@@ -21,7 +21,7 @@ if !(Pathname.new file).absolute?
 end
 
 if ARGV.count > 1
-  output = [ARGV[1]]
+  output = ARGV[1]
 
   if !(Pathname.new output).absolute?
     output = $working_directory + "/" + output
