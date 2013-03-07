@@ -1152,6 +1152,8 @@ op MRS(cond : Condition, src1 : FLAGREG, src2 : index)
 op status_register_transfer_inst =  MRS
 
 /********************************************************************************************/
+/* Data Processing Instructions                                                             */
+/********************************************************************************************/
 
 op ADC(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCESSING)
     syntax = format("ADC%s%s %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
@@ -1337,15 +1339,68 @@ op AND_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : I
         endif;
     }
 
+op BIC (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCESSING)
+    syntax = format("BIC %s%s %s, %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
+    image = format("%s0001110%s%s%s%s", cond.image, sets.image, src2.image, src1.image, src3.image)
+    action = {
+        cond.action;
+        src3.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src2] & (~ coerce(card(32), src3));
+            if ((sets == 1) && (src1 == 15)) then
+                CPSR = SPSR;
+            else
+                if (sets == 1) then
+                    CPSR<31..31> = ALU_OUT<31..31>;
+                    if ALU_OUT == 0 then
+                        CPSR<30..30> = 0b1;
+                    else 
+                        CPSR<30..30> = 0b0;
+                    endif;
+
+                    CPSR<29..29> = shifter_carry_out;
+                endif;
+            endif;
+            GPR[src1] = ALU_OUT;
+        endif;
+    }
+
+op BIC_IMMEDIATE (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : IMMEDIATE)
+    syntax = format("BIC %s%s %s, %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
+    image = format("%s0011110%s%s%s%s", cond.image, sets.image, src2.image, src1.image, src3.image)
+    action = {
+        cond.action;
+        src3.action;
+
+        if (X == 1) then
+            GPR[src1] = GPR[src2] & (~ coerce(card(32), src3));
+            if ((sets == 1) && (src1 == 15)) then
+                CPSR = SPSR;
+            else
+                if (sets == 1) then
+                    CPSR<31..31> = GPR[src1]<31..31>;
+                    if GPR[src1] == 0 then
+                        CPSR<30..30> = 0b1;	
+                    else 
+                        CPSR<30..30> = 0b0;
+                    endif;
+
+                    CPSR<29..29> = shifter_carry_out;
+                endif;
+            endif;
+        endif;
+    }
+
 op data_processing_inst =  ADC
                         |  ADC_IMMEDIATE 
                         |  ADD
                         |  ADD_IMMEDIATE 
                         |  AND
                         |  AND_IMMEDIATE 
-/*                      |  BIC
+                        |  BIC
                         |  BIC_IMMEDIATE
-                        |  CMN
+/*                      |  CMN
                         |  CMN_IMMEDIATE
                         |  CMP
                         |  CMP_IMMEDIATE
