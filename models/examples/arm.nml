@@ -1984,6 +1984,88 @@ op SUB_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : I
         endif;
     }
 
+op SBC (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCESSING)
+    syntax = format("SBC%s%s %s, %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
+    image  = format("%s0000110%s%s%s%s", cond.image, sets.image, src2.image, src1.image, src3.image)
+    action = {
+        cond.action;
+        src3.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src2] - src3 - ~CPSR<29..29>;
+            if (sets == 1) && (src1 == 15) then
+                CPSR = SPSR;
+            else
+                if (sets == 1) then
+                    CPSR<31..31> = ALU_OUT<31..31>;
+
+                    if ALU_OUT == 0 then  
+                        CPSR<30..30> = 0b1;	
+                    else
+                        CPSR<30..30> = 0b0;
+                    endif;
+
+                    if (GPR[src2] < (src3 + ~CPSR<29..29>)) then 
+                        CPSR<29..29> = 0b0;
+                    else
+                        CPSR<29..29> = 0b1;
+                    endif;
+
+                    cmp_tmp = coerce(card(32), 0) - src3;
+
+                    if (GPR[src2]<31..31> == cmp_tmp<31..31>) && (ALU_OUT<31..31> != GPR[src2]<31..31>) then 
+                        CPSR<28..28> = 0b1;
+                    else
+                        CPSR<28..28> = 0b0;
+                    endif;   
+                endif;
+            endif;
+            
+            GPR[src1] = ALU_OUT;
+        endif;
+    }
+
+op SBC_IMMEDIATE (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : IMMEDIATE)
+    syntax = format("SBC%s%s %s, %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
+    image  = format("%s0010110%s%s%s%s", cond.image, sets.image, src2.image, src1.image, src3.image)
+    action = {
+        cond.action;
+        src3.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src2] - src3 - ~CPSR<29..29>;
+            if (sets == 1) && (src1 == 15) then
+                CPSR = SPSR;
+            else
+                if (sets == 1) then
+                    CPSR<31..31> = ALU_OUT<31..31>;
+
+                    if ALU_OUT == 0 then  
+                        CPSR<30..30> = 0b1;	
+                    else 
+                        CPSR<30..30> = 0b0;
+                    endif;
+
+                    if (GPR[src2] < (src3 + ~CPSR<29..29>)) then //check for correctness
+                        CPSR<29..29> = 0b0;
+                    else
+                        CPSR<29..29> = 0b1;
+                    endif;
+
+                    cmp_tmp = coerce(card(32), 0) - src3;
+
+                    if (GPR[src2]<31..31> == cmp_tmp<31..31>) && (ALU_OUT<31..31> != GPR[src2]<31..31>) then 
+                        CPSR<28..28> = 0b1;
+                    else
+                        CPSR<28..28> = 0b0;
+                    endif;
+                endif;
+            endif;
+
+            GPR[src1] = ALU_OUT;
+        endif;
+    }
+
 op data_processing_inst =  ADC
                         |  ADC_IMMEDIATE 
                         |  ADD
@@ -2010,9 +2092,9 @@ op data_processing_inst =  ADC
                         |  RSC_IMMEDIATE
                         |  SUB
                         |  SUB_IMMEDIATE 
-/*                      |  SBC 
+                        |  SBC 
                         |  SBC_IMMEDIATE
-                        |  TST
+/*                      |  TST
                         |  TST_IMMEDIATE 
                         |  TEQ
                         |  TEQ_IMMEDIATE 
