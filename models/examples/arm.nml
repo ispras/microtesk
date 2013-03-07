@@ -1884,6 +1884,106 @@ op RSC_IMMEDIATE (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : 
         endif;	
     }
 
+op SUB(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCESSING)
+    syntax = format("SUB%s%s %s, %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
+    image  = format("%s0000010%s%s%s%s", cond.image, sets.image, src2.image, src1.image, src3.image)
+    action = {
+        cond.action;
+        src3.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src2] - src3;
+            if (sets == 1) && (src1 == 15) then
+                CPSR = SPSR;
+            else
+                if (sets == 1) then
+                    CPSR<31..31> = ALU_OUT<31..31>;
+
+                    if ALU_OUT == 0 then  
+                        CPSR<30..30> = 0b1;	
+                    else
+                        CPSR<30..30> = 0b0;
+                    endif;
+
+                    if (GPR[src2] < src3) then //check for correctness
+                        CPSR<29..29> = 0b0;
+                    else
+                        CPSR<29..29> = 0b1;
+                    endif;
+
+                    cmp_tmp = coerce(card(32), 0) - src3;
+
+                    if (GPR[src2]<31..31> == cmp_tmp<31..31>) && (ALU_OUT<31..31> != GPR[src2]<31..31>) then 
+                        CPSR<28..28> = 0b1;
+                    else
+                        CPSR<28..28> = 0b0;
+                    endif;
+                endif;
+            endif;
+
+            if (src1 == 15 && (ALU_OUT == 0xffff0fe0)) then
+                GPR[src1] = GPR[14];
+                GPR[0] = GPR[10];
+            else
+                if (src1 == 15 && (ALU_OUT == 0xffff0fc0)) then
+                    GPR[src1] = GPR[14] + 4;
+                else
+                    GPR[src1] = ALU_OUT;
+                endif;
+            endif;
+        endif;
+    }
+
+op SUB_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : IMMEDIATE)
+    syntax = format("SUB%s%s %s, %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
+    image  = format("%s0010010%s%s%s%s", cond.image, sets.image, src2.image, src1.image, src3.image)
+    action = {
+        cond.action;
+        src3.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src2] - src3;
+            if (sets == 1) && (src1 == 15) then
+                CPSR = SPSR;
+            else
+                if (sets == 1) then
+                    CPSR<31..31> = ALU_OUT<31..31>;
+
+                    if ALU_OUT == 0 then  
+                        CPSR<30..30> = 0b1;	
+                    else 
+                        CPSR<30..30> = 0b0;
+                    endif;
+
+                    if (GPR[src2] < src3) then //check for correctness
+                        CPSR<29..29> = 0b0;
+                    else
+                        CPSR<29..29> = 0b1;
+                    endif;
+
+                    cmp_tmp = coerce(card(32), 0) - src3;
+
+                    if (GPR[src2]<31..31> == cmp_tmp<31..31>) && (ALU_OUT<31..31> != GPR[src2]<31..31>) then 
+                        CPSR<28..28> = 0b1;
+                    else
+                        CPSR<28..28> = 0b0;
+                    endif;
+                endif;
+            endif;
+
+            if (src1 == 15 && (ALU_OUT == 0xffff0fe0)) then
+                GPR[src1] = GPR[14];
+                GPR[0] = GPR[10];
+            else
+                if (src1 == 15 && (ALU_OUT == 0xffff0fc0)) then
+                    GPR[src1] = GPR[14] + 4;
+                else
+                    GPR[src1] = ALU_OUT;
+                endif;
+            endif;
+        endif;
+    }
+
 op data_processing_inst =  ADC
                         |  ADC_IMMEDIATE 
                         |  ADD
@@ -1908,9 +2008,9 @@ op data_processing_inst =  ADC
                         |  RSB_IMMEDIATE
                         |  RSC
                         |  RSC_IMMEDIATE
-/*                      |  SUB
+                        |  SUB
                         |  SUB_IMMEDIATE 
-                        |  SBC 
+/*                      |  SBC 
                         |  SBC_IMMEDIATE
                         |  TST
                         |  TST_IMMEDIATE 
