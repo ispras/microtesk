@@ -1562,6 +1562,59 @@ op EOR_IMMEDIATE (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : 
         endif;
     }
 
+op MOV (cond : Condition, sets : setS, src1 : REG, src2 : DATA_PROCESSING)
+    syntax = format("MOV%s%s %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax)
+    image  = format("%s0001101%s0000%s%s", cond.image, sets.image, src1.image, src2.image)
+    action = {
+        cond.action;
+        src2.action;
+
+        if (X == 1) then
+            ALU_OUT = src2;
+            if ((sets == 1) && (src1 == 15)) then
+                CPSR = SPSR;
+            else
+                if (sets == 1) then
+                    CPSR<31..31> = ALU_OUT<31..31>;
+                    if ALU_OUT == 0 then
+                        CPSR<30..30> = 0b1;	
+                    else
+                        CPSR<30..30> = 0b0;
+                    endif;
+
+                    CPSR<29..29> = shifter_carry_out;
+                endif;
+            endif;
+            GPR[src1] = ALU_OUT;
+        endif;
+    }
+
+op MOV_IMMEDIATE (cond : Condition, sets : setS, src1 : REG, src2 : IMMEDIATE)
+    syntax = format("MOV%s%s %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax)
+    image  = format("%s0011101%s0000%s%s", cond.image, sets.image, src1.image, src2.image)
+    action = {
+        cond.action;
+        src2.action;
+
+        if (X == 1) then
+            GPR[src1] = src2;
+            if ((sets == 1) && (src1 == 15)) then
+                CPSR = SPSR;
+            else
+                if (sets == 1) then
+                    CPSR<31..31> = GPR[src1]<31..31>;
+                    if GPR[src1] == 0 then
+                        CPSR<30..30> = 0b1;	
+                    else
+                        CPSR<30..30> = 0b0;
+                    endif;
+
+                    CPSR<29..29> = shifter_carry_out;
+                endif;
+            endif;
+        endif;
+    }
+
 op data_processing_inst =  ADC
                         |  ADC_IMMEDIATE 
                         |  ADD
@@ -1576,9 +1629,9 @@ op data_processing_inst =  ADC
                         |  CMP_IMMEDIATE
                         |  EOR
                         |  EOR_IMMEDIATE
-/*                      |  MOV 
+                        |  MOV 
                         |  MOV_IMMEDIATE
-                        |  MVN 
+/*                      |  MVN 
                         |  MVN_IMMEDIATE
                         |  ORR 
                         |  ORR_IMMEDIATE
