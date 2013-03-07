@@ -187,7 +187,7 @@ final class ExprUnaryOperators
         return new ExprOperatorUnary(
             "~",
             priority,
-            EOperatorID.UNARY_MINUS,
+            EOperatorID.BIT_NOT,
             new ETypeID[] { ETypeID.INT, ETypeID.CARD },
             "~ %s",
             ops,
@@ -212,7 +212,7 @@ final class ExprUnaryOperators
         return new ExprOperatorUnary(
             "!",
             priority,
-            EOperatorID.UNARY_MINUS,
+            EOperatorID.NOT,
             new ETypeID[] { ETypeID.INT, ETypeID.CARD },
             "! %s",
             ops,
