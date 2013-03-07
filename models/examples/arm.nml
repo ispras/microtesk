@@ -2104,6 +2104,44 @@ op TST_IMMEDIATE (cond : Condition, src1 : REG, src2 : IMMEDIATE)
         endif;
     }
 
+op TEQ (cond : Condition, src1 : REG, src2 : DATA_PROCESSING)
+    syntax = format("TEQ%s %s, %s", cond.syntax, src1.syntax, src2.syntax)
+    image  = format("%s00010011%s0000%s", cond.image, src1.image, src2.image)
+    action = {
+        cond.action;
+        src2.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src1] ^ src2;
+            CPSR<31..31> = ALU_OUT<31..31>;
+            if (ALU_OUT == 0) then
+                CPSR<30..30> = 0b1;
+            else
+                CPSR<30..30> = 0b0;
+            endif;
+            CPSR<29..29> = shifter_carry_out;
+        endif;
+    }
+
+op TEQ_IMMEDIATE (cond : Condition, src1 : REG, src2 : IMMEDIATE)
+    syntax = format("TEQ%s %s, %s", cond.syntax, src1.syntax, src2.syntax)
+    image  = format("%s00110011%s0000%s", cond.image, src1.image, src2.image)
+    action = {
+        cond.action;
+        src2.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src1] ^ src2;
+            CPSR<31..31> = ALU_OUT<31..31>;
+            if (ALU_OUT == 0) then
+                CPSR<30..30> = 0b1;
+            else
+                CPSR<30..30> = 0b0;
+            endif;
+            CPSR<29..29> = shifter_carry_out;
+        endif;
+    }
+
 op data_processing_inst =  ADC
                         |  ADC_IMMEDIATE 
                         |  ADD
@@ -2134,9 +2172,8 @@ op data_processing_inst =  ADC
                         |  SBC_IMMEDIATE
                         |  TST
                         |  TST_IMMEDIATE 
-/*                      |  TEQ
+                        |  TEQ
                         |  TEQ_IMMEDIATE 
-*/    
     
 /********************************************************************************************/
 /* Load and Store Instructions                                                              */
