@@ -1392,6 +1392,124 @@ op BIC_IMMEDIATE (cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : 
         endif;
     }
 
+// ALU_OUT named varible is declared also carry for addition
+
+op CMN (cond : Condition, src1 : REG, src2 : DATA_PROCESSING)
+    syntax = format("CMN%s %s, %s", cond.syntax, src1.syntax, src2.syntax)
+    image  = format("%s00010111%s0000%s", cond.image, src1.image, src2.image)
+    action = {
+        cond.action;
+        src2.action;
+
+        if (X == 1) then
+            carry::ALU_OUT = GPR[src1] + src2;
+            CPSR<31..31> = ALU_OUT<31..31>;
+            if (ALU_OUT == 0) then
+                CPSR<30..30> = 0b1;
+            else
+                CPSR<30..30> = 0b0;
+            endif;
+
+            CPSR<29..29> = carry;
+
+            if ((GPR[src1]<31..31> == src2<31..31>) && (ALU_OUT<31..31> != GPR[src1]<31..31>)) then 
+                CPSR<28..28> = 0b1;
+            else
+                CPSR<28..28> = 0b0;
+            endif;
+        endif;
+    }
+
+op CMN_IMMEDIATE (cond : Condition, src1 : REG, src2 : IMMEDIATE)
+    syntax = format("CMN%s %s, %s", cond.syntax, src1.syntax, src2.syntax)
+    image  = format("%s00110111%s0000%s", cond.image, src1.image, src2.image)
+    action = {
+        cond.action;
+        src2.action;
+
+        if (X == 1) then
+            carry::ALU_OUT = GPR[src1] + src2;
+            CPSR<31..31> = ALU_OUT<31..31>;
+            if(ALU_OUT == 0) then
+                CPSR<30..30> = 0b1;
+            else
+                CPSR<30..30> = 0b0;
+            endif;
+
+            CPSR<29..29> = carry;
+
+            if ((GPR[src1]<31..31> == src2<31..31>) && (ALU_OUT<31..31> != GPR[src1]<31..31>)) then 
+                CPSR<28..28> = 0b1;
+            else
+                CPSR<28..28> = 0b0;
+            endif;
+        endif;
+    }
+
+op CMP(cond : Condition, src1 : REG, src2 : DATA_PROCESSING)
+    syntax = format("CMP%s %s, %s", cond.syntax, src1.syntax, src2.syntax)
+    image  = format("%s00010101%s0000%s", cond.image, src1.image, src2.image)
+    action = {
+        cond.action;
+        src2.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src1] - src2;
+            CPSR<31..31> = ALU_OUT<31..31>;
+            if(ALU_OUT == 0) then
+                CPSR<30..30> = 0b1;
+            else
+                CPSR<30..30> = 0b0;
+            endif;
+
+            if (GPR[src1] < src2) then
+                CPSR<29..29> = 0b0;
+            else
+                CPSR<29..29> = 0b1;
+            endif;
+
+            cmp_tmp = coerce(card(32), 0) - src2;
+
+            if (GPR[src1]<31..31> == cmp_tmp<31..31>) && (ALU_OUT<31..31> != GPR[src1]<31..31>) then 
+                CPSR<28..28> = 0b1;
+            else
+                CPSR<28..28> = 0b0;
+            endif;
+        endif;
+    }
+
+op CMP_IMMEDIATE(cond : Condition, src1 : REG, src2 : IMMEDIATE)
+    syntax = format("CMP%s %s, %s", cond.syntax, src1.syntax, src2.syntax)
+    image  = format("%s00110101%s0000%s", cond.image, src1.image, src2.image)
+    action = {
+        cond.action;
+        src2.action;
+
+        if (X == 1) then
+            ALU_OUT = GPR[src1] - src2;
+            CPSR<31..31> = ALU_OUT<31..31>;
+            if(ALU_OUT == 0) then
+                CPSR<30..30> = 0b1;
+            else
+                CPSR<30..30> = 0b0;
+            endif;
+
+            if (GPR[src1] < src2) then
+                CPSR<29..29> = 0b0;
+            else
+                CPSR<29..29> = 0b1;
+            endif;
+
+            cmp_tmp = coerce(card(32), 0) - src2;
+
+            if (GPR[src1]<31..31> == cmp_tmp<31..31>) && (ALU_OUT<31..31> != GPR[src1]<31..31>) then 
+                CPSR<28..28> = 0b1;
+            else
+                CPSR<28..28> = 0b0;
+            endif;
+        endif;
+    }
+
 op data_processing_inst =  ADC
                         |  ADC_IMMEDIATE 
                         |  ADD
@@ -1400,11 +1518,11 @@ op data_processing_inst =  ADC
                         |  AND_IMMEDIATE 
                         |  BIC
                         |  BIC_IMMEDIATE
-/*                      |  CMN
+                        |  CMN
                         |  CMN_IMMEDIATE
                         |  CMP
                         |  CMP_IMMEDIATE
-                        |  EOR
+/*                      |  EOR
                         |  EOR_IMMEDIATE
                         |  MOV 
                         |  MOV_IMMEDIATE
