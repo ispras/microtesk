@@ -47,7 +47,7 @@ final class ExprFactoryJavaStatic extends ExprFactoryBase implements ExprFactory
     @Override
     public Expr location(Where w, LocationExpr location) throws SemanticException
     {
-        getReporter().raiseError(new NonStaticExpression(location.getText()));
+        getReporter().raiseError(w, new NonStaticExpression(location.getText()));
         return null;
     }
 
