@@ -13,11 +13,12 @@ require $MICROTESK_JAR
 require 'fileutils'
 
 # Build MicroTESK, compile MicroTESK, build MicroTESK and set the CPU model class
-#java_import Java::Ru.ispras.microtesk.model.arm.Model
-java_import Java::Ru.ispras.microtesk.model.samples.simple.Model
+java_import Java::Ru.ispras.microtesk.model.arm.Model
+#java_import Java::Ru.ispras.microtesk.model.samples.simple.Model
 #puts "If you don't see the next message, it means Java doesn't want to create a Model object?.. Seems to happen with ARM model, but not simple model"
+puts "Creating model object"
 j_metamodel = Model.new
-#puts "Model object created"
+puts "Model object created"
 
 # Launcher
 
@@ -27,7 +28,7 @@ md_code.push j_metamodel.class.name.split("::")[1] + " instruction set reference
 md_code.push "====================="
 md_code.push ""
 
-
+puts "Printing documentation"
 $working_directory = Dir.pwd
 
     instructions = j_metamodel.getInstructions()
@@ -73,3 +74,4 @@ File.open("./docs/" + j_metamodel.class.name.split("::")[1] + ".md", 'w') do |fi
     file.puts s
   end
 end
+puts "Documentation printed to 'docs' folder"

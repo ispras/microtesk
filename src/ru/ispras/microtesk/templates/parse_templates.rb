@@ -87,8 +87,12 @@ end
       template.execute(model.getSimulator())
       template.output(output)
     end
-  rescue Exception
-    puts $!#.to_s + caller[0] + caller[1] + caller[2] + caller[3] #+ ": " + self.class.name
+  #rescue Exception => e
+  ##  puts $!#.to_s + caller[0] + caller[1] + caller[2] + caller[3] #+ ": " + self.class.name
+  #  puts "#{e.class}: #{e.message}"
+  #  if e.respond_to?(:printStackTrace)
+  #    e.printStackTrace
+  #  end
   end
 
 

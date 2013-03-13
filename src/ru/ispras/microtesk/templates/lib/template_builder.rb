@@ -102,8 +102,8 @@ module TemplateBuilder
           a = arg
           if(arg.is_a?(Integer) or arg.is_a?(String))
             a = Argument.new
-            a.mode = "IMM"
-            a.values[registered_modes["IMM"].first] = arg
+            a.mode = "#IMM"
+            a.values[registered_modes["#IMM"].first] = arg
           end
           match = false
           inst_arguments[ind].getAddressingModes().each do |am|

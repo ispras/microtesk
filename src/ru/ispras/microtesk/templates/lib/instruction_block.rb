@@ -23,7 +23,9 @@ class InstructionBlock
 
   def outlog
     #@instructions.each {|i| i.output }
-    @code.each {|c| puts c}
+    @code.each {|c| puts c
+                #puts '--- newline debug ---'
+    }
   end
 
   def output(file)

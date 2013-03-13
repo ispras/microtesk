@@ -31,10 +31,10 @@ class InstructionGroup
   end
 
   def sample (*arguments, &situations)
-    if @probabilities == nil
+    if @probabilities == nil || @probabilities.count == 0
       @instructions.sample.call(arguments, &situations)
     else
-      p = Random.new.rand 0.0..sum
+      p = Random.new.rand 0.0..@sum
       @instructions.each_with_index do |inst, index|
         if @probabilities[index] >= p
           inst.call(arguments, &situations)

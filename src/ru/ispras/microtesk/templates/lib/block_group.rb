@@ -14,21 +14,22 @@ class BlockGroup
   end
 
   def receive_probability(p)
-    @probabilities.push(p)
     @sum += p
+    @probabilities.push(@sum)
   end
 
   def sample
-    if @probabilities == nil
+    if @probabilities == nil || @probabilities.count == 0
       @instruction_receiver.receive @instructions.sample
     else
-      p = Random.new.rand 0.0..sum
+      p = Random.new.rand 0.0..@sum
       @instructions.each_with_index do |inst, index|
         if @probabilities[index] >= p
           @instruction_receiver.receive(inst)
           return
         end
       end
+      @instruction_receiver.receive(@instructions.last)
     end
   end
 

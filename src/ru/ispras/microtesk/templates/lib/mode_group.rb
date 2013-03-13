@@ -31,10 +31,10 @@ class ModeGroup
   end
 
   def sample (*arguments)
-    if @probabilities == nil
+    if @probabilities == nil || @probabilities.count == 0
       @modes.sample.call(arguments)
     else
-      p = Random.new.rand 0.0..sum
+      p = Random.new.rand 0.0..@sum
       @modes.each_with_index do |mode, index|
         if @probabilities[index] >= p
           mode.call(arguments)

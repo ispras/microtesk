@@ -10,17 +10,17 @@ class DemoPrepost < Template
 
   def pre
 #    super.pre
-    add mem("i" => 12), mem("i" => 13)
+#    add mem("i" => 12), mem("i" => 13)
     newline
-    text "// ^------------------- This was, in fact, a pre-condition"
+    text "// This line is technically a pre-condition"
     newline
   end
 
   def post
     newline
-    text "// v------------------- This is, in fact, a post-condition"
+    text "// This line is technically a post-condition"
     newline
-    add mem("i" => 23), 23
+    #add mem("i" => 23), 23
  #   super.post
   end
 end
