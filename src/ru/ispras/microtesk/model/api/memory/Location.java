@@ -81,11 +81,13 @@ public final class Location
 
     public Location bitField(int start, int end)
     {
-        assert (start >= 0) && (start < end); // TODO: exception
+        assert (start >= 0) && (end >= 0);
+        assert start <= end : "Start must be >= end. Reverse order is currently not supported.";
 
+        final int bitSize = end - start + 1;
         return new Location(
             type,
-            new RawDataMapping(rawData, start, end - start),
+            new RawDataMapping(rawData, start, bitSize),
             readOnly,
             handler
             );
