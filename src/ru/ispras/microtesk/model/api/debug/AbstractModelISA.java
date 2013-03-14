@@ -1,5 +1,5 @@
 /*
- * Copyright (c) {year} ISPRAS
+ * Copyright (c) 2013 ISPRAS
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * ModelMain.java, Mar 14, 2013 3:22:32 PM Andrei Tatarnikov
+ * ModelMain.java, Mar 14, 2013 4:08:16 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.model.api.debug;
