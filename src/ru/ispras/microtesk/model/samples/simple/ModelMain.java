@@ -153,7 +153,7 @@ public class ModelMain
 
         mov(reg(4), imm(0x01));
         sub(reg(5), reg(4));
-
+        
         final IInstructionCallBlock block = blockBuilder.getCallBlock();
 
         block.print();
