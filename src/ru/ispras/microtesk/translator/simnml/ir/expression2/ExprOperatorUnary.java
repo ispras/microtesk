@@ -53,7 +53,7 @@ final class ExprOperatorUnary extends ExprOperator
     public Object calculate(Class<?> javaType, Object arg)
     {
         assert isSupported(javaType);
-        assert javaType.equals(arg.getClass());
+        assert javaType.equals(getPrimitive(arg.getClass()));
 
         final IUnaryOperator operator = javaTypeOps.get(javaType);
         return operator.execute(arg);
