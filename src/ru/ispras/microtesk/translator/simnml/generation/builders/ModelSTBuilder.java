@@ -18,6 +18,9 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 
+import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
+import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
+
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 public class ModelSTBuilder implements ITemplateBuilder
@@ -40,8 +43,11 @@ public class ModelSTBuilder implements ITemplateBuilder
         t.add("pack",  String.format(MODEL_PACKAGE_FORMAT, modelName));
 
         t.add("imps",  SimnMLProcessorModel.class.getName());
-
         t.add("imps",  String.format(INSTRUCTION_SET_CLASS_FORMAT, modelName));
+        
+        t.add("imps",  MetaModelPrinter.class.getName());
+        t.add("imps",  ModelStatePrinter.class.getName());
+        
         t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 
         t.add("base",  SimnMLProcessorModel.class.getSimpleName());
@@ -53,6 +59,7 @@ public class ModelSTBuilder implements ITemplateBuilder
         tc.add("mem",      SimnMLProcessorModel.SHARED_MEMORY);
 
         t.add("members", tc);
+        t.add("members", group.getInstanceOf("debug_block"));
 
         return t;
     }

@@ -34,3 +34,21 @@ public Model()
     );
 }
 >>
+
+debug_block() ::= <<
+<\n>public static void printInformation()
+{
+    final Model model = new Model();
+
+    final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(model.getMetaData());
+    metaModelPrinter.printAll();
+
+    final ModelStatePrinter modelStatePrinter = new ModelStatePrinter(model);
+    modelStatePrinter.printRegisters();
+}
+
+public static void main(String[] args)
+{
+    printInformation();
+}
+>>
