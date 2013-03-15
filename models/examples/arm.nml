@@ -54,7 +54,9 @@ let FP = "GPR[12]"
 let IP = "GPR[11]"
 
 //Memory
-mem M[2 ** 31, byte_t] 
+// TODO: DUE TO RESTICTIONS OF THE FIRST PROTOTYPE MEMORY SIZE IS REDUCED
+// mem M[2 ** 31, byte_t] 
+mem M[2 ** 10, byte_t]
 
 //Variables
 var amode[1,word]
@@ -119,7 +121,7 @@ endif
     syntax = format("R%d , LSL #%d", r, amount)
     image = format("%5b000%4b", amount, r)
     action = {
-/* TODO: the bitfield operation taking a non-constant variable is not supported yet. 
+/*
         if amount == 0 then 
             shifter_carry_out = CPSR<29..29>;
         else
@@ -540,9 +542,9 @@ mode equalcond()
     image  = "0000"
     action = {
     if CPSR<30..30> == 1 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -551,9 +553,9 @@ mode notEqual()
     image = "0001"
     action = {
     if CPSR<30..30> == 0 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
