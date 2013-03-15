@@ -113,13 +113,16 @@ final class IntegerValueBasedExprCreator extends ExprFactoryBase implements Expr
         getReporter().raiseError(w, new ValueParsingFailure(text, int.class.getSimpleName()));
         return null;
     }
-    
+
     private int getBitSizeForInt(int value)
     {
         final int BITS_IN_BYTE = 8;
 
         final int bitSize =
             Integer.SIZE - Integer.numberOfLeadingZeros(value);
+
+        if (0 == bitSize)
+            return BITS_IN_BYTE;
 
         return (0 == bitSize % BITS_IN_BYTE) ?
             bitSize : 
@@ -128,23 +131,27 @@ final class IntegerValueBasedExprCreator extends ExprFactoryBase implements Expr
 
     private TypeExpr createModelType() throws SemanticException
     {
+        final ETypeID typeId;
         final int bitSize;
 
         if (BIN_RADIX == radix)
         {
+            typeId  = ETypeID.CARD;
             bitSize = text.length();
         }
         else if (HEX_RADIX == radix)
         {
+            typeId  = ETypeID.CARD;
             bitSize = text.length() * BITS_IN_HEX_CHAR;
         }
         else
         {
+            typeId  = ETypeID.INT;
             bitSize = getBitSizeForInt(Integer.parseInt(text, radix));
         }
 
         return new TypeExpr(
-            ETypeID.INT,
+            typeId,
             new ConstExpr(int.class, bitSize, Integer.toString(bitSize))
             );
     }
@@ -822,7 +829,7 @@ final class BinaryModelExprCalculator extends BinaryExprCalculatorBase implement
     {
         final ExprOperatorBinary op = getOperator();
 
-       // assert arg1.getModelType().getTypeId() == arg2.getModelType().getTypeId(); 
+        assert arg1.getModelType().getTypeId() == arg2.getModelType().getTypeId(); 
 
         final TypeExpr modelType = arg1.getModelType();
         checkSupported(modelType.getTypeId());
