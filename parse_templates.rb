@@ -9,7 +9,7 @@ require 'java'
 # Configuration
 
 # Edit this if the MicroTESK JAR is located elsewhere
-$MICROTESK_JAR = "./dist/microtesk.jar"
+$MICROTESK_JAR = "./dist/models.jar"
 require $MICROTESK_JAR
 
 if(ARGV.count < 2)
