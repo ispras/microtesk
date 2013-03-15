@@ -71,14 +71,15 @@ public final class MetaModelPrinter
 
         for (IMetaInstruction i : metaModel.getInstructions())
         {
-            System.out.printf("Name: %s, Parameters: ", i.getName());
-
-            final StringBuilder asb = new StringBuilder(); 
+            System.out.println("Name: " + i.getName());
+            System.out.println("Parameters:");
+ 
             for(IMetaArgument a : i.getArguments())
             {
-                if (asb.length() > 0) asb.append(", ");
-                asb.append(a.getName());
+                final StringBuilder asb = new StringBuilder();
 
+                asb.append("   ");
+                asb.append(a.getName());
                 asb.append(" [");
 
                 boolean isFirstMode = true;
@@ -88,8 +89,8 @@ public final class MetaModelPrinter
                     else asb.append(", ");
 
                     asb.append(am.getName());
-
                     asb.append("(");
+
                     boolean isFirstArg = true;
                     for (String an : am.getArgumentNames())
                     {
@@ -98,11 +99,13 @@ public final class MetaModelPrinter
 
                         asb.append(an);
                     }
+
                     asb.append(")");
                 }
+
                 asb.append("]");
+                System.out.println(asb);
             }
-            System.out.println(asb);
         }
     }
 
