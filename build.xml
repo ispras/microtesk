@@ -17,15 +17,16 @@
   <property name="antlr.jar" value="antlr-3.4-complete.jar"/>
   <property name="antlr.ant.jar" value="ant-antlr3.jar"/>
   <property name="cli.jar" value="commons-cli-1.2.jar"/>
+  <property name="jruby.jar" value="jruby.jar"/>
 
   <!-- Information for the JAR manifest -->
   <property name="jar.jars.path" value="./../jars"/>
   <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>	
-  <property name="jar.classpath" value="${jar.jars.path}/${junit.jar} ${jar.jars.path}/${antlr.jar} ${jar.jars.path}/${cli.jar}"/>
+  <property name="jar.classpath" value="${jar.jars.path}/${junit.jar} ${jar.jars.path}/${antlr.jar} ${jar.jars.path}/${cli.jar} ${jar.jars.path}/${jruby.jar}"/>
 
   <!-- Classpath for external libraries -->
   <property name="jars.path" value="./jars"/>
-  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}"/>
+  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}"/>
 
   <!-- Grammar files -->
   <!-- Sim-nML -->
@@ -72,9 +73,7 @@
       source="1.6"
       classpath="${classpath}"
       includeantruntime="true"
-    >
-    <!-- compilerarg value="-Xlint"/ -->
-    </javac>
+    />
     <jar destfile="${dist}/${jar}" basedir="bin">
       <manifest>
         <attribute name="Main-Class" value="${jar.mainclass}"/>
@@ -84,7 +83,6 @@
   </target>
 
   <!-- Target for generating parsers from grammars with antlr -->
-	
   <target name="simnml_antlr">
     <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}"/>
   	<antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}"/>
