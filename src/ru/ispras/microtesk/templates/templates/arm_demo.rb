@@ -11,21 +11,20 @@ class ArmDemo < DemoPrepost
 
   def run
 
-    #add equalcond, setson, reg({:r => 0}), reg({:r => 0}), register1
-    #add equalcond, setsoff, reg(1), reg(2), register0
-    #add equalcond, setsoff, reg(1), reg(2), register0
-    #add equalcond, setsoff, reg(1), reg(2), register0
-    #add equalcond, setsoff, reg(1), reg(2), register0
-    #add equalcond, setsoff, reg(1), reg(2), register0
-    #
-    #atomic {
-    #  add equalcond, setsoff, reg(1), reg(2), register0
-    #  add equalcond, setsoff, reg(1), reg(2), register0
-    #  add equalcond, setsoff, reg(1), reg(2), register0
-    #  add equalcond, setsoff, reg(1), reg(2), register0
-    #  add equalcond, setsoff, reg(1), reg(2), register0
-    #
-    #}
+    add equalcond, setson, reg({:r => 0}), reg({:r => 0}), register1
+    add equalcond, setsoff, reg(1), reg(2), register0
+    add equalcond, setsoff, reg(1), reg(2), register0
+    add equalcond, setsoff, reg(1), reg(2), register0
+    add equalcond, setsoff, reg(1), reg(2), register0
+    add equalcond, setsoff, reg(1), reg(2), register0
+
+    atomic {
+      add equalcond, setsoff, reg(1), reg(2), register0
+      add equalcond, setsoff, reg(1), reg(2), register0
+      add equalcond, setsoff, reg(1), reg(2), register0
+      add equalcond, setsoff, reg(1), reg(2), register0
+      add equalcond, setsoff, reg(1), reg(2), register0
+    }
 
     #add_immediate negative, setsoff, reg(2), reg(3), immediate({:r => 4, :c => 5})
 
