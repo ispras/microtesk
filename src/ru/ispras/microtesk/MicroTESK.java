@@ -41,7 +41,7 @@ public class MicroTESK
         public static void help()
         {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(80, "[options] verilog-files", "", options, "");
+            formatter.printHelp(80, "[options] Sim-nML-files", "", options, "");
         }
     }
 
