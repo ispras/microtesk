@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="jars/antlr-3.4-complete.jar"/>
 	<classpathentry kind="lib" path="jars/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="jars/junit-4.10.jar"/>
+	<classpathentry kind="lib" path="jars/jruby.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
