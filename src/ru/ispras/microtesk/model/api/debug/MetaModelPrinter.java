@@ -71,9 +71,9 @@ public final class MetaModelPrinter
 
         for (IMetaInstruction i : metaModel.getInstructions())
         {
-            System.out.println("Name: " + i.getName());
+            System.out.println(String.format("Name: %s", i.getName()));
             System.out.println("Parameters:");
- 
+
             for(IMetaArgument a : i.getArguments())
             {
                 final StringBuilder asb = new StringBuilder();
@@ -106,6 +106,7 @@ public final class MetaModelPrinter
                 asb.append("]");
                 System.out.println(asb);
             }
+            System.out.println();
         }
     }
 
