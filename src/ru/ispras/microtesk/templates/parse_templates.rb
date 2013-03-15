@@ -31,8 +31,6 @@ else
   output = nil
 end
 
-
-
 # This version requires JRuby. CRuby version pending...
 require 'java'
 
@@ -79,6 +77,7 @@ end
   begin
     template = template_class.new
     template.set_model(model)
+    
     if template.is_executable
       puts "Parsing '" +
            File.basename(template_class.instance_method(:run).source_location.first) +
@@ -87,12 +86,12 @@ end
       template.execute(model.getSimulator())
       template.output(output)
     end
-  #rescue Exception => e
-  ##  puts $!#.to_s + caller[0] + caller[1] + caller[2] + caller[3] #+ ": " + self.class.name
-  #  puts "#{e.class}: #{e.message}"
-  #  if e.respond_to?(:printStackTrace)
-  #    e.printStackTrace
-  #  end
+  rescue Exception => e
+  #  puts $!#.to_s + caller[0] + caller[1] + caller[2] + caller[3] #+ ": " + self.class.name
+    puts "#{e.class}: #{e.message}"
+    if e.respond_to?(:printStackTrace)
+      e.printStackTrace
+    end
   end
 
 
