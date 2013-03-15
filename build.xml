@@ -4,6 +4,7 @@
   <!-- Directories -->
   <property name="src"  location="src"/>
   <property name="gen"  location="gen"/>
+  <property name="out"  location="output"/>
   <property name="bin"  location="bin"/>
   <property name="dist" location="dist"/>
 
@@ -67,17 +68,42 @@
 
   <!-- Default target -->
   <target name="build" depends="init,simnml_antlr,mmu_antlr">
+    <property name="microtesk.bin" value="${bin}/microtesk"/>
+    <mkdir dir="${microtesk.bin}"/>
     <javac
       srcdir="${src}:${gen}"
-      destdir="${bin}"
+      destdir="${microtesk.bin}"
       source="1.6"
       classpath="${classpath}"
       includeantruntime="true"
     />
-    <jar destfile="${dist}/${jar}" basedir="bin">
+    <jar destfile="${dist}/${jar}" basedir="${microtesk.bin}">
       <manifest>
         <attribute name="Main-Class" value="${jar.mainclass}"/>
-      	<attribute name="Class-Path" value="${jar.classpath}"/>
+        <attribute name="Class-Path" value="${jar.classpath}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <!-- Target for building models -->
+  <target name="build_models">
+    <property name="models.classpath" value="${dist}/${jar}"/>
+    <property name="models.jar.classpath" value="${jar}"/>
+    <property name="models.bin" value="${bin}/models"/>
+    <property name="models.jar" value="${dist}/models.jar"/>
+
+    <mkdir dir="${models.bin}"/>
+    <javac
+      srcdir="${out}"
+      destdir="${models.bin}"
+      source="1.6"
+      classpath="${models.classpath}"
+      includeantruntime="true"
+    />
+    <jar destfile="${models.jar}" basedir="${models.bin}">
+      <manifest>
+        <!-- <attribute name="Main-Class" value="${jar.mainclass}"/> -->
+        <attribute name="Class-Path" value="${models.jar.classpath}"/>
       </manifest>
     </jar>
   </target>
