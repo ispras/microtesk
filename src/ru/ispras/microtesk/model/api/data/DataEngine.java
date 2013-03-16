@@ -15,6 +15,9 @@ package ru.ispras.microtesk.model.api.data;
 import java.util.EnumMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.microtesk.model.api.rawdata.RawDataAlgorithm;
+import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.operations.*;
@@ -173,9 +176,14 @@ public final class DataEngine
 
     public static Data coerce(Type type, Data value)
     {
-        assert false : "NOT IMPLEMENTED";
+        // TODO: MAY NEED REVIEW (CODED IN A HURRY)
+        //assert false : "NOT IMPLEMENTED";
+    
+        final RawData newRawData = new RawDataStore(type.getBitSize());
+        final int copyBitSize = Math.min(value.getType().getBitSize(), type.getBitSize());
 
-        return null;
+        RawDataAlgorithm.copy(value.getRawData(), 0, newRawData, 0, copyBitSize);
+        return new Data(newRawData, type);
     }
     
     private static void checkConversionSupported(Type type, String fromName, String toName)
