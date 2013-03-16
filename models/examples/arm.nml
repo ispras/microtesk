@@ -564,9 +564,9 @@ mode unsignedHigherOrSame()
     image  = "0010"
     action = {
     if CPSR<29..29> == 1 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -575,9 +575,9 @@ mode unsignedLower()
     image  = "0011"
     action = {
     if CPSR<29..29> == 0 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -586,9 +586,9 @@ mode negative()
     image  = "0100"
     action = {
     if CPSR<31..31> == 1 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -597,9 +597,9 @@ mode positiveOrZero()
     image  = "0101"
     action = {
     if CPSR<31..31> == 0 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -608,9 +608,9 @@ mode withoverflow()
     image  = "0110"
     action = {
     if CPSR<28..28> == 1 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -619,9 +619,9 @@ mode noOverflow()
     image  = "0111"
     action = {
     if CPSR<28..28> == 0 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -630,9 +630,9 @@ mode unsignedHigher()
     image  = "1000"
     action = {
     if CPSR<29..29> == 1 && CPSR<30..30> == 0 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -641,9 +641,9 @@ mode unsignedLowerOrSame()
     image  = "1001"
     action = {
     if CPSR<29..29> == 0 || CPSR<30..30> == 1 then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -652,9 +652,9 @@ mode greaterOrEqual()
     image = "1010"
     action = {
     if (CPSR<31..31> == 1 && CPSR<28..28> == 1) || (CPSR<31..31> == 1 && CPSR<28..28> == 0) then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -663,9 +663,9 @@ mode lessThan()
     image = "1011"
     action = {
     if (CPSR<31..31> == 1 && CPSR<28..28> == 0) || (CPSR<31..31> == 0 & CPSR<28..28> == 1) then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -674,9 +674,9 @@ mode greaterThan()
     image = "1100"
     action = {
     if CPSR<30..30> == 0 && ((CPSR<31..31> == 1 && CPSR<28..28> == 1) || (CPSR<31..31> == 1 && CPSR<28..28> == 0)) then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
@@ -685,9 +685,9 @@ mode lessThanOrEqual()
     image = "1101"
     action = {
     if CPSR<30..30> == 1 || ((CPSR<31..31> == 1 && CPSR<28..28> == 0) || (CPSR<31..31> == 0 & CPSR<28..28> == 1)) then
-        X = 1;
+        X = 0b1;
     else
-        X = 0;
+        X = 0b0;
     endif;
     }
 
