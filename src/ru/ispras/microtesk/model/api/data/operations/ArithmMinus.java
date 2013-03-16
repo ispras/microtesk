@@ -57,10 +57,25 @@ public final class ArithmMinus implements IBinaryOperator
             return false;
 
         // Restriction of the current version: type and size should match.
-        final boolean equalTypeAndSize = left.equals(right);
-        if (!equalTypeAndSize)
-            return false;
+        final boolean equalSize = 
+            left.getBitSize() == right.getBitSize();
 
+        if (!equalSize)
+            return false;
+            
+        final boolean equalType =
+            left.getTypeID() == right.getTypeID();
+            
+        if (!equalType)
+        {
+            final boolean integerTypes =
+                (left.getTypeID() == ETypeID.INT && right.getTypeID() == ETypeID.CARD) || 
+                (left.getTypeID() == ETypeID.CARD && right.getTypeID() == ETypeID.INT);
+
+            if (!integerTypes)
+                return false;
+        }
+            
         return true;
     }
 }
