@@ -447,6 +447,27 @@ abstract class ExprCalculatorBase extends ExprFactoryBase
 
         return result;
     }
+    
+    protected final TypeExpr getCast(TypeExpr type1, TypeExpr type2) throws SemanticException 
+    {
+        // TODO: CHECK SIZE (SHOULD BE EQUAL)
+        // System.out.println(type1.getBitSize().getValue());
+        // System.out.println(type2.getBitSize().getValue());
+        // assert type1.getBitSize().getValue().equals(type2.getBitSize().getValue());
+
+        final ETypeID resultTypeId = 
+            ModelTypeRules.getCastType(type1.getTypeId(), type2.getTypeId());
+
+        if (null == resultTypeId)
+        {
+            getReporter().raiseError(
+                getWhere(),
+                new IncompatibleTypes(type1.getTypeId().name(), type2.getTypeId().name())
+            );
+        }
+        
+        return new TypeExpr(resultTypeId, type1.getBitSize());
+    }
 
     protected final void checkSupported(Class<?> javaType) throws SemanticException
     {
@@ -828,10 +849,8 @@ final class BinaryModelExprCalculator extends BinaryExprCalculatorBase implement
     public Expr create() throws SemanticException
     {
         final ExprOperatorBinary op = getOperator();
-
-        assert arg1.getModelType().getTypeId() == arg2.getModelType().getTypeId(); 
-
-        final TypeExpr modelType = arg1.getModelType();
+        
+        final TypeExpr modelType = getCast(arg1.getModelType(), arg2.getModelType());
         checkSupported(modelType.getTypeId());
 
         final String newText =
