@@ -198,7 +198,6 @@ public final class DataEngine
     
     private static void checkOperationSupported(EOperatorID oid, Type left, Type right) 
     {
-        System.out.println(oid.name());
         if (!isSupported(oid, left, right))
             assert false : 
                 String.format("The %s operation cannot be performed for %s(%d) and %s(%d) operands.",
