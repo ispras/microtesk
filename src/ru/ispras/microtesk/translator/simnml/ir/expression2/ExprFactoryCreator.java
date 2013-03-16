@@ -113,7 +113,7 @@ final class IntegerValueBasedExprCreator extends ExprFactoryBase implements Expr
         getReporter().raiseError(w, new ValueParsingFailure(text, int.class.getSimpleName()));
         return null;
     }
-
+/*
     private int getBitSizeForInt(int value)
     {
         final int BITS_IN_BYTE = 8;
@@ -128,7 +128,7 @@ final class IntegerValueBasedExprCreator extends ExprFactoryBase implements Expr
             bitSize : 
             bitSize + (BITS_IN_BYTE - bitSize % BITS_IN_BYTE);
     }
-
+*/
     private TypeExpr createModelType() throws SemanticException
     {
         final ETypeID typeId;
@@ -146,8 +146,9 @@ final class IntegerValueBasedExprCreator extends ExprFactoryBase implements Expr
         }
         else
         {
+            // TODO: Temporary assumption. A decimal integer literal is always 32-bit int.
             typeId  = ETypeID.INT;
-            bitSize = getBitSizeForInt(Integer.parseInt(text, radix));
+            bitSize = Integer.SIZE; // getBitSizeForInt(Integer.parseInt(text, radix));
         }
 
         return new TypeExpr(
