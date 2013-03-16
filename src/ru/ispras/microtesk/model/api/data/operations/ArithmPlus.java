@@ -47,7 +47,8 @@ public class ArithmPlus implements IBinaryOperator
     
     protected static Data plus(Data left, Data right)
     {
-        assert left.getType().equals(right.getType()) : "Restriction: types (and sizes) should match.";
+        //TODO: LOOK HERE! ASSERTION SHOULD BE HOLD!
+        //assert left.getType().equals(right.getType()) : "Restriction: types (and sizes) should match.";
 
         final IBinaryOperation op = new IBinaryOperation()
         {
