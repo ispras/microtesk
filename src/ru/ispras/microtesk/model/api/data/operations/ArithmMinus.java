@@ -62,10 +62,10 @@ public final class ArithmMinus implements IBinaryOperator
 
         if (!equalSize)
             return false;
-            
+
         final boolean equalType =
             left.getTypeID() == right.getTypeID();
-            
+
         if (!equalType)
         {
             final boolean integerTypes =
@@ -75,7 +75,7 @@ public final class ArithmMinus implements IBinaryOperator
             if (!integerTypes)
                 return false;
         }
-            
+
         return true;
     }
 }
