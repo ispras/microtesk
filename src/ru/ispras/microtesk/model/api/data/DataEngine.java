@@ -189,18 +189,24 @@ public final class DataEngine
     {
         if (!isSupported(oid, argType))
             assert false : 
-                String.format("The %s operation is not supported for %s operands.",
+                String.format("The %s operation cannot be performed for an %s(%d) operand.",
                     oid.name(),
-                    argType.getTypeID().name());
+                    argType.getTypeID().name(),
+                    argType.getBitSize()
+                    );
     }
     
     private static void checkOperationSupported(EOperatorID oid, Type left, Type right) 
     {
+        System.out.println(oid.name());
         if (!isSupported(oid, left, right))
             assert false : 
-                String.format("The %s operation is not supported for %s and %s operands.",
+                String.format("The %s operation cannot be performed for %s(%d) and %s(%d) operands.",
                     oid.name(),
                     left.getTypeID().name(),
-                    right.getTypeID().name());
+                    left.getBitSize(),
+                    right.getTypeID().name(),
+                    right.getBitSize()
+                    );
     }
 }
