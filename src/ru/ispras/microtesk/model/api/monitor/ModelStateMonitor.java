@@ -16,8 +16,13 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
+import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
+import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The ModelStateMonitor class implements the IModelStateMonitor interface.
@@ -53,6 +58,18 @@ public class ModelStateMonitor implements IModelStateMonitor
         {
             return new BigInteger(location.getDataCopy().getRawData().toByteArray());
         }
+        
+        public void setValue(BigInteger value)
+        {
+            final RawData newRawData = new RawDataStore(location.getType().getBitSize());
+            final byte[] bytes = value.toByteArray();
+            
+            for (int index = 0; index < Math.min(bytes.length, newRawData.getByteSize()); ++index)
+                newRawData.setByte(index, (char)bytes[index]);
+            
+            final Data newData = new Data(newRawData, location.getType());
+            location.store(newData);
+        }
 
         @Override
         public String toBinString()
@@ -87,26 +104,31 @@ public class ModelStateMonitor implements IModelStateMonitor
         final MemoryBase prev = registerMap.put(name, value);
         assert null == prev : String.format(ERROR_FORMAT, name);
     }
-    
+
+    private final StoredValue FAKE_PC = 
+         new StoredValue(new Location(new Type(ETypeID.CARD, 32)));
+
     @Override
     public IStoredValue getPC()
     {
         // TODO NOT IMPLEMENTED YET
-    	assert false : "NOT IMPLEMENTED";
-    	return null;
+        //assert false : "NOT IMPLEMENTED";
+        //return null;
+        return FAKE_PC;
     }
 
     @Override
     public void setPC(long value)
     {
-       setPC(BigInteger.valueOf(value));
+        setPC(BigInteger.valueOf(value));
     }
 
     @Override
     public void setPC(BigInteger value)
     {
         // TODO NOT IMPLEMENTED YET
-        assert false : "NOT IMPLEMENTED";
+        //assert false : "NOT IMPLEMENTED";
+        FAKE_PC.setValue(value);
     }
 
     @Override
