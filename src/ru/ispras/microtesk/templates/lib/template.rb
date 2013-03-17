@@ -9,6 +9,8 @@ require 'fileutils'
 require_relative 'instruction_group'
 require_relative 'mode_group'
 require_relative 'block_group'
+require_relative 'exec_debug'
+require_relative 'exec_output'
 
 class Template
   attr_accessor :is_executable, :j_model, :j_monitor
@@ -44,6 +46,15 @@ class Template
     $template_classes.push subclass
   end
 
+  # Hack to allow limited use of capslocked characters
+  def method_missing(meth, *args, &block)
+    if self.respond_to?(meth.to_s.downcase)
+      self.send meth.to_s.downcase.to_sym, *args, &block
+    else
+      super
+    end
+  end
+
   # -------------------------------------------------- #
   # Main template writing methods                      #
   # -------------------------------------------------- #
@@ -76,6 +87,15 @@ class Template
   def newline
     @items.push ''
   end
+
+  def exec_debug(&block)
+    @items.push ExecDebug.new(&block)
+  end
+
+  def exec_output(&block)
+    @items.push ExecOutput.new(&block)
+  end
+
 
   # -------------------------------------------------- #
   # Block-related methods                              #
@@ -311,6 +331,10 @@ class Template
             end
           end
         end
+      elsif @items[i].instance_variable_defined?("@exec_debug_block")
+        @items[i].exec_debug_block.yield
+      elsif @items[i].respond_to?(:yield_output)
+        @items[i].yield_output
       end
 
       i += 1

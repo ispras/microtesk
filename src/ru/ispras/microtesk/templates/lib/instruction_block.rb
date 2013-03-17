@@ -53,7 +53,6 @@ class InstructionBlock
 
     @code = Array.new
 
-    # TODO: goto label code goes HERE!!!!!!!!!
     # Logic: reset PC before every execute
     #        execute
     #        check if PC corresponds to any label - return the label to the template!!!!!!!

@@ -15,10 +15,19 @@ class ArmDemo < DemoPrepost
 
     label :valiant
 
-    add_immediate blank, setsoff, reg(0), reg(0), immediate(0, 2)
+    ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, 2)
     cmp_immediate blank, reg(0), immediate(0, 5)
 
-    b notequal, :valiant
+    # Uncomment here to list all GPR registers
+    exec_debug {
+        a = ""
+        (0..15).each do |i|
+          a += get_reg_value("GPR", i).to_s + ", "
+        end
+        puts a
+    }
+
+    b notEqual, :valiant
 
     sub blank, setsoff, reg(1), reg(1), register1
     add_immediate blank, setsoff, reg(1), reg(1), immediate(0, 1)
