@@ -28,8 +28,10 @@ public class BitRotateRight extends BitRotateShiftBase
     @Override
     protected Data doRotateShift(Data src, int to)
     {
-        final Data result = new Data(src.getType());
+        if (0 == to)
+            return new Data(src);
 
+        final Data result = new Data(src.getType());
         final int realTo = to % result.getRawData().getBitSize();
         
         copy(src.getRawData(), 0, result.getRawData(), result.getRawData().getBitSize() - realTo, realTo);
