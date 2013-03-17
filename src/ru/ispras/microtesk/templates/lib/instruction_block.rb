@@ -67,12 +67,15 @@ class InstructionBlock
     (0 .. j_caller.getCount() - 1).each do |i|
 
       if(!jumped && should_execute)
-        @j_monitor.setPC(0)
+        @j_monitor.java_send :setPC, [java.math.BigInteger], 42
       end
 
       j_call = j_caller.getCall(i)
 
       if(!jumped && should_execute)
+        pc = @j_monitor.getPC().getValue()
+        #puts "Old value of PC " + pc.to_s
+        #puts "DEBUG GR15 " + @j_monitor.readRegisterValue("GPR", 15).getValue().to_s
         j_call.execute()
       end
 
@@ -80,11 +83,23 @@ class InstructionBlock
       @code.push(text)
       if(should_execute)
         puts "Running " + text
+
+        #pc = @j_monitor.getPC().getValue()
+        pc = (@j_monitor.getPC().getValue() - 50) / 4
+        #puts "New value of PC " + pc.to_s
+        #puts "DEBUG GR15 " + @j_monitor.readRegisterValue("GPR", 15).getValue().to_s
+
+        # Uncomment here to list all GPR registers
+        #a = ""
+        #(0..15).each do |i|
+        #  a += @j_monitor.readRegisterValue("GPR", i).getValue().to_s + " "
+        #end
+        #puts a
       end
 
       if(should_execute)
         #puts "DEBUG MN " + @j_monitor.to_s
-        pc = @j_monitor.getPC().getValue()
+        #pc = @j_monitor.getPC().getValue()
         #puts "DEBUG PC " + pc.to_s + " is nil? " + pc.nil?.to_s
         if(r_labels.keys.include?(pc))
           jumped = true

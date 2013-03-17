@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
@@ -114,13 +115,14 @@ public class ModelStateMonitor implements IModelStateMonitor
         // TODO NOT IMPLEMENTED YET
         //assert false : "NOT IMPLEMENTED";
         //return null;
-        return FAKE_PC;
+        return this.readRegisterValue("GPR", 15); //FAKE_PC;
     }
 
     @Override
     public void setPC(long value)
     {
-        setPC(BigInteger.valueOf(value));
+        //setPC(BigInteger.valueOf(value));
+    	this.registerMap.get("GPR").access(15).store(DataEngine.valueOf(new Type(ETypeID.CARD, 32), value));
     }
 
     @Override
@@ -128,7 +130,8 @@ public class ModelStateMonitor implements IModelStateMonitor
     {
         // TODO NOT IMPLEMENTED YET
         //assert false : "NOT IMPLEMENTED";
-        FAKE_PC.setValue(value);
+        //FAKE_PC.setValue(value);
+    	this.registerMap.get("GPR").access(15).store(DataEngine.valueOf(new Type(ETypeID.CARD, 32), value.longValue()));
     }
 
     @Override
