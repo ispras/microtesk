@@ -44,6 +44,11 @@ public abstract class BitRotateShiftBase implements IBinaryOperator
     public final Data execute(Data left, Data right)
     {
         final int distanceTo = right.getRawData().intValue();
+
+        // TODO: need to handle this situation in a correct way.
+        assert distanceTo >= 0 :
+            "Error: shifting by negative values is not allowed.";
+
         return doRotateShift(left, distanceTo);
     }
 
@@ -61,8 +66,8 @@ public abstract class BitRotateShiftBase implements IBinaryOperator
         // distance) is represented by an unsigned integer
         // value (in Sim-nML, it is CARD).
 
-        if (right.getTypeID() != ETypeID.CARD)
-            return false;
+        //if (right.getTypeID() != ETypeID.CARD)
+        //    return false;
 
         // The right operand is too big to be a distance. Distance
         // will be converted to int. If it exceeds the size of int,
