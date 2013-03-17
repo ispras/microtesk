@@ -61,11 +61,18 @@ public final class RawDataAlgorithm
         assert null != src;
         assert null != dest;
         assert src != dest;
-        assert src.getBitSize() == dest.getBitSize();
 
+        //assert src.getBitSize() == dest.getBitSize();
+        //TODO: Pay attention to this code. It does not take in consideration
+        // that "dest" can be a concatenated buffer. For example,
+        // A[1]::A[2]=A[3] should be handled as A[1]=A[3]; A[2]=A[3];
+        
         for (int index = 0; index < dest.getByteSize(); ++index)
         {
-            dest.setByte(index, src.getByte(index));
+            if (index < src.getByteSize())
+                dest.setByte(index, src.getByte(index));
+            else
+                dest.setByte(index, (char)0);
         }
     }
     
