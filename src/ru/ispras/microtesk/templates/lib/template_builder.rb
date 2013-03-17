@@ -38,33 +38,44 @@ module TemplateBuilder
           # Make sure we didn't add this mode before and then add it
           if(!registered_modes.keys.include?(mode_name))
 
-            names = m.getArgumentNames()
+            names = m.getArgumentNames().to_a
             registered_modes[mode_name] = names
 
             # - The addr-mode shortcut itself ------------------------------------------------------------------------ #
 
-            p = lambda do |arguments = {}|
+            p = lambda do |*arguments|
               arg = Argument.new
               arg.mode = mode_name
 
-              if arguments.is_a?(Integer) or arguments.is_a?(String)
-                if(names.count == 1)
-                  arg.values = {names.first => arguments}
-                else
-                  raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
-                end
-              else
-
+              #if arguments.is_a?(Integer) or arguments.is_a?(String)
+              #  if(names.count == 1)
+              #    arg.values = {names.first => arguments}
+              #  else
+              #    raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
+              #  end
+              #els
+              if arguments.first.is_a?(Integer) or arguments.first.is_a?(String)
                 if(arguments.count != names.count)
                   raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
                 end
-                arguments.keys.each do |n|
+                arg.values = {}
+                arguments.each_with_index do |n, ind|
+                  arg.values[names[ind]] = n
+                end
+              elsif(arguments.first.is_a?(Hash))
+                argumentss = arguments.first
+                if(argumentss.count != names.count)
+                  raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
+                end
+                argumentss.keys.each do |n|
                   if(!names.include?(n.to_s))
                     raise "MTRuby: wrong argument '" + n + "'for addressing mode '" + mode_name + "'"
                   end
                 end
-                arg.values = arguments
+                arg.values = argumentss
               end
+              #arg.values.keys.each {|n| puts n.to_s + " " + arg.values[n].to_s}
+              #puts '------'
               return arg
             end
 
@@ -99,22 +110,40 @@ module TemplateBuilder
           raise "MTRuby: wrong number of arguments for instruction '" + instruction_name + "'"
         end
         arguments.each_with_index do |arg, ind|
-          a = arg
-          if(arg.is_a?(Integer) or arg.is_a?(String))
-            a = Argument.new
-            a.mode = "#IMM"
-            a.values[registered_modes["#IMM"].first] = arg
-          end
-          match = false
-          inst_arguments[ind].getAddressingModes().each do |am|
-            if(am.name == a.mode)
-              match = true
-              break
-            end
-          end
 
-          if(!match)
-            raise "MTRuby: instruction arguments wrong TODO proper error"
+          if(arg.is_a?(Symbol))
+            a = arg
+
+            match = false
+            inst_arguments[ind].getAddressingModes().each do |am|
+              if(am.name == "#IMM")
+                match = true
+                break
+              end
+            end
+
+            if(!match)
+              raise "MTRuby: instruction arguments wrong (label) TODO proper error"
+            end
+
+          else
+            a = arg
+            if(arg.is_a?(Integer) or arg.is_a?(String))
+              a = Argument.new
+              a.mode = "#IMM"
+              a.values[registered_modes["#IMM"].first] = arg
+            end
+            match = false
+            inst_arguments[ind].getAddressingModes().each do |am|
+              if(am.name == a.mode)
+                match = true
+                break
+              end
+            end
+
+            if(!match)
+              raise "MTRuby: instruction arguments wrong TODO proper error"
+            end
           end
 
           inst.arguments[inst_arguments[ind].getName()] = a
@@ -141,7 +170,9 @@ module TemplateBuilder
 
     end
 
+    p = lambda do registered_modes end
 
+    Template.send(:define_method, :registered_modes, p)
 
   end
 

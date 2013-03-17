@@ -33,10 +33,10 @@ class InstructionBlock
     @code.each {|c| file.puts c}
   end
 
-  def j_build(j_simulator)
+  def j_build(j_simulator, template)
     j_block_builder = j_simulator.createCallBlock()
     @instructions.each do |i|
-      i.j_build(j_block_builder.addCall(i.name))
+      i.j_build(j_block_builder.addCall(i.name), template)
     end
 
     # TODO > situations
@@ -45,7 +45,7 @@ class InstructionBlock
 
   end
 
-  def j_call
+  def j_call(r_labels, should_execute)
     if j_caller == nil
       puts "MTRuby: Trying to call an uninitialized instruction block"
       return
@@ -59,12 +59,44 @@ class InstructionBlock
     #        check if PC corresponds to any label - return the label to the template!!!!!!!
     # no labels inside block because no 1-1 correspondence between build and call
 
-    (0 .. j_caller.getCount() - 1).each do |i|
-      j_call = j_caller.getCall(i)
-      j_call.execute()
-      @code.push(j_call.getText())
-    end
+    jumped = false
+    pc = 0
 
+    j_call = nil
+
+    (0 .. j_caller.getCount() - 1).each do |i|
+
+      if(!jumped && should_execute)
+        @j_monitor.setPC(0)
+      end
+
+      j_call = j_caller.getCall(i)
+
+      if(!jumped && should_execute)
+        j_call.execute()
+      end
+
+      text = j_call.getText()
+      @code.push(text)
+      if(should_execute)
+        puts "Running " + text
+      end
+
+      if(should_execute)
+        pc = @j_monitor.getPC()
+        if(r_labels.keys.include?(pc))
+          jumped = true
+        end
+      end
+    end
+  jumped ? pc : nil
+
+  rescue Exception => ex
+    if j_call != nil
+      text = j_call.getText()
+      puts "Failed on " + text
+    end
+    raise ex
   end
 
   def receive(instruction)

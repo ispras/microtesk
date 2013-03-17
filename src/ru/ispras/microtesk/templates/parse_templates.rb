@@ -38,6 +38,7 @@ require 'java'
 require_relative 'config'
 
 # TemplateBuilder class that will initialize Template class with model data
+#require_relative 'lib/template'
 require_relative 'lib/template_builder'
 include TemplateBuilder
 

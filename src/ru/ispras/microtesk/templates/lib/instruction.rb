@@ -24,10 +24,17 @@ class Instruction
     file.puts @code
   end
 
-  def j_build(j_call_builder)
+  def j_build(j_call_builder, template)
 
     @arguments.each do |s, a|
-      a.j_build(j_call_builder.getArgumentBuilder(s))
+      if(a.is_a?(Symbol))
+        a1 = Argument.new
+        a1.mode = "#IMM"
+        a1.values[template.registered_modes["#IMM"].first] = template.send(a)
+        a1.j_build(j_call_builder.getArgumentBuilder(s))
+      else
+        a.j_build(j_call_builder.getArgumentBuilder(s))
+      end
     end
 
     # TODO > j_build situations

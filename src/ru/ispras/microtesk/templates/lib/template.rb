@@ -31,6 +31,7 @@ class Template
     @labels = {:start => [0, 1000]}
     @r_labels = {1000 => [:start, 0]}
     @last_label = 1000
+
   end
 
   def set_model  (j_model)
@@ -240,7 +241,7 @@ class Template
     ll = @last_label
 
     #@instruction_receiver.
-        receive_label(name, ll)
+        receive_label(name.to_s, ll)
 
     p = lambda do
       return ll
@@ -256,6 +257,7 @@ class Template
   def receive_label(name, id)
     @labels[name] = [@items.count, id]
     @r_labels[id] = [name, @items.count]
+    @items.push (name + ":")
   end
 
   # -------------------------------------------------- #
@@ -273,18 +275,49 @@ class Template
 
     @items.each do |i|
       if i.is_a?(InstructionBlock)
-        i.j_build(j_simulator)
+        i.j_build(j_simulator, self)
       end
     end
 
     # TODO: goto label code goes HERE!!!!!!!!! vvvvvvv
     # when j_call returns not nil - jump to that label!!!!!!
 
-    @items.each do |i|
-      if i.is_a?(InstructionBlock)
-        i.j_call
+    i = 0
+    passthrough = false
+    pass_target = 0
+
+    while i < @items.count
+
+      if passthrough
+        if i >= pass_target
+          passthrough = false
+        end
       end
+
+      if @items[i].is_a?(InstructionBlock)
+        pc = @items[i].j_call(@r_labels, !passthrough)
+        if pc != nil
+          if @r_labels.keys.contains(pc)
+            pass_target = @r_labels[pc]
+            if pass_target > i
+              passthrough = true
+            else
+              passthrough = false
+              i = pass_target
+              next
+            end
+          end
+        end
+      end
+
+      i += 1
     end
+
+    #@items.each do |i|
+    #  if i.is_a?(InstructionBlock)
+    #    i.j_call(@r_labels, true)
+    #  end
+    #end
   end
 
   # This method prints the template to file and/or stdout.
