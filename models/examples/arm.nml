@@ -95,7 +95,7 @@ mode IMMEDIATE (r : nibble, c : byte_t) = coerce(card(32), c) >>> (r*2)
     image  = format("%4b%8b", r, c)
     action = {
         if r == 0 then
-            shifter_carry_out = 1;
+            shifter_carry_out = 0b1;
         else
             temp = coerce(card(32), c) >>> (r*2);
             shifter_carry_out = temp<31..31>;
@@ -1264,7 +1264,7 @@ op ADD_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : I
         src3.action;
 
         if (X == 1) then
-            carry::ALU_OUT = GPR[src2] + src3 ;
+            carry::ALU_OUT = GPR[src2] + src3;
             if (sets == 1) && (src1 == 15) then
                 CPSR = SPSR;
             else if (sets == 1) then
