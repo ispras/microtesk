@@ -4,6 +4,12 @@
 #        Launcher file         #
 #                              #
 
+class MTRubyError < StandardError
+  def initialize(msg = "You've triggered an MTRuby Error. TODO: avoid these situations and print stack trace")
+    super
+  end
+end
+
 require 'pathname'
 
 if ARGV.count < 1
@@ -83,15 +89,21 @@ end
       puts "Parsing '" +
            File.basename(template_class.instance_method(:run).source_location.first) +
            "' ..."
+      puts
       template.parse
       template.execute(model.getSimulator())
       template.output(output)
     end
   rescue Exception => e
   #  puts $!#.to_s + caller[0] + caller[1] + caller[2] + caller[3] #+ ": " + self.class.name
-    puts "#{e.class}: #{e.message}"
+    if e.is_a?(MTRubyError)
+      puts "#{e.class}:\n#{e.message}"
+    end
     if e.respond_to?(:printStackTrace)
       e.printStackTrace
+    end
+    if !(e.is_a?(MTRubyError))
+      raise e
     end
   end
 

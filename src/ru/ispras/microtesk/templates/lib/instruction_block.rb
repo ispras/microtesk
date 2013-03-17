@@ -83,7 +83,9 @@ class InstructionBlock
       end
 
       if(should_execute)
-        pc = @j_monitor.getPC()
+        #puts "DEBUG MN " + @j_monitor.to_s
+        pc = @j_monitor.getPC().getValue()
+        #puts "DEBUG PC " + pc.to_s + " is nil? " + pc.nil?.to_s
         if(r_labels.keys.include?(pc))
           jumped = true
         end

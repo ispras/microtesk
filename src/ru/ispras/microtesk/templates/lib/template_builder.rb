@@ -56,7 +56,8 @@ module TemplateBuilder
               #els
               if arguments.first.is_a?(Integer) or arguments.first.is_a?(String)
                 if(arguments.count != names.count)
-                  raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
+                  raise MTRubyError, caller[0] + "\n" + "MTRuby: wrong number of arguments for addressing mode '" + mode_name +
+                                     "', expected: " + names.count.to_s + ", got: " + arguments.count.to_s
                 end
                 arg.values = {}
                 arguments.each_with_index do |n, ind|
@@ -65,11 +66,12 @@ module TemplateBuilder
               elsif(arguments.first.is_a?(Hash))
                 argumentss = arguments.first
                 if(argumentss.count != names.count)
-                  raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
+                  raise MTRubyError, caller[0] + "\n" + "MTRuby: wrong number of arguments for addressing mode '" + mode_name +
+                                     "', expected: " + names.count.to_s + ", got: " + arguments.count.to_s
                 end
                 argumentss.keys.each do |n|
                   if(!names.include?(n.to_s))
-                    raise "MTRuby: wrong argument '" + n + "'for addressing mode '" + mode_name + "'"
+                    raise MTRubyError, caller[0] + "\n" + "MTRuby: wrong argument '" + n + "'for addressing mode '" + mode_name + "'"
                   end
                 end
                 arg.values = argumentss
@@ -107,7 +109,8 @@ module TemplateBuilder
         inst.name = instruction_name
 
         if(inst_arguments.count != arguments.count)
-          raise "MTRuby: wrong number of arguments for instruction '" + instruction_name + "'"
+          raise MTRubyError, caller[0] + "\n" + "MTRuby: wrong number of arguments for instruction '" + instruction_name +
+              "', expected: " + inst_arguments.count.to_s + ", got: " + arguments.count.to_s
         end
         arguments.each_with_index do |arg, ind|
 
@@ -123,7 +126,8 @@ module TemplateBuilder
             end
 
             if(!match)
-              raise "MTRuby: instruction arguments wrong (label) TODO proper error"
+              raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected label as argument '" + ind.to_s + "' for instruction '" + instruction_name
+              #raise "MTRuby: instruction arguments wrong (label) TODO proper error"
             end
 
           else
@@ -142,7 +146,8 @@ module TemplateBuilder
             end
 
             if(!match)
-              raise "MTRuby: instruction arguments wrong TODO proper error"
+              raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected argument " + ind.to_s + ": '" + a.mode +
+                                 "' for instruction '" + instruction_name
             end
           end
 

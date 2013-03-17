@@ -297,10 +297,13 @@ class Template
       if @items[i].is_a?(InstructionBlock)
         pc = @items[i].j_call(@r_labels, !passthrough)
         if pc != nil
+          #puts "DEBUG0 " + pass_target.to_s + " " + i.to_s
           if @r_labels.keys.contains(pc)
             pass_target = @r_labels[pc]
+            #puts "DEBUG1 " + pass_target.to_s + " " + i.to_s
             if pass_target > i
               passthrough = true
+              #puts "DEBUG " + pass_target.to_s + " " + i.to_s
             else
               passthrough = false
               i = pass_target
