@@ -55,7 +55,7 @@ class ArmDemo < Template
 
       newline
       exec_output {
-        "Simulator heavily implies the result should be " + self.get_reg_value("GPR", 0).to_s
+        "// Simulator heavily implies the result should be " + self.get_reg_value("GPR", 0).to_s
       }
       newline
 
