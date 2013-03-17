@@ -17,6 +17,7 @@ import ru.ispras.microtesk.model.api.rawdata.RawDataMapping;
 import ru.ispras.microtesk.model.api.rawdata.RawDataMultiMapping;
 import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
@@ -72,7 +73,7 @@ public final class Location
     public Location concat(Location arg)
     {
         return new Location(
-           type,
+           new Type(type.getTypeID(), type.getBitSize() + arg.getType().getBitSize()),
            new RawDataMultiMapping(new RawData[] { rawData, arg.rawData } ),
            readOnly || arg.readOnly,
            handler
