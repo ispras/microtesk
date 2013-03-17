@@ -66,17 +66,28 @@ final class ExprFactoryModel extends ExprFactoryBase implements ExprFactory
     public Expr binary(Where w, String opID, Expr arg1, Expr arg2) throws SemanticException
     {
         final ExprFactoryCreator creator;
-
-        if (isKindOfOne(EExprKind.MODEL, arg1, arg2))
+        
+        if (isKindOfBoth(EExprKind.MODEL, arg1, arg2))
         {
-            final ExprFactoryCreator converterArg1 =
-                new JavaToModelConverter(this, w, arg1);
+            creator = new BinaryModelExprCalculator(this, w, opID, arg1, arg2);
+        }
+        else if (isKindOfOne(EExprKind.MODEL, arg1, arg2))
+        {
+            final Expr convertedArg1, convertedArg2;
 
-            final ExprFactoryCreator converterArg2 = 
-                new JavaToModelConverter(this, w, arg2);
+            if (JavaToModelConverter.isConversionNeeded(arg1))
+            {
+                convertedArg1 = new JavaToModelConverter(this, w, arg1, arg2.getModelType()).create();
+                convertedArg2 = arg2;
+            }
+            else
+            {
+                convertedArg1 = arg1;
+                convertedArg2 = new JavaToModelConverter(this, w, arg2, arg1.getModelType()).create();
+            }
 
             creator = new BinaryModelExprCalculator(
-                this, w, opID, converterArg1.create(), converterArg2.create());
+                this, w, opID, convertedArg1, convertedArg2);
         }
         else if (isKindOfBoth(EExprKind.JAVA_STATIC, arg1, arg2))
         {
@@ -122,7 +133,7 @@ final class ExprFactoryModel extends ExprFactoryBase implements ExprFactory
     public Expr evaluate(Where w, Expr src) throws SemanticException
     {
         final ExprFactoryCreator converter = 
-            new JavaToModelConverter(this, w, src);
+            new JavaToModelConverter(this, w, src, null);
 
         return converter.create();
     }

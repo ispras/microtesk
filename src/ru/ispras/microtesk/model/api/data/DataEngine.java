@@ -68,6 +68,8 @@ public final class DataEngine
 
         UNARY_OPERATORS.put(EOperatorID.UNARY_PLUS,  new ArithmUnaryPlus());
         UNARY_OPERATORS.put(EOperatorID.UNARY_MINUS, new ArithmUnaryMinus());
+        
+        BINARY_OPERATORS.put(EOperatorID.MUL,  new ArithmMul());
     }
 
     public static Data valueOf(Type type, long value)

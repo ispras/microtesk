@@ -26,7 +26,7 @@ class ArmDemo < DemoPrepost
       add equalcond, setsoff, reg(1), reg(2), register0
     }
 
-    #add_immediate negative, setsoff, reg(2), reg(3), immediate({:r => 4, :c => 5})
+    add_immediate negative, setsoff, reg(2), reg(3), immediate({:r => 4, :c => 5})
 
     b equalcond, 42
 

@@ -327,13 +327,15 @@ final class JavaToModelConverter extends ExprFactoryBase implements ExprFactoryC
     @SuppressWarnings("unused")
     private final Where w; // TODO: temporary unused (will be used by error checks)
     private final Expr expr;
+    private final TypeExpr targetType;
 
-    public JavaToModelConverter(ExprFactoryBase context, Where w, Expr expr)
+    public JavaToModelConverter(ExprFactoryBase context, Where w, Expr expr, TypeExpr targetType)
     {
         super(context);
 
         this.w = w;
         this.expr = expr;
+        this.targetType = targetType;
     }
     
     private final String getTypeCode(TypeExpr type)
@@ -371,7 +373,11 @@ final class JavaToModelConverter extends ExprFactoryBase implements ExprFactoryC
 
         final TypeExpr newType;
 
-        if (null != expr.getModelType())
+        if (null != targetType)
+        {
+            newType = targetType;
+        }
+        else if (null != expr.getModelType())
         {
             newType = expr.getModelType();
         }
@@ -392,6 +398,11 @@ final class JavaToModelConverter extends ExprFactoryBase implements ExprFactoryC
     }
     
     private boolean isConversionNeeded()
+    {
+        return isConversionNeeded(expr);
+    }
+    
+    public static boolean isConversionNeeded(Expr expr)
     {
         final boolean isModel = EExprKind.MODEL == expr.getKind();
 

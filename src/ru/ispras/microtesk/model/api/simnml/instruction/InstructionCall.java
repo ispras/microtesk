@@ -42,7 +42,7 @@ public class InstructionCall implements IInstructionCall
     @Override
     public void execute()
     {
-        instruction.action();        
+        instruction.action();
     }
 
     @Override
