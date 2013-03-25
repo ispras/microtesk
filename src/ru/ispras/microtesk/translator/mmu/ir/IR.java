@@ -4,11 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.mmu.ir.address.AddressExpr;
+import ru.ispras.microtesk.translator.mmu.ir.associativity.AssociativityExpr;
 import ru.ispras.microtesk.translator.mmu.ir.buffer.BufferExpr;
-//import ru.ispras.microtesk.translator.mmu.ir.data.DataExpr;
 import ru.ispras.microtesk.translator.mmu.ir.index.IndexExpr;
 import ru.ispras.microtesk.translator.mmu.ir.line.LineExpr;
-import ru.ispras.microtesk.translator.mmu.ir.line.LinesExpr;
 import ru.ispras.microtesk.translator.mmu.ir.match.MatchExpr;
 import ru.ispras.microtesk.translator.mmu.ir.policy.EPolicyType;
 import ru.ispras.microtesk.translator.mmu.ir.set.SetsExpr;
@@ -17,10 +16,10 @@ import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
 
 public final class IR
 {
-	private Map<String, SetsExpr>    set = new LinkedHashMap<String, SetsExpr>();
+	private Map<String, AssociativityExpr>    associativity = new LinkedHashMap<String, AssociativityExpr>();
 	@SuppressWarnings({ "rawtypes", "unused" })
 	private Map<String, BufferExpr> buffer = new LinkedHashMap<String, BufferExpr>();
-	private Map<String, LinesExpr> lines = new LinkedHashMap<String, LinesExpr>();
+	private Map<String, SetsExpr> set = new LinkedHashMap<String, SetsExpr>();
 	private Map<String, LineExpr> line = new LinkedHashMap<String, LineExpr>();
     private Map<String, IndexExpr> index = new LinkedHashMap<String, IndexExpr>();
 	private Map<String, EPolicyType> policy = new LinkedHashMap<String, EPolicyType>();
@@ -38,14 +37,14 @@ public final class IR
         index.put(name, value);
     }
  
+	public void add(String name, AssociativityExpr value)
+    {
+        associativity.put(name, value);
+    }
+
 	public void add(String name, SetsExpr value)
     {
         set.put(name, value);
-    }
-
-	public void add(String name, LinesExpr value)
-    {
-        lines.put(name, value);
     }
     
 	public void add(String name, LineExpr value)

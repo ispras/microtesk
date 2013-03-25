@@ -128,8 +128,8 @@ ADDR			: 'addr';
 /* Attributes */
 
 PARAMETER		: 'parameter';
+ASSOCIATIVITY	: 'associativity';
 SETS			: 'sets';
-LINES			: 'lines';
 LINE			: 'line';
 TAG				: 'tag';
 DATA			: 'data';

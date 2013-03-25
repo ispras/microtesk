@@ -128,8 +128,8 @@ bufferRule
 			;
 
 parameter returns [ESymbolKind res]
-	:	sets
-	|	lines
+	:	associativity
+	|	sets
 	|	line
 	|	index
 	|	match
@@ -137,8 +137,16 @@ parameter returns [ESymbolKind res]
 	;
 	
 /*======================================================================================*/
-/* Attribute rules (line, set)                                                          */
+/* Attribute rules (line, associativity)                                                          */
 /*======================================================================================*/
+
+associativity
+			:	id=ASSOCIATIVITY^ ASSIGN! ass=associativityExpr SEMI! { declare($id, $ass.res, false); }
+			;
+			
+	associativityExpr returns [ESymbolKind res]
+		:	constExpr     { $res = ESymbolKind.ASSOCIATIVITY_CONST;  }
+		;
 
 sets
 			:	id=SETS^ ASSIGN! sete=setsExpr SEMI! { declare($id, $sete.res, false); } 
@@ -148,13 +156,6 @@ sets
 		:	constExpr     { $res = ESymbolKind.SETS_CONST;  }
 		;
 		
-lines
-			:	id=LINES^ ASSIGN! lin=linesExpr SEMI! { declare($id, $lin.res, false); }
-			;
-			
-	linesExpr returns [ESymbolKind res]
-		:	constExpr     { $res = ESymbolKind.LINES_CONST;  }
-		;
 
 /*======================================================================================*/
 /* Attribute line                                                                       */

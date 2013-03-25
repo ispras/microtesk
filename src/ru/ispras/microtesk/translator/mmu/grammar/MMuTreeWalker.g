@@ -56,6 +56,7 @@ import ru.ispras.microtesk.translator.mmu.translator.ESymbolKind;
 
 import ru.ispras.microtesk.translator.mmu.ir.buffer.*;
 import ru.ispras.microtesk.translator.mmu.ir.index.*;
+import ru.ispras.microtesk.translator.mmu.ir.associativity.*;
 import ru.ispras.microtesk.translator.mmu.ir.set.*;
 import ru.ispras.microtesk.translator.mmu.ir.line.*;
 import ru.ispras.microtesk.translator.mmu.ir.policy.*;
@@ -142,18 +143,33 @@ bufferExpr returns [BufferExpr res]
     ;
 
 parameter returns [ParameterExpr res]
-:	s=sets
-|	li=lines
+:	as=associativity
+|	s=sets
 |	l=line
 |	in=index
 |	ma=match
-|	po=policy { $res = new ParameterExpr($s.res, $li.res, $l.res, $in.res, $ma.res, $po.res); }  
+|	po=policy { $res = new ParameterExpr($as.res, $s.res, $l.res, $in.res, $ma.res, $po.res); }  
 ;
 
 	
 /*======================================================================================*/
-/* Sets Lines Rules                                                                     */
+/* Associativity Sets Rules                                                                     */
 /*======================================================================================*/
+
+associativity returns [AssociativityExpr res]
+	:  ^(id=ASSOCIATIVITY ass=associativityExpr) {$res = $ass.res; }
+{ 
+checkNotNull($id, $ass.res, $ass.text);
+getIR().add($id.text, $ass.res);
+
+System.out.println("associativity OK!");
+}
+    ;
+
+associativityExpr returns [AssociativityExpr res]
+	:  ce = constExpr[0] { if (null != $ce.res) { $res = new AssociativityExpr($ce.res.getText(), $ce.res.getValue());} }
+	;
+
 
 sets returns [SetsExpr res]
 		:  ^(id=SETS sete=setsExpr) {$res = $sete.res; }
@@ -169,19 +185,6 @@ setsExpr returns [SetsExpr res]
 	:  ce = constExpr[0] { if (null != $ce.res) { $res = new SetsExpr($ce.res.getText(), $ce.res.getValue());} }
 	;
 	
-lines returns [LinesExpr res]
-	:  ^(id=LINES lin=linesExpr) {$res = $lin.res; }
-{ 
-checkNotNull($id, $lin.res, $lin.text);
-getIR().add($id.text, $lin.res);
-
-System.out.println("lines OK!");
-}
-    ;
-
-linesExpr returns [LinesExpr res]
-	:  ce = constExpr[0] { if (null != $ce.res) { $res = new LinesExpr($ce.res.getText(), $ce.res.getValue());} }
-	;
 
 /*======================================================================================*/
 /*  Line Rules                                                                          */
