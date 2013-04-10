@@ -45,32 +45,13 @@ public interface IModelStateMonitor
     public void setPC(BigInteger value);
 
     /**
-     * Returns the value stored in the first location in the specified register array. 
-     * 
-     * @param name Name of the register array.
-     * @return Value stored in the register.
-     */
-
-    public IStoredValue readRegisterValue(String name);
-
-    /**
-     * Returns the value stored in the specified location of the specified register array.
-     * 
-     * @param name Name of the register array.
-     * @param index Index of the location in the register array.
-     * @return Value stored in the register.
-     */
-
-    public IStoredValue readRegisterValue(String name, int index);
-
-    /**
      * Returns the value stored in the first location in the specified memory array.
      * 
      * @param name Name of the memory array.
      * @return Value stored in a memory location. 
      */
 
-    public IStoredValue readMemoryValue(String name);
+    public IStoredValue readLocationValue(String name);
 
     /**
      * Returns the value stored in the specified location of the specified memory array.
@@ -80,5 +61,5 @@ public interface IModelStateMonitor
      * @return Value stored in a memory location.
      */
 
-    public IStoredValue readMemoryValue(String name, int index);
+    public IStoredValue readLocationValue(String name, int index);
 }

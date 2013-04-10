@@ -55,7 +55,7 @@ public final class ModelStatePrinter
         {
             for (int index = 0; index < r.getCount(); ++index)
             {
-                final IStoredValue value = monitor.readRegisterValue(r.getName(), index);
+                final IStoredValue value = monitor.readLocationValue(r.getName(), index);
                 System.out.printf("%s[%d] = %s %n", r.getName(), index, value.toBinString());
             }
             System.out.println();
@@ -74,7 +74,7 @@ public final class ModelStatePrinter
         {
             for (int index = 0; index < r.getCount(); ++index)
             {
-                final IStoredValue value = monitor.readMemoryValue(r.getName(), index);
+                final IStoredValue value = monitor.readLocationValue(r.getName(), index);
                 System.out.printf("%s[%d] = %s %n", r.getName(), index, value.toBinString());
             }
             System.out.println();

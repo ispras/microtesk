@@ -85,10 +85,10 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
         final ModelStateMonitor result = new ModelStateMonitor();
 
         for(MemoryBase r : registers)
-            result.addRegisterLine(r.getName(), r);
+            result.addMemoryLine(r);
 
         for(MemoryBase m : memory)
-            result.addMemoryLine(m.getName(), m);
+            result.addMemoryLine(m);
 
         return result;
     }
