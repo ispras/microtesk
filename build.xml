@@ -6,7 +6,7 @@
   <property name="gen"  location="gen"/>
   <property name="out"  location="output"/>
   <property name="bin"  location="bin"/>
-  <property name="dist" location="dist"/>
+  <property name="dist" location="dist/jars"/>
 
   <!-- Output JAR-file -->
   <property name="jar" value="microtesk.jar"/>
@@ -21,7 +21,7 @@
   <property name="jruby.jar" value="jruby.jar"/>
 
   <!-- Information for the JAR manifest -->
-  <property name="jar.jars.path" value="./../jars"/>
+  <property name="jar.jars.path" value="./../../jars"/>
   <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>	
   <property name="jar.classpath" value="${jar.jars.path}/${junit.jar} ${jar.jars.path}/${antlr.jar} ${jar.jars.path}/${cli.jar} ${jar.jars.path}/${jruby.jar}"/>
 
