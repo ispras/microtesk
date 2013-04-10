@@ -10,7 +10,7 @@
  * ParserBase.java, Oct 26, 2012 5:40:55 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.parser;
+package ru.ispras.microtesk.translator.simnml.antlrex;
 
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;

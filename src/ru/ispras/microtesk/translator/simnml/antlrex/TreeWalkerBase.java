@@ -10,7 +10,7 @@
  * TreeWalkerBase.java, Oct 22, 2012 2:15:42 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.walker;
+package ru.ispras.microtesk.translator.simnml.antlrex;
 
 import java.util.EnumMap;
 import java.util.Map;
