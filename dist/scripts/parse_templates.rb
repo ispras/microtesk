@@ -9,7 +9,7 @@ require 'java'
 # Configuration
 
 # Edit this if the MicroTESK JAR is located elsewhere
-$MICROTESK_JAR = "./dist/models.jar"
+$MICROTESK_JAR = "./dist/jars/models.jar"
 require $MICROTESK_JAR
 
 if(ARGV.count < 2)
@@ -29,4 +29,5 @@ puts "Model object created"
 # Launcher
 
 $working_directory = Dir.pwd
-require_relative "src/ru/ispras/microtesk/templates/parse_templates.rb"
+require_relative "templates/parse_templates.rb"
+
