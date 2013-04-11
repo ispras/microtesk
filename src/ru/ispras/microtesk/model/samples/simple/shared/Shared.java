@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.model.samples.simple.shared;
 
+import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -65,5 +66,6 @@ public final class Shared
     */
     
     public static final MemoryBase[] __REGISTERS = new MemoryBase[] { R, PC };
-    public static final MemoryBase[] __MEMORY    = new MemoryBase[] { M };
+    public static final MemoryBase[] __MEMORY = new MemoryBase[] { M };
+    public static final Label[] __LABELS = new Label[] {};
 }

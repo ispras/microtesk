@@ -51,8 +51,8 @@ new_memory(kind, name, type, size) ::= <<
 new MemoryBase(EMemoryKind.<kind>, "<name>", <type>, <size>)
 >>
 
-memory_array(name, items) ::= <<
-<class_const("MemoryBase[]", name, array_items(items))>
+memory_array(type, name, items) ::= <<
+<class_const(type, name, array_items(items))>
 >>
 
 array_items(items) ::= <<

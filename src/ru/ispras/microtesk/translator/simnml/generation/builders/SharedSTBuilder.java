@@ -13,12 +13,14 @@
 package ru.ispras.microtesk.translator.simnml.generation.builders;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
+import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -66,6 +68,7 @@ public class SharedSTBuilder implements ITemplateBuilder
             t.add("imps", EMemoryKind.class.getName());
         }
 
+        t.add("imps", Label.class.getName());
         t.add("imps", MemoryBase.class.getName());
     }
 
@@ -159,7 +162,8 @@ public class SharedSTBuilder implements ITemplateBuilder
         insertEmptyLine(t);
 
         final ST tRegisters = group.getInstanceOf("memory_array");
-
+        
+        tRegisters.add("type", MemoryBase.class.getSimpleName() + "[]");
         tRegisters.add("name", SimnMLProcessorModel.SHARED_REGISTERS);
         tRegisters.add("items", registers);
 
@@ -167,10 +171,19 @@ public class SharedSTBuilder implements ITemplateBuilder
 
         final ST tMemory = group.getInstanceOf("memory_array");
 
+        tMemory.add("type", MemoryBase.class.getSimpleName() + "[]");
         tMemory.add("name", SimnMLProcessorModel.SHARED_MEMORY);
         tMemory.add("items", memory);
 
         t.add("members", tMemory);
+        
+        final ST tLabels = group.getInstanceOf("memory_array");
+
+        tLabels.add("type", Label.class.getSimpleName() + "[]");
+        tLabels.add("name", SimnMLProcessorModel.SHARED_LABELS);
+        tLabels.add("items", Collections.EMPTY_LIST);
+
+        t.add("members", tLabels);
     }
 
     @Override

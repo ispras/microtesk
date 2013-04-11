@@ -24,7 +24,8 @@ public final class Model extends SimnMLProcessorModel
         super(
             new ISA(),
             __REGISTERS,
-            __MEMORY
+            __MEMORY,
+            __LABELS
         );
     }
 }

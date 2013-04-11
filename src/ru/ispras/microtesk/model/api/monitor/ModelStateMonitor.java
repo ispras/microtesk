@@ -18,6 +18,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.DataEngine;
+import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
@@ -31,22 +32,30 @@ import ru.ispras.microtesk.model.api.type.Type;
  * @author Andrei Tatarnikov
  */
 
-public class ModelStateMonitor implements IModelStateMonitor
+public final class ModelStateMonitor implements IModelStateMonitor
 {
+    private final static String ALREADY_ADDED_ERR_FRMT =
+        "The %s item has already been added to the table.";
+
     private final Map<String, MemoryBase> memoryMap;
+    private final Map<String, Label> labelMap;
 
     public ModelStateMonitor()
     {
         memoryMap = new HashMap<String, MemoryBase>();
+        labelMap  = new HashMap<String, Label>(); 
     }
-    
+
     public void addMemoryLine(MemoryBase value)
     {
-        final String ERROR_FORMAT =
-            "The %s memory line has already been added to the table of monitored resources.";
-
         final MemoryBase prev = memoryMap.put(value.getName(), value);
-        assert null == prev : String.format(ERROR_FORMAT, value.getName());
+        assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, value.getName());
+    }
+    
+    public void addLabel(Label value)
+    {
+        final Label prev = labelMap.put(value.getName(), value);
+        assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, value.getName());
     }
 
     @Override
@@ -77,6 +86,9 @@ public class ModelStateMonitor implements IModelStateMonitor
     @Override
     public IStoredValue readLocationValue(String name)
     {
+        if (labelMap.containsKey(name))
+            return new StoredValue(labelMap.get(name).access());
+
         return readLocationValue(name, 0);
     }
 

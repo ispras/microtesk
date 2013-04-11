@@ -18,6 +18,7 @@ import java.util.Collections;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
+import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.monitor.IModelStateMonitor;
@@ -34,29 +35,22 @@ import ru.ispras.microtesk.model.api.monitor.ModelStateMonitor;
 
 public abstract class SimnMLProcessorModel extends ProcessorModel
 {
-    /**
-     * The name of the collection of all registers provided by the model.
-     */
-
     public static final String SHARED_REGISTERS = "__REGISTERS";
-    
-    /**
-     * The name of the collection of all memory lines provided by the model.
-     */
+    public static final String SHARED_MEMORY    = "__MEMORY";
+    public static final String SHARED_LABELS    = "__LABELS";
 
-    public static final String SHARED_MEMORY = "__MEMORY";
-    
     public SimnMLProcessorModel(
         IInstructionSet instructions,
         MemoryBase[] registers,
-        MemoryBase[] memory
+        MemoryBase[] memory,
+        Label[] labels
         )
     {
         super(
             instructions,
             createRegisterMetaData(registers),
             createMemoryMetaData(memory),
-            createStateMonitor(registers, memory)
+            createStateMonitor(registers, memory, labels)
             );
     }
 
@@ -80,7 +74,11 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
         return Collections.unmodifiableCollection(result);
     }
 
-    private static IModelStateMonitor createStateMonitor(MemoryBase[] registers, MemoryBase[] memory)
+    private static IModelStateMonitor createStateMonitor(
+        MemoryBase[] registers,
+        MemoryBase[] memory,
+        Label[] labels
+        )
     {
         final ModelStateMonitor result = new ModelStateMonitor();
 
@@ -89,6 +87,9 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
 
         for(MemoryBase m : memory)
             result.addMemoryLine(m);
+
+        for(Label l : labels)
+            result.addLabel(l);
 
         return result;
     }
