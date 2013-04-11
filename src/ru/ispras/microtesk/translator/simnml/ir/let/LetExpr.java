@@ -14,36 +14,43 @@ package ru.ispras.microtesk.translator.simnml.ir.let;
 
 public final class LetExpr
 {
-	private String   text;
-	private Class<?> type;
-	private Object   value;
+    private final String   name;
+    private final String   text;
+    private final Class<?> type;
+    private final Object   value;
 
-	public LetExpr(String text, Class<?> type, Object value)
-	{
-		this.text  = text;
-		this.type  = type;
-		this.value = value;
-	}
+    protected LetExpr(String name, String text, Class<?> type, Object value)
+    {
+        this.name  = name;
+        this.text  = text;
+        this.type  = type;
+        this.value = value;
+    }
 
-	public String getText()
-	{
-		return text;
-	}
+    public String getName()
+    {
+        return name;
+    }
 
-	public Class<?> getJavaType()
-	{
-		return type;
-	}
+    public String getText()
+    {
+        return text;
+    }
 
-	public Object getValue()
-	{
-	    return value;	    
-	}
+    public Class<?> getJavaType()
+    {
+        return type;
+    }
+
+    public Object getValue()
+    {
+        return value;	    
+    }
 
     @Override
     public String toString()
     {
         return String.format(
-           "LetExpr [text=%s, type=%s, value=%s]", text, type, value);
+            "LetExpr [text=%s, type=%s, value=%s]", text, type, value);
     }
 }

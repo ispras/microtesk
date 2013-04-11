@@ -135,16 +135,10 @@ letDef
     ;
 
 letExpr returns [ESymbolKind res]
-    :  labelExpr    { $res = ESymbolKind.LET_LABEL;  }
-    |  constExpr    { $res = ESymbolKind.LET_CONST;  } // Statically calculated constant expression. E.g. let A = 2 ** 4
+    :  constExpr    { $res = ESymbolKind.LET_CONST;  } // Statically calculated constant expression. E.g. let A = 2 ** 4
     |  STRING_CONST { $res = ESymbolKind.LET_STRING; } // Some string constant. E.g. let A = "some text"
 //  |  IF^ constNumExpr THEN! letExpr (ELSE! letExpr)? ENDIF! // TODO: NOT SUPPORTED IN THE CURRENT VERSION
 //  |  SWITCH Construction // TODO: NOT SUPPORTED IN THE CURRENT VERSION
-    ;
-
-labelExpr
-    :  {isDeclaredAs(input.LT(1), ESymbolKind.MEMORY)}?
-       ID (LEFT_HOOK expr RIGHT_HOOK -> ^(LABEL ^(LOCATION_INDEX ID expr)) | -> ^(LABEL ID))
     ;
 
 /*======================================================================================*/

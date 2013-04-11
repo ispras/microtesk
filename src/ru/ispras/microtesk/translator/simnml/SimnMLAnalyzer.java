@@ -130,7 +130,8 @@ public class SimnMLAnalyzer
 
         final CommonTree tree = (CommonTree)result.getTree();
 
-        print(tree);
+        // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs. 
+        // print(tree);
 
         CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
         nodes.setTokenStream(tokens);

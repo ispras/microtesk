@@ -109,25 +109,30 @@ System.out.println("Sim-nML:   " + $procSpec.text);
 /* Let Rules                                                                            */
 /*======================================================================================*/
 
-letDef 
-    :  ^(LET id=ID le=letExpr)
-{ 
+letDef
+    :  ^(LET id=ID le=letExpr[$id.text])
+{
 checkNotNull($id, $le.res, $le.text);
 getIR().add($id.text, $le.res);
 }
     ;
 
-letExpr returns [LetExpr res]
-    :  ce = constExpr[0] { if (null != $ce.res) { $res = new LetExpr($ce.res.getText(), $ce.res.getJavaType(), $ce.res.getValue());} }
-    |  sc = STRING_CONST { $res = new LetExpr(String.format("\"\%s\"", $sc.text), String.class, $sc.text); } // Some string constant. E.g. let A = "some text"
-    |  labelExpr
+letExpr [String name] returns [LetExpr res]
+    :  ce = constExpr[0]
+{
+checkNotNull($ce.start, $ce.res, $ce.text);
+$res = getLetFactory().createConstValue(name, $ce.res);
+}
+    |  sc = STRING_CONST
+{
+$res = getLetFactory().createConstString(name, $sc.text);
+
+final LetLabel label = getLetFactory().createLabel(name, $sc.text);
+if (null != label)
+    getIR().add(name, label);
+}
 //  |  IF^ constNumExpr THEN! letExpr (ELSE! letExpr)? ENDIF! // NOT SUPPORTED IN THIS VERSION
 //  |  SWITCH Construction                                    // NOT SUPPORTED IN THIS VERSION
-    ;
-
-labelExpr
-    :  ^(LABEL ID)
-    |  ^(LABEL ^(LOCATION_INDEX ID staticJavaExpr))
     ;
 
 /*======================================================================================*/

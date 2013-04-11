@@ -7,8 +7,9 @@
  * 
  * All rights reserved.
  * 
- * ModelMain.java, Apr 10, 2013 4:34:28 PM Andrei Tatarnikov
+ * Label.java, Apr 11, 2013 4:47:19 PM Andrei Tatarnikov
  */
+
 
 package ru.ispras.microtesk.model.api.memory;
 

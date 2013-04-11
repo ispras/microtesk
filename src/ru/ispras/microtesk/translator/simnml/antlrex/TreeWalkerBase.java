@@ -38,6 +38,7 @@ import ru.ispras.microtesk.translator.simnml.ir.expression2.ExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.ExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationExprFactoryClass;
+import ru.ispras.microtesk.translator.simnml.ir.let.LetFactory;
 import ru.ispras.microtesk.translator.simnml.ir.memory.MemoryExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.ModeOpFactory;
@@ -81,6 +82,7 @@ public class TreeWalkerBase extends TreeParserEx
     private Map<EExprKind, ExprFactory> exprFactories =
         new EnumMap<EExprKind, ExprFactory>(EExprKind.class);
 
+    private LetFactory          letFactory          = null; 
     private LocationExprFactory locationExprFactory = null;
     private ConstExprFactory    constExprFactory    = null;
     private TypeExprFactory     typeExprFactory     = null;
@@ -97,6 +99,13 @@ public class TreeWalkerBase extends TreeParserEx
         exprFactories.put(targetKind, factory);
 
         return factory;
+    }
+    
+    protected final LetFactory getLetFactory()
+    {
+        if (null == letFactory)
+            letFactory = new LetFactory(this, symbols); 
+        return letFactory;
     }
 
     protected final LocationExprFactory getLocationExprFactory()
