@@ -10,7 +10,7 @@
  * UnrecognizedStructure.java, Oct 22, 2012 1:22:58 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.errors;
+package ru.ispras.microtesk.translator.antlrex.errors;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 

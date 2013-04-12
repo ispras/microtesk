@@ -23,9 +23,9 @@ import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.mmu.errors.SymbolTypeMismatch;
-import ru.ispras.microtesk.translator.mmu.errors.UndeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.mmu.translator.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.errors.RedeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 
 public class ParserBase extends ParserEx
 {   

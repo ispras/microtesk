@@ -20,9 +20,9 @@ import ru.ispras.microtesk.translator.antlrex.symbols.*;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.ParserEx;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.errors.RedeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.simnml.errors.SymbolTypeMismatch;
-import ru.ispras.microtesk.translator.simnml.errors.UndeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 
 public class ParserBase extends ParserEx
 {   
