@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
+ * Copyright 2012-2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,6 +84,11 @@ public class TokenSourceStack implements TokenSource
         return !sources.empty();
     }
 
+    private static boolean isEof(final Token token)
+    {
+        return token == null || token.getType() == Token.EOF;
+    }
+
     @Override
     public Token nextToken()
     {
@@ -113,7 +118,7 @@ public class TokenSourceStack implements TokenSource
         }
 
         // Skip EOFs of sub-sources (sub-sources are invisible for a user).
-        while(token.getType() == Token.EOF && !isRootSource())
+        while(isEof(token) && !isRootSource())
         {
 	    // Try the latest token of the parent stream.
             token = getToken();
@@ -121,7 +126,7 @@ public class TokenSourceStack implements TokenSource
             // Remove an exhausted sub-source from the stack.
             pop();
 
-            if(token.getType() == Token.EOF)
+            if(isEof(token))
             {
                 source = getSource();
                 token  = source.nextToken();
