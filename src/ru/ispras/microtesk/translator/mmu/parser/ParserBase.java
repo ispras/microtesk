@@ -70,20 +70,20 @@ public class ParserBase extends ParserEx
     {
         assert null != symbols;
         
-        final ISymbol<?> symbol = symbols.resolve(t.getText());
+        final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
         
         if (null == symbol)
             raiseError(new UndeclaredSymbol(t.getText()));
         
         if (expectedKind != symbol.getKind())
-            raiseError(new SymbolTypeMismatch(t.getText(), (ESymbolKind) symbol.getKind(), expectedKind));
+            raiseError(new SymbolTypeMismatch(t.getText(), symbol.getKind(), expectedKind));
     }
 
     protected final boolean isDeclaredAs(Token t, ESymbolKind expectedKind)
     {
         assert null != symbols;
 
-        final ISymbol<?> symbol = symbols.resolve(t.getText());
+        final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
 
         if (null == symbol)
             return false;

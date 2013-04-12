@@ -79,7 +79,7 @@ public class TreeWalkerBase extends TreeParserEx //implements ISemanticChecks
     {
         assert null != symbols;
 
-        final ISymbol<?> symbol = symbols.resolve(t.getText());
+        final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
 
         if (null == symbol)
             return false;
