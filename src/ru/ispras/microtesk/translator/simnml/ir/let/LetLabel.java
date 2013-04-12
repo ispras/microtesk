@@ -44,4 +44,11 @@ public final class LetLabel
     {
         return index;
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format(
+           "LetLabel [name=%s, memoryName=%s, index=%d]", name, memoryName, index);
+    }
 }

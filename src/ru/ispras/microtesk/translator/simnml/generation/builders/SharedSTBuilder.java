@@ -13,7 +13,6 @@
 package ru.ispras.microtesk.translator.simnml.generation.builders;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 
 import org.stringtemplate.v4.ST;
@@ -29,6 +28,7 @@ import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.let.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.memory.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
 
@@ -181,7 +181,17 @@ public class SharedSTBuilder implements ITemplateBuilder
 
         tLabels.add("type", Label.class.getSimpleName() + "[]");
         tLabels.add("name", SimnMLProcessorModel.SHARED_LABELS);
-        tLabels.add("items", Collections.EMPTY_LIST);
+
+        for (LetLabel label : ir.getLabels().values())
+        {
+            final ST tNewLabel = group.getInstanceOf("new_label");
+
+            tNewLabel.add("name", label.getName());
+            tNewLabel.add("memory", label.getMemoryName());
+            tNewLabel.add("index", label.getIndex());
+
+            tLabels.add("items", tNewLabel);
+        }
 
         t.add("members", tLabels);
     }

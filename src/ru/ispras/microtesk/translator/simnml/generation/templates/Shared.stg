@@ -58,3 +58,8 @@ memory_array(type, name, items) ::= <<
 array_items(items) ::= <<
 {<items; separator=", ">}
 >>
+
+new_label(name, memory, index) ::= <<
+new Label("<name>", <memory>, <index>)
+>>
+

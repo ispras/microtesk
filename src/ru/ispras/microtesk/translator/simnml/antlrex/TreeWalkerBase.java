@@ -104,7 +104,7 @@ public class TreeWalkerBase extends TreeParserEx
     protected final LetFactory getLetFactory()
     {
         if (null == letFactory)
-            letFactory = new LetFactory(this, symbols); 
+            letFactory = new LetFactory(symbols); 
         return letFactory;
     }
 
