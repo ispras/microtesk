@@ -17,7 +17,7 @@ import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 
 import ru.ispras.microtesk.translator.antlrex.ParserEx;
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;

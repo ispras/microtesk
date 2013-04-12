@@ -17,7 +17,7 @@ import java.util.Map;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;

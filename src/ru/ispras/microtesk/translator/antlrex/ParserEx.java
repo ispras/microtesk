@@ -20,7 +20,6 @@ import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;

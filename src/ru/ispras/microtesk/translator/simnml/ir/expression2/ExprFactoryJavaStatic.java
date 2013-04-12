@@ -15,7 +15,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
 

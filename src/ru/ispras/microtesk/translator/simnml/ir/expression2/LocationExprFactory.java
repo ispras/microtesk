@@ -15,7 +15,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.ArgumentTypeExpr;
 
 public interface LocationExprFactory

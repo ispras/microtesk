@@ -12,8 +12,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
-
 public interface IErrorReporter
 {
     public void raiseError(ISemanticError error) throws SemanticException;

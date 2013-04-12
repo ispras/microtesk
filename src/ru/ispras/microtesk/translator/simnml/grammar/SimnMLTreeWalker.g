@@ -59,7 +59,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.simnml.antlrex.TreeWalkerBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;

@@ -1,4 +1,16 @@
-package ru.ispras.microtesk.translator.antlrex.exception;
+/*
+ * Copyright (c) 2013 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * SemanticException.java, Apr 12, 2013 6:03:44 PM Andrei Tatarnikov
+ */
+
+package ru.ispras.microtesk.translator.antlrex;
 
 import org.antlr.runtime.IntStream;
 import org.antlr.runtime.RecognitionException;
@@ -12,13 +24,13 @@ public final class SemanticException extends RecognitionException
 
     private final ISemanticError error;
     
-    public SemanticException(IntStream input, ISemanticError error)
+    protected SemanticException(IntStream input, ISemanticError error)
     {
         super(input);
         this.error = error;
     }
     
-    public SemanticException(Where location, ISemanticError error)
+    protected SemanticException(Where location, ISemanticError error)
     {
         super();
         this.error = error;

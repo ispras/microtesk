@@ -61,10 +61,7 @@ public final class ModelStateMonitor implements IModelStateMonitor
     @Override
     public IStoredValue getPC()
     {
-        // TODO NOT IMPLEMENTED YET
-        //assert false : "NOT IMPLEMENTED";
-        //return null;
-        return this.readLocationValue("GPR", 15); //FAKE_PC;
+        return readLocationValue("PC");
     }
 
     @Override

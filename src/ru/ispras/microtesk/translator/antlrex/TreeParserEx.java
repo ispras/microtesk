@@ -20,7 +20,6 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.TreeNodeStream;
 import org.antlr.runtime.tree.TreeParser;
 
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;

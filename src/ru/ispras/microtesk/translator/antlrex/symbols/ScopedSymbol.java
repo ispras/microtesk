@@ -14,7 +14,7 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 
 import org.antlr.runtime.Token;
 
-public class ScopedSymbol <Kind extends Enum<Kind>> extends Symbol<Kind>
+public final class ScopedSymbol <Kind extends Enum<Kind>> extends Symbol<Kind>
 {
     private final IScope<Kind> innerScope;
 

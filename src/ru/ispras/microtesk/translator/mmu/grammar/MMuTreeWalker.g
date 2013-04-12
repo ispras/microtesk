@@ -49,7 +49,7 @@ catch (RecognitionException re) { // Default behavior
  */
 
 package ru.ispras.microtesk.translator.mmu.grammar;
-import ru.ispras.microtesk.translator.antlrex.exception.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.mmu.walker.TreeWalkerBase;
 import ru.ispras.microtesk.translator.mmu.translator.ESymbolKind;
