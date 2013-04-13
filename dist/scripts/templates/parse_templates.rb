@@ -51,7 +51,7 @@ include TemplateBuilder
 # Initialize the MicroTESK Java library
 
 if $MICROTESK_JAR == nil
-  $MICROTESK_JAR = "../../../../../dist/models.jar"
+  $MICROTESK_JAR = "../../jars/models.jar"
   require $MICROTESK_JAR
 end
 

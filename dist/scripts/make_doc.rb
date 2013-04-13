@@ -7,13 +7,20 @@
 # Configuration
 
 # Edit this if the MicroTESK JAR is located elsewhere
-$MICROTESK_JAR = "./dist/microtesk.jar"
+$MICROTESK_JAR = "./dist/jars/models.jar"
 require $MICROTESK_JAR
 
 require 'fileutils'
 
+if(ARGV.count < 1)
+  abort "Arguments required: model package"
+end
+
+classname = ARGV.shift
+
+
 # Build MicroTESK, compile MicroTESK, build MicroTESK and set the CPU model class
-java_import Java::Ru.ispras.microtesk.model.arm.Model
+java_import "ru.ispras.microtesk.model." + classname + ".Model"
 #java_import Java::Ru.ispras.microtesk.model.samples.simple.Model
 #puts "If you don't see the next message, it means Java doesn't want to create a Model object?.. Seems to happen with ARM model, but not simple model"
 puts "Creating model object"

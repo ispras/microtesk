@@ -37,7 +37,7 @@ class ArmDemo < Template
 
       # This is what is set in the registers at the time of execution
       exec_debug {
-        puts "INPUT: R0: " + get_reg_value("GPR", 0).to_s + ", R1: " + get_reg_value("GPR", 1).to_s
+        puts "INPUT: R0: " + get_loc_value("GPR", 0).to_s + ", R1: " + get_loc_value("GPR", 1).to_s
       }
 
       label ("cycle" + ind.to_s).to_sym
@@ -48,20 +48,20 @@ class ArmDemo < Template
 
       # This is what REG(0) and REG(1) contain during a single iteration of the cycle
       exec_debug {
-        puts "DEBUG: R0: " + get_reg_value("GPR", 0).to_s + ", R1: " + get_reg_value("GPR", 1).to_s# + ", label code: " + self.send("cycle" + ind.to_s).to_s
+        puts "DEBUG: R0: " + get_loc_value("GPR", 0).to_s + ", R1: " + get_loc_value("GPR", 1).to_s# + ", label code: " + self.send("cycle" + ind.to_s).to_s
       }
 
       B   notEqual, ("cycle" + ind.to_s).to_sym
 
       newline
       exec_output {
-        "// Simulator heavily implies the result should be " + self.get_reg_value("GPR", 0).to_s
+        "// Simulator heavily implies the result should be " + self.get_loc_value("GPR", 0).to_s
       }
       newline
 
       # This is the result of the algorithm
       exec_debug {
-        puts "Result: " + get_reg_value("GPR", 0).to_s
+        puts "Result: " + get_loc_value("GPR", 0).to_s
       }
 
     end

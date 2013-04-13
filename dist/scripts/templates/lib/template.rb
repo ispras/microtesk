@@ -203,53 +203,53 @@ class Template
   # Memory-related methods                             #
   # -------------------------------------------------- #
 
-  def get_reg_value (string, index = nil)
+  def get_loc_value (string, index = nil)
     if index == nil
-      @j_monitor.readRegisterValue(string).getValue()
+      @j_monitor.readLocationValue(string).getValue()
     else
-      @j_monitor.readRegisterValue(string, index).getValue()
+      @j_monitor.readLocationValue(string, index).getValue()
     end
   end
 
-  def get_mem_value (string, index = nil)
+  #def get_mem_value (string, index = nil)
+  #  if index == nil
+  #    @j_monitor.readMemoryValue(string).getValue()
+  #  else
+  #    @j_monitor.readMemoryValue(string, index).getValue()
+  #  end
+  #end
+  #
+  def get_loc_size (string, index = nil)
     if index == nil
-      @j_monitor.readMemoryValue(string).getValue()
+      @j_monitor.readLocationValue(string).getBitSize()
     else
-      @j_monitor.readMemoryValue(string, index).getValue()
+      @j_monitor.readLocationValue(string, index).getBitSize()
     end
   end
-
-  def get_reg_size (string, index = nil)
-    if index == nil
-      @j_monitor.readRegisterValue(string).getBitSize()
-    else
-      @j_monitor.readRegisterValue(string, index).getBitSize()
-    end
-  end
-
-  def get_mem_size (string, index = nil)
-    if index == nil
-      @j_monitor.readMemoryValue(string).getBitSize()
-    else
-      @j_monitor.readMemoryValue(string, index).getBitSize()
-    end
-  end
-
-  def get_reg_bits (string, index = nil)
-    if index == nil
-      @j_monitor.readRegisterValue(string).toBinString()
-    else
-      @j_monitor.readRegisterValue(string, index).toBinString()
-    end
-  end
-
-  def get_mem_bits (string, index = nil)
-    if index == nil
-      @j_monitor.readMemoryValue(string).toBinString()
-    else
-      @j_monitor.readMemoryValue(string, index).toBinString()
-    end
-  end
+  #
+  #def get_mem_size (string, index = nil)
+  #  if index == nil
+  #    @j_monitor.readMemoryValue(string).getBitSize()
+  #  else
+  #    @j_monitor.readMemoryValue(string, index).getBitSize()
+  #  end
+  #end
+  #
+  #def get_reg_bits (string, index = nil)
+  #  if index == nil
+  #    @j_monitor.readRegisterValue(string).toBinString()
+  #  else
+  #    @j_monitor.readRegisterValue(string, index).toBinString()
+  #  end
+  #end
+  #
+  #def get_mem_bits (string, index = nil)
+  #  if index == nil
+  #    @j_monitor.readMemoryValue(string).toBinString()
+  #  else
+  #    @j_monitor.readMemoryValue(string, index).toBinString()
+  #  end
+  #end
 
 
   # -------------------------------------------------- #

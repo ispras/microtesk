@@ -15,14 +15,14 @@ class ArmDemo < DemoPrepost
 
     label :valiant
 
-    ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, 2)
+    ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, 1)
     cmp_immediate blank, reg(0), immediate(0, 5)
 
     # Uncomment here to list all GPR registers
     exec_debug {
         a = ""
         (0..15).each do |i|
-          a += get_reg_value("GPR", i).to_s + ", "
+          a += get_loc_value("GPR", i).to_s + ", "
         end
         puts a
     }
