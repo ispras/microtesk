@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -27,14 +28,9 @@ public class MemoryBase
     private final List<Location> locations;
     private final Type                type;
 
-    private static List<Location> createLocations(Type type, int length)
+    public MemoryBase(EMemoryKind kind, String name, Type type)
     {
-        final ArrayList<Location> result = new ArrayList<Location>();
-
-        for (int index = 0; index < length; ++index)
-            result.add(new Location(type));
-
-        return Collections.unmodifiableList(result);
+        this(kind, name, type, 1);
     }
 
     public MemoryBase(EMemoryKind kind, String name, Type type, int length)
@@ -44,10 +40,15 @@ public class MemoryBase
         this.type = type;
         this.locations = createLocations(type, length);
     }
-
-    public MemoryBase(EMemoryKind kind, String name, Type type)
+    
+    private static List<Location> createLocations(Type type, int length)
     {
-        this(kind, name, type, 1);
+        final ArrayList<Location> result = new ArrayList<Location>();
+
+        for (int index = 0; index < length; ++index)
+            result.add(new Location(type));
+
+        return Collections.unmodifiableList(result);
     }
     
     public final EMemoryKind getMemoryKind()
@@ -83,5 +84,17 @@ public class MemoryBase
     public final Location access()
     {
         return access(0);
+    }
+    
+    public Data load(int index)
+    {
+        // TODO
+        
+        return null;
+    }
+    
+    public void store(int index, Data data)
+    {
+        // TODO
     }
 }

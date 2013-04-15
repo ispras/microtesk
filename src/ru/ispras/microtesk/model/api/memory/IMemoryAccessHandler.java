@@ -16,6 +16,6 @@ import ru.ispras.microtesk.model.api.rawdata.RawData;
 
 public interface IMemoryAccessHandler
 {
-    public RawData onLoad();
-    public boolean onStore(RawData data);
+    public RawData onLoad(IMemoryArray memory, int index);
+    public void onStore(IMemoryArray memory, int index, RawData data);
 }
