@@ -55,10 +55,14 @@ public final class Location
         @Override
         public void setValue(BigInteger value)
         {
-            //TODO: Restriction on value size.
-            assert type.getBitSize() <= Long.SIZE :
+            //TODO: Restrictions on value size.
+
+            assert (value.bitLength() <= Long.SIZE) :
+                "Restriction: If the input data size exceeds size of long, it is truncated to long.";
+
+            assert (type.getBitSize() <= Long.SIZE) :
                 "Restriction: If the location size exceeds 64 bits, input data is truncated.";
-            
+
             assert !readOnly;
             rawData.assign(RawData.valueOf(value.longValue(), type.getBitSize()));
         }
