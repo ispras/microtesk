@@ -21,7 +21,6 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
-import ru.ispras.microtesk.model.api.monitor.IModelStateMonitor;
 import ru.ispras.microtesk.model.api.monitor.ModelStateMonitor;
 
 /**
