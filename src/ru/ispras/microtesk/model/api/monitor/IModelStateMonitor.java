@@ -12,54 +12,12 @@
 
 package ru.ispras.microtesk.model.api.monitor;
 
-import java.math.BigInteger;
-
-/**
- * The IModelStateMonitor interface provides methods for requesting information on
- * the current state of the model.
- * 
- * @author Andrei Tatarnikov
- */
+import ru.ispras.microtesk.model.api.ILocationAccessor;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public interface IModelStateMonitor
 {
-    /**
-     * Returns the value stored in a register used as program counter (PC). 
-     * @return Program counter value.
-     */
+    public ILocationAccessor accessLocation(String name) throws ConfigurationException;
 
-    public IStoredValue getPC();
-
-    /**
-     * Sets the value of the microprocessor's program counter (PC).
-     * @param value New program counter value.
-     */
-
-    public void setPC(long value);
-
-    /**
-     * Sets the value of the microprocessor's program counter (PC).
-     * @param value New program counter value.
-     */
-
-    public void setPC(BigInteger value);
-
-    /**
-     * Returns the value stored in the first location in the specified memory array.
-     * 
-     * @param name Name of the memory array.
-     * @return Value stored in a memory location. 
-     */
-
-    public IStoredValue readLocationValue(String name);
-
-    /**
-     * Returns the value stored in the specified location of the specified memory array.
-     * 
-     * @param name Name of the memory array.
-     * @param index Index of the location in the memory array.
-     * @return Value stored in a memory location.
-     */
-
-    public IStoredValue readLocationValue(String name, int index);
+    public ILocationAccessor accessLocation(String name, int index) throws ConfigurationException;
 }

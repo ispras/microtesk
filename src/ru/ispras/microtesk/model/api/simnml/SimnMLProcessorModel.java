@@ -50,7 +50,7 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
             instructions,
             createRegisterMetaData(registers),
             createMemoryMetaData(memory),
-            createStateMonitor(registers, memory, labels)
+            new ModelStateMonitor(registers, memory, labels)
             );
     }
 
@@ -72,25 +72,5 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
             result.add(m.getMetaData());
 
         return Collections.unmodifiableCollection(result);
-    }
-
-    private static IModelStateMonitor createStateMonitor(
-        MemoryBase[] registers,
-        MemoryBase[] memory,
-        Label[] labels
-        )
-    {
-        final ModelStateMonitor result = new ModelStateMonitor();
-
-        for(MemoryBase r : registers)
-            result.addMemoryLine(r);
-
-        for(MemoryBase m : memory)
-            result.addMemoryLine(m);
-
-        for(Label l : labels)
-            result.addLabel(l);
-
-        return result;
     }
 }

@@ -12,12 +12,14 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
+import java.math.BigInteger;
+
+import ru.ispras.microtesk.model.api.ILocationAccessor;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 import ru.ispras.microtesk.model.api.rawdata.RawDataMapping;
 import ru.ispras.microtesk.model.api.rawdata.RawDataMultiMapping;
 import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
@@ -30,12 +32,45 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Location
 {
+    private final class Accessor implements ILocationAccessor
+    {
+        @Override
+        public int getBitSize()
+        {
+            return type.getBitSize();
+        }
+
+        @Override
+        public String toBinString()
+        {
+            return rawData.toBinString();
+        }
+
+        @Override
+        public BigInteger getValue()
+        {
+            return new BigInteger(rawData.toByteArray());
+        }
+
+        @Override
+        public void setValue(BigInteger value)
+        {
+            //TODO: Restriction on value size.
+            assert type.getBitSize() <= Long.SIZE :
+                "Restriction: If the location size exceeds 64 bits, input data is truncated.";
+            
+            assert !readOnly;
+            rawData.assign(RawData.valueOf(value.longValue(), type.getBitSize()));
+        }
+    }
+
     private final Type        type;
     private final RawData  rawData;
     private final boolean readOnly;
 
     private IMemoryAccessHandler handler;
-    
+    private final ILocationAccessor accessor;
+
     public Location(Type type)
     {
         this(type, new RawDataStore(type.getBitSize()), false, null);
@@ -52,6 +87,7 @@ public final class Location
         this.rawData  = rawData;
         this.readOnly = readOnly;
         this.handler  = handler;
+        this.accessor = new Accessor();
     }
 
     public final Type getType()
@@ -156,4 +192,9 @@ public final class Location
         this.handler = null;
     }
     */
+    
+    public ILocationAccessor externalAccess()
+    {
+        return accessor;
+    }
 }

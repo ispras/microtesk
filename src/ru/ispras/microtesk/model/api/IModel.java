@@ -38,7 +38,7 @@ public interface IModel
      * value in memory locations, etc)   
      */
 
-    public IModelStateMonitor getModelStateMonitor(); 
+    public IModelStateMonitor getStateMonitor(); 
     
     /**
      * Returns an object that provides access to the internal state of the model

@@ -7,21 +7,21 @@
  * 
  * All rights reserved.
  * 
- * IStoredValue.java, Nov 9, 2012 11:36:59 AM Andrei Tatarnikov
+ * ILocationAccessor.java, Nov 9, 2012 11:36:59 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.monitor;
+package ru.ispras.microtesk.model.api;
 
 import java.math.BigInteger;
 
 /**
- * The IStoredValue interface provides access to the value
+ * The ILocationAccessor interface provides access to data
  * stored in the specified location. 
  * 
  * @author Andrei Tatarnikov
  */
 
-public interface IStoredValue
+public interface ILocationAccessor
 {
     /**
      * Returns the size of the location in bits.
@@ -32,18 +32,26 @@ public interface IStoredValue
     public int getBitSize();
     
     /**
-     * Returns the value stored in the location packed in a BigInteger object.
-     * 
-     * @return Value packed in a BigInteger object.
-     */
-
-    public BigInteger getValue();
-    
-    /**
      * Returns textual representation of stored data (a string of 0 and 1 characters).
      * 
      * @return Binary string.
      */
 
     public String toBinString();
+    
+    /**
+     * Returns the value stored in the location packed in a BigInteger object.
+     * 
+     * @return Binary data packed in a BigInteger object.
+     */
+
+    public BigInteger getValue();
+    
+    /**
+     * Sets the value of the specified location.
+     * 
+     * @param value Binary data packed in a BigInteger object.
+     */
+    
+    public void setValue(BigInteger value);
 }

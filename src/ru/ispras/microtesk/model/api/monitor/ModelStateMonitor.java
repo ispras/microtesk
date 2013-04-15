@@ -12,19 +12,14 @@
 
 package ru.ispras.microtesk.model.api.monitor;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
+import ru.ispras.microtesk.model.api.ILocationAccessor;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
 import ru.ispras.microtesk.model.api.memory.Label;
-import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
-import ru.ispras.microtesk.model.api.rawdata.RawData;
-import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
-import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The ModelStateMonitor class implements the IModelStateMonitor interface.
@@ -37,112 +32,71 @@ public final class ModelStateMonitor implements IModelStateMonitor
     private final static String ALREADY_ADDED_ERR_FRMT =
         "The %s item has already been added to the table.";
 
+    private final static String UNDEFINED_ERR_FRMT =
+        "The %s resource is not defined in the current model.";
+
+    private final static String BOUNDS_ERR_FRMT =
+        "The %d index is invalid for the %s resource.";
+
     private final Map<String, MemoryBase> memoryMap;
     private final Map<String, Label> labelMap;
 
-    public ModelStateMonitor()
+    public ModelStateMonitor(
+        MemoryBase[] registers,
+        MemoryBase[] memory,
+        Label[] labels
+        )
     {
+        assert null != registers;
+        assert null != memory;
+        assert null != labels;
+
         memoryMap = new HashMap<String, MemoryBase>();
-        labelMap  = new HashMap<String, Label>(); 
-    }
+        for(MemoryBase r : registers)
+        {
+            final MemoryBase prev = memoryMap.put(r.getName(), r);
+            assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, r.getName());
+        }
 
-    public void addMemoryLine(MemoryBase value)
-    {
-        final MemoryBase prev = memoryMap.put(value.getName(), value);
-        assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, value.getName());
-    }
-    
-    public void addLabel(Label value)
-    {
-        final Label prev = labelMap.put(value.getName(), value);
-        assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, value.getName());
-    }
+        for(MemoryBase m : memory)
+        {
+            final MemoryBase prev = memoryMap.put(m.getName(), m);
+            assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, m.getName());
+        }
 
-    @Override
-    public IStoredValue getPC()
-    {
-        return readLocationValue("PC");
-    }
-
-    @Override
-    public void setPC(long value)
-    {
-        //setPC(BigInteger.valueOf(value));
-    	this.memoryMap.get("GPR").access(15).store(DataEngine.valueOf(new Type(ETypeID.CARD, 32), value));
+        labelMap  = new HashMap<String, Label>();
+        for(Label l : labels)
+        {
+            final Label prev = labelMap.put(l.getName(), l);
+            assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, l.getName());
+        }
     }
 
     @Override
-    public void setPC(BigInteger value)
+    public ILocationAccessor accessLocation(String name) throws ConfigurationException
     {
-        // TODO NOT IMPLEMENTED YET
-        //assert false : "NOT IMPLEMENTED";
-        //FAKE_PC.setValue(value);
-    	this.memoryMap.get("GPR").access(15).store(DataEngine.valueOf(new Type(ETypeID.CARD, 32), value.longValue()));
+        return accessLocation(name, 0);
     }
 
     @Override
-    public IStoredValue readLocationValue(String name)
+    public ILocationAccessor accessLocation(String name, int index) throws ConfigurationException
     {
         if (labelMap.containsKey(name))
-            return new StoredValue(labelMap.get(name).access());
+        {
+            if (0 != index)
+                throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
 
-        return readLocationValue(name, 0);
-    }
+            return labelMap.get(name).access().externalAccess();
+        }
 
-    @Override
-    public IStoredValue readLocationValue(String name, int index)
-    {
+        if (!memoryMap.containsKey(name))
+            throw new UndeclaredException(String.format(UNDEFINED_ERR_FRMT, name));
+
         final MemoryBase current = memoryMap.get(name);
 
-        if (null == current)
-            return null;
+        if ((index < 0) || (index >= current.getLength()))
+            throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
 
-        return new StoredValue(current.access(index)); 
-    }
-}
-
-/**
- * The StoredValue class implements the IStoredValue interface.
- * 
- * @author Andrei Tatarnikov
- */
-
-class StoredValue implements IStoredValue
-{
-    public final Location location;
-
-    public StoredValue(Location location)
-    {
-        this.location = location;
-    }
-
-    @Override
-    public int getBitSize()
-    {
-        return location.getType().getBitSize();
-    }
-
-    @Override
-    public BigInteger getValue()
-    {
-        return new BigInteger(location.getDataCopy().getRawData().toByteArray());
-    }
-
-    public void setValue(BigInteger value)
-    {
-        final RawData newRawData = new RawDataStore(location.getType().getBitSize());
-        final byte[] bytes = value.toByteArray();
-
-        for (int index = 0; index < Math.min(bytes.length, newRawData.getByteSize()); ++index)
-            newRawData.setByte(index, (char)bytes[index]);
-
-        final Data newData = new Data(newRawData, location.getType());
-        location.store(newData);
-    }
-
-    @Override
-    public String toBinString()
-    {
-        return location.getDataCopy().getRawData().toBinString();
+        return current.access(index).externalAccess(); 
     }
 }

@@ -13,9 +13,10 @@
 package ru.ispras.microtesk.model.api.debug;
 
 import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.monitor.IModelStateMonitor;
-import ru.ispras.microtesk.model.api.monitor.IStoredValue;
+import ru.ispras.microtesk.model.api.ILocationAccessor;
 
 public final class ModelStatePrinter
 {
@@ -50,13 +51,20 @@ public final class ModelStatePrinter
         System.out.println("REGISTER STATE:");
         System.out.println();
 
-        final IModelStateMonitor monitor = model.getModelStateMonitor();
+        final IModelStateMonitor monitor = model.getStateMonitor();
         for (IMetaLocationStore r: model.getMetaData().getRegisters())
         {
             for (int index = 0; index < r.getCount(); ++index)
             {
-                final IStoredValue value = monitor.readLocationValue(r.getName(), index);
-                System.out.printf("%s[%d] = %s %n", r.getName(), index, value.toBinString());
+                try
+                {
+                    final ILocationAccessor location = monitor.accessLocation(r.getName(), index);
+                    System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
+                }
+                catch (ConfigurationException e)
+                {
+                    e.printStackTrace();
+                }
             }
             System.out.println();
         }
@@ -69,13 +77,20 @@ public final class ModelStatePrinter
         System.out.println("MEMORY STATE:");
         System.out.println();
 
-        final IModelStateMonitor monitor = model.getModelStateMonitor();
+        final IModelStateMonitor monitor = model.getStateMonitor();
         for (IMetaLocationStore r: model.getMetaData().getMemoryStores())
         {
             for (int index = 0; index < r.getCount(); ++index)
             {
-                final IStoredValue value = monitor.readLocationValue(r.getName(), index);
-                System.out.printf("%s[%d] = %s %n", r.getName(), index, value.toBinString());
+                try
+                {
+                    final ILocationAccessor location = monitor.accessLocation(r.getName(), index);
+                    System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
+                }
+                catch (ConfigurationException e)
+                {
+                    e.printStackTrace();
+                }
             }
             System.out.println();
         }

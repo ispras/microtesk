@@ -10,7 +10,6 @@
  * Label.java, Apr 11, 2013 4:47:19 PM Andrei Tatarnikov
  */
 
-
 package ru.ispras.microtesk.model.api.memory;
 
 public final class Label

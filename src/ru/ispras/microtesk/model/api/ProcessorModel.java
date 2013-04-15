@@ -58,7 +58,7 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
 
     // IModel
     @Override
-    public final IModelStateMonitor getModelStateMonitor()
+    public final IModelStateMonitor getStateMonitor()
     {
         return monitor;
     }
@@ -97,15 +97,6 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
     {
         // TODO NOT IMPLEMENTED YET
         return Collections.emptyList();
-    }
-
-    // IMetaModel
-    @Override
-    public final IMetaLocationReference getPC()
-    {
-        // TODO NOT IMPLEMENTED YET
-        assert false : "NOT IMPLEMENTED";
-        return null;
     }
 
     // ISimulator
