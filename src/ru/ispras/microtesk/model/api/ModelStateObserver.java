@@ -10,7 +10,7 @@
  * ModelStateMonitor.java, Nov 8, 2012 2:03:46 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.monitor;
+package ru.ispras.microtesk.model.api;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ import ru.ispras.microtesk.model.api.memory.MemoryBase;
  * @author Andrei Tatarnikov
  */
 
-public final class ModelStateMonitor implements IModelStateMonitor
+public final class ModelStateObserver implements IModelStateObserver
 {
     private final static String ALREADY_ADDED_ERR_FRMT =
         "The %s item has already been added to the table.";
@@ -41,7 +41,7 @@ public final class ModelStateMonitor implements IModelStateMonitor
     private final Map<String, MemoryBase> memoryMap;
     private final Map<String, Label> labelMap;
 
-    public ModelStateMonitor(
+    public ModelStateObserver(
         MemoryBase[] registers,
         MemoryBase[] memory,
         Label[] labels

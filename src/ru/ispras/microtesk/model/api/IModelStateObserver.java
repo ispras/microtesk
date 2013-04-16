@@ -7,15 +7,15 @@
  * 
  * All rights reserved.
  * 
- * IModelStateMonitor.java, Nov 7, 2012 3:22:58 PM Andrei Tatarnikov
+ * IModelStateObserver.java, Nov 7, 2012 3:22:58 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.monitor;
+package ru.ispras.microtesk.model.api;
 
 import ru.ispras.microtesk.model.api.ILocationAccessor;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
-public interface IModelStateMonitor
+public interface IModelStateObserver
 {
     public ILocationAccessor accessLocation(String name) throws ConfigurationException;
 

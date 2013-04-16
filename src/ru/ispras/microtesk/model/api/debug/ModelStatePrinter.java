@@ -15,7 +15,7 @@ package ru.ispras.microtesk.model.api.debug;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
-import ru.ispras.microtesk.model.api.monitor.IModelStateMonitor;
+import ru.ispras.microtesk.model.api.IModelStateObserver;
 import ru.ispras.microtesk.model.api.ILocationAccessor;
 
 public final class ModelStatePrinter
@@ -51,14 +51,14 @@ public final class ModelStatePrinter
         System.out.println("REGISTER STATE:");
         System.out.println();
 
-        final IModelStateMonitor monitor = model.getStateMonitor();
+        final IModelStateObserver observer = model.getStateObserver();
         for (IMetaLocationStore r: model.getMetaData().getRegisters())
         {
             for (int index = 0; index < r.getCount(); ++index)
             {
                 try
                 {
-                    final ILocationAccessor location = monitor.accessLocation(r.getName(), index);
+                    final ILocationAccessor location = observer.accessLocation(r.getName(), index);
                     System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
                 }
                 catch (ConfigurationException e)
@@ -77,14 +77,14 @@ public final class ModelStatePrinter
         System.out.println("MEMORY STATE:");
         System.out.println();
 
-        final IModelStateMonitor monitor = model.getStateMonitor();
+        final IModelStateObserver observer = model.getStateObserver();
         for (IMetaLocationStore r: model.getMetaData().getMemoryStores())
         {
             for (int index = 0; index < r.getCount(); ++index)
             {
                 try
                 {
-                    final ILocationAccessor location = monitor.accessLocation(r.getName(), index);
+                    final ILocationAccessor location = observer.accessLocation(r.getName(), index);
                     System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
                 }
                 catch (ConfigurationException e)

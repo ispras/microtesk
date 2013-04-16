@@ -19,7 +19,6 @@ import ru.ispras.microtesk.model.api.metadata.*;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBlockBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.instruction.InstructionCallBlockBuilder;
-import ru.ispras.microtesk.model.api.monitor.IModelStateMonitor;
 
 /**
  * The ProcessorModel class is base class for all families of microprocessor
@@ -35,18 +34,19 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
     private final IInstructionSet                    instructions;
     private final Collection<IMetaLocationStore> registerMetaData;
     private final Collection<IMetaLocationStore>   memoryMetaData;
-    private final IModelStateMonitor                      monitor;
+    private final IModelStateObserver                    observer;
 
     public ProcessorModel(
         IInstructionSet instructions,
         Collection<IMetaLocationStore> registerMetaData,
         Collection<IMetaLocationStore> memoryMetaData,
-        IModelStateMonitor monitor)
+        IModelStateObserver observer
+        )
     {
         this.instructions     = instructions;
         this.registerMetaData = registerMetaData;
         this.memoryMetaData   = memoryMetaData;
-        this.monitor          = monitor;
+        this.observer         = observer;
     }
 
     // IModel
@@ -58,9 +58,9 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
 
     // IModel
     @Override
-    public final IModelStateMonitor getStateMonitor()
+    public final IModelStateObserver getStateObserver()
     {
-        return monitor;
+        return observer;
     }
 
     // IModel
