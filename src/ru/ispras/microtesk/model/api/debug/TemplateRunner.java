@@ -32,7 +32,7 @@ public final class TemplateRunner
         final ScriptingContainer container = new ScriptingContainer();
 
         final String scriptsPath =
-            System.getProperty("user.dir") + "/parse_templates.rb";
+            System.getProperty("user.dir") + "/dist/scripts/parse_templates.rb";
 
         container.setArgv(new String[] { designName, templatePath });
         container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
@@ -41,7 +41,7 @@ public final class TemplateRunner
     public static void main(String[] args)
     {
         final String TEMPLATE_DIR_FORMAT =
-            "%s/src/ru/ispras/microtesk/templates/templates/";
+            "%s/dist/scripts/templates/templates/";
 
         if (args.length < 2)
         {
