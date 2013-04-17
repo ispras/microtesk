@@ -38,7 +38,7 @@ class Template
 
   def set_model  (j_model)
     @j_model = j_model
-    @j_monitor = @j_model.getModelStateMonitor()
+    @j_monitor = @j_model.getStateObserver()
   end
 
   # This method adds every subclass of Template to the list of templates to parse
@@ -205,9 +205,9 @@ class Template
 
   def get_loc_value (string, index = nil)
     if index == nil
-      @j_monitor.readLocationValue(string).getValue()
+      @j_monitor.accessLocation(string).getValue()
     else
-      @j_monitor.readLocationValue(string, index).getValue()
+      @j_monitor.accessLocation(string, index).getValue()
     end
   end
 
@@ -221,11 +221,21 @@ class Template
   #
   def get_loc_size (string, index = nil)
     if index == nil
-      @j_monitor.readLocationValue(string).getBitSize()
+      @j_monitor.accessLocation(string).getBitSize()
     else
-      @j_monitor.readLocationValue(string, index).getBitSize()
+      @j_monitor.accessLocation(string, index).getBitSize()
     end
   end
+
+  def set_loc_value (value, string, index = nil)
+    if index == nil
+      @j_monitor.accessLocation(string).setValue(value)
+    else
+      @j_monitor.accessLocation(string, index).setValue(value)
+    end
+  end
+
+
   #
   #def get_mem_size (string, index = nil)
   #  if index == nil
