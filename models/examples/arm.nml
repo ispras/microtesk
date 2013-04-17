@@ -657,23 +657,35 @@ mode greaterOrEqual()
         X = 0b0;
     endif;
     }
+    
+/*
+ARM Manual - Less Than
+
+Flags: N and V differ
+*/
 
 mode lessThan()
     syntax = "LT"
     image = "1011"
     action = {
-    if (CPSR<31..31> == 1 && CPSR<28..28> == 0) || (CPSR<31..31> == 0 & CPSR<28..28> == 1) then
+    if CPSR<31..31> != CPSR<28..28> then
         X = 0b1;
     else
         X = 0b0;
     endif;
     }
 
+/*
+ARM Manual - Greater Than
+
+Flags: Z clear, N and V the same
+*/
+
 mode greaterThan()
     syntax = "GT"
     image = "1100"
     action = {
-    if CPSR<30..30> == 0 && ((CPSR<31..31> == 1 && CPSR<28..28> == 1) || (CPSR<31..31> == 1 && CPSR<28..28> == 0)) then
+    if CPSR<30..30> == 0 && (CPSR<31..31> == CPSR<28..28>) then
         X = 0b1;
     else
         X = 0b0;
@@ -1457,6 +1469,7 @@ op CMP(cond : Condition, src1 : REG, src2 : DATA_PROCESSING)
 
         if (X == 1) then
             ALU_OUT = GPR[src1] - src2;
+
             CPSR<31..31> = ALU_OUT<31..31>;
             if(ALU_OUT == 0) then
                 CPSR<30..30> = 0b1;
@@ -1471,7 +1484,6 @@ op CMP(cond : Condition, src1 : REG, src2 : DATA_PROCESSING)
             endif;
 
             cmp_tmp = coerce(card(32), 0) - src2;
-
             if (GPR[src1]<31..31> == cmp_tmp<31..31>) && (ALU_OUT<31..31> != GPR[src1]<31..31>) then 
                 CPSR<28..28> = 0b1;
             else
