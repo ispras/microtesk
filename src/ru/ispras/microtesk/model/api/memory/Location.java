@@ -109,12 +109,16 @@ public final class Location
         store(arg.load());
         return this;
     }
+    
+    /**
+     * Concatenates two locations: a.concat(b) = a(high) :: b(low)
+     */
 
     public Location concat(Location arg)
     {
         return new Location(
            new Type(type.getTypeID(), type.getBitSize() + arg.getType().getBitSize()),
-           new RawDataMultiMapping(new RawData[] { rawData, arg.rawData } ),
+           new RawDataMultiMapping(new RawData[] {arg.rawData /*low*/, rawData /*high*/}),
            readOnly || arg.readOnly,
            handler
            );
