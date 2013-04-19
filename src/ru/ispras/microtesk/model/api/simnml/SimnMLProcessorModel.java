@@ -17,11 +17,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.model.api.ModelStateObserver;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
+import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 
 /**
  * The SimnMLProcessorModel class is a base class for all microprocessor models

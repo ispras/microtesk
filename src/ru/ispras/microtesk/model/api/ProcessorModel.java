@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import ru.ispras.microtesk.model.api.metadata.*;
+import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBlockBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.instruction.InstructionCallBlockBuilder;

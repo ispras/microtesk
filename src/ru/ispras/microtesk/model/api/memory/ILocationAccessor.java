@@ -10,7 +10,7 @@
  * ILocationAccessor.java, Nov 9, 2012 11:36:59 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api;
+package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 

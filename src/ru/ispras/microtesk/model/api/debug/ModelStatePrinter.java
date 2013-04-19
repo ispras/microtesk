@@ -15,8 +15,8 @@ package ru.ispras.microtesk.model.api.debug;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
-import ru.ispras.microtesk.model.api.IModelStateObserver;
-import ru.ispras.microtesk.model.api.ILocationAccessor;
+import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
 
 public final class ModelStatePrinter
 {

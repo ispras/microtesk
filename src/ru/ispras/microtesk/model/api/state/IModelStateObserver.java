@@ -10,9 +10,9 @@
  * IModelStateObserver.java, Nov 7, 2012 3:22:58 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api;
+package ru.ispras.microtesk.model.api.state;
 
-import ru.ispras.microtesk.model.api.ILocationAccessor;
+import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public interface IModelStateObserver

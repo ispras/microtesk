@@ -13,6 +13,7 @@
 package ru.ispras.microtesk.model.api;
 
 import ru.ispras.microtesk.model.api.metadata.IMetaModel;
+import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 
 /**
  * The IModel interface is main interface that should be implemented by 

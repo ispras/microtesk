@@ -10,14 +10,14 @@
  * ModelStateObserver.java, Nov 8, 2012 2:03:46 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api;
+package ru.ispras.microtesk.model.api.state;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.ILocationAccessor;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
+import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 

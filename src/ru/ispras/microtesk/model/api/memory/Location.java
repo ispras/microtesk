@@ -14,7 +14,6 @@ package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 
-import ru.ispras.microtesk.model.api.ILocationAccessor;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 import ru.ispras.microtesk.model.api.rawdata.RawDataMapping;
 import ru.ispras.microtesk.model.api.rawdata.RawDataMultiMapping;
@@ -79,7 +78,7 @@ public final class Location
     {
         this(type, new RawDataStore(type.getBitSize()), false, null);
     }
-    
+
     public Location(Data data)
     {
         this(data.getType(), data.getRawData(), true, null);
@@ -109,7 +108,7 @@ public final class Location
         store(arg.load());
         return this;
     }
-    
+
     /**
      * Concatenates two locations: a.concat(b) = a(high) :: b(low)
      */
@@ -158,9 +157,9 @@ public final class Location
     public void store(Data data)
     {
         // TODO: Multiple handlers (in the case of concatenation)
-        
+
         assert !readOnly; // TODO: Throw exception            
-        
+
         /*// TODO: NOT SUPPORTED IN THE CURRENT VERSION.
         
         if (null != handler)
@@ -185,7 +184,7 @@ public final class Location
     {
         return new Data(new RawDataStore(rawData), type);
     }
-    
+
     /* TODO: NOT SUPPORTED IN THE CURRENT VERSION.
 
     public void advise(IMemoryAccessHandler handler)
@@ -200,7 +199,7 @@ public final class Location
         this.handler = null;
     }
     */
-    
+
     public ILocationAccessor externalAccess()
     {
         return accessor;
