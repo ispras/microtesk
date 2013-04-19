@@ -3,7 +3,7 @@ package ru.ispras.microtesk.translator.mmu.ir;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 
 public final class IR
 {
