@@ -9,7 +9,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.mmu.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 
 public class SharedSTBuilder implements ITemplateBuilder
 {

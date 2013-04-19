@@ -1,8 +1,6 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
 import ru.ispras.microtesk.model.api.mmu.buffer.Address;
-import ru.ispras.microtesk.translator.mmu.ir.buffer.*;
-import ru.ispras.microtesk.translator.mmu.ir.address.*;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
 
 public class IndexExpr

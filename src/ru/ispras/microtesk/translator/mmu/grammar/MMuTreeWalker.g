@@ -51,23 +51,11 @@ catch (RecognitionException re) { // Default behavior
 package ru.ispras.microtesk.translator.mmu.grammar;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
-import ru.ispras.microtesk.translator.mmu.walker.TreeWalkerBase;
-import ru.ispras.microtesk.translator.mmu.translator.ESymbolKind;
+import ru.ispras.microtesk.translator.mmu.antlrex.TreeWalkerBase;
+import ru.ispras.microtesk.translator.mmu.ESymbolKind;
 
-import ru.ispras.microtesk.translator.mmu.ir.buffer.*;
-import ru.ispras.microtesk.translator.mmu.ir.index.*;
-import ru.ispras.microtesk.translator.mmu.ir.associativity.*;
-import ru.ispras.microtesk.translator.mmu.ir.set.*;
-import ru.ispras.microtesk.translator.mmu.ir.line.*;
-import ru.ispras.microtesk.translator.mmu.ir.policy.*;
-import ru.ispras.microtesk.translator.mmu.ir.address.*;
-import ru.ispras.microtesk.translator.mmu.ir.match.*;
-import ru.ispras.microtesk.translator.mmu.ir.tag.*;
-import ru.ispras.microtesk.translator.mmu.ir.data.*;
-import ru.ispras.microtesk.translator.mmu.ir.length.*;
-import ru.ispras.microtesk.translator.mmu.ir.parameter.*;
+import ru.ispras.microtesk.translator.mmu.ir.*;
 import ru.ispras.microtesk.translator.simnml.ir.expression.*;
-import ru.ispras.microtesk.translator.simnml.ir.memory.*;
 import ru.ispras.microtesk.translator.mmu.ir.IR;
 
 }

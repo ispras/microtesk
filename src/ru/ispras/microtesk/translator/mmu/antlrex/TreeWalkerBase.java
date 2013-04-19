@@ -10,6 +10,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
+import ru.ispras.microtesk.translator.mmu.ESymbolKind;
 import ru.ispras.microtesk.translator.mmu.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExprFactory;
 

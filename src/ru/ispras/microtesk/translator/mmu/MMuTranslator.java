@@ -1,4 +1,4 @@
-package ru.ispras.microtesk.translator.mmu.antlrex;
+package ru.ispras.microtesk.translator.mmu;
 
 import java.io.File;
 import java.io.FileReader;
