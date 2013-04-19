@@ -93,4 +93,11 @@ public final class ModelStateObserver implements IModelStateObserver
 
         return current.access(index).externalAccess(); 
     }
+
+    @Override
+    public int getControlTransferStatus()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

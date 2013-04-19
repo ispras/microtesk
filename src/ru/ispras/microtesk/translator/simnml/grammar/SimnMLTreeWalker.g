@@ -63,15 +63,11 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.simnml.antlrex.TreeWalkerBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
+import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.*;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.*;
-import ru.ispras.microtesk.translator.simnml.ir.let.*;
-import ru.ispras.microtesk.translator.simnml.ir.type.*;
-
-import ru.ispras.microtesk.model.api.memory.EMemoryKind;
-import ru.ispras.microtesk.translator.simnml.ir.memory.*;
-
+import ru.ispras.microtesk.translator.simnml.ir.shared.*;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.*;
 }
 

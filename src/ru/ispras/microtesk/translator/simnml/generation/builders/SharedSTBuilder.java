@@ -27,10 +27,10 @@ import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
 
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
-import ru.ispras.microtesk.translator.simnml.ir.let.LetLabel;
-import ru.ispras.microtesk.translator.simnml.ir.memory.MemoryExpr;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
+import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 

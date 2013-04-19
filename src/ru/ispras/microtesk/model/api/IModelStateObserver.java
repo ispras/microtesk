@@ -20,4 +20,6 @@ public interface IModelStateObserver
     public ILocationAccessor accessLocation(String name) throws ConfigurationException;
 
     public ILocationAccessor accessLocation(String name, int index) throws ConfigurationException;
+
+    public int getControlTransferStatus();
 }

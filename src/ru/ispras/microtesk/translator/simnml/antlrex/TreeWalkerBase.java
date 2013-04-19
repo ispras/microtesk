@@ -38,11 +38,11 @@ import ru.ispras.microtesk.translator.simnml.ir.expression2.ExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.ExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationExprFactoryClass;
-import ru.ispras.microtesk.translator.simnml.ir.let.LetFactory;
-import ru.ispras.microtesk.translator.simnml.ir.memory.MemoryExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.ModeOpFactory;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExprFactory;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetFactory;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExprFactory;
+import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExprFactory;
 
 public class TreeWalkerBase extends TreeParserEx
 {
