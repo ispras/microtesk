@@ -537,6 +537,10 @@ mode FLAGREG = FLAGREGON | FLAGREGOFF
 /*                                                                                          */
 /********************************************************************************************/
 
+/*
+Flags: Z set
+*/
+
 mode equalcond()
     syntax = "EQ"
     image  = "0000"
@@ -548,6 +552,10 @@ mode equalcond()
     endif;
     }
 
+/*
+Flags: Z clear
+*/
+
 mode notEqual()
     syntax = "NE"
     image = "0001"
@@ -558,6 +566,10 @@ mode notEqual()
         X = 0b0;
     endif;
     }
+    
+/*
+Flags: C set
+*/
 
 mode unsignedHigherOrSame()
     syntax = "CS"
@@ -570,6 +582,10 @@ mode unsignedHigherOrSame()
     endif;
     }
 
+/*
+Flags: C clear
+*/
+
 mode unsignedLower()
     syntax = "CC"
     image  = "0011"
@@ -580,6 +596,10 @@ mode unsignedLower()
         X = 0b0;
     endif;
     }
+
+/*
+Flags: N set
+*/
 
 mode negative()
     syntax = "MI"
@@ -592,6 +612,10 @@ mode negative()
     endif;
     }
 
+/*
+Flags: N clear
+*/
+
 mode positiveOrZero()
     syntax = "PL"
     image  = "0101"
@@ -602,6 +626,10 @@ mode positiveOrZero()
         X = 0b0;
     endif;
     }
+
+/*
+Flags: V set
+*/
 
 mode withoverflow()
     syntax = "VS"
@@ -614,6 +642,10 @@ mode withoverflow()
     endif;
     }
 
+/*
+Flags: V clear
+*/
+
 mode noOverflow()
     syntax = "VC"
     image  = "0111"
@@ -624,6 +656,10 @@ mode noOverflow()
         X = 0b0;
     endif;
     }
+    
+/*
+Flags: C set, Z clear
+*/
 
 mode unsignedHigher()
     syntax = "HI"
@@ -636,6 +672,10 @@ mode unsignedHigher()
     endif;
     }
 
+/*
+Flags: C clear or Z set
+*/
+
 mode unsignedLowerOrSame()
     syntax = "LS"
     image  = "1001"
@@ -647,11 +687,16 @@ mode unsignedLowerOrSame()
     endif;
     }
 
+
+/*
+Flags: N and V the same
+*/
+
 mode greaterOrEqual()
     syntax = "GE"
     image = "1010"
     action = {
-    if (CPSR<31..31> == 1 && CPSR<28..28> == 1) || (CPSR<31..31> == 1 && CPSR<28..28> == 0) then
+    if CPSR<31..31> == CPSR<28..28> then
         X = 0b1;
     else
         X = 0b0;
@@ -659,8 +704,6 @@ mode greaterOrEqual()
     }
     
 /*
-ARM Manual - Less Than
-
 Flags: N and V differ
 */
 
@@ -676,8 +719,6 @@ mode lessThan()
     }
 
 /*
-ARM Manual - Greater Than
-
 Flags: Z clear, N and V the same
 */
 
@@ -692,11 +733,15 @@ mode greaterThan()
     endif;
     }
 
+/*
+Flags: Z set or N and V differ
+*/
+
 mode lessThanOrEqual()
     syntax = "LE"
     image = "1101"
     action = {
-    if CPSR<30..30> == 1 || ((CPSR<31..31> == 1 && CPSR<28..28> == 0) || (CPSR<31..31> == 0 & CPSR<28..28> == 1)) then
+    if CPSR<30..30> == 1 || (CPSR<31..31> != CPSR<28..28>) then
         X = 0b1;
     else
         X = 0b0;
@@ -717,20 +762,20 @@ mode never()
         X = 0b0;
     }
 
-mode Condition =  equalcond 
-               |  notEqual 
+mode Condition =  equalcond
+               |  notEqual
                |  unsignedHigherOrSame 
                |  unsignedLower
                |  negative
-               |  positiveOrZero 
-               |  withoverflow 
+               |  positiveOrZero
+               |  withoverflow
                |  noOverflow
-               |  unsignedHigher 
+               |  unsignedHigher
                |  unsignedLowerOrSame 
                |  greaterOrEqual
-               |  lessThan 
-               |  greaterThan 
-               |  lessThanOrEqual 
+               |  lessThan
+               |  greaterThan
+               |  lessThanOrEqual
                |  blank
                |  never
 
