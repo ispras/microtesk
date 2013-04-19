@@ -3,15 +3,6 @@ package ru.ispras.microtesk.translator.mmu.ir;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.mmu.ir.address.AddressExpr;
-import ru.ispras.microtesk.translator.mmu.ir.associativity.AssociativityExpr;
-import ru.ispras.microtesk.translator.mmu.ir.buffer.BufferExpr;
-import ru.ispras.microtesk.translator.mmu.ir.index.IndexExpr;
-import ru.ispras.microtesk.translator.mmu.ir.line.LineExpr;
-import ru.ispras.microtesk.translator.mmu.ir.match.MatchExpr;
-import ru.ispras.microtesk.translator.mmu.ir.policy.EPolicyType;
-import ru.ispras.microtesk.translator.mmu.ir.set.SetsExpr;
-import ru.ispras.microtesk.translator.mmu.ir.tag.TagExpr;
 import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
 
 public final class IR
