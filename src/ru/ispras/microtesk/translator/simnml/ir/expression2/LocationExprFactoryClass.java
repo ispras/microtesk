@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
@@ -74,7 +75,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
         final ESymbolKind kind = symbol.getKind();
 
         if ((ESymbolKind.MEMORY != kind) && (ESymbolKind.ARGUMENT != kind))
-            reporter.raiseError(new SymbolTypeMismatch<ESymbolKind>(name, kind, ESymbolKind.MEMORY, ESymbolKind.ARGUMENT));
+            reporter.raiseError(new SymbolTypeMismatch<ESymbolKind>(name, kind, Arrays.asList(ESymbolKind.MEMORY, ESymbolKind.ARGUMENT)));
 
         if (ESymbolKind.MEMORY == kind)
         {

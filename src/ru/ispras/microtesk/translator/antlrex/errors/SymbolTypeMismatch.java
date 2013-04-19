@@ -12,6 +12,9 @@
 
 package ru.ispras.microtesk.translator.antlrex.errors;
 
+import java.util.Collections;
+import java.util.List;
+
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
 public final class SymbolTypeMismatch<Kind extends Enum<Kind>> implements ISemanticError
@@ -19,28 +22,33 @@ public final class SymbolTypeMismatch<Kind extends Enum<Kind>> implements ISeman
     public static final String FORMAT =
         "The '%s' symbol uses a wrong type. It is %s while %s is expected in this expression.";
 
-    private final String symbolName;
-    private final Kind         kind;
-    private final Kind[]   expected;
+    private final String   symbolName;
+    private final Kind           kind;
+    private final List<Kind> expected;
 
-    public SymbolTypeMismatch(String symbolName, Kind kind, Kind ... expected)
+    public SymbolTypeMismatch(String symbolName, Kind kind, Kind expected)
+    {
+        this(symbolName, kind, Collections.singletonList(expected));
+    }
+
+    public SymbolTypeMismatch(String symbolName, Kind kind, List<Kind> expected)
     {
         this.symbolName = symbolName;
         this.kind       = kind;
         this.expected   = expected;
     }
 
-    private static <Kind extends Enum<Kind>> String kindsToString(Kind[] kinds)
+    private static <Kind extends Enum<Kind>> String kindsToString(List<Kind> kinds)
     {
         final StringBuffer sb = new StringBuffer(); 
 
-        if (kinds.length > 1) sb.append('{');
+        if (kinds.size() > 1) sb.append('{');
         for (Kind k : kinds)
         {
             if (sb.length() > 0) sb.append(", ");
             sb.append(k.name());
         }
-        if (kinds.length > 1) sb.append('}');
+        if (kinds.size() > 1) sb.append('}');
 
         return sb.toString();
     }
