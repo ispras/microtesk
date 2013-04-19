@@ -19,6 +19,8 @@ package ru.ispras.microtesk.test.core.random;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class RandomGenerator
+public interface IRandomGenerator
 {
+    public void seed(int s);
+    public int  next();
 }

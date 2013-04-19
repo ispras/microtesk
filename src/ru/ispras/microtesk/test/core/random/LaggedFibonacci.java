@@ -23,7 +23,7 @@ import java.util.Arrays;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class LaggedFibonacci
+public final class LaggedFibonacci implements IRandomGenerator
 {
     private final static int J = 24;
     private final static int K = 55;

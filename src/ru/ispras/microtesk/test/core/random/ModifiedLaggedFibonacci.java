@@ -21,7 +21,7 @@ package ru.ispras.microtesk.test.core.random;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ModifiedLaggedFibonacci
+public final class ModifiedLaggedFibonacci implements IRandomGenerator
 {
     private LaggedFibonacci x;
     private LaggedFibonacci y;
