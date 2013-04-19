@@ -10,7 +10,7 @@
  * MemoryExprFactory.java, Dec 13, 2012 1:32:04 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.memory;
+package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -19,7 +19,6 @@ import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
 
 public final class MemoryExprFactory
 {

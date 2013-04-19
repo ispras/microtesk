@@ -26,10 +26,10 @@ import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
-import ru.ispras.microtesk.translator.simnml.ir.memory.MemoryExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.ArgumentTypeExpr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Mode;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
 
 public final class LocationExprFactoryClass
 {

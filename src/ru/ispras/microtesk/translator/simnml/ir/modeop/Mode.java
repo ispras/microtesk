@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public final class Mode extends Primitive<Mode>
 {

@@ -10,7 +10,7 @@
  * LetExpr.java, Oct 22, 2012 1:49:26 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.let;
+package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 public final class LetExpr
 {

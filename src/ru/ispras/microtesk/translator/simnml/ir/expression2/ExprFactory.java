@@ -14,7 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public interface ExprFactory
 {

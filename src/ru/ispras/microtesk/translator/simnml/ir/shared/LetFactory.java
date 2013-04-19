@@ -10,7 +10,7 @@
  * LetFactory.java, Apr 11, 2013 4:46:47 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.let;
+package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

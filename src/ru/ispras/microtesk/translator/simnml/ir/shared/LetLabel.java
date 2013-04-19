@@ -10,7 +10,7 @@
  * LetLabel.java, Apr 11, 2013 4:47:36 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.let;
+package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 public final class LetLabel
 {

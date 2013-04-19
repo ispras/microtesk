@@ -21,8 +21,8 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
-import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 interface ExprFactoryCreator
 {

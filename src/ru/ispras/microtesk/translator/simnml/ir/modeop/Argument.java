@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.modeop;
 
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 

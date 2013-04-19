@@ -21,7 +21,7 @@ import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.UnsupportedConstOperation;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 import ru.ispras.microtesk.translator.simnml.errors.ValueTypeMismatch;
-import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 
 /**
  * The ConstExprFactory class provides logic for semantic analysis of 

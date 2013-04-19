@@ -10,11 +10,10 @@
  * MemoryExp.java, Dec 13, 2012 1:27:55 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.memory;
+package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
 
 public final class MemoryExpr
 {

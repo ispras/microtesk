@@ -17,10 +17,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
-import ru.ispras.microtesk.translator.simnml.ir.let.LetExpr;
-import ru.ispras.microtesk.translator.simnml.ir.let.LetLabel;
-import ru.ispras.microtesk.translator.simnml.ir.memory.MemoryExpr;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
+import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Mode;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Op;
 

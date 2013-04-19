@@ -10,7 +10,7 @@
  * TypeExpr.java, Oct 22, 2012 1:53:02 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.type;
+package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;

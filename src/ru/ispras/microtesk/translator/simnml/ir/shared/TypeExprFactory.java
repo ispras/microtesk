@@ -10,7 +10,7 @@
  * TypeExprFactory.java, Oct 22, 2012 1:53:18 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.type;
+package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import java.util.Map;
 

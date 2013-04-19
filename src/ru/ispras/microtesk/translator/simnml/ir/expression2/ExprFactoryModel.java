@@ -16,7 +16,7 @@ import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 final class ExprFactoryModel extends ExprFactoryBase implements ExprFactory
 {

@@ -15,7 +15,7 @@ package ru.ispras.microtesk.translator.simnml.ir.modeop;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.EExprKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.type.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public interface FormatArgument
 {
