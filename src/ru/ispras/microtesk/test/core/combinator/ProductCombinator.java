@@ -19,6 +19,6 @@ package ru.ispras.microtesk.test.core.combinator;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class ProductCombinator extends ProductCombinator
+public class ProductCombinator extends BaseCombinator
 {
 }
