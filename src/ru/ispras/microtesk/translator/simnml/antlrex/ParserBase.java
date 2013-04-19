@@ -21,7 +21,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.ParserEx;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
-import ru.ispras.microtesk.translator.simnml.errors.SymbolTypeMismatch;
+import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 
 public class ParserBase extends ParserEx
@@ -73,7 +73,7 @@ public class ParserBase extends ParserEx
             raiseError(new UndeclaredSymbol(t.getText()));
         
         if (expectedKind != symbol.getKind())
-            raiseError(new SymbolTypeMismatch(t.getText(), symbol.getKind(), expectedKind));
+            raiseError(new SymbolTypeMismatch<ESymbolKind>(t.getText(), symbol.getKind(), expectedKind));
     }
 
     protected final boolean isDeclaredAs(Token t, ESymbolKind expectedKind)

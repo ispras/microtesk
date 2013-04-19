@@ -197,7 +197,7 @@ public class SimnMLAnalyzer
     ///////////////////////////////////////////////////////////////////////////
     // Debug
     ///////////////////////////////////////////////////////////////////////////
-
+/*
     private static void print(final CommonTree tree)
     {
         print(tree, 0);
@@ -219,4 +219,5 @@ public class SimnMLAnalyzer
         for(int i = 0; i < ast.getChildCount(); i++)
             { print(ast.getChild(i), indent + 1); }
     }
+*/
 }

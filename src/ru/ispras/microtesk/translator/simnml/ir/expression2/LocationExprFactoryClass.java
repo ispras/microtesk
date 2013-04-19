@@ -21,7 +21,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.errors.SymbolTypeMismatch;
+import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
@@ -74,7 +74,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
         final ESymbolKind kind = symbol.getKind();
 
         if ((ESymbolKind.MEMORY != kind) && (ESymbolKind.ARGUMENT != kind))
-            reporter.raiseError(new SymbolTypeMismatch(name, kind, ESymbolKind.MEMORY, ESymbolKind.ARGUMENT));
+            reporter.raiseError(new SymbolTypeMismatch<ESymbolKind>(name, kind, ESymbolKind.MEMORY, ESymbolKind.ARGUMENT));
 
         if (ESymbolKind.MEMORY == kind)
         {
@@ -99,7 +99,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
         final ESymbolKind kind = symbol.getKind();
 
         if (ESymbolKind.MEMORY != kind)
-            reporter.raiseError(new SymbolTypeMismatch(name, kind, ESymbolKind.MEMORY));
+            reporter.raiseError(new SymbolTypeMismatch<ESymbolKind>(name, kind, ESymbolKind.MEMORY));
 
         final MemoryBasedLocationCreator creator = new MemoryBasedLocationCreator(w, name, index);
         return creator.create();
