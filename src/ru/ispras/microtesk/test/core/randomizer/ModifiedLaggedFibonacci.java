@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.random;
+package ru.ispras.microtesk.test.core.randomizer;
 
 /**
  * Modified additive lagged Fibonacci random number generator.
@@ -37,12 +37,14 @@ public final class ModifiedLaggedFibonacci implements IRandomGenerator
         y = new LaggedFibonacci(s + 1);
     }
     
+    @Override
     public void seed(int s)
     {
         x.seed(s);
         y.seed(s + 1);
     }
 
+    @Override
     public int next()
     {
         // Avoid bit correlations.

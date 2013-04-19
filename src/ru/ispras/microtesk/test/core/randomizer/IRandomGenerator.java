@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.random;
+package ru.ispras.microtesk.test.core.randomizer;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
