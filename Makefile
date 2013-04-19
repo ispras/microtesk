@@ -7,7 +7,7 @@ else
     DELIMITER = ;
 endif
 
-LIB_CLASSPATH       = ../jars/ant-antlr3.jar$(DELIMITER)../jars/antlr-3.4-complete.jar$(DELIMITER)../jars/commons-cli-1.2.jar
+LIB_CLASSPATH       = ./jars/ant-antlr3.jar$(DELIMITER)./jars/antlr-3.4-complete.jar$(DELIMITER)./jars/commons-cli-1.2.jar
 MICROTESK_CLASSPATH = dist/microtesk.jar$(DELIMITER)$(LIB_CLASSPATH)
 
 all:
