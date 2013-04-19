@@ -7,22 +7,16 @@
  * 
  * All rights reserved.
  * 
- * IMemoryArray.java, Apr 15, 2013 4:57:37 PM Andrei Tatarnikov
+ * IMemory.java, Apr 15, 2013 4:57:37 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.model.api.memory;
 
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 
-/**
- * TODO:
- * 
- * @author andrewt
- *
- */
-
-public interface IMemoryArray
+public interface IMemory
 {
-    public int count();
-    public RawData getItem(int index);    
+    public int sizeInBytes();
+    public RawData read(int address);
+    public void write(int address, RawData data);
 }
