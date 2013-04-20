@@ -19,5 +19,8 @@ run:
 translator:
 	java -classpath "$(MICROTESK_CLASSPATH)" ru.ispras.microtesk.translator.simnml.SimnMLTranslator $(TEST)
 
+junit:
+	ant -lib "$(LIB_CLASSPATH)" junit
+
 help:
 	@echo "make [target], where target is all, run or help"

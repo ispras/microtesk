@@ -27,8 +27,24 @@ import ru.ispras.microtesk.model.api.rawdata.RawData;
  */
 public final class Randomizer
 {
+    /// The randomizer instance. 
+    private static Randomizer randomizer = new Randomizer();
+    
+    /**
+     * Returns the randomizer instance.
+     *
+     * @return the randomizer instance.
+     */
+    public static Randomizer get()
+    {
+        return randomizer;
+    }
+    
     /// The random number generator used by the randomizer.
     private IRandomGenerator generator = new ModifiedLaggedFibonacci();
+    
+    /// The randomizer constructor is private. 
+    private Randomizer() {}
     
     /**
      * Returns the current random number generator.
@@ -137,6 +153,17 @@ public final class Randomizer
     public <T> T choose(final T[] array)
     {
         return array[next() % array.length];
+    }
+    
+    /**
+     * Chooses a variant ([0, N-1]) according to the probability distribution.
+     *
+     * @return a randomly chosen variant.
+     * @param biases the probability distribution.
+     */
+    public int choose(final Distribution biases)
+    {
+        return biases.getVariant(next() % biases.getMaxProbability());
     }
     
     /**

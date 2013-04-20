@@ -17,15 +17,35 @@
 package ru.ispras.microtesk.test.core.compositor;
 
 import ru.ispras.microtesk.test.core.Sequence;
+import ru.ispras.microtesk.test.core.randomizer.Distribution;
+import ru.ispras.microtesk.test.core.randomizer.Randomizer;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class RandomCompositor<T> extends BaseCompositor<T>
 {
+    @SuppressWarnings("unchecked")
     public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
     {
         Sequence<T> result = new Sequence<T>();
+        
+        if(lhs.isEmpty()) { result.addAll(rhs); return result; }
+        if(rhs.isEmpty()) { result.addAll(lhs); return result; }
+        
+        int[] s = new int[] { lhs.size(), rhs.size() };        
+        int[] i = new int[] { 0, 0 };
+
+        Sequence<T>[] seqs  = new Sequence[] { lhs, rhs };
+        Distribution biases = new Distribution(s);
+        
+        while(i[0] < s[0] || i[1] < s[1])
+        {
+            final int k = Randomizer.get().choose(biases);
+            
+            if(i[k] < s[k])
+                { result.add(seqs[k].get(i[k]++)); }
+        }
         
         return result;
     }
