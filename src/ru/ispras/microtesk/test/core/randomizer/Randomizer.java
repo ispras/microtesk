@@ -27,7 +27,7 @@ import ru.ispras.microtesk.model.api.rawdata.RawData;
  */
 public final class Randomizer
 {
-    /// The random number generator being used by the randomizer.
+    /// The random number generator used by the randomizer.
     private IRandomGenerator generator = new ModifiedLaggedFibonacci();
     
     /**
@@ -60,21 +60,91 @@ public final class Randomizer
         generator.seed(seed);
     }
     
+    /// @return the next random integer number.
+    public int next()
+    {
+        return generator.next();
+    }
+    
+    /// @return the bit mask of the given width.
+    public int mask(int width)
+    {
+        return width >= Integer.SIZE ? -1 : (1 << width) - 1;
+    }
+    
+    /// @return the bit mask for the given range.
+    public int mask(int lo, int hi)
+    {
+        int x = lo < hi ? lo : hi;
+        int y = lo < hi ? hi : lo;
+            
+        if(y > Integer.SIZE)
+            { y = Integer.SIZE; }
+            
+        return mask((y - x) + 1) << lo;
+    }
+    
     /// @return A random byte.
     public byte nextByte() { return (byte)next(); }
     /// @return A random char.
     public char nextChar() { return (char)next(); }
     /// @return A random int.
-    public int  nextInt()  { return ( int)next(); }
+    public int  nextInt()  { return (int)next(); }
     /// @return A random long.
-    public long nextLong() { return (long)next(); }
+    public long nextLong() { return ((long)next() << Integer.SIZE) | next(); }
 
+    /**
+     * Returns a random number from the given range.
+     *
+     * @return a random number.
+     * @param min the low bound of the range.
+     * @param max the high bound of the range.
+     */
+    public int nextIntRange(int min, int max)
+    {
+        return min + next() % ((max - min) + 1);
+    }
+
+    /**
+     * Returns a random number of the given bit size (width).
+     *
+     * @return a random number.
+     * @param width the bit size.
+     */
+    public int nextIntField(int width)
+    {
+        return next() & mask(width);
+    }
+
+    /**
+     * Returns a number with the randomized range of bits (field).
+     *
+     * @return a random number.
+     * @param lo the low bound of the field.
+     * @param hi the high bound of the field.
+     */
+    public int nextIntField(int lo, int hi)
+    {
+        return next() & mask(lo, hi);
+    }
+
+    /**
+     * Chooses a random item of the given array.
+     *
+     * @return a random item of the array.
+     * @param array the array whoose items are chosen.
+     */
+    public <T> T choose(final T[] array)
+    {
+        return array[next() % array.length];
+    }
+    
     /**
      * Fills the byte array with random data.
      *
      * @param data the array to be randomized.
      */
-    public void fillByteArray(byte[] data)
+    public void fill(byte[] data)
     {
         for(int i = 0; i < data.length; i++)
             { data[i] = nextByte(); }
@@ -85,7 +155,7 @@ public final class Randomizer
      *
      * @param data the array to be randomized.
      */
-    public void fillCharArray(char[] data)
+    public void fill(char[] data)
     {
         for(int i = 0; i < data.length; i++)
             { data[i] = nextChar(); }
@@ -96,7 +166,7 @@ public final class Randomizer
      *
      * @param data the array to be randomized.
      */
-    public void fillIntArray(int[] data)
+    public void fill(int[] data)
     {
         for(int i = 0; i < data.length; i++)
             { data[i] = nextInt(); }
@@ -107,7 +177,7 @@ public final class Randomizer
      *
      * @param data the array to be randomized.
      */
-    public void fillLongArray(long[] data)
+    public void fill(long[] data)
     {
         for(int i = 0; i < data.length; i++)
             { data[i] = nextLong(); }
@@ -118,17 +188,13 @@ public final class Randomizer
      *
      * @param data the raw data storage to be randomized.
      */
-    public void fillRawData(RawData data)
+    public void fill(RawData data)
     {
         final int s = data.getBitSize() / RawData.BITS_IN_BYTE +
                      (data.getBitSize() % RawData.BITS_IN_BYTE != 0 ? 1 : 0);
         
         for(int i = 0; i < s; i++)
             { data.setByte(i, nextChar()); }
-    }
 
-    private int next()
-    {
-        return generator.next();
     }
 }
