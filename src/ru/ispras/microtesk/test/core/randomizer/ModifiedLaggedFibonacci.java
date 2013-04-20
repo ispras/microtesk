@@ -17,20 +17,31 @@
 package ru.ispras.microtesk.test.core.randomizer;
 
 /**
- * Modified additive lagged Fibonacci random number generator.
+ * The modified additive lagged Fibonacci random number generator.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class ModifiedLaggedFibonacci implements IRandomGenerator
 {
+    // The algorithm uses two independent Fibonacci generators.
     private LaggedFibonacci x;
     private LaggedFibonacci y;
 
+    /**
+     * Constructs a modified additive lagged Fibonacci random number generator
+     * with the default (zero) seed.
+     */
     public ModifiedLaggedFibonacci()
     {
         this(0);
     }
     
+    /**
+     * Constructs a modified additive lagged Fibonacci random number generator
+     * with the given seed.
+     *
+     * @param s the seed to be set.
+     */
     public ModifiedLaggedFibonacci(int s)
     {
         x = new LaggedFibonacci(s);
@@ -40,6 +51,7 @@ public final class ModifiedLaggedFibonacci implements IRandomGenerator
     @Override
     public void seed(int s)
     {
+        // Two consequent seeds are used.
         x.seed(s);
         y.seed(s + 1);
     }
@@ -47,7 +59,7 @@ public final class ModifiedLaggedFibonacci implements IRandomGenerator
     @Override
     public int next()
     {
-        // Avoid bit correlations.
+        // The further is to avoid bit correlations.
         return (x.next() & ~1) ^ (y.next() >> 1);
     }
 }

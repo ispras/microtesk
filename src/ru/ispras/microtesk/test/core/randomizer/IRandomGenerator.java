@@ -17,10 +17,23 @@
 package ru.ispras.microtesk.test.core.randomizer;
 
 /**
+ * A random number generator interface.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface IRandomGenerator
 {
+    /**
+     * Sets the seed of the random number generator.
+     *
+     * @param s the seed to be set.
+     */
     public void seed(int s);
-    public int  next();
+    
+    /**
+     * Returns the next random integer number.
+     *
+     * @return the random int.
+     */
+    public int next();
 }
