@@ -16,9 +16,15 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
+import ru.ispras.microtesk.test.core.Sequence;
+
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class OverlapCompositor extends BaseCompositor
+public class OverlapCompositor<T> extends BaseCompositor<T>
 {
+    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
+    {
+        return null;
+    }
 }

@@ -16,9 +16,17 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
+import ru.ispras.microtesk.test.core.Sequence;
+
 /**
+ * This is a rotation (interleaving) compositor of two sequences.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class RotationCompositor extends BaseCompositor
+public class RotationCompositor<T> extends BaseCompositor<T>
 {
+    public Sequence<T> compose(final Sequence<T> lhs, final Sequence <T> rhs)
+    {
+        return null;
+    }
 }

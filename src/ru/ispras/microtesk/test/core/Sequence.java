@@ -14,18 +14,30 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.compositor;
+package ru.ispras.microtesk.test.core;
 
-import ru.ispras.microtesk.test.core.Sequence;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * This class is a basic compositor of two sequences. It takes two sequences
- * and merges them into a single sequence. The main restriction is that a
- * a compositor should not change the order of items within a sequence.
- * 
+ * This class describes abstract sequences of items.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class BaseCompositor<T>
+public class Sequence<T> extends AbstractList<T>
 {
-    public abstract Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs);
+    private List<T> items = new ArrayList<T>();
+
+    @Override
+    public T get(int i)
+    {
+        return items.get(i);
+    }
+    
+    @Override
+    public int size()
+    {
+        return items.size();
+    }
 }

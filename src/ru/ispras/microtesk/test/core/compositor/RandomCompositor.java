@@ -16,9 +16,17 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
+import ru.ispras.microtesk.test.core.Sequence;
+
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class RandomCompositor extends BaseCompositor
+public class RandomCompositor<T> extends BaseCompositor<T>
 {
+    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
+    {
+        Sequence<T> result = new Sequence<T>();
+        
+        return result;
+    }
 }

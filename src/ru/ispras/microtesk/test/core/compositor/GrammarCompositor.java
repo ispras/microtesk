@@ -16,11 +16,17 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
+import ru.ispras.microtesk.test.core.Sequence;
+
 /**
  * A general, grammar-based sequence composer.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class GrammarCompositor extends BaseCompositor
+public class GrammarCompositor<T> extends BaseCompositor<T>
 {
+    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
+    {
+        return null;
+    }
 }
