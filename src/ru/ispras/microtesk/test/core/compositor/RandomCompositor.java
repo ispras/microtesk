@@ -21,6 +21,8 @@ import ru.ispras.microtesk.test.core.randomizer.Distribution;
 import ru.ispras.microtesk.test.core.randomizer.Randomizer;
 
 /**
+ * This class implements random composition of two sequences.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class RandomCompositor<T> extends BaseCompositor<T>

@@ -19,14 +19,31 @@ package ru.ispras.microtesk.test.core.compositor;
 import ru.ispras.microtesk.test.core.Sequence;
 
 /**
- * This is a rotation (interleaving) compositor of two sequences.
+ * This class implements rotation (interleaving) composition of two sequences.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class RotationCompositor<T> extends BaseCompositor<T>
 {
-    public Sequence<T> compose(final Sequence<T> lhs, final Sequence <T> rhs)
+    @SuppressWarnings("unchecked")
+    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
     {
-        return null;
+        Sequence<T> result = new Sequence<T>();
+        
+        if(lhs.isEmpty()) { result.addAll(rhs); return result; }
+        if(rhs.isEmpty()) { result.addAll(lhs); return result; }
+        
+        int[] s = new int[] { lhs.size(), rhs.size() };        
+        int[] i = new int[] { 0, 0 };
+
+        Sequence<T>[] seqs  = new Sequence[] { lhs, rhs };
+          
+        while(i[0] < s[0] || i[1] < s[1])
+        {
+            if(i[0] < s[0]) { result.add(seqs[0].get(i[0]++)); }
+            if(i[1] < s[1]) { result.add(seqs[1].get(i[1]++)); }
+        }
+        
+        return result;
     }
 }
