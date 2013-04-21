@@ -29,6 +29,10 @@ public class Sequence<T> extends AbstractList<T>
 {
     private List<T> items = new ArrayList<T>();
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Implementation of the abstract list's abstract methods
+    ///////////////////////////////////////////////////////////////////////////
+
     @Override
     public T get(int i)
     {

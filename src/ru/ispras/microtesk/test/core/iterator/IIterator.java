@@ -43,7 +43,4 @@ public interface IIterator<T>
     
     /** Makes the iteration. */
     public void next();
-
-    /** Stops the iteration. */
-    public void stop();
 }

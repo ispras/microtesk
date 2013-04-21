@@ -17,8 +17,16 @@
 package ru.ispras.microtesk.test.core.iterator;
 
 /**
+ * This is a generic bounded iterator interface.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class BoundedIterator implements IIterator
+public interface IBoundedIterator<T> extends IIterator<T>
 {
+    /**
+     * Returns the size of the collection of the iterated items.
+     *
+     * @return the number of items being iterated.
+     */
+    public int size();
 }
