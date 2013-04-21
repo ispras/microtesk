@@ -16,14 +16,15 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
-import ru.ispras.microtesk.test.core.Sequence;
+import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class OverlapCompositor<T> extends BaseCompositor<T>
 {
-    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
+    @Override
+    protected IIterator choose()
     {
         return null;
     }

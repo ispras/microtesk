@@ -16,7 +16,7 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
-import ru.ispras.microtesk.test.core.Sequence;
+import ru.ispras.microtesk.test.core.iterator.IIterator;
 import ru.ispras.microtesk.test.core.randomizer.Distribution;
 import ru.ispras.microtesk.test.core.randomizer.Randomizer;
 
@@ -27,6 +27,13 @@ import ru.ispras.microtesk.test.core.randomizer.Randomizer;
  */
 public class RandomCompositor<T> extends BaseCompositor<T>
 {
+    @Override
+    protected IIterator choose()
+    {
+        return null;
+    }
+
+/*
     @SuppressWarnings("unchecked")
     public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
     {
@@ -51,4 +58,5 @@ public class RandomCompositor<T> extends BaseCompositor<T>
         
         return result;
     }
+*/
 }

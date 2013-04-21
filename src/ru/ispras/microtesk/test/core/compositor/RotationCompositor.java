@@ -16,34 +16,51 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
-import ru.ispras.microtesk.test.core.Sequence;
+import java.util.List;
+
+import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
- * This class implements rotation (interleaving) composition of two sequences.
+ * This class implements rotation (interleaving) of two iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class RotationCompositor<T> extends BaseCompositor<T>
 {
-    @SuppressWarnings("unchecked")
-    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
-    {
-        Sequence<T> result = new Sequence<T>();
-        
-        if(lhs.isEmpty()) { result.addAll(rhs); return result; }
-        if(rhs.isEmpty()) { result.addAll(lhs); return result; }
-        
-        int[] s = new int[] { lhs.size(), rhs.size() };        
-        int[] i = new int[] { 0, 0 };
+    private int i;
 
-        Sequence<T>[] seqs  = new Sequence[] { lhs, rhs };
-          
-        while(i[0] < s[0] || i[1] < s[1])
+    public RotationCompositor()
+    {
+        super();
+    }
+    
+    public RotationCompositor(final List<IIterator<T>> iterators)
+    {
+        super(iterators);
+    }
+
+    @Override
+    protected void onInit()
+    {
+        i = 0;
+    }
+    
+    @Override
+    protected IIterator<T> choose()
+    {
+        for(int j = 0; j < iterators.size(); j++)
         {
-            if(i[0] < s[0]) { result.add(seqs[0].get(i[0]++)); }
-            if(i[1] < s[1]) { result.add(seqs[1].get(i[1]++)); }
+            final int k = (i + j) % iterators.size();
+            
+            if(iterators.get(k).hasValue())
+            {
+                // The next choice will start from the next iterator.
+                i = (k + 1) % iterators.size();
+
+                return iterators.get(k);
+            }
         }
         
-        return result;
+        return null;
     }
 }

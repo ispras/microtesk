@@ -26,32 +26,32 @@ public class ArrayIterator<T> implements IBoundedIterator<T>
     // The iterated array.
     private T[] array;
     // The current index.
-	private int index;
+    private int index;
     // The flag that refrects availability of the value.
-	private boolean hasValue;
+    private boolean hasValue;
 	
     /**
      * Constructs an array iterator.
      * 
      * @param array the array to be iterated.
      */
-	public ArrayIterator(final T[] array)
-	{	
-		this.array = array;
-	}
+    public ArrayIterator(final T[] array)
+    {	
+        this.array = array;
+    }
     
     @Override
-	public void init()
-	{
-		index = 0;
-		hasValue = (array != null && array.length > 0);
-	}
+    public void init()
+    {
+        index = 0;
+        hasValue = (array != null && array.length > 0);
+    }
     
     @Override
-	public boolean hasValue()
-	{
-		return hasValue;
-	}
+    public boolean hasValue()
+    {
+        return hasValue;
+    }
 
     @Override
     public T value()
@@ -60,13 +60,13 @@ public class ArrayIterator<T> implements IBoundedIterator<T>
     }
     
     @Override
-	public void next()
-	{
-		if(index == array.length - 1)
-			{ hasValue = false; }
-		else
-			{ index++; }
-	}
+    public void next()
+    {
+        if(index == array.length - 1)
+            { hasValue = false; }
+        else
+            { index++; }
+    }
 
     @Override
     public int size()

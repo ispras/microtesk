@@ -16,22 +16,44 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
-import ru.ispras.microtesk.test.core.Sequence;
+import java.util.List;
+
+import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
- * This class implements concatenation of two sequences.
+ * This class implements concatenation of two iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class ConcatCompositor<T> extends BaseCompositor<T>
 {
-    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
+    private int i;
+
+    public ConcatCompositor()
     {
-        Sequence<T> result = new Sequence<T>();
-        
-        result.addAll(lhs);
-        result.addAll(rhs);
-        
-        return result;
+        super();
+    }
+    
+    public ConcatCompositor(final List<IIterator<T>> iterators)
+    {
+        super(iterators);
+    }
+
+    @Override
+    protected void onInit()
+    {
+        i = 0;
+    }
+    
+    @Override
+    protected IIterator<T> choose()
+    {
+        for(; i < iterators.size(); i++)
+        {
+            if(iterators.get(i).hasValue())
+                { return iterators.get(i); }
+        }
+
+        return null;        
     }
 }

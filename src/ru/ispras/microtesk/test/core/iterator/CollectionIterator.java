@@ -31,7 +31,7 @@ public class CollectionIterator<T> implements IBoundedIterator<T>
     // The collection iterator.
     private Iterator<T> iterator;
     // The flag that refrects availability of the value.
-	private boolean hasValue;    
+    private boolean hasValue;    
     // The current value.
     private T value;
 	
@@ -40,24 +40,24 @@ public class CollectionIterator<T> implements IBoundedIterator<T>
      * 
      * @param collection the collection to be iterated.
      */
-	public CollectionIterator(final Collection<T> collection)
-	{	
-		this.collection = collection;
-	}
+    public CollectionIterator(final Collection<T> collection)
+    {	
+        this.collection = collection;
+    }
     
     @Override
-	public void init()
-	{
+    public void init()
+    {
         iterator = collection.iterator();
-		hasValue = iterator.hasNext();
-		value    = iterator.next();
-	}
+        hasValue = iterator.hasNext();
+        value    = iterator.next();
+    }
     
     @Override
-	public boolean hasValue()
-	{
-		return hasValue;
-	}
+    public boolean hasValue()
+    {
+        return hasValue;
+    }
 
     @Override
     public T value()
@@ -66,11 +66,11 @@ public class CollectionIterator<T> implements IBoundedIterator<T>
     }
     
     @Override
-	public void next()
-	{
-		hasValue = iterator.hasNext();
-		value    = iterator.next();
-	}
+    public void next()
+    {
+        hasValue = iterator.hasNext();
+        value    = iterator.next();
+    }
 
     @Override
     public int size()

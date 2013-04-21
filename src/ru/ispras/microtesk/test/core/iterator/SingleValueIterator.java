@@ -24,7 +24,7 @@ package ru.ispras.microtesk.test.core.iterator;
 public class SingleValueIterator<T> implements IBoundedIterator<T>
 {
     // The flag that refrects availability of the value.
-	private boolean hasValue;
+    private boolean hasValue;
     // The value itself.
     private T value;
     
@@ -39,16 +39,16 @@ public class SingleValueIterator<T> implements IBoundedIterator<T>
     }
     
     @Override
-	public void init()
-	{
+    public void init()
+    {
         hasValue = true;
-	}
+    }
     
     @Override
-	public boolean hasValue()
-	{
-		return hasValue;
-	}
+    public boolean hasValue()
+    {
+        return hasValue;
+    }
 
     @Override
     public T value()
@@ -57,10 +57,10 @@ public class SingleValueIterator<T> implements IBoundedIterator<T>
     }
     
     @Override
-	public void next()
-	{
+    public void next()
+    {
         hasValue = false;
-	}
+    }
 
     @Override
     public int size()

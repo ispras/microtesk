@@ -16,7 +16,7 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
-import ru.ispras.microtesk.test.core.Sequence;
+import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
  * A general, grammar-based sequence composer.
@@ -25,7 +25,8 @@ import ru.ispras.microtesk.test.core.Sequence;
  */
 public class GrammarCompositor<T> extends BaseCompositor<T>
 {
-    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
+    @Override
+    protected IIterator choose()
     {
         return null;
     }
