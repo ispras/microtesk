@@ -8,6 +8,8 @@
   <property name="bin"  location="bin"/>
   <property name="dist" location="dist/jars"/>
 
+  <property name="microtesk.bin" value="${bin}/microtesk"/>
+
   <!-- Output JAR-file -->
   <property name="jar" value="microtesk.jar"/>
   <!-- Main package -->
@@ -134,6 +136,23 @@
     <delete dir="${dist}"/>
     <delete dir="${bin}"/>
     <delete dir="${gen}"/>
+  </target>
+
+  <!-- JUnit target (compile and run unit tests) -->
+  <target name="junit" depends="build">
+    <path id="classpath.test">
+      <pathelement location="${classpath}"/>
+      <pathelement location="${microtesk.bin}"/>
+    </path>
+
+    <junit fork="no" printsummary="yes" showoutput="yes">
+      <classpath refid="classpath.test"/>
+      <formatter type="plain" usefile="false"/>
+
+      <batchtest haltonfailure="no">
+        <fileset dir="${src}" includes="**/tests/*TestCase*.java"/>
+      </batchtest>
+    </junit>
   </target>
 
 </project>
