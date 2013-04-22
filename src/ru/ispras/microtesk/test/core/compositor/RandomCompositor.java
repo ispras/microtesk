@@ -28,6 +28,11 @@ import ru.ispras.microtesk.test.core.randomizer.Randomizer;
 public class RandomCompositor<T> extends BaseCompositor<T>
 {
     @Override
+    protected void onInit()
+    {
+    }
+
+    @Override
     protected IIterator choose()
     {
         return null;

@@ -26,6 +26,11 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
 public class GrammarCompositor<T> extends BaseCompositor<T>
 {
     @Override
+    protected void onInit()
+    {
+    }
+
+    @Override
     protected IIterator choose()
     {
         return null;
