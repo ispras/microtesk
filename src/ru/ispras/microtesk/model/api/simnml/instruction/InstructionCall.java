@@ -13,6 +13,7 @@
 package ru.ispras.microtesk.model.api.simnml.instruction;
 
 import ru.ispras.microtesk.model.api.instruction.IInstructionCall;
+import ru.ispras.microtesk.model.api.state.IStateResetter;
 
 /**
  * The InstructionCall class is a Sim-nML-based implementation
@@ -23,7 +24,8 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionCall;
 
 public class InstructionCall implements IInstructionCall
 {
-    private final IOperation instruction;
+    private final IStateResetter resetter;
+    private final IOperation  instruction;
     
     /**
      * Creates an instruction call object based on an Sim-nML operation.
@@ -34,14 +36,16 @@ public class InstructionCall implements IInstructionCall
      * @param instruction The root operation of the Sim-nML operation hierarchy.
      */
     
-    public InstructionCall(IOperation instruction)
+    public InstructionCall(IStateResetter resetter, IOperation instruction)
     {
+        this.resetter = resetter;
         this.instruction = instruction;
     }
 
     @Override
     public void execute()
     {
+        resetter.reset();
         instruction.action();
     }
 

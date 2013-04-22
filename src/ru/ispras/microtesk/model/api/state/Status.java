@@ -44,4 +44,9 @@ public final class Status
     {
         value = defaultValue;
     }
+    
+    public int getDefault()
+    {
+        return defaultValue;
+    }
 }

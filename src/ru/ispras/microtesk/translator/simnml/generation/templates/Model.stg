@@ -24,14 +24,15 @@ model(file, pack, imps, simps, base, members) ::= <<
        members)> 
 >>
 
-constructor(isaclass, reg, mem, lab) ::= <<
+constructor(isaclass, reg, mem, lab, stat) ::= <<
 public Model()
 {
     super(
         new <isaclass>(),
         <reg>,
         <mem>,
-        <lab>
+        <lab>,
+        <stat>
     );
 }
 >>

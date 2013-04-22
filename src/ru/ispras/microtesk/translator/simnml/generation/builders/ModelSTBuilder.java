@@ -58,6 +58,7 @@ public class ModelSTBuilder implements ITemplateBuilder
         tc.add("reg",      SimnMLProcessorModel.SHARED_REGISTERS);
         tc.add("mem",      SimnMLProcessorModel.SHARED_MEMORY);
         tc.add("lab",      SimnMLProcessorModel.SHARED_LABELS);
+        tc.add("stat",     SimnMLProcessorModel.SHARED_STATUSES);
 
         t.add("members", tc);
         t.add("members", group.getInstanceOf("debug_block"));

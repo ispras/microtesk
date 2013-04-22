@@ -22,6 +22,7 @@ import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
+import ru.ispras.microtesk.model.api.state.Status;
 
 /**
  * The SimnMLProcessorModel class is a base class for all microprocessor models
@@ -38,19 +39,22 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
     public static final String SHARED_MEMORY    = "__MEMORY";
     public static final String SHARED_VARIABLES = "__VARIABLES";
     public static final String SHARED_LABELS    = "__LABELS";
+    public static final String SHARED_STATUSES  = "__STATUSES";
+    public static final String SHARED_RESETTER  = "__RESETTER";
 
     public SimnMLProcessorModel(
         IInstructionSet instructions,
         MemoryBase[] registers,
         MemoryBase[] memory,
-        Label[] labels
+        Label[] labels,
+        Status[] statuses
         )
     {
         super(
             instructions,
             createRegisterMetaData(registers),
             createMemoryMetaData(memory),
-            new ModelStateObserver(registers, memory, labels)
+            new ModelStateObserver(registers, memory, labels, statuses)
             );
     }
 

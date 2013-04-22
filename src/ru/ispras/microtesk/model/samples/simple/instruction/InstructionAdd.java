@@ -19,6 +19,8 @@ import ru.ispras.microtesk.model.api.simnml.instruction.*;
 import ru.ispras.microtesk.model.samples.simple.mode.*;
 import ru.ispras.microtesk.model.samples.simple.op.*;
 
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
+
 public class InstructionAdd extends InstructionBase
 {
     public static final String NAME = "Add";
@@ -54,6 +56,7 @@ public class InstructionAdd extends InstructionBase
             final IAddressingMode op2 = getArgument("op2");
 
             return new InstructionCall(
+                __RESETTER,
                 new Instruction(
                     new Arith_Mem_Inst(new Add(), op1, op2)
                 )

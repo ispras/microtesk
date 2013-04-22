@@ -63,3 +63,18 @@ new_label(name, memory, index) ::= <<
 new Label("<name>", <memory>, <index>)
 >>
 
+status(name, def_value) ::= <<
+<class_const("Status", name, new_status(name, def_value))>
+>>
+
+new_status(name, def_value) ::= <<
+new Status("<name>", <def_value>)
+>>
+
+resetter(type, name, items) ::= <<
+<class_const(type, name, new_resetter(type, items))>
+>>
+
+new_resetter(type, items) ::= <<
+new <type>(<items; separator=", ">)
+>>

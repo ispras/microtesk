@@ -76,6 +76,7 @@ public IInstructionCall getCall() throws ConfigurationException
     <param_names:instruction_get_param(); separator="\n">
 
     return new InstructionCall(
+        __RESETTER,
         <op_tree>
     );
 }

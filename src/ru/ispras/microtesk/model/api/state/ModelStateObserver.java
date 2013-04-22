@@ -23,6 +23,9 @@ import ru.ispras.microtesk.model.api.memory.MemoryBase;
 
 public final class ModelStateObserver implements IModelStateObserver
 {
+    public static final String  CTRL_TRANSFER_NAME = "__CTRL_TRANSFER";
+    public static final Status[] STANDARD_STATUSES = { new Status(CTRL_TRANSFER_NAME, 0) };
+
     private final static String ALREADY_ADDED_ERR_FRMT =
         "The %s item has already been added to the table.";
 
@@ -35,35 +38,58 @@ public final class ModelStateObserver implements IModelStateObserver
     private final Map<String, MemoryBase> memoryMap;
     private final Map<String, Label> labelMap;
 
+    private final Status controlTransfer;
+
     public ModelStateObserver(
         MemoryBase[] registers,
         MemoryBase[] memory,
-        Label[] labels
+        Label[] labels,
+        Status[] statuses
         )
     {
         assert null != registers;
         assert null != memory;
         assert null != labels;
+        assert null != statuses;
 
         memoryMap = new HashMap<String, MemoryBase>();
-        for(MemoryBase r : registers)
-        {
-            final MemoryBase prev = memoryMap.put(r.getName(), r);
-            assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, r.getName());
-        }
-
-        for(MemoryBase m : memory)
-        {
-            final MemoryBase prev = memoryMap.put(m.getName(), m);
-            assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, m.getName());
-        }
+        addToMemoryMap(memoryMap, registers);
+        addToMemoryMap(memoryMap, memory);
 
         labelMap  = new HashMap<String, Label>();
-        for(Label l : labels)
+        addToLabelMap(labelMap, labels);
+        
+        controlTransfer = findStatus(CTRL_TRANSFER_NAME, statuses);
+    }
+
+    private static void addToMemoryMap(Map<String, MemoryBase> map, MemoryBase[] items)
+    {
+        for(MemoryBase m : items)
         {
-            final Label prev = labelMap.put(l.getName(), l);
+            final MemoryBase prev = map.put(m.getName(), m);
+            assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, m.getName());
+        }
+    }
+
+    private static void addToLabelMap(Map<String, Label> map, Label[] items)
+    {
+        for(Label l : items)
+        {
+            final Label prev = map.put(l.getName(), l);
             assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, l.getName());
         }
+    }
+
+    private static Status findStatus(String name, Status[] statuses)
+    {
+        for (Status status : statuses)
+        {
+            if (name.equals(status.getName()))
+                return status;
+        }
+
+        assert false : String.format("The %s status is not defined in the model.", name);
+        return null;
     }
 
     @Override
@@ -97,7 +123,6 @@ public final class ModelStateObserver implements IModelStateObserver
     @Override
     public int getControlTransferStatus()
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return controlTransfer.get();
     }
 }

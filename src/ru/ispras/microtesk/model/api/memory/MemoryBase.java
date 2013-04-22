@@ -51,6 +51,12 @@ public class MemoryBase
         return Collections.unmodifiableList(result);
     }
     
+    public void reset()
+    {
+        // TODO
+        assert false : "NOT IMPLEMENTED";
+    }
+
     public final EMemoryKind getMemoryKind()
     {
         return kind;
