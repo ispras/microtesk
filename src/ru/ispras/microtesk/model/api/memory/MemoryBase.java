@@ -53,8 +53,8 @@ public class MemoryBase
     
     public void reset()
     {
-        // TODO
-        assert false : "NOT IMPLEMENTED";
+        for (Location location : locations)
+            location.reset();
     }
 
     public final EMemoryKind getMemoryKind()

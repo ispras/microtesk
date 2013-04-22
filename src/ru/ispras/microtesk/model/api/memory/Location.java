@@ -108,6 +108,12 @@ public final class Location
         store(arg.load());
         return this;
     }
+    
+    public void reset()
+    {
+        assert !isReadOnly();
+        rawData.reset();
+    }
 
     /**
      * Concatenates two locations: a.concat(b) = a(high) :: b(low)
