@@ -63,6 +63,10 @@ public abstract class BaseCompositor<T> implements IIterator<T>
         iterators.add(iterator);
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Callbacks that should be overloaded in subclasses
+    ///////////////////////////////////////////////////////////////////////////
+
     /**
      * The callback method called in the <code>init</code> method.
      */
@@ -75,13 +79,19 @@ public abstract class BaseCompositor<T> implements IIterator<T>
      */
     protected abstract IIterator<T> choose();
     
+    ///////////////////////////////////////////////////////////////////////////
+    // Callback-based implementation of the iterator method
+    ///////////////////////////////////////////////////////////////////////////
+
     @Override
     public void init()
     {
         for(IIterator<T> iterator : iterators)
             { iterator.init(); }
 
-        onInit();    
+        onInit();
+
+        chosen = choose();
     }
     
     @Override

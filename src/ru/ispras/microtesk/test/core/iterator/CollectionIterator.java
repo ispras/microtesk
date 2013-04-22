@@ -49,8 +49,9 @@ public class CollectionIterator<T> implements IBoundedIterator<T>
     public void init()
     {
         iterator = collection.iterator();
-        hasValue = iterator.hasNext();
-        value    = iterator.next();
+
+        if(hasValue = iterator.hasNext())
+            { value = iterator.next(); }
     }
     
     @Override
@@ -68,8 +69,8 @@ public class CollectionIterator<T> implements IBoundedIterator<T>
     @Override
     public void next()
     {
-        hasValue = iterator.hasNext();
-        value    = iterator.next();
+        if(hasValue = iterator.hasNext())
+            { value = iterator.next(); }
     }
 
     @Override
