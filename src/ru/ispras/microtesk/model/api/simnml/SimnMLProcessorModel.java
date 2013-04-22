@@ -36,6 +36,7 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
 {
     public static final String SHARED_REGISTERS = "__REGISTERS";
     public static final String SHARED_MEMORY    = "__MEMORY";
+    public static final String SHARED_VARIABLES = "__VARIABLES";
     public static final String SHARED_LABELS    = "__LABELS";
 
     public SimnMLProcessorModel(

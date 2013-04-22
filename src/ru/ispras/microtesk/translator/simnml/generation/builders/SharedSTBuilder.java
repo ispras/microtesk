@@ -13,6 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.generation.builders;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.stringtemplate.v4.ST;
@@ -123,60 +124,83 @@ public class SharedSTBuilder implements ITemplateBuilder
         if (!ir.getMemory().isEmpty())
             insertEmptyLine(t);
 
-        final ArrayList<String> registers = new ArrayList<String>();
-        final ArrayList<String> memory = new ArrayList<String>();
+        final List<String> registers = new ArrayList<String>();
+        final List<String> memory = new ArrayList<String>();
+        final List<String> variables = new ArrayList<String>();
 
         for (Map.Entry<String, MemoryExpr> mem : ir.getMemory().entrySet())
         {
-            final ST tMemory = group.getInstanceOf("memory");
+            buildMemoryLine(group, t, mem.getKey(), mem.getValue());
 
-            tMemory.add("name", mem.getKey());
-            tMemory.add("kind", mem.getValue().getKind());
-
-            final TypeExpr typeExpr = mem.getValue().getType();
-            if (null != typeExpr.getRefName())
+            switch (mem.getValue().getKind())
             {
-                tMemory.add("type", typeExpr.getRefName());
-            }
-            else
-            {
-                final ST tNewType = group.getInstanceOf("new_type");
-
-                tNewType.add("typeid", typeExpr.getTypeId());
-                tNewType.add("size", typeExpr.getBitSize().getText());
-
-                tMemory.add("type", tNewType);
-            }
-
-            tMemory.add("size", mem.getValue().getSize().getText());
-
-            t.add("members", tMemory);
-
-            if (EMemoryKind.REG == mem.getValue().getKind())
+            case REG:
                 registers.add(mem.getKey());
+                break;
 
-            if (EMemoryKind.MEM == mem.getValue().getKind())
+            case MEM:
                 memory.add(mem.getKey());
+                break;
+
+            case VAR:
+                variables.add(mem.getKey());
+                break;
+
+            default:
+                assert false : "Unknown kind!";
+                break;
+            }
         }
 
         insertEmptyLine(t);
 
-        final ST tRegisters = group.getInstanceOf("memory_array");
-        
-        tRegisters.add("type", MemoryBase.class.getSimpleName() + "[]");
-        tRegisters.add("name", SimnMLProcessorModel.SHARED_REGISTERS);
-        tRegisters.add("items", registers);
+        buildMemoryLineArray(group, t, SimnMLProcessorModel.SHARED_REGISTERS, registers);
+        buildMemoryLineArray(group, t, SimnMLProcessorModel.SHARED_MEMORY, memory);
+        buildMemoryLineArray(group, t, SimnMLProcessorModel.SHARED_VARIABLES, variables);
 
-        t.add("members", tRegisters);
+        buildLabels(group, t);
+    }
+    
+    private void buildMemoryLine(STGroup group, ST t, String name, MemoryExpr memory)
+    {
+        final ST tMemory = group.getInstanceOf("memory");
 
-        final ST tMemory = group.getInstanceOf("memory_array");
+        tMemory.add("name", name);
+        tMemory.add("kind", memory.getKind());
 
-        tMemory.add("type", MemoryBase.class.getSimpleName() + "[]");
-        tMemory.add("name", SimnMLProcessorModel.SHARED_MEMORY);
-        tMemory.add("items", memory);
+        final TypeExpr typeExpr = memory.getType();
+        if (null != typeExpr.getRefName())
+        {
+            tMemory.add("type", typeExpr.getRefName());
+        }
+        else
+        {
+            final ST tNewType = group.getInstanceOf("new_type");
+
+            tNewType.add("typeid", typeExpr.getTypeId());
+            tNewType.add("size", typeExpr.getBitSize().getText());
+
+            tMemory.add("type", tNewType);
+        }
+
+        tMemory.add("size", memory.getSize().getText());
 
         t.add("members", tMemory);
-        
+    }
+
+    private void buildMemoryLineArray(STGroup group, ST t, String name, List<String> items)
+    {
+        final ST tArray = group.getInstanceOf("memory_array");
+
+        tArray.add("type", MemoryBase.class.getSimpleName() + "[]");
+        tArray.add("name", name);
+        tArray.add("items", items);
+
+        t.add("members", tArray);
+    }
+
+    private void buildLabels(STGroup group, ST t)
+    {
         final ST tLabels = group.getInstanceOf("memory_array");
 
         tLabels.add("type", Label.class.getSimpleName() + "[]");
