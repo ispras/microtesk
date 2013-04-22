@@ -16,6 +16,10 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
+import java.util.Arrays;
+import java.util.List;
+
+import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 import ru.ispras.microtesk.test.core.randomizer.Distribution;
 import ru.ispras.microtesk.test.core.randomizer.Randomizer;
@@ -27,41 +31,58 @@ import ru.ispras.microtesk.test.core.randomizer.Randomizer;
  */
 public class RandomCompositor<T> extends BaseCompositor<T>
 {
+    private Distribution distribution;
+
+    public RandomCompositor()
+    {
+        super();
+    }
+    
+    public RandomCompositor(final List<IIterator<T>> iterators)
+    {
+        super(iterators);
+    }
+
     @Override
     protected void onInit()
     {
-    }
+        boolean bounded = true;
 
+        int[] weights = new int[iterators.size()];
+
+        // if all of the iterators are bounded (i.e., their sequences' sizes are known),
+        // the iterator choice probability is proportional to the sequence size.
+        for(int i = 0; i < iterators.size(); i++)
+        {
+            final IIterator iterator = iterators.get(i);
+
+            if(!(iterator instanceof IBoundedIterator))
+                { bounded = false; break; }
+
+            weights[i] = ((IBoundedIterator)iterator).size();
+        }
+
+        // If there are unbounded iterators (i.e., iterators with unknown size),
+        // the uniform probability distribution is used for choosing iterators.
+        if(!bounded)
+            { Arrays.fill(weights, 1); }
+
+        distribution = new Distribution(weights);
+    }
+    
     @Override
-    protected IIterator choose()
+    protected IIterator<T> choose()
     {
+        while(distribution.getMaxWeight() != 0)
+        {
+            final int i = Randomizer.get().choose(distribution);
+
+            if(iterators.get(i).hasValue())
+                { return iterators.get(i); }
+
+            distribution.setWeight(i, 0);
+        }
+
         return null;
     }
-
-/*
-    @SuppressWarnings("unchecked")
-    public Sequence<T> compose(final Sequence<T> lhs, final Sequence<T> rhs)
-    {
-        Sequence<T> result = new Sequence<T>();
-        
-        if(lhs.isEmpty()) { result.addAll(rhs); return result; }
-        if(rhs.isEmpty()) { result.addAll(lhs); return result; }
-        
-        int[] s = new int[] { lhs.size(), rhs.size() };        
-        int[] i = new int[] { 0, 0 };
-
-        Sequence<T>[] seqs  = new Sequence[] { lhs, rhs };
-        Distribution biases = new Distribution(s);
-        
-        while(i[0] < s[0] || i[1] < s[1])
-        {
-            final int k = Randomizer.get().choose(biases);
-            
-            if(i[k] < s[k])
-                { result.add(seqs[k].get(i[k]++)); }
-        }
-        
-        return result;
-    }
-*/
 }

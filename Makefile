@@ -13,6 +13,9 @@ MICROTESK_CLASSPATH = dist/microtesk.jar$(DELIMITER)$(LIB_CLASSPATH)
 all:
 	ant -lib $(JARS)
 
+clean:
+	ant -lib $(JARS) clean
+
 run:
 	java -classpath "$(MICROTESK_CLASSPATH)" ru.ispras.microtesk.MicroTESK --include $(INCLUDE) $(TEST)
 

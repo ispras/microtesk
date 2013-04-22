@@ -34,9 +34,11 @@ public class CompositorTestCase
     public CompositorTestCase() {}
 
     @Test
-    public void runConcatTest() { runTest(new ConcatCompositor<Integer>()); }
+    public void runConcatTest()   { runTest(new ConcatCompositor<Integer>()); }
     @Test
     public void runRotationTest() { runTest(new RotationCompositor<Integer>()); }
+    @Test
+    public void runRandomTest()   { runTest(new RandomCompositor<Integer>()); }
 
     private void runTest(BaseCompositor<Integer> compositor)
     {

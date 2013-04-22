@@ -23,67 +23,114 @@ package ru.ispras.microtesk.test.core.randomizer;
  */
 public class Distribution
 {
-    private int   m;
     private int[] p;
+    private int[] v;
+
+    public Distribution(final int[] variants, final int[] weights)
+    {
+        init(variants, weights);
+    }
 
     public Distribution(final int[] weights)
     {
-        m = 0;
-        p = new int[weights.length];
-        
-        for(int i = 0; i < weights.length; i++)
-        {
-            assert weights[i] > 0;
-
-            p[i] = (m += weights[i]);
-        }
+        init(getNaturalSeries(weights.length), weights);
     }
-    
-    public int getMaxProbability()
+
+    public int getMaxWeight()
     {
-        return m;
+        return p[p.length - 1];
     }
 
     public int getWeight(int variant)
     {
-        return p[variant] - (variant != 0 ? p [variant - 1] : 0);
+        return p[variant] - (variant != 0 ? p[variant - 1] : 0);
     }
     
-    public int getProbability(int variant)
+    public void setWeight(int variant, int weight)
     {
-        assert 0 <= variant && variant < p.length;
+        final int delta = weight - getWeight(variant);
 
+        for(int i = variant; i < p.length; i++)
+            { p[i] += delta; }
+    }
+
+    public int getLessOrEqualWeight(int variant)
+    {
         return p[variant];
     }
     
-    public int getVariant(int probability)
+    public int getVariant(int random_weight)
     {
-        assert probability < m;
-        
-        return binarySearch(p, 0, p.length - 1, probability);
+        final int i = binarySearch(p, 0, p.length - 1, random_weight);
+
+        return v[i];
     }
     
     /**
-     * Finds the index <code>i</code> from [<code>lo</code>, <code>hi</code>]
-     * such that <code>array[i-1] <= value && value < array[i]</code>.
-     * Note that <code>array[-1]</code> is assumed to be zero.
+     * Finds the index <code>i</code> from <code>[a, b]</code> such that
+     * <code>x[i-1] <= v && v < x[i]</code>.
+     * Note that <code>x[-1]</code> is assumed to be zero.
      *
-     * @return i such that <code>array[i-1] <= value && value < array[i]</code>.
-     * @param array the ordered array of integer values.
-     * @param lo the low bound of array indices.
-     * @param hi the high bound of array indices.
-     * @param value the value being searched.
+     * @return i such that <code>x[i-1] <= v && v < x[i]</code>.
+     * @param x the ordered array of integer values.
+     * @param a the low bound of the array indices.
+     * @param b the high bound of the array indices.
+     * @param v the value being searched.
      */
-    private int binarySearch(int[] array, int lo, int hi, int value)
+    private int binarySearch(int[] x, int a, int b, int v)
     {
-        if(lo == hi)     { return lo; }
-        if(hi == lo + 1) { return value < array[hi] ? lo : hi; }
+        if(a == b)     { return a; }
+        if(b == a + 1) { return x[a] <= v ? b : a; }
             
-        final int i = (lo + hi) >> 1;
-        
-        if(value < array[i])
-            { return binarySearch(array, lo, i, value); }
+        final int i = (a + b) >> 1;
+       
+        if(x[i - 1] <= v && v < x[i])
+            { return i; }
+
+        if(v < x[i])
+            { return binarySearch(x, a, i - 1, v); }
         else    
-            { return binarySearch(array, i + 1, hi, value); }
+            { return binarySearch(x, i + 1, b, v); }
+    }
+
+    /**
+     * Returns the natural series of the size <code>n</code> (0, 1, ... n-1).
+     *
+     * @return the natural series.
+     * @param n the size of the series.
+     */
+    private int[] getNaturalSeries(int n)
+    {
+        int[] result = new int[n];
+
+        for(int i = 0; i < n; i++)
+            { result[i] = i; }
+
+        return result;
+    }
+
+    /**
+     * Initializes the probility distribution.
+     *
+     * @param variants the values of the variate.
+     * @param weights  the random biases of the values.
+     */
+    private void init(final int[] variants, final int[] weights)
+    {
+        assert variants.length != 0;
+        assert variants.length == weights.length;
+
+        p = new int[weights.length];
+        v = new int[weights.length];
+    
+        int m = 0;
+        for(int i = 0; i < weights.length; i++)
+        {
+            assert weights[i] >= 0;
+
+            p[i] = (m += weights[i]);
+            v[i] = variants[i];
+        }
     }
 }
+

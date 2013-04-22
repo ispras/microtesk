@@ -118,7 +118,7 @@ public final class Randomizer
      */
     public int nextIntRange(int min, int max)
     {
-        return min + next() % ((max - min) + 1);
+        return min + (next() & 0x7fffFFFF) % ((max - min) + 1);
     }
 
     /**
@@ -152,7 +152,7 @@ public final class Randomizer
      */
     public <T> T choose(final T[] array)
     {
-        return array[next() % array.length];
+        return array[nextIntRange(0, array.length - 1)];
     }
     
     /**
@@ -163,7 +163,7 @@ public final class Randomizer
      */
     public int choose(final Distribution biases)
     {
-        return biases.getVariant(next() % biases.getMaxProbability());
+        return biases.getVariant(nextIntRange(0, biases.getMaxWeight() - 1));
     }
     
     /**
