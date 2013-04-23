@@ -13,6 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
@@ -55,6 +56,8 @@ final class LocationExprFactoryImpl implements LocationExprFactory
     private final IErrorReporter reporter;
     private final SymbolTable<ESymbolKind> symbols;
     private final IR ir;
+    
+    private List<LocationInfo> log; 
 
     public LocationExprFactoryImpl(
         IErrorReporter reporter,
@@ -66,6 +69,21 @@ final class LocationExprFactoryImpl implements LocationExprFactory
         this.symbols = symbols;
         this.ir = ir;
     }
+    
+    public void setLog(List<LocationInfo> locations)
+    {
+        log = locations;
+    }
+    
+    public List<LocationInfo> getLog()
+    {
+        return log;
+    }
+    
+    public void resetLog()
+    {
+        log = null;
+    }
 
     @Override
     public LocationExpr location(
@@ -76,18 +94,24 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
         if ((ESymbolKind.MEMORY != kind) && (ESymbolKind.ARGUMENT != kind))
             reporter.raiseError(new SymbolTypeMismatch<ESymbolKind>(name, kind, Arrays.asList(ESymbolKind.MEMORY, ESymbolKind.ARGUMENT)));
+        
+        final LocationExpr result;
 
         if (ESymbolKind.MEMORY == kind)
         {
             final MemoryBasedLocationCreator creator = new MemoryBasedLocationCreator(w, name, null);
-
-            return creator.create();
+            result = creator.create();
         }
         else
         {
             final ArgumentBasedLocationCreator creator = new ArgumentBasedLocationCreator(w, name, globalArgTypes);
-            return creator.create();
+            result = creator.create();
         }
+        
+        if (null != log)
+            log.add(new LocationInfo(name, kind, null));
+        
+        return result;
     }
 
     @Override
@@ -103,7 +127,12 @@ final class LocationExprFactoryImpl implements LocationExprFactory
             reporter.raiseError(new SymbolTypeMismatch<ESymbolKind>(name, kind, ESymbolKind.MEMORY));
 
         final MemoryBasedLocationCreator creator = new MemoryBasedLocationCreator(w, name, index);
-        return creator.create();
+        final LocationExpr result = creator.create();
+
+        if (null != log)
+            log.add(new LocationInfo(name, kind, index));
+
+        return result;
     }
 
     @Override
@@ -341,6 +370,21 @@ final class LocationExprFactoryDebug implements LocationExprFactory
         this.factory = factory;
         this.symbols = symbols;
     }
+    
+    public void setLog(List<LocationInfo> locations)
+    {
+        factory.setLog(locations);
+    }
+    
+    public List<LocationInfo> getLog()
+    {
+        return factory.getLog();
+    }
+    
+    public void resetLog()
+    {
+        factory.resetLog();
+    }
 
     private void trace(String method, String text, LocationExpr result, String details)
     {
@@ -435,7 +479,7 @@ final class LocationExprFactoryDebug implements LocationExprFactory
             result,
             ""
             );
-        
+
         return result;
     }
 
