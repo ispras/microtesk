@@ -21,20 +21,20 @@ import java.util.List;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
- * This class implements concatenation of iterators.
+ * This class implements the concatenation (catenation) of iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class ConcatCompositor<T> extends BaseCompositor<T>
+public class CatenationCompositor<T> extends BaseCompositor<T>
 {
     private int i;
 
-    public ConcatCompositor()
+    public CatenationCompositor()
     {
         super();
     }
     
-    public ConcatCompositor(final List<IIterator<T>> iterators)
+    public CatenationCompositor(final List<IIterator<T>> iterators)
     {
         super(iterators);
     }
