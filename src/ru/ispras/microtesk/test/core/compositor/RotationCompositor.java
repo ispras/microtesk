@@ -21,7 +21,7 @@ import java.util.List;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
- * This class implements rotation (interleaving) of two iterators.
+ * This class implements rotation (interleaving) composition of iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -43,6 +43,11 @@ public class RotationCompositor<T> extends BaseCompositor<T>
     protected void onInit()
     {
         i = 0;
+    }
+
+    @Override
+    protected void onNext()
+    {
     }
     
     @Override

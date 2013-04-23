@@ -21,7 +21,7 @@ import java.util.List;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
- * This class implements concatenation of two iterators.
+ * This class implements concatenation of iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -44,7 +44,12 @@ public class ConcatCompositor<T> extends BaseCompositor<T>
     {
         i = 0;
     }
-    
+   
+    @Override
+    protected void onNext()
+    {
+    }
+
     @Override
     protected IIterator<T> choose()
     {

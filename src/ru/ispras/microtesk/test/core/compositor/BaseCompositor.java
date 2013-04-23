@@ -71,7 +71,12 @@ public abstract class BaseCompositor<T> implements IIterator<T>
      * The callback method called in the <code>init</code> method.
      */
     protected abstract void onInit();
-    
+
+    /**
+     * The callback method called in the <code>next</code> method.
+     */
+    protected abstract void onNext();
+
     /**
      * Selects an iterator whoose value will be used at the current step.
      *
@@ -118,6 +123,10 @@ public abstract class BaseCompositor<T> implements IIterator<T>
     public void next()
     {
         chosen.next();
+
+        onNext();
+
         chosen = choose();
     }
 }
+

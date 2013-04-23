@@ -25,7 +25,7 @@ import ru.ispras.microtesk.test.core.randomizer.Distribution;
 import ru.ispras.microtesk.test.core.randomizer.Randomizer;
 
 /**
- * This class implements random composition of two sequences.
+ * This class implements random composition (merging) of iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -69,7 +69,12 @@ public class RandomCompositor<T> extends BaseCompositor<T>
 
         distribution = new Distribution(weights);
     }
-    
+   
+    @Override
+    protected void onNext()
+    {
+    }
+
     @Override
     protected IIterator<T> choose()
     {

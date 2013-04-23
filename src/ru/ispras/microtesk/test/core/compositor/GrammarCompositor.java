@@ -30,8 +30,14 @@ public class GrammarCompositor<T> extends BaseCompositor<T>
     {
     }
 
+
     @Override
-    protected IIterator choose()
+    protected void onNext()
+    {
+    }
+
+    @Override
+    protected IIterator<T> choose()
     {
         return null;
     }

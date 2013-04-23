@@ -39,6 +39,8 @@ public class CompositorTestCase
     public void runRotationTest() { runTest(new RotationCompositor<Integer>()); }
     @Test
     public void runRandomTest()   { runTest(new RandomCompositor<Integer>()); }
+    @Test
+    public void runNestingTest()  { runTest(new NestingCompositor<Integer>()); }
 
     private void runTest(BaseCompositor<Integer> compositor)
     {
