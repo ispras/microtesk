@@ -34,13 +34,13 @@ public class CompositorTestCase
     public CompositorTestCase() {}
 
     @Test
-    public void runConcatTest()   { runTest(new ConcatCompositor<Integer>()); }
+    public void runCatenationTest() { runTest(new CatenationCompositor<Integer>()); }
     @Test
-    public void runRotationTest() { runTest(new RotationCompositor<Integer>()); }
+    public void runRotationTest()   { runTest(new RotationCompositor<Integer>()); }
     @Test
-    public void runRandomTest()   { runTest(new RandomCompositor<Integer>()); }
+    public void runRandomTest()     { runTest(new RandomCompositor<Integer>()); }
     @Test
-    public void runNestingTest()  { runTest(new NestingCompositor<Integer>()); }
+    public void runNestingTest()    { runTest(new NestingCompositor<Integer>()); }
 
     private void runTest(BaseCompositor<Integer> compositor)
     {

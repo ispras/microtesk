@@ -25,7 +25,7 @@ import ru.ispras.microtesk.test.core.randomizer.Distribution;
 import ru.ispras.microtesk.test.core.randomizer.Randomizer;
 
 /**
- * This class implements random composition (merging) of iterators.
+ * This class implements the random composition (merging) of iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

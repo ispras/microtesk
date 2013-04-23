@@ -22,7 +22,7 @@ import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
- * This class implements nesting composition of iterators.
+ * This class implements the nesting composition of iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

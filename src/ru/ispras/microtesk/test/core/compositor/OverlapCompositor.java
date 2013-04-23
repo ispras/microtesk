@@ -19,6 +19,8 @@ package ru.ispras.microtesk.test.core.compositor;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
+ * This class implements the overlapping (shift) of iterators.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class OverlapCompositor<T> extends BaseCompositor<T>
