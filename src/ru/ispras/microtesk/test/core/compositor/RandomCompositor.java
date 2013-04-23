@@ -31,17 +31,8 @@ import ru.ispras.microtesk.test.core.randomizer.Randomizer;
  */
 public class RandomCompositor<T> extends BaseCompositor<T>
 {
+    /// Random distribution for choosing iterators.
     private Distribution distribution;
-
-    public RandomCompositor()
-    {
-        super();
-    }
-    
-    public RandomCompositor(final List<IIterator<T>> iterators)
-    {
-        super(iterators);
-    }
 
     @Override
     protected void onInit()

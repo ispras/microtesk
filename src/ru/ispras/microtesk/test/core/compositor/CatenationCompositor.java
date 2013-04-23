@@ -27,17 +27,8 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  */
 public class CatenationCompositor<T> extends BaseCompositor<T>
 {
+    // The current iterator index.
     private int i;
-
-    public CatenationCompositor()
-    {
-        super();
-    }
-    
-    public CatenationCompositor(final List<IIterator<T>> iterators)
-    {
-        super(iterators);
-    }
 
     @Override
     protected void onInit()

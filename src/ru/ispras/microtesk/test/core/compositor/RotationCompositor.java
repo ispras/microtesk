@@ -27,17 +27,8 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  */
 public class RotationCompositor<T> extends BaseCompositor<T>
 {
+    // The current iterator index.
     private int i;
-
-    public RotationCompositor()
-    {
-        super();
-    }
-    
-    public RotationCompositor(final List<IIterator<T>> iterators)
-    {
-        super(iterators);
-    }
 
     @Override
     protected void onInit()

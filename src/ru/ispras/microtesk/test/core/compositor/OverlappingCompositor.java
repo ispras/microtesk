@@ -23,7 +23,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class OverlapCompositor<T> extends BaseCompositor<T>
+public class OverlappingCompositor<T> extends BaseCompositor<T>
 {
     @Override
     protected void onInit()
