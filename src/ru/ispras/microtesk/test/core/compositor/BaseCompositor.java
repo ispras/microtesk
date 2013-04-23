@@ -63,6 +63,16 @@ public abstract class BaseCompositor<T> implements IIterator<T>
         iterators.add(iterator);
     }
 
+    /**
+     * Removes the i-th iterator from the composer's list.
+     *
+     * @param i the index of the iterator to be removed from the composer's list.
+     */
+    public void removeIterator(int i)
+    {
+        iterators.remove(i);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Callbacks that should be overloaded in subclasses
     ///////////////////////////////////////////////////////////////////////////
