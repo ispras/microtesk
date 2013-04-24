@@ -31,12 +31,11 @@ public class ProductCombinator<T> extends BaseCombinator<T>
     @Override
     public void onInit()
     {
-        if(iterators.size() > 0)
-            { i = iterators.size() - 1; }
+        i = iterators.size() - 1;
     }
 
     @Override
-	public void doNext()
+	public boolean doNext()
 	{
 		for(int j = i; j >=0; j--)
 		{
@@ -47,11 +46,13 @@ public class ProductCombinator<T> extends BaseCombinator<T>
                 iterator.next();
                 
                 if(iterator.hasValue())
-                    { i = j; return; }
+                    { i = j; return true; }
             }
 			
             if(j > 0)
                 { iterator.init(); }
 		}
+        
+        return false;
 	}
 }

@@ -29,6 +29,8 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  */
 public abstract class BaseCombinator<T> implements IIterator<List<T>>
 {
+    /// Availability of the value.
+    private boolean hasValue;
     /// The iterators to be combined.
     protected ArrayList<IIterator<T>> iterators = new ArrayList<IIterator<T>>();
 
@@ -91,7 +93,7 @@ public abstract class BaseCombinator<T> implements IIterator<List<T>>
     /**
      * The callback method called in the <code>next</code> method.
      */
-    protected abstract void doNext();
+    protected abstract boolean doNext();
 
     ///////////////////////////////////////////////////////////////////////////
     // Callback-based implementation of the iterator method
@@ -104,11 +106,16 @@ public abstract class BaseCombinator<T> implements IIterator<List<T>>
             { iterator.init(); }
 
         onInit();
+        
+        hasValue = true;
     }
     
     @Override
     public boolean hasValue()
     {
+        if(!hasValue)
+            { return false; }
+
         for(final IIterator<T> iterator : iterators)
         {
             if(!iterator.hasValue())
@@ -132,6 +139,6 @@ public abstract class BaseCombinator<T> implements IIterator<List<T>>
     @Override
     public void next()
     {
-        doNext();
+        hasValue = doNext();
     }
 }

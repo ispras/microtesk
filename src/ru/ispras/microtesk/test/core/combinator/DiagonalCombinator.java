@@ -16,9 +16,47 @@
 
 package ru.ispras.microtesk.test.core.combinator;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import ru.ispras.microtesk.test.core.iterator.IIterator;
+
 /**
+ * This class implements the diagonal combinator of iterators.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class DiagonalCombinator extends BaseCombinator
+public class DiagonalCombinator<T> extends BaseCombinator<T>
 {
+    /// The set of exhausted iterators.
+    private Set<Integer> exhausted = new HashSet<Integer>();
+
+    @Override
+    public void onInit()
+    {
+        exhausted.clear();
+    }
+
+    @Override
+	public boolean doNext()
+	{
+		for(int i = 0; i < iterators.size(); i++)
+		{
+			IIterator<T> iterator = iterators.get(i);
+
+            iterator.next();
+                
+            if(!iterator.hasValue())
+            {
+                exhausted.add(i);
+                
+                if(exhausted.size() < iterators.size())
+                    { iterator.init(); }
+                else
+                    { return false; }
+            }
+		}
+        
+        return true;
+	}
 }
