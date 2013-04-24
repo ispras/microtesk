@@ -65,6 +65,7 @@ import ru.ispras.microtesk.translator.simnml.antlrex.TreeWalkerBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 
+import ru.ispras.microtesk.translator.simnml.ir.PCAnalyzer;
 import ru.ispras.microtesk.translator.simnml.ir.expression.*;
 import ru.ispras.microtesk.translator.simnml.ir.expression2.*;
 import ru.ispras.microtesk.translator.simnml.ir.shared.*;
@@ -425,23 +426,20 @@ sequence returns [List<Statement> res]
     :  ^(sq=SEQUENCE (st=statement
 {
 checkNotNull($sq, $st.res, $st.text);
-stmts.add($st.res);
+stmts.addAll($st.res);
 })*)
     ;
 
-statement returns [Statement res]
-@init  {final AttributeFactory factory = getAttributeFactory();} 
-    :  id=ID
+statement returns [List<Statement> res]
+    :  acs=attributeCallStatement
 {
-$res = factory.createAttributeCallStatement($name.text);
+checkNotNull($acs.start, $acs.res, $acs.text);
+$res = $acs.res;
 }
-    |  ^(DOT id=ID name=(ACTION | ID))
+    |  as=assignmentStatement
 {
-$res = factory.createAttributeCallStatement($id.text, $name.text);
-}
-    |  ^(ASSIGN le=location me=modelExpr)
-{
-$res = factory.createAssignmentStatement($le.res, $me.res);
+checkNotNull($as.start, $as.res, $as.text);
+$res = $as.res;
 }
     |  cs=conditionalStatement
 {
@@ -452,11 +450,47 @@ $res = $cs.res;
 //  |  ERROR^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
     ;
 
-conditionalStatement returns [Statement res]
-@init  {final AttributeFactory factory = getAttributeFactory();} 
+attributeCallStatement returns [List<Statement> res]
+    :  id=ID
+{
+$res = Collections.singletonList(
+    getAttributeFactory().createAttributeCallStatement($name.text));
+}
+    |  ^(DOT id=ID name=(ACTION | ID))
+{
+$res = Collections.singletonList(
+    getAttributeFactory().createAttributeCallStatement($id.text, $name.text));
+}
+    ;
+
+assignmentStatement returns [List<Statement> res]
+@init
+{
+final AttributeFactory factory = getAttributeFactory();
+final PCAnalyzer analyzer = new PCAnalyzer(getLocationExprFactory(), getIR());
+}
+    :  ^(ASSIGN le=location {analyzer.startTrackingSource();} me=modelExpr)
+{
+final List<Statement> result = new ArrayList<Statement>();
+result.add(factory.createAssignmentStatement($le.res, $me.res));
+
+final int ctIndex = analyzer.getControlTransferIndex();
+if (ctIndex > 0)
+    result.add(factory.createControlTransferStatement(ctIndex));
+
+$res = result;
+}
+    ;
+finally 
+{
+analyzer.finalize();
+}
+
+conditionalStatement returns [List<Statement> res]
     :   ^(IF cond=javaExpr stmts1=sequence stmts2=elseIf?)
 {
-$res = factory.createIfElseStatement($cond.res, $stmts1.res, $stmts2.res);
+$res = Collections.singletonList(
+    getAttributeFactory().createIfElseStatement($cond.res, $stmts1.res, $stmts2.res));
 }
     ;
 
