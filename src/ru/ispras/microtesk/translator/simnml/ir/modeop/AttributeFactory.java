@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
@@ -205,5 +206,11 @@ public final class AttributeFactory
     public FormatArgument createExprBasedFormatArgument(Expr expr)
     {
         return new ExprBasedFormatArgument(expr); 
+    }
+
+    public Statement createControlTransferStatement(int index)
+    {
+        return new TextStatement(
+            String.format("%s.set(%d);", ModelStateObserver.CTRL_TRANSFER_NAME, index));
     }
 }
