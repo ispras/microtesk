@@ -16,9 +16,82 @@
 
 package ru.ispras.microtesk.test.core.combinator;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.ispras.microtesk.test.core.iterator.IIterator;
+
 /**
+ * This class is a basic combinator of iterators. It takes several iterators
+ * and produces different combinations of their results.
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class BaseCombinator
+public abstract class BaseCombinator<T> implements IIterator<List<T>>
 {
+    /// The iterators to be combined.
+    protected ArrayList<IIterator<T>> iterators = new ArrayList<IIterator<T>>();
+
+    /**
+     * Constructs a compositor with the empty list of iterators.
+     */
+    public BaseCombinator()
+    {
+    }
+    
+    /**
+     * Constructs a compositor with the given list of iterators.
+     *
+     * @param iterators the list of iterators to be composed.
+     */
+    public BaseCombinator(final List<IIterator<T>> iterators)
+    {
+        this.iterators.addAll(iterators);
+    }
+    
+    /**
+     * Adds the iterator into the compositor's list.
+     *
+     * @param iterator the iterator to be added to the compositor's list.
+     */
+    public void addIterator(final IIterator<T> iterator)
+    {
+        iterators.add(iterator);
+    }
+
+    /**
+     * Removes the i-th iterator from the compositor's list.
+     *
+     * @param i the index of the iterator to be removed from the compositor's list.
+     */
+    public void removeIterator(int i)
+    {
+        iterators.remove(i);
+    }
+    
+    /**
+     * Returns the number of iterators in the compositor's list.
+     *
+     * @return the size of the compositor's list.
+     */
+    public int size()
+    {
+        return iterators.size();
+    }
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Iterator methods
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public abstract void init();
+    
+    @Override
+    public abstract boolean hasValue();
+
+    @Override
+    public abstract List<T> value();
+
+    @Override
+    public abstract void next();
 }

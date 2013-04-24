@@ -30,10 +30,10 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  */
 public abstract class BaseCompositor<T> implements IIterator<T>
 {
-    // The iterators to be composed.
+    /// The iterators to be composed.
     protected ArrayList<IIterator<T>> iterators = new ArrayList<IIterator<T>>();
 
-    // The currently chosen iterator.
+    /// The currently chosen iterator.
     private IIterator<T> chosen;
     
     /**
