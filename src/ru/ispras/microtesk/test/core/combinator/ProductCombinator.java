@@ -35,6 +35,14 @@ public class ProductCombinator<T> extends BaseCombinator<T>
     }
 
     @Override
+    public T getValue(int i)
+    {
+        IIterator<T> iterator = iterators.get(i);
+        
+        return iterator.hasValue() ? iterator.value() : null;
+    }
+    
+    @Override
 	public boolean doNext()
 	{
 		for(int j = i; j >=0; j--)

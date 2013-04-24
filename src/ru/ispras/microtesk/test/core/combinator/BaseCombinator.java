@@ -89,9 +89,20 @@ public abstract class BaseCombinator<T> implements IIterator<List<T>>
      * The callback method called in the <code>init</code> method.
      */
     protected abstract void onInit();
-
+    
+    /**
+     * The callback method called in the <code>value</code> method.
+     *
+     * @param i the iterator index.
+     * @return the value of the i-th iterator (<code>null</code> if the iterator
+     *         has been exhausted, i.e., no value is available).
+     */
+    protected abstract T getValue(int i);
+    
     /**
      * The callback method called in the <code>next</code> method.
+     *
+     * @return false iff it the combinator has been exhausted.
      */
     protected abstract boolean doNext();
 
@@ -113,16 +124,16 @@ public abstract class BaseCombinator<T> implements IIterator<List<T>>
     @Override
     public boolean hasValue()
     {
-        if(!hasValue)
+        if(!hasValue || iterators.isEmpty())
             { return false; }
 
-        for(final IIterator<T> iterator : iterators)
+        for(int i = 0; i < iterators.size(); i++)
         {
-            if(!iterator.hasValue())
+            if(getValue(i) == null)
                 { return false; }
         }
         
-        return iterators.size() > 0;
+        return true;
     }
 
     @Override
@@ -131,7 +142,7 @@ public abstract class BaseCombinator<T> implements IIterator<List<T>>
         List<T> result = new ArrayList<T>(iterators.size());
         
         for(int i = 0; i < iterators.size(); i++)
-            { result.set(i, iterators.get(i).value()); }
+            { result.set(i, getValue(i)); }
             
         return result;
     }

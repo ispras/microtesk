@@ -16,6 +16,8 @@
 
 package ru.ispras.microtesk.test.core.randomizer;
 
+import java.util.ArrayList;
+
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 
 /**
@@ -105,9 +107,11 @@ public final class Randomizer
     /// @return A random char.
     public char nextChar() { return (char)next(); }
     /// @return A random int.
-    public int  nextInt()  { return (int)next(); }
+    public int  nextInt() { return (int)next(); }
     /// @return A random long.
     public long nextLong() { return ((long)next() << Integer.SIZE) | next(); }
+    /// @return A random boolean.
+    public boolean nextBoolean() { return (next() & 1) != 0 ? true : false; }
 
     /**
      * Returns a random number from the given range.
@@ -154,7 +158,18 @@ public final class Randomizer
     {
         return array[nextIntRange(0, array.length - 1)];
     }
-    
+
+    /**
+     * Chooses a random item of the given array list.
+     *
+     * @return a random item of the array.
+     * @param array the array whoose items are chosen.
+     */
+    public <T> T choose(final ArrayList<T> array)
+    {
+        return array.get(nextIntRange(0, array.size() - 1));
+    }
+
     /**
      * Chooses a variant ([0, N-1]) according to the probability distribution.
      *

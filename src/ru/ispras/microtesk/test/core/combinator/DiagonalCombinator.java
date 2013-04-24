@@ -38,6 +38,14 @@ public class DiagonalCombinator<T> extends BaseCombinator<T>
     }
 
     @Override
+    public T getValue(int i)
+    {
+        IIterator<T> iterator = iterators.get(i);
+        
+        return iterator.hasValue() ? iterator.value() : null;
+    }
+    
+    @Override
 	public boolean doNext()
 	{
 		for(int i = 0; i < iterators.size(); i++)
