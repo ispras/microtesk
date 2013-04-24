@@ -39,6 +39,7 @@ public class RotationCompositor<T> extends BaseCompositor<T>
     @Override
     protected void onNext()
     {
+        // Do nothing
     }
     
     @Override
@@ -51,7 +52,7 @@ public class RotationCompositor<T> extends BaseCompositor<T>
             if(iterators.get(k).hasValue())
             {
                 // The next choice will start from the next iterator.
-                i = (k + 1) % iterators.size();
+                i = k + 1;
 
                 return iterators.get(k);
             }

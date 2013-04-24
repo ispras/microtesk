@@ -64,6 +64,7 @@ public class RandomCompositor<T> extends BaseCompositor<T>
     @Override
     protected void onNext()
     {
+        // Do nothing
     }
 
     @Override

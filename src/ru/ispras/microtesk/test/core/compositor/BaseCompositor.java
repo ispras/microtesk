@@ -54,9 +54,9 @@ public abstract class BaseCompositor<T> implements IIterator<T>
     }
     
     /**
-     * Adds the iterator into the composer's list.
+     * Adds the iterator into the compositor's list.
      *
-     * @param iterator the iterator to be added to the composer's list.
+     * @param iterator the iterator to be added to the compositor's list.
      */
     public void addIterator(final IIterator<T> iterator)
     {
@@ -64,13 +64,23 @@ public abstract class BaseCompositor<T> implements IIterator<T>
     }
 
     /**
-     * Removes the i-th iterator from the composer's list.
+     * Removes the i-th iterator from the compositor's list.
      *
-     * @param i the index of the iterator to be removed from the composer's list.
+     * @param i the index of the iterator to be removed from the compositor's list.
      */
     public void removeIterator(int i)
     {
         iterators.remove(i);
+    }
+    
+    /**
+     * Returns the number of iterators in the compositor's list.
+     *
+     * @return the size of the compositor's list.
+     */
+    public int size()
+    {
+        return iterators.size();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -90,7 +100,7 @@ public abstract class BaseCompositor<T> implements IIterator<T>
     /**
      * Selects an iterator whoose value will be used at the current step.
      *
-     * @return one of the iterators from the composer's list.
+     * @return one of the iterators from the compositor's list.
      */
     protected abstract IIterator<T> choose();
     

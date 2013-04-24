@@ -18,6 +18,7 @@ package ru.ispras.microtesk.test.core.compositor;
 
 import java.util.Stack;
 
+import ru.ispras.microtesk.test.core.compositor.internal.IteratorEntry;
 import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
@@ -28,36 +29,6 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  */
 public class NestingCompositor<T> extends BaseCompositor<T>
 {
-    /// An iterator entry.
-    private static class IteratorEntry<T>
-    {
-        /// The index of the current item.
-        public int item;
-        /// The index of the nesting point.
-        public int nest;
-        /// The number of items being iterated.
-        public int size;
-        /// The flag indicating that nesting has been done.
-        public boolean done;
-
-        /// The iterator itself.
-        public IIterator<T> iterator;
-
-        /// Constructs an iterator entry.
-        public IteratorEntry(final IIterator<T> iterator)
-        {
-            if(!(iterator instanceof IBoundedIterator))
-                { throw new IllegalArgumentException(); }
-
-            this.iterator = iterator;
-
-            this.done = false;
-            this.size = ((IBoundedIterator)iterator).size();
-            this.nest = size >> 1;
-            this.item = 0;
-        }
-    }
-
     /// The stack of iterators.
     private Stack<IteratorEntry<T>> stack = new Stack<IteratorEntry<T>>();
 
@@ -65,13 +36,15 @@ public class NestingCompositor<T> extends BaseCompositor<T>
     protected void onInit()
     {
         stack.clear();
-        stack.push(new IteratorEntry<T>(iterators.get(0)));
+        
+        if(iterators.size() > 0)
+            { stack.push(new IteratorEntry<T>(iterators.get(0))); }
     }
 
     @Override
     public void onNext()
     {
-        stack.peek().item++;
+        stack.peek().index++;
     }
 
     @Override
@@ -81,7 +54,7 @@ public class NestingCompositor<T> extends BaseCompositor<T>
         {
             IteratorEntry<T> entry = stack.peek();
 
-            if(entry.item == entry.nest && !entry.done)
+            if(entry.index == entry.point && !entry.done)
             {
                 if(stack.size() < iterators.size())
                 {
