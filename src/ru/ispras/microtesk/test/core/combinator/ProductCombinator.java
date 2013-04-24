@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
+ * Copyright 2008-2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,42 @@
 
 package ru.ispras.microtesk.test.core.combinator;
 
+import ru.ispras.microtesk.test.core.iterator.IIterator;
+
 /**
+ * This class implements the product combinator of iterators.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class ProductCombinator extends BaseCombinator
+public class ProductCombinator<T> extends BaseCombinator<T>
 {
+    /// The current iterator index.
+    private int i;
+
+    @Override
+    public void onInit()
+    {
+        if(iterators.size() > 0)
+            { i = iterators.size() - 1; }
+    }
+
+    @Override
+	public void doNext()
+	{
+		for(int j = i; j >=0; j--)
+		{
+			IIterator<T> iterator = iterators.get(j);
+
+			if(iterator.hasValue())
+		    {
+                iterator.next();
+                
+                if(iterator.hasValue())
+                    { i = j; return; }
+            }
+			
+            if(j > 0)
+                { iterator.init(); }
+		}
+	}
 }

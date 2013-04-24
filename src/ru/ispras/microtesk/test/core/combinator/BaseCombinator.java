@@ -78,20 +78,60 @@ public abstract class BaseCombinator<T> implements IIterator<List<T>>
     {
         return iterators.size();
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
-    // Iterator methods
+    // Callbacks that should be overloaded in subclasses
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * The callback method called in the <code>init</code> method.
+     */
+    protected abstract void onInit();
+
+    /**
+     * The callback method called in the <code>next</code> method.
+     */
+    protected abstract void doNext();
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Callback-based implementation of the iterator method
     ///////////////////////////////////////////////////////////////////////////
 
     @Override
-    public abstract void init();
+    public void init()
+    {
+        for(IIterator<T> iterator : iterators)
+            { iterator.init(); }
+
+        onInit();
+    }
     
     @Override
-    public abstract boolean hasValue();
+    public boolean hasValue()
+    {
+        for(final IIterator<T> iterator : iterators)
+        {
+            if(!iterator.hasValue())
+                { return false; }
+        }
+        
+        return iterators.size() > 0;
+    }
 
     @Override
-    public abstract List<T> value();
+    public List<T> value()
+    {
+        List<T> result = new ArrayList<T>(iterators.size());
+        
+        for(int i = 0; i < iterators.size(); i++)
+            { result.set(i, iterators.get(i).value()); }
+            
+        return result;
+    }
 
     @Override
-    public abstract void next();
+    public void next()
+    {
+        doNext();
+    }
 }
