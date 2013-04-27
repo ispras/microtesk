@@ -48,7 +48,7 @@ public class RandomCombinator<T> extends BaseCombinator<T>
         
         for(int i = 0; i < iterators.size(); i++)
         {
-			IIterator<T> iterator = iterators.get(i);
+            IIterator<T> iterator = iterators.get(i);
 
             if(iterator.hasValue())
                 { addValue(i, iterator.value()); }
@@ -62,11 +62,11 @@ public class RandomCombinator<T> extends BaseCombinator<T>
     }
     
     @Override
-	public boolean doNext()
-	{
-		for(int i = 0; i < iterators.size(); i++)
-		{
-			IIterator<T> iterator = iterators.get(i);
+    public boolean doNext()
+    {
+        for(int i = 0; i < iterators.size(); i++)
+        {
+            IIterator<T> iterator = iterators.get(i);
             
             if(iterator.hasValue() && (caches.get(i).isEmpty() || Randomizer.get().nextBoolean()))
             {
@@ -87,10 +87,10 @@ public class RandomCombinator<T> extends BaseCombinator<T>
             }
                 
             values.put(i, Randomizer.get().choose(caches.get(i)));                    
-		}
+        }
         
         return true;
-	}
+    }
     
     /// Adds the iterator value into the cache.
     private void addValue(int i, final T value)

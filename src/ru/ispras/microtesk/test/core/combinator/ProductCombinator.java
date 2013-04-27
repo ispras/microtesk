@@ -43,14 +43,14 @@ public class ProductCombinator<T> extends BaseCombinator<T>
     }
     
     @Override
-	public boolean doNext()
-	{
-		for(int j = i; j >=0; j--)
-		{
-			IIterator<T> iterator = iterators.get(j);
+    public boolean doNext()
+    {
+        for(int j = i; j >=0; j--)
+        {
+            IIterator<T> iterator = iterators.get(j);
 
-			if(iterator.hasValue())
-		    {
+            if(iterator.hasValue())
+            {
                 iterator.next();
                 
                 if(iterator.hasValue())
@@ -59,8 +59,8 @@ public class ProductCombinator<T> extends BaseCombinator<T>
 			
             if(j > 0)
                 { iterator.init(); }
-		}
+        }
         
         return false;
-	}
+    }
 }

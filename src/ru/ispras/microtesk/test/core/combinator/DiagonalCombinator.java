@@ -46,11 +46,11 @@ public class DiagonalCombinator<T> extends BaseCombinator<T>
     }
     
     @Override
-	public boolean doNext()
-	{
-		for(int i = 0; i < iterators.size(); i++)
-		{
-			IIterator<T> iterator = iterators.get(i);
+    public boolean doNext()
+    {
+       for(int i = 0; i < iterators.size(); i++)
+       {
+            IIterator<T> iterator = iterators.get(i);
 
             iterator.next();
                 
@@ -63,8 +63,8 @@ public class DiagonalCombinator<T> extends BaseCombinator<T>
                 else
                     { return false; }
             }
-		}
+        }
         
         return true;
-	}
+    }
 }
