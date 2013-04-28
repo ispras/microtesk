@@ -104,11 +104,11 @@ public class Configuration<T>
     }
     
     /// Creates an instance of the given type.
-    private <T> T createInstance(Class<T> type)
+    private <I> I createInstance(Class<I> type)
     {
         try
             { return type.newInstance(); }
         catch(final Exception e)
             { throw new IllegalArgumentException(); }    
-    }
+    }    
 }
