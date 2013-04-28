@@ -40,18 +40,75 @@ public class Configuration<T>
     /**
      * Constructs a configuration object.
      */
-    Configuration()
+    public Configuration()
     {
         // Available combinators
-        combinators.put("product",     ProductCombinator.class);
-        combinators.put("diagonal",    DiagonalCombinator.class);
-        combinators.put("random",      RandomCombinator.class);
+        combinators.put(ECombinator.PRODUCT.name(),     ProductCombinator.class);
+        combinators.put(ECombinator.DIAGONAL.name(),    DiagonalCombinator.class);
+        combinators.put(ECombinator.RANDOM.name(),      RandomCombinator.class);
         
         // Available compositors
-        compositors.put("catenation",  CatenationCompositor.class);
-        compositors.put("rotation",    RotationCompositor.class);
-        compositors.put("overlapping", OverlappingCompositor.class);
-        compositors.put("nesting",     NestingCompositor.class);
-        compositors.put("random",      RandomCompositor.class);
+        compositors.put(ECompositor.CATENATION.name(),  CatenationCompositor.class);
+        compositors.put(ECompositor.ROTATION.name(),    RotationCompositor.class);
+        compositors.put(ECompositor.CATENATION.name(),  OverlappingCompositor.class);
+        compositors.put(ECompositor.NESTING.name(),     NestingCompositor.class);
+        compositors.put(ECompositor.RANDOM.name(),      RandomCompositor.class);
+    }
+    
+    /**
+     * Creates an instance of the combinator with the given name.
+     *
+     * @return a combinator instance.
+     * @param the combinator's name.
+     */
+    @SuppressWarnings("unchecked")
+    public BaseCombinator<T> getCombinator(final String name)
+    {
+        return (BaseCombinator<T>)createInstance(combinators.get(name));
+    }
+
+    /**
+     * Creates an instance of the combinator with the given id.
+     *
+     * @return a combinator instance.
+     * @param id the combinator's id.
+     */
+    @SuppressWarnings("unchecked")
+    public BaseCombinator<T> getCombinator(final ECombinator id)
+    {
+        return getCombinator(id.name());
+    }
+    
+    /**
+     * Creates an instance of the compositor with the given name.
+     *
+     * @return a compositor instance.
+     * @param name the compositor's name.
+     */
+    @SuppressWarnings("unchecked")
+    public BaseCompositor<T> getCompositor(final String name)
+    {
+        return (BaseCompositor<T>)createInstance(compositors.get(name));
+    }
+
+    /**
+     * Creates an instance of the compositor with the given name.
+     *
+     * @return a compositor instance.
+     * @param id the compositor's id.
+     */
+    @SuppressWarnings("unchecked")
+    public BaseCompositor<T> getCompositor(final ECompositor id)
+    {
+        return getCompositor(id.name());
+    }
+    
+    /// Creates an instance of the given type.
+    private <T> T createInstance(Class<T> type)
+    {
+        try
+            { return type.newInstance(); }
+        catch(final Exception e)
+            { throw new IllegalArgumentException(); }    
     }
 }

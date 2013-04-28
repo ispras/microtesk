@@ -19,6 +19,7 @@ package ru.ispras.microtesk.test.core.combinator;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.microtesk.test.core.internal.CompositeIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
@@ -27,12 +28,10 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class BaseCombinator<T> implements IIterator<List<T>>
+public abstract class BaseCombinator<T> extends CompositeIterator<T> implements IIterator<List<T>>
 {
     /// Availability of the value.
     private boolean hasValue;
-    /// The iterators to be combined.
-    protected ArrayList<IIterator<T>> iterators = new ArrayList<IIterator<T>>();
 
     /**
      * Constructs a compositor with the empty list of iterators.
@@ -48,37 +47,7 @@ public abstract class BaseCombinator<T> implements IIterator<List<T>>
      */
     public BaseCombinator(final List<IIterator<T>> iterators)
     {
-        this.iterators.addAll(iterators);
-    }
-    
-    /**
-     * Adds the iterator into the compositor's list.
-     *
-     * @param iterator the iterator to be added to the compositor's list.
-     */
-    public void addIterator(final IIterator<T> iterator)
-    {
-        iterators.add(iterator);
-    }
-
-    /**
-     * Removes the i-th iterator from the compositor's list.
-     *
-     * @param i the index of the iterator to be removed from the compositor's list.
-     */
-    public void removeIterator(int i)
-    {
-        iterators.remove(i);
-    }
-    
-    /**
-     * Returns the number of iterators in the compositor's list.
-     *
-     * @return the size of the compositor's list.
-     */
-    public int size()
-    {
-        return iterators.size();
+        addIterators(iterators);
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -16,6 +16,9 @@
 
 package ru.ispras.microtesk.test.core;
 
+import ru.ispras.microtesk.test.core.combinator.BaseCombinator;
+import ru.ispras.microtesk.test.core.compositor.BaseCompositor;
+import ru.ispras.microtesk.test.core.internal.CompositeIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
@@ -23,25 +26,44 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Generator<T>
+public class Generator<T> extends CompositeIterator<Sequence<T>> implements IIterator<Sequence<T>>
 {
-    /// The configuration of the test sequence generator.
-    private Configuration<T> configuration = new Configuration<T>();
-    
+    /// The combinator used by the generator.
+    private BaseCombinator<T> combinator;
+    /// The compositor used by the generator.
+    private BaseCompositor<T> compositor;
+
     /**
      * Constructs a test sequence generator.
+     *
+     * @param combinator the combinator.
+     * @param compositor the compositor.
      */
-    public Generator()
+    public Generator(final BaseCombinator<T> combinator, final BaseCompositor<T> compositor)
+    {
+        this.combinator = combinator;
+        this.compositor = compositor;
+    }
+
+    @Override
+    public void init()
     {
     }
     
-    /**
-     * Returns the test sequence iterator for the template block.
-     *
-     * @return the test sequence iterator.
-     */
-    public IIterator<Sequence<T>> getIterator()
+    @Override
+    public boolean hasValue()
+    {
+        return false;
+    }
+    
+    @Override
+    public Sequence<T> value()
     {
         return null;
+    }
+    
+    @Override
+    public void next()
+    {
     }
 }

@@ -18,7 +18,7 @@ package ru.ispras.microtesk.test.core.compositor;
 
 import java.util.ArrayList;
 
-import ru.ispras.microtesk.test.core.compositor.internal.IteratorEntry;
+import ru.ispras.microtesk.test.core.internal.IteratorEntry;
 import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 

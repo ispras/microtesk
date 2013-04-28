@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.compositor.internal;
+package ru.ispras.microtesk.test.core.internal;
 
 import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
