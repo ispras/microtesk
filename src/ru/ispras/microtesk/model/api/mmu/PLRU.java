@@ -1,5 +1,7 @@
 package ru.ispras.microtesk.model.api.mmu;
 
+import ru.ispras.microtesk.model.api.mmu.buffer.Address;
+
 public class PLRU extends Policy
 {
     public int bits;
@@ -47,7 +49,7 @@ public class PLRU extends Policy
     {
         for (int index = 0; index < getAssociativity(); ++index)
         {
-            if ((bits & (1 << index)) == 0) 
+            if ((bits & (1 << index)) == 0)
             {
                 setBit(index);
                 return index;
@@ -56,5 +58,16 @@ public class PLRU extends Policy
 
         assert false : "Incorrect state: all bits are set to 1";
         return -1;
+    }
+
+    @Override
+    public void hit(Address address)
+    {
+    }
+
+    @Override
+    public int miss(Address address)
+    {
+        return 0;
     }
 }

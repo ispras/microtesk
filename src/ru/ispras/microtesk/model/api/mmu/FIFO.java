@@ -2,6 +2,8 @@ package ru.ispras.microtesk.model.api.mmu;
 
 import java.util.LinkedList;
 
+import ru.ispras.microtesk.model.api.mmu.buffer.Address;
+
 public class FIFO extends Policy
 {
     private LinkedList<Integer> fifo = new LinkedList<Integer>();
@@ -32,9 +34,19 @@ public class FIFO extends Policy
         assert false;
     }
 
-    @Override
     public int choseVictim()
     {
         return fifo.peek();
+    }
+
+    @Override
+    public void hit(Address address)
+    {
+    }
+
+    @Override
+    public int miss(Address address)
+    {
+        return 0;
     }
 }

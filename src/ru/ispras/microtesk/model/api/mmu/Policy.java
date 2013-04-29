@@ -1,5 +1,7 @@
 package ru.ispras.microtesk.model.api.mmu;
 
+import ru.ispras.microtesk.model.api.mmu.buffer.Address;
+
 public abstract class Policy
 {
     private int associativity;
@@ -17,6 +19,13 @@ public abstract class Policy
     {
         return associativity;
     }
+
+    public abstract void hit(Address address);
+
+    // @returns the address to be replaced
+    public abstract int miss(Address address);
+
+    // return null;
 
     public abstract void accessLine(int index);
 
