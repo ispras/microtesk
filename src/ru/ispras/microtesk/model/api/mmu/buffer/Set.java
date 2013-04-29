@@ -1,6 +1,8 @@
 package ru.ispras.microtesk.model.api.mmu.buffer;
 
 import java.util.ArrayList;
+
+import ru.ispras.microtesk.model.api.mmu.Policy;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 
 public class Set<T extends Line, P extends Policy>

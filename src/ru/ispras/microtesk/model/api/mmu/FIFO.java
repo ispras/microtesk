@@ -3,7 +3,6 @@ package ru.ispras.microtesk.model.api.mmu;
 import java.util.LinkedList;
 
 import ru.ispras.microtesk.model.api.mmu.buffer.Address;
-import ru.ispras.microtesk.model.api.mmu.buffer.Policy;
 
 public final class FIFO extends Policy
 {

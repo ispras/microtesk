@@ -1,52 +1,75 @@
 package ru.ispras.microtesk.model.api.mmu;
 
-import java.util.LinkedList;
-
 import ru.ispras.microtesk.model.api.mmu.buffer.Address;
-import ru.ispras.microtesk.model.api.mmu.buffer.Policy;
 
-public class PLRU extends Policy 
+public class PLRU extends Policy
 {
-	private static int N;
-	public int bits;
-	
-	private LinkedList<Integer> plru = new LinkedList<Integer>();
+	public int bits;  
 
-    public PLRU(int N)
+    public PLRU(int associativity)
     {
-    	super (N);
-        for(int i = 0; i < N; i++)
-            { plru.add(i); }
+		super(associativity);
+
+		assert associativity > 0;
+		assert associativity <= Integer.SIZE - 1;
+
+		resetBits();
+	}
+    
+    private void resetBits()
+    {
+    	this.bits = 0;
     }
     
-    @Override
-    public void hit(Address address)
+    /**
+     * If bits access to i_th cell, then 1 is written to i_th bit. 
+     *
+     * If all bits equal to 1, then they all are set to zero.  
+     * 
+     */
+    
+    private void setBit(int bitIndex)
     {
-    	for(int i = 0; i < N; i++)
-        {
-    		if (bits != (1 << i)) 
-    		{
-    			bits = 1;
-    		} 
-    		
-    		if(bits == (1 << N) - 1) 
-    		{ 
-    			bits = 0;
-    		}
-        }
-        assert false;
+    	bits |= (1 << bitIndex);    // *
+
+    	if(bits == ((1 << getAssociativity()) - 1)) // **
+    	    resetBits();
     }
     
-    @Override
-    public int miss(Address address)
+    public void accessLine(int index)
     {
-    	for(int i = 0; i < N; i++)
+    	setBit(index);
+    }
+  
+    /**
+     * If miss happened the index of first nonzero bit is look for.
+     */
+    
+    public int choseVictim()
+    {
+    	for(int index = 0; index < getAssociativity(); ++index)
     	{
-    		if ((bits & (1<<i)) !=0) 
-    			{ 
-    				return i; 
-    			} 
-    	}
-		return bits;
-  	}	
+    		if((bits & (1 << index)) == 0)
+    		{ 
+    			setBit(index);
+    			return index;
+    	    }
+        }
+
+    	assert false : "Incorrect state: all bits are set to 1";
+    	return -1;
+    }
+
+    @Override
+	public void hit(Address address)
+    {
+		// TODO: Remove this method.
+    }
+
+	@Override
+	public int miss(Address address)
+	{
+		// TODO: Remove this method.
+		return 0;
+	}
 }

@@ -2,6 +2,7 @@ package ru.ispras.microtesk.model.api.mmu.buffer;
 
 import java.util.HashMap;
 
+import ru.ispras.microtesk.model.api.mmu.Policy;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 
 public class Buffer<T extends Line, P extends Policy>
