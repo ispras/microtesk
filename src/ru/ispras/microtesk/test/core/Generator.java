@@ -18,8 +18,8 @@ package ru.ispras.microtesk.test.core;
 
 import java.util.List;
 
-import ru.ispras.microtesk.test.core.combinator.BaseCombinator;
-import ru.ispras.microtesk.test.core.compositor.BaseCompositor;
+import ru.ispras.microtesk.test.core.combinator.Combinator;
+import ru.ispras.microtesk.test.core.compositor.Compositor;
 import ru.ispras.microtesk.test.core.internal.CompositeIterator;
 import ru.ispras.microtesk.test.core.iterator.CollectionIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
@@ -31,10 +31,10 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  */
 public class Generator<T> extends CompositeIterator<Sequence<T>> implements IIterator<Sequence<T>>
 {
-    /// The combinator used by the generator.
-    private BaseCombinator<Sequence<T>> combinator;
-    /// The compositor used by the generator.
-    private BaseCompositor<T> compositor;
+    /// The combinator used by the generator (it produces different combinations of the sequences).
+    private Combinator<Sequence<T>> combinator;
+    /// The compositor used by the generator (it merges several sequences into one).
+    private Compositor<T> compositor;
 
     /**
      * Constructs a test sequence generator.
@@ -42,8 +42,8 @@ public class Generator<T> extends CompositeIterator<Sequence<T>> implements IIte
      * @param combinator the combinator.
      * @param compositor the compositor.
      */
-    public Generator(final BaseCombinator<Sequence<T>> combinator,
-                     final BaseCompositor<T> compositor)
+    public Generator(final Combinator<Sequence<T>> combinator,
+                     final Compositor<T> compositor)
     {
         this.combinator = combinator;
         this.compositor = compositor;

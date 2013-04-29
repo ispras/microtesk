@@ -16,8 +16,8 @@
 
 package ru.ispras.microtesk.test.core;
 
-import ru.ispras.microtesk.test.core.combinator.BaseCombinator;
-import ru.ispras.microtesk.test.core.compositor.BaseCompositor;
+import ru.ispras.microtesk.test.core.combinator.Combinator;
+import ru.ispras.microtesk.test.core.compositor.Compositor;
 import ru.ispras.microtesk.test.core.internal.CompositeIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 

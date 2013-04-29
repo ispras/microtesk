@@ -30,12 +30,12 @@ import ru.ispras.microtesk.test.core.compositor.*;
 public class Configuration<T>
 {
     /// The map of available combinators.
-    private Map<String, Class<? extends BaseCombinator>> combinators =
-    new HashMap<String, Class<? extends BaseCombinator>>();
+    private Map<String, Class<? extends Combinator>> combinators =
+    new HashMap<String, Class<? extends Combinator>>();
 
     /// The map of available compositors.
-    private Map<String, Class<? extends BaseCompositor>> compositors =
-    new HashMap<String, Class<? extends BaseCompositor>>();
+    private Map<String, Class<? extends Compositor>> compositors =
+    new HashMap<String, Class<? extends Compositor>>();
     
     /**
      * Constructs a configuration object.
@@ -62,9 +62,9 @@ public class Configuration<T>
      * @param the combinator's name.
      */
     @SuppressWarnings("unchecked")
-    public BaseCombinator<T> getCombinator(final String name)
+    public Combinator<Sequence<T>> getCombinator(final String name)
     {
-        return (BaseCombinator<T>)createInstance(combinators.get(name));
+        return createInstance((Class<Combinator<Sequence<T>>>)combinators.get(name));
     }
 
     /**
@@ -73,8 +73,7 @@ public class Configuration<T>
      * @return a combinator instance.
      * @param id the combinator's id.
      */
-    @SuppressWarnings("unchecked")
-    public BaseCombinator<T> getCombinator(final ECombinator id)
+    public Combinator<Sequence<T>> getCombinator(final ECombinator id)
     {
         return getCombinator(id.name());
     }
@@ -86,9 +85,9 @@ public class Configuration<T>
      * @param name the compositor's name.
      */
     @SuppressWarnings("unchecked")
-    public BaseCompositor<T> getCompositor(final String name)
+    public Compositor<T> getCompositor(final String name)
     {
-        return (BaseCompositor<T>)createInstance(compositors.get(name));
+        return createInstance((Class<Compositor<T>>)compositors.get(name));
     }
 
     /**
@@ -97,14 +96,14 @@ public class Configuration<T>
      * @return a compositor instance.
      * @param id the compositor's id.
      */
-    @SuppressWarnings("unchecked")
-    public BaseCompositor<T> getCompositor(final ECompositor id)
+    public Compositor<T> getCompositor(final ECompositor id)
     {
         return getCompositor(id.name());
     }
     
     /// Creates an instance of the given type.
-    private <I> I createInstance(Class<I> type)
+    @SuppressWarnings("unchecked")
+    private static <I> I createInstance(Class<I> type)
     {
         try
             { return type.newInstance(); }

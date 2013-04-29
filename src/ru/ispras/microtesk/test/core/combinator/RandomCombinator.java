@@ -28,7 +28,7 @@ import ru.ispras.microtesk.test.core.randomizer.Randomizer;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class RandomCombinator<T> extends BaseCombinator<T>
+public class RandomCombinator<T> extends Combinator<T>
 {
     /// The set of exhausted iterators.
     private Map<Integer, ArrayList<T>> caches = new HashMap<Integer, ArrayList<T>>();

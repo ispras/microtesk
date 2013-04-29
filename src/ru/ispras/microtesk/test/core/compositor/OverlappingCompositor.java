@@ -27,7 +27,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class OverlappingCompositor<T> extends BaseCompositor<T>
+public class OverlappingCompositor<T> extends Compositor<T>
 {
     /// The index of the recently used iterator from the compositor's list.
     private int n;

@@ -23,7 +23,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class ProductCombinator<T> extends BaseCombinator<T>
+public class ProductCombinator<T> extends Combinator<T>
 {
     /// The current iterator index.
     private int i;

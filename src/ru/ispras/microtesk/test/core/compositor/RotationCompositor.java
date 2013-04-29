@@ -25,7 +25,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class RotationCompositor<T> extends BaseCompositor<T>
+public class RotationCompositor<T> extends Compositor<T>
 {
     // The current iterator index.
     private int i;

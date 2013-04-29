@@ -28,7 +28,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class BaseCompositor<T> extends CompositeIterator<T> implements IIterator<T>
+public abstract class Compositor<T> extends CompositeIterator<T> implements IIterator<T>
 {
     /// The currently chosen iterator.
     private IIterator<T> chosen;
@@ -36,7 +36,7 @@ public abstract class BaseCompositor<T> extends CompositeIterator<T> implements 
     /**
      * Constructs a compositor with the empty list of iterators.
      */
-    public BaseCompositor()
+    public Compositor()
     {
     }
     
@@ -45,7 +45,7 @@ public abstract class BaseCompositor<T> extends CompositeIterator<T> implements 
      *
      * @param iterators the list of iterators to be composed.
      */
-    public BaseCompositor(final List<IIterator<T>> iterators)
+    public Compositor(final List<IIterator<T>> iterators)
     {
         addIterators(iterators);
     }

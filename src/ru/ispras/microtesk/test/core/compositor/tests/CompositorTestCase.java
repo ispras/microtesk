@@ -49,7 +49,7 @@ public class CompositorTestCase
     public void runOverlappingTest()
         { runTest(new OverlappingCompositor<Integer>()); }
 
-    private void runTest(BaseCompositor<Integer> compositor)
+    private void runTest(Compositor<Integer> compositor)
     {
         final int N = 10;
         final int L = 10;

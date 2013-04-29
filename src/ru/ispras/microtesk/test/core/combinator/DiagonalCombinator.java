@@ -26,7 +26,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class DiagonalCombinator<T> extends BaseCombinator<T>
+public class DiagonalCombinator<T> extends Combinator<T>
 {
     /// The set of exhausted iterators.
     private Set<Integer> exhausted = new HashSet<Integer>();

@@ -27,7 +27,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class NestingCompositor<T> extends BaseCompositor<T>
+public class NestingCompositor<T> extends Compositor<T>
 {
     /// The stack of iterators.
     private Stack<IteratorEntry<T>> stack = new Stack<IteratorEntry<T>>();

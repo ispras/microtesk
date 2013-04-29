@@ -25,7 +25,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class CatenationCompositor<T> extends BaseCompositor<T>
+public class CatenationCompositor<T> extends Compositor<T>
 {
     // The current iterator index.
     private int i;
