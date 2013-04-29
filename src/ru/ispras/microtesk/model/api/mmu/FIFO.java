@@ -1,28 +1,27 @@
-package ru.ispras.microtesk.model.api.mmu; 
+package ru.ispras.microtesk.model.api.mmu;
 
 import java.util.LinkedList;
 
-import ru.ispras.microtesk.model.api.mmu.buffer.Address;
-
-public final class FIFO extends Policy
+public class FIFO extends Policy
 {
-	private LinkedList<Integer> fifo = new LinkedList<Integer>();
+    private LinkedList<Integer> fifo = new LinkedList<Integer>();
 
     public FIFO(int number_of_lines)
     {
         super(number_of_lines);
 
-        for(int lineIndex = 0; lineIndex < number_of_lines; lineIndex++)
-            { fifo.add(lineIndex); }
+        for (int lineIndex = 0; lineIndex < number_of_lines; lineIndex++)
+        {
+            fifo.add(lineIndex);
+        }
     }
 
-    @Override
-    public void hit(Address address)
+    public void accessLine(int index)
     {
         int i = 0;
-    	for(int j = 0; j < fifo.size(); j++)
+        for (int j = 0; j < fifo.size(); j++)
         {
-            if(fifo.get(j) == 0)
+            if (fifo.get(j) == 0)
             {
                 fifo.remove(j);
                 fifo.add(i);
@@ -34,7 +33,7 @@ public final class FIFO extends Policy
     }
 
     @Override
-    public int miss(Address address)
+    public int choseVictim()
     {
         return fifo.peek();
     }
