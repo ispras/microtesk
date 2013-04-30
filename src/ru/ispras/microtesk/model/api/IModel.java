@@ -41,8 +41,7 @@ public interface IModel
      */
 
     public IModelStateObserver getStateObserver();
-    
-    
+
     /**
      * Returns an instruction that has the specified name.
      */
