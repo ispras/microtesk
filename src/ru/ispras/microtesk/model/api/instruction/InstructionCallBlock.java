@@ -23,6 +23,7 @@ import java.util.List;
  * @author Andrei Tatarnikov
  */
 
+@Deprecated
 public class InstructionCallBlock implements IInstructionCallBlock
 {
     /**

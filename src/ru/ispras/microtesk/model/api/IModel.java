@@ -12,6 +12,8 @@
 
 package ru.ispras.microtesk.model.api;
 
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.metadata.IMetaModel;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 
@@ -38,7 +40,14 @@ public interface IModel
      * value in memory locations, etc)   
      */
 
-    public IModelStateObserver getStateObserver(); 
+    public IModelStateObserver getStateObserver();
+    
+    
+    /**
+     * Returns an instruction that has the specified name.
+     */
+
+    public IInstruction getInstruction(String name) throws ConfigurationException;
 
     /**
      * Returns an object that provides access to the internal state of the model
@@ -47,5 +56,6 @@ public interface IModel
      * @return A simulator object (provides access to the model's state).
      */
 
+    @Deprecated
     public ISimulator getSimulator();
 }

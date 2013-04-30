@@ -3,7 +3,7 @@ package ru.ispras.microtesk.translator.mmu.generation.builders;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
+import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
 import ru.ispras.microtesk.model.api.instruction.InstructionSet;
 
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
@@ -27,7 +27,7 @@ public class InstructionSetSTBuilder implements ITemplateBuilder
         t.add("file",   specFileName);
         t.add("pack",   packageName);
 
-        t.add("imps",   IInstruction.class.getName());
+        t.add("imps",   IInstructionEx.class.getName());
         t.add("imps",   InstructionSet.class.getName());
         t.add("base",   InstructionSet.class.getSimpleName());
         

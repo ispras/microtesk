@@ -12,7 +12,7 @@
 
 group InstructionSet;
 
-instruction_set(file, pack, imps, base, instrs) ::= <<
+instruction_set(file, pack, imps, base, instr_type, instrs) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -20,11 +20,11 @@ instruction_set(file, pack, imps, base, instrs) ::= <<
        "ISA",
        base,
        false,
-       body(instrs))>
+       body(instr_type, instrs))>
 >>
 
-body(instrs) ::= <<
-private static final IInstruction[] ENTRIES = new IInstruction[] 
+body(instr_type, instrs) ::= <<
+private static final <instr_type>[] ENTRIES = new <instr_type>[] 
 {
     <instrs:new_instruction(); separator=",\n">
 };

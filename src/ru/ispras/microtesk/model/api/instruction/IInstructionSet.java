@@ -41,7 +41,7 @@ public interface IInstructionSet
      * @return Instruction object.
      */
 
-    public IInstruction getInstruction(String name);
+    public IInstructionEx getInstruction(String name);
     
     /**
      * Returns meta data for instructions in the instruction set.  

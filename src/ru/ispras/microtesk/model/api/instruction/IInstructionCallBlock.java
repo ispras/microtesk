@@ -19,6 +19,7 @@ package ru.ispras.microtesk.model.api.instruction;
  * @author Andrei Tatarnikov
  */
 
+@Deprecated
 public interface IInstructionCallBlock extends IInstructionCall
 {
     /**

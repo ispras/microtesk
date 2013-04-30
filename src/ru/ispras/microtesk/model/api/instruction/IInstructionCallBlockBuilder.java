@@ -21,6 +21,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
  * @author Andrei Tatarnikov
  */
 
+@Deprecated
 public interface IInstructionCallBlockBuilder
 {
     /**

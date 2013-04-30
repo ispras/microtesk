@@ -29,7 +29,7 @@ import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 
 public abstract class InstructionSet implements IInstructionSet
 {
-    private final    Map<String, IInstruction> instructions;
+    private final  Map<String, IInstructionEx> instructions;
     private final Collection<IMetaInstruction> metaData;
     
     /**
@@ -39,27 +39,27 @@ public abstract class InstructionSet implements IInstructionSet
      * @param entries Array of instructions.
      */
 
-    public InstructionSet(IInstruction[] entries)
+    public InstructionSet(IInstructionEx[] entries)
     {
         this.instructions = createInstructions(entries);
         this.metaData = createMetaData(instructions); 
     }
 
-    private static Map<String, IInstruction> createInstructions(IInstruction[] entries)
+    private static Map<String, IInstructionEx> createInstructions(IInstructionEx[] entries)
     {
-        final Map<String, IInstruction> result = new LinkedHashMap<String, IInstruction>();
+        final Map<String, IInstructionEx> result = new LinkedHashMap<String, IInstructionEx>();
 
-        for (IInstruction e : entries)
+        for (IInstructionEx e : entries)
             result.put(e.getName(), e);
 
         return Collections.unmodifiableMap(result);
     }
 
-    private static Collection<IMetaInstruction> createMetaData(Map<String, IInstruction>  instructions)
+    private static Collection<IMetaInstruction> createMetaData(Map<String, IInstructionEx>  instructions)
     {
         final Collection<IMetaInstruction> result = new ArrayList<IMetaInstruction>();
         
-        for(IInstruction i: instructions.values())
+        for(IInstructionEx i: instructions.values())
             result.add(i.getMetaData());
         
         return Collections.unmodifiableCollection(result);
@@ -72,7 +72,7 @@ public abstract class InstructionSet implements IInstructionSet
     }
     
     @Override
-    public final IInstruction getInstruction(String name)
+    public final IInstructionEx getInstruction(String name)
     {
         return instructions.get(name);
     }

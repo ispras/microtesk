@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.exception.config.UnsupportedInstructionException;
 
 /**
  * The InstructionCallBlockBuilder class implements logic that builds 
@@ -25,6 +26,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
  * @author Andrei Tatarnikov
  */
 
+@Deprecated
 public class InstructionCallBlockBuilder implements IInstructionCallBlockBuilder
 {
     /**
@@ -69,7 +71,7 @@ public class InstructionCallBlockBuilder implements IInstructionCallBlockBuilder
     {
         checkSupportedInstruction(name);
 
-        final IInstruction instruction          = instructionSet.getInstruction(name);
+        final IInstructionEx instruction        = instructionSet.getInstruction(name);
         final IInstructionCallBuilderEx builder = instruction.createCallBuilder();
 
         callBuilderEntries.add(new CallBuilderEntry(name, builder));
@@ -115,17 +117,5 @@ public class InstructionCallBlockBuilder implements IInstructionCallBlockBuilder
         {
             super(ERROR_MESSAGE);
         }        
-    }
-
-    public static class UnsupportedInstructionException extends ConfigurationException
-    {
-        private static final long serialVersionUID = 67522463236330331L;
-
-        private static final String ERROR_FORMAT = "The %s instruction is not supported in the current ISA.";
-
-        public UnsupportedInstructionException(String name)
-        {
-            super(String.format(ERROR_FORMAT, name));
-        }
     }
 }

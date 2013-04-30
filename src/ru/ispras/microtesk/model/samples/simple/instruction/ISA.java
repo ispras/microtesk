@@ -12,12 +12,12 @@
 
 package ru.ispras.microtesk.model.samples.simple.instruction;
 
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
+import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
 import ru.ispras.microtesk.model.api.instruction.InstructionSet;
 
 public class ISA extends InstructionSet
 {
-    private static final IInstruction[] ENTRIES = new IInstruction[] 
+    private static final IInstructionEx[] ENTRIES = new IInstructionEx[] 
     {
         new InstructionAdd(),
         new InstructionSub(),

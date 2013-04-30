@@ -17,6 +17,9 @@ import java.util.Collections;
 
 import ru.ispras.microtesk.model.api.metadata.*;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.exception.config.UnsupportedInstructionException;
+import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBlockBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.instruction.InstructionCallBlockBuilder;
@@ -66,6 +69,17 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
 
     // IModel
     @Override
+    public IInstruction getInstruction(String name) throws ConfigurationException
+    {
+        if (!instructions.supportsInstruction(name))
+            throw new UnsupportedInstructionException(name);
+            
+        return instructions.getInstruction(name);
+    }
+
+    // IModel
+    @Deprecated
+    @Override
     public final ISimulator getSimulator()
     {
         return this;
@@ -101,6 +115,7 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
     }
 
     // ISimulator
+    @Deprecated
     @Override
     public final IInstructionCallBlockBuilder createCallBlock()
     {

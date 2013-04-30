@@ -27,7 +27,7 @@ import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
+import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
 import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
 import ru.ispras.microtesk.model.api.instruction.ISituationBuilder;
@@ -42,7 +42,7 @@ import ru.ispras.microtesk.model.api.instruction.ISituationBuilder;
  * @author Andrei Tatarnikov
  */
 
-public abstract class InstructionBase implements IInstruction
+public abstract class InstructionBase implements IInstructionEx
 {
     /**
      * The ParamDecl class specifies a parameter declaration for an instruction.

@@ -23,6 +23,7 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionCallBlockBuilder;
  * @author Andrei Tatarnikov
  */
 
+@Deprecated
 public interface ISimulator
 {
     /**

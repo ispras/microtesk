@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2013 ISPRAS
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -7,12 +7,10 @@
  * 
  * All rights reserved.
  * 
- * IInstruction.java, Nov 21, 2012 3:43:47 PM Andrei Tatarnikov
+ * IInstruction.java, Apr 30, 2013 12:24:38 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.model.api.instruction;
-
-import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 
 /**
  * The IInstruction interface is a base interface for all generated instructions.
@@ -37,12 +35,4 @@ public interface IInstruction
      */
 
     public IInstructionCallBuilderEx createCallBuilder();
-
-    /**
-     * Returns meta information on the specified instruction.
-     * 
-     * @return Meta data describing the given instruction.
-     */
-
-    public IMetaInstruction getMetaData();
 }
