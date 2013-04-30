@@ -9,14 +9,14 @@ public class Set<T extends Line, P extends Policy>
 {
 	private P policy;
 
-	public Set(int numberoflines)
+	public Set(int associativity)
 	{
 		super();
 		
-		setPolicy(P(numberoflines));
+		setPolicy(P(associativity));
 	}
 	
-	private P P(int numberoflines) {
+	private P P(int associativity) {
 		return null;
 	}
 
@@ -37,13 +37,13 @@ public class Set<T extends Line, P extends Policy>
 		{
 			if(line.match(address))
 			{
-				policy.hit(address);
+				policy.accessLine(index(address));
 				return line.read(address); 
 		    }
 		
 		}
 		
-		int victim = policy.miss(address);
+		int victim = policy.chooseVictim();
 		T line = set.get(victim);
 
 		// TODO: to have access to the next buffer to replace line[victim]
@@ -58,15 +58,13 @@ public class Set<T extends Line, P extends Policy>
 		{
 			if(line.match(address))
 			{
-				policy.hit(address);
+				policy.accessLine(index(address));
 				return line.write(address, data); 
 		    }
 		}
 		
-		int victim = policy.miss(address);
+		int victim = policy.chooseVictim();
 		T line = set.get(victim);
-		
-		// TODO: write throught, etc.
 		
 		return line.write(address, data);
     }

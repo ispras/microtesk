@@ -1,23 +1,38 @@
+/*
+ * Copyright 2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ru.ispras.microtesk.model.api.mmu;
 
 import java.util.LinkedList;
-
-import ru.ispras.microtesk.model.api.mmu.buffer.Address;
 
 public class FIFO extends Policy
 {
     private LinkedList<Integer> fifo = new LinkedList<Integer>();
 
-    public FIFO(int number_of_lines)
+    public FIFO(int associativity)
     {
-        super(number_of_lines);
+        super(associativity);
 
-        for (int lineIndex = 0; lineIndex < number_of_lines; lineIndex++)
+        for (int lineIndex = 0; lineIndex < associativity; lineIndex++)
         {
             fifo.add(lineIndex);
         }
     }
 
+    @Override
     public void accessLine(int index)
     {
         int i = 0;
@@ -33,20 +48,10 @@ public class FIFO extends Policy
 
         assert false;
     }
-
-    public int choseVictim()
+    
+    @Override
+    public int chooseVictim()
     {
         return fifo.peek();
-    }
-
-    @Override
-    public void hit(Address address)
-    {
-    }
-
-    @Override
-    public int miss(Address address)
-    {
-        return 0;
     }
 }
