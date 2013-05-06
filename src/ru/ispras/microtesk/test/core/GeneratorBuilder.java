@@ -16,10 +16,7 @@
 
 package ru.ispras.microtesk.test.core;
 
-import ru.ispras.microtesk.test.core.combinator.Combinator;
-import ru.ispras.microtesk.test.core.compositor.Compositor;
 import ru.ispras.microtesk.test.core.internal.CompositeIterator;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**
  * This class implements the test sequence generator.
@@ -51,7 +48,8 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>>
      *
      * @param combinator the combinator name.
      */
-    void setCombinator(final String combinator)
+
+    public void setCombinator(final String combinator)
     {
         this.combinator = combinator;
     }
@@ -61,7 +59,8 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>>
      *
      * @param compositor the compositor name.
      */
-    void setCompositor(final String compositor)
+
+    public void setCompositor(final String compositor)
     {
         this.compositor = compositor;
     }
@@ -71,12 +70,15 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>>
      *
      * @return the test sequence generator.
      */
+
     public Generator<T> getGenerator()
     {
-        Generator<T> generator = new Generator(config.getCombinator(combinator),
-                                               config.getCompositor(compositor));
-        generator.addIterators(getIterators());
-        
+        final Generator<T> generator = new Generator<T>(
+            config.getCombinator(combinator),
+            config.getCompositor(compositor),
+            getIterators()
+        );
+
         return generator;
     }
 }

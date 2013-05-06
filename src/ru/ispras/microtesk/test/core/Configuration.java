@@ -30,12 +30,10 @@ import ru.ispras.microtesk.test.core.compositor.*;
 public class Configuration<T>
 {
     /// The map of available combinators.
-    private Map<String, Class<? extends Combinator>> combinators =
-    new HashMap<String, Class<? extends Combinator>>();
+    private Map<String, Class<?>> combinators = new HashMap<String, Class<?>>();
 
     /// The map of available compositors.
-    private Map<String, Class<? extends Compositor>> compositors =
-    new HashMap<String, Class<? extends Compositor>>();
+    private Map<String, Class<?>> compositors = new HashMap<String, Class<?>>();
     
     /**
      * Constructs a configuration object.
@@ -61,6 +59,7 @@ public class Configuration<T>
      * @return a combinator instance.
      * @param the combinator's name.
      */
+
     @SuppressWarnings("unchecked")
     public Combinator<Sequence<T>> getCombinator(final String name)
     {
@@ -102,7 +101,6 @@ public class Configuration<T>
     }
     
     /// Creates an instance of the given type.
-    @SuppressWarnings("unchecked")
     private static <I> I createInstance(Class<I> type)
     {
         try

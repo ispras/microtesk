@@ -20,7 +20,6 @@ import java.util.List;
 
 import ru.ispras.microtesk.test.core.combinator.Combinator;
 import ru.ispras.microtesk.test.core.compositor.Compositor;
-import ru.ispras.microtesk.test.core.internal.CompositeIterator;
 import ru.ispras.microtesk.test.core.iterator.CollectionIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
@@ -29,12 +28,14 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Generator<T> extends CompositeIterator<Sequence<T>> implements IIterator<Sequence<T>>
+public class Generator<T> implements IIterator<Sequence<T>>
 {
     /// The combinator used by the generator (it produces different combinations of the sequences).
     private Combinator<Sequence<T>> combinator;
     /// The compositor used by the generator (it merges several sequences into one).
     private Compositor<T> compositor;
+
+    private List<IIterator<Sequence<T>>> iterators;
 
     /**
      * Constructs a test sequence generator.
@@ -42,19 +43,24 @@ public class Generator<T> extends CompositeIterator<Sequence<T>> implements IIte
      * @param combinator the combinator.
      * @param compositor the compositor.
      */
-    public Generator(final Combinator<Sequence<T>> combinator,
-                     final Compositor<T> compositor)
+
+    public Generator(
+        final Combinator<Sequence<T>> combinator,
+        final Compositor<T> compositor,
+        final List<IIterator<Sequence<T>>> iterators
+        )
     {
         this.combinator = combinator;
         this.compositor = compositor;
+        this.iterators  = iterators;
     }
 
     @Override
     public void init()
     {
         combinator.removeIterators();
-        combinator.addIterators(getIterators());
-        
+        combinator.addIterators(iterators);
+
         combinator.init();
     }
     
@@ -67,7 +73,7 @@ public class Generator<T> extends CompositeIterator<Sequence<T>> implements IIte
     @Override
     public Sequence<T> value()
     {
-        List<Sequence<T>> combination = combinator.value();
+        final List<Sequence<T>> combination = combinator.value();
         
         compositor.removeIterators();
         for(final Sequence<T> sequence : combination)
@@ -75,15 +81,15 @@ public class Generator<T> extends CompositeIterator<Sequence<T>> implements IIte
             compositor.addIterator(new CollectionIterator<T>(sequence));
         }
 
-        Sequence<T> result = new Sequence<T>();
+        final Sequence<T> result = new Sequence<T>();
         for(compositor.init(); compositor.hasValue(); compositor.next())
         {
             result.add(compositor.value());
         }
-        
+
         return result;
     }
-    
+
     @Override
     public void next()
     {

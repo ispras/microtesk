@@ -25,4 +25,5 @@ import java.util.ArrayList;
  */
 public class Sequence<T> extends ArrayList<T>
 {
+    private static final long serialVersionUID = 3343324820030034644L;
 }

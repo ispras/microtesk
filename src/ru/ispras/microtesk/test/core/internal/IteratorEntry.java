@@ -59,7 +59,7 @@ public class IteratorEntry<T>
 
         this.done = false;
 
-        this.count = ((IBoundedIterator)iterator).size();
+        this.count = ((IBoundedIterator<T>)iterator).size();
         this.point = (int)((position * count) / 100.0f);
         this.index = 0;
     }

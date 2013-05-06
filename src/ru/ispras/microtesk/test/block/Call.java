@@ -12,23 +12,8 @@
 
 package ru.ispras.microtesk.test.block;
 
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
-
-public class Call implements Entry
+public class Call
 {
-    private IInstruction instruction;
-
-    public Call(IInstruction instruction)
-    {
-        this.instruction = instruction; 
-    }
-
-    public void dummy()
-    {
-        //instruction.createCallBuilder().
-    }
-    
-    //private final String instruction;
     // instruction name
     // arguments 
     // situations
