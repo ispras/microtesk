@@ -12,8 +12,22 @@
 
 package ru.ispras.microtesk.test.block;
 
-public class Call
+import java.util.Map;
+
+public final class Call
 {
+    private Map<String, Object> attributes;
+
+    public Call(Map<String, Object> attributes)
+    {
+        this.attributes = attributes;
+    }
+
+    public Object getAttribute(String name)
+    {
+        return attributes.get(name);
+    }
+
     // instruction name
     // arguments 
     // situations

@@ -12,7 +12,26 @@
 
 package ru.ispras.microtesk.test.block;
 
-public class CallBuilder
-{
+import java.util.HashMap;
+import java.util.Map;
 
+public final class CallBuilder
+{
+    private Map<String, Object> attributes;
+
+    public CallBuilder()
+    {
+        this.attributes = new HashMap<String, Object>();
+    }
+
+    public void setAttribute(String name, Object value)
+    {
+        assert !attributes.containsKey(name);
+        attributes.put(name, value);
+    }
+
+    public Call createCall()
+    {
+        return new Call(attributes);
+    }
 }
