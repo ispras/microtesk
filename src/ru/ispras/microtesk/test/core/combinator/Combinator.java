@@ -108,11 +108,11 @@ public abstract class Combinator<T> extends CompositeIterator<T> implements IIte
     @Override
     public List<T> value()
     {
-        List<T> result = new ArrayList<T>(iterators.size());
-        
+        final List<T> result = new ArrayList<T>(iterators.size());
+
         for(int i = 0; i < iterators.size(); i++)
-            { result.set(i, getValue(i)); }
-            
+            { result.add(getValue(i)); }
+
         return result;
     }
 
