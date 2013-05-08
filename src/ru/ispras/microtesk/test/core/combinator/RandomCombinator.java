@@ -53,7 +53,13 @@ public class RandomCombinator<T> extends Combinator<T>
             IIterator<T> iterator = iterators.get(i);
 
             if(iterator.hasValue())
-                { addValue(i, iterator.value()); }
+            {
+                addValue(i, iterator.value());
+                iterator.next();
+            }
+            
+            if(!iterator.hasValue())
+                { exhausted.add(i); }
         }
     }
 
@@ -66,29 +72,27 @@ public class RandomCombinator<T> extends Combinator<T>
     @Override
     public boolean doNext()
     {
+        if(exhausted.size() == iterators.size())
+            { return false; }
+    
         for(int i = 0; i < iterators.size(); i++)
         {
             IIterator<T> iterator = iterators.get(i);
             
-            if(iterator.hasValue() && (caches.get(i).isEmpty() || Randomizer.get().nextBoolean()))
+            // If the iterator is not exhausted, with probability 0.5 use new value
+            if(iterator.hasValue() && Randomizer.get().nextBoolean())
             {
+                addValue(i, iterator.value());
                 iterator.next();
                 
-                if(iterator.hasValue())
-                {
-                    addValue(i, iterator.value());                    
-                    continue;
-                }
-                else
-                {
-                    exhausted.add(i);
-                    
-                    if(exhausted.size() == iterators.size())
-                        { return false; }
-                }
+                if(!iterator.hasValue())
+                    { exhausted.add(i);  }
             }
-                
-            values.put(i, Randomizer.get().choose(caches.get(i)));                    
+            else
+            {
+                // Randomly choose one of the previous values.
+                values.put(i, Randomizer.get().choose(caches.get(i)));
+            }
         }
         
         return true;
