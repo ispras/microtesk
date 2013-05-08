@@ -18,19 +18,19 @@ import ru.ispras.microtesk.test.core.iterator.SingleValueIterator;
 
 final class SingleCallBlock implements Block
 {
-    private final IIterator<Sequence<Call>> iterator;
+    private final IIterator<Sequence<AbstractCall>> iterator;
 
-    public SingleCallBlock(Call call)
+    public SingleCallBlock(AbstractCall call)
     {
-        final Sequence<Call> sequence = new Sequence<Call>();
+        final Sequence<AbstractCall> sequence = new Sequence<AbstractCall>();
         sequence.add(call);
 
         this.iterator =
-           new SingleValueIterator<Sequence<Call>>(sequence);
+           new SingleValueIterator<Sequence<AbstractCall>>(sequence);
     }
 
     @Override
-    public IIterator<Sequence<Call>> getIterator()
+    public IIterator<Sequence<AbstractCall>> getIterator()
     {
         return iterator;
     }

@@ -18,15 +18,15 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 final class CompositeBlock implements Block
 {
-    private final Generator<Call> generator;
+    private final Generator<AbstractCall> generator;
 
-    public CompositeBlock(Generator<Call> generator)
+    public CompositeBlock(Generator<AbstractCall> generator)
     {
         this.generator = generator;
     }
 
     @Override
-    public IIterator<Sequence<Call>> getIterator()
+    public IIterator<Sequence<AbstractCall>> getIterator()
     {
         return generator;
     }

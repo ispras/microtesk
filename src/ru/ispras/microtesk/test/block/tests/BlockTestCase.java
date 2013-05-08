@@ -13,12 +13,16 @@
 package ru.ispras.microtesk.test.block.tests;
 
 // import static org.junit.Assert.*;
+
 import org.junit.Test;
 
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.samples.simple.Model;
+import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.block.Block;
 import ru.ispras.microtesk.test.block.BlockBuilder;
-import ru.ispras.microtesk.test.block.Call;
-import ru.ispras.microtesk.test.block.CallBuilder;
+import ru.ispras.microtesk.test.block.AbstractCall;
+import ru.ispras.microtesk.test.block.AbstractCallBuilder;
 import ru.ispras.microtesk.test.core.ECombinator;
 import ru.ispras.microtesk.test.core.ECompositor;
 import ru.ispras.microtesk.test.core.Sequence;
@@ -27,35 +31,37 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
 public class BlockTestCase
 {
     @Test
-    public void test()
+    public void test() throws ConfigurationException
     {
-        final BlockBuilder blockBuilder = new BlockBuilder();
+        final TestEngine testEngine = TestEngine.getInstance(new Model());
+        final BlockBuilder blockBuilder = testEngine.getBlockBuilders().newBlockBuilder();
 
         blockBuilder.setCombinator(ECombinator.RANDOM.name());
         blockBuilder.setCompositor(ECompositor.RANDOM.name());
 
-        for(int i = 0; i < 10; ++i)
+        for(int i = 0; i < 15; ++i)
         {
-            final CallBuilder callBuilder = new CallBuilder();
+            final AbstractCallBuilder callBuilder =
+                testEngine.getBlockBuilders().newAbstractCallBuilder("Add");
+
             callBuilder.setAttribute("Name", String.format("instructon %d", i));
-            blockBuilder.addCall(callBuilder.createCall());
+            blockBuilder.addCall(callBuilder.build());
         }
 
-        final Block rootBlock = blockBuilder.createBlock();
+        final Block rootBlock = blockBuilder.build();
 
         int index = 0;
 
-        final IIterator<Sequence<Call>> sequenceIterator = rootBlock.getIterator();
+        final IIterator<Sequence<AbstractCall>> sequenceIterator = rootBlock.getIterator();
         for (sequenceIterator.init(); sequenceIterator.hasValue(); sequenceIterator.next())
         {
             System.out.println(String.format("Sequence #%d", index));
 
-            final Sequence<Call> sequence = sequenceIterator.value();
-            for (Call call : sequence)
+            final Sequence<AbstractCall> sequence = sequenceIterator.value();
+            for (AbstractCall call : sequence)
                 System.out.println(call.getAttribute("Name"));
 
             ++index;
         }
-
     }
 }

@@ -28,7 +28,7 @@ public final class BlockBuilder
     private String compositorName;
     private String combinatorName;
 
-    public BlockBuilder()
+    protected BlockBuilder()
     {
         this.nestedBlocks = new ArrayList<Block>();
         this.attributes   = new HashMap<String, Object>();
@@ -61,16 +61,16 @@ public final class BlockBuilder
         nestedBlocks.add(block);
     }
 
-    public void addCall(Call call)
+    public void addCall(AbstractCall call)
     {
         assert null != call;
         nestedBlocks.add(new SingleCallBlock(call));
     }
 
-    public Block createBlock()
+    public Block build()
     {
-        final GeneratorBuilder<Call> generatorBuilder =
-            new GeneratorBuilder<Call>();
+        final GeneratorBuilder<AbstractCall> generatorBuilder =
+            new GeneratorBuilder<AbstractCall>();
 
         if (null != combinatorName)
             generatorBuilder.setCombinator(combinatorName);
@@ -81,7 +81,7 @@ public final class BlockBuilder
         for (Block block : nestedBlocks)
             generatorBuilder.addIterator(block.getIterator());
 
-        final Generator<Call> generator =
+        final Generator<AbstractCall> generator =
             generatorBuilder.getGenerator();
 
         return new CompositeBlock(generator);

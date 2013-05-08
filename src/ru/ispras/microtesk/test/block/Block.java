@@ -17,5 +17,5 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 public interface Block
 {
-    public IIterator<Sequence<Call>> getIterator();
+    public IIterator<Sequence<AbstractCall>> getIterator();
 }
