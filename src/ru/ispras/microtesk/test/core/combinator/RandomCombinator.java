@@ -26,16 +26,18 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
 import ru.ispras.microtesk.test.core.randomizer.Randomizer;
 
 /**
+ * This class implements the random combinator of iterators.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class RandomCombinator<T> extends Combinator<T>
 {
-    /// The set of exhausted iterators.
+    /// Maps an iterator to the list of previous values.
     private Map<Integer, ArrayList<T>> caches = new HashMap<Integer, ArrayList<T>>();
-    /// The list of current values.
+    /// Maps an iterator to the current value.
     private Map<Integer, T> values = new HashMap<Integer, T>();
 
-    /// The set of exhausted iterators.
+    /// Contains exhausted iterators.
     private Set<Integer> exhausted = new HashSet<Integer>();
 
     @Override
