@@ -12,17 +12,10 @@
 
 package ru.ispras.microtesk.test.block;
 
-import ru.ispras.microtesk.model.api.IModel;
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
-
 public final class BlockBuilderFactory
 {
-    private final IModel model;
-
-    public BlockBuilderFactory(IModel model)
+    public BlockBuilderFactory()
     {
-        this.model = model;
     }
 
     public BlockBuilder newBlockBuilder()
@@ -30,11 +23,8 @@ public final class BlockBuilderFactory
         return new BlockBuilder();
     }
 
-    public AbstractCallBuilder newAbstractCallBuilder(String instructionName) throws ConfigurationException
+    public AbstractCallBuilder newAbstractCallBuilder(String instructionName)
     {
-        final IInstruction instruction =
-            model.getInstruction(instructionName);
-
-        return new AbstractCallBuilder(instruction);
+        return new AbstractCallBuilder(instructionName);
     }
 }

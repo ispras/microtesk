@@ -12,28 +12,24 @@
 
 package ru.ispras.microtesk.test;
 
-import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.test.block.BlockBuilderFactory;
 
-public class TestEngine
+public final class TestEngine
 {
-    private final IModel model;
     private final BlockBuilderFactory blockBuilderFactory;
 
-    public static TestEngine getInstance(IModel model)
+    public static TestEngine getInstance()
     {
-        return new TestEngine(model);
+        return new TestEngine();
     }
 
-    private TestEngine(IModel model)
+    private TestEngine()
     {
-        this.model = model;
-        this.blockBuilderFactory = new BlockBuilderFactory(model);
+        this.blockBuilderFactory = new BlockBuilderFactory();
     }
-    
+
     public BlockBuilderFactory getBlockBuilders()
     {
         return blockBuilderFactory;
     }
 }
-

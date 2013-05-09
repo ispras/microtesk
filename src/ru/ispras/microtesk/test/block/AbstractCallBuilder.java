@@ -16,17 +16,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
 
 public final class AbstractCallBuilder
 {
+    private final String name;
     private final Map<String, Argument> arguments;
     private final Map<String, Object> attributes;
 
-    protected AbstractCallBuilder(IInstruction instruction)
+    protected AbstractCallBuilder(String name)
     {
-        this.arguments  = new HashMap<String, Argument>();
+        this.name = name;
+        this.arguments = new HashMap<String, Argument>();
         this.attributes = new HashMap<String, Object>();
     }
 
@@ -64,6 +65,6 @@ public final class AbstractCallBuilder
 
     public AbstractCall build()
     {
-        return new AbstractCall(arguments, attributes);
+        return new AbstractCall(name, arguments, attributes);
     }
 }

@@ -21,16 +21,24 @@ public final class AbstractCall
     // situations
     // other attributes
 
+    private final String name;
     private final Map<String, Argument> arguments;
     private final Map<String, Object>  attributes;
 
     protected AbstractCall(
+        String name,
         Map<String, Argument> arguments,
         Map<String, Object> attributes
         )
     {
-        this.arguments  = arguments;
+        this.name = name;
+        this.arguments = arguments;
         this.attributes = attributes;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     public Object getArgument(String name)

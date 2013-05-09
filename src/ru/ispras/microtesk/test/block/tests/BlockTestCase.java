@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test.block.tests;
 import org.junit.Test;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.samples.simple.Model;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.block.Block;
 import ru.ispras.microtesk.test.block.BlockBuilder;
@@ -33,7 +32,7 @@ public class BlockTestCase
     @Test
     public void test() throws ConfigurationException
     {
-        final TestEngine testEngine = TestEngine.getInstance(new Model());
+        final TestEngine testEngine = TestEngine.getInstance();
         final BlockBuilder blockBuilder = testEngine.getBlockBuilders().newBlockBuilder();
 
         blockBuilder.setCombinator(ECombinator.RANDOM.name());
