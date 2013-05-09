@@ -37,6 +37,7 @@ public final class ArgumentBuilder
 
     public ArgumentBuilder setArgument(String name, int value)
     {
+        assert !arguments.containsKey(name);
         arguments.put(name, new Argument.ModeArg(name, value));
         return this;
     }
