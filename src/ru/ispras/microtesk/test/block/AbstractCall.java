@@ -16,11 +16,6 @@ import java.util.Map;
 
 public final class AbstractCall
 {
-    // instruction name
-    // arguments
-    // situations
-    // other attributes
-
     private final String name;
     private final Map<String, Argument> arguments;
     private final Map<String, Object>  attributes;
@@ -41,13 +36,23 @@ public final class AbstractCall
         return name;
     }
 
-    public Object getArgument(String name)
+    public Argument getArgument(String name)
     {
         return arguments.get(name);
+    }
+
+    public Map<String, Argument> getArguments()
+    {
+        return arguments;
     }
 
     public Object getAttribute(String name)
     {
         return attributes.get(name);
+    }
+
+    public Map<String, Object> getAttributes()
+    {
+        return attributes;
     }
 }

@@ -31,7 +31,7 @@ public class BlockTestCase
     @Test
     public void test()
     {
-        final TestEngine testEngine = TestEngine.getInstance();
+        final TestEngine testEngine = TestEngine.getInstance(null);
         final BlockBuilder blockBuilder = testEngine.getBlockBuilders().newBlockBuilder();
 
         blockBuilder.setCombinator(ECombinator.RANDOM.name());
