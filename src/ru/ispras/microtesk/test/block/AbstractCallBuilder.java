@@ -23,12 +23,34 @@ public final class AbstractCallBuilder
     private final String name;
     private final Map<String, Argument> arguments;
     private final Map<String, Object> attributes;
+    private Situation situation;
+    
+    private final ArgumentBuilder.Setter argumentSetter = new ArgumentBuilder.Setter()
+    {
+        @Override
+        public void setArgument(String name, Argument argument)
+        {
+            assert !arguments.containsKey(name);
+            arguments.put(name, argument);
+        }
+    }; 
+    
+    private final SituationBuilder.Setter situationSetter = new SituationBuilder.Setter()
+    {
+        @Override
+        public void setSituation(Situation asituation)
+        {
+            assert null == situation;
+            situation = asituation;
+        }
+    }; 
 
     protected AbstractCallBuilder(String name)
     {
-        this.name = name;
-        this.arguments = new HashMap<String, Argument>();
+        this.name       = name;
+        this.arguments  = new HashMap<String, Argument>();
         this.attributes = new HashMap<String, Object>();
+        this.situation  = null;
     }
 
     public void setAttribute(String name, Object value)
@@ -36,19 +58,13 @@ public final class AbstractCallBuilder
         assert !attributes.containsKey(name);
         attributes.put(name, value);
     }
-
-    protected void setArgument(String name, Argument argument)
-    {
-        assert !arguments.containsKey(name);
-        arguments.put(name, argument);
-    }
-
+   
     public ArgumentBuilder setArgumentUsingBuilder(String name, String modeName)
     {
-        return new ArgumentBuilder(this,  name, modeName);
+        return new ArgumentBuilder(argumentSetter, name, modeName);
     }
 
-    public void setArgumentImmediate(String name, int value)
+    public Argument setArgumentImmediate(String name, int value)
     {
         final Argument.ModeArg valueArg =
             new Argument.ModeArg(AddressingModeImm.PARAM_NAME, value);
@@ -60,11 +76,17 @@ public final class AbstractCallBuilder
                Collections.singletonMap(valueArg.name, valueArg)
                );
 
-        setArgument(name, argument);
+        argumentSetter.setArgument(name, argument);
+        return argument;
+    }
+
+    public SituationBuilder setTestSituation(String name)
+    {
+        return new SituationBuilder(situationSetter, name);
     }
 
     public AbstractCall build()
     {
-        return new AbstractCall(name, arguments, attributes);
+        return new AbstractCall(name, arguments, attributes, situation);
     }
 }

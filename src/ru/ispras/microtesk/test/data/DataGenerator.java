@@ -14,7 +14,10 @@ package ru.ispras.microtesk.test.data;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
+import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
+import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
 import ru.ispras.microtesk.test.block.AbstractCall;
 import ru.ispras.microtesk.test.block.Argument;
@@ -50,12 +53,25 @@ public class DataGenerator
             instruction.createCallBuilder();
 
         for (Argument argument : abstractCall.getArguments().values())
-            argument.addToInstructionCall(callBuilder);
+            addArgumentToInstructionCall(argument,callBuilder);
 
         return new ConcreteCall(
             abstractCall.getName(),
             abstractCall.getAttributes(),
             callBuilder.getCall()
             );
+    }
+    
+    public void addArgumentToInstructionCall(
+        Argument arg, IInstructionCallBuilder callBuilder) throws ConfigurationException
+    {
+        final IArgumentBuilder argumentBuilder = 
+            callBuilder.getArgumentBuilder(arg.getName());
+
+        final IAddressingModeBuilder modeBuilder =
+            argumentBuilder.getModeBuilder(arg.getModeName());
+
+        for (Argument.ModeArg modeArg : arg.getModeArguments().values())
+            modeBuilder.setArgumentValue(modeArg.name, modeArg.value);
     }
 }

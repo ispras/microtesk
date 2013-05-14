@@ -14,14 +14,9 @@ package ru.ispras.microtesk.test.block;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
-import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilder;
-
 public final class Argument
 {
-    protected static final class ModeArg
+    public static final class ModeArg
     {
         public final String name;
         public final    int value;
@@ -37,11 +32,18 @@ public final class Argument
     private final String modeName;
     private final Map<String, ModeArg> arguments;
 
-    protected Argument(String name, String modeName, Map<String, ModeArg> arguments)
+    private ArgumentKind kind;
+
+    protected Argument(
+        String name,
+        String modeName,
+        Map<String, ModeArg> arguments
+        )
     {
         this.name      = name;
         this.modeName  = modeName;
         this.arguments = arguments;
+        this.kind      = ArgumentKind.DEFAULT;
     }
 
     public String getName()
@@ -53,17 +55,19 @@ public final class Argument
     {
         return modeName;   
     }
-
-    public void addToInstructionCall(
-        IInstructionCallBuilder callBuilder) throws ConfigurationException
+    
+    public Map<String, ModeArg> getModeArguments()
     {
-        final IArgumentBuilder argumentBuilder = 
-            callBuilder.getArgumentBuilder(name);
+        return arguments;
+    }
 
-        final IAddressingModeBuilder modeBuilder =
-            argumentBuilder.getModeBuilder(modeName);
+    public ArgumentKind getKind()
+    {
+        return kind; 
+    }
 
-        for (ModeArg entry : arguments.values())
-            modeBuilder.setArgumentValue(entry.name, entry.value);
+    public void setKind(ArgumentKind kind)
+    {
+        this.kind = kind;
     }
 }

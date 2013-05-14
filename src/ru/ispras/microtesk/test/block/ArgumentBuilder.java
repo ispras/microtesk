@@ -17,22 +17,29 @@ import java.util.Map;
 
 public final class ArgumentBuilder
 {
-    private final AbstractCallBuilder callBuilder;
+    interface Setter
+    {
+        void setArgument(String name, Argument argument);
+    }
+
+    private final Setter setter;
 
     private final String name;
     private final String modeName;
     private final Map<String, Argument.ModeArg> arguments;
 
     protected ArgumentBuilder(
-        AbstractCallBuilder callBuilder,
+        Setter setter,
         String name,
         String modeName
         )
     {
-        this.callBuilder = callBuilder;
-        this.name        = name;
-        this.modeName    = modeName;
-        this.arguments   = new HashMap<String, Argument.ModeArg>();
+        assert null != setter;
+        
+        this.setter    = setter;
+        this.name      = name;
+        this.modeName  = modeName;
+        this.arguments = new HashMap<String, Argument.ModeArg>();
     }
 
     public ArgumentBuilder setArgument(String name, int value)
@@ -42,8 +49,10 @@ public final class ArgumentBuilder
         return this;
     }
 
-    public void build()
+    public Argument build()
     {
-        callBuilder.setArgument(name, new Argument(name, modeName, arguments));
+        final Argument argument = new Argument(name, modeName, arguments);
+        setter.setArgument(name, argument);
+        return argument;
     }
 }
