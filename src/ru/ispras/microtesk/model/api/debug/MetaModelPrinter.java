@@ -41,7 +41,6 @@ public final class MetaModelPrinter
         printInstructionMetaData();
         
         printSepator();
-        printSituationMetaData();
     }
 
     public void printSepator()
@@ -106,15 +105,18 @@ public final class MetaModelPrinter
                 asb.append("]");
                 System.out.println(asb);
             }
+
+            printSituationMetaData(i);
+
             System.out.println();
         }
     }
-
-    public void printSituationMetaData()
+    
+    public void printSituationMetaData(IMetaInstruction metaInstruction)
     {
-        System.out.println("SITUATIONS:");
+        System.out.println("Situations:");
 
-        for (IMetaSituation s: metaModel.getSituations())
-            System.out.println("Name: " + s.getName());
+        for (IMetaSituation s: metaInstruction.getSituations())
+            System.out.println("   " + s.getName());
     }
 }

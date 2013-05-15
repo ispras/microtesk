@@ -106,14 +106,6 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
         return memoryMetaData;
     }
 
-    // IMetaModel
-    @Override
-    public final Iterable<IMetaSituation> getSituations()
-    {
-        // TODO NOT IMPLEMENTED YET
-        return Collections.emptyList();
-    }
-
     // ISimulator
     @Deprecated
     @Override
