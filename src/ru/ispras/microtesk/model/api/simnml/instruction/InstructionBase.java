@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -24,8 +25,10 @@ import ru.ispras.microtesk.model.api.exception.config.UninitializedException;
 
 import ru.ispras.microtesk.model.api.metadata.IMetaArgument;
 import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
+import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
+import ru.ispras.microtesk.model.api.situation.builtin.Random;
 
 import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
 import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
@@ -85,8 +88,14 @@ public abstract class InstructionBase implements IInstructionEx
         
         for (ParamDecl p : params)
             metaParams.add(new MetaArgument(p.name, p.info.getMetaData()));
-        
-        return new MetaInstruction(name, metaParams);
+
+        // TODO: Temporary code. Need to deal with it in a more elegant way. 
+        final List<IMetaSituation> situations = 
+            (params.length > 0) ? 
+            Collections.singletonList(new Random().getMetaData()) :
+            new ArrayList<IMetaSituation>();        
+
+        return new MetaInstruction(name, metaParams, situations);
     }
 
     @Override
