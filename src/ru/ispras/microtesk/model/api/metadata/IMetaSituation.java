@@ -27,20 +27,4 @@ public interface IMetaSituation
      */
 
     public String getName();
-
-    /**
-     * Returns in iterator for the collection of test situation arguments
-     * (signature of the test situation).
-     * 
-     * @return
-     */
-
-    public Iterable<IMetaArgument> getArguments();
-
-    /**
-     * 
-     * @return
-     */
-
-    public Iterable<IMetaAttribute> getAttributes();
 }

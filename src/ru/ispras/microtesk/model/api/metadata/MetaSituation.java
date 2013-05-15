@@ -12,10 +12,6 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import ru.ispras.microtesk.model.api.metadata.IMetaArgument;
-import ru.ispras.microtesk.model.api.metadata.IMetaAttribute;
 import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 
 /**
@@ -26,37 +22,16 @@ import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 
 public class MetaSituation implements IMetaSituation
 {
-    private final String                      name;
-    private final Collection<IMetaArgument>   args;
-    private final Collection<IMetaAttribute> attrs;
+    private final String name;
 
-    public MetaSituation(String name, Collection<IMetaArgument> args, Collection<IMetaAttribute> attrs)
+    public MetaSituation(String name)
     {
         this.name  = name;
-        this.args  = args;
-        this.attrs = attrs;
-    }
-
-    public MetaSituation(String name, Collection<IMetaArgument> args)
-    {
-        this(name, args, new ArrayList<IMetaAttribute>());
     }
 
     @Override
     public String getName()
     {
         return name;
-    }
-
-    @Override
-    public Iterable<IMetaArgument> getArguments()
-    {
-        return args;
-    }
-
-    @Override
-    public Iterable<IMetaAttribute> getAttributes()
-    {
-        return attrs;
     }
 }

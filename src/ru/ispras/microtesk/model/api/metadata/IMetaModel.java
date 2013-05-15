@@ -46,12 +46,4 @@ public interface IMetaModel
      */
 
     public Iterable<IMetaLocationStore> getMemoryStores();
-
-    /**
-     * Returns an iterator for the collection of test situations.
-     * 
-     * @return An Iterable object.
-     */
-
-    public Iterable<IMetaSituation> getSituations();
 }

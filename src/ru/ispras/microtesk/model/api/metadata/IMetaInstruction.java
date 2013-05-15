@@ -36,4 +36,12 @@ public interface IMetaInstruction
      */
     
     public Iterable<IMetaArgument> getArguments();
+    
+    /**
+     * Returns an iterator for the collection of test situations.
+     * 
+     * @return An Iterable object.
+     */
+
+    public Iterable<IMetaSituation> getSituations();
 }
