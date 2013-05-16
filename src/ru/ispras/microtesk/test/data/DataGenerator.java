@@ -12,6 +12,9 @@
 
 package ru.ispras.microtesk.test.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
@@ -21,29 +24,43 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
 import ru.ispras.microtesk.test.block.AbstractCall;
 import ru.ispras.microtesk.test.block.Argument;
+import ru.ispras.microtesk.test.block.Situation;
 import ru.ispras.microtesk.test.core.Sequence;
 
 public class DataGenerator
 {
     private final IModel model;
+    
+    private SequenceBuilder sequenceBuilder;
 
     public DataGenerator(IModel model)
     {
         this.model = model;
+        this.sequenceBuilder = null;
     }
 
     public Sequence<ConcreteCall> generate(
         Sequence<AbstractCall> abstractSequence) throws ConfigurationException
     {
-        final Sequence<ConcreteCall> result = new Sequence<ConcreteCall>();
+        assert null != model;
+        assert null == sequenceBuilder;
 
-        for (AbstractCall abstractCall : abstractSequence)
-            result.add(createConcreteCall(abstractCall));
+        sequenceBuilder = new SequenceBuilder();
 
-        return result;
+        try
+        {
+            for (AbstractCall abstractCall : abstractSequence)
+                processAbstractCall(abstractCall);
+
+            return sequenceBuilder.build();
+        }
+        finally
+        {
+            sequenceBuilder = null;
+        }
     }
 
-    private ConcreteCall createConcreteCall(
+    private void processAbstractCall(
         AbstractCall abstractCall) throws ConfigurationException
     {
         final IInstruction instruction =
@@ -53,25 +70,72 @@ public class DataGenerator
             instruction.createCallBuilder();
 
         for (Argument argument : abstractCall.getArguments().values())
-            addArgumentToInstructionCall(argument,callBuilder);
+            addArgumentToInstructionCall(argument, callBuilder);
 
-        return new ConcreteCall(
+        final ConcreteCall concreteCall = new ConcreteCall(
             abstractCall.getName(),
             abstractCall.getAttributes(),
             callBuilder.getCall()
             );
+
+        sequenceBuilder.addCall(concreteCall);
+
+        final Situation situationInfo = abstractCall.getSituation();
+        if (null != situationInfo)
+        {
+            /*
+            final ISituation situation =
+                instruction.createSituation(situationInfo.getName());
+            situation.
+            */
+        }
     }
     
-    public void addArgumentToInstructionCall(
-        Argument arg, IInstructionCallBuilder callBuilder) throws ConfigurationException
+    private void addArgumentToInstructionCall(
+        Argument argument,
+        IInstructionCallBuilder callBuilder) throws ConfigurationException
     {
         final IArgumentBuilder argumentBuilder = 
-            callBuilder.getArgumentBuilder(arg.getName());
+            callBuilder.getArgumentBuilder(argument.getName());
 
         final IAddressingModeBuilder modeBuilder =
-            argumentBuilder.getModeBuilder(arg.getModeName());
+            argumentBuilder.getModeBuilder(argument.getModeName());
 
-        for (Argument.ModeArg modeArg : arg.getModeArguments().values())
+        for (Argument.ModeArg modeArg : argument.getModeArguments().values())
             modeBuilder.setArgumentValue(modeArg.name, modeArg.value);
+    }
+}
+
+final class SequenceBuilder
+{
+    private final List<ConcreteCall> calls;
+    private final List<ConcreteCall> initialisingCalls;
+
+    public SequenceBuilder()
+    {
+        this.calls = new ArrayList<ConcreteCall>();
+        this.initialisingCalls = new ArrayList<ConcreteCall>();
+    }
+
+    public void addCall(ConcreteCall call)
+    {
+        assert null != call;
+        calls.add(call); 
+    }
+
+    public void addInitializingCall(ConcreteCall call)
+    {
+        assert null != call;
+        initialisingCalls.add(call); 
+    }
+
+    public Sequence<ConcreteCall> build()
+    {
+        final Sequence<ConcreteCall> result = new Sequence<ConcreteCall>();
+
+        result.addAll(initialisingCalls);
+        result.addAll(calls);
+
+        return result;
     }
 }
