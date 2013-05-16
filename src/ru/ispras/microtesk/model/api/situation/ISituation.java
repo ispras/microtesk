@@ -19,12 +19,19 @@ import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 
 public interface ISituation
 {
-    public IMetaSituation getMetaData();
-    
-    public String getName();
-
     public boolean setInput(String name, Data value);
     public boolean setOutput(String name);
-
     public Map<String, Data> solve();
+
+    public interface IInfo
+    {
+        public IMetaSituation getMetaData();
+        public String getName();
+        public ISituation createSituation();
+    }
+
+    public interface IFactory
+    {
+        public ISituation create();
+    }         
 }

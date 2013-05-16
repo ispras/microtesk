@@ -12,18 +12,42 @@
 
 package ru.ispras.microtesk.model.api.situation;
 
+import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
+import ru.ispras.microtesk.model.api.metadata.MetaSituation;
+
 public abstract class Situation implements ISituation
 {
-    private final String name;
-
-    public Situation(String name)
+    public static final class Info implements IInfo
     {
-        this.name = name;
-    }
+        private final String name;
+        private final IFactory factory;
+        private final IMetaSituation metaData;
 
-    @Override
-    public final String getName()
-    {
-        return name;
-    }
+        public Info(String name, IFactory factory)
+        {
+            assert null != factory;
+
+            this.name     = name;
+            this.factory  = factory; 
+            this.metaData = new MetaSituation(name);
+        }
+
+        @Override
+        public String getName()
+        {
+            return name;
+        }
+
+        @Override
+        public IMetaSituation getMetaData()
+        {
+            return metaData;
+        }
+
+        @Override
+        public ISituation createSituation()
+        {
+            return factory.create();
+        }
+    };
 }
