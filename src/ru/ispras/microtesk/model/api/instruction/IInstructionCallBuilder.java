@@ -32,14 +32,4 @@ public interface IInstructionCallBuilder
      */
     
     public IArgumentBuilder getArgumentBuilder(String name) throws ConfigurationException;
-    
-    /**
-     * Returns a builder for test situation to be associated with 
-     * the current instruction call.
-     * 
-     * @param name The situation name.
-     * @return A test situation builder object.
-     */
-    
-    public ISituationBuilder getSituationBuilder(String name);
 }

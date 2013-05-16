@@ -28,12 +28,12 @@ import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
-import ru.ispras.microtesk.model.api.situation.builtin.Random;
+import ru.ispras.microtesk.model.api.situation.ISituation;
+import ru.ispras.microtesk.model.api.situation.builtin.RandomSituation;
 
 import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
 import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
-import ru.ispras.microtesk.model.api.instruction.ISituationBuilder;
 
 /**
  * The InstructionBase abstract class is a base class for all instructions modeled
@@ -65,7 +65,8 @@ public abstract class InstructionBase implements IInstructionEx
         }        
     }
 
-    private final String               name;
+    private final String name;
+    private final Map<String, ISituation.IInfo> situations;
     private final IMetaInstruction metaData;
 
     /**
@@ -78,24 +79,42 @@ public abstract class InstructionBase implements IInstructionEx
 
     public InstructionBase(String name, ParamDecl[] params)
     {
-        this.name     = name;
-        this.metaData = createMetaData(name, params);
+        this.name       = name;
+        this.situations = createSituations(params);
+        this.metaData   = createMetaData(name, params, situations.values());
     }
 
-    private static IMetaInstruction createMetaData(String name, ParamDecl[] params)
+    // TODO: Temporary code that assigns the "random" situation to all instructions
+    // that have at least one parameter. This is not exactly how it should be.
+    // It should work only for parameters that represent input values (not flags, not output values). 
+
+    private static Map<String, ISituation.IInfo> createSituations(ParamDecl[] params)
+    {
+        if (params.length == 0)
+            return Collections.emptyMap();
+
+        return Collections.singletonMap(
+            RandomSituation.INFO.getName(),
+            RandomSituation.INFO
+            );
+    }
+
+    private static IMetaInstruction createMetaData(
+         String name,
+         ParamDecl[] params,
+         Collection<ISituation.IInfo> situations
+         )
     {
         final Collection<IMetaArgument> metaParams = new ArrayList<IMetaArgument>();
-        
+
         for (ParamDecl p : params)
             metaParams.add(new MetaArgument(p.name, p.info.getMetaData()));
 
-        // TODO: Temporary code. Need to deal with it in a more elegant way. 
-        final List<IMetaSituation> situations = 
-            (params.length > 0) ? 
-            Collections.singletonList(new Random().getMetaData()) :
-            new ArrayList<IMetaSituation>();        
+        final List<IMetaSituation> metaSituations = new ArrayList<IMetaSituation>();
+        for (ISituation.IInfo situation : situations)
+            metaSituations.add(situation.getMetaData());
 
-        return new MetaInstruction(name, metaParams, situations);
+        return new MetaInstruction(name, metaParams, metaSituations);
     }
 
     @Override
@@ -108,6 +127,17 @@ public abstract class InstructionBase implements IInstructionEx
     public final IMetaInstruction getMetaData()
     {
         return metaData;
+    }
+    
+    public ISituation createSituation(String name) throws ConfigurationException
+    {
+        final String ERROR_FORMAT = 
+            "The %s situation cannot be assosiated with the %s instruction.";
+
+        if (!situations.containsKey(name))
+            throw new UndeclaredException(String.format(ERROR_FORMAT, name, getName()));
+
+        return situations.get(name).createSituation();
     }
 
     /**
@@ -150,14 +180,6 @@ public abstract class InstructionBase implements IInstructionEx
         {
             checkUndeclaredArgument(name);
             return argBuilders.get(name);
-        }
-
-        @Override
-        public final ISituationBuilder getSituationBuilder(String name)
-        {
-            // TODO: NOT SUPPORTED YET.
-            assert false : "NOT SUPPORTED";
-            return null;
         }
 
         /**

@@ -12,6 +12,9 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.situation.ISituation;
+
 /**
  * The IInstruction interface is a base interface for all generated instructions.
  * 
@@ -35,4 +38,15 @@ public interface IInstruction
      */
 
     public IInstructionCallBuilderEx createCallBuilder();
+
+    /**
+     * Creates a new object of the specified test situation.
+     * 
+     * @param name Name of the test situation.
+     * @return A new instance of the specified test situation.
+     * @throws ConfigurationException An exception is thrown if no 
+     * such situation is associated with the given instruction. 
+     */
+
+    public ISituation createSituation(String name) throws ConfigurationException;
 }
