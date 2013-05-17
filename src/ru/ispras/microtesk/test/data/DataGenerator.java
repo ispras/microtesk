@@ -14,14 +14,17 @@ package ru.ispras.microtesk.test.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
+import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.test.block.AbstractCall;
 import ru.ispras.microtesk.test.block.Argument;
 import ru.ispras.microtesk.test.block.Situation;
@@ -81,17 +84,31 @@ public class DataGenerator
         sequenceBuilder.addCall(concreteCall);
 
         final Situation situationInfo = abstractCall.getSituation();
-        if (null != situationInfo)
+        if (null == situationInfo)
+            return;
+
+        final ISituation situation =
+            instruction.createSituation(situationInfo.getName());
+
+        for (Argument argument : abstractCall.getArguments().values())
+            situation.setOutput(argument.getName());
+
+        final Map<String, Data> output =
+            situation.solve();
+        
+        for (Map.Entry<String, Data> entry : output.entrySet())
         {
-            /*
-            final ISituation situation =
-                instruction.createSituation(situationInfo.getName());
-            situation.
-            */
+            Argument argument = abstractCall.getArguments().get(entry.getKey());
+            addInitializer(argument, entry.getValue());
         }
     }
-    
-    private void addArgumentToInstructionCall(
+
+    private void addInitializer(Argument argument, Data value)
+    {
+        // TODO Auto-generated method stub
+    }
+
+    private static void addArgumentToInstructionCall(
         Argument argument,
         IInstructionCallBuilder callBuilder) throws ConfigurationException
     {

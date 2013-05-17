@@ -49,5 +49,5 @@ public abstract class Situation implements ISituation
         {
             return factory.create();
         }
-    };
+    }
 }
