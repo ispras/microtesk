@@ -311,7 +311,41 @@ public abstract class RawData implements Comparable<RawData>
 
         return result;
     }
-    
+
+    /**
+     * Creates an instance of a raw data object from a byte array.
+     * TODO: Needs a detailed description. There might be pitfalls. 
+     * 
+     * @param data An array of bytes.
+     * @param bitSize Size of the resulting data array (in bits).
+     * @return Raw data object.
+     */
+
+    public static RawData valueOf(final byte[] data, final int bitSize)
+    {
+        final IOperation op = new IOperation()
+        {
+            private int index = data.length - 1; 
+
+            @Override
+            public char run()
+            {
+                if (index < 0)
+                   return 0;
+
+                final char result = (char)data[index];
+                --index;
+
+                return result;
+            }
+        };
+
+        final RawDataStore result = new RawDataStore(bitSize);
+        generate(result, op);
+
+        return result;
+    }
+
     /**
      * Creates an instance of a raw data object based on a integer value. The data size is
      * specified by a method parameter. If the raw data size is less that the integer value
