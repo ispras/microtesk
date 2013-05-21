@@ -1,4 +1,11 @@
 require_relative "instruction_block"
+require_relative "mode_group"
+require_relative "block_group"
+require_relative "instruction_group"
+require_relative "output_debug"
+require_relative "output_string"
+require_relative "runtime_debug"
+require_relative "label"
 
 class Template
 
@@ -7,17 +14,20 @@ class Template
   def initialize
     super
 
-    # Until I find a way to properly set every subclass's
-    # is_executable to true by default and this class's to
-    # false by default...
+    # User settings
     @is_executable = true
+    @use_stdout = true
+    @log_execution = true
 
+    # Important variables for core Template functionality
     @core_block = InstructionBlock.new
 
     @instruction_receiver = @core_block
     @receiver_stack = [@core_block]
 
     @final_sequences = Array.new
+    
+
   end
 
   def set_model  (j_model)
@@ -85,7 +95,27 @@ class Template
   end
 
   def label(name)
-    @instruction_receiver.receive name
+    l = Label.new
+    l.name = name.to_s
+    @instruction_receiver.receive l
+  end
+  
+  def text(text)
+    t = OutputDebug.new
+    t.text = text
+    @instruction_receiver.receive t
+  end
+  
+  def debug(&block)
+    d = RuntimeDebug.new
+    d.proc = block
+    @instruction_receiver.receive d
+  end
+  
+  def out_debug(&block)
+    o = OutputDebug.new
+    o.proc = block
+    @instruction_receiver.receive o
   end
 
   # -------------------------------------------------- #
@@ -132,29 +162,198 @@ class Template
     # look for labels in the sequences
     bl.init()
     sn = 0;
+    sequences = Array.new
+    
     while bl.hasValue()
-
       seq = bl.value()
 
       seq.each_with_index do |inst, i|
         f_labels = inst.getAttribute("f_labels")
         b_labels = inst.getAttribute("b_labels")
 
-        # TODO: STOPPED HERE ---------------------------------------------------------------<<<<<
         #process labels
-
+        
+        f_labels.each do |label|
+          @labels[label] = [sn, i + 1]
+        end
+        
+        b_labels.each do |label|
+          @labels[label] = [sn, i]
+        end        
       end
-
+      sn += 1
+      sequences.push seq
     end
 
     # Execute and generate data in the process
-    @generated = Array.new
-
+    generated = Array.new
+    @final_sequences = Array.new(sn + 1)
+    
+    cur_seq = 0
+    continue = true
+    label = nil
+    
+    # execution loop
+    while continue
+      fin, label = exec_sequence(sequences[cur_seq], @final_sequences[cur_seq], cur_seq, label)
+      
+      goto = @labels[label].first
+      
+      if @final_sequences[sn] == nil
+        @final_sequences[sn] = fin
+      end
+      
+      if label == nil
+        goto = cur_seq + 1
+      end      
+      
+      if (goto >= sn + 1) or (goto == -1 && cur_seq >= sn)
+        continue = false
+      else
+        cur_seq = goto
+      end
+    end
+      
+    # Generate the remaining sequences  
+    @final_sequences.each_with_index do |s, i|
+      if s == nil
+        @final_sequences[i] = @j_dg.generate(sequences[i])
+      end
+    end
 
   end
+  
+  def exec_sequence(seq, gen, id, label)
+    r_gen = gen
+    if(gen == null)
+      r_gen = @j_dg.generate(seq)
+    end
+    
+    labels = Hash.new
+    
+    r_gen.each_with_index do |inst, i|
+      f_labels = inst.getAttribute("f_labels")
+      b_labels = inst.getAttribute("b_labels")
+      
+      #process labels
+    
+      f_labels.each do |label|
+        labels[label] = i + 1
+      end
+    
+      b_labels.each do |label|
+        labels[label] = i
+      end        
+    end
+    
+    cur_inst = 0
+    
+    if(label != nil)
+      cur_inst = labels[label]
+    end
+    
+    total_inst = r_gen.length
+    
+    continue = true
+    
+    jump_target = nil
+    
+    while continue && cur_inst < total_inst
+      
+      inst = r_gen[cur_inst]
+      i_labels = inst.getAttribute("labels")
+      
+      f_debug = inst.getAttribute("f_runtime_debug")
+      b_debug = inst.getAttribute("b_runtime_debug")
+      
+      f_debug.each do |f_d|
+        self.instance_exec &f_d
+      end
+      
+      exec = inst.getExecutable()
 
+      if @log_execution
+        puts exec.getText()
+      end
+
+      b_debug.each do |b_d|
+        self.instance_exec &b_d
+      end
+            
+      exec.execute()
+      # execute some debug code too
+      
+      # LET'S SUPPOSE WE GET SOME LABELS HERE
+      # something = inst.didWeJumpToSomeLabelOrWhat?()
+      # TODO: IInstructionCall _does not_ have labels?..
+      
+      # if there was a jump
+      # if labels.has_key? target
+      #   cur_inst = labels[target]
+      #   next
+      # else
+      #   jump_target = target      
+      #   break
+      # end
+      
+      cur_inst += 1
+    end
+    
+    
+  end
+
+  # Print out the executable program
   def output(file)
-    # write @final_sequence to file
+    File.open(file) do |file|
+      
+      @final_sequences.each do |fs|
+        fs.each do |inst|
+          
+          f_debug = inst.getAttribute("f_output_debug")
+          b_debug = inst.getAttribute("b_output_debug")
+      
+          f_string = inst.getAttribute("f_output_string")
+          b_string = inst.getAttribute("b_output_string")
+          
+          f_debug.each do |f_d|
+            s = self.instance_eval &f_d
+            file.puts s
+            if @use_stdout
+              puts s
+            end
+          end
+          
+          f_string.each do |f_s|
+            file.puts f_s
+            if @use_stdout
+              puts f_s
+            end
+          end
+          
+          file.puts inst.getExecutable().getText()
+          if @use_stdout
+            puts inst.getExecutable().getText()
+          end
+          
+          b_debug.each do |b_d|
+            s = self.instance_eval &b_d
+            file.puts s
+            if @use_stdout
+              puts s
+            end
+          end
+          
+          b_string.each do |b_s|
+            file.puts b_s
+            if @use_stdout
+              puts b_s
+            end
+          end
+          
+        end
+      end
+      
+    end
   end
 
 end
