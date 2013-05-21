@@ -1,5 +1,7 @@
 require_relative "../mtruby"
 
+$Situation_receiver = nil
+
 module TemplateBuilder
 
   # TODO:
@@ -21,8 +23,24 @@ module TemplateBuilder
 
       instruction_name = i.getName.to_s
       inst_arguments = i.getArguments
+      inst_situations = i.getSituations
 
       arg_names = Array.new
+
+      inst_situations.each do |s|
+        s1 = s.to_s
+        if !Template.respond_to?(s1)
+          p = lambda do
+            $Situation_receiver.situation s1
+          end
+          Template.send(:define_method, s1, p)
+        elsif !Template.respond_to?("situation_" + s1)
+          p = lambda do
+            $Situation_receiver.situation s1
+          end
+          Template.send(:define_method, "situation_" + s1, p)
+        end
+      end
 
       # -------------------------------------------------------------------------------------------------------------- #
       # Generating convenient shortcuts for addressing modes                                                           #
@@ -32,6 +50,7 @@ module TemplateBuilder
         arg_names.push(arg.getName())
 
         modes = arg.getAddressingModes()
+
         modes.each do |m|
           mode_name = m.getName()
 
@@ -114,42 +133,48 @@ module TemplateBuilder
         end
         arguments.each_with_index do |arg, ind|
 
-          if(arg.is_a?(Symbol))
-            a = arg
+          #if(arg.is_a?(Symbol))
+          #  a = arg
+          #
+          #  match = false
+          #  inst_arguments[ind].getAddressingModes().each do |am|
+          #    if(am.name == "#IMM")
+          #      match = true
+          #      break
+          #    end
+          #  end
+          #
+          #  if(!match)
+          #    raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected label as argument '" + ind.to_s + "' for instruction '" + instruction_name
+          #    #raise "MTRuby: instruction arguments wrong (label) TODO proper error"
+          #  end
+          #
+          #else
+          #  a = arg
+          #  if(arg.is_a?(Integer) or arg.is_a?(String))
+          #    a = Argument.new
+          #    a.mode = "#IMM"
+          #    a.values[registered_modes["#IMM"].first] = arg
+          #  end
+          #  match = false
+          #  inst_arguments[ind].getAddressingModes().each do |am|
+          #    if(am.name == a.mode)
+          #      match = true
+          #      break
+          #    end
+          #  end
+          #
+          #  if(!match)
+          #    raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected argument " + ind.to_s + ": '" + a.mode +
+          #                       "' for instruction '" + instruction_name
+          #  end
+          #end
 
-            match = false
-            inst_arguments[ind].getAddressingModes().each do |am|
-              if(am.name == "#IMM")
-                match = true
-                break
-              end
-            end
+          # no check version
+          a = arg
 
-            if(!match)
-              raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected label as argument '" + ind.to_s + "' for instruction '" + instruction_name
-              #raise "MTRuby: instruction arguments wrong (label) TODO proper error"
-            end
-
-          else
-            a = arg
-            if(arg.is_a?(Integer) or arg.is_a?(String))
-              a = Argument.new
-              a.mode = "#IMM"
-              a.values[registered_modes["#IMM"].first] = arg
-            end
-            match = false
-            inst_arguments[ind].getAddressingModes().each do |am|
-              if(am.name == a.mode)
-                match = true
-                break
-              end
-            end
-
-            if(!match)
-              raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected argument " + ind.to_s + ": '" + a.mode +
-                                 "' for instruction '" + instruction_name
-            end
-          end
+          $Situation_receiver = inst
+          self.instance_eval &situations
 
           inst.arguments[inst_arguments[ind].getName()] = a
 

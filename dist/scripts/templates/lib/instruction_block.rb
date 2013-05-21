@@ -1,128 +1,133 @@
-
-# This class represents a block of instructions with attached test situation. This is the base abstraction that the
-# templates work with.
+# Instruction block class - May version
+# This class is used to build blocks by means of the MicroTESK API
 
 class InstructionBlock
-  attr_accessor :instructions, :situations, :j_caller
 
-  # @instructions: Array of Instruction
-  # TODO > @situations: Array of Situation
+  attr_accessor :name, :items, :attributes, :block_id
 
-  def initialize (template)
-    @instructions = Array.new
-    @situations = Array.new
-    @code = Array.new
-    @j_caller = nil
-    @j_monitor = template.j_monitor
-    @template = self
+  @@block_id = 0
 
-    # Labels are maintained by the template system, TODO: doesn't really work yet
-    #@labels = Hash.new
-    #@r_labels = Hash.new
+  # Mostly instance variables
+  def initialize
+
+    @name = ""
+
+    # Array of Instruction and InstructionBlock
+    @items = Array.new
+
+    # String -> Integer
+    @labels = Hash.new
+
+    @attributes = Hash.new
+
+    # Instruction iterators from the Test Engine
+    #@sequences = Array.new
+
+    @@block_id += 1
+
+    # Id used to differ labels among blocks
+    @block_id = @@block_id
+
   end
 
-  def outlog
-    #@instructions.each {|i| i.output }
-    @code.each {|c| puts c
-                #puts '--- newline debug ---'
-    }
+  def receive(item)
+    if item.is_a? Instruction
+      item.block_id = @block_id
+    end
+    @items.add item
   end
 
-  def output(file)
-    #@instructions.each {|i| i.output(file)}
-    @code.each {|c| file.puts c}
+  def label(label)
+    #@labels[label]
+    @items.add label.to_s
+    @labels[label.to_s] = @block_id
   end
 
-  def j_build(j_simulator, template)
-    j_block_builder = j_simulator.createCallBlock()
-    @instructions.each do |i|
-      i.j_build(j_block_builder.addCall(i.name), template)
+  # Block construction
+  def build(j_block_builder_factory, labels = Hash.new)
+
+    j_block_builder = j_block_builder_factory.newBlockBuilder()
+
+    if @attributes.has_key? :compositor
+      j_block_builder.setCompositor(@attributes[:compositor])
+    end
+    if @attributes.has_key? :combinator
+      j_block_builder.setCombinator(@attributes[:combinator])
     end
 
-    # TODO > situations
-
-    @j_caller = j_block_builder.getCallBlock()
-
-  end
-
-  def j_call(r_labels, should_execute)
-    if j_caller == nil
-      puts "MTRuby: Trying to call an uninitialized instruction block"
-      return
+    @attributes.each_pair do |key, value|
+      j_block_builder.setAttribute(key.to_s, value)
     end
 
-    @code = Array.new
+    was_block = false
 
-    # Logic: reset PC before every execute
-    #        execute
-    #        check if PC corresponds to any label - return the label to the template!!!!!!!
-    # no labels inside block because no 1-1 correspondence between build and call
+    # Semantics of label inclusion:
+    # The instruction attributes generally contain labels that _follow_ the instruction ("f_label")
+    # Unless explicitly specified ("b_label") in case of there being no instructions
 
-    jumped = false
-    pc = 0
+    delayed_labels = Array.new
+    delayed_instruction = nil
 
-    j_call = nil
+    @items.each do |item|
 
-    (0 .. j_caller.getCount() - 1).each do |i|
-
-      if(!jumped && should_execute)
-        #@j_monitor.java_send :setPC, [java.math.BigInteger], 42
-        @j_monitor.accessLocation("PC").setValue(42)
-      end
-
-      j_call = j_caller.getCall(i)
-
-      if(!jumped && should_execute)
-        pc = @j_monitor.accessLocation("PC").getValue()
-        #puts "Old value of PC " + pc.to_s
-        #puts "DEBUG GR15 " + @j_monitor.readRegisterValue("GPR", 15).getValue().to_s
-        j_call.execute()
-      end
-
-      text = j_call.getText()
-      @code.push(text)
-      if(should_execute)
-        puts "Running " + text
-
-        #pc = @j_monitor.getPC().getValue()
-        pc = (@j_monitor.accessLocation("PC").getValue() - 50) / 4
-        #puts "New value of PC " + pc.to_s
-        #puts "DEBUG GR15 " + @j_monitor.readRegisterValue("GPR", 15).getValue().to_s
-
-        # Uncomment here to list all GPR registers
-        #a = ""
-        #(0..15).each do |i|
-        #  a += @j_monitor.readRegisterValue("GPR", i).getValue().to_s + " "
-        #end
-        #puts a
-      end
-
-      if(should_execute)
-        #puts "DEBUG MN " + @j_monitor.to_s
-        #pc = @j_monitor.getPC().getValue()
-        #puts "DEBUG PC " + pc.to_s + " is nil? " + pc.nil?.to_s
-        if(r_labels.keys.include?(pc))
-          jumped = true
+      # If item.is_a? Label
+      if item.is_a? String or item.is_a? Symbol
+        if delayed_instruction == nil
+          delayed_labels.push item
+        else
+          if !delayed_instruction.attributes.has_key? "b_label"
+            delayed_instruction.attributes["b_label"] = Array.new
+          end
+          delayed_instruction.attributes["b_label"].push [item.to_s, @block_id]
         end
+      else
+        if delayed_instruction != nil
+          if !delayed_instruction.attributes.has_key? "f_label"
+            delayed_instruction.attributes["f_label"] = Array.new
+          end
+          delayed_labels.each do |i_item|
+            delayed_instruction.attributes["f_label"].push [i_item.to_s, @block_id]
+          end
+        end
+        delayed_labels.clear
+      end
+
+      # Now that we have all of the associated labels - build instruction
+      if delayed_instruction != nil
+        j_block_builder.addCall delayed_instruction.build, labels.merge(@labels)
+        delayed_instruction = nil
+      end
+
+      if item.is_a? InstructionBlock
+        j_block_builder.addBlock(item.build j_block_builder_factory, labels.merge(@labels))
+      elsif item.is_a? Instruction
+        # Delay instruction to gather labels
+        delayed_instruction = item
       end
     end
-  jumped ? pc : nil
 
-  rescue Exception => ex
-    if j_call != nil
-      text = j_call.getText()
-      puts "Failed on " + text
+    if delayed_instruction != nil
+      j_block_builder.addCall delayed_instruction.build, labels.merge(@labels)
     end
-    raise ex
-  end
 
-  def receive(instruction)
-    @instructions.push(instruction)
-  end
+    block = j_block_builder.build()
 
-  #def receive_label(name, id)
-  #  @labels[name] = [@instructions.count, ll]
-  #  @r_labels[id] = [name, @instructions.count]
-  #end
+    block.getIterator().init()
+
+    #while block.getIterator.hasValue()
+    #  seq = block.getIterator().value()
+    #
+    #  seq.each do |call|
+    #
+    #
+    #    @@sequence_id += 1
+    #  end
+    #
+    #  block.getIterator().next()
+    #end
+
+    block
+
+  end
 
 end

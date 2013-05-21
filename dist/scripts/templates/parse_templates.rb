@@ -91,7 +91,7 @@ end
            "' ..."
       puts
       template.parse
-      template.execute(model.getSimulator())
+      template.execute#(model.getSimulator())
       template.output(output)
     end
   rescue Exception => e

@@ -1,44 +1,59 @@
-
-# This class represents an instruction in a block, ready to be executed and to receive its own assembler representation
-
 class Instruction
 
-  attr_accessor :name, :arguments, :code, :definition, :situations#, :attributes
+  attr_accessor :attributes, :arguments, :instruction_name, :situation, :block_id
 
-  # arguments: Array of Argument
-
+  # Mostly instance variables
   def initialize
-    @name = "untitled"
+
+    @instruction_name = "UntitledInstruction"
+
     @arguments = Hash.new
-    #@situations = Array.new
-    @code = ""
-    #@definition = InstructionDefinition.new
-    #@possible_labels = Array.new # of Integer
+    @attributes = Hash.new
+    @labels = Array.new
+
+    @situation = nil
+
+    @block_id = 0
+
   end
 
-  def outlog
-    puts @code
+  def situation(s)
+    @situation = s
   end
 
-  def output(file)
-    file.puts @code
+  def attribute(key, value)
+    @attributes[key] = value
   end
 
-  def j_build(j_call_builder, template)
+  # Instruction construction
+  def build(j_instruction_builder, labels)
 
-    @arguments.each do |s, a|
-      if(a.is_a?(Symbol))
-        a1 = Argument.new
-        a1.mode = "#IMM"
-        a1.values[template.registered_modes["#IMM"].first] = template.send(a)
-        a1.j_build(j_call_builder.getArgumentBuilder(s))
-      else
-        a.j_build(j_call_builder.getArgumentBuilder(s))
+    @attributes["labels"] = Array.new
+    @labels.each do |label|
+      @attributes["labels"].push [label, labels[label]]
+    end
+
+    @attributes.each_pair do |key, value|
+      j_instruction_builder.setAttribute(key, value)
+    end
+
+    @arguments.each_pair do |name, value|
+      if value.is_a? String or value.is_a? Object
+        j_instruction_builder.setArgumentImmediate(name, 0)
+      elsif value.is_a? Integer
+        j_instruction_builder.setArgumentImmediate(name, value)
+      elsif value.is_a? Argument
+        value.build j_instruction_builder.setArgumentUsingBuilder(name, value.name)
       end
     end
 
-    # TODO > j_build situations
+    # Logic?..
+    s_b = j_instruction_builder.setTestSituation(@situation)
+    s_b.setSituation(s_b.build)
+
+    j_instruction_builder.build()
 
   end
+
 
 end

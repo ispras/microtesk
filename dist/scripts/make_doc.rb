@@ -70,6 +70,15 @@ $working_directory = Dir.pwd
         md_code.push str
       end
       md_code.push ""
+      md_code.push "Situations:"
+      str_ = ""
+      i.getSituations.each do |s|
+        str_ += s + ", "
+      end
+      if str_ != ""
+        md_code.push str_[0..str_.length - 2]
+      end
+      md_code.push ""
     end
 
 if(!File.directory? "./docs")
