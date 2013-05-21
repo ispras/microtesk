@@ -43,6 +43,12 @@ public class DataGenerator
         this.initializerGenerators = new ArrayList<IInitializerGenerator>();
     }
 
+    public void addInitializerGenerator(IInitializerGenerator ig)
+    {
+        assert null != ig;
+        initializerGenerators.add(ig);
+    }
+
     public Sequence<ConcreteCall> generate(
         Sequence<AbstractCall> abstractSequence) throws ConfigurationException
     {
