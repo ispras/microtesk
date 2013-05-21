@@ -450,14 +450,10 @@ mode DATA_PROCESSING =  REGISTER0
 mode setSon() = 0b1
     syntax = "S"
     image = "1"
-    action = {
-    }
 
 mode setSoff() = 0b0
     syntax = ""
     image = "0"
-    action = {
-    }
 
 mode setS = setSon | setSoff
 
@@ -468,14 +464,10 @@ mode setS = setSon | setSoff
 mode setXon() = 0b1
     syntax = "T"
     image = "1"
-    action = {
-    }
 
 mode setXoff() = 0b0
     syntax = "B"
     image = "0"
-    action = {
-    }
 
 mode setX = setXon | setXoff
 
@@ -486,14 +478,10 @@ mode setX = setXon | setXoff
 mode setYon() = 0b1
     syntax = "T"
     image = "1"
-    action = {
-    }
 
 mode setYoff() = 0b0
     syntax = "B"
     image = "0"
-    action = {
-    }
 
 mode setY = setYon | setYoff
 
@@ -504,14 +492,10 @@ mode setY = setYon | setYoff
 mode setUon() = 0b1
     syntax = "+"
     image = "1"
-    action = {
-    }
 
 mode setUoff() = 0b0
     syntax = "-"
     image = "0"
-    action = {
-    }
 
 mode setU = setUon | setUoff
 
