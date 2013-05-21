@@ -33,13 +33,14 @@ import ru.ispras.microtesk.test.core.Sequence;
 public class DataGenerator
 {
     private final IModel model;
-    
     private SequenceBuilder sequenceBuilder;
+    private List<IInitializerGenerator> initializerGenerators;
 
     public DataGenerator(IModel model)
     {
         this.model = model;
         this.sequenceBuilder = null;
+        this.initializerGenerators = new ArrayList<IInitializerGenerator>();
     }
 
     public Sequence<ConcreteCall> generate(
@@ -98,14 +99,30 @@ public class DataGenerator
         
         for (Map.Entry<String, Data> entry : output.entrySet())
         {
-            Argument argument = abstractCall.getArguments().get(entry.getKey());
-            addInitializer(argument, entry.getValue());
+            final Argument argument = abstractCall.getArguments().get(entry.getKey());
+            insertInitializingCalls(argument, entry.getValue());
         }
     }
 
-    private void addInitializer(Argument argument, Data value)
+    private void insertInitializingCalls(Argument argument, Data value)
     {
-        // TODO Auto-generated method stub
+        for(IInitializerGenerator ig : initializerGenerators)
+        {
+            if (!ig.isCompatible(argument))
+                continue;
+
+            final List<ConcreteCall> calls =
+                ig.createInitializingCode(argument, value);
+
+            sequenceBuilder.addInitializingCalls(calls);
+        }
+
+        assert false :
+            String.format(
+                "Failed to find an initializer generator for argument %s (addressing mode: %s).",
+                 argument.getName(),
+                 argument.getModeName()
+            );
     }
 
     private static void addArgumentToInstructionCall(
@@ -139,11 +156,23 @@ final class SequenceBuilder
         assert null != call;
         calls.add(call); 
     }
+    
+    public void addCalls(List<ConcreteCall> calls)
+    {
+        assert null != calls;
+        calls.addAll(calls); 
+    }
 
     public void addInitializingCall(ConcreteCall call)
     {
         assert null != call;
         initialisingCalls.add(call); 
+    }
+    
+    public void addInitializingCalls(List<ConcreteCall> calls)
+    {
+        assert null != calls;
+        initialisingCalls.addAll(calls); 
     }
 
     public Sequence<ConcreteCall> build()
