@@ -16,7 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.exception.config.ConstraintSolverException;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.microtesk.model.api.rawdata.RawDataMapping;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.model.api.situation.Situation;
 import ru.ispras.microtesk.model.api.type.ETypeID;
@@ -70,7 +73,7 @@ public final class AddOverflowSituation extends Situation
     }
 
     @Override
-    public Map<String, Data> solve()
+    public Map<String, Data> solve() throws ConstraintSolverException
     {
         final IConstraint     constraint = constraintFactory.create();
         final ISolverResult solverResult = constraint.solve();
@@ -87,13 +90,17 @@ public final class AddOverflowSituation extends Situation
                 variable.getData().getType().getType()
                 );
 
-            final BitVectorWrapper value = (BitVectorWrapper)variable.getData().getValue();
+            final BitVectorWrapper value =
+               (BitVectorWrapper)variable.getData().getValue();
 
-            // System.out.println(value.getValue().toString(2));
-            // System.out.println(value.getSize());
+            final RawData rawData =
+                RawData.valueOf(value.getValue().toByteArray(), value.getSize());
 
-            final RawData rawData = RawData.valueOf(value.getValue().toByteArray(), value.getSize());
-            final Data data = new Data(rawData, new Type(ETypeID.CARD, rawData.getBitSize()));
+            final RawData wordRawData = 
+                new RawDataMapping(rawData, 0, 32); 
+
+            final Data data = 
+                new Data(wordRawData, new Type(ETypeID.CARD, wordRawData.getBitSize()));
 
             result.put(variable.getName(), data);
         }
@@ -101,20 +108,20 @@ public final class AddOverflowSituation extends Situation
         return result;
     }
 
-    private void checkSolverResult(ISolverResult solverResult)
+    private void checkSolverResult(ISolverResult solverResult) throws ConstraintSolverException
     {
         if (solverResult.isSuccessful())
             return;
 
-        if (!solverResult.isSuccessful())
-        {
-            System.out.println("Failed");
+        final StringBuilder sb = new StringBuilder();
 
-            for (String error : solverResult.getErrors())
-            {
-                System.out.println(error);
-            }
-        }
+        sb.append(String.format("Unable to solve the %s test situation. ", NAME));
+        sb.append("Contraint solver failure. Reason: ");
+
+        for (String error : solverResult.getErrors())
+            sb.append(error);
+
+        throw new ConstraintSolverException(sb.toString());
     }
 }
 

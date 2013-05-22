@@ -14,6 +14,7 @@ package ru.ispras.microtesk.model.api.situation.builtin;
 
 import java.util.Map;
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.exception.config.ConstraintSolverException;
 
 /**
  * Private code. Presents here only for testing purposes. Probably, it will be removed.   
@@ -49,7 +50,13 @@ class TestCode
         System.out.println("Add Overflow Situation");
         
         final AddOverflowSituation situation = new AddOverflowSituation();
-        printResult(situation.solve());
+
+        try {
+            printResult(situation.solve());
+        } catch (ConstraintSolverException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private static void testAddNormalSituation()
