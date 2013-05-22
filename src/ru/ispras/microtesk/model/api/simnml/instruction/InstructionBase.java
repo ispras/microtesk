@@ -29,6 +29,8 @@ import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.situation.ISituation;
+import ru.ispras.microtesk.model.api.situation.builtin.AddNormalSituation;
+import ru.ispras.microtesk.model.api.situation.builtin.AddOverflowSituation;
 import ru.ispras.microtesk.model.api.situation.builtin.RandomSituation;
 
 import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
@@ -93,10 +95,14 @@ public abstract class InstructionBase implements IInstructionEx
         if (params.length == 0)
             return Collections.emptyMap();
 
-        return Collections.singletonMap(
-            RandomSituation.INFO.getName(),
-            RandomSituation.INFO
-            );
+        final Map<String, ISituation.IInfo> result =
+            new HashMap<String, ISituation.IInfo>();
+
+        result.put(RandomSituation.INFO.getName(), RandomSituation.INFO);
+        result.put(AddOverflowSituation.INFO.getName(), AddOverflowSituation.INFO);
+        result.put(AddNormalSituation.INFO.getName(), AddNormalSituation.INFO);
+
+        return result;
     }
 
     private static IMetaInstruction createMetaData(

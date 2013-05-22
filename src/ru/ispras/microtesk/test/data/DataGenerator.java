@@ -29,6 +29,7 @@ import ru.ispras.microtesk.test.block.AbstractCall;
 import ru.ispras.microtesk.test.block.Argument;
 import ru.ispras.microtesk.test.block.Situation;
 import ru.ispras.microtesk.test.core.Sequence;
+import ru.ispras.solver.api.Environment;
 
 public class DataGenerator
 {
@@ -38,9 +39,32 @@ public class DataGenerator
 
     public DataGenerator(IModel model)
     {
+        initializeSolverEngine();
+        
         this.model = model;
         this.sequenceBuilder = null;
         this.initializerGenerators = new ArrayList<IInitializerGenerator>();
+    }
+    
+    private void initializeSolverEngine()
+    {
+        if (Environment.isUnix())
+        {
+            Environment.setSolverPath("tools/z3/unix/z3");
+        }
+        else if(Environment.isWindows())
+        {
+            Environment.setSolverPath("tools/z3/windows/z3.exe");
+        }
+        else
+        {
+            // TODO: add initialization code for other platforms.
+            assert false : 
+                String.format(
+                    "Please set up paths for the external engine. Platform: %s",
+                    System.getProperty("os.name")
+                    );
+        }
     }
 
     public void addInitializerGenerator(IInitializerGenerator ig)
@@ -53,6 +77,7 @@ public class DataGenerator
         Sequence<AbstractCall> abstractSequence) throws ConfigurationException
     {
         assert null != model;
+        assert null != abstractSequence;
         assert null == sequenceBuilder;
 
         sequenceBuilder = new SequenceBuilder();
@@ -94,6 +119,14 @@ public class DataGenerator
         if (null == situationInfo)
             return;
 
+        System.out.printf("%nTrying to solve situation: %s%n", abstractCall.getSituation().getName());
+        System.out.printf("for instruction '%s' (modes:", abstractCall.getName());
+
+        for (Argument argument : abstractCall.getArguments().values())
+            System.out.print(" " + argument.getModeName());
+
+        System.out.println(")");
+
         final ISituation situation =
             instruction.createSituation(situationInfo.getName());
 
@@ -102,16 +135,29 @@ public class DataGenerator
 
         final Map<String, Data> output =
             situation.solve();
-        
+
         for (Map.Entry<String, Data> entry : output.entrySet())
         {
             final Argument argument = abstractCall.getArguments().get(entry.getKey());
+
+            if (null == argument)
+            {
+                System.out.printf("Argument %s is not defined for instruction %s.%n", entry.getKey(), abstractCall.getName());
+                continue;
+            }
+
             insertInitializingCalls(argument, entry.getValue());
         }
     }
 
     private void insertInitializingCalls(Argument argument, Data value)
     {
+        System.out.printf("Initializer: argument: %7s, mode: %10s, value: %s%n",
+            argument.getName(),
+            argument.getModeName(),
+            value.getRawData().toBinString()
+        );
+
         for(IInitializerGenerator ig : initializerGenerators)
         {
             if (!ig.isCompatible(argument))
@@ -123,12 +169,14 @@ public class DataGenerator
             sequenceBuilder.addInitializingCalls(calls);
         }
 
+        /*
         assert false :
             String.format(
                 "Failed to find an initializer generator for argument %s (addressing mode: %s).",
                  argument.getName(),
                  argument.getModeName()
             );
+        */
     }
 
     private static void addArgumentToInstructionCall(

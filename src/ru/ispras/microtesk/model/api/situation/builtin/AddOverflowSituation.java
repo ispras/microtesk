@@ -22,7 +22,6 @@ import ru.ispras.microtesk.model.api.situation.Situation;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.solver.api.DataFactory;
-import ru.ispras.solver.api.Environment;
 import ru.ispras.solver.api.interfaces.EDataType;
 import ru.ispras.solver.api.interfaces.IConstraint;
 import ru.ispras.solver.api.interfaces.IDataType;
@@ -48,12 +47,14 @@ public final class AddOverflowSituation extends Situation
         public ISituation create() { return new AddOverflowSituation(); }
     };
 
-    public static final IInfo INFO = new Info(NAME, FACTORY); 
+    public static final IInfo INFO = new Info(NAME, FACTORY);
 
+    private final IConstraintFactory constraintFactory; 
 
     public AddOverflowSituation()
     {
         super();
+        this.constraintFactory = new AddOverflowConstraintBuilder();
     }
 
     @Override
@@ -66,46 +67,18 @@ public final class AddOverflowSituation extends Situation
     public boolean setOutput(String name)
     {
         return false;
-
     }
 
     @Override
     public Map<String, Data> solve()
     {
-        if (Environment.isUnix())
-        {
-            Environment.setSolverPath("tools/z3/unix/z3");
-        }
-        else if(Environment.isWindows())
-        {
-            Environment.setSolverPath("tools/z3/windows/z3.exe");
-        }
-        else
-        {
-            // TODO: add initialization code for other platforms.
-            System.out.println(
-                "Please set up paths for the external engine. Platform: " + System.getProperty("os.name"));
-        }
+        final IConstraint     constraint = constraintFactory.create();
+        final ISolverResult solverResult = constraint.solve();
+
+        checkSolverResult(solverResult);
 
         final Map<String, Data> result = new HashMap<String, Data>();
 
-        final AddOverflowConstraintBuilder builder = new AddOverflowConstraintBuilder();
-
-        final IConstraint constraint = builder.build();
-        final ISolverResult solverResult = constraint.solve();
-
-        if (!solverResult.isSuccessful())
-        {
-            System.out.println("Failed");
-            
-            for (String error : solverResult.getErrors())
-            {
-                System.out.println(error);
-            }
-            
-            return result;
-        }
-        
         for (IVariable variable : solverResult.getVariables())
         {
             System.out.printf("%s: %s (%s)%n",
@@ -127,11 +100,27 @@ public final class AddOverflowSituation extends Situation
 
         return result;
     }
+
+    private void checkSolverResult(ISolverResult solverResult)
+    {
+        if (solverResult.isSuccessful())
+            return;
+
+        if (!solverResult.isSuccessful())
+        {
+            System.out.println("Failed");
+
+            for (String error : solverResult.getErrors())
+            {
+                System.out.println(error);
+            }
+        }
+    }
 }
 
-final class AddOverflowConstraintBuilder
+final class AddOverflowConstraintBuilder implements IConstraintFactory
 {
-    private final int BIT_VECTOR_LENGTH = 34;
+    private final int BIT_VECTOR_LENGTH = 64;
 
     private final IDataType BIT_VECTOR_TYPE; 
 
@@ -180,7 +169,7 @@ final class AddOverflowConstraintBuilder
             );
     }
     
-    public Constraint build()
+    public IConstraint create()
     {
         final Constraint constraint = new Constraint();
 
@@ -189,8 +178,8 @@ final class AddOverflowConstraintBuilder
         constraint.setSolverId(ESolverId.Z3_TEXT);
 
         // Unknown variables
-        final Variable rs = new Variable(constraint.addVariable("rs", BIT_VECTOR_TYPE));
-        final Variable rt = new Variable(constraint.addVariable("rt", BIT_VECTOR_TYPE));
+        final Variable rs = new Variable(constraint.addVariable("src2", BIT_VECTOR_TYPE));
+        final Variable rt = new Variable(constraint.addVariable("src3", BIT_VECTOR_TYPE));
 
         final Syntax syntax = new Syntax();
         constraint.setSyntax(syntax);
