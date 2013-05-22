@@ -21,15 +21,16 @@
   <property name="antlr.ant.jar" value="ant-antlr3.jar"/>
   <property name="cli.jar" value="commons-cli-1.2.jar"/>
   <property name="jruby.jar" value="jruby.jar"/>
+  <property name="solver.jar" value="jsolverapi.jar"/>
 
   <!-- Information for the JAR manifest -->
   <property name="jar.jars.path" value="./../../jars"/>
   <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>	
-  <property name="jar.classpath" value="${jar.jars.path}/${junit.jar} ${jar.jars.path}/${antlr.jar} ${jar.jars.path}/${cli.jar} ${jar.jars.path}/${jruby.jar}"/>
+  <property name="jar.classpath" value="${jar.jars.path}/${junit.jar} ${jar.jars.path}/${antlr.jar} ${jar.jars.path}/${cli.jar} ${jar.jars.path}/${jruby.jar} ${jar.jars.path}/${solver.jar}"/>
 
   <!-- Classpath for external libraries -->
   <property name="jars.path" value="./jars"/>
-  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}"/>
+  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${solver.jar}"/>
 
   <!-- Grammar files -->
   <!-- Sim-nML -->
