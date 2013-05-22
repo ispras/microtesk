@@ -1,10 +1,11 @@
 class Argument
 
-  attr_accessor :name, :values
+  attr_accessor :name, :values, :mode
 
   def initialize
 
-    @name = "UntitledArgument"
+    #@name = "UntitledArgument"
+    @mode = "UntitledMode"
 
     # String -> Object
     @values = Hash.new

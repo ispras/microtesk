@@ -34,12 +34,12 @@ class InstructionBlock
     if item.is_a? Instruction
       item.block_id = @block_id
     end
-    @items.add item
+    @items.push item
   end
 
   def label(label)
     #@labels[label]
-    @items.add label
+    @items.push label
     @labels[label.name] = @block_id
   end
 
@@ -168,7 +168,7 @@ class InstructionBlock
 
       # Now that we have all of the associated labels - build instruction
       if delayed_instruction != nil
-        j_block_builder.addCall delayed_instruction.build, labels.merge(@labels)
+        j_block_builder.addCall delayed_instruction.build(j_block_builder_factory.newAbstractCallBuilder(delayed_instruction.name), labels.merge(@labels))
         delayed_instruction = nil
       end
 
@@ -181,12 +181,12 @@ class InstructionBlock
     end
 
     if delayed_instruction != nil
-      j_block_builder.addCall delayed_instruction.build, labels.merge(@labels)
+      j_block_builder.addCall delayed_instruction.build(j_block_builder_factory.newAbstractCallBuilder(delayed_instruction.name), labels.merge(@labels))
     end
 
     block = j_block_builder.build()
 
-    block.getIterator().init()
+    #block.getIterator().init()
 
     #while block.getIterator.hasValue()
     #  seq = block.getIterator().value()

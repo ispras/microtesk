@@ -35,7 +35,7 @@ class Template
     @j_model = j_model
     @j_monitor = @j_model.getStateObserver()
     java_import Java::Ru.ispras.microtesk.test.TestEngine
-    te = TestEngine.new(j_model)
+    te = TestEngine.getInstance(j_model)
     @j_bbf = te.getBlockBuilders()
     @j_dg = te.getDataGenerator()
   end
@@ -155,69 +155,97 @@ class Template
   # TODO: everything
 
   def execute
+    puts
+    puts " ---------- Start build ----------"
+    puts
+    
     bl = @core_block.build(@j_bbf)
+    bl_iter = bl.getIterator()
 
+    puts
+    puts " ---------- Start execute ----------"
+    puts
+    
     # Preprocess labels
     @labels = Hash.new
 
     # look for labels in the sequences
-    bl.init()
+    bl_iter.init()
     sn = 0;
     sequences = Array.new
     
-    while bl.hasValue()
-      seq = bl.value()
+    while bl_iter.hasValue()
+      seq = bl_iter.value()
 
       seq.each_with_index do |inst, i|
+        #TODO check if sequences have nulls?
+        if inst == nil
+          next
+        end
+        
         f_labels = inst.getAttribute("f_labels")
         b_labels = inst.getAttribute("b_labels")
 
         #process labels
-        
-        f_labels.each do |label|
-          @labels[label] = [sn, i + 1]
+      
+        if f_labels.is_a? Array
+          f_labels.each do |label|
+            @labels[label] = [sn, i + 1]
+          end
         end
         
-        b_labels.each do |label|
-          @labels[label] = [sn, i]
+        if b_labels.is_a? Array
+          b_labels.each do |label|
+            @labels[label] = [sn, i]
+          end 
         end        
       end
       sn += 1
       sequences.push seq
+      
+      bl_iter.next()
     end
 
     # Execute and generate data in the process
     generated = Array.new
-    @final_sequences = Array.new(sn + 1)
+    @final_sequences = Array.new(sequences.length)
+    @final_sequences.each_with_index do |sq, i| 
+      @final_sequences[i] = nil 
+    end
     
     cur_seq = 0
     continue = true
     label = nil
     
     # execution loop
-    while continue
+    while continue && cur_seq < sequences.length
       fin, label = exec_sequence(sequences[cur_seq], @final_sequences[cur_seq], cur_seq, label)
       
-      goto = @labels[label].first
-      
-      if @final_sequences[sn] == nil
-        @final_sequences[sn] = fin
+      if @final_sequences[cur_seq] == nil && cur_seq < sequences.length
+        @final_sequences[cur_seq] = fin
       end
       
       if label == nil
         goto = cur_seq + 1
+      else
+        goto = @labels[label].first
       end      
+      
       
       if (goto >= sn + 1) or (goto == -1 && cur_seq >= sn)
         continue = false
       else
         cur_seq = goto
       end
+      
     end
       
     # Generate the remaining sequences  
     @final_sequences.each_with_index do |s, i|
-      if s == nil
+      if s == nil && i < sequences.length
+#        if sequences[i] == nil
+#          puts "what the fuck " + i.to_s
+#        end
         @final_sequences[i] = @j_dg.generate(sequences[i])
       end
     end
@@ -226,7 +254,7 @@ class Template
   
   def exec_sequence(seq, gen, id, label)
     r_gen = gen
-    if gen == null
+    if gen == nil
       r_gen = @j_dg.generate(seq)
     end
     
@@ -237,14 +265,18 @@ class Template
       b_labels = inst.getAttribute("b_labels")
       
       #process labels
-    
-      f_labels.each do |f_label|
-        labels[f_label] = i + 1
+      
+      if f_labels.is_a? Array
+        f_labels.each do |f_label|
+          labels[f_label] = i + 1
+        end
       end
-    
-      b_labels.each do |b_label|
-        labels[b_label] = i
-      end        
+      
+      if b_labels.is_a? Array
+        b_labels.each do |b_label|
+          labels[b_label] = i
+        end        
+      end
     end
     
     cur_inst = 0
@@ -267,8 +299,10 @@ class Template
       f_debug = inst.getAttribute("f_runtime_debug")
       b_debug = inst.getAttribute("b_runtime_debug")
       
-      f_debug.each do |f_d|
-        self.instance_exec &f_d
+      if f_debug.is_a? Array
+        f_debug.each do |f_d|
+          self.instance_exec &f_d
+        end
       end
       
       exec = inst.getExecutable()
@@ -277,8 +311,10 @@ class Template
         puts exec.getText()
       end
 
-      b_debug.each do |b_d|
-        self.instance_exec &b_d
+      if b_debug.is_a? Array
+        b_debug.each do |b_d|
+          self.instance_exec &b_d
+        end
       end
             
       exec.execute()
@@ -300,12 +336,23 @@ class Template
       cur_inst += 1
     end
     
+    [r_gen, jump_target]
     
   end
 
   # Print out the executable program
   def output(filename)
-    File.open(filename) do |file|
+    
+    puts
+    puts " ---------- Start output ----------"
+    puts
+    
+    use_file = true
+    if filename == nil or filename == ""
+      use_file = false
+    else
+      file = File.open(filename, 'w')
+    end
       
       @final_sequences.each do |fs|
         fs.each do |inst|
@@ -316,45 +363,62 @@ class Template
           f_string = inst.getAttribute("f_output_string")
           b_string = inst.getAttribute("b_output_string")
           
-          f_debug.each do |f_d|
-            s = self.instance_eval &f_d
-            file.puts s
-            if @use_stdout
-              puts s
+          if f_debug.is_a? Array
+            f_debug.each do |f_d|
+              s = self.instance_eval &f_d
+              if use_file
+                file.puts s
+              end
+              if @use_stdout
+                puts s
+              end
             end
           end
           
-          f_string.each do |f_s|
-            file.puts f_s
-            if @use_stdout
-              puts f_s
+          if f_string.is_a? Array
+            f_string.each do |f_s|
+              if use_file
+                file.puts s
+              end
+              if @use_stdout
+                puts f_s
+              end
             end
           end
           
-          file.puts inst.getExecutable().getText()
+          if use_file
+            file.puts inst.getExecutable().getText()
+          end
           if @use_stdout
             puts inst.getExecutable().getText()
           end
           
-          b_debug.each do |b_d|
-            s = self.instance_eval &b_d
-            file.puts s
-            if @use_stdout
-              puts s
+          if b_debug.is_a? Array
+            b_debug.each do |b_d|
+              s = self.instance_eval &b_d
+              if use_file
+                file.puts s
+              end
+              if @use_stdout
+                puts s
+              end
             end
           end
           
-          b_string.each do |b_s|
-            file.puts b_s
-            if @use_stdout
-              puts b_s
+          if b_string.is_a? Array
+            b_string.each do |b_s|
+              if use_file
+                file.puts s
+              end
+              if @use_stdout
+                puts b_s
+              end
             end
           end
           
         end
       end
       
-    end
   end
 
   # -------------------------------------------------- #

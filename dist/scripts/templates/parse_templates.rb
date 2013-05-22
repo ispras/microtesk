@@ -28,6 +28,9 @@ end
 
 if ARGV.count > 1
   output = ARGV[1]
+  
+  puts "|" + ARGV[0] + "|"
+  puts "|" + output + "|"
 
   if !(Pathname.new output).absolute?
     output = $working_directory + "/" + output

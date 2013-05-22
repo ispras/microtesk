@@ -28,7 +28,8 @@ module TemplateBuilder
       arg_names = Array.new
 
       inst_situations.each do |s|
-        s1 = s.to_s
+        #puts "Situation defined: " + s.to_s
+        s1 = s.getName
         if !Instruction.respond_to?(s1)
           p = lambda do
             $Situation_receiver.situation s1
@@ -174,7 +175,9 @@ module TemplateBuilder
           a = arg
 
           $Situation_receiver = inst
-          inst.instance_eval &situations
+          if situations != nil
+            inst.instance_eval &situations
+          end
 
           inst.arguments[inst_arguments[ind].getName()] = a
 
