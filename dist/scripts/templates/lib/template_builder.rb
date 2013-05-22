@@ -29,16 +29,16 @@ module TemplateBuilder
 
       inst_situations.each do |s|
         s1 = s.to_s
-        if !Template.respond_to?(s1)
+        if !Instruction.respond_to?(s1)
           p = lambda do
             $Situation_receiver.situation s1
           end
-          Template.send(:define_method, s1, p)
-        elsif !Template.respond_to?("situation_" + s1)
+          Instruction.send(:define_method, s1, p)
+        elsif !Instruction.respond_to?("situation_" + s1)
           p = lambda do
             $Situation_receiver.situation s1
           end
-          Template.send(:define_method, "situation_" + s1, p)
+          Instruction.send(:define_method, "situation_" + s1, p)
         end
       end
 
@@ -174,7 +174,7 @@ module TemplateBuilder
           a = arg
 
           $Situation_receiver = inst
-          self.instance_eval &situations
+          inst.instance_eval &situations
 
           inst.arguments[inst_arguments[ind].getName()] = a
 
