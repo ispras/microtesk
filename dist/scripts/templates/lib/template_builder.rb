@@ -26,6 +26,8 @@ module TemplateBuilder
       inst_situations = i.getSituations
 
       arg_names = Array.new
+      
+      args_for_mode = Hash.new
 
       inst_situations.each do |s|
         #puts "Situation defined: " + s.to_s
@@ -49,11 +51,14 @@ module TemplateBuilder
 
       inst_arguments.each do |arg|
         arg_names.push(arg.getName())
-
+        
         modes = arg.getAddressingModes()
+        
 
         modes.each do |m|
           mode_name = m.getName()
+          
+
 
           # Make sure we didn't add this mode before and then add it
           if(!registered_modes.keys.include?(mode_name))
@@ -74,7 +79,7 @@ module TemplateBuilder
               #    raise "MTRuby: wrong amount of arguments for addressing mode '" + mode_name + "'"
               #  end
               #els
-              if arguments.first.is_a?(Integer) or arguments.first.is_a?(String)
+              if arguments.first.is_a?(Integer) or arguments.first.is_a?(String) or arguments.first.is_a?(NoValue)
                 if(arguments.count != names.count)
                   raise MTRubyError, caller[0] + "\n" + "MTRuby: wrong number of arguments for addressing mode '" + mode_name +
                                      "', expected: " + names.count.to_s + ", got: " + arguments.count.to_s
@@ -172,8 +177,20 @@ module TemplateBuilder
           #end
 
           # no check version
-          a = arg
-
+          if arg.is_a? NoValue
+            nvl = Argument.new
+            nvl.mode = inst_arguments.sample.getName()
+            registered_modes[nvl.mode].each do |mode|
+              if arg.aug_value != nil
+                nvl.values[mode] = aug_value
+              else
+                nvl.values[mode] = NoValue.new
+              end
+            end 
+          else
+            a = arg
+          end
+          
           $Situation_receiver = inst
           if situations != nil
             inst.instance_eval &situations

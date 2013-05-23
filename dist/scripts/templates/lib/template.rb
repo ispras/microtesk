@@ -1,11 +1,12 @@
 require_relative "instruction_block"
-require_relative "mode_group"
-require_relative "block_group"
-require_relative "instruction_group"
-require_relative "output_debug"
-require_relative "output_string"
-require_relative "runtime_debug"
+require_relative "groups/mode_group"
+require_relative "groups/block_group"
+require_relative "groups/instruction_group"
+require_relative "debug/output_debug"
+require_relative "debug/output_string"
+require_relative "debug/runtime_debug"
 require_relative "label"
+require_relative "no_value"
 
 class Template
 
@@ -117,6 +118,12 @@ class Template
     o = OutputDebug.new
     o.proc = block
     @instruction_receiver.receive o
+  end
+  
+  # --- Special "no value" method ---
+  
+  def _(aug_value = nil)
+    NoValue.new(aug_value)
   end
 
   # -------------------------------------------------- #

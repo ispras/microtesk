@@ -45,6 +45,8 @@ class Instruction
         j_instruction_builder.setArgumentImmediate(name, value)
       elsif value.is_a? Argument
         value.build j_instruction_builder.setArgumentUsingBuilder(name, value.mode)
+      elsif value.is_a? NoValue
+        #...TODO: No value handling
       end
     end
 
