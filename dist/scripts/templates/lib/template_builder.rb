@@ -34,12 +34,14 @@ module TemplateBuilder
         s1 = s.getName
         if !Instruction.respond_to?(s1)
           p = lambda do
-            $Situation_receiver.situation s1
+            #$Situation_receiver.situation s1
+            Situation.new(s1)
           end
           Instruction.send(:define_method, s1, p)
         elsif !Instruction.respond_to?("situation_" + s1)
           p = lambda do
-            $Situation_receiver.situation s1
+            #$Situation_receiver.situation s1
+            Situation.new(s1)
           end
           Instruction.send(:define_method, "situation_" + s1, p)
         end
@@ -49,16 +51,17 @@ module TemplateBuilder
       # Generating convenient shortcuts for addressing modes                                                           #
       # -------------------------------------------------------------------------------------------------------------- #
 
-      inst_arguments.each do |arg|
+      inst_arguments.each_with_index do |arg, index|
         arg_names.push(arg.getName())
         
         modes = arg.getAddressingModes()
-        
+
+        args_for_mode[index] = Array.new
 
         modes.each do |m|
           mode_name = m.getName()
           
-
+          args_for_mode[index].push mode_name
 
           # Make sure we didn't add this mode before and then add it
           if(!registered_modes.keys.include?(mode_name))
@@ -178,22 +181,28 @@ module TemplateBuilder
 
           # no check version
           if arg.is_a? NoValue
-            nvl = Argument.new
-            nvl.mode = inst_arguments.sample.getName()
-            registered_modes[nvl.mode].each do |mode|
+            a = Argument.new
+            a.mode = args_for_mode[ind].sample
+            #puts registered_modes.to_s
+            #puts nvl.mode
+            registered_modes[a.mode].each do |mode|
               if arg.aug_value != nil
-                nvl.values[mode] = aug_value
+                a.values[mode] = arg.aug_value
               else
-                nvl.values[mode] = NoValue.new
+                a.values[mode] = NoValue.new
               end
-            end 
+            end
           else
             a = arg
           end
-          
+
+
+          # TODO: The situation/composite must come at the end of a block for this to work.
+          # Is there a way to apply it if it's before the attributes?
           $Situation_receiver = inst
           if situations != nil
-            inst.instance_eval &situations
+            result = inst.instance_eval &situations
+            inst.situation(result)
           end
 
           inst.arguments[inst_arguments[ind].getName()] = a

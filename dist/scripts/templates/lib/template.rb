@@ -1,12 +1,16 @@
-require_relative "instruction_block"
+require_relative "constructs/instruction_block"
+require_relative "constructs/instruction"
+require_relative "constructs/label"
+require_relative "constructs/no_value"
+require_relative "constructs/situation"
+
 require_relative "groups/mode_group"
 require_relative "groups/block_group"
 require_relative "groups/instruction_group"
+
 require_relative "debug/output_debug"
 require_relative "debug/output_string"
 require_relative "debug/runtime_debug"
-require_relative "label"
-require_relative "no_value"
 
 class Template
 
@@ -126,6 +130,34 @@ class Template
     NoValue.new(aug_value)
   end
 
+  def all(*situations)
+    situations.reduce(:&)
+  end
+
+  def choose(*situations)
+    if situations.length > 1 && (situations[1].is_a? Situation)
+      return situations.reduce(:|)
+    elsif situations.length > 1 && (situations[1].is_a? Numeric)
+      root = Situation.new
+      situations.each_with_index do |s, i|
+        if i % 2 == 0
+          root.targets.push s
+        else
+          root.probabilities.push s
+        end
+      end
+      return root
+    elsif situations[0].is_a? Array
+      root = Situation.new
+      situations.each_with_index do |s, i|
+          root.targets.push s[0]
+          root.probabilities.push s[1]
+      end
+      return root
+    end
+    situations.first
+  end
+
   # -------------------------------------------------- #
   # Memory-related methods                             #
   # -------------------------------------------------- #
@@ -178,7 +210,7 @@ class Template
 
     # look for labels in the sequences
     bl_iter.init()
-    sn = 0;
+    sn = 0
     sequences = Array.new
     
     while bl_iter.hasValue()

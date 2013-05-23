@@ -51,9 +51,10 @@ class Instruction
     end
 
     # Logic?..
-    #s_b = 
+    #s_b =
+    # TODO: need API to build a logical op tree of situations
     if(@situation != nil)
-      j_instruction_builder.setTestSituation(@situation).build()
+      j_instruction_builder.setTestSituation(@situation.name).build()
     end
     #s_b.setSituation(s_b.build)
 

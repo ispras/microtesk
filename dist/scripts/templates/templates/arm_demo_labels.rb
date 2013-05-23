@@ -11,7 +11,9 @@ class ArmDemo < DemoPrepost
 
   def run
 
-    sub blank, setsoff, reg(0), reg(0), register0
+    sub lessThan, setsoff, _(9), reg(0), register0
+    # The following code syntactically works but has no API to link to so is commented out for the time being
+    #do (overflow | normal) & random end
 
     label :valiant
 

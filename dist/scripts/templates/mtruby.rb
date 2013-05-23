@@ -1,7 +1,7 @@
 require_relative 'lib/template'
-require_relative 'lib/argument'
-require_relative 'lib/instruction'
-require_relative 'lib/instruction_block'
+require_relative 'lib/constructs/argument'
+require_relative 'lib/constructs/instruction'
+require_relative 'lib/constructs/instruction_block'
 
 
 #require_relative 'lib/storage'
