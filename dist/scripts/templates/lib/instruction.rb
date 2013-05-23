@@ -26,12 +26,12 @@ class Instruction
   end
 
   # Instruction construction
-  def build(j_instruction_builder, labels)
+  def build(j_instruction_builder, labels, stack)
 
     @attributes["labels"] = Array.new
-    @labels.each do |label|
-      @attributes["labels"].push [label, labels[label]]
-    end
+    # @labels.each do |label|
+    #   @attributes["labels"].push [label, labels[label]]
+    # end
 
     @attributes.each_pair do |key, value|
       j_instruction_builder.setAttribute(key, value)
@@ -40,6 +40,7 @@ class Instruction
     @arguments.each_pair do |name, value|
       if value.is_a? String or value.is_a? Symbol
         j_instruction_builder.setArgumentImmediate(name, 0)
+        @attributes["labels"].push [[value.to_s, stack], name]
       elsif value.is_a? Integer
         j_instruction_builder.setArgumentImmediate(name, value)
       elsif value.is_a? Argument

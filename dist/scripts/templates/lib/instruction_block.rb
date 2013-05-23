@@ -44,7 +44,9 @@ class InstructionBlock
   end
 
   # Block construction
-  def build(j_block_builder_factory, labels = Hash.new)
+  def build(j_block_builder_factory, labels = Hash.new, stack = [])
+
+    l_stack = stack + [@block_id]
 
     j_block_builder = j_block_builder_factory.newBlockBuilder()
 
@@ -79,20 +81,34 @@ class InstructionBlock
           delayed_labels.push item.name
         else
           if !delayed_instruction.attributes.has_key? "b_label"
-            delayed_instruction.attributes["b_label"] = Array.new
+            delayed_instruction.attributes["b_labels"] = Array.new
           end
-          delayed_instruction.attributes["b_label"].push item.name + "_" + @block_id.to_s #[item.to_s, @block_id]
+          delayed_instruction.attributes["b_labels"].push [item.name, l_stack] #[item.to_s, @block_id]
+
+          text = item.name
+          l_stack.each do |t|
+            text += "_" + t.to_s
+          end
+          puts "Label " + text
+          
         end
       else
         if delayed_instruction != nil
           if !delayed_instruction.attributes.has_key? "f_label"
-            delayed_instruction.attributes["f_label"] = Array.new
+            delayed_instruction.attributes["f_labels"] = Array.new
           end
           delayed_labels.each do |i_item|
-            delayed_instruction.attributes["f_label"].push item.name + "_" + @block_id.to_s #[i_item.to_s, @block_id]
+            delayed_instruction.attributes["f_labels"].push [i_item, l_stack] #[i_item.to_s, @block_id]
+
+            text = i_item
+            l_stack.each do |t|
+              text += "_" + t.to_s
+            end
+            puts "Label " + text
+            
           end
+          delayed_labels.clear
         end
-        delayed_labels.clear
       end
       
       # OUTPUT DEBUG
@@ -112,10 +128,10 @@ class InstructionBlock
             delayed_instruction.attributes["f_output_debug"] = Array.new
           end
           delayed_outdebugs.each do |i_item|
-            delayed_instruction.attributes["f_output_debug"].push item.proc
+            delayed_instruction.attributes["f_output_debug"].push i_item
           end
+          delayed_outdebugs.clear
         end
-        delayed_outdebugs.clear
       end
       
       # RUNTIME DEBUG
@@ -135,10 +151,10 @@ class InstructionBlock
             delayed_instruction.attributes["f_runtime_debug"] = Array.new
           end
           delayed_debugs.each do |i_item|
-            delayed_instruction.attributes["f_runtime_debug"].push item.proc
+            delayed_instruction.attributes["f_runtime_debug"].push i_item
           end
+          delayed_debugs.clear
         end
-        delayed_debugs.clear
       end
 
       
@@ -168,12 +184,13 @@ class InstructionBlock
 
       # Now that we have all of the associated labels - build instruction
       if delayed_instruction != nil
-        j_block_builder.addCall delayed_instruction.build(j_block_builder_factory.newAbstractCallBuilder(delayed_instruction.name), labels.merge(@labels))
+        j_block_builder.addCall delayed_instruction.build(j_block_builder_factory.newAbstractCallBuilder(delayed_instruction.name), labels.merge(@labels), l_stack)
         delayed_instruction = nil
       end
 
       if item.is_a? InstructionBlock
-        j_block_builder.addBlock(item.build j_block_builder_factory, labels.merge(@labels))
+        j_block_builder.addBlock(item.build j_block_builder_factory, labels.merge(@labels), l_stack)
+        delayed_instruction = nil
       elsif item.is_a? Instruction
         # Delay instruction to gather labels
         delayed_instruction = item
@@ -181,7 +198,7 @@ class InstructionBlock
     end
 
     if delayed_instruction != nil
-      j_block_builder.addCall delayed_instruction.build(j_block_builder_factory.newAbstractCallBuilder(delayed_instruction.name), labels.merge(@labels))
+      j_block_builder.addCall delayed_instruction.build(j_block_builder_factory.newAbstractCallBuilder(delayed_instruction.name), labels.merge(@labels), l_stack)
     end
 
     block = j_block_builder.build()

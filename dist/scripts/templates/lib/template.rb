@@ -217,6 +217,8 @@ class Template
     continue = true
     label = nil
     
+    # puts @labels.to_s
+    
     # execution loop
     while continue && cur_seq < sequences.length
       fin, label = exec_sequence(sequences[cur_seq], @final_sequences[cur_seq], cur_seq, label)
@@ -228,7 +230,24 @@ class Template
       if label == nil
         goto = cur_seq + 1
       else
-        goto = @labels[label].first
+        unstack = [] + label[1]
+        while @labels[[label.first, unstack]] == nil && unstack.length > 0
+          unstack.pop
+        end
+        
+        result = @labels[[label.first, unstack]]
+        
+        if result == nil
+          goto = cur_seq + 1
+          text = label.first
+          label[1].each do |t|
+            text += "_" + t.to_s
+          end
+          puts "Label " + label.first + " doesn't exist"
+        else
+          label = [label.first, unstack]
+          goto = result.first
+        end
       end      
       
       
@@ -269,12 +288,14 @@ class Template
       if f_labels.is_a? Array
         f_labels.each do |f_label|
           labels[f_label] = i + 1
+          # puts "Registered f_label " + f_label
         end
       end
       
       if b_labels.is_a? Array
         b_labels.each do |b_label|
           labels[b_label] = i
+          # puts "Registered b_label " + b_label
         end        
       end
     end
@@ -283,6 +304,8 @@ class Template
     
     if label != nil
       cur_inst = labels[label]
+      # puts label.to_s
+      # puts labels.to_s
     end
     
     total_inst = r_gen.length
@@ -320,19 +343,40 @@ class Template
       exec.execute()
       # execute some debug code too
       
-      # LET'S SUPPOSE WE GET SOME LABELS HERE
-      # something = inst.didWeJumpToSomeLabelOrWhat?()
-      # TODO: IInstructionCall _does not_ have labels?..
+      # Labels
+      jump = @j_monitor.getControlTransferStatus()
       
-      # if there was a jump
-      # if labels.has_key? target
-      #   cur_inst = labels[target]
-      #   next
-      # else
-      #   jump_target = target      
-      #   break
-      # end
+      # TODO: Support instructions with 2+ labels (needs API)
       
+      if jump > 0
+        target = inst.getAttribute("labels").first.first
+        if target == nil || target.first == nil
+          puts "Jump to nil label, transfer status: " + jump.to_s
+        elsif labels.has_key? target
+          cur_inst = labels[target]
+          if @log_execution
+            text = target.first
+            target[1].each do |t|
+              text += "_" + t.to_s
+            end
+            puts "Jump (internal) to label: " + text
+          end
+          next
+        else
+          jump_target = target
+          if @log_execution
+            text = target.first
+            target[1].each do |t|
+              text += "_" + t.to_s
+            end
+            puts "Jump (external) to label: " + text
+
+          end
+          break
+        end
+      end
+      
+      # If there weren't any jumps, continue on to the next instruction
       cur_inst += 1
     end
     
@@ -363,35 +407,10 @@ class Template
           f_string = inst.getAttribute("f_output_string")
           b_string = inst.getAttribute("b_output_string")
           
-          if f_debug.is_a? Array
-            f_debug.each do |f_d|
-              s = self.instance_eval &f_d
-              if use_file
-                file.puts s
-              end
-              if @use_stdout
-                puts s
-              end
-            end
-          end
-          
-          if f_string.is_a? Array
-            f_string.each do |f_s|
-              if use_file
-                file.puts s
-              end
-              if @use_stdout
-                puts f_s
-              end
-            end
-          end
-          
-          if use_file
-            file.puts inst.getExecutable().getText()
-          end
-          if @use_stdout
-            puts inst.getExecutable().getText()
-          end
+          f_labels = inst.getAttribute("f_labels")
+          b_labels = inst.getAttribute("b_labels")
+      
+          #process labels
           
           if b_debug.is_a? Array
             b_debug.each do |b_d|
@@ -415,6 +434,72 @@ class Template
               end
             end
           end
+          
+          if b_labels.is_a? Array
+            b_labels.each do |b_label|
+              
+              text = b_label.first
+              b_label[1].each do |t|
+                text += "_" + t.to_s
+              end
+              
+              if use_file
+                file.puts text + ":"
+              end
+              if @use_stdout
+                puts text + ":"
+              end
+            end
+          end
+
+          
+          if use_file
+            file.puts inst.getExecutable().getText()
+          end
+          if @use_stdout
+            puts inst.getExecutable().getText()
+          end
+          
+          if f_labels.is_a? Array
+            f_labels.each do |f_label|
+              
+              text = f_label.first
+              f_label[1].each do |t|
+                text += "_" + t.to_s
+              end
+              
+              if use_file
+                file.puts text + ":"
+              end
+              if @use_stdout
+                puts text + ":"
+              end
+            end
+          end
+          
+          if f_debug.is_a? Array
+            f_debug.each do |f_d|
+              s = self.instance_eval &f_d
+              if use_file
+                file.puts s
+              end
+              if @use_stdout
+                puts s
+              end
+            end
+          end
+          
+          if f_string.is_a? Array
+            f_string.each do |f_s|
+              if use_file
+                file.puts s
+              end
+              if @use_stdout
+                puts f_s
+              end
+            end
+          end
+          
           
         end
       end
