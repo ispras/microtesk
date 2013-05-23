@@ -90,14 +90,14 @@ var sm[1,card(5)]
 /********************************************************************************************/
 
 //Immediate addressing mode
-mode IMMEDIATE (r : nibble, c : byte_t) = coerce(card(32), c) >>> (r*2)
+mode IMMEDIATE (r : nibble, c : byte_t) = coerce(card(32), c) <<< (r*2)
     syntax = format("#%x<<<%x*2", c, r)
     image  = format("%4b%8b", r, c)
     action = {
         if r == 0 then
             shifter_carry_out = 0b1;
         else
-            temp = coerce(card(32), c) >>> (r*2);
+            temp = coerce(card(32), c) <<< (r*2);
             shifter_carry_out = temp<31..31>;
         endif;
     }
