@@ -17,6 +17,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.DataEngine;
@@ -53,6 +55,12 @@ public final class RandomSituation extends Situation
     @Override
     public boolean setOutput(String name)
     {
+        final String REX = "^src[\\d]+$";
+
+        final Matcher matcher = Pattern.compile(REX).matcher(name);
+        if (!matcher.matches())
+            return false;
+        
         return outputNames.add(name);
     }
 
