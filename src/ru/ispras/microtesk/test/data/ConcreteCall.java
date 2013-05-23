@@ -39,6 +39,9 @@ public final class ConcreteCall
 
     public Object getAttribute(String name)
     {
+        if (null == attributes)
+            return null;
+
         return attributes.get(name);
     }
 

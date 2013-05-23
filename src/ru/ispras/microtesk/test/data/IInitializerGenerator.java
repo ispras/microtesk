@@ -15,10 +15,11 @@ package ru.ispras.microtesk.test.data;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.block.Argument;
 
 public interface IInitializerGenerator
 {
     public boolean isCompatible(Argument dest);
-    public List<ConcreteCall> createInitializingCode(Argument dest, Data data); 
+    public List<ConcreteCall> createInitializingCode(Argument dest, Data data) throws ConfigurationException; 
 }

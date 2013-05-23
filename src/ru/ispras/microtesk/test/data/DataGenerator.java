@@ -44,6 +44,9 @@ public class DataGenerator
         this.model = model;
         this.sequenceBuilder = null;
         this.initializerGenerators = new ArrayList<IInitializerGenerator>();
+        
+        initializerGenerators.add(new ArmRegInitializerGenerator(model));
+        initializerGenerators.add(new ArmRegisterXInitializerGenerator(model));
     }
     
     private void initializeSolverEngine()
@@ -150,12 +153,12 @@ public class DataGenerator
         }
     }
 
-    private void insertInitializingCalls(Argument argument, Data value)
+    private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
     {
         System.out.printf("Initializer: argument: %7s, mode: %10s, value: %s%n",
             argument.getName(),
             argument.getModeName(),
-            value.getRawData().toBinString()
+            Integer.toHexString(value.getRawData().intValue())
         );
 
         for(IInitializerGenerator ig : initializerGenerators)
