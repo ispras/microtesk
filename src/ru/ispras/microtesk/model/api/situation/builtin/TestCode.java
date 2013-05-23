@@ -14,7 +14,8 @@ package ru.ispras.microtesk.model.api.situation.builtin;
 
 import java.util.Map;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.exception.config.ConstraintSolverException;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.solver.api.Environment;
 
 /**
  * Private code. Presents here only for testing purposes. Probably, it will be removed.   
@@ -24,11 +25,41 @@ import ru.ispras.microtesk.model.api.exception.config.ConstraintSolverException;
 
 class TestCode
 {
+    private static void initializeSolverEngine()
+    {
+        if (Environment.isUnix())
+        {
+            Environment.setSolverPath("tools/z3/unix/z3");
+        }
+        else if(Environment.isWindows())
+        {
+            Environment.setSolverPath("tools/z3/windows/z3.exe");
+        }
+        else
+        {
+            // TODO: add initialization code for other platforms.
+            assert false : 
+                String.format(
+                    "Please set up paths for the external engine. Platform: %s",
+                    System.getProperty("os.name")
+                    );
+        }
+    }
+
     public static void main(String[] arg)
     {
-        testRandomSituation();
-        testAddOverflowSituation();
-        testAddNormalSituation();
+        initializeSolverEngine();
+
+        try
+        {
+            testRandomSituation();
+            testAddOverflowSituation();
+            testAddNormalSituation();
+        }
+        catch (ConfigurationException e)
+        {
+            e.printStackTrace();
+        }
     }    
 
     private static void testRandomSituation()
@@ -45,21 +76,15 @@ class TestCode
         printResult(situation.solve());
     }
 
-    private static void testAddOverflowSituation()
+    private static void testAddOverflowSituation() throws ConfigurationException
     {
         System.out.println("Add Overflow Situation");
-        
-        final AddOverflowSituation situation = new AddOverflowSituation();
 
-        try {
-            printResult(situation.solve());
-        } catch (ConstraintSolverException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        final AddOverflowSituation situation = new AddOverflowSituation();
+         printResult(situation.solve());
     }
 
-    private static void testAddNormalSituation()
+    private static void testAddNormalSituation() throws ConfigurationException
     {
         System.out.println("Add Normal Situation");
         

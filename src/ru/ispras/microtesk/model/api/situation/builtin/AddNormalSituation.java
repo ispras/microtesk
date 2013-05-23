@@ -12,14 +12,17 @@
 
 package ru.ispras.microtesk.model.api.situation.builtin;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.situation.ISituation;
-import ru.ispras.microtesk.model.api.situation.Situation;
+import ru.ispras.solver.api.interfaces.IConstraint;
+import ru.ispras.solver.core.Constraint;
+import ru.ispras.solver.core.solvers.ESolverId;
+import ru.ispras.solver.core.syntax.EStandardOperation;
+import ru.ispras.solver.core.syntax.Formula;
+import ru.ispras.solver.core.syntax.Operation;
+import ru.ispras.solver.core.syntax.Syntax;
+import ru.ispras.solver.core.syntax.Variable;
 
-public final class AddNormalSituation extends Situation
+public final class AddNormalSituation extends ConstraintBasedSituation
 {
     private static final   String    NAME = "normal";
     private static final IFactory FACTORY = new IFactory()
@@ -32,26 +35,36 @@ public final class AddNormalSituation extends Situation
 
     public AddNormalSituation()
     {
-        super();
+        super(
+           INFO,
+           new AddNormalConstraintBuilder()
+        );
     }
+}
 
-    @Override
-    public boolean setInput(String name, Data value)
+final class AddNormalConstraintBuilder extends OverflowConstraintFactory
+{
+    public IConstraint create()
     {
-        return false;
-    }
+        final Constraint constraint = new Constraint();
 
-    @Override
-    public boolean setOutput(String name)
-    {
-        return false;
-    }
+        constraint.setName("AddNormal");
+        constraint.setDescription("AddNormal constraint");
+        constraint.setSolverId(ESolverId.Z3_TEXT);
 
-    @Override
-    public Map<String, Data> solve()
-    {
-        final Map<String, Data> result = new HashMap<String, Data>();
+        // Unknown variables
+        final Variable rs = new Variable(constraint.addVariable("src2", BIT_VECTOR_TYPE));
+        final Variable rt = new Variable(constraint.addVariable("src3", BIT_VECTOR_TYPE));
 
-        return result;
+        final Syntax syntax = new Syntax();
+        constraint.setSyntax(syntax);
+
+        syntax.addFormula(new Formula(IsValidSignedInt(rs)));
+        syntax.addFormula(new Formula(IsValidSignedInt(rt)));
+
+        syntax.addFormula(new Formula(IsValidSignedInt(new Operation(EStandardOperation.BVADD, rs, rt))));
+        syntax.addFormula(new Formula(isNotEqual(rs, rt)));
+
+        return constraint;
     }
 }

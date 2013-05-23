@@ -15,14 +15,14 @@ package ru.ispras.microtesk.model.api.situation;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.exception.config.ConstraintSolverException;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 
 public interface ISituation
 {
     public boolean setInput(String name, Data value);
     public boolean setOutput(String name);
-    public Map<String, Data> solve() throws ConstraintSolverException;
+    public Map<String, Data> solve() throws ConfigurationException;
 
     public interface IInfo
     {

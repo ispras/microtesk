@@ -17,6 +17,19 @@ import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 
 public abstract class Situation implements ISituation
 {
+    private final IInfo info;
+
+    public Situation(IInfo info)
+    {
+        assert null != info; 
+        this.info = info;
+    }
+    
+    protected final IInfo getInfo()
+    {
+        return info;
+    }
+
     public static final class Info implements IInfo
     {
         private final String name;

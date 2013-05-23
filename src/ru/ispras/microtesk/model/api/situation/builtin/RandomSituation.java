@@ -40,7 +40,7 @@ public final class RandomSituation extends Situation
 
     public RandomSituation()
     {
-        super();
+        super(INFO);
         this.outputNames = new LinkedHashSet<String>();
     }
 
