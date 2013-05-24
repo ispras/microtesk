@@ -163,15 +163,14 @@ public class DataGenerator
 
         for(IInitializerGenerator ig : initializerGenerators)
         {
-            if (!ig.isCompatible(argument))
-                continue;
-
-            final List<ConcreteCall> calls =
-                ig.createInitializingCode(argument, value);
-
-            sequenceBuilder.addInitializingCalls(calls);
+            if (ig.isCompatible(argument))
+            {
+                final List<ConcreteCall> calls = ig.createInitializingCode(argument, value);
+                sequenceBuilder.addInitializingCalls(calls);
+                return;
+            }
         }
-
+        
         /*
         assert false :
             String.format(

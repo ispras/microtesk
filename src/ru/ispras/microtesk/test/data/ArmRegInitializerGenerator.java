@@ -51,8 +51,8 @@ public class ArmRegInitializerGenerator implements IInitializerGenerator
         final IInstruction instruction = model.getInstruction("MOV_IMMEDIATE");
 
         final List<ConcreteCall> result = new ArrayList<ConcreteCall>();
+
         final byte dataBytes[] = data.getRawData().toByteArray(); 
-        
         for (int byteIndex = 0; byteIndex < 4; ++byteIndex)
         {
             final IInstructionCallBuilderEx callBuilder = instruction.createCallBuilder();
