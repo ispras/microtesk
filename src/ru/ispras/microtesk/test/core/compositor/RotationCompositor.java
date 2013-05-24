@@ -16,8 +16,6 @@
 
 package ru.ispras.microtesk.test.core.compositor;
 
-import java.util.List;
-
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 /**

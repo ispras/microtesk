@@ -17,7 +17,6 @@
 package ru.ispras.microtesk.test.core.compositor;
 
 import java.util.Arrays;
-import java.util.List;
 
 import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
@@ -45,12 +44,12 @@ public class RandomCompositor<T> extends Compositor<T>
         // the iterator choice probability is proportional to the sequence size.
         for(int i = 0; i < iterators.size(); i++)
         {
-            final IIterator iterator = iterators.get(i);
+            final IIterator<T> iterator = iterators.get(i);
 
             if(!(iterator instanceof IBoundedIterator))
                 { bounded = false; break; }
 
-            weights[i] = ((IBoundedIterator)iterator).size();
+            weights[i] = ((IBoundedIterator<T>)iterator).size();
         }
 
         // If there are unbounded iterators (i.e., iterators with unknown size),
