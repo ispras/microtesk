@@ -15,6 +15,7 @@ package ru.ispras.microtesk.test.data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.data.Data;
@@ -170,7 +171,7 @@ public class DataGenerator
                 return;
             }
         }
-        
+
         /*
         assert false :
             String.format(
@@ -192,7 +193,18 @@ public class DataGenerator
             argumentBuilder.getModeBuilder(argument.getModeName());
 
         for (Argument.ModeArg modeArg : argument.getModeArguments().values())
-            modeBuilder.setArgumentValue(modeArg.name, modeArg.value);
+        {
+            if (!modeArg.isRandom)
+            {
+                modeBuilder.setArgumentValue(modeArg.name, modeArg.value);
+            }
+            else
+            {
+                // TODO Generate a random value within the bounds.
+                // TODO Bounds are unknown, we use 0 as a default value.
+                modeBuilder.setArgumentValue(modeArg.name, 0);
+            }
+        }
     }
 }
 
@@ -210,9 +222,9 @@ final class SequenceBuilder
     public void addCall(ConcreteCall call)
     {
         assert null != call;
-        calls.add(call); 
+        calls.add(call);
     }
-    
+
     public void addCalls(List<ConcreteCall> calls)
     {
         assert null != calls;
@@ -222,9 +234,9 @@ final class SequenceBuilder
     public void addInitializingCall(ConcreteCall call)
     {
         assert null != call;
-        initialisingCalls.add(call); 
+        initialisingCalls.add(call);
     }
-    
+
     public void addInitializingCalls(List<ConcreteCall> calls)
     {
         assert null != calls;
