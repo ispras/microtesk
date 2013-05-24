@@ -18,13 +18,22 @@ public final class Argument
 {
     public static final class ModeArg
     {
-        public final String name;
-        public final    int value;
+        public final String      name;
+        public final int        value;
+        public final boolean isRandom; 
 
         protected ModeArg(String name, int value)
         {
             this.name  = name;
             this.value = value;
+            this.isRandom = false;
+        }
+        
+        protected ModeArg(String name)
+        {
+            this.name  = name;
+            this.value = 0;
+            this.isRandom = true;
         }
     }
 

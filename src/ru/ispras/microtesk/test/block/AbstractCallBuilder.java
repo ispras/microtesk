@@ -15,6 +15,7 @@ package ru.ispras.microtesk.test.block;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
 
@@ -75,6 +76,22 @@ public final class AbstractCallBuilder
                AddressingModeImm.NAME,
                Collections.singletonMap(valueArg.name, valueArg)
                );
+
+        argumentSetter.setArgument(name, argument);
+        return argument;
+    }
+
+    public Argument setArgumentImmediateRandom(String name)
+    {
+        final Argument.ModeArg valueArg =
+            new Argument.ModeArg(AddressingModeImm.PARAM_NAME);
+
+        final Argument argument =
+            new Argument(
+                name,
+                AddressingModeImm.NAME,
+                Collections.singletonMap(valueArg.name, valueArg)
+                );
 
         argumentSetter.setArgument(name, argument);
         return argument;

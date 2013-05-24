@@ -49,6 +49,13 @@ public final class ArgumentBuilder
         return this;
     }
 
+    public ArgumentBuilder setRandomArgument(String name)
+    {
+        assert !arguments.containsKey(name);
+        arguments.put(name, new Argument.ModeArg(name));
+        return this;
+    }
+
     public Argument build()
     {
         final Argument argument = new Argument(name, modeName, arguments);
