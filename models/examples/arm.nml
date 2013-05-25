@@ -886,7 +886,7 @@ op SMULL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2
     }
 
 op UMULL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2 : REG)
-    syntax = format("SMULL%s%s %s, %s, %s, %s", cond.syntax, sets.syntax, low.syntax, high.syntax, src1.syntax, src1.syntax)
+    syntax = format("UMULL%s%s %s, %s, %s, %s", cond.syntax, sets.syntax, low.syntax, high.syntax, src1.syntax, src1.syntax)
     image  = format("%s0000100%s%s%s%s1001%s", cond.image, sets.image, high.image, low.image, src2.image, src1.image)
     action = {
         cond.action;
@@ -904,7 +904,7 @@ op UMULL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2
     }
 
 op SMLAL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2 : REG)
-    syntax = format("SMULL%s%s %s, %s, %s, %s", cond.syntax, sets.syntax, low.syntax, high.syntax, src1.syntax, src1.syntax)
+    syntax = format("SMLAL%s%s %s, %s, %s, %s", cond.syntax, sets.syntax, low.syntax, high.syntax, src1.syntax, src1.syntax)
     image  = format("%s0000111%s%s%s%s1001%s", cond.image, sets.image, high.image, low.image, src2.image, src1.image)
     action = {
         cond.action;
