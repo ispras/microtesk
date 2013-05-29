@@ -29,6 +29,9 @@ public final class BitShiftLeft extends BitRotateShiftBase
     @Override
     protected Data doRotateShift(Data src, int to)
     {
+        if (0 == to)
+            return src;
+
         final Data result = new Data(src.getType());
 
         if (to < src.getRawData().getBitSize())
