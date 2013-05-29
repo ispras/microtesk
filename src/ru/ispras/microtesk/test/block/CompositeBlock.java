@@ -12,15 +12,14 @@
 
 package ru.ispras.microtesk.test.block;
 
-import ru.ispras.microtesk.test.core.Generator;
 import ru.ispras.microtesk.test.core.Sequence;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
 
 final class CompositeBlock implements Block
 {
-    private final Generator<AbstractCall> generator;
+    private final IIterator<Sequence<AbstractCall>> generator;
 
-    public CompositeBlock(Generator<AbstractCall> generator)
+    public CompositeBlock(IIterator<Sequence<AbstractCall>> generator)
     {
         this.generator = generator;
     }
