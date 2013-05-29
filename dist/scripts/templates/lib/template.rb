@@ -130,6 +130,13 @@ class Template
     NoValue.new(aug_value)
   end
 
+  def __(aug_value = nil)
+    v = NoValue.new(aug_value)
+    v.is_immediate = true
+    v
+  end
+
+
   def all(*situations)
     situations.reduce(:&)
   end

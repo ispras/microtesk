@@ -180,7 +180,7 @@ module TemplateBuilder
           #end
 
           # no check version
-          if arg.is_a? NoValue
+          if arg.is_a? NoValue and !arg.is_immediate
             a = Argument.new
             a.mode = args_for_mode[ind].sample
             #puts registered_modes.to_s

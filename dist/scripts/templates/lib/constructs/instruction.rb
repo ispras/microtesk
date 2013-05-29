@@ -46,7 +46,12 @@ class Instruction
       elsif value.is_a? Argument
         value.build j_instruction_builder.setArgumentUsingBuilder(name, value.mode)
       elsif value.is_a? NoValue
-        #...TODO: No value handling
+        if value.is_immediate
+          j_instruction_builder.setArgumentImmediateRandom(name)
+        else
+          puts "Ruby-TDL warning: unexpected random argument behaviour"
+          # Should this even happen?
+        end
       end
     end
 
