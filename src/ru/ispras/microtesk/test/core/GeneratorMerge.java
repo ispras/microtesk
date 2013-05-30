@@ -28,7 +28,7 @@ import ru.ispras.microtesk.test.core.iterator.IIterator;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Generator<T> implements IIterator<Sequence<T>>
+public class GeneratorMerge<T> implements Generator<T>
 {
     /// The combinator used by the generator (it produces different combinations of the sequences).
     private Combinator<Sequence<T>> combinator;
@@ -44,7 +44,7 @@ public class Generator<T> implements IIterator<Sequence<T>>
      * @param compositor the compositor.
      */
 
-    public Generator(
+    public GeneratorMerge(
         final Combinator<Sequence<T>> combinator,
         final Compositor<T> compositor,
         final List<IIterator<Sequence<T>>> iterators

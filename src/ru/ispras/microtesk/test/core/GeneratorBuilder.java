@@ -29,15 +29,15 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>>
     public static final ECombinator DEFAULT_COMBINATOR = ECombinator.RANDOM;
     /// The default compositor.
     public static final ECompositor DEFAULT_COMPOSITOR = ECompositor.RANDOM;
-    
+
     /// The configuration of the test sequence generator.
     private Configuration<T> config = new Configuration<T>();
-    
+
     /// The combinator used in the generator.
-    private String combinator = DEFAULT_COMBINATOR.name();
+    private String combinator = null;
     /// The compositor used in the generator.
-    private String compositor = DEFAULT_COMPOSITOR.name();
-    
+    private String compositor = null;
+
     /**
      * Constructs a test sequence generator.
      */
@@ -53,7 +53,7 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>>
     {
         this.combinator = combinator;
     }
-    
+
     /**
      * Sets the compositor used in the generator.
      *
@@ -64,7 +64,7 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>>
     {
         this.compositor = compositor;
     }
-    
+
     /**
      * Returns the test sequence generator for the template block.
      *
@@ -73,12 +73,22 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>>
 
     public Generator<T> getGenerator()
     {
-        final Generator<T> generator = new Generator<T>(
+        // If no compositor and no combinator is specified
+        // we use the single sequence generator.
+
+        if ((null == combinator) && (null == compositor))
+            return new GeneratorSingle<T>(getIterators());
+
+        if (null == combinator)
+            combinator = DEFAULT_COMBINATOR.name();
+
+        if (null == compositor)
+            compositor = DEFAULT_COMPOSITOR.name();
+
+        return new GeneratorMerge<T>(
             config.getCombinator(combinator),
             config.getCompositor(compositor),
             getIterators()
-        );
-
-        return generator;
+            );
     }
 }
