@@ -368,27 +368,31 @@ class Template
       f_debug = inst.getAttribute("f_runtime_debug")
       b_debug = inst.getAttribute("b_runtime_debug")
       
-      if f_debug.is_a? Array
-        f_debug.each do |f_d|
-          self.instance_exec &f_d
-        end
-      end
+
       
       exec = inst.getExecutable()
 
-      if @log_execution
-        puts exec.getText()
-      end
+
 
       if b_debug.is_a? Array
         b_debug.each do |b_d|
           self.instance_exec &b_d
         end
       end
-            
+
+      if @log_execution
+        puts exec.getText()
+      end
+
       exec.execute()
       # execute some debug code too
-      
+
+      if f_debug.is_a? Array
+        f_debug.each do |f_d|
+          self.instance_exec &f_d
+        end
+      end
+
       # Labels
       jump = @j_monitor.getControlTransferStatus()
       

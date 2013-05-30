@@ -21,9 +21,9 @@ class ArmDemo < Template
       j = Random.rand(64)
 
       # This is what we try to set into the registers - the arguments of the Euclidean algorithm (finding MCD)
-      # exec_debug {
-      #   puts "Arguments: " + i.to_s + ", " + j.to_s
-      # }
+      debug {
+         puts "Arguments: " + i.to_s + ", " + j.to_s
+       }
 
       # newline
       # text "Setting up arguments"
@@ -36,9 +36,11 @@ class ArmDemo < Template
       ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
 
       # This is what is set in the registers at the time of execution
-      # exec_debug {
-      #   puts "INPUT: R0: " + get_loc_value("GPR", 0).to_s + ", R1: " + get_loc_value("GPR", 1).to_s
-      # }
+      debug {
+        puts
+         puts "INPUT: R0: " + get_loc_value("GPR", 0).to_s + ", R1: " + get_loc_value("GPR", 1).to_s
+        puts
+       }
 
       label ("cycle" + ind.to_s).to_sym
 
@@ -47,16 +49,23 @@ class ArmDemo < Template
       SUB lessThan,    setsOff, REG(1), REG(1), register0
 
       # This is what REG(0) and REG(1) contain during a single iteration of the cycle
-      # exec_debug {
-      #   puts "DEBUG: R0: " + get_loc_value("GPR", 0).to_s + ", R1: " + get_loc_value("GPR", 1).to_s# + ", label code: " + self.send("cycle" + ind.to_s).to_s
-      # }
+      debug {
+         puts
+         puts "DEBUG: R0: " + get_loc_value("GPR", 0).to_s + ", R1: " + get_loc_value("GPR", 1).to_s# + ", label code: " + self.send("cycle" + ind.to_s).to_s
+          puts
+       }
 
       B   notEqual, ("cycle" + ind.to_s).to_sym
 
+      # Doesn't do anything important, just to snap a nice debug message at the end of each loop
+      SUB           blank, setsOff, REG(2), REG(2), register2
+
       # newline
-      # exec_output {
-      #  "// Simulator heavily implies the result should be " + self.get_loc_value("GPR", 0).to_s
-      # }
+      debug {
+        puts
+        puts  "// Simulator heavily implies the result should be " + self.get_loc_value("GPR", 0).to_s
+        puts
+       }
       # newline
 
       # This is the result of the algorithm

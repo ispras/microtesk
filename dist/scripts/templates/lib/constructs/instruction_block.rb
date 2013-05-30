@@ -80,10 +80,10 @@ class InstructionBlock
         if delayed_instruction == nil
           delayed_labels.push item.name
         else
-          if !delayed_instruction.attributes.has_key? "b_label"
-            delayed_instruction.attributes["b_labels"] = Array.new
+          if !delayed_instruction.attributes.has_key? "f_label"
+            delayed_instruction.attributes["f_labels"] = Array.new
           end
-          delayed_instruction.attributes["b_labels"].push [item.name, l_stack] #[item.to_s, @block_id]
+          delayed_instruction.attributes["f_labels"].push [item.name, l_stack] #[item.to_s, @block_id]
 
           text = item.name
           l_stack.each do |t|
@@ -94,11 +94,11 @@ class InstructionBlock
         end
       else
         if delayed_instruction != nil
-          if !delayed_instruction.attributes.has_key? "f_label"
-            delayed_instruction.attributes["f_labels"] = Array.new
+          if !delayed_instruction.attributes.has_key? "b_label"
+            delayed_instruction.attributes["b_labels"] = Array.new
           end
           delayed_labels.each do |i_item|
-            delayed_instruction.attributes["f_labels"].push [i_item, l_stack] #[i_item.to_s, @block_id]
+            delayed_instruction.attributes["b_labels"].push [i_item, l_stack] #[i_item.to_s, @block_id]
 
             text = i_item
             l_stack.each do |t|
@@ -117,18 +117,18 @@ class InstructionBlock
         if delayed_instruction == nil
           delayed_outdebugs.push item.proc
         else
-          if !delayed_instruction.attributes.has_key? "b_output_debug"
-            delayed_instruction.attributes["b_output_debug"] = Array.new
-          end
-          delayed_instruction.attributes["b_output_debug"].push item.proc
-        end
-      else
-        if delayed_instruction != nil
           if !delayed_instruction.attributes.has_key? "f_output_debug"
             delayed_instruction.attributes["f_output_debug"] = Array.new
           end
+          delayed_instruction.attributes["f_output_debug"].push item.proc
+        end
+      else
+        if delayed_instruction != nil
+          if !delayed_instruction.attributes.has_key? "b_output_debug"
+            delayed_instruction.attributes["b_output_debug"] = Array.new
+          end
           delayed_outdebugs.each do |i_item|
-            delayed_instruction.attributes["f_output_debug"].push i_item
+            delayed_instruction.attributes["b_output_debug"].push i_item
           end
           delayed_outdebugs.clear
         end
@@ -140,18 +140,18 @@ class InstructionBlock
         if delayed_instruction == nil
           delayed_debugs.push item.proc
         else
-          if !delayed_instruction.attributes.has_key? "b_runtime_debug"
-            delayed_instruction.attributes["b_runtime_debug"] = Array.new
-          end
-          delayed_instruction.attributes["b_runtime_debug"].push item.proc
-        end
-      else
-        if delayed_instruction != nil
           if !delayed_instruction.attributes.has_key? "f_runtime_debug"
             delayed_instruction.attributes["f_runtime_debug"] = Array.new
           end
+          delayed_instruction.attributes["f_runtime_debug"].push item.proc
+        end
+      else
+        if delayed_instruction != nil
+          if !delayed_instruction.attributes.has_key? "b_runtime_debug"
+            delayed_instruction.attributes["b_runtime_debug"] = Array.new
+          end
           delayed_debugs.each do |i_item|
-            delayed_instruction.attributes["f_runtime_debug"].push i_item
+            delayed_instruction.attributes["b_runtime_debug"].push i_item
           end
           delayed_debugs.clear
         end
@@ -164,18 +164,18 @@ class InstructionBlock
         if delayed_instruction == nil
           delayed_outstrings.push item.proc
         else
-          if !delayed_instruction.attributes.has_key? "b_output_string"
-            delayed_instruction.attributes["b_output_string"] = Array.new
-          end
-          delayed_instruction.attributes["b_output_string"].push item.text
-        end
-      else
-        if delayed_instruction != nil
           if !delayed_instruction.attributes.has_key? "f_output_string"
             delayed_instruction.attributes["f_output_string"] = Array.new
           end
+          delayed_instruction.attributes["f_output_string"].push item.text
+        end
+      else
+        if delayed_instruction != nil
+          if !delayed_instruction.attributes.has_key? "b_output_string"
+            delayed_instruction.attributes["b_output_string"] = Array.new
+          end
           delayed_outstrings.each do |i_item|
-            delayed_instruction.attributes["f_output_string"].push item.text
+            delayed_instruction.attributes["b_output_string"].push i_item.text
           end
         end
         delayed_outstrings.clear
