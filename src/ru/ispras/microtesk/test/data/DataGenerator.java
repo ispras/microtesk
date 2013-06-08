@@ -60,18 +60,17 @@ public class DataGenerator
         {
             Environment.setSolverPath("tools/z3/windows/z3.exe");
         }
+        else if(Environment.isOSX())
+        {
+            Environment.setSolverPath("tools/z3/osx/z3");
+        }
         else
         {
-            // TODO: need to implement Environment.isOSX
-            Environment.setSolverPath("tools/z3/osx/z3");
-
-            // TODO: add initialization code for other platforms.
-            /*assert false : 
+            assert false :
                 String.format(
-                    "Please set up paths for the external engine. Platform: %s",
+                    "Unsupported platform. Please set up paths for the external engine. Platform: %s",
                     System.getProperty("os.name")
                     );
-                    */
         }
     }
 
