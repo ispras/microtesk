@@ -37,7 +37,7 @@ public abstract class OverflowConstraintFactory implements IConstraintFactory
 
         INT_SIGN_MASK   = new Operation(
             EStandardOperation.BVLSHL,
-            new Operation(EStandardOperation.BVNOT, INT_ZERO, null),
+            new Operation(EStandardOperation.BVNOT, INT_ZERO),
             INT_BASE_SIZE
             );
     }
@@ -76,6 +76,6 @@ public abstract class OverflowConstraintFactory implements IConstraintFactory
 
     protected final Operation isNot(ISyntaxElement expr)
     {
-        return new Operation(EStandardOperation.NOT, expr, null);
+        return new Operation(EStandardOperation.NOT, expr);
     }
 }
