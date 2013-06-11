@@ -159,10 +159,11 @@ public class DataGenerator
 
     private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
     {
-        System.out.printf("Initializer: argument: %7s, mode: %10s, value: %s%n",
+        System.out.printf("Initializer: argument: %7s, mode: %10s, value: %s (%s) %n",
             argument.getName(),
             argument.getModeName(),
-            Integer.toHexString(value.getRawData().intValue())
+            Integer.toHexString(value.getRawData().intValue()),
+            value.getRawData().toBinString()
         );
 
         for(IInitializerGenerator ig : initializerGenerators)
