@@ -35,9 +35,12 @@ class TestCode
         {
             Environment.setSolverPath("tools/z3/windows/z3.exe");
         }
+        else if(Environment.isOSX())
+        {
+            Environment.setSolverPath("tools/z3/osx/z3");
+        }
         else
         {
-            // TODO: add initialization code for other platforms.
             assert false : 
                 String.format(
                     "Please set up paths for the external engine. Platform: %s",
