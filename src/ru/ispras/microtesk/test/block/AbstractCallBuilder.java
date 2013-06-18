@@ -15,7 +15,6 @@ package ru.ispras.microtesk.test.block;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
 

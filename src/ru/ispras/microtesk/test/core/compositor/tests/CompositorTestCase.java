@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ru.ispras.microtesk.test.core.compositor.*;
