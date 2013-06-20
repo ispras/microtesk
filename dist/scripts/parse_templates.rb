@@ -10,6 +10,8 @@ require_relative 'templates/config'
 require MODELS_JAR
 
 require_relative 'templates/lib/template_builder'
+require_relative 'templates/lib/template'
+
 include TemplateBuilder
 
 class MTRubyError < StandardError
@@ -34,10 +36,10 @@ def self.main
 
   TemplateBuilder.build_template_class(model)
 
-  $template_classes = Array.new
   require_template_file(template_file)
+  template_classes = Template::template_classes
 
-  $template_classes.each do |template_class|
+  template_classes.each do |template_class|
     begin
       template = template_class.new
       template.set_model(model)

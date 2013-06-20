@@ -13,7 +13,7 @@ require_relative "debug/output_string"
 require_relative "debug/runtime_debug"
 
 class Template
-
+  @@template_classes = Array.new
   attr_accessor :is_executable, :j_model, :j_monitor, :j_bbf, :j_dg
 
   def initialize
@@ -36,6 +36,10 @@ class Template
     @probability_receiver = nil
   end
 
+  def self.template_classes
+    @@template_classes
+  end
+
   def set_model  (j_model)
     @j_model = j_model
     @j_monitor = @j_model.getStateObserver()
@@ -47,7 +51,7 @@ class Template
 
   # This method adds every subclass of Template to the list of templates to parse
   def self.inherited(subclass)
-    $template_classes.push subclass
+    @@template_classes.push subclass
   end
 
   # Hack to allow limited use of capslocked characters
