@@ -13,6 +13,8 @@
 package ru.ispras.microtesk.model.api.debug;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
@@ -27,21 +29,20 @@ public final class TemplateRunner
 {
     private TemplateRunner() {}
     
-    public static void runTemplate(String designName, String templatePath)
+    public static void runTemplate(List<String> argv)
     {
         final ScriptingContainer container = new ScriptingContainer();
 
         final String scriptsPath =
             System.getProperty("user.dir") + "/dist/scripts/parse_templates.rb";
-
-        container.setArgv(new String[] { designName, templatePath });
+                
+        container.setArgv(argv.toArray(new String[argv.size()]));
         container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
     }
 
     public static void main(String[] args)
     {
-        final String TEMPLATE_DIR_FORMAT =
-            "%s/dist/scripts/templates/templates/";
+        final String TEMPLATE_PATH_FORMAT = "%s/dist/scripts/templates/templates/%s";
 
         if (args.length < 2)
         {
@@ -49,18 +50,23 @@ public final class TemplateRunner
             return;
         }
 
-        final String designName = args[0];
-        final String templateName = args[1];
-
-        final String templateDir = String.format(TEMPLATE_DIR_FORMAT, System.getProperty("user.dir"));
-        final String templatePath = templateDir + templateName;
+        final String   designName = args[0];
+        final String templatePath = String.format(TEMPLATE_PATH_FORMAT, System.getProperty("user.dir"), args[1]);
 
         if (!new File(templatePath).exists())
         {
-            System.out.printf("The %s template file does not exists at %s", templateName, templateDir);
+            System.out.printf("The %s template file does not exists.", templatePath);
             return; 
         }
 
-        runTemplate(designName, templatePath);
+        final List<String> argv = new ArrayList<String>();
+
+        argv.add(designName);
+        argv.add(templatePath);
+
+        for (int index = 2; index < args.length; ++index)
+            argv.add(args[index]);
+
+        runTemplate(argv);
     }
 }
