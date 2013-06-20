@@ -20,13 +20,13 @@ class MTRubyError < StandardError
   end
 end
 
-module MicroTESK 
+module MTRuby 
 
 WD = Dir.pwd
 
 def self.main
   check_arguments
-  model = create_model
+  model = create_model(ARGV[0])
 
   template_file = get_full_name(ARGV[1])
   puts "Template: " + template_file
@@ -34,11 +34,7 @@ def self.main
   output_file = if ARGV.count > 2 then get_full_name(ARGV[2]) else nil end
   if output_file then puts "Output file: " + output_file end
 
-  TemplateBuilder.build_template_class(model)
-
-  require_template_file(template_file)
-  template_classes = Template::template_classes
-
+  template_classes = prepare_template_classes(model, template_file)
   template_classes.each do |template_class|
     begin
       template = template_class.new
@@ -73,8 +69,7 @@ def self.check_arguments
   end
 end
 
-def self.create_model
-  model_name = ARGV[0]
+def self.create_model(model_name)
   model_class_name = sprintf(MODEL_CLASS_FRMT, model_name)
 
   printf("Creating the %s model object (%s)...\r\n", model_name, model_class_name) 
@@ -89,18 +84,22 @@ def self.get_full_name(file)
   if (Pathname.new file).absolute? then file else File.join(WD, file) end
 end
 
-def self.require_template_file(template_file)
+def self.prepare_template_classes(model, template_file)
+  TemplateBuilder.build_template_class(model)
+
   if File.file?(template_file)
     require template_file
   else
-    puts "MTRuby: warning: File '" + template_file + "' doesn't exist."
+    printf "MTRuby: warning: The %s file does not exist.\r\n", template_file
   end
+
+  Template::template_classes
 end
 
 def self.get_template_file_name(template_class)
   File.basename(template_class.instance_method(:run).source_location.first)
 end
 
-end # MicroTESK
+end # MTRuby
 
-MicroTESK.main
+MTRuby.main
