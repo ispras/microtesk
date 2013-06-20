@@ -19,7 +19,7 @@ class MTRubyError < StandardError
 end
 
 module MicroTESK 
-  
+
 WD = Dir.pwd
 
 def self.main
@@ -28,19 +28,14 @@ def self.main
 
   template_file = get_full_name(ARGV[1])
   puts "Template: " + template_file
-   
+
   output_file = if ARGV.count > 2 then get_full_name(ARGV[2]) else nil end
   if output_file then puts "Output file: " + output_file end
 
   TemplateBuilder.build_template_class(model)
-  
-  $template_classes = Array.new
 
-  if File.file?(template_file)
-    require template_file
-  else
-    puts "MTRuby: warning: File '" + template_file + "' doesn't exist."
-  end
+  $template_classes = Array.new
+  require_template_file(template_file)
 
   $template_classes.each do |template_class|
     begin
@@ -48,8 +43,7 @@ def self.main
       template.set_model(model)
 
       if template.is_executable
-        printf "Translating %s...\r\n",
-               File.basename(template_class.instance_method(:run).source_location.first)
+        printf "Translating %s...\r\n", get_template_file_name(template_class)
 
         template.parse
         template.execute
@@ -91,6 +85,18 @@ end
 
 def self.get_full_name(file)
   if (Pathname.new file).absolute? then file else File.join(WD, file) end
+end
+
+def self.require_template_file(template_file)
+  if File.file?(template_file)
+    require template_file
+  else
+    puts "MTRuby: warning: File '" + template_file + "' doesn't exist."
+  end
+end
+
+def self.get_template_file_name(template_class)
+  File.basename(template_class.instance_method(:run).source_location.first)
 end
 
 end # MicroTESK
