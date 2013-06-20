@@ -5,29 +5,94 @@
 #                              #
 
 require 'java'
+require "pathname"
+require_relative 'templates/config'
+require MODELS_JAR
 
-# Configuration
+require_relative 'templates/lib/template_builder'
+include TemplateBuilder
 
-# Edit this if the MicroTESK JAR is located elsewhere
-$MICROTESK_JAR = "./dist/jars/models.jar"
-require $MICROTESK_JAR
-
-if(ARGV.count < 2)
-  abort "Arguments required: model package, template file"
+class MTRubyError < StandardError
+  def initialize(msg = "You've triggered an MTRuby Error. TODO: avoid these situations and print stack trace")
+    super
+  end
 end
 
-classname = ARGV.shift
+module MicroTESK 
+  
+WD = Dir.pwd
 
-# Build MicroTESK, compile MicroTESK, build MicroTESK and set the CPU model class
-puts "Creating model object"
-#java_import Java::Ru.ispras.microtesk.model.arm.Model
-java_import "ru.ispras.microtesk.model." + classname + ".Model"
-#puts "If you don't see the next message, it means Java doesn't want to create a Model object?.. Seems to happen with ARM model, but not simple model"
-$model = Model.new
-puts "Model object created"
+def self.main
+  check_arguments
+  model = create_model
 
-# Launcher
+  template_file = get_full_name(ARGV[1])
+  puts "Template: " + template_file
+   
+  output_file = if ARGV.count > 2 then get_full_name(ARGV[2]) else nil end
+  if output_file then puts "Output file: " + output_file end
 
-$working_directory = Dir.pwd
-require_relative "templates/parse_templates.rb"
+  TemplateBuilder.build_template_class(model)
+  
+  $template_classes = Array.new
 
+  if File.file?(template_file)
+    require template_file
+  else
+    puts "MTRuby: warning: File '" + template_file + "' doesn't exist."
+  end
+
+  $template_classes.each do |template_class|
+    begin
+      template = template_class.new
+      template.set_model(model)
+
+      if template.is_executable
+        printf "Translating %s...\r\n",
+               File.basename(template_class.instance_method(:run).source_location.first)
+
+        template.parse
+        template.execute
+        template.output(output_file)
+      end
+    rescue Exception => e
+      if e.is_a?(MTRubyError)
+        puts "#{e.class}:\n#{e.message}"
+      end
+      if e.respond_to?(:printStackTrace)
+        e.printStackTrace
+      end
+      if !(e.is_a?(MTRubyError))
+        raise e
+      end
+    end
+  end
+
+end
+
+def self.check_arguments
+  if ARGV.count < 2
+    abort "Wrong number of arguments. At least two are required.\r\n" + 
+          "Argument format: <model name>, <template file>[, <output file>]"
+  end
+end
+
+def self.create_model
+  model_name = ARGV[0]
+  model_class_name = sprintf(MODEL_CLASS_FRMT, model_name)
+
+  printf("Creating the %s model object (%s)...\r\n", model_name, model_class_name) 
+  java_import model_class_name
+
+  model = Model.new
+  puts "Model object created"
+  model
+end
+
+def self.get_full_name(file)
+  if (Pathname.new file).absolute? then file else File.join(WD, file) end
+end
+
+end # MicroTESK
+
+MicroTESK.main

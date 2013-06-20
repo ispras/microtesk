@@ -8,6 +8,12 @@
 
 #    Microtesk JAR location
 
+JAR_FOLDER        = "./dist/jars"
+MODELS_JAR        = File.join(JAR_FOLDER, "models.jar")
+MICROTESK_JAR     = File.join(JAR_FOLDER, "microtesk.jar")
+
+MODEL_CLASS_FRMT  = "ru.ispras.microtesk.model.%s.Model"
+  
 #$MICROTESK_JAR = "../../../../../dist/microtesk.jar"
 
 ##    Sim-nml CPU description location
