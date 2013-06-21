@@ -41,7 +41,7 @@ def self.main
       template.set_model(model)
 
       if template.is_executable
-        printf "Translating %s...\r\n", get_template_file_name(template_class)
+        printf "Processing %s...\r\n", get_template_file_name(template_class)
 
         template.parse
         template.execute

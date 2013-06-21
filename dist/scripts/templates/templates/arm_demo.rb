@@ -23,7 +23,7 @@ class ArmDemo < DemoPrepost
     print_all_registers
 
     add equalcond, setson, reg({:r => 0}), reg({:r => 0}), register1
-    add equalcond, setsoff, reg(1), reg(2), register3 do random end
+    add equalcond, setsoff, reg(1), reg(2), register3 do overflow end
 
     debug { puts "This is a debug message" }
 
