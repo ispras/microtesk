@@ -34,7 +34,7 @@ public final class TemplateRunner
         final ScriptingContainer container = new ScriptingContainer();
 
         final String scriptsPath =
-            System.getProperty("user.dir") + "/dist/scripts/parse_templates.rb";
+            System.getProperty("user.dir") + "/dist/scripts/template_processor.rb";
                 
         container.setArgv(argv.toArray(new String[argv.size()]));
         container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
