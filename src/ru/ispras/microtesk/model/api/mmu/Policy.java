@@ -17,13 +17,15 @@
 package ru.ispras.microtesk.model.api.mmu;
 
 /**
- * This class implements interface of Policy which will be applied to data changing in cache if miss happens. 
- *
+ * This class is a basic data replacement policy which is applied 
+ * when a cache miss happens.
+ * 
  * @author <a href="mailto:leonsia@ispras.ru">Taya Sergeeva</a>
  */
 
-public abstract class Policy
+public class Policy
 {
+    // / Number of sets
     private int associativity;
 
     public Policy(int associativity)
@@ -32,21 +34,27 @@ public abstract class Policy
     }
 
     /**
-     * Returns associativity (number of lines)
+     * Returns associativity.
+     * 
+     * @return associativity.
      */
-
     public int getAssociativity()
     {
         return associativity;
     }
 
     /**
-     * Hit happened
+     * Hit happens.
      */
-    public abstract void accessLine(int index);
+    public void accessLine(int index)
+    {
+    }
 
     /**
-     * Miss happened
+     * Miss happened.
      */
-    public abstract int chooseVictim();
+    public int chooseVictim()
+    {
+        return 0;
+    }
 }

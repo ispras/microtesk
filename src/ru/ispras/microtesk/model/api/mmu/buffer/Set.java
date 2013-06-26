@@ -1,28 +1,63 @@
+/*
+ * Copyright 2012-2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ru.ispras.microtesk.model.api.mmu.buffer;
 
 import java.util.ArrayList;
 
+import ru.ispras.microtesk.model.api.mmu.EPolicy;
 import ru.ispras.microtesk.model.api.mmu.Policy;
+import ru.ispras.microtesk.model.api.mmu.PolicyFactory;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 
-public class Set<T extends Line, P extends Policy>
+/**
+ * This class represents a set of lines.
+ *
+ * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
+ */
+public class Set<L extends Line> extends Buffer<L>
 {
-	private P policy;
+    /// Array of lines.
+    private ArrayList<L> set = new ArrayList<L>();
+    /// Data replacement policy.
+    private Policy policy;
 
-	public Set(int associativity)
+	/**
+	 * Constructs a set with a given associativity.
+	 * 
+	 * @param associativity the number of sets.
+	 */
+	public Set(final EPolicy policy, int associativity)
 	{
-		super();
+		super(associativity, 1, policy);
 		
-		setPolicy(P(associativity));
-	}
-	
-	private P P(int associativity) {
-		return null;
+		this.policy = PolicyFactory.create(policy, associativity);
+		
 	}
 
-	public boolean match(Address address) 
+	/**
+	 * For each line in buffer with given address it checks if there is
+	 * a hit. Returns true if there is hit.
+	 * 
+	 * @param address the address.
+	 * @return true iff there is a buffer hit, otherwise returns false.
+	 */
+	public boolean match(final Address address) 
 	{
-		for(T line: set)
+		for(L line: set)
 		{
 			if(line.match(address))
 			    { return true; }
@@ -31,30 +66,45 @@ public class Set<T extends Line, P extends Policy>
 		return false;
     }
 	
+	/**
+	 * For each line in set checks if there is a hit, and if so it return 
+	 * data with a given address.If there is miss chooses policy to be used
+	 * to replace the data.
+	 * 
+	 * @param address the address.
+	 * @return data with a given address.
+	 */
 	public RawData read(Address address)
 	{
-		for(T line: set)
+		for(L line: set)
 		{
 			if(line.match(address))
 			{
 				policy.accessLine(index(address));
 				return line.read(address); 
 		    }
-		
 		}
 		
 		int victim = policy.chooseVictim();
-		T line = set.get(victim);
+		L line = set.get(victim);
 
 		// TODO: to have access to the next buffer to replace line[victim]
 
 		// TODO: replace
 		return line.read(address);
 	} 			
-	
+
+	/**
+     * For each line in set checks if there is a hit, and if so it accesses
+     * the line with address index and writes data with a given address. If 
+     * there is miss chooses policy to be used to replace the data.
+     *
+     * @param address the address.
+     * @return replaced data with a given address and data.
+     */
 	public RawData write (Address address, RawData data)
 	{
-		for(T line: set)
+		for(L line: set)
 		{
 			if(line.match(address))
 			{
@@ -64,24 +114,30 @@ public class Set<T extends Line, P extends Policy>
 		}
 		
 		int victim = policy.chooseVictim();
-		T line = set.get(victim);
+		L line = set.get(victim);
 		
 		return line.write(address, data);
     }
-	
-	protected ArrayList<T> set = new ArrayList<T>();
 
-	public int index(Address address)
+	/**
+     * {@inheritDoc}
+	 */
+	public int index(final Address address)
 	{
-		return 0;
+	    return 0;
 	}
 
-	public P getPolicy()
+	/**
+	 * Returns policy.
+	 * 
+	 * @return policy.
+	 */
+	public Policy getPolicy()
 	{
 		return policy;
 	}
 
-	public void setPolicy(P policy)
+	public void setPolicy(final Policy policy)
 	{
 		this.policy = policy;
 	}

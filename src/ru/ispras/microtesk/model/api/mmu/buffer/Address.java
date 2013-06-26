@@ -18,15 +18,15 @@ package ru.ispras.microtesk.model.api.mmu.buffer;
 
 /**
  * This class represents an address.
- *
+ * 
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
 public abstract class Address
 {
     /**
      * Returns the bit width of the address.
-     *
+     * 
      * @return the bit width of the address.
      */
-	public abstract int width();
+    public abstract int width();
 }
