@@ -243,27 +243,26 @@ op bitwise_instr            =  logical_instr
 op mem_instr                =  load_instr
                             |  stor_instr
 
-/*op dummy_instr				=		DUMMY
+/*op dummy_instr            =  DUMMY
 
 op DUMMY()
 */
-op	special_instr			=			NOP
-						|	SYSCALL
-						|	CLO	
-						|	CLZ
-						|	SYNC
-						| 	RDHWR
-						| 	BREAK
-						|	TEQ
 
+op	special_instr       =  NOP
+						|  SYSCALL
+						|  CLO	
+						|  CLZ
+						|  SYNC
+						|  RDHWR
+						|  BREAK
+						|  TEQ
 
-op TEQ (rs : REG_IND_ZERO , rt :  REG_IND_ZERO )
+op TEQ (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format ( "TEQ %s, %s, %s" , rs.syntax , rt.syntax , offset.syntax )
     image = format ( "000000%s%s0000000111110100", rs.image, rt.image, offset.image )
     action = {
 
 	     }
-	     
 
 op	NOP()
 	syntax = "NOP"
