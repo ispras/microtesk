@@ -160,8 +160,9 @@ typeExpr returns [TypeExpr res]
 /*======================================================================================*/
 
 memDef
-    :  ^(MEM id=ID st=sizeType)
+    :  ^(MEM id=ID st=sizeType alias?)
 {
+// TODO: implement IR for alises
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
    factory.createMemoryExpr(where($id), EMemoryKind.MEM, $st.type, $st.size) :
@@ -209,6 +210,10 @@ checkNotNull($st, $t.res, $t.text);
 $type = $t.res;
 $size = null;
 }
+    ;
+
+alias
+    :  ^(ALIAS locationAtom)
     ;
 
 /*======================================================================================*/

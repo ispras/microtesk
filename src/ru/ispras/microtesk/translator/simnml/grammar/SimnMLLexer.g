@@ -147,6 +147,7 @@ TYPE                    :    'type';
 MEM                     :    'mem';
 REG                     :    'reg';
 VAR                     :    'var';
+ALIAS                   :    'alias';
 MODE                    :    'mode';
 OP                      :    'op';
 

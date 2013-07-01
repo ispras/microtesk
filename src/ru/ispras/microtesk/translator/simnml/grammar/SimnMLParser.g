@@ -170,7 +170,8 @@ typeExpr
 /*======================================================================================*/
 
 memDef
-    :  MEM^ id=ID LEFT_HOOK! sizeType RIGHT_HOOK! { declare($id, ESymbolKind.MEMORY, false); }
+    :  MEM^ id=ID LEFT_HOOK! sizeType RIGHT_HOOK! { declare($id, ESymbolKind.MEMORY, false); } alias?
+            
     ;
 
 regRef
@@ -183,6 +184,10 @@ varDef
 
 sizeType
     :  (constExpr COMMA)? typeExpr -> ^(SIZE_TYPE constExpr? typeExpr)
+    ;
+    
+alias
+    :  ALIAS^ ASSIGN! locationAtom
     ;
 
 /*======================================================================================*/
