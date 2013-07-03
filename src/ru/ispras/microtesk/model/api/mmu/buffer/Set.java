@@ -18,9 +18,9 @@ package ru.ispras.microtesk.model.api.mmu.buffer;
 
 import java.util.ArrayList;
 
-import ru.ispras.microtesk.model.api.mmu.EPolicy;
-import ru.ispras.microtesk.model.api.mmu.Policy;
-import ru.ispras.microtesk.model.api.mmu.PolicyFactory;
+import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
+import ru.ispras.microtesk.model.api.mmu.policy.Policy;
+import ru.ispras.microtesk.model.api.mmu.policy.PolicyFactory;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 
 /**

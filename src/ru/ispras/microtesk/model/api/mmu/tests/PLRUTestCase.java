@@ -19,8 +19,8 @@ package ru.ispras.microtesk.model.api.mmu.tests;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ru.ispras.microtesk.model.api.mmu.PLRU;
-import ru.ispras.microtesk.model.api.mmu.Policy;
+import ru.ispras.microtesk.model.api.mmu.policy.PLRU;
+import ru.ispras.microtesk.model.api.mmu.policy.Policy;
 
 public class PLRUTestCase
 {

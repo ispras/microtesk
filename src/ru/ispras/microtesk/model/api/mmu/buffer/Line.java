@@ -16,7 +16,7 @@
 
 package ru.ispras.microtesk.model.api.mmu.buffer;
 
-import ru.ispras.microtesk.model.api.mmu.EPolicy;
+import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
 import ru.ispras.microtesk.model.api.rawdata.RawData;
 import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
 
