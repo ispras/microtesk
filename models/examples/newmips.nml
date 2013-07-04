@@ -240,13 +240,58 @@ mode IMM16 ( n : int ( 16 ) ) = n
 /* Non-Branch Instructions                                                                  */
 /********************************************************************************************/
 
-op non_branch_instr()
+///////////////////////////////// Arithm, Mov, Bitwise ///////////////////////////////////////
+
+op ADD()
+op ADDU()
+op SUB() 
+op SUBU()
+op ADDI()
+op ADDIU()
+op MUL()
+op MULTU() 
+op MADDU()
+op MSUBU()
+op MADD()
+op MSUB()
+op MULT()
+op DIV()
+op DIVU()
+
+op arith_instr  =  ADD   // add word
+                |  ADDU  // add unsigned word
+                |  SUB   // subtract word 
+                |  SUBU  // subtract unsigned word
+                |  ADDI  // add word immediate
+      			|  ADDIU // add word unsigned immediate
+                |  MUL   // multiply
+                |  MULTU 
+                |  MADDU // multiply and add unsigned
+                |  MSUBU // multply and subtract unsigned
+                |  MADD  // multiply and add signed
+                |  MSUB  // multiply and subtract signed
+                |  MULT
+                |  DIV
+                |  DIVU
+
+op arith_mov_bitwise_instr  =  arith_instr
+                            |  mov_instr
+                            |  bitwise_instr	
+
+op mem_instr()
+op set_instr()	
+
+/*
+op non_branch_instr	=  arith_mov_bitwise_instr
+                    |  mem_instr
+                    |  set_instr
+*/	
 
 /********************************************************************************************/
 /* Branch Instructions                                                                      */
 /********************************************************************************************/
 
-//////////////////////////////////////// Branch /////////////////////////////////////////////
+///////////////////////////////////////// Branch /////////////////////////////////////////////
 
 op BGEZAL (rs : REG_IND_ZERO, offset : IMM16)
     syntax = format ( "BGEZAL %s, %s", rs.syntax, offset.syntax )	   
@@ -766,8 +811,8 @@ op	special_instr   =  NOP
 
 // Instructions
 
-op instr_kind    =  non_branch_instr
-                 |  branch_instr
+op instr_kind    = /* non_branch_instr
+                 | */ branch_instr
                  |  special_instr
               // |  float_instr // NOT SUPPORTED IN THE CURRENT VERSION 
               // |  dummy_instr
