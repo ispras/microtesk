@@ -351,14 +351,66 @@ op BGEZ (rs : REG_IND_ZERO, offset : IMM16)
         endif;
     }
 
-op BGEZL()
-op BLTZ()
-op BLTZL()
+op BGEZL (rs : REG_IND_ZERO , offset : IMM16)
+    syntax = format ( "BGEZL %s, %s" , rs.syntax, offset.syntax )	   
+    image = format ( "000001%s00011%s" , rs.image, offset.image )
+    action = {
+        //  if ( rs >= 0 ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+        //  NIA = NIA + ( offset << 2 );
 
-op branch_to_nolink_instr =	 BGEZ  // branch on greater then or equal to zero
-                          |  BGEZL // BGEZ likely
-                          |  BLTZ  // branch on less than
-                          |  BLTZL // BLTZ likely
+        if ( rs >= 0 ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+            GPR[31] = CIA + 8;
+        endif;
+    }
+
+op BLTZ (rs : REG_IND_ZERO, offset : IMM16)
+    syntax = format ( "BLTZ %s, %s" , rs.syntax, offset.syntax )	   
+    image = format ( "000001%s00000%s" , rs.image, offset.image )
+    action = {
+        //  if ( rs < 0 ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+        //  NIA = NIA + ( offset << 2 );
+
+        if ( rs < 0 ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+            //  JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }
+
+op BLTZL (rs : REG_IND_ZERO, offset : IMM16)
+    syntax = format ( "BLTZL %s, %s", rs.syntax, offset.syntax )	   
+    image = format ( "000001%s00010%s", rs.image, offset.image )
+    action = {
+		//if ( rs < 0 ) then
+		//	offset = offset << 2;
+		//	NIA = CIA + offset;
+		//	NIA = NIA + ( offset << 2 );
+
+        if ( rs < 0 ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+            GPR[31] = CIA + 8;
+        endif;
+    }
+
+op branch_to_nolink_instr  =  BGEZ  // branch on greater then or equal to zero
+                           |  BGEZL // BGEZ likely
+                           |  BLTZ  // branch on less than
+                           |  BLTZL // BLTZ likely
 
 op BEQ()
 op BEQL()
