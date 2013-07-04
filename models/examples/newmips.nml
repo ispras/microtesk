@@ -530,10 +530,67 @@ op branch_to_eql_instr    =  BEQ  // branch on equal
                           |  BNEZ 
                           |  B
 
-op BGTZ()
-op BGTZL()
-op BLEZ()
-op BLEZL()
+op BGTZ (rs : REG_IND_ZERO , offset : IMM16 )
+    syntax = format ( "BGTZ %s, %s" , rs.syntax , offset.syntax)
+    image  = format ( "000111%s00000%s" , rs.image , offset.image )
+    action = {
+        if ( rs > 0 ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }
+
+op BGTZL (rs : REG_IND_ZERO, offset : IMM16 )
+    syntax = format ( "BGTZL %s, %s", rs.syntax, offset.syntax)
+    image = format ( "010111%s00000%s", rs.image, offset.image )
+    action = {
+        if ( rs > 0 ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word<<2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+            //GPR[31] = NIA + 4;
+            GPR [31] = CIA + 8;
+        endif;
+    }
+
+op BLEZ (rs : REG_IND_ZERO, offset : IMM16 )
+    syntax = format ( "BLEZ %s, %s", rs.syntax, offset.syntax)
+    image  = format ( "000110%s00000%s", rs.image, offset.image )
+    action = {
+        if ( rs <= 0 ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word<<2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }
+
+op BLEZL (rs : REG_IND_ZERO , offset : IMM16 )
+    syntax = format ( "BLEZL %s, %s", rs.syntax, offset.syntax)
+    image = format ( "010110%s00000%s", rs.image, offset.image )
+    action =  {
+        if ( rs <= 0 ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word<<2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }             
 
 op branch_to_grtr_instr   =  BGTZ  // branch greater than zero
                           |  BGTZL // BGTZL likely
