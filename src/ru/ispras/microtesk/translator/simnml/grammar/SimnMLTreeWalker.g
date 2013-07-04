@@ -333,8 +333,8 @@ attrs.put($attr.res.getName(), $attr.res);
 attrDef returns [Attribute res]
     :  ^(SYNTAX {declare($SYNTAX, ESymbolKind.ATTRIBUTE, false);} attr=syntaxDef) {$res = $attr.res;}
     |  ^(IMAGE  {declare($IMAGE,  ESymbolKind.ATTRIBUTE, false);} attr=imageDef)  {$res = $attr.res;}
-    |  ^(ACTION {declare($ACTION, ESymbolKind.ATTRIBUTE, false);} attr=actionDef) {$res = $attr.res;}
-//  |  ID^ ASSIGN! attrDefPart // NOT SUPPORTED IN THE CURRENT VERSION
+    |  ^(ACTION {declare($ACTION, ESymbolKind.ATTRIBUTE, false);} attr=actionDef[$ACTION.text]) {$res = $attr.res;}
+    |  ^(id=ID {declare($ID, ESymbolKind.ATTRIBUTE, false);} attr=actionDef[$id.text]) {$res = $attr.res;}
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 
@@ -370,17 +370,17 @@ else
 }
     ;
 
-actionDef returns [Attribute res]
+actionDef [String actionName] returns [Attribute res]
 @init  {final AttributeFactory factory = getAttributeFactory();}
     :  ^(DOT id=ID name=ACTION)
 {
 final Statement stmt = factory.createAttributeCallStatement($id.text, $name.text);
-$res = factory.createAction("action", Collections.singletonList(stmt));
+$res = factory.createAction(actionName, Collections.singletonList(stmt));
 }
     |  seq=sequence
 {
 checkNotNull($seq.start, $seq.res, $seq.text);
-$res = factory.createAction("action", $seq.res);
+$res = factory.createAction(actionName, $seq.res);
 }
     ;
 
@@ -459,7 +459,7 @@ attributeCallStatement returns [List<Statement> res]
     :  id=ID
 {
 $res = Collections.singletonList(
-    getAttributeFactory().createAttributeCallStatement($name.text));
+    getAttributeFactory().createAttributeCallStatement($id.text));
 }
     |  ^(DOT id=ID name=(ACTION | ID))
 {

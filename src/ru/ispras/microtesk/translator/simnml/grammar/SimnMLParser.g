@@ -258,7 +258,7 @@ attrDef
     :  SYNTAX^ ASSIGN! syntaxDef
     |  IMAGE^ ASSIGN! imageDef
     |  ACTION^ ASSIGN! actionDef
-//  |  ID^ ASSIGN! attrDefPart // NOT SUPPORTED IN THE CURRENT VERSION
+    |  ID^ ASSIGN! actionDef
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 
