@@ -1,14 +1,17 @@
-/* 
- * MIPS Description in Sim-nML by Hemant Shinde (31-07-2007)
- * 
- * Provided by Indian Institute of Technology Kanpur
+/*
+ *         MIPS ISA Specification in Sim-nML
+ *
+ *           Based on materials provided by
+ *        Indian Institute of Technology Kanpur
+ *             Hemant Shinde (31-07-2007)
  * 
  *     http://www.cse.iitk.ac.in/users/moona/?page=stud
  * 
- * Modified at ISPRAS by Andrei Tatarnikov (June, 2013) to adapt it to limitations
+ * The present version is created at ISPRAS by Andrei Tatarnikov
+ * in June, 2013 to adapt the original specification to limitations
  * imposed on input file format by the current version of MicroTESK.
  */
- 
+
 /********************************************************************************************/
 /* Constants                                                                                */
 /********************************************************************************************/
@@ -412,11 +415,85 @@ op branch_to_nolink_instr  =  BGEZ  // branch on greater then or equal to zero
                            |  BLTZ  // branch on less than
                            |  BLTZL // BLTZ likely
 
-op BEQ()
-op BEQL()
-op BNE()
-op BNEL()
-op BEQZ()
+op BEQ (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16 )
+    syntax = format ( "BEQ %s, %s, %s", rs.syntax, rt.syntax, offset.syntax )
+    image = format ( "000100%s%s%s", rs.image, rt.image, offset.image )
+    action = {
+    //  offset = offset << 2;
+    //  NIA = CIA + offset;
+
+        if ( rs == rt ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+            // JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }
+
+op BEQL (rs : REG_IND_ZERO, rt :  REG_IND_ZERO, offset : IMM16 )
+    syntax = format ( "BEQL %s, %s, %s", rs.syntax, rt.syntax, offset.syntax )
+    image = format ( "010100%s%s%s", rs.image, rt.image, offset.image )
+    action = {
+        if ( rs <= rt ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+            GPR [31] = CIA + 8;
+        endif;
+    }
+
+op BNE (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16 )
+    syntax = format ( "BNE %s, %s, %s", rs.syntax, rt.syntax, offset.syntax )
+    image = format ( "000101%s%s%s", rs.image, rt.image, offset.image )
+    action = {
+        if ( rs != rt ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }
+
+op BNEL (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16 )
+    syntax = format ( "BNEL %s, %s, %s", rs.syntax, rt.syntax, offset.syntax )
+    image  = format ( "010101%s%s%s", rs.image, rt.image, offset.image )
+    action = {
+        if ( rs != rt ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word = offset;
+            tmp_signed_word = tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+            //GPR[31] = NIA + 4;
+            GPR [31] = CIA + 8;
+        endif;
+    }
+
+op BEQZ (rs : REG_IND_ZERO, offset : IMM16 )
+    syntax = format ( "BEQZ %s, %s", rs.syntax, offset.syntax )
+    image  = format ( "000100%s00000%s", rs.image, offset.image )
+    action = {
+        if ( rs == 0 ) then
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word = offset;
+            tmp_signed_word = tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+		//  JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }
+
 op BNEZ() 
 op B()
 
