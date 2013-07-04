@@ -23,6 +23,7 @@ import ru.ispras.microtesk.model.api.simnml.instruction.Operation;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
+import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Op;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
@@ -32,6 +33,13 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 public class OperationSTBuilder implements ITemplateBuilder
 {
+    public static final String[] STANDARD_ATTRIBUTES =
+    {
+        AttributeFactory.IMAGE_NAME,
+        AttributeFactory.SYNTAX_NAME,
+        AttributeFactory.ACTION_NAME
+    };
+
     private final String specFileName;
     private final String modelName;
     private final Op op;
@@ -151,6 +159,17 @@ public class OperationSTBuilder implements ITemplateBuilder
             for (Statement stmt: attr.getStatements())
                 attrST.add("stmts", stmt.getText());
 
+            boolean isStandard = false;
+            for (String standardName : STANDARD_ATTRIBUTES)
+            {
+                if (standardName.equals(attr.getName()))
+                {
+                    isStandard = true;
+                    break;
+                }
+            }
+
+            attrST.add("override", isStandard);
             t.add("attrs", attrST);
         }
     }

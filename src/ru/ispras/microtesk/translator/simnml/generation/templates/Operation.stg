@@ -60,9 +60,9 @@ op_arg_init(name) ::= <<
     this.<name> = <name>;
 >>
 
-op_attribute(name, rettype, stmts) ::= <<
-@Override
-public <rettype> <name>()
+op_attribute(name, rettype, stmts, override) ::= <<
+<if(override)>@Override
+<endif>public <rettype> <name>()
 {
     <stmts; separator="\n">
 }
