@@ -25,10 +25,5 @@
 			<type>2</type>
 			<locationURI>PROJECT_LOC/gen</locationURI>
 		</link>
-		<link>
-			<name>output</name>
-			<type>2</type>
-			<locationURI>PROJECT_LOC/output</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>

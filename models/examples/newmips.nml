@@ -269,22 +269,23 @@ op CLO(rd : index, rs : REG_IND_ZERO)
     action = {
         tmp_signed_byte = 31;
         GPR [rd] = 32; 
-        // loop; // TODO: SUPPORT CUSTOM ATTRIBUTES
+        loop;
     }
-    /*
-    loop  = {
-        if tmp_signed_byte >= 0 then
-          	//if ( rs < rs_signed_byte..rs_signed_byte > == 1 ) then
-            if ( rs < tmp_signed_byte..tmp_signed_byte > == 1 ) then
+
+    loop = {
+        //if tmp_signed_byte >= 0 then
+          	//if ( rs < rs_signed_byte .. rs_signed_byte > == 1 ) then
+            /*
+            if ( rs < tmp_signed_byte .. tmp_signed_byte > == 1 ) then
                 tmp_signed_byte = tmp_signed_byte - 1;
             else
                 GPR [ rd ] = 31 - tmp_signed_byte;
                 tmp_signed_byte = -1;
             endif;
+            */
             loop;
-        endif;
+        //endif;
     }
-    */
 
 op CLZ(rd : index, rs : REG_IND_ZERO)
     syntax = format ("CLZ %d,%s", rd, rs.syntax)
@@ -292,21 +293,22 @@ op CLZ(rd : index, rs : REG_IND_ZERO)
     action = {
         tmp_signed_byte = 31;
         GPR [rd] = 32;
-        // loop; // TODO: SUPPORT CUSTOM ATTRIBUTES
+        loop;
     }
-    /*
+
     loop = {
-        if tmp_signed_byte >= 0 then
-            if (rs < tmp_signed_byte..tmp_signed_byte > == 0) then
+        // if tmp_signed_byte >= 0 then
+            /*
+            if (rs < tmp_signed_byte .. tmp_signed_byte > == 0) then
                 tmp_signed_byte = tmp_signed_byte - 1;
             else
                 GPR [ rd ] = 31 - tmp_signed_byte;
                 tmp_signed_byte = -1;
             endif;
+            */
             loop;
-        endif;
+        // endif;
     }
-    */
 
 op SYNC()
     syntax = "SYNC"
@@ -328,8 +330,8 @@ op BREAK (cde : breakcode)
     action = { }
 
 op TEQ (rs : REG_IND_ZERO, rt :  REG_IND_ZERO)
-    syntax = format ("TEQ %s, %s, %s" , rs.syntax , rt.syntax , offset.syntax)
-    image  = format ("000000%s%s0000000111110100", rs.image, rt.image, offset.image)
+    syntax = format ("TEQ %s, %s" , rs.syntax , rt.syntax)
+    image  = format ("000000%s%s0000000111110100", rs.image, rt.image)
     action = { }
 
 op	special_instr   =  NOP
