@@ -153,10 +153,10 @@ final class ExprBinaryOperators
 
         result.addOperator(createEQ(priority));
         result.addOperator(createNEQ(priority++));
-/*
+
         result.addOperator(createLEQ(priority));
         result.addOperator(createGEQ(priority));
-*/        
+        
         result.addOperator(createLess(priority));
         result.addOperator(createGreater(priority++));
 
@@ -407,17 +407,69 @@ final class ExprBinaryOperators
             null
             );
     }
-/*    
+    
     private static ExprOperatorBinary createLEQ(int priority)
     {
-        return null;
+        final ExprOperatorBinary.IBinaryOperator[] ops = new ExprOperatorBinary.IBinaryOperator[]
+        {
+            new ExprOperatorBinary.IBinaryOperator()
+            {
+                @Override
+                public Class<?> getJavaType()
+                {
+                    return int.class;
+                }
+
+                @Override
+                public Object execute(Object left, Object right)
+                {
+                    return (Integer) left <= (Integer) right;
+                }
+            }
+        };
+
+        return new ExprOperatorBinary(
+            "<=",
+            priority,
+            EOperatorID.LESS_EQ,
+            new ETypeID[] { ETypeID.CARD, ETypeID.INT },
+            "%s <= %s",
+            ops,
+            null
+            );
     }
-    
+
     private static ExprOperatorBinary createGEQ(int priority)
     {
-        return null;
+        final ExprOperatorBinary.IBinaryOperator[] ops = new ExprOperatorBinary.IBinaryOperator[]
+        {
+            new ExprOperatorBinary.IBinaryOperator()
+            {
+                @Override
+                public Class<?> getJavaType()
+                {
+                    return int.class;
+                }
+
+                @Override
+                public Object execute(Object left, Object right)
+                {
+                    return (Integer) left >= (Integer) right;
+                }
+            }
+        };
+
+        return new ExprOperatorBinary(
+            ">=",
+            priority,
+            EOperatorID.GREATER_EQ,
+            new ETypeID[] { ETypeID.CARD, ETypeID.INT },
+            "%s >= %s",
+            ops,
+            null
+            );
     }
-*/    
+    
     private static ExprOperatorBinary createLess(int priority)
     {
         final ExprOperatorBinary.IBinaryOperator[] ops = new ExprOperatorBinary.IBinaryOperator[]
@@ -448,7 +500,7 @@ final class ExprBinaryOperators
             null
             );
     }
-    
+
     private static ExprOperatorBinary createGreater(int priority)
     {
         final ExprOperatorBinary.IBinaryOperator[] ops = new ExprOperatorBinary.IBinaryOperator[]
