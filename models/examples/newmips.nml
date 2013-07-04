@@ -243,7 +243,206 @@ op non_branch_instr()
 /* Branch Instructions                                                                      */
 /********************************************************************************************/
 
-op branch_instr()
+//////////////////////////////////////// Branch /////////////////////////////////////////////
+
+op BGEZAL (rs : REG_IND_ZERO, offset : IMM16)
+    syntax = format ( "BGEZAL %s, %s", rs.syntax, offset.syntax )	   
+    image  = format ( "000001%s10001%s", rs.image, offset.image )
+    action = {
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+
+        if ( rs >= 0 ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+		//  JMPADDR = NIA + ( offset << 2 );
+            GPR [31] = CIA + 8;
+        endif;
+    }
+
+op BGEZALL (rs : REG_IND_ZERO, offset : IMM16)
+    syntax = format ( "BGEZ %s, %s", rs.syntax, offset.syntax )	   
+    image  = format ( "000001%s10011%s", rs.image, offset.image )
+    action = {
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+
+        if ( rs >= 0 ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+            GPR [31] = CIA + 8;
+        endif;
+    }   
+
+op BLTZAL (rs : REG_IND_ZERO, offset : IMM16)
+    syntax = format ( "BLTZAL %s, %s", rs.syntax, offset.syntax )	   
+    image  = format ( "000001%s10000%s", rs.image, offset.image )
+    action = {
+        //  offset = offset << 2;
+        //  NIA = CIA + offset;
+
+        if ( rs < 0 ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //  JMPADDR = NIA + ( offset << 2 );
+        //  GPR [31] = NIA + 4;
+            GPR [31] = CIA + 8;
+        endif;
+    }
+
+op BLTZALL (rs : REG_IND_ZERO, offset : IMM16)
+    syntax = format ( "BLTZ %s, %s", rs.syntax, offset.syntax )	   
+    image  = format ( "000001%s10010%s", rs.image, offset.image )
+    action = {
+    //	offset = offset << 2;
+    //	NIA = CIA + offset;
+		
+        if ( rs < 0 ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        //	JMPADDR = NIA + ( offset << 2 );
+        //	GPR [31] = NIA + 4;
+            GPR [31] = CIA + 8;
+        endif;
+    }  
+
+op BAL (offset : IMM16)
+    syntax = format ( "BAL %s", offset.syntax )	   
+    image  = format ( "0000010000010001%s",  offset.image )
+    action = {
+    //	offset = offset << 2;
+    //	NIA = CIA + offset;
+        branch = 1;
+        tmp_signed_word=offset;
+        tmp_signed_word=tmp_signed_word << 2;
+        JMPADDR = NIA + tmp_signed_word;
+    //  JMPADDR = NIA + ( offset << 2 );
+        GPR [31] = CIA + 8;
+    }
+
+op branch_to_link_instr	  =  BGEZAL  // BGEZ and link
+                          |  BGEZALL // BGEZ and link likely
+                          |  BLTZAL  // BLTZ and link
+                          |  BLTZALL // BLTZ and link likely
+                          |  BAL
+
+op BGEZ (rs : REG_IND_ZERO, offset : IMM16)
+    syntax = format ( "BGEZ %s, %s", rs.syntax, offset.syntax )	   
+    image  = format ( "000001%s00001%s", rs.image, offset.image )
+    action = {
+    //	offset = offset << 2;
+    //	NIA = NIA + ( offset << 2 );
+
+        if ( rs >= 0 ) then
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+            //  JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }
+
+op BGEZL()
+op BLTZ()
+op BLTZL()
+
+op branch_to_nolink_instr =	 BGEZ  // branch on greater then or equal to zero
+                          |  BGEZL // BGEZ likely
+                          |  BLTZ  // branch on less than
+                          |  BLTZL // BLTZ likely
+
+op BEQ()
+op BEQL()
+op BNE()
+op BNEL()
+op BEQZ()
+op BNEZ() 
+op B()
+
+op branch_to_eql_instr    =  BEQ  // branch on equal
+                          |  BEQL // BEQ likely
+                          |  BNE  // branch on not equal
+                          |  BNEL // BNE likely
+                          |  BEQZ
+                          |  BNEZ 
+                          |  B
+
+op BGTZ()
+op BGTZL()
+op BLEZ()
+op BLEZL()
+
+op branch_to_grtr_instr   =  BGTZ  // branch greater than zero
+                          |  BGTZL // BGTZL likely
+                          |  BLEZ  // branch less or equal to than zero
+                          |  BLEZL // BLEZ likely
+
+op branch_to_instr  =  branch_to_link_instr
+                    |  branch_to_nolink_instr	
+                    |  branch_to_eql_instr
+                    |  branch_to_grtr_instr
+                    
+///////////////////////////////////////// Jump //////////////////////////////////////////////
+
+op J (target : IMM26)
+    syntax = format ( "J %s", target.syntax )
+    image  = format ( "000010%s", target.image )
+    action = {
+        branch = 1;
+        CIA = NIA;
+        JMPADDR = CIA & 4026531840;
+        //target = target << 2;
+        JMPADDR = JMPADDR | ( target << 2);
+    }
+
+op JAL (target : IMM26)
+    syntax = format ( "JAL %s", target.syntax )
+    image = format ( "000011%s", target.image )
+    action = {
+        branch = 1;
+        CIA = NIA;
+        JMPADDR = CIA & 4026531840;
+	//  target = target << 2;
+	//  NIA = NIA | target;
+        JMPADDR = JMPADDR | ( target << 2) ;
+        GPR [31] = CIA + 4;
+    }  
+
+op JALR (rs : REG_IND_ZERO) 
+    syntax = format ( "JALR %s", rs.syntax ) 
+    image  = format ( "000000%s000001111100000001001", rs.image )		      
+    action = {
+        branch = 1;
+        CIA = NIA;
+        JMPADDR = rs;
+        GPR [31] = CIA + 4;
+    }
+
+op JR ( rs : REG_IND_ZERO ) 
+    syntax = format ( "JR  %s", rs.syntax ) 
+    image  = format ( "000000%s000000000000000001000", rs.image)		      
+    action = {
+        branch = 1;
+        CIA = NIA;
+        JMPADDR = rs;
+    }
+
+op jump_to_instr    =  J
+                    |  JAL
+                    |  JR
+                    |  JALR
+
+op branch_instr	    =  branch_to_instr
+                    |  jump_to_instr
 
 /********************************************************************************************/
 /* Special Instructions                                                                     */ 
@@ -273,7 +472,7 @@ op CLO(rd : index, rs : REG_IND_ZERO)
     }
 
     loop = {
-        //if tmp_signed_byte >= 0 then
+        if tmp_signed_byte >= 0 then
           	//if ( rs < rs_signed_byte .. rs_signed_byte > == 1 ) then
             /*
             if ( rs < tmp_signed_byte .. tmp_signed_byte > == 1 ) then
@@ -284,7 +483,7 @@ op CLO(rd : index, rs : REG_IND_ZERO)
             endif;
             */
             loop;
-        //endif;
+        endif;
     }
 
 op CLZ(rd : index, rs : REG_IND_ZERO)
@@ -297,7 +496,7 @@ op CLZ(rd : index, rs : REG_IND_ZERO)
     }
 
     loop = {
-        // if tmp_signed_byte >= 0 then
+        if tmp_signed_byte >= 0 then
             /*
             if (rs < tmp_signed_byte .. tmp_signed_byte > == 0) then
                 tmp_signed_byte = tmp_signed_byte - 1;
@@ -307,7 +506,7 @@ op CLZ(rd : index, rs : REG_IND_ZERO)
             endif;
             */
             loop;
-        // endif;
+        endif;
     }
 
 op SYNC()
