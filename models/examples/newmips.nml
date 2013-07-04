@@ -494,8 +494,33 @@ op BEQZ (rs : REG_IND_ZERO, offset : IMM16 )
         endif;
     }
 
-op BNEZ() 
-op B()
+op BNEZ (rs : REG_IND_ZERO , offset : IMM16 )
+    syntax = format ( "BNE %s, %s", rs.syntax , offset.syntax )
+    image  = format ( "000101%s00000%s", rs.image, offset.image )
+    action = {
+        if ( rs != 0 ) then
+		//  offset = offset << 2;
+		//  NIA = CIA + offset;
+            branch = 1;
+            tmp_signed_word=offset;
+            tmp_signed_word=tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+		//  JMPADDR = NIA + ( offset << 2 );
+        endif;
+    }
+ 
+op B (offset : IMM16 )
+    syntax = format ( "B %s" , offset.syntax )
+    image  = format ( "0001000000000000%s", offset.image )
+    action = {
+    //  offset = offset << 2;
+    //  NIA = CIA + offset;
+        branch = 1;
+        tmp_signed_word=offset;
+        tmp_signed_word=tmp_signed_word << 2;
+        JMPADDR = NIA + tmp_signed_word;
+    //  JMPADDR = NIA + ( offset << 2 );
+    }
 
 op branch_to_eql_instr    =  BEQ  // branch on equal
                           |  BEQL // BEQ likely
