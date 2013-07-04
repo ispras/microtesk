@@ -242,10 +242,44 @@ mode IMM16 ( n : int ( 16 ) ) = n
 
 ///////////////////////////////// Arithm, Mov, Bitwise ///////////////////////////////////////
 
-op ADD()
-op ADDU()
-op SUB() 
-op SUBU()
+op ADD (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "ADD %d, %s, %s", rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000100000", rs.image, rt.image, rd) 
+    action = { 
+        overflow_bit::tmp_unsigned_word = rs + rt;
+        if ( overflow_bit == 1 ) then
+            // TODO: THE CONSTRUCTION IS NOT SUPPORTED
+            // "print" ("Integer Overflow Exception");
+        else
+            GPR [rd] = tmp_unsigned_word;
+        endif;
+    }	  
+
+op ADDU (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "ADDU %d, %s, %s", rd, rs.syntax, rt.syntax)
+    image  = format ( "000000%s%s%5b00000100001", rs.image, rt.image, rd) 
+    action = {
+        GPR [rd] = rs + rt;	
+    }
+
+op SUB (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "SUB %d, %s, %s", rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000100010", rs.image, rt.image, rd) 
+    action = { 
+        overflow_bit::GPR[rd] = rs - rt;
+        if ( overflow_bit == 1 ) then
+            // TODO: THE CONSTRUCTION IS NOT SUPPORTED
+            // "print" ("Integer Overflow Exception");
+        endif;
+    }
+
+op SUBU (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ("SUBU %d, %s, %s", rd, rs.syntax, rt.syntax)
+    image  = format ("000000%s%s%5b00000100011", rs.image, rt.image, rd) 
+    action = {
+        GPR [rd] = rs - rt;    
+    }
+
 op ADDI()
 op ADDIU()
 op MUL()
