@@ -295,14 +295,14 @@ op ADDI (rt : index, rs : REG_IND_ZERO, immediate : IMM16 )
 
 op ADDIU (rt : index, rs : REG_IND_ZERO, immediate : IMM16 )
     syntax = format ( "ADDIU %d, %s, %s", rt, rs.syntax, immediate.syntax )
-    image  = format ( "001001%s%5b%s", rs.image, rt, immediate )
+    // image  = format ( "001001%s%5b%s", rs.image, rt, immediate )
     action = {
         GPR [rt] = rs + immediate;
     }    
 
 op MUL (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO )
     syntax = format ( "MUL %d, %s, %s", rd, rs.syntax, rt.syntax )
-    image  = format ( "011100%s%s%5b00000000010", rs.image, rt.image, rd )
+    // image  = format ( "011100%s%s%5b00000000010", rs.image, rt.image, rd )
     action = {
         GPR [rd] = rs*rt;
     }
