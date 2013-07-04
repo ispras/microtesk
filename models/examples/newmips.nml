@@ -274,6 +274,10 @@ op arith_instr  =  ADD   // add word
                 |  DIV
                 |  DIVU
 
+op mov_instr()
+
+op bitwise_instr()
+
 op arith_mov_bitwise_instr  =  arith_instr
                             |  mov_instr
                             |  bitwise_instr	
@@ -281,11 +285,9 @@ op arith_mov_bitwise_instr  =  arith_instr
 op mem_instr()
 op set_instr()	
 
-/*
 op non_branch_instr	=  arith_mov_bitwise_instr
                     |  mem_instr
                     |  set_instr
-*/	
 
 /********************************************************************************************/
 /* Branch Instructions                                                                      */
@@ -811,8 +813,8 @@ op	special_instr   =  NOP
 
 // Instructions
 
-op instr_kind    = /* non_branch_instr
-                 | */ branch_instr
+op instr_kind    =  non_branch_instr
+                 |  branch_instr
                  |  special_instr
               // |  float_instr // NOT SUPPORTED IN THE CURRENT VERSION 
               // |  dummy_instr
