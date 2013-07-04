@@ -380,7 +380,47 @@ op MSUBU (rs : REG_IND_ZERO, rt : REG_IND_ZERO )
     }
 */
 
-op MADD()
+op MADD (rs : REG_IND_ZERO , rt : REG_IND_ZERO )
+    syntax = format ( "MADD %s, %s" , rs.syntax , rt.syntax )
+    image  = format ( "011100%s%s0000000000000000" , rs.image, rt.image )
+    action = {
+        TMP_SDWORD = rs ;
+
+        // Following two "if"s code looks like doing nothing 
+        // but the generated code doesn't contain ( 0xffffffff & S_GPR[rs] )
+        // it will contain S_GPR[rs] in the assignment statement.
+
+        if ( rs < 0 ) then 
+        //  TMP_SDWORD = - TMP_SDWORD ;
+        endif;
+
+        tmp_div = rt ;
+        if ( rt < 0 ) then
+        //	tmp_div = - tmp_div ;
+        endif;
+
+        TMP_SDWORD = TMP_SDWORD * tmp_div ;
+
+        // Multiplication done.
+
+        tmp_double_word< 63 .. 32 > = HI;
+        tmp_double_word< 31 .. 0 > = LO;
+
+        tmp_double_word = tmp_double_word + TMP_SDWORD ;
+        HI = tmp_double_word_A0;
+		LO = tmp_double_word_A1;
+    } 
+
+    sizecheck = {
+        tmp_signed_word = rs;
+        tmp_signed_word = tmp_signed_word & 0xffff0000;
+        if ( tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000 ) then
+            multsize = 0;
+        else
+            multsize = 1;
+        endif;
+    }
+
 op MSUB()
 op MULT()
 op DIV()
