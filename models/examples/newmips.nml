@@ -758,9 +758,37 @@ op bitwise_instr            =  logical_instr
 
 op arith_mov_bitwise_instr  =  arith_instr
                             |  mov_instr
-                            |  bitwise_instr	
+                            |  bitwise_instr
 
-op mem_instr()
+op LUI()
+op LB()
+op LBU()
+op LH()
+op LHU()
+op LW()
+op LWL()
+op LWR()
+op LWC0()
+op LWC1() 
+op LDC1()
+
+op load_instr               =  LUI 	// load upper immediate
+                            |  LB
+                            |  LBU
+                            |  LH
+                            |  LHU
+                            |  LW
+                            |  LWL
+                            |  LWR
+                            |  LWC0
+                            |  LWC1 
+                            |  LDC1
+
+op stor_instr()
+
+op mem_instr                =  load_instr
+                            |  stor_instr
+
 op set_instr()	
 
 op non_branch_instr	=  arith_mov_bitwise_instr
