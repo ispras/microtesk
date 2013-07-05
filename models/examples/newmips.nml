@@ -628,7 +628,133 @@ op mov_instr    =  MOVN  // move conditional not zero
                 |  MTLO  // move to LO  
                 |  MOVE	
 
-op bitwise_instr()
+op AND (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "AND %d, %s, %s", rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000100100", rs.image, rt.image, rd) 
+    action = {
+        GPR [rd] = rs & rt;
+    }
+ 
+op NOR (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "NOR %d, %s, %s", rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000100111", rs.image, rt.image, rd) 
+    action = {
+        GPR [rd] = ~( rs | rt );
+    }
+
+op OR (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "OR %d, %s, %s", rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000100101", rs.image, rt.image, rd) 
+    action = {
+        GPR [rd] = rs | rt;
+    }
+
+op XOR (rd : index , rs : REG_IND_ZERO , rt : REG_IND_ZERO)
+    syntax = format ( "XOR %d, %s, %s" ,  rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000100110", rs.image, rt.image, rd) 
+    action = {
+        GPR [rd] = rs ^ rt;
+    }
+
+op ANDI (rt : index, rs : REG_IND_ZERO, immediate : IMM16 )
+    syntax = format ( "ANDI %d, %s, %s", rt, rs.syntax, immediate.syntax )
+    image = format ( "001100%s%5b%s", rs.image, rt, immediate.image )
+    action = {
+    //  Don't  modify GPR[rt] as it can also be the source
+        tmp_signed_word = immediate & 0x0000ffff;
+        GPR [rt] = tmp_signed_word & rs ;
+    }
+
+op ORI (rt : index, rs : REG_IND_ZERO, immediate : IMM16 )
+    syntax = format ( "ORI %d, %s, %s", rt, rs.syntax, immediate.syntax )
+    image  = format ( "001101%s%5b%s", rs.image, rt, immediate.image )
+    action = {
+    //  Don't  modify GPR[rt] as it can also be the source
+        tmp_signed_word = immediate & 0x0000ffff;
+        GPR [rt] = tmp_signed_word | rs ;
+    }
+
+op XORI (rt : index , rs : REG_IND_ZERO , immediate : IMM16 )
+    syntax = format ( "XORI %d, %s, %s" , rt , rs.syntax , immediate.syntax )
+    image = format ( "001110%s%5b%s" , rs.image , rt , immediate.image )
+    action = {
+    //  Don't  modify GPR[rt] as it can also be the source
+        tmp_signed_word = immediate & 0x0000ffff;
+        GPR [rt] = tmp_signed_word ^ rs ;
+    }
+
+op logical_instr  =  AND  // and 
+                  |  NOR  // not or
+                  |  OR   // or
+                  |  XOR  // xor
+                  |  ANDI // and immediate
+                  |  ORI  // or immediate
+                  |  XORI // xor immediate
+
+op SLL (rd : index, rt : REG_IND_ZERO, sa : index )
+    syntax = format ( "SLL %d, %s, %d", rd, rt.syntax, sa )
+    image  = format ( "00000000000%s%5b%5b000000", rt.image, rd, sa )
+    action = {
+        GPR [rd] = rt << sa;
+    }
+
+op SRA (rd : index, rt : REG_IND_ZERO, sa : index )
+    syntax = format ( "SRA %d, %s, %d", rd, rt.syntax, sa )
+    image  = format ( "00000000000%s%5b%5b000011", rt.image, rd, sa )
+    action = {
+        GPR [rd] = (rt >> sa);
+        if ( rt < 0 ) then
+            GPR[rd] = GPR [ rd ] | ( 0 - (1 << (32 - sa)));
+        endif;
+    }
+
+op SRL (rd : index, rt :  REG_IND_ZERO, sa : index )
+    syntax = format ( "SRL %d, %s, %d", rd, rt.syntax, sa)
+    image  = format ( "00000000000%s%5b%5b000010", rt.image, rd, sa )
+    action = {
+        GPR [rd] = rt >> sa;
+        if ( sa > 0 ) then 
+            GPR [ rd ] = GPR [ rd ] & ( 0x7fffffff >> ( sa - 1 )  );
+        endif;
+    }
+
+op SLLV (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "SLLV %d, %s, %s", rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000000100", rs.image, rt.image, rd) 
+    action = {
+        GPR [rd] = rt << rs < 4..0 >;
+    }
+
+op SRAV (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "SRAV %d, %s, %s",  rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000000111", rs.image, rt.image, rd) 
+    action = {
+        GPR [rd] = (rt >> rs< 4..0> ) ;
+        if ( rt < 0 ) then
+            GPR[rd] = GPR [ rd ] | ( 0 - (1<<(32 - rs < 4..0 >)));
+        endif;
+    }
+
+op SRLV (rd : index , rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "SRLV %d, %s, %s",  rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000000110", rs.image, rt.image, rd) 
+    action = {
+        tmp_unsigned_byte = rs < 4..0 > ;
+        GPR [rd] = rt >> tmp_unsigned_byte ;
+        if ( tmp_unsigned_byte > 0 ) then
+            GPR [ rd ] = GPR [ rd ] & ( 0x7fffffff >> ( tmp_unsigned_byte - 1 ) );
+        endif;
+    }
+
+op shift_instr    =  SLL 
+                  |  SRA 
+                  |  SRL 
+                  |  SLLV // shift word left logical variable
+                  |  SRAV // shift word right arithmetic variable
+                  |  SRLV // shift word right logical variable
+
+op bitwise_instr            =  logical_instr
+                            |  shift_instr
 
 op arith_mov_bitwise_instr  =  arith_instr
                             |  mov_instr
