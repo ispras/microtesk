@@ -169,9 +169,10 @@ final class ExprBinaryOperators
         result.addOperator(createMinus(priority++));
 
         result.addOperator(createMul(priority));
-/*      result.addOperator(createDiv(priority));
-        result.addOperator(createMod(priority++));
+        result.addOperator(createDiv(priority));
 
+        result.addOperator(createMod(priority++));
+/*
         result.addOperator(createPow(priority++));
 */
         return result;
@@ -728,18 +729,70 @@ final class ExprBinaryOperators
             null // No special return type (matches the argument type).
             );
     }
-
-/*    
+    
     private static ExprOperatorBinary createDiv(int priority)
     {
-        return null;
+        final ExprOperatorBinary.IBinaryOperator[] ops = new ExprOperatorBinary.IBinaryOperator[]
+        {
+            new ExprOperatorBinary.IBinaryOperator()
+            {
+                @Override
+                public Class<?> getJavaType()
+                {
+                    return int.class;
+                }
+
+                @Override
+                public Object execute(Object left, Object right)
+                {
+                    return (Integer) left / (Integer) right;
+                }
+            }
+        };
+
+        return new ExprOperatorBinary(
+            "/",
+            priority,
+            EOperatorID.DIV,
+            new ETypeID[] {ETypeID.CARD, ETypeID.INT},
+            "%s / %s",
+            ops,
+            null // No special return type (matches the argument type).
+            );
     }
 
     private static ExprOperatorBinary createMod(int priority)
     {
-        return null;
+        final ExprOperatorBinary.IBinaryOperator[] ops = new ExprOperatorBinary.IBinaryOperator[]
+        {
+            new ExprOperatorBinary.IBinaryOperator()
+            {
+                @Override
+                public Class<?> getJavaType()
+                {
+                    return int.class;
+                }
+
+                @Override
+                public Object execute(Object left, Object right)
+                {
+                    return (Integer) left % (Integer) right;
+                }
+            }
+        };
+
+        return new ExprOperatorBinary(
+            "%",
+            priority,
+            EOperatorID.MOD,
+            new ETypeID[] {ETypeID.CARD, ETypeID.INT},
+            "%s % %s",
+            ops,
+            null // No special return type (matches the argument type).
+            );
     }
 
+/*
     private static ExprOperatorBinary createPow(int priority)
     {
         return null;
