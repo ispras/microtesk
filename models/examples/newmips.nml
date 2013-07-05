@@ -368,17 +368,15 @@ op MSUBU (rs : REG_IND_ZERO, rt : REG_IND_ZERO )
         HI = tmp_double_word_A0;
         LO = tmp_double_word_A1;
     } 
-/*
     sizecheck = { 
         tmp_signed_word = rs;
-        tmp_signed_word = tmp_signed_word & 0xfffff0000;
+        tmp_signed_word = tmp_signed_word & 0xffff0000;
         if ( tmp_signed_word == 0x00000000) then
             multsize = 0;
         else
             multsize = 1;
         endif;
     }
-*/
 
 op MADD (rs : REG_IND_ZERO , rt : REG_IND_ZERO )
     syntax = format ( "MADD %s, %s" , rs.syntax , rt.syntax )
@@ -421,10 +419,137 @@ op MADD (rs : REG_IND_ZERO , rt : REG_IND_ZERO )
         endif;
     }
 
-op MSUB()
-op MULT()
-op DIV()
-op DIVU()
+op MSUB (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "MSUB %s, %s", rs.syntax, rt.syntax )
+    image  = format ( "011100%s%s0000000000000001" , rs.image, rt.image)
+    action = {
+        TMP_SDWORD = rs ;
+
+        // Following two "if"s code looks like doing nothing 
+        // but the generated code doesn't contain ( 0xffffffff & S_GPR[rs] )
+        // it will contain S_GPR[rs] in the assignment statement.
+
+        if ( rs < 0 ) then 
+        //  TMP_SDWORD = - TMP_SDWORD ;
+        endif;
+
+        tmp_div = rt ;
+		if ( rt < 0 ) then
+        //  tmp_div = - tmp_div ;
+        endif;
+
+        TMP_SDWORD = TMP_SDWORD * tmp_div ;
+
+        // Multiplication done.
+
+        tmp_double_word< 63 .. 32 > = HI;
+        tmp_double_word< 31 .. 0 > = LO;
+		
+        tmp_double_word = tmp_double_word - TMP_SDWORD ;
+        HI = tmp_double_word_A0;
+        LO = tmp_double_word_A1;
+    } 
+    sizecheck = {         
+        tmp_signed_word = rs;
+        tmp_signed_word = tmp_signed_word & 0xffff0000;
+        if ( tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000 ) then
+            multsize = 0;
+        else
+            multsize = 1;
+        endif;
+    }
+
+op MULT ( rs : REG_IND_ZERO, rt : REG_IND_ZERO )
+    syntax = format ( "MULT %s, %s", rs.syntax , rt.syntax )
+    image  = format ( "000000%s%s0000000000011000" , rs.image , rt.image )
+    action = {
+        TMP_SDWORD = rs ;
+
+        // Following two "if"s code looks like doing nothing 
+        // but the generated code doesn't contain ( 0xffffffff & S_GPR[rs] )
+        // it will contain S_GPR[rs] in the assignment statement.
+
+        if ( rs < 0 ) then 
+        //  TMP_SDWORD = - TMP_SDWORD ;
+        endif;
+
+        tmp_div = rt ;
+        if ( rt < 0 ) then
+        //	tmp_div = - tmp_div ;
+        endif;
+
+        TMP_SDWORD = TMP_SDWORD * tmp_div ;
+        HI < 31 .. 0 > = TMP_SDWORD < 63 .. 32 > ;
+        LO < 31 .. 0 > = TMP_SDWORD < 31 .. 0 > ;
+    }    
+    sizecheck = {         
+        tmp_signed_word = rs;
+        tmp_signed_word = tmp_signed_word & 0xffff0000;
+        if ( tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000 ) then
+            multsize = 0;
+        else
+            multsize = 1;
+        endif;
+    }    
+
+op DIV ( rs : REG_IND_ZERO , rt : REG_IND_ZERO )
+    syntax = format ( "DIV %s, %s", rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s0000000000011010", rs.image, rt.image )
+    action = {
+        LO = rs / rt;
+        HI = rs % rt;
+    }
+    sizecheck = {     
+        tmp_signed_word = rs;
+        signadjust = 0;
+        if ( tmp_signed_word <31..31> == 1 ) then
+            tmp_signed_word = ~(tmp_signed_word) + 1;
+            signadjust = 1;
+        endif;
+        tmp_signed_word = tmp_signed_word & 0xffffff00;
+        if ( tmp_signed_word == 0x00000000 ) then
+            divsize = 7;
+        else
+            tmp_signed_word = tmp_signed_word & 0xffff0000;
+            if ( tmp_signed_word == 0x00000000 ) then
+                divsize = 15;
+            else
+                tmp_signed_word = tmp_signed_word & 0xff000000;
+                if ( tmp_signed_word == 0x00000000 ) then
+                    divsize = 23;
+                else
+                    divsize = 31;
+                endif;
+            endif;
+        endif;
+    }
+
+op DIVU ( rs : REG_IND_ZERO, rt : REG_IND_ZERO )
+    syntax = format ( "DIVU %s, %s" , rs.syntax , rt.syntax )
+    image  = format ( "000000%s%s0000000000011011" , rs.image , rt.image )
+    action = {
+        LO = coerce ( card (32), rs ) / coerce ( card (32), rt );
+        HI = coerce ( card (32), rs ) % coerce ( card (32), rt );
+    }
+    sizecheck = {     
+        tmp_signed_word = rs;
+        tmp_signed_word = tmp_signed_word & 0xffffff00;
+        if ( tmp_signed_word == 0x00000000 ) then
+            divsize = 7;
+        else
+            tmp_signed_word = tmp_signed_word & 0xffff0000;
+            if ( tmp_signed_word == 0x00000000 ) then
+                divsize = 15;
+            else
+                tmp_signed_word = tmp_signed_word & 0xff000000;
+                if ( tmp_signed_word == 0x00000000 ) then
+                    divsize = 23;
+                else
+                    divsize = 31;
+                endif;
+            endif;
+        endif;
+    }
 
 op arith_instr  =  ADD   // add word
                 |  ADDU  // add unsigned word
@@ -442,7 +567,66 @@ op arith_instr  =  ADD   // add word
                 |  DIV
                 |  DIVU
 
-op mov_instr()
+op MOVN (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "MOVN %d, %s, %s",  rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000001011", rs.image, rt.image, rd) 
+    action = {
+        if ( rt != 0 ) then
+            GPR [rd] = rs;
+        endif;    
+    }
+
+op MOVZ (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "MOVZ %d, %s, %s", rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000001010", rs.image, rt.image, rd) 
+    action = {
+        if ( rt == 0 ) then
+            GPR [rd] = rs;
+        endif;    
+    } 
+
+op MFHI ( rd : index )
+    syntax = format ( "MFHI %d", rd )
+    image  = format ( "0000000000000000%5b00000010000", rd )
+    action = {
+        GPR [rd] = HI;
+    }
+
+op MFLO ( rd : index )
+    syntax = format ( "MFLO %d", rd )
+    image  = format ( "0000000000000000%5b00000010010", rd )
+    action = {
+        GPR [rd] = LO;
+    }
+
+op MTHI ( rs : REG_IND_ZERO )
+    syntax = format ( "MTHI %s" , rs.syntax )
+    image  = format ( "000000%s000000000000000010001" , rs.image )
+    action = {
+        HI = rs;
+    }
+
+op MTLO ( rs : REG_IND_ZERO )
+    syntax = format ( "MTLO %s", rs.syntax )
+    image  = format ( "000000%s000000000000000010011", rs.image )
+    action = {
+        LO = rs;
+    }
+
+op MOVE ( rd : index, rs : REG_IND_ZERO )
+    syntax = format ( "MOVE %d, %s", rd, rs.syntax )
+    image  = format ( "000000%5b00000%s00000100001", rd, rs.image )
+    action = {
+        GPR [rd] = rs;
+    }
+
+op mov_instr    =  MOVN  // move conditional not zero
+                |  MOVZ  // move conditional on zero    
+                |  MFHI  // move from HI
+                |  MFLO  // move from LO   
+                |  MTHI  // move to HI
+                |  MTLO  // move to LO  
+                |  MOVE	
 
 op bitwise_instr()
 
