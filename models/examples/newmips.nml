@@ -934,9 +934,74 @@ op SW (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16 )
         M [ EA + 3 ] = tmp_signed_word_A3;
     }
 
-op SWL()
-op SWR()
-op SWC0()
+op SWL (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
+    syntax = format ( "SWL %s, %s(%s)" , rt.syntax , offset.syntax, base.syntax )
+    image = format ( "101010%s%s%s" , base.image, rt.image, offset.image )
+    action = {
+        EA = base + offset;
+        tmp_signed_word = GPR[rt];
+        if ( EA<1..0> == 0 ) then
+            M [ EA ]     = tmp_signed_word_A0;
+            M [ EA + 1 ] = tmp_signed_word_A1;
+            M [ EA + 2 ] = tmp_signed_word_A2;
+            M [ EA + 3 ] = tmp_signed_word_A3;
+        else
+            if ( EA<1..0> == 1 ) then 
+                M [ EA ] = tmp_signed_word_A0;
+                M [ EA + 1 ] = tmp_signed_word_A1;
+                M [ EA + 2 ] = tmp_signed_word_A2;
+            else
+                if ( EA<1..0> == 2 ) then
+                    M [ EA ] = tmp_signed_word_A0;
+                    M [ EA + 1 ] = tmp_signed_word_A1;
+                else
+                    M [ EA ] = tmp_signed_word_A0;
+                endif;
+            endif;
+        endif;
+    }
+
+op SWR (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
+    syntax = format ( "SWR %s, %s(%s)" , rt.syntax , offset.syntax, base.syntax )
+    image  = format ( "101110%s%s%s" , base.image, rt.image, offset.image )
+    action = {
+        EA = base + offset;
+        tmp_signed_word = GPR[rt];
+        if ( EA<1..0> == 0 ) then
+            M [ EA ] = tmp_signed_word_A3;
+        else
+            if ( EA<1..0> == 1 ) then
+                M [ EA ] = tmp_signed_word_A3;
+                M [ EA - 1 ] = tmp_signed_word_A2;
+            else
+                if ( EA<1..0> == 2 ) then
+                    M [ EA ] = tmp_signed_word_A3;
+                    M [ EA - 1 ] = tmp_signed_word_A2;
+                    M [ EA - 2 ] = tmp_signed_word_A1;
+                else
+                    M [ EA  ]    = tmp_signed_word_A3;
+                    M [ EA - 1 ] = tmp_signed_word_A2;
+                    M [ EA - 2 ] = tmp_signed_word_A1;
+                    M [ EA - 3 ] = tmp_signed_word_A0;
+                endif;
+            endif;
+        endif;
+    }
+
+//Also known as instrction SC
+op SWC0 (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16 )
+    syntax = format ( "SWC0 %s, %s(%s)", rt.syntax, offset.syntax, base.syntax )
+    image  = format ( "111000%s%s%s", base.image, rt.image, offset.image )
+    action = {
+        EA = base + offset;
+        tmp_signed_word = GPR[rt];
+        M [ EA ]     = tmp_signed_word_A0;
+        M [ EA + 1 ] = tmp_signed_word_A1;
+        M [ EA + 2 ] = tmp_signed_word_A2;
+        M [ EA + 3 ] = tmp_signed_word_A3;
+        GPR[rt] = 1;
+    }
+
 op SWC1()
 op SDC1()
 
