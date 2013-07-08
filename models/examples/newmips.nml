@@ -70,13 +70,11 @@ mem CIA [ 1, long_t ]
 reg FPSCR [ 1, long_t ]
 reg FCCR [ 1, long_t ]
 
-
 // In mips processors jmp instruction executes next instruction within the delay slot. Thus
 // return address is current address plus 8
 // Jmp_flag and jmp_addr are added 
 //var jmp_flag [ 1, card (1) ] = 0
 //var jmp_addr [ 1, long_t ]
-
 
 mem tmp_signed_byte [ 1 , int (8) ]
 mem tmp_unsigned_byte [ 1 , card (8) ]
@@ -221,20 +219,20 @@ mode REG_IND_ZERO ( r : index ) = GPR [ r ]
         GPR [ r ]
      endif
 	*/
-   syntax = format ( "%d", r )
-   image  = format ( "%5b", r )
+    syntax = format ( "%d", r )
+    image  = format ( "%5b", r )
 
 mode REG_IND ( r : index) = r
 	syntax = format( "%d", r)
-	image = format( "%5b", r)
+	image  = format( "%5b", r)
 
 mode IMM26 ( n : int ( 26 ) ) = n
-   syntax = format ( "%d", n )
-   image  = format ( "%26b", n )
+    syntax = format ( "%d", n )
+    image  = format ( "%26b", n )
 
 mode IMM16 ( n : int ( 16 ) ) = n
-   syntax = format ( "%d", n )
-   image  = format ( "%16b", n )
+    syntax = format ( "%d", n )
+    image  = format ( "%16b", n )
 
 /********************************************************************************************/
 /* Non-Branch Instructions                                                                  */
@@ -1002,22 +1000,66 @@ op SWC0 (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16 )
         GPR[rt] = 1;
     }
 
-op SWC1()
-op SDC1()
-
 op stor_instr               =  SB
                             |  SH
                             |  SW
                             |  SWL
                             |  SWR
                             |  SWC0
-                            |  SWC1
-                            |  SDC1
+                        //  |  SWC1 // NOT SUPPORTED IN THE CURRENT VERSION
+                        //  |  SDC1 // NOT SUPPORTED IN THE CURRENT VERSION
 
 op mem_instr                =  load_instr
                             |  stor_instr
 
-op set_instr()	
+op SLT (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "SLT %d, %s, %s", rd, rs.syntax, rt.syntax)
+    image  = format ( "000000%s%s%5b00000101010", rs.image, rt.image, rd) 
+    action = {
+        if ( rs < rt ) then
+            GPR [rd] = 1;
+        else
+            GPR [rd] = 0;   
+        endif;
+    }
+
+op SLTU (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format ( "SLTU %d, %s, %s", rd, rs.syntax, rt.syntax )
+    image  = format ( "000000%s%s%5b00000101011", rs.image, rt.image, rd) 
+    action = {
+        if ( coerce ( word, rs ) < coerce ( word, rt ) ) then
+            GPR [rd] = 1;
+        else
+            GPR [rd] = 0;   
+        endif;
+    }
+
+op SLTI (rt : index, rs : REG_IND_ZERO, immediate : IMM16 )
+    syntax = format ( "SLTI %d, %s, %s", rt, rs.syntax, immediate.syntax )
+    image  = format ( "001010%s%5b%s", rs.image, rt, immediate.image )
+    action = {
+        if ( rs < immediate ) then
+            GPR [rt] = 1;
+        else
+            GPR [rt] = 0;
+        endif;
+    }
+
+op SLTIU (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
+    syntax = format ( "SLTIU %d, %s, %s", rt, rs.syntax, immediate.syntax )
+    image  = format ( "001011%s%5b%s", rs.image, rt, immediate.image )
+    action = {
+        if ( coerce ( word, rs ) < coerce ( card (16), immediate ) ) then
+            GPR [rt] = 1;
+        else
+            GPR [rt] = 0;   
+        endif;
+    }
+
+op set_instr        =  SLT   // set on less than
+                    |  SLTU  // set on less than unsigned
+                    |  SLTI  // set on less than immediate
+                    |  SLTIU // set on less than unsigned immediate	
 
 op non_branch_instr	=  arith_mov_bitwise_instr
                     |  mem_instr
