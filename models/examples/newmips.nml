@@ -1254,7 +1254,7 @@ op BEQ (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16 )
         endif;
     }
 
-op BEQL (rs : REG_IND_ZERO, rt :  REG_IND_ZERO, offset : IMM16 )
+op BEQL (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16 )
     syntax = format ( "BEQL %s, %s, %s", rs.syntax, rt.syntax, offset.syntax )
     image = format ( "010100%s%s%s", rs.image, rt.image, offset.image )
     action = {
@@ -1317,7 +1317,7 @@ op BEQZ (rs : REG_IND_ZERO, offset : IMM16 )
         endif;
     }
 
-op BNEZ (rs : REG_IND_ZERO , offset : IMM16 )
+op BNEZ (rs : REG_IND_ZERO, offset : IMM16 )
     syntax = format ( "BNE %s, %s", rs.syntax , offset.syntax )
     image  = format ( "000101%s00000%s", rs.image, offset.image )
     action = {
@@ -1353,7 +1353,7 @@ op branch_to_eql_instr    =  BEQ  // branch on equal
                           |  BNEZ 
                           |  B
 
-op BGTZ (rs : REG_IND_ZERO , offset : IMM16 )
+op BGTZ (rs : REG_IND_ZERO, offset : IMM16 )
     syntax = format ( "BGTZ %s, %s" , rs.syntax , offset.syntax)
     image  = format ( "000111%s00000%s" , rs.image , offset.image )
     action = {
@@ -1548,7 +1548,7 @@ op SYNC()
     image  = "00000000000000000000000000001111"
     action = { }
 
-op RDHWR (rd : index, rt :  REG_IND_ZERO)
+op RDHWR (rd : index, rt : REG_IND_ZERO)
     syntax = format ("RDHWR %s, %d", rt.syntax, rd)
     image  = format ("01111100000%s%5b00000111011", rt.image, rd)
     action = {
