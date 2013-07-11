@@ -21,6 +21,9 @@ final class LocationExprClass implements LocationExpr
 
     public LocationExprClass(String text, TypeExpr type)
     {
+        assert null != text;
+        assert null != type;
+        
         this.text = text;
         this.type = type;
     }
