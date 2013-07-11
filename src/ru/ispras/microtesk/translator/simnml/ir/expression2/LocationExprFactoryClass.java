@@ -27,7 +27,6 @@ import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.ArgumentTypeExpr;
@@ -155,10 +154,10 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
         final String bitfieldExprText =
             String.format("%s.bitField(%s, %s)", loc.getText(), start.getText(), end.getText());
-
+        
         final TypeExpr bitfieldExprType = new TypeExpr(
             loc.getType().getTypeId(),
-            new ConstExpr(int.class, bitfieldSize, Integer.toString(bitfieldSize))
+            ExprClass.createConstant(bitfieldSize, Integer.toString(bitfieldSize))
         );
 
         return new LocationExprClass(bitfieldExprText, bitfieldExprType);
@@ -177,10 +176,10 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
         final String concatExprText =
             String.format("%s.concat(%s)", loc1.getText(), loc2.getText());
-
+        
         final TypeExpr concatExprType = new TypeExpr(
             loc1.getType().getTypeId(),
-            new ConstExpr(int.class, concatSize, Integer.toString(concatSize))
+            ExprClass.createConstant(concatSize, Integer.toString(concatSize))
         );
 
         return new LocationExprClass(concatExprText, concatExprType);

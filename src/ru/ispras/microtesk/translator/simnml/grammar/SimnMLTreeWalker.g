@@ -115,7 +115,7 @@ getIR().add($id.text, $le.res);
     ;
 
 letExpr [String name] returns [LetExpr res]
-    :  ce = constExpr[0]
+    :  ce = staticJavaExpr
 {
 checkNotNull($ce.start, $ce.res, $ce.text);
 $res = getLetFactory().createConstValue(name, $ce.res);
@@ -148,8 +148,8 @@ typeExpr returns [TypeExpr res]
 @init {final TypeExprFactory factory = getTypeExprFactory();}
     :   id=ID                    { $res=factory.createAlias($id.text); }
 //  |   BOOL                     // TODO: NOT SUPPORTED IN THIS VERSION
-    |   ^(t=INT n=constExpr[0])  { $res=factory.createIntegerType(where($t), $n.res); }
-    |   ^(t=CARD n=constExpr[0]) { $res=factory.createCardType(where($t), $n.res); }
+    |   ^(t=INT n=staticJavaExpr)  { $res=factory.createIntegerType(where($t), $n.res); }
+    |   ^(t=CARD n=staticJavaExpr) { $res=factory.createCardType(where($t), $n.res); }
 //  |   ^(t=FIX n=constExpr[0] m=constExpr[0])   // TODO: NOT SUPPORTED IN THIS VERSION
 //  |   ^(t=FLOAT n=constExpr[0] m=constExpr[0]) // TODO: NOT SUPPORTED IN THIS VERSION
 //  |   ^(t=RANGE n=constExpr[0] m=constExpr[0]) // TODO: NOT SUPPORTED IN THIS VERSION

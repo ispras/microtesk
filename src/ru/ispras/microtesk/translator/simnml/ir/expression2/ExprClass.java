@@ -45,6 +45,19 @@ final class ExprClass implements Expr
         this.location  = location;
     }
 
+    public static Expr createConstant(int value, String text)
+    {
+        return new ExprClass(
+            EExprKind.JAVA_STATIC,
+            text,
+            int.class,
+            null,
+            null,
+            value,
+            null
+            );
+    }
+
     @Override
     public EExprKind getKind()
     {

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
+import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
 
 public final class LetFactory
 {
@@ -41,7 +41,7 @@ public final class LetFactory
              );
     }
 
-    public LetExpr createConstValue(String name, ConstExpr value)
+    public LetExpr createConstValue(String name, Expr value)
     {
         return new LetExpr(
             name,
@@ -70,7 +70,7 @@ public final class LetFactory
 
         if (-1 == indexPos)
             return new LetLabel(name, memoryName);
-        
+
         final int memoryIndex =
             Integer.parseInt(text.substring(indexPos + 1, text.length() - 1));
 

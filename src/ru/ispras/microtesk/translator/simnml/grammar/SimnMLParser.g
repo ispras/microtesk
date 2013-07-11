@@ -135,7 +135,7 @@ letDef
     ;
 
 letExpr returns [ESymbolKind res]
-    :  constExpr    { $res = ESymbolKind.LET_CONST;  } // Statically calculated constant expression. E.g. let A = 2 ** 4
+    :  expr    { $res = ESymbolKind.LET_CONST;  } // Statically calculated constant expression. E.g. let A = 2 ** 4
     |  STRING_CONST { $res = ESymbolKind.LET_STRING; } // Some string constant. E.g. let A = "some text"
 //  |  IF^ constNumExpr THEN! letExpr (ELSE! letExpr)? ENDIF! // TODO: NOT SUPPORTED IN THE CURRENT VERSION
 //  |  SWITCH Construction // TODO: NOT SUPPORTED IN THE CURRENT VERSION
@@ -152,8 +152,8 @@ typeDef
 typeExpr
     :  id=ID  { checkDeclaration($id,ESymbolKind.TYPE); }
 //  |  BOOL // TODO: NOT SUPPORTED IN THE CURRENT VERSION 
-    |  INT^ LEFT_PARENTH! constExpr RIGHT_PARENTH!
-    |  CARD^ LEFT_PARENTH! constExpr RIGHT_PARENTH!
+    |  INT^ LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  CARD^ LEFT_PARENTH! expr RIGHT_PARENTH!
 //  |  FIX^ LEFT_PARENTH! constExpr COMMA! constExpr RIGHT_PARENTH! // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
 //  |  FLOAT^ LEFT_PARENTH! constExpr COMMA! constExpr RIGHT_PARENTH! // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
 //  |  LEFT_HOOK constExpr DOUBLE_DOT constExpr RIGHT_HOOK -> ^(RANGE constExpr constExpr) // TODO: NOT SUPPORTED IN THE CURRENT VERSION  

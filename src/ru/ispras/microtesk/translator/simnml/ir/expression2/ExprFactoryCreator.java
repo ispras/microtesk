@@ -20,7 +20,6 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
@@ -153,7 +152,7 @@ final class IntegerValueBasedExprCreator extends ExprFactoryBase implements Expr
 
         return new TypeExpr(
             typeId,
-            new ConstExpr(int.class, bitSize, Integer.toString(bitSize))
+            ExprClass.createConstant(bitSize, Integer.toString(bitSize))
             );
     }
 }
@@ -199,7 +198,7 @@ final class NamedConstBasedExprCreator extends ExprFactoryBase implements ExprFa
         {
             return new TypeExpr(
                 ETypeID.INT,
-                new ConstExpr(int.class, Integer.SIZE, Integer.toString(Integer.SIZE))
+                ExprClass.createConstant(Integer.SIZE, Integer.toString(Integer.SIZE)) 
             );
         }
 
@@ -357,7 +356,7 @@ final class JavaToModelConverter extends ExprFactoryBase implements ExprFactoryC
         {
             return new TypeExpr(
                 ETypeID.INT,
-                new ConstExpr(int.class, Integer.SIZE, Integer.toString(Integer.SIZE))
+                ExprClass.createConstant(Integer.SIZE, Integer.toString(Integer.SIZE))
             );
         }
 

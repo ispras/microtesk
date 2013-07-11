@@ -20,7 +20,7 @@ import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
+import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
 
 public class TypeExprFactory
 {
@@ -45,13 +45,13 @@ public class TypeExprFactory
         return new TypeExpr(ref.getTypeId(), ref.getBitSize(), name);
     }
 
-    public TypeExpr createIntegerType(Where where, ConstExpr bitSize) throws RecognitionException
+    public TypeExpr createIntegerType(Where where, Expr bitSize) throws RecognitionException
     {
         failIfNotInteger(where, bitSize.getJavaType());
         return new TypeExpr(ETypeID.INT, bitSize);
     }
 
-    public TypeExpr createCardType(Where where, ConstExpr bitSize) throws RecognitionException
+    public TypeExpr createCardType(Where where, Expr bitSize) throws RecognitionException
     {
         failIfNotInteger(where, bitSize.getJavaType());
         return new TypeExpr(ETypeID.CARD, bitSize);

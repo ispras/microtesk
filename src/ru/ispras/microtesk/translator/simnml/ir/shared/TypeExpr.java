@@ -13,22 +13,22 @@
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
+import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
 
 public final class TypeExpr
 {
-    private final ETypeID    typeId;
-    private final ConstExpr bitSize;
-    private final String    refName;
+    private final ETypeID  typeId;
+    private final Expr    bitSize;
+    private final String  refName;
 
-    public TypeExpr(ETypeID typeId, ConstExpr bitSize, String refName)
+    public TypeExpr(ETypeID typeId, Expr bitSize, String refName)
     {
         this.typeId  = typeId;
         this.bitSize = bitSize;
         this.refName = refName;
     }
     
-    public TypeExpr(ETypeID typeId, ConstExpr bitSize)
+    public TypeExpr(ETypeID typeId, Expr bitSize)
     {
         this(typeId, bitSize, null);
     }
@@ -38,11 +38,11 @@ public final class TypeExpr
         return typeId;
     }
 
-    public ConstExpr getBitSize()
+    public Expr getBitSize()
     {
         return bitSize;
     }
-    
+
     public String getRefName()
     {
         return refName;
