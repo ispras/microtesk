@@ -14,7 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
-final class ExprClass implements Expr
+public final class ExprClass implements Expr
 {
     private final EExprKind kind;
     private final String text;
