@@ -172,9 +172,8 @@ final class ExprBinaryOperators
         result.addOperator(createDiv(priority));
 
         result.addOperator(createMod(priority++));
-/*
         result.addOperator(createPow(priority++));
-*/
+
         return result;
     }
 
@@ -792,10 +791,34 @@ final class ExprBinaryOperators
             );
     }
 
-/*
     private static ExprOperatorBinary createPow(int priority)
     {
-        return null;
+        final ExprOperatorBinary.IBinaryOperator[] ops = new ExprOperatorBinary.IBinaryOperator[]
+        {
+            new ExprOperatorBinary.IBinaryOperator()
+            {
+                @Override
+                public Class<?> getJavaType()
+                {
+                    return int.class;
+                }
+
+                @Override
+                public Object execute(Object left, Object right)
+                {
+                    return (int) Math.pow((Integer) left, (Integer) right);
+                }
+            }
+        };
+
+        return new ExprOperatorBinary(
+            "**",
+            priority,
+            EOperatorID.POW,
+            new ETypeID[] {ETypeID.CARD, ETypeID.INT},
+            "(int) Math.pow((Integer) %s, (Integer) %s)",
+            ops,
+            null // No special return type (matches the argument type).
+            );
     }
-*/
 }
