@@ -10,7 +10,7 @@
  * ExprOperatorBinary.java, Jan 31, 2013 5:34:45 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.Map;
 import java.util.Set;

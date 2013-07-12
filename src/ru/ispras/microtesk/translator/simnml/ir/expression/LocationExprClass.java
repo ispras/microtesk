@@ -10,7 +10,7 @@
  * LocationExprClass.java, Jan 23, 2013 10:32:15 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 

@@ -10,7 +10,7 @@
  * ExprOperator.java, Jan 23, 2013 6:08:04 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.EnumSet;
 import java.util.HashMap;

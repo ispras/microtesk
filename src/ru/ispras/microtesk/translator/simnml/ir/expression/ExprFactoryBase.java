@@ -10,7 +10,7 @@
  * ExprFactoryBase.java, Feb 1, 2013 11:36:09 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.simnml.ir.IR;

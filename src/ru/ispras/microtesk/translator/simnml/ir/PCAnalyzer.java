@@ -17,10 +17,10 @@ import java.util.List;
 
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.EExprKind;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationExprFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationInfo;
+import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactory;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationInfo;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 

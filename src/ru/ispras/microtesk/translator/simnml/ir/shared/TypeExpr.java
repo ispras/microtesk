@@ -13,7 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class TypeExpr
 {
@@ -23,6 +23,8 @@ public final class TypeExpr
 
     public TypeExpr(ETypeID typeId, Expr bitSize, String refName)
     {
+        assert null != bitSize;
+        
         this.typeId  = typeId;
         this.bitSize = bitSize;
         this.refName = refName;

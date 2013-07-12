@@ -10,7 +10,7 @@
  * LocationExprFactory.java, Jan 23, 2013 3:44:43 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.List;
 import java.util.Map;

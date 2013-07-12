@@ -32,12 +32,11 @@ import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExprFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.EExprKind;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.ExprFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.ExprFactoryClass;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationExprFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationExprFactoryClass;
+import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactory;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactoryClass;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactory;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.ModeOpFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetFactory;
@@ -84,7 +83,6 @@ public class TreeWalkerBase extends TreeParserEx
 
     private LetFactory          letFactory          = null; 
     private LocationExprFactory locationExprFactory = null;
-    private ConstExprFactory    constExprFactory    = null;
     private TypeExprFactory     typeExprFactory     = null;
     private MemoryExprFactory   memoryExprFactory   = null;
     private ModeOpFactory       modeOpFactory       = null;
@@ -113,13 +111,6 @@ public class TreeWalkerBase extends TreeParserEx
         if (null == locationExprFactory)
             locationExprFactory = LocationExprFactoryClass.createFactory(this, symbols, ir); 
         return locationExprFactory;
-    }
-
-    protected final ConstExprFactory getConstExprFactory()
-    {
-        if (null == constExprFactory)
-            constExprFactory = new ConstExprFactory(ir.getLets(), this);
-        return constExprFactory;
     }
 
     protected final TypeExprFactory getTypeExprFactory()

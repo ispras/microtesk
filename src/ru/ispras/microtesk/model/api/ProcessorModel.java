@@ -13,7 +13,6 @@
 package ru.ispras.microtesk.model.api;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import ru.ispras.microtesk.model.api.metadata.*;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;

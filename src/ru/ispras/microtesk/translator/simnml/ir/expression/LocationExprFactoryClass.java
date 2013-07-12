@@ -10,7 +10,7 @@
  * LocationExprFactoryClass.java, Jan 22, 2013 5:58:35 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.Arrays;
 import java.util.List;

@@ -10,7 +10,7 @@
  * ExprFactoryCreator.java, Feb 1, 2013 11:33:13 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.math.BigInteger;
 

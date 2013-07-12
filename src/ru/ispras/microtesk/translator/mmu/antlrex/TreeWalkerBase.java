@@ -12,7 +12,6 @@ import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 import ru.ispras.microtesk.translator.mmu.ESymbolKind;
 import ru.ispras.microtesk.translator.mmu.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExprFactory;
 
 public class TreeWalkerBase extends TreeParserEx //implements ISemanticChecks
 {
@@ -48,7 +47,7 @@ public class TreeWalkerBase extends TreeParserEx //implements ISemanticChecks
     /* Factories of Semantic Elements that Make Up Intermediate Data to Be Used by          */
     /* code generators (emitters).                                                          */
     /*======================================================================================*/
-
+/*
     private ConstExprFactory     constExprFactory = null;
 
     protected final ConstExprFactory getConstExprFactory()
@@ -57,7 +56,7 @@ public class TreeWalkerBase extends TreeParserEx //implements ISemanticChecks
             constExprFactory = new ConstExprFactory(ir.getLets(), this);
         return constExprFactory;
     }
-
+*/
     /*======================================================================================*/
 
     protected final void checkRedeclared(CommonTree current) throws RecognitionException

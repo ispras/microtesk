@@ -22,8 +22,8 @@ import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.LocationExpr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExpr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute.EKind;
 
 public final class AttributeFactory

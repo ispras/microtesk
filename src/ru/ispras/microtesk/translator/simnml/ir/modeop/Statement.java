@@ -13,8 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.modeop;
 
 import java.util.List;
-
-import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public interface Statement
 {

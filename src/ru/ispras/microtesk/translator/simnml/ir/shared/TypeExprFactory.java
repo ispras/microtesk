@@ -13,14 +13,13 @@
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import java.util.Map;
-
 import org.antlr.runtime.RecognitionException;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public class TypeExprFactory
 {

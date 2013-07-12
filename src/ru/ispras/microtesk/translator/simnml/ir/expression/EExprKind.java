@@ -10,7 +10,7 @@
  * EExprKind.java, Jan 22, 2013 12:15:04 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 /**
  * The EExprKind enumeration specifies how a specific expression is represented

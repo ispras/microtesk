@@ -10,7 +10,7 @@
  * ExprTypeCastRules.java, Jan 28, 2013 2:34:55 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 

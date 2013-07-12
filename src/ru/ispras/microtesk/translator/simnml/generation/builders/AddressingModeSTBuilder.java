@@ -23,7 +23,7 @@ import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingMode;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Mode;

@@ -10,7 +10,7 @@
  * Expr.java, Jan 22, 2013 3:07:07 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 

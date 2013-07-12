@@ -18,8 +18,8 @@ import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.ExprClass;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprClass;
 
 public final class MemoryExprFactory
 {

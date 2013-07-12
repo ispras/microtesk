@@ -10,7 +10,7 @@
  * LocationInfo.java, Apr 23, 2013 3:52:05 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 
