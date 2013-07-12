@@ -146,13 +146,13 @@ getIR().add($id.text, $te.res);
 
 typeExpr returns [TypeExpr res]
 @init {final TypeExprFactory factory = getTypeExprFactory();}
-    :   id=ID                    { $res=factory.createAlias($id.text); }
-//  |   BOOL                     // TODO: NOT SUPPORTED IN THIS VERSION
-    |   ^(t=INT n=staticJavaExpr)  { $res=factory.createIntegerType(where($t), $n.res); }
+    :   id=ID                      { $res=factory.createAlias($id.text); }
+//  |   BOOL                       // TODO: NOT SUPPORTED IN THIS VERSION
+    |   ^(t=INT  n=staticJavaExpr) { $res=factory.createIntegerType(where($t), $n.res); }
     |   ^(t=CARD n=staticJavaExpr) { $res=factory.createCardType(where($t), $n.res); }
-//  |   ^(t=FIX n=constExpr[0] m=constExpr[0])   // TODO: NOT SUPPORTED IN THIS VERSION
-//  |   ^(t=FLOAT n=constExpr[0] m=constExpr[0]) // TODO: NOT SUPPORTED IN THIS VERSION
-//  |   ^(t=RANGE n=constExpr[0] m=constExpr[0]) // TODO: NOT SUPPORTED IN THIS VERSION
+//  |   ^(t=FIX   n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
+//  |   ^(t=FLOAT n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
+//  |   ^(t=RANGE n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
     ;
 
 /*======================================================================================*/
@@ -196,8 +196,8 @@ getIR().add($id.text, expr);
 }
     ;
 
-sizeType returns [TypeExpr type, ConstExpr size]
-    :   ^(st=SIZE_TYPE s=constExpr[0] t=typeExpr)
+sizeType returns [TypeExpr type, Expr size]
+    :   ^(st=SIZE_TYPE s=staticJavaExpr t=typeExpr)
 { 
 checkNotNull($st, $s.res, $s.text);
 checkNotNull($st, $t.res, $t.text);
@@ -647,73 +647,6 @@ atom = factory.location(where($id), $id.text, $e.res);
 {
 atom = factory.location(where($id), $id.text, globalArgTypes);
 }
-    ;
-
-/*======================================================================================*/
-/* Constant expression rules (statically calculated expressions)                        */
-/*======================================================================================*/
-
-constExpr [int depth] returns [ConstExpr res]
-    :   be=constBinaryExpr[depth] { $res = $be.res; }
-    |   ue=constUnaryExpr[depth]  { $res = $ue.res; }
-    |   a=constAtom               { $res = $a.res;  }
-    ;
-
-constBinaryExpr [int depth] returns [ConstExpr res]
-@init {
-final ConstExprFactory factory = getConstExprFactory();
-}
-@after {
-checkNotNull($op, $e1.res, $e1.text);
-checkNotNull($op, $e2.res, $e2.text);
-$res=factory.createBinaryExpr(where($op), $op.text, $e1.res, $e2.res);
-}
-    :   ^(op=OR            e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=AND           e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=VERT_BAR      e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=UP_ARROW      e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=AMPER         e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=EQ            e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=NEQ           e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=LEQ           e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=GEQ           e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=LEFT_BROCKET  e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=RIGHT_BROCKET e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=LEFT_SHIFT    e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=RIGHT_SHIFT   e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=ROTATE_LEFT   e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=ROTATE_RIGHT  e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=PLUS          e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=MINUS         e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=MUL           e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=DIV           e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=REM           e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=DOUBLE_STAR   e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    ;
-
-constUnaryExpr [int depth] returns [ConstExpr res]
-@init {
-final ConstExprFactory factory = getConstExprFactory();
-}
-@after {
-checkNotNull($op, $e.res, $e.text);
-$res=factory.createUnaryExpr(where($op), $op.text, $e.res);
-}
-    :   ^(op=UNARY_PLUS  e=constExpr[depth + 1])
-    |   ^(op=UNARY_MINUS e=constExpr[depth + 1])
-    |   ^(op=TILDE       e=constExpr[depth + 1])
-    |   ^(op=NOT         e=constExpr[depth + 1])
-    ;
-
-constAtom returns [ConstExpr res]
-@init {
-final ConstExprFactory factory = getConstExprFactory();
-}
-    :   token=ID            { $res=factory.createReference($token.text);        }
-    |   token=CARD_CONST    { $res=factory.createIntegerConst($token.text, 10); }
-    |   token=BINARY_CONST  { $res=factory.createIntegerConst($token.text, 2);  }
-    |   token=HEX_CONST     { $res=factory.createIntegerConst($token.text, 16); }
-    |   token=FIXED_CONST   { $res=factory.createRealConst($token.text);        }
     ;
 
 /*======================================================================================*/

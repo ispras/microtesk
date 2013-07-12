@@ -183,7 +183,7 @@ varDef
     ;
 
 sizeType
-    :  (constExpr COMMA)? typeExpr -> ^(SIZE_TYPE constExpr? typeExpr)
+    :  (expr COMMA)? typeExpr -> ^(SIZE_TYPE expr? typeExpr)
     ;
     
 alias
@@ -419,75 +419,6 @@ locationAtom
 
 bitFieldExpr
     :  LEFT_BROCKET! expr DOUBLE_DOT! expr RIGHT_BROCKET!
-    ;
-
-/*======================================================================================*/
-/* Constant expression rules (statically calculated)                                    */
-/*======================================================================================*/
-
-constExpr
-    :  constOrLogicExpr
-    ;
-
-constOrLogicExpr
-    :  constAndLogicExpr (OR^ constAndLogicExpr)*
-    ;
-
-constAndLogicExpr
-    :  constOrBitExpr (AND^ constOrBitExpr)*
-    ;
-
-constOrBitExpr
-    :  constXorBitExpr (VERT_BAR^ constXorBitExpr)*
-    ;
-
-constXorBitExpr
-    :  constAndBitExpr (UP_ARROW^ constAndBitExpr)*
-    ;
-
-constAndBitExpr
-    :  constRelationExpr (AMPER^ constRelationExpr)*
-    ;
-
-constRelationExpr
-    :  constComparisionExpr ((EQ^ | NEQ^) constComparisionExpr)*
-    ;
-
-constComparisionExpr
-    :  constShiftExpr ((LEQ^ | GEQ^ | LEFT_BROCKET^ | RIGHT_BROCKET^) constShiftExpr)*
-    ;
-
-constShiftExpr
-    :  constPlusExpr ((LEFT_SHIFT^ | RIGHT_SHIFT^ | ROTATE_LEFT^ | ROTATE_RIGHT^) constPlusExpr)*
-    ;
-
-constPlusExpr
-    :  constMulExpr ((PLUS^ | MINUS^) constMulExpr)*
-    ;
-
-constMulExpr
-    :  constPowExpr ((MUL^ | DIV^ | REM^) constPowExpr)*
-    ;
-
-constPowExpr
-    :  constUnaryExpr (DOUBLE_STAR^ constUnaryExpr)*
-    ;
-
-constUnaryExpr
-    :  PLUS constUnaryExpr -> ^(UNARY_PLUS constUnaryExpr)
-    |  MINUS constUnaryExpr -> ^(UNARY_MINUS constUnaryExpr)
-    |  TILDE^ constUnaryExpr
-    |  NOT^ constUnaryExpr
-    |  constAtom
-    ;
-
-constAtom
-    :  LEFT_PARENTH! constExpr RIGHT_PARENTH!
-    |  id=ID { checkDeclaration($id,ESymbolKind.LET_CONST); }
-    |  CARD_CONST 
-    |  BINARY_CONST
-    |  HEX_CONST
-//  |  FIXED_CONST // TODO: NOT SUPPORTED IN THIS VERSION
     ;
 
 /*======================================================================================*/

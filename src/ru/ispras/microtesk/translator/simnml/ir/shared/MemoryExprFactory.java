@@ -18,11 +18,12 @@ import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
+import ru.ispras.microtesk.translator.simnml.ir.expression2.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression2.ExprClass;
 
 public final class MemoryExprFactory
 {
-    private static final ConstExpr DEFAULT_SIZE = new ConstExpr(int.class, 1, "1");
+    private static final Expr DEFAULT_SIZE = ExprClass.createConstant(1, "1");
 
     private final IErrorReporter reporter; 
 
@@ -37,7 +38,7 @@ public final class MemoryExprFactory
             reporter.raiseError(where, new SizeExpressionTypeMismatch(type));
     }
 
-    public MemoryExpr createMemoryExpr(Where where, EMemoryKind kind, TypeExpr type, ConstExpr size) throws RecognitionException 
+    public MemoryExpr createMemoryExpr(Where where, EMemoryKind kind, TypeExpr type, Expr size) throws RecognitionException 
     {
         failIfNotInteger(where, size.getJavaType());
         return new MemoryExpr(kind, type, size);        
