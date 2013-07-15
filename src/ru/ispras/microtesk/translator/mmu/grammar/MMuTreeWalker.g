@@ -55,9 +55,7 @@ import ru.ispras.microtesk.translator.mmu.antlrex.TreeWalkerBase;
 import ru.ispras.microtesk.translator.mmu.ESymbolKind;
 
 import ru.ispras.microtesk.translator.mmu.ir.*;
-import ru.ispras.microtesk.translator.simnml.ir.expression.*;
-import ru.ispras.microtesk.translator.mmu.ir.IR;
-
+import ru.ispras.microtesk.translator.mmu.ir.expression.*;
 }
 
 /*======================================================================================*/

@@ -2,7 +2,7 @@ package ru.ispras.microtesk.translator.mmu.ir;
 
 import ru.ispras.microtesk.model.api.mmu.buffer.Address;
 import ru.ispras.microtesk.translator.mmu.ir.MatchExpr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ConstExpr;
+import ru.ispras.microtesk.translator.mmu.ir.expression.ConstExpr;
 
 public class MatchExpr 
 {
