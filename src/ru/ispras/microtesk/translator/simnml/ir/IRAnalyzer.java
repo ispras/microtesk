@@ -313,7 +313,7 @@ public final class IRAnalyzer
      * @param opList An out-parameter. Holds the list of operations the "op" parameter refers to.
      */
 
-    private void saveAllOpsToList(Op op, List<Op> opList)
+    private static void saveAllOpsToList(Op op, List<Op> opList)
     {
         if (op.isOrRule())
         {
@@ -336,7 +336,7 @@ public final class IRAnalyzer
      * @return A unique name.
      */
 
-    private String uniqueName(String name, Set<String> existingNames)
+    private static String uniqueName(String name, Set<String> existingNames)
     {
         String result = name;
 
