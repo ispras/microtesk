@@ -44,8 +44,8 @@ public final class PrimitiveFactory
 
     public PrimitiveFactory(IR ir, IErrorReporter reporter)
     {
-        this.modes    = null; // ir.getModes(); // TOFIX
-        this.ops      = null; // ir.getOps();   // TOFIX
+        this.modes    = ir.getModes();
+        this.ops      = ir.getOps();
         this.reporter = reporter;
     }
 
@@ -100,9 +100,8 @@ public final class PrimitiveFactory
                             new UndefinedPrimitive(argType.getTypeName(), ESymbolKind.MODE)
                         );
 
-                    // TOFIX
-                    // final Primitive argTypeMode = modes.get(argType.getTypeName());
-                    // opArgs.put(argName, new Argument(argName, argTypeMode));
+                    final Primitive argTypeMode = modes.get(argType.getTypeName());
+                    opArgs.put(argName, new Argument(argName, argTypeMode));
                 }
                 else if (EArgumentKind.OP == argType.getKind())
                 {
@@ -112,9 +111,8 @@ public final class PrimitiveFactory
                             new UndefinedPrimitive(argType.getTypeName(), ESymbolKind.OP)
                         );
 
-                    // TOFIX
-                    // final Op argTypeOp = ops.get(argType.getTypeName());
-                    // opArgs.put(argName, new Argument(argName, argTypeOp));
+                    final Primitive argTypeOp = ops.get(argType.getTypeName());
+                    opArgs.put(argName, new Argument(argName, argTypeOp));
                 }
                 else // -> if (EArgumentKind.TYPE == argType.getKind())
                 {

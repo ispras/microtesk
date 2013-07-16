@@ -22,7 +22,7 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public abstract class Primitive
 {
-    public enum Kind
+    public static enum Kind
     {
         MODE,
         OP
@@ -37,6 +37,28 @@ public abstract class Primitive
         this.name     = name;
         this.kind     = kind;
         this.isOrRule = isOrRule;
+    }
+
+    static final Primitive createOp(
+        String name, Map<String, Argument> args, Map<String, Attribute> attrs)
+    {
+        return new PrimitiveAND(name, Kind.OP, null, args, attrs);
+    }
+
+    static Primitive createMode(
+        String name, Expr retExpr, Map<String, Argument> args, Map<String, Attribute> attrs)
+    {
+        return new PrimitiveAND(name, Kind.MODE, retExpr, args, attrs);
+    }
+
+    static Primitive createOpOR(String name, List<Primitive> ors)
+    {
+        return new PrimitiveOR(name, Kind.OP, ors);
+    }
+
+    static Primitive createModeOR(String name, List<Primitive> ors)
+    {
+        return new PrimitiveOR(name, Kind.MODE, ors);
     }
 
     public final String getName()
@@ -55,33 +77,4 @@ public abstract class Primitive
     }
 
     public abstract TypeExpr getReturnType();
-
-    static final Primitive createOp(
-        String name,
-        Map<String, Argument> args,
-        Map<String, Attribute> attrs
-        )
-    {
-        return new PrimitiveAND(name, Kind.OP, null, args, attrs);
-    }
-
-    static Primitive createMode(
-        String name,
-        Expr retExpr,
-        Map<String, Argument> args,
-        Map<String, Attribute> attrs
-        )
-    {
-        return new PrimitiveAND(name, Kind.MODE, retExpr, args, attrs);
-    }
-
-    static Primitive createOpOR(String name, List<Primitive> ors)
-    {
-        return new PrimitiveOR(name, Kind.OP, ors);
-    }
-
-    static Primitive createModeOR(String name, List<Primitive> ors)
-    {
-        return new PrimitiveOR(name, Kind.MODE, ors);
-    }
 }
