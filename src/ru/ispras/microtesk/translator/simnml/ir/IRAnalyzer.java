@@ -26,8 +26,10 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.PrimitiveEntry;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Op;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
 import static ru.ispras.microtesk.translator.simnml.ir.Messages.*;
 
@@ -147,12 +149,14 @@ public final class IRAnalyzer
             return false;
         }
 
-        final Op rootOp = ir.getOps().get(ROOT_OPERATION);
-        if (rootOp.isOrRule())
+        final Primitive root = ir.getOps().get(ROOT_OPERATION);
+        if (root.isOrRule())
         {
             reportError(ROOT_OPERATION_CANT_BE_OR_RULE);
             return false;
         }
+        
+        final PrimitiveAND rootOp = (PrimitiveAND)root; 
 
         final Map<String, PrimitiveEntry> instructionArgs =
             new LinkedHashMap<String, PrimitiveEntry>();
@@ -200,7 +204,7 @@ public final class IRAnalyzer
         PrimitiveEntry curPrimitive
         )
     {
-        final List<Op> opList = new ArrayList<Op>();
+        final List<Primitive> opList = new ArrayList<Primitive>();
         String opName = "";
 
         int opArgCount = 0;
@@ -283,7 +287,7 @@ public final class IRAnalyzer
             return true;
         }
 
-        for (Op op : opList)
+        for (Primitive op : opList)
         {
             final PrimitiveEntry childPrimitive =
                 new PrimitiveEntry(op.getName(), EArgumentKind.OP);
@@ -291,7 +295,7 @@ public final class IRAnalyzer
             curPrimitive.resetArgument(opName, childPrimitive);
 
             if (!traverseOperationTree(
-                    op.getArgs().values(),
+                    ((PrimitiveAND) op).getArgs().values(),
                     new LinkedHashMap<String, PrimitiveEntry>(instructionArgs),
                     rootPrimitive,
                     childPrimitive
@@ -313,17 +317,16 @@ public final class IRAnalyzer
      * @param opList An out-parameter. Holds the list of operations the "op" parameter refers to.
      */
 
-    private static void saveAllOpsToList(Op op, List<Op> opList)
+    private static void saveAllOpsToList(Primitive op, List<Primitive> opList)
     {
-        if (op.isOrRule())
-        {
-            for (Op o : op.getOrs())
-                saveAllOpsToList(o, opList);
-        }
-        else
+        if (!op.isOrRule())
         {
             opList.add(op);
+            return;
         }
+
+        for (Primitive o : ((PrimitiveOR) op).getORs())
+           saveAllOpsToList(o, opList);
     }
 
     /**

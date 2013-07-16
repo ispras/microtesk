@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.modeop;
 
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -21,41 +22,44 @@ public final class Argument
     private final String name;
     private final EArgumentKind kind;
 
-    private final TypeExpr valueType;
-    private final Mode mode;
-    private final Op op;
+    private final TypeExpr  valueType;
+    private final Primitive primitive;
 
     public Argument(String name, TypeExpr valueType)
     {
-        this(name, EArgumentKind.TYPE, valueType, null, null);
+        this(
+            name,
+            EArgumentKind.TYPE,
+            valueType,
+            null
+            );
+
         assert(null != valueType);
     }
 
-    public Argument(String name, Mode mode)
+    public Argument(String name, Primitive primitive)
     {
-        this(name, EArgumentKind.MODE, null, mode, null);
-        assert(null != mode);
-    }
+        this(
+            name,
+            primitive.getKind() == Primitive.Kind.MODE ? EArgumentKind.MODE : EArgumentKind.OP,
+            null,
+            primitive
+            );
 
-    public Argument(String name, Op op)
-    {
-        this(name, EArgumentKind.OP, null, null, op);
-        assert(null != op);
+        assert(null != primitive);
     }
 
     private Argument(
         String name,
         EArgumentKind kind,
         TypeExpr type,
-        Mode mode,
-        Op op
+        Primitive primitive
         )
     {
-        this.name = name;
-        this.kind = kind;
+        this.name      = name;
+        this.kind      = kind;
         this.valueType = type;
-        this.mode = mode;
-        this.op = op;
+        this.primitive = primitive;
     }
 
     public String getName()
@@ -76,20 +80,20 @@ public final class Argument
         return valueType;
     }
 
-    public Mode getMode()
+    public Primitive getMode()
     {
         assert EArgumentKind.MODE == kind;
-        assert null != mode;
-
-        return mode;
+        assert null != primitive;
+        
+        return primitive;
     }
 
-    public Op getOp()
+    public Primitive getOp()
     {
         assert EArgumentKind.OP == kind;
-        assert null != op;
-
-        return op;
+        assert null != primitive;
+        
+        return primitive;
     }
 
     public String getTypeText()

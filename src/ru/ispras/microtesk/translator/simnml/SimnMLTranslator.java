@@ -124,7 +124,7 @@ public class SimnMLTranslator
         {
             e.printStackTrace();
         }
-        
+
         final IRAnalyzer analyzer = new IRAnalyzer(getShortFileName(fileName), ir, LOG);
         if (!analyzer.synthesizeInstructions())
         {

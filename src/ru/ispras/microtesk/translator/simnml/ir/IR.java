@@ -17,12 +17,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Mode;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Op;
 
 public final class IR
 {
@@ -31,8 +30,8 @@ public final class IR
     private final Map<String, TypeExpr>    types;
     private final Map<String, MemoryExpr> memory;
 
-    private final Map<String, Mode> modes;
-    private final Map<String, Op>     ops;
+    private final Map<String, Primitive> modes;
+    private final Map<String, Primitive>   ops;
 
     private final Map<String, Instruction> instructions;
 
@@ -43,8 +42,8 @@ public final class IR
         types  = new LinkedHashMap<String, TypeExpr>();
         memory = new LinkedHashMap<String, MemoryExpr>();
 
-        modes  = new LinkedHashMap<String, Mode>();
-        ops    = new LinkedHashMap<String, Op>();
+        modes  = new LinkedHashMap<String, Primitive>();
+        ops    = new LinkedHashMap<String, Primitive>();
 
         instructions = new LinkedHashMap<String, Instruction>();
     }
@@ -69,14 +68,12 @@ public final class IR
         memory.put(name, value);
     }
 
-    public void add(String name, Mode value)
+    public void add(String name, Primitive value)
     {
-        modes.put(name, value);
-    }
-
-    public void add(String name, Op value)
-    {
-        ops.put(name, value);
+        if (value.getKind() == Primitive.Kind.MODE)
+            modes.put(name, value);
+        else
+            ops.put(name, value);
     }
     
     public void add(String name, Instruction value)
@@ -104,12 +101,12 @@ public final class IR
         return Collections.unmodifiableMap(memory);
     }
 
-    public Map<String, Mode> getModes()
+    public Map<String, Primitive> getModes()
     {
         return Collections.unmodifiableMap(modes);
     }
 
-    public Map<String, Op> getOps()
+    public Map<String, Primitive> getOps()
     {
         return Collections.unmodifiableMap(ops);
     }

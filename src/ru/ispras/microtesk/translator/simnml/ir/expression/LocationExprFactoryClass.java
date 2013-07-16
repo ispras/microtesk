@@ -27,10 +27,10 @@ import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.ArgumentTypeExpr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Mode;
 
 public final class LocationExprFactoryClass
 {
@@ -322,11 +322,11 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
         public LocationExpr createModeBasedLocation(ArgumentTypeExpr argType) throws SemanticException
         {
-            final Mode mode = findMode(argType.getTypeName());
+            final Primitive mode = findMode(argType.getTypeName());
             return new LocationExprClass(getLocationText(), mode.getReturnType());
         }
 
-        private Mode findMode(String modeName) throws SemanticException
+        private Primitive findMode(String modeName) throws SemanticException
         {
             if (!ir.getModes().containsKey(modeName))
                 reporter.raiseError(where, new UndefinedPrimitive(modeName, ESymbolKind.MODE));

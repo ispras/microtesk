@@ -69,6 +69,7 @@ import ru.ispras.microtesk.translator.simnml.ir.PCAnalyzer;
 import ru.ispras.microtesk.translator.simnml.ir.expression.*;
 import ru.ispras.microtesk.translator.simnml.ir.shared.*;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.*;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.*;
 }
 
 /*======================================================================================*/
@@ -231,7 +232,7 @@ popSymbolScope();
 globalArgTypes = null;
 }
 
-modeSpecPart [Where w, String name] returns [Mode res]
+modeSpecPart [Where w, String name] returns [Primitive res]
     :  andRes=andRule
 {
 checkNotNull(w, $andRes.res, $andRes.text);
@@ -241,11 +242,11 @@ globalArgTypes = $andRes.res;
        attrRes=attrDefList
 {
 checkNotNull(w, $attrRes.res, $attrRes.text);
-$res = getModeOpFactory().createMode($w, $name, $andRes.res, $attrRes.res, $mr.res);
+$res = getPrimitiveFactory().createMode($w, $name, $andRes.res, $attrRes.res, $mr.res);
 }
     |  orRes=orRule
 {
-$res = getModeOpFactory().createModeOr($w, $name, $orRes.res);
+$res = getPrimitiveFactory().createModeOR($w, $name, $orRes.res);
 }
     ;
 
@@ -269,7 +270,7 @@ popSymbolScope();
 globalArgTypes = null;
 }
 
-opSpecPart [Where w, String name] returns [Op res]
+opSpecPart [Where w, String name] returns [Primitive res]
     :  andRes=andRule
 {
 checkNotNull(w, $andRes.res, $andRes.text);
@@ -278,11 +279,11 @@ globalArgTypes = $andRes.res;
        attrRes=attrDefList
 {
 checkNotNull(w, $attrRes.res, $attrRes.text);
-$res = getModeOpFactory().createOp($w, $name, $andRes.res, $attrRes.res);
+$res = getPrimitiveFactory().createOp($w, $name, $andRes.res, $attrRes.res);
 }
     |  orRes=orRule
 {
-$res = getModeOpFactory().createOpOr($w, $name, $orRes.res);
+$res = getPrimitiveFactory().createOpOR($w, $name, $orRes.res);
 }
     ;
 
