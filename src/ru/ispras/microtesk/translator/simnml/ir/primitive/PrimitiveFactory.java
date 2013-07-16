@@ -200,6 +200,9 @@ public final class PrimitiveFactory
         {
             final TypeExpr currentType = current.getReturnType();
             final TypeExpr expectedType = expected.getReturnType();
+            
+            if (currentType == expectedType)
+                return;
 
             checkType(currentType, expectedType);
             checkSize(currentType, expectedType);
