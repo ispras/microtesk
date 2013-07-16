@@ -21,18 +21,18 @@ public final class Instruction
     private static final String CLASS_NAME_FORMAT = "Instruction%s";
 
     private final String name;
-    private final Primitive rootPrimitive;
-    private final Map<String, Primitive> args;
+    private final PrimitiveEntry rootPrimitive;
+    private final Map<String, PrimitiveEntry> args;
 
     public Instruction(
         String name,
-        Primitive rootPrimitive,
-        Map<String, Primitive> args
+        PrimitiveEntry rootPrimitive,
+        Map<String, PrimitiveEntry> args
         )
     {
         this.name = name;
-        this.rootPrimitive = new Primitive(rootPrimitive);
-        this.args = Collections.unmodifiableMap(new LinkedHashMap<String, Primitive>(args));
+        this.rootPrimitive = new PrimitiveEntry(rootPrimitive);
+        this.args = Collections.unmodifiableMap(new LinkedHashMap<String, PrimitiveEntry>(args));
     }
 
     public String getName()
@@ -45,12 +45,12 @@ public final class Instruction
         return String.format(CLASS_NAME_FORMAT, getName());
     }
 
-    public Primitive getRootPrimitive()
+    public PrimitiveEntry getRootPrimitive()
     {
         return rootPrimitive;
     }
 
-    public Map<String, Primitive> getArguments()
+    public Map<String, PrimitiveEntry> getArguments()
     {
         return args;
     }

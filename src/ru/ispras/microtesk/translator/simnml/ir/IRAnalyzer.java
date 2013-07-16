@@ -24,7 +24,7 @@ import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
-import ru.ispras.microtesk.translator.simnml.ir.instruction.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.instruction.PrimitiveEntry;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Op;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
@@ -154,11 +154,11 @@ public final class IRAnalyzer
             return false;
         }
 
-        final Map<String, Primitive> instructionArgs =
-            new LinkedHashMap<String, Primitive>();
+        final Map<String, PrimitiveEntry> instructionArgs =
+            new LinkedHashMap<String, PrimitiveEntry>();
 
-        final Primitive rootPrimitive =
-            new Primitive(rootOp.getName(), EArgumentKind.OP);
+        final PrimitiveEntry rootPrimitive =
+            new PrimitiveEntry(rootOp.getName(), EArgumentKind.OP);
 
         return traverseOperationTree(
             rootOp.getArgs().values(),
@@ -195,9 +195,9 @@ public final class IRAnalyzer
 
     private boolean traverseOperationTree(
         Collection<Argument> curOpArgs,
-        Map<String, Primitive> instructionArgs,
-        Primitive rootPrimitive,
-        Primitive curPrimitive
+        Map<String, PrimitiveEntry> instructionArgs,
+        PrimitiveEntry rootPrimitive,
+        PrimitiveEntry curPrimitive
         )
     {
         final List<Op> opList = new ArrayList<Op>();
@@ -213,8 +213,8 @@ public final class IRAnalyzer
                     final String argName = 
                         uniqueName(arg.getName(), instructionArgs.keySet());
 
-                    final Primitive modePrimitive =
-                        new Primitive(arg.getTypeText(), EArgumentKind.MODE);
+                    final PrimitiveEntry modePrimitive =
+                        new PrimitiveEntry(arg.getTypeText(), EArgumentKind.MODE);
 
                     curPrimitive.addArgument(argName, modePrimitive);
                     instructionArgs.put(argName, modePrimitive);
@@ -227,8 +227,8 @@ public final class IRAnalyzer
                     final String argName = 
                         uniqueName(arg.getName(), instructionArgs.keySet());
 
-                    final Primitive typePrimitive =
-                        new Primitive(arg.getTypeText(), EArgumentKind.TYPE);
+                    final PrimitiveEntry typePrimitive =
+                        new PrimitiveEntry(arg.getTypeText(), EArgumentKind.TYPE);
                     
                     curPrimitive.addArgument(argName, typePrimitive);
                     instructionArgs.put(argName, typePrimitive);
@@ -250,8 +250,8 @@ public final class IRAnalyzer
                     opName = arg.getName();
                     saveAllOpsToList(arg.getOp(), opList);
 
-                    final Primitive opPrimitive =
-                        new Primitive(arg.getTypeText(), EArgumentKind.OP);
+                    final PrimitiveEntry opPrimitive =
+                        new PrimitiveEntry(arg.getTypeText(), EArgumentKind.OP);
 
                     curPrimitive.addArgument(arg.getName(), opPrimitive);
 
@@ -285,14 +285,14 @@ public final class IRAnalyzer
 
         for (Op op : opList)
         {
-            final Primitive childPrimitive =
-                new Primitive(op.getName(), EArgumentKind.OP);
+            final PrimitiveEntry childPrimitive =
+                new PrimitiveEntry(op.getName(), EArgumentKind.OP);
 
             curPrimitive.resetArgument(opName, childPrimitive);
 
             if (!traverseOperationTree(
                     op.getArgs().values(),
-                    new LinkedHashMap<String, Primitive>(instructionArgs),
+                    new LinkedHashMap<String, PrimitiveEntry>(instructionArgs),
                     rootPrimitive,
                     childPrimitive
                     )
