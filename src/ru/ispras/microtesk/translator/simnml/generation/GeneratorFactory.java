@@ -18,8 +18,8 @@ import ru.ispras.microtesk.translator.generation.*;
 import ru.ispras.microtesk.translator.simnml.generation.builders.*;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Mode;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Op;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
@@ -103,7 +103,7 @@ public class GeneratorFactory
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
 
-    public IClassGenerator createAddressingModeOr(Mode mode)
+    public IClassGenerator createAddressingModeOr(PrimitiveOR mode)
     {
         final String outputFileName =
             String.format(MODE_FILE_FORMAT, modelName, mode.getName());
@@ -115,12 +115,12 @@ public class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-             new AddressingModeOrSTBuilder(specFileName, modelName, mode.getName(), mode.getOrNames());
+             new AddressingModeOrSTBuilder(specFileName, modelName, mode);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
     
-    public IClassGenerator createAddressingMode(Mode mode)
+    public IClassGenerator createAddressingMode(PrimitiveAND mode)
     {
         final String outputFileName =
             String.format(MODE_FILE_FORMAT, modelName, mode.getName());
@@ -137,7 +137,7 @@ public class GeneratorFactory
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
 
-    public IClassGenerator createOperationOr(Op op)
+    public IClassGenerator createOperationOr(PrimitiveOR op)
     {
         final String outputFileName =
             String.format(OP_FILE_FORMAT, modelName, op.getName());
@@ -149,12 +149,12 @@ public class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-             new OperationOrSTBuilder(specFileName, modelName, op.getName(), op.getOrNames());
+             new OperationOrSTBuilder(specFileName, modelName, op);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
 
-    public IClassGenerator createOperation(Op op)
+    public IClassGenerator createOperation(PrimitiveAND op)
     {
         final String outputFileName =
             String.format(OP_FILE_FORMAT, modelName, op.getName());

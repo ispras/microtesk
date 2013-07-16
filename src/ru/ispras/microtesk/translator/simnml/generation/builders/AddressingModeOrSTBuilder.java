@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.generation.builders;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.stringtemplate.v4.ST;
@@ -19,6 +20,8 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingMode;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
@@ -26,20 +29,19 @@ public final class AddressingModeOrSTBuilder implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;
-    private final String name;
-    private final List<String> modes; 
+    private final PrimitiveOR mode;
 
     public AddressingModeOrSTBuilder(
         String specFileName,
         String modelName,
-        String name,
-        List<String> modes
+        PrimitiveOR mode
         )
     {
+        assert mode.getKind() == Primitive.Kind.MODE;
+
         this.specFileName = specFileName;
-        this.modelName    = modelName;
-        this.name         = name;
-        this.modes        = modes;
+        this.modelName = modelName;
+        this.mode = mode;
     }
 
     @Override
@@ -47,14 +49,18 @@ public final class AddressingModeOrSTBuilder implements ITemplateBuilder
     {
         final ST t = group.getInstanceOf("modeor");
 
-        t.add("name", name);
+        t.add("name", mode.getName());
         t.add("file", specFileName);
         t.add("pack", String.format(MODE_PACKAGE_FORMAT, modelName));
 
         t.add("imps", AddressingMode.class.getName());
         t.add("base", AddressingMode.class.getSimpleName());
+        
+        final List<String> modeNames = new ArrayList<String>(mode.getORs().size());
+        for (Primitive p : mode.getORs())
+            modeNames.add(p.getName());
 
-        t.add("modes", modes);
+        t.add("modes", modeNames);
 
         return t;
     }

@@ -26,8 +26,9 @@ import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Mode;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Statement;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
@@ -35,14 +36,16 @@ public class AddressingModeSTBuilder implements ITemplateBuilder
 {
     private final String specFileName;
     private final String    modelName;
-    private final Mode           mode;
+    private final PrimitiveAND   mode;
 
     public AddressingModeSTBuilder(
         String specFileName,
         String modelName,
-        Mode   mode
+        PrimitiveAND mode
         )
     {
+        assert mode.getKind() == Primitive.Kind.MODE;
+
         this.specFileName = specFileName;
         this.modelName = modelName;
         this.mode = mode;

@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.generation.builders;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.stringtemplate.v4.ST;
@@ -19,6 +20,8 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.simnml.instruction.Operation;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
@@ -26,20 +29,19 @@ public final class OperationOrSTBuilder implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;
-    private final String name;
-    private final List<String> ops; 
+    private final PrimitiveOR op;
 
     public OperationOrSTBuilder(
         String specFileName,
         String modelName,
-        String name,
-        List<String> ops
+        PrimitiveOR op
         )
     {
+        assert op.getKind() == Primitive.Kind.OP;
+
         this.specFileName = specFileName;
         this.modelName    = modelName;
-        this.name         = name;
-        this.ops          = ops;
+        this.op           = op;
     }
 
     @Override
@@ -47,14 +49,18 @@ public final class OperationOrSTBuilder implements ITemplateBuilder
     {
         final ST t = group.getInstanceOf("op");
 
-        t.add("name", name);
+        t.add("name", op.getName());
         t.add("file", specFileName);
         t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
 
         t.add("imps", Operation.class.getName());
         t.add("base", Operation.class.getSimpleName());
-        
-        t.add("ops", ops);
+
+        final List<String> opNames = new ArrayList<String>(op.getORs().size());
+        for (Primitive p : op.getORs())
+            opNames.add(p.getName());
+
+        t.add("ops", opNames);
         return t;
     }
 }

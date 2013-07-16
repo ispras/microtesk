@@ -25,9 +25,10 @@ import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Op;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Statement;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
@@ -42,7 +43,7 @@ public class OperationSTBuilder implements ITemplateBuilder
 
     private final String specFileName;
     private final String modelName;
-    private final Op op;
+    private final PrimitiveAND op;
 
     private boolean modesImported = false;
     private boolean   opsImported = false;
@@ -80,9 +81,11 @@ public class OperationSTBuilder implements ITemplateBuilder
     public OperationSTBuilder(
         String specFileName,
         String modelName,
-        Op op
+        PrimitiveAND op
         )
     {
+        assert op.getKind() == Primitive.Kind.OP;
+
         this.specFileName = specFileName;
         this.modelName = modelName;
         this.op = op;

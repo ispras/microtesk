@@ -18,8 +18,9 @@ import java.util.List;
 
 import ru.ispras.microtesk.translator.generation.IClassGenerator;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Mode;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Op;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
 
 public final class Generator
@@ -80,11 +81,11 @@ public final class Generator
 
     private void generateModes() throws IOException
     {
-        for (Mode m : ir.getModes().values())
+        for (Primitive m : ir.getModes().values())
         {
             final IClassGenerator mode = m.isOrRule() ?
-                factory.createAddressingModeOr(m) :
-                factory.createAddressingMode(m);
+                factory.createAddressingModeOr((PrimitiveOR) m) :
+                factory.createAddressingMode((PrimitiveAND) m);
 
             mode.generate();
         }
@@ -92,11 +93,11 @@ public final class Generator
 
     private void generateOps() throws IOException
     {
-        for (Op o : ir.getOps().values())
+        for (Primitive o : ir.getOps().values())
         {
             final IClassGenerator op = o.isOrRule() ?
-                factory.createOperationOr(o) :
-                factory.createOperation(o);
+                factory.createOperationOr((PrimitiveOR) o) :
+                factory.createOperation((PrimitiveAND) o);
 
             op.generate();
         }
