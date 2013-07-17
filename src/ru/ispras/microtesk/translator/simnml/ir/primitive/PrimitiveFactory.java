@@ -30,7 +30,6 @@ import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public final class PrimitiveFactory
@@ -55,11 +54,11 @@ public final class PrimitiveFactory
     {
         for (Map.Entry<String, Argument> e : args.entrySet())
         {
-            if (EArgumentKind.TYPE != e.getValue().getKind())
+            if (Argument.Kind.TYPE != e.getValue().getKind())
                 reporter.raiseError(
                     where,
                     new UnsupportedParameterType(
-                        e.getKey(), e.getValue().getKind().name(), EArgumentKind.TYPE.name()
+                        e.getKey(), e.getValue().getKind().name(), Argument.Kind.TYPE.name()
                     )
                 );
         }

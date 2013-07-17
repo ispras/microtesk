@@ -32,7 +32,7 @@ public final class Argument
     }
 
     private final String name;
-    private final EArgumentKind kind;
+    private final Kind kind;
 
     private final TypeExpr  valueType;
     private final Primitive primitive;
@@ -41,7 +41,7 @@ public final class Argument
     {
         this(
             name,
-            EArgumentKind.TYPE,
+            Kind.TYPE,
             valueType,
             null
             );
@@ -53,7 +53,7 @@ public final class Argument
     {
         this(
             name,
-            primitive.getKind() == Primitive.Kind.MODE ? EArgumentKind.MODE : EArgumentKind.OP,
+            primitive.getKind() == Primitive.Kind.MODE ? Kind.MODE : Kind.OP,
             null,
             primitive
             );
@@ -63,7 +63,7 @@ public final class Argument
 
     private Argument(
         String name,
-        EArgumentKind kind,
+        Kind kind,
         TypeExpr type,
         Primitive primitive
         )
@@ -79,14 +79,14 @@ public final class Argument
         return name;
     }
 
-    public EArgumentKind getKind()
+    public Kind getKind()
     {
         return kind;
     }
 
     public TypeExpr getValueType()
     {
-        assert EArgumentKind.TYPE == kind;
+        assert Kind.TYPE == kind;
         assert null != valueType;
 
         return valueType;
@@ -94,7 +94,7 @@ public final class Argument
 
     public Primitive getMode()
     {
-        assert EArgumentKind.MODE == kind;
+        assert Kind.MODE == kind;
         assert null != primitive;
         
         return primitive;
@@ -102,7 +102,7 @@ public final class Argument
 
     public Primitive getOp()
     {
-        assert EArgumentKind.OP == kind;
+        assert Kind.OP == kind;
         assert null != primitive;
         
         return primitive;
@@ -110,10 +110,10 @@ public final class Argument
 
     public String getTypeText()
     {
-        if (EArgumentKind.MODE == kind)
+        if (Kind.MODE == kind)
             return getMode().getName();
 
-        if (EArgumentKind.OP == kind)
+        if (Kind.OP == kind)
             return getOp().getName();
 
         if (null != getValueType().getRefName())

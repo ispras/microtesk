@@ -16,15 +16,15 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
+import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 
 public final class PrimitiveEntry
 {
     private final String name;
-    private final EArgumentKind kind;
+    private final Argument.Kind kind;
     private final Map<String, PrimitiveEntry> args;
 
-    public PrimitiveEntry(String name, EArgumentKind kind)
+    public PrimitiveEntry(String name, Argument.Kind kind)
     {
         this.name = name;
         this.kind = kind;
@@ -44,7 +44,7 @@ public final class PrimitiveEntry
         return name;
     }
 
-    public EArgumentKind getKind()
+    public Argument.Kind getKind()
     {
         return kind;
     }

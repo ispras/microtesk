@@ -24,7 +24,6 @@ import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
@@ -111,7 +110,7 @@ public class OperationSTBuilder implements ITemplateBuilder
         {
             t.add("arg_names", arg.getName());
 
-            if (EArgumentKind.MODE == arg.getKind())
+            if (Argument.Kind.MODE == arg.getKind())
             {
                 importModeDependencies(t);
                 t.add("arg_types", IAddressingMode.class.getSimpleName());
@@ -123,7 +122,7 @@ public class OperationSTBuilder implements ITemplateBuilder
 
                 t.add("arg_checks", argCheckST);
             }
-            else if (EArgumentKind.OP == arg.getKind())
+            else if (Argument.Kind.OP == arg.getKind())
             {
                 importOpDependencies(t);
                 t.add("arg_types", IOperation.class.getSimpleName());

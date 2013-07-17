@@ -26,7 +26,6 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.PrimitiveEntry;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
@@ -162,7 +161,7 @@ public final class IRAnalyzer
             new LinkedHashMap<String, PrimitiveEntry>();
 
         final PrimitiveEntry rootPrimitive =
-            new PrimitiveEntry(rootOp.getName(), EArgumentKind.OP);
+            new PrimitiveEntry(rootOp.getName(), Argument.Kind.OP);
 
         return traverseOperationTree(
             rootOp.getArgs().values(),
@@ -218,7 +217,7 @@ public final class IRAnalyzer
                         uniqueName(arg.getName(), instructionArgs.keySet());
 
                     final PrimitiveEntry modePrimitive =
-                        new PrimitiveEntry(arg.getTypeText(), EArgumentKind.MODE);
+                        new PrimitiveEntry(arg.getTypeText(), Argument.Kind.MODE);
 
                     curPrimitive.addArgument(argName, modePrimitive);
                     instructionArgs.put(argName, modePrimitive);
@@ -232,7 +231,7 @@ public final class IRAnalyzer
                         uniqueName(arg.getName(), instructionArgs.keySet());
 
                     final PrimitiveEntry typePrimitive =
-                        new PrimitiveEntry(arg.getTypeText(), EArgumentKind.TYPE);
+                        new PrimitiveEntry(arg.getTypeText(), Argument.Kind.TYPE);
                     
                     curPrimitive.addArgument(argName, typePrimitive);
                     instructionArgs.put(argName, typePrimitive);
@@ -255,7 +254,7 @@ public final class IRAnalyzer
                     saveAllOpsToList(arg.getOp(), opList);
 
                     final PrimitiveEntry opPrimitive =
-                        new PrimitiveEntry(arg.getTypeText(), EArgumentKind.OP);
+                        new PrimitiveEntry(arg.getTypeText(), Argument.Kind.OP);
 
                     curPrimitive.addArgument(arg.getName(), opPrimitive);
 
@@ -290,7 +289,7 @@ public final class IRAnalyzer
         for (Primitive op : opList)
         {
             final PrimitiveEntry childPrimitive =
-                new PrimitiveEntry(op.getName(), EArgumentKind.OP);
+                new PrimitiveEntry(op.getName(), Argument.Kind.OP);
 
             curPrimitive.resetArgument(opName, childPrimitive);
 

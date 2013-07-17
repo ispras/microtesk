@@ -28,7 +28,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.PrimitiveEntry;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
+import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
@@ -92,8 +92,8 @@ public class InstructionSTBuilder implements ITemplateBuilder
         {
             t.add("param_names", e.getKey());
             
-            if (EArgumentKind.MODE == e.getValue().getKind() ||
-                EArgumentKind.OP == e.getValue().getKind())
+            if (Argument.Kind.MODE == e.getValue().getKind() ||
+                Argument.Kind.OP == e.getValue().getKind())
             {
                 t.add("param_type_names",
                    String.format("%s.INFO", e.getValue().getName())
@@ -124,11 +124,11 @@ public class InstructionSTBuilder implements ITemplateBuilder
         t.add("name", op.getName());
         for (Map.Entry<String, PrimitiveEntry> e : op.getArguments().entrySet())
         {
-            if (e.getValue().getKind() == EArgumentKind.MODE)
+            if (e.getValue().getKind() == Argument.Kind.MODE)
             {
                 t.add("params", e.getKey());
             }
-            else if (e.getValue().getKind() == EArgumentKind.OP)
+            else if (e.getValue().getKind() == Argument.Kind.OP)
             {
                 t.add("params", creatOperationST(e.getValue(), group));
             }
