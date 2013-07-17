@@ -22,7 +22,7 @@ public final class PrimitiveOR extends Primitive
 
     PrimitiveOR(String name, Kind kind, List<Primitive> ors)
     {
-        super(name, kind, true);
+        super(name, kind, true, getReturnType(ors));
         this.ors = ors;
     }
 
@@ -31,9 +31,9 @@ public final class PrimitiveOR extends Primitive
         return ors;
     }
 
-    @Override
-    public TypeExpr getReturnType()
+    private static TypeExpr getReturnType(List<Primitive> ors)
     {
+        assert null != ors;
         return ors.get(0).getReturnType();
     }
 }

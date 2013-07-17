@@ -20,29 +20,31 @@ import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
-public abstract class Primitive
+public class Primitive
 {
     public static enum Kind
     {
+        /** Addressing mode. */
         MODE,
-        OP
+
+        /** Operation. */
+        OP,
+
+        /** Immediate value. */
+        IMM
     }
 
-    private final String      name;
-    private final Kind        kind;
-    private final boolean isOrRule;
+    private final String         name;
+    private final Kind           kind;
+    private final boolean    isOrRule;
+    private final TypeExpr returnType;
 
-    Primitive(String name, Kind kind, boolean isOrRule)
+    Primitive(String name, Kind kind, boolean isOrRule, TypeExpr returnType)
     {
-        this.name     = name;
-        this.kind     = kind;
-        this.isOrRule = isOrRule;
-    }
-
-    static final Primitive createOp(
-        String name, Map<String, Argument> args, Map<String, Attribute> attrs)
-    {
-        return new PrimitiveAND(name, Kind.OP, null, args, attrs);
+        this.name       = name;
+        this.kind       = kind;
+        this.isOrRule   = isOrRule;
+        this.returnType = returnType;
     }
 
     static Primitive createMode(
@@ -51,14 +53,25 @@ public abstract class Primitive
         return new PrimitiveAND(name, Kind.MODE, retExpr, args, attrs);
     }
 
+    static Primitive createModeOR(String name, List<Primitive> ors)
+    {
+        return new PrimitiveOR(name, Kind.MODE, ors);
+    }
+
+    static final Primitive createOp(
+        String name, Map<String, Argument> args, Map<String, Attribute> attrs)
+    {
+        return new PrimitiveAND(name, Kind.OP, null, args, attrs);
+    }
+    
     static Primitive createOpOR(String name, List<Primitive> ors)
     {
         return new PrimitiveOR(name, Kind.OP, ors);
     }
-
-    static Primitive createModeOR(String name, List<Primitive> ors)
+    
+    static Primitive createImm(String name, TypeExpr type)
     {
-        return new PrimitiveOR(name, Kind.MODE, ors);
+        return new Primitive(name, Kind.IMM, false, type);
     }
 
     public final String getName()
@@ -76,5 +89,8 @@ public abstract class Primitive
         return isOrRule;
     }
 
-    public abstract TypeExpr getReturnType();
+    public final TypeExpr getReturnType()
+    {
+        return returnType;
+    }
 }

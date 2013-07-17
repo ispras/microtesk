@@ -33,7 +33,7 @@ public class PrimitiveAND extends Primitive
         Map<String, Attribute> attrs
         )
     {
-        super(name, kind, false);
+        super(name, kind, false, getReturnType(retExpr));
         this.retExpr = retExpr;
         this.args    = args;
         this.attrs   = attrs;
@@ -49,14 +49,13 @@ public class PrimitiveAND extends Primitive
         return attrs;
     }
 
-    @Override
-    public TypeExpr getReturnType()
-    {
-        return (null != retExpr) ? retExpr.getModelType() : null;
-    }
-
     public Expr getReturnExpr()
     {
         return retExpr;
+    }
+    
+    private static final TypeExpr getReturnType(Expr retExpr)
+    {
+        return (null != retExpr) ? retExpr.getModelType() : null;
     }
 }
