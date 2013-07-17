@@ -24,9 +24,9 @@ import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.model.api.simnml.instruction.Operation;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Statement;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 

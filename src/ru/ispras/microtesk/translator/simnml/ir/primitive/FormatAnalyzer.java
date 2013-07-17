@@ -10,7 +10,7 @@
  * FormatAnalyzer.java, Feb 11, 2013 12:14:35 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.modeop;
+package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.ArrayList;
 import java.util.List;

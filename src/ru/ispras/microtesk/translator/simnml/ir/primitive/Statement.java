@@ -10,7 +10,7 @@
  * Statement.java, Feb 7, 2013 12:09:14 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.modeop;
+package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.List;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;

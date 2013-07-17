@@ -37,7 +37,7 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactoryClass;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExprFactory;

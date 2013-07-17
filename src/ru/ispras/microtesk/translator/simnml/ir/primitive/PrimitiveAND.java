@@ -15,7 +15,6 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public class PrimitiveAND extends Primitive

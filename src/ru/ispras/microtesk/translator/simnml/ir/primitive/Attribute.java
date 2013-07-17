@@ -10,7 +10,7 @@
  * Attribute.java, Jan 2, 2013, 11:04:14 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.modeop;
+package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Collections;
 import java.util.EnumMap;

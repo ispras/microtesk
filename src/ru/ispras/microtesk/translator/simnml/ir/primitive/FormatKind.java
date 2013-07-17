@@ -10,7 +10,7 @@
  * FormatKind.java, Feb 8, 2013 4:53:01 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.modeop;
+package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 public enum FormatKind
 {

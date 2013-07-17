@@ -10,7 +10,7 @@
  * FormatArgument.java, Feb 8, 2013 5:20:39 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.modeop;
+package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;

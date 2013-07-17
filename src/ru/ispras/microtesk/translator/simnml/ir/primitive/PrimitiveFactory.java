@@ -27,7 +27,6 @@ import ru.ispras.microtesk.translator.simnml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.simnml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public final class PrimitiveFactory

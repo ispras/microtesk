@@ -10,7 +10,7 @@
  * AttributeFactory.java, Feb 7, 2013 1:00:30 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.modeop;
+package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -24,7 +24,6 @@ import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExpr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute.EKind;
 
 public final class AttributeFactory
 {
@@ -74,7 +73,7 @@ public final class AttributeFactory
 
         return new Attribute(
              name,
-             EKind.EXPRESSION,
+             Attribute.EKind.EXPRESSION,
              Collections.singletonList((Statement)new TextStatement(DEFAULT_EXPR_CODE))
              );
     }
@@ -86,7 +85,7 @@ public final class AttributeFactory
 
         return new Attribute(
             name,
-            EKind.ACTION,
+            Attribute.EKind.ACTION,
             Collections.singletonList((Statement)new TextStatement(DEFAULT_ACTION_CODE))
             );
     }
@@ -108,7 +107,7 @@ public final class AttributeFactory
     {
         return new Attribute(
              name,
-             EKind.ACTION,
+             Attribute.EKind.ACTION,
              stmts
              );
     }
@@ -117,7 +116,7 @@ public final class AttributeFactory
     {
         return new Attribute(
             name,
-            EKind.EXPRESSION,
+            Attribute.EKind.EXPRESSION,
             Collections.singletonList(
                 (Statement)new TextStatement(
                     String.format("return %s", exprStatement.getText()))));
