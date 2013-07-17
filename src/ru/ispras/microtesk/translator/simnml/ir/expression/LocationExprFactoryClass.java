@@ -30,7 +30,6 @@ import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 
 public final class LocationExprFactoryClass
 {
@@ -86,7 +85,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
     @Override
     public LocationExpr location(
-        Where w, String name, Map<String, Argument> globalArgTypes) throws SemanticException
+        Where w, String name, Map<String, Primitive> globalArgTypes) throws SemanticException
     {
         final ISymbol<ESymbolKind> symbol = findSymbol(name);
         final ESymbolKind kind = symbol.getKind();
@@ -275,10 +274,10 @@ final class LocationExprFactoryImpl implements LocationExprFactory
     {
         private final Where where;
         private final String name;
-        private final Map<String, Argument> argTypes;
+        private final Map<String, Primitive> argTypes;
 
         public ArgumentBasedLocationCreator(
-            Where w, String name, Map<String, Argument> argTypes)
+            Where w, String name, Map<String, Primitive> argTypes)
         {
             assert (null != argTypes) : "No information about arguments is provided.";
 
@@ -289,10 +288,10 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
         public LocationExpr create() throws SemanticException
         {
-            final Argument argType = findArgumentType();
+            final Primitive argType = findArgumentType();
             switch (argType.getKind())
             {
-            case TYPE:
+            case IMM:
                 return createImmValueBasedLocation(argType);
 
             case MODE:
@@ -307,7 +306,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
             return null;
         }
 
-        private Argument findArgumentType() throws SemanticException
+        private Primitive findArgumentType() throws SemanticException
         {
             if (!argTypes.containsKey(name))
                 reporter.raiseError(where, new UndefinedPrimitive(name, ESymbolKind.ARGUMENT));
@@ -315,15 +314,14 @@ final class LocationExprFactoryImpl implements LocationExprFactory
             return argTypes.get(name);
         }
 
-        public LocationExpr createImmValueBasedLocation(Argument argType)
+        public LocationExpr createImmValueBasedLocation(Primitive argType)
         {
-            return new LocationExprClass(name, argType.getValueType());
+            return new LocationExprClass(name, argType.getReturnType());
         }
 
-        public LocationExpr createModeBasedLocation(Argument argType) throws SemanticException
+        public LocationExpr createModeBasedLocation(Primitive argType) throws SemanticException
         {
-            final Primitive mode = argType.getMode();
-            return new LocationExprClass(getLocationText(), mode.getReturnType());
+            return new LocationExprClass(getLocationText(), argType.getReturnType());
         }
 
         private String getLocationText() throws SemanticException
@@ -331,7 +329,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
             return String.format("%s.access()", name);
         }
 
-        private void reportUnexpectedType(final Argument argType) throws SemanticException
+        private void reportUnexpectedType(final Primitive argType) throws SemanticException
         {
             reporter.raiseError(new ISemanticError()
             {
@@ -404,7 +402,7 @@ final class LocationExprFactoryDebug implements LocationExprFactory
 
     @Override
     public LocationExpr location(
-        Where w, String name, Map<String, Argument> globalArgTypes) throws SemanticException
+        Where w, String name, Map<String, Primitive> globalArgTypes) throws SemanticException
     {
         final LocationExpr result =
             factory.location(w, name, globalArgTypes);
@@ -415,13 +413,13 @@ final class LocationExprFactoryDebug implements LocationExprFactory
         final String symbolInfo;
         if (kind == ESymbolKind.ARGUMENT)
         {
-            final Argument argType = globalArgTypes.get(name);
+            final Primitive argType = globalArgTypes.get(name);
 
             symbolInfo = String.format(
                 "%s(%s %s)",
                 kind.name(),
                 argType.getKind().name(),
-                argType.getTypeText()
+                argType.getName()
                 );
         }
         else

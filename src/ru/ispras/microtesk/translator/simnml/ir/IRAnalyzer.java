@@ -13,7 +13,6 @@
 package ru.ispras.microtesk.translator.simnml.ir;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,6 @@ import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.PrimitiveEntry;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
@@ -161,10 +159,10 @@ public final class IRAnalyzer
             new LinkedHashMap<String, PrimitiveEntry>();
 
         final PrimitiveEntry rootPrimitive =
-            new PrimitiveEntry(rootOp.getName(), Argument.Kind.OP);
+            new PrimitiveEntry(rootOp.getName(), Primitive.Kind.OP);
 
         return traverseOperationTree(
-            rootOp.getArgs().values(),
+            rootOp.getArgs(),
             instructionArgs,
             rootPrimitive,
             rootPrimitive
@@ -197,7 +195,7 @@ public final class IRAnalyzer
      */
 
     private boolean traverseOperationTree(
-        Collection<Argument> curOpArgs,
+        Map<String, Primitive> curOpArgs,
         Map<String, PrimitiveEntry> instructionArgs,
         PrimitiveEntry rootPrimitive,
         PrimitiveEntry curPrimitive
@@ -207,35 +205,18 @@ public final class IRAnalyzer
         String opName = "";
 
         int opArgCount = 0;
-        for (Argument arg : curOpArgs)
+        for (Map.Entry<String, Primitive> e : curOpArgs.entrySet())
         {
-            switch (arg.getKind())
+            final String argName = uniqueName(e.getKey(), instructionArgs.keySet());
+            final Primitive argType = e.getValue();
+
+            boolean addToInstructionArgs = false;
+            switch (argType.getKind())
             {
                 case MODE:
+                case IMM:
                 {
-                    final String argName = 
-                        uniqueName(arg.getName(), instructionArgs.keySet());
-
-                    final PrimitiveEntry modePrimitive =
-                        new PrimitiveEntry(arg.getTypeText(), Argument.Kind.MODE);
-
-                    curPrimitive.addArgument(argName, modePrimitive);
-                    instructionArgs.put(argName, modePrimitive);
-
-                    break;
-                }
-                
-                case TYPE:
-                {
-                    final String argName = 
-                        uniqueName(arg.getName(), instructionArgs.keySet());
-
-                    final PrimitiveEntry typePrimitive =
-                        new PrimitiveEntry(arg.getTypeText(), Argument.Kind.TYPE);
-                    
-                    curPrimitive.addArgument(argName, typePrimitive);
-                    instructionArgs.put(argName, typePrimitive);
-                    
+                    addToInstructionArgs = true;
                     break;
                 }
 
@@ -243,38 +224,29 @@ public final class IRAnalyzer
                 {
                     if (opArgCount > 0)
                     {
-                        reportError(String.format(EXCEEDING_OP_ARG_COUNT_FRMT, 
-                            arg.getName(), curPrimitive.getName()));
+                        reportError(String.format(EXCEEDING_OP_ARG_COUNT_FRMT, argName, curPrimitive.getName()));
                         return false;
                     }
 
                     opArgCount++;
+                    opName = argName;
 
-                    opName = arg.getName();
-                    saveAllOpsToList(arg.getOp(), opList);
-
-                    final PrimitiveEntry opPrimitive =
-                        new PrimitiveEntry(arg.getTypeText(), Argument.Kind.OP);
-
-                    curPrimitive.addArgument(arg.getName(), opPrimitive);
-
+                    saveAllOpsToList(argType, opList);
                     break;
                 }
 
                 default:
                 {
-                    reportError(
-                        String.format(UNSUPPORTED_ARGUMENT_TYPE_FRMT,
-                            arg.getName(),
-                            curPrimitive.getName(),
-                            arg.getKind().name(),
-                            arg.getTypeText()
-                            )
-                        );
-
+                    reportError(String.format(UNSUPPORTED_ARG_TYPE_FRMT, argName, curPrimitive.getName(), argType.getKind().name(), argType.getName()));
                     return false;
                 }
             }
+
+            final PrimitiveEntry primitive = new PrimitiveEntry(argType.getName(), argType.getKind());
+            curPrimitive.addArgument(argName, primitive);
+
+            if (addToInstructionArgs)
+                instructionArgs.put(argName, primitive);
         }
 
         if (opList.isEmpty())
@@ -288,16 +260,14 @@ public final class IRAnalyzer
 
         for (Primitive op : opList)
         {
-            final PrimitiveEntry childPrimitive =
-                new PrimitiveEntry(op.getName(), Argument.Kind.OP);
-
-            curPrimitive.resetArgument(opName, childPrimitive);
+            final PrimitiveEntry primitive = new PrimitiveEntry(op.getName(), Primitive.Kind.OP);
+            curPrimitive.resetArgument(opName, primitive);
 
             if (!traverseOperationTree(
-                    ((PrimitiveAND) op).getArgs().values(),
+                    ((PrimitiveAND) op).getArgs(),
                     new LinkedHashMap<String, PrimitiveEntry>(instructionArgs),
                     rootPrimitive,
-                    childPrimitive
+                    primitive
                     )
                 )
             {
@@ -343,8 +313,8 @@ public final class IRAnalyzer
         String result = name;
 
         int index = 1;
-        while (existingNames.contains(name))
-            result = String.format("%s_%d", name, index);
+        while (existingNames.contains(result))
+            result = String.format("%s_%d", name, index++);
 
         return result;
     }
@@ -363,7 +333,7 @@ final class Messages
     public static final String ROOT_OPERATION_CANT_BE_OR_RULE =
         "The root operation cannot be an OR-rule.";
 
-    public static final String UNSUPPORTED_ARGUMENT_TYPE_FRMT =
+    public static final String UNSUPPORTED_ARG_TYPE_FRMT =
         "The '%s' argument of the '%s' primitive has an unsupported kind %s (type name is '%s')";
 
     public static final String EXCEEDING_OP_ARG_COUNT_FRMT =

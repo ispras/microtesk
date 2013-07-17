@@ -15,21 +15,20 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public class PrimitiveAND extends Primitive
 {
     private final Expr retExpr;
-    private final Map<String, Argument> args;
+    private final Map<String, Primitive> args;
     private final Map<String, Attribute> attrs;
 
     PrimitiveAND(
         String name,
         Kind kind,
         Expr retExpr,
-        Map<String, Argument> args,
+        Map<String, Primitive> args,
         Map<String, Attribute> attrs
         )
     {
@@ -39,7 +38,7 @@ public class PrimitiveAND extends Primitive
         this.attrs   = attrs;
     }
 
-    public final Map<String, Argument> getArgs()
+    public final Map<String, Primitive> getArgs()
     {
         return args;
     }

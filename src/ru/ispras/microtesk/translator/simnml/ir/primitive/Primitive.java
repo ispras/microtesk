@@ -15,8 +15,9 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
@@ -48,7 +49,7 @@ public class Primitive
     }
 
     static Primitive createMode(
-        String name, Expr retExpr, Map<String, Argument> args, Map<String, Attribute> attrs)
+        String name, Expr retExpr, Map<String, Primitive> args, Map<String, Attribute> attrs)
     {
         return new PrimitiveAND(name, Kind.MODE, retExpr, args, attrs);
     }
@@ -59,7 +60,7 @@ public class Primitive
     }
 
     static final Primitive createOp(
-        String name, Map<String, Argument> args, Map<String, Attribute> attrs)
+        String name, Map<String, Primitive> args, Map<String, Attribute> attrs)
     {
         return new PrimitiveAND(name, Kind.OP, null, args, attrs);
     }
@@ -69,14 +70,29 @@ public class Primitive
         return new PrimitiveOR(name, Kind.OP, ors);
     }
     
-    static Primitive createImm(String name, TypeExpr type)
+    static Primitive createImm(TypeExpr type)
     {
-        return new Primitive(name, Kind.IMM, false, type);
+        return new Primitive(type.getRefName(), Kind.IMM, false, type);
     }
 
     public final String getName()
     {
-        return name;
+        if (null != name)
+            return name;
+
+        if (Kind.IMM == kind)
+        {
+            return String.format(
+                "new %s(%s.%s, %s)",
+                Type.class.getSimpleName(),
+                ETypeID.class.getSimpleName(),
+                returnType.getTypeId().name(),
+                returnType.getBitSize().getText()
+            );
+        }
+
+        assert false : "Primitive name is not defined.";
+        return null;
     }
 
     public final Kind getKind()

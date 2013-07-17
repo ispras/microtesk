@@ -24,7 +24,6 @@ import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingMode;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
@@ -71,16 +70,19 @@ public class AddressingModeSTBuilder implements ITemplateBuilder
 
     private void buildArguments(STGroup group, ST t)
     {
-        for(Argument arg : mode.getArgs().values())
+        for(Map.Entry<String, Primitive> e : mode.getArgs().entrySet())
         {
+            final String    argName = e.getKey();
+            final Primitive argType = e.getValue();
+
             final ST paramDecl = group.getInstanceOf("new_mode_param");
 
-            paramDecl.add("name", arg.getName());
-            paramDecl.add("type", arg.getTypeText());
+            paramDecl.add("name", argName);
+            paramDecl.add("type", argType.getName());
 
             t.add("param_decls", paramDecl);
 
-            t.add("param_names", arg.getName());
+            t.add("param_names", argName);
         }
     }
 

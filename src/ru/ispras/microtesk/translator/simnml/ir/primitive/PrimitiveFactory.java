@@ -16,51 +16,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.antlr.runtime.RecognitionException;
-
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
+import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.simnml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public final class PrimitiveFactory
 {
-    private final Map<String, Primitive> modes;
-    private final Map<String, Primitive>   ops;
-    private final IErrorReporter      reporter;
+    private final IR ir;
+    private final IErrorReporter reporter;
 
     public PrimitiveFactory(IR ir, IErrorReporter reporter)
     {
-        this.modes    = ir.getModes();
-        this.ops      = ir.getOps();
+        this.ir = ir;
         this.reporter = reporter;
     }
 
     public Primitive createMode(
         Where where,
         String name,
-        Map<String, Argument> args,
+        Map<String, Primitive> args,
         Map<String, Attribute> attrs,
-        Expr retExpr) throws RecognitionException
+        Expr retExpr) throws SemanticException
     {
-        for (Map.Entry<String, Argument> e : args.entrySet())
+        for (Map.Entry<String, Primitive> e : args.entrySet())
         {
-            if (Argument.Kind.TYPE != e.getValue().getKind())
+            if (Primitive.Kind.IMM != e.getValue().getKind())
+            {
                 reporter.raiseError(
-                    where,
-                    new UnsupportedParameterType(
-                        e.getKey(), e.getValue().getKind().name(), Argument.Kind.TYPE.name()
-                    )
-                );
+                    where, new UnsupportedParameterType(e.getKey(), e.getValue().getKind().name(), Primitive.Kind.IMM.name()));
+            }
         }
 
         return Primitive.createMode(name, retExpr, args, attrs);
@@ -69,8 +63,8 @@ public final class PrimitiveFactory
     public Primitive createOp(
         Where where,
         String name,
-        Map<String, Argument> args,
-        Map<String, Attribute> attrs) throws RecognitionException
+        Map<String, Primitive> args,
+        Map<String, Attribute> attrs) throws SemanticException
     {
         return Primitive.createOp(name, args, attrs);
     }
@@ -78,22 +72,22 @@ public final class PrimitiveFactory
     public Primitive createModeOR(
         Where where,
         String name,
-        List<String> orNames) throws RecognitionException
+        List<String> orNames) throws SemanticException
     {
         final List<Primitive> orModes = new ArrayList<Primitive>();
 
         for (String orName : orNames)
         {
-            if (!modes.containsKey(orName))
+            if (!ir.getModes().containsKey(orName))
+            {
                 reporter.raiseError(
-                    where,
-                    new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.MODE)
-                );
+                    where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.MODE));
+            }
 
-            final Primitive mode = modes.get(orName);
+            final Primitive mode = ir.getModes().get(orName);
 
             if (!orModes.isEmpty())
-                new CompatibilityChecker(where, name, mode, orModes.get(0)).check();
+                new CompatibilityChecker(reporter, where, name, mode, orModes.get(0)).check();
 
             orModes.add(mode);
         }
@@ -104,102 +98,128 @@ public final class PrimitiveFactory
     public Primitive createOpOR(
         Where where,
         String name,
-        List<String> orNames) throws RecognitionException
+        List<String> orNames) throws SemanticException
     {
         final List<Primitive> orOps = new ArrayList<Primitive>();
 
         for (String orName : orNames)
         {
-            if (!ops.containsKey(orName))
+            if (!ir.getOps().containsKey(orName))
+            {
                 reporter.raiseError(
-                    where,
-                    new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.OP)
-                );
+                    where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.OP));
+            }
 
-            orOps.add(ops.get(orName));
+            orOps.add(ir.getOps().get(orName));
         }
 
         return Primitive.createOpOR(name, orOps);
     }
-    
-    private final class CompatibilityChecker
+
+    public Primitive createImm(TypeExpr type)
     {
-        private static final String TYPE_MISMATCH_ERROR =
-            "The %s mode cannot be a part of the %s mode OR-rule. Reason: return type mismatch.";
+        return Primitive.createImm(type);
+    }
 
-        private static final String SIZE_MISMATCH_ERROR =
-            "The %s mode cannot be a part of the %s mode OR-rule. Reason: return type size mismatch.";
-
-        private final Where where;
-        private final String name;
-        private final Primitive current;
-        private final Primitive expected;
-
-        public CompatibilityChecker(
-            Where where,
-            String name,
-            Primitive current,
-            Primitive expected
-            )
+    public Primitive getMode(Where where, String modeName) throws SemanticException
+    {
+        if (!ir.getModes().containsKey(modeName))
         {
-            this.where    = where;
-            this.name     = name;
-            this.current  = current;
-            this.expected = expected;
+            reporter.raiseError(
+                where, new UndefinedPrimitive(modeName, ESymbolKind.MODE));
         }
+
+        return ir.getModes().get(modeName);
+    }
+
+    public Primitive getOp(Where where, String opName) throws SemanticException
+    {
+        if (!ir.getOps().containsKey(opName))
+        {
+            reporter.raiseError(
+                where, new UndefinedPrimitive(opName, ESymbolKind.OP));
+        }
+
+        return ir.getOps().get(opName);
+    }
+}
+
+final class CompatibilityChecker
+{
+    private static final String TYPE_MISMATCH_ERROR =
+        "The %s mode cannot be a part of the %s mode OR-rule. Reason: return type mismatch.";
+
+    private static final String SIZE_MISMATCH_ERROR =
+        "The %s mode cannot be a part of the %s mode OR-rule. Reason: return type size mismatch.";
+
+    private final IErrorReporter reporter;
+    private final Where where;
+    private final String name;
+    private final Primitive current;
+    private final Primitive expected;
+
+    public CompatibilityChecker(
+        IErrorReporter reporter,
+        Where where,
+        String name,
+        Primitive current,
+        Primitive expected
+        )
+    {
+        this.reporter = reporter;
+        this.where    = where;
+        this.name     = name;
+        this.current  = current;
+        this.expected = expected;
+    }
+    
+    public void check() throws SemanticException
+    {
+        final TypeExpr currentType = current.getReturnType();
+        final TypeExpr expectedType = expected.getReturnType();
         
-        public void check() throws RecognitionException
+        if (currentType == expectedType)
+            return;
+
+        checkType(currentType, expectedType);
+        checkSize(currentType, expectedType);
+    }
+
+    private void checkType(final TypeExpr currentType, final TypeExpr expectedType) throws SemanticException
+    {
+        if (expectedType == currentType)
+            return;
+
+        if (expectedType.getTypeId() == currentType.getTypeId())
+            return;
+
+        if (isInteger(currentType.getTypeId()) && isInteger(expectedType.getTypeId()))
+            return;
+
+        raiseError(
+            where, String.format(TYPE_MISMATCH_ERROR, current.getName(), name));
+    }
+
+    private void checkSize(final TypeExpr currentType, final TypeExpr expectedType) throws SemanticException
+    {
+        if (currentType.getBitSize().getValue().equals(expectedType.getBitSize().getValue()))
+            return;
+
+        raiseError(
+            where, String.format(SIZE_MISMATCH_ERROR, current.getName(), name));
+    }
+
+    private boolean isInteger(final ETypeID typeID)
+    {
+        return (typeID == ETypeID.CARD) || (typeID == ETypeID.INT);
+    }
+
+    private void raiseError(final Where where, final String what) throws SemanticException
+    {
+        reporter.raiseError(where, new ISemanticError()
         {
-            final TypeExpr currentType = current.getReturnType();
-            final TypeExpr expectedType = expected.getReturnType();
-            
-            if (currentType == expectedType)
-                return;
-
-            checkType(currentType, expectedType);
-            checkSize(currentType, expectedType);
-        }
-
-        private void checkType(final TypeExpr currentType, final TypeExpr expectedType) throws RecognitionException
-        {
-            if (expectedType == currentType)
-                return;
-
-            if (expectedType.getTypeId() == currentType.getTypeId())
-                return;
-
-            if (isInteger(currentType.getTypeId()) && isInteger(expectedType.getTypeId()))
-                return;
-
-            raiseError(
-                where,
-                String.format(TYPE_MISMATCH_ERROR, current.getName(), name)
-                );
-        }
-
-        private void checkSize(final TypeExpr currentType, final TypeExpr expectedType) throws RecognitionException
-        {
-            if (currentType.getBitSize().getValue().equals(expectedType.getBitSize().getValue()))
-                return;
-
-            raiseError(
-                where,
-                String.format(SIZE_MISMATCH_ERROR, current.getName(), name)
-                );
-        }
-
-        private boolean isInteger(final ETypeID typeID)
-        {
-            return (typeID == ETypeID.CARD) || (typeID == ETypeID.INT);
-        }
-
-        private void raiseError(final Where where, final String what) throws SemanticException
-        {
-            reporter.raiseError(where, new ISemanticError()
-            {
-                @Override
-                public String getMessage() { return what; }
-            });
-        }
+            @Override
+            public String getMessage() { return what; }
+        });
     }
 }

@@ -12,6 +12,8 @@
 
 package ru.ispras.microtesk.translator.simnml.generation.builders;
 
+import java.util.Map;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -24,7 +26,6 @@ import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.AttributeFactory;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
@@ -106,46 +107,40 @@ public class OperationSTBuilder implements ITemplateBuilder
     
     private void buildArguments(STGroup group, ST t)
     {
-        for (Argument arg : op.getArgs().values())
+        for (Map.Entry<String, Primitive> e : op.getArgs().entrySet())
         {
-            t.add("arg_names", arg.getName());
+            final String    argName = e.getKey();
+            final Primitive argType = e.getValue();
 
-            if (Argument.Kind.MODE == arg.getKind())
+            t.add("arg_names", argName);
+            
+            final ST argCheckST;
+            if (Primitive.Kind.MODE == argType.getKind())
             {
                 importModeDependencies(t);
                 t.add("arg_types", IAddressingMode.class.getSimpleName());
 
-                final ST argCheckST = group.getInstanceOf("op_arg_check_opmode");
-
-                argCheckST.add("arg_name", arg.getName());
-                argCheckST.add("arg_type", arg.getTypeText());
-
-                t.add("arg_checks", argCheckST);
+                argCheckST = group.getInstanceOf("op_arg_check_opmode");
             }
-            else if (Argument.Kind.OP == arg.getKind())
+            else if (Primitive.Kind.OP == argType.getKind())
             {
                 importOpDependencies(t);
                 t.add("arg_types", IOperation.class.getSimpleName());
 
-                final ST argCheckST = group.getInstanceOf("op_arg_check_opmode");
-
-                argCheckST.add("arg_name", arg.getName());
-                argCheckST.add("arg_type", arg.getTypeText());
-
-                t.add("arg_checks", argCheckST);
+                argCheckST = group.getInstanceOf("op_arg_check_opmode");
             }
-            else // if EArgumentKind.TYPE == oa.getKind()
+            else // if Primitive.Kind.IMM == oa.getKind()
             {
                 importImmDependencies(t);
                 t.add("arg_types", Location.class.getSimpleName());
 
-                final ST argCheckST = group.getInstanceOf("op_arg_check_imm");
-
-                argCheckST.add("arg_name", arg.getName());
-                argCheckST.add("arg_type", arg.getTypeText());
-
-                t.add("arg_checks", argCheckST);
+                argCheckST = group.getInstanceOf("op_arg_check_imm");
             }
+            
+            argCheckST.add("arg_name", argName);
+            argCheckST.add("arg_type", argType.getName());
+
+            t.add("arg_checks", argCheckST);
         }
     }
 
