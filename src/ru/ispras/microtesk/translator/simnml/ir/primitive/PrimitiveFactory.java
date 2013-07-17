@@ -13,7 +13,6 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,22 +24,20 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.simnml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.ArgumentTypeExpr;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.modeop.EArgumentKind;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public final class PrimitiveFactory
 {
-    public final Map<String, Primitive> modes;
-    public final Map<String, Primitive>   ops;
-    public final IErrorReporter      reporter;
+    private final Map<String, Primitive> modes;
+    private final Map<String, Primitive>   ops;
+    private final IErrorReporter      reporter;
 
     public PrimitiveFactory(IR ir, IErrorReporter reporter)
     {
@@ -52,75 +49,31 @@ public final class PrimitiveFactory
     public Primitive createMode(
         Where where,
         String name,
-        Map<String, ArgumentTypeExpr> args,
+        Map<String, Argument> args,
         Map<String, Attribute> attrs,
         Expr retExpr) throws RecognitionException
     {
-        final Map<String, Argument> modeArgs = new LinkedHashMap<String, Argument>();
-
-        for (Map.Entry<String, ArgumentTypeExpr> e : args.entrySet())
+        for (Map.Entry<String, Argument> e : args.entrySet())
         {
             if (EArgumentKind.TYPE != e.getValue().getKind())
                 reporter.raiseError(
                     where,
                     new UnsupportedParameterType(
-                        e.getKey(),
-                        e.getValue().getKind().name(),
-                        EArgumentKind.TYPE.name()
+                        e.getKey(), e.getValue().getKind().name(), EArgumentKind.TYPE.name()
                     )
                 );
-
-            modeArgs.put(
-                e.getKey(),
-                new Argument(e.getKey(), e.getValue().getTypeExpr())
-            );
         }
 
-        return Primitive.createMode(name, retExpr, modeArgs, attrs);
+        return Primitive.createMode(name, retExpr, args, attrs);
     }
 
     public Primitive createOp(
         Where where,
         String name,
-        Map<String, ArgumentTypeExpr> args,
+        Map<String, Argument> args,
         Map<String, Attribute> attrs) throws RecognitionException
     {
-        final Map<String, Argument> opArgs = new LinkedHashMap<String, Argument>();
-
-        for (Map.Entry<String, ArgumentTypeExpr> e : args.entrySet())
-        {
-            final String argName = e.getKey();
-            final ArgumentTypeExpr argType = e.getValue();
-               
-                if (EArgumentKind.MODE == argType.getKind())
-                {
-                    if (!modes.containsKey(argType.getTypeName()))
-                        reporter.raiseError(
-                            where,
-                            new UndefinedPrimitive(argType.getTypeName(), ESymbolKind.MODE)
-                        );
-
-                    final Primitive argTypeMode = modes.get(argType.getTypeName());
-                    opArgs.put(argName, new Argument(argName, argTypeMode));
-                }
-                else if (EArgumentKind.OP == argType.getKind())
-                {
-                    if (!ops.containsKey(argType.getTypeName()))
-                        reporter.raiseError(
-                            where,
-                            new UndefinedPrimitive(argType.getTypeName(), ESymbolKind.OP)
-                        );
-
-                    final Primitive argTypeOp = ops.get(argType.getTypeName());
-                    opArgs.put(argName, new Argument(argName, argTypeOp));
-                }
-                else // -> if (EArgumentKind.TYPE == argType.getKind())
-                {
-                    opArgs.put(argName, new Argument(argName, argType.getTypeExpr()));
-                }
-            }
-
-        return Primitive.createOp(name, opArgs, attrs);
+        return Primitive.createOp(name, args, attrs);
     }
 
     public Primitive createModeOR(

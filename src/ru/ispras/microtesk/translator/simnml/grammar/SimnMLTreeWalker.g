@@ -77,7 +77,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.*;
 /*======================================================================================*/
 
 @members {
-private Map<String, ArgumentTypeExpr> globalArgTypes = null;
+private Map<String, Argument> globalArgTypes = null;
 }
 
 /*======================================================================================*/
@@ -300,20 +300,21 @@ orRule returns [List<String> res]
 /* And rules (for modes and ops)                                                        */
 /*======================================================================================*/
 
-andRule returns [Map<String,ArgumentTypeExpr> res]
-@init  {final Map<String,ArgumentTypeExpr> args = new LinkedHashMap<String,ArgumentTypeExpr>();}
+andRule returns [Map<String,Argument> res]
+@init  {final Map<String,Argument> args = new LinkedHashMap<String,Argument>();}
 @after {$res = args;}
-    :  ^(ARGS (^(id=ID at=argType)
+    :  ^(ARGS (^(id=ID at=argType[$id.text])
 {
 declare($id, ESymbolKind.ARGUMENT, false);
 args.put($id.text, $at.res);
 })*)
     ;
 
-argType returns [ArgumentTypeExpr res]
-    :  ^(ARG_MODE id=ID) {$res = new ArgumentTypeExpr(EArgumentKind.MODE, $id.text);}
-    |  ^(ARG_OP id=ID)   {$res = new ArgumentTypeExpr(EArgumentKind.OP,   $id.text);}
-    |  te=typeExpr       {$res = new ArgumentTypeExpr(EArgumentKind.TYPE, $te.res); }
+argType [String argName] returns [Argument res]
+@init  {final ArgumentFactory factory = getArgumentFactory();}
+    :  ^(ARG_MODE id=ID) {$res = factory.createMode(where($id), argName, $id.text); }
+    |  ^(ARG_OP id=ID)   {$res = factory.createOp(where($id), argName, $id.text); }
+    |  te=typeExpr       {$res = factory.createType(argName, $te.res); }
     ;
 
 /*======================================================================================*/

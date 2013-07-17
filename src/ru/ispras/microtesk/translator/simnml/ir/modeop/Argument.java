@@ -19,6 +19,18 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Argument
 {
+    public static enum Kind
+    {
+        /** Immediate value. */
+        TYPE,
+
+        /** Addressing mode. */
+        MODE,
+
+        /** Operation. */
+        OP
+    }
+
     private final String name;
     private final EArgumentKind kind;
 

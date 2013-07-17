@@ -17,7 +17,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.simnml.ir.modeop.ArgumentTypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.modeop.Argument;
 
 public interface LocationExprFactory
 {
@@ -26,7 +26,7 @@ public interface LocationExprFactory
     public void resetLog();
 
     public LocationExpr location(
-         Where w, String name, Map<String, ArgumentTypeExpr> globalArgTypes) throws SemanticException;
+         Where w, String name, Map<String, Argument> globalArgTypes) throws SemanticException;
 
     public LocationExpr location(
          Where w, String name, Expr index) throws SemanticException;
