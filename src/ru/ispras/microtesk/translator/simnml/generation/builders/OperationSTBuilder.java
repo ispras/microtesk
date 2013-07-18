@@ -23,24 +23,15 @@ import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.model.api.simnml.instruction.Operation;
 import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public class OperationSTBuilder implements ITemplateBuilder
+public class OperationSTBuilder extends PrimitiveBaseSTBuilder
 {
-    public static final String[] STANDARD_ATTRIBUTES =
-    {
-        AttributeFactory.IMAGE_NAME,
-        AttributeFactory.SYNTAX_NAME,
-        AttributeFactory.ACTION_NAME
-    };
-
     private final String specFileName;
     private final String modelName;
     private final PrimitiveAND op;
@@ -151,22 +142,12 @@ public class OperationSTBuilder implements ITemplateBuilder
             final ST attrST = group.getInstanceOf("op_attribute");
 
             attrST.add("name", attr.getName());
-            attrST.add("rettype", attr.getRetTypeName());
+            attrST.add("rettype", getRetTypeName(attr.getKind()));
 
             for (Statement stmt: attr.getStatements())
                 attrST.add("stmts", stmt.getText());
 
-            boolean isStandard = false;
-            for (String standardName : STANDARD_ATTRIBUTES)
-            {
-                if (standardName.equals(attr.getName()))
-                {
-                    isStandard = true;
-                    break;
-                }
-            }
-
-            attrST.add("override", isStandard);
+            attrST.add("override", isStandardAttribute(attr.getName()));
             t.add("attrs", attrST);
         }
     }

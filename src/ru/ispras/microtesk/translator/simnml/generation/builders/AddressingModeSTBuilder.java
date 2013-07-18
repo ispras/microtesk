@@ -22,7 +22,6 @@ import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingMode;
-import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
@@ -31,7 +30,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public class AddressingModeSTBuilder implements ITemplateBuilder
+public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
 {
     private final String specFileName;
     private final String    modelName;
@@ -93,7 +92,7 @@ public class AddressingModeSTBuilder implements ITemplateBuilder
             final ST attrST = group.getInstanceOf("mode_attribute");
 
             attrST.add("name",    attr.getName());
-            attrST.add("rettype", attr.getRetTypeName());
+            attrST.add("rettype", getRetTypeName(attr.getKind()));
 
             for (Statement stmt: attr.getStatements())
                 attrST.add("stmts", stmt.getText());

@@ -73,7 +73,7 @@ public final class AttributeFactory
 
         return new Attribute(
              name,
-             Attribute.EKind.EXPRESSION,
+             Attribute.Kind.EXPRESSION,
              Collections.singletonList((Statement)new TextStatement(DEFAULT_EXPR_CODE))
              );
     }
@@ -85,7 +85,7 @@ public final class AttributeFactory
 
         return new Attribute(
             name,
-            Attribute.EKind.ACTION,
+            Attribute.Kind.ACTION,
             Collections.singletonList((Statement)new TextStatement(DEFAULT_ACTION_CODE))
             );
     }
@@ -107,7 +107,7 @@ public final class AttributeFactory
     {
         return new Attribute(
              name,
-             Attribute.EKind.ACTION,
+             Attribute.Kind.ACTION,
              stmts
              );
     }
@@ -116,7 +116,7 @@ public final class AttributeFactory
     {
         return new Attribute(
             name,
-            Attribute.EKind.EXPRESSION,
+            Attribute.Kind.EXPRESSION,
             Collections.singletonList(
                 (Statement)new TextStatement(
                     String.format("return %s", exprStatement.getText()))));
