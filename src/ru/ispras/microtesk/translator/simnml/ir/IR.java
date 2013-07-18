@@ -70,10 +70,12 @@ public final class IR
 
     public void add(String name, Primitive value)
     {
-        if (value.getKind() == Primitive.Kind.MODE)
+        if (Primitive.Kind.MODE == value.getKind())
             modes.put(name, value);
-        else
+        else if (Primitive.Kind.OP == value.getKind())
             ops.put(name, value);
+        else
+            assert false : String.format( "Incorrect primitive kind: %s.", value.getKind());
     }
     
     public void add(String name, Instruction value)
