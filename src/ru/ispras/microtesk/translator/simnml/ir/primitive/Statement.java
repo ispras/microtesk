@@ -23,6 +23,7 @@ public abstract class Statement
         CALL,
         ASSIGN,
         COND,
+        FORMAT,
         @Deprecated TEXT
     }
 
@@ -140,6 +141,20 @@ final class ConditionalStatement extends Statement
     public List<Statement> getElseStatements()
     {
         return elseSmts;
+    }
+
+    @Override
+    public String getText()
+    {
+        return null;
+    }
+}
+
+final class FormatStatement extends Statement
+{
+    public FormatStatement()
+    {
+        super(Kind.FORMAT);
     }
 
     @Override
