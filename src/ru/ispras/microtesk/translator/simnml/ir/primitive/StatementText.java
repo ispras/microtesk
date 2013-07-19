@@ -24,7 +24,7 @@ public class StatementText extends Statement
         this(DEFAULT_CODE);
     }
 
-    public StatementText(String text)
+    StatementText(String text)
     {
         super(Kind.TEXT);
 
