@@ -34,44 +34,4 @@ public abstract class Statement
     {
         return kind;
     }
-
-    public abstract String getText();
-}
-
-final class FormatStatement extends Statement
-{
-    public FormatStatement()
-    {
-        super(Kind.FORMAT);
-    }
-
-    @Override
-    public String getText()
-    {
-        return null;
-    }
-}
-
-class TextStatement extends Statement
-{
-    private final String text;
-
-    TextStatement()
-    {
-        super(Kind.TEXT);
-        
-        this.text = "//Default code\r\nreturn null";
-    }
-
-    public TextStatement(String text)
-    {
-        super(Kind.TEXT);
-        
-        this.text = text;
-    }
-
-    public String getText()
-    {
-        return text;
-    }
 }

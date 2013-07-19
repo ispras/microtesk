@@ -73,7 +73,7 @@ public final class AttributeFactory
         return new Attribute(
              name,
              Attribute.Kind.EXPRESSION,
-             Collections.singletonList((Statement)new TextStatement(DEFAULT_EXPR_CODE))
+             Collections.singletonList((Statement)new StatementText(DEFAULT_EXPR_CODE))
              );
     }
 
@@ -85,7 +85,7 @@ public final class AttributeFactory
         return new Attribute(
             name,
             Attribute.Kind.ACTION,
-            Collections.singletonList((Statement)new TextStatement(DEFAULT_ACTION_CODE))
+            Collections.singletonList((Statement)new StatementText(DEFAULT_ACTION_CODE))
             );
     }
 
@@ -117,8 +117,8 @@ public final class AttributeFactory
             name,
             Attribute.Kind.EXPRESSION,
             Collections.singletonList(
-                (Statement)new TextStatement(
-                    String.format("return %s", exprStatement.getText()))));
+                (Statement)new StatementText(
+                    String.format("return %s",  ((StatementText) exprStatement).getText()))));
     }
 
     public Attribute syntax()
@@ -141,24 +141,24 @@ public final class AttributeFactory
 
     public Statement createCommentStatement(String text)
     {
-        return new TextStatement(String.format("// %s", text));
+        return new StatementText(String.format("// %s", text));
     }
 
     public Statement createAttributeCallStatement(String primitive, String attribute)
     {
-        return new TextStatement(
+        return new StatementText(
             String.format("%s.%s();", primitive, attribute));
     }
 
     public Statement createAttributeCallStatement(String attribute)
     {
-        return new TextStatement(
+        return new StatementText(
             String.format("%s();", attribute));
     }
 
     public Statement createTextLiteralStatement(String text)
     {
-        return new TextStatement(String.format("\"%s\";", text));
+        return new StatementText(String.format("\"%s\";", text));
     }
     
     public Statement createFormatStatement(String format, List<FormatArgument> args) 
@@ -181,7 +181,7 @@ public final class AttributeFactory
         final String text = String.format(
             "String.format(\"%s\"%s);", format, sbArgs.toString());
 
-        return new TextStatement(text);
+        return new StatementText(text);
     }
 
     public FormatArgument createAttrCallFormatArgument(String primitive, String attribute)
@@ -196,7 +196,7 @@ public final class AttributeFactory
 
     public Statement createControlTransferStatement(int index)
     {
-        return new TextStatement(
+        return new StatementText(
             String.format("%s.set(%d);", ModelStateObserver.CTRL_TRANSFER_NAME, index));
     }
 }

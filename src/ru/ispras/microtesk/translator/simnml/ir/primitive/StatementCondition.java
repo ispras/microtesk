@@ -51,10 +51,4 @@ public final class StatementCondition extends Statement
     {
         return elseSmts;
     }
-
-    @Override
-    public String getText()
-    {
-        return null;
-    }
 }

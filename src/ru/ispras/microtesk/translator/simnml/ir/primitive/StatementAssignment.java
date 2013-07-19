@@ -40,11 +40,4 @@ public final class StatementAssignment extends Statement
     {
         return right;
     }
-
-    @Override
-    public String getText()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }
