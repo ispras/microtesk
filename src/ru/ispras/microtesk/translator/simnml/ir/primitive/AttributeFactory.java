@@ -23,7 +23,6 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExpr;
 
 public final class AttributeFactory
 {
@@ -155,18 +154,6 @@ public final class AttributeFactory
     {
         return new TextStatement(
             String.format("%s();", attribute));
-    }
-
-    public Statement createAssignmentStatement(LocationExpr left, Expr right)
-    {
-        return new TextStatement(
-            String.format("%s.store(%s);", left.getText(), right.getText()));
-    }
-    
-    public Statement createIfElseStatement(
-        Expr condition, List<Statement> isSmts, List<Statement> elseSmts)
-    {
-        return new IfElseStatement(condition, isSmts, elseSmts);
     }
 
     public Statement createTextLiteralStatement(String text)

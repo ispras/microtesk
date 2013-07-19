@@ -472,12 +472,14 @@ assignmentStatement returns [List<Statement> res]
 @init
 {
 final AttributeFactory factory = getAttributeFactory();
+final StatementFactory factoryST = getStatementFactory();
+
 final PCAnalyzer analyzer = new PCAnalyzer(getLocationExprFactory(), getIR());
 }
     :  ^(ASSIGN le=location {analyzer.startTrackingSource();} me=modelExpr)
 {
 final List<Statement> result = new ArrayList<Statement>();
-result.add(factory.createAssignmentStatement($le.res, $me.res));
+result.add(factoryST.createAssignment($le.res, $me.res));
 
 final int ctIndex = analyzer.getControlTransferIndex();
 if (ctIndex > 0)
@@ -495,7 +497,7 @@ conditionalStatement returns [List<Statement> res]
     :   ^(IF cond=javaExpr stmts1=sequence stmts2=elseIf?)
 {
 $res = Collections.singletonList(
-    getAttributeFactory().createIfElseStatement($cond.res, $stmts1.res, $stmts2.res));
+    getStatementFactory().createCondition($cond.res, $stmts1.res, $stmts2.res));
 }
     ;
 

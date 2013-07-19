@@ -12,15 +12,24 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.List;
+
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExpr;
+
 public final class StatementFactory
 {
-    public Statement createAssignment()
+    public Statement createAssignment(LocationExpr left, Expr right)
     {
-        // TODO: implement
-        return null;
+        return new StatementAssignment(left, right);
     }
 
-    public Statement createCondition()
+    public Statement createCondition(Expr cond, List<Statement> isSmts, List<Statement> elseSmts)
+    {
+        return new StatementCondition(cond, isSmts, elseSmts);
+    }
+
+    public Statement createAttributeCall()
     {
         // TODO: implement
         return null;

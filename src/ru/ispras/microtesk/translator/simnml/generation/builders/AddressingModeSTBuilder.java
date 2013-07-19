@@ -95,7 +95,7 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
             attrST.add("rettype", getRetTypeName(attr.getKind()));
 
             for (Statement stmt: attr.getStatements())
-                attrST.add("stmts", stmt.getText());
+                addStatement(attrST, stmt);
 
             t.add("attrs", attrST);
         }

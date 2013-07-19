@@ -39,6 +39,7 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveFactory;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExprFactory;
@@ -87,6 +88,7 @@ public class TreeWalkerBase extends TreeParserEx
     private MemoryExprFactory   memoryExprFactory   = null;
     private PrimitiveFactory    primitiveFactory    = null;
     private AttributeFactory    attributeFactory    = null;
+    private StatementFactory    statementFactory    = null;
 
     protected final ExprFactory getExprFactory(EExprKind targetKind)
     {
@@ -139,6 +141,13 @@ public class TreeWalkerBase extends TreeParserEx
         if (null == attributeFactory)
             attributeFactory = new AttributeFactory(this, symbols, ir);
         return attributeFactory;
+    }
+
+    protected final StatementFactory getStatementFactory()
+    {
+        if (null == statementFactory)
+            statementFactory = new StatementFactory();
+        return statementFactory;
     }
 
     /*======================================================================================*/
