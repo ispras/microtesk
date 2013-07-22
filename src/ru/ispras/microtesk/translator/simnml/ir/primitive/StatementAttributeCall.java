@@ -12,40 +12,36 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
-public class StatementAttributeCall extends Statement
+public final class StatementAttributeCall extends Statement
 {
-    private final Attribute        callee;
-    private final String    calleeObjName;
-    private final Primitive calleeObjType;
+    private final Primitive     callee;
+    private final String    calleeName;
+    private final String attributeName;
 
-    StatementAttributeCall(
-        Attribute callee,
-        String calleeObjName,
-        Primitive calleeObjType
-        )
+    StatementAttributeCall(Primitive callee, String calleeName, String attributeName)
     {
         super(Kind.CALL);
         
         assert null != callee;
-        assert null != calleeObjType;
+        assert null != attributeName;
 
         this.callee        = callee;
-        this.calleeObjName = calleeObjName;
-        this.calleeObjType = calleeObjType;
+        this.calleeName    = calleeName;
+        this.attributeName = attributeName;
     }
 
-    public Attribute getCallee()
+    public Primitive getCallee()
     {
-        return callee; 
+        return callee;
     }
 
-    public String getCalleeObjectName()
+    public final String getCalleeName()
     {
-        return calleeObjName;
+        return calleeName;
     }
 
-    public Primitive getCalleeObjectType()
+    public String getAttributeName()
     {
-        return calleeObjType;
+        return attributeName;
     }
 }
