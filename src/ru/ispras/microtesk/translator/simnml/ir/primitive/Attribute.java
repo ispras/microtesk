@@ -27,8 +27,12 @@ public final class Attribute
     private final Kind kind;
     private final List<Statement> stmts;
 
-    public Attribute(String name, Kind kind, List<Statement> stmts)
+    Attribute(String name, Kind kind, List<Statement> stmts)
     {
+        assert null != name;
+        assert null != kind;
+        assert null != stmts;
+        
         this.name  = name;
         this.kind  = kind;
         this.stmts = Collections.unmodifiableList(stmts);
