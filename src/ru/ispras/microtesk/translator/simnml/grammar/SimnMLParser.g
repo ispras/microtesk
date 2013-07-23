@@ -57,7 +57,6 @@ tokens {
 /*======================================================================================*/
 
 @rulecatch {
-/*
 catch (SemanticException re) { // Default behavior
     reportError(re);
     recover(input,re);
@@ -70,7 +69,6 @@ catch (RecognitionException re) { // Default behavior
     // We don't insert error nodes in the IR (walker tree). 
     //retval.tree = (Object)adaptor.errorNode(input, retval.start, input.LT(-1), re);
 }
-*/
 }
 
 /*======================================================================================*/
@@ -195,8 +193,8 @@ alias
 /*======================================================================================*/
 
 modeDef
-    :  MODE^ id=ID modeSpecPart { declare($id, ESymbolKind.MODE, true); }
-    ;
+    :  MODE^ id=ID {declareAndPushSymbolScope($id, ESymbolKind.MODE);} modeSpecPart 
+    ;  finally     {popSymbolScope();}
 
 modeSpecPart
     :  andRule modeReturn? attrDefList
@@ -212,8 +210,8 @@ modeReturn
 /*======================================================================================*/
 
 opDef
-    :  OP^ id=ID opSpecPart { declare($id, ESymbolKind.OP, true); }
-    ;
+    :  OP^ id=ID {declareAndPushSymbolScope($id, ESymbolKind.OP);} opSpecPart
+    ;  finally   {popSymbolScope();}
 
 opSpecPart
     :  andRule attrDefList
@@ -255,10 +253,11 @@ attrDefList
     ;
 
 attrDef
-    :  SYNTAX^ ASSIGN! syntaxDef
-    |  IMAGE^ ASSIGN! imageDef
-    |  ACTION^ ASSIGN! actionDef
-    |  ID^ ASSIGN! actionDef
+    @after {declare($id, ESymbolKind.ATTRIBUTE, false);}
+    :  id=SYNTAX^ ASSIGN! syntaxDef
+    |  id=IMAGE^ ASSIGN! imageDef
+    |  id=ACTION^ ASSIGN! actionDef
+    |  id=ID^ ASSIGN! actionDef
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 

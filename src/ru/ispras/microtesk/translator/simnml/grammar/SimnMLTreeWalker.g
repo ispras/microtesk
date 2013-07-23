@@ -329,10 +329,10 @@ attrs.put($attr.res.getName(), $attr.res);
     ;
 
 attrDef returns [Attribute res]
-    :  ^(SYNTAX {declare($SYNTAX, ESymbolKind.ATTRIBUTE, false);} attr=syntaxDef) {$res = $attr.res;}
-    |  ^(IMAGE  {declare($IMAGE,  ESymbolKind.ATTRIBUTE, false);} attr=imageDef)  {$res = $attr.res;}
-    |  ^(ACTION {declare($ACTION, ESymbolKind.ATTRIBUTE, false);} attr=actionDef[$ACTION.text]) {$res = $attr.res;}
-    |  ^(id=ID {declare($ID, ESymbolKind.ATTRIBUTE, false);} attr=actionDef[$id.text]) {$res = $attr.res;}
+    :  ^(SYNTAX {checkMemberDeclared($SYNTAX, ESymbolKind.ATTRIBUTE);} attr=syntaxDef) {$res = $attr.res;}
+    |  ^(IMAGE  {checkMemberDeclared($IMAGE,  ESymbolKind.ATTRIBUTE);} attr=imageDef)  {$res = $attr.res;}
+    |  ^(ACTION {checkMemberDeclared($ACTION, ESymbolKind.ATTRIBUTE);} attr=actionDef[$ACTION.text]) {$res = $attr.res;}
+    |  ^(id=ID  {checkMemberDeclared($ID,     ESymbolKind.ATTRIBUTE);} attr=actionDef[$id.text]) {$res = $attr.res;}
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 
