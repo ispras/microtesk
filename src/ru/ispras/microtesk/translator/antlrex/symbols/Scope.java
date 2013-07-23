@@ -27,7 +27,18 @@ public final class Scope<Kind extends Enum<Kind>> implements IScope<Kind>
         this.memberSymbols    = new HashMap<String, ISymbol<Kind>>();
         this.associatedSymbol = associatedSymbol;
     }
-    
+
+    @Override
+    public String toString()
+    {
+        return String.format(
+            "Scope [symbol=%s, outerScope=%s, members=%d]",
+            null != associatedSymbol ? associatedSymbol.getName() : "null",
+            null != outerScope ? "YES": "NO",
+            memberSymbols.size()
+            );
+    }
+
     public Scope(IScope<Kind> scope)
     {
         this(scope, null);

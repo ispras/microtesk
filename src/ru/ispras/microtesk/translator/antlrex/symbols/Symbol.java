@@ -28,6 +28,18 @@ public class Symbol <Kind extends Enum<Kind>> implements ISymbol<Kind>
     }
     
     @Override
+    public String toString()
+    {
+        return String.format(
+            "Symbol [name=%s, kind=%s, scope=%s, innerScope=%s]",
+            getName(),
+            getKind(),
+            getOuterScope(),
+            getInnerScope()
+            );
+    }
+    
+    @Override
     public final String getName()
     {
         return token.getText();
