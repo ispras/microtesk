@@ -18,35 +18,17 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
-import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.ir.IR;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
-public final class AttributeFactory
+public final class AttributeFactory extends WalkerFactoryBase
 {
-    // TODO: Members below are temporary unused. 
-    // They will be used in future when I implement error diagnostics.
-  
-    @SuppressWarnings("unused")
-    private final IErrorReporter reporter;
-    @SuppressWarnings("unused")
-    private final SymbolTable<ESymbolKind> symbols;
-    @SuppressWarnings("unused")
-    private final IR ir;
-
     private final Map<String, Attribute> defaultAttrs;
-
-    public AttributeFactory(
-        IErrorReporter reporter,
-        SymbolTable<ESymbolKind> symbols,
-        IR ir
-        )
+    
+    public AttributeFactory(WalkerContext context)
     {
-        this.reporter = reporter;
-        this.symbols = symbols;
-        this.ir = ir;
+        super(context);
         this.defaultAttrs = createDefaultAttributes();
     }
 

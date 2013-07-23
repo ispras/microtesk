@@ -22,22 +22,19 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.simnml.errors.UnsupportedParameterType;
-import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
-public final class PrimitiveFactory
+public final class PrimitiveFactory extends WalkerFactoryBase
 {
-    private final IR ir;
-    private final IErrorReporter reporter;
-
-    public PrimitiveFactory(IR ir, IErrorReporter reporter)
+    public PrimitiveFactory(WalkerContext context)
     {
-        this.ir = ir;
-        this.reporter = reporter;
+        super(context);
     }
 
     public Primitive createMode(
@@ -51,7 +48,7 @@ public final class PrimitiveFactory
         {
             if (Primitive.Kind.IMM != e.getValue().getKind())
             {
-                reporter.raiseError(
+                raiseError(
                     where, new UnsupportedParameterType(e.getKey(), e.getValue().getKind().name(), Primitive.Kind.IMM.name()));
             }
         }
@@ -77,16 +74,16 @@ public final class PrimitiveFactory
 
         for (String orName : orNames)
         {
-            if (!ir.getModes().containsKey(orName))
+            if (!getIR().getModes().containsKey(orName))
             {
-                reporter.raiseError(
+                raiseError(
                     where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.MODE));
             }
 
-            final Primitive mode = ir.getModes().get(orName);
+            final Primitive mode = getIR().getModes().get(orName);
 
             if (!orModes.isEmpty())
-                new CompatibilityChecker(reporter, where, name, mode, orModes.get(0)).check();
+                new CompatibilityChecker(getReporter(), where, name, mode, orModes.get(0)).check();
 
             orModes.add(mode);
         }
@@ -103,13 +100,10 @@ public final class PrimitiveFactory
 
         for (String orName : orNames)
         {
-            if (!ir.getOps().containsKey(orName))
-            {
-                reporter.raiseError(
-                    where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.OP));
-            }
+            if (!getIR().getOps().containsKey(orName))
+                raiseError(where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.OP));
 
-            orOps.add(ir.getOps().get(orName));
+            orOps.add(getIR().getOps().get(orName));
         }
 
         return Primitive.createOpOR(name, orOps);
@@ -122,24 +116,18 @@ public final class PrimitiveFactory
 
     public Primitive getMode(Where where, String modeName) throws SemanticException
     {
-        if (!ir.getModes().containsKey(modeName))
-        {
-            reporter.raiseError(
-                where, new UndefinedPrimitive(modeName, ESymbolKind.MODE));
-        }
+        if (!getIR().getModes().containsKey(modeName))
+            raiseError(where, new UndefinedPrimitive(modeName, ESymbolKind.MODE));
 
-        return ir.getModes().get(modeName);
+        return getIR().getModes().get(modeName);
     }
 
     public Primitive getOp(Where where, String opName) throws SemanticException
     {
-        if (!ir.getOps().containsKey(opName))
-        {
-            reporter.raiseError(
-                where, new UndefinedPrimitive(opName, ESymbolKind.OP));
-        }
+        if (!getIR().getOps().containsKey(opName))
+            raiseError(where, new UndefinedPrimitive(opName, ESymbolKind.OP));
 
-        return ir.getOps().get(opName);
+        return getIR().getOps().get(opName);
     }
 }
 

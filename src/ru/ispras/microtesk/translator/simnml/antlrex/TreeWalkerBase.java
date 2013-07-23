@@ -190,14 +190,14 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
     protected final PrimitiveFactory getPrimitiveFactory()
     {
         if (null == primitiveFactory)
-            primitiveFactory = new PrimitiveFactory(ir, this);
+            primitiveFactory = new PrimitiveFactory(this);
         return primitiveFactory;
     }
 
     protected final AttributeFactory getAttributeFactory()
     {
         if (null == attributeFactory)
-            attributeFactory = new AttributeFactory(this, symbols, ir);
+            attributeFactory = new AttributeFactory(this);
         return attributeFactory;
     }
 
