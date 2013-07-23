@@ -20,6 +20,7 @@ import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.TreeNodeStream;
 
+import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.TreeParserEx;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
@@ -38,20 +39,36 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExprFactory;
 
-public class TreeWalkerBase extends TreeParserEx
+public class TreeWalkerBase extends TreeParserEx implements WalkerContext
 {
-    private SymbolTable<ESymbolKind> symbols = null;
-    private IR ir = null;
+    private SymbolTable<ESymbolKind> symbols;
+    private IR ir;
+
+    private Map<String, Primitive> thisArgs;
+    private Primitive.Holder thisPrimitive;
 
     public TreeWalkerBase(TreeNodeStream input, RecognizerSharedState state)
     {
         super(input, state);
+
+        this.symbols       = null;
+        this.ir            = null;
+
+        this.thisArgs      = null;
+        this.thisPrimitive = null;
+    }
+
+    @Override
+    public final IErrorReporter getReporter()
+    {
+        return this;
     }
 
     public final void assignSymbols(SymbolTable<ESymbolKind> symbols)
@@ -59,7 +76,8 @@ public class TreeWalkerBase extends TreeParserEx
         this.symbols = symbols;
     }
 
-    protected final SymbolTable<ESymbolKind> getSymbols()
+    @Override
+    public final SymbolTable<ESymbolKind> getSymbols()
     {
         return symbols;
     }
@@ -69,9 +87,46 @@ public class TreeWalkerBase extends TreeParserEx
         this.ir = ir;
     }
 
-    protected final IR getIR()
+    @Override
+    public final IR getIR()
     {
         return ir;
+    }
+
+    protected final void setThisArgs(Map<String, Primitive> value)
+    {
+        assert null != value;
+        this.thisArgs = value;
+    }
+
+    protected final void resetThisArgs()
+    {
+        this.thisArgs = null;
+    }
+
+    @Override
+    public final Map<String, Primitive> getThisArgs()
+    {
+        return thisArgs;
+    }
+
+    protected final void reserveThis()
+    {
+        assert null == thisPrimitive;
+        thisPrimitive = new Primitive.Holder();
+    }
+
+    protected final void finalizeThis(Primitive value)
+    {
+        assert null != thisPrimitive;
+        thisPrimitive.setValue(value);
+        thisPrimitive = null;
+    }
+
+    @Override
+    public final Primitive.Holder getThis()
+    {
+        return thisPrimitive;
     }
 
     /*======================================================================================*/
@@ -146,7 +201,7 @@ public class TreeWalkerBase extends TreeParserEx
     protected final StatementFactory getStatementFactory()
     {
         if (null == statementFactory)
-            statementFactory = new StatementFactory();
+            statementFactory = new StatementFactory(this);
         return statementFactory;
     }
 

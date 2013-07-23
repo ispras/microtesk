@@ -13,8 +13,10 @@
 package ru.ispras.microtesk.translator.simnml.antlrex;
 
 import java.util.Map;
-
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
+import ru.ispras.microtesk.translator.antlrex.ISemanticError;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
@@ -49,8 +51,28 @@ public class WalkerFactoryBase implements WalkerContext
     }
 
     @Override
-    public Map<String, Primitive> getCurrentArgs()
+    public Map<String, Primitive> getThisArgs()
     {
-        return context.getCurrentArgs();
+        return context.getThisArgs();
+    }
+
+    @Override
+    public Primitive.Holder getThis()
+    {
+        return context.getThis();
+    }
+
+    protected final void raiseError(final Where where, final String what) throws SemanticException
+    {
+        raiseError(where, new ISemanticError()
+        {
+            @Override
+            public String getMessage() { return what; }
+        });
+    }
+
+    protected final void raiseError(Where where, ISemanticError what) throws SemanticException
+    {
+        getReporter().raiseError(where, what);
     }
 }

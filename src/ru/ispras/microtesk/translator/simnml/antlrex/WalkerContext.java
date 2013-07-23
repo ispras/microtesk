@@ -23,7 +23,10 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 public interface WalkerContext
 {
     public IErrorReporter getReporter();
+
     public SymbolTable<ESymbolKind> getSymbols();
     public IR getIR();
-    public Map<String, Primitive> getCurrentArgs();
+
+    public Map<String, Primitive> getThisArgs();
+    public Primitive.Holder getThis();
 }
