@@ -26,10 +26,6 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class AttributeFactory
 {
-    public static final String SYNTAX_NAME = "syntax";
-    public static final String  IMAGE_NAME = "image";
-    public static final String ACTION_NAME = "action";
-
     // TODO: Members below are temporary unused. 
     // They will be used in future when I implement error diagnostics.
   
@@ -58,9 +54,9 @@ public final class AttributeFactory
     {
         final Map<String, Attribute> result = new LinkedHashMap<String, Attribute>();
 
-        result.put(SYNTAX_NAME, createDefaultExprAttribute(SYNTAX_NAME));
-        result.put(IMAGE_NAME,  createDefaultExprAttribute(IMAGE_NAME));
-        result.put(ACTION_NAME, createDefaultActionAttribute(ACTION_NAME));
+        result.put(Attribute.SYNTAX_NAME, createDefaultExprAttribute(Attribute.SYNTAX_NAME));
+        result.put(Attribute.IMAGE_NAME,  createDefaultExprAttribute(Attribute.IMAGE_NAME));
+        result.put(Attribute.ACTION_NAME, createDefaultActionAttribute(Attribute.ACTION_NAME));
 
         return Collections.unmodifiableMap(result);
     }
@@ -113,6 +109,23 @@ public final class AttributeFactory
 
     public Attribute createFormatExpression(String name, Statement exprStatement)
     {
+        if (exprStatement instanceof StatementAttributeCall)
+        {
+            final StatementAttributeCall stmt =
+                (StatementAttributeCall) exprStatement;
+            
+            final String stmtText;
+            if (null != stmt.getCalleeName())
+                stmtText = String.format("%s.%s();", stmt.getCalleeName(), stmt.getAttributeName());
+            else
+                stmtText = String.format("%s();", stmt.getAttributeName());
+            
+            return new Attribute(
+                name,
+                Attribute.Kind.EXPRESSION,
+                Collections.singletonList((Statement)new StatementText(String.format("return %s",  stmtText))));
+        }
+
         return new Attribute(
             name,
             Attribute.Kind.EXPRESSION,
@@ -124,36 +137,24 @@ public final class AttributeFactory
     public Attribute syntax()
     {
         // TODO: create a non-default attribute here.
-        return defaultAttrs.get(SYNTAX_NAME);
+        return defaultAttrs.get(Attribute.SYNTAX_NAME);
     }
 
     public Attribute image()
     {
         // TODO: create a non-default attribute here.
-        return defaultAttrs.get(IMAGE_NAME);
+        return defaultAttrs.get(Attribute.IMAGE_NAME);
     }
 
     public Attribute action()
     {
         // TODO: create a non-default attribute here.
-        return defaultAttrs.get(ACTION_NAME);
+        return defaultAttrs.get(Attribute.ACTION_NAME);
     }
 
     public Statement createCommentStatement(String text)
     {
         return new StatementText(String.format("// %s", text));
-    }
-
-    public Statement createAttributeCallStatement(String primitive, String attribute)
-    {
-        return new StatementText(
-            String.format("%s.%s();", primitive, attribute));
-    }
-
-    public Statement createAttributeCallStatement(String attribute)
-    {
-        return new StatementText(
-            String.format("%s();", attribute));
     }
 
     public Statement createTextLiteralStatement(String text)

@@ -34,6 +34,23 @@ public class Primitive
         IMM
     }
 
+    public static final class Holder
+    {
+        private Primitive value;
+
+        public Holder()
+           { this.value = null; }
+
+        public Holder(Primitive value)
+           { assert value != null; this.value = value; } 
+
+        public void setValue(Primitive value)
+            { assert null == this.value : "Aready assigned."; this.value = value; }
+
+        public Primitive getValue()
+            { return value; }
+    }
+
     private final String         name;
     private final Kind           kind;
     private final boolean    isOrRule;

@@ -13,10 +13,18 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class Attribute
 {
+    public static final String SYNTAX_NAME = "syntax";
+    public static final String  IMAGE_NAME = "image";
+    public static final String ACTION_NAME = "action";
+
+    public static final Set<String> STANDARD_NAMES = createStandardNames();
+
     public static enum Kind
     {
         ACTION,
@@ -51,5 +59,16 @@ public final class Attribute
     public List<Statement> getStatements()
     {
         return stmts;
+    }
+    
+    private static Set<String> createStandardNames()
+    {
+        final Set<String> result = new HashSet<String>();
+
+        result.add(SYNTAX_NAME);
+        result.add(IMAGE_NAME);
+        result.add(ACTION_NAME);
+
+        return Collections.unmodifiableSet(result);
     }
 }

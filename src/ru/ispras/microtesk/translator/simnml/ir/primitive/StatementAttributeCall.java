@@ -14,11 +14,16 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 public final class StatementAttributeCall extends Statement
 {
-    private final Primitive     callee;
-    private final String    calleeName;
-    private final String attributeName;
+    private final Primitive.Holder  callee;
+    private final String        calleeName;
+    private final String     attributeName;
 
     StatementAttributeCall(Primitive callee, String calleeName, String attributeName)
+    {
+        this(new Primitive.Holder(callee), calleeName, attributeName);
+    }
+
+    StatementAttributeCall(Primitive.Holder callee, String calleeName, String attributeName)
     {
         super(Kind.CALL);
         
@@ -32,7 +37,7 @@ public final class StatementAttributeCall extends Statement
 
     public Primitive getCallee()
     {
-        return callee;
+        return callee.getValue();
     }
 
     public final String getCalleeName()
