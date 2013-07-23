@@ -21,6 +21,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.TreeNodeStream;
 
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserEx;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
@@ -30,6 +31,8 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
+import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
@@ -243,6 +246,19 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
             new Symbol<ESymbolKind>(t.getToken(), kind, symbols.peek());
 
         symbols.define(symbol);
+    }
+
+    protected final void checkMemberDeclared(CommonTree t, ESymbolKind expectedKind) throws SemanticException
+    {
+        assert null != symbols;
+
+        final ISymbol<ESymbolKind> symbol = symbols.resolveMember(t.getText());
+
+        if (null == symbol)
+            raiseError(where(t), new UndeclaredSymbol(t.getText()));
+
+        if (expectedKind != symbol.getKind())
+            raiseError(where(t), new SymbolTypeMismatch<ESymbolKind>(t.getText(), symbol.getKind(), expectedKind));
     }
 
     protected void checkNotNull(CommonTree current, Object obj, String text) throws RecognitionException

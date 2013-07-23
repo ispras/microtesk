@@ -30,7 +30,7 @@ public class ParserBase extends ParserEx
 
     public ParserBase(TokenStream input, RecognizerSharedState state)
     {
-        super(input, state);      
+        super(input, state);
     }
 
     public final void assignSymbols(SymbolTable<ESymbolKind> symbols)
@@ -41,7 +41,7 @@ public class ParserBase extends ParserEx
     protected final void declare(Token t, ESymbolKind kind, boolean scoped) throws SemanticException
     {
         assert null != symbols;
-        
+
         checkRedeclared(t);
 
         final ISymbol<ESymbolKind> symbol = scoped ?
@@ -49,6 +49,24 @@ public class ParserBase extends ParserEx
             new Symbol<ESymbolKind>(t, kind, symbols.peek());
 
         symbols.define(symbol);
+    }
+
+    protected final void declareAndPushSymbolScope(Token t, ESymbolKind kind) throws SemanticException
+    {
+        assert null != symbols;
+
+        checkRedeclared(t);
+
+        final ISymbol<ESymbolKind> symbol = 
+            new ScopedSymbol<ESymbolKind>(t, kind, symbols.peek());
+
+        symbols.define(symbol);
+        symbols.push(symbol.getInnerScope());
+    }
+
+    protected void popSymbolScope()
+    {
+        symbols.pop();
     }
 
     private final void checkRedeclared(final Token t) throws SemanticException
