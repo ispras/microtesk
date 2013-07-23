@@ -20,9 +20,9 @@ import org.stringtemplate.v4.ST;
 
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAssignment;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementText;
 
@@ -41,23 +41,10 @@ public abstract class PrimitiveBaseSTBuilder implements ITemplateBuilder
     {
        return RET_TYPE_MAP.get(kind);
     }
-    
-    private static final String[] STANDARD_ATTRIBUTES =
-    {
-        AttributeFactory.IMAGE_NAME,
-        AttributeFactory.SYNTAX_NAME,
-        AttributeFactory.ACTION_NAME
-    };
-
+ 
     protected final boolean isStandardAttribute(String name)
     {
-        for (String standardName : STANDARD_ATTRIBUTES)
-        {
-            if (standardName.equals(name))
-               return true;
-        }
-
-        return false;
+        return Attribute.STANDARD_NAMES.contains(name);
     }
     
     protected static void addStatement(ST attrST, Statement stmt)
@@ -111,6 +98,10 @@ final class StatementBuilder
                 addStatement((StatementCondition) stmt);
                 break;
 
+            case CALL:
+                addStatement((StatementAttributeCall) stmt);
+                break;
+
             default:
                 assert false : String.format("Unsupported statement type: %s.", stmt.getKind());
                 addStatement("// Error! Unknown statement!");
@@ -149,6 +140,14 @@ final class StatementBuilder
             addStatement("else");
             addStatementBlock(stmt.getElseStatements());
         }
+    }
+    
+    private void addStatement(StatementAttributeCall stmt)
+    {
+        if (null != stmt.getCalleeName())
+            addStatement(String.format("%s.%s();", stmt.getCalleeName(), stmt.getAttributeName()));
+        else
+            addStatement(String.format("%s();", stmt.getAttributeName()));
     }
     
     private void addStatementBlock(List<Statement> stmts)

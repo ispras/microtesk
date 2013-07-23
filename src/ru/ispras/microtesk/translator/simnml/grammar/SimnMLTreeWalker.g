@@ -72,14 +72,6 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.*;
 }
 
 /*======================================================================================*/
-/* Members of the generated tree walker class.                                          */
-/*======================================================================================*/
-
-@members {
-private Map<String, Primitive> globalArgTypes = null;
-}
-
-/*======================================================================================*/
 /* Root Rules of Processor Specification                                                */ 
 /*======================================================================================*/
 
@@ -219,7 +211,8 @@ alias
 /* Mode rules                                                                           */
 /*======================================================================================*/
 
-modeDef
+modeDef 
+@init {reserveThis();}
     :  ^(MODE id=ID {pushSymbolScope(id);} sp=modeSpecPart[where($id), $id.text])
 {
 checkNotNull($id, $sp.res, $modeDef.text);
@@ -228,14 +221,16 @@ getIR().add($id.text, $sp.res);
     ;  finally
 {
 popSymbolScope();
-globalArgTypes = null;
+
+resetThisArgs();
+finalizeThis($sp.res);
 }
 
 modeSpecPart [Where w, String name] returns [Primitive res]
     :  andRes=andRule
 {
 checkNotNull(w, $andRes.res, $andRes.text);
-globalArgTypes = $andRes.res;
+setThisArgs($andRes.res);
 }
        (mr=modeReturn {checkNotNull(w, $mr.res, $mr.text);})?
        attrRes=attrDefList
@@ -258,6 +253,7 @@ modeReturn returns [Expr res]
 /*======================================================================================*/
 
 opDef
+@init {reserveThis();}
     :  ^(OP id=ID {pushSymbolScope(id);} sp=opSpecPart[where($id), $id.text])
 {
 checkNotNull($id, $sp.res, $opDef.text);
@@ -266,14 +262,16 @@ getIR().add($id.text, $sp.res);
     ;  finally
 {
 popSymbolScope();
-globalArgTypes = null;
+
+resetThisArgs();
+finalizeThis($sp.res);
 }
 
 opSpecPart [Where w, String name] returns [Primitive res]
     :  andRes=andRule
 {
 checkNotNull(w, $andRes.res, $andRes.text);
-globalArgTypes = $andRes.res;
+setThisArgs($andRes.res);
 }
        attrRes=attrDefList
 {
@@ -342,7 +340,7 @@ syntaxDef returns [Attribute res]
 @init  {final AttributeFactory factory = getAttributeFactory();}
     :  ^(DOT id=ID name=SYNTAX)
 {
-final Statement stmt = factory.createAttributeCallStatement($id.text, $name.text);
+final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
 $res = factory.createFormatExpression("syntax", stmt);
 }
     |  ae=attrExpr
@@ -358,7 +356,7 @@ imageDef returns [Attribute res]
 @init  {final AttributeFactory factory = getAttributeFactory();}
     :  ^(DOT id=ID name=IMAGE)
 {
-final Statement stmt = factory.createAttributeCallStatement($id.text, $name.text);
+final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
 $res = factory.createFormatExpression("image", stmt);
 }
     |  ae=attrExpr
@@ -374,7 +372,7 @@ actionDef [String actionName] returns [Attribute res]
 @init  {final AttributeFactory factory = getAttributeFactory();}
     :  ^(DOT id=ID name=ACTION)
 {
-final Statement stmt = factory.createAttributeCallStatement($id.text, $name.text);
+final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
 $res = factory.createAction(actionName, Collections.singletonList(stmt));
 }
     |  seq=sequence
@@ -459,12 +457,12 @@ attributeCallStatement returns [List<Statement> res]
     :  id=ID
 {
 $res = Collections.singletonList(
-    getAttributeFactory().createAttributeCallStatement($id.text));
+    getStatementFactory().createAttributeCall(where($id), $id.text));
 }
     |  ^(DOT id=ID name=(ACTION | ID))
 {
 $res = Collections.singletonList(
-    getAttributeFactory().createAttributeCallStatement($id.text, $name.text));
+    getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
 }
     ;
 
@@ -472,14 +470,12 @@ assignmentStatement returns [List<Statement> res]
 @init
 {
 final AttributeFactory factory = getAttributeFactory();
-final StatementFactory factoryST = getStatementFactory();
-
 final PCAnalyzer analyzer = new PCAnalyzer(getLocationExprFactory(), getIR());
 }
     :  ^(ASSIGN le=location {analyzer.startTrackingSource();} me=modelExpr)
 {
 final List<Statement> result = new ArrayList<Statement>();
-result.add(factoryST.createAssignment($le.res, $me.res));
+result.add(getStatementFactory().createAssignment($le.res, $me.res));
 
 final int ctIndex = analyzer.getControlTransferIndex();
 if (ctIndex > 0)
@@ -647,7 +643,7 @@ atom = factory.location(where($id), $id.text, $e.res);
 }
     |  id=ID
 {
-atom = factory.location(where($id), $id.text, globalArgTypes);
+atom = factory.location(where($id), $id.text, getThisArgs());
 }
     ;
 
