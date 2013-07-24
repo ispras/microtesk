@@ -134,11 +134,6 @@ public final class AttributeFactory extends WalkerFactoryBase
         return defaultAttrs.get(Attribute.ACTION_NAME);
     }
 
-    public Statement createCommentStatement(String text)
-    {
-        return new StatementText(String.format("// %s", text));
-    }
-
     public Statement createTextLiteralStatement(String text)
     {
         return new StatementText(String.format("\"%s\";", text));
