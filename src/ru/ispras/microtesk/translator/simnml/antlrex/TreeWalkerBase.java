@@ -162,7 +162,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
     protected final LetFactory getLetFactory()
     {
         if (null == letFactory)
-            letFactory = new LetFactory(symbols);
+            letFactory = new LetFactory(this);
         return letFactory;
     }
 
@@ -176,7 +176,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
     protected final TypeExprFactory getTypeExprFactory()
     {
         if (null == typeExprFactory)
-            typeExprFactory = new TypeExprFactory(ir.getTypes(), this);
+            typeExprFactory = new TypeExprFactory(this);
         return typeExprFactory;
     }
 

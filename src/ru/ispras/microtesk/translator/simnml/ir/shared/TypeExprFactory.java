@@ -12,45 +12,40 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import java.util.Map;
-import org.antlr.runtime.RecognitionException;
-
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
-public class TypeExprFactory
+public final class TypeExprFactory extends WalkerFactoryBase
 {
-    private final Map<String, TypeExpr> types;
-    private final IErrorReporter     reporter; 
-
-    public TypeExprFactory(Map<String, TypeExpr> types, IErrorReporter reporter)
+    public TypeExprFactory(WalkerContext context)
     {
-        this.types    = types;        
-        this.reporter = reporter;
+        super(context);
     }
 
-    public void failIfNotInteger(Where where, Class<?> type) throws RecognitionException
+    public void failIfNotInteger(Where where, Class<?> type) throws SemanticException
     {
         if (!type.equals(Integer.class) && !type.equals(int.class))
-            reporter.raiseError(where, new SizeExpressionTypeMismatch(type));
+            raiseError(where, new SizeExpressionTypeMismatch(type));
     }
 
-    public TypeExpr createAlias(String name) throws RecognitionException
+    public TypeExpr createAlias(String name) throws SemanticException
     {
-        final TypeExpr ref = types.get(name); 
+        final TypeExpr ref = getIR().getTypes().get(name); 
         return new TypeExpr(ref.getTypeId(), ref.getBitSize(), name);
     }
 
-    public TypeExpr createIntegerType(Where where, Expr bitSize) throws RecognitionException
+    public TypeExpr createIntegerType(Where where, Expr bitSize) throws SemanticException
     {
         failIfNotInteger(where, bitSize.getJavaType());
         return new TypeExpr(ETypeID.INT, bitSize);
     }
 
-    public TypeExpr createCardType(Where where, Expr bitSize) throws RecognitionException
+    public TypeExpr createCardType(Where where, Expr bitSize) throws SemanticException
     {
         failIfNotInteger(where, bitSize.getJavaType());
         return new TypeExpr(ETypeID.CARD, bitSize);

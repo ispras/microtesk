@@ -16,19 +16,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
-public final class LetFactory
+public final class LetFactory extends WalkerFactoryBase
 {
-    private final SymbolTable<ESymbolKind> symbols;
-
-    public LetFactory(
-        SymbolTable<ESymbolKind> symbols
-        ) 
+    public LetFactory(WalkerContext context)
     {
-        this.symbols = symbols;
+        super(context);
     }
 
     public LetExpr createConstString(String name, String text)
@@ -64,7 +61,7 @@ public final class LetFactory
         final int indexPos = text.indexOf('[');
         final String memoryName = (-1 == indexPos) ? text : text.substring(0, indexPos);
 
-        final ISymbol<ESymbolKind> symbol = symbols.resolve(memoryName);
+        final ISymbol<ESymbolKind> symbol = getSymbols().resolve(memoryName);
         if ((null == symbol) || (symbol.getKind() != ESymbolKind.MEMORY))
             return null;
 
