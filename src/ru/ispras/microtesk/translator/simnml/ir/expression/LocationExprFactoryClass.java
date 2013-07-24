@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -25,8 +24,9 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
-import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
@@ -35,37 +35,22 @@ public final class LocationExprFactoryClass
 {
     private LocationExprFactoryClass() {}
 
-    public static LocationExprFactory createFactory(
-        IErrorReporter reporter,
-        SymbolTable<ESymbolKind> symbols,
-        IR ir
-        )
+    public static LocationExprFactory createFactory(WalkerContext context)
     {
-        final LocationExprFactory result =
-            new LocationExprFactoryImpl(reporter, symbols, ir);
-
+        final LocationExprFactory result = new LocationExprFactoryImpl(context);
         return result;
         //return new LocationExprFactoryDebug(result, symbols);
     }
 }
 
-final class LocationExprFactoryImpl implements LocationExprFactory
+final class LocationExprFactoryImpl extends WalkerFactoryBase implements LocationExprFactory
 {
-    private final IErrorReporter reporter;
-    private final SymbolTable<ESymbolKind> symbols;
-    private final IR ir;
-    
     private List<LocationInfo> log; 
 
-    public LocationExprFactoryImpl(
-        IErrorReporter reporter,
-        SymbolTable<ESymbolKind> symbols,
-        IR ir
-        )
+    public LocationExprFactoryImpl(WalkerContext context)
     {
-        this.reporter = reporter;
-        this.symbols = symbols;
-        this.ir = ir;
+        super(context);
+        resetLog();
     }
     
     public void setLog(List<LocationInfo> locations)
@@ -85,24 +70,24 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
     @Override
     public LocationExpr location(
-        Where w, String name, Map<String, Primitive> globalArgTypes) throws SemanticException
+        Where where, String name, Map<String, Primitive> globalArgTypes) throws SemanticException
     {
-        final ISymbol<ESymbolKind> symbol = findSymbol(name);
+        final ISymbol<ESymbolKind> symbol = findSymbol(where, name);
         final ESymbolKind kind = symbol.getKind();
 
         if ((ESymbolKind.MEMORY != kind) && (ESymbolKind.ARGUMENT != kind))
-            reporter.raiseError(new SymbolTypeMismatch<ESymbolKind>(name, kind, Arrays.asList(ESymbolKind.MEMORY, ESymbolKind.ARGUMENT)));
+            raiseError(where, new SymbolTypeMismatch<ESymbolKind>(name, kind, Arrays.asList(ESymbolKind.MEMORY, ESymbolKind.ARGUMENT)));
         
         final LocationExpr result;
 
         if (ESymbolKind.MEMORY == kind)
         {
-            final MemoryBasedLocationCreator creator = new MemoryBasedLocationCreator(w, name, null);
+            final MemoryBasedLocationCreator creator = new MemoryBasedLocationCreator(where, name, null);
             result = creator.create();
         }
         else
         {
-            final ArgumentBasedLocationCreator creator = new ArgumentBasedLocationCreator(w, name, globalArgTypes);
+            final ArgumentBasedLocationCreator creator = new ArgumentBasedLocationCreator(where, name, globalArgTypes);
             result = creator.create();
         }
         
@@ -114,17 +99,17 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
     @Override
     public LocationExpr location(
-        Where w, String name, Expr index) throws SemanticException
+        Where where, String name, Expr index) throws SemanticException
     {
         assert null != index;
 
-        final ISymbol<ESymbolKind> symbol = findSymbol(name);
+        final ISymbol<ESymbolKind> symbol = findSymbol(where, name);
         final ESymbolKind kind = symbol.getKind();
 
         if (ESymbolKind.MEMORY != kind)
-            reporter.raiseError(new SymbolTypeMismatch<ESymbolKind>(name, kind, ESymbolKind.MEMORY));
+            raiseError(where, new SymbolTypeMismatch<ESymbolKind>(name, kind, ESymbolKind.MEMORY));
 
-        final MemoryBasedLocationCreator creator = new MemoryBasedLocationCreator(w, name, index);
+        final MemoryBasedLocationCreator creator = new MemoryBasedLocationCreator(where, name, index);
         final LocationExpr result = creator.create();
 
         if (null != log)
@@ -184,12 +169,12 @@ final class LocationExprFactoryImpl implements LocationExprFactory
         return new LocationExprClass(concatExprText, concatExprType);
     }
 
-    private ISymbol<ESymbolKind> findSymbol(String name) throws SemanticException
+    private ISymbol<ESymbolKind> findSymbol(Where where, String name) throws SemanticException
     {
-        final ISymbol<ESymbolKind> symbol = symbols.resolve(name);
+        final ISymbol<ESymbolKind> symbol = getSymbols().resolve(name);
 
         if (null == symbol)
-            reporter.raiseError(new UndeclaredSymbol(name));
+            raiseError(where, new UndeclaredSymbol(name));
 
         return symbol;
     }
@@ -217,10 +202,10 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
         private MemoryExpr findMemory() throws SemanticException
         {
-            if (!ir.getMemory().containsKey(name))
-                reporter.raiseError(where, new UndefinedPrimitive(name, ESymbolKind.MEMORY));
+            if (!getIR().getMemory().containsKey(name))
+                raiseError(where, new UndefinedPrimitive(name, ESymbolKind.MEMORY));
 
-            return ir.getMemory().get(name);
+            return getIR().getMemory().get(name);
         }
 
         private String getLocationText() throws SemanticException
@@ -238,7 +223,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
                 (index.getKind() == EExprKind.JAVA) || (index.getKind() == EExprKind.JAVA_STATIC); 
 
             if (!isJavaExpr)
-                reporter.raiseError(where, new InvalidIndexExpression(index));
+                raiseError(where, new InvalidIndexExpression(index));
 
             assert null != index.getJavaType();
 
@@ -246,7 +231,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
                 index.getJavaType().equals(int.class) || index.getJavaType().equals(Integer.class); 
 
             if (!isIntegerType)
-                reporter.raiseError(where, new InvalidIndexExpression(index));
+                raiseError(where, new InvalidIndexExpression(index));
         }
 
         private final class InvalidIndexExpression implements ISemanticError
@@ -309,7 +294,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
         private Primitive findArgumentType() throws SemanticException
         {
             if (!argTypes.containsKey(name))
-                reporter.raiseError(where, new UndefinedPrimitive(name, ESymbolKind.ARGUMENT));
+                raiseError(where, new UndefinedPrimitive(name, ESymbolKind.ARGUMENT));
 
             return argTypes.get(name);
         }
@@ -331,7 +316,7 @@ final class LocationExprFactoryImpl implements LocationExprFactory
 
         private void reportUnexpectedType(final Primitive argType) throws SemanticException
         {
-            reporter.raiseError(new ISemanticError()
+            raiseError(where, new ISemanticError()
             {
                 private static final String FORMAT =
                     "The %s argument refers to a %s primitive that cannot be used as a location.";

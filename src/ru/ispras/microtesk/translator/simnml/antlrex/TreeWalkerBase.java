@@ -169,7 +169,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
     protected final LocationExprFactory getLocationExprFactory()
     {
         if (null == locationExprFactory)
-            locationExprFactory = LocationExprFactoryClass.createFactory(this, symbols, ir); 
+            locationExprFactory = LocationExprFactoryClass.createFactory(this); 
         return locationExprFactory;
     }
 
