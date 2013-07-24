@@ -14,6 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.List;
 
+import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
@@ -85,5 +86,10 @@ public final class StatementFactory extends WalkerFactoryBase
     public Statement createComment(String text)
     {
         return new StatementText(String.format("// %s", text));
+    }
+
+    public Statement createControlTransfer(int index)
+    {
+        return new StatementStatus(Status.CTRL_TRANSFER, index);
     }
 }

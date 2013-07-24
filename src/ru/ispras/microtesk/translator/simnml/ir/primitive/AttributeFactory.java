@@ -17,7 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
@@ -170,11 +169,5 @@ public final class AttributeFactory extends WalkerFactoryBase
     public FormatArgument createExprBasedFormatArgument(Expr expr)
     {
         return new ExprBasedFormatArgument(expr); 
-    }
-
-    public Statement createControlTransferStatement(int index)
-    {
-        return new StatementText(
-            String.format("%s.set(%d);", ModelStateObserver.CTRL_TRANSFER_NAME, index));
     }
 }

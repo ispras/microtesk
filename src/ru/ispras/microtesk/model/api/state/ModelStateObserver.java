@@ -23,9 +23,6 @@ import ru.ispras.microtesk.model.api.memory.MemoryBase;
 
 public final class ModelStateObserver implements IModelStateObserver
 {
-    public static final String  CTRL_TRANSFER_NAME = "__CTRL_TRANSFER";
-    public static final Status[] STANDARD_STATUSES = { new Status(CTRL_TRANSFER_NAME, 0) };
-
     private final static String ALREADY_ADDED_ERR_FRMT =
         "The %s item has already been added to the table.";
 
@@ -58,8 +55,8 @@ public final class ModelStateObserver implements IModelStateObserver
 
         labelMap  = new HashMap<String, Label>();
         addToLabelMap(labelMap, labels);
-        
-        controlTransfer = findStatus(CTRL_TRANSFER_NAME, statuses);
+
+        controlTransfer = findStatus(Status.CTRL_TRANSFER.getName(), statuses);
     }
 
     private static void addToMemoryMap(Map<String, MemoryBase> map, MemoryBase[] items)

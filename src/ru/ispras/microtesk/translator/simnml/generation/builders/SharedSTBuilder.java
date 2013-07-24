@@ -25,7 +25,6 @@ import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
-import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 
@@ -232,7 +231,7 @@ public class SharedSTBuilder implements ITemplateBuilder
         tStatuses.add("type", Status.class.getSimpleName() + "[]");
         tStatuses.add("name", SimnMLProcessorModel.SHARED_STATUSES);
         
-        for(Status status : ModelStateObserver.STANDARD_STATUSES)
+        for(Status status : Status.STANDARD_STATUSES.values())
         {
             final ST tStatus = group.getInstanceOf("status");
 

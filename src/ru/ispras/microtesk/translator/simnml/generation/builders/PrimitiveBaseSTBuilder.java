@@ -24,6 +24,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementText;
 
 public abstract class PrimitiveBaseSTBuilder implements ITemplateBuilder
@@ -101,6 +102,10 @@ final class StatementBuilder
             case CALL:
                 addStatement((StatementAttributeCall) stmt);
                 break;
+                
+            case STATUS:
+                addStatement((StatementStatus) stmt);
+                break;
 
             default:
                 assert false : String.format("Unsupported statement type: %s.", stmt.getKind());
@@ -141,7 +146,7 @@ final class StatementBuilder
             addStatementBlock(stmt.getElseStatements());
         }
     }
-    
+
     private void addStatement(StatementAttributeCall stmt)
     {
         if (null != stmt.getCalleeName())
@@ -149,7 +154,13 @@ final class StatementBuilder
         else
             addStatement(String.format("%s();", stmt.getAttributeName()));
     }
-    
+
+    private void addStatement(StatementStatus stmt)
+    {
+        addStatement(
+            String.format("%s.set(%d);", stmt.getStatus().getName(), stmt.getNewValue()));
+    }
+
     private void addStatementBlock(List<Statement> stmts)
     {
         addStatement("{");
