@@ -12,17 +12,17 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.simnml.ir.IR;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
-final class ExprFactoryModel extends ExprFactoryBase implements ExprFactory
+final class ExprFactoryModel extends WalkerFactoryBase implements ExprFactory
 {
-    public ExprFactoryModel(IErrorReporter reporter, IR ir)
+    public ExprFactoryModel(WalkerContext context)
     {
-        super(reporter, ir);
+        super(context);
     }
 
     @Override

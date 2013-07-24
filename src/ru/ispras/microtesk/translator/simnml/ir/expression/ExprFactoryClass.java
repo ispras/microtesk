@@ -12,10 +12,9 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.simnml.ir.IR;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public final class ExprFactoryClass
@@ -24,8 +23,7 @@ public final class ExprFactoryClass
 
     public static ExprFactory createFactory(
         EExprKind targetKind,
-        IErrorReporter reporter,
-        IR ir
+        WalkerContext context
         )
     {
         final ExprFactory result;
@@ -33,15 +31,15 @@ public final class ExprFactoryClass
         switch (targetKind)
         {
         case JAVA_STATIC:
-            result = new ExprFactoryJavaStatic(reporter, ir);
+            result = new ExprFactoryJavaStatic(context);
             break;
 
         case JAVA:
-            result = new ExprFactoryJava(reporter, ir);
+            result = new ExprFactoryJava(context);
             break;
 
         case MODEL:
-            result = new ExprFactoryModel(reporter, ir);
+            result = new ExprFactoryModel(context);
             break;
 
         default:

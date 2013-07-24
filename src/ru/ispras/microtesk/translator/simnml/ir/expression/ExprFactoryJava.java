@@ -12,19 +12,19 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.simnml.ir.IR;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
-final class ExprFactoryJava extends ExprFactoryBase implements ExprFactory
+final class ExprFactoryJava extends WalkerFactoryBase implements ExprFactory
 {
-    public ExprFactoryJava(IErrorReporter reporter, IR ir)
+    public ExprFactoryJava(WalkerContext context)
     {
-        super(reporter, ir);
+        super(context);
     }
-
+    
     @Override
     public Expr namedConst(Where w, String name) throws SemanticException
     {

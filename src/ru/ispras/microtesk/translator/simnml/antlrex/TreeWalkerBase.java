@@ -153,7 +153,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
         if (exprFactories.containsKey(targetKind))
             return exprFactories.get(targetKind);
 
-        final ExprFactory factory = ExprFactoryClass.createFactory(targetKind, this, ir);
+        final ExprFactory factory = ExprFactoryClass.createFactory(targetKind, this);
         exprFactories.put(targetKind, factory);
 
         return factory;

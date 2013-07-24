@@ -18,6 +18,7 @@ import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
+import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
@@ -28,12 +29,12 @@ interface ExprFactoryCreator
     public Expr create() throws SemanticException;
 }
 
-final class LocationBasedExprCreator extends ExprFactoryBase implements ExprFactoryCreator
+final class LocationBasedExprCreator extends WalkerFactoryBase implements ExprFactoryCreator
 {
     private final LocationExpr location;
 
     public LocationBasedExprCreator(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         LocationExpr location
         )
     {
@@ -58,7 +59,7 @@ final class LocationBasedExprCreator extends ExprFactoryBase implements ExprFact
     }
 }
 
-final class IntegerValueBasedExprCreator extends ExprFactoryBase implements ExprFactoryCreator
+final class IntegerValueBasedExprCreator extends WalkerFactoryBase implements ExprFactoryCreator
 {
     private static final int BIN_RADIX = 2;
     private static final int DEC_RADIX = 10;
@@ -72,7 +73,7 @@ final class IntegerValueBasedExprCreator extends ExprFactoryBase implements Expr
     private final int radix;
 
     public IntegerValueBasedExprCreator(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String text,
         int radix
@@ -157,13 +158,13 @@ final class IntegerValueBasedExprCreator extends ExprFactoryBase implements Expr
     }
 }
 
-final class NamedConstBasedExprCreator extends ExprFactoryBase implements ExprFactoryCreator
+final class NamedConstBasedExprCreator extends WalkerFactoryBase implements ExprFactoryCreator
 {
     private final Where w;
     private final String name;
 
     public NamedConstBasedExprCreator(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String name
         )
@@ -207,7 +208,7 @@ final class NamedConstBasedExprCreator extends ExprFactoryBase implements ExprFa
     }
 }
 
-final class ModelToJavaConverter extends ExprFactoryBase implements ExprFactoryCreator
+final class ModelToJavaConverter extends WalkerFactoryBase implements ExprFactoryCreator
 {
     private final String TO_JAVA_INT_FORMAT = "DataEngine.intValue(%s)";
 
@@ -215,7 +216,7 @@ final class ModelToJavaConverter extends ExprFactoryBase implements ExprFactoryC
     private final Expr expr;
 
     public ModelToJavaConverter(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         Expr expr
         )
@@ -319,7 +320,7 @@ final class ModelToJavaConverter extends ExprFactoryBase implements ExprFactoryC
     }
 }
 
-final class JavaToModelConverter extends ExprFactoryBase implements ExprFactoryCreator
+final class JavaToModelConverter extends WalkerFactoryBase implements ExprFactoryCreator
 {
     private final String TO_MODEL_FORMAT = "DataEngine.valueOf(%s, %s)";
 
@@ -328,7 +329,7 @@ final class JavaToModelConverter extends ExprFactoryBase implements ExprFactoryC
     private final Expr expr;
     private final TypeExpr targetType;
 
-    public JavaToModelConverter(ExprFactoryBase context, Where w, Expr expr, TypeExpr targetType)
+    public JavaToModelConverter(WalkerFactoryBase context, Where w, Expr expr, TypeExpr targetType)
     {
         super(context);
 
@@ -415,13 +416,13 @@ final class JavaToModelConverter extends ExprFactoryBase implements ExprFactoryC
     }
 }
 
-abstract class ExprCalculatorBase extends ExprFactoryBase
+abstract class ExprCalculatorBase extends WalkerFactoryBase
 {
     private final Where w;
     private final String opID;
 
     public ExprCalculatorBase(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String opID
         )
@@ -564,7 +565,7 @@ abstract class UnaryExprCalculatorBase extends ExprCalculatorBase
     protected final Expr arg;
 
     public UnaryExprCalculatorBase(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String opID,
         Expr arg,
@@ -591,7 +592,7 @@ abstract class BinaryExprCalculatorBase extends ExprCalculatorBase
     protected final Expr arg2;
 
     public BinaryExprCalculatorBase(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String opID,
         Expr arg1,
@@ -623,7 +624,7 @@ abstract class BinaryExprCalculatorBase extends ExprCalculatorBase
 final class UnaryJavaExprCalculator extends UnaryExprCalculatorBase implements ExprFactoryCreator
 {
     public UnaryJavaExprCalculator(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String opID,
         Expr arg
@@ -663,7 +664,7 @@ final class UnaryJavaExprCalculator extends UnaryExprCalculatorBase implements E
 final class BinaryJavaExprCalculator extends BinaryExprCalculatorBase implements ExprFactoryCreator
 {
     public BinaryJavaExprCalculator(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String opID,
         Expr arg1,
@@ -709,7 +710,7 @@ final class BinaryJavaExprCalculator extends BinaryExprCalculatorBase implements
 final class UnaryJavaStaticExprCalculator extends UnaryExprCalculatorBase implements ExprFactoryCreator
 {
     public UnaryJavaStaticExprCalculator(
-         ExprFactoryBase context,
+         WalkerFactoryBase context,
          Where w,
          String opID,
          Expr arg
@@ -750,7 +751,7 @@ final class UnaryJavaStaticExprCalculator extends UnaryExprCalculatorBase implem
 final class BinaryJavaStaticExprCalculator extends BinaryExprCalculatorBase implements ExprFactoryCreator
 {
     public BinaryJavaStaticExprCalculator(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String opID,
         Expr arg1,
@@ -799,7 +800,7 @@ final class BinaryJavaStaticExprCalculator extends BinaryExprCalculatorBase impl
 final class UnaryModelExprCalculator extends UnaryExprCalculatorBase implements ExprFactoryCreator
 {
     public UnaryModelExprCalculator(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String opID,
         Expr arg
@@ -839,7 +840,7 @@ final class UnaryModelExprCalculator extends UnaryExprCalculatorBase implements 
 final class BinaryModelExprCalculator extends BinaryExprCalculatorBase implements ExprFactoryCreator
 {
     public BinaryModelExprCalculator(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         String opID,
         Expr arg1,
@@ -879,7 +880,7 @@ final class BinaryModelExprCalculator extends BinaryExprCalculatorBase implement
     }
 }
 
-final class ModelExprTypeCoercer extends ExprFactoryBase implements ExprFactoryCreator
+final class ModelExprTypeCoercer extends WalkerFactoryBase implements ExprFactoryCreator
 {
     private static final String COERCE_FORMAT = "DataEngine.coerce(%s, %s)"; 
 
@@ -889,7 +890,7 @@ final class ModelExprTypeCoercer extends ExprFactoryBase implements ExprFactoryC
     private final TypeExpr type;
 
     public ModelExprTypeCoercer(
-        ExprFactoryBase context,
+        WalkerFactoryBase context,
         Where w,
         Expr src,
         TypeExpr type
