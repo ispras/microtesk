@@ -36,6 +36,10 @@ public final class StatementFactory extends WalkerFactoryBase
     private static final String ERR_ONLY_STANDARD_ATTR =
         "Only standard attributes can be called for the %s object.";
 
+    private static final String ERR_WRONG_FORMAT_ARG_SPEC =
+        "Incorrect format specification. The number of arguments specified in the format string (%d) " +
+        "does not match to the number of provided argumens (%d).";
+
     public StatementFactory(WalkerContext context)
     {
         super(context);
@@ -92,4 +96,17 @@ public final class StatementFactory extends WalkerFactoryBase
     {
         return new StatementStatus(Status.CTRL_TRANSFER, index);
     }
+    
+    public Statement createFormat(Where where, String format, List<Format.Argument> args) throws SemanticException
+    {
+        if (null == args)
+            return new StatementFormat(format, null, null);
+
+        final List<Format.Marker> markers = Format.extractMarkers(format);
+
+        if (markers.size() != args.size())
+            raiseError(where, String.format(ERR_WRONG_FORMAT_ARG_SPEC, markers.size(), args.size()));
+
+        return new StatementFormat(format, markers, args);
+     }
 }

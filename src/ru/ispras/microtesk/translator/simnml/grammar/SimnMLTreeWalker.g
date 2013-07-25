@@ -320,7 +320,7 @@ argType returns [Primitive res]
 
 attrDefList returns [Map<String, Attribute> res]
 @init  {final Map<String,Attribute> attrs = new LinkedHashMap<String,Attribute>();}
-@after {$res = getAttributeFactory().addDefaultAttributes(attrs);}
+@after {$res = attrs;}
     :  ^(ATTRS (attr=attrDef
 {
 checkNotNull($ATTRS, $attr.res, $attr.text);
@@ -337,34 +337,26 @@ attrDef returns [Attribute res]
     ;
 
 syntaxDef returns [Attribute res]
-@init  {final AttributeFactory factory = getAttributeFactory();}
     :  ^(DOT id=ID name=SYNTAX)
 {
 final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
-$res = factory.createFormatExpression("syntax", stmt);
+$res = getAttributeFactory().createExpression("syntax", stmt);
 }
     |  ae=attrExpr
 {
-if (null != $ae.res)
-    $res = factory.createFormatExpression("syntax", $ae.res);
-else
-    $res = factory.syntax();
+$res = getAttributeFactory().createExpression("syntax", $ae.res);
 }
     ;
 
 imageDef returns [Attribute res]
-@init  {final AttributeFactory factory = getAttributeFactory();}
     :  ^(DOT id=ID name=IMAGE)
 {
 final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
-$res = factory.createFormatExpression("image", stmt);
+$res = getAttributeFactory().createExpression("image", stmt);
 }
     |  ae=attrExpr
 {
-if (null != $ae.res)
-    $res = factory.createFormatExpression("image", $ae.res);
-else
-    $res = factory.image();
+$res = getAttributeFactory().createExpression("image", $ae.res);
 }
     ;
 
@@ -387,35 +379,30 @@ $res = factory.createAction(actionName, $seq.res);
 /*======================================================================================*/
 
 attrExpr returns [Statement res]
-@init  {final AttributeFactory factory = getAttributeFactory();}
     :  str=STRING_CONST
 {
-$res = factory.createTextLiteralStatement($str.text);
+$res = getStatementFactory().createFormat(where($str), $str.text, null);
 }
     |  ^(FORMAT fs=STRING_CONST fargs=formatIdList)
 {
-$res = factory.createFormatStatement($fs.text, $fargs.res);
+$res = getStatementFactory().createFormat(where($fs), $fs.text, $fargs.res);
 }
     ;
 
-formatIdList returns [List<FormatArgument> res]
-@init  {final List<FormatArgument> args = new ArrayList<FormatArgument>();}
+formatIdList returns [List<Format.Argument> res]
+@init  {final List<Format.Argument> args = new ArrayList<Format.Argument>();}
 @after {$res = args;}
-    :  (fa=formatId
-{
-args.add($fa.res);
-})+
+    :  (fa=formatId {args.add($fa.res);})+
     ;
 
-formatId returns [FormatArgument res]
-@init  {final AttributeFactory factory = getAttributeFactory();}
+formatId returns [Format.Argument res]
     :  ^(DOT id=ID name=(SYNTAX | IMAGE))
 {
-$res = factory.createAttrCallFormatArgument($id.text, $name.text);
+$res = Format.createArgument((StatementAttributeCall)getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
 }
     |  e=modelExpr
 {
-$res = factory.createExprBasedFormatArgument($e.res);
+$res = Format.createArgument($e.res);
 }
     ;
 

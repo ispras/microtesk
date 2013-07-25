@@ -144,8 +144,24 @@ public class OperationSTBuilder extends PrimitiveBaseSTBuilder
             attrST.add("name", attr.getName());
             attrST.add("rettype", getRetTypeName(attr.getKind()));
 
-            for (Statement stmt: attr.getStatements())
-                addStatement(attrST, stmt);
+            if (Attribute.Kind.ACTION == attr.getKind())
+            {
+                for (Statement stmt: attr.getStatements())
+                    addStatement(attrST, stmt, false);
+            }
+            else if (Attribute.Kind.EXPRESSION == attr.getKind())
+            {
+                assert 1 == attr.getStatements().size() : "Expression attributes must always include a single statement.";
+                
+                final Statement stmt = (attr.getStatements().size() > 0) ?
+                    attr.getStatements().get(0) : null;
+
+                addStatement(attrST, stmt, true);
+            }
+            else
+            {
+                assert false : "Unknown attribute kind: " + attr.getKind();
+            }
 
             attrST.add("override", isStandardAttribute(attr.getName()));
             t.add("attrs", attrST);

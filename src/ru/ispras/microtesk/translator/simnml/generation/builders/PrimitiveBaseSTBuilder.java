@@ -20,10 +20,12 @@ import org.stringtemplate.v4.ST;
 
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Format;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementText;
 
@@ -48,9 +50,9 @@ public abstract class PrimitiveBaseSTBuilder implements ITemplateBuilder
         return Attribute.STANDARD_NAMES.contains(name);
     }
     
-    protected static void addStatement(ST attrST, Statement stmt)
+    protected static void addStatement(ST attrST, Statement stmt, boolean isReturn)
     {
-        new StatementBuilder(attrST).build(stmt);
+        new StatementBuilder(attrST, isReturn).build(stmt);
     }
 }
 
@@ -59,12 +61,14 @@ final class StatementBuilder
     private static final String SINDENT = "    ";
     
     private final ST sequenceST;
+    private final boolean isReturn;
     private int indent;
 
-    StatementBuilder(ST sequenceST)
+    StatementBuilder(ST sequenceST, boolean isReturn)
     {
         this.sequenceST = sequenceST;
-        this.indent = 0;
+        this.isReturn   = isReturn;
+        this.indent     = 0;
     }
 
     private void increaseIndent()
@@ -85,6 +89,14 @@ final class StatementBuilder
 
     private void addStatement(Statement stmt)
     {
+        if (null == stmt)
+        {
+            if (isReturn)
+                addStatement("null;");
+
+            return;
+        }
+                    
         switch (stmt.getKind()) 
         {
             case TEXT:
@@ -106,6 +118,10 @@ final class StatementBuilder
             case STATUS:
                 addStatement((StatementStatus) stmt);
                 break;
+                
+            case FORMAT:
+                addStatement((StatementFormat) stmt);
+                break;
 
             default:
                 assert false : String.format("Unsupported statement type: %s.", stmt.getKind());
@@ -116,8 +132,12 @@ final class StatementBuilder
 
     private void addStatement(String stmt)
     {
-        final StringBuilder sb = new StringBuilder(indent * SINDENT.length() + stmt.length());
+        final StringBuilder sb = new StringBuilder();
 
+        if (isReturn)
+            sb.append("return ");
+
+        
         for (int index = 0; index < indent; ++index)
             sb.append(SINDENT);
         sb.append(stmt);
@@ -153,6 +173,28 @@ final class StatementBuilder
             addStatement(String.format("%s.%s();", stmt.getCalleeName(), stmt.getAttributeName()));
         else
             addStatement(String.format("%s();", stmt.getAttributeName()));
+    }
+    
+    private void addStatement(StatementFormat stmt)
+    {
+        if (null == stmt.getArguments())
+        {
+            addStatement(String.format("\"%s\";", stmt.getFormat()));
+            return;
+        }
+
+        final StringBuffer sb = new StringBuffer();
+        for(int index = 0; index < stmt.getArguments().size(); ++index)
+        {
+            sb.append(", ");
+
+            final Format.Argument argument = stmt.getArguments().get(index);
+            final Format.Marker marker = stmt.getMarkers().get(index);
+
+            sb.append(argument.convertTo(marker));
+        }
+
+        addStatement(String.format("String.format(\"%s\"%s);", stmt.getFormat(), sb.toString()));
     }
 
     private void addStatement(StatementStatus stmt)
