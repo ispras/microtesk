@@ -20,8 +20,7 @@ public abstract class Statement
         ASSIGN,
         COND,
         FORMAT,
-        STATUS,
-        TEXT
+        STATUS
     }
 
     private final Kind kind;

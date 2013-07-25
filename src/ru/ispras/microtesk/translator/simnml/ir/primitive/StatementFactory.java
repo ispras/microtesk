@@ -87,11 +87,6 @@ public final class StatementFactory extends WalkerFactoryBase
         return new StatementAttributeCall(callee, calleeName, attributeName);
     }
 
-    public Statement createComment(String text)
-    {
-        return new StatementText(String.format("// %s", text));
-    }
-
     public Statement createControlTransfer(int index)
     {
         return new StatementStatus(Status.CTRL_TRANSFER, index);

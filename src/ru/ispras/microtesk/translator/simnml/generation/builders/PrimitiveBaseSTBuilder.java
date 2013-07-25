@@ -27,7 +27,6 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAttributeCall
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementText;
 
 public abstract class PrimitiveBaseSTBuilder implements ITemplateBuilder
 {
@@ -99,10 +98,6 @@ final class StatementBuilder
                     
         switch (stmt.getKind()) 
         {
-            case TEXT:
-                addStatement((StatementText) stmt);
-                break;
-
             case ASSIGN:
                 addStatement((StatementAssignment) stmt);
                 break;
@@ -143,11 +138,6 @@ final class StatementBuilder
         sb.append(stmt);
 
         sequenceST.add("stmts", sb.toString());
-    }
-    
-    private void addStatement(StatementText stmt)
-    {
-        addStatement(stmt.getText());
     }
 
     private void addStatement(StatementAssignment stmt)
