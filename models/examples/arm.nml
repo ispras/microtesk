@@ -1199,7 +1199,7 @@ op status_register_transfer_inst =  MRS
 /********************************************************************************************/
 
 op ADC(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCESSING)
-    syntax = format("ADC%s%s %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
+    syntax = format("ADC%s%s %s, %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
     image = format("%s0000101%s%s%s%s", cond.image, sets.image, src2.image, src1.image, src3.image)
     action = {
         cond.action;
@@ -1232,7 +1232,7 @@ op ADC(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : DATA_PROCES
     }
 
 op ADC_IMMEDIATE(cond : Condition, sets : setS, src1 : REG, src2 : REG, src3 : IMMEDIATE)
-    syntax = format("ADC%s%s %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
+    syntax = format("ADC%s%s %s, %s, %s", cond.syntax, sets.syntax, src1.syntax, src2.syntax, src3.syntax)
     image = format("%s0010101%s%s%s%s", cond.image, sets.image, src2.image, src1.image, src3.image)
     action = {
         cond.action;
