@@ -92,4 +92,47 @@ public abstract class Operation implements IOperation
             return false;
         } 
     }
+
+    /**
+     * Default implementation of the syntax attribute. Provided to allow using 
+     * addressing modes that have no explicitly specified syntax attribute. This
+     * method does not do any useful work and should never be called. It is needed
+     * only to let inherited classes compile.
+     */
+
+    @Override
+    public String syntax()
+    {
+        // This code should never be called!
+        assert false : "Default implementation. Should never be called!";
+        return null;
+    }
+
+    /**
+     * Default implementation of the image attribute. Provided to allow using 
+     * addressing modes that have no explicitly specified image attribute. This
+     * method does not do any useful work and should never be called. It is needed
+     * only to let inherited classes compile.
+     */
+
+    @Override
+    public String image()
+    {
+        // This code should never be called!
+        assert false : "Default implementation. Should never be called!";
+        return null;
+    }
+
+    /**
+     * Default implementation of the action attribute. Provided to allow using 
+     * addressing modes that have no explicitly specified action attribute. This
+     * method does not do any useful work and should never be called. It is needed
+     * only to let inherited classes compile.
+     */
+
+    public void action()
+    {
+        // This code should never be called!
+        assert false : "Default implementation. Should never be called!";
+    }
 }

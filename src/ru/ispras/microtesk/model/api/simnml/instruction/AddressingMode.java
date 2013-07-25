@@ -239,6 +239,49 @@ public abstract class AddressingMode implements IAddressingMode
         System.out.println(getClass().getSimpleName() + ": onBeforeStore");        
     }
 
+    /**
+     * Default implementation of the syntax attribute. Provided to allow using 
+     * addressing modes that have no explicitly specified syntax attribute. This
+     * method does not do any useful work and should never be called. It is needed
+     * only to let inherited classes compile.
+     */
+
+    @Override
+    public String syntax()
+    {
+        // This code should never be called!
+        assert false : "Default implementation. Should never be called!";
+        return null;
+    }
+    
+    /**
+     * Default implementation of the image attribute. Provided to allow using 
+     * addressing modes that have no explicitly specified image attribute. This
+     * method does not do any useful work and should never be called. It is needed
+     * only to let inherited classes compile.
+     */
+
+    @Override
+    public String image()
+    {
+        // This code should never be called!
+        assert false : "Default implementation. Should never be called!";
+        return null;
+    }
+
+    /**
+     * Default implementation of the action attribute. Provided to allow using 
+     * addressing modes that have no explicitly specified action attribute. This
+     * method does not do any useful work and should never be called. It is needed
+     * only to let inherited classes compile.
+     */
+
+    public void action()
+    {
+        // This code should never be called!
+        assert false : "Default implementation. Should never be called!";
+    }
+
     /** 
      * Default implementation of the access method. The method is overridden
      * in concrete addressing mode class if the return expression was specified
@@ -248,8 +291,8 @@ public abstract class AddressingMode implements IAddressingMode
     @Override
     public Location access()
     {
-        // This code should never be called! It is just a place holder.
-        assert false : "No return expression!";
+        // This code should never be called!
+        assert false : "Default implementation. Should never be called!";
         return null;
     }
 }
