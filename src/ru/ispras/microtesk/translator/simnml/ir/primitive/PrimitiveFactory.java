@@ -15,6 +15,7 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -131,11 +132,17 @@ public final class PrimitiveFactory extends WalkerFactoryBase
 
 final class CompatibilityChecker extends WalkerFactoryBase
 {
+    private static final String COMMON_ERROR =
+        "The %s primitive cannot be a part of the %s OR-rule.";
+
     private static final String TYPE_MISMATCH_ERROR =
-        "The %s mode cannot be a part of the %s mode OR-rule. Reason: return type mismatch.";
+         COMMON_ERROR + " Reason: return type mismatch.";
 
     private static final String SIZE_MISMATCH_ERROR =
-        "The %s mode cannot be a part of the %s mode OR-rule. Reason: return type size mismatch.";
+         COMMON_ERROR + " Reason: return type size mismatch.";
+
+    private static final String ATTRIBUTE_MISMATCH_ERROR =
+         COMMON_ERROR + " Reason: sets of attributes do not match (expected: %s, current: %s)."; 
 
     private final Where        where;
     private final String        name;
@@ -178,11 +185,14 @@ final class CompatibilityChecker extends WalkerFactoryBase
 
     private void checkType(final TypeExpr currentType, final TypeExpr expectedType) throws SemanticException
     {
-        if (expectedType.getTypeId() == currentType.getTypeId())
-            return;
+        if ((null != expectedType) && (null != currentType))
+        {
+            if (expectedType.getTypeId() == currentType.getTypeId())
+                return;
 
-        if (isInteger(currentType.getTypeId()) && isInteger(expectedType.getTypeId()))
-            return;
+            if (isInteger(currentType.getTypeId()) && isInteger(expectedType.getTypeId()))
+                return;
+        }
 
         raiseError(
             where, String.format(TYPE_MISMATCH_ERROR, current.getName(), name));
@@ -190,8 +200,11 @@ final class CompatibilityChecker extends WalkerFactoryBase
 
     private void checkSize(final TypeExpr currentType, final TypeExpr expectedType) throws SemanticException
     {
-        if (currentType.getBitSize().getValue().equals(expectedType.getBitSize().getValue()))
-            return;
+        if ((null != expectedType) && (null != currentType))
+        {
+            if (currentType.getBitSize().getValue().equals(expectedType.getBitSize().getValue()))
+                return;
+        }
 
         raiseError(
             where, String.format(SIZE_MISMATCH_ERROR, current.getName(), name));
@@ -204,6 +217,19 @@ final class CompatibilityChecker extends WalkerFactoryBase
 
     private void checkAttributes() throws SemanticException
     {
-        // TODO
+        final Set<String> expectedAttrs = expected.getAttrNames();
+        final Set<String>  currentAttrs = current.getAttrNames();
+
+        if (expectedAttrs == currentAttrs)
+            return;
+
+        if ((null != expectedAttrs) && (null != currentAttrs))
+        {
+            if (expectedAttrs.equals(currentAttrs))
+                return;
+        }
+
+        raiseError(
+            where, String.format(ATTRIBUTE_MISMATCH_ERROR, current.getName(), name, expectedAttrs, currentAttrs));
     }
 }
