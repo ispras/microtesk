@@ -31,7 +31,14 @@ public class PrimitiveAND extends Primitive
         Map<String, Attribute> attrs
         )
     {
-        super(name, kind, false, getReturnType(retExpr));
+        super(
+            name,
+            kind,
+            false,
+            getReturnType(retExpr),
+            null == attrs ? null : attrs.keySet()
+            );
+
         this.retExpr = retExpr;
         this.args    = args;
         this.attrs   = attrs;

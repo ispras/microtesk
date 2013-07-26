@@ -27,18 +27,21 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExpr;
 
 public final class StatementFactory extends WalkerFactoryBase
 {
-    private static final String ERR_UNDEFINED_ARG =
+    private static final String UNDEFINED_ARG =
         "The %s argument is not defined.";
 
-    private static final String ERR_IMM_HAVE_NO_ATTR =
+    private static final String IMM_HAVE_NO_ATTR =
         "The immediate value %s does not provide any callable attributes.";
 
-    private static final String ERR_ONLY_STANDARD_ATTR =
+    private static final String ONLY_STANDARD_ATTR =
         "Only standard attributes can be called for the %s object.";
 
-    private static final String ERR_WRONG_FORMAT_ARG_SPEC =
+    private static final String WRONG_FORMAT_ARG_SPEC =
         "Incorrect format specification. The number of arguments specified in the format string (%d) " +
         "does not match to the number of provided argumens (%d).";
+
+    private static final String UNDEFINED_ATTR =
+        "The %s arrtibute is not defined for the %s primitive.";
 
     public StatementFactory(WalkerContext context)
     {
@@ -74,15 +77,18 @@ public final class StatementFactory extends WalkerFactoryBase
         assert null != calleeName;
 
         if (!getThisArgs().containsKey(calleeName))
-            raiseError(where, String.format(ERR_UNDEFINED_ARG, calleeName));
+            raiseError(where, String.format(UNDEFINED_ARG, calleeName));
 
         final Primitive callee = getThisArgs().get(calleeName);
 
         if (Primitive.Kind.IMM == callee.getKind())
-            raiseError(where, String.format(ERR_IMM_HAVE_NO_ATTR, calleeName));
+            raiseError(where, String.format(IMM_HAVE_NO_ATTR, calleeName));
 
         if (!Attribute.STANDARD_NAMES.contains(attributeName))
-            raiseError(where, String.format(ERR_ONLY_STANDARD_ATTR, calleeName));
+            raiseError(where, String.format(ONLY_STANDARD_ATTR, calleeName));
+        
+        if (!callee.getAttrNames().contains(attributeName))
+            raiseError(where, String.format(UNDEFINED_ATTR, attributeName, callee.getName())); 
 
         return new StatementAttributeCall(callee, calleeName, attributeName);
     }
@@ -100,7 +106,7 @@ public final class StatementFactory extends WalkerFactoryBase
         final List<Format.Marker> markers = Format.extractMarkers(format);
 
         if (markers.size() != args.size())
-            raiseError(where, String.format(ERR_WRONG_FORMAT_ARG_SPEC, markers.size(), args.size()));
+            raiseError(where, String.format(WRONG_FORMAT_ARG_SPEC, markers.size(), args.size()));
 
         return new StatementFormat(format, markers, args);
      }

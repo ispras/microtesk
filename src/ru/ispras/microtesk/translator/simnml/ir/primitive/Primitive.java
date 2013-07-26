@@ -12,12 +12,10 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public class Primitive
@@ -51,44 +49,19 @@ public class Primitive
             { return value; }
     }
 
-    private final String         name;
-    private final Kind           kind;
-    private final boolean    isOrRule;
-    private final TypeExpr returnType;
+    private final String           name;
+    private final Kind             kind;
+    private final boolean      isOrRule;
+    private final TypeExpr   returnType;
+    private final Set<String> attrNames;
 
-    Primitive(String name, Kind kind, boolean isOrRule, TypeExpr returnType)
+    Primitive(String name, Kind kind, boolean isOrRule, TypeExpr returnType, Set<String> attrNames)
     {
         this.name       = name;
         this.kind       = kind;
         this.isOrRule   = isOrRule;
         this.returnType = returnType;
-    }
-
-    static Primitive createMode(
-        String name, Expr retExpr, Map<String, Primitive> args, Map<String, Attribute> attrs)
-    {
-        return new PrimitiveAND(name, Kind.MODE, retExpr, args, attrs);
-    }
-
-    static Primitive createModeOR(String name, List<Primitive> ors)
-    {
-        return new PrimitiveOR(name, Kind.MODE, ors);
-    }
-
-    static final Primitive createOp(
-        String name, Map<String, Primitive> args, Map<String, Attribute> attrs)
-    {
-        return new PrimitiveAND(name, Kind.OP, null, args, attrs);
-    }
-    
-    static Primitive createOpOR(String name, List<Primitive> ors)
-    {
-        return new PrimitiveOR(name, Kind.OP, ors);
-    }
-    
-    static Primitive createImm(TypeExpr type)
-    {
-        return new Primitive(type.getRefName(), Kind.IMM, false, type);
+        this.attrNames  = attrNames;
     }
 
     public final String getName()
@@ -124,5 +97,10 @@ public class Primitive
     public final TypeExpr getReturnType()
     {
         return returnType;
+    }
+    
+    public final Set<String> getAttrNames()
+    {
+        return attrNames;
     }
 }

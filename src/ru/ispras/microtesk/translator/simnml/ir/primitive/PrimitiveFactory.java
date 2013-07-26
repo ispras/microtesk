@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
-import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
@@ -53,7 +51,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase
             }
         }
 
-        return Primitive.createMode(name, retExpr, args, attrs);
+        return new PrimitiveAND(name, Primitive.Kind.MODE, retExpr, args, attrs);
     }
 
     public Primitive createOp(
@@ -62,7 +60,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase
         Map<String, Primitive> args,
         Map<String, Attribute> attrs) throws SemanticException
     {
-        return Primitive.createOp(name, args, attrs);
+        return new PrimitiveAND(name, Primitive.Kind.OP, null, args, attrs);
     }
 
     public Primitive createModeOR(
@@ -83,12 +81,12 @@ public final class PrimitiveFactory extends WalkerFactoryBase
             final Primitive mode = getIR().getModes().get(orName);
 
             if (!orModes.isEmpty())
-                new CompatibilityChecker(getReporter(), where, name, mode, orModes.get(0)).check();
+                new CompatibilityChecker(this, where, name, mode, orModes.get(0)).check();
 
             orModes.add(mode);
         }
 
-        return Primitive.createModeOR(name, orModes);
+        return new PrimitiveOR(name, Primitive.Kind.MODE, orModes);
     }
     
     public Primitive createOpOR(
@@ -106,12 +104,12 @@ public final class PrimitiveFactory extends WalkerFactoryBase
             orOps.add(getIR().getOps().get(orName));
         }
 
-        return Primitive.createOpOR(name, orOps);
+        return new PrimitiveOR(name, Primitive.Kind.OP, orOps);
     }
 
     public Primitive createImm(TypeExpr type)
     {
-        return Primitive.createImm(type);
+        return new Primitive(type.getRefName(), Primitive.Kind.IMM, false, type, null);
     }
 
     public Primitive getMode(Where where, String modeName) throws SemanticException
@@ -131,7 +129,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase
     }
 }
 
-final class CompatibilityChecker
+final class CompatibilityChecker extends WalkerFactoryBase
 {
     private static final String TYPE_MISMATCH_ERROR =
         "The %s mode cannot be a part of the %s mode OR-rule. Reason: return type mismatch.";
@@ -139,32 +137,38 @@ final class CompatibilityChecker
     private static final String SIZE_MISMATCH_ERROR =
         "The %s mode cannot be a part of the %s mode OR-rule. Reason: return type size mismatch.";
 
-    private final IErrorReporter reporter;
-    private final Where where;
-    private final String name;
-    private final Primitive current;
+    private final Where        where;
+    private final String        name;
+    private final Primitive  current;
     private final Primitive expected;
 
     public CompatibilityChecker(
-        IErrorReporter reporter,
+        WalkerContext context,
         Where where,
         String name,
         Primitive current,
         Primitive expected
         )
     {
-        this.reporter = reporter;
+        super(context);
+
         this.where    = where;
         this.name     = name;
         this.current  = current;
         this.expected = expected;
     }
-    
+
     public void check() throws SemanticException
     {
-        final TypeExpr currentType = current.getReturnType();
+        checkReturnTypes();
+        checkAttributes();
+    }
+
+    private void checkReturnTypes() throws SemanticException
+    {
+        final TypeExpr  currentType = current.getReturnType();
         final TypeExpr expectedType = expected.getReturnType();
-        
+
         if (currentType == expectedType)
             return;
 
@@ -174,9 +178,6 @@ final class CompatibilityChecker
 
     private void checkType(final TypeExpr currentType, final TypeExpr expectedType) throws SemanticException
     {
-        if (expectedType == currentType)
-            return;
-
         if (expectedType.getTypeId() == currentType.getTypeId())
             return;
 
@@ -201,12 +202,8 @@ final class CompatibilityChecker
         return (typeID == ETypeID.CARD) || (typeID == ETypeID.INT);
     }
 
-    private void raiseError(final Where where, final String what) throws SemanticException
+    private void checkAttributes() throws SemanticException
     {
-        reporter.raiseError(where, new ISemanticError()
-        {
-            @Override
-            public String getMessage() { return what; }
-        });
+        // TODO
     }
 }
