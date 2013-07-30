@@ -82,7 +82,7 @@ startRule
 
 procSpec
 @init {
-System.out.println("Sim-nML:   " + $procSpec.text);
+// System.out.println("Sim-nML:   " + $procSpec.text);
 }
     :  letDef
     |  typeDef
@@ -302,6 +302,7 @@ andRule returns [Map<String,Primitive> res]
 @after {$res = args;}
     :  ^(ARGS (^(id=ID at=argType)
 {
+checkNotNull($id, $at.res, $at.text);
 declare($id, ESymbolKind.ARGUMENT, false);
 args.put($id.text, $at.res);
 })*)
