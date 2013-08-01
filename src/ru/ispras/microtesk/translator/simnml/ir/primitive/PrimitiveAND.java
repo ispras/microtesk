@@ -12,15 +12,17 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
-public class PrimitiveAND extends Primitive
+public final class PrimitiveAND extends Primitive
 {
-    private final Expr retExpr;
-    private final Map<String, Primitive> args;
+    private final Expr                 retExpr;
+    private final Map<String, Primitive>  args;
     private final Map<String, Attribute> attrs;
 
     PrimitiveAND(
@@ -41,7 +43,18 @@ public class PrimitiveAND extends Primitive
 
         this.retExpr = retExpr;
         this.args    = args;
-        this.attrs   = attrs;
+        this.attrs   = Collections.unmodifiableMap(attrs);
+    }
+    
+    public PrimitiveAND makeCopy()
+    {
+        return new PrimitiveAND(
+            getName(),
+            getKind(),
+            getReturnExpr(),
+            new LinkedHashMap<String, Primitive>(args),
+            attrs
+            );
     }
 
     public final Map<String, Primitive> getArgs()

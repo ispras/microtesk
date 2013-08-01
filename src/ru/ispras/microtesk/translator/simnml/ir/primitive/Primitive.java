@@ -21,10 +21,8 @@ public class Primitive
     {
         /** Addressing mode. */
         MODE,
-
         /** Operation. */
         OP,
-
         /** Immediate value. */
         IMM
     }
