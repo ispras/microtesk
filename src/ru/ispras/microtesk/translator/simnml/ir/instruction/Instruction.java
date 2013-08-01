@@ -22,9 +22,9 @@ public final class Instruction
 {
     private static final String CLASS_NAME_FORMAT = "Instruction%s";
 
-    private final String name;
+    private final String                  name;
     private final PrimitiveEntry rootPrimitive;
-    private final Map<String, Primitive> args;
+    private final Map<String, Primitive>  args;
 
     public Instruction(
         String name,

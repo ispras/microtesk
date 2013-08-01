@@ -58,7 +58,7 @@ public class PrimitiveAND extends Primitive
     {
         return retExpr;
     }
-    
+
     private static final TypeExpr getReturnType(Expr retExpr)
     {
         return (null != retExpr) ? retExpr.getModelType() : null;

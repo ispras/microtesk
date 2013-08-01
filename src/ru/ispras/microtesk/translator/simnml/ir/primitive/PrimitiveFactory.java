@@ -89,7 +89,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase
 
         return new PrimitiveOR(name, Primitive.Kind.MODE, orModes);
     }
-    
+
     public Primitive createOpOR(
         Where where,
         String name,

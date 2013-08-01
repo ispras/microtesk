@@ -15,38 +15,35 @@ package ru.ispras.microtesk.translator.simnml.ir.instruction;
 import java.util.Collections;
 import java.util.Map;
 import java.util.LinkedHashMap;
-
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 
 public final class PrimitiveEntry
 {
-    private final String name;
-    private final Primitive.Kind kind;
+    private final Primitive              primitive;
     private final Map<String, PrimitiveEntry> args;
 
-    public PrimitiveEntry(String name, Primitive.Kind kind)
+    public PrimitiveEntry(Primitive primitive)
     {
-        this.name = name;
-        this.kind = kind;
+        this.primitive = primitive;
         this.args = new LinkedHashMap<String, PrimitiveEntry>();
     }
 
-    public PrimitiveEntry(PrimitiveEntry primitive)
+    public PrimitiveEntry(PrimitiveEntry entry)
     {
-        this(primitive.name, primitive.kind);
+        this(entry.primitive);
 
-        for (Map.Entry<String, PrimitiveEntry> e : primitive.args.entrySet())
+        for (Map.Entry<String, PrimitiveEntry> e : entry.args.entrySet())
             this.args.put(e.getKey(), new PrimitiveEntry(e.getValue()));
     }
 
     public String getName()
     {
-        return name;
+        return primitive.getName();
     }
 
     public Primitive.Kind getKind()
     {
-        return kind;
+        return primitive.getKind();
     }
 
     public Map<String, PrimitiveEntry> getArguments()

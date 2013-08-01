@@ -52,8 +52,8 @@ public final class IRAnalyzer
     public static final String ROOT_OPERATION = "instruction";
 
     private final String fileName;
-    private final IR ir;
-    private final ILogStore log;
+    private final IR           ir;
+    private final ILogStore   log;
 
     /**
      * Creates an analyzer object for the specified IR.
@@ -152,13 +152,10 @@ public final class IRAnalyzer
             reportError(ROOT_OPERATION_CANT_BE_OR_RULE);
             return false;
         }
-        
-        final PrimitiveAND rootOp = (PrimitiveAND)root; 
 
+        final PrimitiveAND                    rootOp = (PrimitiveAND)root; 
         final Map<String, Primitive> instructionArgs = new LinkedHashMap<String, Primitive>();
-
-        final PrimitiveEntry rootPrimitive =
-            new PrimitiveEntry(rootOp.getName(), Primitive.Kind.OP);
+        final PrimitiveEntry           rootPrimitive = new PrimitiveEntry(rootOp);
 
         return traverseOperationTree(
             rootOp.getArgs(),
@@ -241,7 +238,7 @@ public final class IRAnalyzer
                 }
             }
 
-            final PrimitiveEntry primitive = new PrimitiveEntry(argType.getName(), argType.getKind());
+            final PrimitiveEntry primitive = new PrimitiveEntry(argType);
             curPrimitive.addArgument(argName, primitive);
 
             if (addToInstructionArgs)
@@ -259,7 +256,7 @@ public final class IRAnalyzer
 
         for (Primitive op : opList)
         {
-            final PrimitiveEntry primitive = new PrimitiveEntry(op.getName(), Primitive.Kind.OP);
+            final PrimitiveEntry primitive = new PrimitiveEntry(op);
             curPrimitive.resetArgument(opName, primitive);
 
             if (!traverseOperationTree(
@@ -311,9 +308,9 @@ public final class IRAnalyzer
     {
         String result = name;
 
-        int index = 1;
+        int index = 0;
         while (existingNames.contains(result))
-            result = String.format("%s_%d", name, index++);
+            result = String.format("%s_%d", name, ++index);
 
         return result;
     }
