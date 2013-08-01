@@ -27,8 +27,8 @@ import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
-import ru.ispras.microtesk.translator.simnml.ir.instruction.PrimitiveEntry;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
@@ -113,16 +113,16 @@ public class InstructionSTBuilder implements ITemplateBuilder
 
     private void buildPrimitiveTree(STGroup group, ST t)
     {
-        final PrimitiveEntry rootOperation = instruction.getRootPrimitive();
-        t.add("op_tree", creatOperationST(rootOperation, group));
+        final PrimitiveAND root = instruction.getRootPrimitive();
+        t.add("op_tree", creatOperationST(root, group));
     }
 
-    private ST creatOperationST(PrimitiveEntry op, STGroup group)
+    private ST creatOperationST(PrimitiveAND op, STGroup group)
     {
         final ST t = group.getInstanceOf("instruction_operation");
 
         t.add("name", op.getName());
-        for (Map.Entry<String, PrimitiveEntry> e : op.getArguments().entrySet())
+        for (Map.Entry<String, Primitive> e : op.getArgs().entrySet())
         {
             if (e.getValue().getKind() == Primitive.Kind.MODE)
             {
@@ -130,7 +130,8 @@ public class InstructionSTBuilder implements ITemplateBuilder
             }
             else if (e.getValue().getKind() == Primitive.Kind.OP)
             {
-                t.add("params", creatOperationST(e.getValue(), group));
+                assert !e.getValue().isOrRule();
+                t.add("params", creatOperationST((PrimitiveAND) e.getValue(), group));
             }
             else
             {

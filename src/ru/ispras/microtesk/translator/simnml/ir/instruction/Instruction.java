@@ -17,23 +17,24 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 public final class Instruction
 {
     private static final String CLASS_NAME_FORMAT = "Instruction%s";
 
     private final String                  name;
-    private final PrimitiveEntry rootPrimitive;
+    private final PrimitiveAND            root;
     private final Map<String, Primitive>  args;
 
     public Instruction(
         String name,
-        PrimitiveEntry rootPrimitive,
+        PrimitiveAND root,
         Map<String, Primitive> args
         )
     {
         this.name = name;
-        this.rootPrimitive = new PrimitiveEntry(rootPrimitive);
+        this.root = root;
         this.args = Collections.unmodifiableMap(new LinkedHashMap<String, Primitive>(args));
     }
 
@@ -47,9 +48,9 @@ public final class Instruction
         return String.format(CLASS_NAME_FORMAT, getName());
     }
 
-    public PrimitiveEntry getRootPrimitive()
+    public PrimitiveAND getRootPrimitive()
     {
-        return rootPrimitive;
+        return root;
     }
 
     public Map<String, Primitive> getArguments()

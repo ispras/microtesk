@@ -23,7 +23,6 @@ import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
-import ru.ispras.microtesk.translator.simnml.ir.instruction.PrimitiveEntry;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
@@ -62,12 +61,12 @@ public final class IRAnalyzer
      * @param ir IR collected by Sim-nML parser and tree walker. 
      * @param log Log object that stores information about events and issues that may occur. 
      */
-    
+
     public IRAnalyzer(String fileName, IR ir, ILogStore log)
     {
         this.fileName = fileName;
-        this.ir = ir;
-        this.log = log;
+        this.ir       = ir;
+        this.log      = log;
     }
 
     /**
@@ -153,16 +152,10 @@ public final class IRAnalyzer
             return false;
         }
 
-        final PrimitiveAND                    rootOp = (PrimitiveAND)root; 
-        final Map<String, Primitive> instructionArgs = new LinkedHashMap<String, Primitive>();
-        final PrimitiveEntry           rootPrimitive = new PrimitiveEntry(rootOp);
+        final PrimitiveAND            rootCopy = ((PrimitiveAND) root).makeCopy(); 
+        final Map<String, Primitive> arguments = new LinkedHashMap<String, Primitive>();
 
-        return traverseOperationTree(
-            rootOp.getArgs(),
-            instructionArgs,
-            rootPrimitive,
-            rootPrimitive
-            );
+        return traverseOperationTree(arguments, rootCopy, rootCopy);
     }
     
     /**
@@ -174,7 +167,7 @@ public final class IRAnalyzer
      * @param curOpArgs Collection of arguments to be added to the primitive of
      * the current level. The arguments can be addressing modes or operations.
      * 
-     * @param instructionArgs The table of instruction arguments. Contains all modes
+     * @param arguments The table of instruction arguments. Contains all modes
      * encountered during the walk from the root operation to a leaf operation (this
      * path describes components that build up a particular instruction). Passed to
      * the constructor of the Instruction class. 
@@ -191,28 +184,26 @@ public final class IRAnalyzer
      */
 
     private boolean traverseOperationTree(
-        Map<String, Primitive> curOpArgs,
-        Map<String, Primitive> instructionArgs,
-        PrimitiveEntry rootPrimitive,
-        PrimitiveEntry curPrimitive
+        Map<String, Primitive> arguments,
+        PrimitiveAND root,
+        PrimitiveAND current
         )
     {
-        final List<Primitive> opList = new ArrayList<Primitive>();
+        final List<PrimitiveAND> opList = new ArrayList<PrimitiveAND>();
         String opName = "";
 
         int opArgCount = 0;
-        for (Map.Entry<String, Primitive> e : curOpArgs.entrySet())
+        for (Map.Entry<String, Primitive> argEntry : current.getArgs().entrySet())
         {
-            final String argName = uniqueName(e.getKey(), instructionArgs.keySet());
-            final Primitive argType = e.getValue();
+            final String    argName = uniqueName(argEntry.getKey(), arguments.keySet());
+            final Primitive argType = argEntry.getValue();
 
-            boolean addToInstructionArgs = false;
             switch (argType.getKind())
             {
                 case MODE:
                 case IMM:
                 {
-                    addToInstructionArgs = true;
+                    arguments.put(argName, argType);
                     break;
                 }
 
@@ -220,7 +211,7 @@ public final class IRAnalyzer
                 {
                     if (opArgCount > 0)
                     {
-                        reportError(String.format(EXCEEDING_OP_ARG_COUNT_FRMT, argName, curPrimitive.getName()));
+                        reportError(String.format(EXCEEDING_OP_ARG_COUNT_FRMT, argName, current.getName()));
                         return false;
                     }
 
@@ -233,38 +224,27 @@ public final class IRAnalyzer
 
                 default:
                 {
-                    reportError(String.format(UNSUPPORTED_ARG_TYPE_FRMT, argName, curPrimitive.getName(), argType.getKind().name(), argType.getName()));
+                    reportError(String.format(UNSUPPORTED_ARG_TYPE_FRMT, argName, current.getName(), argType.getKind().name(), argType.getName()));
                     return false;
                 }
             }
-
-            final PrimitiveEntry primitive = new PrimitiveEntry(argType);
-            curPrimitive.addArgument(argName, primitive);
-
-            if (addToInstructionArgs)
-                instructionArgs.put(argName, argType);
         }
 
         if (opList.isEmpty())
         {
-            final Instruction instruction =
-                new Instruction(curPrimitive.getName(), rootPrimitive, instructionArgs);
-
+            final Instruction instruction = new Instruction(current.getName(), root, arguments);
             ir.add(instruction.getName(), instruction);
             return true;
         }
 
-        for (Primitive op : opList)
+        for (PrimitiveAND op : opList)
         {
-            final PrimitiveEntry primitive = new PrimitiveEntry(op);
-            curPrimitive.resetArgument(opName, primitive);
+            current.getArgs().put(opName, op);
 
             if (!traverseOperationTree(
-                    ((PrimitiveAND) op).getArgs(),
-                    new LinkedHashMap<String, Primitive>(instructionArgs),
-                    rootPrimitive,
-                    primitive
-                    )
+                new LinkedHashMap<String, Primitive>(arguments),
+                root == current ? root.makeCopy() : root,
+                op.makeCopy())
                 )
             {
                 return false;
@@ -282,11 +262,11 @@ public final class IRAnalyzer
      * @param opList An out-parameter. Holds the list of operations the "op" parameter refers to.
      */
 
-    private static void saveAllOpsToList(Primitive op, List<Primitive> opList)
+    private static void saveAllOpsToList(Primitive op, List<PrimitiveAND> opList)
     {
         if (!op.isOrRule())
         {
-            opList.add(op);
+            opList.add((PrimitiveAND) op);
             return;
         }
 
