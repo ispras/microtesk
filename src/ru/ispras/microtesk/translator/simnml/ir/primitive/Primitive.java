@@ -13,9 +13,6 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Set;
-
-import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 public class Primitive
@@ -70,15 +67,7 @@ public class Primitive
             return name;
 
         if (Kind.IMM == kind)
-        {
-            return String.format(
-                "new %s(%s.%s, %s)",
-                Type.class.getSimpleName(),
-                ETypeID.class.getSimpleName(),
-                returnType.getTypeId().name(),
-                returnType.getBitSize().getText()
-            );
-        }
+            return returnType.getJavaText();
 
         assert false : "Primitive name is not defined.";
         return null;

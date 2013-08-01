@@ -13,6 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class TypeExpr
@@ -48,6 +49,20 @@ public final class TypeExpr
     public String getRefName()
     {
         return refName;
+    }
+    
+    public String getJavaText()
+    {
+        if (null != refName)
+            return refName;
+
+        return String.format(
+            "new %s(%s.%s, %s)",
+            Type.class.getSimpleName(),
+            ETypeID.class.getSimpleName(),
+            getTypeId(),
+            getBitSize().getText()
+            );
     }
 
     @Override
