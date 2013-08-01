@@ -88,7 +88,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
 
     private void buildParameters(ST t)
     {
-        for (Map.Entry<String, PrimitiveEntry> e : instruction.getArguments().entrySet())
+        for (Map.Entry<String, Primitive> e : instruction.getArguments().entrySet())
         {
             t.add("param_names", e.getKey());
             

@@ -155,8 +155,7 @@ public final class IRAnalyzer
         
         final PrimitiveAND rootOp = (PrimitiveAND)root; 
 
-        final Map<String, PrimitiveEntry> instructionArgs =
-            new LinkedHashMap<String, PrimitiveEntry>();
+        final Map<String, Primitive> instructionArgs = new LinkedHashMap<String, Primitive>();
 
         final PrimitiveEntry rootPrimitive =
             new PrimitiveEntry(rootOp.getName(), Primitive.Kind.OP);
@@ -196,7 +195,7 @@ public final class IRAnalyzer
 
     private boolean traverseOperationTree(
         Map<String, Primitive> curOpArgs,
-        Map<String, PrimitiveEntry> instructionArgs,
+        Map<String, Primitive> instructionArgs,
         PrimitiveEntry rootPrimitive,
         PrimitiveEntry curPrimitive
         )
@@ -246,7 +245,7 @@ public final class IRAnalyzer
             curPrimitive.addArgument(argName, primitive);
 
             if (addToInstructionArgs)
-                instructionArgs.put(argName, primitive);
+                instructionArgs.put(argName, argType);
         }
 
         if (opList.isEmpty())
@@ -265,7 +264,7 @@ public final class IRAnalyzer
 
             if (!traverseOperationTree(
                     ((PrimitiveAND) op).getArgs(),
-                    new LinkedHashMap<String, PrimitiveEntry>(instructionArgs),
+                    new LinkedHashMap<String, Primitive>(instructionArgs),
                     rootPrimitive,
                     primitive
                     )

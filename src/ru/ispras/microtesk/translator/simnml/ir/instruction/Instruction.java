@@ -16,23 +16,25 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+
 public final class Instruction
 {
     private static final String CLASS_NAME_FORMAT = "Instruction%s";
 
     private final String name;
     private final PrimitiveEntry rootPrimitive;
-    private final Map<String, PrimitiveEntry> args;
+    private final Map<String, Primitive> args;
 
     public Instruction(
         String name,
         PrimitiveEntry rootPrimitive,
-        Map<String, PrimitiveEntry> args
+        Map<String, Primitive> args
         )
     {
         this.name = name;
         this.rootPrimitive = new PrimitiveEntry(rootPrimitive);
-        this.args = Collections.unmodifiableMap(new LinkedHashMap<String, PrimitiveEntry>(args));
+        this.args = Collections.unmodifiableMap(new LinkedHashMap<String, Primitive>(args));
     }
 
     public String getName()
@@ -50,7 +52,7 @@ public final class Instruction
         return rootPrimitive;
     }
 
-    public Map<String, PrimitiveEntry> getArguments()
+    public Map<String, Primitive> getArguments()
     {
         return args;
     }
