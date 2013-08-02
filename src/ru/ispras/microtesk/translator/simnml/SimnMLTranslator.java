@@ -125,12 +125,13 @@ public class SimnMLTranslator
             e.printStackTrace();
         }
 
-        final InstructionBuilder instructionBuilder = new InstructionBuilder(getShortFileName(fileName), ir, LOG);
-        if (!instructionBuilder.synthesizeInstructions())
+        final InstructionBuilder instructionBuilder = new InstructionBuilder(ir.getOps(), getShortFileName(fileName), LOG);
+        if (!instructionBuilder.buildInstructions())
         {
             System.err.println("FAILED TO SYNTESIZE INSTRUCTIONS. TRANSLATION WAS INTERRUPTED.");
             return;
         }
+        ir.putInstructions(instructionBuilder.getInstructions());
 
         final Generator generator = new Generator(modelName, getShortFileName(fileName), ir);
         generator.generate();

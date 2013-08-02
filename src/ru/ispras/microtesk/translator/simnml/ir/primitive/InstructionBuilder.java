@@ -22,13 +22,10 @@ import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
-import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
-
-import static ru.ispras.microtesk.translator.simnml.ir.primitive.Messages.*;
 
 /**
  * The InstructionBuilder class analyzes the intermediate representation (IR) of a ISA model created 
@@ -45,14 +42,28 @@ import static ru.ispras.microtesk.translator.simnml.ir.primitive.Messages.*;
 
 public final class InstructionBuilder
 {
-    /**
-     * The name of the model entry point (root operation).
-     */
+    public static final String ALREADY_SYNTHESIZED = 
+        "Instructions have already been synthesized. No action will be performed.";
 
+    public static final String NO_ROOT_OPERATION_FRMT = 
+        "No entry point. The '%s' root operation is not defined.";
+
+    public static final String ROOT_OPERATION_CANT_BE_OR_RULE =
+        "The root operation cannot be an OR-rule.";
+
+    public static final String UNSUPPORTED_ARG_TYPE_FRMT =
+        "The '%s' argument of the '%s' primitive has an unsupported kind %s (type name is '%s')";
+
+    public static final String EXCEEDING_OP_ARG_COUNT_FRMT =
+        "The '%s' argument of the '%s' primitive cannot be an operation. Only one operation argument is allowed per primitive.";
+
+    /** The name of the model entry point (root operation). */
     public static final String ROOT_OPERATION = "instruction";
 
+    private final Map<String, Primitive>   operations;
+    private final Map<String, Instruction> instructions;
+
     private final String fileName;
-    private final IR           ir;
     private final ILogStore   log;
 
     /**
@@ -63,11 +74,20 @@ public final class InstructionBuilder
      * @param log Log object that stores information about events and issues that may occur. 
      */
 
-    public InstructionBuilder(String fileName, IR ir, ILogStore log)
+    public InstructionBuilder(
+        Map<String, Primitive> operations,
+        String fileName,
+        ILogStore log
+        )
     {
-        this.fileName = fileName;
-        this.ir       = ir;
-        this.log      = log;
+        assert null != operations;
+        assert null != fileName;
+        assert null != log;
+
+        this.operations   = operations;
+        this.instructions = new LinkedHashMap<String, Instruction>();
+        this.fileName     = fileName;
+        this.log          = log;
     }
 
     /**
@@ -132,21 +152,21 @@ public final class InstructionBuilder
      * @return true if the action was successful and false if an error occurred.   
      */
 
-    public boolean synthesizeInstructions()
+    public boolean buildInstructions()
     {
-        if (!ir.getInstructions().isEmpty())
+        if (!instructions.isEmpty())
         {
             reportWarning(ALREADY_SYNTHESIZED);
             return true;
         }
 
-        if (!ir.getOps().containsKey(ROOT_OPERATION))
+        if (!operations.containsKey(ROOT_OPERATION))
         {
             reportError(String.format(NO_ROOT_OPERATION_FRMT, ROOT_OPERATION));
             return false;
         }
 
-        final Primitive root = ir.getOps().get(ROOT_OPERATION);
+        final Primitive root = operations.get(ROOT_OPERATION);
         if (root.isOrRule())
         {
             reportError(ROOT_OPERATION_CANT_BE_OR_RULE);
@@ -158,7 +178,12 @@ public final class InstructionBuilder
 
         return traverseOperationTree(arguments, rootCopy, rootCopy);
     }
-    
+
+    public Map<String, Instruction> getInstructions()
+    {
+        return instructions;
+    }
+
     /**
      * Traverses the tree of operations (OP-constructions) creating
      * a tree of primitives (IR for instruction components). When a leaf 
@@ -234,7 +259,7 @@ public final class InstructionBuilder
         if (opList.isEmpty())
         {
             final Instruction instruction = new Instruction(current.getName(), root, arguments);
-            ir.add(instruction.getName(), instruction);
+            instructions.put(instruction.getName(), instruction);
             return true;
         }
 
@@ -295,24 +320,4 @@ public final class InstructionBuilder
 
         return result;
     }
-}
-
-final class Messages
-{
-    private Messages() {}
-
-    public static final String ALREADY_SYNTHESIZED = 
-        "Instructions have already been synthesized. No action will be performed.";
-
-    public static final String NO_ROOT_OPERATION_FRMT = 
-        "No entry point. The '%s' root operation is not defined.";
-
-    public static final String ROOT_OPERATION_CANT_BE_OR_RULE =
-        "The root operation cannot be an OR-rule.";
-
-    public static final String UNSUPPORTED_ARG_TYPE_FRMT =
-        "The '%s' argument of the '%s' primitive has an unsupported kind %s (type name is '%s')";
-
-    public static final String EXCEEDING_OP_ARG_COUNT_FRMT =
-        "The '%s' argument of the '%s' primitive cannot be an operation. Only one operation argument is allowed per primitive.";
 }

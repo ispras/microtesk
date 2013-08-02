@@ -29,23 +29,22 @@ public final class IR
     private final Map<String, LetLabel>   labels;
     private final Map<String, TypeExpr>    types;
     private final Map<String, MemoryExpr> memory;
+    private final Map<String, Primitive>   modes;
+    private final Map<String, Primitive>     ops;
 
-    private final Map<String, Primitive> modes;
-    private final Map<String, Primitive>   ops;
-
-    private final Map<String, Instruction> instructions;
+    private Map<String, Instruction> instructions;
 
     public IR()
     {
-        lets   = new LinkedHashMap<String, LetExpr>();
-        labels = new LinkedHashMap<String, LetLabel>();
-        types  = new LinkedHashMap<String, TypeExpr>();
-        memory = new LinkedHashMap<String, MemoryExpr>();
+        this.lets   = new LinkedHashMap<String, LetExpr>();
+        this.labels = new LinkedHashMap<String, LetLabel>();
+        this.types  = new LinkedHashMap<String, TypeExpr>();
+        this.memory = new LinkedHashMap<String, MemoryExpr>();
 
-        modes  = new LinkedHashMap<String, Primitive>();
-        ops    = new LinkedHashMap<String, Primitive>();
+        this.modes  = new LinkedHashMap<String, Primitive>();
+        this.ops    = new LinkedHashMap<String, Primitive>();
 
-        instructions = new LinkedHashMap<String, Instruction>();
+        this.instructions = new LinkedHashMap<String, Instruction>();
     }
 
     public void add(String name, LetExpr value)
@@ -76,11 +75,6 @@ public final class IR
             ops.put(name, value);
         else
             assert false : String.format( "Incorrect primitive kind: %s.", value.getKind());
-    }
-
-    public void add(String name, Instruction value)
-    {
-        instructions.put(name, value);
     }
 
     public Map<String, LetExpr> getLets()
@@ -116,5 +110,12 @@ public final class IR
     public Map<String, Instruction> getInstructions()
     {
         return Collections.unmodifiableMap(instructions);
+    }
+    
+    public void putInstructions(Map<String, Instruction> value)
+    {
+        assert instructions.isEmpty();
+        assert null != value;
+        instructions = value;
     }
 }
