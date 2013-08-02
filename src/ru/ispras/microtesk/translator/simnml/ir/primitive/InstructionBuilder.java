@@ -7,10 +7,10 @@
  * 
  * All rights reserved.
  * 
- * IRAnalyzer.java, Jan 9, 2013 6:13:18 PM Andrei Tatarnikov
+ * InstructionBuilder.java, Jan 9, 2013 6:13:18 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir;
+package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,15 +22,16 @@ import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
+import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
-import static ru.ispras.microtesk.translator.simnml.ir.Messages.*;
+import static ru.ispras.microtesk.translator.simnml.ir.primitive.Messages.*;
 
 /**
- * The IRAnalyzer class analyzes the intermediate representation (IR) of a ISA model created 
+ * The InstructionBuilder class analyzes the intermediate representation (IR) of a ISA model created 
  * by the Sim-nML parser and tree walker and creates IR for instructions based on links
  * between MODE and OP Sim-nML constructions. 
  * 
@@ -42,7 +43,7 @@ import static ru.ispras.microtesk.translator.simnml.ir.Messages.*;
  * @author Andrei Tatarnikov
  */
 
-public final class IRAnalyzer
+public final class InstructionBuilder
 {
     /**
      * The name of the model entry point (root operation).
@@ -62,7 +63,7 @@ public final class IRAnalyzer
      * @param log Log object that stores information about events and issues that may occur. 
      */
 
-    public IRAnalyzer(String fileName, IR ir, ILogStore log)
+    public InstructionBuilder(String fileName, IR ir, ILogStore log)
     {
         this.fileName = fileName;
         this.ir       = ir;

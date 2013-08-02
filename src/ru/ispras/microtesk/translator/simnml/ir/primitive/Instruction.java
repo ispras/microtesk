@@ -24,7 +24,7 @@ public final class Instruction
     private final PrimitiveAND            root;
     private final Map<String, Primitive>  args;
 
-    public Instruction(
+    Instruction(
         String name,
         PrimitiveAND root,
         Map<String, Primitive> args

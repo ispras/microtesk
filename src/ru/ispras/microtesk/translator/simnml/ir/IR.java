@@ -52,7 +52,7 @@ public final class IR
     {
         lets.put(name, value);
     }
-    
+
     public void add(String name, LetLabel value)
     {
         labels.put(name, value);
@@ -77,7 +77,7 @@ public final class IR
         else
             assert false : String.format( "Incorrect primitive kind: %s.", value.getKind());
     }
-    
+
     public void add(String name, Instruction value)
     {
         instructions.put(name, value);
@@ -87,7 +87,7 @@ public final class IR
     {
         return Collections.unmodifiableMap(lets);
     }
-    
+
     public Map<String, LetLabel> getLabels()
     {
         return Collections.unmodifiableMap(labels);

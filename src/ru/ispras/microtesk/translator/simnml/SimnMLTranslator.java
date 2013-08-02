@@ -31,7 +31,7 @@ import ru.ispras.microtesk.translator.simnml.grammar.SimnMLLexer;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLParser;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.IRAnalyzer;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.InstructionBuilder;
 
 public class SimnMLTranslator
 {
@@ -125,8 +125,8 @@ public class SimnMLTranslator
             e.printStackTrace();
         }
 
-        final IRAnalyzer analyzer = new IRAnalyzer(getShortFileName(fileName), ir, LOG);
-        if (!analyzer.synthesizeInstructions())
+        final InstructionBuilder instructionBuilder = new InstructionBuilder(getShortFileName(fileName), ir, LOG);
+        if (!instructionBuilder.synthesizeInstructions())
         {
             System.err.println("FAILED TO SYNTESIZE INSTRUCTIONS. TRANSLATION WAS INTERRUPTED.");
             return;
