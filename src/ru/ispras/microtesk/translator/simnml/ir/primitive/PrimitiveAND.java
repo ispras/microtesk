@@ -57,12 +57,12 @@ public final class PrimitiveAND extends Primitive
             );
     }
 
-    public final Map<String, Primitive> getArgs()
+    public Map<String, Primitive> getArguments()
     {
         return args;
     }
 
-    public final Map<String, Attribute> getAttrs()
+    public Map<String, Attribute> getAttributes()
     {
         return attrs;
     }
@@ -72,7 +72,7 @@ public final class PrimitiveAND extends Primitive
         return retExpr;
     }
 
-    private static final TypeExpr getReturnType(Expr retExpr)
+    private static TypeExpr getReturnType(Expr retExpr)
     {
         return (null != retExpr) ? retExpr.getModelType() : null;
     }

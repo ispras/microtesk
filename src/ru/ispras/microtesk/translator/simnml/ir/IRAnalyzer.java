@@ -193,7 +193,7 @@ public final class IRAnalyzer
         String opName = "";
 
         int opArgCount = 0;
-        for (Map.Entry<String, Primitive> argEntry : current.getArgs().entrySet())
+        for (Map.Entry<String, Primitive> argEntry : current.getArguments().entrySet())
         {
             final String    argName = uniqueName(argEntry.getKey(), arguments.keySet());
             final Primitive argType = argEntry.getValue();
@@ -239,7 +239,7 @@ public final class IRAnalyzer
 
         for (PrimitiveAND op : opList)
         {
-            current.getArgs().put(opName, op);
+            current.getArguments().put(opName, op);
 
             if (!traverseOperationTree(
                 new LinkedHashMap<String, Primitive>(arguments),

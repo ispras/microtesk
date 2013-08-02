@@ -69,7 +69,7 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
 
     private void buildArguments(STGroup group, ST t)
     {
-        for(Map.Entry<String, Primitive> e : mode.getArgs().entrySet())
+        for(Map.Entry<String, Primitive> e : mode.getArguments().entrySet())
         {
             final String    argName = e.getKey();
             final Primitive argType = e.getValue();
@@ -87,7 +87,7 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
 
     private void buildAttributes(STGroup group, ST t)
     {
-        for (Attribute attr : mode.getAttrs().values())
+        for (Attribute attr : mode.getAttributes().values())
         {
             final ST attrST = group.getInstanceOf("mode_attribute");
 

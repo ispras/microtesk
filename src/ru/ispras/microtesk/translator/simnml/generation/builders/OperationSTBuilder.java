@@ -98,7 +98,7 @@ public class OperationSTBuilder extends PrimitiveBaseSTBuilder
     
     private void buildArguments(STGroup group, ST t)
     {
-        for (Map.Entry<String, Primitive> e : op.getArgs().entrySet())
+        for (Map.Entry<String, Primitive> e : op.getArguments().entrySet())
         {
             final String    argName = e.getKey();
             final Primitive argType = e.getValue();
@@ -137,7 +137,7 @@ public class OperationSTBuilder extends PrimitiveBaseSTBuilder
 
     private void buildAttributes(STGroup group, ST t)
     {
-        for (Attribute attr : op.getAttrs().values())
+        for (Attribute attr : op.getAttributes().values())
         {
             final ST attrST = group.getInstanceOf("op_attribute");
 

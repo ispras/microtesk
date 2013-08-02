@@ -113,7 +113,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
 
     private void buildPrimitiveTree(STGroup group, ST t)
     {
-        final PrimitiveAND root = instruction.getRootPrimitive();
+        final PrimitiveAND root = instruction.getRootOperation();
         t.add("op_tree", creatOperationST(root, group));
     }
 
@@ -122,7 +122,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
         final ST t = group.getInstanceOf("instruction_operation");
 
         t.add("name", op.getName());
-        for (Map.Entry<String, Primitive> e : op.getArgs().entrySet())
+        for (Map.Entry<String, Primitive> e : op.getArguments().entrySet())
         {
             if (e.getValue().getKind() == Primitive.Kind.MODE)
             {

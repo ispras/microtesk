@@ -48,7 +48,7 @@ public final class Instruction
         return String.format(CLASS_NAME_FORMAT, getName());
     }
 
-    public PrimitiveAND getRootPrimitive()
+    public PrimitiveAND getRootOperation()
     {
         return root;
     }

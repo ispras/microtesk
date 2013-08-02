@@ -68,7 +68,7 @@ public final class StatementFactory extends WalkerFactoryBase
         if ((null == symbol) || (symbol.getKind() != ESymbolKind.ATTRIBUTE))
             raiseError(where, new UndefinedPrimitive(attributeName, ESymbolKind.ATTRIBUTE));
 
-        return new StatementAttributeCall(getThis(), null, attributeName);
+        return new StatementAttributeCall(null, attributeName);
     }
 
     public Statement createAttributeCall(Where where, String calleeName, String attributeName) throws SemanticException
@@ -86,18 +86,18 @@ public final class StatementFactory extends WalkerFactoryBase
 
         if (!Attribute.STANDARD_NAMES.contains(attributeName))
             raiseError(where, String.format(ONLY_STANDARD_ATTR, calleeName));
-        
+
         if (!callee.getAttrNames().contains(attributeName))
             raiseError(where, String.format(UNDEFINED_ATTR, attributeName, callee.getName())); 
 
-        return new StatementAttributeCall(callee, calleeName, attributeName);
+        return new StatementAttributeCall(calleeName, attributeName);
     }
 
     public Statement createControlTransfer(int index)
     {
         return new StatementStatus(Status.CTRL_TRANSFER, index);
     }
-    
+
     public Statement createFormat(Where where, String format, List<Format.Argument> args) throws SemanticException
     {
         if (null == args)
