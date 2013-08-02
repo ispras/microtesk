@@ -26,7 +26,7 @@ import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
-import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;

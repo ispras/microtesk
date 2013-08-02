@@ -21,7 +21,7 @@ import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
-import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 
 public final class Generator
 {

@@ -10,14 +10,11 @@
  * Instruction.java, Jan 9, 2013 6:01:52 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.instruction;
+package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 public final class Instruction
 {

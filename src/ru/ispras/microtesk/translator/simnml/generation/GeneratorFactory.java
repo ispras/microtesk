@@ -20,7 +20,7 @@ import ru.ispras.microtesk.translator.simnml.generation.builders.*;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
-import ru.ispras.microtesk.translator.simnml.ir.instruction.Instruction;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
