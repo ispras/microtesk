@@ -28,14 +28,15 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
 /**
- * The InstructionBuilder class analyzes the intermediate representation (IR) of a ISA model created 
- * by the Sim-nML parser and tree walker and creates IR for instructions based on links
- * between MODE and OP Sim-nML constructions. 
+ * The InstructionBuilder class build the intermediate representation (IR) of
+ * microprocessor instructions by analyzing the IR of addressing modes and operations
+ * created by the Sim-nML parser and tree walker. Instructions are composed of
+ * OPs and MODEs basing on links between them.
  * 
- * The analysis starts from the mode entry point. According to Sim-nML conventions, it is
- * an operation (OP-construction) called "instruction" that refers to other operations and
- * addressing mode. The analysis logic walks down the tree of MODE and OP dependencies and,
- * when it reaches a leaf, adds a corresponding instruction IR to the instruction set. 
+ * The analysis starts from the instruction entry point. According to Sim-nML conventions,
+ * it is an operation (OP-construction) called "instruction" that refers to other operations
+ * and addressing modes. The analysis logic walks down the tree of MODE and OP dependencies
+ * and, when it reaches a leaf, adds a corresponding instruction IR to the instruction set. 
  *
  * @author Andrei Tatarnikov
  */
@@ -67,10 +68,10 @@ public final class InstructionBuilder
     private final ILogStore   log;
 
     /**
-     * Creates an analyzer object for the specified IR.
-     * 
+     * Creates an instruction builder for the given IR of Sim-nML operations.
+     *
+     * @param operations A table or operation IR objects.
      * @param fileName The specification file name. 
-     * @param ir IR collected by Sim-nML parser and tree walker. 
      * @param log Log object that stores information about events and issues that may occur. 
      */
 
@@ -117,7 +118,7 @@ public final class InstructionBuilder
      * 
      * @param message Warning message.
      */
-    
+
     private void reportWarning(String message)
     {
         assert null != log;
@@ -133,21 +134,21 @@ public final class InstructionBuilder
                 )
             );
     }
-    
+
     /**
      * Generates IR for microprocessor instructions based on information about MODEs and OPs.
      * 
-     * The code of the method walks down the tree of links between MODE and OP primitives
+     * The code of the method walks down the tree of links between OP and MODE primitives
      * starting from the root operation. When it faces an operation OR-rule it replaces the
      * OR-rule primitive with all of its alternatives creating a corresponding amount of
      * instructions. When it encounters a MODE-rule it uses the specified addressing mode
      * as a parameter of the instruction.  
      * 
      * Preconditions:
-     * 1. The IR should not contain information about instructions.
+     * 1. The instruction make should be empty (only a single method run for a single builder instance).
      * 2. The "instruction" root operation should be defined.
      * 3. The "instruction" root operation should not be an OR-rule.
-     * 4. An operation cannot have more that one operation parameter (to avoid ambiguity).  
+     * 4. An operation cannot have more that one operation child primitive (to avoid ambiguity).  
      * 
      * @return true if the action was successful and false if an error occurred.   
      */
@@ -179,6 +180,12 @@ public final class InstructionBuilder
         return traverseOperationTree(arguments, rootCopy, rootCopy);
     }
 
+    /**
+     * Returns a table of synthesized instruction IRs.
+     * 
+     * @return Table of instructions.
+     */
+    
     public Map<String, Instruction> getInstructions()
     {
         return instructions;
@@ -189,21 +196,18 @@ public final class InstructionBuilder
      * a tree of primitives (IR for instruction components). When a leaf 
      * is reached the method creates an instruction description based on
      * the information it has collected.   
-     *  
-     * @param curOpArgs Collection of arguments to be added to the primitive of
-     * the current level. The arguments can be addressing modes or operations.
      * 
      * @param arguments The table of instruction arguments. Contains all modes
      * encountered during the walk from the root operation to a leaf operation (this
      * path describes components that build up a particular instruction). Passed to
      * the constructor of the Instruction class. 
      *  
-     * @param rootPrimitive Describes the root operation (the "instruction" OP-construction).
+     * @param root Describes the root operation (the "instruction" OP-construction).
      * Contains a link to a lower-level OP-primitive if it is declared. Passed to the constructor
      * of the Instruction class.
      * 
-     * @param curPrimitive A primitive of the current level. We use this primitive to
-     * continue adding nodes to the tree whereas the path from rootPrimitive to curPrimitive
+     * @param current An operation of the current level. We use this primitive to
+     * continue adding nodes to the tree whereas the path from root to current.
      * is considered complete.
      *   
      * @return Returns false if an error occurred or true if the action was successful. 
