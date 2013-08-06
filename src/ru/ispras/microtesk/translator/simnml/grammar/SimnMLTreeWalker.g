@@ -624,7 +624,7 @@ atom = factory.location(where($id), $id.text, $e.res);
 }
     |  id=ID
 {
-atom = factory.location(where($id), $id.text, getThisArgs());
+atom = factory.location(where($id), $id.text);
 }
     ;
 

@@ -13,11 +13,9 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.List;
-import java.util.Map;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 
 public interface LocationExprFactory
 {
@@ -25,15 +23,8 @@ public interface LocationExprFactory
     public List<LocationInfo> getLog();
     public void resetLog();
 
-    public LocationExpr location(
-         Where w, String name, Map<String, Primitive> globalArgTypes) throws SemanticException;
-
-    public LocationExpr location(
-         Where w, String name, Expr index) throws SemanticException;
-
-    public LocationExpr bitfield(
-         Where w, LocationExpr loc, Expr start, Expr end) throws SemanticException;
-
-    public LocationExpr concat(
-         Where w, LocationExpr loc1, LocationExpr loc2) throws SemanticException;
+    public LocationExpr location(Where w, String name) throws SemanticException;
+    public LocationExpr location(Where w, String name, Expr index) throws SemanticException;
+    public LocationExpr bitfield(Where w, LocationExpr loc, Expr start, Expr end) throws SemanticException;
+    public LocationExpr concat(Where w, LocationExpr loc1, LocationExpr loc2) throws SemanticException;
 }

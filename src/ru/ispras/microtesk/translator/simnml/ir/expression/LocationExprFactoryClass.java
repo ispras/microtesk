@@ -20,7 +20,6 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
@@ -70,7 +69,7 @@ final class LocationExprFactoryImpl extends WalkerFactoryBase implements Locatio
 
     @Override
     public LocationExpr location(
-        Where where, String name, Map<String, Primitive> globalArgTypes) throws SemanticException
+         Where where, String name) throws SemanticException
     {
         final ISymbol<ESymbolKind> symbol = findSymbol(where, name);
         final ESymbolKind kind = symbol.getKind();
@@ -87,7 +86,7 @@ final class LocationExprFactoryImpl extends WalkerFactoryBase implements Locatio
         }
         else
         {
-            final ArgumentBasedLocationCreator creator = new ArgumentBasedLocationCreator(where, name, globalArgTypes);
+            final ArgumentBasedLocationCreator creator = new ArgumentBasedLocationCreator(where, name, getThisArgs());
             result = creator.create();
         }
         
@@ -331,30 +330,27 @@ final class LocationExprFactoryImpl extends WalkerFactoryBase implements Locatio
     }
 }
 
-final class LocationExprFactoryDebug implements LocationExprFactory
+final class LocationExprFactoryDebug extends WalkerFactoryBase implements LocationExprFactory
 {
     private final LocationExprFactory factory;
-    private final SymbolTable<ESymbolKind> symbols;
 
     public LocationExprFactoryDebug(
-        LocationExprFactory factory,
-        SymbolTable<ESymbolKind> symbols
-        )
+        WalkerContext context, LocationExprFactory factory)
     {
+        super(context);
         this.factory = factory;
-        this.symbols = symbols;
     }
-    
+
     public void setLog(List<LocationInfo> locations)
     {
         factory.setLog(locations);
     }
-    
+
     public List<LocationInfo> getLog()
     {
         return factory.getLog();
     }
-    
+
     public void resetLog()
     {
         factory.resetLog();
@@ -386,19 +382,15 @@ final class LocationExprFactoryDebug implements LocationExprFactory
     }
 
     @Override
-    public LocationExpr location(
-        Where w, String name, Map<String, Primitive> globalArgTypes) throws SemanticException
+    public LocationExpr location(Where w, String name) throws SemanticException
     {
-        final LocationExpr result =
-            factory.location(w, name, globalArgTypes);
-
-        final ESymbolKind kind =
-            symbols.resolve(name).getKind();
+        final LocationExpr result = factory.location(w, name);
+        final ESymbolKind    kind = getSymbols().resolve(name).getKind();
 
         final String symbolInfo;
         if (kind == ESymbolKind.ARGUMENT)
         {
-            final Primitive argType = globalArgTypes.get(name);
+            final Primitive argType = getThisArgs().get(name);
 
             symbolInfo = String.format(
                 "%s(%s %s)",
@@ -427,8 +419,7 @@ final class LocationExprFactoryDebug implements LocationExprFactory
         Where w, String name, Expr index) throws SemanticException
     {
         final LocationExpr result = factory.location(w, name, index);
-
-        final ESymbolKind kind = symbols.resolve(name).getKind();
+        final ESymbolKind    kind = getSymbols().resolve(name).getKind();
 
         trace(
             "location",
