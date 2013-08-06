@@ -14,8 +14,27 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
-public interface LocationExpr
+public final class LocationExpr 
 {
-    public String   getText();
-    public TypeExpr getType();
+    private final   String text;
+    private final TypeExpr type;
+
+    public LocationExpr(String text, TypeExpr type)
+    {
+        assert null != text;
+        assert null != type;
+        
+        this.text = text;
+        this.type = type;
+    }
+
+    public String getText()
+    {
+        return text;
+    }
+
+    public TypeExpr getType()
+    {
+        return type;
+    }
 }

@@ -144,7 +144,7 @@ final class LocationExprFactoryImpl extends WalkerFactoryBase implements Locatio
             ExprClass.createConstant(bitfieldSize, Integer.toString(bitfieldSize))
         );
 
-        return new LocationExprClass(bitfieldExprText, bitfieldExprType);
+        return new LocationExpr(bitfieldExprText, bitfieldExprType);
     }
 
     @Override
@@ -166,7 +166,7 @@ final class LocationExprFactoryImpl extends WalkerFactoryBase implements Locatio
             ExprClass.createConstant(concatSize, Integer.toString(concatSize))
         );
 
-        return new LocationExprClass(concatExprText, concatExprType);
+        return new LocationExpr(concatExprText, concatExprType);
     }
 
     private ISymbol<ESymbolKind> findSymbol(Where where, String name) throws SemanticException
@@ -197,7 +197,7 @@ final class LocationExprFactoryImpl extends WalkerFactoryBase implements Locatio
         public LocationExpr create() throws SemanticException
         {
             final MemoryExpr memory = findMemory();
-            return new LocationExprClass(getLocationText(), memory.getType());
+            return new LocationExpr(getLocationText(), memory.getType());
         }
 
         private MemoryExpr findMemory() throws SemanticException
@@ -301,12 +301,12 @@ final class LocationExprFactoryImpl extends WalkerFactoryBase implements Locatio
 
         public LocationExpr createImmValueBasedLocation(Primitive argType)
         {
-            return new LocationExprClass(name, argType.getReturnType());
+            return new LocationExpr(name, argType.getReturnType());
         }
 
         public LocationExpr createModeBasedLocation(Primitive argType) throws SemanticException
         {
-            return new LocationExprClass(getLocationText(), argType.getReturnType());
+            return new LocationExpr(getLocationText(), argType.getReturnType());
         }
 
         private String getLocationText() throws SemanticException
