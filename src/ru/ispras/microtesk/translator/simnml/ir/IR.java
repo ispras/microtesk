@@ -111,7 +111,7 @@ public final class IR
     {
         return Collections.unmodifiableMap(instructions);
     }
-    
+
     public void putInstructions(Map<String, Instruction> value)
     {
         assert instructions.isEmpty();

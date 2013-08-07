@@ -40,7 +40,6 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveFactory;
@@ -169,7 +168,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
     protected final LocationExprFactory getLocationExprFactory()
     {
         if (null == locationExprFactory)
-            locationExprFactory = LocationExprFactoryClass.createFactory(this); 
+            locationExprFactory = new LocationExprFactory(this); 
         return locationExprFactory;
     }
 

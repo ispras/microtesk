@@ -102,9 +102,9 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
             else if (Attribute.Kind.EXPRESSION == attr.getKind())
             {
                 assert 1 == attr.getStatements().size() : "Expression attributes must always include a single statement.";
-                
-                final Statement stmt = (attr.getStatements().size() > 0) ?
-                    attr.getStatements().get(0) : null;
+
+                final Statement stmt =
+                    (attr.getStatements().size() > 0) ? attr.getStatements().get(0) : null;
 
                 addStatement(attrST, stmt, true);
             }
