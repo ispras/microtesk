@@ -19,25 +19,25 @@ import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationInfo;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationFactory;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationAtom;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 
 public final class PCAnalyzer
 {
-    private final LocationExprFactory locationFactory;
+    private final LocationFactory  locationFactory;
     private final IR ir;
 
-    private final List<LocationInfo> destLocations;
-    private List<LocationInfo> srcLocations;
+    private final List<LocationAtom> destLocations;
+    private List<LocationAtom> srcLocations;
 
-    public PCAnalyzer(LocationExprFactory locationFactory, IR ir)
+    public PCAnalyzer(LocationFactory locationFactory, IR ir)
     {
         this.locationFactory = locationFactory;
         this.ir = ir;
 
-        this.destLocations = new ArrayList<LocationInfo>();
+        this.destLocations = new ArrayList<LocationAtom>();
         this.locationFactory.setLog(destLocations);
 
         this.srcLocations = null;
@@ -47,7 +47,7 @@ public final class PCAnalyzer
     {
         if (!isPCAssignment()) return;
         
-        srcLocations = new ArrayList<LocationInfo>();
+        srcLocations = new ArrayList<LocationAtom>();
         locationFactory.setLog(srcLocations);
     }
     
@@ -56,12 +56,12 @@ public final class PCAnalyzer
         if (null == srcLocations)
             return -1;
 
-        for (LocationInfo li : srcLocations)
+        for (LocationAtom location : srcLocations)
         {
-            if (li.getSymbolKind() == ESymbolKind.ARGUMENT)
+            if (location.getSource().getSymbolKind() == ESymbolKind.ARGUMENT)
                 return 1;
 
-            if (li.getSymbolKind() == ESymbolKind.MEMORY && !isPC(li))
+            if (location.getSource().getSymbolKind() == ESymbolKind.MEMORY && !isPC(location))
                 return 1;
         } 
 
@@ -75,36 +75,35 @@ public final class PCAnalyzer
     
     private boolean isPCAssignment()
     {
-        for (LocationInfo li : destLocations)
-            if (isPC(li))
+        for (LocationAtom location : destLocations)
+            if (isPC(location))
                 return true;
 
         return false;
     }
     
-    private boolean isPC(LocationInfo locationInfo)
+    private boolean isPC(LocationAtom location)
     {
-        assert null != locationInfo;
+        assert null != location;
         
-        if (!isRegisterLocation(locationInfo))
+        if (!isRegisterLocation(location))
             return false;
         
-        if (isExplicitPCAccess(locationInfo))
+        if (isExplicitPCAccess(location))
             return true;
         
-        return isLabelledAsPC(locationInfo);
+        return isLabelledAsPC(location);
     }
     
-    private boolean isRegisterLocation(LocationInfo locationInfo)
+    private boolean isRegisterLocation(LocationAtom location)
     {
-        if (locationInfo.getSymbolKind() != ESymbolKind.MEMORY)
+        if (location.getSource().getSymbolKind() != ESymbolKind.MEMORY)
             return false;
 
-        if (!ir.getMemory().containsKey(locationInfo.getName()))
-            return false;
+        assert location.getSource() instanceof LocationAtom.MemorySource; 
 
         final MemoryExpr memory =
-            ir.getMemory().get(locationInfo.getName());
+           ((LocationAtom.MemorySource) location.getSource()).getMemory();
 
         if (memory.getKind() != EMemoryKind.REG)
             return false;
@@ -112,15 +111,15 @@ public final class PCAnalyzer
         return true;
     }
     
-    private boolean isExplicitPCAccess(LocationInfo locationInfo)
+    private boolean isExplicitPCAccess(LocationAtom location)
     {
-        if (!locationInfo.getName().equals("PC"))
+        if (!location.getName().equals("PC"))
             return false;
 
         return true;
     }
     
-    private boolean isLabelledAsPC(LocationInfo locationInfo)
+    private boolean isLabelledAsPC(LocationAtom location)
     {
         if (!ir.getLabels().containsKey("PC"))
             return false;
@@ -128,12 +127,12 @@ public final class PCAnalyzer
         final LetLabel label =
             ir.getLabels().get("PC");
 
-        if (!label.getMemoryName().equals(locationInfo.getName()))
+        if (!label.getMemoryName().equals(location.getName()))
             return false;
 
         final int locationIndex;
 
-        final Expr indexExpr = locationInfo.getIndex();
+        final Expr indexExpr = location.getIndex();
         if (null != indexExpr)
         {
             if (indexExpr.getKind() != EExprKind.JAVA_STATIC)
