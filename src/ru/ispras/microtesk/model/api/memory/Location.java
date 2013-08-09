@@ -19,6 +19,7 @@ import ru.ispras.microtesk.model.api.rawdata.RawDataMapping;
 import ru.ispras.microtesk.model.api.rawdata.RawDataMultiMapping;
 import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
@@ -108,7 +109,7 @@ public final class Location
         store(arg.load());
         return this;
     }
-    
+
     public void reset()
     {
         assert !isReadOnly();
@@ -129,6 +130,34 @@ public final class Location
            );
     }
 
+    public static Location concat(Location ... locations)
+    {
+        assert locations.length > 0;
+
+        if (1 == locations.length)
+            return locations[0];
+
+        final RawData[] rawDataArray =
+            new RawData[locations.length];
+
+        boolean readOnly = false;
+        int totalBitSize = 0;
+
+        final ETypeID typeID = locations[0].getType().getTypeID();
+        for (int index = 0; index < locations.length; ++index)
+        {
+            readOnly = readOnly || locations[index].readOnly;
+            totalBitSize += locations[index].getType().getBitSize();
+        }
+
+        return new Location(
+            new Type(typeID, totalBitSize),
+            new RawDataMultiMapping(rawDataArray),
+            readOnly,
+            null
+            );
+    }
+
     public Location bitField(int start, int end)
     {
         assert (start >= 0) && (end >= 0);
@@ -146,9 +175,9 @@ public final class Location
     public Data load()
     {
         // TODO: Multiple handlers (in the case of concatenation)
-        
+
         /*// TODO: NOT SUPPORTED IN THE CURRENT VERSION. 
-          
+
         if (null != handler)
         {
             final RawData cachedRawData = handler.onLoad();
@@ -178,7 +207,7 @@ public final class Location
 
         rawData.assign(data.getRawData());
     }
-    
+
     /**
      * Returns a copy of stored data. This method is needed to monitor the state
      * of a data location. It provide access without simulation of storage operations. 
