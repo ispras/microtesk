@@ -1168,7 +1168,7 @@ op SWPB (cond : Condition, rn : REG, rd : REG, rm : REG)
             temp<31..24> = 0;
 
             // Memory <- Rm
-            M[amode] = rm<7..0>;
+            M[amode] = GPR[rm]<7..0>;
 
             // Rd <- temp
             rd = temp;
