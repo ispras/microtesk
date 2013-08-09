@@ -27,6 +27,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
@@ -129,7 +130,7 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
 
         if (null != returnExpr.getLocation())
         {
-            t.add("ret", returnExpr.getLocation().getText());
+            t.add("ret", LocationPrinter.toString(returnExpr.getLocation()));
         }
         else
         {

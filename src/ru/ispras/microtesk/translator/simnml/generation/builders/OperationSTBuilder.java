@@ -91,6 +91,7 @@ public class OperationSTBuilder extends PrimitiveBaseSTBuilder
         t.add("imps", Operation.class.getName());
         t.add("imps", String.format("%s.*", Type.class.getPackage().getName()));
         t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
+        t.add("imps", String.format("%s.*", Location.class.getPackage().getName()));
         t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 
         t.add("base", Operation.class.getSimpleName());
