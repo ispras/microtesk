@@ -39,7 +39,7 @@ import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactory;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactoryClass;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExprFactory;
+import ru.ispras.microtesk.translator.simnml.ir.expression.LocationFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveFactory;
@@ -140,7 +140,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
         new EnumMap<EExprKind, ExprFactory>(EExprKind.class);
 
     private LetFactory          letFactory          = null; 
-    private LocationExprFactory locationExprFactory = null;
+    private LocationFactory     locationFactory     = null;
     private TypeExprFactory     typeExprFactory     = null;
     private MemoryExprFactory   memoryExprFactory   = null;
     private PrimitiveFactory    primitiveFactory    = null;
@@ -157,7 +157,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
 
         return factory;
     }
-    
+
     protected final LetFactory getLetFactory()
     {
         if (null == letFactory)
@@ -165,11 +165,11 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
         return letFactory;
     }
 
-    protected final LocationExprFactory getLocationExprFactory()
+    protected final LocationFactory getLocationFactory()
     {
-        if (null == locationExprFactory)
-            locationExprFactory = new LocationExprFactory(this); 
-        return locationExprFactory;
+        if (null == locationFactory)
+            locationFactory = new LocationFactory(this); 
+        return locationFactory;
     }
 
     protected final TypeExprFactory getTypeExprFactory()

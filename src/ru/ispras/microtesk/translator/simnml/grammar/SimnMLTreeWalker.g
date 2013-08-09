@@ -455,7 +455,7 @@ $res = Collections.singletonList(
     ;
 
 assignmentStatement returns [List<Statement> res]
-@init {final PCAnalyzer analyzer = new PCAnalyzer(getLocationExprFactory(), getIR());}
+@init {final PCAnalyzer analyzer = new PCAnalyzer(getLocationFactory(), getIR());}
     :  ^(ASSIGN le=location {analyzer.startTrackingSource();} me=modelExpr)
 {
 final List<Statement> result = new ArrayList<Statement>();
@@ -580,15 +580,14 @@ $res = factory.coerce(where($token), $e.res, $te.res);
 /* Location rules (rules for accessing model memory)                                    */
 /*======================================================================================*/
 
-location returns [LocationExpr res]
-    :  ^(LOCATION le=locationExpr[0]) {$res = $le.res;} 
+location returns [Location res]
+    :  ^(LOCATION le=locationExpr[0]) {$res = $le.res;}
     ;
 
-locationExpr [int depth] returns [LocationExpr res]
-@init  {final LocationExprFactory factory = getLocationExprFactory();}
+locationExpr [int depth] returns [Location res]
     :  ^(node=DOUBLE_COLON left=locationVal right=locationExpr[depth+1])
 {
-$res = factory.concat(where($node), $left.res, $right.res);
+$res = getLocationFactory().concat(where($node), $left.res, $right.res);
 }
     |  value=locationVal
 {
@@ -596,11 +595,10 @@ $res = $value.res;
 }
     ;
 
-locationVal returns [LocationExpr res]
-@init  {final LocationExprFactory factory = getLocationExprFactory();}
+locationVal returns [LocationAtom res]
     :  ^(node=LOCATION_BITFIELD la=locationAtom je1=staticJavaExpr je2=staticJavaExpr)
 {
-$res = factory.bitfield(where($node), $la.res, $je1.res, $je2.res);
+$res = getLocationFactory().bitfield(where($node), $la.res, $je1.res, $je2.res);
 }
     |  la=locationAtom
 {
@@ -608,23 +606,14 @@ $res = $la.res;
 }
     ;
 
-locationAtom returns [LocationExpr res]
-@init
-{
-final LocationExprFactory factory = getLocationExprFactory();
-LocationExpr atom = null;
-}
-@after
-{
-$res = atom;
-}
+locationAtom returns [LocationAtom res]
     :  ^(LOCATION_INDEX id=ID e=javaExpr)
 {
-atom = factory.location(where($id), $id.text, $e.res);
+$res = getLocationFactory().location(where($id), $id.text, $e.res);
 }
     |  id=ID
 {
-atom = factory.location(where($id), $id.text);
+$res = getLocationFactory().location(where($id), $id.text);
 }
     ;
 
