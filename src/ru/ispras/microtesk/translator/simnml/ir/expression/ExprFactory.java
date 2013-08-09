@@ -21,7 +21,7 @@ public interface ExprFactory
     public Expr namedConst(Where w, String name) throws SemanticException;
     public Expr intConst(Where w, String text, int radix) throws SemanticException;
 
-    public Expr location(Where w, LocationExpr location) throws SemanticException;
+    public Expr location(Where w, Location location) throws SemanticException;
 
     public Expr binary(Where w, String opID, Expr arg1, Expr arg2) throws SemanticException;
     public Expr unary(Where w, String opID, Expr arg) throws SemanticException;

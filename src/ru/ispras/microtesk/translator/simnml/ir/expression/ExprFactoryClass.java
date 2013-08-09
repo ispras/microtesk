@@ -16,6 +16,7 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 public final class ExprFactoryClass
 {
@@ -106,13 +107,13 @@ final class ExprFactoryDebug implements ExprFactory
     }
 
     @Override
-    public Expr location(Where w, LocationExpr location) throws SemanticException
+    public Expr location(Where w, Location location) throws SemanticException
     {
         final Expr result = factory.location(w, location);
 
         trace(
             "location",
-            location.getText(),
+            LocationPrinter.toString(location),
             result
             );
 
@@ -165,13 +166,13 @@ final class ExprFactoryDebug implements ExprFactory
     public Expr coerce(Where w, Expr src, TypeExpr type) throws SemanticException
     {
         final Expr result = factory.coerce(w, src, type);
-        
+
         trace(
             "coerce",
             src.getText(),
             result
             );
-        
+
         return result;
     }
 }

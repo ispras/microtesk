@@ -112,10 +112,10 @@ public final class LocationFactory extends WalkerFactoryBase
 
         // assert startPos <= endPos; // TODO: restriction of the current implementation
 
-        if ((fromPos + bitfieldSize) <= locationSize)
+        if (fromPos >= locationSize)
             raiseError(where, String.format(OUT_OF_BOUNDS, fromPos, locationSize));
 
-        if ((toPos + bitfieldSize) <= locationSize)
+        if (toPos >= locationSize)
             raiseError(where, String.format(OUT_OF_BOUNDS, toPos, locationSize));
 
         final TypeExpr bitfieldType = new TypeExpr(
@@ -244,7 +244,7 @@ final class ArgumentBasedLocationCreator extends WalkerFactoryBase implements Lo
     {
         final Primitive primitive = findArgument();
 
-        if ((Primitive.Kind.MODE != primitive.getKind()) || (Primitive.Kind.IMM != primitive.getKind()))
+        if ((Primitive.Kind.MODE != primitive.getKind()) && (Primitive.Kind.IMM != primitive.getKind()))
             raiseError(where, String.format(UNEXPECTED_PRIMITIVE, name, primitive.getKind()));            
 
         return LocationAtom.createPrimitiveBased(name, primitive);

@@ -25,5 +25,5 @@ public interface Expr
     public ExprOperator getOperator();
     public Object getValue();
 
-    public LocationExpr getLocation();
+    public Location getLocation();
 }

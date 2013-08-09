@@ -44,7 +44,7 @@ final class ExprFactoryModel extends WalkerFactoryBase implements ExprFactory
     }
 
     @Override
-    public Expr location(Where w, LocationExpr location) throws SemanticException 
+    public Expr location(Where w, Location location) throws SemanticException 
     {
         final ExprFactoryCreator creator =
             new LocationBasedExprCreator(this, location);

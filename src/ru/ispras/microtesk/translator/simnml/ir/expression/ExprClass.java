@@ -24,7 +24,7 @@ public final class ExprClass implements Expr
 
     private final ExprOperator operator;
     private final Object value;
-    private final LocationExpr location;
+    private final Location location;
 
     public ExprClass(
         EExprKind    kind,
@@ -33,7 +33,7 @@ public final class ExprClass implements Expr
         TypeExpr     modelType,
         ExprOperator operator,
         Object       value,
-        LocationExpr location
+        Location     location
         )
     {
         this.kind      = kind;
@@ -56,6 +56,11 @@ public final class ExprClass implements Expr
             value,
             null
             );
+    }
+
+    public static Expr createConstant(int value)
+    {
+        return createConstant(value, Integer.toString(value));
     }
 
     @Override
@@ -95,7 +100,7 @@ public final class ExprClass implements Expr
     }
 
     @Override
-    public LocationExpr getLocation()
+    public Location getLocation()
     {
         return location;
     }

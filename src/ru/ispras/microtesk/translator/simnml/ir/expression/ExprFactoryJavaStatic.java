@@ -17,6 +17,7 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
+import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
 final class ExprFactoryJavaStatic extends WalkerFactoryBase implements ExprFactory
@@ -45,9 +46,9 @@ final class ExprFactoryJavaStatic extends WalkerFactoryBase implements ExprFacto
     }
 
     @Override
-    public Expr location(Where w, LocationExpr location) throws SemanticException
+    public Expr location(Where w, Location location) throws SemanticException
     {
-        getReporter().raiseError(w, new NonStaticExpression(location.getText()));
+        getReporter().raiseError(w, new NonStaticExpression(LocationPrinter.toString(location)));
         return null;
     }
 

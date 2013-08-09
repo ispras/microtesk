@@ -21,6 +21,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
+import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
 
@@ -31,11 +32,11 @@ interface ExprFactoryCreator
 
 final class LocationBasedExprCreator extends WalkerFactoryBase implements ExprFactoryCreator
 {
-    private final LocationExpr location;
+    private final Location location;
 
     public LocationBasedExprCreator(
         WalkerFactoryBase context,
-        LocationExpr location
+        Location location
         )
     {
         super(context);
@@ -45,11 +46,11 @@ final class LocationBasedExprCreator extends WalkerFactoryBase implements ExprFa
     public Expr create()
     {
         final String LOCATION_TO_DATA_FORMAT = "%s.load()";
-
+        
         assert null != location;
         return new ExprClass(
             EExprKind.MODEL,
-            String.format(LOCATION_TO_DATA_FORMAT, location.getText()),
+            String.format(LOCATION_TO_DATA_FORMAT, LocationPrinter.toString(location)),
             null,
             location.getType(),
             null,
