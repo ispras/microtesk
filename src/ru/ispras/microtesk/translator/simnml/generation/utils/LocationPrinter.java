@@ -15,10 +15,11 @@ package ru.ispras.microtesk.translator.simnml.generation.utils;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationAtom;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationConcat;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 
 public final class LocationPrinter
 {
-    private static final String   ACCESS_FORMAT = "%s.access(%s)";
+    private static final String   ACCESS_FORMAT = ".access(%s)";
     private static final String BITFIELD_FORMAT = ".bitField(%s, %s)";
     private static final String   CONCAT_FORMAT = "Location.concat(%s)";
 
@@ -35,8 +36,13 @@ public final class LocationPrinter
     {
         final StringBuilder sb = new StringBuilder();
 
-        final String indexText = (null != location.getIndex()) ? location.getIndex().getText() : "";
-        sb.append(String.format(ACCESS_FORMAT, location.getName(), indexText));
+        sb.append(location.getName());
+
+        if (!needsAccessCall(location))
+        {
+            final String indexText = (null != location.getIndex()) ? location.getIndex().getText() : "";
+            sb.append(String.format(ACCESS_FORMAT, indexText));
+        }
 
         if (null != location.getBitfield())
         {
@@ -59,5 +65,19 @@ public final class LocationPrinter
         }
 
         return String.format(CONCAT_FORMAT, sb.toString());
+    }
+    
+    private static boolean needsAccessCall(LocationAtom location)
+    {
+        if (!(location.getSource() instanceof LocationAtom.PrimitiveSource))
+            return false;
+
+        final Primitive primitive = 
+            ((LocationAtom.PrimitiveSource) location.getSource()).getPrimitive(); 
+
+        if (Primitive.Kind.IMM == primitive.getKind())
+            return true;
+
+        return false;
     }
 }
