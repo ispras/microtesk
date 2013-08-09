@@ -13,14 +13,14 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExpr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 
 public final class StatementAssignment extends Statement
 {
-    private final LocationExpr left;
+    private final Location left;
     private final Expr right;
 
-    StatementAssignment(LocationExpr left, Expr right)
+    StatementAssignment(Location left, Expr right)
     {
         super(Kind.ASSIGN);
 
@@ -31,7 +31,7 @@ public final class StatementAssignment extends Statement
         this.right = right;
     }
 
-    public LocationExpr getLeft()
+    public Location getLeft()
     {
         return left;
     }

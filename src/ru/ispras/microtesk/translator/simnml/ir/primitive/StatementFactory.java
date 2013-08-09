@@ -23,7 +23,7 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationExpr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 
 public final class StatementFactory extends WalkerFactoryBase
 {
@@ -48,7 +48,7 @@ public final class StatementFactory extends WalkerFactoryBase
         super(context);
     }
 
-    public Statement createAssignment(LocationExpr left, Expr right)
+    public Statement createAssignment(Location left, Expr right)
     {
         return new StatementAssignment(left, right);
     }
