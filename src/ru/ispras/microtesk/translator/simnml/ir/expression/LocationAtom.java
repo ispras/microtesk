@@ -158,6 +158,8 @@ public final class LocationAtom implements Location
     @Override
     public TypeExpr getType()
     {
+        if (null != bitfield)
+            return bitfield.getType();
         return source.getType();
     }
 
