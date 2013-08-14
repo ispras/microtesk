@@ -16,7 +16,7 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 final class ExprFactoryJava extends WalkerFactoryBase implements ExprFactory
 {
@@ -93,7 +93,7 @@ final class ExprFactoryJava extends WalkerFactoryBase implements ExprFactory
     }
 
     @Override
-    public Expr coerce(Where w, Expr src, TypeExpr type) throws SemanticException
+    public Expr coerce(Where w, Expr src, Type type) throws SemanticException
     {
         final ExprFactoryCreator coercer = 
                 new ModelExprTypeCoercer(this, w, src, type);

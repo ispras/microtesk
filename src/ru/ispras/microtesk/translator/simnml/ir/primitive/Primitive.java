@@ -13,7 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Set;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public class Primitive
 {
@@ -47,10 +47,10 @@ public class Primitive
     private final String           name;
     private final Kind             kind;
     private final boolean      isOrRule;
-    private final TypeExpr   returnType;
+    private final Type   returnType;
     private final Set<String> attrNames;
 
-    Primitive(String name, Kind kind, boolean isOrRule, TypeExpr returnType, Set<String> attrNames)
+    Primitive(String name, Kind kind, boolean isOrRule, Type returnType, Set<String> attrNames)
     {
         this.name       = name;
         this.kind       = kind;
@@ -81,7 +81,7 @@ public class Primitive
         return isOrRule;
     }
 
-    public final TypeExpr getReturnType()
+    public final Type getReturnType()
     {
         return returnType;
     }

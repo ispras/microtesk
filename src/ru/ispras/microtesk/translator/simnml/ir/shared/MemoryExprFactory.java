@@ -36,13 +36,13 @@ public final class MemoryExprFactory extends WalkerFactoryBase
             raiseError(where, new SizeExpressionTypeMismatch(type));
     }
 
-    public MemoryExpr createMemoryExpr(Where where, EMemoryKind kind, TypeExpr type, Expr size) throws SemanticException 
+    public MemoryExpr createMemoryExpr(Where where, EMemoryKind kind, Type type, Expr size) throws SemanticException 
     {
         failIfNotInteger(where, size.getJavaType());
         return new MemoryExpr(kind, type, size);        
     }
     
-    public MemoryExpr createMemoryExpr(EMemoryKind kind, TypeExpr type)
+    public MemoryExpr createMemoryExpr(EMemoryKind kind, Type type)
     {
         return new MemoryExpr(kind, type, DEFAULT_SIZE);        
     }

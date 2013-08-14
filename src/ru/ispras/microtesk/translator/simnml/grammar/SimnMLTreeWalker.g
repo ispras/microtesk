@@ -135,12 +135,11 @@ getIR().add($id.text, $te.res);
 }
     ;
 
-typeExpr returns [TypeExpr res]
-@init {final TypeExprFactory factory = getTypeExprFactory();}
-    :   id=ID                      { $res=factory.createAlias($id.text); }
+typeExpr returns [Type res]
+    :   id=ID                      { $res=getTypeFactory().createAlias($id.text); }
 //  |   BOOL                       // TODO: NOT SUPPORTED IN THIS VERSION
-    |   ^(t=INT  n=staticJavaExpr) { $res=factory.createIntegerType(where($t), $n.res); }
-    |   ^(t=CARD n=staticJavaExpr) { $res=factory.createCardType(where($t), $n.res); }
+    |   ^(t=INT  n=staticJavaExpr) { $res=getTypeFactory().createIntegerType(where($t), $n.res); }
+    |   ^(t=CARD n=staticJavaExpr) { $res=getTypeFactory().createCardType(where($t), $n.res); }
 //  |   ^(t=FIX   n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
 //  |   ^(t=FLOAT n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
 //  |   ^(t=RANGE n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
@@ -187,7 +186,7 @@ getIR().add($id.text, expr);
 }
     ;
 
-sizeType returns [TypeExpr type, Expr size]
+sizeType returns [Type type, Expr size]
     :   ^(st=SIZE_TYPE s=staticJavaExpr t=typeExpr)
 { 
 checkNotNull($st, $s.res, $s.text);

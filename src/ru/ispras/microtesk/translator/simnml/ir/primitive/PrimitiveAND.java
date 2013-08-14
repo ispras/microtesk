@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class PrimitiveAND extends Primitive
 {
@@ -72,7 +72,7 @@ public final class PrimitiveAND extends Primitive
         return retExpr;
     }
 
-    private static TypeExpr getReturnType(Expr retExpr)
+    private static Type getReturnType(Expr retExpr)
     {
         return (null != retExpr) ? retExpr.getModelType() : null;
     }

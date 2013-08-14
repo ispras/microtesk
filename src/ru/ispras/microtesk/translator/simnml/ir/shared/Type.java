@@ -7,22 +7,21 @@
  * 
  * All rights reserved.
  * 
- * TypeExpr.java, Oct 22, 2012 1:53:02 PM Andrei Tatarnikov
+ * Type.java, Oct 22, 2012 1:53:02 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
-public final class TypeExpr
+public final class Type
 {
     private final ETypeID  typeId;
     private final Expr    bitSize;
     private final String  refName;
 
-    public TypeExpr(ETypeID typeId, Expr bitSize, String refName)
+    public Type(ETypeID typeId, Expr bitSize, String refName)
     {
         assert null != bitSize;
         
@@ -31,7 +30,7 @@ public final class TypeExpr
         this.refName = refName;
     }
     
-    public TypeExpr(ETypeID typeId, Expr bitSize)
+    public Type(ETypeID typeId, Expr bitSize)
     {
         this(typeId, bitSize, null);
     }
@@ -58,7 +57,7 @@ public final class TypeExpr
 
         return String.format(
             "new %s(%s.%s, %s)",
-            Type.class.getSimpleName(),
+            ru.ispras.microtesk.model.api.type.Type.class.getSimpleName(),
             ETypeID.class.getSimpleName(),
             getTypeId(),
             getBitSize().getText()
@@ -70,7 +69,7 @@ public final class TypeExpr
     {
         return String.format(
             "TypeExpr [typeId='%s', bitSize='%s', refName='%s']",
-            typeId.name(),
+            typeId,
             bitSize.getText(),
             refName != null ? refName : "<undefined>"
             );

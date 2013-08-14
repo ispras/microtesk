@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class LocationFactory extends WalkerFactoryBase
 {
@@ -118,7 +118,7 @@ public final class LocationFactory extends WalkerFactoryBase
         if (toPos >= locationSize)
             raiseError(where, String.format(OUT_OF_BOUNDS, toPos, locationSize));
 
-        final TypeExpr bitfieldType = new TypeExpr(
+        final Type bitfieldType = new Type(
             location.getType().getTypeId(), ExprClass.createConstant(bitfieldSize));
 
         return LocationAtom.createBitfield(location, from, to, bitfieldType);
@@ -137,7 +137,7 @@ public final class LocationFactory extends WalkerFactoryBase
 
         final int concatSize = leftSize + rightSize; 
 
-        final TypeExpr concatType = new TypeExpr(
+        final Type concatType = new Type(
             left.getType().getTypeId(), ExprClass.createConstant(concatSize));
 
         if (right instanceof LocationAtom)

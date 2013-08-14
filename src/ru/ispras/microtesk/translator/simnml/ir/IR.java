@@ -21,13 +21,13 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class IR
 {
     private final Map<String, LetExpr>      lets;
     private final Map<String, LetLabel>   labels;
-    private final Map<String, TypeExpr>    types;
+    private final Map<String, Type>    types;
     private final Map<String, MemoryExpr> memory;
     private final Map<String, Primitive>   modes;
     private final Map<String, Primitive>     ops;
@@ -38,7 +38,7 @@ public final class IR
     {
         this.lets   = new LinkedHashMap<String, LetExpr>();
         this.labels = new LinkedHashMap<String, LetLabel>();
-        this.types  = new LinkedHashMap<String, TypeExpr>();
+        this.types  = new LinkedHashMap<String, Type>();
         this.memory = new LinkedHashMap<String, MemoryExpr>();
 
         this.modes  = new LinkedHashMap<String, Primitive>();
@@ -57,7 +57,7 @@ public final class IR
         labels.put(name, value);
     }
 
-    public void add(String name, TypeExpr value)
+    public void add(String name, Type value)
     {
         types.put(name, value);
     }
@@ -87,7 +87,7 @@ public final class IR
         return Collections.unmodifiableMap(labels);
     }
 
-    public Map<String, TypeExpr> getTypes()
+    public Map<String, Type> getTypes()
     {
         return Collections.unmodifiableMap(types);
     }

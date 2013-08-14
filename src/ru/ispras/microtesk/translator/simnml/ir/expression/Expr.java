@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public interface Expr
 {
@@ -20,7 +20,7 @@ public interface Expr
     public String getText();
 
     public Class<?> getJavaType();
-    public TypeExpr getModelType();
+    public Type getModelType();
 
     public ExprOperator getOperator();
     public Object getValue();

@@ -18,7 +18,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 final class ExprFactoryJavaStatic extends WalkerFactoryBase implements ExprFactory
 {
@@ -83,7 +83,7 @@ final class ExprFactoryJavaStatic extends WalkerFactoryBase implements ExprFacto
     }
 
     @Override
-    public Expr coerce(Where w, Expr src, TypeExpr type) throws SemanticException
+    public Expr coerce(Where w, Expr src, Type type) throws SemanticException
     {
         // TODO Auto-generated method stub
         assert false : "ExprFactoryJavaStatic: coerce is not implemented";

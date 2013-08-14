@@ -15,14 +15,14 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 import java.util.Collections;
 import java.util.List;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class LocationConcat implements Location
 {
-    private final TypeExpr type;
+    private final Type type;
     private final List<LocationAtom> locations;
 
-    LocationConcat(TypeExpr type, List<LocationAtom> locations)
+    LocationConcat(Type type, List<LocationAtom> locations)
     {
         assert null != type;
         assert null != locations;
@@ -32,7 +32,7 @@ public final class LocationConcat implements Location
     }
 
     @Override
-    public TypeExpr getType()
+    public Type getType()
     {
         return type;
     }

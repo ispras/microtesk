@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.simnml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class PrimitiveFactory extends WalkerFactoryBase
 {
@@ -108,7 +108,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase
         return new PrimitiveOR(name, Primitive.Kind.OP, orOps);
     }
 
-    public Primitive createImm(TypeExpr type)
+    public Primitive createImm(Type type)
     {
         return new Primitive(type.getRefName(), Primitive.Kind.IMM, false, type, null);
     }
@@ -173,8 +173,8 @@ final class CompatibilityChecker extends WalkerFactoryBase
 
     private void checkReturnTypes() throws SemanticException
     {
-        final TypeExpr  currentType = current.getReturnType();
-        final TypeExpr expectedType = expected.getReturnType();
+        final Type  currentType = current.getReturnType();
+        final Type expectedType = expected.getReturnType();
 
         if (currentType == expectedType)
             return;
@@ -183,7 +183,7 @@ final class CompatibilityChecker extends WalkerFactoryBase
         checkSize(currentType, expectedType);
     }
 
-    private void checkType(final TypeExpr currentType, final TypeExpr expectedType) throws SemanticException
+    private void checkType(final Type currentType, final Type expectedType) throws SemanticException
     {
         if ((null != expectedType) && (null != currentType))
         {
@@ -198,7 +198,7 @@ final class CompatibilityChecker extends WalkerFactoryBase
             where, String.format(TYPE_MISMATCH_ERROR, current.getName(), name));
     }
 
-    private void checkSize(final TypeExpr currentType, final TypeExpr expectedType) throws SemanticException
+    private void checkSize(final Type currentType, final Type expectedType) throws SemanticException
     {
         if ((null != expectedType) && (null != currentType))
         {

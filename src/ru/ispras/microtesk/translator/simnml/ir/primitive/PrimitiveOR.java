@@ -14,7 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.List;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class PrimitiveOR extends Primitive
 {
@@ -38,7 +38,7 @@ public final class PrimitiveOR extends Primitive
         return ors;
     }
 
-    private static TypeExpr getReturnType(List<Primitive> ors)
+    private static Type getReturnType(List<Primitive> ors)
     {
         assert null != ors;
         return ors.get(0).getReturnType();

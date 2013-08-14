@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class Format
 {
@@ -132,7 +132,7 @@ public final class Format
 
             assert ((DEC == marker) || (HEX == marker));
 
-            final TypeExpr type = expr.getModelType();
+            final Type type = expr.getModelType();
             if (ETypeID.CARD == type.getTypeId() || ETypeID.INT == type.getTypeId())
                 return true;
 

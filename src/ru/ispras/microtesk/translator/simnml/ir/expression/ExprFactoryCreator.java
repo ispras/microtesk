@@ -23,7 +23,7 @@ import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 interface ExprFactoryCreator
 {
@@ -130,7 +130,7 @@ final class IntegerValueBasedExprCreator extends WalkerFactoryBase implements Ex
             bitSize + (BITS_IN_BYTE - bitSize % BITS_IN_BYTE);
     }
 */
-    private TypeExpr createModelType() throws SemanticException
+    private Type createModelType() throws SemanticException
     {
         final ETypeID typeId;
         final int bitSize;
@@ -152,7 +152,7 @@ final class IntegerValueBasedExprCreator extends WalkerFactoryBase implements Ex
             bitSize = Integer.SIZE; // getBitSizeForInt(Integer.parseInt(text, radix));
         }
 
-        return new TypeExpr(
+        return new Type(
             typeId,
             ExprClass.createConstant(bitSize, Integer.toString(bitSize))
             );
@@ -194,11 +194,11 @@ final class NamedConstBasedExprCreator extends WalkerFactoryBase implements Expr
             );
     }
 
-    private TypeExpr createModelTypeForJavaType(Class<?> javaType) throws SemanticException
+    private Type createModelTypeForJavaType(Class<?> javaType) throws SemanticException
     {
         if (javaType.equals(int.class) || javaType.equals(Integer.class))
         {
-            return new TypeExpr(
+            return new Type(
                 ETypeID.INT,
                 ExprClass.createConstant(Integer.SIZE, Integer.toString(Integer.SIZE)) 
             );
@@ -237,7 +237,7 @@ final class ModelToJavaConverter extends WalkerFactoryBase implements ExprFactor
            return expr;
 
         assert null != expr.getModelType();
-        final TypeExpr modelType = expr.getModelType(); 
+        final Type modelType = expr.getModelType(); 
 
         if ((modelType.getTypeId() != ETypeID.CARD) &&
             (modelType.getTypeId() != ETypeID.INT))
@@ -328,9 +328,9 @@ final class JavaToModelConverter extends WalkerFactoryBase implements ExprFactor
     @SuppressWarnings("unused")
     private final Where w; // TODO: temporary unused (will be used by error checks)
     private final Expr expr;
-    private final TypeExpr targetType;
+    private final Type targetType;
 
-    public JavaToModelConverter(WalkerFactoryBase context, Where w, Expr expr, TypeExpr targetType)
+    public JavaToModelConverter(WalkerFactoryBase context, Where w, Expr expr, Type targetType)
     {
         super(context);
 
@@ -339,7 +339,7 @@ final class JavaToModelConverter extends WalkerFactoryBase implements ExprFactor
         this.targetType = targetType;
     }
     
-    private final String getTypeCode(TypeExpr type)
+    private final String getTypeCode(Type type)
     {
         if (null != type.getRefName())
             return type.getRefName();
@@ -352,11 +352,11 @@ final class JavaToModelConverter extends WalkerFactoryBase implements ExprFactor
             );
     }
     
-    private TypeExpr createModelTypeForJavaType(Class<?> javaType) throws SemanticException
+    private Type createModelTypeForJavaType(Class<?> javaType) throws SemanticException
     {
         if (javaType.equals(int.class) || javaType.equals(Integer.class))
         {
-            return new TypeExpr(
+            return new Type(
                 ETypeID.INT,
                 ExprClass.createConstant(Integer.SIZE, Integer.toString(Integer.SIZE))
             );
@@ -372,7 +372,7 @@ final class JavaToModelConverter extends WalkerFactoryBase implements ExprFactor
         if (!isConversionNeeded())
             return expr;
 
-        final TypeExpr newType;
+        final Type newType;
 
         if (null != targetType)
         {
@@ -461,7 +461,7 @@ abstract class ExprCalculatorBase extends WalkerFactoryBase
         return result;
     }
     
-    protected final TypeExpr getCast(TypeExpr type1, TypeExpr type2) throws SemanticException 
+    protected final Type getCast(Type type1, Type type2) throws SemanticException 
     {
         // TODO: CHECK SIZE (SHOULD BE EQUAL)
         // System.out.println(type1.getBitSize().getValue());
@@ -479,7 +479,7 @@ abstract class ExprCalculatorBase extends WalkerFactoryBase
             );
         }
         
-        return new TypeExpr(resultTypeId, type1.getBitSize());
+        return new Type(resultTypeId, type1.getBitSize());
     }
 
     protected final void checkSupported(Class<?> javaType) throws SemanticException
@@ -821,7 +821,7 @@ final class UnaryModelExprCalculator extends UnaryExprCalculatorBase implements 
     {
         final ExprOperatorUnary op = getOperator();
 
-        final TypeExpr modelType = arg.getModelType();
+        final Type modelType = arg.getModelType();
         checkSupported(modelType.getTypeId());
 
         final String newText = op.translate(modelType.getTypeId(), getArgText(arg));
@@ -863,7 +863,7 @@ final class BinaryModelExprCalculator extends BinaryExprCalculatorBase implement
     {
         final ExprOperatorBinary op = getOperator();
         
-        final TypeExpr modelType = getCast(arg1.getModelType(), arg2.getModelType());
+        final Type modelType = getCast(arg1.getModelType(), arg2.getModelType());
         checkSupported(modelType.getTypeId());
 
         final String newText =
@@ -888,13 +888,13 @@ final class ModelExprTypeCoercer extends WalkerFactoryBase implements ExprFactor
     @SuppressWarnings("unused")
     private final Where w; // TODO: TEMPORARILY UNUSED
     private final Expr src;
-    private final TypeExpr type;
+    private final Type type;
 
     public ModelExprTypeCoercer(
         WalkerFactoryBase context,
         Where w,
         Expr src,
-        TypeExpr type
+        Type type
         )
     {
         super(context);

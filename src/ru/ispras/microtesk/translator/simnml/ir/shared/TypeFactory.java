@@ -20,9 +20,9 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
-public final class TypeExprFactory extends WalkerFactoryBase
+public final class TypeFactory extends WalkerFactoryBase
 {
-    public TypeExprFactory(WalkerContext context)
+    public TypeFactory(WalkerContext context)
     {
         super(context);
     }
@@ -33,21 +33,21 @@ public final class TypeExprFactory extends WalkerFactoryBase
             raiseError(where, new SizeExpressionTypeMismatch(type));
     }
 
-    public TypeExpr createAlias(String name) throws SemanticException
+    public Type createAlias(String name) throws SemanticException
     {
-        final TypeExpr ref = getIR().getTypes().get(name); 
-        return new TypeExpr(ref.getTypeId(), ref.getBitSize(), name);
+        final Type ref = getIR().getTypes().get(name); 
+        return new Type(ref.getTypeId(), ref.getBitSize(), name);
     }
 
-    public TypeExpr createIntegerType(Where where, Expr bitSize) throws SemanticException
+    public Type createIntegerType(Where where, Expr bitSize) throws SemanticException
     {
         failIfNotInteger(where, bitSize.getJavaType());
-        return new TypeExpr(ETypeID.INT, bitSize);
+        return new Type(ETypeID.INT, bitSize);
     }
 
-    public TypeExpr createCardType(Where where, Expr bitSize) throws SemanticException
+    public Type createCardType(Where where, Expr bitSize) throws SemanticException
     {
         failIfNotInteger(where, bitSize.getJavaType());
-        return new TypeExpr(ETypeID.CARD, bitSize);
+        return new Type(ETypeID.CARD, bitSize);
     }
 }

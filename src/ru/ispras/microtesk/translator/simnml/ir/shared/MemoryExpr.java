@@ -18,10 +18,10 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 public final class MemoryExpr
 {
     private final EMemoryKind kind;
-    private final TypeExpr    type;
+    private final Type    type;
     private final Expr        size;
 
-    public MemoryExpr(EMemoryKind kind, TypeExpr type, Expr size)
+    public MemoryExpr(EMemoryKind kind, Type type, Expr size)
     {
         assert null != type;
         assert null != size;
@@ -36,7 +36,7 @@ public final class MemoryExpr
         return kind;
     }
     
-    public TypeExpr getType()
+    public Type getType()
     {
         return type;
     }

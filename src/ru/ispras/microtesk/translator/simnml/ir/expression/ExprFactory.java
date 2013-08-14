@@ -14,7 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public interface ExprFactory
 {
@@ -27,5 +27,5 @@ public interface ExprFactory
     public Expr unary(Where w, String opID, Expr arg) throws SemanticException;
 
     public Expr evaluate(Where w, Expr src) throws SemanticException;
-    public Expr coerce(Where w, Expr src, TypeExpr type) throws SemanticException;
+    public Expr coerce(Where w, Expr src, Type type) throws SemanticException;
 }

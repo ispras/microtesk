@@ -23,7 +23,6 @@ import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
@@ -33,7 +32,7 @@ import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
@@ -63,7 +62,7 @@ public class SharedSTBuilder implements ITemplateBuilder
         if (!ir.getTypes().isEmpty() && !ir.getMemory().isEmpty())
         {
             t.add("imps", ETypeID.class.getName());
-            t.add("imps", Type.class.getName());
+            t.add("imps", ru.ispras.microtesk.model.api.type.Type.class.getName());
         }
 
         if (!ir.getMemory().isEmpty())
@@ -99,7 +98,7 @@ public class SharedSTBuilder implements ITemplateBuilder
         if (!ir.getTypes().isEmpty())
             insertEmptyLine(t);
 
-        for (Map.Entry<String, TypeExpr> type : ir.getTypes().entrySet())
+        for (Map.Entry<String, Type> type : ir.getTypes().entrySet())
         {
             if (null == type.getValue().getRefName())
             {
@@ -170,7 +169,7 @@ public class SharedSTBuilder implements ITemplateBuilder
         tMemory.add("name", name);
         tMemory.add("kind", memory.getKind());
 
-        final TypeExpr typeExpr = memory.getType();
+        final Type typeExpr = memory.getType();
         if (null != typeExpr.getRefName())
         {
             tMemory.add("type", typeExpr.getRefName());

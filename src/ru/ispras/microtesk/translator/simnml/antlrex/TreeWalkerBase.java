@@ -45,7 +45,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetFactory;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExprFactory;
+import ru.ispras.microtesk.translator.simnml.ir.shared.TypeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExprFactory;
 
 public class TreeWalkerBase extends TreeParserEx implements WalkerContext
@@ -141,7 +141,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
 
     private LetFactory          letFactory          = null; 
     private LocationFactory     locationFactory     = null;
-    private TypeExprFactory     typeExprFactory     = null;
+    private TypeFactory         typeFactory         = null;
     private MemoryExprFactory   memoryExprFactory   = null;
     private PrimitiveFactory    primitiveFactory    = null;
     private AttributeFactory    attributeFactory    = null;
@@ -172,11 +172,11 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
         return locationFactory;
     }
 
-    protected final TypeExprFactory getTypeExprFactory()
+    protected final TypeFactory getTypeFactory()
     {
-        if (null == typeExprFactory)
-            typeExprFactory = new TypeExprFactory(this);
-        return typeExprFactory;
+        if (null == typeFactory)
+            typeFactory = new TypeFactory(this);
+        return typeFactory;
     }
 
     protected final MemoryExprFactory getMemoryExprFactory()

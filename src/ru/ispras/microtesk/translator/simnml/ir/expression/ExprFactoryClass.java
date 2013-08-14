@@ -15,7 +15,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 public final class ExprFactoryClass
@@ -163,7 +163,7 @@ final class ExprFactoryDebug implements ExprFactory
     }
 
     @Override
-    public Expr coerce(Where w, Expr src, TypeExpr type) throws SemanticException
+    public Expr coerce(Where w, Expr src, Type type) throws SemanticException
     {
         final Expr result = factory.coerce(w, src, type);
 

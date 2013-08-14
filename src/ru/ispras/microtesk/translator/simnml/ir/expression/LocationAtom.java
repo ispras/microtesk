@@ -15,14 +15,14 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class LocationAtom implements Location
 {
     public static interface Source
     {
         public ESymbolKind getSymbolKind();
-        public TypeExpr getType();
+        public Type getType();
     }
 
     public static final class MemorySource implements Source
@@ -42,7 +42,7 @@ public final class LocationAtom implements Location
         }
 
         @Override
-        public TypeExpr getType()
+        public Type getType()
         {
             return memory.getType();
         }
@@ -70,7 +70,7 @@ public final class LocationAtom implements Location
         }
 
         @Override
-        public TypeExpr getType()
+        public Type getType()
         {
             return primitive.getReturnType();
         }
@@ -85,9 +85,9 @@ public final class LocationAtom implements Location
     {
         private final Expr     from;
         private final Expr       to;
-        private final TypeExpr type;
+        private final Type type;
 
-        private Bitfield(Expr from, Expr to, TypeExpr type)
+        private Bitfield(Expr from, Expr to, Type type)
         {
             assert null != from;
             assert null != to;
@@ -108,7 +108,7 @@ public final class LocationAtom implements Location
             return to;
         }
 
-        public TypeExpr getType()
+        public Type getType()
         {
             return type;
         }
@@ -140,7 +140,7 @@ public final class LocationAtom implements Location
         return new LocationAtom(name, new PrimitiveSource(primitive), null, null);
     }
 
-    static LocationAtom createBitfield(LocationAtom location, Expr from, Expr to, TypeExpr type)
+    static LocationAtom createBitfield(LocationAtom location, Expr from, Expr to, Type type)
     {
         return new LocationAtom(location.getName(), location.getSource(), location.getIndex(), new Bitfield(from, to, type));
     }
@@ -156,7 +156,7 @@ public final class LocationAtom implements Location
     }
 
     @Override
-    public TypeExpr getType()
+    public Type getType()
     {
         if (null != bitfield)
             return bitfield.getType();

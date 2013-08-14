@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class ExprClass implements Expr
 {
@@ -20,7 +20,7 @@ public final class ExprClass implements Expr
     private final String text;
 
     private final Class<?> javaType;
-    private final TypeExpr modelType;
+    private final Type modelType;
 
     private final ExprOperator operator;
     private final Object value;
@@ -30,7 +30,7 @@ public final class ExprClass implements Expr
         EExprKind    kind,
         String       text,
         Class<?>     javaType,
-        TypeExpr     modelType,
+        Type     modelType,
         ExprOperator operator,
         Object       value,
         Location     location
@@ -82,7 +82,7 @@ public final class ExprClass implements Expr
     }
 
     @Override
-    public TypeExpr getModelType()
+    public Type getModelType()
     {
         return modelType;
     }

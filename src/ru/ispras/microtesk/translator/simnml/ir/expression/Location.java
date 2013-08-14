@@ -12,9 +12,9 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.TypeExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public interface Location
 {
-    public TypeExpr getType();
+    public Type getType();
 }
