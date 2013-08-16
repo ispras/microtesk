@@ -68,7 +68,7 @@ public final class Type
     public String toString()
     {
         return String.format(
-            "TypeExpr [typeId='%s', bitSize='%s', refName='%s']",
+            "Type [typeId='%s', bitSize='%s', refName='%s']",
             typeId,
             bitSize.getText(),
             refName != null ? refName : "<undefined>"
