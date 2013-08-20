@@ -18,38 +18,47 @@ import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class IR
 {
-    private final Map<String, LetExpr>      lets;
-    private final Map<String, LetLabel>   labels;
-    private final Map<String, Type>    types;
-    private final Map<String, MemoryExpr> memory;
-    private final Map<String, Primitive>   modes;
-    private final Map<String, Primitive>     ops;
+    private final Map<String, LetConstant> consts;
+    private final Map<String, LetString>  strings;
+    private final Map<String, LetLabel>    labels;
+    private final Map<String, Type>         types;
+    private final Map<String, MemoryExpr>  memory;
+    private final Map<String, Primitive>    modes;
+    private final Map<String, Primitive>      ops;
 
     private Map<String, Instruction> instructions;
 
     public IR()
     {
-        this.lets   = new LinkedHashMap<String, LetExpr>();
-        this.labels = new LinkedHashMap<String, LetLabel>();
-        this.types  = new LinkedHashMap<String, Type>();
-        this.memory = new LinkedHashMap<String, MemoryExpr>();
+        this.consts  = new LinkedHashMap<String, LetConstant>();
+        this.strings = new LinkedHashMap<String, LetString>();
 
-        this.modes  = new LinkedHashMap<String, Primitive>();
-        this.ops    = new LinkedHashMap<String, Primitive>();
+        this.labels  = new LinkedHashMap<String, LetLabel>();
+        this.types   = new LinkedHashMap<String, Type>();
+        this.memory  = new LinkedHashMap<String, MemoryExpr>();
+
+        this.modes   = new LinkedHashMap<String, Primitive>();
+        this.ops     = new LinkedHashMap<String, Primitive>();
 
         this.instructions = new LinkedHashMap<String, Instruction>();
     }
 
-    public void add(String name, LetExpr value)
+    public void add(String name, LetConstant value)
     {
-        lets.put(name, value);
+        consts.put(name, value);
+    }
+
+    public void add(String name, LetString value)
+    {
+        strings.put(name, value);
     }
 
     public void add(String name, LetLabel value)
@@ -77,9 +86,14 @@ public final class IR
             assert false : String.format( "Incorrect primitive kind: %s.", value.getKind());
     }
 
-    public Map<String, LetExpr> getLets()
+    public Map<String, LetConstant> getConstants()
     {
-        return Collections.unmodifiableMap(lets);
+        return Collections.unmodifiableMap(consts);
+    }
+
+    public Map<String, LetString> getStrings()
+    {
+        return Collections.unmodifiableMap(strings);
     }
 
     public Map<String, LetLabel> getLabels()
