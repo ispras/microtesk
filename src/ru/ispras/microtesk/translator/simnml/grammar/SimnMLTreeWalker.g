@@ -99,21 +99,19 @@ procSpec
 
 letDef
     :  ^(LET id=ID le=letExpr[$id.text])
-{
-checkNotNull($id, $le.res, $le.text);
-getIR().add($id.text, $le.res);
-}
     ;
 
-letExpr [String name] returns [LetExpr res]
+letExpr [String name]
     :  ce = staticJavaExpr
 {
 checkNotNull($ce.start, $ce.res, $ce.text);
-$res = getLetFactory().createConstValue(name, $ce.res);
+final LetConstant constant = getLetFactory().createConstant(name, $ce.res);
+getIR().add(name, constant);
 }
     |  sc = STRING_CONST
 {
-$res = getLetFactory().createConstString(name, $sc.text);
+final LetString string = getLetFactory().createString(name, $sc.text);
+getIR().add(name, string);
 
 final LetLabel label = getLetFactory().createLabel(name, $sc.text);
 if (null != label)
