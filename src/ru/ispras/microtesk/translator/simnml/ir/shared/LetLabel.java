@@ -18,12 +18,12 @@ public final class LetLabel
     private final String memoryName;
     private final int index;
 
-    protected LetLabel(String name, String memoryName)
+    LetLabel(String name, String memoryName)
     {
         this(name, memoryName, 0);
     }
 
-    protected LetLabel(String name, String memoryName, int index)
+    LetLabel(String name, String memoryName, int index)
     {
         this.name = name;
         this.memoryName = memoryName;

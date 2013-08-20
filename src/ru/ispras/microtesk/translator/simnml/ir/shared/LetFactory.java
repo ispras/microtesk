@@ -28,24 +28,14 @@ public final class LetFactory extends WalkerFactoryBase
         super(context);
     }
 
-    public LetExpr createConstString(String name, String text)
+    public LetString createString(String name, String text)
     {
-        return new LetExpr(
-             name,
-             String.format("\"%s\"", text),
-             String.class,
-             text
-             );
+        return new LetString(name, text);
     }
 
-    public LetExpr createConstValue(String name, Expr value)
+    public LetConstant createConstant(String name, Expr value)
     {
-        return new LetExpr(
-            name,
-            value.getText(),
-            value.getJavaType(),
-            value.getValue()
-            );
+        return new LetConstant(name, value);
     }
 
     public LetLabel createLabel(String name, String text)
