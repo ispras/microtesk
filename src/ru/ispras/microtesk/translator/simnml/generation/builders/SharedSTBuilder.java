@@ -29,8 +29,9 @@ import ru.ispras.microtesk.model.api.state.Status;
 
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
@@ -76,18 +77,35 @@ public class SharedSTBuilder implements ITemplateBuilder
         t.add("imps", Resetter.class.getName());
     }
 
-    private void buildLets(STGroup group, ST t)
+    private void buildLetStrings(STGroup group, ST t)
     {
-        if (!ir.getLets().isEmpty())
+        if (!ir.getStrings().isEmpty())
             insertEmptyLine(t);
 
-        for (Map.Entry<String, LetExpr> let : ir.getLets().entrySet())
+        for (LetString string : ir.getStrings().values())
         {
             final ST tLet = group.getInstanceOf("let");
 
-            tLet.add("name", let.getKey());
-            tLet.add("type", let.getValue().getJavaType().getSimpleName());
-            tLet.add("value", let.getValue().getText());
+            tLet.add("name",  string.getName());
+            tLet.add("type",  String.class.getSimpleName());
+            tLet.add("value", String.format("\"%s\"", string.getText()));
+
+            t.add("members", tLet);
+        }
+    }
+        
+    private void buildLetConstants(STGroup group, ST t)
+    {
+        if (!ir.getConstants().isEmpty())
+            insertEmptyLine(t);
+
+        for (LetConstant constant : ir.getConstants().values())
+        {
+            final ST tLet = group.getInstanceOf("let");
+
+            tLet.add("name",  constant.getName());
+            tLet.add("type",  constant.getExpression().getJavaType().getSimpleName());
+            tLet.add("value", constant.getExpression().getText());
 
             t.add("members", tLet);
         }
@@ -265,7 +283,8 @@ public class SharedSTBuilder implements ITemplateBuilder
         final ST t = group.getInstanceOf("shared");
 
         buildHeader(t);
-        buildLets(group, t);
+        buildLetStrings(group, t);
+        buildLetConstants(group, t);
         buildTypes(group, t);
         buildMemory(group, t);
         buildLabels(group, t);
