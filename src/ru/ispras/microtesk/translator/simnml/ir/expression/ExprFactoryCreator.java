@@ -22,7 +22,7 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 interface ExprFactoryCreator
@@ -179,17 +179,19 @@ final class NamedConstBasedExprCreator extends WalkerFactoryBase implements Expr
     @Override
     public Expr create() throws SemanticException
     {
-        if (!getIR().getLets().containsKey(name))
+        if (!getIR().getConstants().containsKey(name))
             getReporter().raiseError(w, new UndefinedConstant(name));
 
-        final LetExpr letExpr = getIR().getLets().get(name);
+        final LetConstant constant = getIR().getConstants().get(name);
+        final Expr expression = constant.getExpression();
+        
         return new ExprClass(
             EExprKind.JAVA_STATIC,
             name,
-            letExpr.getJavaType(),
-            createModelTypeForJavaType(letExpr.getJavaType()),
+            expression.getJavaType(),
+            createModelTypeForJavaType(expression.getJavaType()),
             null,
-            letExpr.getValue(),
+            expression.getValue(),
             null
             );
     }

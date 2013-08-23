@@ -17,13 +17,14 @@ public abstract class Expr
     public enum Kind
     {
         CONSTANT,
-        VARIABLE,
+        NAMED_CONSTANT,
+        LOCATION,
         OPERATION
     }
 
     private final Kind kind;
 
-    public Expr(Kind kind)
+    Expr(Kind kind)
     {
         assert null != kind;
         this.kind = kind;

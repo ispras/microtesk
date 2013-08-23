@@ -12,22 +12,36 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
-public final class ExprConstrant extends Expr implements ValueConstant
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
+
+public final class ExprConstrant extends Expr
 {
     private final long  value;
     private final int   radix;
     private final int bitSize;
 
-    public ExprConstrant(long value, int radix, int bitSize)
+    private final class Info implements ValueInfo
+    {
+        @Override public ValueKind    getKind() { return ValueKind.INTEGER; }
+        @Override public int       getBitSize() { return bitSize; }
+        @Override public boolean   isConstant() { return true; }
+        @Override public long    integerValue() { return value; }
+        @Override public boolean booleanValue() { return 0 != value; }
+        @Override public Type    locationType() { assert false; return null; }
+    }
+
+    private final Info info;
+
+    ExprConstrant(long value, int radix, int bitSize)
     {
         super(Kind.CONSTANT);
 
         this.value   = value;
         this.radix   = radix;
         this.bitSize = bitSize;
+        this.info    = new Info();
     }
 
-    @Override
     public long getValue()
     {
         return value;
@@ -39,14 +53,8 @@ public final class ExprConstrant extends Expr implements ValueConstant
     }
 
     @Override
-    public int getBitSize()
-    {
-        return bitSize;
-    }
-
-    @Override
     public ValueInfo getValueInfo()
     {
-        return this;
+        return info;
     }
 }

@@ -12,14 +12,32 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
+import java.util.List;
 
 public class ExprOperation extends Expr
 {
-    
-    
-    public ExprOperation()
+    private final Operator   operator;
+    private final List<Expr> operands; 
+
+    public ExprOperation(Operator operator, List<Expr> operands)
     {
         super(Kind.OPERATION);
+
+        assert null != operator;
+        assert null != operands;
+
+        this.operator = operator;
+        this.operands = operands;
+    }
+
+    public Operator getOperator()
+    {
+        return operator;
+    }
+
+    public List<Expr> getOperands()
+    {
+        return operands;
     }
 
     @Override

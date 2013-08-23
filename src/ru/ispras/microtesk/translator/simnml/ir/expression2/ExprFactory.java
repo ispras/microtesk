@@ -18,6 +18,7 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
+import ru.ispras.microtesk.translator.simnml.ir.expression2.ValueInfo.ValueKind;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public class ExprFactory extends WalkerFactoryBase
@@ -27,12 +28,12 @@ public class ExprFactory extends WalkerFactoryBase
         super(context);
     }
 
-    public Expr namedConst(Where w, String name) throws SemanticException
+    public Expr namedConstant(Where w, String name) throws SemanticException
     {
         return null;
     }
 
-    public Expr intConst(Where w, String text, int radix) throws SemanticException
+    public ExprConstrant constant(Where w, String text, int radix) throws SemanticException
     {
         return null;
     }
@@ -56,4 +57,61 @@ public class ExprFactory extends WalkerFactoryBase
     {
         return null;
     }
+}
+
+interface IOperator
+{
+    ValueInfo execute(ValueInfo ... args) throws SemanticException; 
+}
+
+class OperatorClass implements IOperator
+{
+    @Override
+    public ValueInfo execute(ValueInfo ... args) throws SemanticException
+    {
+        if (args.length == 0)
+            assert false; // Raise error
+        
+        // TODO Auto-generated method stub
+        return new ValueInfo() {
+            
+            @Override
+            public Type locationType() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public boolean isConstant() {
+                // TODO Auto-generated method stub
+                return false;
+            }
+            
+            @Override
+            public long integerValue() {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+            
+            @Override
+            public ValueKind getKind() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public int getBitSize() {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+            
+            @Override
+            public boolean booleanValue() {
+                // TODO Auto-generated method stub
+                return false;
+            }
+        };
+    }
+    
+    
 }
