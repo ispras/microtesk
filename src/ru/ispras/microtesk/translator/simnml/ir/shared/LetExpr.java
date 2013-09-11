@@ -17,7 +17,7 @@ public class LetExpr {
     public Class<?> getJavaType() {
         // TODO Auto-generated method stub
         return null;
-        }
+    }
 
     public Object getValue() {
         // TODO Auto-generated method stub
