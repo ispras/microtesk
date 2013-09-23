@@ -1,7 +1,6 @@
 package ru.ispras.microtesk.translator.mmu.generation.builders;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -9,7 +8,6 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.microtesk.model.api.memory.MemoryBase;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.mmu.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 
 public class SharedSTBuilder implements ITemplateBuilder
 {
@@ -38,26 +36,6 @@ public class SharedSTBuilder implements ITemplateBuilder
         t.add("pack",  packageName);
         t.add("imps", MemoryBase.class.getName());
     }
-    
-    private void buildLets(STGroup group, ST t)
-    {
-        if (!ir.getLets().isEmpty())
-            insertEmptyLine(t);
-        
-        for (Map.Entry<String, LetExpr> let : ir.getLets().entrySet())
-        {
-            final ST tLet = group.getInstanceOf("let");
-
-            tLet.add("name", let.getKey());
-            tLet.add("type", let.getValue().getJavaType().getSimpleName());
-            tLet.add("value", let.getValue().getText());
-
-            t.add("members", tLet);
-        }
-    }
-    
-    private void buildTypes(STGroup group, ST t)
-    {}
 
     private void buildMemory(STGroup group, ST t)
     {
@@ -88,8 +66,6 @@ public class SharedSTBuilder implements ITemplateBuilder
         final ST t = group.getInstanceOf("shared");
 
         buildHeader(t);
-        buildLets(group, t);
-        buildTypes(group, t);
         buildMemory(group, t);
 
         return t;

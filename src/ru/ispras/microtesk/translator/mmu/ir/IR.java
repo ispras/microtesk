@@ -3,8 +3,6 @@ package ru.ispras.microtesk.translator.mmu.ir;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
-
 public final class IR
 {
 	private Map<String, AssociativityExpr>    associativity = new LinkedHashMap<String, AssociativityExpr>();
@@ -18,8 +16,6 @@ public final class IR
 	private Map<String, MatchExpr> match = new LinkedHashMap<String, MatchExpr>();
 	private Map<String, TagExpr> tag = new LinkedHashMap<String, TagExpr>();
 	
-	private Map<String, LetExpr>      lets = new LinkedHashMap<String, LetExpr>();
-
     public IR()
     {}
     
@@ -62,16 +58,6 @@ public final class IR
     {
     	tag.put(name,value);
 	}  
-    
-    public void add(String name, LetExpr value)
-    {
-        lets.put(name, value);
-    }
-    
-    public Map<String, LetExpr> getLets()
-    {
-        return lets;
-    }
     
     public Map<String, EPolicyType> getPolicy()
     {

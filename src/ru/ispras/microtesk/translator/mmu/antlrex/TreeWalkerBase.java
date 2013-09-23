@@ -49,12 +49,12 @@ public class TreeWalkerBase extends TreeParserEx //implements ISemanticChecks
     /* code generators (emitters).                                                          */
     /*======================================================================================*/
 
-    private ConstExprFactory     constExprFactory = null;
+    private ConstExprFactory constExprFactory = null;
 
     protected final ConstExprFactory getConstExprFactory()
     {
         if (null == constExprFactory)
-            constExprFactory = new ConstExprFactory(ir.getLets(), this);
+            constExprFactory = new ConstExprFactory(this);
         return constExprFactory;
     }
 

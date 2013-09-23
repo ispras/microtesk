@@ -12,16 +12,12 @@
 
 package ru.ispras.microtesk.translator.mmu.ir.expression;
 
-import java.util.Map;
-
 import org.antlr.runtime.RecognitionException;
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.UnsupportedConstOperation;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 import ru.ispras.microtesk.translator.simnml.errors.ValueTypeMismatch;
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetExpr;
 
 /**
  * The ConstExprFactory class provides logic for semantic analysis of 
@@ -41,9 +37,8 @@ public class ConstExprFactory
 	private static final String INTEGER_TYPE_NAME = "integer";
 	private static final String REAL_TYPE_NAME    = "real";
 	private static final String BRACKETS_FORMAT   = "(%s)";
-	
-	private final Map<String, LetExpr> lets;
-	private final IErrorReporter       reporter; 
+
+	private final IErrorReporter reporter; 
 
 	/**
 	 * Creates a ConstExprFactory object.
@@ -52,9 +47,8 @@ public class ConstExprFactory
 	 * @param reporter Object for reposing problems (raises exceptions).
 	 */
 
-	public ConstExprFactory(Map<String, LetExpr> lets, IErrorReporter reporter)
+	public ConstExprFactory(IErrorReporter reporter)
 	{
-		this.lets     = lets;		
 		this.reporter = reporter;
 	}
 
@@ -71,24 +65,22 @@ public class ConstExprFactory
 		return new ConstExpr(String.class, text, text);		
 	}
 	
-	/**
-	 * Creates a reference expression which refers to another constant
-	 * (let definition) declared earlier. 
-	 * 
-	 * @param name The name of a constant (let definition) the label refers to.
-	 * @return A constant expression object.
-	 * @throws RecognitionException A semantic exception.
-	 */
+    /**
+     * Creates a reference expression which refers to another constant
+     * declared earlier. 
+     * 
+     * @param name The name of a constant the specified name refers to.
+     * @return A constant expression object.
+     * @throws RecognitionException A semantic exception.
+     */
 
-	public ConstExpr createReference(String name) throws RecognitionException
-	{
-		if (!lets.containsKey(name))
-			reporter.raiseError(new UndefinedConstant(name));
+    public ConstExpr createReference(String name) throws RecognitionException
+    {
+        // TODO: Implement if named constants are applicable in MMU specification.   
+        assert false : "NOT IMPLEMENTED!";
+        return null;
+    }
 
-		final LetExpr letExpr = lets.get(name); 
-		return new ConstExpr(letExpr.getJavaType(), letExpr.getValue(), name);
-	}
-	
 	/**
 	 * Creates an expression that consists of an integer constant.
 	 * 
