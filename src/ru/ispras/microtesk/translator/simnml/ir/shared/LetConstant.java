@@ -42,6 +42,9 @@ public final class LetConstant
     public String toString()
     {
         return String.format(
-            "LetConstant [name=%s, expression=%s]", name, expression.getText());
+            "LetConstant [name=%s, expression=%s]",
+            name,
+            expression.getText()
+            );
     }
 }
