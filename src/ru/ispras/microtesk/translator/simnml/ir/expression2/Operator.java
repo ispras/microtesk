@@ -86,7 +86,7 @@ public enum Operator
     private final String  text;
     private final int priority;
     private final int operands;
-        
+
     private Operator(
         String text,
         Priority priority,
