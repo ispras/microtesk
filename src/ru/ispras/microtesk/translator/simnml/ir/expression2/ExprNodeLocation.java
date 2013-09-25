@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * ExprLocation.java, Aug 20, 2013 5:52:45 PM Andrei Tatarnikov
+ * ExprNodeLocation.java, Aug 20, 2013 5:52:45 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
@@ -15,25 +15,25 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
-public final class ExprLocation extends Expr
+public final class ExprNodeLocation extends Expr
 {
     private final Location location;
 
     private final class Info implements ValueInfo
     {
-        @Override public ValueKind    getKind() { return ValueKind.LOCATION; }
-        @Override public int       getBitSize() { return ((Number)locationType().getBitSize().getValue()).intValue(); }
-        @Override public boolean   isConstant() { return false; }
-        @Override public long    integerValue() { assert false; return 0; }
-        @Override public boolean booleanValue() { assert false; return false; }
-        @Override public Type    locationType() { return location.getType(); }
+        @Override public ValueKind getValueKind() { return ValueKind.LOCATION; }
+        @Override public int         getBitSize() { return ((Number)locationType().getBitSize().getValue()).intValue(); }
+        @Override public boolean     isConstant() { return false; }
+        @Override public long      integerValue() { assert false; return 0; }
+        @Override public boolean   booleanValue() { assert false; return false; }
+        @Override public Type      locationType() { return location.getType(); }
     }
 
     private final Info info;
 
-    ExprLocation(Location location)
+    ExprNodeLocation(Location location)
     {
-        super(Kind.LOCATION);
+        super(NodeKind.LOCATION);
 
         assert null != location;
         this.location = location;

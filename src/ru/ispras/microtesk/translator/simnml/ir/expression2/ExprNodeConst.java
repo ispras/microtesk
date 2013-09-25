@@ -7,14 +7,14 @@
  * 
  * All rights reserved.
  * 
- * ExpressionConstrant.java, Aug 14, 2013 12:30:39 PM Andrei Tatarnikov
+ * ExprNodeConst.java, Aug 14, 2013 12:30:39 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
-public final class ExprConstrant extends Expr
+public final class ExprNodeConst extends Expr
 {
     private final long  value;
     private final int   radix;
@@ -22,19 +22,19 @@ public final class ExprConstrant extends Expr
 
     private final class Info implements ValueInfo
     {
-        @Override public ValueKind    getKind() { return ValueKind.INTEGER; }
-        @Override public int       getBitSize() { return bitSize; }
-        @Override public boolean   isConstant() { return true; }
-        @Override public long    integerValue() { return value; }
-        @Override public boolean booleanValue() { return 0 != value; }
-        @Override public Type    locationType() { assert false; return null; }
+        @Override public ValueKind getValueKind() { return ValueKind.INTEGER; }
+        @Override public int         getBitSize() { return bitSize; }
+        @Override public boolean     isConstant() { return true; }
+        @Override public long      integerValue() { return value; }
+        @Override public boolean   booleanValue() { return 0 != value; }
+        @Override public Type      locationType() { assert false; return null; }
     }
 
     private final Info info;
 
-    ExprConstrant(long value, int radix, int bitSize)
+    ExprNodeConst(long value, int radix, int bitSize)
     {
-        super(Kind.CONSTANT);
+        super(NodeKind.CONST);
 
         this.value   = value;
         this.radix   = radix;

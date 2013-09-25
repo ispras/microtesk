@@ -7,30 +7,31 @@
  * 
  * All rights reserved.
  * 
- * Expression.java, Aug 14, 2013 12:30:28 PM Andrei Tatarnikov
+ * Expr.java, Aug 14, 2013 12:30:28 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 public abstract class Expr
 {
-    public enum Kind
+    public static enum NodeKind
     {
-        CONSTANT,
-        NAMED_CONSTANT,
+        CONST,
+        NAMED_CONST,
         LOCATION,
-        OPERATION
+        OPERATOR,
+        COERCION
     }
 
-    private final Kind kind;
+    private final NodeKind kind;
 
-    Expr(Kind kind)
+    Expr(NodeKind kind)
     {
         assert null != kind;
         this.kind = kind;
     }
 
-    public final Kind getKind()
+    public final NodeKind getNodeKind()
     {
         return kind;
     }

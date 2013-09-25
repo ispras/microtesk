@@ -23,7 +23,7 @@ public interface ValueInfo
         BOOLEAN
     }
 
-    public ValueKind getKind();
+    public ValueKind getValueKind();
     public int getBitSize();
     public boolean isConstant();
 

@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * ExprNamedConstant.java, Aug 20, 2013 8:12:47 PM Andrei Tatarnikov
+ * ExprNodeNamedConst.java, Aug 20, 2013 8:12:47 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
@@ -15,25 +15,25 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
-public final class ExprNamedConstant extends Expr
+public final class ExprNodeNamedConst extends Expr
 {
     private final LetConstant constant;
 
     private final class Info implements ValueInfo
     {
-        @Override public ValueKind    getKind() { return ValueKind.INTEGER; }
-        @Override public int       getBitSize() { return getValueBitSize(); }
-        @Override public boolean   isConstant() { return true; }
-        @Override public long    integerValue() { return getValue(); }
-        @Override public boolean booleanValue() { return 0 != integerValue(); }
-        @Override public Type    locationType() { assert false; return null; }
+        @Override public ValueKind getValueKind() { return ValueKind.INTEGER; }
+        @Override public int         getBitSize() { return getValueBitSize(); }
+        @Override public boolean     isConstant() { return true; }
+        @Override public long      integerValue() { return getValue(); }
+        @Override public boolean   booleanValue() { return 0 != integerValue(); }
+        @Override public Type      locationType() { assert false; return null; }
     }
 
     private final Info info;
 
-    ExprNamedConstant(LetConstant constant)
+    ExprNodeNamedConst(LetConstant constant)
     {
-        super(Kind.NAMED_CONSTANT);
+        super(NodeKind.NAMED_CONST);
 
         assert null  != constant;
         this.constant = constant;

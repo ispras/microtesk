@@ -7,27 +7,31 @@
  * 
  * All rights reserved.
  * 
- * ExprOperation.java, Aug 14, 2013 12:45:13 PM Andrei Tatarnikov
+ * ExprOperator.java, Aug 14, 2013 12:45:13 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import java.util.List;
 
-public class ExprOperation extends Expr
+public final class ExprNodeOperator extends Expr
 {
     private final Operator   operator;
-    private final List<Expr> operands; 
+    private final List<Expr> operands;
+    private final ValueInfo      info;
 
-    public ExprOperation(Operator operator, List<Expr> operands)
+    public ExprNodeOperator(Operator operator, List<Expr> operands, ValueInfo info)
     {
-        super(Kind.OPERATION);
+        super(NodeKind.OPERATOR);
 
         assert null != operator;
-        assert null != operands;
-
         this.operator = operator;
+
+        assert null != operands;
         this.operands = operands;
+        
+        assert null != info;
+        this.info = info;
     }
 
     public Operator getOperator()
@@ -43,7 +47,6 @@ public class ExprOperation extends Expr
     @Override
     public ValueInfo getValueInfo()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return info;
     }
 }
