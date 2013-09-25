@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * ExprOperator.java, Aug 14, 2013 12:33:41 PM Andrei Tatarnikov
+ * Operator.java, Aug 14, 2013 12:33:41 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
