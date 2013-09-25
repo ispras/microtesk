@@ -12,62 +12,90 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum Operator
 {
-    OR ("||", Priority.current(), 2),
-    AND("&&", Priority.higher(),  2),
+    OR       ("||",  Priority.CURRENT, Operands.BINARY),
+    AND      ("&&",  Priority.HIGHER,  Operands.BINARY),
 
-    // Arithmetical operators
-    PLUS,
-    MINUS,
-    UNARY_PLUS,
-    UNARY_MINUS,
-    MUL,
-    DIV,
-    MOD,
-    POW,
+    BIT_OR   ("|",   Priority.HIGHER,  Operands.BINARY),
+    BIT_XOR  ("^",   Priority.HIGHER,  Operands.BINARY),
+    BIT_AND  ("&",   Priority.HIGHER,  Operands.BINARY),
 
-    // Comparison operators
-    GREATER,
-    LESS,
-    GREATER_EQ,
-    LESS_EQ,
-    EQ,
-    NOT_EQ,
+    EQ       ("==",  Priority.HIGHER,  Operands.BINARY),
+    NOT_EQ   ("!=",  Priority.CURRENT, Operands.BINARY),
 
-    // Bitwise operators
-    L_SHIFT,
-    R_SHIFT,
-    BIT_AND,
-    BIT_OR,
-    BIT_XOR,
-    BIT_NOT,
-    L_ROTATE,
-    R_ROTATE,
+    LEQ      ("<=",  Priority.HIGHER,  Operands.BINARY),
+    GEQ      (">=",  Priority.CURRENT, Operands.BINARY),
+    LESS     ("<",   Priority.CURRENT, Operands.BINARY),
+    GREATER  (">",   Priority.CURRENT, Operands.BINARY),
 
-    // Logical operators
-    //AND,
-    // OR,
-    NOT;
+    L_SHIFT  ("<<",  Priority.HIGHER,  Operands.BINARY),
+    R_SHIFT  (">>",  Priority.CURRENT, Operands.BINARY),
+    L_ROTATE ("<<<", Priority.CURRENT, Operands.BINARY),
+    R_ROTATE (">>>", Priority.CURRENT, Operands.BINARY),
+
+    PLUS     ("+",   Priority.HIGHER,  Operands.BINARY),
+    MINUS    ("-",   Priority.CURRENT, Operands.BINARY),
+
+    MUL      ("*",   Priority.HIGHER,  Operands.BINARY),
+    DIV      ("/",   Priority.CURRENT, Operands.BINARY), 
+    MOD      ("%",   Priority.CURRENT, Operands.BINARY),
+
+    POW      ("**",  Priority.HIGHER,  Operands.BINARY),
+
+
+    UPLUS  ("UPLUS", Priority.HIGHER,  Operands.UNARY),
+    UMINUS ("UMINUS",Priority.CURRENT, Operands.UNARY),
+    BIT_NOT  ("~",   Priority.CURRENT, Operands.UNARY),
+    NOT      ("!",   Priority.CURRENT, Operands.UNARY)
+    ;
+
+    private static enum Operands
+    {
+        UNARY(1),
+        BINARY(2);
+
+        Operands(int value) { this.value = value; }
+        int value()         { return value; } 
+
+        private final int value;
+    }
+
+    private static enum Priority
+    {
+        CURRENT { @Override public int value() { return priorityCounter;   }},
+        HIGHER  { @Override public int value() { return ++priorityCounter; }};
+
+        public abstract int value();
+        private static int priorityCounter = 0;
+    }
+
+    private static final Map<String, Operator> operators;
+    static
+    {
+        final Operator[] ops = Operator.values();
+        operators =  new HashMap<String, Operator>(ops.length);
+
+        for (Operator o : ops)
+            operators.put(o.text(), o);
+    }
 
     private final String  text;
     private final int priority;
     private final int operands;
-
-    private Operator()
-    {
-        this("", 0, 0);
-    }
-
+        
     private Operator(
         String text,
-        int priority,
-        int operands
+        Priority priority,
+        Operands operands
         )
     {
-        this.text     = text;
-        this.priority = priority;
-        this.operands = operands;
+        this.text = text;
+        this.priority = priority.value();
+        this.operands = operands.value();
     }
 
     public String text()
@@ -87,20 +115,6 @@ public enum Operator
 
     public static Operator forText(String text)
     {
-        return null;
+        return operators.get(text);
     }
-
-    public static Operator forTextUnary(String text)
-    {
-        return null;
-    }
-}
-
-final class Priority
-{
-    private Priority() {}
-    private static int value = 0;
-
-    public static int current() { return value; }
-    public static int  higher() { return ++value; }
 }
