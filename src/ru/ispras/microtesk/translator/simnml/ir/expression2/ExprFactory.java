@@ -39,7 +39,7 @@ public class ExprFactory extends WalkerFactoryBase
         return new ExprNodeNamedConst(constant);
     }
 
-    public ExprNodeConst constant(Where w, String text, int radix) throws SemanticException
+    public final ExprNodeConst constant(Where w, String text, int radix) throws SemanticException
     {
         final ExprNodeConstCreator creator = new ExprNodeConstCreator(this, w, text, radix); 
         return creator.create();
@@ -96,7 +96,7 @@ final class ExprNodeConstCreator extends WalkerFactoryBase
             final long  value = Long.valueOf(text, radix);
             final int bitSize = getBitSize(value); 
 
-            return new ExprNodeConst(value, radix, bitSize);
+            return new ExprNodeConst(NativeValue.makeNumber(bitSize, value), radix);
         }
         catch (NumberFormatException e)
         {
@@ -126,6 +126,7 @@ final class ExprNodeConstCreator extends WalkerFactoryBase
     }
 }
 
+/*
 
 interface IOperator
 {
@@ -183,3 +184,4 @@ class OperatorClass implements IOperator
     
     
 }
+*/

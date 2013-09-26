@@ -13,42 +13,19 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
-import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
-public final class ExprNodeLocation extends Expr
+public final class ExprNodeLocation extends ExprAbstract
 {
     private final Location location;
 
-    private final class Info implements ValueInfo
-    {
-        @Override public ValueKind getValueKind() { return ValueKind.LOCATION; }
-        @Override public int         getBitSize() { return ((Number)locationType().getBitSize().getValue()).intValue(); }
-        @Override public boolean     isConstant() { return false; }
-        @Override public long      integerValue() { assert false; return 0; }
-        @Override public boolean   booleanValue() { assert false; return false; }
-        @Override public Type      locationType() { return location.getType(); }
-    }
-
-    private final Info info;
-
     ExprNodeLocation(Location location)
     {
-        super(NodeKind.LOCATION);
-
-        assert null != location;
+        super(NodeKind.LOCATION, new ValueInfoModel(location.getType()));
         this.location = location;
-
-        this.info = new Info();
     }
 
     public Location getLocation()
     {
         return location;
-    }
-
-    @Override
-    public ValueInfo getValueInfo()
-    {
-        return info;
     }
 }

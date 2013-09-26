@@ -14,24 +14,20 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import java.util.List;
 
-public final class ExprNodeOperator extends Expr
+public final class ExprNodeOperator extends ExprAbstract
 {
     private final Operator   operator;
     private final List<Expr> operands;
-    private final ValueInfo      info;
 
-    public ExprNodeOperator(Operator operator, List<Expr> operands, ValueInfo info)
+    ExprNodeOperator(Operator operator, List<Expr> operands, ValueInfo info)
     {
-        super(NodeKind.OPERATOR);
+        super(NodeKind.OPERATOR, info);
 
         assert null != operator;
         this.operator = operator;
 
         assert null != operands;
         this.operands = operands;
-        
-        assert null != info;
-        this.info = info;
     }
 
     public Operator getOperator()
@@ -42,11 +38,5 @@ public final class ExprNodeOperator extends Expr
     public List<Expr> getOperands()
     {
         return operands;
-    }
-
-    @Override
-    public ValueInfo getValueInfo()
-    {
-        return info;
     }
 }

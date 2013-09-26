@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * Stored.java, Aug 16, 2013 3:43:37 PM Andrei Tatarnikov
+ * ValueInfo.java, Sep 26, 2013 5:17:00 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
@@ -16,18 +16,31 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public interface ValueInfo
 {
-    public static enum ValueKind
+    public enum ValueKind
     {
-        LOCATION,
-        INTEGER,
-        BOOLEAN
+        MODEL,
+        NATIVE
     }
 
     public ValueKind getValueKind();
     public int getBitSize();
-    public boolean isConstant();
 
-    public long integerValue();
-    public boolean booleanValue();
-    public Type locationType();
+    public Type getModelType();
+    public NativeValue getNativeValue();
+}
+
+abstract class ValueInfoAbstract implements ValueInfo
+{
+    private final ValueKind valueKind;
+
+    protected ValueInfoAbstract(ValueKind valueKind)
+    {
+        this.valueKind = valueKind;
+    }
+
+    @Override
+    public final ValueKind getValueKind()
+    {
+        return valueKind;
+    }
 }

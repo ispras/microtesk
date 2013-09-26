@@ -66,7 +66,7 @@ public enum Operator
 
     private static enum Priority
     {
-        CURRENT { @Override public int value() { return priorityCounter;   }},
+        CURRENT { @Override public int value() { return   priorityCounter; }},
         HIGHER  { @Override public int value() { return ++priorityCounter; }};
 
         public abstract int value();

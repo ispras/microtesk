@@ -12,9 +12,9 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
-public abstract class Expr
+public interface Expr
 {
-    public static enum NodeKind
+    public enum NodeKind
     {
         CONST,
         NAMED_CONST,
@@ -23,18 +23,33 @@ public abstract class Expr
         COERCION
     }
 
-    private final NodeKind kind;
+    public NodeKind   getNodeKind();
+    public ValueInfo getValueInfo();
+}
 
-    Expr(NodeKind kind)
+abstract class ExprAbstract implements Expr
+{
+    private final NodeKind   nodeKind;
+    private final ValueInfo valueInfo;
+
+    protected ExprAbstract(NodeKind nodeKind, ValueInfo valueInfo)
     {
-        assert null != kind;
-        this.kind = kind;
+        assert null != nodeKind;
+        assert null != valueInfo;
+
+        this.nodeKind = nodeKind;
+        this.valueInfo = valueInfo;
     }
 
+    @Override
     public final NodeKind getNodeKind()
     {
-        return kind;
+        return nodeKind;
     }
 
-    public abstract ValueInfo getValueInfo();
+    @Override
+    public final ValueInfo getValueInfo()
+    {
+        return valueInfo;
+    }
 }

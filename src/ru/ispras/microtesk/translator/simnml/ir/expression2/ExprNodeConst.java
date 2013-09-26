@@ -12,49 +12,23 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
-
-public final class ExprNodeConst extends Expr
+public final class ExprNodeConst extends ExprAbstract
 {
-    private final long  value;
-    private final int   radix;
-    private final int bitSize;
+    private final int radix;
 
-    private final class Info implements ValueInfo
+    ExprNodeConst(NativeValue value, int radix)
     {
-        @Override public ValueKind getValueKind() { return ValueKind.INTEGER; }
-        @Override public int         getBitSize() { return bitSize; }
-        @Override public boolean     isConstant() { return true; }
-        @Override public long      integerValue() { return value; }
-        @Override public boolean   booleanValue() { return 0 != value; }
-        @Override public Type      locationType() { assert false; return null; }
+        super(NodeKind.CONST, new ValueInfoNative(value));
+        this.radix = radix;
     }
 
-    private final Info info;
-
-    ExprNodeConst(long value, int radix, int bitSize)
+    public NativeValue getValue()
     {
-        super(NodeKind.CONST);
-
-        this.value   = value;
-        this.radix   = radix;
-        this.bitSize = bitSize;
-        this.info    = new Info();
-    }
-
-    public long getValue()
-    {
-        return value;
+        return getValueInfo().getNativeValue();
     }
 
     public int getRadix()
     {
         return radix;
-    }
-
-    @Override
-    public ValueInfo getValueInfo()
-    {
-        return info;
     }
 }
