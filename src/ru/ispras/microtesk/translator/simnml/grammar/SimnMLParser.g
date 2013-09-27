@@ -29,8 +29,8 @@ options {
 tokens {
 //RANGE; // root node for range type definitions ([a..b]). Not supported in this version.
 
-  UNARY_PLUS;  // token for the unary plus operator (used in expressions)
-  UNARY_MINUS; // token for the unary minus operator (used in expressions)
+  UPLUS;  // token for the unary plus operator (used in expressions)
+  UMINUS; // token for the unary minus operator (used in expressions)
 
   SIZE_TYPE; // node for constructions that specify type and size of memory resources (reg, mem, var)
 
@@ -372,8 +372,8 @@ powExpr
     ;
 
 unaryExpr
-    :  PLUS   unaryExpr -> ^(UNARY_PLUS unaryExpr)
-    |  MINUS  unaryExpr -> ^(UNARY_MINUS unaryExpr)
+    :  PLUS   unaryExpr -> ^(UPLUS unaryExpr)
+    |  MINUS  unaryExpr -> ^(UMINUS unaryExpr)
     |  TILDE^ unaryExpr
     |  NOT^   unaryExpr
     |  atom

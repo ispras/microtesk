@@ -553,10 +553,10 @@ unaryExpr [ExprFactory factory, int depth] returns [Expr res]
 checkNotNull($e.start, $e.res, $e.text);
 $res = factory.unary(where($op), $op.text, $e.res);
 }
-    :  ^(op=UNARY_PLUS    e=expr[factory, depth + 1])
-    |  ^(op=UNARY_MINUS   e=expr[factory, depth + 1])
-    |  ^(op=TILDE         e=expr[factory, depth + 1])
-    |  ^(op=NOT           e=expr[factory, depth + 1])
+    :  ^(op=UPLUS   e=expr[factory, depth + 1])
+    |  ^(op=UMINUS  e=expr[factory, depth + 1])
+    |  ^(op=TILDE   e=expr[factory, depth + 1])
+    |  ^(op=NOT     e=expr[factory, depth + 1])
     ;
 
 atom [ExprFactory factory] returns [Expr res]

@@ -82,8 +82,8 @@ final class ExprOperatorUnary extends ExprOperator
 * Supported unary operations:
 * 
 * <pre>
-*  UNARY_PLUS      "UNARY_PLUS"
-*  UNARY_MINUS     "UNARY_MINUS"
+*  UNARY_PLUS      "UPLUS"
+*  UNARY_MINUS     "UMINUS"
 *  TILDE           "~"
 *  NOT             "!"
 * </pre>
@@ -135,7 +135,7 @@ final class ExprUnaryOperators
         };
 
         return new ExprOperatorUnary(
-            "UNARY_PLUS",
+            "UPLUS",
             priority,
             EOperatorID.UNARY_PLUS,
             new ETypeID[] { ETypeID.INT, ETypeID.CARD },
@@ -160,7 +160,7 @@ final class ExprUnaryOperators
         };
 
         return new ExprOperatorUnary(
-            "UNARY_MINUS",
+            "UMINUS",
             priority,
             EOperatorID.UNARY_MINUS,
             new ETypeID[] { ETypeID.INT, ETypeID.CARD },
