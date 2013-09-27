@@ -83,8 +83,8 @@ public final class LocationAtom implements Location
 
     public static final class Bitfield
     {
-        private final Expr     from;
-        private final Expr       to;
+        private final Expr from;
+        private final Expr   to;
         private final Type type;
 
         private Bitfield(Expr from, Expr to, Type type)
