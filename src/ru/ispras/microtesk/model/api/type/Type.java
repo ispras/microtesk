@@ -28,7 +28,7 @@ package ru.ispras.microtesk.model.api.type;
  * @author Andrei Tatarnikov
  */
 
-public class Type
+public final class Type
 {
     private final ETypeID typeID;
     private final     int bitSize;
@@ -41,12 +41,12 @@ public class Type
         this.bitSize = bitSize;
     }
 
-    public final ETypeID getTypeID()
+    public ETypeID getTypeID()
     {
         return typeID;
     }
 
-    public final int getBitSize()
+    public int getBitSize()
     {
         return bitSize;
     }
@@ -69,11 +69,17 @@ public class Type
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        
+
         final Type other = (Type) obj;
-        if (bitSize != other.bitSize) return false;
         if (typeID != other.typeID) return false;
+        if (bitSize != other.bitSize) return false;
 
         return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("Type(%s, %d)", typeID, bitSize);
     }
 }
