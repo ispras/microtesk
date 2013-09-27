@@ -37,6 +37,11 @@ public final class LetConstant
     {
         return expression;
     }
+    
+    public ru.ispras.microtesk.translator.simnml.ir.expression2.Expr getExpr()
+    {
+        return null;
+    }
 
     @Override
     public String toString()

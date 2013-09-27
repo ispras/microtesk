@@ -45,6 +45,12 @@ public final class Type
         return bitSize;
     }
 
+    public ru.ispras.microtesk.translator.simnml.ir.expression2.Expr getBitSize2()
+    {
+        // TODO
+        return null;
+    }
+
     public String getRefName()
     {
         return refName;
