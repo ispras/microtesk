@@ -17,10 +17,18 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 public final class ExprNodeCoercion extends ExprAbstract 
 {
     private final Expr child;
-    
+
     ExprNodeCoercion(Expr child, Type type)
     {
-        super(NodeKind.COERCION, new ValueInfoModel(type));
+        super(NodeKind.COERCION, ValueInfo.createModel(type));
+
+        assert null != child;
+        this.child = child;
+    }
+
+    ExprNodeCoercion(Expr child, Class<?> type)
+    {
+        super(NodeKind.COERCION, ValueInfo.createNativeType(type));
 
         assert null != child;
         this.child = child;
