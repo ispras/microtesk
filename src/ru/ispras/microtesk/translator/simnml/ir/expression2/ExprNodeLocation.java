@@ -20,7 +20,7 @@ public final class ExprNodeLocation extends ExprAbstract
 
     ExprNodeLocation(Location location)
     {
-        super(NodeKind.LOCATION, new ValueInfoModel(location.getType()));
+        super(NodeKind.LOCATION, ValueInfo.createModel(location.getType()));
         this.location = location;
     }
 
