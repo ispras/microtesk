@@ -16,13 +16,13 @@ public final class ExprNodeConst extends ExprAbstract
 {
     private final int radix;
 
-    ExprNodeConst(NativeValue value, int radix)
+    ExprNodeConst(Object value, int radix)
     {
-        super(NodeKind.CONST, new ValueInfoNative(value));
+        super(NodeKind.CONST, ValueInfo.createNative(value));
         this.radix = radix;
     }
 
-    public NativeValue getValue()
+    public Object getValue()
     {
         return getValueInfo().getNativeValue();
     }
