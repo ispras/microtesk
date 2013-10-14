@@ -43,12 +43,12 @@ public abstract class ValueInfo
     {
         return valueKind;
     }
-    
+
     public final boolean isConstant()
     {
         return (ValueKind.NATIVE == valueKind) && (null != getNativeValue());
     }
-    
+
     public boolean hasEqualType(ValueInfo value)
     {
         assert null != value;
@@ -64,7 +64,7 @@ public abstract class ValueInfo
 
         return false;
     }
-    
+
     public abstract Type      getModelType();
     public abstract Class<?> getNativeType();
     public abstract Object  getNativeValue();
@@ -87,7 +87,7 @@ final class ValueInfoModel extends ValueInfo
     {
         return type;
     }
-    
+
     @Override
     public Class<?> getNativeType()
     {
@@ -130,7 +130,7 @@ final class ValueInfoNative extends ValueInfo
 
     private static boolean isSupportedType(Class<?> type)
     {
-        return (type == Integer.class) || (type  == Long.class) || (type  == Boolean.class);
+        return (type == Integer.class) || (type == Long.class) || (type == Boolean.class);
     }
 
     @Override
