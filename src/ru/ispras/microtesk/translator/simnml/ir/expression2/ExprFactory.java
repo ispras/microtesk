@@ -68,8 +68,7 @@ public final class ExprFactory extends WalkerFactoryBase
         return new ExprNodeLocation(location);
     }
 
-    public Expr coerce(
-        Where w, Expr src, Type type) throws SemanticException
+    public Expr coerce(Where w, Expr src, Type type) throws SemanticException
     {
         return new ExprNodeCoercion(src, type);
     }
@@ -77,6 +76,8 @@ public final class ExprFactory extends WalkerFactoryBase
     public Expr operator(
         Where w, ValueKind target, String id, Expr ... operands) throws SemanticException
     {
+        assert operands.length == 1 || operands.length == 2;
+
         final Operator op = Operator.forText(id);
 
         if (null == op)
@@ -89,15 +90,24 @@ public final class ExprFactory extends WalkerFactoryBase
             new ArrayList<ValueInfo>(operands.length);
 
         for(Expr operand : operands)
+        {
+            final ValueInfo vi = operand.getValueInfo();
+
+            assert ValueKind.MODEL  == vi.getValueKind() || 
+                   ValueKind.NATIVE == vi.getValueKind();
+
             values.add(operand.getValueInfo());
+        }
 
         final ValueInfo result = calculate(w, target, op, values);
         return new ExprNodeOperator(op, Arrays.asList(operands), result);
     }
-    
-    private ValueInfo calculate(Where w, ValueKind target, Operator op, List<ValueInfo> values)
+
+    private ValueInfo calculate(
+        Where w, ValueKind target, Operator op, List<ValueInfo> values) throws SemanticException
     {
-        return null;
+        final ValueInfoCalculator calculator = new ValueInfoCalculator(this, w, target, op);
+        return calculator.calculate(values);
     }
 }
 
