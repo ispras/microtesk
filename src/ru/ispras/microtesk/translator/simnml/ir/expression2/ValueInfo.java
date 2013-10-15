@@ -152,6 +152,12 @@ public abstract class ValueInfo
     public abstract Object getNativeValue();
 }
 
+/**
+ * Value information implementation for values based on MicroTESK Model API values.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 final class ValueInfoModel extends ValueInfo
 {
     private final Type type;
@@ -184,6 +190,12 @@ final class ValueInfoModel extends ValueInfo
         return null;
     }
 }
+
+/**
+ * Value information implementation for values based on native Java values (Integer, Long, Boolean).
+ * 
+ * @author Andrei Tatarnikov
+ */
 
 final class ValueInfoNative extends ValueInfo 
 {
