@@ -107,8 +107,8 @@ public final class ExprFactory extends WalkerFactoryBase
         if (!op.getLogic().isSupportedFor(castValueInfo))
             getReporter().raiseError(w, new UnsupportedOperandType(op, castValueInfo));
 
-        final ValueInfo result = null;
-        return new ExprNodeOperator(op, Arrays.asList(operands), result);
+        final ValueInfo resultValueInfo = op.getLogic().calculate(castValueInfo, values);
+        return new ExprNodeOperator(op, Arrays.asList(operands), resultValueInfo, castValueInfo);
     }
 }
 

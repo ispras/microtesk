@@ -18,16 +18,19 @@ public final class ExprNodeOperator extends ExprAbstract
 {
     private final Operator   operator;
     private final List<Expr> operands;
+    private final ValueInfo      cast;
 
-    ExprNodeOperator(Operator operator, List<Expr> operands, ValueInfo info)
+    ExprNodeOperator(Operator operator, List<Expr> operands, ValueInfo resultValueInfo, ValueInfo castValueInfo)
     {
-        super(NodeKind.OPERATOR, info);
+        super(NodeKind.OPERATOR, resultValueInfo);
 
         assert null != operator;
         this.operator = operator;
 
         assert null != operands;
         this.operands = operands;
+
+        this.cast = castValueInfo;
     }
 
     public Operator getOperator()
@@ -38,5 +41,10 @@ public final class ExprNodeOperator extends ExprAbstract
     public List<Expr> getOperands()
     {
         return operands;
+    }
+
+    public ValueInfo getCast()
+    {
+        return cast;
     }
 }

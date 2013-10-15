@@ -182,5 +182,10 @@ abstract class OperatorLogic
 
         return (null != nativeTypes) && !nativeTypes.isEmpty();
     }
+
+    public final ValueInfo calculate(ValueInfo castValueInfo, List<ValueInfo> values)
+    {
+        return null;
+    }
 }
 
