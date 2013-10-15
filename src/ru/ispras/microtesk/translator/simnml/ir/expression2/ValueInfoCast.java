@@ -12,7 +12,6 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
@@ -20,70 +19,54 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class ValueInfoCast
 {
-    public static List<ValueInfo> cast(ValueKind target, List<ValueInfo> values)
-    {
-        assert values.size() == 1 || values.size() == 2;
+    /**
+     * Returns a value information object describing the type values should be cast to in order to be used as operands
+     * of some operator. If value types are incompatible and cannot be cast, <code>null</code> is returned.
+     * 
+     * If a value information object describing an operand refers to a constant value, the value is cast to
+     * a corresponding type and the value information object is updated. In other cases, value elements stay unchanged.     
+     * 
+     * @param target Preferred value kind (MODEL or NATIVE), needed when values have different kinds.   
+     * @param values Value information objects describing arguments. Modified if holds a constant value that requires a cast.
+     * @return Value information object describing the target value type or <code>null</code> is value types are incompatible. 
+     */
 
-        if (values.size() < 2)
-            return values;
+    public static ValueInfo getCast(ValueKind target, List<ValueInfo> values)
+    {
+        assert Operands.UNARY.count()  == values.size() ||
+               Operands.BINARY.count() == values.size();
+
+        if (Operands.UNARY.count() == values.size())
+            return values.get(0).typeInfoOnly();
 
         final ValueInfo left  = values.get(0); 
         final ValueInfo right = values.get(1);
 
         if (left.hasEqualType(right))
-            return values;
+            return left.typeInfoOnly();
 
         if (left.getValueKind() != right.getValueKind())
-            return castMixed(target, values);
+            return getCastMixed(target, values);
 
         if (ValueKind.MODEL == left.getValueKind())
-            return castModel(values);
+            return getCastModel(values);
         else
-            return castNative(values);
+            return getCastNative(values);
     }
 
-    private static List<ValueInfo> castMixed(ValueKind target, List<ValueInfo> values)
+    private static ValueInfo getCastMixed(ValueKind target, List<ValueInfo> values)
     {
-        ValueInfo castValueInfo = null;
         for (ValueInfo vi : values)
         {
             if (vi.getValueKind() == target)
-            {
-                if (vi.isConstant())
-                {    
-                    castValueInfo = ValueKind.MODEL == vi.getValueKind() ?
-                        ValueInfo.createModel(vi.getModelType()) :
-                        ValueInfo.createNativeType(vi.getNativeType());
-                }
-                else
-                {
-                    castValueInfo = vi;
-                }
-
-                break;
-            }
+                return vi.typeInfoOnly();
         }
 
-        if (null == castValueInfo)
-        {
-            assert false;
-            return null;
-        }
-
-        final List<ValueInfo> result = new ArrayList<ValueInfo>(values.size());
-
-        for (ValueInfo vi : values)
-        {
-            if (vi.hasEqualType(castValueInfo))
-                result.add(vi);
-            else
-                result.add(castValueInfo);
-        }
-
-        return result;
+        assert false; 
+        return null;
     }
 
-    private static List<ValueInfo> castModel(List<ValueInfo> values)
+    private static ValueInfo getCastModel(List<ValueInfo> values)
     {
         final Type castType =
             ModelTypeCastRules.getCastType(values.get(0).getModelType(), values.get(1).getModelType());
@@ -91,20 +74,10 @@ public final class ValueInfoCast
         if (null == castType)
             return null;
 
-        final List<ValueInfo> result = new ArrayList<ValueInfo>(values.size());
-
-        for (ValueInfo vi : values)
-        {
-            if (vi.getModelType().equals(castType))
-                result.add(vi);
-            else
-                result.add(ValueInfo.createModel(castType));
-        }
-
-        return result;
+        return ValueInfo.createModel(castType);
     }
 
-    private static List<ValueInfo> castNative(List<ValueInfo> values)
+    private static ValueInfo getCastNative(List<ValueInfo> values)
     {
         final Class<?> castType = 
             NativeTypeCastRules.getCastType(values.get(0).getNativeType(), values.get(1).getNativeType());
@@ -112,26 +85,17 @@ public final class ValueInfoCast
         if (null == castType)
             return null;
 
-        final List<ValueInfo> result = new ArrayList<ValueInfo>(values.size());
-
-        for (ValueInfo vi : values)
+        for (int index = 0; index < values.size(); ++index)
         {
-            if (vi.getNativeType() == castType)
-            {
-                result.add(vi);
-            }
-            else if (vi.isConstant())
+            final ValueInfo vi = values.get(index); 
+            if (vi.isConstant())
             {
                 final Object value = NativeTypeCastRules.castTo(castType, vi.getNativeValue());
-                result.add(ValueInfo.createNative(value));
-            }
-            else
-            {
-                result.add(ValueInfo.createNativeType(castType));
+                values.set(index, ValueInfo.createNative(value));
             }
         }
 
-        return result;
+        return ValueInfo.createNativeType(castType);
     }
 }
 
