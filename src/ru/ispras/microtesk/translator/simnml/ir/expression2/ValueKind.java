@@ -12,8 +12,17 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
+/**
+ * Specifies the kind of a value stored in an expression terminal or produced as a result of an operation.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public enum ValueKind
 {
+    /** MicroTESK Model API value. */
     MODEL,
+    
+    /** Native Java value. */
     NATIVE
 }
