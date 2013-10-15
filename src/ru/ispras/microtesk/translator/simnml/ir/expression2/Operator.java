@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,7 +82,7 @@ public enum Operator
     private final String  text;
     private final int priority;
     private final int operands;
-    
+
     private final OperatorLogic logic;
 
     private Operator(
@@ -111,7 +112,7 @@ public enum Operator
     {
         return operands;
     }
-    
+
     OperatorLogic getLogic()
     {
         return logic; 
@@ -124,7 +125,7 @@ public enum Operator
 }
 
 /**
- * Provides constants to specify number of operands used by operators. 
+ * Provides constants to specify number of operands used by operators.
  * 
  * @author Andrei Tatarnikov
  */
@@ -135,10 +136,11 @@ enum Operands
     BINARY(2);
 
     Operands(int count) { this.count = count; }
-    int count()         { return count; } 
+    int count()         { return count; }
 
     private final int count;
 }
+
 
 abstract class OperatorLogic
 {
@@ -170,9 +172,9 @@ abstract class OperatorLogic
             return false;
 
         if (ValueKind.MODEL == value.getValueKind())
-            return modelTypes.contains(value.getModelType().getTypeId());
+            return isSupportedFor(value.getModelType().getTypeId());
 
-        return nativeTypes.contains(value.getNativeType());
+        return isSupportedFor(value.getNativeType());
     }
 
     public final boolean isSupportedFor(ValueKind kind)
@@ -183,7 +185,51 @@ abstract class OperatorLogic
         return (null != nativeTypes) && !nativeTypes.isEmpty();
     }
 
+    public final boolean isSupportedFor(ETypeID typeId)
+    {
+        return (null != modelTypes) && modelTypes.contains(typeId);
+    }
+
+    public final boolean isSupportedFor(Class<?> type)
+    {
+        return (null != nativeTypes) && nativeTypes.contains(type);
+    }
+
     public final ValueInfo calculate(ValueInfo castValueInfo, List<ValueInfo> values)
+    {
+        assert isSupportedFor(castValueInfo);
+
+        if (ValueKind.MODEL == castValueInfo.getValueKind())
+        {
+            return (null != modelResultType) ?
+                ValueInfo.createModel(modelResultType) : castValueInfo;
+        }
+
+        assert ValueKind.NATIVE == castValueInfo.getValueKind();
+        if (!allValuesConstant(values))
+        {
+            return (null != nativeResultType) ?
+                ValueInfo.createNativeType(nativeResultType) : castValueInfo;
+        }
+
+        final List<Object> nativeValues = new ArrayList<Object>(values.size()); 
+        for (ValueInfo vi : values)
+            nativeValues.add(vi.getNativeValue());
+
+        final Object result = calculateNative(castValueInfo.getNativeType(), nativeValues);
+        return ValueInfo.createNative(result);
+    }
+
+    private static final boolean allValuesConstant(List<ValueInfo> values)
+    {
+        for (ValueInfo vi : values)
+            if (!vi.isConstant())
+                return false;
+
+        return true;
+    }
+
+    private Object calculateNative(Class<?> type, List<Object> values)
     {
         return null;
     }
