@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
@@ -76,7 +77,8 @@ public final class ExprFactory extends WalkerFactoryBase
     public Expr operator(
         Where w, ValueKind target, String id, Expr ... operands) throws SemanticException
     {
-        assert operands.length == 1 || operands.length == 2;
+        assert Operands.UNARY.count() == operands.length ||
+               Operands.BINARY.count() == operands.length;
 
         final Operator op = Operator.forText(id);
 
@@ -92,12 +94,15 @@ public final class ExprFactory extends WalkerFactoryBase
         for(Expr operand : operands)
         {
             final ValueInfo vi = operand.getValueInfo();
-
-            assert ValueKind.MODEL  == vi.getValueKind() || 
-                   ValueKind.NATIVE == vi.getValueKind();
-
-            values.add(operand.getValueInfo());
+            assert ValueKind.MODEL == vi.getValueKind() || ValueKind.NATIVE == vi.getValueKind();
+            values.add(vi);
         }
+
+        final ValueInfo castValueInfo =
+            ValueInfoCast.getCast(target, values);
+
+        if (null == castValueInfo)
+            getReporter().raiseError(w, new IncompatibleTypes(values));
 
         final ValueInfo result = calculate(w, target, op, values);
         return new ExprNodeOperator(op, Arrays.asList(operands), result);
@@ -111,7 +116,7 @@ public final class ExprFactory extends WalkerFactoryBase
     }
 }
 
-class UnsupportedOperator extends SemanticError
+final class UnsupportedOperator extends SemanticError
 {
     private static final String FORMAT = "The %s operator is not supported.";
 
@@ -121,12 +126,38 @@ class UnsupportedOperator extends SemanticError
     }
 }
 
-class OperandNumberMismatch extends SemanticError
+final class OperandNumberMismatch extends SemanticError
 {
     private static final String FORMAT = "The %s operator requires %d operands.";
 
     public OperandNumberMismatch(String op, int operands)
     {
         super(String.format(FORMAT, op, operands));
+    }
+}
+
+final class IncompatibleTypes implements ISemanticError
+{
+    private static final String FORMAT = "Incompatible types: %s.";
+
+    private final List<ValueInfo> values;
+
+    public IncompatibleTypes(List<ValueInfo> values)
+    {
+        this.values = values;
+    }
+
+    @Override
+    public String getMessage()
+    {
+        final StringBuilder sb = new StringBuilder();
+
+        for (ValueInfo vi : values)
+        {
+            if (sb.length() != 0) sb.append(", ");
+            sb.append(vi.getTypeName());
+        }
+
+        return String.format(FORMAT, sb.toString());
     }
 }
