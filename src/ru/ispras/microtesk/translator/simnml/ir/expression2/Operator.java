@@ -12,57 +12,52 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public enum Operator
 {
-    OR       ("||",  Priority.CURRENT, Operands.BINARY),
-    AND      ("&&",  Priority.HIGHER,  Operands.BINARY),
+    OR       ("||",  Priority.CURRENT, Operands.BINARY, null),
+    AND      ("&&",  Priority.HIGHER,  Operands.BINARY, null),
 
-    BIT_OR   ("|",   Priority.HIGHER,  Operands.BINARY),
-    BIT_XOR  ("^",   Priority.HIGHER,  Operands.BINARY),
-    BIT_AND  ("&",   Priority.HIGHER,  Operands.BINARY),
+    BIT_OR   ("|",   Priority.HIGHER,  Operands.BINARY, null),
+    BIT_XOR  ("^",   Priority.HIGHER,  Operands.BINARY, null),
+    BIT_AND  ("&",   Priority.HIGHER,  Operands.BINARY, null),
 
-    EQ       ("==",  Priority.HIGHER,  Operands.BINARY),
-    NOT_EQ   ("!=",  Priority.CURRENT, Operands.BINARY),
+    EQ       ("==",  Priority.HIGHER,  Operands.BINARY, null),
+    NOT_EQ   ("!=",  Priority.CURRENT, Operands.BINARY, null),
 
-    LEQ      ("<=",  Priority.HIGHER,  Operands.BINARY),
-    GEQ      (">=",  Priority.CURRENT, Operands.BINARY),
-    LESS     ("<",   Priority.CURRENT, Operands.BINARY),
-    GREATER  (">",   Priority.CURRENT, Operands.BINARY),
+    LEQ      ("<=",  Priority.HIGHER,  Operands.BINARY, null),
+    GEQ      (">=",  Priority.CURRENT, Operands.BINARY, null),
+    LESS     ("<",   Priority.CURRENT, Operands.BINARY, null),
+    GREATER  (">",   Priority.CURRENT, Operands.BINARY, null),
 
-    L_SHIFT  ("<<",  Priority.HIGHER,  Operands.BINARY),
-    R_SHIFT  (">>",  Priority.CURRENT, Operands.BINARY),
-    L_ROTATE ("<<<", Priority.CURRENT, Operands.BINARY),
-    R_ROTATE (">>>", Priority.CURRENT, Operands.BINARY),
+    L_SHIFT  ("<<",  Priority.HIGHER,  Operands.BINARY, null),
+    R_SHIFT  (">>",  Priority.CURRENT, Operands.BINARY, null),
+    L_ROTATE ("<<<", Priority.CURRENT, Operands.BINARY, null),
+    R_ROTATE (">>>", Priority.CURRENT, Operands.BINARY, null),
 
-    PLUS     ("+",   Priority.HIGHER,  Operands.BINARY),
-    MINUS    ("-",   Priority.CURRENT, Operands.BINARY),
+    PLUS     ("+",   Priority.HIGHER,  Operands.BINARY, null),
+    MINUS    ("-",   Priority.CURRENT, Operands.BINARY, null),
 
-    MUL      ("*",   Priority.HIGHER,  Operands.BINARY),
-    DIV      ("/",   Priority.CURRENT, Operands.BINARY), 
-    MOD      ("%",   Priority.CURRENT, Operands.BINARY),
+    MUL      ("*",   Priority.HIGHER,  Operands.BINARY, null),
+    DIV      ("/",   Priority.CURRENT, Operands.BINARY, null), 
+    MOD      ("%",   Priority.CURRENT, Operands.BINARY, null),
 
-    POW      ("**",  Priority.HIGHER,  Operands.BINARY),
+    POW      ("**",  Priority.HIGHER,  Operands.BINARY, null),
 
-
-    UPLUS  ("UPLUS", Priority.HIGHER,  Operands.UNARY),
-    UMINUS ("UMINUS",Priority.CURRENT, Operands.UNARY),
-    BIT_NOT  ("~",   Priority.CURRENT, Operands.UNARY),
-    NOT      ("!",   Priority.CURRENT, Operands.UNARY)
+    UPLUS  ("UPLUS", Priority.HIGHER,  Operands.UNARY,  null),
+    UMINUS ("UMINUS",Priority.CURRENT, Operands.UNARY,  null),
+    BIT_NOT  ("~",   Priority.CURRENT, Operands.UNARY,  null),
+    NOT      ("!",   Priority.CURRENT, Operands.UNARY,  null)
     ;
-
-    private static enum Operands
-    {
-        UNARY(1),
-        BINARY(2);
-
-        Operands(int value) { this.value = value; }
-        int value()         { return value; } 
-
-        private final int value;
-    }
 
     private static enum Priority
     {
@@ -86,16 +81,20 @@ public enum Operator
     private final String  text;
     private final int priority;
     private final int operands;
+    
+    private final OperatorLogic logic;
 
     private Operator(
         String text,
         Priority priority,
-        Operands operands
+        Operands operands,
+        OperatorLogic logic
         )
     {
-        this.text = text;
+        this.text     = text;
         this.priority = priority.value();
-        this.operands = operands.value();
+        this.operands = operands.count();
+        this.logic    = logic;
     }
 
     public String text()
@@ -112,9 +111,76 @@ public enum Operator
     {
         return operands;
     }
+    
+    OperatorLogic getLogic()
+    {
+        return logic; 
+    }
 
     public static Operator forText(String text)
     {
         return operators.get(text);
     }
 }
+
+/**
+ * Provides constants to specify number of operands used by operators. 
+ * 
+ * @author Andrei Tatarnikov
+ */
+
+enum Operands
+{
+    UNARY(1),
+    BINARY(2);
+
+    Operands(int count) { this.count = count; }
+    int count()         { return count; } 
+
+    private final int count;
+}
+
+abstract class OperatorLogic
+{
+    private final Set<ETypeID>   modelTypes;
+    private final Set<Class<?>> nativeTypes;
+
+    private final Type      modelResultType;
+    private final Class<?> nativeResultType;
+
+    public OperatorLogic(
+        List<ETypeID> modelTypes, List<Class<?>> nativeTypes, Type modelResultType, Class<?> nativeResultType)
+    {
+        this.modelTypes = EnumSet.copyOf(modelTypes);
+        this.nativeTypes = new HashSet<Class<?>>(nativeTypes);
+
+        this.modelResultType = modelResultType;
+        this.nativeResultType = nativeResultType;
+    }
+
+    public OperatorLogic(
+        List<ETypeID> modelTypes, List<Class<?>> nativeTypes)
+    {
+        this(modelTypes, nativeTypes, null, null);
+    }
+
+    public final boolean isSupportedFor(ValueInfo value)
+    {
+        if (!isSupportedFor(value.getValueKind()))
+            return false;
+
+        if (ValueKind.MODEL == value.getValueKind())
+            return modelTypes.contains(value.getModelType().getTypeId());
+
+        return nativeTypes.contains(value.getNativeType());
+    }
+
+    public final boolean isSupportedFor(ValueKind kind)
+    {
+        if (ValueKind.MODEL == kind)
+            return (null != modelTypes) && !modelTypes.isEmpty();
+
+        return (null != nativeTypes) && !nativeTypes.isEmpty();
+    }
+}
+

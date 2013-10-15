@@ -104,15 +104,11 @@ public final class ExprFactory extends WalkerFactoryBase
         if (null == castValueInfo)
             getReporter().raiseError(w, new IncompatibleTypes(values));
 
-        final ValueInfo result = calculate(w, target, op, values);
-        return new ExprNodeOperator(op, Arrays.asList(operands), result);
-    }
+        if (!op.getLogic().isSupportedFor(castValueInfo))
+            getReporter().raiseError(w, new UnsupportedOperandType(op, castValueInfo));
 
-    private ValueInfo calculate(
-        Where w, ValueKind target, Operator op, List<ValueInfo> values) throws SemanticException
-    {
-        final ValueInfoCalculator calculator = new ValueInfoCalculator(this, w, target, op);
-        return calculator.calculate(values);
+        final ValueInfo result = null;
+        return new ExprNodeOperator(op, Arrays.asList(operands), result);
     }
 }
 
@@ -159,5 +155,15 @@ final class IncompatibleTypes implements ISemanticError
         }
 
         return String.format(FORMAT, sb.toString());
+    }
+}
+
+final class UnsupportedOperandType extends SemanticError
+{
+    private static final String FORMAT = "The %s type is not supported by the %s operator.";
+
+    public UnsupportedOperandType(Operator op, ValueInfo vi)
+    {
+        super(String.format(FORMAT, vi.getTypeName(), op.text()));
     }
 }
