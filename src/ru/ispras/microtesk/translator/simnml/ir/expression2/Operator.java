@@ -143,6 +143,8 @@ enum Operands
 
 abstract class OperatorLogic
 {
+    private Map<Class<?>, Action>   actions = null;
+    
     private final Set<ETypeID>   modelTypes;
     private final Set<Class<?>> nativeTypes;
 
@@ -230,7 +232,28 @@ abstract class OperatorLogic
 
     private Object calculateNative(Class<?> type, List<Object> values)
     {
-        return null;
+        final Action action = actions.get(type);
+        assert action.getOperands().count() == values.size(); 
+
+        if (Operands.UNARY == action.getOperands())
+            return ((UnaryAction) action).calculate(values.get(0));
+
+        return ((BinaryAction) action).calculate(values.get(0), values.get(1));
     }
 }
 
+interface Action
+{
+    public Class<?>     getType();
+    public Operands getOperands();
+}
+
+interface UnaryAction extends Action
+{
+    public Object calculate(Object value);
+}
+
+interface BinaryAction extends Action
+{
+    public Object calculate(Object left, Object right);
+}
