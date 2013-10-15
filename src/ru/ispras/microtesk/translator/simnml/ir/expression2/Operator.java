@@ -141,7 +141,6 @@ enum Operands
     private final int count;
 }
 
-
 abstract class OperatorLogic
 {
     private final Set<ETypeID>   modelTypes;
