@@ -128,6 +128,20 @@ public abstract class ValueInfo
     }
 
     /**
+     * Returns a string identifying the type of the stored value.
+     * 
+     * @return Type name string.
+     */
+
+    public final String getTypeName()
+    {
+        if (ValueKind.NATIVE == getValueKind())
+            return getNativeType().getSimpleName();
+
+        return getModelType().getTypeName();
+    }
+
+    /**
      * Returns Model API type description if the object refers to a Model API value. 
      * 
      * @return Model API type description for MODEL values or <code>null</code> for NATIVE values.
