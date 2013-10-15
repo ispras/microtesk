@@ -14,17 +14,45 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
+/**
+ * The ValueInfo class holds information about a value associated with an expression node
+ * (it may be a value hold by a terminal or a value calculated as a result of some expression). 
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public abstract class ValueInfo
 {
+    /**
+     * Creates a value information object basing on a MicroTESK Model API type description.
+     * 
+     * @param type MicroTESK Model API type description.
+     * @return Value information.
+     */
+
     public static ValueInfo createModel(Type type)
     {
         return new ValueInfoModel(type);
     }
 
+    /**
+     * Creates a value information object basing on a native Java value (Integer, Long or Boolean).
+     * 
+     * @param value Integer, Long or Boolean value.
+     * @return Value information.
+     */
+
     public static ValueInfo createNative(Object value)
     {
         return new ValueInfoNative(value);
     }
+
+    /**
+     * Creates a value information object basing on a native Java type (Integer, Long or Boolean).
+     * 
+     * @param type Native Java type (Integer.class, Long.class or Boolean.class).
+     * @return Value information.
+     */
 
     public static ValueInfo createNativeType(Class<?> type)
     {
@@ -38,16 +66,50 @@ public abstract class ValueInfo
         assert null != valueKind;
         this.valueKind = valueKind;
     }
+    
+    /**
+     * Returns the kind of the referenced value (model API or native Java).
+     * 
+     * @return  MODEL (MicroTESK Model API) or NATIVE (Java)
+     */
 
     public final ValueKind getValueKind()
     {
         return valueKind;
     }
 
+    /**
+     * Returns <code>true</code> if the object holds a statically calculated Java constant value.
+     * 
+     * @return <code>true</code> for a statically calculated constant value or <code>false</code> is all other cases. 
+     */
+
     public final boolean isConstant()
     {
         return (ValueKind.NATIVE == valueKind) && (null != getNativeValue());
     }
+
+    /**
+     * Returns a value information object that holds only type information (does not include a constant value).
+     * Returns <code>this</code> for non-constant values.
+     *  
+     * @return Value information object that holds type information only.
+     */
+
+    public final ValueInfo typeInfoOnly()
+    {
+        if (isConstant())
+            return createNativeType(getNativeType());
+
+        return this;
+    }
+
+    /**
+     * Checks whether both objects refer to values that have the same type.
+     * 
+     * @param value Value information object to be compared.
+     * @return <code>true</code> for equal types, <code>false</code> otherwise.
+     */
 
     public boolean hasEqualType(ValueInfo value)
     {
@@ -65,9 +127,29 @@ public abstract class ValueInfo
         return false;
     }
 
-    public abstract Type      getModelType();
+    /**
+     * Returns Model API type description if the object refers to a Model API value. 
+     * 
+     * @return Model API type description for MODEL values or <code>null</code> for NATIVE values.
+     */
+
+    public abstract Type getModelType();
+
+    /**
+     * Returns Java type information (Class<?>) if the object refers to a native Java value.
+     * 
+     * @return Java type information (Class<?>) for NATIVE values or <code>null</code> for MODEL values.
+     */
+
     public abstract Class<?> getNativeType();
-    public abstract Object  getNativeValue();
+
+    /**
+     * Returns a value (Integer, Long or Boolean) if the object refers to a statically calculated Java constant value.  
+     * 
+     * @return Java value (Integer, Long or Boolean) for constant value or <code>null</code> for non-constant values.
+     */
+
+    public abstract Object getNativeValue();
 }
 
 final class ValueInfoModel extends ValueInfo
