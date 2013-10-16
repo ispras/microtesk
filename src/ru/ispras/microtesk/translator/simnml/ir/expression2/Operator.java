@@ -406,6 +406,17 @@ public enum Operator
         private static int priorityCounter = 0;
     }
 
+    public static enum Operands
+    {
+        UNARY(1),
+        BINARY(2);
+
+        Operands(int count) { this.count = count; }
+        int count()         { return count; }
+
+        private final int count;
+    }
+    
     private static final Map<String, Operator> operators;
     static
     {
@@ -481,12 +492,7 @@ public enum Operator
         }
 
         this.logic = new Logic(
-            EnumSet.copyOf(modelTypes),
-            nativeTypeSet,
-            modelResultType,
-            nativeResultType,
-            actionMap
-            );
+            EnumSet.copyOf(modelTypes), nativeTypeSet, modelResultType, nativeResultType, actionMap);
     }
 
     public String text()
@@ -504,174 +510,161 @@ public enum Operator
         return operands;
     }
 
-    Logic getLogic()
-    {
-        return logic; 
-    }
-}
-
-/**
- * Provides constants to specify number of operands used by operators.
- * 
- * @author Andrei Tatarnikov
- */
-
-enum Operands
-{
-    UNARY(1),
-    BINARY(2);
-
-    Operands(int count) { this.count = count; }
-    int count()         { return count; }
-
-    private final int count;
-}
-
-final class Logic
-{
-    private final Set<ETypeID>   modelTypes;
-    private final Set<Class<?>> nativeTypes;
-
-    private final Type      modelResultType;
-    private final Class<?> nativeResultType;
-
-    private Map<Class<?>, Action>   actions;
-
-    public Logic(
-        Set<ETypeID>       modelTypes,
-        Set<Class<?>>     nativeTypes,
-        Type          modelResultType,
-        Class<?>     nativeResultType,
-        Map<Class<?>, Action> actions
-        )
-    {
-        this.modelTypes  = modelTypes;
-        this.nativeTypes = nativeTypes;
-
-        this.modelResultType  = modelResultType;
-        this.nativeResultType = nativeResultType;
-
-        this.actions = actions; 
+    ValueInfo calculate(ValueInfo cast, List<ValueInfo> values)
+    { 
+        return logic.calculate(cast, values);
     }
 
-    public boolean isSupportedFor(ValueInfo value)
+    boolean isSupportedFor(ValueInfo value)
     {
-        if (!isSupportedFor(value.getValueKind()))
-            return false;
-
-        if (ValueKind.MODEL == value.getValueKind())
-            return isSupportedFor(value.getModelType().getTypeId());
-
-        return isSupportedFor(value.getNativeType());
+        return logic.isSupportedFor(value);
     }
 
-    public boolean isSupportedFor(ValueKind kind)
+    boolean isSupportedFor(ValueKind kind)
     {
-        if (ValueKind.MODEL == kind)
-            return !modelTypes.isEmpty();
-
-        return !nativeTypes.isEmpty();
+        return logic.isSupportedFor(kind);
     }
 
-    public boolean isSupportedFor(ETypeID typeId)
+    boolean isSupportedFor(ETypeID typeId)
     {
-        return modelTypes.contains(typeId);
+        return logic.isSupportedFor(typeId);
     }
 
-    public boolean isSupportedFor(Class<?> type)
-    {
-        return nativeTypes.contains(type);
+    boolean isSupportedFor(Class<?> type)
+    { 
+        return logic.isSupportedFor(type);
     }
 
-    public ValueInfo calculate(ValueInfo castValueInfo, List<ValueInfo> values)
+    private static abstract class Action
     {
-        assert isSupportedFor(castValueInfo);
+        private final Class<?>     type;
+        private final Operands operands;
 
-        if (ValueKind.MODEL == castValueInfo.getValueKind())
+        public Action(Class<?> type, Operands operands)
         {
-            return (null != modelResultType) ?
-                ValueInfo.createModel(modelResultType) : castValueInfo;
+            assert null != type; 
+            assert null != operands;
+
+            this.type = type;
+            this.operands = operands;
         }
 
-        assert ValueKind.NATIVE == castValueInfo.getValueKind();
-        if (!allValuesConstant(values))
-        {
-            return (null != nativeResultType) ?
-                ValueInfo.createNativeType(nativeResultType) : castValueInfo;
-        }
-
-        final List<Object> nativeValues = new ArrayList<Object>(values.size()); 
-        for (ValueInfo vi : values)
-            nativeValues.add(vi.getNativeValue());
-
-        final Object result = calculateNative(castValueInfo.getNativeType(), nativeValues);
-        return ValueInfo.createNative(result);
+        public final Class<?> getType()     { return type; }
+        public final Operands getOperands() { return operands; }
     }
 
-    private static boolean allValuesConstant(List<ValueInfo> values)
+    private static abstract class UnaryAction extends Action
     {
-        for (ValueInfo vi : values)
-            if (!vi.isConstant())
+        public UnaryAction(Class<?> type) { super(type, Operands.UNARY); }
+        public abstract Object calculate(Object value);
+    }
+
+    private static abstract class BinaryAction extends Action
+    {
+        public BinaryAction(Class<?> type) { super(type, Operands.BINARY); }
+        public abstract Object calculate(Object left, Object right);
+    }
+    
+    private static final class Logic
+    {
+        private final Set<ETypeID>   modelTypes;
+        private final Set<Class<?>> nativeTypes;
+
+        private final Type      modelResultType;
+        private final Class<?> nativeResultType;
+
+        private Map<Class<?>, Action>   actions;
+
+        public Logic(
+            Set<ETypeID>       modelTypes,
+            Set<Class<?>>     nativeTypes,
+            Type          modelResultType,
+            Class<?>     nativeResultType,
+            Map<Class<?>, Action> actions
+            )
+        {
+            this.modelTypes = modelTypes;
+            this.nativeTypes = nativeTypes;
+
+            this.modelResultType = modelResultType;
+            this.nativeResultType = nativeResultType;
+
+            this.actions = actions; 
+        }
+
+        public boolean isSupportedFor(ValueInfo value)
+        {
+            if (!isSupportedFor(value.getValueKind()))
                 return false;
 
-        return true;
+            if (ValueKind.MODEL == value.getValueKind())
+                return isSupportedFor(value.getModelType().getTypeId());
+
+            return isSupportedFor(value.getNativeType());
+        }
+
+        public boolean isSupportedFor(ValueKind kind)
+        {
+            if (ValueKind.MODEL == kind)
+                return !modelTypes.isEmpty();
+
+            return !nativeTypes.isEmpty();
+        }
+
+        public boolean isSupportedFor(ETypeID typeId)
+        {
+            return modelTypes.contains(typeId);
+        }
+
+        public boolean isSupportedFor(Class<?> type)
+        {
+            return nativeTypes.contains(type);
+        }
+
+        public ValueInfo calculate(ValueInfo castValueInfo, List<ValueInfo> values)
+        {
+            assert isSupportedFor(castValueInfo);
+
+            if (ValueKind.MODEL == castValueInfo.getValueKind())
+            {
+                return (null != modelResultType) ?
+                    ValueInfo.createModel(modelResultType) : castValueInfo;
+            }
+
+            assert ValueKind.NATIVE == castValueInfo.getValueKind();
+            if (!allValuesConstant(values))
+            {
+                return (null != nativeResultType) ?
+                    ValueInfo.createNativeType(nativeResultType) : castValueInfo;
+            }
+
+            final List<Object> nativeValues = new ArrayList<Object>(values.size()); 
+            for (ValueInfo vi : values)
+                nativeValues.add(vi.getNativeValue());
+
+            final Object result = calculateNative(castValueInfo.getNativeType(), nativeValues);
+            return ValueInfo.createNative(result);
+        }
+
+        private static boolean allValuesConstant(List<ValueInfo> values)
+        {
+            for (ValueInfo vi : values)
+                if (!vi.isConstant()) return false;
+
+            return true;
+        }
+
+        private Object calculateNative(Class<?> type, List<Object> values)
+        {
+            final Action action = actions.get(type);
+
+            assert null != action;
+            assert action.getOperands().count() == values.size(); 
+
+            if (Operands.UNARY == action.getOperands())
+                return ((UnaryAction) action).calculate(values.get(0));
+
+            return ((BinaryAction) action).calculate(values.get(0), values.get(1));
+        }
     }
-
-    private Object calculateNative(Class<?> type, List<Object> values)
-    {
-        final Action action = actions.get(type);
-
-        assert null != action;
-        assert action.getOperands().count() == values.size(); 
-
-        if (Operands.UNARY == action.getOperands())
-            return ((UnaryAction) action).calculate(values.get(0));
-
-        return ((BinaryAction) action).calculate(values.get(0), values.get(1));
-    }
-}
-
-abstract class Action
-{
-    private final Class<?>     type;
-    private final Operands operands;
-
-    public Action(Class<?> type, Operands operands)
-    {
-        assert null != type;
-        assert null != operands;
-
-        this.type = type;
-        this.operands = operands;
-    }
-
-    public final Class<?> getType()
-    {
-        return type;
-    }
-
-    public final Operands getOperands()
-    {
-        return operands;
-    }
-}
-
-abstract class UnaryAction extends Action
-{
-    public UnaryAction(Class<?> type)
-    {
-        super(type, Operands.UNARY); 
-    }
-
-    public abstract Object calculate(Object value);
-}
-
-abstract class BinaryAction extends Action
-{
-    public BinaryAction(Class<?> type)
-    {
-        super(type, Operands.BINARY); 
-    }
-
-    public abstract Object calculate(Object left, Object right);
 }

@@ -77,8 +77,8 @@ public final class ExprFactory extends WalkerFactoryBase
     public Expr operator(
         Where w, ValueKind target, String id, Expr ... operands) throws SemanticException
     {
-        assert Operands.UNARY.count() == operands.length ||
-               Operands.BINARY.count() == operands.length;
+        assert Operator.Operands.UNARY.count() == operands.length ||
+               Operator.Operands.BINARY.count() == operands.length;
 
         final Operator op = Operator.forText(id);
 
@@ -104,10 +104,10 @@ public final class ExprFactory extends WalkerFactoryBase
         if (null == castValueInfo)
             getReporter().raiseError(w, new IncompatibleTypes(values));
 
-        if (!op.getLogic().isSupportedFor(castValueInfo))
+        if (!op.isSupportedFor(castValueInfo))
             getReporter().raiseError(w, new UnsupportedOperandType(op, castValueInfo));
 
-        final ValueInfo resultValueInfo = op.getLogic().calculate(castValueInfo, values);
+        final ValueInfo resultValueInfo = op.calculate(castValueInfo, values);
         return new ExprNodeOperator(op, Arrays.asList(operands), resultValueInfo, castValueInfo);
     }
 }

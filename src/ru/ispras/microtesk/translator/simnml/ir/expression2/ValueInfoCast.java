@@ -33,10 +33,10 @@ public final class ValueInfoCast
 
     public static ValueInfo getCast(ValueKind target, List<ValueInfo> values)
     {
-        assert Operands.UNARY.count()  == values.size() ||
-               Operands.BINARY.count() == values.size();
+        assert Operator.Operands.UNARY.count()  == values.size() ||
+               Operator.Operands.BINARY.count() == values.size();
 
-        if (Operands.UNARY.count() == values.size())
+        if (Operator.Operands.UNARY.count() == values.size())
             return values.get(0).typeInfoOnly();
 
         final ValueInfo left  = values.get(0); 
