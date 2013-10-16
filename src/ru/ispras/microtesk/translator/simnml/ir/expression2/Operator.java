@@ -13,6 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,39 +26,375 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public enum Operator
 {
-    OR       ("||",  Priority.CURRENT, Operands.BINARY, null),
-    AND      ("&&",  Priority.HIGHER,  Operands.BINARY, null),
+    OR       ("||", Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.BOOL), 
 
-    BIT_OR   ("|",   Priority.HIGHER,  Operands.BINARY, null),
-    BIT_XOR  ("^",   Priority.HIGHER,  Operands.BINARY, null),
-    BIT_AND  ("&",   Priority.HIGHER,  Operands.BINARY, null),
+                 new BinaryAction(Boolean.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Boolean) left || (Boolean) right; }
+                 }
+             ),
+    
+    AND      ("&&",  Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.BOOL),
 
-    EQ       ("==",  Priority.HIGHER,  Operands.BINARY, null),
-    NOT_EQ   ("!=",  Priority.CURRENT, Operands.BINARY, null),
+                 new BinaryAction(Boolean.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                          { return (Boolean) left && (Boolean) right; }
+                 }
+             ),
+            
 
-    LEQ      ("<=",  Priority.HIGHER,  Operands.BINARY, null),
-    GEQ      (">=",  Priority.CURRENT, Operands.BINARY, null),
-    LESS     ("<",   Priority.CURRENT, Operands.BINARY, null),
-    GREATER  (">",   Priority.CURRENT, Operands.BINARY, null),
+    BIT_OR   ("|",   Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
 
-    L_SHIFT  ("<<",  Priority.HIGHER,  Operands.BINARY, null),
-    R_SHIFT  (">>",  Priority.CURRENT, Operands.BINARY, null),
-    L_ROTATE ("<<<", Priority.CURRENT, Operands.BINARY, null),
-    R_ROTATE (">>>", Priority.CURRENT, Operands.BINARY, null),
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left | (Integer) right; }
+                 },
 
-    PLUS     ("+",   Priority.HIGHER,  Operands.BINARY, null),
-    MINUS    ("-",   Priority.CURRENT, Operands.BINARY, null),
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left | (Long) right; }
+                 },
 
-    MUL      ("*",   Priority.HIGHER,  Operands.BINARY, null),
-    DIV      ("/",   Priority.CURRENT, Operands.BINARY, null), 
-    MOD      ("%",   Priority.CURRENT, Operands.BINARY, null),
+                 new BinaryAction(Boolean.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Boolean) left | (Boolean) right; }
+                 }
+             ),
+            
+    BIT_XOR  ("^",   Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
 
-    POW      ("**",  Priority.HIGHER,  Operands.BINARY, null),
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left ^ (Integer) right; }
+                 },
 
-    UPLUS  ("UPLUS", Priority.HIGHER,  Operands.UNARY,  null),
-    UMINUS ("UMINUS",Priority.CURRENT, Operands.UNARY,  null),
-    BIT_NOT  ("~",   Priority.CURRENT, Operands.UNARY,  null),
-    NOT      ("!",   Priority.CURRENT, Operands.UNARY,  null)
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left ^ (Long) right; }
+                 },
+
+                 new BinaryAction(Boolean.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Boolean) left ^ (Boolean) right; }
+                 }
+             ),
+
+    BIT_AND  ("&",   Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left & (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left & (Long) right; }
+                 },
+
+                 new BinaryAction(Boolean.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Boolean) left & (Boolean) right; }
+                 }
+             ),
+
+    EQ       ("==",  Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left == (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left == (Long) right; }
+                 },
+
+                 new BinaryAction(Boolean.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Boolean) left == (Boolean) right; }
+                 }
+             ),
+
+    NOT_EQ   ("!=",  Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                        { return (Integer) left != (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                        { return (Long) left != (Long) right; }
+                 },
+
+                 new BinaryAction(Boolean.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Boolean) left != (Boolean) right; }
+                 }
+             ),
+
+    LEQ      ("<=",  Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left <= (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left <= (Long) right; }
+                 }
+             ),
+
+    GEQ      (">=",  Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                      @Override public Object calculate(Object left, Object right)
+                          { return (Integer) left >= (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                      @Override public Object calculate(Object left, Object right)
+                          { return (Long) left >= (Long) right; }
+                 }
+             ),
+
+    LESS     ("<",   Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left < (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left < (Long) right; }
+                 }
+             ),
+
+    GREATER  (">",   Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left > (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left > (Long) right; }
+                 }
+             ),
+
+    L_SHIFT  ("<<",  Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left << (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left << (Long) right; }
+                 }
+             ),
+
+    R_SHIFT  (">>",  Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left >> (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left >> (Long) right; }
+                 }
+             ),
+
+    L_ROTATE ("<<<", Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return Integer.rotateLeft((Integer) left, (Integer) right); }
+                 }
+             ), 
+
+    R_ROTATE (">>>", Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return Integer.rotateRight((Integer) left, (Integer) right); }
+                 }
+             ),
+
+    PLUS     ("+",   Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left + (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left + (Long) right; }
+                 }
+             ),
+
+    MINUS    ("-",   Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left - (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left - (Long) right; }
+                 }
+             ),
+
+    MUL      ("*",   Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left * (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                        { return (Long) left * (Long) right; }
+                 }
+             ),
+
+    DIV      ("/",   Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left / (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left / (Long) right; }
+                 }
+             ),    
+
+    MOD      ("%",   Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Integer) left % (Integer) right; }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (Long) left % (Long) right; }
+                 }
+             ),
+
+    POW      ("**",  Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new BinaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (int) Math.pow((Integer) left, (Integer) right); }
+                 },
+
+                 new BinaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object left, Object right)
+                         { return (int) Math.pow((Long) left, (Long) right); }
+                 }
+             ),
+
+    UPLUS  ("UPLUS", Priority.HIGHER,  Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new UnaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object value) { return (Integer)value; }
+                 },
+
+                 new UnaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object value) { return (Long) value; }
+                 }
+           ),
+           
+           
+    UMINUS ("UMINUS",Priority.CURRENT, Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new UnaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object value) { return -((Integer) value); }
+                 },
+
+                 new UnaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object value) { return -((Long) value); }
+                 }
+           ),
+
+    BIT_NOT  ("~",   Priority.CURRENT, Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
+
+                 new UnaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object value) { return ~((Integer) value); }
+                 },
+
+                 new UnaryAction(Long.class)
+                 {
+                     @Override public Object calculate(Object value) { return ~((Long) value); }
+                 }
+             ),
+
+    NOT      ("!",   Priority.CURRENT, Operands.UNARY,  Arrays.asList(ETypeID.BOOL),
+
+                 new UnaryAction(Integer.class)
+                 {
+                     @Override public Object calculate(Object value) { return !((Boolean) value); }
+                 }
+             )
     ;
 
     private static enum Priority
@@ -79,23 +416,77 @@ public enum Operator
             operators.put(o.text(), o);
     }
 
+    public static Operator forText(String text)
+    {
+        return operators.get(text);
+    }
+
     private final String  text;
     private final int priority;
     private final int operands;
-
-    private final OperatorLogic logic;
+    private final Logic  logic;
 
     private Operator(
-        String text,
-        Priority priority,
-        Operands operands,
-        OperatorLogic logic
+        String                 text,
+        Priority           priority,
+        Operands           operands,
+        List<ETypeID>    modelTypes,
+        Action ...    nativeActions
         )
     {
+        this(
+            text,
+            priority,
+            operands,
+            null,
+            modelTypes,
+            null,
+            nativeActions
+            );
+    }
+
+    private Operator(
+        String                 text,
+        Priority           priority,
+        Operands           operands,
+        Type        modelResultType,
+        List<ETypeID>    modelTypes,
+        Class<?>   nativeResultType,
+        Action ...    nativeActions
+        )
+    {
+        assert null != text;
+        assert null != priority;
+        assert null != operands;
+
+        assert null != modelTypes;
+        assert null != nativeActions;
+
         this.text     = text;
         this.priority = priority.value();
         this.operands = operands.count();
-        this.logic    = logic;
+
+        final Set<Class<?>> nativeTypeSet =
+            new HashSet<Class<?>>(nativeActions.length);
+
+        final Map<Class<?>, Action> actionMap =
+            new HashMap<Class<?>, Action>(nativeActions.length);
+
+        for (Action action : nativeActions)
+        {
+            assert action.getOperands() == operands;
+
+            nativeTypeSet.add(action.getType());
+            actionMap.put(action.getType(), action);
+        }
+
+        this.logic = new Logic(
+            EnumSet.copyOf(modelTypes),
+            nativeTypeSet,
+            modelResultType,
+            nativeResultType,
+            actionMap
+            );
     }
 
     public String text()
@@ -113,14 +504,9 @@ public enum Operator
         return operands;
     }
 
-    OperatorLogic getLogic()
+    Logic getLogic()
     {
         return logic; 
-    }
-
-    public static Operator forText(String text)
-    {
-        return operators.get(text);
     }
 }
 
@@ -141,33 +527,34 @@ enum Operands
     private final int count;
 }
 
-abstract class OperatorLogic
+final class Logic
 {
-    private Map<Class<?>, Action>   actions = null;
-    
     private final Set<ETypeID>   modelTypes;
     private final Set<Class<?>> nativeTypes;
 
     private final Type      modelResultType;
     private final Class<?> nativeResultType;
 
-    public OperatorLogic(
-        List<ETypeID> modelTypes, List<Class<?>> nativeTypes, Type modelResultType, Class<?> nativeResultType)
-    {
-        this.modelTypes = EnumSet.copyOf(modelTypes);
-        this.nativeTypes = new HashSet<Class<?>>(nativeTypes);
+    private Map<Class<?>, Action>   actions;
 
-        this.modelResultType = modelResultType;
+    public Logic(
+        Set<ETypeID>       modelTypes,
+        Set<Class<?>>     nativeTypes,
+        Type          modelResultType,
+        Class<?>     nativeResultType,
+        Map<Class<?>, Action> actions
+        )
+    {
+        this.modelTypes  = modelTypes;
+        this.nativeTypes = nativeTypes;
+
+        this.modelResultType  = modelResultType;
         this.nativeResultType = nativeResultType;
+
+        this.actions = actions; 
     }
 
-    public OperatorLogic(
-        List<ETypeID> modelTypes, List<Class<?>> nativeTypes)
-    {
-        this(modelTypes, nativeTypes, null, null);
-    }
-
-    public final boolean isSupportedFor(ValueInfo value)
+    public boolean isSupportedFor(ValueInfo value)
     {
         if (!isSupportedFor(value.getValueKind()))
             return false;
@@ -178,25 +565,25 @@ abstract class OperatorLogic
         return isSupportedFor(value.getNativeType());
     }
 
-    public final boolean isSupportedFor(ValueKind kind)
+    public boolean isSupportedFor(ValueKind kind)
     {
         if (ValueKind.MODEL == kind)
-            return (null != modelTypes) && !modelTypes.isEmpty();
+            return !modelTypes.isEmpty();
 
-        return (null != nativeTypes) && !nativeTypes.isEmpty();
+        return !nativeTypes.isEmpty();
     }
 
-    public final boolean isSupportedFor(ETypeID typeId)
+    public boolean isSupportedFor(ETypeID typeId)
     {
-        return (null != modelTypes) && modelTypes.contains(typeId);
+        return modelTypes.contains(typeId);
     }
 
-    public final boolean isSupportedFor(Class<?> type)
+    public boolean isSupportedFor(Class<?> type)
     {
-        return (null != nativeTypes) && nativeTypes.contains(type);
+        return nativeTypes.contains(type);
     }
 
-    public final ValueInfo calculate(ValueInfo castValueInfo, List<ValueInfo> values)
+    public ValueInfo calculate(ValueInfo castValueInfo, List<ValueInfo> values)
     {
         assert isSupportedFor(castValueInfo);
 
@@ -221,7 +608,7 @@ abstract class OperatorLogic
         return ValueInfo.createNative(result);
     }
 
-    private static final boolean allValuesConstant(List<ValueInfo> values)
+    private static boolean allValuesConstant(List<ValueInfo> values)
     {
         for (ValueInfo vi : values)
             if (!vi.isConstant())
@@ -233,6 +620,8 @@ abstract class OperatorLogic
     private Object calculateNative(Class<?> type, List<Object> values)
     {
         final Action action = actions.get(type);
+
+        assert null != action;
         assert action.getOperands().count() == values.size(); 
 
         if (Operands.UNARY == action.getOperands())
@@ -242,18 +631,47 @@ abstract class OperatorLogic
     }
 }
 
-interface Action
+abstract class Action
 {
-    public Class<?>     getType();
-    public Operands getOperands();
+    private final Class<?>     type;
+    private final Operands operands;
+
+    public Action(Class<?> type, Operands operands)
+    {
+        assert null != type;
+        assert null != operands;
+
+        this.type = type;
+        this.operands = operands;
+    }
+
+    public final Class<?> getType()
+    {
+        return type;
+    }
+
+    public final Operands getOperands()
+    {
+        return operands;
+    }
 }
 
-interface UnaryAction extends Action
+abstract class UnaryAction extends Action
 {
-    public Object calculate(Object value);
+    public UnaryAction(Class<?> type)
+    {
+        super(type, Operands.UNARY); 
+    }
+
+    public abstract Object calculate(Object value);
 }
 
-interface BinaryAction extends Action
+abstract class BinaryAction extends Action
 {
-    public Object calculate(Object left, Object right);
+    public BinaryAction(Class<?> type)
+    {
+        super(type, Operands.BINARY); 
+    }
+
+    public abstract Object calculate(Object left, Object right);
 }
