@@ -28,6 +28,9 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
+import static ru.ispras.microtesk.translator.simnml.ir.expression2.ValueKind.*;
+import static ru.ispras.microtesk.translator.simnml.ir.expression2.Operator.Operands.*;
+
 /**
  * The ExprFactory class is a factory responsible for constructing expressions.
  * 
@@ -59,7 +62,7 @@ public final class ExprFactory extends WalkerFactoryBase
     public Expr namedConstant(Where w, String name) throws SemanticException
     {
         if (!getIR().getConstants().containsKey(name))
-            getReporter().raiseError(w, new UndefinedConstant(name));
+            raiseError(w, new UndefinedConstant(name));
 
         final LetConstant constant = getIR().getConstants().get(name);
         return new ExprNodeNamedConst(constant);
@@ -91,7 +94,7 @@ public final class ExprFactory extends WalkerFactoryBase
         }
         catch (NumberFormatException e) {}
 
-        getReporter().raiseError(w, new ValueParsingFailure(text, "Java integer"));
+        raiseError(w, new ValueParsingFailure(text, "Java integer"));
         return null; // Cannot be reached.
     }
 
@@ -119,52 +122,52 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         return new ExprNodeCoercion(src, type);
     }
+    
+    /**
+     * Creates an expression based on an unary or binary operation. 
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param target Preferable value kind (needed to calculate value and type of the result, when mixed operand types are used). 
+     * @param id Identifier for the operator. 
+     * @param operands Operand expressions (one or two).
+     * @return Expression.
+     * @throws SemanticException Raised if factory fails to create a valid expression (unsupported operator, incompatible types, etc.).
+     */
 
     public Expr operator(
         Where w, ValueKind target, String id, Expr ... operands) throws SemanticException
     {
-        assert Operator.Operands.UNARY.count() == operands.length ||
-               Operator.Operands.BINARY.count() == operands.length;
+        assert UNARY.count() == operands.length || BINARY.count() == operands.length;
 
         final Operator op = Operator.forText(id);
 
         if (null == op)
-            getReporter().raiseError(w, new UnsupportedOperator(id));
+            raiseError(w, new UnsupportedOperator(id));
 
         if (operands.length != op.operands())
-            getReporter().raiseError(w, new OperandNumberMismatch(id, op.operands()));
+            raiseError(w, new OperandNumberMismatch(id, op.operands()));
 
-        final List<ValueInfo> values =
-            new ArrayList<ValueInfo>(operands.length);
+        final List<ValueInfo> values = new ArrayList<ValueInfo>(operands.length);
 
         for(Expr operand : operands)
         {
             final ValueInfo vi = operand.getValueInfo();
-
-            assert ValueKind.MODEL  == vi.getValueKind() || 
-                   ValueKind.NATIVE == vi.getValueKind();
-
+            assert MODEL == vi.getValueKind() || NATIVE == vi.getValueKind();
             values.add(vi);
         }
 
-        final ValueInfo castValueInfo =
-            ValueInfoCast.getCast(target, values);
+        final ValueInfo castValueInfo = ValueInfoCast.getCast(target, values);
 
         if (null == castValueInfo)
-            getReporter().raiseError(w, new IncompatibleTypes(values));
+            raiseError(w, new IncompatibleTypes(values));
 
         if (!op.isSupportedFor(castValueInfo))
-            getReporter().raiseError(w, new UnsupportedOperandType(op, castValueInfo));
+            raiseError(w, new UnsupportedOperandType(op, castValueInfo));
 
-        final ValueInfo resultValueInfo = 
-            op.calculate(castValueInfo, values);
+        final ValueInfo resultValueInfo = op.calculate(castValueInfo, values);
 
         return new ExprNodeOperator(
-            op,
-            Arrays.asList(operands),
-            resultValueInfo,
-            castValueInfo
-            );
+            op, Arrays.asList(operands), resultValueInfo, castValueInfo);
     }
 }
 
