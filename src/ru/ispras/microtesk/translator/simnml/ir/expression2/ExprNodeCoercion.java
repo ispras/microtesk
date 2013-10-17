@@ -14,28 +14,54 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
+/**
+ * The ExprNodeCoercion class describes cast of a source expression to the specified type.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public final class ExprNodeCoercion extends ExprAbstract 
 {
-    private final Expr child;
+    private final Expr source;
 
-    ExprNodeCoercion(Expr child, Type type)
+    /**
+     * Creates a cast of source expression to the specified Model API type.  
+     * 
+     * @param source Source expression.
+     * @param type Target Model API type.
+     */
+
+    ExprNodeCoercion(Expr source, Type type)
     {
         super(NodeKind.COERCION, ValueInfo.createModel(type));
 
-        assert null != child;
-        this.child = child;
+        assert null != source;
+        this.source = source;
     }
 
-    ExprNodeCoercion(Expr child, Class<?> type)
+    /**
+     * Creates a cast of source expression to the specified native Java type.
+     * 
+     * @param source Source expression.
+     * @param type Target native Java type.
+     */
+
+    ExprNodeCoercion(Expr source, Class<?> type)
     {
         super(NodeKind.COERCION, ValueInfo.createNativeType(type));
 
-        assert null != child;
-        this.child = child;
+        assert null != source;
+        this.source = source;
     }
 
-    public Expr getChild()
+    /**
+     * Returns source expression. 
+     * 
+     * @return Source expression.
+     */
+
+    public Expr getSource()
     {
-        return child;
+        return source;
     }
 }
