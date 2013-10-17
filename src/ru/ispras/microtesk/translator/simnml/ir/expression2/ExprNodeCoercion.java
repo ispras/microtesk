@@ -62,7 +62,7 @@ public final class ExprNodeCoercion extends ExprAbstract
         final Object newValue = 
             NativeTypeCastRules.castTo(type, source.getNativeValue());
 
-        assert newValue != null;
+        assert null != newValue;
         return ValueInfo.createNative(newValue);
     }
 
