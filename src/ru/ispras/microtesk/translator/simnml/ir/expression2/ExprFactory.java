@@ -28,14 +28,35 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
+/**
+ * The ExprFactory class is a factory responsible for constructing expressions.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public final class ExprFactory extends WalkerFactoryBase
 {
+    /**
+     * Constructor for an expression factory. 
+     *  
+     * @param context Provides facilities for interacting with the tree walker. 
+     */
+
     public ExprFactory(WalkerContext context)
     {
         super(context);
     }
+    
+    /**
+     * Creates an expression based on a named constant. 
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param name Name of the constant.
+     * @return Expression. 
+     * @throws SemanticException Raised if a constant with such name is not defined.  
+     */
 
-    public final Expr namedConstant(Where w, String name) throws SemanticException
+    public Expr namedConstant(Where w, String name) throws SemanticException
     {
         if (!getIR().getConstants().containsKey(name))
             getReporter().raiseError(w, new UndefinedConstant(name));
@@ -43,6 +64,16 @@ public final class ExprFactory extends WalkerFactoryBase
         final LetConstant constant = getIR().getConstants().get(name);
         return new ExprNodeNamedConst(constant);
     }
+
+    /**
+     * Creates an expression based on a numeric literal.
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param text Textual representation of a constant.
+     * @param radix Radix used to convert text to a number.
+     * @return Expression.
+     * @throws SemanticException Raised if the specified text cannot be converted to a number (due to incorrect format). 
+     */
 
     public Expr constant(Where w, String text, int radix) throws SemanticException
     {
@@ -61,15 +92,30 @@ public final class ExprFactory extends WalkerFactoryBase
         catch (NumberFormatException e) {}
 
         getReporter().raiseError(w, new ValueParsingFailure(text, "Java integer"));
-        return null;
+        return null; // Cannot be reached.
     }
+
+    /**
+     * Creates an expression based on a location.
+     * 
+     * @param location Location object.
+     * @return Expression.
+     */
 
     public Expr location(Location location)
     {
         return new ExprNodeLocation(location);
     }
 
-    public Expr coerce(Where w, Expr src, Type type) throws SemanticException
+    /**
+     * Creates a type coercion expression (describes a cast of an expression to another type).
+     * 
+     * @param src Source expression.
+     * @param type Target type.
+     * @return Expression.
+     */
+
+    public Expr coerce(Expr src, Type type)
     {
         return new ExprNodeCoercion(src, type);
     }
@@ -94,7 +140,10 @@ public final class ExprFactory extends WalkerFactoryBase
         for(Expr operand : operands)
         {
             final ValueInfo vi = operand.getValueInfo();
-            assert ValueKind.MODEL == vi.getValueKind() || ValueKind.NATIVE == vi.getValueKind();
+
+            assert ValueKind.MODEL  == vi.getValueKind() || 
+                   ValueKind.NATIVE == vi.getValueKind();
+
             values.add(vi);
         }
 
@@ -107,8 +156,15 @@ public final class ExprFactory extends WalkerFactoryBase
         if (!op.isSupportedFor(castValueInfo))
             getReporter().raiseError(w, new UnsupportedOperandType(op, castValueInfo));
 
-        final ValueInfo resultValueInfo = op.calculate(castValueInfo, values);
-        return new ExprNodeOperator(op, Arrays.asList(operands), resultValueInfo, castValueInfo);
+        final ValueInfo resultValueInfo = 
+            op.calculate(castValueInfo, values);
+
+        return new ExprNodeOperator(
+            op,
+            Arrays.asList(operands),
+            resultValueInfo,
+            castValueInfo
+            );
     }
 }
 
