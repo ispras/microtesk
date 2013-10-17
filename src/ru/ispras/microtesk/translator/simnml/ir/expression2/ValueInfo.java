@@ -203,6 +203,12 @@ final class ValueInfoModel extends ValueInfo
         assert false : "Not applicable";
         return null;
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format("ValueInfo [type=%s]", type.getTypeName());
+    }
 }
 
 /**
@@ -258,5 +264,15 @@ final class ValueInfoNative extends ValueInfo
     public Object getNativeValue()
     {
         return value;
+    }
+
+    @Override
+    public String toString()
+    {
+        if (null == value)
+            return String.format("ValueInfo [type=%s]", type.getSimpleName());
+
+        return String.format(
+            "ValueInfo [type=%s, value=%s]", type.getSimpleName(), value);
     }
 }
