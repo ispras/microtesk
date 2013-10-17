@@ -48,10 +48,22 @@ public final class ExprNodeCoercion extends ExprAbstract
 
     ExprNodeCoercion(Expr source, Class<?> type)
     {
-        super(NodeKind.COERCION, ValueInfo.createNativeType(type));
+        super(NodeKind.COERCION, nativeCast(source.getValueInfo(), type));
 
         assert null != source;
         this.source = source;
+    }
+    
+    private static ValueInfo nativeCast(ValueInfo source, Class<?> type)
+    {
+        if (!source.isConstant())
+            return ValueInfo.createNativeType(type);
+
+        final Object newValue = 
+            NativeTypeCastRules.castTo(type, source.getNativeValue());
+
+        assert newValue != null;
+        return ValueInfo.createNative(newValue);
     }
 
     /**
