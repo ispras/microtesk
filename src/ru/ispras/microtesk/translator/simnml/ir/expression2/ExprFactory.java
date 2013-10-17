@@ -111,7 +111,7 @@ public final class ExprFactory extends WalkerFactoryBase
     }
 
     /**
-     * Creates a type coercion expression (describes a cast of an expression to another type).
+     * Creates a type coercion expression. Source expression is coerced to a Model API type.
      * 
      * @param src Source expression.
      * @param type Target type.
@@ -120,9 +120,34 @@ public final class ExprFactory extends WalkerFactoryBase
 
     public Expr coerce(Expr src, Type type)
     {
+        if (ValueKind.MODEL == src.getValueInfo().getValueKind() && 
+            type.equals(src.getValueInfo().getModelType()))
+        {
+            return src;
+        }
+
         return new ExprNodeCoercion(src, type);
     }
-    
+
+    /**
+     * Creates a type coercion expression. Source expression is coerced to a Native Java type.
+     * 
+     * @param src Source expression.
+     * @param type Target type.
+     * @return Expression.
+     */
+
+    public Expr coerce(Expr src, Class<?> type)
+    {
+        if (ValueKind.NATIVE == src.getValueInfo().getValueKind() && 
+            type == src.getValueInfo().getNativeType())
+        {
+            return src;
+        }
+
+        return new ExprNodeCoercion(src, type);
+    }
+
     /**
      * Creates an expression based on an unary or binary operation. 
      * 
