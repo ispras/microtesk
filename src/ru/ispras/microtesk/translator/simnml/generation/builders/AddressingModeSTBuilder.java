@@ -23,10 +23,12 @@ import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingMode;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeLocation;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
 import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
@@ -128,13 +130,13 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
             return;
         }
 
-        if (null != returnExpr.getLocation())
+        if (Expr.NodeKind.LOCATION == returnExpr.getNodeKind())
         {
-            t.add("ret", LocationPrinter.toString(returnExpr.getLocation()));
+            t.add("ret", LocationPrinter.toString(((ExprNodeLocation) returnExpr).getLocation()));
         }
         else
         {
-            t.add("ret", String.format("new Location(%s)", returnExpr.getText()));
+            t.add("ret", String.format("new Location(%s)", ExprPrinter.toString(returnExpr)));
         }
     }
 

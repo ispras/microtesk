@@ -12,7 +12,6 @@
 
 package ru.ispras.microtesk.translator.simnml.antlrex;
 
-import java.util.EnumMap;
 import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
@@ -36,9 +35,7 @@ import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactoryClass;
 import ru.ispras.microtesk.translator.simnml.ir.expression.LocationFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
@@ -136,9 +133,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
     /* code generators (emitters).                                                          */
     /*======================================================================================*/
 
-    private Map<EExprKind, ExprFactory> exprFactories =
-        new EnumMap<EExprKind, ExprFactory>(EExprKind.class);
-
+    private ExprFactory         exprFactory         = null;
     private LetFactory          letFactory          = null; 
     private LocationFactory     locationFactory     = null;
     private TypeFactory         typeFactory         = null;
@@ -147,15 +142,11 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext
     private AttributeFactory    attributeFactory    = null;
     private StatementFactory    statementFactory    = null;
 
-    protected final ExprFactory getExprFactory(EExprKind targetKind)
+    protected final ExprFactory getExprFactory()
     {
-        if (exprFactories.containsKey(targetKind))
-            return exprFactories.get(targetKind);
-
-        final ExprFactory factory = ExprFactoryClass.createFactory(targetKind, this);
-        exprFactories.put(targetKind, factory);
-
-        return factory;
+        if (null == exprFactory)
+            exprFactory = new ExprFactory(this);
+        return exprFactory;
     }
 
     protected final LetFactory getLetFactory()

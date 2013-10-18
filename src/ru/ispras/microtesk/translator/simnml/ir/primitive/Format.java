@@ -18,8 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.translator.simnml.ir.expression.EExprKind;
+import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ValueKind;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class Format
@@ -116,12 +117,10 @@ public final class Format
             if (STR == marker)
                 return false;
 
-            if (EExprKind.MODEL == expr.getKind())
+            if (ValueKind.MODEL == expr.getValueInfo().getValueKind())
                 return isModelConvertibleTo(marker);
 
-            assert (EExprKind.JAVA == expr.getKind() ||
-                    EExprKind.JAVA_STATIC == expr.getKind());
-
+            assert ValueKind.NATIVE == expr.getValueInfo().getValueKind();
             return isJavaConvertibleTo(marker);
         }
 
@@ -132,7 +131,7 @@ public final class Format
 
             assert ((DEC == marker) || (HEX == marker));
 
-            final Type type = expr.getModelType();
+            final Type type = expr.getValueInfo().getModelType();
             if (ETypeID.CARD == type.getTypeId() || ETypeID.INT == type.getTypeId())
                 return true;
 
@@ -142,7 +141,7 @@ public final class Format
 
         private boolean isJavaConvertibleTo(Marker marker)
         {
-            final Class<?> type = expr.getJavaType();
+            final Class<?> type = expr.getValueInfo().getNativeType();
 
             if (!type.equals(int.class) || !type.equals(Integer.class))
                 return false;
@@ -156,7 +155,7 @@ public final class Format
         {
             assert isConvertibleTo(marker);
 
-            if (EExprKind.MODEL == expr.getKind())
+            if (ValueKind.MODEL == expr.getValueInfo().getValueKind())
                 return convertModelTo(marker);
 
             return convertJavaTo(marker);
@@ -165,15 +164,15 @@ public final class Format
         private String convertModelTo(Marker marker)
         {
             return (BIN == marker) ?
-                String.format("%s.getRawData().toBinString()", expr.getText()) : 
-                String.format("%s.getRawData().intValue()", expr.getText());
+                String.format("%s.getRawData().toBinString()", ExprPrinter.toString(expr)) : 
+                String.format("%s.getRawData().intValue()", ExprPrinter.toString(expr));
         }
 
         private String convertJavaTo(Marker marker)
         {
             return (BIN == marker) ?
-                String.format("Integer.toBinaryString(%s)", expr.getText()) :
-                expr.getText();
+                String.format("Integer.toBinaryString(%s)", ExprPrinter.toString(expr)) :
+                ExprPrinter.toString(expr);
         }
     }
     

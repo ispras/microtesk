@@ -40,14 +40,14 @@ public final class LocationPrinter
 
         if (!needsAccessCall(location))
         {
-            final String indexText = (null != location.getIndex()) ? location.getIndex().getText() : "";
+            final String indexText = (null != location.getIndex()) ? ExprPrinter.toString(location.getIndex()) : "";
             sb.append(String.format(ACCESS_FORMAT, indexText));
         }
 
         if (null != location.getBitfield())
         {
             final LocationAtom.Bitfield bitfield = location.getBitfield();
-            sb.append(String.format(BITFIELD_FORMAT, bitfield.getFrom().getText(), bitfield.getTo().getText()));
+            sb.append(String.format(BITFIELD_FORMAT, ExprPrinter.toString(bitfield.getFrom()), ExprPrinter.toString(bitfield.getTo())));
         }
 
         return sb.toString();

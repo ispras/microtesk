@@ -14,11 +14,12 @@ package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.ValueInfo;
-import ru.ispras.microtesk.translator.simnml.ir.expression2.ValueKind;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 
 public final class Type
 {
+    public final static Type BOOLEAN = new Type(ETypeID.BOOL, ExprUtils.createConstant(1));
+    
     private final ETypeID  typeId;
     private final Expr    bitSize;
     private final String  refName;
@@ -37,42 +38,26 @@ public final class Type
         this(typeId, bitSize, null);
     }
     
-    public Type(ETypeID typeId, ru.ispras.microtesk.translator.simnml.ir.expression2.Expr bitSize)
-    {
-        this(typeId, null, null);
-    }
-
     public ETypeID getTypeId()
     {
         return typeId;
     }
 
-    public Expr getBitSize()
+    public Expr getBitSizeExpr()
     {
         return bitSize;
     }
 
-    public ru.ispras.microtesk.translator.simnml.ir.expression2.Expr getBitSizeExpr()
+    public int getBitSize()
     {
-        // TODO
-        return null;
-    }
-    
-    public int getBitSize2()
-    {
-        final ValueInfo value = getBitSizeExpr().getValueInfo();
-
-        assert ValueKind.NATIVE == value.getValueKind();
-        assert Integer.class == value.getNativeType();
-
-        return ((Number) value.getNativeValue()).intValue(); 
+        return ExprUtils.integerValue(bitSize);
     }
 
     public String getRefName()
     {
         return refName;
     }
-    
+
     public String getJavaText()
     {
         if (null != refName)
@@ -84,11 +69,11 @@ public final class Type
     public String getTypeName()
     {
         return String.format(
-            "%s(%s.%s, %s)",
+            "%s(%s.%s, %d)",
             ru.ispras.microtesk.model.api.type.Type.class.getSimpleName(),
             ETypeID.class.getSimpleName(),
             getTypeId(),
-            getBitSize().getText()
+            getBitSize()
             );
     }
 
@@ -96,9 +81,9 @@ public final class Type
     public String toString()
     {
         return String.format(
-            "Type [typeId='%s', bitSize='%s', refName='%s']",
+            "Type [typeId='%s', bitSize='%d', refName='%s']",
             typeId,
-            bitSize.getText(),
+            getBitSize(),
             refName != null ? refName : "<undefined>"
             );
     }
@@ -110,7 +95,7 @@ public final class Type
         int result = 1;
 
         result = prime * result + typeId.hashCode();
-        result = prime * result + getBitSize2();
+        result = prime * result + getBitSize();
 
         return result;
     }
@@ -132,7 +117,7 @@ public final class Type
         if (typeId != other.typeId)
             return false;
 
-        if (getBitSize2() != other.getBitSize2())
+        if (getBitSize() != other.getBitSize())
             return false;
 
         return true;

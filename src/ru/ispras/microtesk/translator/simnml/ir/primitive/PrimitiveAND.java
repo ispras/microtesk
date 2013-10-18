@@ -74,6 +74,6 @@ public final class PrimitiveAND extends Primitive
 
     private static Type getReturnType(Expr retExpr)
     {
-        return (null != retExpr) ? retExpr.getModelType() : null;
+        return (null != retExpr) ? retExpr.getValueInfo().getModelType() : null;
     }
 }

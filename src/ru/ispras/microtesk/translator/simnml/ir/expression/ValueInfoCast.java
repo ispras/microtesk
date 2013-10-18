@@ -10,7 +10,7 @@
  * ValueInfoCast.java, Oct 11, 2013 1:59:03 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.List;
 
@@ -153,21 +153,21 @@ class ModelTypeCastRules
         final int bitSize;
         final Expr bitSizeExpr;
 
-        if (left.getBitSize2() >= right.getBitSize2())
+        if (left.getBitSize() >= right.getBitSize())
         {
-            bitSize = left.getBitSize2();
+            bitSize = left.getBitSize();
             bitSizeExpr = left.getBitSizeExpr();
         }
         else
         {
-            bitSize = right.getBitSize2();
+            bitSize = right.getBitSize();
             bitSizeExpr = right.getBitSizeExpr();
         }
 
-        if (typeId == left.getTypeId() && bitSize == left.getBitSize2())
+        if (typeId == left.getTypeId() && bitSize == left.getBitSize())
             return left;
 
-        if (typeId == right.getTypeId() && bitSize == right.getBitSize2())
+        if (typeId == right.getTypeId() && bitSize == right.getBitSize())
             return right;
 
         return new Type(typeId, bitSizeExpr);

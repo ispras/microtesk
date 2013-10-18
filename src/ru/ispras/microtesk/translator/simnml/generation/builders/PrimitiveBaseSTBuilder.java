@@ -27,6 +27,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAttributeCall
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
+import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
 import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 public abstract class PrimitiveBaseSTBuilder implements ITemplateBuilder
@@ -143,12 +144,12 @@ final class StatementBuilder
 
     private void addStatement(StatementAssignment stmt)
     {
-        addStatement(String.format("%s.store(%s);", LocationPrinter.toString(stmt.getLeft()), stmt.getRight().getText()));
+        addStatement(String.format("%s.store(%s);", LocationPrinter.toString(stmt.getLeft()), ExprPrinter.toString(stmt.getRight())));
     }
 
     private void addStatement(StatementCondition stmt)
     {
-        addStatement(String.format("if (%s)", stmt.getCondition().getText()));
+        addStatement(String.format("if (%s)", ExprPrinter.toString(stmt.getCondition())));
         addStatementBlock(stmt.getIfStatements());
         
         if (null != stmt.getElseStatements() && !stmt.getElseStatements().isEmpty())

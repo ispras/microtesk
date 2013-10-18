@@ -10,7 +10,7 @@
  * ValueKind.java, Oct 11, 2013 9:02:22 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 /**
  * Specifies the kind of a value stored in an expression terminal or produced as a result of an operation.

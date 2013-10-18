@@ -36,18 +36,16 @@ public final class TypeFactory extends WalkerFactoryBase
     public Type createAlias(String name) throws SemanticException
     {
         final Type ref = getIR().getTypes().get(name); 
-        return new Type(ref.getTypeId(), ref.getBitSize(), name);
+        return new Type(ref.getTypeId(), ref.getBitSizeExpr(), name);
     }
 
     public Type createIntegerType(Where where, Expr bitSize) throws SemanticException
     {
-        failIfNotInteger(where, bitSize.getJavaType());
         return new Type(ETypeID.INT, bitSize);
     }
 
     public Type createCardType(Where where, Expr bitSize) throws SemanticException
     {
-        failIfNotInteger(where, bitSize.getJavaType());
         return new Type(ETypeID.CARD, bitSize);
     }
 }

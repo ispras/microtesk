@@ -10,7 +10,7 @@
  * Operator.java, Aug 14, 2013 12:33:41 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +108,7 @@ public enum Operator
                  }
              ),
 
-    EQ       ("==",  Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+    EQ       ("==",  Priority.HIGHER,  Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -129,7 +129,7 @@ public enum Operator
                  }
              ),
 
-    NOT_EQ   ("!=",  Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+    NOT_EQ   ("!=",  Priority.CURRENT, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -150,7 +150,7 @@ public enum Operator
                  }
              ),
 
-    LEQ      ("<=",  Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    LEQ      ("<=",  Priority.HIGHER, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -165,7 +165,7 @@ public enum Operator
                  }
              ),
 
-    GEQ      (">=",  Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    GEQ      (">=",  Priority.CURRENT, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -411,8 +411,8 @@ public enum Operator
         UNARY(1),
         BINARY(2);
 
-        Operands(int count) { this.count = count; }
-        int count()         { return count; }
+        private Operands(int count) { this.count = count; }
+        public int count()         { return count; }
 
         private final int count;
     }

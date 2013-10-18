@@ -10,7 +10,7 @@
  * ExprOperator.java, Aug 14, 2013 12:45:13 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.List;
 

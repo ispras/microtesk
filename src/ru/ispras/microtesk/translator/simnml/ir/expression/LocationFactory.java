@@ -65,6 +65,8 @@ public final class LocationFactory extends WalkerFactoryBase
 
     public LocationAtom location(Where where, String name) throws SemanticException
     {
+        //System.out.println(where + " " + name);
+        
         final ISymbol<ESymbolKind> symbol = findSymbol(where, name);
         final ESymbolKind kind = symbol.getKind();
 
@@ -104,11 +106,11 @@ public final class LocationFactory extends WalkerFactoryBase
         assert null != from;
         assert null != to;
 
-        final int fromPos = ((Number) from.getValue()).intValue();
-        final int   toPos = ((Number) to.getValue()).intValue();
+        final int fromPos = ExprUtils.integerValue(from);
+        final int   toPos = ExprUtils.integerValue(to);
 
         final int bitfieldSize = toPos - fromPos + 1;
-        final int locationSize = ((Number) location.getType().getBitSize().getValue()).intValue();
+        final int locationSize = location.getType().getBitSize();
 
         // assert startPos <= endPos; // TODO: restriction of the current implementation
 
@@ -119,7 +121,7 @@ public final class LocationFactory extends WalkerFactoryBase
             raiseError(where, String.format(OUT_OF_BOUNDS, toPos, locationSize));
 
         final Type bitfieldType = new Type(
-            location.getType().getTypeId(), ExprClass.createConstant(bitfieldSize));
+            location.getType().getTypeId(), ExprUtils.createConstant(bitfieldSize));
 
         return LocationAtom.createBitfield(location, from, to, bitfieldType);
     }
@@ -129,16 +131,12 @@ public final class LocationFactory extends WalkerFactoryBase
         assert null != left;
         assert null != right;
 
-        final int leftSize =
-            ((Number) left.getType().getBitSize().getValue()).intValue();
-
-        final int rightSize =
-            ((Number) right.getType().getBitSize().getValue()).intValue();
-
+        final int   leftSize = left.getType().getBitSize();
+        final int  rightSize = right.getType().getBitSize();
         final int concatSize = leftSize + rightSize; 
 
         final Type concatType = new Type(
-            left.getType().getTypeId(), ExprClass.createConstant(concatSize));
+            left.getType().getTypeId(), ExprUtils.createConstant(concatSize));
 
         if (right instanceof LocationAtom)
             return new LocationConcat(concatType, Arrays.asList((LocationAtom) right, left));
@@ -167,9 +165,6 @@ interface LocationCreator
 
 final class MemoryBasedLocationCreator extends WalkerFactoryBase implements LocationCreator
 {
-    private static final String BAD_INDEX_EXPR =
-        "The %s expression cannot be used as an index. It is not a Java-compatible integer expression.";
-
     private final Where where;
     private final String name;
     private final Expr  index;
@@ -187,10 +182,6 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
     public LocationAtom create() throws SemanticException
     {
         final MemoryExpr memory = findMemory();
-
-        if (null != index)
-            checkIndexType(index);
-
         return LocationAtom.createMemoryBased(name, memory, index);
     }
 
@@ -200,26 +191,6 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
             raiseError(where, new UndefinedPrimitive(name, ESymbolKind.MEMORY));
 
         return getIR().getMemory().get(name);
-    }
-
-    private void checkIndexType(final Expr index) throws SemanticException
-    {
-        final String errorMessage =
-            String.format(BAD_INDEX_EXPR, index.getText());
-
-        final boolean isJavaExpr = 
-           (index.getKind() == EExprKind.JAVA) || (index.getKind() == EExprKind.JAVA_STATIC);
-
-        if (!isJavaExpr)
-            raiseError(where, errorMessage);
-
-        assert null != index.getJavaType();
-
-        final boolean isIntegerType =
-            index.getJavaType().equals(int.class) || index.getJavaType().equals(Integer.class); 
-
-        if (!isIntegerType)
-            raiseError(where, errorMessage);
     }
 }
 

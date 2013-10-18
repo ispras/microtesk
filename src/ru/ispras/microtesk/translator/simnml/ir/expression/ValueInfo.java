@@ -10,7 +10,7 @@
  * ValueInfo.java, Sep 26, 2013 5:17:00 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
@@ -111,7 +111,7 @@ public abstract class ValueInfo
      * @return <code>true</code> for equal types, <code>false</code> otherwise.
      */
 
-    public boolean hasEqualType(ValueInfo value)
+    public final boolean hasEqualType(ValueInfo value)
     {
         assert null != value;
 
@@ -227,7 +227,7 @@ final class ValueInfoNative extends ValueInfo
         super(ValueKind.NATIVE);
 
         assert null != value;
-        assert isSupportedType(value.getClass()); 
+        assert isSupportedType(value.getClass()) : value.getClass(); 
 
         this.type  = value.getClass();
         this.value = value;

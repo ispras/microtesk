@@ -38,18 +38,15 @@ public final class LetConstant
         return expression;
     }
     
-    public ru.ispras.microtesk.translator.simnml.ir.expression2.Expr getExpr()
+    public Expr getExpr()
     {
-        return null;
+        return getExpression();
     }
 
     @Override
     public String toString()
     {
         return String.format(
-            "LetConstant [name=%s, expression=%s]",
-            name,
-            expression.getText()
-            );
+            "LetConstant [name=%s, value=%s]", name, expression.getValueInfo());
     }
 }

@@ -202,7 +202,7 @@ final class CompatibilityChecker extends WalkerFactoryBase
     {
         if ((null != expectedType) && (null != currentType))
         {
-            if (currentType.getBitSize().getValue().equals(expectedType.getBitSize().getValue()))
+            if (currentType.getBitSize() == expectedType.getBitSize())
                 return;
         }
 

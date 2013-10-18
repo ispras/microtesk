@@ -102,7 +102,7 @@ letDef
     ;
 
 letExpr [String name]
-    :  ce = staticJavaExpr
+    :  ce = constExpr
 {
 checkNotNull($ce.start, $ce.res, $ce.text);
 final LetConstant constant = getLetFactory().createConstant(name, $ce.res);
@@ -136,9 +136,9 @@ getIR().add($id.text, $te.res);
 typeExpr returns [Type res]
     :   id=ID                      { $res=getTypeFactory().createAlias($id.text); }
 //  |   BOOL                       // TODO: NOT SUPPORTED IN THIS VERSION
-    |   ^(t=INT  n=staticJavaExpr) { $res=getTypeFactory().createIntegerType(where($t), $n.res); }
-    |   ^(t=CARD n=staticJavaExpr) { $res=getTypeFactory().createCardType(where($t), $n.res); }
-//  |   ^(t=FIX   n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
+    |   ^(t=INT  n=sizeExpr) { $res=getTypeFactory().createIntegerType(where($t), $n.res); }
+    |   ^(t=CARD n=sizeExpr) { $res=getTypeFactory().createCardType(where($t), $n.res); }
+//  |   ^(t=FIX   n=static m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
 //  |   ^(t=FLOAT n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
 //  |   ^(t=RANGE n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
     ;
@@ -153,8 +153,8 @@ memDef
 // TODO: implement IR for alises
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemoryExpr(where($id), EMemoryKind.MEM, $st.type, $st.size) :
-   factory.createMemoryExpr(EMemoryKind.MEM, $st.type);
+   factory.createMemory(EMemoryKind.MEM, $st.type, $st.size) :
+   factory.createMemory(EMemoryKind.MEM, $st.type);
 
 getIR().add($id.text, expr);
 }
@@ -165,8 +165,8 @@ regDef
 {
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemoryExpr(where($id), EMemoryKind.REG, $st.type, $st.size) :
-   factory.createMemoryExpr(EMemoryKind.REG, $st.type);
+   factory.createMemory(EMemoryKind.REG, $st.type, $st.size) :
+   factory.createMemory(EMemoryKind.REG, $st.type);
 
 getIR().add($id.text, expr);
 }
@@ -177,15 +177,15 @@ varDef
 {
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemoryExpr(where($id), EMemoryKind.VAR, $st.type, $st.size) :
-   factory.createMemoryExpr(EMemoryKind.VAR, $st.type);
+   factory.createMemory(EMemoryKind.VAR, $st.type, $st.size) :
+   factory.createMemory(EMemoryKind.VAR, $st.type);
 
 getIR().add($id.text, expr);
 }
     ;
 
 sizeType returns [Type type, Expr size]
-    :   ^(st=SIZE_TYPE s=staticJavaExpr t=typeExpr)
+    :   ^(st=SIZE_TYPE s=sizeExpr t=typeExpr)
 { 
 checkNotNull($st, $s.res, $s.text);
 checkNotNull($st, $t.res, $t.text);
@@ -242,7 +242,7 @@ $res = getPrimitiveFactory().createModeOR($w, $name, $orRes.res);
     ;
 
 modeReturn returns [Expr res]
-    :  ^(RETURN me=modelExpr {checkNotNull($me.start, $me.res, $me.text);}) {$res = $me.res;}
+    :  ^(RETURN me=dataExpr {checkNotNull($me.start, $me.res, $me.text);}) {$res = $me.res;}
     ;
 
 /*======================================================================================*/
@@ -398,7 +398,7 @@ formatId returns [Format.Argument res]
 {
 $res = Format.createArgument((StatementAttributeCall)getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
 }
-    |  e=modelExpr
+    |  e=dataExpr
 {
 $res = Format.createArgument($e.res);
 }
@@ -453,7 +453,7 @@ $res = Collections.singletonList(
 
 assignmentStatement returns [List<Statement> res]
 @init {final PCAnalyzer analyzer = new PCAnalyzer(getLocationFactory(), getIR());}
-    :  ^(ASSIGN le=location {analyzer.startTrackingSource();} me=modelExpr)
+    :  ^(ASSIGN le=location {analyzer.startTrackingSource();} me=dataExpr)
 {
 final List<Statement> result = new ArrayList<Statement>();
 result.add(getStatementFactory().createAssignment($le.res, $me.res));
@@ -468,7 +468,7 @@ $res = result;
 finally {analyzer.finalize();}
 
 conditionalStatement returns [List<Statement> res]
-    :   ^(IF cond=javaExpr stmts1=sequence stmts2=elseIf?)
+    :   ^(IF cond=logicExpr stmts1=sequence stmts2=elseIf?)
 {
 $res = Collections.singletonList(
     getStatementFactory().createCondition($cond.res, $stmts1.res, $stmts2.res));
@@ -480,96 +480,136 @@ elseIf returns [List<Statement> res]
     ;
 
 /*======================================================================================*/
-/* Expression rules (run-time expressions)                                              */
+/* Extended Expression Rules                                                            */
+/*                                                                                      */
+/* There are several use cases for expressions that impose certain restrictions on them:*/
+/*                                                                                      */
+/* 1. Constant expressions. These expressions are statically calculated at translation  */
+/*    time and evaluated to constant Java values (currently, "int" or "long"). Constant */
+/*    expressions are used in Let constructions.                                        */
+/*                                                                                      */
+/* 2. Size expressions. These expressions are constant expressions evaluated to         */
+/*    constant integer values. Size has the Java "int" type. Size expressions are used  */
+/*    to describe types (e.g. card(32)) and memory locations (reg, mem and var          */
+/*    definitions).                                                                     */
+/*                                                                                      */
+/* 3. Index expressions. These expressions should be evaluated to Java integer values.  */
+/*    Index is represented by then Java "int" type. Index expressions are used to       */
+/*    access locations by their index in a memory line (e.g. GPR[index + 1]) and to     */
+/*    address bitfields of locations (e.g. temp<x+1 .. x+5>).                           */
+/*                                                                                      */
+/* 4. Logic expressions. There expressions are evaluated to boolean values. Logic       */
+/*    expressions are used in condition statements.                                     */
+/*                                                                                      */
+/* 5. Data expressions. Data expressions are described in terms of locations. All       */
+/*    manipulations with locations are described by data expressions. These expressions */
+/*    are used in assignment statements, etc.                                           */
 /*======================================================================================*/
 
-javaExpr returns [Expr res]
-@init  {final ExprFactory factory = getExprFactory(EExprKind.JAVA);}
-    :  e=expr[factory, 0]
+constExpr returns [Expr res]
+    :  e=expr[ValueKind.NATIVE, 0]
 {
 checkNotNull($e.start, $e.res, $e.text);
-$res = factory.evaluate(null, $e.res);
+$res = getExprFactory().evaluateConst(where($e.start), $e.res);
 }
     ;
 
-staticJavaExpr returns [Expr res]
-@init  {final ExprFactory factory = getExprFactory(EExprKind.JAVA_STATIC);}
-    :  e=expr[factory, 0]
+sizeExpr returns [Expr res]
+    :  e=expr[ValueKind.NATIVE, 0]
 {
 checkNotNull($e.start, $e.res, $e.text);
-$res = factory.evaluate(null, $e.res);
+$res = getExprFactory().evaluateSize(where($e.start), $e.res);
 }
     ;
 
-modelExpr returns [Expr res]
-@init  {final ExprFactory factory = getExprFactory(EExprKind.MODEL);}
-    :  e=expr[factory, 0]
+indexExpr returns [Expr res]
+    :  e=expr[ValueKind.NATIVE, 0]
 {
 checkNotNull($e.start, $e.res, $e.text);
-$res = factory.evaluate(null, $e.res);
+$res = getExprFactory().evaluateIndex(where($e.start), $e.res);
 }
     ;
 
-expr [ExprFactory factory, int depth] returns [Expr res]
+logicExpr returns [Expr res]
+    :  e=expr[ValueKind.NATIVE, 0]
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().evaluateLogic(where($e.start), $e.res);
+}
+    ;
+
+dataExpr returns [Expr res]
+    :  e=expr[ValueKind.MODEL, 0]
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().evaluateData(where($e.start), $e.res);
+}
+    ;   
+
+/*======================================================================================*/
+/* Expression rules                                                                     */
+/*======================================================================================*/
+
+expr [ValueKind target, int depth] returns [Expr res]
 @after {$res = $e.res;}
-    :  e=binaryExpr[factory, depth]
-    |   e=unaryExpr[factory, depth]
-    |        e=atom[factory]
+    :  e=binaryExpr[target, depth]
+    |   e=unaryExpr[target, depth]
+    |        e=atom
     ;
 
-binaryExpr [ExprFactory factory, int depth] returns [Expr res]
+binaryExpr [ValueKind target, int depth] returns [Expr res]
 @after
 {
 checkNotNull($e1.start, $e1.res, $e1.text);
 checkNotNull($e2.start, $e2.res, $e2.text);
-$res = factory.binary(where($op), $op.text, $e1.res, $e2.res);
+$res = getExprFactory().operator(where($op), target, $op.text, $e1.res, $e2.res);
 }
-    :  ^(op=OR            e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=AND           e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=VERT_BAR      e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=UP_ARROW      e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=AMPER         e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=EQ            e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=NEQ           e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=LEQ           e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=GEQ           e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=LEFT_BROCKET  e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=RIGHT_BROCKET e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=LEFT_SHIFT    e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=RIGHT_SHIFT   e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=ROTATE_LEFT   e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=ROTATE_RIGHT  e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=PLUS          e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=MINUS         e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=MUL           e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=DIV           e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=REM           e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
-    |  ^(op=DOUBLE_STAR   e1=expr[factory, depth + 1] e2=expr[factory, depth + 1])
+    :  ^(op=OR            e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=AND           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=VERT_BAR      e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=UP_ARROW      e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=AMPER         e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=EQ            e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=NEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=LEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=GEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=LEFT_BROCKET  e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=RIGHT_BROCKET e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=LEFT_SHIFT    e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=RIGHT_SHIFT   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=ROTATE_LEFT   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=ROTATE_RIGHT  e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=PLUS          e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=MINUS         e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=MUL           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=DIV           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=REM           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=DOUBLE_STAR   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
     ;
 
-unaryExpr [ExprFactory factory, int depth] returns [Expr res]
+unaryExpr [ValueKind target, int depth] returns [Expr res]
 @after
 {
 checkNotNull($e.start, $e.res, $e.text);
-$res = factory.unary(where($op), $op.text, $e.res);
+$res = getExprFactory().operator(where($op), target, $op.text, $e.res);
 }
-    :  ^(op=UPLUS   e=expr[factory, depth + 1])
-    |  ^(op=UMINUS  e=expr[factory, depth + 1])
-    |  ^(op=TILDE   e=expr[factory, depth + 1])
-    |  ^(op=NOT     e=expr[factory, depth + 1])
+    :  ^(op=UPLUS   e=expr[target, depth + 1])
+    |  ^(op=UMINUS  e=expr[target, depth + 1])
+    |  ^(op=TILDE   e=expr[target, depth + 1])
+    |  ^(op=NOT     e=expr[target, depth + 1])
     ;
 
-atom [ExprFactory factory] returns [Expr res]
-    :  ^(CONST token=ID)  {$res = factory.namedConst(where($token), $token.text);}
-    |  ^(token=LOCATION le=locationExpr[0]) {$res = factory.location(where($token), $le.res);}
-    |  token=CARD_CONST   {$res = factory.intConst(where($token), $token.text,10);}
-    |  token=BINARY_CONST {$res = factory.intConst(where($token), $token.text, 2);}
-    |  token=HEX_CONST    {$res = factory.intConst(where($token), $token.text,16);}
-    |  ^(token=COERCE te=typeExpr e=modelExpr)
+atom returns [Expr res]
+    :  ^(CONST token=ID)  {$res = getExprFactory().namedConstant(where($token), $token.text);}
+    |  ^(token=LOCATION le=locationExpr[0]) {$res = getExprFactory().location($le.res);}
+    |  token=CARD_CONST   {$res = getExprFactory().constant(where($token), $token.text,10);}
+    |  token=BINARY_CONST {$res = getExprFactory().constant(where($token), $token.text, 2);}
+    |  token=HEX_CONST    {$res = getExprFactory().constant(where($token), $token.text,16);}
+    |  ^(token=COERCE te=typeExpr e=dataExpr)
 {
 checkNotNull($te.start, $te.res, $te.text);
-checkNotNull($e.start, $e.res, $e.text);
-$res = factory.coerce(where($token), $e.res, $te.res);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().coerce(where($token), $e.res, $te.res);
 }
     ;
 
@@ -593,7 +633,7 @@ $res = $value.res;
     ;
 
 locationVal returns [LocationAtom res]
-    :  ^(node=LOCATION_BITFIELD la=locationAtom je1=staticJavaExpr je2=staticJavaExpr)
+    :  ^(node=LOCATION_BITFIELD la=locationAtom je1=indexExpr je2=indexExpr)
 {
 $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res, $je2.res);
 }
@@ -604,7 +644,7 @@ $res = $la.res;
     ;
 
 locationAtom returns [LocationAtom res]
-    :  ^(LOCATION_INDEX id=ID e=javaExpr)
+    :  ^(LOCATION_INDEX id=ID e=indexExpr)
 {
 $res = getLocationFactory().location(where($id), $id.text, $e.res);
 }

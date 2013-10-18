@@ -13,36 +13,26 @@
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
-import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
-import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprClass;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 
 public final class MemoryExprFactory extends WalkerFactoryBase
 {
-    private static final Expr DEFAULT_SIZE = ExprClass.createConstant(1, "1");
+    private static final Expr DEFAULT_SIZE = ExprUtils.createConstant(1);
 
     public MemoryExprFactory(WalkerContext context)
     {
         super(context);
     }
 
-    private void failIfNotInteger(Where where, Class<?> type) throws SemanticException
+    public MemoryExpr createMemory(EMemoryKind kind, Type type, Expr size) 
     {
-        if (!type.equals(Integer.class) && !type.equals(int.class))
-            raiseError(where, new SizeExpressionTypeMismatch(type));
-    }
-
-    public MemoryExpr createMemoryExpr(Where where, EMemoryKind kind, Type type, Expr size) throws SemanticException 
-    {
-        failIfNotInteger(where, size.getJavaType());
         return new MemoryExpr(kind, type, size);        
     }
     
-    public MemoryExpr createMemoryExpr(EMemoryKind kind, Type type)
+    public MemoryExpr createMemory(EMemoryKind kind, Type type)
     {
         return new MemoryExpr(kind, type, DEFAULT_SIZE);        
     }

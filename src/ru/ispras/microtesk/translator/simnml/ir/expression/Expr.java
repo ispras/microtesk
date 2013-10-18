@@ -7,23 +7,91 @@
  * 
  * All rights reserved.
  * 
- * Expr.java, Jan 22, 2013 3:07:07 PM Andrei Tatarnikov
+ * Expr.java, Aug 14, 2013 12:30:28 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
+/**
+ * The Expr interface is implemented by all nodes of a syntax tree describing a Sim-nML expression.
+ * It provides information on node kind and data values produced by the expression that includes
+ * the current node and all its children.
+ * 
+ * @author Andrei Tatarnikov
+ */
 
 public interface Expr
 {
-    public EExprKind getKind();
-    public String getText();
+    /** 
+     * The NodeKind enumeration is used to specify a kind of a node in a expression syntax tree.  
+     */
 
-    public Class<?> getJavaType();
-    public Type getModelType();
+    public enum NodeKind
+    {
+        /** Constant value. A numeric literal. */
+        CONST,
 
-    public ExprOperator getOperator();
-    public Object getValue();
+        /** Named constant described by a Let construction. */
+        NAMED_CONST,
+        
+        /** Location (register, memory, variable, immediate, etc.) referred directly or via an addressing mode. */
+        LOCATION,
+        
+        /** Operator expression. */
+        OPERATOR,
+        
+        /** Explicit type cast (applied to locations). */
+        COERCION
+    }
+    
+    /**
+     * Returns the kind of node describing the given expression.
+     * 
+     * @return Node kind.
+     */
 
-    public Location getLocation();
+    public NodeKind getNodeKind();
+    
+    
+    /**
+     * Returns information on the value produced by the expression 
+     * (type information and value for statically calculated expressions).
+     * 
+     * @return Value information object.
+     */
+    
+    public ValueInfo getValueInfo();
+}
+
+/**
+ * The ExprAbstract class provides basic implementation for all expression node kinds.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
+abstract class ExprAbstract implements Expr
+{
+    private final NodeKind   nodeKind;
+    private final ValueInfo valueInfo;
+
+    protected ExprAbstract(NodeKind nodeKind, ValueInfo valueInfo)
+    {
+        assert null != nodeKind;
+        assert null != valueInfo;
+
+        this.nodeKind = nodeKind;
+        this.valueInfo = valueInfo;
+    }
+
+    @Override
+    public final NodeKind getNodeKind()
+    {
+        return nodeKind;
+    }
+
+    @Override
+    public final ValueInfo getValueInfo()
+    {
+        return valueInfo;
+    }
 }

@@ -10,7 +10,7 @@
  * ExprNodeConst.java, Aug 14, 2013 12:30:39 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 public final class ExprNodeConst extends ExprAbstract
 {
