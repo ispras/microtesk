@@ -29,7 +29,6 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
-import static ru.ispras.microtesk.translator.simnml.ir.expression.ValueKind.*;
 import static ru.ispras.microtesk.translator.simnml.ir.expression.Operator.Operands.*;
 
 /**
@@ -121,11 +120,8 @@ public final class ExprFactory extends WalkerFactoryBase
 
     public Expr coerce(Where w, Expr src, Type type)
     {
-        if (ValueKind.MODEL == src.getValueInfo().getValueKind() && 
-            type.equals(src.getValueInfo().getModelType()))
-        {
+        if (src.getValueInfo().isModel() && type.equals(src.getValueInfo().getModelType()))
             return src;
-        }
 
         return new ExprNodeCoercion(src, type);
     }
@@ -140,11 +136,8 @@ public final class ExprFactory extends WalkerFactoryBase
 
     public Expr coerce(Where w, Expr src, Class<?> type)
     {
-        if (ValueKind.NATIVE == src.getValueInfo().getValueKind() && 
-            type == src.getValueInfo().getNativeType())
-        {
+        if (src.getValueInfo().isNative() && type == src.getValueInfo().getNativeType())
             return src;
-        }
 
         return new ExprNodeCoercion(src, type);
     }
@@ -178,7 +171,6 @@ public final class ExprFactory extends WalkerFactoryBase
         for(Expr operand : operands)
         {
             final ValueInfo vi = operand.getValueInfo();
-            assert MODEL == vi.getValueKind() || NATIVE == vi.getValueKind();
             values.add(vi);
         }
 
@@ -250,10 +242,10 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         final ValueInfo vi = src.getValueInfo();
 
-        if (ValueKind.NATIVE == vi.getValueKind() && Integer.class == vi.getNativeType())
+        if (vi.isNative() && Integer.class == vi.getNativeType())
             return src;
 
-        if (ValueKind.MODEL == vi.getValueKind())
+        if (vi.isModel())
             return new ExprNodeCoercion(src, Integer.class);
 
         raiseError(w, ERR_NOT_INDEX);
@@ -283,7 +275,7 @@ public final class ExprFactory extends WalkerFactoryBase
     
     public Expr evaluateData(Where w, Expr src) throws SemanticException
     {
-        if (ValueKind.MODEL == src.getValueInfo().getValueKind())
+        if (src.getValueInfo().isModel())
             return src;
 
         assert Integer.class == src.getValueInfo().getNativeType() ||
