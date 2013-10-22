@@ -520,21 +520,6 @@ public enum Operator
         return logic.isSupportedFor(value);
     }
 
-    boolean isSupportedFor(ValueKind kind)
-    {
-        return logic.isSupportedFor(kind);
-    }
-
-    boolean isSupportedFor(ETypeID typeId)
-    {
-        return logic.isSupportedFor(typeId);
-    }
-
-    boolean isSupportedFor(Class<?> type)
-    { 
-        return logic.isSupportedFor(type);
-    }
-
     private static abstract class Action
     {
         private final Class<?>     type;
@@ -594,44 +579,22 @@ public enum Operator
 
         public boolean isSupportedFor(ValueInfo value)
         {
-            if (!isSupportedFor(value.getValueKind()))
-                return false;
-
-            if (ValueKind.MODEL == value.getValueKind())
-                return isSupportedFor(value.getModelType().getTypeId());
-
-            return isSupportedFor(value.getNativeType());
-        }
-
-        public boolean isSupportedFor(ValueKind kind)
-        {
-            if (ValueKind.MODEL == kind)
-                return !modelTypes.isEmpty();
-
-            return !nativeTypes.isEmpty();
-        }
-
-        public boolean isSupportedFor(ETypeID typeId)
-        {
-            return modelTypes.contains(typeId);
-        }
-
-        public boolean isSupportedFor(Class<?> type)
-        {
-            return nativeTypes.contains(type);
+            if (value.isNative())
+                return nativeTypes.contains(value.getNativeType());
+            
+            return modelTypes.contains(value.getModelType().getTypeId());
         }
 
         public ValueInfo calculate(ValueInfo castValueInfo, List<ValueInfo> values)
         {
             assert isSupportedFor(castValueInfo);
 
-            if (ValueKind.MODEL == castValueInfo.getValueKind())
+            if (castValueInfo.isModel())
             {
                 return (null != modelResultType) ?
                     ValueInfo.createModel(modelResultType) : castValueInfo;
             }
 
-            assert ValueKind.NATIVE == castValueInfo.getValueKind();
             if (!allValuesConstant(values))
             {
                 return (null != nativeResultType) ?
