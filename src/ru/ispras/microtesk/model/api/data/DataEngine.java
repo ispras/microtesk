@@ -42,8 +42,9 @@ public final class DataEngine
         // The current prototype supports only the INT and CARD data
         // types. We use common converters for them.
 
-        VALUE_CONVERTERS.put(ETypeID.INT, converter);
+        VALUE_CONVERTERS.put(ETypeID.INT,  converter);
         VALUE_CONVERTERS.put(ETypeID.CARD, converter);
+        VALUE_CONVERTERS.put(ETypeID.BOOL, converter);
 
         // Bitwise operators:
 
@@ -104,6 +105,13 @@ public final class DataEngine
 
         return VALUE_CONVERTERS.get(data.getType().getTypeID()).toInt(data);
     }
+    
+    public static boolean booleanValue(Data data)
+    {
+        checkConversionSupported(data.getType(), data.getType().getTypeID().name(), "long");
+
+        return 0 != VALUE_CONVERTERS.get(data.getType().getTypeID()).toLong(data);
+    }
 
     public static boolean isIntValueSupported(Type type)
     {
@@ -122,7 +130,7 @@ public final class DataEngine
 
     public static long longValue(Data data)
     {
-        checkConversionSupported(data.getType(), data.getType().getTypeID().name(), "long");
+        checkConversionSupported(data.getType(), data.getType().getTypeID().name(), "boolean");
 
         return VALUE_CONVERTERS.get(data.getType().getTypeID()).toLong(data);
     }
