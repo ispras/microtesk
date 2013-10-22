@@ -262,7 +262,16 @@ public final class ExprFactory extends WalkerFactoryBase
     
     public Expr evaluateLogic(Where w, Expr src) throws SemanticException
     {
-        return src;
+        final ValueInfo vi = src.getValueInfo();
+
+        if (vi.isNative() && Boolean.class == vi.getNativeType())
+            return src;
+        
+        if (vi.isModel())
+            return new ExprNodeCoercion(src, Boolean.class);
+        
+        raiseError(w, ERR_NOT_BOOLEAN);
+        return null; // Never executed.
     }
     
     /**
@@ -315,6 +324,9 @@ public final class ExprFactory extends WalkerFactoryBase
     
     private static final String ERR_NOT_INDEX =
         "The expression cannot be used as an index since it cannot be evaluated to a Java integer (int) value.";
+    
+    private static final String ERR_NOT_BOOLEAN =
+        "The expression cannot be evaluated to a boolean value (Java boolean)";
 }
 
 final class UnsupportedOperator extends SemanticError

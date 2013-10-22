@@ -180,7 +180,7 @@ public enum Operator
                  }
              ),
 
-    LESS     ("<",   Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    LESS     ("<",   Priority.CURRENT, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -195,7 +195,7 @@ public enum Operator
                  }
              ),
 
-    GREATER  (">",   Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    GREATER  (">",   Priority.CURRENT, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {

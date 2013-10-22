@@ -139,9 +139,16 @@ public final class ExprPrinter
                     toString(src)
                     );
             }
+            else if (Boolean.class == target.getNativeType())
+            {
+                return String.format("%s.booleanValue(%s)",
+                    DataEngine.class.getSimpleName(),
+                    toString(src)
+                    );
+            }
             else
             {
-                //assert false;
+                assert false;
                 return toString(src);
             }
         }
