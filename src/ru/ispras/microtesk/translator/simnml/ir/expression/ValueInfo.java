@@ -63,10 +63,11 @@ public abstract class ValueInfo
 
     protected ValueInfo(ValueKind valueKind)
     {
-        assert null != valueKind;
+        assert null != valueKind && (ValueKind.NATIVE == valueKind || ValueKind.MODEL == valueKind); 
+
         this.valueKind = valueKind;
     }
-    
+
     /**
      * Returns the kind of the referenced value (model API or native Java).
      * 
@@ -86,7 +87,7 @@ public abstract class ValueInfo
 
     public final boolean isConstant()
     {
-        return (ValueKind.NATIVE == valueKind) && (null != getNativeValue());
+        return isNative() && (null != getNativeValue());
     }
 
     /**
@@ -118,13 +119,38 @@ public abstract class ValueInfo
         if (getValueKind() != value.getValueKind())
             return false;
 
-        if (ValueKind.MODEL == getValueKind() && getModelType().equals(value.getModelType()))
+        if (isModel() && getModelType().equals(value.getModelType()))
             return true;
 
-        if (ValueKind.NATIVE == getValueKind() && getNativeType() == value.getNativeType())
+        if (isNative() && getNativeType() == value.getNativeType())
             return true;
 
         return false;
+    }
+
+    /**
+     * Returns <code>true</code> if the stored value is a native Java value or <code>false</code>
+     * if it is a Model API value.
+     * 
+     * @return <code>true</code> for native Java values (Integer, Long, Boolean) or <code>false</code>
+     * for MicroTESK Model API values. 
+     */
+
+    public final boolean isNative()
+    {
+        return ValueKind.NATIVE == getValueKind();
+    }
+
+    /**
+     * Returns <code>true</code> if the stored value is a Model API value or <code>false</code>
+     * if it is a native Java value.
+     * 
+     * @return <code>true</code> for MicroTESK Model API values or <code>false</code> for native Java values. 
+     */
+
+    public final boolean isModel()
+    {
+        return ValueKind.MODEL == getValueKind();
     }
 
     /**
@@ -135,7 +161,7 @@ public abstract class ValueInfo
 
     public final String getTypeName()
     {
-        if (ValueKind.NATIVE == getValueKind())
+        if (isNative())
             return getNativeType().getSimpleName();
 
         return getModelType().getTypeName();
