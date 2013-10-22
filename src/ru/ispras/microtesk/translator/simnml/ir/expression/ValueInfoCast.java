@@ -48,10 +48,10 @@ public final class ValueInfoCast
         if (left.getValueKind() != right.getValueKind())
             return getCastMixed(target, values);
 
-        if (ValueKind.MODEL == left.getValueKind())
+        if (left.isModel())
             return getCastModel(values);
-        else
-            return getCastNative(values);
+
+        return getCastNative(values);
     }
 
     private static ValueInfo getCastMixed(ValueKind target, List<ValueInfo> values)
