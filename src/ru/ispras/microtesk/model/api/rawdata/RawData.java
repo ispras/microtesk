@@ -111,8 +111,10 @@ public abstract class RawData implements Comparable<RawData>
     {
         if (this == obj) return true;
         if (null == obj) return false;
-        if (getClass() != obj.getClass()) return false;
-        
+
+        if (!(obj instanceof RawData))
+            return false;
+
         final RawData other = (RawData) obj;
         if (getBitSize() != other.getBitSize()) return false;
         
