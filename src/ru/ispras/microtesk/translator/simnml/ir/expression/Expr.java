@@ -33,17 +33,17 @@ public interface Expr
 
         /** Named constant described by a Let construction. */
         NAMED_CONST,
-        
+
         /** Location (register, memory, variable, immediate, etc.) referred directly or via an addressing mode. */
         LOCATION,
-        
+
         /** Operator expression. */
         OPERATOR,
-        
+
         /** Explicit type cast (applied to locations). */
         COERCION
     }
-    
+
     /**
      * Returns the kind of node describing the given expression.
      * 
@@ -51,15 +51,14 @@ public interface Expr
      */
 
     public NodeKind getNodeKind();
-    
-    
+
     /**
      * Returns information on the value produced by the expression 
      * (type information and value for statically calculated expressions).
      * 
      * @return Value information object.
      */
-    
+
     public ValueInfo getValueInfo();
 }
 
