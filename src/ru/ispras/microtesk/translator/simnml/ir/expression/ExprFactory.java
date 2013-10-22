@@ -154,7 +154,7 @@ public final class ExprFactory extends WalkerFactoryBase
      */
 
     public Expr operator(
-        Where w, ValueKind target, String id, Expr ... operands) throws SemanticException
+        Where w, ValueInfo.Kind target, String id, Expr ... operands) throws SemanticException
     {
         assert UNARY.count() == operands.length || BINARY.count() == operands.length;
 

@@ -31,7 +31,7 @@ public final class ValueInfoCast
      * @return Value information object describing the target value type or <code>null</code> is value types are incompatible. 
      */
 
-    public static ValueInfo getCast(ValueKind target, List<ValueInfo> values)
+    public static ValueInfo getCast(ValueInfo.Kind target, List<ValueInfo> values)
     {
         assert Operator.Operands.UNARY.count()  == values.size() ||
                Operator.Operands.BINARY.count() == values.size();
@@ -54,7 +54,7 @@ public final class ValueInfoCast
         return getCastNative(values);
     }
 
-    private static ValueInfo getCastMixed(ValueKind target, List<ValueInfo> values)
+    private static ValueInfo getCastMixed(ValueInfo.Kind target, List<ValueInfo> values)
     {
         for (ValueInfo vi : values)
         {

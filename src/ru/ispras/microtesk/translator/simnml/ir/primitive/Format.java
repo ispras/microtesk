@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ValueKind;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class Format
@@ -117,10 +116,9 @@ public final class Format
             if (STR == marker)
                 return false;
 
-            if (ValueKind.MODEL == expr.getValueInfo().getValueKind())
+            if (expr.getValueInfo().isModel())
                 return isModelConvertibleTo(marker);
 
-            assert ValueKind.NATIVE == expr.getValueInfo().getValueKind();
             return isJavaConvertibleTo(marker);
         }
 
@@ -155,7 +153,7 @@ public final class Format
         {
             assert isConvertibleTo(marker);
 
-            if (ValueKind.MODEL == expr.getValueInfo().getValueKind())
+            if (expr.getValueInfo().isModel())
                 return convertModelTo(marker);
 
             return convertJavaTo(marker);

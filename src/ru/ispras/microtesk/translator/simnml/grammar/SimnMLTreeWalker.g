@@ -507,7 +507,7 @@ elseIf returns [List<Statement> res]
 /*======================================================================================*/
 
 constExpr returns [Expr res]
-    :  e=expr[ValueKind.NATIVE, 0]
+    :  e=expr[ValueInfo.Kind.NATIVE, 0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateConst(where($e.start), $e.res);
@@ -515,7 +515,7 @@ $res = getExprFactory().evaluateConst(where($e.start), $e.res);
     ;
 
 sizeExpr returns [Expr res]
-    :  e=expr[ValueKind.NATIVE, 0]
+    :  e=expr[ValueInfo.Kind.NATIVE, 0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateSize(where($e.start), $e.res);
@@ -523,7 +523,7 @@ $res = getExprFactory().evaluateSize(where($e.start), $e.res);
     ;
 
 indexExpr returns [Expr res]
-    :  e=expr[ValueKind.NATIVE, 0]
+    :  e=expr[ValueInfo.Kind.NATIVE, 0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateIndex(where($e.start), $e.res);
@@ -531,7 +531,7 @@ $res = getExprFactory().evaluateIndex(where($e.start), $e.res);
     ;
 
 logicExpr returns [Expr res]
-    :  e=expr[ValueKind.NATIVE, 0]
+    :  e=expr[ValueInfo.Kind.NATIVE, 0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateLogic(where($e.start), $e.res);
@@ -539,7 +539,7 @@ $res = getExprFactory().evaluateLogic(where($e.start), $e.res);
     ;
 
 dataExpr returns [Expr res]
-    :  e=expr[ValueKind.MODEL, 0]
+    :  e=expr[ValueInfo.Kind.MODEL, 0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateData(where($e.start), $e.res);
@@ -550,14 +550,14 @@ $res = getExprFactory().evaluateData(where($e.start), $e.res);
 /* Expression rules                                                                     */
 /*======================================================================================*/
 
-expr [ValueKind target, int depth] returns [Expr res]
+expr [ValueInfo.Kind target, int depth] returns [Expr res]
 @after {$res = $e.res;}
     :  e=binaryExpr[target, depth]
     |   e=unaryExpr[target, depth]
     |        e=atom
     ;
 
-binaryExpr [ValueKind target, int depth] returns [Expr res]
+binaryExpr [ValueInfo.Kind target, int depth] returns [Expr res]
 @after
 {
 checkNotNull($e1.start, $e1.res, $e1.text);
@@ -587,7 +587,7 @@ $res = getExprFactory().operator(where($op), target, $op.text, $e1.res, $e2.res)
     |  ^(op=DOUBLE_STAR   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
     ;
 
-unaryExpr [ValueKind target, int depth] returns [Expr res]
+unaryExpr [ValueInfo.Kind target, int depth] returns [Expr res]
 @after
 {
 checkNotNull($e.start, $e.res, $e.text);

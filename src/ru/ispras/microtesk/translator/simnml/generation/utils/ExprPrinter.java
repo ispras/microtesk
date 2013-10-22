@@ -25,7 +25,6 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeNamedConst;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeOperator;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ValueInfo;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ValueKind;
 
 public final class ExprPrinter
 {
@@ -104,9 +103,9 @@ public final class ExprPrinter
         if (target.hasEqualType(src.getValueInfo()))
             return toString(src);
 
-        if (ValueKind.MODEL == target.getValueKind())
+        if (target.isModel())
         {
-            if (ValueKind.MODEL == src.getValueInfo().getValueKind())
+            if (src.getValueInfo().isModel())
             {
                 return String.format("%s.coerce(%s, %s)",
                     DataEngine.class.getSimpleName(),
@@ -124,7 +123,7 @@ public final class ExprPrinter
             }
         }
 
-        if (ValueKind.MODEL == src.getValueInfo().getValueKind())
+        if (src.getValueInfo().isModel())
         {
             if (Integer.class == target.getNativeType())
             {
@@ -166,7 +165,7 @@ public final class ExprPrinter
     
     private static String toString(ExprNodeOperator expr)
     {
-        if (ValueKind.MODEL == expr.getCast().getValueKind())
+        if (expr.getCast().isModel())
         {
             final StringBuilder sb = new StringBuilder();
             for (Expr operand : expr.getOperands())

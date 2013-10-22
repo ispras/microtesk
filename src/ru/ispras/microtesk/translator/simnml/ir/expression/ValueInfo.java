@@ -24,6 +24,21 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 public abstract class ValueInfo
 {
     /**
+     * Specifies the kind of a value stored in an expression terminal or produced as a result of an operation.
+     * 
+     * @author Andrei Tatarnikov
+     */
+
+    public static enum Kind
+    {
+        /** MicroTESK Model API value. */
+        MODEL,
+        
+        /** Native Java value. */
+        NATIVE
+    }
+
+    /**
      * Creates a value information object basing on a MicroTESK Model API type description.
      * 
      * @param type MicroTESK Model API type description.
@@ -59,11 +74,11 @@ public abstract class ValueInfo
         return new ValueInfoNative(type);
     }
 
-    private final ValueKind valueKind;
+    private final Kind valueKind;
 
-    protected ValueInfo(ValueKind valueKind)
+    protected ValueInfo(Kind valueKind)
     {
-        assert null != valueKind && (ValueKind.NATIVE == valueKind || ValueKind.MODEL == valueKind); 
+        assert null != valueKind && (Kind.NATIVE == valueKind || Kind.MODEL == valueKind); 
 
         this.valueKind = valueKind;
     }
@@ -74,7 +89,7 @@ public abstract class ValueInfo
      * @return  MODEL (MicroTESK Model API) or NATIVE (Java)
      */
 
-    public final ValueKind getValueKind()
+    public final Kind getValueKind()
     {
         return valueKind;
     }
@@ -138,7 +153,7 @@ public abstract class ValueInfo
 
     public final boolean isNative()
     {
-        return ValueKind.NATIVE == getValueKind();
+        return Kind.NATIVE == getValueKind();
     }
 
     /**
@@ -150,7 +165,7 @@ public abstract class ValueInfo
 
     public final boolean isModel()
     {
-        return ValueKind.MODEL == getValueKind();
+        return Kind.MODEL == getValueKind();
     }
 
     /**
@@ -204,7 +219,7 @@ final class ValueInfoModel extends ValueInfo
 
     ValueInfoModel(Type type)
     {
-        super(ValueKind.MODEL);
+        super(Kind.MODEL);
 
         assert null != type;
         this.type = type;
@@ -250,7 +265,7 @@ final class ValueInfoNative extends ValueInfo
 
     ValueInfoNative(Object value)
     {
-        super(ValueKind.NATIVE);
+        super(Kind.NATIVE);
 
         assert null != value;
         assert isSupportedType(value.getClass()) : value.getClass(); 
@@ -261,7 +276,7 @@ final class ValueInfoNative extends ValueInfo
 
     ValueInfoNative(Class<?> type)
     {
-        super(ValueKind.NATIVE);
+        super(Kind.NATIVE);
 
         assert null != type;
         this.type  = type;
