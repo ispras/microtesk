@@ -61,8 +61,8 @@ public class RawDataMapping extends RawData
     private final int  beginBitPos;
     private final int  bitSize;
     private final int  excludedLowBits;
-    private final char lowByteMask;
-    private final char highByteMask;
+    private final byte lowByteMask;
+    private final byte highByteMask;
 
     /**
      * Creates a mapping for the specified data array. 
@@ -85,22 +85,23 @@ public class RawDataMapping extends RawData
         this.bitSize         = bitSize;
 
         this.excludedLowBits = beginBitPos % BITS_IN_BYTE;
-        this.lowByteMask     = (0 == excludedLowBits) ? 0 : (char)((DEF_BYTE_MASK << excludedLowBits) & DEF_BYTE_MASK);
-        this.highByteMask    = (char) (DEF_BYTE_MASK >>> (BITS_IN_BYTE - (beginBitPos + bitSize) % BITS_IN_BYTE));
+        this.lowByteMask     = (0 == excludedLowBits) ? 0 : (byte)(0xFF << excludedLowBits);
+
+        this.highByteMask    = (byte) (0xFF >>> (BITS_IN_BYTE - (beginBitPos + bitSize) % BITS_IN_BYTE));
     }
-    
+
     /**
      * Creates a reference to the specified data array (a mapping that matches
      * the original data array). 
      * 
      * @param src The source data array.
      */
-    
+
     public RawDataMapping(RawData src)
     {
         this(src, 0, src.getBitSize());
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -110,7 +111,7 @@ public class RawDataMapping extends RawData
     {
         return bitSize;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -120,19 +121,19 @@ public class RawDataMapping extends RawData
     {
         return bitSize / BITS_IN_BYTE + ((0 == bitSize % BITS_IN_BYTE) ? 0 : 1);
     }
-    
+
     /**
      * {@inheritDoc}
      */
 
     @Override
-    public char getByte(int index)
+    public byte getByte(int index)
     {
         final int beginBytePos = getBeginBytePos();
         final int endBytePos   = getEndBytePos();
-        
+
         final int byteIndex    = beginBytePos + index;
-        
+
         assert ((0 <= index) && (index < getByteSize()));
         assert ((0 <= byteIndex) && (byteIndex < data.getByteSize())); 
 
@@ -142,28 +143,28 @@ public class RawDataMapping extends RawData
         // corresponds to the specified byte.
 
         if (0 == lowByteMask)
-            return (char) (data.getByte(byteIndex) & getByteBitMask(index));
+            return (byte) (data.getByte(byteIndex) & getByteBitMask(index));
 
         // Takes needed bits (the higher part) of the low byte (specified by byteIndex) and
         // shifts them to the beginning of the byte (towards the least significant part).
 
-        final char lowByte =
-            (char)((data.getByte(byteIndex) & lowByteMask) >> excludedLowBits);
+        final byte lowByte =
+            (byte)((data.getByte(byteIndex) & (lowByteMask & 0xFF)) >>> excludedLowBits);
 
         // If there is not bytes left in the data array, we don't go further.        
         if (byteIndex == endBytePos)
-            return (char) (lowByte & getByteBitMask(index));
-        
+            return (byte) (lowByte & getByteBitMask(index));
+
         // Takes the needed bits (the lower part) of the high byte (following after the low byte)
         // and shifts them to the end of the byte (towards the most significant part).
 
-        final char highByte =
-            (char)((data.getByte(byteIndex + 1) & ~lowByteMask) << (BITS_IN_BYTE - excludedLowBits));
+        final byte highByte =
+            (byte)((data.getByte(byteIndex + 1) & (~lowByteMask & 0xFF)) << (BITS_IN_BYTE - excludedLowBits));
 
         // Unites the low and high parts and cuts bits to be excluded with help of a mask
         // (in case if we are addressing an incomplete high byte).
 
-        return (char) ((highByte | lowByte) & getByteBitMask(index));
+        return (byte) ((highByte | lowByte) & getByteBitMask(index));
     }
 
     /**
@@ -171,7 +172,7 @@ public class RawDataMapping extends RawData
      */
     
     @Override
-    public void setByte(int index, char value)
+    public void setByte(int index, byte value)
     {
         final int beginBytePos = getBeginBytePos();
         final int endBytePos   = getEndBytePos();
@@ -180,7 +181,7 @@ public class RawDataMapping extends RawData
 
         assert ((0 <= index) && (index < getByteSize()));
         assert ((0 <= byteIndex) && (byteIndex < data.getByteSize()));
-        
+
         final boolean isHighByteMaskApplied = (byteIndex == endBytePos) && (0 != highByteMask);
 
         // If there is no mask for the low bytes this means that data
@@ -191,30 +192,30 @@ public class RawDataMapping extends RawData
             // If this is the highest byte of the mapping, it might be incomplete. In this case,
             // we need to preserve the excluded part of the target byte from overwriting.  
 
-            final char prevValue = (char)(isHighByteMaskApplied ? (data.getByte(byteIndex) & ~highByteMask) : 0);
-            
+            final byte prevValue = (byte)(isHighByteMaskApplied ? (data.getByte(byteIndex) & ~highByteMask) : 0);
+
             // Excludes the redundant bits from the value and unites it with the initial value
             // part to be preserved.
 
-            data.setByte(byteIndex, (char)(prevValue | (value & getByteBitMask(index))) );
+            data.setByte(byteIndex, (byte)(prevValue | (value & getByteBitMask(index))) );
             return;
         }
 
         // Forms the mask to preserve previous values of bits that are not affected by 
         // the modification (in incomplete low and high bytes).
 
-        final char prevValueMask =
-            (char)(isHighByteMaskApplied ? (~lowByteMask | ~highByteMask) & DEF_BYTE_MASK : ~lowByteMask & DEF_BYTE_MASK);
+        final byte prevValueMask =
+            (byte)(isHighByteMaskApplied ? (~lowByteMask | ~highByteMask) & 0xFF : ~lowByteMask & 0xFF);
 
         // Moves the low part of the specified byte to the high border of the byte
         // and unites the result with the old part of the target byte that should be preserved.
         // Also, we reset all redundant bits that go beyond the border of the high incomplete byte. 
 
-        final char    prevValue = (char)(data.getByte(byteIndex) & prevValueMask);
-        final char alignedValue = (char)((value << excludedLowBits) & DEF_BYTE_MASK);
+        final byte    prevValue = (byte)(data.getByte(byteIndex) & prevValueMask);
+        final byte alignedValue = (byte)((value << excludedLowBits) & 0xFF);
 
-        final char lowByte =
-            (char)((alignedValue & (isHighByteMaskApplied ? highByteMask : DEF_BYTE_MASK)) | prevValue);
+        final byte lowByte =
+            (byte)((alignedValue & (isHighByteMaskApplied ? highByteMask : 0xFF)) | prevValue);
 
         data.setByte(byteIndex, lowByte);
 
@@ -229,9 +230,9 @@ public class RawDataMapping extends RawData
         // part of the target byte is limited with the high border of the mask, we reset all excluded bits
         // with a high byte mask. 
 
-        final char highByte = (char)
+        final byte highByte = (byte)
         (
-            ((value >>> (BITS_IN_BYTE-excludedLowBits)) & ((byteIndex+1 == endBytePos) ? highByteMask : DEF_BYTE_MASK))
+            ((value >>> (BITS_IN_BYTE-excludedLowBits)) & ((byteIndex+1 == endBytePos) ? highByteMask : 0xFF))
             |
             data.getByte(byteIndex+1) & lowByteMask
         );

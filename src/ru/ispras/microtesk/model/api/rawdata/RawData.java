@@ -27,14 +27,8 @@ public abstract class RawData implements Comparable<RawData>
      * Number of bits an a byte.
      */
 
-    public final static char BITS_IN_BYTE  = 8;
-    
-    /**
-     * Default bit mask for a byte (an element of a byte array that stores raw binary data).  
-     */
+    public final static int BITS_IN_BYTE  = 8;
 
-    public final static char DEF_BYTE_MASK = 0xFF; 
-    
     /**
      * Returns the number of bits in the stored data array.
      * 
@@ -50,7 +44,7 @@ public abstract class RawData implements Comparable<RawData>
      */
 
     public abstract int getByteSize();
-    
+
     /**
      * Returns the binary value stored in the specified byte. For incomplete bytes, the 
      * return value contains only the bits inside the bounds limited by bit size.  
@@ -59,8 +53,8 @@ public abstract class RawData implements Comparable<RawData>
      * @return Binary value stored in the specified byte.
      */
 
-    public abstract char getByte(int index);
-    
+    public abstract byte getByte(int index);
+
     /**
      * Sets the value of the specified byte in the data array. For incomplete bytes,
      * bits that fall beyond the bound limited by the bits size are ignored. In other words,
@@ -71,7 +65,7 @@ public abstract class RawData implements Comparable<RawData>
      * @param value Binary value to be stored in the specified byte.
      */
 
-    public abstract void setByte(int index, char value);
+    public abstract void setByte(int index, byte value);
 
     /**
      * Resets (set to zero) all bytes in the stored data array.
@@ -79,7 +73,7 @@ public abstract class RawData implements Comparable<RawData>
 
     public final void reset()
     {  
-        fill(this, (char) 0);
+        fill(this, (byte) 0);
     }
 
     /**
@@ -93,11 +87,9 @@ public abstract class RawData implements Comparable<RawData>
     public final void assign(RawData src)
     {
         assert null != src;
-        assert this != src;
-
         copy(src, this);
     }
-    
+
     /***
      * Checks the equality of two raw data object. Objects are considered equal if
      * their sizes match and the refer to equal data (comparison is performed 
@@ -117,10 +109,10 @@ public abstract class RawData implements Comparable<RawData>
 
         final RawData other = (RawData) obj;
         if (getBitSize() != other.getBitSize()) return false;
-        
+
         return (-1 == mismatch_reverse(this, other));
     }
-    
+
     /**
      * Compares the current raw data array with the specified data array. Data is
      * compared starting with the highest byte in the array.
@@ -143,7 +135,7 @@ public abstract class RawData implements Comparable<RawData>
         // Objects are equal (no mismatch was found)
         if (-1 == index) 
             return 0;
-                
+
         // This object is less (the value of the highest mismatch byte is less)
         if (getByte(index) < other.getByte(index))
             return -1;
@@ -160,19 +152,19 @@ public abstract class RawData implements Comparable<RawData>
 
     public final String toBinString()
     {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder(getBitSize());
 
         final IAction op = new IAction()
         {
             private int totalBitCount = getBitSize();
 
             @Override
-            public void run(char v)
+            public void run(byte v)
             {
                 final int highBits = totalBitCount % BITS_IN_BYTE;
                 final int bitCount = (highBits == 0) ? BITS_IN_BYTE : highBits;
 
-                for (char mask = (char)(1 << (bitCount-1)); 0 != mask; mask = (char)(mask >>> 1))
+                for (int mask = 0x1 << (bitCount-1); 0 != mask; mask >>>= 1)
                 {
                     sb.append((v & mask) == 0 ? '0' : '1');
                 }
@@ -180,12 +172,11 @@ public abstract class RawData implements Comparable<RawData>
                 totalBitCount -= bitCount;
             }
         };
-        
+
         for_each_reverse(this, op);
         return sb.toString();
     }
-    
-    
+
     /**
      * Returns a copy of stored data packed into an array of bytes.
      *  
@@ -195,18 +186,18 @@ public abstract class RawData implements Comparable<RawData>
     public final byte[] toByteArray()
     {
         final byte[] byteArray = new byte[this.getByteSize()];
-        
+
         final IAction op = new IAction()
         {
             private int index = 0;
-            
+
             @Override
-            public void run(char v)
+            public void run(byte v)
             {
-                byteArray[index++] = (byte)(v & 0xFF);                
+                byteArray[index++] = v;                
             }
         };
-        
+
         for_each_reverse(this, op);        
         return byteArray;
     }
@@ -218,12 +209,12 @@ public abstract class RawData implements Comparable<RawData>
      * @param bs Textual representation of binary data.
      * @return Raw data object.
      */    
-    
+
     public static RawData valueOf(final String bs)
     {
         return valueOf(bs, bs.length());
     }
-    
+
     /**
      * Creates an instance of a raw data object based on textual representation
      * of binary data. The data size is specified by a method parameter. If the 
@@ -235,7 +226,7 @@ public abstract class RawData implements Comparable<RawData>
      * @param bitSize Size of the resulting data array (in bits). 
      * @return Raw data object.
      */
-    
+
     public static RawData valueOf(final String bs, final int bitSize)
     {
         if (null == bs)
@@ -248,12 +239,11 @@ public abstract class RawData implements Comparable<RawData>
             private int bitsRead = 0;
 
             @Override
-            public char run()
+            public byte run()
             {
-                char v = 0;
+                byte v = 0;
 
-                final int oldBitsRead = bitsRead;
-                while ((bitsRead != bitSize) && ((0 != (bitsRead % BITS_IN_BYTE)) || (oldBitsRead == bitsRead)))  
+                do
                 {
                     final int bitIndex = bs.length() - bitsRead - 1;
 
@@ -264,11 +254,12 @@ public abstract class RawData implements Comparable<RawData>
                         if (('0' != c) && ('1' != c))
                             throw new NumberFormatException(bs);
 
-                        v = (char)(v | ((('0' == c) ? 0x0 : 0x1) << (bitsRead % BITS_IN_BYTE)));
+                        v |= (byte)(('0' == c ? 0x0 : 0x1) << (bitsRead % BITS_IN_BYTE));
                     }
 
                     ++bitsRead;
                 }
+                while (bitsRead != bitSize && 0 != (bitsRead % BITS_IN_BYTE));
 
                 return v;
             }
@@ -277,7 +268,7 @@ public abstract class RawData implements Comparable<RawData>
         RawDataAlgorithm.generate(result, op);
         return result;        
     }
-    
+
     /**
      * Creates an instance of a raw data object based on a long value. The data size is
      * specified by a method parameter. If the raw data size is less that the long value
@@ -289,7 +280,7 @@ public abstract class RawData implements Comparable<RawData>
      * @param bitSize Size of the resulting data array (in bits).
      * @return Raw data object.
      */
-    
+
     public static RawData valueOf(final long value, final int bitSize)
     {
         final IOperation op = new IOperation()
@@ -297,12 +288,12 @@ public abstract class RawData implements Comparable<RawData>
             private long v = value; 
 
             @Override
-            public char run()
+            public byte run()
             {
                 if (0 == v) return 0;
 
-                final char result = (char)(v & 0xFFL);
-                v = v >>> RawData.BITS_IN_BYTE;
+                final byte result = (byte)(v & 0xFFL);
+                v >>>= RawData.BITS_IN_BYTE;
 
                 return result;
             }
@@ -330,15 +321,10 @@ public abstract class RawData implements Comparable<RawData>
             private int index = data.length - 1; 
 
             @Override
-            public char run()
+            public byte run()
             {
-                if (index < 0)
-                   return 0;
-
-                final char result = (char)data[index];
-                --index;
-
-                return result;
+                if (index < 0) return 0;
+                return data[index--];
             }
         };
 
@@ -364,7 +350,7 @@ public abstract class RawData implements Comparable<RawData>
     {
         return valueOf(((long)value) & 0xFFFFFFFFL, bitSize);
     }
-    
+
     /**
      * Converts the stored data to an integer value. If the stored data size
      * exceeds integer size (32 bits), the data is truncated (high bits are cut off).     
@@ -377,7 +363,7 @@ public abstract class RawData implements Comparable<RawData>
     public final int intValue()
     {
         assert getBitSize() <= Integer.SIZE;
-        
+
         class Result { public int value = 0; }
         final Result result = new Result();
 
@@ -386,7 +372,7 @@ public abstract class RawData implements Comparable<RawData>
             private int bitCount  = 0;
 
             @Override
-            public void run(char v)
+            public void run(byte v)
             {
                 if (bitCount >= Integer.SIZE)
                 {
@@ -394,15 +380,15 @@ public abstract class RawData implements Comparable<RawData>
                     return; 
                 }
 
-                result.value = result.value | ((v & RawData.DEF_BYTE_MASK) << bitCount);
-                bitCount += RawData.BITS_IN_BYTE;
+                result.value |= (v & 0xFF) << bitCount;
+                bitCount     += RawData.BITS_IN_BYTE;
             }
         };       
 
         for_each(this, op);
         return result.value;
     }
-    
+
     /**
      * Converts the stored data to an long value. If the stored data size
      * exceeds long size (64 bits), the data is truncated (high bits are cut off).     
@@ -411,11 +397,11 @@ public abstract class RawData implements Comparable<RawData>
      * 
      * TODO: Unit tests for this method are needed.
      */
-    
+
     public final long longValue()
     {
         assert getBitSize() <= Long.SIZE;
-        
+
         class Result { public long value = 0; }
         final Result result = new Result();
 
@@ -424,7 +410,7 @@ public abstract class RawData implements Comparable<RawData>
             private int bitCount  = 0;
 
             @Override
-            public void run(char v)
+            public void run(byte v)
             {
                 if (bitCount >= Long.SIZE)
                 {                    
@@ -432,33 +418,13 @@ public abstract class RawData implements Comparable<RawData>
                     return;
                 }
 
-                result.value = result.value | ((v & RawData.DEF_BYTE_MASK) << bitCount);
-                bitCount += RawData.BITS_IN_BYTE;
+                result.value |= (v & 0xFF) << bitCount;
+                bitCount     += RawData.BITS_IN_BYTE;
             }
         };
 
         for_each(this, op);
         return result.value;
-    }
-    
-    /**
-     * Returns a bit mask for the highest byte in the data array of the specified size. When the size of
-     * the data array is not multiple of 8, we need a mask to reset bits in the highest byte we are
-     * not interested in (such byte is called incomplete). If there is no incomplete bytes in the data 
-     * (the size is multiple of 8)m the function returns 0 instead of the mask.  
-     * 
-     * @param bitSize Data size in bits.
-     * @return Bit mask for the highest byte if it is incomplete or 0 if there is no complete bytes (bit size is multiple of 8).  
-     */
-
-    private final static char getHighByteBitMask(int bitSize)
-    {
-        final int incompleteBitsInHighByte = bitSize % BITS_IN_BYTE;
-
-        if (0 == incompleteBitsInHighByte)
-            return 0;
-
-        return (char)(DEF_BYTE_MASK >>> (BITS_IN_BYTE - incompleteBitsInHighByte));
     }
 
     /**
@@ -469,15 +435,24 @@ public abstract class RawData implements Comparable<RawData>
      * @return Bit mask for the current byte.
      */
 
-    protected final char getByteBitMask(int index)
+    private byte highByteMask = 0;
+
+    protected final byte getByteBitMask(int index)
     {
         assert (index >= 0) && (index < getByteSize());
-        
-        final char highByteMask = getHighByteBitMask(getBitSize());
 
-        if ((0 != highByteMask) && (index == getByteSize()-1))
-            return highByteMask;
+        final boolean isHighByte = index == getByteSize() - 1;
 
-        return DEF_BYTE_MASK;
+        if (!isHighByte)
+            return (byte) 0xFF;
+
+        if (0 == highByteMask)
+        {
+            final int incompleteBitsInHighByte = getBitSize() % BITS_IN_BYTE;
+            highByteMask = (0 == incompleteBitsInHighByte) ?
+                (byte) 0xFF : (byte) (0xFF >>> (BITS_IN_BYTE - incompleteBitsInHighByte));
+        }
+
+        return highByteMask;
     }
 }

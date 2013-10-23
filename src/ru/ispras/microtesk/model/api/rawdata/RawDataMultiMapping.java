@@ -71,12 +71,12 @@ public class RawDataMultiMapping extends RawData
      * 
      * @author Andrei Tatarnikov
      */
-    
+
     private static final class LinkingByteMapping extends RawData
     {
         private final RawData lowPart;
         private final RawData highPart;
-        
+
         /**
          * Creates a LinkingByteMapping object from two parts. 
          * 
@@ -90,10 +90,10 @@ public class RawDataMultiMapping extends RawData
             assert ((0 < highPart.getBitSize()) && (highPart.getBitSize() < BITS_IN_BYTE));
             assert ((lowPart.getBitSize() + highPart.getBitSize()) <= BITS_IN_BYTE); 
 
-            this.lowPart = lowPart;
+            this.lowPart  =  lowPart;
             this.highPart = highPart;
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -103,7 +103,7 @@ public class RawDataMultiMapping extends RawData
         { 
             return lowPart.getBitSize() + highPart.getBitSize();
         }
-        
+
         /**
          * {@inheritDoc}
          * NOTE: The number of bytes a LinkingByteMapping object can store always equals to 1.  
@@ -120,21 +120,21 @@ public class RawDataMultiMapping extends RawData
          * NOTE: A LinkingByteMapping object always stores 1-byte data and, consequently,
          * accepts only 0 as the value of the index parameter.
          */
-        
+
         @Override
-        public char getByte(int index)
+        public byte getByte(int index)
         {
             assert (0 == index) : "ONE-BYTE DATA ARRAY!";
 
-            final char  lowValue = lowPart.getByte(0);
-            final char highValue = highPart.getByte(0);
-            
-            final char result =
-                (char)(((highValue << lowPart.getBitSize()) | lowValue) & getByteBitMask(0)); 
+            final byte  lowValue = lowPart.getByte(0);
+            final byte highValue = highPart.getByte(0);
+
+            final byte result =
+                (byte)(((highValue << lowPart.getBitSize()) | lowValue) & getByteBitMask(0)); 
 
             return result;
         }
-        
+
         /**
          * {@inheritDoc}
          * NOTE: A LinkingByteMapping object always stores 1-byte data and, consequently,
@@ -142,21 +142,21 @@ public class RawDataMultiMapping extends RawData
          */
 
         @Override
-        public void setByte(int index, char value)
+        public void setByte(int index, byte value)
         {
             assert (0 == index) : "ONE-BYTE DATA ARRAY!";
 
-            final char lowValue =
-                (char)((value & ~(DEF_BYTE_MASK << lowPart.getBitSize())));
+            final byte lowValue =
+                (byte)((value & ~(0xFF << lowPart.getBitSize())));
             
-            final char highValue =
-                (char)((value >> lowPart.getBitSize()) & ~(DEF_BYTE_MASK << highPart.getBitSize()));
+            final byte highValue =
+                (byte)((value >> lowPart.getBitSize()) & ~(0xFF << highPart.getBitSize()));
 
             lowPart.setByte(0, lowValue);
             highPart.setByte(0, highValue);            
         }
     }
-    
+
     /**
      * The ByteAccessor class is aimed to provide access to an arbitrary byte
      * of the mapping. The class encapsulates the real data source
@@ -165,12 +165,12 @@ public class RawDataMultiMapping extends RawData
      * 
      * @author Andrei Tatarnikov
      */
-    
+
     private static final class ByteAccessor
     {
         public final RawData data;
         public final int     index;
-        
+
         /**
          * Creates an instance of the ByteAccessor class. 
          * 
@@ -183,23 +183,23 @@ public class RawDataMultiMapping extends RawData
             this.data  = data;
             this.index = index;
         }
-        
+
         /**
          * Returns the value of the byte the accessor refers to. 
          * @return A target byte value. 
          */
 
-        public char getByte()
+        public byte getByte()
         {
             return data.getByte(index);
         }
-        
+
         /**
          * Sets the value of the byte the accessor refers to. 
          * @param value The value to be assign to the target byte.
          */
 
-        public void setByte(char value)
+        public void setByte(byte value)
         {
             data.setByte(index, value);
         }
@@ -215,7 +215,7 @@ public class RawDataMultiMapping extends RawData
      * @param data The data array to be mapped to the vector of byte accessors. 
      * @return The size of processed data in bits (number of bits in the source data array).
      */
-    
+
     private int addByteAcessors(RawData data)
     {
         for (int index = 0; index < data.getByteSize(); ++index)
@@ -223,7 +223,7 @@ public class RawDataMultiMapping extends RawData
 
         return data.getBitSize();
     }
-    
+
     public RawDataMultiMapping(RawData[] dataArray)
     {
         byteAccessors = new ArrayList<ByteAccessor>();
@@ -285,14 +285,14 @@ public class RawDataMultiMapping extends RawData
                 unusedPrevPart = tailTakesAllData ? data : new RawDataMapping(data, offset + headBitSize, tailBitSize);
             }
         }
-        
+
         // If any unused data is left, we process it.
         if (null != unusedPrevPart)
             processedBitSize += addByteAcessors(unusedPrevPart);
 
         this.bitSize = processedBitSize;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -302,7 +302,7 @@ public class RawDataMultiMapping extends RawData
     {
         return bitSize;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -312,26 +312,26 @@ public class RawDataMultiMapping extends RawData
     {
         return byteAccessors.size();
     }
-    
+
     /**
      * {@inheritDoc}
      */
 
     @Override
-    public char getByte(int index)
+    public byte getByte(int index)
     {
         assert ((0 <= index) && (index < byteAccessors.size()));
 
         final ByteAccessor accessors = byteAccessors.get(index);
         return accessors.getByte();
     }
-    
+
     /**
      * {@inheritDoc}
      */
 
     @Override
-    public void setByte(int index, char value)
+    public void setByte(int index, byte value)
     {
         assert ((0 <= index) && (index < getByteSize()));
         

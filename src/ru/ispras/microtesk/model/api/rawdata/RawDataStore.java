@@ -43,7 +43,7 @@ package ru.ispras.microtesk.model.api.rawdata;
 
 public final class RawDataStore extends RawData 
 {  
-    private final char[] dataBytes; // Array that stores binary data. 
+    private final byte[] dataBytes; // Array that stores binary data. 
     private final int      bitSize; // Number of used bits.
 
     /**
@@ -57,7 +57,7 @@ public final class RawDataStore extends RawData
         final int byteSize = bitSize / BITS_IN_BYTE + (0 == (bitSize % BITS_IN_BYTE) ? 0 : 1);
 
         this.bitSize   = bitSize;
-        this.dataBytes = new char[byteSize];
+        this.dataBytes = new byte[byteSize];
 
         reset();
     }
@@ -72,12 +72,12 @@ public final class RawDataStore extends RawData
     {
         assert null != src; 
 
-        this.dataBytes = new char[src.getByteSize()];
+        this.dataBytes = new byte[src.getByteSize()];
         this.bitSize   = src.getBitSize();
 
         assign(src);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -97,17 +97,17 @@ public final class RawDataStore extends RawData
     {
         return dataBytes.length;
     }
-    
+
     /**
      * {@inheritDoc}
      */
 
     @Override 
-    public char getByte(int index)
+    public byte getByte(int index)
     {
         assert (index >= 0) && (index < getByteSize());
 
-        return (char)(dataBytes[index] & getByteBitMask(index));
+        return (byte)(dataBytes[index] & getByteBitMask(index));
     }
 
     /**
@@ -115,22 +115,22 @@ public final class RawDataStore extends RawData
      */
 
     @Override 
-    public void setByte(int index, char value)
+    public void setByte(int index, byte value)
     {
         assert (index >= 0) && (index < getByteSize());
 
         //Expected situation: value contains more bits than can be stored in highest (incomplete) byte.  
         //assert (0 == (value & (~getByteBitMask(index) & RawData.DEF_BYTE_MASK)));
 
-        final char mask = getByteBitMask(index);
-        final char old  = dataBytes[index];
+        final byte mask = getByteBitMask(index);
+        final byte old  = dataBytes[index];
 
         // Bits beyond the range <bitCount-1..0> are preserved.
-        dataBytes[index] = (char)(old & (char)~mask);
-        dataBytes[index] = (char)(dataBytes[index] | (value & mask));
+        dataBytes[index] = (byte)(old & (byte)~mask);
+        dataBytes[index] = (byte)(dataBytes[index] | (value & mask));
 
         // To make sure that bits beyond the bound have not been changed.
-        assert ((char)(old & (char)~mask)) ==
-               ((char)(dataBytes[index] & (char)~mask));
+        assert ((byte)(old & (byte)~mask)) == 
+               ((byte)(dataBytes[index] & (byte)~mask));
     }
 }

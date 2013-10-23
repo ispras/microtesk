@@ -757,7 +757,8 @@ public class RawDataTestCase
         final RawData rd = RawData.valueOf("01011100011010101");
         BigInteger bi = new BigInteger(rd.toByteArray());
 
-        System.out.println(bi.toString(2));
+        System.out.println(rd.toBinString());
+        System.out.println(String.format("%" + rd.getBitSize() + "s", bi.toString(2)));
         
     }
 }
