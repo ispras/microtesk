@@ -3736,8 +3736,6 @@ op miscellaneous_inst =  CLZ
     
 // SATURATED ADD and SUB INTRUCTIONS
 
- /* TODO: Big numbers are currently not supported. Need support for the 64-bit long type in Java expressions.
-
 op QADD (cond : Condition, rn : index, rd : index, rm : index)
     syntax = format ("QADD%s R%d, R%d, R%d", cond.syntax, rd, rm, rn)
     image  = format ("%s00010000%4b%4b00000101%4b", cond.image, rn, rd , rm)
@@ -3874,8 +3872,6 @@ op saturated_addsub_inst =  QADD
                          |  QSUB
                          |  QDSUB
 
-*/
-
 /********************************************************************************************/
 
 // PRELOAD INSTRUCTION 
@@ -3904,7 +3900,7 @@ op inst_type =  branch_inst
 //           |  load_store_multiple
              |  coprocessor_inst
              |  miscellaneous_inst
-//           |  saturated_addsub_inst // TODO: issues with 64-bit values
+             |  saturated_addsub_inst
              |  preload_instruction 
 //           |  floating_point_inst // NOT SUPPORTED IN THE CURRENT VERSION
 
