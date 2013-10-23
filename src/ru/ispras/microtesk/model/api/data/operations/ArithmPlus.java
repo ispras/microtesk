@@ -54,11 +54,11 @@ public class ArithmPlus implements IBinaryOperator
             private char remainder = 0;
 
             @Override
-            public char run(char lhs, char rhs)
+            public byte run(byte lhs, byte rhs)
             { 
                 final int retvalue = lhs + rhs + remainder;
                 remainder = (char)(retvalue >>> RawData.BITS_IN_BYTE);
-                return (char) retvalue;
+                return (byte) retvalue;
             }
         };
 

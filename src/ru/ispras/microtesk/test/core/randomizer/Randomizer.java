@@ -236,7 +236,7 @@ public final class Randomizer
                      (data.getBitSize() % RawData.BITS_IN_BYTE != 0 ? 1 : 0);
         
         for(int i = 0; i < s; i++)
-            { data.setByte(i, nextChar()); }
+            { data.setByte(i, nextByte()); }
 
     }
 }

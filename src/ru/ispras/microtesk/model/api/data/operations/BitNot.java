@@ -38,7 +38,7 @@ public final class BitNot implements IUnaryOperator
         final IUnaryOperation op = new IUnaryOperation()
         {
             @Override
-            public char run(char v) { return (char)~v; }
+            public byte run(byte v) { return (byte) ~v; }
         };
 
         transform(arg.getRawData(), result.getRawData(), op);

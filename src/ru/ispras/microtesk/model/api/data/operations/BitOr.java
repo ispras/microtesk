@@ -19,7 +19,7 @@ public class BitOr extends BitAndOrXorBase
     private final static class OrOp implements IBinaryOperation
     {
         @Override
-        public char run(char lhs, char rhs) { return (char) (lhs | rhs); }
+        public byte run(byte lhs, byte rhs) { return (byte) (lhs | rhs); }
     };
 
     public BitOr()
