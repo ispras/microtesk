@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -80,19 +81,13 @@ public final class ExprFactory extends WalkerFactoryBase
 
     public Expr constant(Where w, String text, int radix) throws SemanticException
     {
-        try
-        {
-            final Integer value = Integer.valueOf(text, radix);
-            return new ExprNodeConst(value, radix);
-        }
-        catch (NumberFormatException e) {}
+        final BigInteger bi = new BigInteger(text, radix);
 
-        try
-        {
-            final Long value = Long.valueOf(text, radix);
-            return new ExprNodeConst(value, radix);
-        }
-        catch (NumberFormatException e) {}
+        if (bi.bitLength() <= Integer.SIZE)
+            return new ExprNodeConst(bi.intValue(), radix);
+
+        if (bi.bitLength() <= Long.SIZE)
+            return new ExprNodeConst(bi.longValue(), radix);
 
         raiseError(w, new ValueParsingFailure(text, "Java integer"));
         return null; // Cannot be reached.

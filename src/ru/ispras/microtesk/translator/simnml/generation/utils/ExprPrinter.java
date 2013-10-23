@@ -61,18 +61,19 @@ public final class ExprPrinter
     private static String toString(ExprNodeConst expr)
     {
         final Object value = expr.getValue();
-        final int radix = expr.getRadix() == 10 ? 10 : 16;
+        final String result;
 
-        String result;
         if (Integer.class == value.getClass())
         {
-            result = Integer.toString((Integer) value, radix);
-            if (radix == 16) result = "0x" + result;
+            result = (expr.getRadix() == 10) ?
+                Integer.toString(((Number) value).intValue()) :
+                "0x" + Integer.toHexString((Integer) value); 
         }
         else if (Long.class == value.getClass())
         {
-            result = Long.toString((Long) value, radix) + "L";
-            if (radix == 16) result = "0x" + result;
+            result = (expr.getRadix() == 10) ?
+                 Long.toString(((Number) value).longValue()) + "L" :
+                 "0x" + Long.toHexString(((Number) value).longValue()) + "L";
         }
         else
         {
