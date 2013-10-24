@@ -102,11 +102,11 @@ import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 /*======================================================================================*/
 
 // Start rule
-startRule 
+startRule
     :  procSpec* EOF!
     ;
 
-procSpec 
+procSpec
     :  letDef
     |  typeDef 
     |  memDef
@@ -142,7 +142,7 @@ letExpr returns [ESymbolKind res]
 /*======================================================================================*/
 /*  Type rules                                                                          */
 /*======================================================================================*/
-    
+
 typeDef
     :  TYPE^ id=ID ASSIGN! typeExpr { declare($id, ESymbolKind.TYPE, false); }
     ;
@@ -169,7 +169,6 @@ typeExpr
 
 memDef
     :  MEM^ id=ID LEFT_HOOK! sizeType RIGHT_HOOK! { declare($id, ESymbolKind.MEMORY, false); } alias?
-            
     ;
 
 regRef
@@ -183,7 +182,7 @@ varDef
 sizeType
     :  (expr COMMA)? typeExpr -> ^(SIZE_TYPE expr? typeExpr)
     ;
-    
+
 alias
     :  ALIAS^ ASSIGN! locationAtom
     ;
@@ -193,7 +192,7 @@ alias
 /*======================================================================================*/
 
 modeDef
-    :  MODE^ id=ID {declareAndPushSymbolScope($id, ESymbolKind.MODE);} modeSpecPart 
+    :  MODE^ id=ID {declareAndPushSymbolScope($id, ESymbolKind.MODE);} modeSpecPart
     ;  finally     {popSymbolScope();}
 
 modeSpecPart
@@ -352,8 +351,7 @@ relationExpr
     ;
 
 comparisionExpr
-    :  shiftExpr ((LEQ^ | GEQ^ | RIGHT_BROCKET^) shiftExpr)*
-    |  (shiftExpr (LEFT_BROCKET^ shiftExpr)*) => shiftExpr (LEFT_BROCKET^ shiftExpr)*
+    :  shiftExpr ((LEQ^ | GEQ^ | LEFT_BROCKET^ | RIGHT_BROCKET^) shiftExpr)*
     ;
 
 shiftExpr
@@ -373,22 +371,21 @@ powExpr
     ;
 
 unaryExpr
-    :  atom
-    |  PLUS   unaryExpr -> ^(UPLUS unaryExpr)
+    :  PLUS   unaryExpr -> ^(UPLUS unaryExpr)
     |  MINUS  unaryExpr -> ^(UMINUS unaryExpr)
     |  TILDE^ unaryExpr
     |  NOT^   unaryExpr
-//  |  atom
+    |  atom
     ;
 
 atom
-    :  letConst
+    :  LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  letConst
     |  location
     |  CARD_CONST
     |  BINARY_CONST
     |  HEX_CONST
     |  COERCE^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
-    |  LEFT_PARENTH! expr RIGHT_PARENTH!
     ;
 
 letConst
@@ -410,8 +407,7 @@ locationExpr
 /*  If the bitFieldExpr expression fires, we rewrite the rule as a bitfield expression,
     otherwise we leave it as it is. */
 locationVal
-    :  locationAtom bitFieldExpr -> ^(LOCATION_BITFIELD locationAtom bitFieldExpr)
-    |  locationAtom
+    :  locationAtom (bitFieldExpr -> ^(LOCATION_BITFIELD locationAtom bitFieldExpr) | -> locationAtom)
     ;
 
 locationAtom
@@ -424,4 +420,3 @@ bitFieldExpr
     ;
 
 /*======================================================================================*/
-
