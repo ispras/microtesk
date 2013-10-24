@@ -14,16 +14,16 @@ package ru.ispras.microtesk.model.api.memory;
 
 public final class Label
 {
-    private final String name;
-    private final MemoryBase memory;
-    private final int index;
+    private final String   name;
+    private final Memory memory;
+    private final int     index;
 
-    public Label(String name, MemoryBase memory)
+    public Label(String name, Memory memory)
     {
         this(name, memory, 0);
     }
 
-    public Label(String name, MemoryBase memory, int index)
+    public Label(String name, Memory memory, int index)
     {
         this.name   = name;
         this.memory = memory;

@@ -19,7 +19,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
 import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
 import ru.ispras.microtesk.model.api.memory.Label;
-import ru.ispras.microtesk.model.api.memory.MemoryBase;
+import ru.ispras.microtesk.model.api.memory.Memory;
 
 public final class ModelStateObserver implements IModelStateObserver
 {
@@ -32,14 +32,14 @@ public final class ModelStateObserver implements IModelStateObserver
     private final static String BOUNDS_ERR_FRMT =
         "The %d index is invalid for the %s resource.";
 
-    private final Map<String, MemoryBase> memoryMap;
-    private final Map<String, Label> labelMap;
+    private final Map<String, Memory> memoryMap;
+    private final Map<String, Label>   labelMap;
 
     private final Status controlTransfer;
 
     public ModelStateObserver(
-        MemoryBase[] registers,
-        MemoryBase[] memory,
+        Memory[] registers,
+        Memory[] memory,
         Label[] labels,
         Status[] statuses
         )
@@ -49,7 +49,7 @@ public final class ModelStateObserver implements IModelStateObserver
         assert null != labels;
         assert null != statuses;
 
-        memoryMap = new HashMap<String, MemoryBase>();
+        memoryMap = new HashMap<String, Memory>();
         addToMemoryMap(memoryMap, registers);
         addToMemoryMap(memoryMap, memory);
 
@@ -59,11 +59,11 @@ public final class ModelStateObserver implements IModelStateObserver
         controlTransfer = findStatus(Status.CTRL_TRANSFER.getName(), statuses);
     }
 
-    private static void addToMemoryMap(Map<String, MemoryBase> map, MemoryBase[] items)
+    private static void addToMemoryMap(Map<String, Memory> map, Memory[] items)
     {
-        for(MemoryBase m : items)
+        for(Memory m : items)
         {
-            final MemoryBase prev = map.put(m.getName(), m);
+            final Memory prev = map.put(m.getName(), m);
             assert null == prev : String.format(ALREADY_ADDED_ERR_FRMT, m.getName());
         }
     }
@@ -109,7 +109,7 @@ public final class ModelStateObserver implements IModelStateObserver
         if (!memoryMap.containsKey(name))
             throw new UndeclaredException(String.format(UNDEFINED_ERR_FRMT, name));
 
-        final MemoryBase current = memoryMap.get(name);
+        final Memory current = memoryMap.get(name);
 
         if ((index < 0) || (index >= current.getLength()))
             throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));

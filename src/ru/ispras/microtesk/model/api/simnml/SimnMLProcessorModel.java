@@ -19,7 +19,7 @@ import java.util.Collections;
 import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.memory.Label;
-import ru.ispras.microtesk.model.api.memory.MemoryBase;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Status;
@@ -44,8 +44,8 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
 
     public SimnMLProcessorModel(
         IInstructionSet instructions,
-        MemoryBase[] registers,
-        MemoryBase[] memory,
+        Memory[] registers,
+        Memory[] memory,
         Label[] labels,
         Status[] statuses
         )
@@ -58,21 +58,21 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
             );
     }
 
-    private static Collection<IMetaLocationStore> createRegisterMetaData(MemoryBase[] registers)
+    private static Collection<IMetaLocationStore> createRegisterMetaData(Memory[] registers)
     {
         final Collection<IMetaLocationStore> result = new ArrayList<IMetaLocationStore>();
 
-        for(MemoryBase r : registers)
+        for(Memory r : registers)
             result.add(r.getMetaData());
 
         return Collections.unmodifiableCollection(result);
     }
 
-    private static Collection<IMetaLocationStore> createMemoryMetaData(MemoryBase[] memory)
+    private static Collection<IMetaLocationStore> createMemoryMetaData(Memory[] memory)
     {
         final Collection<IMetaLocationStore> result = new ArrayList<IMetaLocationStore>();
 
-        for(MemoryBase m : memory)
+        for(Memory m : memory)
             result.add(m.getMetaData());
 
         return Collections.unmodifiableCollection(result);

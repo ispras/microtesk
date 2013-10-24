@@ -22,7 +22,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.model.api.memory.Label;
-import ru.ispras.microtesk.model.api.memory.MemoryBase;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
 import ru.ispras.microtesk.model.api.state.Resetter;
@@ -91,7 +91,7 @@ public class SharedSTBuilder implements ITemplateBuilder
             t.add("imps", EMemoryKind.class.getName());
         }
 
-        t.add("imps", MemoryBase.class.getName());
+        t.add("imps", Memory.class.getName());
         t.add("imps", Label.class.getName());
         t.add("imps", Status.class.getName());
         t.add("imps", Resetter.class.getName());
@@ -231,7 +231,7 @@ public class SharedSTBuilder implements ITemplateBuilder
     {
         final ST tArray = group.getInstanceOf("memory_array");
 
-        tArray.add("type", MemoryBase.class.getSimpleName() + "[]");
+        tArray.add("type", Memory.class.getSimpleName() + "[]");
         tArray.add("name", name);
         tArray.add("items", items);
 

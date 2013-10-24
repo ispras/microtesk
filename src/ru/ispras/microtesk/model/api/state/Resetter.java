@@ -12,14 +12,14 @@
 
 package ru.ispras.microtesk.model.api.state;
 
-import ru.ispras.microtesk.model.api.memory.MemoryBase;
+import ru.ispras.microtesk.model.api.memory.Memory;
 
 public final class Resetter implements IStateResetter
 {
-    final MemoryBase[] variables;
-    final Status[] statuses;
+    private final Memory[] variables;
+    private final Status[] statuses;
 
-    public Resetter(MemoryBase[] variables, Status[] statuses)
+    public Resetter(Memory[] variables, Status[] statuses)
     {
         this.variables = variables;
         this.statuses = statuses;
@@ -27,7 +27,7 @@ public final class Resetter implements IStateResetter
 
     public void reset()
     {
-        for (MemoryBase variable : variables)
+        for (Memory variable : variables)
             variable.reset();
 
         for (Status status : statuses)

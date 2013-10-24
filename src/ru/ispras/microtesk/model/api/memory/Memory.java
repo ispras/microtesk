@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * MemoryBase.java, Nov 1, 2012 1:33:06 PM Andrei Tatarnikov
+ * Memory.java, Nov 1, 2012 1:33:06 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.model.api.memory;
@@ -21,19 +21,19 @@ import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public class MemoryBase
+public class Memory
 {
     private final EMemoryKind         kind;
     private final String              name;
     private final List<Location> locations;
     private final Type                type;
 
-    public MemoryBase(EMemoryKind kind, String name, Type type)
+    public Memory(EMemoryKind kind, String name, Type type)
     {
         this(kind, name, type, 1);
     }
 
-    public MemoryBase(EMemoryKind kind, String name, Type type, int length)
+    public Memory(EMemoryKind kind, String name, Type type, int length)
     {
         this.kind = kind;
         this.name = name;

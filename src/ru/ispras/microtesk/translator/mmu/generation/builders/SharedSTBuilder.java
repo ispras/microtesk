@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.memory.MemoryBase;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.mmu.ir.IR;
 
@@ -34,7 +34,7 @@ public class SharedSTBuilder implements ITemplateBuilder
     {
         t.add("file",  specFileName);
         t.add("pack",  packageName);
-        t.add("imps", MemoryBase.class.getName());
+        t.add("imps", Memory.class.getName());
     }
 
     private void buildMemory(STGroup group, ST t)

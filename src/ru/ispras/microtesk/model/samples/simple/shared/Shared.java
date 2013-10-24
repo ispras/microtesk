@@ -13,7 +13,7 @@
 package ru.ispras.microtesk.model.samples.simple.shared;
 
 import ru.ispras.microtesk.model.api.memory.Label;
-import ru.ispras.microtesk.model.api.memory.MemoryBase;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -24,9 +24,9 @@ import static ru.ispras.microtesk.model.api.type.ETypeID.*;
 public final class Shared
 {
     private Shared() {}
-    
+
     //////////////////////////////////////////////////////////////////////////
-    
+
     /*
     let MSIZE = 2 ** 6
     let REGS = 16
@@ -40,7 +40,7 @@ public final class Shared
     type nibble = card(4)
     type byte   = int(8)
     */
-    
+
     public static final Type  index = new Type(CARD, 6);
     public static final Type nibble = new Type(CARD, 4);
     public static final Type byte_t = new Type(CARD, 8);
@@ -51,29 +51,29 @@ public final class Shared
     reg PC[1, byte]
     */
 
-    public static final MemoryBase  M = new MemoryBase(MEM, "M",  byte_t, MSIZE); 
-    public static final MemoryBase  R = new MemoryBase(REG, "R",  byte_t, REGS);
-    public static final MemoryBase PC = new MemoryBase(REG, "PC", byte_t, 1);
+    public static final Memory  M = new Memory(MEM, "M",  byte_t, MSIZE); 
+    public static final Memory  R = new Memory(REG, "R",  byte_t, REGS);
+    public static final Memory PC = new Memory(REG, "PC", byte_t, 1);
 
     /*
     var SRC1[1, byte], SRC2[1, byte], DEST[1, byte]
     */
 
-    public static final MemoryBase SRC1 = new MemoryBase(VAR, "SRC1", byte_t, 1);
-    public static final MemoryBase SRC2 = new MemoryBase(VAR, "SRC2", byte_t, 1);
-    public static final MemoryBase DEST = new MemoryBase(VAR, "DEST", byte_t, 1);
-    
+    public static final Memory SRC1 = new Memory(VAR, "SRC1", byte_t, 1);
+    public static final Memory SRC2 = new Memory(VAR, "SRC2", byte_t, 1);
+    public static final Memory DEST = new Memory(VAR, "DEST", byte_t, 1);
+
     /*
     MetaData Source (collections for memory and registers).  
     */
-    
-    public static final MemoryBase[] __REGISTERS = new MemoryBase[] { R, PC };
-    public static final MemoryBase[] __MEMORY = new MemoryBase[] { M };
-    public static final MemoryBase[] __VARIABLES = new MemoryBase[] {};
-    public static final Label[] __LABELS = new Label[] {};
 
-    public static final Status __CTRL_TRANSFER = new Status("__CTRL_TRANSFER", 0);
-    public static final Status[] __STATUSES = {__CTRL_TRANSFER};
-    
+    public static final Memory[] __REGISTERS = new Memory[] { R, PC };
+    public static final Memory[]    __MEMORY = new Memory[] { M };
+    public static final Memory[] __VARIABLES = new Memory[] {};
+    public static final Label[]     __LABELS = new Label[] {};
+
+    public static final Status   __CTRL_TRANSFER = new Status("__CTRL_TRANSFER", 0);
+    public static final Status[]      __STATUSES = {__CTRL_TRANSFER};
+
     public static final Resetter __RESETTER = new Resetter(__VARIABLES, __STATUSES);
 }
