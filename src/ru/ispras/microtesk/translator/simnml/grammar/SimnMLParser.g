@@ -352,7 +352,8 @@ relationExpr
     ;
 
 comparisionExpr
-    :  shiftExpr ((LEQ^ | GEQ^ | LEFT_BROCKET^ | RIGHT_BROCKET^) shiftExpr)*
+    :  shiftExpr ((LEQ^ | GEQ^ | RIGHT_BROCKET^) shiftExpr)*
+    |  (shiftExpr (LEFT_BROCKET^ shiftExpr)*) => shiftExpr (LEFT_BROCKET^ shiftExpr)*
     ;
 
 shiftExpr
@@ -372,21 +373,22 @@ powExpr
     ;
 
 unaryExpr
-    :  PLUS   unaryExpr -> ^(UPLUS unaryExpr)
+    :  atom
+    |  PLUS   unaryExpr -> ^(UPLUS unaryExpr)
     |  MINUS  unaryExpr -> ^(UMINUS unaryExpr)
     |  TILDE^ unaryExpr
     |  NOT^   unaryExpr
-    |  atom
+//  |  atom
     ;
 
 atom
-    :  LEFT_PARENTH! expr RIGHT_PARENTH!
-    |  letConst
+    :  letConst
     |  location
     |  CARD_CONST
     |  BINARY_CONST
     |  HEX_CONST
     |  COERCE^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  LEFT_PARENTH! expr RIGHT_PARENTH!
     ;
 
 letConst
@@ -408,7 +410,8 @@ locationExpr
 /*  If the bitFieldExpr expression fires, we rewrite the rule as a bitfield expression,
     otherwise we leave it as it is. */
 locationVal
-    :  locationAtom (bitFieldExpr -> ^(LOCATION_BITFIELD locationAtom bitFieldExpr) | -> locationAtom)
+    :  locationAtom bitFieldExpr -> ^(LOCATION_BITFIELD locationAtom bitFieldExpr)
+    |  locationAtom
     ;
 
 locationAtom

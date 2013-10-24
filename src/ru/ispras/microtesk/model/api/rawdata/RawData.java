@@ -77,7 +77,7 @@ public abstract class RawData implements Comparable<RawData>
     }
 
     /**
-     * Copies data from from the specified raw data source to the current data array.
+     * Copies data from the specified raw data source to the data array of the current object.
      * If the source data array is shorter than the current one, the rest high bytes are filled 
      * with zeros. If the source array is longer, the result is truncated. 
      * 

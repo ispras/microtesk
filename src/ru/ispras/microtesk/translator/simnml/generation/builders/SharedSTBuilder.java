@@ -13,6 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.generation.builders;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
+import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
@@ -39,6 +41,24 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 public class SharedSTBuilder implements ITemplateBuilder
 {
+    private static Map<Class<?>, Class<?>> CLASS_MAP = new HashMap<Class<?>, Class<?>>();
+    static
+    {
+        CLASS_MAP.put(Integer.class, int.class);
+        CLASS_MAP.put(Long.class,    long.class);
+        CLASS_MAP.put(Boolean.class, boolean.class);
+    }
+
+    private static Class<?> toValueClass(Class<?> cl)
+    {
+        final Class<?> result = CLASS_MAP.get(cl);
+
+        if (null == result)
+            return cl;
+
+        return result;
+    }
+
     public final String specFileName;
     public final String modelName;
     public final IR ir;
@@ -93,7 +113,7 @@ public class SharedSTBuilder implements ITemplateBuilder
             t.add("members", tLet);
         }
     }
-        
+
     private void buildLetConstants(STGroup group, ST t)
     {
         if (!ir.getConstants().isEmpty())
@@ -104,8 +124,8 @@ public class SharedSTBuilder implements ITemplateBuilder
             final ST tLet = group.getInstanceOf("let");
 
             tLet.add("name",  constant.getName());
-            tLet.add("type",  constant.getExpression().getValueInfo().getNativeType());
-            tLet.add("value", constant.getExpression().getValueInfo().getNativeValue());
+            tLet.add("type",  toValueClass(constant.getExpression().getValueInfo().getNativeType()).getSimpleName());
+            tLet.add("value", ExprPrinter.toString(constant.getExpression()));
 
             t.add("members", tLet);
         }
@@ -122,9 +142,9 @@ public class SharedSTBuilder implements ITemplateBuilder
             {
                 final ST tType = group.getInstanceOf("type");
 
-                tType.add("name", type.getKey());
+                tType.add("name",   type.getKey());
                 tType.add("typeid", type.getValue().getTypeId());
-                tType.add("size", type.getValue().getBitSize());
+                tType.add("size",   ExprPrinter.toString(type.getValue().getBitSizeExpr()));
 
                 t.add("members", tType);
             }
@@ -132,7 +152,7 @@ public class SharedSTBuilder implements ITemplateBuilder
             {
                 final ST tType = group.getInstanceOf("type_alias");
 
-                tType.add("name", type.getKey());
+                tType.add("name",  type.getKey());
                 tType.add("alias", type.getValue().getRefName());
 
                 t.add("members", tType);                
@@ -179,7 +199,7 @@ public class SharedSTBuilder implements ITemplateBuilder
         buildMemoryLineArray(group, t, SimnMLProcessorModel.SHARED_MEMORY, memory);
         buildMemoryLineArray(group, t, SimnMLProcessorModel.SHARED_VARIABLES, variables);
     }
-    
+
     private void buildMemoryLine(STGroup group, ST t, String name, MemoryExpr memory)
     {
         final ST tMemory = group.getInstanceOf("memory");
@@ -197,7 +217,7 @@ public class SharedSTBuilder implements ITemplateBuilder
             final ST tNewType = group.getInstanceOf("new_type");
 
             tNewType.add("typeid", typeExpr.getTypeId());
-            tNewType.add("size", typeExpr.getBitSize());
+            tNewType.add("size",   ExprPrinter.toString(typeExpr.getBitSizeExpr()));
 
             tMemory.add("type", tNewType);
         }
@@ -238,16 +258,16 @@ public class SharedSTBuilder implements ITemplateBuilder
 
         t.add("members", tLabels);
     }
-    
+
     private void buildStatuses(STGroup group, ST t)
     {
         insertEmptyLine(t);
-        
+
         final ST tStatuses = group.getInstanceOf("memory_array");
 
         tStatuses.add("type", Status.class.getSimpleName() + "[]");
         tStatuses.add("name", SimnMLProcessorModel.SHARED_STATUSES);
-        
+
         for(Status status : Status.STANDARD_STATUSES.values())
         {
             final ST tStatus = group.getInstanceOf("status");
@@ -258,7 +278,7 @@ public class SharedSTBuilder implements ITemplateBuilder
 
             tStatuses.add("items", status.getName());
         }
-        
+
         t.add("members", tStatuses);
     }
 
@@ -270,13 +290,13 @@ public class SharedSTBuilder implements ITemplateBuilder
 
         tResetter.add("type", Resetter.class.getSimpleName());
         tResetter.add("name", SimnMLProcessorModel.SHARED_RESETTER);
-        
+
         tResetter.add("items", SimnMLProcessorModel.SHARED_VARIABLES);
         tResetter.add("items", SimnMLProcessorModel.SHARED_STATUSES);
 
         t.add("members", tResetter);
     }
-    
+
     @Override
     public ST build(STGroup group)
     {

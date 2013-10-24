@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.ValueInfo;
 public final class ExprPrinter
 {
     private ExprPrinter() {}
-    
+
     public static String toString(Expr expr)
     {
         assert null != expr;
@@ -38,24 +38,25 @@ public final class ExprPrinter
         {
         case CONST:
             return toString((ExprNodeConst) expr);
-            
+
         case NAMED_CONST:
             return toString((ExprNodeNamedConst) expr);
-            
+
         case LOCATION:
             return toString((ExprNodeLocation) expr);
-            
+
         case COERCION:
             return toString((ExprNodeCoercion) expr);
-            
+
         case OPERATOR:
             return toString((ExprNodeOperator) expr);
 
         default:
+            assert false : "Unknown expression node kind.";
             break;
         }
-        
-        return "test";
+
+        return "";
     }
 
     private static String toString(ExprNodeConst expr)
@@ -67,7 +68,7 @@ public final class ExprPrinter
         {
             result = (expr.getRadix() == 10) ?
                 Integer.toString(((Number) value).intValue()) :
-                "0x" + Integer.toHexString((Integer) value); 
+                "0x" + Integer.toHexString((Integer) value);
         }
         else if (Long.class == value.getClass())
         {
@@ -93,12 +94,12 @@ public final class ExprPrinter
     {
         return LocationPrinter.toString(expr.getLocation()) + ".load()";
     }
-    
+
     private static String toString(ExprNodeCoercion expr)
     {
         return getCastString(expr.getValueInfo(), expr.getSource());
     }
-    
+
     private static String getCastString(ValueInfo target, Expr src)
     {
         if (target.hasEqualType(src.getValueInfo()))
@@ -170,7 +171,7 @@ public final class ExprPrinter
             }
         }
     }
-    
+
     private static String toString(ExprNodeOperator expr)
     {
         if (expr.getCast().isModel())
@@ -188,17 +189,17 @@ public final class ExprPrinter
                 sb.toString()
                 );
         }
-        
+
         final Operator op = expr.getOperator();
 
         if (Operator.Operands.UNARY.count() == expr.getOperands().size())
         {
             final Expr arg = expr.getOperands().get(0);
-            
+
             boolean enclose = false;
             if (arg.getNodeKind() == Expr.NodeKind.OPERATOR)
                 enclose = ((ExprNodeOperator) arg).getOperator().priority() < op.priority();
-            
+
             final String argText = getCastString(expr.getCast(), arg);
             return toOperatorString(op, enclose ? "(" + argText + ")" : argText);
         }
@@ -228,12 +229,12 @@ public final class ExprPrinter
     {
         return EOperatorID.class.getSimpleName() + "." + operators.get(op).name();
     }
-    
+
     private static final Map<Operator, EOperatorID> operators;
     static 
     {
         operators = new EnumMap<Operator, EOperatorID>(Operator.class);
-        
+
         operators.put(Operator.OR,       EOperatorID.OR);
         operators.put(Operator.AND,      EOperatorID.AND);
         operators.put(Operator.BIT_OR,   EOperatorID.BIT_OR);
@@ -260,12 +261,12 @@ public final class ExprPrinter
         operators.put(Operator.BIT_NOT,  EOperatorID.BIT_NOT);
         operators.put(Operator.NOT,      EOperatorID.NOT);
     }
-    
+
     private static final Map<Operator, String> operatorsNative;
     static 
     {
         operatorsNative = new EnumMap<Operator, String>(Operator.class);
-        
+
         operatorsNative.put(Operator.OR,       "%s || %s");
         operatorsNative.put(Operator.AND,      "%s && %s");
         operatorsNative.put(Operator.BIT_OR,   "%s | %s");
@@ -297,7 +298,7 @@ public final class ExprPrinter
     {
         return String.format(operatorsNative.get(op), arg);
     }
-    
+
     private static final String toOperatorString(Operator op, String arg1, String arg2)
     {
         return String.format(operatorsNative.get(op), arg1, arg2);
