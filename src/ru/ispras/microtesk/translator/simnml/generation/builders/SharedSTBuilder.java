@@ -222,7 +222,7 @@ public class SharedSTBuilder implements ITemplateBuilder
             tMemory.add("type", tNewType);
         }
 
-        tMemory.add("size", memory.getSize());
+        tMemory.add("size", ExprPrinter.toString(memory.getSizeExpr()));
 
         t.add("members", tMemory);
     }
