@@ -193,7 +193,7 @@ endif
     }
 
 // For Register specified right rotate with extend ( rotate right with carry )
-mode RRX (r : index) = (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]) >> 1) 
+mode RRX (r : index) = (coerce(card(32),CPSR<29..29>) << 31) | ((GPR[r]) >> 1) 
 /*if (r == 15) then 
     (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]+4) >> 1) 
 else
@@ -272,7 +272,7 @@ mode ASR_REGISTER (r : index, amount : Bit5) = coerce(int(32), GPR[r]) >> GPR[am
             shifter_carry_out = CPSR<29..29>;
         else
             if GPR[amount]<7..0> < 32 then
-                temp = (GPR[amount]<7..0>) - 1; // TODO: parser issue. requires braces. needs investigation.
+                temp = GPR[amount]<7..0> - 1;
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
                 shifter_carry_out = GPR[r]<temp..temp>;
 */
@@ -296,7 +296,7 @@ mode ROR_REGISTER (r : index, amount : Bit5) = GPR[r] >>> GPR[amount]<4..0>
             if GPR[amount]<4..0> == 0 then 
                 shifter_carry_out = GPR[r]<31..31>;
             else
-                temp = (GPR[amount]<4..0>) - 1; // TODO: parser issue. requires braces. needs investigation.
+                temp = GPR[amount]<4..0> - 1;
 /* TODO: the bitfield operation taking a non-constant variable is not supported yet.
                 shifter_carry_out = GPR[r]<temp..temp>;
 */
@@ -910,8 +910,8 @@ op SMLAL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2
         cond.action;
         if (X == 1) then
             tempint64 = coerce(int(64), GPR[src1]) * coerce(int(64), GPR[src2]);
-            carry::GPR[low] = (tempint64<31..0>) + GPR[low]; // TODO: parser issue. requires braces. needs investigation. 
-            GPR[high] = (tempint64<63..32>) + GPR[high] + carry; // TODO: parser issue. requires braces. needs investigation.
+            carry::GPR[low] = tempint64<31..0> + GPR[low]; 
+            GPR[high] = tempint64<63..32> + GPR[high] + carry;
             if (sets == 1) then
                 CPSR<31..31> = GPR[high]<31..31>;
                 if ((GPR[high] == 0) && (GPR[low] == 0)) then
@@ -930,8 +930,8 @@ op UMLAL (cond : Condition, sets : setS, low : REG, high : REG, src1 : REG, src2
         cond.action;
         if (X == 1) then
             tempcard64 = coerce(card(64), GPR[src1]) * coerce(card(64), GPR[src2]);
-            carry::GPR[low] = (tempcard64<31..0>) + GPR[low]; // TODO: parser issue. requires braces. needs investigation.
-            GPR[high] = (tempcard64<63..32>) + GPR[high] + carry; // TODO: parser issue. requires braces. needs investigation. 
+            carry::GPR[low] = tempcard64<31..0> + GPR[low];
+            GPR[high] = tempcard64<63..32> + GPR[high] + carry; 
             if (sets == 1) then
                 CPSR<31..31> = GPR[high]<31..31>;
                 if ((GPR[high] == 0) && (GPR[low] == 0)) then
@@ -1016,7 +1016,7 @@ op SMLAWy (cond : Condition, rd : index, rn : index, rs : index, ybit : setY, rm
 
             Result48 = coerce(int(32), GPR[rm]) * operand2;
 
-            carry::GPR[rd] = (Result48<47..16>) + coerce(int(32), GPR[rn]); // TODO: parser issue. requires braces. needs investigation.
+            carry::GPR[rd] = Result48<47..16> + coerce(int(32), GPR[rn]);
 
             if (carry == 1) then
                 CPSR<27..27> = 1;
