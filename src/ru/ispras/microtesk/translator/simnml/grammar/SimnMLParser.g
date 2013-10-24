@@ -97,6 +97,22 @@ import ru.ispras.microtesk.translator.simnml.antlrex.ParserBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 }
 
+@members {
+/**
+This is a global flag needed to indicate that the "bitFieldExpr" rule is being executed.
+It is needed to avoid problems related to translation of bit field expressions.
+The issue is that the parser incorrectly recognizes constructions like that: "GPR<1..2> + 1".
+It recognizes the ">" token as the "greater than" operator instead of bit field expression
+termination characher. So it recognizes "2> + 1" as a correct expression, but then fails
+to continue parsing as it cannot find expected termination character. To overcome the problem,
+comparison operators are excluded form expression rules when a bit field expression is being parsed.
+This imposes a certain restriction. However, it is not important bacause bit field expresions
+are expected to be evaluated to an integer value, but a boolean. Thus, comparison operators
+should not be used in this case from a semantic point of view.
+*/
+private boolean inBitfield = false;
+}
+
 /*======================================================================================*/
 /* Root rules of processor specifications                                               */
 /*======================================================================================*/
@@ -351,7 +367,8 @@ relationExpr
     ;
 
 comparisionExpr
-    :  shiftExpr ((LEQ^ | GEQ^ | LEFT_BROCKET^ | RIGHT_BROCKET^) shiftExpr)*
+    :  {!inBitfield}? => shiftExpr ((LEQ^ | GEQ^ | LEFT_BROCKET^ | RIGHT_BROCKET^) shiftExpr)*
+    |  shiftExpr
     ;
 
 shiftExpr
@@ -416,7 +433,9 @@ locationAtom
     ;
 
 bitFieldExpr
-    :  LEFT_BROCKET! expr DOUBLE_DOT! expr RIGHT_BROCKET!
+@init   {inBitfield = true;}
+    :  LEFT_BROCKET! expr DOUBLE_DOT!  expr RIGHT_BROCKET!
     ;
+finally {inBitfield = false;}
 
 /*======================================================================================*/
