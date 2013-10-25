@@ -100,6 +100,15 @@ public final class LocationFactory extends WalkerFactoryBase
         return result;
     }
 
+    public LocationAtom bitfield(Where where, LocationAtom location, Expr pos)
+    {
+        assert null != location;
+        assert null != pos;
+
+        final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(1));
+        return LocationAtom.createBitfield(location, pos, pos, bitfieldType);
+    }
+
     public LocationAtom bitfield(Where where, LocationAtom location, Expr from, Expr to) throws SemanticException
     {
         assert null != location;

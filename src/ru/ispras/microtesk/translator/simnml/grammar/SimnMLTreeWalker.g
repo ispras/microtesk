@@ -633,9 +633,12 @@ $res = $value.res;
     ;
 
 locationVal returns [LocationAtom res]
-    :  ^(node=LOCATION_BITFIELD la=locationAtom je1=indexExpr je2=indexExpr)
+    :  ^(node=LOCATION_BITFIELD la=locationAtom je1=indexExpr (je2=indexExpr)?)
 {
-$res = getLocationFactory().bitfield(where($node), $la.res, $je1.res, $je2.res);
+if (null == $je2.res)
+    $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res);
+else
+    $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res, $je2.res);
 }
     |  la=locationAtom
 {

@@ -434,7 +434,7 @@ locationAtom
 
 bitFieldExpr
 @init   {inBitfield = true;}
-    :  LEFT_BROCKET! expr DOUBLE_DOT!  expr RIGHT_BROCKET!
+    :  LEFT_BROCKET! expr (DOUBLE_DOT! expr)? RIGHT_BROCKET!
     ;
 finally {inBitfield = false;}
 
