@@ -34,6 +34,9 @@ public final class LocationFactory extends WalkerFactoryBase
     private static final String OUT_OF_BOUNDS =
         "The bitfield expression tries to access bit %d which is beyond location bounds (%d bits).";
 
+    private static final String FAILED_TO_CALCULATE_SIZE =
+        "Unable to calculate bitfield size. The given bitfield expressions cannot be reduced to constant value.";
+
     private List<LocationAtom> log; 
 
     public void setLog(List<LocationAtom> locations)
@@ -65,8 +68,6 @@ public final class LocationFactory extends WalkerFactoryBase
 
     public LocationAtom location(Where where, String name) throws SemanticException
     {
-        //System.out.println(where + " " + name);
-        
         final ISymbol<ESymbolKind> symbol = findSymbol(where, name);
         final ESymbolKind kind = symbol.getKind();
 
@@ -100,10 +101,13 @@ public final class LocationFactory extends WalkerFactoryBase
         return result;
     }
 
-    public LocationAtom bitfield(Where where, LocationAtom location, Expr pos)
+    public LocationAtom bitfield(Where where, LocationAtom location, Expr pos) throws SemanticException
     {
         assert null != location;
         assert null != pos;
+
+        if (pos.getValueInfo().isConstant())
+            checkBitfieldBounds(where, ExprUtils.integerValue(pos), location.getType().getBitSize());
 
         final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(1));
         return LocationAtom.createBitfield(location, pos, pos, bitfieldType);
@@ -115,24 +119,32 @@ public final class LocationFactory extends WalkerFactoryBase
         assert null != from;
         assert null != to;
 
-        final int fromPos = ExprUtils.integerValue(from);
-        final int   toPos = ExprUtils.integerValue(to);
+        if (from.getValueInfo().isConstant() != to.getValueInfo().isConstant())
+            raiseError(where, FAILED_TO_CALCULATE_SIZE);
 
-        final int bitfieldSize = toPos - fromPos + 1;
-        final int locationSize = location.getType().getBitSize();
+        if (from.getValueInfo().isConstant())
+        {
+            final int fromPos = ExprUtils.integerValue(from);
+            final int toPos = ExprUtils.integerValue(to);
+            final int locationSize = location.getType().getBitSize();
 
-        // assert startPos <= endPos; // TODO: restriction of the current implementation
+            checkBitfieldBounds(where, fromPos, locationSize);
+            checkBitfieldBounds(where, toPos, locationSize);
 
-        if (fromPos >= locationSize)
-            raiseError(where, String.format(OUT_OF_BOUNDS, fromPos, locationSize));
+            final int  bitfieldSize = (fromPos <= toPos) ? toPos - fromPos + 1 : fromPos - toPos + 1;
+            final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(bitfieldSize));
+            
+            return LocationAtom.createBitfield(location, from, to, bitfieldType);
+        }
 
-        if (toPos >= locationSize)
-            raiseError(where, String.format(OUT_OF_BOUNDS, toPos, locationSize));
-
-        final Type bitfieldType = new Type(
-            location.getType().getTypeId(), ExprUtils.createConstant(bitfieldSize));
-
-        return LocationAtom.createBitfield(location, from, to, bitfieldType);
+        raiseError(where, FAILED_TO_CALCULATE_SIZE);
+        return null;
+    }
+    
+    private void checkBitfieldBounds(Where w, int position, int size) throws SemanticException
+    {
+        if (!(0 <= position && position < size))
+            raiseError(w, String.format(OUT_OF_BOUNDS, position, size));
     }
 
     public LocationConcat concat(Where w, LocationAtom left, Location right)
