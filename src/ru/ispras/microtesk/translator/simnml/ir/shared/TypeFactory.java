@@ -17,7 +17,6 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
-import ru.ispras.microtesk.translator.simnml.errors.SizeExpressionTypeMismatch;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class TypeFactory extends WalkerFactoryBase
@@ -25,12 +24,6 @@ public final class TypeFactory extends WalkerFactoryBase
     public TypeFactory(WalkerContext context)
     {
         super(context);
-    }
-
-    public void failIfNotInteger(Where where, Class<?> type) throws SemanticException
-    {
-        if (!type.equals(Integer.class) && !type.equals(int.class))
-            raiseError(where, new SizeExpressionTypeMismatch(type));
     }
 
     public Type createAlias(String name) throws SemanticException
