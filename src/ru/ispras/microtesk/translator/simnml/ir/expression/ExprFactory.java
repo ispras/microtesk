@@ -254,21 +254,21 @@ public final class ExprFactory extends WalkerFactoryBase
      * @return
      * @throws SemanticException
      */
-    
+
     public Expr evaluateLogic(Where w, Expr src) throws SemanticException
     {
         final ValueInfo vi = src.getValueInfo();
 
         if (vi.isNative() && Boolean.class == vi.getNativeType())
             return src;
-        
+
         if (vi.isModel())
             return new ExprNodeCoercion(src, Boolean.class);
-        
+
         raiseError(w, ERR_NOT_BOOLEAN);
         return null; // Never executed.
     }
-    
+
     /**
      * 
      * @param w
@@ -276,7 +276,7 @@ public final class ExprFactory extends WalkerFactoryBase
      * @return
      * @throws SemanticException
      */
-    
+
     public Expr evaluateData(Where w, Expr src) throws SemanticException
     {
         if (src.getValueInfo().isModel())
@@ -284,7 +284,7 @@ public final class ExprFactory extends WalkerFactoryBase
 
         assert Integer.class == src.getValueInfo().getNativeType() ||
                Long.class == src.getValueInfo().getNativeType();
-        
+
         final int size;
 
         if (src.getValueInfo().isConstant())
