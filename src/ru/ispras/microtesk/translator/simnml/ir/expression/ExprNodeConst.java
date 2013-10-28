@@ -31,4 +31,13 @@ public final class ExprNodeConst extends ExprAbstract
     {
         return radix;
     }
+
+    @Override
+    public boolean isEquivalent(Expr expr)
+    {
+        if (this == expr) return true;
+        if (expr == null) return false;
+
+        return getValueInfo().equals(expr.getValueInfo());
+    }
 }
