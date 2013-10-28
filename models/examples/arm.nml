@@ -140,14 +140,12 @@ endif
     syntax = format("R%d , LSR #%d", r, amount)
     image  = format("%5b010%4b", amount, r)
     action = {
-/* TODO: the bitfield operation taking a non-constant variable is not supported yet.
         if amount == 0 then 
             shifter_carry_out = GPR[r]<31..31>;
         else
             temp = amount - 1;
             shifter_carry_out = GPR[r]<temp..temp>;
         endif;
-*/
     }
 
 mode ASR_IMMEDIATE (r : index, amount : Bit5) = coerce(int(32),(GPR[r])) >> amount
@@ -160,7 +158,6 @@ endif
     syntax = format("R%d , ASR #%d", r, amount)
     image = format("%5b100%4b", amount, r)
     action = {
-/* TODO: the bitfield operation taking a non-constant variable is not supported yet.
         if amount == 0 then
             if GPR[r]<31..31> == 0 then
                 shifter_carry_out = GPR[r]<31..31>;
@@ -170,7 +167,6 @@ endif
         else
             shifter_carry_out = GPR[r]<amount-1..amount-1>;
         endif;
-*/
     }
 	
 mode ROR_IMMEDIATE (r : index, amount : Bit5) = (GPR[r]) >>> amount
@@ -183,13 +179,11 @@ endif
     syntax = format("R%d , ROR #%d", r, amount)
     image  = format("%5b110%4b", amount, r)
     action = {
-/* TODO: the bitfield operation taking a non-constant variable is not supported yet.
         if amount == 0 then
             shifter_carry_out = GPR[r]<0..0>;
         else
             shifter_carry_out = GPR[r]<amount-1..amount-1>;
         endif;
-*/
     }
 
 // For Register specified right rotate with extend ( rotate right with carry )
@@ -225,9 +219,7 @@ mode LSR_REGISTER (r : index, amount : Bit5) = GPR[r] >> GPR[amount]
         else
             if GPR[amount]<7..0> < 32 then
                 temp = (GPR[amount]<7..0>) - 1;
-/* TODO: the bitfield operation taking a non-constant variable is not supported yet.
                 shifter_carry_out = GPR[r]<temp..temp>;
-*/
             else
                 if GPR[amount]<7..0> == 32 then 
                     shifter_carry_out = GPR[r]<31..31>;
@@ -249,9 +241,7 @@ mode LSL_REGISTER (r : index, amount : index) = GPR[r] << GPR[amount]
         else
             if GPR[amount]<7..0> < 32 then
                 temp = 32 - GPR[amount]<7..0>;
-/* TODO: the bitfield operation taking a non-constant variable is not supported yet.
                 shifter_carry_out = GPR[r]<temp..temp>;
-*/
             else
                 if GPR[amount]<7..0> == 32 then 
                     shifter_carry_out = GPR[r]<0..0>;
@@ -273,9 +263,7 @@ mode ASR_REGISTER (r : index, amount : Bit5) = coerce(int(32), GPR[r]) >> GPR[am
         else
             if GPR[amount]<7..0> < 32 then
                 temp = GPR[amount]<7..0> - 1;
-/* TODO: the bitfield operation taking a non-constant variable is not supported yet.
                 shifter_carry_out = GPR[r]<temp..temp>;
-*/
             else
                 if GPR[amount]<31..31> == 0 then
                     shifter_carry_out = GPR[r]<31..31>;
@@ -297,9 +285,7 @@ mode ROR_REGISTER (r : index, amount : Bit5) = GPR[r] >>> GPR[amount]<4..0>
                 shifter_carry_out = GPR[r]<31..31>;
             else
                 temp = GPR[amount]<4..0> - 1;
-/* TODO: the bitfield operation taking a non-constant variable is not supported yet.
                 shifter_carry_out = GPR[r]<temp..temp>;
-*/
             endif;
         endif;	
 	}
