@@ -143,10 +143,10 @@ public final class LocationFactory extends WalkerFactoryBase
         if (null == reducedFrom || null == reducedTo)
             raiseError(where, FAILED_TO_CALCULATE_SIZE);
 
-        assert null != reducedFrom.polynomial; // Cannot be reduced to constant in this point
-        assert null != reducedTo.polynomial;   // Cannot be reduced to constant in this point
+        assert null != reducedFrom.polynomial; // Cannot be reduced to constant at this point
+        assert null != reducedTo.polynomial;   // Cannot be reduced to constant at this point
 
-        if (reducedFrom.polynomial.equals(reducedTo.polynomial))
+        if (reducedFrom.polynomial.isEquivalent(reducedTo.polynomial))
         {
             final int  bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
             final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(bitfieldSize));
