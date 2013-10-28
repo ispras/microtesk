@@ -82,6 +82,9 @@ public final class ExprNodeCoercion extends ExprAbstract
     {
         if (this == expr) return true;
         if (expr == null) return false;
+        
+        if (getValueInfo().isConstant() && getValueInfo().equals(expr.getValueInfo()))
+            return true;
 
         if (!getValueInfo().hasEqualType(expr.getValueInfo()))
             return false;
