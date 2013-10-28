@@ -28,4 +28,17 @@ public final class ExprNodeLocation extends ExprAbstract
     {
         return location;
     }
+
+    @Override
+    public boolean isEquivalent(Expr expr)
+    {
+        if (this == expr) return true;
+        if (expr == null) return false;
+
+        if (getClass() != expr.getClass())
+            return false;
+
+        final ExprNodeLocation other = (ExprNodeLocation) expr;
+        return location.equals(other.location);
+    }
 }
