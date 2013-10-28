@@ -28,4 +28,13 @@ public final class ExprNodeNamedConst extends ExprAbstract
     {
         return constant;
     }
+
+    @Override
+    public boolean isEquivalent(Expr expr)
+    {
+        if (this == expr) return true;
+        if (expr == null) return false;
+
+        return getValueInfo().equals(expr.getValueInfo());
+    }
 }
