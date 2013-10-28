@@ -51,6 +51,17 @@ public final class LocationAtom implements Location
         {
             return memory;
         }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
+
+            final MemorySource other = (MemorySource) obj;
+            return memory == other.memory;
+        }
     }
 
     public static final class PrimitiveSource implements Source
@@ -78,6 +89,17 @@ public final class LocationAtom implements Location
         public Primitive getPrimitive()
         {
             return primitive;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
+
+            final PrimitiveSource other = (PrimitiveSource) obj;
+            return primitive == other.primitive;
         }
     }
 
