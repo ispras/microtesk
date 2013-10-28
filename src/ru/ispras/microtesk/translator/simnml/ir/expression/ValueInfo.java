@@ -355,6 +355,9 @@ final class ValueInfoNative extends ValueInfo
         if (!type.equals(other.type))
             return false;
 
+        if (null == value)
+            return value == other.value;
+
         if (!value.equals(other.value))
             return false;
 
