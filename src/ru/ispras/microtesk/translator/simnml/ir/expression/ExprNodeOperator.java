@@ -47,4 +47,28 @@ public final class ExprNodeOperator extends ExprAbstract
     {
         return cast;
     }
+
+    @Override
+    public boolean isEquivalent(Expr expr)
+    {
+        if (this == expr) return true;
+        if (expr == null) return false;
+
+        if (getClass() != expr.getClass())
+            return false;
+
+        final ExprNodeOperator other = (ExprNodeOperator) expr;
+
+        if (!getValueInfo().hasEqualType(other.getValueInfo()))
+            return false;
+
+        if (operator != other.getOperator())
+            return false;
+
+        if (operator.operands() == Operator.Operands.UNARY.count())
+            return operands.get(0).isEquivalent(other.operands.get(0));
+
+        return operands.get(0).isEquivalent(other.operands.get(0)) && 
+               operands.get(1).isEquivalent(other.operands.get(1));
+    }
 }
