@@ -149,18 +149,6 @@ public final class LocationAtom implements Location
             if (!type.equals(other.getType()))
                 return false;
 
-            if (!from.getValueInfo().hasEqualType(other.from.getValueInfo()))
-                return false;
-
-            if (!to.getValueInfo().hasEqualType(other.to.getValueInfo()))
-                return false;
-
-            if (((from.getValueInfo().isConstant() && from.getValueInfo().equals(other.from)) &&
-               ((to.getValueInfo().isConstant() && to.getValueInfo().equals(other.to)))))
-            {
-               return true;
-            }
-
             return from.isEquivalent(other.from) && to.isEquivalent(other.to);
         }
     }
@@ -222,5 +210,26 @@ public final class LocationAtom implements Location
     public Bitfield getBitfield()
     {
         return bitfield;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+
+        final LocationAtom other = (LocationAtom) obj;
+
+        if (!name.equals(other.getName())) return false;
+        if (!source.equals(other.source)) return false;
+
+        if (null != index && !index.isEquivalent(other.index))
+            return false;
+
+        if (null != bitfield && !bitfield.equals(other.bitfield))
+            return false;
+
+        return true;
     }
 }
