@@ -54,13 +54,16 @@ public final class ExprNodeOperator extends ExprAbstract
         if (this == expr) return true;
         if (expr == null) return false;
 
+        if (getValueInfo().isConstant() && getValueInfo().equals(expr.getValueInfo()))
+            return true;
+
+        if (!getValueInfo().hasEqualType(expr.getValueInfo()))
+            return false;
+
         if (getClass() != expr.getClass())
             return false;
 
         final ExprNodeOperator other = (ExprNodeOperator) expr;
-
-        if (!getValueInfo().hasEqualType(other.getValueInfo()))
-            return false;
 
         if (operator != other.getOperator())
             return false;
