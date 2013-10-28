@@ -134,12 +134,13 @@ public abstract class ValueInfo
         if (getValueKind() != value.getValueKind())
             return false;
 
-        if (isModel() && getModelType().equals(value.getModelType()))
-            return true;
+        if (isModel())
+            return getModelType().equals(value.getModelType());
 
-        if (isNative() && getNativeType() == value.getNativeType())
-            return true;
+        if (isNative())
+            return getNativeType() == value.getNativeType();
 
+        assert false;
         return false;
     }
 
@@ -246,6 +247,27 @@ final class ValueInfoModel extends ValueInfo
     }
 
     @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        final int result = prime + type.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null) return false;
+
+        if (getClass() != obj.getClass())
+            return false;
+
+        final ValueInfoModel other = (ValueInfoModel) obj;
+        return type.equals(other.type);
+    }
+
+    @Override
     public String toString()
     {
         return String.format("ValueInfo [type=%s]", type.getTypeName());
@@ -305,6 +327,38 @@ final class ValueInfoNative extends ValueInfo
     public Object getNativeValue()
     {
         return value;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+
+        result = prime * result + type.hashCode();
+        result = prime * result + value.hashCode();
+
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null) return false;
+
+        if (getClass() != obj.getClass())
+            return false;
+
+        final ValueInfoNative other = (ValueInfoNative) obj;
+
+        if (!type.equals(other.type))
+            return false;
+
+        if (!value.equals(other.value))
+            return false;
+
+        return true;
     }
 
     @Override
