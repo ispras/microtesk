@@ -47,7 +47,7 @@ public class Primitive
     private final String           name;
     private final Kind             kind;
     private final boolean      isOrRule;
-    private final Type   returnType;
+    private final Type       returnType;
     private final Set<String> attrNames;
 
     Primitive(String name, Kind kind, boolean isOrRule, Type returnType, Set<String> attrNames)
