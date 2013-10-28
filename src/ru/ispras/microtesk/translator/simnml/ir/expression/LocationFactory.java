@@ -131,16 +131,33 @@ public final class LocationFactory extends WalkerFactoryBase
             checkBitfieldBounds(where, fromPos, locationSize);
             checkBitfieldBounds(where, toPos, locationSize);
 
-            final int  bitfieldSize = (fromPos <= toPos) ? toPos - fromPos + 1 : fromPos - toPos + 1;
+            final int  bitfieldSize = Math.abs(toPos - fromPos) + 1;
             final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(bitfieldSize));
-            
+
+            return LocationAtom.createBitfield(location, from, to, bitfieldType);
+        }
+
+        final ExprUtils.ReducedExpr reducedFrom = ExprUtils.reduce(from);
+        final ExprUtils.ReducedExpr reducedTo   = ExprUtils.reduce(to);
+
+        if (null == reducedFrom || null == reducedTo)
+            raiseError(where, FAILED_TO_CALCULATE_SIZE);
+
+        assert null != reducedFrom.polynomial; // Cannot be reduced to constant in this point
+        assert null != reducedTo.polynomial;   // Cannot be reduced to constant in this point
+
+        if (reducedFrom.polynomial.equals(reducedTo.polynomial))
+        {
+            final int  bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
+            final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(bitfieldSize));
+
             return LocationAtom.createBitfield(location, from, to, bitfieldType);
         }
 
         raiseError(where, FAILED_TO_CALCULATE_SIZE);
         return null;
     }
-    
+
     private void checkBitfieldBounds(Where w, int position, int size) throws SemanticException
     {
         if (!(0 <= position && position < size))
