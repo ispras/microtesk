@@ -60,6 +60,16 @@ public interface Expr
      */
 
     public ValueInfo getValueInfo();
+    
+    /**
+     * Checks whether two expression can be considered equivalent.
+     * Such a feature is needed to reduce expressions.
+     * 
+     * @param expr Expression to be compared with the current.
+     * @return <code>true</code> if the expression is equivalent to the current or <code>false</code> otherwise.
+     */
+
+    public boolean isEquivalent(Expr expr); 
 }
 
 /**

@@ -76,4 +76,22 @@ public final class ExprNodeCoercion extends ExprAbstract
     {
         return source;
     }
+
+    @Override
+    public boolean isEquivalent(Expr expr)
+    {
+        if (this == expr) return true;
+        if (expr == null) return false;
+
+        if (!getValueInfo().hasEqualType(expr.getValueInfo()))
+            return false;
+
+        if (NodeKind.COERCION == expr.getNodeKind())
+        {
+            final ExprNodeCoercion exprCoercion = (ExprNodeCoercion) expr;
+            return getSource().isEquivalent(exprCoercion.getSource());
+        }
+
+        return getSource().isEquivalent(expr);
+    }
 }
