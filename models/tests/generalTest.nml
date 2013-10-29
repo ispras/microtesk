@@ -3,6 +3,7 @@
 
 let SIZE = 10
 let REGS = 16
+let BIG  = 0xFFFFFFFFFF
 
 //let REGS = 11
 
@@ -30,7 +31,25 @@ mem TEST_MEM1 [REGS*2, card(32)]
 reg TEST_REG1 [REGS,   DWORD]
 var TEST_VAR1 [REGS,   LONG]
 
-mem TEST_MEM2 [2*REGS,    card(32)]
-reg TEST_REG2 [2*REGS+1,  card(2**8)]
+mem TEST_MEM2 [2*REGS,   card(32)]
+reg TEST_REG2 [2*REGS+1, card(2**8)]
 
 // let AA = TEST_MEM1[1]
+
+mode MMM()
+
+op test(m: MMM)
+  syntax = "test"
+  image  = "0010"
+  action =  {
+    TEST_REG1[0] = TEST_REG1[0]<0..31> + 1;
+    TEST_REG1[1] = TEST_REG1[1]<8> + 1;
+    TEST_REG1[1] = TEST_REG1[1]<1 + TEST_REG2 - 1..1 + TEST_REG2 + 5> + 1;
+  }
+
+op instruction (x : test)
+    syntax = x.syntax
+    image = x.image
+    action = {
+        x.action;
+    }

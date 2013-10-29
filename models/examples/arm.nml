@@ -121,13 +121,11 @@ endif
     syntax = format("R%d , LSL #%d", r, amount)
     image = format("%5b000%4b", amount, r)
     action = {
-/*
         if amount == 0 then 
             shifter_carry_out = CPSR<29..29>;
         else
             shifter_carry_out = GPR[r]<32-amount..32-amount>;
         endif;
-*/
     }
 
 mode LSR_IMMEDIATE (r : index, amount : Bit5) = (GPR[r]) >> amount
