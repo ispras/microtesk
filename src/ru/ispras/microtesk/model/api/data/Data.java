@@ -28,7 +28,7 @@ public final class Data
 
     public Data(Data data)
     {
-        this.rawData = BitVector.createCopy(data.getRawData());
+        this.rawData = data.getRawData().createCopy();
         this.type    = data.getType();
     }
 

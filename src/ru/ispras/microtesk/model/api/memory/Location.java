@@ -182,7 +182,7 @@ public final class Location
         }
         */
 
-        return new Data(BitVector.createCopy(rawData), type);
+        return new Data(rawData.createCopy(), type);
     }
 
     public void store(Data data)
@@ -213,7 +213,7 @@ public final class Location
 
     public Data getDataCopy()
     {
-        return new Data(BitVector.createCopy(rawData), type);
+        return new Data(rawData.createCopy(), type);
     }
 
     /* TODO: NOT SUPPORTED IN THE CURRENT VERSION.
