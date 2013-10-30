@@ -15,7 +15,7 @@ package ru.ispras.microtesk.model.api.data.operations;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.ERadix;
 import ru.ispras.microtesk.model.api.data.IValueConverter;
-import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public class IntCardConverter implements IValueConverter
@@ -23,7 +23,7 @@ public class IntCardConverter implements IValueConverter
     @Override
     public Data fromLong(Type type, long value)
     {
-        final RawData rawData = RawData.valueOf(value, type.getBitSize());
+        final BitVector rawData = BitVector.valueOf(value, type.getBitSize());
         return new Data(rawData, type);
     }
 
@@ -37,7 +37,7 @@ public class IntCardConverter implements IValueConverter
     @Override
     public Data fromInt(Type type, int value)
     {
-        final RawData rawData = RawData.valueOf(value, type.getBitSize());
+        final BitVector rawData = BitVector.valueOf(value, type.getBitSize());
         return new Data(rawData, type);
     }
 

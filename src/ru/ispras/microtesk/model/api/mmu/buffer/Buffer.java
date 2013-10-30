@@ -19,7 +19,7 @@ package ru.ispras.microtesk.model.api.mmu.buffer;
 import java.util.HashMap;
 
 import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
-import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 
 /**
  * This class represents a partially associative buffer.
@@ -80,7 +80,7 @@ public abstract class Buffer<L extends Line>
      * @param address the address.
      * @return set.
      */
-    public RawData read(Address address)
+    public BitVector read(Address address)
     {
         Set<L> set = getSet(index(address));
 
@@ -94,7 +94,7 @@ public abstract class Buffer<L extends Line>
      * @param data the data.
      * @return set with the given address and data.
      */
-    public RawData write(Address address, RawData data)
+    public BitVector write(Address address, BitVector data)
     {
         Set<L> set = getSet(index(address));
 

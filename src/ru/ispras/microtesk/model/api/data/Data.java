@@ -12,34 +12,33 @@
 
 package ru.ispras.microtesk.model.api.data;
 
-import ru.ispras.microtesk.model.api.rawdata.RawData;
-import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Data
 {
-    private RawData rawData;
+    private BitVector rawData;
     private Type       type;
 
-    public Data(RawData rawData, Type type)
+    public Data(BitVector rawData, Type type)
     {
         this.rawData = rawData;
         this.type = type;
     }
-    
+
     public Data(Data data)
     {
-        this.rawData = new RawDataStore(data.getRawData());
+        this.rawData = BitVector.createCopy(data.getRawData());
         this.type    = data.getType();
     }
-    
+
     public Data(Type type)
     {
-        this.rawData = new RawDataStore(type.getBitSize());
+        this.rawData = BitVector.createEmpty(type.getBitSize());
         this.type    = type;
     }
 
-    public RawData getRawData()
+    public BitVector getRawData()
     {
         return rawData;
     }

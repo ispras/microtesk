@@ -14,10 +14,7 @@ package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 
-import ru.ispras.microtesk.model.api.rawdata.RawData;
-import ru.ispras.microtesk.model.api.rawdata.RawDataMapping;
-import ru.ispras.microtesk.model.api.rawdata.RawDataMultiMapping;
-import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -64,20 +61,20 @@ public final class Location
                 "Restriction: If the location size exceeds 64 bits, input data is truncated.";
 
             assert !readOnly;
-            rawData.assign(RawData.valueOf(value.longValue(), type.getBitSize()));
+            rawData.assign(BitVector.valueOf(value.longValue(), type.getBitSize()));
         }
     }
 
-    private final Type        type;
-    private final RawData  rawData;
-    private final boolean readOnly;
+    private final Type         type;
+    private final BitVector rawData;
+    private final boolean  readOnly;
 
     private IMemoryAccessHandler handler;
     private final ILocationAccessor accessor;
 
     public Location(Type type)
     {
-        this(type, new RawDataStore(type.getBitSize()), false, null);
+        this(type, BitVector.createEmpty(type.getBitSize()), false, null);
     }
 
     public Location(Data data)
@@ -85,7 +82,7 @@ public final class Location
         this(data.getType(), data.getRawData(), true, null);
     }
 
-    private Location(Type type, RawData rawData, boolean readOnly, IMemoryAccessHandler handler)
+    private Location(Type type, BitVector rawData, boolean readOnly, IMemoryAccessHandler handler)
     {
         this.type     = type;
         this.rawData  = rawData;
@@ -124,7 +121,7 @@ public final class Location
     {
         return new Location(
            new Type(type.getTypeID(), type.getBitSize() + arg.getType().getBitSize()),
-           new RawDataMultiMapping(new RawData[] {arg.rawData /*low*/, rawData /*high*/}),
+           BitVector.createMapping(arg.rawData /*low*/, rawData /*high*/),
            readOnly || arg.readOnly,
            handler
            );
@@ -137,8 +134,7 @@ public final class Location
         if (1 == locations.length)
             return locations[0];
 
-        final RawData[] rawDataArray =
-            new RawData[locations.length];
+        final BitVector[] rawDataArray = new BitVector[locations.length];
 
         boolean readOnly = false;
         int totalBitSize = 0;
@@ -152,7 +148,7 @@ public final class Location
 
         return new Location(
             new Type(typeID, totalBitSize),
-            new RawDataMultiMapping(rawDataArray),
+            BitVector.createMapping(rawDataArray),
             readOnly,
             null
             );
@@ -166,7 +162,7 @@ public final class Location
         final int bitSize = end - start + 1;
         return new Location(
             type,
-            new RawDataMapping(rawData, start, bitSize),
+            BitVector.createMapping(rawData, start, bitSize),
             readOnly,
             handler
             );
@@ -186,7 +182,7 @@ public final class Location
         }
         */
 
-        return new Data(new RawDataStore(rawData), type);
+        return new Data(BitVector.createCopy(rawData), type);
     }
 
     public void store(Data data)
@@ -217,7 +213,7 @@ public final class Location
 
     public Data getDataCopy()
     {
-        return new Data(new RawDataStore(rawData), type);
+        return new Data(BitVector.createCopy(rawData), type);
     }
 
     /* TODO: NOT SUPPORTED IN THE CURRENT VERSION.

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
 import ru.ispras.microtesk.model.api.mmu.policy.Policy;
 import ru.ispras.microtesk.model.api.mmu.policy.PolicyFactory;
-import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 
 /**
  * This class represents a set of lines.
@@ -74,7 +74,7 @@ public class Set<L extends Line> extends Buffer<L>
 	 * @param address the address.
 	 * @return data with a given address.
 	 */
-	public RawData read(Address address)
+	public BitVector read(Address address)
 	{
 		for(L line: set)
 		{
@@ -102,7 +102,7 @@ public class Set<L extends Line> extends Buffer<L>
      * @param address the address.
      * @return replaced data with a given address and data.
      */
-	public RawData write (Address address, RawData data)
+	public BitVector write (Address address, BitVector data)
 	{
 		for(L line: set)
 		{

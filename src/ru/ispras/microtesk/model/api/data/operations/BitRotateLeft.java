@@ -14,7 +14,7 @@ package ru.ispras.microtesk.model.api.data.operations;
 
 import ru.ispras.microtesk.model.api.data.Data;
 
-import static ru.ispras.microtesk.model.api.rawdata.RawDataAlgorithm.copy;
+import static ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm.copy;
 
 public final class BitRotateLeft extends BitRotateShiftBase
 {

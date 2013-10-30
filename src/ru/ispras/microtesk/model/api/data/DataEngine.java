@@ -15,9 +15,8 @@ package ru.ispras.microtesk.model.api.data;
 import java.util.EnumMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.rawdata.RawData;
-import ru.ispras.microtesk.model.api.rawdata.RawDataAlgorithm;
-import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
+import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.operations.*;
@@ -188,11 +187,11 @@ public final class DataEngine
     {
         // TODO: MAY NEED REVIEW (CODED IN A HURRY)
         //assert false : "NOT IMPLEMENTED";
-    
-        final RawData newRawData = new RawDataStore(type.getBitSize());
+
+        final BitVector newRawData = BitVector.createEmpty(type.getBitSize());
         final int copyBitSize = Math.min(value.getType().getBitSize(), type.getBitSize());
 
-        RawDataAlgorithm.copy(value.getRawData(), 0, newRawData, 0, copyBitSize);
+        BitVectorAlgorithm.copy(value.getRawData(), 0, newRawData, 0, copyBitSize);
         return new Data(newRawData, type);
     }
     

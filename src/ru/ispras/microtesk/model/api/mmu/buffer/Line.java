@@ -17,8 +17,7 @@
 package ru.ispras.microtesk.model.api.mmu.buffer;
 
 import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
-import ru.ispras.microtesk.model.api.rawdata.RawData;
-import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 
 /**
  * This class represents line of a buffer.
@@ -27,7 +26,7 @@ import ru.ispras.microtesk.model.api.rawdata.RawDataStore;
  */
 public abstract class Line extends Buffer<Line>
 {
-    private RawData data;
+    private BitVector data;
 
     /**
      * Constructs a line with a given size.
@@ -37,7 +36,7 @@ public abstract class Line extends Buffer<Line>
     public Line(int size)
     {
         super(1, 1, EPolicy.FIFO);
-        this.data = new RawDataStore(size);
+        this.data = BitVector.createEmpty(size);
     }
 
     /**
@@ -59,12 +58,12 @@ public abstract class Line extends Buffer<Line>
      * 
      * @return data.
      */
-    public RawData getData()
+    public BitVector getData()
     {
         return data;
     }
 
-    public void setData(RawData data)
+    public void setData(BitVector data)
     {
         this.data = data;
     }
@@ -74,7 +73,7 @@ public abstract class Line extends Buffer<Line>
      * 
      * @return data.
      */
-    public RawData read(Address address)
+    public BitVector read(Address address)
     {
         return getData();
     }
@@ -85,11 +84,11 @@ public abstract class Line extends Buffer<Line>
      * 
      * @returns data.
      */
-    public RawData write(Address address, RawData data)
+    public BitVector write(Address address, BitVector data)
     {
         if (match(address))
         {
-            RawData old = data;
+            BitVector old = data;
 
             setData(data);
 

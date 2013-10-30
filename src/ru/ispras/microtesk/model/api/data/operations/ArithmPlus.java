@@ -12,16 +12,14 @@
 
 package ru.ispras.microtesk.model.api.data.operations;
 
-import static ru.ispras.microtesk.model.api.rawdata.RawDataAlgorithm.transform;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
-import ru.ispras.microtesk.model.api.rawdata.RawData;
-import ru.ispras.microtesk.model.api.rawdata.RawDataAlgorithm.IBinaryOperation;
+import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -49,7 +47,7 @@ public class ArithmPlus implements IBinaryOperator
     {
         assert left.getType().equals(right.getType()) : "Restriction: types (and sizes) should match.";
 
-        final IBinaryOperation op = new IBinaryOperation()
+        final BitVectorAlgorithm.IBinaryOperation op = new BitVectorAlgorithm.IBinaryOperation()
         {
             private char remainder = 0;
 
@@ -57,13 +55,13 @@ public class ArithmPlus implements IBinaryOperator
             public byte run(byte lhs, byte rhs)
             { 
                 final int retvalue = lhs + rhs + remainder;
-                remainder = (char)(retvalue >>> RawData.BITS_IN_BYTE);
+                remainder = (char)(retvalue >>> BitVector.BITS_IN_BYTE);
                 return (byte) retvalue;
             }
         };
 
         final Data result = new Data(left.getType());
-        transform(left.getRawData(), right.getRawData(), result.getRawData(), op);
+        BitVectorAlgorithm.transform(left.getRawData(), right.getRawData(), result.getRawData(), op);
 
         return result;
     }

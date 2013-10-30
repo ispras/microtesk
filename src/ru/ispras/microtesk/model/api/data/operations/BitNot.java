@@ -18,11 +18,11 @@ import java.util.Set;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IUnaryOperator;
-import ru.ispras.microtesk.model.api.rawdata.RawDataAlgorithm.IUnaryOperation;
+import ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm.IUnaryOperation;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
-import static ru.ispras.microtesk.model.api.rawdata.RawDataAlgorithm.transform;
+import static ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm.transform;
 
 public final class BitNot implements IUnaryOperator
 {

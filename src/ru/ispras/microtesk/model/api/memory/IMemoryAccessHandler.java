@@ -12,10 +12,10 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 
 public interface IMemoryAccessHandler
 {
-    public RawData onLoad(IMemory memory, int address);
-    public void onStore(IMemory memory, int address, RawData data);
+    public BitVector onLoad(IMemory memory, int address);
+    public void onStore(IMemory memory, int address, BitVector data);
 }

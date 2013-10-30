@@ -18,7 +18,7 @@ import java.util.Set;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
-import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -41,7 +41,7 @@ public class ArithmMul implements IBinaryOperator
         final Type resultType = left.getType();
 
         return new Data(
-            RawData.valueOf(result, resultType.getBitSize()),
+            BitVector.valueOf(result, resultType.getBitSize()),
             resultType
             );
     }

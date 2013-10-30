@@ -18,8 +18,7 @@ import java.util.Map;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.ConstraintSolverException;
-import ru.ispras.microtesk.model.api.rawdata.RawData;
-import ru.ispras.microtesk.model.api.rawdata.RawDataMapping;
+import ru.ispras.formula.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.situation.Situation;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -93,14 +92,13 @@ public abstract class ConstraintBasedSituation extends Situation
         final BitVectorWrapper value =
             (BitVectorWrapper)variable.getData().getValue();
 
-        final RawData rawDataValue =
-            RawData.valueOf(value.getValue().toByteArray(), value.getSize());
+        final BitVector rawDataValue =
+            BitVector.valueOf(value.getValue().toByteArray(), value.getSize());
 
         assert 0 < size && size <= rawDataValue.getBitSize();
 
-        final RawData rawData = (size == rawDataValue.getBitSize()) ?
-            rawDataValue :    
-            new RawDataMapping(rawDataValue, 0, size); 
+        final BitVector rawData = (size == rawDataValue.getBitSize()) ?
+            rawDataValue : BitVector.createMapping(rawDataValue, 0, size); 
 
         return new Data(rawData, new Type(typeID, size));
     }
