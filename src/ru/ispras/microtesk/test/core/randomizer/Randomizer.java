@@ -18,7 +18,8 @@ package ru.ispras.microtesk.test.core.randomizer;
 
 import java.util.ArrayList;
 
-import ru.ispras.microtesk.model.api.rawdata.RawData;
+import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm;
 
 /**
  * This class is a wrapper around a random number generator. It is responsible
@@ -224,19 +225,17 @@ public final class Randomizer
         for(int i = 0; i < data.length; i++)
             { data[i] = nextLong(); }
     }
-    
+
     /**
      * Fills the raw data storage with random data.
      *
      * @param data the raw data storage to be randomized.
      */
-    public void fill(RawData data)
+    public void fill(BitVector data)
     {
-        final int s = data.getBitSize() / RawData.BITS_IN_BYTE +
-                     (data.getBitSize() % RawData.BITS_IN_BYTE != 0 ? 1 : 0);
-        
-        for(int i = 0; i < s; i++)
-            { data.setByte(i, nextByte()); }
-
+        BitVectorAlgorithm.generate(data, new BitVectorAlgorithm.IOperation()
+        {
+            @Override public byte run() { return nextByte(); }
+        });
     }
 }
