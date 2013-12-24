@@ -18,15 +18,15 @@ import java.util.Map;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.ConstraintSolverException;
+import ru.ispras.formula.data.DataTypeId;
+import ru.ispras.formula.data.Variable;
 import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.formula.solver.Solver;
+import ru.ispras.formula.solver.SolverResult;
+import ru.ispras.formula.solver.constraint.Constraint;
 import ru.ispras.microtesk.model.api.situation.Situation;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.solver.api.interfaces.EDataType;
-import ru.ispras.solver.api.interfaces.IConstraint;
-import ru.ispras.solver.api.interfaces.ISolverResult;
-import ru.ispras.solver.api.interfaces.IVariable;
-import ru.ispras.solver.api.internal.BitVectorWrapper;
 
 public abstract class ConstraintBasedSituation extends Situation
 {
@@ -53,14 +53,15 @@ public abstract class ConstraintBasedSituation extends Situation
     @Override
     public final Map<String, Data> solve() throws ConfigurationException
     {
-        final IConstraint     constraint = constraintFactory.create();
-        final ISolverResult solverResult = constraint.solve();
+        final Constraint  constraint = constraintFactory.create();
+        final Solver solver = constraint.getKind().getDefaultSolverId().getSolver(); 
 
+        final SolverResult solverResult = solver.solve(constraint);
         checkSolverResult(solverResult);
 
         final Map<String, Data> result = new HashMap<String, Data>();
 
-        for (IVariable variable : solverResult.getVariables())
+        for (Variable variable : solverResult.getVariables())
         {
             result.put(variable.getName(), variableToData(variable, ETypeID.CARD, 32));
         }
@@ -68,15 +69,15 @@ public abstract class ConstraintBasedSituation extends Situation
         return result;
     }
     
-    private void checkSolverResult(ISolverResult solverResult) throws ConfigurationException
+    private void checkSolverResult(SolverResult solverResult) throws ConfigurationException
     {
-        if (solverResult.isSuccessful())
+        if (!solverResult.hasErrors())
             return;
 
         final StringBuilder sb = new StringBuilder();
 
         sb.append(String.format("Unable to solve the %s test situation. ", getInfo().getName()));
-        sb.append("Contraint solver failure. Reason: ");
+        sb.append("Constraint solver failure. Reason: ");
 
         for (String error : solverResult.getErrors())
             sb.append(error);
@@ -84,21 +85,17 @@ public abstract class ConstraintBasedSituation extends Situation
         throw new ConstraintSolverException(sb.toString());
     }
 
-    private Data variableToData(IVariable variable, ETypeID typeID, int size)
+    private Data variableToData(Variable variable, ETypeID typeID, int size)
     {
         assert null != variable;
-        assert variable.getData().getType().getType() == EDataType.BIT_VECTOR;
+        assert variable.getData().getType().getTypeId() == DataTypeId.BIT_VECTOR;
 
-        final BitVectorWrapper value =
-            (BitVectorWrapper)variable.getData().getValue();
+        final BitVector value = (BitVector)variable.getData().getValue();
 
-        final BitVector rawDataValue =
-            BitVector.valueOf(value.getValue().toByteArray(), value.getSize());
+        assert 0 < size && size <= value.getBitSize();
 
-        assert 0 < size && size <= rawDataValue.getBitSize();
-
-        final BitVector rawData = (size == rawDataValue.getBitSize()) ?
-            rawDataValue : BitVector.createMapping(rawDataValue, 0, size); 
+        final BitVector rawData = (size == value.getBitSize()) ?
+            value : BitVector.createMapping(value, 0, size); 
 
         return new Data(rawData, new Type(typeID, size));
     }

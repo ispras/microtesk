@@ -12,9 +12,9 @@
 
 package ru.ispras.microtesk.model.api.situation.builtin;
 
-import ru.ispras.solver.api.interfaces.IConstraint;
+import ru.ispras.formula.solver.constraint.Constraint;
 
 public interface IConstraintFactory
 {
-    public IConstraint create();
+    public Constraint create();
 }

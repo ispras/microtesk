@@ -12,70 +12,65 @@
 
 package ru.ispras.microtesk.model.api.situation.builtin;
 
-import ru.ispras.solver.api.DataFactory;
-import ru.ispras.solver.api.interfaces.EDataType;
-import ru.ispras.solver.api.interfaces.IDataType;
-import ru.ispras.solver.core.syntax.EStandardOperation;
-import ru.ispras.solver.core.syntax.ISyntaxElement;
-import ru.ispras.solver.core.syntax.Operation;
-import ru.ispras.solver.core.syntax.Value;
+import ru.ispras.formula.data.Data;
+import ru.ispras.formula.data.DataType;
+import ru.ispras.formula.expression.Node;
+import ru.ispras.formula.expression.NodeExpr;
+import ru.ispras.formula.expression.NodeValue;
+import ru.ispras.formula.expression.StandardOperation;
 
 public abstract class OverflowConstraintFactory implements IConstraintFactory
 {
     public static final int BIT_VECTOR_LENGTH = 64;
 
-    public static final IDataType BIT_VECTOR_TYPE; 
-    public static final Value     INT_ZERO;
-    public static final Value     INT_BASE_SIZE;
-    public static final Operation INT_SIGN_MASK;
+    public static final DataType  BIT_VECTOR_TYPE; 
+    public static final NodeValue INT_ZERO;
+    public static final NodeValue INT_BASE_SIZE;
+    public static final NodeExpr  INT_SIGN_MASK;
 
     static 
     {
-        BIT_VECTOR_TYPE = DataFactory.createDataType(EDataType.BIT_VECTOR, BIT_VECTOR_LENGTH);
-        INT_ZERO        = new Value(BIT_VECTOR_TYPE.valueOf("0", 10));
-        INT_BASE_SIZE   = new Value(BIT_VECTOR_TYPE.valueOf("32", 10));
+        BIT_VECTOR_TYPE = DataType.BIT_VECTOR(BIT_VECTOR_LENGTH);
+        INT_ZERO        = new NodeValue(Data.createBitVector(0, BIT_VECTOR_LENGTH));
+        INT_BASE_SIZE   = new NodeValue(Data.createBitVector(32, BIT_VECTOR_LENGTH));
 
-        INT_SIGN_MASK   = new Operation(
-            EStandardOperation.BVLSHL,
-            new Operation(EStandardOperation.BVNOT, INT_ZERO),
+        INT_SIGN_MASK   = new NodeExpr(
+            StandardOperation.BVLSHL,
+            new NodeExpr(StandardOperation.BVNOT, INT_ZERO),
             INT_BASE_SIZE
             );
     }
 
-    protected final Operation IsValidPos(ISyntaxElement arg)
+    protected static NodeExpr IsValidPos(Node arg)
     {
-        return new Operation(
-            EStandardOperation.EQ,
-            new Operation(EStandardOperation.BVAND, arg, INT_SIGN_MASK),
+        return new NodeExpr(
+            StandardOperation.EQ,
+            new NodeExpr(StandardOperation.BVAND, arg, INT_SIGN_MASK),
             INT_ZERO
             );
     }
 
-    protected final Operation IsValidNeg(ISyntaxElement arg)
+    protected static NodeExpr IsValidNeg(Node arg)
     {
-        return new Operation(
-            EStandardOperation.EQ,
-            new Operation(EStandardOperation.BVAND, arg, INT_SIGN_MASK),
+        return new NodeExpr(
+            StandardOperation.EQ,
+            new NodeExpr(StandardOperation.BVAND, arg, INT_SIGN_MASK),
             INT_SIGN_MASK
             );
     }
 
-    protected final Operation IsValidSignedInt(ISyntaxElement arg)
+    protected static NodeExpr IsValidSignedInt(Node arg)
     {
-        return new Operation(
-            EStandardOperation.OR,
-            IsValidPos(arg),
-            IsValidNeg(arg)
-            );
+        return NodeExpr.OR(IsValidPos(arg), IsValidNeg(arg));
     }
 
-    protected final Operation isNotEqual(ISyntaxElement left, ISyntaxElement right)
+    protected static NodeExpr isNotEqual(Node left, Node right)
     {
-        return isNot(new Operation(EStandardOperation.EQ, left, right));
+        return isNot(new NodeExpr(StandardOperation.EQ, left, right));
     }
 
-    protected final Operation isNot(ISyntaxElement expr)
+    protected static NodeExpr isNot(NodeExpr expr)
     {
-        return new Operation(EStandardOperation.NOT, expr);
+        return NodeExpr.NOT(expr);
     }
 }

@@ -13,9 +13,10 @@
 package ru.ispras.microtesk.model.api.situation.builtin;
 
 import java.util.Map;
+
+import ru.ispras.formula.solver.Environment;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.solver.api.Environment;
 
 /**
  * Private code. Presents here only for testing purposes. Probably, it will be removed.   

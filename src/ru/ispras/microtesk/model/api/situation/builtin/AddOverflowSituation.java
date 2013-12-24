@@ -12,15 +12,14 @@
 
 package ru.ispras.microtesk.model.api.situation.builtin;
 
+import ru.ispras.formula.expression.NodeExpr;
+import ru.ispras.formula.expression.NodeVariable;
+import ru.ispras.formula.expression.StandardOperation;
+import ru.ispras.formula.solver.constraint.Constraint;
+import ru.ispras.formula.solver.constraint.ConstraintBuilder;
+import ru.ispras.formula.solver.constraint.ConstraintKind;
+import ru.ispras.formula.solver.constraint.Formulas;
 import ru.ispras.microtesk.model.api.situation.ISituation;
-import ru.ispras.solver.api.interfaces.IConstraint;
-import ru.ispras.solver.core.Constraint;
-import ru.ispras.solver.core.solvers.ESolverId;
-import ru.ispras.solver.core.syntax.EStandardOperation;
-import ru.ispras.solver.core.syntax.Formula;
-import ru.ispras.solver.core.syntax.Operation;
-import ru.ispras.solver.core.syntax.Syntax;
-import ru.ispras.solver.core.syntax.Variable;
 
 public final class AddOverflowSituation extends ConstraintBasedSituation
 {
@@ -44,27 +43,27 @@ public final class AddOverflowSituation extends ConstraintBasedSituation
 
 final class AddOverflowConstraintBuilder extends OverflowConstraintFactory
 {
-    public IConstraint create()
+    public Constraint create()
     {
-        final Constraint constraint = new Constraint();
+        final ConstraintBuilder builder = new ConstraintBuilder();
 
-        constraint.setName("AddOverflow");
-        constraint.setDescription("AddOverflow constraint");
-        constraint.setSolverId(ESolverId.Z3_TEXT);
+        builder.setName("AddOverflow");
+        builder.setKind(ConstraintKind.FORMULA_BASED);
+        builder.setDescription("AddOverflow constraint");
 
         // Unknown variables
-        final Variable rs = new Variable(constraint.addVariable("src2", BIT_VECTOR_TYPE));
-        final Variable rt = new Variable(constraint.addVariable("src3", BIT_VECTOR_TYPE));
+        final NodeVariable rs = new NodeVariable(builder.addVariable("src2", BIT_VECTOR_TYPE));
+        final NodeVariable rt = new NodeVariable(builder.addVariable("src3", BIT_VECTOR_TYPE));
 
-        final Syntax syntax = new Syntax();
-        constraint.setSyntax(syntax);
+        final Formulas formulas = new Formulas();
+        builder.setInnerRep(formulas);
 
-        syntax.addFormula(new Formula(IsValidSignedInt(rs)));
-        syntax.addFormula(new Formula(IsValidSignedInt(rt)));
+        formulas.add(IsValidSignedInt(rs));
+        formulas.add(IsValidSignedInt(rt));
 
-        syntax.addFormula(new Formula(isNot(IsValidSignedInt(new Operation(EStandardOperation.BVADD, rs, rt)))));
-        syntax.addFormula(new Formula(isNotEqual(rs, rt)));
+        formulas.add(isNot(IsValidSignedInt(new NodeExpr(StandardOperation.BVADD, rs, rt))));
+        formulas.add(isNotEqual(rs, rt));
 
-        return constraint;
+        return builder.build();
     }
 }
