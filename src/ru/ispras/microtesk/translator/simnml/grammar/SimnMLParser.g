@@ -119,7 +119,7 @@ private boolean inBitfield = false;
 
 // Start rule
 startRule
-    :  procSpec* EOF!
+    :  procSpec* EOF
     ;
 
 procSpec
