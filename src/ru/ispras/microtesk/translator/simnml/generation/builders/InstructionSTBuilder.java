@@ -38,8 +38,9 @@ public class InstructionSTBuilder implements ITemplateBuilder
     private final String specFileName;
     private final String modelName;
     private final Instruction instruction;
-    
-    private boolean immsImported = false;
+
+    private boolean    immsImported = false;
+    private boolean needModeImports = false;
 
     public InstructionSTBuilder(
         String specFileName,
@@ -68,7 +69,8 @@ public class InstructionSTBuilder implements ITemplateBuilder
         t.add("imps", InstructionBase.class.getName());
         t.add("imps", IAddressingMode.class.getName());
         
-        t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
+        if (needModeImports)
+        	t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
         t.add("imps", String.format(OP_CLASS_FORMAT, modelName, "*"));
         
         t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
@@ -92,6 +94,9 @@ public class InstructionSTBuilder implements ITemplateBuilder
         {
             t.add("param_names", e.getKey());
             
+            if (Primitive.Kind.MODE == e.getValue().getKind())
+            	needModeImports = true;
+
             if (Primitive.Kind.MODE == e.getValue().getKind() ||
                 Primitive.Kind.OP == e.getValue().getKind())
             {
@@ -147,9 +152,9 @@ public class InstructionSTBuilder implements ITemplateBuilder
     {
         final ST t = group.getInstanceOf("instruction");
 
-        buildHeader(t);
         buildParameters(t);
         buildPrimitiveTree(group, t);
+        buildHeader(t);
 
         return t;
     }
