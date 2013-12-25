@@ -120,7 +120,7 @@ public class TokenSourceStack implements TokenSource
         // Skip EOFs of sub-sources (sub-sources are invisible for a user).
         while(isEof(token) && !isRootSource())
         {
-	    // Try the latest token of the parent stream.
+            // Try the latest token of the parent stream.
             token = getToken();
 
             // Remove an exhausted sub-source from the stack.
@@ -141,6 +141,9 @@ public class TokenSourceStack implements TokenSource
     @Override
     public String getSourceName()
     {
+        if(!hasSources())
+            { return ""; }
+
         TokenSource source = getSource();
         
         return source.getSourceName();

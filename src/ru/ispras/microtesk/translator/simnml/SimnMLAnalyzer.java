@@ -108,12 +108,6 @@ public class SimnMLAnalyzer
         	return;
         }
 
-        if (0 == stream.size())
-        { 
-        	System.err.println("INCLUDE FILE '" + filename + "' IS EMPTY.");
-        	return;
-        }
-
         startSublexer(stream);
     }
 
