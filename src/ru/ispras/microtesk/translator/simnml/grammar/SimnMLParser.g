@@ -301,7 +301,7 @@ actionDef
 
 attrExpr
     :  STRING_CONST
-    |  FORMAT^ LEFT_PARENTH! STRING_CONST COMMA! formatIdList RIGHT_PARENTH!
+    |  FORMAT^ LEFT_PARENTH! STRING_CONST (COMMA! formatIdList)? RIGHT_PARENTH!
     ;
 
 formatIdList

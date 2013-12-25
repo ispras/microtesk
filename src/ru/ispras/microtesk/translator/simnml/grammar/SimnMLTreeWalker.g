@@ -381,7 +381,7 @@ attrExpr returns [Statement res]
 {
 $res = getStatementFactory().createFormat(where($str), $str.text, null);
 }
-    |  ^(FORMAT fs=STRING_CONST fargs=formatIdList)
+    |  ^(FORMAT fs=STRING_CONST (fargs=formatIdList)?)
 {
 $res = getStatementFactory().createFormat(where($fs), $fs.text, $fargs.res);
 }
