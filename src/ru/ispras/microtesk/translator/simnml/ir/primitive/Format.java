@@ -114,7 +114,7 @@ public final class Format
         public boolean isConvertibleTo(Marker marker)
         {
             if (STR == marker)
-                return false;
+                return true;
 
             if (expr.getValueInfo().isModel())
                 return isModelConvertibleTo(marker);
@@ -161,9 +161,17 @@ public final class Format
 
         private String convertModelTo(Marker marker)
         {
-            return (BIN == marker) ?
-                String.format("%s.getRawData().toBinString()", ExprPrinter.toString(expr)) : 
-                String.format("%s.getRawData().intValue()", ExprPrinter.toString(expr));
+            final String methodName;
+
+            if (BIN == marker)
+                methodName = "toBinString";
+            else if (STR == marker)
+                methodName = "toString";
+            else
+                methodName = "intValue";
+            
+            return String.format(
+                "%s.getRawData().%s()", ExprPrinter.toString(expr), methodName);
         }
 
         private String convertJavaTo(Marker marker)
