@@ -98,16 +98,25 @@ public class SimnMLAnalyzer
     
     public void lexInclude(final String filename)
     {
-        ANTLRFileStream stream = finder.openFile(filename);
+        final ANTLRFileStream stream = finder.openFile(filename);
 
         System.out.println(filename);
 
-        if(stream != null)
-            { startSublexer(stream); }
-        else
-            { System.err.println("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND."); }
+        if (null == stream)
+        { 
+        	System.err.println("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND.");
+        	return;
+        }
+
+        if (0 == stream.size())
+        { 
+        	System.err.println("INCLUDE FILE '" + filename + "' IS EMPTY.");
+        	return;
+        }
+
+        startSublexer(stream);
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Parser
     ///////////////////////////////////////////////////////////////////////////
@@ -117,27 +126,25 @@ public class SimnMLAnalyzer
         final SymbolTable<ESymbolKind> symbols = new SymbolTable<ESymbolKind>();
         symbols.defineReserved(ESymbolKind.KEYWORD, JavaKeyword.STRINGS);
         symbols.defineReserved(ESymbolKind.KEYWORD, RubyKeyword.STRINGS);
-        
+
         final CommonTokenStream tokens = new TokenRewriteStream();
         tokens.setTokenSource(source);
 
         final SimnMLParser parser = new SimnMLParser(tokens);        
         parser.assignLog(LOG);
         parser.assignSymbols(symbols);
-
         parser.setTreeAdaptor(new CommonTreeAdaptor());
-        RuleReturnScope result = parser.startRule();
 
-        final CommonTree tree = (CommonTree)result.getTree();
+        final RuleReturnScope result = parser.startRule();
+        final CommonTree tree = (CommonTree) result.getTree();
 
         // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs. 
         // print(tree);
 
-        CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+        final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
         nodes.setTokenStream(tokens);
-
+        
         final IR ir = new IR();
-
         final SimnMLTreeWalker walker = new SimnMLTreeWalker(nodes);
 
         walker.assignLog(LOG);
@@ -145,7 +152,6 @@ public class SimnMLAnalyzer
         walker.assignIR(ir);
 
         walker.startRule();
-
         return ir;
     }
     
@@ -176,7 +182,7 @@ public class SimnMLAnalyzer
         System.out.println("Translating: " + fileName);
         System.out.println("Model name: " + modelName);
 
-        final TokenSource source = startLexer(filenames);    
+        final TokenSource source = startLexer(filenames);
         final IR ir = startParserAndWalker(source);
 
         final InstructionBuilder instructionBuilder = new InstructionBuilder(ir.getOps(), getShortFileName(fileName), LOG);
