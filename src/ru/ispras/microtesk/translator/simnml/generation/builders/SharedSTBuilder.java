@@ -80,7 +80,7 @@ public class SharedSTBuilder implements ITemplateBuilder
         t.add("file", specFileName);
         t.add("pack", String.format(SHARED_PACKAGE_FORMAT, modelName));
 
-        if (!ir.getTypes().isEmpty() && !ir.getMemory().isEmpty())
+        if (!ir.getTypes().isEmpty() || !ir.getMemory().isEmpty())
         {
             t.add("imps", ETypeID.class.getName());
             t.add("imps", ru.ispras.microtesk.model.api.type.Type.class.getName());
