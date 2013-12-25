@@ -16,8 +16,8 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
 public final class UnrecognizedStructure implements ISemanticError
 {
-    private static final String FORMAT =
-        "Failed to recognize the grammar structure. It will be ignored: '%s'.";
+    private static final String MESSAGE =
+        "Failed to recognize the grammar structure. It will be ignored";
 
     private final String what;
 
@@ -26,9 +26,17 @@ public final class UnrecognizedStructure implements ISemanticError
         this.what = what;
     }
 
+    public UnrecognizedStructure()
+    {
+        this.what = null;
+    }
+
     @Override
     public String getMessage()
     {
-        return String.format(FORMAT, what);
+        if (null == what)
+            return MESSAGE + "."; 
+
+        return String.format("%s: '%s'.", MESSAGE, what);
     }
 }

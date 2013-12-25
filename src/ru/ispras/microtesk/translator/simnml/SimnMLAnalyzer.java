@@ -137,7 +137,7 @@ public class SimnMLAnalyzer
 
         final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
         nodes.setTokenStream(tokens);
-        
+
         final IR ir = new IR();
         final SimnMLTreeWalker walker = new SimnMLTreeWalker(nodes);
 

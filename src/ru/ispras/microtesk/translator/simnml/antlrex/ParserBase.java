@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.antlrex;
 
+import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
@@ -23,6 +24,7 @@ import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
 public class ParserBase extends ParserEx
 {   
@@ -72,7 +74,7 @@ public class ParserBase extends ParserEx
     private final void checkRedeclared(final Token t) throws SemanticException
     {
         assert null != symbols;
-        
+
         final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
 
         if (null == symbol) // OK
@@ -84,12 +86,12 @@ public class ParserBase extends ParserEx
     protected final void checkDeclaration(Token t, ESymbolKind expectedKind) throws SemanticException
     {
         assert null != symbols;
-        
+
         final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
-        
+
         if (null == symbol)
             raiseError(new UndeclaredSymbol(t.getText()));
-        
+
         if (expectedKind != symbol.getKind())
             raiseError(new SymbolTypeMismatch<ESymbolKind>(t.getText(), symbol.getKind(), expectedKind));
     }
@@ -107,5 +109,11 @@ public class ParserBase extends ParserEx
             return false;
 
         return true;
+    }
+
+    protected void checkNotNull(Token t, Object obj) throws RecognitionException
+    {
+        if (null == obj)
+            raiseError(where(t), new UnrecognizedStructure());        
     }
 }

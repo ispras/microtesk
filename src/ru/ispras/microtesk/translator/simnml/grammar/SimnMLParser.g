@@ -184,19 +184,23 @@ typeExpr
 /*======================================================================================*/
 
 memDef
-    :  MEM^ id=ID LEFT_HOOK! sizeType RIGHT_HOOK! { declare($id, ESymbolKind.MEMORY, false); } alias?
+    :  MEM^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK!
+                                         {declare($id, ESymbolKind.MEMORY, false);} alias?
     ;
 
 regRef
-    :  REG^ id=ID LEFT_HOOK! sizeType RIGHT_HOOK! { declare($id, ESymbolKind.MEMORY, false); }
+    :  REG^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK! 
+                                         {declare($id, ESymbolKind.MEMORY, false);}
     ;
 
 varDef
-    :  VAR^ id=ID LEFT_HOOK! sizeType RIGHT_HOOK! { declare($id, ESymbolKind.MEMORY, false); }
+    :  VAR^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK!
+                                         {declare($id, ESymbolKind.MEMORY, false);}
     ;
 
 sizeType
-    :  (expr COMMA)? typeExpr -> ^(SIZE_TYPE expr? typeExpr)
+    :  (expr COMMA)? te=typeExpr {checkNotNull($te.start, $te.tree);}
+        -> ^(SIZE_TYPE expr? typeExpr)
     ;
 
 alias
