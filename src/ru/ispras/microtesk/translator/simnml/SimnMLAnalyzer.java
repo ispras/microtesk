@@ -182,7 +182,7 @@ public class SimnMLAnalyzer
         final InstructionBuilder instructionBuilder = new InstructionBuilder(ir.getOps(), getShortFileName(fileName), LOG);
         if (!instructionBuilder.buildInstructions())
         {
-            System.err.println("FAILED TO SYNTESIZE INSTRUCTIONS. TRANSLATION WAS INTERRUPTED.");
+            System.err.println("FAILED TO SYNTHESIZE INSTRUCTIONS. TRANSLATION WAS INTERRUPTED.");
             return;
         }
         ir.putInstructions(instructionBuilder.getInstructions());
