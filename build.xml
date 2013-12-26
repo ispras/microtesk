@@ -7,6 +7,7 @@
   <property name="out"  location="output"/>
   <property name="bin"  location="bin"/>
   <property name="dist" location="dist/jars"/>
+  <property name="doc"  location="doc"/>
 
   <property name="microtesk.bin" value="${bin}/microtesk"/>
 
@@ -139,6 +140,7 @@
     <delete dir="${bin}"/>
     <delete dir="${gen}/${root.package}"/>
     <delete dir="${out}/${root.package}"/>
+    <delete dir="${doc}"/>
   </target>
 
   <!-- JUnit target (compile and run unit tests) -->
@@ -156,6 +158,17 @@
         <fileset dir="${src}" includes="**/tests/*TestCase*.java"/>
       </batchtest>
     </junit>
+  </target>
+	
+  <!-- JavaDoc target, generates documentation for source code in ${src} and places it into ${doc} -->
+  <target name="doc" depends="init,simnml_antlr,mmu_antlr">
+    <mkdir dir="${doc}"/> 
+    <javadoc
+      sourcepath="${src}:${gen}"
+      destdir="${doc}"
+      classpath="${classpath}"
+      author="true"
+    />
   </target>
 
 </project>
