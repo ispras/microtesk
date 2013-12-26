@@ -103,12 +103,13 @@ public interface IAddressingMode extends IPrimitive
         public Map<String, IAddressingModeBuilderEx> createBuilders();
 
         /**
-         * Returns a collection of meta data object describing the addressing
+         * Returns a collection of meta data objects describing the addressing
          * mode (or the group of addressing modes) the info object refers to.
          * In the case, when there is a single addressing mode, the collection
          * will contain only one item.   
          * 
-         * @return
+         * @return A collection of meta data objects for an addressing mode or a group of 
+         * addressing modes.  
          */
         
         public Collection<IMetaAddressingMode> getMetaData();

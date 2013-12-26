@@ -56,8 +56,8 @@ public class Configuration<T>
     /**
      * Creates an instance of the combinator with the given name.
      *
+     * @param name the combinator's name.
      * @return a combinator instance.
-     * @param the combinator's name.
      */
 
     @SuppressWarnings("unchecked")

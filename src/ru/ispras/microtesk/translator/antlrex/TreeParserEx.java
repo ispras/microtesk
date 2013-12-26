@@ -36,7 +36,7 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
  * add the following code to the top of your tree parser grammar file:
  * 
  * <pre>
- * @rulecatch{
+ * {@code @}rulecatch{
  * catch(SemanticException se) {
  *     reportError(se);
  *     recover(input,se);
@@ -44,7 +44,6 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
  * catch (RecognitionException re) { // Default behavior
  *     reportError(re);
  *     recover(input,re);
- * }
  * }</pre>
  * 
  * This will enable handling custom error messages thrown by semantic actions.

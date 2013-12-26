@@ -29,7 +29,6 @@ public interface ISimulator
     /**
      * Creates a builder that will help set up a block of an instruction calls. 
      *
-     * @param name The name of the instruction to be executed.
      * @return A builder for an instruction call object.
      */
 

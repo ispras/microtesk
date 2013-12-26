@@ -229,7 +229,7 @@ public final class ExprFactory extends WalkerFactoryBase
      * 
      * @param w
      * @param src
-     * @return
+     * @return New expression.
      * @throws SemanticException
      */
     
@@ -251,7 +251,7 @@ public final class ExprFactory extends WalkerFactoryBase
      * 
      * @param w
      * @param src
-     * @return
+     * @return New expression.
      * @throws SemanticException
      */
 
@@ -273,7 +273,7 @@ public final class ExprFactory extends WalkerFactoryBase
      * 
      * @param w
      * @param src
-     * @return
+     * @return New expression.
      * @throws SemanticException
      */
 
