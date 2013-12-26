@@ -13,7 +13,8 @@
   <!-- Output JAR-file -->
   <property name="jar" value="microtesk.jar"/>
   <!-- Main package -->
-  <property name="main.package" value="ru/ispras/microtesk"/>
+  <property name="root.package" value="ru"/>
+  <property name="main.package" value="${root.package}/ispras/microtesk"/>
 
   <!-- External JARs -->
   <property name="junit.jar" value="junit-4.10.jar"/>
@@ -136,7 +137,8 @@
   <target name="clean">
     <delete dir="${dist}"/>
     <delete dir="${bin}"/>
-    <delete dir="${gen}"/>
+    <delete dir="${gen}/${root.package}"/>
+    <delete dir="${out}/${root.package}"/>
   </target>
 
   <!-- JUnit target (compile and run unit tests) -->
