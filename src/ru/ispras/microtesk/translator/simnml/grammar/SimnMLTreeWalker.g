@@ -21,7 +21,7 @@ options {
 }
 
 @rulecatch {
-catch(SemanticException se) {
+catch (SemanticException se) {
     reportError(se);
     recover(input,se);
 }
@@ -453,7 +453,12 @@ $res = Collections.singletonList(
 
 assignmentStatement returns [List<Statement> res]
 @init {final PCAnalyzer analyzer = new PCAnalyzer(getLocationFactory(), getIR());}
-    :  ^(ASSIGN le=location {analyzer.startTrackingSource();} me=dataExpr)
+    :  ^(ASSIGN le=location
+{
+checkNotNull($le.start, $le.res, $le.text);
+analyzer.startTrackingSource();
+}
+    me=dataExpr)
 {
 final List<Statement> result = new ArrayList<Statement>();
 result.add(getStatementFactory().createAssignment($le.res, $me.res));
@@ -601,7 +606,11 @@ $res = getExprFactory().operator(where($op), target, $op.text, $e.res);
 
 atom returns [Expr res]
     :  ^(CONST token=ID)  {$res = getExprFactory().namedConstant(where($token), $token.text);}
-    |  ^(token=LOCATION le=locationExpr[0]) {$res = getExprFactory().location($le.res);}
+    |  ^(token=LOCATION le=locationExpr[0])
+{
+checkNotNull($le.start, $le.res, $le.text);
+$res = getExprFactory().location($le.res);
+}
     |  token=CARD_CONST   {$res = getExprFactory().constant(where($token), $token.text,10);}
     |  token=BINARY_CONST {$res = getExprFactory().constant(where($token), $token.text, 2);}
     |  token=HEX_CONST    {$res = getExprFactory().constant(where($token), $token.text,16);}
@@ -618,12 +627,18 @@ $res = getExprFactory().coerce(where($token), $e.res, $te.res);
 /*======================================================================================*/
 
 location returns [Location res]
-    :  ^(LOCATION le=locationExpr[0]) {$res = $le.res;}
+    :  ^(LOCATION le=locationExpr[0] {checkNotNull($le.start, $le.res, $le.text);})
+{
+$res = $le.res;
+}
     ;
 
 locationExpr [int depth] returns [Location res]
     :  ^(node=DOUBLE_COLON left=locationVal right=locationExpr[depth+1])
 {
+checkNotNull($left.start,  $left.res,  $left.text);
+checkNotNull($right.start, $right.res, $right.text);
+
 $res = getLocationFactory().concat(where($node), $left.res, $right.res);
 }
     |  value=locationVal
@@ -635,6 +650,9 @@ $res = $value.res;
 locationVal returns [LocationAtom res]
     :  ^(node=LOCATION_BITFIELD la=locationAtom je1=indexExpr (je2=indexExpr)?)
 {
+checkNotNull($la.start, $la.res, $la.text);
+checkNotNull($je1.start, $je1.res, $je1.text);
+
 if (null == $je2.res)
     $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res);
 else
@@ -649,6 +667,7 @@ $res = $la.res;
 locationAtom returns [LocationAtom res]
     :  ^(LOCATION_INDEX id=ID e=indexExpr)
 {
+checkNotNull($e.start, $e.res, $e.text);
 $res = getLocationFactory().location(where($id), $id.text, $e.res);
 }
     |  id=ID
