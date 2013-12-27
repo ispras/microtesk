@@ -473,15 +473,26 @@ $res = result;
 finally {analyzer.finalize();}
 
 conditionalStatement returns [List<Statement> res]
-    :   ^(IF cond=logicExpr stmts1=sequence stmts2=elseIf?)
+    :  ifs = ifStmt { $res = $ifs.res; }
+    ;
+
+ifStmt returns [List<Statement> res]
+    :  ^(IF cond=logicExpr stmts1=sequence elseIfStmt* stmts2=elseStmt?)
 {
 $res = Collections.singletonList(
     getStatementFactory().createCondition($cond.res, $stmts1.res, $stmts2.res));
+}	
+    ;
+
+elseIfStmt
+    :  ^(ELSEIF logicExpr sequence)
+{ 
+// TODO
 }
     ;
 
-elseIf returns [List<Statement> res]
-    :   ^(ELSE sq=sequence) {$res = $sq.res;}
+elseStmt returns [List<Statement> res]
+    :  ^(ELSE sq=sequence) {$res = $sq.res;}
     ;
 
 /*======================================================================================*/
