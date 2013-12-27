@@ -331,18 +331,55 @@ statement
     ;
 
 conditionalStatement
-    :   IF^ expr THEN! sequence elseIf? ENDIF!
+    :  ifStmt
     ;
 
-elseIf
-    :   ELSE^ sequence
+ifStmt
+    :  IF^ expr THEN! sequence elseIfStmt* elseStmt? ENDIF!
+    ;
+
+elseIfStmt
+    :  ELSEIF^ expr THEN! sequence
+    ;
+
+elseStmt
+    :  ELSE^ sequence
     ;
 
 /*======================================================================================*/
-/* Expression rules (run-time expressions)                                              */
+/* Expression rules                                                                     */
 /*======================================================================================*/
 
 expr
+    :  numExpr
+    |  nonNumExpr
+    ;
+
+/*======================================================================================*/
+/* Non-numeric expressions                                                              */
+/*======================================================================================*/
+
+nonNumExpr
+    :  ifExpr
+    ;
+
+ifExpr
+    :  IF^ numExpr THEN! expr elseIfExpr* elseExpr? ENDIF!
+    ;
+
+elseIfExpr
+    :  ELSEIF^ numExpr THEN! expr
+    ;
+
+elseExpr
+    :  ELSE^ expr
+    ;
+
+/*======================================================================================*/
+/* Numeric expressions                                                                  */
+/*======================================================================================*/
+
+numExpr
     :  orLogicExpr
     ;
 
