@@ -172,7 +172,7 @@ FORMAT                  :    'format';
 IF                      :    'if';
 THEN                    :    'then';
 ELSE                    :    'else';
-ELSEIF                  :    'elif';
+ELSEIF                  :    'elsif';
 ENDIF                   :    'endif';
 
 /* Common Lexems */
