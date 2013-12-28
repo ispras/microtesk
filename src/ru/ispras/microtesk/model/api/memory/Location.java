@@ -143,7 +143,8 @@ public final class Location
         for (int index = 0; index < locations.length; ++index)
         {
             readOnly = readOnly || locations[index].readOnly;
-            totalBitSize += locations[index].getType().getBitSize();
+            rawDataArray[index] = locations[index].rawData;
+            totalBitSize += rawDataArray[index].getBitSize();
         }
 
         return new Location(
