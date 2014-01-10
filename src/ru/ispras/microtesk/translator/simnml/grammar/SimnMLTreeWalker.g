@@ -568,6 +568,38 @@ $res = getExprFactory().evaluateData(where($e.start), $e.res);
 
 expr [ValueInfo.Kind target, int depth] returns [Expr res]
 @after {$res = $e.res;}
+    : e=nonNumExpr[target, depth]
+    | e=numExpr[target, depth]
+    ;
+
+/*======================================================================================*/
+/* Non-numeric expressions (TODO: temporary implementation)                             */
+/*======================================================================================*/
+
+nonNumExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+@after {$res = $e.res;}
+    : e=ifExpr[target, depth]	
+    ;
+
+ifExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+@after {$res = $e.res;}
+    :  ^(IF logicExpr e=expr[target, depth] elseIfExpr[target, depth]* elseExpr[target, depth]?)
+    ;
+
+elseIfExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+    :  ^(ELSEIF logicExpr expr[target, depth])
+    ;
+
+elseExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+    :  ^(ELSE expr[target, depth])
+    ;
+
+/*======================================================================================*/
+/* Numeric expressions                                                                  */
+/*======================================================================================*/
+    
+numExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+@after {$res = $e.res;}
     :  e=binaryExpr[target, depth]
     |   e=unaryExpr[target, depth]
     |        e=atom
