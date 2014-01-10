@@ -12,14 +12,56 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.ArrayList;
 import java.util.List;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class StatementCondition extends Statement
 {
-    private final Expr                cond;
-    private final List<Statement>   ifSmts;
-    private final List<Statement> elseSmts;
+    public static final class Block
+    {
+        private final Expr             condition;
+        private final List<Statement> statements;
+
+        private Block(Expr condition, List<Statement> statements)
+        {
+            if (null == statements)
+                throw new NullPointerException();
+
+            this.condition = condition;
+            this.statements = statements;
+        }
+
+        public static Block newIfBlock(Expr condition, List<Statement> statements)
+        {
+            if (null == condition)
+                throw new NullPointerException();
+
+            return new Block(condition, statements);
+        }
+
+        public static Block newElseBlock(List<Statement> statements)
+        {
+            return new Block(null, statements);
+        }
+
+        public Expr getCondition()
+        {
+            return condition;
+        }
+
+        public boolean isElseBlock()
+        {
+            return null == condition;
+        }
+
+        public List<Statement> getStatements()
+        {
+            return statements;
+        }
+    }
+
+    private final List<Block> blocks;
 
     StatementCondition(
         Expr cond,
@@ -31,24 +73,30 @@ public final class StatementCondition extends Statement
         
         assert null != cond;
         assert null != ifSmts;
-
-        this.cond     = cond;
-        this.ifSmts   = ifSmts;
-        this.elseSmts = elseSmts;
+        
+        this.blocks = new ArrayList<Block>();
+        
+        blocks.add(Block.newIfBlock(cond, ifSmts));
+        
+        if (null != elseSmts)
+            blocks.add(Block.newElseBlock(elseSmts));
     }
 
     public Expr getCondition()
     {
-        return cond;
+        return blocks.get(0).getCondition();
     }
 
     public List<Statement> getIfStatements()
     {
-        return ifSmts;
+        return blocks.get(0).getStatements();
     }
 
     public List<Statement> getElseStatements()
     {
-        return elseSmts;
+        if (blocks.size() <= 1)
+            return null;
+        
+        return blocks.get(blocks.size() - 1).getStatements();
     }
 }
