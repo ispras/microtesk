@@ -477,22 +477,27 @@ conditionalStatement returns [List<Statement> res]
     ;
 
 ifStmt returns [List<Statement> res]
-    :  ^(IF cond=logicExpr stmts1=sequence elseIfStmt* stmts2=elseStmt?)
+@init  {final List<StatementCondition.Block> blocks = new ArrayList<StatementCondition.Block>();}
+    :  ^(IF cond=logicExpr stmts=sequence {blocks.add(StatementCondition.Block.newIfBlock($cond.res, $stmts.res));}
+        (elifb=elseIfStmt                 {blocks.add($elifb.res);})*
+        (eb=elseStmt                      {blocks.add($eb.res);})?)
 {
-$res = Collections.singletonList(
-    getStatementFactory().createCondition($cond.res, $stmts1.res, $stmts2.res));
-}	
-    ;
-
-elseIfStmt
-    :  ^(ELSEIF logicExpr sequence)
-{ 
-// TODO
+$res = Collections.singletonList(getStatementFactory().createCondition(blocks));
 }
     ;
 
-elseStmt returns [List<Statement> res]
-    :  ^(ELSE sq=sequence) {$res = $sq.res;}
+elseIfStmt returns [StatementCondition.Block res]
+    :  ^(ELSEIF cond=logicExpr stmts=sequence)
+{
+$res = StatementCondition.Block.newIfBlock($cond.res, $stmts.res);
+}
+    ;
+
+elseStmt returns [StatementCondition.Block res]
+    :  ^(ELSE stmts=sequence)
+{
+$res = StatementCondition.Block.newElseBlock($stmts.res);
+}
     ;
 
 /*======================================================================================*/

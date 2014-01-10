@@ -12,7 +12,6 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
-import java.util.ArrayList;
 import java.util.List;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
@@ -50,9 +49,9 @@ public final class StatementCondition extends Statement
             return condition;
         }
 
-        public boolean hasCondition()
+        public boolean isElseBlock()
         {
-            return null != condition;
+            return null == condition;
         }
 
         public List<Statement> getStatements()
@@ -63,25 +62,19 @@ public final class StatementCondition extends Statement
 
     private final List<Block> blocks;
 
-    StatementCondition(
-        Expr cond,
-        List<Statement> ifSmts,
-        List<Statement> elseSmts
-        )
+    StatementCondition(List<Block> blocks)
     {
         super(Kind.COND);
-        
-        assert null != cond;
-        assert null != ifSmts;
-        
-        this.blocks = new ArrayList<Block>();
-        
-        blocks.add(Block.newIfBlock(cond, ifSmts));
-        
-        if (null != elseSmts)
-            blocks.add(Block.newElseBlock(elseSmts));
+
+        if (null == blocks)
+            throw new NullPointerException();
+
+        if (blocks.isEmpty())
+            throw new IllegalArgumentException();
+
+        this.blocks = blocks;
     }
-    
+
     public int getBlockCount()
     {
         return blocks.size();

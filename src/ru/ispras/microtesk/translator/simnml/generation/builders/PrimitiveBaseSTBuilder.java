@@ -156,11 +156,18 @@ final class StatementBuilder
         {
             final StatementCondition.Block block = stmt.getBlock(index);
 
-            if (FIRST != index)
-                addStatement("else ");
-
-            if (LAST != index || block.hasCondition())
+            if (FIRST == index)
+            {
                 addStatement(String.format("if (%s)", ExprPrinter.toString(block.getCondition())));
+            }
+            else if (LAST == index && block.isElseBlock())
+            {
+                addStatement("else");
+            }
+            else 
+            {
+                addStatement(String.format("else if (%s)", ExprPrinter.toString(block.getCondition())));
+            }
 
             addStatementBlock(block.getStatements());
         }

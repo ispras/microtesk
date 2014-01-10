@@ -53,9 +53,9 @@ public final class StatementFactory extends WalkerFactoryBase
         return new StatementAssignment(left, right);
     }
 
-    public Statement createCondition(Expr cond, List<Statement> isSmts, List<Statement> elseSmts)
+    public Statement createCondition(List<StatementCondition.Block> blocks) 
     {
-        return new StatementCondition(cond, isSmts, elseSmts);
+        return new StatementCondition(blocks);
     }
 
     public Statement createAttributeCall(Where where, String attributeName) throws SemanticException
