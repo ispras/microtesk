@@ -351,8 +351,8 @@ elseStmt
 /*======================================================================================*/
 
 expr
-    :  numExpr
-    |  nonNumExpr
+    :  nonNumExpr
+    |  numExpr
     ;
 
 /*======================================================================================*/
@@ -364,11 +364,11 @@ nonNumExpr
     ;
 
 ifExpr
-    :  IF^ numExpr THEN! expr elseIfExpr* elseExpr? ENDIF!
+    :  IF^ expr THEN! expr elseIfExpr* elseExpr? ENDIF!
     ;
 
 elseIfExpr
-    :  ELSEIF^ numExpr THEN! expr
+    :  ELSEIF^ expr THEN! expr
     ;
 
 elseExpr
