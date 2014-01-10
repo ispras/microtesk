@@ -149,13 +149,20 @@ final class StatementBuilder
 
     private void addStatement(StatementCondition stmt)
     {
-        addStatement(String.format("if (%s)", ExprPrinter.toString(stmt.getCondition())));
-        addStatementBlock(stmt.getIfStatements());
-        
-        if (null != stmt.getElseStatements() && !stmt.getElseStatements().isEmpty())
+        final int FIRST = 0;
+        final int  LAST = stmt.getBlockCount() - 1;
+
+        for(int index = FIRST; index <= LAST; ++index)
         {
-            addStatement("else");
-            addStatementBlock(stmt.getElseStatements());
+            final StatementCondition.Block block = stmt.getBlock(index);
+
+            if (FIRST != index)
+                addStatement("else ");
+
+            if (LAST != index || block.hasCondition())
+                addStatement(String.format("if (%s)", ExprPrinter.toString(block.getCondition())));
+
+            addStatementBlock(block.getStatements());
         }
     }
 

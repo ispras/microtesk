@@ -50,9 +50,9 @@ public final class StatementCondition extends Statement
             return condition;
         }
 
-        public boolean isElseBlock()
+        public boolean hasCondition()
         {
-            return null == condition;
+            return null != condition;
         }
 
         public List<Statement> getStatements()
@@ -81,22 +81,17 @@ public final class StatementCondition extends Statement
         if (null != elseSmts)
             blocks.add(Block.newElseBlock(elseSmts));
     }
-
-    public Expr getCondition()
+    
+    public int getBlockCount()
     {
-        return blocks.get(0).getCondition();
+        return blocks.size();
     }
 
-    public List<Statement> getIfStatements()
+    public Block getBlock(int index)
     {
-        return blocks.get(0).getStatements();
-    }
+        if (!((0 <= index) && (index < getBlockCount())))
+            throw new IndexOutOfBoundsException();
 
-    public List<Statement> getElseStatements()
-    {
-        if (blocks.size() <= 1)
-            return null;
-        
-        return blocks.get(blocks.size() - 1).getStatements();
+        return blocks.get(index);
     }
 }
