@@ -592,7 +592,7 @@ ifExpr [ValueInfo.Kind target, int depth] returns [Expr res]
         (eifc=elseIfExpr[target, depth] {conds.add($eifc.res);})*
         (elsc=elseExpr[target, depth]   {conds.add($elsc.res);})?)
 {
-$res = getExprFactory().condition(where($op), target, conds);
+$res = getExprFactory().condition(where($op), conds);
 }
     ;
 

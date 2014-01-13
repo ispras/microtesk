@@ -13,8 +13,11 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
@@ -182,14 +185,62 @@ public final class ExprFactory extends WalkerFactoryBase
         return new ExprNodeOperator(
             op, Arrays.asList(operands), resultValueInfo, castValueInfo);
     }
-    
-    public Expr condition(Where w, ValueInfo.Kind target, List<Condition> cond)
+
+    /**
+     * Creates a conditional expression based on the if-elif-else construction.
+     * 
+     * @param Position in a source file (needed for error reporting).
+     * @param conds List of conditions and associated with them expressions. The 'else' condition is the last item if presents.
+     * @return New expression.
+     * @throws SemanticException if the types of expressions to be selected do not match.
+     */
+
+    public Expr condition(Where w, List<Condition> conds) throws SemanticException
     {
-        System.out.println("in ExprFactory.condition");
-        System.out.println("Expressions: " + cond.size());
-        
-        // TODO: Temporary
-        return cond.get(0).getExpression();
+        assert !conds.isEmpty();
+
+        // This block performs a type check: all expression should have the same type.
+        {   
+            final Iterator<Condition> it = conds.iterator();
+            final ValueInfo expected = it.next().getExpression().getValueInfo();
+
+            while(it.hasNext())
+            {
+                final ValueInfo current = 
+                    it.next().getExpression().getValueInfo();
+
+                if (!current.hasEqualType(expected))
+                    raiseError(w, String.format(ERR_TYPE_MISMATCH, current.getTypeName(), expected.getTypeName()));
+            }
+        }
+
+        final Deque<Condition> stack = new ArrayDeque<Condition>(conds);
+        Expr result = stack.peekLast().isElse() ? stack.removeLast().getExpression() : null;
+
+        while(!stack.isEmpty())
+        {
+            final Condition current = stack.removeLast();
+            final Expr cond = current.getCondition();
+
+            ValueInfo resultValueInfo = current.getExpression().getValueInfo().typeInfoOnly();
+            if (cond.getValueInfo().isConstant())
+            {
+                final boolean isTrue = ((Boolean) cond.getValueInfo().getNativeValue());
+                if (isTrue)
+                {
+                    resultValueInfo = current.getExpression().getValueInfo();
+                }
+                else if (result != null)
+                {
+                    resultValueInfo = result.getValueInfo();
+                }
+            }
+
+            result = new ExprNodeCondition(
+                current.getCondition(), current.getExpression(), result, resultValueInfo);
+        }
+
+        return result;
     }
     
     /**
@@ -331,6 +382,10 @@ public final class ExprFactory extends WalkerFactoryBase
     
     private static final String ERR_NOT_BOOLEAN =
         "The expression cannot be evaluated to a boolean value (Java boolean)";
+    
+    private static final String ERR_TYPE_MISMATCH =
+        "%s is unexpected in the current conditional expression, all expression to be selected should have the %s type.";
+            
 }
 
 final class UnsupportedOperator extends SemanticError
