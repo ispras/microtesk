@@ -587,16 +587,21 @@ nonNumExpr [ValueInfo.Kind target, int depth] returns [Expr res]
     ;
 
 ifExpr [ValueInfo.Kind target, int depth] returns [Expr res]
-@after {$res = $e.res;}
-    :  ^(IF logicExpr e=expr[target, depth] elseIfExpr[target, depth]* elseExpr[target, depth]?)
+@init  {final List<Condition> conds = new ArrayList<Condition>();}
+    :  ^(op=IF cond=logicExpr e=expr[target, depth] {conds.add(Condition.newIf($cond.res, $e.res));}
+        (eifc=elseIfExpr[target, depth] {conds.add($eifc.res);})*
+        (elsc=elseExpr[target, depth]   {conds.add($elsc.res);})?)
+{
+$res = getExprFactory().condition(where($op), target, conds);
+}
     ;
 
-elseIfExpr [ValueInfo.Kind target, int depth] returns [Expr res]
-    :  ^(ELSEIF logicExpr expr[target, depth])
+elseIfExpr [ValueInfo.Kind target, int depth] returns [Condition res]
+    :  ^(ELSEIF cond=logicExpr e=expr[target, depth]) {$res=Condition.newIf($cond.res, $e.res);}
     ;
 
-elseExpr [ValueInfo.Kind target, int depth] returns [Expr res]
-    :  ^(ELSE expr[target, depth])
+elseExpr [ValueInfo.Kind target, int depth] returns [Condition res]
+    :  ^(ELSE e=expr[target, depth]) {$res=Condition.newElse($e.res);}
     ;
 
 /*======================================================================================*/

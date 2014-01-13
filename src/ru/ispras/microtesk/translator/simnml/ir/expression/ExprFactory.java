@@ -183,6 +183,15 @@ public final class ExprFactory extends WalkerFactoryBase
             op, Arrays.asList(operands), resultValueInfo, castValueInfo);
     }
     
+    public Expr condition(Where w, ValueInfo.Kind target, List<Condition> cond)
+    {
+        System.out.println("in ExprFactory.condition");
+        System.out.println("Expressions: " + cond.size());
+        
+        // TODO: Temporary
+        return cond.get(0).getExpression();
+    }
+    
     /**
      * The evaluateConst method evaluates the given expression to a constant expression.
      * Constant expressions are statically calculated at translation time and are 
