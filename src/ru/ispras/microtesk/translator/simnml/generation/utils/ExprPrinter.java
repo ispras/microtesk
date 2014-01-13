@@ -19,6 +19,7 @@ import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeCoercion;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeCondition;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeConst;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeLocation;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeNamedConst;
@@ -50,6 +51,9 @@ public final class ExprPrinter
 
         case OPERATOR:
             return toString((ExprNodeOperator) expr);
+            
+        case CONDITION:
+            return toString((ExprNodeCondition) expr);
 
         default:
             assert false : "Unknown expression node kind.";
@@ -223,6 +227,15 @@ public final class ExprPrinter
             enclose1 ? "(" + argText1 + ")" : argText1,
             enclose2 ? "(" + argText2 + ")" : argText2
             );
+    }
+    
+    private static String toString(ExprNodeCondition expr)
+    {
+        return String.format("%s ? %s : %s",
+            toString(expr.getCondition()),
+            toString(expr.getLeft()),
+            toString(expr.getRight())
+            ); 
     }
 
     private static String toModelString(Operator op)
