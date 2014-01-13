@@ -41,7 +41,10 @@ public interface Expr
         OPERATOR,
 
         /** Explicit type cast (applied to locations). */
-        COERCION
+        COERCION,
+
+        /** Conditional expression (based on the ternary conditional operator). */
+        CONDITION
     }
 
     /**
