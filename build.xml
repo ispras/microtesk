@@ -18,12 +18,12 @@
   <property name="main.package" value="${root.package}/ispras/microtesk"/>
 
   <!-- External JARs -->
-  <property name="junit.jar" value="junit-4.10.jar"/>
-  <property name="antlr.jar" value="antlr-3.4-complete.jar"/>
+  <property name="junit.jar"     value="junit-4.10.jar"/>
+  <property name="antlr.jar"     value="antlr-3.4-complete.jar"/>
   <property name="antlr.ant.jar" value="ant-antlr3.jar"/>
-  <property name="cli.jar" value="commons-cli-1.2.jar"/>
-  <property name="jruby.jar" value="jruby.jar"/>
-  <property name="solver.jar" value="jsolverapi.jar"/>
+  <property name="cli.jar"       value="commons-cli-1.2.jar"/>
+  <property name="jruby.jar"     value="jruby.jar"/>
+  <property name="solver.jar"    value="fortress.jar"/>
 
   <!-- Information for the JAR manifest -->
   <property name="jar.jars.path" value="./../../jars"/>
@@ -92,10 +92,10 @@
 
   <!-- Target for building models -->
   <target name="build_models">
-    <property name="models.classpath" value="${dist}/${jar}"/>
+    <property name="models.classpath"     value="${dist}/${jar}"/>
     <property name="models.jar.classpath" value="${jar}"/>
-    <property name="models.bin" value="${bin}/models"/>
-    <property name="models.jar" value="${dist}/models.jar"/>
+    <property name="models.bin"           value="${bin}/models"/>
+    <property name="models.jar"           value="${dist}/models.jar"/>
 
     <mkdir dir="${models.bin}"/>
     <javac
