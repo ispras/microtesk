@@ -12,12 +12,12 @@
 
 package ru.ispras.microtesk.model.api.situation.builtin;
 
-import ru.ispras.formula.data.Data;
-import ru.ispras.formula.data.DataType;
-import ru.ispras.formula.expression.Node;
-import ru.ispras.formula.expression.NodeExpr;
-import ru.ispras.formula.expression.NodeValue;
-import ru.ispras.formula.expression.StandardOperation;
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeExpr;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.StandardOperation;
 
 public abstract class OverflowConstraintFactory implements IConstraintFactory
 {

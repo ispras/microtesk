@@ -14,7 +14,7 @@ package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 
-import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;

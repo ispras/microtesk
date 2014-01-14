@@ -15,8 +15,8 @@ package ru.ispras.microtesk.model.api.data;
 import java.util.EnumMap;
 import java.util.Map;
 
-import ru.ispras.formula.data.types.bitvector.BitVector;
-import ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.operations.*;

@@ -18,8 +18,8 @@ package ru.ispras.microtesk.test.core.randomizer;
 
 import java.util.ArrayList;
 
-import ru.ispras.formula.data.types.bitvector.BitVector;
-import ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
 
 /**
  * This class is a wrapper around a random number generator. It is responsible

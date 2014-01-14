@@ -15,7 +15,7 @@ package ru.ispras.microtesk.model.api.data.operations;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.ERadix;
 import ru.ispras.microtesk.model.api.data.IValueConverter;
-import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public class IntCardConverter implements IValueConverter

@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.model.api.data;
 
-import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Data

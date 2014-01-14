@@ -29,7 +29,7 @@ import ru.ispras.microtesk.test.block.AbstractCall;
 import ru.ispras.microtesk.test.block.Argument;
 import ru.ispras.microtesk.test.block.Situation;
 import ru.ispras.microtesk.test.core.Sequence;
-import ru.ispras.formula.solver.Environment;
+import ru.ispras.fortress.solver.Environment;
 
 public class DataGenerator
 {

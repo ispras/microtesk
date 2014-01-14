@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
 import ru.ispras.microtesk.model.api.mmu.policy.Policy;
 import ru.ispras.microtesk.model.api.mmu.policy.PolicyFactory;
-import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
  * This class represents a set of lines.

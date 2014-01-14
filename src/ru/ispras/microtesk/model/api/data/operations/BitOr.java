@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.model.api.data.operations;
 
-import ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm.IBinaryOperation;
+import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm.IBinaryOperation;
 
 public class BitOr extends BitAndOrXorBase
 {

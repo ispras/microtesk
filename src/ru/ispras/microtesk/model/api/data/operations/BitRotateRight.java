@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.model.api.data.operations;
 
-import static ru.ispras.formula.data.types.bitvector.BitVectorAlgorithm.copy;
+import static ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm.copy;
 import ru.ispras.microtesk.model.api.data.Data;
 
 public class BitRotateRight extends BitRotateShiftBase

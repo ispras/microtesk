@@ -12,13 +12,13 @@
 
 package ru.ispras.microtesk.model.api.situation.builtin;
 
-import ru.ispras.formula.expression.NodeExpr;
-import ru.ispras.formula.expression.NodeVariable;
-import ru.ispras.formula.expression.StandardOperation;
-import ru.ispras.formula.solver.constraint.Constraint;
-import ru.ispras.formula.solver.constraint.ConstraintBuilder;
-import ru.ispras.formula.solver.constraint.ConstraintKind;
-import ru.ispras.formula.solver.constraint.Formulas;
+import ru.ispras.fortress.expression.NodeExpr;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
+import ru.ispras.fortress.solver.constraint.ConstraintKind;
+import ru.ispras.fortress.solver.constraint.Formulas;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 
 public final class AddOverflowSituation extends ConstraintBasedSituation

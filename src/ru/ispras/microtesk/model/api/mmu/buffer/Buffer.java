@@ -19,7 +19,7 @@ package ru.ispras.microtesk.model.api.mmu.buffer;
 import java.util.HashMap;
 
 import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
-import ru.ispras.formula.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
  * This class represents a partially associative buffer.
