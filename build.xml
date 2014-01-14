@@ -80,6 +80,7 @@
       destdir="${microtesk.bin}"
       classpath="${classpath}"
       includeantruntime="false"
+      deprecation="true"
     />
     <jar destfile="${dist}/${jar}" basedir="${microtesk.bin}">
       <manifest>
