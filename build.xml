@@ -78,6 +78,7 @@
     <javac
       srcdir="${src}:${gen}"
       destdir="${microtesk.bin}"
+      excludes="**/tests/**,**/samples/**"
       classpath="${classpath}"
       includeantruntime="false"
       deprecation="true"
