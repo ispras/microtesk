@@ -78,9 +78,8 @@
     <javac
       srcdir="${src}:${gen}"
       destdir="${microtesk.bin}"
-      source="1.6"
       classpath="${classpath}"
-      includeantruntime="true"
+      includeantruntime="false"
     />
     <jar destfile="${dist}/${jar}" basedir="${microtesk.bin}">
       <manifest>
@@ -101,9 +100,8 @@
     <javac
       srcdir="${out}"
       destdir="${models.bin}"
-      source="1.6"
       classpath="${models.classpath}"
-      includeantruntime="true"
+      includeantruntime="false"
     />
     <jar destfile="${models.jar}" basedir="${models.bin}">
       <manifest>
