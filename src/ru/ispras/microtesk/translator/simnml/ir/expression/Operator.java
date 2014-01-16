@@ -19,43 +19,51 @@ import ru.ispras.microtesk.translator.simnml.ir.value.Operation;
 
 public enum Operator
 {
-    OR       ("||",     Operation.OR),
-    AND      ("&&",     Operation.AND),
+    OR       ("||",     Operation.OR,       Priority.CURRENT),
 
-    BIT_OR   ("|",      Operation.BIT_OR),
-    BIT_XOR  ("^",      Operation.BIT_XOR),
+    AND      ("&&",     Operation.AND,      Priority.HIGHER),
 
-    BIT_AND  ("&",      Operation.BIT_AND),
+    BIT_OR   ("|",      Operation.BIT_OR,   Priority.HIGHER),
+    BIT_XOR  ("^",      Operation.BIT_XOR,  Priority.HIGHER),
 
-    EQ       ("==",     Operation.EQ),
-    NOT_EQ   ("!=",     Operation.NOT_EQ),
+    BIT_AND  ("&",      Operation.BIT_AND,  Priority.HIGHER),
 
-    LEQ      ("<=",     Operation.LEQ),
-    GEQ      (">=",     Operation.GEQ),
-    LESS     ("<",      Operation.LESS),
-    GREATER  (">",      Operation.GREATER),
+    EQ       ("==",     Operation.EQ,       Priority.HIGHER),
+    NOT_EQ   ("!=",     Operation.NOT_EQ,   Priority.CURRENT),
 
-    L_SHIFT  ("<<",     Operation.L_SHIFT),
-    R_SHIFT  (">>",     Operation.R_SHIFT),
+    LEQ      ("<=",     Operation.LEQ,      Priority.HIGHER),
+    GEQ      (">=",     Operation.GEQ,      Priority.CURRENT),
+    LESS     ("<",      Operation.LESS,     Priority.CURRENT),
+    GREATER  (">",      Operation.GREATER,  Priority.CURRENT),
 
-    L_ROTATE ("<<<",    Operation.L_ROTATE), 
-    R_ROTATE (">>>",    Operation.R_ROTATE),
+    L_SHIFT  ("<<",     Operation.L_SHIFT,  Priority.HIGHER),
+    R_SHIFT  (">>",     Operation.R_SHIFT,  Priority.CURRENT),
+    L_ROTATE ("<<<",    Operation.L_ROTATE, Priority.CURRENT), 
+    R_ROTATE (">>>",    Operation.R_ROTATE, Priority.CURRENT),
 
-    PLUS     ("+",      Operation.PLUS),
-    MINUS    ("-",      Operation.MINUS),
+    PLUS     ("+",      Operation.PLUS,     Priority.HIGHER),
+    MINUS    ("-",      Operation.MINUS,    Priority.CURRENT),
 
-    MUL      ("*",      Operation.MUL),
-    DIV      ("/",      Operation.DIV),
+    MUL      ("*",      Operation.MUL,      Priority.HIGHER),
+    DIV      ("/",      Operation.DIV,      Priority.CURRENT),
+    MOD      ("%",      Operation.MOD,      Priority.CURRENT),
 
-    MOD      ("%",      Operation.MOD),
+    POW      ("**",     Operation.POW,      Priority.HIGHER),
 
-    POW      ("**",     Operation.POW),
-
-    UPLUS    ("UPLUS",  Operation.UPLUS),
-    UMINUS   ("UMINUS", Operation.UMINUS),
-    BIT_NOT  ("~",      Operation.BIT_NOT),
-    NOT      ("!",      Operation.NOT)
+    UPLUS    ("UPLUS",  Operation.UPLUS,    Priority.HIGHER),
+    UMINUS   ("UMINUS", Operation.UMINUS,   Priority.CURRENT),
+    BIT_NOT  ("~",      Operation.BIT_NOT,  Priority.CURRENT),
+    NOT      ("!",      Operation.NOT,      Priority.CURRENT )
     ;
+
+    private static enum Priority
+    {
+        CURRENT { @Override public int value() { return   priorityCounter; }},
+        HIGHER  { @Override public int value() { return ++priorityCounter; }};
+
+        abstract int value();
+        private static int priorityCounter = 0;
+    }
 
     private static final Map<String, Operator> operators;
     static
@@ -74,14 +82,17 @@ public enum Operator
 
     private final String         text;
     private final Operation operation;
+    private final int        priority;
 
-    private Operator(String text, Operation operation)
+    private Operator(String text, Operation operation, Priority priority)
     {
         assert null != text;
         assert null != operation;
+        assert null != priority;
 
         this.text      = text;
         this.operation = operation;
+        this.priority  = priority.value();
     }
 
     public String text()
@@ -96,7 +107,7 @@ public enum Operator
 
     public int priority()
     {
-        return operation.priority();
+        return priority;
     }
 
     public int operands()

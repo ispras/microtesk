@@ -14,7 +14,7 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public enum Operation
 {
-    OR       (Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.BOOL), 
+    OR       (Operands.BINARY, Arrays.asList(ETypeID.BOOL), 
 
                  new BinaryAction(Boolean.class)
                  {
@@ -23,7 +23,7 @@ public enum Operation
                  }
              ),
     
-    AND      (Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.BOOL),
+    AND      (Operands.BINARY, Arrays.asList(ETypeID.BOOL),
 
                  new BinaryAction(Boolean.class)
                  {
@@ -33,7 +33,7 @@ public enum Operation
              ),
             
 
-    BIT_OR   (Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+    BIT_OR   (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
 
                  new BinaryAction(Integer.class)
                  {
@@ -54,7 +54,7 @@ public enum Operation
                  }
              ),
             
-    BIT_XOR  (Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+    BIT_XOR  (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
 
                  new BinaryAction(Integer.class)
                  {
@@ -75,7 +75,7 @@ public enum Operation
                  }
              ),
 
-    BIT_AND  (Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+    BIT_AND  (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
 
                  new BinaryAction(Integer.class)
                  {
@@ -96,7 +96,7 @@ public enum Operation
                  }
              ),
 
-    EQ       (Priority.HIGHER,  Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL), Boolean.class,
+    EQ       (Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -117,7 +117,7 @@ public enum Operation
                  }
              ),
 
-    NOT_EQ   (Priority.CURRENT, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL), Boolean.class,
+    NOT_EQ   (Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -138,7 +138,7 @@ public enum Operation
                  }
              ),
 
-    LEQ      (Priority.HIGHER, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
+    LEQ      (Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -153,7 +153,7 @@ public enum Operation
                  }
              ),
 
-    GEQ      (Priority.CURRENT, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
+    GEQ      (Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -168,7 +168,7 @@ public enum Operation
                  }
              ),
 
-    LESS     (Priority.CURRENT, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
+    LESS     (Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -183,7 +183,7 @@ public enum Operation
                  }
              ),
 
-    GREATER  (Priority.CURRENT, Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
+    GREATER  (Operands.BINARY, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
 
                  new BinaryAction(Integer.class)
                  {
@@ -198,7 +198,7 @@ public enum Operation
                  }
              ),
 
-    L_SHIFT  (Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    L_SHIFT  (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -213,7 +213,7 @@ public enum Operation
                  }
              ),
 
-    R_SHIFT  (Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    R_SHIFT  (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -228,7 +228,7 @@ public enum Operation
                  }
              ),
 
-    L_ROTATE (Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    L_ROTATE (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -237,7 +237,7 @@ public enum Operation
                  }
              ), 
 
-    R_ROTATE (Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    R_ROTATE (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -246,7 +246,7 @@ public enum Operation
                  }
              ),
 
-    PLUS     (Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    PLUS     (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -261,7 +261,7 @@ public enum Operation
                  }
              ),
 
-    MINUS    (Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    MINUS    (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -276,7 +276,7 @@ public enum Operation
                  }
              ),
 
-    MUL      (Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    MUL      (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -291,7 +291,7 @@ public enum Operation
                  }
              ),
 
-    DIV      (Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    DIV      (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -306,7 +306,7 @@ public enum Operation
                  }
              ),    
 
-    MOD      (Priority.CURRENT, Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    MOD      (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -321,7 +321,7 @@ public enum Operation
                  }
              ),
 
-    POW      (Priority.HIGHER,  Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    POW      (Operands.BINARY, Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new BinaryAction(Integer.class)
                  {
@@ -336,7 +336,7 @@ public enum Operation
                  }
              ),
 
-    UPLUS    (Priority.HIGHER,  Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    UPLUS    (Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new UnaryAction(Integer.class)
                  {
@@ -350,7 +350,7 @@ public enum Operation
              ),
            
            
-    UMINUS   (Priority.CURRENT, Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    UMINUS   (Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new UnaryAction(Integer.class)
                  {
@@ -363,7 +363,7 @@ public enum Operation
                  }
              ),
 
-    BIT_NOT  (Priority.CURRENT, Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    BIT_NOT  (Operands.UNARY,  Arrays.asList(ETypeID.CARD, ETypeID.INT),
 
                  new UnaryAction(Integer.class)
                  {
@@ -376,7 +376,7 @@ public enum Operation
                  }
              ),
 
-    NOT      (Priority.CURRENT, Operands.UNARY,  Arrays.asList(ETypeID.BOOL),
+    NOT      (Operands.UNARY,  Arrays.asList(ETypeID.BOOL),
 
                  new UnaryAction(Integer.class)
                  {
@@ -385,28 +385,16 @@ public enum Operation
               )
     ;
 
-    private static enum Priority
-    {
-        CURRENT { @Override public int value() { return   priorityCounter; }},
-        HIGHER  { @Override public int value() { return ++priorityCounter; }};
-
-        public abstract int value();
-        private static int priorityCounter = 0;
-    }
-
-    private final int priority;
     private final int operands;
     private final Logic  logic;
 
     private Operation(
-        Priority           priority,
         Operands           operands,
         List<ETypeID>    modelTypes,
         Action ...    nativeActions
         )
     {
         this(
-            priority,
             operands,
             null,
             modelTypes,
@@ -416,7 +404,6 @@ public enum Operation
     }
 
     private Operation(
-        Priority           priority,
         Operands           operands,
         Type        modelResultType,
         List<ETypeID>    modelTypes,
@@ -424,13 +411,11 @@ public enum Operation
         Action ...    nativeActions
         )
     {
-        assert null != priority;
         assert null != operands;
 
         assert null != modelTypes;
         assert null != nativeActions;
 
-        this.priority = priority.value();
         this.operands = operands.count();
 
         final Set<Class<?>> nativeTypeSet =
@@ -449,11 +434,6 @@ public enum Operation
 
         this.logic = new Logic(
             EnumSet.copyOf(modelTypes), nativeTypeSet, modelResultType, nativeResultType, actionMap);
-    }
-
-    public int priority()
-    {
-        return priority;
     }
 
     public int operands()
