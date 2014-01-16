@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
+import ru.ispras.microtesk.translator.simnml.ir.value.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
 
 public enum Operator
@@ -406,18 +407,7 @@ public enum Operator
         public abstract int value();
         private static int priorityCounter = 0;
     }
-
-    public static enum Operands
-    {
-        UNARY(1),
-        BINARY(2);
-
-        private Operands(int count) { this.count = count; }
-        public int count()         { return count; }
-
-        private final int count;
-    }
-    
+   
     private static final Map<String, Operator> operators;
     static
     {

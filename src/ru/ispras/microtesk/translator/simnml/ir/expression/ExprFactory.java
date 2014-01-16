@@ -35,7 +35,7 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
 import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfoCast;
 
-import static ru.ispras.microtesk.translator.simnml.ir.expression.Operator.Operands.*;
+import static ru.ispras.microtesk.translator.simnml.ir.value.Operands.*;
 
 /**
  * The ExprFactory class is a factory responsible for constructing expressions.

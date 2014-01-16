@@ -16,7 +16,6 @@ import java.util.List;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class ValueInfoCast
@@ -47,10 +46,10 @@ public final class ValueInfoCast
 
     public static ValueInfo getCast(ValueInfo.Kind target, List<ValueInfo> values)
     {
-        assert Operator.Operands.UNARY.count()  == values.size() ||
-               Operator.Operands.BINARY.count() == values.size();
+        assert Operands.UNARY.count()  == values.size() ||
+               Operands.BINARY.count() == values.size();
 
-        if (Operator.Operands.UNARY.count() == values.size())
+        if (Operands.UNARY.count() == values.size())
             return values.get(0).typeInfoOnly();
 
         final ValueInfo left  = values.get(0); 

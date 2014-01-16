@@ -14,6 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.List;
 
+import ru.ispras.microtesk.translator.simnml.ir.value.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
 
 public final class ExprNodeOperator extends ExprAbstract
@@ -70,7 +71,7 @@ public final class ExprNodeOperator extends ExprAbstract
         if (operator != other.getOperator())
             return false;
 
-        if (operator.operands() == Operator.Operands.UNARY.count())
+        if (operator.operands() == Operands.UNARY.count())
             return operands.get(0).isEquivalent(other.operands.get(0));
 
         return operands.get(0).isEquivalent(other.operands.get(0)) && 

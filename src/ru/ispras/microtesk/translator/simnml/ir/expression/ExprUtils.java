@@ -14,6 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.Arrays;
 
+import ru.ispras.microtesk.translator.simnml.ir.value.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
 
 public final class ExprUtils
@@ -95,7 +96,7 @@ public final class ExprUtils
         }
 
         final boolean isPlus = Operator.PLUS == operator.getOperator();
-        assert operator.getOperator().operands() == Operator.Operands.BINARY.count();
+        assert operator.getOperator().operands() == Operands.BINARY.count();
 
         final ReducedExpr left  = reduce(operator.getOperands().get(0));
         final ReducedExpr right = reduce(operator.getOperands().get(1));

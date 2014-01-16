@@ -25,7 +25,8 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeLocation;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeNamedConst;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeOperator;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.value.Operands;
 
 public final class ExprPrinter
 {
@@ -196,7 +197,7 @@ public final class ExprPrinter
 
         final Operator op = expr.getOperator();
 
-        if (Operator.Operands.UNARY.count() == expr.getOperands().size())
+        if (Operands.UNARY.count() == expr.getOperands().size())
         {
             final Expr arg = expr.getOperands().get(0);
 
