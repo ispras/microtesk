@@ -32,6 +32,8 @@ import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfoCast;
 
 import static ru.ispras.microtesk.translator.simnml.ir.expression.Operator.Operands.*;
 

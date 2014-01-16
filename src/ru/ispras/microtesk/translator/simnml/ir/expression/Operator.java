@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
 
 public enum Operator
 {

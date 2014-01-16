@@ -10,7 +10,7 @@
  * ValueInfo.java, Sep 26, 2013 5:17:00 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.value;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 

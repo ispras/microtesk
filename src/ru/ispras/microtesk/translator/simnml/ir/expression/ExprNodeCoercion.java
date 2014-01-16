@@ -13,6 +13,8 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfoCast;
 
 /**
  * The ExprNodeCoercion class describes cast of a source expression to the specified type.
@@ -48,22 +50,10 @@ public final class ExprNodeCoercion extends ExprAbstract
 
     ExprNodeCoercion(Expr source, Class<?> type)
     {
-        super(NodeKind.COERCION, nativeCast(source.getValueInfo(), type));
+        super(NodeKind.COERCION, ValueInfoCast.castToNative(source.getValueInfo(), type));
 
         assert null != source;
         this.source = source;
-    }
-    
-    private static ValueInfo nativeCast(ValueInfo source, Class<?> type)
-    {
-        if (!source.isConstant())
-            return ValueInfo.createNativeType(type);
-
-        final Object newValue = 
-            NativeTypeCastRules.castTo(type, source.getNativeValue());
-
-        assert null != newValue;
-        return ValueInfo.createNative(newValue);
     }
 
     /**

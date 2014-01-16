@@ -12,6 +12,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
+
 /**
  * The Expr interface is implemented by all nodes of a syntax tree describing a Sim-nML expression.
  * It provides information on node kind and data values produced by the expression that includes

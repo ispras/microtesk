@@ -12,6 +12,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
+
 public final class ExprNodeCondition extends ExprAbstract
 {
     private final Expr cond;

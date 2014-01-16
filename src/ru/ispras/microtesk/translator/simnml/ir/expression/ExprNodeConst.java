@@ -12,6 +12,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
+import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
+
 public final class ExprNodeConst extends ExprAbstract
 {
     private final int radix;

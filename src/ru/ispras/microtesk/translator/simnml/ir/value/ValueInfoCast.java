@@ -10,15 +10,29 @@
  * ValueInfoCast.java, Oct 11, 2013 1:59:03 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.value;
 
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public final class ValueInfoCast
 {
+    public static ValueInfo castToNative(ValueInfo source, Class<?> type)
+    {
+        if (!source.isConstant())
+            return ValueInfo.createNativeType(type);
+
+        final Object newValue = 
+            NativeTypeCastRules.castTo(type, source.getNativeValue());
+
+        assert null != newValue;
+        return ValueInfo.createNative(newValue);
+    }
+    
     /**
      * Returns a value information object describing the type values should be cast to in order to be used as operands
      * of some operator. If value types are incompatible and cannot be cast, <code>null</code> is returned.
