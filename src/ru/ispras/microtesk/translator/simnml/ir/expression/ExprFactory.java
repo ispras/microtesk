@@ -179,10 +179,10 @@ public final class ExprFactory extends WalkerFactoryBase
         if (null == castValueInfo)
             raiseError(w, new IncompatibleTypes(values));
 
-        if (!op.isSupportedFor(castValueInfo))
+        if (!op.operation().isSupportedFor(castValueInfo))
             raiseError(w, new UnsupportedOperandType(op, castValueInfo));
 
-        final ValueInfo resultValueInfo = op.calculate(castValueInfo, values);
+        final ValueInfo resultValueInfo = op.operation().calculate(castValueInfo, values);
 
         return new ExprNodeOperator(
             op, Arrays.asList(operands), resultValueInfo, castValueInfo);

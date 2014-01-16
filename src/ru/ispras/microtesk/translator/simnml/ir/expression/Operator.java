@@ -13,11 +13,9 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.value.Operation;
-import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
 
 public enum Operator
 {
@@ -91,6 +89,11 @@ public enum Operator
         return text;
     }
 
+    public Operation operation()
+    {
+        return operation;
+    }
+
     public int priority()
     {
         return operation.priority();
@@ -99,15 +102,5 @@ public enum Operator
     public int operands()
     {
         return operation.operands();
-    }
-
-    ValueInfo calculate(ValueInfo cast, List<ValueInfo> values)
-    {
-        return operation.calculate(cast, values);
-    }
-
-    boolean isSupportedFor(ValueInfo value)
-    {
-        return operation.isSupportedFor(value);
     }
 }
