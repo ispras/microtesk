@@ -415,36 +415,6 @@ enum Operation
         return map.get(op);
     }
 
-    private static abstract class Action
-    {
-        private final Class<?>     type;
-        private final Operands operands;
-
-        public Action(Class<?> type, Operands operands)
-        {
-            assert null != type; 
-            assert null != operands;
-
-            this.type = type;
-            this.operands = operands;
-        }
-
-        public final Class<?> getType()     { return type; }
-        public final Operands getOperands() { return operands; }
-    }
-
-    private static abstract class UnaryAction extends Action
-    {
-        public UnaryAction(Class<?> type) { super(type, Operands.UNARY); }
-        public abstract Object calculate(Object value);
-    }
-
-    private static abstract class BinaryAction extends Action
-    {
-        public BinaryAction(Class<?> type) { super(type, Operands.BINARY); }
-        public abstract Object calculate(Object left, Object right);
-    }
-
     private final Operator         operator;
 
     private final Set<ETypeID>   modelTypes;
@@ -492,7 +462,7 @@ enum Operation
 
         for (Action action : nativeActions)
         {
-            assert action.getOperands().count() == operator.operands();
+            assert action.getOperands() == operator.operands();
 
             nativeTypeSet.add(action.getType());
             actionMap.put(action.getType(), action);
@@ -558,9 +528,9 @@ enum Operation
         final Action action = actions.get(type);
 
         assert null != action;
-        assert action.getOperands().count() == values.size(); 
+        assert action.getOperands() == values.size(); 
 
-        if (Operands.UNARY == action.getOperands())
+        if (Operands.UNARY.count() == action.getOperands())
             return ((UnaryAction) action).calculate(values.get(0));
 
         return ((BinaryAction) action).calculate(values.get(0), values.get(1));
