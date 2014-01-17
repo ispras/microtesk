@@ -413,7 +413,7 @@ public enum Operation
         public abstract Object calculate(Object left, Object right);
     }
 
-    private final int              operands;
+    private final Operands         operands;
 
     private final Set<ETypeID>   modelTypes;
     private final Set<Class<?>> nativeTypes;
@@ -450,7 +450,7 @@ public enum Operation
         assert null != modelTypes;
         assert null != nativeActions;
 
-        this.operands = operands.count();
+        this.operands = operands;
 
         final Set<Class<?>>  nativeTypeSet =
             new HashSet<Class<?>>(nativeActions.length);
@@ -477,7 +477,7 @@ public enum Operation
 
     public int operands()
     {
-        return operands;
+        return operands.count();
     }
 
     public ValueInfo calculate(ValueInfo cast, List<ValueInfo> values)
