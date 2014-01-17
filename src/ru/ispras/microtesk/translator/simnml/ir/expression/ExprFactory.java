@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
@@ -33,7 +32,7 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
-import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCast;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCalculator;
 
 import static ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operands.*;
 
@@ -45,17 +44,20 @@ import static ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operands.*;
 
 public final class ExprFactory extends WalkerFactoryBase
 {
+    private final ValueInfoCalculator calculator;
+
     /**
      * Constructor for an expression factory. 
      *  
      * @param context Provides facilities for interacting with the tree walker. 
      */
-
+    
     public ExprFactory(WalkerContext context)
     {
         super(context);
+        this.calculator = new ValueInfoCalculator(context);
     }
-    
+
     /**
      * Creates an expression based on a named constant. 
      * 
@@ -156,7 +158,8 @@ public final class ExprFactory extends WalkerFactoryBase
     public Expr operator(
         Where w, ValueInfo.Kind target, String id, Expr ... operands) throws SemanticException
     {
-        assert UNARY.count() == operands.length || BINARY.count() == operands.length;
+        assert UNARY.count() == operands.length ||
+               BINARY.count() == operands.length;
 
         final Operator op = Operator.forText(id);
 
@@ -167,25 +170,16 @@ public final class ExprFactory extends WalkerFactoryBase
             raiseError(w, new OperandNumberMismatch(id, op.operands()));
 
         final List<ValueInfo> values = new ArrayList<ValueInfo>(operands.length);
-
         for(Expr operand : operands)
         {
             final ValueInfo vi = operand.getValueInfo();
             values.add(vi);
         }
 
-        final ValueInfo castValueInfo = ValueInfoCast.getCast(target, values);
+        final ValueInfo   castValueInfo = calculator.cast(w, target, values);
+        final ValueInfo resultValueInfo = calculator.calculate(w, op, castValueInfo, values);
 
-        if (null == castValueInfo)
-            raiseError(w, new IncompatibleTypes(values));
-
-        if (!op.operation().isSupportedFor(castValueInfo))
-            raiseError(w, new UnsupportedOperandType(op, castValueInfo));
-
-        final ValueInfo resultValueInfo = op.operation().calculate(castValueInfo, values);
-
-        return new ExprNodeOperator(
-            op, Arrays.asList(operands), resultValueInfo, castValueInfo);
+        return new ExprNodeOperator(op, Arrays.asList(operands), resultValueInfo, castValueInfo);
     }
 
     /**
@@ -378,16 +372,15 @@ public final class ExprFactory extends WalkerFactoryBase
 
     private static final String ERR_NOT_CONST_INTEGER =
         "The expression cannot be used to specify size since it cannot be evaluated to an integer constant (int).";
-    
+
     private static final String ERR_NOT_INDEX =
         "The expression cannot be used as an index since it cannot be evaluated to a Java integer (int) value.";
-    
+
     private static final String ERR_NOT_BOOLEAN =
         "The expression cannot be evaluated to a boolean value (Java boolean)";
-    
+
     private static final String ERR_TYPE_MISMATCH =
         "%s is unexpected in the current conditional expression, all expression to be selected should have the %s type.";
-            
 }
 
 final class UnsupportedOperator extends SemanticError
@@ -407,41 +400,5 @@ final class OperandNumberMismatch extends SemanticError
     public OperandNumberMismatch(String op, int operands)
     {
         super(String.format(FORMAT, op, operands));
-    }
-}
-
-final class IncompatibleTypes implements ISemanticError
-{
-    private static final String FORMAT = "Incompatible types: %s.";
-
-    private final List<ValueInfo> values;
-
-    public IncompatibleTypes(List<ValueInfo> values)
-    {
-        this.values = values;
-    }
-
-    @Override
-    public String getMessage()
-    {
-        final StringBuilder sb = new StringBuilder();
-
-        for (ValueInfo vi : values)
-        {
-            if (sb.length() != 0) sb.append(", ");
-            sb.append(vi.getTypeName());
-        }
-
-        return String.format(FORMAT, sb.toString());
-    }
-}
-
-final class UnsupportedOperandType extends SemanticError
-{
-    private static final String FORMAT = "The %s type is not supported by the %s operator.";
-
-    public UnsupportedOperandType(Operator op, ValueInfo vi)
-    {
-        super(String.format(FORMAT, vi.getTypeName(), op.text()));
     }
 }
