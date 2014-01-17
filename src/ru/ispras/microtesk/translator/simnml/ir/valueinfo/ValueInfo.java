@@ -158,6 +158,26 @@ public abstract class ValueInfo
     }
 
     /**
+     * Returns <code>true</code> if the stored value is a native Java value of the specified type
+     * or <code>false</code> otherwise.
+     * 
+     * @param type Native Java type.
+     * @return <code>true</code> for native Java values of the specified type or <code>false</code>
+     * for all other cases.
+     */
+
+    public final boolean isNativeOf(Class<?> type)
+    {
+        if (null == type)
+            return false;
+
+        if (!isNative())
+            return false;
+
+        return getNativeType() == type;
+    }
+
+    /**
      * Returns <code>true</code> if the stored value is a Model API value or <code>false</code>
      * if it is a native Java value.
      * 

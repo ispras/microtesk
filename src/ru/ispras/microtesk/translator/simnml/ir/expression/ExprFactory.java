@@ -139,7 +139,7 @@ public final class ExprFactory extends WalkerFactoryBase
 
     public Expr coerce(Where w, Expr src, Class<?> type)
     {
-        if (src.getValueInfo().isNative() && type == src.getValueInfo().getNativeType())
+        if (src.getValueInfo().isNativeOf(type))
             return src;
 
         final ValueInfo target = ValueInfoCast.castToNative(src.getValueInfo(), type); 
@@ -295,7 +295,7 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         final ValueInfo vi = src.getValueInfo();
 
-        if (vi.isNative() && Integer.class == vi.getNativeType())
+        if (vi.isNativeOf(Integer.class))
             return src;
 
         if (vi.isModel())
@@ -320,7 +320,7 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         final ValueInfo vi = src.getValueInfo();
 
-        if (vi.isNative() && Boolean.class == vi.getNativeType())
+        if (vi.isNativeOf(Boolean.class))
             return src;
 
         if (vi.isModel())
