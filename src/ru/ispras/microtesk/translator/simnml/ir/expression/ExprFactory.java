@@ -345,8 +345,8 @@ public final class ExprFactory extends WalkerFactoryBase
         if (src.getValueInfo().isModel())
             return src;
 
-        assert Integer.class == src.getValueInfo().getNativeType() ||
-               Long.class == src.getValueInfo().getNativeType();
+        assert src.getValueInfo().isNativeOf(Integer.class) ||
+               src.getValueInfo().isNativeOf(Long.class);
 
         final int size;
 
