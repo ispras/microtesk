@@ -32,10 +32,10 @@ import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
-import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
-import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfoCast;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCast;
 
-import static ru.ispras.microtesk.translator.simnml.ir.value.Operands.*;
+import static ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operands.*;
 
 /**
  * The ExprFactory class is a factory responsible for constructing expressions.

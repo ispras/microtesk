@@ -14,8 +14,8 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.Arrays;
 
-import ru.ispras.microtesk.translator.simnml.ir.value.Operands;
-import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operands;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 public final class ExprUtils
 {

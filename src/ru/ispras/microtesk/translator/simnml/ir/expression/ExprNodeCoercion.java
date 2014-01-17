@@ -13,8 +13,8 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
-import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
-import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfoCast;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCast;
 
 /**
  * The ExprNodeCoercion class describes cast of a source expression to the specified type.

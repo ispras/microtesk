@@ -10,7 +10,7 @@
  * Operands.java, Jan 16, 2014 3:32:16 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.value;
+package ru.ispras.microtesk.translator.simnml.ir.valueinfo;
 
 public enum Operands
 {

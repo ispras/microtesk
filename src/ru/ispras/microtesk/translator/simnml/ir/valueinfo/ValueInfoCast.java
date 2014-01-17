@@ -10,7 +10,7 @@
  * ValueInfoCast.java, Oct 11, 2013 1:59:03 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.value;
+package ru.ispras.microtesk.translator.simnml.ir.valueinfo;
 
 import java.util.List;
 

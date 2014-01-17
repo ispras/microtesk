@@ -15,7 +15,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.simnml.ir.value.Operation;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operation;
 
 public enum Operator
 {

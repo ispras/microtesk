@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.simnml.ir.value.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 /**
  * The Expr interface is implemented by all nodes of a syntax tree describing a Sim-nML expression.

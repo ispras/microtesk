@@ -1,4 +1,16 @@
-package ru.ispras.microtesk.translator.simnml.ir.value;
+/*
+ * Copyright (c) 2014 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * Operation.java, Jan 17, 2014 11:54:10 AM Andrei Tatarnikov
+ */
+
+package ru.ispras.microtesk.translator.simnml.ir.valueinfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
