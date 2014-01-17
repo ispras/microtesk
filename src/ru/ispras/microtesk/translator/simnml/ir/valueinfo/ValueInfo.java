@@ -120,6 +120,20 @@ public abstract class ValueInfo
         return this;
     }
 
+    public final ValueInfo toNativeType(Class<?> type)
+    {
+        if (isNativeOf(type))
+            return this;
+
+        if (!isConstant())
+            return createNativeType(type);
+
+        final Object newValue = NativeTypeCastRules.castTo(type, getNativeValue());
+        assert null != newValue;
+
+        return ValueInfo.createNative(newValue);
+    }
+
     /**
      * Checks whether both objects refer to values that have the same type.
      * 

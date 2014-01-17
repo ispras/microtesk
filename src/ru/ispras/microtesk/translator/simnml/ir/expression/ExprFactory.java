@@ -33,7 +33,6 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCalculator;
-import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCast;
 
 import static ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operands.*;
 
@@ -142,7 +141,7 @@ public final class ExprFactory extends WalkerFactoryBase
         if (src.getValueInfo().isNativeOf(type))
             return src;
 
-        final ValueInfo target = ValueInfoCast.castToNative(src.getValueInfo(), type); 
+        final ValueInfo target = src.getValueInfo().toNativeType(type); 
         return new ExprNodeCoercion(src, target);
     }
 
@@ -300,7 +299,7 @@ public final class ExprFactory extends WalkerFactoryBase
 
         if (vi.isModel())
         {
-            final ValueInfo target = ValueInfoCast.castToNative(src.getValueInfo(), Integer.class);
+            final ValueInfo target = src.getValueInfo().toNativeType(Integer.class);
             return new ExprNodeCoercion(src, target);
         }
 
@@ -325,7 +324,7 @@ public final class ExprFactory extends WalkerFactoryBase
 
         if (vi.isModel())
         {
-            final ValueInfo target = ValueInfoCast.castToNative(src.getValueInfo(), Boolean.class); 
+            final ValueInfo target = src.getValueInfo().toNativeType(Boolean.class); 
             return new ExprNodeCoercion(src, target);
         }
 
