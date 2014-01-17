@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * Operation.java, Jan 17, 2014 11:54:10 AM Andrei Tatarnikov
+ * OperatorLogic.java, Jan 17, 2014 11:54:10 AM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.valueinfo;
@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
-enum Operation
+enum OperatorLogic
 {
     OR (Operator.OR, Arrays.asList(ETypeID.BOOL), 
 
@@ -397,21 +397,21 @@ enum Operation
         }
     );
 
-    private static final Map<Operator, Operation> map;
+    private static final Map<Operator, OperatorLogic> operators;
     static
     {
-        map = new EnumMap<Operator, Operation>(Operator.class);
+        operators = new EnumMap<Operator, OperatorLogic>(Operator.class);
 
-        for (Operation o : values())
-            map.put(o.operator, o);
+        for (OperatorLogic ol : values())
+            operators.put(ol.operator, ol);
         
         for (Operator o : Operator.values())
-            assert map.containsKey(o) : "No implementation for Operator." + o.name();
+            assert operators.containsKey(o) : "No implementation for Operator." + o.name();
     }
 
-    public static Operation forOperator(Operator op)
+    public static OperatorLogic forOperator(Operator op)
     {
-        return map.get(op);
+        return operators.get(op);
     }
 
     private final Operator         operator;
@@ -424,7 +424,7 @@ enum Operation
 
     private Map<Class<?>, Action>   actions;
 
-    private Operation(
+    private OperatorLogic(
         Operator           operator,    
         List<ETypeID>    modelTypes,
         Action ...    nativeActions
@@ -439,7 +439,7 @@ enum Operation
             );
     }
 
-    private Operation(
+    private OperatorLogic(
         Operator           operator,
         Type        modelResultType,
         List<ETypeID>    modelTypes,
