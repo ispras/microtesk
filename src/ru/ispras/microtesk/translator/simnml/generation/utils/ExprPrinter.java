@@ -25,8 +25,8 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeLocation;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeNamedConst;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeOperator;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
-import ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operands;
 
 public final class ExprPrinter
 {

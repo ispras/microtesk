@@ -43,10 +43,12 @@ public final class ValueInfoCalculator extends WalkerFactoryBase
     public ValueInfo calculate(
         Where w, Operator op, ValueInfo castValueInfo, List<ValueInfo> values) throws SemanticException
     {
-        if (!op.operation().isSupportedFor(castValueInfo))
+        final Operation operation = Operation.forOperator(op);
+
+        if (!operation.isSupportedFor(castValueInfo))
             raiseError(w, new UnsupportedOperandType(op, castValueInfo));
 
-        final ValueInfo resultValueInfo = op.operation().calculate(castValueInfo, values);
+        final ValueInfo resultValueInfo = operation.calculate(castValueInfo, values);
         return resultValueInfo;
     }
 }

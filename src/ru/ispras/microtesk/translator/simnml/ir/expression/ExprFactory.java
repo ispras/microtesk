@@ -34,8 +34,6 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCalculator;
 
-import static ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operands.*;
-
 /**
  * The ExprFactory class is a factory responsible for constructing expressions.
  * 
@@ -159,8 +157,8 @@ public final class ExprFactory extends WalkerFactoryBase
     public Expr operator(
         Where w, ValueInfo.Kind target, String id, Expr ... operands) throws SemanticException
     {
-        assert UNARY.count() == operands.length ||
-               BINARY.count() == operands.length;
+        assert Operands.UNARY.count() == operands.length ||
+               Operands.BINARY.count() == operands.length;
 
         final Operator op = Operator.forText(id);
 
