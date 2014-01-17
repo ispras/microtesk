@@ -12,9 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
-import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCast;
 
 /**
  * The ExprNodeCoercion class describes cast of a source expression to the specified type.
@@ -27,37 +25,27 @@ public final class ExprNodeCoercion extends ExprAbstract
     private final Expr source;
 
     /**
-     * Creates a cast of source expression to the specified Model API type.  
+     * Constructs a cast of a source expression to the specified target type (or value for constants).  
      * 
      * @param source Source expression.
-     * @param type Target Model API type.
+     * @param target Target value information.
      */
 
-    ExprNodeCoercion(Expr source, Type type)
+    ExprNodeCoercion(Expr source, ValueInfo target)
     {
-        super(NodeKind.COERCION, ValueInfo.createModel(type));
+        super(NodeKind.COERCION, target);
 
-        assert null != source;
+        if (null == source)
+            throw new NullPointerException();
+
+        if (null == target)
+            throw new NullPointerException();
+
         this.source = source;
     }
 
     /**
-     * Creates a cast of source expression to the specified native Java type.
-     * 
-     * @param source Source expression.
-     * @param type Target native Java type.
-     */
-
-    ExprNodeCoercion(Expr source, Class<?> type)
-    {
-        super(NodeKind.COERCION, ValueInfoCast.castToNative(source.getValueInfo(), type));
-
-        assert null != source;
-        this.source = source;
-    }
-
-    /**
-     * Returns source expression. 
+     * Returns source expression.
      * 
      * @return Source expression.
      */

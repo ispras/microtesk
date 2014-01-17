@@ -44,7 +44,7 @@ public final class ValueInfoCast
      * @return Value information object describing the target value type or <code>null</code> is value types are incompatible. 
      */
 
-    public static ValueInfo getCast(ValueInfo.Kind target, List<ValueInfo> values)
+    static ValueInfo getCast(ValueInfo.Kind target, List<ValueInfo> values)
     {
         assert Operands.UNARY.count()  == values.size() ||
                Operands.BINARY.count() == values.size();

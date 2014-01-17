@@ -33,6 +33,7 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCalculator;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCast;
 
 import static ru.ispras.microtesk.translator.simnml.ir.valueinfo.Operands.*;
 
@@ -125,7 +126,7 @@ public final class ExprFactory extends WalkerFactoryBase
         if (src.getValueInfo().isModel() && type.equals(src.getValueInfo().getModelType()))
             return src;
 
-        return new ExprNodeCoercion(src, type);
+        return new ExprNodeCoercion(src, ValueInfo.createModel(type));
     }
 
     /**
@@ -141,7 +142,8 @@ public final class ExprFactory extends WalkerFactoryBase
         if (src.getValueInfo().isNative() && type == src.getValueInfo().getNativeType())
             return src;
 
-        return new ExprNodeCoercion(src, type);
+        final ValueInfo target = ValueInfoCast.castToNative(src.getValueInfo(), type); 
+        return new ExprNodeCoercion(src, target);
     }
 
     /**
@@ -297,7 +299,10 @@ public final class ExprFactory extends WalkerFactoryBase
             return src;
 
         if (vi.isModel())
-            return new ExprNodeCoercion(src, Integer.class);
+        {
+            final ValueInfo target = ValueInfoCast.castToNative(src.getValueInfo(), Integer.class);
+            return new ExprNodeCoercion(src, target);
+        }
 
         raiseError(w, ERR_NOT_INDEX);
         return null; // Never executed.
@@ -319,7 +324,10 @@ public final class ExprFactory extends WalkerFactoryBase
             return src;
 
         if (vi.isModel())
-            return new ExprNodeCoercion(src, Boolean.class);
+        {
+            final ValueInfo target = ValueInfoCast.castToNative(src.getValueInfo(), Boolean.class); 
+            return new ExprNodeCoercion(src, target);
+        }
 
         raiseError(w, ERR_NOT_BOOLEAN);
         return null; // Never executed.
@@ -364,7 +372,7 @@ public final class ExprFactory extends WalkerFactoryBase
         }
 
         final Type type = new Type(ETypeID.INT, ExprUtils.createConstant(size));
-        return new ExprNodeCoercion(src, type);
+        return new ExprNodeCoercion(src, ValueInfo.createModel(type));
     }
     
     private static final String ERR_NOT_STATIC =
