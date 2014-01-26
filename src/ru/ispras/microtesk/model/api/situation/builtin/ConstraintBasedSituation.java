@@ -95,7 +95,7 @@ public abstract class ConstraintBasedSituation extends Situation
         assert 0 < size && size <= value.getBitSize();
 
         final BitVector rawData = (size == value.getBitSize()) ?
-            value : BitVector.createMapping(value, 0, size); 
+            value : BitVector.newMapping(value, 0, size); 
 
         return new Data(rawData, new Type(typeID, size));
     }

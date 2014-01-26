@@ -28,13 +28,13 @@ public final class Data
 
     public Data(Data data)
     {
-        this.rawData = data.getRawData().createCopy();
+        this.rawData = data.getRawData().copy();
         this.type    = data.getType();
     }
 
     public Data(Type type)
     {
-        this.rawData = BitVector.createEmpty(type.getBitSize());
+        this.rawData = BitVector.newEmpty(type.getBitSize());
         this.type    = type;
     }
 

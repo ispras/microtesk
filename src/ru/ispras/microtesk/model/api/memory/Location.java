@@ -74,7 +74,7 @@ public final class Location
 
     public Location(Type type)
     {
-        this(type, BitVector.createEmpty(type.getBitSize()), false, null);
+        this(type, BitVector.newEmpty(type.getBitSize()), false, null);
     }
 
     public Location(Data data)
@@ -121,7 +121,7 @@ public final class Location
     {
         return new Location(
            new Type(type.getTypeID(), type.getBitSize() + arg.getType().getBitSize()),
-           BitVector.createMapping(arg.rawData /*low*/, rawData /*high*/),
+           BitVector.newMapping(arg.rawData /*low*/, rawData /*high*/),
            readOnly || arg.readOnly,
            handler
            );
@@ -149,7 +149,7 @@ public final class Location
 
         return new Location(
             new Type(typeID, totalBitSize),
-            BitVector.createMapping(rawDataArray),
+            BitVector.newMapping(rawDataArray),
             readOnly,
             null
             );
@@ -163,7 +163,7 @@ public final class Location
         final int bitSize = end - start + 1;
         return new Location(
             type,
-            BitVector.createMapping(rawData, start, bitSize),
+            BitVector.newMapping(rawData, start, bitSize),
             readOnly,
             handler
             );
@@ -183,7 +183,7 @@ public final class Location
         }
         */
 
-        return new Data(rawData.createCopy(), type);
+        return new Data(rawData.copy(), type);
     }
 
     public void store(Data data)
@@ -214,7 +214,7 @@ public final class Location
 
     public Data getDataCopy()
     {
-        return new Data(rawData.createCopy(), type);
+        return new Data(rawData.copy(), type);
     }
 
     /* TODO: NOT SUPPORTED IN THE CURRENT VERSION.

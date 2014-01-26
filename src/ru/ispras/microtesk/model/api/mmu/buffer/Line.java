@@ -36,7 +36,7 @@ public abstract class Line extends Buffer<Line>
     public Line(int size)
     {
         super(1, 1, EPolicy.FIFO);
-        this.data = BitVector.createEmpty(size);
+        this.data = BitVector.newEmpty(size);
     }
 
     /**

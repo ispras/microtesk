@@ -188,7 +188,7 @@ public final class DataEngine
         // TODO: MAY NEED REVIEW (CODED IN A HURRY)
         //assert false : "NOT IMPLEMENTED";
 
-        final BitVector newRawData = BitVector.createEmpty(type.getBitSize());
+        final BitVector newRawData = BitVector.newEmpty(type.getBitSize());
         final int copyBitSize = Math.min(value.getType().getBitSize(), type.getBitSize());
 
         BitVectorAlgorithm.copy(value.getRawData(), 0, newRawData, 0, copyBitSize);

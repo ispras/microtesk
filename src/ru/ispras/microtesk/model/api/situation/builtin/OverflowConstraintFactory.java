@@ -31,8 +31,8 @@ public abstract class OverflowConstraintFactory implements IConstraintFactory
     static 
     {
         BIT_VECTOR_TYPE = DataType.BIT_VECTOR(BIT_VECTOR_LENGTH);
-        INT_ZERO        = new NodeValue(Data.createBitVector(0, BIT_VECTOR_LENGTH));
-        INT_BASE_SIZE   = new NodeValue(Data.createBitVector(32, BIT_VECTOR_LENGTH));
+        INT_ZERO        = new NodeValue(Data.newBitVector(0, BIT_VECTOR_LENGTH));
+        INT_BASE_SIZE   = new NodeValue(Data.newBitVector(32, BIT_VECTOR_LENGTH));
 
         INT_SIGN_MASK   = new NodeExpr(
             StandardOperation.BVLSHL,
@@ -59,18 +59,18 @@ public abstract class OverflowConstraintFactory implements IConstraintFactory
             );
     }
 
-    protected static NodeExpr IsValidSignedInt(Node arg)
+    protected static Node IsValidSignedInt(Node arg)
     {
         return NodeExpr.OR(IsValidPos(arg), IsValidNeg(arg));
     }
 
-    protected static NodeExpr isNotEqual(Node left, Node right)
+    protected static Node isNotEqual(Node left, Node right)
     {
         return isNot(new NodeExpr(StandardOperation.EQ, left, right));
     }
 
-    protected static NodeExpr isNot(NodeExpr expr)
+    protected static Node isNot(Node expr)
     {
-        return NodeExpr.NOT(expr);
+        return Node.NOT(expr);
     }
 }
