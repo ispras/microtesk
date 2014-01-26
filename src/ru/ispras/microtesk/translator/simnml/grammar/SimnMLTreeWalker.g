@@ -67,6 +67,7 @@ import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 
 import ru.ispras.microtesk.translator.simnml.ir.PCAnalyzer;
 import ru.ispras.microtesk.translator.simnml.ir.expression.*;
+import ru.ispras.microtesk.translator.simnml.ir.location.*;
 import ru.ispras.microtesk.translator.simnml.ir.shared.*;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.*;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.*;

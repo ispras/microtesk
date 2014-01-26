@@ -19,8 +19,8 @@ import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationAtom;
+import ru.ispras.microtesk.translator.simnml.ir.location.LocationFactory;
+import ru.ispras.microtesk.translator.simnml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 

@@ -36,7 +36,7 @@ import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactory;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationFactory;
+import ru.ispras.microtesk.translator.simnml.ir.location.LocationFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveFactory;

@@ -10,7 +10,7 @@
  * Location.java, Aug 7, 2013 12:46:26 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.location;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 

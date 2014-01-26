@@ -13,7 +13,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
+import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 
 public final class StatementAssignment extends Statement
 {

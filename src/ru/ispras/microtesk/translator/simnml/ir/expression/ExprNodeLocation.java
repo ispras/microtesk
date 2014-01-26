@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
-import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
+import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 public final class ExprNodeLocation extends ExprAbstract

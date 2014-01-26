@@ -10,7 +10,7 @@
  * LocationConcat.java, Aug 7, 2013 12:35:38 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.location;
 
 import java.util.Collections;
 import java.util.Iterator;

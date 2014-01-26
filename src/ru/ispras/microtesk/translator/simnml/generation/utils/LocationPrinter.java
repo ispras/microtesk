@@ -12,9 +12,9 @@
 
 package ru.ispras.microtesk.translator.simnml.generation.utils;
 
-import ru.ispras.microtesk.translator.simnml.ir.expression.Location;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationAtom;
-import ru.ispras.microtesk.translator.simnml.ir.expression.LocationConcat;
+import ru.ispras.microtesk.translator.simnml.ir.location.Location;
+import ru.ispras.microtesk.translator.simnml.ir.location.LocationAtom;
+import ru.ispras.microtesk.translator.simnml.ir.location.LocationConcat;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 
 public final class LocationPrinter
