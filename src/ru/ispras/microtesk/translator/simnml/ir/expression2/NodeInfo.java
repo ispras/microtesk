@@ -60,8 +60,7 @@ public final class NodeInfo
 
     public static NodeInfo newLocation(Location location)
     {
-        if (null == location)
-            throw new NullPointerException();
+        checkNotNull(location);
 
         return new NodeInfo(
             NodeInfo.Kind.LOCATION, location, ValueInfo.createModel(location.getType()));
@@ -69,11 +68,18 @@ public final class NodeInfo
 
     public static NodeInfo newNamedConst(LetConstant constant)
     {
-        if (null == constant)
-            throw new NullPointerException();
+        checkNotNull(constant);
 
         return new NodeInfo(
             NodeInfo.Kind.NAMED_CONST, constant, constant.getExpr().getValueInfo());
+    }
+
+    public static NodeInfo newConst(SourceConst constant)
+    {
+        checkNotNull(constant);
+
+        return new NodeInfo(
+            NodeInfo.Kind.CONST, constant, ValueInfo.createNative(constant.getValue()));
     }
 
     private final Kind            kind;
@@ -117,5 +123,11 @@ public final class NodeInfo
     public List<ValueInfo> getCoercionChain()
     {
         return coercionChain;
+    }
+
+    private static void checkNotNull(Object o)
+    {
+        if (null == o)
+            throw new NullPointerException();
     }
 }
