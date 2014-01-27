@@ -17,15 +17,15 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 public final class LetConstant
 {
     private final String name;
-    private final Expr   expression;
+    private final Expr   expr;
 
-    LetConstant(String name, Expr expression)
+    LetConstant(String name, Expr expr)
     {
         assert null != name;
-        assert null != expression;
+        assert null != expr;
 
         this.name = name;
-        this.expression = expression;
+        this.expr = expr;
     }
 
     public String getName()
@@ -33,20 +33,15 @@ public final class LetConstant
         return name;
     }
 
-    public Expr getExpression()
-    {
-        return expression;
-    }
-    
     public Expr getExpr()
     {
-        return getExpression();
+        return expr;
     }
-
+    
     @Override
     public String toString()
     {
         return String.format(
-            "LetConstant [name=%s, value=%s]", name, expression.getValueInfo());
+            "LetConstant [name=%s, value=%s]", name, expr.getValueInfo());
     }
 }

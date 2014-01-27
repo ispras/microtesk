@@ -124,8 +124,8 @@ public class SharedSTBuilder implements ITemplateBuilder
             final ST tLet = group.getInstanceOf("let");
 
             tLet.add("name",  constant.getName());
-            tLet.add("type",  toValueClass(constant.getExpression().getValueInfo().getNativeType()).getSimpleName());
-            tLet.add("value", ExprPrinter.toString(constant.getExpression()));
+            tLet.add("type",  toValueClass(constant.getExpr().getValueInfo().getNativeType()).getSimpleName());
+            tLet.add("value", ExprPrinter.toString(constant.getExpr()));
 
             t.add("members", tLet);
         }
