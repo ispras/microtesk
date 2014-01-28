@@ -58,28 +58,36 @@ public final class NodeInfo
             { return this.sourceClass == source.getClass(); }
     }
 
-    public static NodeInfo newLocation(Location location)
+    public static NodeInfo newLocation(Location source)
     {
-        checkNotNull(location);
+        checkNotNull(source);
 
         return new NodeInfo(
-            NodeInfo.Kind.LOCATION, location, ValueInfo.createModel(location.getType()));
+            NodeInfo.Kind.LOCATION, source, ValueInfo.createModel(source.getType()));
     }
 
-    public static NodeInfo newNamedConst(LetConstant constant)
+    public static NodeInfo newNamedConst(LetConstant source)
     {
-        checkNotNull(constant);
+        checkNotNull(source);
 
         return new NodeInfo(
-            NodeInfo.Kind.NAMED_CONST, constant, constant.getExpr().getValueInfo());
+            NodeInfo.Kind.NAMED_CONST, source, source.getExpr().getValueInfo());
     }
 
-    public static NodeInfo newConst(SourceConst constant)
+    public static NodeInfo newConst(SourceConst source)
     {
-        checkNotNull(constant);
+        checkNotNull(source);
 
         return new NodeInfo(
-            NodeInfo.Kind.CONST, constant, ValueInfo.createNative(constant.getValue()));
+            NodeInfo.Kind.CONST, source, ValueInfo.createNative(source.getValue()));
+    }
+    
+    public static NodeInfo newOperator(SourceOperator source, ValueInfo resultValueInfo)
+    {
+        checkNotNull(source);
+
+        return new NodeInfo(
+            NodeInfo.Kind.OPERATOR, source, resultValueInfo);
     }
 
     private final Kind            kind;

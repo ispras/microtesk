@@ -13,6 +13,8 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
@@ -29,16 +31,21 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 
+import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCalculator;
 
 public final class ExprFactory extends WalkerFactoryBase
 {
+    private final ValueInfoCalculator calculator;
+
     public ExprFactory(WalkerContext context)
     {
         super(context);
+        this.calculator = new ValueInfoCalculator(context);
     }
 
     public Node namedConstant(Where w, String name) throws SemanticException
@@ -92,19 +99,19 @@ public final class ExprFactory extends WalkerFactoryBase
         return result;
     }
 
-    public Node location(Location location)
+    public Node location(Location source)
     {
-        checkNotNull(location);
+        checkNotNull(source);
 
         final Variable variable = null;
         final Node result = new NodeVariable(variable);
 
-        final NodeInfo nodeInfo = NodeInfo.newLocation(location);
+        final NodeInfo nodeInfo = NodeInfo.newLocation(source);
         result.setUserData(nodeInfo);
 
         return result;
     }
-    
+
     public Node operator(
         Where w, ValueInfo.Kind target, String id, Node ... operands) throws SemanticException
     {
@@ -112,11 +119,29 @@ public final class ExprFactory extends WalkerFactoryBase
         checkNotNull(target);
         checkNotNull(id);
         checkNotNull(operands);
-        
-        
+
+        final Operator op = Operator.forText(id);
+
+        if (null == op)
+            raiseError(w, String.format(ERR_UNSUPPORTED_OPERATOR, id));
+
+        if (operands.length != op.operands())
+            raiseError(w, String.format(ERR_OPERAND_NUMBER_MISMATCH, id, op.operands()));
+
+        final List<ValueInfo> values = new ArrayList<ValueInfo>(operands.length);
+        for(Node operand : operands)
+        {
+            final NodeInfo nodeInfo = (NodeInfo) operand.getUserData();
+            final ValueInfo vi = nodeInfo.getValueInfo();
+            values.add(vi);
+        }
+
+        final ValueInfo   castValueInfo = calculator.cast(w, target, values);
+        final ValueInfo resultValueInfo = calculator.calculate(w, op, castValueInfo, values);
+
         final Node result = new NodeExpr(null /* operation */ , operands);
 
-        final NodeInfo nodeInfo = null;
+        final NodeInfo nodeInfo = NodeInfo.newOperator(new SourceOperator(op, castValueInfo), resultValueInfo);
         result.setUserData(nodeInfo);
 
         return result;
@@ -145,4 +170,7 @@ public final class ExprFactory extends WalkerFactoryBase
         if (null == o)
             throw new NullPointerException();
     }
+
+    private static final String    ERR_UNSUPPORTED_OPERATOR = "The %s operator is not supported.";
+    private static final String ERR_OPERAND_NUMBER_MISMATCH = "The %s operator requires %d operands.";
 }
