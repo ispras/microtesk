@@ -58,7 +58,7 @@ public final class NodeInfo
             { return this.sourceClass == source.getClass(); }
     }
 
-    public static NodeInfo newLocation(Location source)
+    static NodeInfo newLocation(Location source)
     {
         checkNotNull(source);
 
@@ -66,7 +66,7 @@ public final class NodeInfo
             NodeInfo.Kind.LOCATION, source, ValueInfo.createModel(source.getType()));
     }
 
-    public static NodeInfo newNamedConst(LetConstant source)
+    static NodeInfo newNamedConst(LetConstant source)
     {
         checkNotNull(source);
 
@@ -74,7 +74,7 @@ public final class NodeInfo
             NodeInfo.Kind.NAMED_CONST, source, source.getExpr().getValueInfo());
     }
 
-    public static NodeInfo newConst(SourceConst source)
+    static NodeInfo newConst(SourceConst source)
     {
         checkNotNull(source);
 
@@ -82,7 +82,7 @@ public final class NodeInfo
             NodeInfo.Kind.CONST, source, ValueInfo.createNative(source.getValue()));
     }
     
-    public static NodeInfo newOperator(SourceOperator source)
+    static NodeInfo newOperator(SourceOperator source)
     {
         checkNotNull(source);
 
