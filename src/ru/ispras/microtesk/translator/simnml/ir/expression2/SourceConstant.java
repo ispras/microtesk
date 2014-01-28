@@ -7,17 +7,17 @@
  * 
  * All rights reserved.
  * 
- * SourceConst.java, Jan 27, 2014 5:42:33 PM Andrei Tatarnikov
+ * SourceConstant.java, Jan 27, 2014 5:42:33 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
-public final class SourceConst
+public final class SourceConstant
 {
     private final Object value;
     private final int    radix;
 
-    SourceConst(Object value, int radix)
+    SourceConstant(Object value, int radix)
     {
         if (null == value)
             throw new NullPointerException();

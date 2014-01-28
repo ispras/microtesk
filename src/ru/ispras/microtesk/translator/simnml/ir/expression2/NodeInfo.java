@@ -44,10 +44,10 @@ public final class NodeInfo
 {
     public static enum Kind
     {
-        LOCATION       (Location.class),
-        NAMED_CONST (LetConstant.class),
-        CONST       (SourceConst.class),
-        OPERATOR (SourceOperator.class);
+        LOCATION          (Location.class),
+        NAMED_CONST    (LetConstant.class),
+        CONST       (SourceConstant.class),
+        OPERATOR    (SourceOperator.class);
 
         private final Class<?> sourceClass;
 
@@ -74,7 +74,7 @@ public final class NodeInfo
             NodeInfo.Kind.NAMED_CONST, source, source.getExpr().getValueInfo());
     }
 
-    static NodeInfo newConst(SourceConst source)
+    static NodeInfo newConst(SourceConstant source)
     {
         checkNotNull(source);
 

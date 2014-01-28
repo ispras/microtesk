@@ -75,14 +75,14 @@ public final class ExprFactory extends WalkerFactoryBase
 
         final BigInteger bi = new BigInteger(text, radix);
 
-        final SourceConst source;
+        final SourceConstant source;
         if (bi.bitLength() <= Integer.SIZE)
         {
-            source = new SourceConst(bi.intValue(), radix);
+            source = new SourceConstant(bi.intValue(), radix);
         }
         else if (bi.bitLength() <= Long.SIZE)
         {
-            source = new SourceConst(bi.longValue(), radix);
+            source = new SourceConstant(bi.longValue(), radix);
         }
         else
         {
