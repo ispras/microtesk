@@ -17,13 +17,24 @@ import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 public final class SourceOperator
 {
-    private final Operator       operator;
+    private final Operator  operator;
     private final ValueInfo castValueInfo;
+    private final ValueInfo resultValueInfo;
 
-    public SourceOperator(Operator operator, ValueInfo castValueInfo)
+    SourceOperator(Operator operator, ValueInfo castValueInfo, ValueInfo resultValueInfo)
     {
+        if (null == operator)
+            throw new NullPointerException();
+
+        if (null == castValueInfo)
+            throw new NullPointerException();
+
+        if (null == resultValueInfo)
+            throw new NullPointerException();
+
         this.operator = operator;
         this.castValueInfo = castValueInfo;
+        this.resultValueInfo = resultValueInfo;
     }
 
     public Operator getOperator()
@@ -34,5 +45,10 @@ public final class SourceOperator
     public ValueInfo getCastValueInfo()
     {
         return castValueInfo;
+    }
+
+    public ValueInfo getResultValueInfo()
+    {
+        return resultValueInfo;
     }
 }

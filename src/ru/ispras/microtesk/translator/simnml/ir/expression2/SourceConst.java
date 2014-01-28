@@ -17,7 +17,7 @@ public final class SourceConst
     private final Object value;
     private final int    radix;
 
-    public SourceConst(Object value, int radix)
+    SourceConst(Object value, int radix)
     {
         if (null == value)
             throw new NullPointerException();

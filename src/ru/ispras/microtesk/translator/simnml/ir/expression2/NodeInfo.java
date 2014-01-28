@@ -82,12 +82,12 @@ public final class NodeInfo
             NodeInfo.Kind.CONST, source, ValueInfo.createNative(source.getValue()));
     }
     
-    public static NodeInfo newOperator(SourceOperator source, ValueInfo resultValueInfo)
+    public static NodeInfo newOperator(SourceOperator source)
     {
         checkNotNull(source);
 
         return new NodeInfo(
-            NodeInfo.Kind.OPERATOR, source, resultValueInfo);
+            NodeInfo.Kind.OPERATOR, source, source.getResultValueInfo());
     }
 
     private final Kind            kind;

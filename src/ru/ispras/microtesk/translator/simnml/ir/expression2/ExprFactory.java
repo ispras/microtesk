@@ -138,10 +138,12 @@ public final class ExprFactory extends WalkerFactoryBase
 
         final ValueInfo   castValueInfo = calculator.cast(w, target, values);
         final ValueInfo resultValueInfo = calculator.calculate(w, op, castValueInfo, values);
+        
+        final SourceOperator source = new SourceOperator(op, castValueInfo, resultValueInfo);
 
         final Node result = new NodeExpr(null /* operation */ , operands);
 
-        final NodeInfo nodeInfo = NodeInfo.newOperator(new SourceOperator(op, castValueInfo), resultValueInfo);
+        final NodeInfo nodeInfo = NodeInfo.newOperator(source);
         result.setUserData(nodeInfo);
 
         return result;
