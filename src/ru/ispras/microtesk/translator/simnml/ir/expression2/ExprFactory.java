@@ -56,15 +56,13 @@ public final class ExprFactory extends WalkerFactoryBase
         if (!getIR().getConstants().containsKey(name))
             raiseError(w, new UndefinedConstant(name));
 
-        final LetConstant source = 
-            getIR().getConstants().get(name);
+        final LetConstant source = getIR().getConstants().get(name);
+        final NodeInfo  nodeInfo = NodeInfo.newNamedConst(source);
 
-        final Data data = null;
+        final Data   data = toFortressData(nodeInfo.getValueInfo());
         final Node result = new NodeValue(data);
 
-        final NodeInfo nodeInfo = NodeInfo.newNamedConst(source);
         result.setUserData(nodeInfo);
-
         return result;
     }
 
@@ -90,12 +88,12 @@ public final class ExprFactory extends WalkerFactoryBase
             source = null; // Will never be reached
         }
 
-        final Data data = null;
+        final NodeInfo nodeInfo = NodeInfo.newConst(source);
+
+        final Data data = toFortressData(nodeInfo.getValueInfo());
         final Node result = new NodeValue(data);
 
-        final NodeInfo nodeInfo = NodeInfo.newConst(source);
         result.setUserData(nodeInfo);
-
         return result;
     }
 
@@ -103,12 +101,15 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         checkNotNull(source);
 
-        final Variable variable = null;
+        final NodeInfo nodeInfo = NodeInfo.newLocation(source);
+
+        final String name = null; // TODO
+        final Data data = toFortressData(nodeInfo.getValueInfo());
+
+        final Variable variable = new Variable(name, data);
         final Node result = new NodeVariable(variable);
 
-        final NodeInfo nodeInfo = NodeInfo.newLocation(source);
         result.setUserData(nodeInfo);
-
         return result;
     }
 
@@ -140,12 +141,12 @@ public final class ExprFactory extends WalkerFactoryBase
         final ValueInfo resultValueInfo = calculator.calculate(w, op, castValueInfo, values);
 
         final SourceOperator source = new SourceOperator(op, castValueInfo, resultValueInfo);
-
-        final Node result = new NodeExpr(null /* operation */, operands);
-
         final NodeInfo nodeInfo = NodeInfo.newOperator(source);
-        result.setUserData(nodeInfo);
 
+        final Enum<?> operator = toFortressOperator(op, castValueInfo);
+        final Node result = new NodeExpr(operator, operands);
+
+        result.setUserData(nodeInfo);
         return result;
     }
 
@@ -154,6 +155,8 @@ public final class ExprFactory extends WalkerFactoryBase
         checkNotNull(w);
         checkNotNull(src);
         checkNotNull(type);
+
+        final ValueInfo newValueInfo = ValueInfo.createModel(type);
 
         return null;
     }
@@ -164,6 +167,8 @@ public final class ExprFactory extends WalkerFactoryBase
         checkNotNull(src);
         checkNotNull(type);
 
+        final ValueInfo newValueInfo = ValueInfo.createNativeType(type);
+
         return null;
     }
 
@@ -171,6 +176,16 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         if (null == o)
             throw new NullPointerException();
+    }
+
+    private static Data toFortressData(ValueInfo valueInfo)
+    {
+        return null;
+    }
+
+    private static Enum<?> toFortressOperator(Operator operator, ValueInfo valueInfo)
+    {
+        return null;
     }
 
     private static final String    ERR_UNSUPPORTED_OPERATOR = "The %s operator is not supported.";
