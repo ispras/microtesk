@@ -156,10 +156,18 @@ public final class ExprFactory extends WalkerFactoryBase
         checkNotNull(src);
         checkNotNull(type);
 
-        final ValueInfo newValueInfo = ValueInfo.createModel(type);
+        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
+        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
 
-        return null;
-    }
+        if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType()))
+            return src;
+
+        final ValueInfo newValueInfo = ValueInfo.createModel(type);
+        final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+
+        src.setUserData(newNodeInfo);
+        return src;
+     }
 
     public Node coerce(Where w, Node src, Class<?> type)
     {
@@ -167,9 +175,17 @@ public final class ExprFactory extends WalkerFactoryBase
         checkNotNull(src);
         checkNotNull(type);
 
-        final ValueInfo newValueInfo = ValueInfo.createNativeType(type);
+        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
+        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
 
-        return null;
+        if (srcValueInfo.isNativeOf(type))
+            return src;
+
+        final ValueInfo newValueInfo = srcValueInfo.toNativeType(type);
+        final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+
+        src.setUserData(newNodeInfo);
+        return src;
     }
 
     private static void checkNotNull(Object o)
