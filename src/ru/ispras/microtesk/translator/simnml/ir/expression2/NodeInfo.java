@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -81,7 +82,7 @@ public final class NodeInfo
         return new NodeInfo(
             NodeInfo.Kind.CONST, source, ValueInfo.createNative(source.getValue()));
     }
-    
+
     static NodeInfo newOperator(SourceOperator source)
     {
         checkNotNull(source);
@@ -111,6 +112,24 @@ public final class NodeInfo
     private NodeInfo(Kind kind, Object source, ValueInfo valueInfo)
     {
         this(kind, source, valueInfo, Collections.<ValueInfo>emptyList());
+    }
+
+    public NodeInfo coerceTo(ValueInfo valueInfo)
+    {
+        checkNotNull(valueInfo);
+
+        if (getValueInfo().equals(valueInfo))
+            return this;
+
+        final List<ValueInfo> coercions = new ArrayList<ValueInfo>(getCoercionChain());
+        coercions.add(getValueInfo());
+
+        return new NodeInfo(
+            getKind(),
+            getSource(),
+            valueInfo,
+            coercions
+            );
     }
 
     public Kind getKind()
