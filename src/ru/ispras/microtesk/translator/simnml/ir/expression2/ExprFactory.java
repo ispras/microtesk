@@ -59,7 +59,7 @@ public final class ExprFactory extends WalkerFactoryBase
         final LetConstant source = getIR().getConstants().get(name);
         final NodeInfo  nodeInfo = NodeInfo.newNamedConst(source);
 
-        final Data   data = toFortressData(nodeInfo.getValueInfo());
+        final Data   data = Converter.toFortressData(nodeInfo.getValueInfo());
         final Node result = new NodeValue(data);
 
         result.setUserData(nodeInfo);
@@ -90,7 +90,7 @@ public final class ExprFactory extends WalkerFactoryBase
 
         final NodeInfo nodeInfo = NodeInfo.newConst(source);
 
-        final Data data = toFortressData(nodeInfo.getValueInfo());
+        final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
         final Node result = new NodeValue(data);
 
         result.setUserData(nodeInfo);
@@ -103,8 +103,8 @@ public final class ExprFactory extends WalkerFactoryBase
 
         final NodeInfo nodeInfo = NodeInfo.newLocation(source);
 
-        final String name = null; // TODO
-        final Data data = toFortressData(nodeInfo.getValueInfo());
+        final String name = "unnamed"; // TODO
+        final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
 
         final Variable variable = new Variable(name, data);
         final Node result = new NodeVariable(variable);
@@ -143,7 +143,7 @@ public final class ExprFactory extends WalkerFactoryBase
         final SourceOperator source = new SourceOperator(op, castValueInfo, resultValueInfo);
         final NodeInfo nodeInfo = NodeInfo.newOperator(source);
 
-        final Enum<?> operator = toFortressOperator(op, castValueInfo);
+        final Enum<?> operator = Converter.toFortressOperator(op, castValueInfo);
         final Node result = new NodeExpr(operator, operands);
 
         result.setUserData(nodeInfo);
@@ -192,16 +192,6 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         if (null == o)
             throw new NullPointerException();
-    }
-
-    private static Data toFortressData(ValueInfo valueInfo)
-    {
-        return null;
-    }
-
-    private static Enum<?> toFortressOperator(Operator operator, ValueInfo valueInfo)
-    {
-        return null;
     }
 
     private static final String    ERR_UNSUPPORTED_OPERATOR = "The %s operator is not supported.";
