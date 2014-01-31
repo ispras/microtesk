@@ -239,8 +239,15 @@ public final class ExprFactory extends WalkerFactoryBase
 
     public Node evaluateConst(Where w, Node src) throws SemanticException
     {
-        // TODO
-        return null;
+        checkNotNull(w);
+        checkNotNull(src);
+
+        final ValueInfo srcVI = ((NodeInfo) src.getUserData()).getValueInfo();
+
+        if (!srcVI.isConstant())
+            raiseError(w, ERR_NOT_STATIC);
+
+        return src;
     }
 
     public Node evaluateSize(Where w, Node src) throws SemanticException
@@ -294,6 +301,9 @@ public final class ExprFactory extends WalkerFactoryBase
                 raiseError(w, String.format(ERR_TYPE_MISMATCH, current.getTypeName(), first.getTypeName()));
         }
     }
+    
+    private static final String ERR_NOT_STATIC =
+        "The expression cannot be statically calculated.";
 
     private static final String ERR_UNSUPPORTED_OPERATOR =
         "The %s operator is not supported.";
