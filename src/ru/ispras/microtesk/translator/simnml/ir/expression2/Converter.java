@@ -14,7 +14,6 @@ package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
@@ -62,34 +61,29 @@ final class Converter
     private static Data dataFromNative(Object value)
     {
         checkNotNull(value);
-        
-        // TODO
-        return null;
+
+        final DataType dataType = getDataTypeForType(value.getClass());
+        return new Data(dataType, value);
     }
 
     private static Data dataFromNativeType(Class<?> type)
     {
-        // TODO: Not completed
-        
         checkNotNull(type);
 
-        final DataType dataType;
-
-        if (Integer.class == type)
-        {
-            dataType = DataType.INTEGER;
-        }
-        else if (Boolean.class == type)
-        {
-            dataType = DataType.BOOLEAN;
-        }
-        else
-        {
-            throw new IllegalArgumentException(
-               String.format("Unsupported type: %s.", type.getSimpleName()));
-        }
-
+        final DataType dataType = getDataTypeForType(type);
         return dataType.valueUninitialized();
+    }
+
+    private static DataType getDataTypeForType(Class<?> type)
+    {
+        if (Integer.class == type)
+            return DataType.INTEGER;
+
+        if (Boolean.class == type)
+            return DataType.BOOLEAN;
+
+        throw new IllegalArgumentException(
+            String.format("Unsupported type: %s.", type.getSimpleName()));
     }
 
     static Enum<?> toFortressOperator(Operator operator, ValueInfo valueInfo)
