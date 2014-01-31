@@ -27,6 +27,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 
+import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 
@@ -35,6 +36,8 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeCoercion;
+import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
@@ -318,6 +321,40 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         checkNotNull(w);
         checkNotNull(src);
+
+        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
+        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
+
+        if (srcValueInfo.isModel())
+            return src;
+
+        assert srcValueInfo.isNativeOf(Integer.class) ||
+               srcValueInfo.isNativeOf(Long.class);
+
+        final int size;
+
+        if (srcValueInfo.isConstant())
+        {
+            final Object value = srcValueInfo.getNativeValue();
+
+            final int usedSize = (Integer.class == value.getClass()) ?
+                Integer.SIZE - Integer.numberOfLeadingZeros(((Number) value).intValue()) :
+                Long.SIZE - Long.numberOfLeadingZeros(((Number) value).longValue());
+                
+            int adjustedSize = 1;
+
+            while (adjustedSize < usedSize)
+                adjustedSize *= 2;
+            
+            size = adjustedSize;
+        }
+        else
+        {
+            size = (Integer.class == srcValueInfo.getNativeType()) ? Integer.SIZE : Long.SIZE;
+        }
+
+        // final Type type = new Type(ETypeID.INT, ExprUtils.createConstant(size));
+        // return new ExprNodeCoercion(src, ValueInfo.createModel(type));
         
         // TODO
         return null;
