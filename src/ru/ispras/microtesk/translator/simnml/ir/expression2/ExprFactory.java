@@ -242,9 +242,9 @@ public final class ExprFactory extends WalkerFactoryBase
         checkNotNull(w);
         checkNotNull(src);
 
-        final ValueInfo srcVI = ((NodeInfo) src.getUserData()).getValueInfo();
+        final ValueInfo srcValueInfo = ((NodeInfo) src.getUserData()).getValueInfo();
 
-        if (!srcVI.isConstant())
+        if (!srcValueInfo.isConstant())
             raiseError(w, ERR_NOT_STATIC);
 
         return src;
@@ -255,12 +255,12 @@ public final class ExprFactory extends WalkerFactoryBase
         checkNotNull(w);
         checkNotNull(src);
 
-        final ValueInfo srcVI = ((NodeInfo) src.getUserData()).getValueInfo();
+        final ValueInfo srcValueInfo = ((NodeInfo) src.getUserData()).getValueInfo();
 
-        if (!srcVI.isConstant())
+        if (!srcValueInfo.isConstant())
             raiseError(w, ERR_NOT_STATIC);
 
-        if (!srcVI.isNativeOf(Integer.class))
+        if (!srcValueInfo.isNativeOf(Integer.class))
             raiseError(w, ERR_NOT_CONST_INTEGER);
 
         return src;
@@ -268,18 +268,57 @@ public final class ExprFactory extends WalkerFactoryBase
 
     public Node evaluateIndex(Where w, Node src) throws SemanticException
     {
-        // TODO
-        return null;
+        checkNotNull(w);
+        checkNotNull(src);
+
+        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
+        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
+
+        if (srcValueInfo.isNativeOf(Integer.class))
+            return src;
+
+        if (srcValueInfo.isModel())
+        {
+            final ValueInfo newValueInfo = srcValueInfo.toNativeType(Integer.class);
+            final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+
+            src.setUserData(newNodeInfo);
+            return src;
+        }
+
+        raiseError(w, ERR_NOT_INDEX);
+        return null; // Never executed.
     }
 
     public Node evaluateLogic(Where w, Node src) throws SemanticException
     {
-        // TODO
-        return null;
+        checkNotNull(w);
+        checkNotNull(src);
+
+        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
+        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
+
+        if (srcValueInfo.isNativeOf(Boolean.class))
+            return src;
+
+        if (srcValueInfo.isModel())
+        {
+            final ValueInfo newValueInfo = srcValueInfo.toNativeType(Boolean.class);
+            final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+
+            src.setUserData(newNodeInfo);
+            return src;
+        }
+
+        raiseError(w, ERR_NOT_BOOLEAN);
+        return null; // Never executed.
     }
-    
+
     public Node evaluateData(Where w, Node src) throws SemanticException
     {
+        checkNotNull(w);
+        checkNotNull(src);
+        
         // TODO
         return null;
     }
@@ -300,15 +339,15 @@ public final class ExprFactory extends WalkerFactoryBase
         final Iterator<Condition> it = conds.iterator();
 
         final Node firstExpression = it.next().getExpression();
-        final ValueInfo first = ((NodeInfo) firstExpression.getUserData()).getValueInfo();
+        final ValueInfo firstValueInfo = ((NodeInfo) firstExpression.getUserData()).getValueInfo();
 
         while(it.hasNext())
         {
             final Node currentExpression = it.next().getExpression();
-            final ValueInfo current = ((NodeInfo) currentExpression.getUserData()).getValueInfo();
+            final ValueInfo currentValueInfo = ((NodeInfo) currentExpression.getUserData()).getValueInfo();
 
-            if (!current.hasEqualType(first))
-                raiseError(w, String.format(ERR_TYPE_MISMATCH, current.getTypeName(), first.getTypeName()));
+            if (!currentValueInfo.hasEqualType(firstValueInfo))
+                raiseError(w, String.format(ERR_TYPE_MISMATCH, currentValueInfo.getTypeName(), firstValueInfo.getTypeName()));
         }
     }
 
@@ -326,4 +365,10 @@ public final class ExprFactory extends WalkerFactoryBase
 
     private static final String ERR_NOT_CONST_INTEGER =
         "The expression cannot be used to specify size since it cannot be evaluated to an integer constant (int).";
+
+    private static final String ERR_NOT_INDEX =
+        "The expression cannot be used as an index since it cannot be evaluated to a Java integer (int) value.";
+
+    private static final String ERR_NOT_BOOLEAN =
+        "The expression cannot be evaluated to a boolean value (Java boolean).";
 }
