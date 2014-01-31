@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2014 ISPRAS
+ * 
+ * Institute for System Programming of Russian Academy of Sciences
+ * 
+ * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * 
+ * All rights reserved.
+ * 
+ * Condition.java, Jan 31, 2014 3:20:41 PM Andrei Tatarnikov
+ */
+
+package ru.ispras.microtesk.translator.simnml.ir.expression2;
+
+import ru.ispras.fortress.expression.Node;
+
+/**
+ * Helper class to temporarily represent conditional expressions
+ * based on the if-elif-else operator:
+ * <pre>
+ * if cond1 then 
+ *    expr1
+ * elif cond2 then
+ *    expr2
+ * ...
+ * else
+ *    exprN
+ * endif
+ * </pre>
+ * 
+ * @author Andrei Tatarnikov
+ */
+
+public final class Condition
+{
+    private final Node cond;
+    private final Node expr;
+
+    private Condition(Node cond, Node expr)
+    {
+        if (null == expr)
+            throw new NullPointerException();
+
+        this.cond = cond;
+        this.expr = expr;
+    }
+
+    public static Condition newIf(Node cond, Node expr)
+    {
+        if (null == cond)
+            throw new NullPointerException();
+
+        return new Condition(cond, expr);
+    }
+
+    public static Condition newElse(Node expr)
+    {
+        return new Condition(null, expr);
+    }
+
+    public Node getCondition()
+    {
+        return cond;
+    }
+
+    public boolean isElse()
+    {
+        return null == cond;
+    }
+
+    public Node getExpression()
+    {
+        return expr;
+    }
+}

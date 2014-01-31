@@ -13,7 +13,10 @@
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.fortress.data.Data;
@@ -22,6 +25,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeExpr;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
 
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
@@ -167,7 +171,7 @@ public final class ExprFactory extends WalkerFactoryBase
 
         src.setUserData(newNodeInfo);
         return src;
-     }
+    }
 
     public Node coerce(Where w, Node src, Class<?> type)
     {
@@ -188,12 +192,115 @@ public final class ExprFactory extends WalkerFactoryBase
         return src;
     }
 
+    public Node condition(Where w, List<Condition> conds) throws SemanticException
+    {
+        checkNotNull(w);
+        checkConditions(w, conds);
+
+        final Deque<Condition> stack = new ArrayDeque<Condition>(conds);
+
+        Node tail = stack.peekLast().isElse() ? stack.removeLast().getExpression() : null;
+        final ValueInfo tailVI = ((NodeInfo) tail.getUserData()).getValueInfo();
+
+        while(!stack.isEmpty())
+        {
+            final Condition current = stack.removeLast();
+
+            final Node cond = current.getCondition();
+            final ValueInfo condVI = ((NodeInfo) cond.getUserData()).getValueInfo();
+
+            final Node expr = current.getExpression();
+            final ValueInfo exprVI = ((NodeInfo) expr.getUserData()).getValueInfo();
+
+            ValueInfo resultVI = exprVI.typeInfoOnly(); // By default
+            if (condVI.isConstant())
+            {
+                final boolean isCondTrue = ((Boolean) condVI.getNativeValue());
+                if (isCondTrue)
+                {
+                    resultVI = exprVI;
+                }
+                else if (tail != null)
+                {
+                    resultVI = tailVI;
+                }
+            }
+
+            tail = new NodeExpr(StandardOperation.ITE, cond, expr, tail);
+
+            final SourceOperator source = new SourceOperator(Operator.ITE, resultVI, resultVI);
+            final NodeInfo nodeInfo = NodeInfo.newOperator(source);
+
+            tail.setUserData(nodeInfo);
+        }
+
+        return tail;
+    }
+
+    public Node evaluateConst(Where w, Node src) throws SemanticException
+    {
+        // TODO
+        return null;
+    }
+
+    public Node evaluateSize(Where w, Node src) throws SemanticException
+    {
+        // TODO
+        return null;
+    }
+
+    public Node evaluateIndex(Where w, Node src) throws SemanticException
+    {
+        // TODO
+        return null;
+    }
+
+    public Node evaluateLogic(Where w, Node src) throws SemanticException
+    {
+        // TODO
+        return null;
+    }
+    
+    public Node evaluateData(Where w, Node src) throws SemanticException
+    {
+        // TODO
+        return null;
+    }
+
     private static void checkNotNull(Object o)
     {
         if (null == o)
             throw new NullPointerException();
     }
 
-    private static final String    ERR_UNSUPPORTED_OPERATOR = "The %s operator is not supported.";
-    private static final String ERR_OPERAND_NUMBER_MISMATCH = "The %s operator requires %d operands.";
+    private void checkConditions(Where w, List<Condition> conds) throws SemanticException
+    {
+        checkNotNull(conds);
+
+        if (conds.isEmpty())
+            throw new IllegalArgumentException("Empty conditions.");
+
+        final Iterator<Condition> it = conds.iterator();
+
+        final Node firstExpression = it.next().getExpression();
+        final ValueInfo first = ((NodeInfo) firstExpression.getUserData()).getValueInfo();
+
+        while(it.hasNext())
+        {
+            final Node currentExpression = it.next().getExpression();
+            final ValueInfo current = ((NodeInfo) currentExpression.getUserData()).getValueInfo();
+
+            if (!current.hasEqualType(first))
+                raiseError(w, String.format(ERR_TYPE_MISMATCH, current.getTypeName(), first.getTypeName()));
+        }
+    }
+
+    private static final String ERR_UNSUPPORTED_OPERATOR =
+        "The %s operator is not supported.";
+
+    private static final String ERR_OPERAND_NUMBER_MISMATCH =
+        "The %s operator requires %d operands.";
+
+    private static final String ERR_TYPE_MISMATCH =
+        "%s is unexpected. All parts of the current conditional expression must have the %s type.";
 }
