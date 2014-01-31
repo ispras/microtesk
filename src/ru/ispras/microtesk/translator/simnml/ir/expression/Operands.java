@@ -15,7 +15,8 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 public enum Operands
 {
     UNARY(1),
-    BINARY(2);
+    BINARY(2),
+    TERNARY(3);
 
     private Operands(int count) { this.count = count; }
     public int count()          { return count; }

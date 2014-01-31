@@ -51,7 +51,10 @@ public enum Operator
     UPLUS    ("UPLUS",  Operands.UNARY,   Priority.HIGHER),
     UMINUS   ("UMINUS", Operands.UNARY,   Priority.CURRENT),
     BIT_NOT  ("~",      Operands.UNARY,   Priority.CURRENT),
-    NOT      ("!",      Operands.UNARY,   Priority.CURRENT )
+    NOT      ("!",      Operands.UNARY,   Priority.CURRENT),
+
+    // Synthetic operator
+    ITE      ("",       Operands.TERNARY, Priority.HIGHER)
     ;
 
     private static enum Priority
