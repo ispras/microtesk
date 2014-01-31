@@ -84,9 +84,14 @@ public enum Operator
 
     private Operator(String text, Operands operands, Priority priority)
     {
-        assert null != text;
-        assert null != operands;
-        assert null != priority;
+        if (null == text)
+            throw new NullPointerException();
+
+        if (null == operands)
+            throw new NullPointerException();
+
+        if (null == priority)
+            throw new NullPointerException();
 
         this.text      = text;
         this.operands  = operands.count();
