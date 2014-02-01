@@ -327,7 +327,7 @@ public final class ExprFactory extends WalkerFactoryBase
             return src;
 
         if (!srcValueInfo.isNativeOf(Integer.class) && !srcValueInfo.isNativeOf(Long.class))
-            raiseError(w, String.format("Unsupported type: %s.", srcValueInfo.getTypeName()));
+            raiseError(w, String.format(ERR_NOT_LOCATION_COMPATIBLE, srcValueInfo.getTypeName()));
 
         final int size;
         if (srcValueInfo.isConstant())
@@ -408,4 +408,7 @@ public final class ExprFactory extends WalkerFactoryBase
 
     private static final String ERR_NOT_BOOLEAN =
         "The expression cannot be evaluated to a boolean value (Java boolean).";
+
+    private static final String ERR_NOT_LOCATION_COMPATIBLE =
+        "The %s type cannot be stored in a location.";
 }
