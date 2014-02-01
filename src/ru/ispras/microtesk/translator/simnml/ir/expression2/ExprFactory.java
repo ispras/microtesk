@@ -36,8 +36,6 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.simnml.errors.ValueParsingFailure;
 
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeCoercion;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
@@ -328,36 +326,38 @@ public final class ExprFactory extends WalkerFactoryBase
         if (srcValueInfo.isModel())
             return src;
 
-        assert srcValueInfo.isNativeOf(Integer.class) ||
-               srcValueInfo.isNativeOf(Long.class);
+        if (!srcValueInfo.isNativeOf(Integer.class) && !srcValueInfo.isNativeOf(Long.class))
+            raiseError(w, String.format("Unsupported type: %s.", srcValueInfo.getTypeName()));
 
         final int size;
-
         if (srcValueInfo.isConstant())
         {
-            final Object value = srcValueInfo.getNativeValue();
+            final Number value = (Number) srcValueInfo.getNativeValue();
 
             final int usedSize = (Integer.class == value.getClass()) ?
-                Integer.SIZE - Integer.numberOfLeadingZeros(((Number) value).intValue()) :
-                Long.SIZE - Long.numberOfLeadingZeros(((Number) value).longValue());
-                
+                Integer.SIZE - Integer.numberOfLeadingZeros(value.intValue()) :
+                Long.SIZE - Long.numberOfLeadingZeros(value.longValue());
+
             int adjustedSize = 1;
 
             while (adjustedSize < usedSize)
                 adjustedSize *= 2;
-            
+
             size = adjustedSize;
         }
         else
         {
-            size = (Integer.class == srcValueInfo.getNativeType()) ? Integer.SIZE : Long.SIZE;
+            size = (Integer.class == srcValueInfo.getNativeType()) ?
+                Integer.SIZE : Long.SIZE;
         }
 
-        // final Type type = new Type(ETypeID.INT, ExprUtils.createConstant(size));
-        // return new ExprNodeCoercion(src, ValueInfo.createModel(type));
-        
-        // TODO
-        return null;
+        final Type type = new Type(ETypeID.INT, size);
+
+        final ValueInfo newValueInfo = ValueInfo.createModel(type);
+        final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+
+        src.setUserData(newNodeInfo);
+        return src;
     }
 
     private static void checkNotNull(Object o)

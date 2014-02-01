@@ -19,7 +19,7 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 public final class Type
 {
     public final static Type BOOLEAN = new Type(ETypeID.BOOL, ExprUtils.createConstant(1));
-    
+
     private final ETypeID  typeId;
     private final Expr    bitSize;
     private final String  refName;
@@ -32,12 +32,17 @@ public final class Type
         this.bitSize = bitSize;
         this.refName = refName;
     }
-    
+
     public Type(ETypeID typeId, Expr bitSize)
     {
         this(typeId, bitSize, null);
     }
-    
+
+    public Type(ETypeID typeId, int bitSize)
+    {
+        this(typeId, ExprUtils.createConstant(bitSize));
+    }
+
     public ETypeID getTypeId()
     {
         return typeId;
