@@ -53,7 +53,7 @@ public final class ExprFactory extends WalkerFactoryBase
         this.calculator = new ValueInfoCalculator(context);
     }
 
-    public Node namedConstant(Where w, String name) throws SemanticException
+    public Expr namedConstant(Where w, String name) throws SemanticException
     {
         checkNotNull(w);
         checkNotNull(name);
@@ -64,14 +64,14 @@ public final class ExprFactory extends WalkerFactoryBase
         final LetConstant source = getIR().getConstants().get(name);
         final NodeInfo  nodeInfo = NodeInfo.newNamedConst(source);
 
-        final Data   data = Converter.toFortressData(nodeInfo.getValueInfo());
-        final Node result = new NodeValue(data);
+        final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
+        final Node node = new NodeValue(data);
 
-        result.setUserData(nodeInfo);
-        return result;
+        node.setUserData(nodeInfo);
+        return new Expr(node);
     }
 
-    public Node constant(Where w, String text, int radix) throws SemanticException
+    public Expr constant(Where w, String text, int radix) throws SemanticException
     {
         checkNotNull(w);
         checkNotNull(text);
@@ -96,13 +96,13 @@ public final class ExprFactory extends WalkerFactoryBase
         final NodeInfo nodeInfo = NodeInfo.newConst(source);
 
         final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
-        final Node result = new NodeValue(data);
+        final Node node = new NodeValue(data);
 
-        result.setUserData(nodeInfo);
-        return result;
+        node.setUserData(nodeInfo);
+        return new Expr(node);
     }
 
-    public Node location(Location source)
+    public Expr location(Location source)
     {
         checkNotNull(source);
 
@@ -112,14 +112,13 @@ public final class ExprFactory extends WalkerFactoryBase
         final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
 
         final Variable variable = new Variable(name, data);
-        final Node result = new NodeVariable(variable);
+        final Node node = new NodeVariable(variable);
 
-        result.setUserData(nodeInfo);
-        return result;
+        node.setUserData(nodeInfo);
+        return new Expr(node);
     }
 
-    public Node operator(
-        Where w, ValueInfo.Kind target, String id, Node ... operands) throws SemanticException
+    public Expr operator(Where w, ValueInfo.Kind target, String id, Expr ... operands) throws SemanticException
     {
         checkNotNull(w);
         checkNotNull(target);
@@ -135,11 +134,13 @@ public final class ExprFactory extends WalkerFactoryBase
             raiseError(w, String.format(ERR_OPERAND_NUMBER_MISMATCH, id, op.operands()));
 
         final List<ValueInfo> values = new ArrayList<ValueInfo>(operands.length);
-        for(Node operand : operands)
+        final Node[]    operandNodes = new Node[operands.length];
+
+        for (int index = 0; index < operands.length; ++index)
         {
-            final NodeInfo nodeInfo = (NodeInfo) operand.getUserData();
-            final ValueInfo vi = nodeInfo.getValueInfo();
-            values.add(vi);
+            final Expr operand = operands[index];
+            values.add(operand.getValueInfo());
+            operandNodes[index] = operand.getNode();
         }
 
         final ValueInfo   castValueInfo = calculator.cast(w, target, values);
@@ -149,74 +150,74 @@ public final class ExprFactory extends WalkerFactoryBase
         final NodeInfo nodeInfo = NodeInfo.newOperator(source);
 
         final Enum<?> operator = Converter.toFortressOperator(op, castValueInfo);
-        final Node result = new NodeExpr(operator, operands);
+        final Node node = new NodeExpr(operator, operandNodes);
 
-        result.setUserData(nodeInfo);
-        return result;
+        node.setUserData(nodeInfo);
+        return new Expr(node);
     }
 
-    public Node coerce(Where w, Node src, Type type)
+    public Expr coerce(Where w, Expr src, Type type)
     {
         checkNotNull(w);
         checkNotNull(src);
         checkNotNull(type);
 
-        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
-        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
+        final ValueInfo srcValueInfo = src.getValueInfo();
 
         if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType()))
             return src;
 
         final ValueInfo newValueInfo = ValueInfo.createModel(type);
-        final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+        final NodeInfo   newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
 
-        src.setUserData(newNodeInfo);
+        src.setNodeInfo(newNodeInfo);
         return src;
     }
 
-    public Node coerce(Where w, Node src, Class<?> type)
+    public Expr coerce(Where w, Expr src, Class<?> type)
     {
         checkNotNull(w);
         checkNotNull(src);
         checkNotNull(type);
 
-        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
-        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
+        final ValueInfo srcValueInfo = src.getValueInfo();
 
         if (srcValueInfo.isNativeOf(type))
             return src;
 
         final ValueInfo newValueInfo = srcValueInfo.toNativeType(type);
-        final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+        final NodeInfo   newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
 
-        src.setUserData(newNodeInfo);
+        src.setNodeInfo(newNodeInfo);
         return src;
     }
 
-    public Node condition(Where w, List<Condition> conds) throws SemanticException
+    public Expr condition(Where w, List<Condition> conds) throws SemanticException
     {
         checkNotNull(w);
         checkConditions(w, conds);
 
         final Deque<Condition> stack = new ArrayDeque<Condition>(conds);
 
-        Node tail = stack.peekLast().isElse() ? stack.removeLast().getExpression() : null;
-        final ValueInfo tailVI = ((NodeInfo) tail.getUserData()).getValueInfo();
+        Expr tail = stack.peekLast().isElse() ? stack.removeLast().getExpression() : null;
+        final ValueInfo tailVI = tail.getValueInfo();
 
         while(!stack.isEmpty())
         {
             final Condition current = stack.removeLast();
 
-            final Node cond = current.getCondition();
-            final ValueInfo condVI = ((NodeInfo) cond.getUserData()).getValueInfo();
+            final Expr cond = current.getCondition();
+            final Expr expr = current.getExpression();
 
-            final Node expr = current.getExpression();
-            final ValueInfo exprVI = ((NodeInfo) expr.getUserData()).getValueInfo();
+            final ValueInfo condVI = cond.getValueInfo();
+            final ValueInfo exprVI = expr.getValueInfo();
 
             ValueInfo resultVI = exprVI.typeInfoOnly(); // By default
             if (condVI.isConstant())
             {
-                final boolean isCondTrue = ((Boolean) condVI.getNativeValue());
+                final boolean isCondTrue =
+                    ((Boolean) condVI.getNativeValue());
+
                 if (isCondTrue)
                 {
                     resultVI = exprVI;
@@ -227,23 +228,24 @@ public final class ExprFactory extends WalkerFactoryBase
                 }
             }
 
-            tail = new NodeExpr(StandardOperation.ITE, cond, expr, tail);
-
             final SourceOperator source = new SourceOperator(Operator.ITE, resultVI, resultVI);
             final NodeInfo nodeInfo = NodeInfo.newOperator(source);
 
-            tail.setUserData(nodeInfo);
+            final Node node = new NodeExpr(StandardOperation.ITE, cond.getNode(), expr.getNode(), tail.getNode());
+            node.setUserData(nodeInfo);
+
+            tail = new Expr(node);
         }
 
         return tail;
     }
 
-    public Node evaluateConst(Where w, Node src) throws SemanticException
+    public Expr evaluateConst(Where w, Expr src) throws SemanticException
     {
         checkNotNull(w);
         checkNotNull(src);
 
-        final ValueInfo srcValueInfo = ((NodeInfo) src.getUserData()).getValueInfo();
+        final ValueInfo srcValueInfo = src.getValueInfo();
 
         if (!srcValueInfo.isConstant())
             raiseError(w, ERR_NOT_STATIC);
@@ -251,12 +253,12 @@ public final class ExprFactory extends WalkerFactoryBase
         return src;
     }
 
-    public Node evaluateSize(Where w, Node src) throws SemanticException
+    public Expr evaluateSize(Where w, Expr src) throws SemanticException
     {
         checkNotNull(w);
         checkNotNull(src);
 
-        final ValueInfo srcValueInfo = ((NodeInfo) src.getUserData()).getValueInfo();
+        final ValueInfo srcValueInfo = src.getValueInfo();
 
         if (!srcValueInfo.isConstant())
             raiseError(w, ERR_NOT_STATIC);
@@ -267,13 +269,12 @@ public final class ExprFactory extends WalkerFactoryBase
         return src;
     }
 
-    public Node evaluateIndex(Where w, Node src) throws SemanticException
+    public Expr evaluateIndex(Where w, Expr src) throws SemanticException
     {
         checkNotNull(w);
         checkNotNull(src);
 
-        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
-        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
+        final ValueInfo srcValueInfo = src.getValueInfo();
 
         if (srcValueInfo.isNativeOf(Integer.class))
             return src;
@@ -281,9 +282,9 @@ public final class ExprFactory extends WalkerFactoryBase
         if (srcValueInfo.isModel())
         {
             final ValueInfo newValueInfo = srcValueInfo.toNativeType(Integer.class);
-            final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+            final NodeInfo   newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
 
-            src.setUserData(newNodeInfo);
+            src.setNodeInfo(newNodeInfo);
             return src;
         }
 
@@ -291,13 +292,12 @@ public final class ExprFactory extends WalkerFactoryBase
         return null; // Never executed.
     }
 
-    public Node evaluateLogic(Where w, Node src) throws SemanticException
+    public Expr evaluateLogic(Where w, Expr src) throws SemanticException
     {
         checkNotNull(w);
         checkNotNull(src);
 
-        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
-        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
+        final ValueInfo srcValueInfo = src.getValueInfo();
 
         if (srcValueInfo.isNativeOf(Boolean.class))
             return src;
@@ -305,9 +305,9 @@ public final class ExprFactory extends WalkerFactoryBase
         if (srcValueInfo.isModel())
         {
             final ValueInfo newValueInfo = srcValueInfo.toNativeType(Boolean.class);
-            final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+            final NodeInfo   newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
 
-            src.setUserData(newNodeInfo);
+            src.setNodeInfo(newNodeInfo);
             return src;
         }
 
@@ -315,13 +315,12 @@ public final class ExprFactory extends WalkerFactoryBase
         return null; // Never executed.
     }
 
-    public Node evaluateData(Where w, Node src) throws SemanticException
+    public Expr evaluateData(Where w, Expr src) throws SemanticException
     {
         checkNotNull(w);
         checkNotNull(src);
 
-        final NodeInfo   srcNodeInfo = (NodeInfo) src.getUserData();
-        final ValueInfo srcValueInfo = srcNodeInfo.getValueInfo();
+        final ValueInfo srcValueInfo = src.getValueInfo();
 
         if (srcValueInfo.isModel())
             return src;
@@ -354,9 +353,9 @@ public final class ExprFactory extends WalkerFactoryBase
         final Type type = new Type(ETypeID.INT, size);
 
         final ValueInfo newValueInfo = ValueInfo.createModel(type);
-        final NodeInfo   newNodeInfo = srcNodeInfo.coerceTo(newValueInfo);
+        final NodeInfo   newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
 
-        src.setUserData(newNodeInfo);
+        src.setNodeInfo(newNodeInfo);
         return src;
     }
 
@@ -375,13 +374,13 @@ public final class ExprFactory extends WalkerFactoryBase
 
         final Iterator<Condition> it = conds.iterator();
 
-        final Node firstExpression = it.next().getExpression();
-        final ValueInfo firstValueInfo = ((NodeInfo) firstExpression.getUserData()).getValueInfo();
+        final Expr     firstExpression = it.next().getExpression();
+        final ValueInfo firstValueInfo = firstExpression.getValueInfo();
 
         while(it.hasNext())
         {
-            final Node currentExpression = it.next().getExpression();
-            final ValueInfo currentValueInfo = ((NodeInfo) currentExpression.getUserData()).getValueInfo();
+            final Expr     currentExpression = it.next().getExpression();
+            final ValueInfo currentValueInfo = currentExpression.getValueInfo();
 
             if (!currentValueInfo.hasEqualType(firstValueInfo))
                 raiseError(w, String.format(ERR_TYPE_MISMATCH, currentValueInfo.getTypeName(), firstValueInfo.getTypeName()));

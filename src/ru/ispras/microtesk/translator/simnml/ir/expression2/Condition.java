@@ -12,8 +12,6 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression2;
 
-import ru.ispras.fortress.expression.Node;
-
 /**
  * Helper class to temporarily represent conditional expressions
  * based on the if-elif-else operator:
@@ -33,10 +31,10 @@ import ru.ispras.fortress.expression.Node;
 
 public final class Condition
 {
-    private final Node cond;
-    private final Node expr;
+    private final Expr cond;
+    private final Expr expr;
 
-    private Condition(Node cond, Node expr)
+    private Condition(Expr cond, Expr expr)
     {
         if (null == expr)
             throw new NullPointerException();
@@ -45,7 +43,7 @@ public final class Condition
         this.expr = expr;
     }
 
-    public static Condition newIf(Node cond, Node expr)
+    public static Condition newIf(Expr cond, Expr expr)
     {
         if (null == cond)
             throw new NullPointerException();
@@ -53,12 +51,12 @@ public final class Condition
         return new Condition(cond, expr);
     }
 
-    public static Condition newElse(Node expr)
+    public static Condition newElse(Expr expr)
     {
         return new Condition(null, expr);
     }
 
-    public Node getCondition()
+    public Expr getCondition()
     {
         return cond;
     }
@@ -68,7 +66,7 @@ public final class Condition
         return null == cond;
     }
 
-    public Node getExpression()
+    public Expr getExpression()
     {
         return expr;
     }

@@ -24,39 +24,27 @@ import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 public final class Expr
 {
-    private final Node nodeTree;
+    private final Node node;
 
     /**
      * Constructs an expression basing on a Fortress expression tree.
      * 
-     * @param nodeTree A Fortress expression.
+     * @param node A Fortress expression.
      * 
      * @throws NullPointerException if the parameter is null.
-     * @throws IllegalArgumentException is the user attribute of the node
-     * does not refer to a {@link NodeInfo} object. 
+     * @throws IllegalArgumentException is the user attribute of
+     * the node does not refer to a {@link NodeInfo} object. 
      */
 
-    public Expr(Node nodeTree)
+    public Expr(Node node)
     {
-        if (null == nodeTree)
+        if (null == node)
             throw new NullPointerException();
 
-        if (!(nodeTree.getUserData() instanceof NodeInfo))
+        if (!(node.getUserData() instanceof NodeInfo))
             throw new IllegalArgumentException();
 
-        this.nodeTree = nodeTree;
-    }
-    
-    /**
-     * Returns additional information on the root node of the Fortress 
-     * expression tree. 
-     * 
-     * @return a {@link NodeInfo} object. 
-     */
-    
-    private NodeInfo getNodeTreeInfo()
-    {
-        return (NodeInfo) nodeTree.getUserData();
+        this.node = node;
     }
 
     /**
@@ -65,9 +53,37 @@ public final class Expr
      * @return Fortress expression tree.
      */
 
-    public Node getNodeTree()
+    public Node getNode()
     {
-        return nodeTree;
+        return node;
+    }
+
+    /**
+     * Returns additional information on the expression (user data of the Fortress 
+     * expression node describing the given expression). 
+     * 
+     * @return a {@link NodeInfo} object. 
+     */
+
+    public NodeInfo getNodeInfo()
+    {
+        return (NodeInfo) node.getUserData();
+    }
+
+    /**
+     * Sets additional information on the expression (user data of the Fortress 
+     * expression node describing the given expression).
+     * 
+     * @param nodeInfo A {@link NodeInfo} object to be assigned as user data to
+     * the Fortress expression node representing the given expression. 
+     */
+
+    public void setNodeInfo(NodeInfo nodeInfo)
+    {
+        if (null == nodeInfo)
+            throw new NullPointerException();
+
+        node.setUserData(nodeInfo);
     }
 
     /**
@@ -79,7 +95,7 @@ public final class Expr
 
     public ValueInfo getValueInfo()
     {
-        return getNodeTreeInfo().getValueInfo();
+        return getNodeInfo().getValueInfo();
     }
 
     /**
@@ -90,7 +106,10 @@ public final class Expr
      * @return <code>true</code> if the expression is equivalent to
      * the current or <code>false</code> otherwise.
      */
-/*
+
+    /*
+    TODO: Provide proper implementation (if really needed).
+
     public boolean isEquivalent(Expr expr)
     {
         if (null == expr) return false;
@@ -101,7 +120,7 @@ public final class Expr
 
         if (getValueInfo().isConstant() && getValueInfo().equals(expr.getValueInfo()))
             return true;
-        
+
         if (!getValueInfo().hasEqualType(expr.getValueInfo()))
             return false;
 
