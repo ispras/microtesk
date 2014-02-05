@@ -93,12 +93,15 @@ public final class Expr
 
     public boolean isEquivalent(Expr expr)
     {
+        if (null == expr) return false;
         if (this == expr) return true;
-        if (expr == null) return false;
+
+        if (this.nodeTree == expr.nodeTree)
+            return true;
 
         if (getValueInfo().isConstant() && getValueInfo().equals(expr.getValueInfo()))
             return true;
-
+        
         if (!getValueInfo().hasEqualType(expr.getValueInfo()))
             return false;
 
