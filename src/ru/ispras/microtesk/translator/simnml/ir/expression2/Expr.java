@@ -90,7 +90,7 @@ public final class Expr
      * @return <code>true</code> if the expression is equivalent to
      * the current or <code>false</code> otherwise.
      */
-
+/*
     public boolean isEquivalent(Expr expr)
     {
         if (null == expr) return false;
@@ -108,4 +108,5 @@ public final class Expr
         // TODO
         return false;
     }
+    */
 }
