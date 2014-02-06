@@ -1,29 +1,103 @@
 
 /*
-Предполагается, что у нас есть некий глобальный объект TLB,
-реализующий следующий интерфейс: 
-
 interface Buffer
 {
 	public boolean isHit(RawData addr);
 	public RawData load(RawData addr);
 }
-
 */
 
-type va_t =  card(16)
-type pa_t =  card(16)
+//type va_t =  card(16)
+//type pa_t =  card(16)
+
+type addr = card(16)
 type word = card(32)
+type line = card(256)
+type hit = card(2)
 
 var va[1, va_t]
 var pa[1, pa_t]
+var addr[1, addr]
 
-op address_conversion(vaddr: va_t, paddr: pa_t)
+var L1_line[1, line]
+var L2_line[1, line]
+
+// + modes for fields
+
+var TLB_Hit[1, hit]
+var L1_Hit[1, hit]
+var L2_Hit[1, hit]
+
+
+op TLB_access(pa)
+action = 
+{
+    TLB_Hit;   
+}
+
+op L1_access(pa)
+action = 
+{
+    L1_Hit;
+    L1_line;
+}
+
+op L2_access(pa)
+action = 
+{
+    L2_Hit; 
+    L2_line;
+}
+
+op LOAD(pa, line)
+action = 
+{
+    TLB_access.action(pa);
+        if TLB_Hit then
+            pa = va;
+        else 
+            L1_access.action;
+            if L1_Hit then
+                pa = va;
+            else
+                L2_access.action;
+                if L2_Hit then
+                    pa = va;
+                else
+                    pa = OP_MEM;
+                    // if miss - search the data in operation memory
+                endif;
+            endif;
+        endif;
+}
+
+op STORE(pa, data)
+action = 
+{
+    L1_access.action
+    if L1_Hit then
+        L2_access.action
+        if L2_Hit then
+            OP_MEM.store(pa, data)
+        else
+            L2.store(pa, data)
+            OP_MEM.store(pa, data)
+        endif;
+    else
+        L1.store(pa, data)
+        L2.store(pa, data)
+        OP_MEM.store(pa, data)
+    endif;
+  }
+
+
+/*
+op TLB_access(vaddr: va_t, paddr: pa_t)
 action = {
-    if TLB.isHit(va) then
+    if TLB_hit(va) then
        // get PA from TLB
-         pa = TLB.load(va);
-   else
+        pa = TLB.load(va);
+    else
         // search in page table
         pa = va;   
  endif;
@@ -31,31 +105,39 @@ action = {
 
 op LOAD (/* in */ paddr: pa_t, /* out */ data: word)
 action = {
-   if L1.isHit(pa) then
-       data = L1.load(pa) 
-  else
-       if L2.isHit(pa) then
-           data = L2.load(pa)
-       else 
-           data = OP_MEM.load(pa)
-       endif;
-   endif;
+    TLB_access.action(va)
+        if hit then
+            data = va;
+        else  
+       
+        
+    if L1.isHit(pa) then
+        data = L1.load(pa) 
+    else
+        if L2.isHit(pa) then
+            data = L2.load(pa)
+        else 
+            data = OP_MEM.load(pa)
+        endif;
+    endif;
 }
 
 op STORE (/* in */ paddr:pa_t, /* in */ data: word)
 action = {
     if L1.isHit(pa) then
         if L2.isHit
-             OP_MEM.store(pa, data)
+            OP_MEM.store(pa, data)
         else
-             OP_MEM.store(pa, data)
-             L2.store(pa, data)
+            OP_MEM.store(pa, data)
+            L2.store(pa, data)
         endif;
     else
         L1.store(pa, data)
         L2.store(pa, data)
         OP_MEM.store(pa, data)
     endif;
+
 }
 
+*/
   
