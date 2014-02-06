@@ -26,7 +26,6 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
@@ -109,9 +108,9 @@ public final class LocationFactory extends WalkerFactoryBase
         assert null != pos;
 
         if (pos.getValueInfo().isConstant())
-            checkBitfieldBounds(where, ExprUtils.integerValue(pos), location.getType().getBitSize());
+            checkBitfieldBounds(where, pos.integerValue(), location.getType().getBitSize());
 
-        final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(1));
+        final Type bitfieldType = new Type(location.getType().getTypeId(), Expr.CONST_ONE);
         return LocationAtom.createBitfield(location, pos, pos, bitfieldType);
     }
 
@@ -126,21 +125,21 @@ public final class LocationFactory extends WalkerFactoryBase
 
         if (from.getValueInfo().isConstant())
         {
-            final int fromPos = ExprUtils.integerValue(from);
-            final int toPos = ExprUtils.integerValue(to);
+            final int fromPos = from.integerValue();
+            final int   toPos = to.integerValue();
             final int locationSize = location.getType().getBitSize();
 
             checkBitfieldBounds(where, fromPos, locationSize);
             checkBitfieldBounds(where, toPos, locationSize);
 
             final int  bitfieldSize = Math.abs(toPos - fromPos) + 1;
-            final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(bitfieldSize));
+            final Type bitfieldType = new Type(location.getType().getTypeId(), bitfieldSize);
 
             return LocationAtom.createBitfield(location, from, to, bitfieldType);
         }
 
-        final ExprUtils.ReducedExpr reducedFrom = ExprUtils.reduce(from);
-        final ExprUtils.ReducedExpr reducedTo   = ExprUtils.reduce(to);
+        final Expr.Reduced reducedFrom = from.reduce();
+        final Expr.Reduced reducedTo   = to.reduce();
 
         if (null == reducedFrom || null == reducedTo)
             raiseError(where, FAILED_TO_CALCULATE_SIZE);
@@ -148,10 +147,10 @@ public final class LocationFactory extends WalkerFactoryBase
         assert null != reducedFrom.polynomial; // Cannot be reduced to constant at this point
         assert null != reducedTo.polynomial;   // Cannot be reduced to constant at this point
 
-        if (reducedFrom.polynomial.isEquivalent(reducedTo.polynomial))
+        if (reducedFrom.polynomial.equals(reducedTo.polynomial))
         {
             final int  bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
-            final Type bitfieldType = new Type(location.getType().getTypeId(), ExprUtils.createConstant(bitfieldSize));
+            final Type bitfieldType = new Type(location.getType().getTypeId(), bitfieldSize);
 
             return LocationAtom.createBitfield(location, from, to, bitfieldType);
         }
@@ -175,8 +174,7 @@ public final class LocationFactory extends WalkerFactoryBase
         final int  rightSize = right.getType().getBitSize();
         final int concatSize = leftSize + rightSize; 
 
-        final Type concatType = new Type(
-            left.getType().getTypeId(), ExprUtils.createConstant(concatSize));
+        final Type concatType = new Type(left.getType().getTypeId(), concatSize);
 
         if (right instanceof LocationAtom)
             return new LocationConcat(concatType, Arrays.asList((LocationAtom) right, left));

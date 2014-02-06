@@ -10,8 +10,9 @@
  * Converter.java, Jan 30, 2014 4:53:53 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -41,51 +42,50 @@ final class Converter
         Enum<?> getNative() { return nativeOp; }
         Enum<?>  getModel() { return modelOp;  }
     }
-
-    private static final Map<Operator, OperatorInfo> operators =
-        new EnumMap<Operator, OperatorInfo>(Operator.class);
-
-    private static void registerOperator(
-        Operator operator, Enum<?> nativeOp, Enum<?> modelOp)
+    
+    private static final Map<Operator, OperatorInfo> operators = createOperators();
+    private static Map<Operator, OperatorInfo> createOperators()
     {
-        operators.put(operator, new OperatorInfo(nativeOp, modelOp));
-    }
+        final Map<Operator, OperatorInfo> result =
+            new EnumMap<Operator, OperatorInfo>(Operator.class);
+      
+        result.put(Operator.OR,       new OperatorInfo(StandardOperation.OR,         null));
+        result.put(Operator.AND,      new OperatorInfo(StandardOperation.AND,        null));
 
-    static
-    {
-        registerOperator(Operator.OR,        StandardOperation.OR,         null);
-        registerOperator(Operator.AND,       StandardOperation.AND,        null);
+        result.put(Operator.BIT_OR,   new OperatorInfo(null,                         StandardOperation.BVOR));
+        result.put(Operator.BIT_XOR,  new OperatorInfo(null,                         StandardOperation.BVXOR));
+        result.put(Operator.BIT_AND,  new OperatorInfo(null,                         StandardOperation.BVAND));
 
-        registerOperator(Operator.BIT_OR,    null,                         StandardOperation.BVOR);
-        registerOperator(Operator.BIT_XOR,   null,                         StandardOperation.BVXOR);
-        registerOperator(Operator.BIT_AND,   null,                         StandardOperation.BVAND);
+        result.put(Operator.EQ,       new OperatorInfo(StandardOperation.EQ,         StandardOperation.EQ));
+        result.put(Operator.NOT_EQ,   new OperatorInfo(StandardOperation.NOTEQ,      StandardOperation.NOTEQ));
 
-        registerOperator(Operator.EQ,        StandardOperation.EQ,         StandardOperation.EQ);
-        registerOperator(Operator.NOT_EQ,    StandardOperation.NOTEQ,      StandardOperation.NOTEQ);
+        result.put(Operator.LEQ,      new OperatorInfo(StandardOperation.LESSEQ,     StandardOperation.BVULE));
+        result.put(Operator.GEQ,      new OperatorInfo(StandardOperation.GREATEREQ,  StandardOperation.BVUGE));
+        result.put(Operator.LESS,     new OperatorInfo(StandardOperation.LESS,       StandardOperation.BVULT));
+        result.put(Operator.GREATER,  new OperatorInfo(StandardOperation.GREATER,    StandardOperation.BVUGT));
 
-        registerOperator(Operator.LEQ,       StandardOperation.LESSEQ,     StandardOperation.BVULE);
-        registerOperator(Operator.GEQ,       StandardOperation.GREATEREQ,  StandardOperation.BVUGE);
-        registerOperator(Operator.LESS,      StandardOperation.LESS,       StandardOperation.BVULT);
-        registerOperator(Operator.GREATER,   StandardOperation.GREATER,    StandardOperation.BVUGT);
+        result.put(Operator.L_SHIFT,  new OperatorInfo(null,                         StandardOperation.BVLSHL));
+        result.put(Operator.R_SHIFT,  new OperatorInfo(null,                         StandardOperation.BVLSHR));
+        result.put(Operator.L_ROTATE, new OperatorInfo(null,                         null)); 
+        result.put(Operator.R_ROTATE, new OperatorInfo(null,                         null));
 
-        registerOperator(Operator.L_SHIFT,   null,                         StandardOperation.BVLSHL);
-        registerOperator(Operator.R_SHIFT,   null,                         StandardOperation.BVLSHR);
-        registerOperator(Operator.L_ROTATE,  null,                         null); 
-        registerOperator(Operator.R_ROTATE,  null,                         null);
+        result.put(Operator.PLUS,     new OperatorInfo(StandardOperation.ADD,        StandardOperation.BVADD));
+        result.put(Operator.MINUS,    new OperatorInfo(StandardOperation.SUB,        StandardOperation.BVSUB));
 
-        registerOperator(Operator.PLUS,      StandardOperation.ADD,        StandardOperation.BVADD);
-        registerOperator(Operator.MINUS,     StandardOperation.SUB,        StandardOperation.BVSUB);
+        result.put(Operator.MUL,      new OperatorInfo(StandardOperation.MUL,        StandardOperation.BVMUL));
+        result.put(Operator.DIV,      new OperatorInfo(StandardOperation.DIV,        null));
+        result.put(Operator.MOD,      new OperatorInfo(StandardOperation.MOD,        StandardOperation.BVSMOD));
 
-        registerOperator(Operator.MUL,       StandardOperation.MUL,        StandardOperation.BVMUL);
-        registerOperator(Operator.DIV,       StandardOperation.DIV,        null);
-        registerOperator(Operator.MOD,       StandardOperation.MOD,        StandardOperation.BVSMOD);
+        result.put(Operator.POW,      new OperatorInfo(StandardOperation.POWER,      null));
 
-        registerOperator(Operator.POW,       StandardOperation.POWER,      null);
-
-        registerOperator(Operator.UPLUS,     StandardOperation.PLUS,       null);
-        registerOperator(Operator.UMINUS,    StandardOperation.MINUS,      null);
-        registerOperator(Operator.BIT_NOT,   null,                         StandardOperation.BVNOT);
-        registerOperator(Operator.NOT,       StandardOperation.NOT,        null);
+        result.put(Operator.UPLUS,    new OperatorInfo(StandardOperation.PLUS,       null));
+        result.put(Operator.UMINUS,   new OperatorInfo(StandardOperation.MINUS,      null));
+        result.put(Operator.BIT_NOT,  new OperatorInfo(null,                         StandardOperation.BVNOT));
+        result.put(Operator.NOT,      new OperatorInfo(StandardOperation.NOT,        null));
+        
+        result.put(Operator.ITE,      new OperatorInfo(null,                         null));
+        
+        return Collections.unmodifiableMap(result);
     }
 
     static Data toFortressData(ValueInfo valueInfo)
@@ -113,7 +113,7 @@ final class Converter
         final Enum<?> result = valueInfo.isModel() ? oi.getModel() : oi.getNative();
 
         if (null == result)
-            throw new IllegalArgumentException(String.format(ERR_UNSUPPORTED_FOR, operator, valueInfo));
+            throw new IllegalArgumentException(String.format(ERR_UNSUPPORTED_FOR, operator, valueInfo.getTypeName()));
 
         return result;
     }
@@ -185,5 +185,5 @@ final class Converter
     private static final String ERR_UNKNOWN_KIND     = "Unknown kind: %s.";
     private static final String ERR_UNSUPPORTED_TYPE = "Unsupported type: %s.";
     private static final String ERR_UNSUPPORTED_OP   = "Unsupported operator: %s.";
-    private static final String ERR_UNSUPPORTED_FOR  = "The % operator is not supported for %s.";
+    private static final String ERR_UNSUPPORTED_FOR  = "The %s operator is not supported for %s.";
 }

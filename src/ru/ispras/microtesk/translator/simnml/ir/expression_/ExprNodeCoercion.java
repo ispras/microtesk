@@ -10,7 +10,7 @@
  * ExprNodeCoercion.java, Sep 25, 2013 12:07:03 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.expression_;
 
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 

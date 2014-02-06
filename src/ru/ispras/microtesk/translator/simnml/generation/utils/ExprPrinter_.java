@@ -17,20 +17,20 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
-import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeCoercion;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeCondition;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeConst;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeLocation;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeNamedConst;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeOperator;
+import ru.ispras.microtesk.translator.simnml.ir.expression_.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression_.ExprNodeCoercion;
+import ru.ispras.microtesk.translator.simnml.ir.expression_.ExprNodeCondition;
+import ru.ispras.microtesk.translator.simnml.ir.expression_.ExprNodeConst;
+import ru.ispras.microtesk.translator.simnml.ir.expression_.ExprNodeLocation;
+import ru.ispras.microtesk.translator.simnml.ir.expression_.ExprNodeNamedConst;
+import ru.ispras.microtesk.translator.simnml.ir.expression_.ExprNodeOperator;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
-public final class ExprPrinter
+public final class ExprPrinter_
 {
-    private ExprPrinter() {}
+    private ExprPrinter_() {}
 
     public static String toString(Expr expr)
     {

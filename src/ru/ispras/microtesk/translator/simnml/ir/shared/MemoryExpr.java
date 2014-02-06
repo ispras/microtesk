@@ -14,7 +14,6 @@ package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 
 public final class MemoryExpr
 {
@@ -49,7 +48,7 @@ public final class MemoryExpr
     
     public int getSize()
     {
-        return ExprUtils.integerValue(size);
+        return size.integerValue();
     }
 
     @Override

@@ -10,12 +10,13 @@
  * NodeInfo.java, Jan 27, 2014 2:09:43 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
@@ -45,18 +46,29 @@ public final class NodeInfo
 {
     public static enum Kind
     {
-        LOCATION          (Location.class),
-        NAMED_CONST    (LetConstant.class),
-        CONST       (SourceConstant.class),
-        OPERATOR    (SourceOperator.class);
+        LOCATION    (Location.class,       Node.Kind.VARIABLE),
+        NAMED_CONST (LetConstant.class,    Node.Kind.VALUE),
+        CONST       (SourceConstant.class, Node.Kind.VALUE),
+        OPERATOR    (SourceOperator.class, Node.Kind.EXPR);
 
-        private final Class<?> sourceClass;
+        private final Class<?>  sourceClass;
+        private final Node.Kind    nodeKind;
 
-        private Kind(Class<?> sourceClass)
-            { this.sourceClass = sourceClass; }
+        private Kind(Class<?> sourceClass, Node.Kind nodeKind)
+        { 
+            this.sourceClass = sourceClass;
+            this.nodeKind    = nodeKind;
+        }
 
         boolean isCompatibleSource(Object source)
-            { return this.sourceClass == source.getClass(); }
+        {
+            return this.sourceClass.isAssignableFrom(source.getClass());
+        }
+
+        boolean isCompatibleNode(Node.Kind nodeKind)
+        {
+            return this.nodeKind == nodeKind;
+        }
     }
 
     static NodeInfo newLocation(Location source)
@@ -103,10 +115,14 @@ public final class NodeInfo
         List<ValueInfo> coercionChain
         )
     {
+        if (!kind.isCompatibleSource(source))
+            throw new IllegalArgumentException(
+                String.format("%s is not proper source for %s.", source.getClass().getSimpleName(), kind));
+
         this.kind          = kind;
         this.source        = source;
         this.valueInfo     = valueInfo;
-        this.coercionChain = coercionChain;
+        this.coercionChain = Collections.unmodifiableList(coercionChain);
     }
 
     private NodeInfo(Kind kind, Object source, ValueInfo valueInfo)
@@ -145,6 +161,11 @@ public final class NodeInfo
     public ValueInfo getValueInfo()
     {
         return valueInfo;
+    }
+
+    public boolean isCoersionApplied()
+    {
+        return !coercionChain.isEmpty();  
     }
 
     public List<ValueInfo> getCoercionChain()

@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * Condition.java, Jan 13, 2014 4:01:54 PM Andrei Tatarnikov
+ * Condition.java, Jan 31, 2014 3:20:41 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;

@@ -10,7 +10,7 @@
  * SourceConstant.java, Jan 27, 2014 5:42:33 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 public final class SourceConstant
 {

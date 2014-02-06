@@ -18,7 +18,6 @@ import java.util.List;
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 import ru.ispras.microtesk.translator.simnml.ir.location.LocationFactory;
 import ru.ispras.microtesk.translator.simnml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
@@ -139,7 +138,7 @@ public final class PCAnalyzer
             if (!indexExpr.getValueInfo().isConstant())
                 return false;
 
-            locationIndex = ExprUtils.integerValue(indexExpr);
+            locationIndex = indexExpr.integerValue();
         }
         else
         {

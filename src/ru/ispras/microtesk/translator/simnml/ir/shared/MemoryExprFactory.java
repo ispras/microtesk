@@ -16,11 +16,10 @@ import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprUtils;
 
 public final class MemoryExprFactory extends WalkerFactoryBase
 {
-    private static final Expr DEFAULT_SIZE = ExprUtils.createConstant(1);
+    private static final Expr DEFAULT_SIZE = Expr.newConstant(1);
 
     public MemoryExprFactory(WalkerContext context)
     {

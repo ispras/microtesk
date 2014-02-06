@@ -10,10 +10,12 @@
  * ExprOperator.java, Aug 14, 2013 12:45:13 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.expression_;
 
 import java.util.List;
 
+import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 public final class ExprNodeOperator extends ExprAbstract

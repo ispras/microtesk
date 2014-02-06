@@ -19,11 +19,11 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingMode;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.simnml.ir.expression.ExprNodeLocation;
+import ru.ispras.microtesk.translator.simnml.ir.expression.NodeInfo;
+import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
@@ -61,7 +61,7 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
         t.add("imps", Map.class.getName());
         t.add("imps", String.format("%s.*", Type.class.getPackage().getName()));
         t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
-        t.add("imps", Location.class.getName());
+        t.add("imps", ru.ispras.microtesk.model.api.memory.Location.class.getName());
 
         t.add("imps", IAddressingMode.class.getName());
         t.add("imps", AddressingMode.class.getName());
@@ -130,9 +130,10 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
             return;
         }
 
-        if (Expr.NodeKind.LOCATION == returnExpr.getNodeKind())
+        final NodeInfo returnExprNodeInfo = returnExpr.getNodeInfo();
+        if (NodeInfo.Kind.LOCATION == returnExprNodeInfo.getKind() && !returnExprNodeInfo.isCoersionApplied())
         {
-            t.add("ret", LocationPrinter.toString(((ExprNodeLocation) returnExpr).getLocation()));
+            t.add("ret", LocationPrinter.toString((Location) returnExprNodeInfo.getSource()));
         }
         else
         {

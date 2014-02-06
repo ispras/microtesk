@@ -10,7 +10,7 @@
  * ExprNodeCondition.java, Jan 13, 2014 5:05:57 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.expression_;
 
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 

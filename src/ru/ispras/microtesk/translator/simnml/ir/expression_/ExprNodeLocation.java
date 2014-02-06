@@ -10,7 +10,7 @@
  * ExprNodeLocation.java, Aug 20, 2013 5:52:45 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.expression_;
 
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;

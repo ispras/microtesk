@@ -10,7 +10,7 @@
  * SourceOperator.java, Jan 28, 2014 11:17:27 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression2;
+package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;

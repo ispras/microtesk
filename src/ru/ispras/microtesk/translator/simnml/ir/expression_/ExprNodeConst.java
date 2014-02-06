@@ -10,7 +10,7 @@
  * ExprNodeConst.java, Aug 14, 2013 12:30:39 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.expression_;
 
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 

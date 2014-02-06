@@ -10,10 +10,12 @@
  * ExprUtils.java, Oct 17, 2013 4:28:29 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.expression_;
 
 import java.util.Arrays;
 
+import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 public final class ExprUtils

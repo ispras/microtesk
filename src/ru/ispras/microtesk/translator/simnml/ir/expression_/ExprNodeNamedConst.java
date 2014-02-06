@@ -10,7 +10,7 @@
  * ExprNodeNamedConst.java, Aug 20, 2013 8:12:47 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.expression;
+package ru.ispras.microtesk.translator.simnml.ir.expression_;
 
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 

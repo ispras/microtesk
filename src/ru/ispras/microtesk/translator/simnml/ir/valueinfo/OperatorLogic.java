@@ -395,6 +395,9 @@ enum OperatorLogic
         {
             @Override public Object calculate(Object value) { return !((Boolean) value); }
         }
+    ),
+    
+    ITE (Operator.ITE, Arrays.asList(ETypeID.BOOL, ETypeID.CARD, ETypeID.INT)
     );
 
     private static final Map<Operator, OperatorLogic> operators;

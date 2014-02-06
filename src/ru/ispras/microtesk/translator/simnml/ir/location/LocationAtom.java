@@ -150,7 +150,7 @@ public final class LocationAtom implements Location
             if (!type.equals(other.getType()))
                 return false;
 
-            return from.isEquivalent(other.from) && to.isEquivalent(other.to);
+            return from.equals(other.from) && to.equals(other.to);
         }
     }
 
@@ -225,7 +225,7 @@ public final class LocationAtom implements Location
         if (!name.equals(other.getName())) return false;
         if (!source.equals(other.source)) return false;
 
-        if (null != index && !index.isEquivalent(other.index))
+        if (null != index && !index.equals(other.index))
             return false;
 
         if (null != bitfield && !bitfield.equals(other.bitfield))
