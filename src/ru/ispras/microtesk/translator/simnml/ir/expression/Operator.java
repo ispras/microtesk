@@ -54,7 +54,7 @@ public enum Operator
     NOT      ("!",      Operands.UNARY,   Priority.CURRENT),
 
     // Synthetic operator
-    ITE      ("##",       Operands.TERNARY, Priority.HIGHER)
+    ITE      ("",       Operands.TERNARY, Priority.HIGHER)
     ;
 
     private static enum Priority

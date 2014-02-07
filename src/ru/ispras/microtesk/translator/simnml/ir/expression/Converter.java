@@ -66,8 +66,8 @@ final class Converter
 
         result.put(Operator.L_SHIFT,  new OperatorInfo(null,                         StandardOperation.BVLSHL));
         result.put(Operator.R_SHIFT,  new OperatorInfo(null,                         StandardOperation.BVLSHR));
-        result.put(Operator.L_ROTATE, new OperatorInfo(null,                         null)); 
-        result.put(Operator.R_ROTATE, new OperatorInfo(null,                         null));
+        result.put(Operator.L_ROTATE, new OperatorInfo(null,                         StandardOperation.BVROL)); 
+        result.put(Operator.R_ROTATE, new OperatorInfo(null,                         StandardOperation.BVROR));
 
         result.put(Operator.PLUS,     new OperatorInfo(StandardOperation.ADD,        StandardOperation.BVADD));
         result.put(Operator.MINUS,    new OperatorInfo(StandardOperation.SUB,        StandardOperation.BVSUB));
