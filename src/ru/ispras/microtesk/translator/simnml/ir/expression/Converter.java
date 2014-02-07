@@ -49,8 +49,8 @@ final class Converter
         final Map<Operator, OperatorInfo> result =
             new EnumMap<Operator, OperatorInfo>(Operator.class);
       
-        result.put(Operator.OR,       new OperatorInfo(StandardOperation.OR,         null));
-        result.put(Operator.AND,      new OperatorInfo(StandardOperation.AND,        null));
+        result.put(Operator.OR,       new OperatorInfo(StandardOperation.OR,         StandardOperation.BVOR));
+        result.put(Operator.AND,      new OperatorInfo(StandardOperation.AND,        StandardOperation.BVAND));
 
         result.put(Operator.BIT_OR,   new OperatorInfo(null,                         StandardOperation.BVOR));
         result.put(Operator.BIT_XOR,  new OperatorInfo(null,                         StandardOperation.BVXOR));
