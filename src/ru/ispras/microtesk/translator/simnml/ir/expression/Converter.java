@@ -130,6 +130,13 @@ final class Converter
     {
         checkNotNull(value);
 
+        // FIXME: TEMPORARY FIX. MAY CAUSE INCORRECT WORK
+        // BECAUSE OF VALUE TRUNCATION. LONG IS NOT CURRENTY
+        // SUPPORTED BY FORTRESS. 
+
+        if (Long.class == value.getClass())
+            value = ((Long) value).intValue(); 
+
         final DataType dataType = getDataTypeForNative(value.getClass());
         return new Data(dataType, value);
     }
