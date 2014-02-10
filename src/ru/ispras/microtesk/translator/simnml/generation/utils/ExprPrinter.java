@@ -18,12 +18,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeExpr;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.NodeInfo;
+import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.expression.SourceConstant;
+import ru.ispras.microtesk.translator.simnml.ir.expression.SourceOperator;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
@@ -97,7 +101,8 @@ public final class ExprPrinter
 
             case OPERATOR:
             {
-                return operatorToString(expr);
+                final SourceOperator source = (SourceOperator) nodeInfo.getSource();
+                return operatorToString(source);
             }
 
             default:
@@ -108,7 +113,7 @@ public final class ExprPrinter
         }
     }
 
-    private static String constToString(SourceConstant source)
+    private String constToString(SourceConstant source)
     {
         final Object value = source.getValue();
         final String result;
@@ -134,20 +139,97 @@ public final class ExprPrinter
         return result;
     }
 
-    private static String namedConstToString(LetConstant source)
+    private String namedConstToString(LetConstant source)
     {
         return source.getName();
     }
 
-    private static String locationToString(Location location)
+    private String locationToString(Location source)
     {
-        return LocationPrinter.toString(location) + ".load()";
+        return LocationPrinter.toString(source) + ".load()";
     }
 
-    private static String operatorToString(Expr expr)
+    private String operatorToString(SourceOperator source)
     {
-        // TODO Auto-generated method stub
-        return "";
+        // TODO: Support for ternary conditional operator ("?").
+
+        final NodeExpr nodeExpr = (NodeExpr) expr.getNode();
+        final Operator       op = source.getOperator();
+        
+        if (source.getCastValueInfo().isModel())
+        {
+            final StringBuilder sb = new StringBuilder();
+            for (int index = 0; index < nodeExpr.getOperandCount(); ++index)
+            {
+                final Node operandNode = nodeExpr.getOperand(index);
+                final Expr operandExpr = new Expr(operandNode);
+
+                sb.append(", ");
+
+                final String format = CoercionFormatter.getFormat(
+                     source.getCastValueInfo(), operandExpr.getValueInfo());
+
+                sb.append(String.format(format, new ExprPrinter(operandExpr)));
+            }
+
+            return String.format("%s.execute(%s%s)",
+                DataEngine.class.getSimpleName(),
+                toModelString(source.getOperator()),
+                sb.toString()
+                );
+        }
+
+        if (Operands.UNARY.count() == nodeExpr.getOperandCount())
+        {
+            final Node operandNode = nodeExpr.getOperand(0);
+            final Expr operandExpr = new Expr(operandNode);
+
+            boolean enclose = false;
+            if (NodeInfo.Kind.OPERATOR == operandExpr.getNodeInfo().getKind()) 
+            {
+                final SourceOperator operandSource = (SourceOperator) operandExpr.getNodeInfo().getSource(); 
+                enclose = operandSource.getOperator().priority() < op.priority();
+            }
+
+            final String format = CoercionFormatter.getFormat(
+                source.getCastValueInfo(), operandExpr.getValueInfo());
+
+            final String text = String.format(format, new ExprPrinter(operandExpr));
+            return toOperatorString(op, enclose ? "(" + text + ")" : text);
+        }
+
+        final Node operandNode1 = nodeExpr.getOperand(0);
+        final Expr operandExpr1 = new Expr(operandNode1);
+
+        final Node operandNode2 = nodeExpr.getOperand(1);
+        final Expr operandExpr2 = new Expr(operandNode2);
+
+        boolean enclose1 = false;
+        if (NodeInfo.Kind.OPERATOR == operandExpr1.getNodeInfo().getKind()) 
+        {
+            final SourceOperator operandSource = (SourceOperator) operandExpr1.getNodeInfo().getSource(); 
+            enclose1 = operandSource.getOperator().priority() < op.priority();
+        }
+
+        boolean enclose2 = false;
+        if (NodeInfo.Kind.OPERATOR == operandExpr2.getNodeInfo().getKind()) 
+        {
+            final SourceOperator operandSource = (SourceOperator) operandExpr2.getNodeInfo().getSource(); 
+            enclose2 = operandSource.getOperator().priority() < op.priority();
+        }
+        
+        final String format1 = CoercionFormatter.getFormat(source.getCastValueInfo(), operandExpr1.getValueInfo());
+        final String text1 = String.format(format1, new ExprPrinter(operandExpr1));
+            
+        final String format2 = CoercionFormatter.getFormat(source.getCastValueInfo(), operandExpr2.getValueInfo());
+        final String text2 = String.format(format2, new ExprPrinter(operandExpr2));
+
+
+        return toOperatorString(
+            op,
+            enclose1 ? "(" + text1 + ")" : text1,
+            enclose2 ? "(" + text2 + ")" : text2
+            );
     }
 
     private static final Map<Operator, EOperatorID> operators = createModelOperators();
@@ -270,7 +352,7 @@ final class CoercionFormatter
     private static final String  TO_MODEL_FORMAT = "%s.%s(%s, %%s)";
     private static final String TO_NATIVE_FORMAT = "%s.%s(%%s)"; 
 
-    private static final String   ERR_REDUNDANT_COERCION = "Redundant coercion. Equal types: %s.";
+    // private static final String   ERR_REDUNDANT_COERCION = "Redundant coercion. Equal types: %s.";
     private static final String ERR_UNSUPPORTED_COERCION = "Cannot perform coercion from %s to %s.";
 
     static String getFormat(ValueInfo target, ValueInfo source)
@@ -283,7 +365,9 @@ final class CoercionFormatter
 
         // This invariant is protected by NodeInfo.
         if (target.hasEqualType(source))
-            throw new IllegalArgumentException(String.format(ERR_REDUNDANT_COERCION, target.getTypeName()));
+            return "%s";
+            // TODO: see how it can be done better.
+            //throw new IllegalArgumentException(String.format(ERR_REDUNDANT_COERCION, target.getTypeName()));
 
         assert target.isModel() || target.isNative();
         assert source.isModel() || source.isNative();
