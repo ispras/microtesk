@@ -32,6 +32,8 @@ import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
+// TODO: NEEDS REFACTORING! UGLY, UNRELIABLE AND UNEFFICIENT IMPLEMENTATION!
+
 public final class ExprPrinter
 {
     private final Expr                     expr;
@@ -149,13 +151,21 @@ public final class ExprPrinter
         return LocationPrinter.toString(source) + ".load()";
     }
 
+    // TODO: NEEDS REFACTORING!
     private String operatorToString(SourceOperator source)
     {
-        // TODO: Support for ternary conditional operator ("?").
-
         final NodeExpr nodeExpr = (NodeExpr) expr.getNode();
         final Operator       op = source.getOperator();
-        
+
+        if (op == Operator.ITE)
+        {
+            return String.format("%s ? %s : %s",
+                new ExprPrinter(new Expr(nodeExpr.getOperand(0))),
+                new ExprPrinter(new Expr(nodeExpr.getOperand(1))),
+                new ExprPrinter(new Expr(nodeExpr.getOperand(2)))
+                );
+        }
+
         if (source.getCastValueInfo().isModel())
         {
             final StringBuilder sb = new StringBuilder();
@@ -223,7 +233,6 @@ public final class ExprPrinter
             
         final String format2 = CoercionFormatter.getFormat(source.getCastValueInfo(), operandExpr2.getValueInfo());
         final String text2 = String.format(format2, new ExprPrinter(operandExpr2));
-
 
         return toOperatorString(
             op,
