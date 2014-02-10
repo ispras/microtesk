@@ -30,9 +30,9 @@ Design notes:
   - ValueInfo (current, resulting, top-level, final value).
 
   Coercions (coercion (explicit cast) can be applied zero or more times to all element kinds):
-    - previousValueInfo, array of ValueInfo: first is initial value before first coercion,
-    last is value before final coercion. Value after the final coercion is ValueInfo (current).
-    - coercionChain, based on previousValueInfo, a list of applied coercions. 
+    - previousValueInfo, array of ValueInfo: first is value before final coercion,
+    last is initial value before first coercion. Value after the final coercion is ValueInfo (current).
+    - coercionChain, based on previousValueInfo, a list of applied coercions.
 
   For operators (goes to the 'source' object):
    - CastValueInfo (operands are cast to a common type (implicit cast), if their types are different).
@@ -138,8 +138,12 @@ public final class NodeInfo
         if (getValueInfo().equals(newValueInfo))
             return this;
 
-        final List<ValueInfo> previous = new ArrayList<ValueInfo>(this.previousVI);
+        final List<ValueInfo> previous = 
+            new ArrayList<ValueInfo>(this.previousVI.size() + 1);
+
         previous.add(getValueInfo());
+        for (ValueInfo vi : this.previousVI)
+            previous.add(vi);
 
         return new NodeInfo(
             getKind(),
@@ -163,10 +167,15 @@ public final class NodeInfo
     {
         return currentVI;
     }
-
+    
     public boolean isCoersionApplied()
     {
         return !previousVI.isEmpty();  
+    }
+    
+    public List<ValueInfo> getPreviousValueInfo()
+    {
+        return previousVI;
     }
 
     public List<ValueInfo> getCoercionChain()

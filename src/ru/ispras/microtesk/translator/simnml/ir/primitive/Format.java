@@ -171,17 +171,18 @@ public final class Format
                 methodName = "intValue";
             
             return String.format(
-                "%s.getRawData().%s()", ExprPrinter.toString(expr), methodName);
+                "%s.getRawData().%s()", new ExprPrinter(expr), methodName);
         }
 
         private String convertJavaTo(Marker marker)
         {
+            final ExprPrinter printer = new ExprPrinter(expr);
+
             return (BIN == marker) ?
-                String.format("Integer.toBinaryString(%s)", ExprPrinter.toString(expr)) :
-                ExprPrinter.toString(expr);
+                String.format("Integer.toBinaryString(%s)", printer) : printer.toString();
         }
     }
-    
+
     private static final class AttributeCallBasedArgument implements Argument
     {
         private final StatementAttributeCall callInfo;

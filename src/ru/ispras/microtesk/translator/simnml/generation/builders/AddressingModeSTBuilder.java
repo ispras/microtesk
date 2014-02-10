@@ -137,7 +137,7 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
         }
         else
         {
-            t.add("ret", String.format("new Location(%s)", ExprPrinter.toString(returnExpr)));
+            t.add("ret", String.format("new Location(%s)", new ExprPrinter(returnExpr)));
         }
     }
 

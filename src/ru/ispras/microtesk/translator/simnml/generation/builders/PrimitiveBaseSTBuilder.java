@@ -144,7 +144,8 @@ final class StatementBuilder
 
     private void addStatement(StatementAssignment stmt)
     {
-        addStatement(String.format("%s.store(%s);", LocationPrinter.toString(stmt.getLeft()), ExprPrinter.toString(stmt.getRight())));
+        addStatement(String.format("%s.store(%s);",
+            LocationPrinter.toString(stmt.getLeft()), new ExprPrinter(stmt.getRight())));
     }
 
     private void addStatement(StatementCondition stmt)
@@ -158,7 +159,7 @@ final class StatementBuilder
 
             if (FIRST == index)
             {
-                addStatement(String.format("if (%s)", ExprPrinter.toString(block.getCondition())));
+                addStatement(String.format("if (%s)", new ExprPrinter(block.getCondition())));
             }
             else if (LAST == index && block.isElseBlock())
             {
@@ -166,7 +167,7 @@ final class StatementBuilder
             }
             else 
             {
-                addStatement(String.format("else if (%s)", ExprPrinter.toString(block.getCondition())));
+                addStatement(String.format("else if (%s)", new ExprPrinter(block.getCondition())));
             }
 
             addStatementBlock(block.getStatements());

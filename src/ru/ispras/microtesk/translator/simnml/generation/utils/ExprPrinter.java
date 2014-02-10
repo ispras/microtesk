@@ -14,130 +14,142 @@ package ru.ispras.microtesk.translator.simnml.generation.utils;
 
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.expression.NodeInfo;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
+import ru.ispras.microtesk.translator.simnml.ir.expression.SourceConstant;
+import ru.ispras.microtesk.translator.simnml.ir.location.Location;
+import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 public final class ExprPrinter
 {
-    private ExprPrinter() {}
+    private final Expr                     expr;
+    private final NodeInfo             nodeInfo;
+    private final List<ValueInfo> coercionChain;
 
-    public static String toString(Expr expr)
+    public ExprPrinter(Expr expr)
     {
-        if (null == expr)
-            throw new NullPointerException();
+        this.expr = expr;
 
-        switch(expr.getNodeInfo().getKind())
+        if (null != expr)
         {
-            case CONST:
-                return constToString(expr);
-
-            case NAMED_CONST:
-                return namedConstToString(expr);
-
-            case LOCATION:
-                return locationToString(expr);
-
-            case OPERATOR:
-                return operatorToString(expr);
-
-            default:
-                assert false : "Unknown expression node kind.";
-                return "";
+            this.nodeInfo = expr.getNodeInfo(); 
+            this.coercionChain = expr.getNodeInfo().getCoercionChain();
+        }
+        else
+        {
+            this.nodeInfo = null;
+            this.coercionChain = null;
         }
     }
 
-    private static String constToString(Expr expr)
+    @Override
+    public String toString()
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (null == expr)
+            return "";
+
+        return printCoersion(0);
     }
 
-    private static String namedConstToString(Expr expr)
+    private String printCoersion(int coercionIndex)
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (coercionIndex >= coercionChain.size())
+            return printExpression();
+
+        final List<ValueInfo> previousVI = nodeInfo.getPreviousValueInfo();
+
+        final ValueInfo target = coercionChain.get(coercionIndex);
+        final ValueInfo source = previousVI.get(coercionIndex);
+
+        return String.format(
+            CoercionFormatter.getFormat(target, source), printCoersion(++coercionIndex));
     }
 
-    private static String locationToString(Expr expr)
+    private String printExpression()
     {
-        // TODO Auto-generated method stub
-        return null;
+        switch(nodeInfo.getKind())
+        {
+            case CONST:
+            {
+                final SourceConstant source = (SourceConstant) nodeInfo.getSource();
+                return constToString(source);
+            }
+
+            case NAMED_CONST:
+            {
+                final LetConstant source = (LetConstant) nodeInfo.getSource();
+                return namedConstToString(source);                
+            }
+
+            case LOCATION:
+            {
+                final Location source = (Location) nodeInfo.getSource();
+                return locationToString(source);
+            }
+
+            case OPERATOR:
+            {
+                return operatorToString(expr);
+            }
+
+            default:
+            {
+                assert false : "Unknown expression node kind: " + nodeInfo.getKind();
+                return "";
+            }
+        }
+    }
+
+    private static String constToString(SourceConstant source)
+    {
+        final Object value = source.getValue();
+        final String result;
+
+        if (Integer.class == value.getClass())
+        {
+            result = (source.getRadix() == 10) ?
+                Integer.toString(((Number) value).intValue()) :
+                "0x" + Integer.toHexString((Integer) value);
+        }
+        else if (Long.class == value.getClass())
+        {
+            result = (source.getRadix() == 10) ?
+                 Long.toString(((Number) value).longValue()) + "L" :
+                 "0x" + Long.toHexString(((Number) value).longValue()) + "L";
+        }
+        else
+        {
+            assert false : "Unsuported constant value type: " + value.getClass().getSimpleName();
+            result = value.toString();
+        }
+
+        return result;
+    }
+
+    private static String namedConstToString(LetConstant source)
+    {
+        return source.getName();
+    }
+
+    private static String locationToString(Location location)
+    {
+        return LocationPrinter.toString(location) + ".load()";
     }
 
     private static String operatorToString(Expr expr)
     {
         // TODO Auto-generated method stub
-        return null;
+        return "";
     }
 
-    private static String getCastString(ValueInfo target, Expr src)
-    {
-        final String CLASS_NAME = DataEngine.class.getSimpleName();
-
-        if (target.hasEqualType(src.getValueInfo()))
-            return toString(src);
-
-        if (target.isModel())
-        {
-            final String methodName = 
-                src.getValueInfo().isModel() ? "coerce" : "valueOf";
-
-            return String.format("%s.%s(%s, %s)",
-                CLASS_NAME, methodName, target.getModelType().getJavaText(), toString(src));
-        }
-        
-        assert target.isNative();
-        if (src.getValueInfo().isModel())
-        {
-            final String methodName;
-
-            if (target.isNativeOf(Integer.class))
-            {
-                methodName = "intValue";
-            }
-            else if (target.isNativeOf(Long.class))
-            {
-                methodName = "longValue";
-            }
-            else if (target.isNativeOf(Boolean.class))
-            {
-                methodName = "booleanValue";
-            }
-            else
-            {
-                assert false : "Cannot coerce to " + target.getTypeName();
-                return toString(src);
-            }
-
-            return String.format("%s.%s(%s)", CLASS_NAME, methodName, toString(src));
-        }
-        else
-        {
-            if (target.isNativeOf(Integer.class))
-            {
-                return String.format("((int) %s)", toString(src));
-            }
-            else if (target.isNativeOf(Long.class))
-            {
-                return String.format("((long) %s)", toString(src));
-            }
-            else if (target.isNativeOf(Boolean.class))
-            {
-                return String.format("0 != %s", toString(src));
-            }
-            else
-            {
-                assert false : "Cannot coerce to " + target.getTypeName();
-                return toString(src);
-            }
-        }
-    }
-    
     private static final Map<Operator, EOperatorID> operators = createModelOperators();
     private static Map<Operator, EOperatorID> createModelOperators()
     {
@@ -222,4 +234,87 @@ public final class ExprPrinter
         return String.format(operatorsNative.get(op), arg1, arg2);
     }
 }
-    
+
+final class CoercionFormatter
+{
+    private static final Map<Class<?>, String>  modelToNativeMap = createModelToNative();
+    private static final Map<Class<?>, String> nativeToNativeMap = createNativeToNative();
+
+    private static Map<Class<?>, String> createNativeToNative()
+    {
+        final Map<Class<?>, String> result = new HashMap<Class<?>, String>();
+
+        result.put(Integer.class, "((int) %%s)");
+        result.put(Long.class,   "((long) %%s)");
+        result.put(Boolean.class,    "0 != %%s");
+
+        return result;
+    }
+
+    private static Map<Class<?>, String> createModelToNative()
+    {
+        final Map<Class<?>, String> result = new HashMap<Class<?>, String>();
+
+        result.put(Integer.class,     "intValue");
+        result.put(Long.class,       "longValue");
+        result.put(Boolean.class, "booleanValue");
+
+        return result;
+    }
+
+    private static final String    ENGINE_CLASS = DataEngine.class.getSimpleName();
+
+    private static final String   COERCE_METHOD = "coerce";
+    private static final String VALUE_OF_METHOD = "valueOf";
+
+    private static final String  TO_MODEL_FORMAT = "%s.%s(%s, %%s)";
+    private static final String TO_NATIVE_FORMAT = "%s.%s(%%s)"; 
+
+    private static final String   ERR_REDUNDANT_COERCION = "Redundant coercion. Equal types: %s.";
+    private static final String ERR_UNSUPPORTED_COERCION = "Cannot perform coercion from %s to %s.";
+
+    static String getFormat(ValueInfo target, ValueInfo source)
+    {
+        if (null == target)
+            throw new NullPointerException();
+
+        if (null == source)
+            throw new NullPointerException();
+
+        // This invariant is protected by NodeInfo.
+        if (target.hasEqualType(source))
+            throw new IllegalArgumentException(String.format(ERR_REDUNDANT_COERCION, target.getTypeName()));
+
+        assert target.isModel() || target.isNative();
+        assert source.isModel() || source.isNative();
+
+        if (target.isModel())
+        {
+            final String methodName = source.isModel() ? COERCE_METHOD : VALUE_OF_METHOD;
+            return String.format(TO_MODEL_FORMAT, ENGINE_CLASS, methodName, target.getModelType().getJavaText());
+        }
+
+        if (source.isModel())
+        {
+            final String methodName =
+                modelToNativeMap.get(target.getNativeType());
+
+            if (null == methodName)
+                throw new IllegalArgumentException(
+                     String.format(ERR_UNSUPPORTED_COERCION, target.getTypeName(), source.getTypeName()));
+
+            return String.format(TO_NATIVE_FORMAT, ENGINE_CLASS, methodName);
+        }
+        else
+        {
+            final String coercionFormat =
+                nativeToNativeMap.get(target.getNativeType());
+
+            if (null == coercionFormat)
+                throw new IllegalArgumentException(
+                     String.format(ERR_UNSUPPORTED_COERCION, target.getTypeName(), source.getTypeName()));
+
+            return coercionFormat;
+        }
+    }
+}
