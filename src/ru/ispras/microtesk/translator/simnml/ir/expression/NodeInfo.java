@@ -25,19 +25,20 @@ import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 Design notes:
 
-  Kind (kind of the node, determines the set of maintained attributes).
-  Source (Location, NamedConstant, Constant, Operator (including conditions), depending on Kind).
-  ValueInfo (current, resulting, top-level, final value).
+  - Kind (kind of the node, determines the set of maintained attributes).
+  - Source (Location, NamedConstant, Constant, Operator (including conditions), depending on Kind).
+  - ValueInfo (current, resulting, top-level, final value).
 
   Coercions (coercion (explicit cast) can be applied zero or more times to all element kinds):
-    ValueInfoBeforeCoercion, array of ValueInfo: first is initial value before first coercion,
-    last is value before final coercion. Value after the final coercion is ValueInfo.
+    - previousValueInfo, array of ValueInfo: first is initial value before first coercion,
+    last is value before final coercion. Value after the final coercion is ValueInfo (current).
+    - coercionChain, based on previousValueInfo, a list of applied coercions. 
 
-  # For operators (goes to the 'source' object):
-  #   CastValueInfo (operands are cast to a common type (implicit cast), if their types are different).
-  
+  For operators (goes to the 'source' object):
+   - CastValueInfo (operands are cast to a common type (implicit cast), if their types are different).
+
   Question?
-  
+
   Mapping of MicroTESK data types to SMT-LIB data types? 
 
 */
@@ -55,7 +56,7 @@ public final class NodeInfo
         private final Node.Kind    nodeKind;
 
         private Kind(Class<?> sourceClass, Node.Kind nodeKind)
-        { 
+        {
             this.sourceClass = sourceClass;
             this.nodeKind    = nodeKind;
         }
@@ -105,46 +106,46 @@ public final class NodeInfo
 
     private final Kind            kind;
     private final Object          source;
-    private final ValueInfo       valueInfo;
-    private final List<ValueInfo> coercionChain;
+    private final ValueInfo       currentVI;
+    private final List<ValueInfo> previousVI;
 
     private NodeInfo(
         Kind            kind,
         Object          source,
-        ValueInfo       valueInfo,
-        List<ValueInfo> coercionChain
+        ValueInfo       current,
+        List<ValueInfo> previous
         )
     {
         if (!kind.isCompatibleSource(source))
             throw new IllegalArgumentException(
                 String.format("%s is not proper source for %s.", source.getClass().getSimpleName(), kind));
 
-        this.kind          = kind;
-        this.source        = source;
-        this.valueInfo     = valueInfo;
-        this.coercionChain = Collections.unmodifiableList(coercionChain);
+        this.kind        = kind;
+        this.source      = source;
+        this.currentVI   = current;
+        this.previousVI  = Collections.unmodifiableList(previous);
     }
 
-    private NodeInfo(Kind kind, Object source, ValueInfo valueInfo)
+    private NodeInfo(Kind kind, Object source, ValueInfo current)
     {
-        this(kind, source, valueInfo, Collections.<ValueInfo>emptyList());
+        this(kind, source, current, Collections.<ValueInfo>emptyList());
     }
 
-    public NodeInfo coerceTo(ValueInfo valueInfo)
+    public NodeInfo coerceTo(ValueInfo newValueInfo)
     {
-        checkNotNull(valueInfo);
+        checkNotNull(newValueInfo);
 
-        if (getValueInfo().equals(valueInfo))
+        if (getValueInfo().equals(newValueInfo))
             return this;
 
-        final List<ValueInfo> coercions = new ArrayList<ValueInfo>(getCoercionChain());
-        coercions.add(getValueInfo());
+        final List<ValueInfo> previous = new ArrayList<ValueInfo>(this.previousVI);
+        previous.add(getValueInfo());
 
         return new NodeInfo(
             getKind(),
             getSource(),
-            valueInfo,
-            coercions
+            newValueInfo,
+            previous
             );
     }
 
@@ -160,17 +161,28 @@ public final class NodeInfo
 
     public ValueInfo getValueInfo()
     {
-        return valueInfo;
+        return currentVI;
     }
 
     public boolean isCoersionApplied()
     {
-        return !coercionChain.isEmpty();  
+        return !previousVI.isEmpty();  
     }
 
     public List<ValueInfo> getCoercionChain()
     {
-        return coercionChain;
+        if (!isCoersionApplied())
+            return Collections.<ValueInfo>emptyList();
+
+        final List<ValueInfo> result =
+            new ArrayList<ValueInfo>(previousVI.size());
+
+        result.add(getValueInfo().typeInfoOnly());
+
+        for (int index = 0; index < previousVI.size()-1; ++index)
+            result.add(previousVI.get(index).typeInfoOnly());
+
+        return Collections.unmodifiableList(result);
     }
 
     private static void checkNotNull(Object o)
