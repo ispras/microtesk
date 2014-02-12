@@ -76,6 +76,12 @@ public abstract class ValueInfo
 
     private final Kind valueKind;
 
+    /**
+     * Constructs a value information object basing on value kind.
+     * 
+     * @param valueKind Value kind.
+     */
+
     protected ValueInfo(Kind valueKind)
     {
         assert null != valueKind && (Kind.NATIVE == valueKind || Kind.MODEL == valueKind); 
@@ -119,6 +125,13 @@ public abstract class ValueInfo
 
         return this;
     }
+    
+    /**
+     * Performs a cast to the specified native type.
+     * 
+     * @param type Target native type.
+     * @return New value information after a cast.
+     */
 
     public final ValueInfo toNativeType(Class<?> type)
     {
