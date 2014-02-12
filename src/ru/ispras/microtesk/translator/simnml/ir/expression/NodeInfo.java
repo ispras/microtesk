@@ -21,27 +21,29 @@ import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
-/*
-
-Design notes:
-
-  - Kind (kind of the node, determines the set of maintained attributes).
-  - Source (Location, NamedConstant, Constant, Operator (including conditions), depending on Kind).
-  - ValueInfo (current, resulting, top-level, final value).
-
-  Coercions (coercion (explicit cast) can be applied zero or more times to all element kinds):
-    - previousValueInfo, array of ValueInfo: first is value before final coercion,
-    last is initial value before first coercion. Value after the final coercion is ValueInfo (current).
-    - coercionChain, based on previousValueInfo, a list of applied coercions.
-
-  For operators (goes to the 'source' object):
-   - CastValueInfo (operands are cast to a common type (implicit cast), if their types are different).
-
-  Question?
-
-  Mapping of MicroTESK data types to SMT-LIB data types? 
-
-*/
+/**
+ * The NodeInfo class is used as an additional custom attribute of a Fortress expression node
+ * that provides additional information on the node and the subexpression it represents.
+ * 
+ * It has the following important attributes:
+ * <pre>
+ * - Kind (kind of element representing the node, determines the set of maintained attributes).
+ * - Source (Location, NamedConstant, Constant, Operator (including conditions), depending on Kind).
+ * - ValueInfo (current, resulting, top-level, final value).</pre>
+ * 
+ * Coercions (explicit casts) can be applied zero or more times to all element kinds.
+ * To support them, the following attributes are included:
+ * <pre>
+ * - PreviousValueInfo, array of ValueInfo: first is value before final coercion, last is initial
+ *   value before first coercion. Value after the final coercion is ValueInfo (current).
+ * - CoercionChain, based on PreviousValueInfo, a list of applied coercions.</pre>
+ *
+ * Also, operators have an additional attribute related to coercion that goes to the 'source' object:
+ * <pre>
+ *  - CastValueInfo (operands are cast to a common type (implicit cast), if their types are different).</pre>
+ * 
+ * @author Andrei Tatarnikov
+ */
 
 public final class NodeInfo
 {
@@ -146,11 +148,7 @@ public final class NodeInfo
             previous.add(vi);
 
         return new NodeInfo(
-            getKind(),
-            getSource(),
-            newValueInfo,
-            previous
-            );
+            getKind(), getSource(), newValueInfo, previous);
     }
 
     public Kind getKind()
