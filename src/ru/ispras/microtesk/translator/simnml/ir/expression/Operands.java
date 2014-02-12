@@ -12,14 +12,33 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
+/**
+ * Provides constants that specify the number of operator's operands.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public enum Operands
 {
     UNARY(1),
     BINARY(2),
     TERNARY(3);
 
-    private Operands(int count) { this.count = count; }
-    public int count()          { return count; }
-
     private final int count;
+
+    private Operands(int count)
+    {
+        this.count = count;
+    }
+
+    /**
+     * Returns operand count.
+     * 
+     * @return Operand count.
+     */
+
+    public int count()
+    {
+        return count;
+    }
 }

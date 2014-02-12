@@ -15,6 +15,12 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Contains descriptions of Sim-nML operators.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public enum Operator
 {
     OR       ("||",     Operands.BINARY,  Priority.CURRENT),
@@ -76,6 +82,13 @@ public enum Operator
             operators.put(o.text(), o);
     }
 
+    /**
+     * Returns an operator that corresponds to the specified text.  
+     * 
+     * @param text Textual representation of the operator.
+     * @return Operator.
+     */
+
     public static Operator forText(String text)
     {
         return operators.get(text);
@@ -101,15 +114,33 @@ public enum Operator
         this.priority  = priority.value();
     }
 
+    /**
+     * Returns textual representation of the operator. 
+     * 
+     * @return Operator text.
+     */
+
     public String text()
     {
         return text;
     }
 
+    /**
+     * Returns relative priority of the operator. 
+     *  
+     * @return Operator priority.
+     */
+
     public int priority()
     {
         return priority;
     }
+
+    /**
+     * Returns operand number.
+     * 
+     * @return Operand number.
+     */
 
     public int operands()
     {

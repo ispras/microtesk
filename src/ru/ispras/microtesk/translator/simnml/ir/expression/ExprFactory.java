@@ -43,15 +43,38 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfoCalculator;
 
+/**
+ * The ExprFactory class is a factory responsible for constructing expressions.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public final class ExprFactory extends WalkerFactoryBase
 {
     private final ValueInfoCalculator calculator;
+
+    /**
+     * Constructor for an expression factory. 
+     *  
+     * @param context Provides facilities for interacting with the tree walker. 
+     */
 
     public ExprFactory(WalkerContext context)
     {
         super(context);
         this.calculator = new ValueInfoCalculator(context);
     }
+    
+    /**
+     * Creates an expression based on a named constant. 
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param name Name of the constant.
+     * @return New expression.
+     *  
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws SemanticException if a constant with such name is not defined.  
+     */
 
     public Expr namedConstant(Where w, String name) throws SemanticException
     {
@@ -70,6 +93,19 @@ public final class ExprFactory extends WalkerFactoryBase
         node.setUserData(nodeInfo);
         return new Expr(node);
     }
+    
+
+    /**
+     * Creates an expression based on a numeric literal.
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param text Textual representation of a constant.
+     * @param radix Radix used to convert text to a number.
+     * @return New expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws SemanticException if the specified text cannot be converted to a number (due to incorrect format). 
+     */
 
     public Expr constant(Where w, String text, int radix) throws SemanticException
     {
@@ -102,6 +138,15 @@ public final class ExprFactory extends WalkerFactoryBase
         return new Expr(node);
     }
 
+    /**
+     * Creates an expression based on a location.
+     * 
+     * @param location Location object.
+     * @return New expression.
+     * 
+     * @throws NullPointerException if the parameter is null.
+     */
+
     public Expr location(Location source)
     {
         checkNotNull(source);
@@ -117,6 +162,19 @@ public final class ExprFactory extends WalkerFactoryBase
         node.setUserData(nodeInfo);
         return new Expr(node);
     }
+    
+    /**
+     * Creates an operator-based expression. 
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param target Preferable value kind (needed to calculate value and type of the result, when mixed operand types are used). 
+     * @param id Operator identifier. 
+     * @param operands Operand expressions.
+     * @return New expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws SemanticException if factory fails to create a valid expression (unsupported operator, incompatible types, etc.).
+     */
 
     public Expr operator(Where w, ValueInfo.Kind target, String id, Expr ... operands) throws SemanticException
     {
@@ -156,6 +214,16 @@ public final class ExprFactory extends WalkerFactoryBase
         return new Expr(node);
     }
 
+    /**
+     * Performs type coercion. Source expression is coerced to a Model API type.
+     * 
+     * @param src Source expression (its attributes will be modified).
+     * @param type Target type.
+     * @return Coerced expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     */
+
     public Expr coerce(Where w, Expr src, Type type)
     {
         checkNotNull(w);
@@ -174,6 +242,16 @@ public final class ExprFactory extends WalkerFactoryBase
         return src;
     }
 
+    /**
+     * Performs type coercion. Source expression is coerced to a Native Java type.
+     * 
+     * @param src Source expression (its attributes will be modified).
+     * @param type Target type.
+     * @return Coerced expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     */
+
     public Expr coerce(Where w, Expr src, Class<?> type)
     {
         checkNotNull(w);
@@ -191,6 +269,19 @@ public final class ExprFactory extends WalkerFactoryBase
         src.setNodeInfo(newNodeInfo);
         return src;
     }
+
+    /**
+     * Creates a conditional expression based on the if-elif-else construction. The returned
+     * expression is represented by a hierarchy of expressions based on the ITE ternary operator. 
+     * 
+     * @param Position in a source file (needed for error reporting).
+     * @param conds List of conditions and expressions associated with them. The 'else' condition is the last item if presents.
+     * @return New expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws IllegalArgumentException if the list of conditions is empty.
+     * @throws SemanticException if the types of expressions to be selected do not match.
+     */
 
     public Expr condition(Where w, List<Condition> conds) throws SemanticException
     {
@@ -240,6 +331,42 @@ public final class ExprFactory extends WalkerFactoryBase
         return tail;
     }
 
+    private void checkConditions(Where w, List<Condition> conds) throws SemanticException
+    {
+        checkNotNull(conds);
+
+        if (conds.isEmpty())
+            throw new IllegalArgumentException("Empty conditions.");
+
+        final Iterator<Condition> it = conds.iterator();
+
+        final Expr     firstExpression = it.next().getExpression();
+        final ValueInfo firstValueInfo = firstExpression.getValueInfo();
+
+        while(it.hasNext())
+        {
+            final Expr     currentExpression = it.next().getExpression();
+            final ValueInfo currentValueInfo = currentExpression.getValueInfo();
+
+            if (!currentValueInfo.hasEqualType(firstValueInfo))
+                raiseError(w, String.format(ERR_TYPE_MISMATCH, currentValueInfo.getTypeName(), firstValueInfo.getTypeName()));
+        }
+    }
+
+    /**
+     * Checks whether the specified expression is a constant expression. Constant expressions
+     * are statically calculated at translation time and are represented by constant Java
+     * values (currently, "int" or "long"). If the source expression is not constant,
+     * an exception is raised.
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param src Source expression (returned if meets the conditions).
+     * @return Constant expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws SemanticException if the expression is not constant.
+     */
+
     public Expr evaluateConst(Where w, Expr src) throws SemanticException
     {
         checkNotNull(w);
@@ -252,6 +379,19 @@ public final class ExprFactory extends WalkerFactoryBase
 
         return src;
     }
+
+    /**
+     * Checks whether the specified expression is a size expression. Size expressions
+     * are constant expressions represented by Java integer values (int). If the source
+     * expression is not a size expression, an exception is raised.
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param src Source expression (returned if meets the conditions).
+     * @return Size expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws SemanticException if the expression does not meet the requirements for a size expression.
+     */
 
     public Expr evaluateSize(Where w, Expr src) throws SemanticException
     {
@@ -268,6 +408,19 @@ public final class ExprFactory extends WalkerFactoryBase
 
         return src;
     }
+
+    /**
+     * Evaluates the specified expression to an index expression. The result of such an expression
+     * is a Java integer value (int). If the source expression cannot be evaluated to an index
+     * expression, an exception is raised. It it can, a required cast is performed. 
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param src Source expression (its attributes are modified if required).
+     * @return Index expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws SemanticException if the expression does not meet the requirements for an index expression.
+     */
 
     public Expr evaluateIndex(Where w, Expr src) throws SemanticException
     {
@@ -292,6 +445,19 @@ public final class ExprFactory extends WalkerFactoryBase
         return null; // Never executed.
     }
 
+    /**
+     * Evaluates the specified expression to an logic expression. The result of such an expression
+     * is a Java boolean value (boolean). If the source expression cannot be evaluated
+     * to a logic expression, an exception is raised. It it can, a required cast is performed. 
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param src Source expression (its attributes are modified if required).
+     * @return Logic expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws SemanticException if the expression does not meet the requirements for a logic expression.
+     */
+
     public Expr evaluateLogic(Where w, Expr src) throws SemanticException
     {
         checkNotNull(w);
@@ -314,6 +480,20 @@ public final class ExprFactory extends WalkerFactoryBase
         raiseError(w, ERR_NOT_BOOLEAN);
         return null; // Never executed.
     }
+
+    /**
+     * Evaluates the specified expression to a Model API data expression. If the source
+     * expression is represented by a native Java expression, a required cast is performed.
+     * If the cast is not supported (e.g due to incompatible data types), an exception is raised.
+     * 
+     * @param w Position in a source file (needed for error reporting).
+     * @param src Source expression (its attributes are modified if required).
+     * @return Model API data expression.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws SemanticException if the expression cannot be converted to a Model API
+     * data expression (e.g. incompatible data types).
+     */
 
     public Expr evaluateData(Where w, Expr src) throws SemanticException
     {
@@ -363,28 +543,6 @@ public final class ExprFactory extends WalkerFactoryBase
     {
         if (null == o)
             throw new NullPointerException();
-    }
-
-    private void checkConditions(Where w, List<Condition> conds) throws SemanticException
-    {
-        checkNotNull(conds);
-
-        if (conds.isEmpty())
-            throw new IllegalArgumentException("Empty conditions.");
-
-        final Iterator<Condition> it = conds.iterator();
-
-        final Expr     firstExpression = it.next().getExpression();
-        final ValueInfo firstValueInfo = firstExpression.getValueInfo();
-
-        while(it.hasNext())
-        {
-            final Expr     currentExpression = it.next().getExpression();
-            final ValueInfo currentValueInfo = currentExpression.getValueInfo();
-
-            if (!currentValueInfo.hasEqualType(firstValueInfo))
-                raiseError(w, String.format(ERR_TYPE_MISMATCH, currentValueInfo.getTypeName(), firstValueInfo.getTypeName()));
-        }
     }
 
     private static final String ERR_UNSUPPORTED_OPERATOR =

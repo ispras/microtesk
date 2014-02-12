@@ -24,6 +24,13 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
+/**
+ * Contains methods that perform conversion from MicroTESK data types and operators
+ * to Fortress data types and operators.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 final class Converter
 {
     private Converter() {}
@@ -88,6 +95,16 @@ final class Converter
         return Collections.unmodifiableMap(result);
     }
 
+    /**
+     * Creates a Fortress data object basing a value information object. 
+     * 
+     * @param valueInfo Source value information object.
+     * @return Fortress data object.
+     * 
+     * @throws NullPointerException if the parameter is null.
+     * @throws IllegalArgumentException if the conversion is not supported to the given data type.
+     */
+
     static Data toFortressData(ValueInfo valueInfo)
     {
         checkValueInfo(valueInfo);
@@ -99,6 +116,18 @@ final class Converter
             dataFromNative(valueInfo.getNativeValue()) :
             dataFromNativeType(valueInfo.getNativeType());
     }
+
+    /**
+     * Returns a Fortress operator that corresponds to the specified operator
+     * applied to the specified value information object.
+     * 
+     * @param operator Operator identifier.
+     * @param valueInfo Value information object that describes the type of the operator's operands. 
+     * @return Fortress operator identifier.
+     * 
+     * @throws NullPointerException if any of the parameters is null.
+     * @throws IllegalArgumentException if conversion is not supported.
+     */
 
     static Enum<?> toFortressOperator(Operator operator, ValueInfo valueInfo)
     {
