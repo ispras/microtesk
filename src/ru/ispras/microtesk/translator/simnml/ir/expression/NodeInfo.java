@@ -47,6 +47,12 @@ import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
 public final class NodeInfo
 {
+    /**
+     * Identifies the language element that serves as as basis for the given expression node.
+     * 
+     * @author Andrei Tatarnikov
+     */
+    
     public static enum Kind
     {
         LOCATION    (Location.class,       Node.Kind.VARIABLE),
@@ -63,16 +69,53 @@ public final class NodeInfo
             this.nodeKind    = nodeKind;
         }
 
+        /**
+         * Checks whether the specified object can be used as a source for
+         * the current element kind. 
+         * 
+         * @param source Source object. 
+         * @return <code>true</code> if the specified object is a compatible source or
+         * <code>false</code> otherwise.
+         * 
+         * @throws NullPointerException if the parameter is null.
+         */
+
         boolean isCompatibleSource(Object source)
         {
+            if (null == source)
+                throw new NullPointerException();
+
             return this.sourceClass.isAssignableFrom(source.getClass());
         }
 
+        /**
+         * Checks whether the current element kind can be associated with
+         * the specified Fortress expression node kind.  
+         * 
+         * @param nodeKind Fortress expression node kind.
+         * @return <code>true</code> if the specified Fortress expression node is
+         * compatible with the element kind or <code>false</code> otherwise.
+         * 
+         * @throws NullPointerException if the parameter is null.
+         */
+
         boolean isCompatibleNode(Node.Kind nodeKind)
         {
+            if (null == nodeKind)
+                throw new NullPointerException();
+
             return this.nodeKind == nodeKind;
         }
     }
+
+    /**
+     * Creates a node information object basing on a Location object.
+     * 
+     * @param source Location object.
+     * @return A new node information object.
+     * 
+     * @throws NullPointerException if the parameter is null.
+     */
 
     static NodeInfo newLocation(Location source)
     {
@@ -82,6 +125,15 @@ public final class NodeInfo
             NodeInfo.Kind.LOCATION, source, ValueInfo.createModel(source.getType()));
     }
 
+    /**
+     * Creates a node information object basing on a named constant (LetConstant object).
+     * 
+     * @param source Named constant.
+     * @return A new node information object.
+     * 
+     * @throws NullPointerException if the parameter is null.
+     */
+
     static NodeInfo newNamedConst(LetConstant source)
     {
         checkNotNull(source);
@@ -90,6 +142,15 @@ public final class NodeInfo
             NodeInfo.Kind.NAMED_CONST, source, source.getExpr().getValueInfo());
     }
 
+    /**
+     * Creates a node information object basing on a constant value.
+     * 
+     * @param source Object describing the constant (value and radix).
+     * @return A new node information object.
+     * 
+     * @throws NullPointerException if the parameter is null.
+     */
+
     static NodeInfo newConst(SourceConstant source)
     {
         checkNotNull(source);
@@ -97,6 +158,16 @@ public final class NodeInfo
         return new NodeInfo(
             NodeInfo.Kind.CONST, source, ValueInfo.createNative(source.getValue()));
     }
+
+    /**
+     * Creates a node information object basing on an operator.
+     * 
+     * @param source Operator information (identifier, result type and type the parameters
+     * should be cast to).
+     * @return A new node information object.
+     * 
+     * @throws NullPointerException if the parameter is null.
+     */
 
     static NodeInfo newOperator(SourceOperator source)
     {
