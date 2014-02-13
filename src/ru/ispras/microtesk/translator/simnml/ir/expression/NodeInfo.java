@@ -258,12 +258,27 @@ public final class NodeInfo
     {
         return currentVI;
     }
-    
+
+    /**
+     * Checks if the node information object contains information about coercions
+     * that were applied to associated expression node.
+     * 
+     * @return <code>true</code> if any coercions were applied to the associated
+     * expression node or <code>false</code> otherwise.
+     */
+
     public boolean isCoersionApplied()
     {
         return !previousVI.isEmpty();  
     }
-    
+
+    /**
+     * Returns the history of value information associated with the expression node
+     * before coercions were applied. If no coercions were applied, returns an empty list.  
+     *  
+     * @return Previous value information.
+     */
+
     public List<ValueInfo> getPreviousValueInfo()
     {
         return previousVI;
