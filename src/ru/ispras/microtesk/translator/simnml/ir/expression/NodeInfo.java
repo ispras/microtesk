@@ -181,6 +181,17 @@ public final class NodeInfo
     private final Object          source;
     private final ValueInfo       currentVI;
     private final List<ValueInfo> previousVI;
+    
+    /**
+     * Constructs a node information object from the specified attributes.
+     * 
+     * @param kind Kind of the language element the expression node is based on.  
+     * @param source Source object that contains information on the source language element. 
+     * @param current Current value information.
+     * @param previous History of value information before coercions were applied (empty, if no coercions were applied).
+     * 
+     * @throws IllegalArgumentException if the source is not compatible with the element kind.
+     */
 
     private NodeInfo(
         Kind            kind,
@@ -198,6 +209,17 @@ public final class NodeInfo
         this.currentVI   = current;
         this.previousVI  = Collections.unmodifiableList(previous);
     }
+
+    /**
+     * Constructs a node information object from the specified attributes. A shorter version of the main constructor.
+     * Designed to construct nodes that do not include any coercions.
+     * 
+     * @param kind Kind of the language element the expression node is based on.  
+     * @param source Source object that contains information on the source language element. 
+     * @param current Current value information.
+     * 
+     * @throws IllegalArgumentException if the source is not compatible with the element kind.
+     */
 
     private NodeInfo(Kind kind, Object source, ValueInfo current)
     {
