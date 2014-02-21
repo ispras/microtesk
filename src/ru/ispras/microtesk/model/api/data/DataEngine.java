@@ -57,7 +57,7 @@ public final class DataEngine
         BINARY_OPERATORS.put(EOperatorID.R_SHIFT,  new BitRotateShift(Operations.LSHR, Operations.ASHR));
         BINARY_OPERATORS.put(EOperatorID.L_ROTATE, new BitRotateShift(Operations.ROTL));
         BINARY_OPERATORS.put(EOperatorID.R_ROTATE, new BitRotateShift(Operations.ROTR));
-        
+
         // Comparison operators
         /*
         GREATER,
