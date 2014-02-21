@@ -17,11 +17,10 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath.Operations;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.operations.*;
-
-import static ru.ispras.fortress.data.types.bitvector.BitVectorMath.*;
 
 public final class DataEngine
 {   
@@ -59,14 +58,13 @@ public final class DataEngine
         BINARY_OPERATORS.put(EOperatorID.R_ROTATE, new BitRotateShift(Operations.ROTR));
 
         // Comparison operators
-        /*
-        GREATER,
-        LESS,
-        GREATER_EQ,
-        LESS_EQ,
-        EQ,
-        NOT_EQ,
-        */
+
+        BINARY_OPERATORS.put(EOperatorID.GREATER,    new LogicBinary(Operations.UGT, Operations.SGT));
+        BINARY_OPERATORS.put(EOperatorID.LESS,       new LogicBinary(Operations.ULT, Operations.SLT));
+        BINARY_OPERATORS.put(EOperatorID.GREATER_EQ, new LogicBinary(Operations.UGE, Operations.SGE));
+        BINARY_OPERATORS.put(EOperatorID.LESS_EQ,    new LogicBinary(Operations.ULE, Operations.SLE));
+        BINARY_OPERATORS.put(EOperatorID.EQ,         new LogicBinary(Operations.EQ));
+        BINARY_OPERATORS.put(EOperatorID.NOT_EQ,     new LogicBinary(Operations.NEQ));
 
         // Arithmetic operators: 
         // NOTE: The current prototype supports only the following basic arithmetic
