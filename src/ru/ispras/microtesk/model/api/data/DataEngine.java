@@ -55,11 +55,11 @@ public final class DataEngine
         BINARY_OPERATORS.put(EOperatorID.BIT_XOR,  new BitBinary(Operations.XOR));
         UNARY_OPERATORS.put(EOperatorID.BIT_NOT,   new BitUnary(Operations.NOT));
 
-        BINARY_OPERATORS.put(EOperatorID.L_SHIFT,  new BitRotateShiftBase(Operations.SHL));
-        BINARY_OPERATORS.put(EOperatorID.R_SHIFT,  new BitRotateShiftBase(Operations.LSHR, Operations.ASHR));
+        BINARY_OPERATORS.put(EOperatorID.L_SHIFT,  new BitRotateShift(Operations.SHL));
+        BINARY_OPERATORS.put(EOperatorID.R_SHIFT,  new BitRotateShift(Operations.LSHR, Operations.ASHR));
 
-        BINARY_OPERATORS.put(EOperatorID.L_ROTATE, new BitRotateShiftBase(Operations.ROTL));
-        BINARY_OPERATORS.put(EOperatorID.R_ROTATE, new BitRotateShiftBase(Operations.ROTR));
+        BINARY_OPERATORS.put(EOperatorID.L_ROTATE, new BitRotateShift(Operations.ROTL));
+        BINARY_OPERATORS.put(EOperatorID.R_ROTATE, new BitRotateShift(Operations.ROTR));
 
         // Arithmetic operators: 
         // NOTE: The current prototype supports only the following basic arithmetic

@@ -22,7 +22,7 @@ import ru.ispras.microtesk.model.api.data.IBinaryOperator;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public final class BitRotateShiftBase implements IBinaryOperator
+public final class BitRotateShift implements IBinaryOperator
 {
     private final static Set<ETypeID> SUPPORTED_TYPES = EnumSet.of(
         ETypeID.INT,
@@ -32,7 +32,7 @@ public final class BitRotateShiftBase implements IBinaryOperator
     private final BitVectorMath.Operations unsignedOp;
     private final BitVectorMath.Operations   signedOp;
 
-    public BitRotateShiftBase(BitVectorMath.Operations unsignedOp, BitVectorMath.Operations signedOp)
+    public BitRotateShift(BitVectorMath.Operations unsignedOp, BitVectorMath.Operations signedOp)
     {
         if (null == unsignedOp)
             throw new NullPointerException();
@@ -50,7 +50,7 @@ public final class BitRotateShiftBase implements IBinaryOperator
         this.signedOp   = signedOp;
     }
 
-    public BitRotateShiftBase(BitVectorMath.Operations op)
+    public BitRotateShift(BitVectorMath.Operations op)
     {
         this(op, op);   
     }
