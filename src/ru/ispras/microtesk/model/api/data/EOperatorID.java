@@ -33,12 +33,12 @@ public enum EOperatorID
     NOT_EQ,
 
     // Bitwise operators
-    L_SHIFT,
-    R_SHIFT,
     BIT_AND,
     BIT_OR,
     BIT_XOR,
     BIT_NOT,
+    L_SHIFT,
+    R_SHIFT,
     L_ROTATE,
     R_ROTATE,
 
