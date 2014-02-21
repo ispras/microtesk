@@ -72,8 +72,8 @@ public final class DataEngine
         // NOTE: The current prototype supports only the following basic arithmetic
         // operations: PLUS, MINUS, UNARY_PLUS and UNARY_MINUS.
 
-        BINARY_OPERATORS.put(EOperatorID.PLUS,  new ArithmPlus());
-        BINARY_OPERATORS.put(EOperatorID.MINUS, new ArithmMinus());
+        BINARY_OPERATORS.put(EOperatorID.PLUS,  new ArithmBinary(Operations.ADD));
+        BINARY_OPERATORS.put(EOperatorID.MINUS, new ArithmBinary(Operations.SUB));
 
         UNARY_OPERATORS.put(EOperatorID.UNARY_PLUS,  new ArithmUnary(Operations.PLUS));
         UNARY_OPERATORS.put(EOperatorID.UNARY_MINUS, new ArithmUnary(Operations.NEG));
