@@ -18,7 +18,6 @@ import java.util.Set;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IUnaryOperator;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -34,12 +33,16 @@ public class ArithmUnaryMinus implements IUnaryOperator
     ));
     
     protected static Data minus(Data arg)
-    {       
+    {   
+        // TODO: TEMPORARY. WILL BE REMOVED!
+        
         // Negation algorithm: "-arg = ~arg + 1".
-        final Data not = BitNot.bitnot(arg);
-        final Data one = new Data(BitVector.valueOf(1, arg.getType().getBitSize()), arg.getType());
+        //final Data not = BitNot.bitnot(arg);
+        //final Data one = new Data(BitVector.valueOf(1, arg.getType().getBitSize()), arg.getType());
 
-        return ArithmPlus.plus(not, one);
+        //return ArithmPlus.plus(not, one);
+        
+        return null;
     }
     
     @Override

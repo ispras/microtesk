@@ -17,6 +17,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.operations.*;
@@ -46,6 +47,12 @@ public final class DataEngine
         VALUE_CONVERTERS.put(ETypeID.BOOL, converter);
 
         // Bitwise operators:
+        
+        BINARY_OPERATORS.put(EOperatorID.BIT_AND,  new BitBinary(BitVectorMath.Operations.AND));
+        BINARY_OPERATORS.put(EOperatorID.BIT_OR,   new BitBinary(BitVectorMath.Operations.OR));
+
+        BINARY_OPERATORS.put(EOperatorID.BIT_XOR,  new BitBinary(BitVectorMath.Operations.XOR));
+        UNARY_OPERATORS.put(EOperatorID.BIT_NOT,   new BitUnary(BitVectorMath.Operations.NOT));
 
         BINARY_OPERATORS.put(EOperatorID.L_SHIFT,  new BitShiftLeft());
         BINARY_OPERATORS.put(EOperatorID.R_SHIFT,  new BitShiftRight());
@@ -53,12 +60,7 @@ public final class DataEngine
         BINARY_OPERATORS.put(EOperatorID.L_ROTATE, new BitRotateLeft());
         BINARY_OPERATORS.put(EOperatorID.R_ROTATE, new BitRotateRight());
 
-        BINARY_OPERATORS.put(EOperatorID.BIT_AND,  new BitAnd());
-        BINARY_OPERATORS.put(EOperatorID.BIT_OR,   new BitOr());
-
-        BINARY_OPERATORS.put(EOperatorID.BIT_XOR,  new BitXor());
-        UNARY_OPERATORS.put(EOperatorID.BIT_NOT,   new BitNot());
-
+        
         // Arithmetic operators: 
         // NOTE: The current prototype supports only the following basic arithmetic
         // operations: PLUS, MINUS, UNARY_PLUS and UNARY_MINUS.
