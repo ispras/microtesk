@@ -17,10 +17,11 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
-import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.operations.*;
+
+import static ru.ispras.fortress.data.types.bitvector.BitVectorMath.*;
 
 public final class DataEngine
 {   
@@ -47,20 +48,19 @@ public final class DataEngine
         VALUE_CONVERTERS.put(ETypeID.BOOL, converter);
 
         // Bitwise operators:
-        
-        BINARY_OPERATORS.put(EOperatorID.BIT_AND,  new BitBinary(BitVectorMath.Operations.AND));
-        BINARY_OPERATORS.put(EOperatorID.BIT_OR,   new BitBinary(BitVectorMath.Operations.OR));
 
-        BINARY_OPERATORS.put(EOperatorID.BIT_XOR,  new BitBinary(BitVectorMath.Operations.XOR));
-        UNARY_OPERATORS.put(EOperatorID.BIT_NOT,   new BitUnary(BitVectorMath.Operations.NOT));
+        BINARY_OPERATORS.put(EOperatorID.BIT_AND,  new BitBinary(Operations.AND));
+        BINARY_OPERATORS.put(EOperatorID.BIT_OR,   new BitBinary(Operations.OR));
 
-        BINARY_OPERATORS.put(EOperatorID.L_SHIFT,  new BitShiftLeft());
-        BINARY_OPERATORS.put(EOperatorID.R_SHIFT,  new BitShiftRight());
+        BINARY_OPERATORS.put(EOperatorID.BIT_XOR,  new BitBinary(Operations.XOR));
+        UNARY_OPERATORS.put(EOperatorID.BIT_NOT,   new BitUnary(Operations.NOT));
 
-        BINARY_OPERATORS.put(EOperatorID.L_ROTATE, new BitRotateLeft());
-        BINARY_OPERATORS.put(EOperatorID.R_ROTATE, new BitRotateRight());
+        BINARY_OPERATORS.put(EOperatorID.L_SHIFT,  new BitRotateShiftBase(Operations.SHL));
+        BINARY_OPERATORS.put(EOperatorID.R_SHIFT,  new BitRotateShiftBase(Operations.LSHR, Operations.ASHR));
 
-        
+        BINARY_OPERATORS.put(EOperatorID.L_ROTATE, new BitRotateShiftBase(Operations.ROTL));
+        BINARY_OPERATORS.put(EOperatorID.R_ROTATE, new BitRotateShiftBase(Operations.ROTR));
+
         // Arithmetic operators: 
         // NOTE: The current prototype supports only the following basic arithmetic
         // operations: PLUS, MINUS, UNARY_PLUS and UNARY_MINUS.
@@ -70,7 +70,7 @@ public final class DataEngine
 
         UNARY_OPERATORS.put(EOperatorID.UNARY_PLUS,  new ArithmUnaryPlus());
         UNARY_OPERATORS.put(EOperatorID.UNARY_MINUS, new ArithmUnaryMinus());
-        
+
         BINARY_OPERATORS.put(EOperatorID.MUL,  new ArithmMul());
     }
 

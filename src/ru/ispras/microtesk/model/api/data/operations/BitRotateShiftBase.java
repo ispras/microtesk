@@ -15,59 +15,73 @@ package ru.ispras.microtesk.model.api.data.operations;
 import java.util.EnumSet;
 import java.util.Set;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public abstract class BitRotateShiftBase implements IBinaryOperator
+public final class BitRotateShiftBase implements IBinaryOperator
 {
     private final static Set<ETypeID> SUPPORTED_TYPES = EnumSet.of(
         ETypeID.INT,
         ETypeID.CARD
     );
 
-    /**
-     * Abstract method to be implemented in concrete operation classes. It is 
-     * responsible for performing data transformation according to the concrete
-     * action type (left shift, right rotation, etc.)
-     * 
-     * @param src Source data.
-     * @param to Rotation/shift distance. 
-     * @return Operation result.
-     */
+    private final BitVectorMath.Operations unsignedOp;
+    private final BitVectorMath.Operations   signedOp;
 
-    protected abstract Data doRotateShift(Data src, int to);
-
-    @Override
-    public final Data execute(Data left, Data right)
+    public BitRotateShiftBase(BitVectorMath.Operations unsignedOp, BitVectorMath.Operations signedOp)
     {
-        final int distanceTo = right.getRawData().intValue();
-        return doRotateShift(left, distanceTo);
+        if (null == unsignedOp)
+            throw new NullPointerException();
+
+        if (unsignedOp.getOperands() != BitVectorMath.Operands.BINARY)
+            throw new IllegalArgumentException();
+
+        if (null == signedOp)
+            throw new NullPointerException();
+        
+        if (signedOp.getOperands() != BitVectorMath.Operands.BINARY)
+            throw new IllegalArgumentException();
+
+        this.unsignedOp = unsignedOp;
+        this.signedOp   = signedOp;
+    }
+
+    public BitRotateShiftBase(BitVectorMath.Operations op)
+    {
+        this(op, op);   
     }
 
     @Override
-    public final boolean supports(Type left, Type right)
+    public final Data execute(Data lhs, Data rhs)
     {
-        if (!SUPPORTED_TYPES.contains(left.getTypeID()))
+        final BitVector result;
+
+        if (lhs.getType().getTypeID() == ETypeID.CARD)
+            result = unsignedOp.execute(lhs.getRawData(), rhs.getRawData());
+        else
+            result = signedOp.execute(lhs.getRawData(), rhs.getRawData());
+
+        return new Data(result, lhs.getType());
+    }
+
+    @Override
+    public final boolean supports(Type lhs, Type rhs)
+    {
+        if (!SUPPORTED_TYPES.contains(lhs.getTypeID()))
             return false;
 
-        if (!SUPPORTED_TYPES.contains(right.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(rhs.getTypeID()))
             return false;
-
-        // Rotate and shift operations make sense on when 
-        // the second operand (that specifies rotation/shift 
-        // distance) is represented by an unsigned integer
-        // value (in Sim-nML, it is CARD).
-
-        //if (right.getTypeID() != ETypeID.CARD)
-        //    return false;
 
         // The right operand is too big to be a distance. Distance
         // will be converted to int. If it exceeds the size of int,
         // it will be truncated and we will receive incorrect results.
 
-        if (right.getBitSize() > Integer.SIZE)
+        if (rhs.getBitSize() > Integer.SIZE)
             return false;
 
         return true;
