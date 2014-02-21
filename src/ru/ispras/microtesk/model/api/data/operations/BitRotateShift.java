@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * BitRotateShiftBase.java, Nov 30, 2012 6:13:29 PM Andrei Tatarnikov
+ * BitRotateShift.java, Nov 30, 2012 6:13:29 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.model.api.data.operations;
