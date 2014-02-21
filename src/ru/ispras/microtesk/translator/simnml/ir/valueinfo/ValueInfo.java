@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.valueinfo;
 
+import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 /**
@@ -214,6 +215,26 @@ public abstract class ValueInfo
     public final boolean isModel()
     {
         return Kind.MODEL == getValueKind();
+    }
+
+    /**
+     * Returns <code>true</code> if the stored value is a MicroTESK Model API value of
+     * the specified type or <code>false</code> otherwise.
+     * 
+     * @param type Model API type identifier.
+     * @return <code>true</code> for Model API values of the specified type or <code>false</code>
+     * for all other cases.
+     */
+
+    public final boolean isModelOf(ETypeID type)
+    {
+        if (null == type)
+            return false;
+
+        if (!isModel())
+            return false;
+
+        return getModelType().getTypeId() == type;
     }
 
     /**

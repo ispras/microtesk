@@ -197,6 +197,18 @@ public final class ExprFactory extends WalkerFactoryBase
         for (int index = 0; index < operands.length; ++index)
         {
             final Expr operand = operands[index];
+
+            // All Model API values that have the BOOL type are cast to 
+            // Java boolean values for the sake of simplicity.
+
+            if (operand.getValueInfo().isModelOf(ETypeID.BOOL))
+            {
+                final ValueInfo newValueInfo = operand.getValueInfo().toNativeType(Boolean.class);
+                final NodeInfo   newNodeInfo = operand.getNodeInfo().coerceTo(newValueInfo);
+
+                operand.setNodeInfo(newNodeInfo);
+            }
+
             values.add(operand.getValueInfo());
             operandNodes[index] = operand.getNode();
         }
