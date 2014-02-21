@@ -75,8 +75,8 @@ public final class DataEngine
         BINARY_OPERATORS.put(EOperatorID.PLUS,  new ArithmPlus());
         BINARY_OPERATORS.put(EOperatorID.MINUS, new ArithmMinus());
 
-        UNARY_OPERATORS.put(EOperatorID.UNARY_PLUS,  new ArithmUnaryPlus());
-        UNARY_OPERATORS.put(EOperatorID.UNARY_MINUS, new ArithmUnaryMinus());
+        UNARY_OPERATORS.put(EOperatorID.UNARY_PLUS,  new ArithmUnary(Operations.PLUS));
+        UNARY_OPERATORS.put(EOperatorID.UNARY_MINUS, new ArithmUnary(Operations.NEG));
 
         BINARY_OPERATORS.put(EOperatorID.MUL,  new ArithmMul());
     }

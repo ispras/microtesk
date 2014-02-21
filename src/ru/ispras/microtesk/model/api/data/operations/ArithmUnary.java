@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2014 ISPRAS
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -7,48 +7,50 @@
  * 
  * All rights reserved.
  * 
- * ArithmUnaryMinus.java, Dec 2, 2012 12:48:33 PM Andrei Tatarnikov
+ * ArithmUnary.java, Feb 21, 2014 3:47:42 PM Andrei Tatarnikov
  */
 
 package ru.ispras.microtesk.model.api.data.operations;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IUnaryOperator;
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public class ArithmUnaryMinus implements IUnaryOperator
+public final class ArithmUnary implements IUnaryOperator
 {
     // Sim-nML spec: these operators (unary +,-) are used only for
     // INT, FLOAT and FIX data types.
 
-    private final static Set<ETypeID> SUPPORTED_TYPES = Collections.unmodifiableSet(EnumSet.of(
+    private final static Set<ETypeID> SUPPORTED_TYPES = EnumSet.of(
         ETypeID.INT
         //, ETypeID.FLOAT // NOT SUPPORTED IN THIS VERSION
         //, ETypeID.FIX   // NOT SUPPORTED IN THIS VERSION
-    ));
-    
-    protected static Data minus(Data arg)
-    {   
-        // TODO: TEMPORARY. WILL BE REMOVED!
-        
-        // Negation algorithm: "-arg = ~arg + 1".
-        //final Data not = BitNot.bitnot(arg);
-        //final Data one = new Data(BitVector.valueOf(1, arg.getType().getBitSize()), arg.getType());
+    );
 
-        //return ArithmPlus.plus(not, one);
-        
-        return null;
+    private final BitVectorMath.Operations op;
+
+    public ArithmUnary(BitVectorMath.Operations op)
+    {
+        if (null == op)
+            throw new NullPointerException();
+
+        if (op.getOperands() != BitVectorMath.Operands.UNARY)
+            throw new IllegalArgumentException();
+
+        this.op = op;
     }
-    
+
     @Override
-    public Data execute(Data arg)
-    {      
-        return minus(arg);
+    public Data execute(Data data)
+    {
+        final BitVector result = op.execute(data.getRawData());
+        return new Data(result, data.getType());
     }
 
     @Override
