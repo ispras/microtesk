@@ -12,7 +12,6 @@
 
 package ru.ispras.microtesk.model.api.data.operations;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -23,10 +22,10 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 public abstract class BitRotateShiftBase implements IBinaryOperator
 {
-    private final static Set<ETypeID> SUPPORTED_TYPES = Collections.unmodifiableSet(EnumSet.of(
+    private final static Set<ETypeID> SUPPORTED_TYPES = EnumSet.of(
         ETypeID.INT,
         ETypeID.CARD
-    ));
+    );
 
     /**
      * Abstract method to be implemented in concrete operation classes. It is 
@@ -44,11 +43,6 @@ public abstract class BitRotateShiftBase implements IBinaryOperator
     public final Data execute(Data left, Data right)
     {
         final int distanceTo = right.getRawData().intValue();
-
-        // TODO: need to handle this situation in a correct way.
-        assert distanceTo >= 0 :
-            "Error: shifting by negative values is not allowed.";
-
         return doRotateShift(left, distanceTo);
     }
 
