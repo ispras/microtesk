@@ -42,16 +42,14 @@ public final class BitBinary implements IBinaryOperator
         this.op = op;
     }
 
-    private static Type getResultType(Type left, Type right)
+    private static Type getResultType(Type lhs, Type rhs)
     {
         // result type is INT if one of the parameters is INT.
 
-        assert left.getBitSize() == right.getBitSize() : "RESTRICTION: equal size";
+        if (rhs.getTypeID() == ETypeID.INT)
+            return rhs;
 
-        if (right.getTypeID() == ETypeID.INT)
-            return right;
-
-        return left;
+        return lhs;
     }    
 
     @Override
