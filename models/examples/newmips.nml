@@ -212,13 +212,14 @@ mem TMP_FLOTS_A3 [ 1 , int ( 8 ) ]
 /* Addressing Modes                                                                         */
 /********************************************************************************************/
 
-mode REG_IND_ZERO ( r : index ) = GPR [ r ]
-    /* if r == 0 then
+mode REG_IND_ZERO ( r : index ) = 
+
+    if r == 0 then
         0
-     else
+    else
         GPR [ r ]
-     endif
-	*/
+    endif
+
     syntax = format ( "%d", r )
     image  = format ( "%5b", r )
 
@@ -1508,14 +1509,14 @@ op CLO(rd : index, rs : REG_IND_ZERO)
     loop = {
         if tmp_signed_byte >= 0 then
           	//if ( rs < rs_signed_byte .. rs_signed_byte > == 1 ) then
-            /*
+
             if ( rs < tmp_signed_byte .. tmp_signed_byte > == 1 ) then
                 tmp_signed_byte = tmp_signed_byte - 1;
             else
                 GPR [ rd ] = 31 - tmp_signed_byte;
                 tmp_signed_byte = -1;
             endif;
-            */
+
             loop;
         endif;
     }
@@ -1531,14 +1532,14 @@ op CLZ(rd : index, rs : REG_IND_ZERO)
 
     loop = {
         if tmp_signed_byte >= 0 then
-            /*
+
             if (rs < tmp_signed_byte .. tmp_signed_byte > == 0) then
                 tmp_signed_byte = tmp_signed_byte - 1;
             else
                 GPR [ rd ] = 31 - tmp_signed_byte;
                 tmp_signed_byte = -1;
             endif;
-            */
+
             loop;
         endif;
     }
