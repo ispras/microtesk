@@ -110,16 +110,16 @@ mode REG (r : index) = r
 /* Data Processing Addressing Modes                                                         */
 /********************************************************************************************/
 
-mode LSL_IMMEDIATE (r : index, amount : Bit5) = GPR[r] << amount
-/*
-if (r == 15) then
-    (GPR[r]+4) << amount
-else
-    GPR[r] << amount
-endif
-*/
+mode LSL_IMMEDIATE (r : index, amount : Bit5) =
+
+    if (r == 15) then
+        (GPR[r]+4) << amount
+    else
+        GPR[r] << amount
+    endif
+
     syntax = format("R%d , LSL #%d", r, amount)
-    image = format("%5b000%4b", amount, r)
+    image  = format("%5b000%4b", amount, r)
     action = {
         if amount == 0 then 
             shifter_carry_out = CPSR<29..29>;
@@ -128,13 +128,14 @@ endif
         endif;
     }
 
-mode LSR_IMMEDIATE (r : index, amount : Bit5) = (GPR[r]) >> amount
-/*if (r == 15) then
-    (GPR[r]+4) >> amount
-else
-    GPR[r] >> amount 
-endif
-*/
+mode LSR_IMMEDIATE (r : index, amount : Bit5) =
+
+    if (r == 15) then
+        (GPR[r]+4) >> amount
+    else
+        GPR[r] >> amount 
+    endif
+
     syntax = format("R%d , LSR #%d", r, amount)
     image  = format("%5b010%4b", amount, r)
     action = {
@@ -146,13 +147,14 @@ endif
         endif;
     }
 
-mode ASR_IMMEDIATE (r : index, amount : Bit5) = coerce(int(32),(GPR[r])) >> amount
-/*if (r == 15) then
-    coerce(int(32),(GPR[r]+4)) >> amount
-else
-    coerce(int(32),GPR[r]) >> amount
-endif
-*/
+mode ASR_IMMEDIATE (r : index, amount : Bit5) =
+
+    if (r == 15) then
+        coerce(int(32),(GPR[r]+4)) >> amount
+    else
+        coerce(int(32),GPR[r]) >> amount
+    endif
+
     syntax = format("R%d , ASR #%d", r, amount)
     image = format("%5b100%4b", amount, r)
     action = {
@@ -167,13 +169,14 @@ endif
         endif;
     }
 	
-mode ROR_IMMEDIATE (r : index, amount : Bit5) = (GPR[r]) >>> amount
-/*if (r == 15) then
-    (GPR[r]+4) >>> amount
-else
-    GPR[r] >>> amount
-endif
-*/
+mode ROR_IMMEDIATE (r : index, amount : Bit5) =
+
+    if (r == 15) then
+        (GPR[r]+4) >>> amount
+    else
+        GPR[r] >>> amount
+    endif
+
     syntax = format("R%d , ROR #%d", r, amount)
     image  = format("%5b110%4b", amount, r)
     action = {
@@ -185,13 +188,14 @@ endif
     }
 
 // For Register specified right rotate with extend ( rotate right with carry )
-mode RRX (r : index) = (coerce(card(32),CPSR<29..29>) << 31) | ((GPR[r]) >> 1) 
-/*if (r == 15) then 
-    (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]+4) >> 1) 
-else
-    (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]) >> 1) 
-endif
-*/
+mode RRX (r : index) =
+ 
+    if (r == 15) then 
+        (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]+4) >> 1) 
+    else
+        (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]) >> 1) 
+    endif
+
     syntax = format("R%d , RRX ", r)
     image  = format("00000110%4b", r)
     action = {
