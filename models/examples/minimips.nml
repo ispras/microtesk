@@ -222,13 +222,14 @@ mem TMP_FLOTS_A3 [ 1 , int ( 8 ) ]
 /* Addressing Modes                                                                         */
 /********************************************************************************************/
 
-mode REG_IND_ZERO ( r : index ) = GPR [ r ]
-    /* if r == 0 then
+mode REG_IND_ZERO (r : index) =
+
+    if r == 0 then
         0
-     else
+    else
         GPR [ r ]
-     endif
-	*/
+    endif
+
     syntax = format ( "%d", r )
     image  = format ( "%5b", r )
 
