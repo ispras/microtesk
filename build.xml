@@ -2,7 +2,9 @@
 <project name="microtesk" default="build" basedir=".">
 
   <!-- Directories -->
-  <property name="src"  location="src/main/java"/>
+  <property name="src"      location="src/main/java"/>
+  <property name="src.mmu"  location="src/main/mmu/java"/>	
+
   <property name="gen"  location="gen"/>
   <property name="out"  location="output"/>
   <property name="bin"  location="bin"/>
@@ -54,13 +56,14 @@
 
   <!-- Macro for ANTRL targets -->
   <macrodef name="antlr3">
+  	<attribute name="grammar.root"/>
   	<attribute name="grammar.path"/>
     <attribute name="grammar.name"/>
 	<sequential>
 	  <echo message="antlr @{grammar.name}"/>
 	  <antlr:ant-antlr3
 	    xmlns:antlr="antlib:org/apache/tools/ant/antlr"
-	    target="${src}/@{grammar.path}/@{grammar.name}"
+	    target="@{grammar.root}/@{grammar.path}/@{grammar.name}"
 	    outputdirectory="${gen}/@{grammar.path}"
 	    debug="${debug}"
 	  >
@@ -76,7 +79,7 @@
     <property name="microtesk.bin" value="${bin}/microtesk"/>
     <mkdir dir="${microtesk.bin}"/>
     <javac
-      srcdir="${src}:${gen}"
+      srcdir="${src}:${src.mmu}:${gen}"
       destdir="${microtesk.bin}"
       excludes="**/tests/**,**/samples/**"
       classpath="${classpath}"
@@ -115,15 +118,15 @@
 
   <!-- Target for generating parsers from grammars with antlr -->
   <target name="simnml_antlr">
-    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}"/>
-  	<antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}"/>
-  	<antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}"/>
+    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
+  	<antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
+  	<antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
   </target>
-	
+
   <target name="mmu_antlr">
-    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}"/>
-    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}"/>
-  	<antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}"/>
+    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
+    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
+  	<antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
   </target>
 
   <!-- Init target, creates dirs -->
