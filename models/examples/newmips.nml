@@ -212,12 +212,12 @@ mem TMP_FLOTS_A3 [ 1 , int ( 8 ) ]
 /* Addressing Modes                                                                         */
 /********************************************************************************************/
 
-mode REG_IND_ZERO ( r : index ) = 
+mode REG_IND_ZERO (r : index) = 
 
     if r == 0 then
-        0
+        coerce(signed_long, 0)
     else
-        GPR [ r ]
+        GPR[r]
     endif
 
     syntax = format ( "%d", r )
