@@ -31,7 +31,7 @@ public final class PackageInfo
      * Path to the folder where the root package of MicroTESK is located.  
      */
 
-    public static final String MICROTESK_DIR = "src/ru/ispras/microtesk/";
+    public static final String MICROTESK_DIR = "src/main/java/ru/ispras/microtesk/";
 
     /**
      * Path to the folder where the root package of the MicroTESK's DSL translator is located. 
