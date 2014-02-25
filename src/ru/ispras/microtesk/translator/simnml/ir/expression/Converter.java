@@ -59,9 +59,9 @@ final class Converter
         result.put(Operator.OR,       new OperatorInfo(StandardOperation.OR,         StandardOperation.BVOR));
         result.put(Operator.AND,      new OperatorInfo(StandardOperation.AND,        StandardOperation.BVAND));
 
-        result.put(Operator.BIT_OR,   new OperatorInfo(null,                         StandardOperation.BVOR));
-        result.put(Operator.BIT_XOR,  new OperatorInfo(null,                         StandardOperation.BVXOR));
-        result.put(Operator.BIT_AND,  new OperatorInfo(null,                         StandardOperation.BVAND));
+        result.put(Operator.BIT_OR,   new OperatorInfo(StandardOperation.OR,         StandardOperation.BVOR));
+        result.put(Operator.BIT_XOR,  new OperatorInfo(StandardOperation.XOR,        StandardOperation.BVXOR));
+        result.put(Operator.BIT_AND,  new OperatorInfo(StandardOperation.AND,        StandardOperation.BVAND));
 
         result.put(Operator.EQ,       new OperatorInfo(StandardOperation.EQ,         StandardOperation.EQ));
         result.put(Operator.NOT_EQ,   new OperatorInfo(StandardOperation.NOTEQ,      StandardOperation.NOTEQ));
