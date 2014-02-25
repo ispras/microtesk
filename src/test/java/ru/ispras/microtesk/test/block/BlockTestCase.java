@@ -10,7 +10,7 @@
  * BlockTestCase.java, May 7, 2013 12:09:57 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.test.block.tests;
+package ru.ispras.microtesk.test.block;
 
 // import static org.junit.Assert.*;
 
