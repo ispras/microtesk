@@ -2,7 +2,7 @@
 <project name="microtesk" default="build" basedir=".">
 
   <!-- Directories -->
-  <property name="src"  location="src"/>
+  <property name="src"  location="src/main/java"/>
   <property name="gen"  location="gen"/>
   <property name="out"  location="output"/>
   <property name="bin"  location="bin"/>
