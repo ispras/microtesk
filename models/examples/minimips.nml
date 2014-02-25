@@ -225,7 +225,7 @@ mem TMP_FLOTS_A3 [ 1 , int ( 8 ) ]
 mode REG_IND_ZERO (r : index) =
 
     if r == 0 then
-        0
+        coerce(signed_long, 0)
     else
         GPR [ r ]
     endif
