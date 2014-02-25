@@ -80,7 +80,7 @@ final class Converter
         result.put(Operator.MINUS,    new OperatorInfo(StandardOperation.SUB,        StandardOperation.BVSUB));
 
         result.put(Operator.MUL,      new OperatorInfo(StandardOperation.MUL,        StandardOperation.BVMUL));
-        result.put(Operator.DIV,      new OperatorInfo(StandardOperation.DIV,        null));
+        result.put(Operator.DIV,      new OperatorInfo(StandardOperation.DIV,        StandardOperation.DIV));
         result.put(Operator.MOD,      new OperatorInfo(StandardOperation.MOD,        StandardOperation.BVSMOD));
 
         result.put(Operator.POW,      new OperatorInfo(StandardOperation.POWER,      null));

@@ -182,6 +182,8 @@ public final class ExprFactory extends WalkerFactoryBase
         checkNotNull(target);
         checkNotNull(id);
         checkNotNull(operands);
+        
+        System.out.println(w);
 
         final Operator op = Operator.forText(id);
 
