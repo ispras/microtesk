@@ -8,7 +8,7 @@
   <property name="gen"  location="gen"/>
   <property name="out"  location="output"/>
   <property name="bin"  location="bin"/>
-  <property name="dist" location="dist/jars"/>
+  <property name="dist" location="dist"/>
   <property name="doc"  location="doc"/>
 
   <property name="microtesk.bin" value="${bin}/microtesk"/>
@@ -141,8 +141,8 @@
   <target name="clean">
     <delete dir="${dist}"/>
     <delete dir="${bin}"/>
-    <delete dir="${gen}/${root.package}"/>
-    <delete dir="${out}/${root.package}"/>
+  	<delete includeEmptyDirs="true"><fileset dir="${gen}" includes="**/*"/></delete>
+  	<delete includeEmptyDirs="true"><fileset dir="${out}" includes="**/*"/></delete>
     <delete dir="${doc}"/>
   </target>
 
