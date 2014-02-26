@@ -590,9 +590,22 @@ nonNumExpr [ValueInfo.Kind target, int depth] returns [Expr res]
 
 ifExpr [ValueInfo.Kind target, int depth] returns [Expr res]
 @init  {final List<Condition> conds = new ArrayList<Condition>();}
-    :  ^(op=IF cond=logicExpr e=expr[target, depth] {conds.add(Condition.newIf($cond.res, $e.res));}
-        (eifc=elseIfExpr[target, depth] {conds.add($eifc.res);})*
-        (elsc=elseExpr[target, depth]   {conds.add($elsc.res);})?)
+    :  ^(op=IF cond=logicExpr e=expr[target, depth]
+{
+checkNotNull($cond.start, $cond.res, $cond.text);
+checkNotNull($e.start, $e.res, $e.text);
+conds.add(Condition.newIf($cond.res, $e.res));
+}
+       (eifc=elseIfExpr[target, depth]
+{
+checkNotNull($eifc.start, $eifc.res, $eifc.text);
+conds.add($eifc.res);
+})*
+       (elsc=elseExpr[target, depth]
+{
+checkNotNull($elsc.start, $elsc.res, $elsc.text);
+conds.add($elsc.res);
+})?)
 {
 $res = getExprFactory().condition(where($op), conds);
 }
