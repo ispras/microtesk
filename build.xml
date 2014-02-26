@@ -10,7 +10,7 @@
   <property name="bin"       location="bin"/>
   <property name="dist"      location="dist"/>
   <property name="dist.jars" location="${dist}/libs/jars"/>
-  <property name="doc"       location="doc"/>
+  <property name="doc"       location="${dist}/javadoc"/>
 
   <property name="microtesk.bin" value="${bin}/microtesk"/>
 
@@ -73,7 +73,6 @@
     <delete dir="${bin}"/>
   	<delete includeEmptyDirs="true"><fileset dir="${gen}" includes="**/*"/></delete>
   	<delete includeEmptyDirs="true"><fileset dir="${out}" includes="**/*"/></delete>
-    <delete dir="${doc}"/>
   </target>
 
   <!-- Target for generating parsers for Sim-nML code from grammars with ANTLR -->
@@ -162,7 +161,7 @@
   <target name="build.jar" depends="antlr_simnml,javac.main,microtesk.jar"/>
   <target name="build.jar.mmu" depends="antlr_simnml,antlr_mmu,javac.mmu,microtesk.jar"/>
 
-  <target name="build.all" depends="clean,init,build.jar">
+  <target name="build.all" depends="clean,init,build.jar,javadoc">
   	<!-- Copies JAR dependencies to the distributive folder -->	
   	<copy file="${jars.path}/${cli.jar}"      todir="${dist.jars}"/>
   	<copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
@@ -181,6 +180,11 @@
   	<!-- Copies examples of architecture specifications and test templates to the distributive folder -->
   	<copy todir="${dist}/arch">
   	   <fileset dir="src/main/arch" includes="**"/>  
+  	</copy>
+
+  	<!-- Copies MicroTESK documentation to the distributive folder -->
+  	<copy todir="${dist}/xdocs">
+  	   <fileset dir="xdocs" includes="**"/>  
   	</copy>
 
   </target>
