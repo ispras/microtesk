@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="microtesk" default="build" basedir=".">
+<project name="microtesk" default="build.all" basedir=".">
 
   <!-- Directories -->
-  <property name="src"      location="src/main/java"/>
-  <property name="src.mmu"  location="src/main/mmu/java"/>	
-
-  <property name="gen"  location="gen"/>
-  <property name="out"  location="output"/>
-  <property name="bin"  location="bin"/>
-  <property name="dist" location="dist"/>
-  <property name="doc"  location="doc"/>
+  <property name="src"       location="src/main/java"/>
+  <property name="src.mmu"   location="src/main/mmu/java"/>
+  <property name="src.test"  location="src/test/java"/>
+  <property name="gen"       location="gen"/>
+  <property name="out"       location="output"/>
+  <property name="bin"       location="bin"/>
+  <property name="dist"      location="dist"/>
+  <property name="dist.jars" location="${dist}/libs/jars"/>
+  <property name="doc"       location="doc"/>
 
   <property name="microtesk.bin" value="${bin}/microtesk"/>
 
   <!-- Output JAR-file -->
-  <property name="jar" value="microtesk.jar"/>
+  <property name="jar"           value="microtesk.jar"/>
   <!-- Main package -->
-  <property name="root.package" value="ru"/>
-  <property name="main.package" value="${root.package}/ispras/microtesk"/>
+  <property name="root.package"  value="ru"/>
+  <property name="main.package"  value="${root.package}/ispras/microtesk"/>
 
   <!-- External JARs -->
   <property name="junit.jar"     value="junit-4.10.jar"/>
@@ -25,32 +26,17 @@
   <property name="antlr.ant.jar" value="ant-antlr3.jar"/>
   <property name="cli.jar"       value="commons-cli-1.2.jar"/>
   <property name="jruby.jar"     value="jruby.jar"/>
-  <property name="solver.jar"    value="fortress.jar"/>
+  <property name="fortress.jar"  value="fortress.jar"/>
 
   <!-- Information for the JAR manifest -->
   <property name="jar.jars.path" value="./../../jars"/>
   <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>	
-  <property name="jar.classpath" value="${jar.jars.path}/${junit.jar} ${jar.jars.path}/${antlr.jar} ${jar.jars.path}/${cli.jar} ${jar.jars.path}/${jruby.jar} ${jar.jars.path}/${solver.jar}"/>
+  <property name="jar.classpath" value="${jar.jars.path}/${junit.jar} ${jar.jars.path}/${antlr.jar} ${jar.jars.path}/${cli.jar} ${jar.jars.path}/${jruby.jar} ${jar.jars.path}/${fortress.jar}"/>
 
   <!-- Classpath for external libraries -->
   <property name="jars.path" value="./jars"/>
-  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${solver.jar}"/>
-
-  <!-- Grammar files -->
-  <!-- Sim-nML -->
-  <property name="simnml_grammar.package" value="translator/simnml/grammar"/>
-  <property name="simnml_grammar.path"    value="${main.package}/${simnml_grammar.package}"/>
-  <property name="simnml_lexer.name"      value="SimnMLLexer.g"/>
-  <property name="simnml_parser.name"     value="SimnMLParser.g"/>
-  <property name="simnml_walker.name"     value="SimnMLTreeWalker.g"/>
+  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${fortress.jar}"/>
 	
-  <!-- MMU --> 	
-  <property name="mmu_grammar.package" value="translator/mmu/grammar"/>
-  <property name="mmu_grammar.path"    value="${main.package}/${mmu_grammar.package}"/>
-  <property name="mmu_lexer.name"      value="MMuLexer.g"/>
-  <property name="mmu_parser.name"     value="MMuParser.g"/>
-  <property name="mmu_walker.name"     value="MMuTreeWalker.g"/>
-
   <!-- Options -->
   <property name="debug" value="false"/>
 
@@ -65,8 +51,7 @@
 	    xmlns:antlr="antlib:org/apache/tools/ant/antlr"
 	    target="@{grammar.root}/@{grammar.path}/@{grammar.name}"
 	    outputdirectory="${gen}/@{grammar.path}"
-	    debug="${debug}"
-	  >
+	    debug="${debug}">
 	    <classpath>
 	      <pathelement path="${classpath}"/>
 	    </classpath>
@@ -74,28 +59,134 @@
     </sequential>
   </macrodef>
 
-  <!-- Default target -->
-  <target name="build" depends="init,simnml_antlr,mmu_antlr">
-    <property name="microtesk.bin" value="${bin}/microtesk"/>
-    <mkdir dir="${microtesk.bin}"/>
-    <javac
-      srcdir="${src}:${src.mmu}:${gen}"
-      destdir="${microtesk.bin}"
-      excludes="**/tests/**,**/samples/**"
+  <!-- Init target, creates dirs -->
+  <target name="init">
+    <mkdir dir="${gen}/${simnml_grammar.path}"/>
+	<mkdir dir="${gen}/${mmu_grammar.path}"/>
+	<mkdir dir="${bin}"/>
+	<mkdir dir="${dist}"/>
+  </target>
+
+  <!-- Clean target, removes builded dirs and files -->
+  <target name="clean">
+    <delete dir="${dist}"/>
+    <delete dir="${bin}"/>
+  	<delete includeEmptyDirs="true"><fileset dir="${gen}" includes="**/*"/></delete>
+  	<delete includeEmptyDirs="true"><fileset dir="${out}" includes="**/*"/></delete>
+    <delete dir="${doc}"/>
+  </target>
+
+  <!-- Target for generating parsers for Sim-nML code from grammars with ANTLR -->
+  <property name="simnml_grammar.package" value="translator/simnml/grammar"/>
+  <property name="simnml_grammar.path"    value="${main.package}/${simnml_grammar.package}"/>
+  <property name="simnml_lexer.name"      value="SimnMLLexer.g"/>
+  <property name="simnml_parser.name"     value="SimnMLParser.g"/>
+  <property name="simnml_walker.name"     value="SimnMLTreeWalker.g"/>
+
+  <target name="antlr_simnml">
+    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
+  	<antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
+  	<antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
+  </target>
+
+  <!-- Target for generating parsers for MMU specification code from grammars with ANTLR -->
+  <property name="mmu_grammar.package" value="translator/mmu/grammar"/>
+  <property name="mmu_grammar.path"    value="${main.package}/${mmu_grammar.package}"/>
+  <property name="mmu_lexer.name"      value="MMuLexer.g"/>
+  <property name="mmu_parser.name"     value="MMuParser.g"/>
+  <property name="mmu_walker.name"     value="MMuTreeWalker.g"/>
+
+  <target name="antlr_mmu">
+    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
+    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
+  	<antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
+  </target>	
+
+  <!-- JavaDoc target, generates documentation for source code in ${src} and places it into ${doc} -->
+  <target name="javadoc" depends="init,antlr_simnml">
+    <mkdir dir="${doc}"/> 
+    <javadoc
+      sourcepath="${src}:${gen}"
+      destdir="${doc}"
       classpath="${classpath}"
-      includeantruntime="false"
-      deprecation="true"
+      author="true"
     />
-    <jar destfile="${dist}/${jar}" basedir="${microtesk.bin}">
-      <manifest>
-        <attribute name="Main-Class" value="${jar.mainclass}"/>
-        <attribute name="Class-Path" value="${jar.classpath}"/>
-      </manifest>
-    </jar>
+  </target>
+
+  <!-- JavaDoc target, generates documentation for source code in ${src} and ${src.mmu} and places it into ${doc} -->
+  <target name="javadoc_mmu" depends="init,antlr_simnml,antlr_mmu">
+    <mkdir dir="${doc}"/> 
+    <javadoc
+      sourcepath="${src}:${src.mmu}:${gen}"
+      destdir="${doc}"
+      classpath="${classpath}"
+      author="true"
+    />
+  </target>
+
+  <!-- Compiles with Javac source code in the ${src} folder (main functionality of MicroTESK) --> 	
+  <target name="javac.main">
+     <mkdir dir="${microtesk.bin}"/>
+     <javac
+       srcdir="${src}:${gen}"
+       destdir="${microtesk.bin}"
+     	excludes="**/mmu/**"
+       classpath="${classpath}"
+       includeantruntime="false"
+       deprecation="true"
+    />
+  </target>
+
+  <!-- Compiles with Javac source code in the ${src} and ${src.mmu} folders (main functionality + MMU support) --> 	
+  <target name="javac.mmu">
+     <mkdir dir="${microtesk.bin}"/>
+     <javac
+       srcdir="${src}:${src.mmu}:${gen}"
+       destdir="${microtesk.bin}"
+       classpath="${classpath}"
+       includeantruntime="false"
+       deprecation="true"
+    />
+  </target>
+
+  <!-- Build microtesk.jar from provided object files. -->
+  <target name="microtesk.jar">
+     <jar destfile="${dist.jars}/${jar}" basedir="${microtesk.bin}">
+	   <manifest>
+	     <attribute name="Main-Class" value="${jar.mainclass}"/>
+	     <attribute name="Class-Path" value="${jar.classpath}"/>
+	   </manifest>
+     </jar>
+  </target>
+
+  <target name="build.jar" depends="antlr_simnml,javac.main,microtesk.jar"/>
+  <target name="build.jar.mmu" depends="antlr_simnml,antlr_mmu,javac.mmu,microtesk.jar"/>
+
+  <target name="build.all" depends="clean,init,build.jar">
+  	<!-- Copies JAR dependencies to the distributive folder -->	
+  	<copy file="${jars.path}/${cli.jar}"      todir="${dist.jars}"/>
+  	<copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
+  	<copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
+
+  	<!-- Copies Ruby scripts -->
+	<copy todir="${dist}/libs/ruby" >  
+	   <fileset dir="src/main/ruby" includes="**"/>  
+	</copy>
+
+  	<!-- Copies batch files to the distributive folder -->
+	<copy todir="${dist}/bin">
+      <fileset dir="src/main/bash" includes="**"/>  
+	</copy>
+
+  	<!-- Copies examples of architecture specifications and test templates to the distributive folder -->
+  	<copy todir="${dist}/arch">
+  	   <fileset dir="src/main/arch" includes="**"/>  
+  	</copy>
+
   </target>
 
   <!-- Target for building models -->
-  <target name="build_models">
+  <target name="models.jar">
     <property name="models.classpath"     value="${dist}/${jar}"/>
     <property name="models.jar.classpath" value="${jar}"/>
     <property name="models.bin"           value="${bin}/models"/>
@@ -116,38 +207,8 @@
     </jar>
   </target>
 
-  <!-- Target for generating parsers from grammars with antlr -->
-  <target name="simnml_antlr">
-    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
-  	<antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
-  	<antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
-  </target>
-
-  <target name="mmu_antlr">
-    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
-    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
-  	<antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
-  </target>
-
-  <!-- Init target, creates dirs -->
-  <target name="init">
-    <mkdir dir="${gen}/${simnml_grammar.path}"/>
-    <mkdir dir="${gen}/${mmu_grammar.path}"/>
-    <mkdir dir="${bin}"/>
-    <mkdir dir="${dist}"/>
-  </target>
-
-  <!-- Clean target, removes builded dirs and files -->
-  <target name="clean">
-    <delete dir="${dist}"/>
-    <delete dir="${bin}"/>
-  	<delete includeEmptyDirs="true"><fileset dir="${gen}" includes="**/*"/></delete>
-  	<delete includeEmptyDirs="true"><fileset dir="${out}" includes="**/*"/></delete>
-    <delete dir="${doc}"/>
-  </target>
-
-  <!-- JUnit target (compile and run unit tests) -->
-  <target name="junit" depends="build">
+  <!-- Test target (compile and run JUnit tests) -->
+  <target name="test">
     <path id="classpath.test">
       <pathelement location="${classpath}"/>
       <pathelement location="${microtesk.bin}"/>
@@ -161,17 +222,6 @@
         <fileset dir="${src}" includes="**/tests/*TestCase*.java"/>
       </batchtest>
     </junit>
-  </target>
-	
-  <!-- JavaDoc target, generates documentation for source code in ${src} and places it into ${doc} -->
-  <target name="doc" depends="init,simnml_antlr,mmu_antlr">
-    <mkdir dir="${doc}"/> 
-    <javadoc
-      sourcepath="${src}:${gen}"
-      destdir="${doc}"
-      classpath="${classpath}"
-      author="true"
-    />
   </target>
 
 </project>
