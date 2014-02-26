@@ -34,7 +34,7 @@ public final class TemplateRunner
         final ScriptingContainer container = new ScriptingContainer();
 
         final String scriptsPath =
-            System.getProperty("user.dir") + "/dist/scripts/template_processor.rb";
+            System.getProperty("user.dir") + "/src/main/ruby/template_processor.rb";
                 
         container.setArgv(argv.toArray(new String[argv.size()]));
         container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
@@ -42,7 +42,7 @@ public final class TemplateRunner
 
     public static void main(String[] args)
     {
-        final String TEMPLATE_PATH_FORMAT = "%s/dist/scripts/templates/templates/%s";
+        final String TEMPLATE_PATH_FORMAT = "%s/src/main/ruby/templates/templates/%s";
 
         if (args.length < 2)
         {
