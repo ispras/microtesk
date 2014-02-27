@@ -2,36 +2,14 @@
 <project name="models" default="build" basedir=".">
 
   <!-- Directories -->
-  <property name="out" location="output"/>
-  <property name="bin" location="bin"/>
+  <property name="out"  location="output"/>
+  <property name="bin"  location="bin"/>
+  <property name="jars" location="../libs/jars"/>
 
-  <!-- Output JAR-file -->
-  <property name="jar"           value="microtesk.jar"/>
-  <!-- Main package -->
-  <property name="root.package"  value="ru"/>
-  <property name="main.package"  value="${root.package}/ispras/microtesk"/>
-
-  <!-- External JARs -->
-  <property name="cli.jar"       value="commons-cli-1.2.jar"/>
-  <property name="jruby.jar"     value="jruby.jar"/>
-  <property name="fortress.jar"  value="fortress.jar"/>
-
-  <!-- Information for the JAR manifest -->
-  <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>	
-  <property name="jar.classpath" value="${antlr.jar} ${cli.jar} ${jruby.jar} ${fortress.jar}"/>
-
-  <!-- Classpath for external libraries -->
-  <property name="jars.path" value="./jars"/>
-  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${fortress.jar}"/>
-
-  <!-- Options -->
-  <property name="debug" value="false"/>
-
-  <!-- Init target, creates dirs -->
-  <target name="init">
-	<mkdir dir="${out}"/>
-  	<mkdir dir="${bin}"/>
-  </target>
+  <property name="microtesk"            value="microtesk.jar"/>
+  <property name="models.classpath"     value="${jars}/${microtesk}"/>
+  <property name="models.jar"           value="${jars}/models.jar"/>
+  <property name="models.jar.classpath" value="${microtesk}"/>
 
   <!-- Clean target, removes builded dirs and files -->
   <target name="clean">
@@ -41,23 +19,15 @@
 
   <!-- Target for building models -->
   <target name="build">
-
-    <property name="models.classpath"     value="../libs/jars/microtesk.jar"/>
-    <property name="models.jar.classpath" value="microtesk.jar"/>
-    <property name="models.bin"           value="bin"/>
-    <property name="models.jar"           value="../libs/jars/models.jar"/>
-
-    <mkdir dir="${models.bin}"/>
+  	<mkdir dir="${bin}"/>
     <javac
       srcdir="${out}"
-      destdir="${models.bin}"
+      destdir="${bin}"
       classpath="${models.classpath}"
       includeantruntime="false"
     />
-
-    <jar destfile="${models.jar}" basedir="${models.bin}">
+    <jar destfile="${models.jar}" basedir="${bin}">
       <manifest>
-        <!-- <attribute name="Main-Class" value="${jar.mainclass}"/> -->
         <attribute name="Class-Path" value="${models.jar.classpath}"/>
       </manifest>
     </jar>
