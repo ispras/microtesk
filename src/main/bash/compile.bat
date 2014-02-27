@@ -1,7 +1,3 @@
 
-
-java -ea -jar "dist/jars/microtesk.jar" %*
-
-ant build_models
-
-
+java -ea -jar "../libs/jars/microtesk.jar" %*
+ant
