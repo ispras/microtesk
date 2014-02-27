@@ -5,9 +5,12 @@
   <property name="src"       location="src/main/java"/>
   <property name="src.mmu"   location="src/main/mmu/java"/>
   <property name="src.test"  location="src/test/java"/>
+  <property name="res"       location="src/main/resources"/>
+	
   <property name="gen"       location="gen"/>
   <property name="out"       location="output"/>
   <property name="bin"       location="bin"/>
+
   <property name="dist"      location="dist"/>
   <property name="dist.jars" location="${dist}/libs/jars"/>
   <property name="doc"       location="${dist}/javadoc"/>
@@ -150,6 +153,7 @@
   <!-- Build microtesk.jar from provided object files. -->
   <target name="microtesk.jar">
     <jar destfile="${dist.jars}/${jar}" basedir="${microtesk.bin}">
+      <fileset dir="${res}"/>
       <manifest>
         <attribute name="Main-Class" value="${jar.mainclass}"/>
         <attribute name="Class-Path" value="${jar.classpath}"/>
