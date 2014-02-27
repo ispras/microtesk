@@ -20,39 +20,38 @@ public class GenerationMain
         @Override
         public ST build(STGroup group)
         {
-
             final ST tHeader = group.getInstanceOf("header");
             //tHeader.add("file", "design.nml");
-            
+
             final ST tPackage = group.getInstanceOf("package");
             tPackage.add("pack", rootPackage);
-            
+
             final ST tImports = group.getInstanceOf("imports");
             tImports.add("names", new String[] { "org.stringtemplate.v4.ST", "org.stringtemplate.v4.STGroup" });
-            
+
             // modificators, name, base, interfaces, members
             final ST tClass = group.getInstanceOf("class");
 
             tClass.add("modifs",   "public");
-            tClass.add("modifs", "abstract");
-            
+            tClass.add("modifs",   "abstract");
+
             tClass.add("name",     "TestClass");
             tClass.add("ext",      "MyBaseClass");
             tClass.add("impls",    "IMyBaseClass");
             tClass.add("impls",    "IMyBaseClass2");
-            
+
             final ST tClass2 = group.getInstanceOf("class");
 
-            tClass2.add("modifs",   "public");
-            tClass2.add("modifs", "abstract");
-            
-            tClass2.add("name",     "TestClass");
-            tClass2.add("ext",      "MyBaseClass");
-            tClass2.add("impls",    "IMyBaseClass");
-            tClass2.add("impls",    "IMyBaseClass2");
-                        
+            tClass2.add("modifs",  "public");
+            tClass2.add("modifs",  "abstract");
+
+            tClass2.add("name",    "TestClass");
+            tClass2.add("ext",     "MyBaseClass");
+            tClass2.add("impls",   "IMyBaseClass");
+            tClass2.add("impls",   "IMyBaseClass2");
+
             tClass.add("members", tClass2);
-            
+
             return tHeader;
         }
     }
@@ -62,7 +61,7 @@ public class GenerationMain
         final IClassGenerator cg = new ClassGenerator
         (
             output,
-            new String[] { COMMON_TEMPLATE_DIR + "JavaCommon.stg"  },
+            new String[] { "stg/JavaCommon.stg" },
             new Builder()
         );
 
