@@ -44,15 +44,15 @@ public final class PackageInfo
      * to be reused in other templates.
      */
 
-    public static final String COMMON_TEMPLATE_DIR = TRANSLATOR_DIR + "generation/templates/";
-    
+    public static final String COMMON_TEMPLATE_DIR = "stg/";
+
     /**
      * Path to the folder that stores string templates (building blocks)
      * for generating model classes based on Sim-nML specifications.
      */
 
-    public static final String SIMNML_TEMPLATE_DIR = TRANSLATOR_DIR + "simnml/generation/templates/";
-    
+    public static final String SIMNML_TEMPLATE_DIR = "stg/simnml/";
+
     /**
      * The root folder for generated models. 
      */
@@ -76,9 +76,9 @@ public final class PackageInfo
      * 
      * Format parameters: model name.
      */
-    
+
     public static final String MODEL_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s";
-    
+
     /**
      * Format string for the main class file of the specified model.
      * 
