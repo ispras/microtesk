@@ -24,20 +24,8 @@ public final class PackageInfo
     /**
      * Extension for Java-files.
      */
-    
+
     public static final String JAVA_EXT = ".java";
-    
-    /**
-     * Path to the folder where the root package of MicroTESK is located.  
-     */
-
-    public static final String MICROTESK_DIR = "src/main/java/ru/ispras/microtesk/";
-
-    /**
-     * Path to the folder where the root package of the MicroTESK's DSL translator is located. 
-     */
-
-    public static final String TRANSLATOR_DIR = MICROTESK_DIR + "translator/"; 
 
     /**
      * Path to the folder that stores common templates (building blocks)
