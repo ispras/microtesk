@@ -189,11 +189,11 @@ mode ROR_IMMEDIATE (r : index, amount : Bit5) =
 
 // For Register specified right rotate with extend ( rotate right with carry )
 mode RRX (r : index) =
- 
+
     if (r == 15) then 
-        (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]+4) >> 1) 
+        (coerce(card(32), CPSR<29..29>) << 31) | ((GPR[r] + 4) >> 1) 
     else
-        (coerce(card(32),CPSR<29..29>) << 31) || ((GPR[r]) >> 1) 
+        (coerce(card(32), CPSR<29..29>) << 31) | ((GPR[r]) >> 1) 
     endif
 
     syntax = format("R%d , RRX ", r)
