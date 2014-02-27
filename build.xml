@@ -149,12 +149,12 @@
 
   <!-- Build microtesk.jar from provided object files. -->
   <target name="microtesk.jar">
-     <jar destfile="${dist.jars}/${jar}" basedir="${microtesk.bin}">
-	   <manifest>
-	     <attribute name="Main-Class" value="${jar.mainclass}"/>
-	     <attribute name="Class-Path" value="${jar.classpath}"/>
-	   </manifest>
-     </jar>
+    <jar destfile="${dist.jars}/${jar}" basedir="${microtesk.bin}">
+      <manifest>
+        <attribute name="Main-Class" value="${jar.mainclass}"/>
+        <attribute name="Class-Path" value="${jar.classpath}"/>
+      </manifest>
+    </jar>
   </target>
 
   <target name="build.jar" depends="antlr_simnml,javac.main,microtesk.jar"/>
@@ -203,6 +203,7 @@
       classpath="${models.classpath}"
       includeantruntime="false"
     />
+
     <jar destfile="${models.jar}" basedir="${models.bin}">
       <manifest>
         <!-- <attribute name="Main-Class" value="${jar.mainclass}"/> -->
