@@ -16,8 +16,6 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 public class GeneratorFactory
 {
-    private static final String SIMNML_TEMPLATE_DIR = TRANSLATOR_DIR + "simnml/generation/templates/";
-    
     private final String     specFileName;
     private final String modelRootPackage;
     private final String    modelRootPath;
