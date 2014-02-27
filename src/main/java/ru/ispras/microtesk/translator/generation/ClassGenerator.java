@@ -14,6 +14,7 @@ package ru.ispras.microtesk.translator.generation;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Stack;
 
 import org.stringtemplate.v4.ST;
@@ -100,11 +101,13 @@ public final class ClassGenerator implements IClassGenerator
         final Stack<STGroup> groupStack = new Stack<STGroup>();
         for (String groupFile : templateGroupFiles)
         {
-            final STGroup group = new STGroupFile(groupFile);
+            final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            final URL            groupUrl = classLoader.getResource(groupFile);
 
+            final STGroup group = new STGroupFile(groupUrl, "UTF-8", '<', '>');
             if (!groupStack.empty())
             {
-                STGroup parentGroup = groupStack.peek();
+                final STGroup parentGroup = groupStack.peek();
                 group.importTemplates(parentGroup);
             }
 
