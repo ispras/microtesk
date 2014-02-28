@@ -6,11 +6,11 @@
 
 require 'java'
 require "pathname"
-require_relative 'templates/config'
+require_relative 'config'
 require MODELS_JAR
 
-require_relative 'templates/lib/template_builder'
-require_relative 'templates/lib/template'
+require_relative 'lib/template_builder'
+require_relative 'lib/template'
 
 include TemplateBuilder
 
