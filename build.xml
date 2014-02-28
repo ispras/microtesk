@@ -178,7 +178,7 @@
 
   	<!-- Copies batch files to the distributive folder -->
 	<copy todir="${dist}/bin">
-      <fileset dir="src/main/bash" includes="**"/>  
+      <fileset dir="src/main/scripts" includes="**"/>  
 	</copy>
 
   	<!-- Copies examples of architecture specifications and test templates to the distributive folder -->
