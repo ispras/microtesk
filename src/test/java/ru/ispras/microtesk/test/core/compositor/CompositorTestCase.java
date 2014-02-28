@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.compositor.tests;
+package ru.ispras.microtesk.test.core.compositor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,7 +22,6 @@ import java.util.HashSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ru.ispras.microtesk.test.core.compositor.*;
 import ru.ispras.microtesk.test.core.iterator.*;
 
 /**
