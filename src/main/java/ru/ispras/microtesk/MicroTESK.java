@@ -15,18 +15,22 @@ package ru.ispras.microtesk;
 import org.apache.commons.cli.*;
 import ru.ispras.microtesk.translator.simnml.SimnMLAnalyzer;
 
-public class MicroTESK
+public final class MicroTESK
 {
+    private MicroTESK() {}
+
     private static class Parameters
     {
         public static final String INCLUDE = "i";
         public static final String HELP    = "h";
+        public static final String OUTDIR  = "d";
 
         private static Options options = new Options();
 
         static
         {
             options.addOption(INCLUDE, "include", true,  "Sets include files directories");
+            options.addOption(OUTDIR,  "dir",     true,  "Sets where to place generated Java files");
             options.addOption(HELP,    "help",    false, "Shows this message");
         };
 
@@ -47,20 +51,26 @@ public class MicroTESK
 
     public static void main(String[] args)
     {
-        SimnMLAnalyzer analyzer = new SimnMLAnalyzer();
+        final SimnMLAnalyzer analyzer = new SimnMLAnalyzer();
 
         try
         {
-            CommandLine params = Parameters.parse(args);
+            final CommandLine params = Parameters.parse(args);
+
+            if(params.hasOption(Parameters.HELP))
+            {
+                Parameters.help();
+                return;
+            }
 
             if(params.hasOption(Parameters.INCLUDE))
             {
                 analyzer.addPath(params.getOptionValue(Parameters.INCLUDE));
             }
 
-            if(params.hasOption(Parameters.HELP))
+            if(params.hasOption(Parameters.OUTDIR))
             {
-                Parameters.help();
+                analyzer.setOutDir(params.getOptionValue(Parameters.OUTDIR));
             }
 
             try
