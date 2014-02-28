@@ -18,6 +18,7 @@ package ru.ispras.microtesk.translator.antlrex;
 
 import java.io.File;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.antlr.runtime.*;
@@ -25,9 +26,9 @@ import org.antlr.runtime.*;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class IncludeFileFinder
+public final class IncludeFileFinder
 {
-    private LinkedList<String> dirs = new LinkedList<String>();
+    private List<String> dirs = new LinkedList<String>();
 
     public void addPath(final String path)
     {
@@ -36,12 +37,11 @@ public class IncludeFileFinder
 
     public void addPaths(final String paths)
     {
-        StringTokenizer tokenizer = new StringTokenizer(paths, File.pathSeparator);
+        final StringTokenizer tokenizer = new StringTokenizer(paths, File.pathSeparator);
 
         while(tokenizer.hasMoreTokens())
         {
-            String path = tokenizer.nextToken();
-
+            final String path = tokenizer.nextToken();
             addPath(path);
         }
     }
