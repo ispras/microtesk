@@ -11,7 +11,7 @@ public class GenerationMain
 {
     private static final String processorName = "TESTV4";
 
-    private static final String  rootOutput = String.format("%s/%s", MODEL_OUT_DIR, processorName);
+    private static final String  rootOutput = String.format("%s/%s", getModelOutDir(DEFAULT_OUTDIR), processorName);
     private static final String rootPackage = String.format("%s.%s", MODEL_PACKAGE, processorName);
     private static final String      output = String.format("%s/%s.java", rootOutput, processorName);
 

@@ -24,6 +24,7 @@ import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
+import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.keywords.JavaKeyword;
 import ru.ispras.microtesk.translator.keywords.RubyKeyword;
 import ru.ispras.microtesk.translator.simnml.generation.Generator;
@@ -133,7 +134,7 @@ public class SimnMLTranslator
         }
         ir.putInstructions(instructionBuilder.getInstructions());
 
-        final Generator generator = new Generator(modelName, getShortFileName(fileName), ir);
+        final Generator generator = new Generator(PackageInfo.DEFAULT_OUTDIR, modelName, getShortFileName(fileName), ir);
         generator.generate();
     }
 }

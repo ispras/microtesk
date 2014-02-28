@@ -24,6 +24,7 @@ import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
+import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.keywords.JavaKeyword;
 import ru.ispras.microtesk.translator.keywords.RubyKeyword;
 import ru.ispras.microtesk.translator.simnml.generation.Generator;
@@ -33,8 +34,10 @@ import ru.ispras.microtesk.translator.simnml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.InstructionBuilder;
 
-public class SimnMLAnalyzer
+public final class SimnMLAnalyzer
 {
+    private String outDir;
+    
     private final ILogStore LOG = new ILogStore()
     {
         @Override
@@ -43,6 +46,21 @@ public class SimnMLAnalyzer
             System.err.println(entry);
         }
     };
+
+    public SimnMLAnalyzer()
+    {
+        this.outDir = PackageInfo.DEFAULT_OUTDIR;
+    }
+
+    public String getOutDir()
+    {
+        return outDir;
+    }
+
+    public void setOutDir(String outDir)
+    {
+        this.outDir = outDir;
+    }
 
     private String getModelName(String fileName)
     {
@@ -154,7 +172,7 @@ public class SimnMLAnalyzer
     ///////////////////////////////////////////////////////////////////////////
     public void startGenerator(String modelName, String fileName, IR ir)
     {
-        final Generator generator = new Generator(modelName, fileName, ir);
+        final Generator generator = new Generator(outDir, modelName, fileName, ir);
         generator.generate();
     }
 

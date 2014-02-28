@@ -24,13 +24,15 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public class GeneratorFactory
+public final class GeneratorFactory
 {
+    private final String       outDir;
     private final String specFileName;
     private final String    modelName;
 
-    public GeneratorFactory(String modelName, String specFileName)
+    public GeneratorFactory(String outDir, String modelName, String specFileName)
     {
+        this.outDir       = outDir;
         this.specFileName = specFileName;
         this.modelName    = modelName.toLowerCase();
     }
@@ -38,7 +40,7 @@ public class GeneratorFactory
     public IClassGenerator createModelGenerator()
     {
         final String outputFileName =
-            String.format(MODEL_FILE_FORMAT, modelName);
+            String.format(getModelFileFormat(outDir), modelName);
 
         final String[] templateGroups = new String[]
         {
@@ -55,7 +57,7 @@ public class GeneratorFactory
     public IClassGenerator createSharedGenerator(IR ir)
     {
         final String outputFileName =
-            String.format(SHARED_FILE_FORMAT, modelName);
+            String.format(getSharedFileFormat(outDir), modelName);
 
         final String[] templateGroups = new String[]
         {
@@ -72,7 +74,7 @@ public class GeneratorFactory
     public IClassGenerator createInstructionSet(List<String> instructionClassNames)
     {
         final String outputFileName =
-            String.format(INSTRUCTION_SET_FILE_FORMAT, modelName);
+            String.format(getInstructionSetFileFormat(outDir), modelName);
 
         final String[] templateGroups = new String[]
         {
@@ -89,7 +91,7 @@ public class GeneratorFactory
     public IClassGenerator createInstruction(Instruction instruction)
     {
         final String outputFileName =
-            String.format(INSTRUCTION_FILE_FORMAT, modelName, instruction.getClassName());
+            String.format(getInstructionFileFormat(outDir), modelName, instruction.getClassName());
 
         final String[] templateGroups = new String[]
         {
@@ -106,7 +108,7 @@ public class GeneratorFactory
     public IClassGenerator createAddressingModeOr(PrimitiveOR mode)
     {
         final String outputFileName =
-            String.format(MODE_FILE_FORMAT, modelName, mode.getName());
+            String.format(getModeFileFormat(outDir), modelName, mode.getName());
 
         final String[] templateGroups = new String[]
         {
@@ -115,7 +117,7 @@ public class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-             new AddressingModeOrSTBuilder(specFileName, modelName, mode);
+            new AddressingModeOrSTBuilder(specFileName, modelName, mode);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -123,7 +125,7 @@ public class GeneratorFactory
     public IClassGenerator createAddressingMode(PrimitiveAND mode)
     {
         final String outputFileName =
-            String.format(MODE_FILE_FORMAT, modelName, mode.getName());
+            String.format(getModeFileFormat(outDir), modelName, mode.getName());
 
         final String[] templateGroups = new String[]
         {
@@ -132,7 +134,7 @@ public class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-             new AddressingModeSTBuilder(specFileName, modelName, mode);
+            new AddressingModeSTBuilder(specFileName, modelName, mode);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -140,7 +142,7 @@ public class GeneratorFactory
     public IClassGenerator createOperationOr(PrimitiveOR op)
     {
         final String outputFileName =
-            String.format(OP_FILE_FORMAT, modelName, op.getName());
+            String.format(getOpFileFormat(outDir), modelName, op.getName());
 
         final String[] templateGroups = new String[]
         {
@@ -157,7 +159,7 @@ public class GeneratorFactory
     public IClassGenerator createOperation(PrimitiveAND op)
     {
         final String outputFileName =
-            String.format(OP_FILE_FORMAT, modelName, op.getName());
+            String.format(getOpFileFormat(outDir), modelName, op.getName());
 
         final String[] templateGroups = new String[]
         {

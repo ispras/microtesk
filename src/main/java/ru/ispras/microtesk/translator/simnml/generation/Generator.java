@@ -28,9 +28,9 @@ public final class Generator
     private final GeneratorFactory factory;
     private final IR ir;
 
-    public Generator(String modelName, String specFileName, IR ir)
+    public Generator(String outDir, String modelName, String specFileName, IR ir)
     {
-        this.factory = new GeneratorFactory(modelName, specFileName);
+        this.factory = new GeneratorFactory(outDir, modelName, specFileName);
         this.ir = ir;
     }
 

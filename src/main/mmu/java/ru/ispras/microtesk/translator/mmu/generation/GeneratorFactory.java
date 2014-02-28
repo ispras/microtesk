@@ -24,7 +24,7 @@ public class GeneratorFactory
     {
         this.specFileName     = specFileName;
         this.modelRootPackage = MODEL_PACKAGE + "." + modelName.toLowerCase();
-        this.modelRootPath    = MODEL_OUT_DIR + "/" + modelName.toLowerCase();
+        this.modelRootPath    = getModelOutDir(DEFAULT_OUTDIR) + "/" + modelName.toLowerCase();
     }
 
     public IClassGenerator createModelGenerator()
