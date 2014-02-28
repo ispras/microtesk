@@ -1,2 +1,1 @@
-java -Xmx1024m -jar jars/jruby.jar dist/scripts/template_processor.rb %*
-
+java -Xmx1024m -jar "../libs/jars/jruby.jar" "../libs/ruby/template_processor.rb" %*
