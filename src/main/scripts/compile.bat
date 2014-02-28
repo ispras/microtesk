@@ -1,3 +1,3 @@
 
-java -ea -jar "../libs/jars/microtesk.jar" %*
+java -ea -jar "../libs/jars/microtesk.jar" -d "../output/src" %*
 ant

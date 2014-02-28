@@ -2,8 +2,9 @@
 <project name="models" default="build" basedir=".">
 
   <!-- Directories -->
-  <property name="out"  location="output"/>
-  <property name="bin"  location="bin"/>
+  <property name="out"  location="../output"/>
+  <property name="src"  location="${out}/src"/>
+  <property name="bin"  location="${out}/bin"/>
   <property name="jars" location="../libs/jars"/>
 
   <property name="microtesk"            value="microtesk.jar"/>
@@ -14,14 +15,13 @@
   <!-- Clean target, removes builded dirs and files -->
   <target name="clean">
     <delete dir="${out}"/>
-    <delete dir="${bin}"/>
   </target>
 
   <!-- Target for building models -->
   <target name="build">
   	<mkdir dir="${bin}"/>
     <javac
-      srcdir="${out}"
+      srcdir="${src}"
       destdir="${bin}"
       classpath="${models.classpath}"
       includeantruntime="false"
