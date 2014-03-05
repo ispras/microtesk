@@ -16,6 +16,7 @@
   <property name="doc"       location="${dist}/javadoc"/>
 
   <property name="microtesk.bin" value="${bin}/microtesk"/>
+  <property name="test.bin"      value="${bin}/tests"/>	
 
   <!-- Output JAR-file -->
   <property name="jar"           value="microtesk.jar"/>
@@ -150,6 +151,18 @@
     />
   </target>
 
+  <!-- Compiles with Javac source code of unit tests located in the ${src.test} folder --> 	
+  <target name="javac.test">
+     <mkdir dir="${test.bin}"/>
+     <javac
+       srcdir="${src.test}"
+       destdir="${test.bin}"
+       classpath="${classpath}:${dist.jars}/${jar}"
+       includeantruntime="false"
+       deprecation="true"
+    />
+  </target>
+
   <!-- Build microtesk.jar from provided object files. -->
   <target name="microtesk.jar">
     <jar destfile="${dist.jars}/${jar}" basedir="${microtesk.bin}">
@@ -217,10 +230,11 @@
   </target>
 
   <!-- Test target (compile and run JUnit tests) -->
-  <target name="test">
+  <target name="test" depends="javac.test">
     <path id="classpath.test">
-      <pathelement location="${classpath}"/>
-      <pathelement location="${microtesk.bin}"/>
+      <pathelement location="jars/junit-4.10.jar"/>
+      <pathelement location="${test.bin}"/>
+      <pathelement location="${dist.jars}/${jar}"/>
     </path>
 
     <junit fork="no" printsummary="yes" showoutput="yes">
@@ -228,7 +242,7 @@
       <formatter type="plain" usefile="false"/>
 
       <batchtest haltonfailure="no">
-        <fileset dir="${src}" includes="**/tests/*TestCase*.java"/>
+        <fileset dir="${src.test}" includes="**/*TestCase*.java"/>
       </batchtest>
     </junit>
   </target>
