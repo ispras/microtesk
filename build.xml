@@ -76,6 +76,7 @@
     <delete dir="${bin}"/>
   	<delete includeEmptyDirs="true"><fileset dir="${gen}" includes="**/*"/></delete>
   	<delete includeEmptyDirs="true"><fileset dir="${out}" includes="**/*"/></delete>
+  	<delete dir="target"/>
   </target>
 
   <!-- Target for generating parsers for Sim-nML code from grammars with ANTLR -->
@@ -237,11 +238,14 @@
       <pathelement location="${dist.jars}/${jar}"/>
     </path>
 
+  	<mkdir dir="target/tests/reports"/>
+
     <junit fork="no" printsummary="yes" showoutput="yes">
       <classpath refid="classpath.test"/>
       <formatter type="plain" usefile="false"/>
+      <formatter type="xml" usefile="true"/>
 
-      <batchtest haltonfailure="no">
+      <batchtest haltonfailure="no" todir="target/tests/reports">
         <fileset dir="${src.test}" includes="**/*TestCase*.java"/>
       </batchtest>
     </junit>
