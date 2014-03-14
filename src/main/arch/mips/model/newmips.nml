@@ -44,7 +44,10 @@ type cond           = card ( 4 )
 /* Memory and Registers                                                                     */
 /********************************************************************************************/
 
-mem M [ 2 ** 31, byte_t ] 
+// TODO: DUE TO RESTICTIONS OF THE FIRST PROTOTYPE MEMORY SIZE IS REDUCED
+// mem M[2 ** 31, byte_t] 
+mem M[2 ** 10, byte_t]
+ 
 reg GPR [ 2 ** REGS, signed_long ]
 
 // lower 32 bits of multiplication result and quotient of divition result
