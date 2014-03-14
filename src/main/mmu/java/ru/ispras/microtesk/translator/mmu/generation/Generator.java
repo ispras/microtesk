@@ -23,6 +23,7 @@ public final class Generator
             generateShared();
             generateInstructionSet();
             generateModel();
+            generateBuffer();
         }
         catch (IOException e)
         {
@@ -47,5 +48,10 @@ public final class Generator
         final IClassGenerator instructionSet = factory.createInstructionSet();
         instructionSet.generate();
     }
-
+    
+    private void generateBuffer() throws IOException 
+    {
+    	final IClassGenerator buffer = factory.createBufferGenerator();
+    	buffer.generate();
+    }
 }

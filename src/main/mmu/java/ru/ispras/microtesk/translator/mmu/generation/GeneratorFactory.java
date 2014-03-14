@@ -5,6 +5,7 @@ import ru.ispras.microtesk.translator.generation.IClassGenerator;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.mmu.generation.builders.AddressingModeOrSTBuilder;
 import ru.ispras.microtesk.translator.mmu.generation.builders.AddressingModeSTBuilder;
+import ru.ispras.microtesk.translator.mmu.generation.builders.BufferSTBBuilder;
 import ru.ispras.microtesk.translator.mmu.generation.builders.InstructionSetSTBuilder;
 import ru.ispras.microtesk.translator.mmu.generation.builders.ModelSTBuilder;
 import ru.ispras.microtesk.translator.mmu.generation.builders.OperationOrSTBuilder;
@@ -151,4 +152,26 @@ public class GeneratorFactory
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
+
+	public IClassGenerator createBufferGenerator() {
+		
+		 final String outputFileName =
+		            modelRootPath + "/buffer.java";
+
+		        final String packageName = 
+		            modelRootPackage + ".buff";
+
+		        final String[] templateGroups = new String[]
+		        {
+		            COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+		            SIMNML_TEMPLATE_DIR + "Buffer.stg"
+		        };
+
+				final ITemplateBuilder builder =
+		        new BufferSTBBuilder(specFileName, packageName, outputFileName);
+
+		        return new ClassGenerator(outputFileName, templateGroups, builder);
+		
+		
+	}
 }
