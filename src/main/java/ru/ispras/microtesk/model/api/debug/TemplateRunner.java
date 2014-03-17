@@ -42,8 +42,6 @@ public final class TemplateRunner
 
     public static void main(String[] args)
     {
-        final String TEMPLATE_PATH_FORMAT = "%s/src/main/ruby/templates/templates/%s";
-
         if (args.length < 2)
         {
             System.out.println("The following arguments are required: <design name>, <template file name>");
@@ -51,7 +49,7 @@ public final class TemplateRunner
         }
 
         final String   designName = args[0];
-        final String templatePath = String.format(TEMPLATE_PATH_FORMAT, System.getProperty("user.dir"), args[1]);
+        final String templatePath = args[1];
 
         if (!new File(templatePath).exists())
         {
