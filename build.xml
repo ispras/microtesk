@@ -244,6 +244,7 @@
     <property name="models.jar"           value="${dist.jars}/models.jar"/>
 
     <mkdir dir="${models.bin}"/>
+
     <javac
       srcdir="${dist}/output/src"
       destdir="${models.bin}"
