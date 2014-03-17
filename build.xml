@@ -177,28 +177,34 @@
 
   <target name="build.jar" depends="antlr_simnml,javac.main,microtesk.jar"/>
   <target name="build.jar.mmu" depends="antlr_simnml,antlr_mmu,javac.mmu,microtesk.jar"/>
+	
+  <!-- Copies required text files (Ruby and Bash scripts, nML files to the distributive folder -->
+  <target name="copy.scripts">
 
-  <target name="build.all" depends="clean,init,build.jar,javadoc">
+    <!-- Copies Ruby scripts -->
+    <copy todir="${dist}/libs/ruby" >  
+      <fileset dir="src/main/ruby" includes="**"/>  
+    </copy>
+
+    <!-- Copies batch files -->
+    <copy todir="${dist}/bin">
+      <fileset dir="src/main/scripts" includes="**"/>  
+    </copy>
+
+    <!-- Copies examples of architecture specifications and test templates -->
+    <copy todir="${dist}/arch">
+      <fileset dir="src/main/arch" includes="**"/>  
+    </copy>
+
+  </target>
+
+  <target name="build.all" depends="clean,init,build.jar,copy.scripts,javadoc">
+
   	<!-- Copies JAR dependencies to the distributive folder -->
   	<copy file="${jars.path}/${antlr.jar}"    todir="${dist.jars}"/>
   	<copy file="${jars.path}/${cli.jar}"      todir="${dist.jars}"/>
   	<copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
   	<copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
-
-  	<!-- Copies Ruby scripts -->
-	<copy todir="${dist}/libs/ruby" >  
-	   <fileset dir="src/main/ruby" includes="**"/>  
-	</copy>
-
-  	<!-- Copies batch files to the distributive folder -->
-	<copy todir="${dist}/bin">
-      <fileset dir="src/main/scripts" includes="**"/>  
-	</copy>
-
-  	<!-- Copies examples of architecture specifications and test templates to the distributive folder -->
-  	<copy todir="${dist}/arch">
-  	   <fileset dir="src/main/arch" includes="**"/>  
-  	</copy>
 
   	<!-- Copies MicroTESK documentation to the distributive folder -->
   	<copy todir="${dist}/xdocs">
