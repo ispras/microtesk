@@ -28,7 +28,7 @@ import org.jruby.embed.ScriptingContainer;
 public final class TemplateRunner
 {
     private TemplateRunner() {}
-    
+
     public static void runTemplate(List<String> argv)
     {
         final ScriptingContainer container = new ScriptingContainer();
