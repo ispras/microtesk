@@ -198,13 +198,15 @@
 
   </target>
 
-  <target name="build.all" depends="clean,init,build.jar,copy.scripts,javadoc">
-
-  	<!-- Copies JAR dependencies to the distributive folder -->
-  	<copy file="${jars.path}/${antlr.jar}"    todir="${dist.jars}"/>
+  <!-- Copies all required JARS to the distributive folder -->
+  <target name="copy.jars">
+	<copy file="${jars.path}/${antlr.jar}"    todir="${dist.jars}"/>
   	<copy file="${jars.path}/${cli.jar}"      todir="${dist.jars}"/>
   	<copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
   	<copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
+  </target>
+
+  <target name="build.all" depends="clean,init,build.jar,copy.jars,copy.scripts,javadoc,models.jar">
 
   	<!-- Copies MicroTESK documentation to the distributive folder -->
   	<copy todir="${dist}/xdocs">
@@ -212,17 +214,38 @@
   	</copy>
 
   </target>
-
-  <!-- Target for building models -->
+	
+   <!-- Target for generating and building models -->
   <target name="models.jar">
-    <property name="models.classpath"     value="${dist}/${jar}"/>
+
+    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg value="-d"/>
+      <arg value="${dist}/output/src"/>
+      <arg value="${dist}/arch/arm/model/arm.nml"/>
+      <classpath>
+      	<pathelement location="${dist.jars}/${jar}"/>
+      </classpath>
+    </java>
+
+    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+  	  <jvmarg value="-ea"/>
+  	  <arg value="-d"/>
+  	  <arg value="${dist}/output/src"/>
+  	  <arg value="${dist}/arch/mips/model/newmips.nml"/>
+  	  <classpath>
+  	    <pathelement location="${dist.jars}/${jar}"/>
+  	  </classpath>
+    </java>
+  	
+    <property name="models.classpath"     value="${dist.jars}/${jar}"/>
     <property name="models.jar.classpath" value="${jar}"/>
-    <property name="models.bin"           value="${bin}/models"/>
-    <property name="models.jar"           value="${dist}/models.jar"/>
+    <property name="models.bin"           value="${dist}/output/bin"/>
+    <property name="models.jar"           value="${dist.jars}/models.jar"/>
 
     <mkdir dir="${models.bin}"/>
     <javac
-      srcdir="${out}"
+      srcdir="${dist}/output/src"
       destdir="${models.bin}"
       classpath="${models.classpath}"
       includeantruntime="false"
