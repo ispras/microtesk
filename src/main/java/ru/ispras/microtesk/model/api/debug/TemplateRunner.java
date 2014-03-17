@@ -33,9 +33,9 @@ public final class TemplateRunner
     {
         final ScriptingContainer container = new ScriptingContainer();
 
-        final String scriptsPath =
-            System.getProperty("user.dir") + "/src/main/ruby/template_processor.rb";
-                
+        final String scriptsPath = 
+            String.format("%s/src/main/ruby/template_processor.rb", System.getProperty("user.dir"));
+
         container.setArgv(argv.toArray(new String[argv.size()]));
         container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
     }
@@ -49,7 +49,7 @@ public final class TemplateRunner
         }
 
         final String   designName = args[0];
-        final String templatePath = args[1];
+        final String templatePath = String.format("%s/%s", System.getProperty("user.dir"), args[1]);
 
         if (!new File(templatePath).exists())
         {
