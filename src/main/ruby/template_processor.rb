@@ -7,7 +7,6 @@
 require 'java'
 require "pathname"
 require_relative 'config'
-require MODELS_JAR
 
 require_relative 'lib/template_builder'
 require_relative 'lib/template'
@@ -26,14 +25,14 @@ WD = Dir.pwd
 
 def self.main
   check_arguments
-  model = create_model(ARGV[0])
+  model = create_model(get_full_name(ARGV[0]), ARGV[1])
 
-  template_file = get_full_name(ARGV[1])
+  template_file = get_full_name(ARGV[2])
   puts "Template: " + template_file
 
-  output_file = if ARGV.count > 2 then get_full_name(ARGV[2]) else nil end
+  output_file = if ARGV.count > 3 then get_full_name(ARGV[3]) else nil end
   if output_file then puts "Output file: " + output_file end
-
+  
   template_classes = prepare_template_classes(model, template_file)
   template_classes.each do |template_class|
     begin
@@ -63,13 +62,15 @@ def self.main
 end
 
 def self.check_arguments
-  if ARGV.count < 2
+  if ARGV.count < 3
     abort "Wrong number of arguments. At least two are required.\r\n" + 
-          "Argument format: <model name>, <template file>[, <output file>]"
+          "Argument format: <model file>, <model name>, <template file>[, <output file>]"
   end
 end
 
-def self.create_model(model_name)
+def self.create_model(model_file, model_name)
+  require model_file
+
   model_class_name = sprintf(MODEL_CLASS_FRMT, model_name)
 
   printf("Creating the %s model object (%s)...\r\n", model_name, model_class_name) 
