@@ -29,7 +29,7 @@ public final class TemplateRunner
 {
     private TemplateRunner() {}
 
-    public static void runTemplate(List<String> argv)
+    private static void runTemplate(List<String> argv)
     {
         final ScriptingContainer container = new ScriptingContainer();
 
@@ -42,14 +42,21 @@ public final class TemplateRunner
 
     public static void main(String[] args)
     {
-        if (args.length < 2)
+        if (args.length < 3)
         {
-            System.out.println("The following arguments are required: <design name>, <template file name>");
+            System.out.println("The following arguments are required: <model file>, <design name>, <template file name>");
             return;
         }
 
-        final String   designName = args[0];
-        final String templatePath = String.format("%s/%s", System.getProperty("user.dir"), args[1]);
+        final String       models = String.format("%s/%s", System.getProperty("user.dir"), args[0]);
+        final String   designName = args[1];
+        final String templatePath = String.format("%s/%s", System.getProperty("user.dir"), args[2]);
+
+        if (!new File(models).exists())
+        {
+            System.out.printf("The %s file storing models does not exists.", templatePath);
+            return; 
+        }
 
         if (!new File(templatePath).exists())
         {
@@ -59,10 +66,11 @@ public final class TemplateRunner
 
         final List<String> argv = new ArrayList<String>();
 
+        argv.add(models);
         argv.add(designName);
         argv.add(templatePath);
 
-        for (int index = 2; index < args.length; ++index)
+        for (int index = 3; index < args.length; ++index)
             argv.add(args[index]);
 
         runTemplate(argv);
