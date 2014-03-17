@@ -54,7 +54,7 @@ public final class TemplateRunner
 
         if (!new File(models).exists())
         {
-            System.out.printf("The %s file storing models does not exists.", templatePath);
+            System.out.printf("The %s model file does not exists.", models);
             return; 
         }
 
