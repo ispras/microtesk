@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="microtesk" default="build.all" basedir=".">
+	
+  <!-- MicroTESK version -->
+  <property name="version.status" value="beta"/>
+  <property name="version.build"  value="0"/>
+  <property name="version.patch"  value="0"/>
+  <property name="version.date"   value="140220"/>
+  <property name="version.major"  value="0"/>
+  <property name="version.minor"  value="1"/>
 
   <!-- Directories -->
   <property name="src"       location="src/main/java"/>
@@ -171,6 +179,9 @@
       <manifest>
         <attribute name="Main-Class" value="${jar.mainclass}"/>
         <attribute name="Class-Path" value="${jar.classpath}"/>
+        <attribute name="Title"      value="MicroTESK"/>
+        <attribute name="Version"    value="${version.major}.${version.minor}.${version.build}-${version.status}-${version.date}"/>
+        <attribute name="Vendor"     value="ISPRAS (www.ispras.ru)"/>
       </manifest>
     </jar>
   </target>
@@ -205,16 +216,24 @@
   	<copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
   	<copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
   </target>
-
-  <target name="build.all" depends="clean,init,build.jar,copy.jars,copy.scripts,javadoc,models.jar">
-
-  	<!-- Copies MicroTESK documentation to the distributive folder -->
-  	<copy todir="${dist}/xdocs">
+	
+  <!-- Copies MicroTESK documentation to the distributive folder -->
+  <target name="copy.docs">
+    <copy todir="${dist}/xdocs">
   	   <fileset dir="xdocs" includes="**"/>  
   	</copy>
-
   </target>
-	
+
+  <target name="build.all" depends="clean,init,build.jar,copy.jars,copy.scripts,javadoc,copy.docs,models.jar,pack.all">
+  </target>
+
+  <target name="pack.all">
+    <tar destfile="${dist}/microtesk-${version.major}.${version.minor}.${version.build}-${version.status}-${version.date}.tar.gz"
+         longfile="gnu" compression="gzip">
+      <fileset dir="${dist}"/>
+    </tar>
+  </target>
+
    <!-- Target for generating and building models -->
   <target name="models.jar">
 
@@ -256,6 +275,9 @@
       <manifest>
         <!-- <attribute name="Main-Class" value="${jar.mainclass}"/> -->
         <attribute name="Class-Path" value="${models.jar.classpath}"/>
+        <attribute name="Title"      value="MicroTESK Models"/>
+        <attribute name="Version"    value="${version.major}.${version.minor}.${version.build}-${version.status}-${version.date}"/>
+        <attribute name="Vendor"     value="ISPRAS (www.ispras.ru)"/>
       </manifest>
     </jar>
   </target>
