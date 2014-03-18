@@ -24,7 +24,11 @@ module MTRuby
 WD = Dir.pwd
 
 def self.main
+  puts "Current directory: " + WD
+
   check_arguments
+  check_tools
+
   model = create_model(get_full_name(ARGV[0]), ARGV[1])
 
   template_file = get_full_name(ARGV[2])
@@ -66,6 +70,16 @@ def self.check_arguments
     abort "Wrong number of arguments. At least two are required.\r\n" + 
           "Argument format: <model file>, <model name>, <template file>[, <output file>]"
   end
+end
+
+def self.check_tools
+  path = File.absolute_path("../tools")
+
+  if !File.exists?(path) || !File.directory?(path)
+      abort "The '" + path + "' folder does not exist.\r\n" +
+            "It stores external constraint solver engines and is required to generate constraint-based test data."
+  end
+
 end
 
 def self.create_model(model_file, model_name)
