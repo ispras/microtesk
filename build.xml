@@ -21,7 +21,7 @@
 
   <property name="dist"      location="dist"/>
   <property name="dist.jars" location="${dist}/libs/jars"/>
-  <property name="doc"       location="${dist}/javadoc"/>
+  <property name="doc"       location="${dist}/doc"/>
 
   <property name="microtesk.bin" value="${bin}/microtesk"/>
   <property name="test.bin"      value="${bin}/tests"/>	
@@ -113,23 +113,23 @@
   	<antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
   </target>	
 
-  <!-- JavaDoc target, generates documentation for source code in ${src} and places it into ${doc} -->
+  <!-- JavaDoc target, generates documentation for source code in ${src} and places it into ${doc}/javadoc -->
   <target name="javadoc" depends="init,antlr_simnml">
-    <mkdir dir="${doc}"/> 
+    <mkdir dir="${doc}/javadoc"/> 
     <javadoc
       sourcepath="${src}:${gen}"
-      destdir="${doc}"
+      destdir="${doc}/javadoc"
       classpath="${classpath}"
       author="true"
     />
   </target>
 
-  <!-- JavaDoc target, generates documentation for source code in ${src} and ${src.mmu} and places it into ${doc} -->
+  <!-- JavaDoc target, generates documentation for source code in ${src} and ${src.mmu} and places it into ${doc}/javadoc -->
   <target name="javadoc_mmu" depends="init,antlr_simnml,antlr_mmu">
-    <mkdir dir="${doc}"/> 
+    <mkdir dir="${doc}/javadoc"/> 
     <javadoc
       sourcepath="${src}:${src.mmu}:${gen}"
-      destdir="${doc}"
+      destdir="${doc}/javadoc"
       classpath="${classpath}"
       author="true"
     />
@@ -219,18 +219,18 @@
 	
   <!-- Copies MicroTESK documentation to the distributive folder -->
   <target name="copy.docs">
-    <copy todir="${dist}/xdocs">
+    <copy todir="${doc}">
   	   <fileset dir="xdocs" includes="**"/>  
   	</copy>
   </target>
 
-  <target name="build.all" depends="clean,init,build.jar,copy.jars,copy.scripts,javadoc,copy.docs,models.jar,pack.all">
+  <target name="build.all" depends="clean,init,build.jar,copy.jars,copy.scripts,copy.docs,models.jar,pack.all">
   </target>
 
   <target name="pack.all">
     <tar destfile="${dist}/microtesk-${version.major}.${version.minor}.${version.build}-${version.status}-${version.date}.tar.gz"
          longfile="gnu" compression="gzip">
-      <fileset dir="${dist}"/>
+      <fileset dir="${dist}" excludes="**/output/bin/**"/>
     </tar>
   </target>
 
