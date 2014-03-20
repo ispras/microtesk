@@ -12,7 +12,9 @@
 
     sh build.sh clean 
 
- Working with the project in the Eclipse IDE:
+----------------------------------------------------------------
+
+ Working with MicroTEST in the Eclipse IDE:
 
  1. Create a workspace located in the "<microtesk>/trunk" directory.
 
