@@ -36,6 +36,7 @@ public final class ADD_Overflow extends ConstraintBasedSituation
         );
     }
     
+    // TODO: Need a new library class for this purpose.
     private static final class ConstraintFactory implements IConstraintFactory
     {
         @Override
