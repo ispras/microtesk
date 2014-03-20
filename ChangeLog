@@ -1,24 +1,20 @@
-----------------------------------------------------------------
- MicroTESK Version
-----------------------------------------------------------------
+--------------------------------------------------------------------------------
+ MicroTESK Builds
+--------------------------------------------------------------------------------
 
  2014/03/20 MicroTESK 2.0 beta
  
- MicroTESK is an open-source framework for generating test programs
- for microprocessors. It is customized for a specific microprocessor
- architecture with formal specifications in nML/Sim-nML. Test programs
- are generated on a basis of test templates that represent an abstract
- description of a test case. Flexible and convenient Ruby-based test
- template language allows creating a wide range of tests (from random
- to directed) with a minimal effort.     
+ MicroTESK is an open-source framework for generating test programs for
+ microprocessors. It is customized for a specific microprocessor architecture
+ with formal specifications in nML/Sim-nML. Test programs are generated on a
+ basis of test templates, which are abstract descriptions of test scenarios.
+ Flexible and convenient Ruby-based test template language allows creating a
+ wide range of tests (from random to directed) with minimal efforts.
 
-----------------------------------------------------------------
-
+--------------------------------------------------------------------------------
  2013/02/22 MicroTESK 2.0 alpha
-----------------------------------------------------------------
-
+--------------------------------------------------------------------------------
  2009/08/20 MicroTESK 1.0 beta
-----------------------------------------------------------------
-
+--------------------------------------------------------------------------------
  Since 2007 MicroTESK 0.0 alpha
-----------------------------------------------------------------
+--------------------------------------------------------------------------------
