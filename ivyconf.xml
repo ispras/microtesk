@@ -1,0 +1,14 @@
+<ivy-module version="1.3">
+    <ivysettings>
+        <settings defaultResolver="chained"/>
+        <resolvers>
+            <chain name="chained" returnFirst="true">
+                <url name="forge">
+                    <artifact pattern="http://forge.ispras.ru/repo/[module]/[type]s/[artifact]-[revision].[ext]"/>
+                </url>
+                <!-- mirrors -->
+            </chain>
+        </resolvers>
+   </ivysettings>
+</ivy-module>
+
