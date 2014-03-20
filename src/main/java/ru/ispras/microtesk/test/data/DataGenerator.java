@@ -136,6 +136,10 @@ public class DataGenerator
         final ISituation situation =
             instruction.createSituation(situationInfo.getName());
 
+        // This is needed for situations like random that do not have a signature 
+        // and generate values for any parameters the client code might request.
+        // Other situations may ignore these calls.
+
         for (Argument argument : abstractCall.getArguments().values())
             situation.setOutput(argument.getName());
 
