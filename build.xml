@@ -1,20 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ * Copyright 2014 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+  -->
+
 <project name="microtesk" default="build.all" basedir=".">
 	
-  <!-- MicroTESK version -->
-  <property name="version.status" value="beta"/>
-  <property name="version.build"  value="0"/>
-  <property name="version.patch"  value="0"/>
-  <property name="version.date"   value="140220"/>
-  <property name="version.major"  value="0"/>
-  <property name="version.minor"  value="1"/>
+  <property name="buildbase.dir" value="tools/buildbase"/>
+
+  <fail>
+  Please, prepare build environment:
+  1. run 'ant -f setup.xml' to get latest BuildBase build script.
+  2. run Ant again
+    <condition>
+      <not>
+        <available file="${buildbase.dir}/buildbase.xml"/>
+      </not>
+    </condition>
+  </fail>
+
+  <import file="${buildbase.dir}/buildbase.xml"/>
+
+  <!-- Exported properties -->
+  <property file="module.properties"/>
+  <property file="version.properties"/>
+	
+  <!-- MicroTESK version --> 
+  <property name="fullver" value="${module.version.major}.${module.version.minor}.${module.version.build}-${module.version.status}-${module.version.date}"/>
 
   <!-- Directories -->
-  <property name="src"       location="src/main/java"/>
-  <property name="src.mmu"   location="src/main/mmu/java"/>
-  <property name="src.test"  location="src/test/java"/>
-  <property name="res"       location="src/main/resources"/>
-	
   <property name="gen"       location="gen"/>
   <property name="out"       location="output"/>
   <property name="bin"       location="bin"/>
@@ -95,9 +121,9 @@
   <property name="simnml_walker.name"     value="SimnMLTreeWalker.g"/>
 
   <target name="antlr_simnml">
-    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
-  	<antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
-  	<antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src}"/>
+    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}" grammar.root="${src.java.dir}"/>
+    <antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src.java.dir}"/>
+    <antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src.java.dir}"/>
   </target>
 
   <!-- Target for generating parsers for MMU specification code from grammars with ANTLR -->
@@ -108,38 +134,38 @@
   <property name="mmu_walker.name"     value="MMuTreeWalker.g"/>
 
   <target name="antlr_mmu">
-    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
-    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
-  	<antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu}"/>
+    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu.java.dir}"/>
+    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu.java.dir}"/>
+    <antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu.java.dir}"/>
   </target>	
 
-  <!-- JavaDoc target, generates documentation for source code in ${src} and places it into ${doc}/javadoc -->
+  <!-- JavaDoc target, generates documentation for source code in ${src.java.dir} and places it into ${doc}/javadoc -->
   <target name="javadoc" depends="init,antlr_simnml">
     <mkdir dir="${doc}/javadoc"/> 
     <javadoc
-      sourcepath="${src}:${gen}"
+      sourcepath="${src.java.dir}:${gen}"
       destdir="${doc}/javadoc"
       classpath="${classpath}"
       author="true"
     />
   </target>
 
-  <!-- JavaDoc target, generates documentation for source code in ${src} and ${src.mmu} and places it into ${doc}/javadoc -->
+  <!-- JavaDoc target, generates documentation for source code in ${src.java.dir} and ${src.mmu.java.dir} and places it into ${doc}/javadoc -->
   <target name="javadoc_mmu" depends="init,antlr_simnml,antlr_mmu">
     <mkdir dir="${doc}/javadoc"/> 
     <javadoc
-      sourcepath="${src}:${src.mmu}:${gen}"
+      sourcepath="${src.java.dir}:${src.mmu.java.dir}:${gen}"
       destdir="${doc}/javadoc"
       classpath="${classpath}"
       author="true"
     />
   </target>
 
-  <!-- Compiles with Javac source code in the ${src} folder (main functionality of MicroTESK) --> 	
+  <!-- Compiles with Javac source code in the ${src.java.dir} folder (main functionality of MicroTESK) --> 	
   <target name="javac.main">
      <mkdir dir="${microtesk.bin}"/>
      <javac
-       srcdir="${src}:${gen}"
+       srcdir="${src.java.dir}:${gen}"
        destdir="${microtesk.bin}"
        excludes="**/mmu/**"
        classpath="${classpath}"
@@ -148,11 +174,11 @@
     />
   </target>
 
-  <!-- Compiles with Javac source code in the ${src} and ${src.mmu} folders (main functionality + MMU support) --> 	
+  <!-- Compiles with Javac source code in the ${src.java.dir} and ${src.mmu.java.dir} folders (main functionality + MMU support) --> 	
   <target name="javac.mmu">
      <mkdir dir="${microtesk.bin}"/>
      <javac
-       srcdir="${src}:${src.mmu}:${gen}"
+       srcdir="${src.java.dir}:${src.mmu.java.dir}:${gen}"
        destdir="${microtesk.bin}"
        classpath="${classpath}"
        includeantruntime="false"
@@ -160,11 +186,11 @@
     />
   </target>
 
-  <!-- Compiles with Javac source code of unit tests located in the ${src.test} folder --> 	
+  <!-- Compiles with Javac source code of unit tests located in the ${src.test.java.dir} folder --> 	
   <target name="javac.test">
      <mkdir dir="${test.bin}"/>
      <javac
-       srcdir="${src.test}"
+       srcdir="${src.test.java.dir}"
        destdir="${test.bin}"
        classpath="${classpath}:${dist.jars}/${jar}"
        includeantruntime="false"
@@ -175,12 +201,12 @@
   <!-- Build microtesk.jar from provided object files. -->
   <target name="microtesk.jar">
     <jar destfile="${dist.jars}/${jar}" basedir="${microtesk.bin}">
-      <fileset dir="${res}"/>
+      <fileset dir="${src.res.dir}"/>
       <manifest>
         <attribute name="Main-Class" value="${jar.mainclass}"/>
         <attribute name="Class-Path" value="${jar.classpath}"/>
         <attribute name="Title"      value="MicroTESK"/>
-        <attribute name="Version"    value="${version.major}.${version.minor}.${version.build}-${version.status}-${version.date}"/>
+        <attribute name="Version"    value="${fullver}"/>
         <attribute name="Vendor"     value="ISPRAS (www.ispras.ru)"/>
       </manifest>
     </jar>
@@ -228,7 +254,7 @@
   </target>
 
   <target name="pack.all">
-    <tar destfile="${dist}/microtesk-${version.major}.${version.minor}.${version.build}-${version.status}-${version.date}.tar.gz"
+    <tar destfile="${dist}/${module.name}-${fullver}.tar.gz"
          longfile="gnu" compression="gzip">
       <fileset dir="${dist}" excludes="**/output/bin/**"/>
     </tar>
@@ -276,7 +302,7 @@
         <!-- <attribute name="Main-Class" value="${jar.mainclass}"/> -->
         <attribute name="Class-Path" value="${models.jar.classpath}"/>
         <attribute name="Title"      value="MicroTESK Models"/>
-        <attribute name="Version"    value="${version.major}.${version.minor}.${version.build}-${version.status}-${version.date}"/>
+        <attribute name="Version"    value="${fullver}"/>
         <attribute name="Vendor"     value="ISPRAS (www.ispras.ru)"/>
       </manifest>
     </jar>
@@ -298,7 +324,7 @@
       <formatter type="xml" usefile="true"/>
 
       <batchtest haltonfailure="no" todir="target/tests/reports">
-        <fileset dir="${src.test}" includes="**/*TestCase*.java"/>
+        <fileset dir="${src.test.java.dir}" includes="**/*TestCase*.java"/>
       </batchtest>
     </junit>
   </target>
