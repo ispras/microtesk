@@ -77,6 +77,12 @@
   <!-- Options -->
   <property name="debug" value="false"/>
 
+  <!-- Task definition for ANTLR -->
+  <taskdef name="ant-antlr3"
+	classname="org.apache.tools.ant.antlr.ANTLR3"
+  	classpath="${jars.path}/${antlr.ant.jar}"
+  />
+
   <!-- Macro for ANTRL targets -->
   <macrodef name="antlr3">
   	<attribute name="grammar.root"/>
@@ -84,7 +90,7 @@
     <attribute name="grammar.name"/>
 	<sequential>
 	  <echo message="antlr @{grammar.name}"/>
-	  <antlr:ant-antlr3
+	  <ant-antlr3
 	    xmlns:antlr="antlib:org/apache/tools/ant/antlr"
 	    target="@{grammar.root}/@{grammar.path}/@{grammar.name}"
 	    outputdirectory="${gen}/@{grammar.path}"
@@ -92,7 +98,7 @@
 	    <classpath>
 	      <pathelement path="${classpath}"/>
 	    </classpath>
-	  </antlr:ant-antlr3>
+	  </ant-antlr3>
     </sequential>
   </macrodef>
 
