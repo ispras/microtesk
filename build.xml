@@ -103,7 +103,7 @@
   </macrodef>
 
   <!-- Init target, creates dirs -->
-  <target name="init">
+  <target name="create.dirs">
     <mkdir dir="${gen}/${simnml_grammar.path}"/>
 	<mkdir dir="${gen}/${mmu_grammar.path}"/>
 	<mkdir dir="${bin}"/>
@@ -256,7 +256,7 @@
   	</copy>
   </target>
 
-  <target name="build.all" depends="clean,init,build.jar,copy.jars,copy.scripts,copy.docs,models.jar,pack.all">
+  <target name="build.all" depends="init,clean,create.dirs,build.jar,copy.jars,copy.scripts,copy.docs,models.jar,pack.all">
   </target>
 
   <target name="pack.all">
