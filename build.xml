@@ -283,7 +283,7 @@
   	  <jvmarg value="-ea"/>
   	  <arg value="-d"/>
   	  <arg value="${dist}/output/src"/>
-  	  <arg value="${dist}/arch/mips/model/newmips.nml"/>
+  	  <arg value="${dist}/arch/mips/model/mips.nml"/>
   	  <classpath>
   	    <pathelement location="${dist.jars}/${jar}"/>
   	  </classpath>
