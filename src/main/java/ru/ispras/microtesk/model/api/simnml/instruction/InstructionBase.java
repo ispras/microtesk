@@ -78,26 +78,6 @@ public abstract class InstructionBase implements IInstructionEx
      * @param name Instruction name.
      * @param params List of instruction parameter declarations.
      */
-        
-    public InstructionBase(String name, ParamDecl[] params)
-    {
-        // TODO: Temporary code that assigns the "random" situation to all instructions
-        // that have at least one parameter. This is not exactly how it should be.
-        // It should work only for parameters that represent input values (not flags, not output values). 
-
-        this(
-            name,
-            params,
-            params.length == 0 ?
-                new ISituation.IInfo[] {} :
-                new ISituation.IInfo[]
-                {
-                    RandomSituation.INFO,
-                    AddOverflowSituation.INFO,
-                    AddNormalSituation.INFO
-                }
-        );
-    }
 
     public InstructionBase(String name, ParamDecl[] params, ISituation.IInfo[] situationInfos)
     {

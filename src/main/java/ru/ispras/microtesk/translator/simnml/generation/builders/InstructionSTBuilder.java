@@ -23,6 +23,10 @@ import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.InstructionBase;
 import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.situation.ISituation;
+import ru.ispras.microtesk.model.api.situation.builtin.AddNormalSituation;
+import ru.ispras.microtesk.model.api.situation.builtin.AddOverflowSituation;
+import ru.ispras.microtesk.model.api.situation.builtin.RandomSituation;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
@@ -41,7 +45,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
 
     private boolean    immsImported = false;
     private boolean needModeImports = false;
-
+    
     public InstructionSTBuilder(
         String specFileName,
         String modelName,
@@ -68,6 +72,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
         t.add("imps", InstructionCall.class.getName());
         t.add("imps", InstructionBase.class.getName());
         t.add("imps", IAddressingMode.class.getName());
+        t.add("imps", ISituation.class.getName());
         
         if (needModeImports)
         	t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
@@ -116,6 +121,25 @@ public class InstructionSTBuilder implements ITemplateBuilder
         }
     }
 
+    private void buildSituations(ST t)
+    {
+        // TODO: Temporary code that assigns the "random" situation to all instructions
+        // that have at least one parameter. This is not exactly how it should be.
+        // It should work only for parameters that represent input values (not flags, not output values). 
+
+        if (!instruction.getArguments().isEmpty())
+        {
+            t.add("situation_names", RandomSituation.class.getSimpleName());
+            t.add("imps", RandomSituation.class.getName());
+            
+            t.add("situation_names", AddOverflowSituation.class.getSimpleName());
+            t.add("imps", AddOverflowSituation.class.getName());
+            
+            t.add("situation_names", AddNormalSituation.class.getSimpleName());
+            t.add("imps", AddNormalSituation.class.getName());
+        }
+    }
+
     private void buildPrimitiveTree(STGroup group, ST t)
     {
         final PrimitiveAND root = instruction.getRootOperation();
@@ -153,6 +177,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
         final ST t = group.getInstanceOf("instruction");
 
         buildParameters(t);
+        buildSituations(t);
         buildPrimitiveTree(group, t);
         buildHeader(t);
 

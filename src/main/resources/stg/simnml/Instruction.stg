@@ -12,7 +12,7 @@
  
 group Instruction;
 
-instruction(name, class_name, file, pack, imps, simps, base, param_names, param_type_names, op_tree) ::= <<
+instruction(name, class_name, file, pack, imps, simps, base, param_names, param_type_names, situation_names, op_tree) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -21,12 +21,13 @@ instruction(name, class_name, file, pack, imps, simps, base, param_names, param_
        class_name,
        base,
        false,
-       body(name, class_name, param_names, param_type_names, op_tree))> 
+       body(name, class_name, param_names, param_type_names, situation_names, op_tree))> 
 >>
 
-body(name, class_name, param_names, param_type_names, op_tree) ::= <<
+body(name, class_name, param_names, param_type_names, situation_names, op_tree) ::= <<
 <class_string_const("String", "NAME", name)><\n>
 <instruction_params(param_names, param_type_names)><\n>
+<situations(situation_names)><\n>
 <instruction_constructor(class_name)><\n>
 <instruction_call_factory_method()><\n>
 <instruction_call_builder(param_names, op_tree)>
@@ -41,10 +42,17 @@ public static final ParamDecl[] PARAMS = new ParamDecl[]
 
 instruction_param_def(n, tn) ::= <<new ParamDecl("<n>", <tn>)>>
 
+situations(situation_names) ::= <<
+public static final ISituation.IInfo[] SITUATIONS = new ISituation.IInfo[]
+{
+    <situation_names:{n | <n>.INFO}; separator=",\n">
+};
+>>
+
 instruction_constructor(name) ::= <<
 public <name>()
 {
-    super(NAME, PARAMS);
+    super(NAME, PARAMS, SITUATIONS);
 }
 >>
 
