@@ -16,6 +16,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 import ru.ispras.microtesk.model.api.instruction.*;
 import ru.ispras.microtesk.model.api.simnml.instruction.*;
+import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.model.samples.simple.mode.*;
 import ru.ispras.microtesk.model.samples.simple.op.*;
 
@@ -31,9 +32,13 @@ public class InstructionSub extends InstructionBase
         new ParamDecl("op2", OPRNDR.INFO)
     };
 
+    public static final ISituation.IInfo[] SITUATIONS = new ISituation.IInfo[]
+    {
+    };
+
     public InstructionSub()
     { 
-        super(NAME, PARAMS);
+        super(NAME, PARAMS, SITUATIONS);
     }
 
     @Override
