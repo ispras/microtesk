@@ -46,6 +46,7 @@
   <property name="bin"       location="bin"/>
 
   <property name="dist"      location="dist"/>
+  <property name="dist.gen"  location="${dist}/gen"/>
   <property name="dist.jars" location="${dist}/lib/jars"/>
   <property name="dist.ruby" location="${dist}/lib/ruby"/>
   <property name="doc"       location="${dist}/doc"/>
@@ -254,7 +255,7 @@
   	<copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
   	<copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
   </target>
-	
+
   <!-- Copies MicroTESK documentation to the distributive folder -->
   <target name="copy.docs">
     <copy todir="${doc}">
@@ -275,20 +276,22 @@
    <!-- Target for generating and building models -->
   <target name="models.jar">
 
+    <!-- Generate code for the ARM model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
       <arg value="-d"/>
-      <arg value="${dist}/output/src"/>
+      <arg value="${dist.gen}/src"/>
       <arg value="${dist}/arch/arm/model/arm.nml"/>
       <classpath>
       	<pathelement location="${dist.jars}/${jar}"/>
       </classpath>
     </java>
 
+    <!-- Generate code for the MIPS model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
   	  <jvmarg value="-ea"/>
   	  <arg value="-d"/>
-  	  <arg value="${dist}/output/src"/>
+  	  <arg value="${dist.gen}/src"/>
   	  <arg value="${dist}/arch/mips/model/mips.nml"/>
   	  <classpath>
   	    <pathelement location="${dist.jars}/${jar}"/>
@@ -297,13 +300,13 @@
   	
     <property name="models.classpath"     value="${dist.jars}/${jar}"/>
     <property name="models.jar.classpath" value="${jar}"/>
-    <property name="models.bin"           value="${dist}/output/bin"/>
+    <property name="models.bin"           value="${dist.gen}/bin"/>
     <property name="models.jar"           value="${dist.jars}/models.jar"/>
 
     <mkdir dir="${models.bin}"/>
 
     <javac
-      srcdir="${dist}/output/src"
+      srcdir="${dist.gen}/src"
       destdir="${models.bin}"
       classpath="${models.classpath}"
       includeantruntime="false"
