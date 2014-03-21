@@ -12,10 +12,8 @@
 
 package ru.ispras.microtesk.model.arm.situation;
 
-import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.model.api.situation.ConstraintBasedSituation;
-import ru.ispras.microtesk.model.api.situation.IConstraintFactory;
 
 public final class ADD_Normal extends ConstraintBasedSituation
 {
@@ -32,18 +30,7 @@ public final class ADD_Normal extends ConstraintBasedSituation
     {
         super(
            INFO,
-           new ConstraintFactory()
+           "xml/arm/ADD_Normal.xml"
         );
-    }
-
-    // TODO: Need a new library class for this purpose.
-    private static final class ConstraintFactory implements IConstraintFactory
-    {
-        @Override
-        public Constraint create()
-        {
-            // TODO: Load constraint from ADD_Normal.xml
-            return null;
-        }
     }
 }
