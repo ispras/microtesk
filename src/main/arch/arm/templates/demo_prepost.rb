@@ -1,6 +1,6 @@
 # Demo of a pre-post wrapper
 
-require_relative "../../../libs/ruby/mtruby"
+require_relative "../../../lib/ruby/mtruby"
 
 class DemoPrepost < Template
   def initialize

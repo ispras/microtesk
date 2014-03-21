@@ -1,6 +1,6 @@
 # Demo template time!
 
-require_relative "../../../libs/ruby/mtruby"
+require_relative "../../../lib/ruby/mtruby"
 require_relative "./demo_prepost"
 
 class ArmDemo < Template

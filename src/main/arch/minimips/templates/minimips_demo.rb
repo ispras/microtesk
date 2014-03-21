@@ -1,6 +1,6 @@
 # Simple demo template for MINIMIPS
 
-require_relative "../../../libs/ruby/mtruby"
+require_relative "../../../lib/ruby/mtruby"
 
 class MiniMipsDemo < Template
 
