@@ -19,6 +19,7 @@ import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
 import ru.ispras.fortress.solver.constraint.ConstraintKind;
 import ru.ispras.fortress.solver.constraint.Formulas;
+import ru.ispras.microtesk.model.api.situation.ConstraintBasedSituation;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 
 public final class AddOverflowSituation extends ConstraintBasedSituation

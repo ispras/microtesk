@@ -10,7 +10,7 @@
  * IConstraintFactory.java, May 22, 2013 5:07:29 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.situation.builtin;
+package ru.ispras.microtesk.model.api.situation;
 
 import ru.ispras.fortress.solver.constraint.Constraint;
 

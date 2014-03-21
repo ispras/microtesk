@@ -10,7 +10,7 @@
  * ConstraintBasedSituation.java, May 23, 2013 3:03:08 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.situation.builtin;
+package ru.ispras.microtesk.model.api.situation;
 
 import java.util.HashMap;
 import java.util.Map;

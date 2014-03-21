@@ -18,6 +18,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeExpr;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.microtesk.model.api.situation.IConstraintFactory;
 
 public abstract class OverflowConstraintFactory implements IConstraintFactory
 {
