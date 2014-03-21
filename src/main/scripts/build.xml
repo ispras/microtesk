@@ -2,9 +2,9 @@
 <project name="models" default="build" basedir=".">
 
   <!-- Directories -->
-  <property name="out"  location="../output"/>
-  <property name="src"  location="${out}/src"/>
-  <property name="bin"  location="${out}/bin"/>
+  <property name="gen"  location="../gen"/>
+  <property name="src"  location="${gen}/src"/>
+  <property name="bin"  location="${gen}/bin"/>
   <property name="jars" location="../lib/jars"/>
 
   <property name="microtesk"            value="microtesk.jar"/>
@@ -14,7 +14,7 @@
 
   <!-- Clean target, removes builded dirs and files -->
   <target name="clean">
-    <delete dir="${out}"/>
+    <delete dir="${gen}"/>
   </target>
 
   <!-- Target for building models -->

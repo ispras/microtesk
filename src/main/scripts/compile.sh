@@ -1,5 +1,5 @@
 #!/bin/sh
 
-java -ea -jar "../lib/jars/microtesk.jar" -d "../output/src" $*
+java -ea -jar "../lib/jars/microtesk.jar" -d "../gen/src" $*
 ant
 
