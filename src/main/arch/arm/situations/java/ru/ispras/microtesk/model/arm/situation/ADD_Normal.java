@@ -12,10 +12,10 @@
 
 package ru.ispras.microtesk.model.arm.situation;
 
-import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.microtesk.model.api.situation.builtin.ConstraintBasedSituation;
-import ru.ispras.microtesk.model.api.situation.builtin.IConstraintFactory;
+import ru.ispras.microtesk.model.api.situation.ISituation;
+import ru.ispras.microtesk.model.api.situation.ConstraintBasedSituation;
+import ru.ispras.microtesk.model.api.situation.IConstraintFactory;
 
 public final class ADD_Normal extends ConstraintBasedSituation
 {
