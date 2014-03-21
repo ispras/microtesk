@@ -85,7 +85,14 @@ class TestCode
         System.out.println("Add Overflow Situation");
 
         final AddOverflowSituation situation = new AddOverflowSituation();
-         printResult(situation.solve());
+        printResult(situation.solve());
+
+        /*
+        System.out.println("Add Overflow Situation (from XML)");
+
+        final ADD_Overflow situationFromXml =  new ADD_Overflow();
+        printResult(situationFromXml.solve());
+        */
     }
 
     private static void testAddNormalSituation() throws ConfigurationException
@@ -94,6 +101,13 @@ class TestCode
         
         final AddNormalSituation situation = new AddNormalSituation();
         printResult(situation.solve());
+        
+        /*
+        System.out.println("Add Normal Situation (from XML)");
+
+        final ADD_Normal situationFromXml =  new ADD_Normal();
+        printResult(situationFromXml.solve());
+        */
     }
 
     private static void printResult(Map<String, Data> result)

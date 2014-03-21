@@ -78,29 +78,50 @@ public abstract class InstructionBase implements IInstructionEx
      * @param name Instruction name.
      * @param params List of instruction parameter declarations.
      */
-
+        
     public InstructionBase(String name, ParamDecl[] params)
     {
+        // TODO: Temporary code that assigns the "random" situation to all instructions
+        // that have at least one parameter. This is not exactly how it should be.
+        // It should work only for parameters that represent input values (not flags, not output values). 
+
+        this(
+            name,
+            params,
+            params.length == 0 ?
+                new ISituation.IInfo[] {} :
+                new ISituation.IInfo[]
+                {
+                    RandomSituation.INFO,
+                    AddOverflowSituation.INFO,
+                    AddNormalSituation.INFO
+                }
+        );
+    }
+
+    public InstructionBase(String name, ParamDecl[] params, ISituation.IInfo[] situationInfos)
+    {
+        if (null == name)
+            throw new NullPointerException("name");
+
+        if (null == params)
+            throw new NullPointerException("params");
+
+        if (null == situationInfos)
+            throw new NullPointerException("situationInfos");
+
         this.name       = name;
-        this.situations = createSituations(params);
+        this.situations = params.length > 0 ? createSituations(situationInfos) : Collections.<String, ISituation.IInfo>emptyMap();
         this.metaData   = createMetaData(name, params, situations.values());
     }
 
-    // TODO: Temporary code that assigns the "random" situation to all instructions
-    // that have at least one parameter. This is not exactly how it should be.
-    // It should work only for parameters that represent input values (not flags, not output values). 
-
-    private static Map<String, ISituation.IInfo> createSituations(ParamDecl[] params)
+    private static Map<String, ISituation.IInfo> createSituations(ISituation.IInfo[] situationInfos)
     {
-        if (params.length == 0)
-            return Collections.emptyMap();
-
         final Map<String, ISituation.IInfo> result =
             new HashMap<String, ISituation.IInfo>();
 
-        result.put(RandomSituation.INFO.getName(), RandomSituation.INFO);
-        result.put(AddOverflowSituation.INFO.getName(), AddOverflowSituation.INFO);
-        result.put(AddNormalSituation.INFO.getName(), AddNormalSituation.INFO);
+        for (ISituation.IInfo si : situationInfos)
+            result.put(si.getName(), si);
 
         return result;
     }
