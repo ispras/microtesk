@@ -36,8 +36,9 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.InstructionBuilder;
 
 public final class SimnMLAnalyzer
 {
-    private String outDir;
-    
+    private String     outDir;
+    private String testSitDir;
+
     private final ILogStore LOG = new ILogStore()
     {
         @Override
@@ -50,6 +51,7 @@ public final class SimnMLAnalyzer
     public SimnMLAnalyzer()
     {
         this.outDir = PackageInfo.DEFAULT_OUTDIR;
+        this.testSitDir = null;
     }
 
     public String getOutDir()
@@ -60,6 +62,11 @@ public final class SimnMLAnalyzer
     public void setOutDir(String outDir)
     {
         this.outDir = outDir;
+    }
+
+    public void setTestSitDir(String testSitDir)
+    {
+        this.testSitDir = testSitDir;
     }
 
     private String getModelName(String fileName)
@@ -118,7 +125,7 @@ public final class SimnMLAnalyzer
     {
         final ANTLRFileStream stream = finder.openFile(filename);
 
-        System.out.println(filename);
+        System.out.println("Included: " + filename);
 
         if (null == stream)
         { 
@@ -194,6 +201,9 @@ public final class SimnMLAnalyzer
         System.out.println("Translating: " + fileName);
         System.out.println("Model name: " + modelName);
 
+        if (testSitDir != null)
+            System.out.println("User-defined test situations: " + testSitDir);
+
         final TokenSource source = startLexer(filenames);
         final IR ir = startParserAndWalker(source);
 
@@ -204,6 +214,8 @@ public final class SimnMLAnalyzer
             return;
         }
         ir.putInstructions(instructionBuilder.getInstructions());
+        
+        // TODO: ADD TEST SITUATIONS TO IR
 
         startGenerator(modelName, getShortFileName(fileName), ir);
     }
