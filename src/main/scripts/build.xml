@@ -5,7 +5,7 @@
   <property name="out"  location="../output"/>
   <property name="src"  location="${out}/src"/>
   <property name="bin"  location="${out}/bin"/>
-  <property name="jars" location="../libs/jars"/>
+  <property name="jars" location="../lib/jars"/>
 
   <property name="microtesk"            value="microtesk.jar"/>
   <property name="models.classpath"     value="${jars}/${microtesk}"/>

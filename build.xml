@@ -46,7 +46,8 @@
   <property name="bin"       location="bin"/>
 
   <property name="dist"      location="dist"/>
-  <property name="dist.jars" location="${dist}/libs/jars"/>
+  <property name="dist.jars" location="${dist}/lib/jars"/>
+  <property name="dist.ruby" location="${dist}/lib/ruby"/>
   <property name="doc"       location="${dist}/doc"/>
 
   <property name="microtesk.bin" value="${bin}/microtesk"/>
@@ -225,7 +226,7 @@
   <target name="copy.scripts">
 
     <!-- Copies Ruby scripts -->
-    <copy todir="${dist}/libs/ruby" >  
+    <copy todir="${dist.ruby}" >  
       <fileset dir="src/main/ruby" includes="**"/>  
     </copy>
 
@@ -234,10 +235,15 @@
       <fileset dir="src/main/scripts" includes="**"/>  
     </copy>
 
-    <!-- Copies examples of architecture specifications and test templates -->
-    <copy todir="${dist}/arch">
-      <fileset dir="src/main/arch" includes="**"/>  
+    <!-- Copies ARM architecture specifications and test templates -->
+    <copy todir="${dist}/arch/arm">
+      <fileset dir="src/main/arch/arm" includes="**"/>  
     </copy>
+
+  	<!-- Copies MIPS architecture specifications and test templates -->
+  	<copy todir="${dist}/arch/mips">
+  	   <fileset dir="src/main/arch/mips" includes="**"/>  
+  	</copy>
 
   </target>
 
