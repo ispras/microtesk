@@ -916,7 +916,7 @@ op instruction (x : instr_kind)
 
         // if condition to execute next instruction before jumping to the address.
         if  branch == 0 then
-            NIA = CIA + 4;
+            NIA = NIA + 4;
         else
             NIA = JMPADDR;
             branch = 0;
