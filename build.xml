@@ -269,7 +269,7 @@
   <target name="pack.all">
     <tar destfile="${dist}/${module.name}-${fullver}.tar.gz"
          longfile="gnu" compression="gzip">
-      <fileset dir="${dist}" excludes="**/output/bin/**"/>
+      <fileset dir="${dist}" excludes="**/gen/bin/**"/>
     </tar>
   </target>
 
