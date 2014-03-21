@@ -38,6 +38,11 @@ public abstract class ConstraintBasedSituation extends Situation
         this.constraintFactory = constraintFactory;
     }
 
+    public ConstraintBasedSituation(IInfo info, String xmlFileName)
+    {
+        this(info, new XMLBasedConstraintFactory(xmlFileName));
+    }
+
     @Override
     public boolean setInput(String name, Data value)
     {
