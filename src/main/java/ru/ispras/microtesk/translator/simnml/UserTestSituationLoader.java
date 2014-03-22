@@ -90,7 +90,7 @@ public final class UserTestSituationLoader
         if (source.isDirectory())
         {
             if (!target.exists())
-                target.mkdir();
+                target.mkdirs();
 
             for (String child : source.list())
                 copyDirectory(new File(source, child), new File(target, child));
