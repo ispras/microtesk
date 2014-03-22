@@ -18,10 +18,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Situation;
 
 public final class UserTestSituationLoader
 {
@@ -90,18 +93,38 @@ public final class UserTestSituationLoader
                 continue;
 
             final String situationFullName = file.replaceAll(".java$", "");
+            final String       situationId = situationFullName.replaceAll("^^[\\w]*[_]", "");
             final String   instructionName = situationFullName.replaceAll("[_][\\w]+$", "");
 
             // If it is not assigned to a specific instruction, it is considered shared (linked to all instructions).
             final boolean sharedSituation = instructionName.isEmpty();
-            addSituationToIR(situationFullName, instructionName, sharedSituation);
+            addSituationToIR(situationFullName, situationId, sharedSituation, instructionName);
         }
     }
 
-    private void addSituationToIR(String situationFullName, String instructionName, boolean sharedSituation)
+    private void addSituationToIR(String fullName, String id, boolean isShared, String instructionName)
     {
-        System.out.printf("  %s (instruction: %s)%n",
-            situationFullName, sharedSituation ? "all instructions" : instructionName);
+        System.out.printf("  %s (id: %s, instruction: %s)%n",
+            fullName, id, isShared ? "all instructions" : instructionName);
+
+        final Situation situation = new Situation(fullName, id, isShared);
+
+        if (isShared)
+        {
+            for(Instruction instruction : ir.getInstructions().values())
+                instruction.defineSituation(situation);
+            return;
+        }
+
+        final Map<String, Instruction> instructions = ir.getInstructions();
+        if (!instructions.containsKey(instructionName))
+        {
+            System.err.printf("Unable to add the %s situation to the %s instruction. No such instruction is defined.%n", fullName, instructionName);
+            return;
+        }
+
+        final Instruction instruction = ir.getInstructions().get(instructionName);
+        instruction.defineSituation(situation);
     }
 
     private static void copyDirectory(String source, String target)

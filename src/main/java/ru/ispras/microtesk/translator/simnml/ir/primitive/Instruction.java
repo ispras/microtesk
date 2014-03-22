@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,6 +24,7 @@ public final class Instruction
     private final String                  name;
     private final PrimitiveAND            root;
     private final Map<String, Primitive>  args;
+    private final Map<String, Situation>  sits;
 
     Instruction(
         String name,
@@ -33,6 +35,7 @@ public final class Instruction
         this.name = name;
         this.root = root;
         this.args = Collections.unmodifiableMap(new LinkedHashMap<String, Primitive>(args));
+        this.sits = new LinkedHashMap<String, Situation>();
     }
 
     public String getName()
@@ -53,5 +56,23 @@ public final class Instruction
     public Map<String, Primitive> getArguments()
     {
         return args;
+    }
+
+    public boolean isSituationDefined(String id)
+    {
+        return sits.containsKey(id);
+    }
+
+    public void defineSituation(Situation situation)
+    {
+        if (isSituationDefined(situation.getId()))
+            throw new IllegalArgumentException(situation.getId() + " is already declated!");
+
+        sits.put(situation.getId(), situation);
+    }
+
+    public Collection<Situation> getAllSituations()
+    {
+        return sits.values();
     }
 }

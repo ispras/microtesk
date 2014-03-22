@@ -21,19 +21,33 @@ public final class Situation
     private final String fullName;
 
     /**
+     * ID that will be used to refer to the situation from test templates. Used to
+     * identify situations linked to a particular instruction (serves as a key).
+     * 
+     * Format: <situation name> (the second part of the full name, but all is in lower case). 
+     */
+    private final String id;
+
+    /**
      * If it is linked to all instructions or to one specific instruction.
      */
     private final boolean isShared;
 
-    public Situation(String fullName, boolean isShared)
+    public Situation(String fullName, String id, boolean isShared)
     {
         this.fullName = fullName;
+        this.id       = id;
         this.isShared = isShared;
     }
 
     public String getFullName()
     {
         return fullName;
+    }
+    
+    public String getId()
+    {
+        return id;
     }
 
     public boolean isShared()
