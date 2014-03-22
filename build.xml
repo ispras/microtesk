@@ -281,6 +281,8 @@
       <jvmarg value="-ea"/>
       <arg value="-d"/>
       <arg value="${dist.gen}/src"/>
+      <arg value="-s"/>
+      <arg value="${dist}/arch/arm/situations"/>
       <arg value="${dist}/arch/arm/model/arm.nml"/>
       <classpath>
       	<pathelement location="${dist.jars}/${jar}"/>
@@ -306,13 +308,15 @@
     <mkdir dir="${models.bin}"/>
 
     <javac
-      srcdir="${dist.gen}/src"
+      srcdir="${dist.gen}/src/java"
       destdir="${models.bin}"
       classpath="${models.classpath}"
       includeantruntime="false"
     />
 
+    <mkdir dir="${dist.gen}/src/resources"/>
     <jar destfile="${models.jar}" basedir="${models.bin}">
+      <fileset dir="${dist.gen}/src/resources"/>
       <manifest>
         <!-- <attribute name="Main-Class" value="${jar.mainclass}"/> -->
         <attribute name="Class-Path" value="${models.jar.classpath}"/>
