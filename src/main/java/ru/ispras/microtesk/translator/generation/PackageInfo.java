@@ -195,6 +195,10 @@ public final class PackageInfo
      */
 
     public static String getOpFileFormat(String outDir) { return outDir + "/" + nameToPath(OP_CLASS_FORMAT) + JAVA_EXT; }
+    
+    public static final String SITUATION_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.situation";
+    public static final String   SITUATION_CLASS_FORMAT = SITUATION_PACKAGE_FORMAT + ".%s";
+    public static String geSituationFileFormat(String outDir) { return outDir + "/" + nameToPath(SITUATION_CLASS_FORMAT) + JAVA_EXT; }
 
     /**
      * Converts a package or class name to a corresponding path string.

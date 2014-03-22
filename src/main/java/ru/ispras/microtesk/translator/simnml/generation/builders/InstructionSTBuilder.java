@@ -33,6 +33,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Situation;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
@@ -45,6 +46,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
 
     private boolean    immsImported = false;
     private boolean needModeImports = false;
+    private boolean needSitsImports = false;
     
     public InstructionSTBuilder(
         String specFileName,
@@ -73,11 +75,13 @@ public class InstructionSTBuilder implements ITemplateBuilder
         t.add("imps", InstructionBase.class.getName());
         t.add("imps", IAddressingMode.class.getName());
         t.add("imps", ISituation.class.getName());
-        
+
         if (needModeImports)
         	t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
         t.add("imps", String.format(OP_CLASS_FORMAT, modelName, "*"));
-        
+        if (needSitsImports)
+            t.add("imps", String.format(SITUATION_CLASS_FORMAT, modelName, "*"));
+
         t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 
         t.add("base", InstructionBase.class.getSimpleName());
@@ -137,6 +141,12 @@ public class InstructionSTBuilder implements ITemplateBuilder
             
             t.add("situation_names", AddNormalSituation.class.getSimpleName());
             t.add("imps", AddNormalSituation.class.getName());
+        }
+        
+        for (Situation situation : instruction.getAllSituations())
+        {
+            t.add("situation_names", situation.getFullName());
+            if (!needSitsImports) needSitsImports = true;
         }
     }
 
