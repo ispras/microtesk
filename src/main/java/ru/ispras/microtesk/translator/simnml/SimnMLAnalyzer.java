@@ -177,9 +177,10 @@ public final class SimnMLAnalyzer
     ///////////////////////////////////////////////////////////////////////////
     // Generator
     ///////////////////////////////////////////////////////////////////////////
+
     public void startGenerator(String modelName, String fileName, IR ir)
     {
-        final Generator generator = new Generator(outDir, modelName, fileName, ir);
+        final Generator generator = new Generator(outDir + "/java", modelName, fileName, ir);
         generator.generate();
     }
 

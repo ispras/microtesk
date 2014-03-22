@@ -58,7 +58,7 @@ public final class UserTestSituationLoader
         // Copy Resources (XML constraints)
         copyDirectory(testSitDir + "/resources", outDir + "/resources");
         // Copy Java Code
-        copyDirectory(testSitDir + "/java", outDir);
+        copyDirectory(testSitDir + "/java", outDir + "/java");
     }
 
     private static void copyDirectory(String source, String target)
