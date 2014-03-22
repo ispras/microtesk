@@ -67,10 +67,10 @@ public final class UserTestSituationLoader
         // Copy Java Code
         copyDirectory(testSitDir + "/java", outDir + "/java");
 
-        addSituationToIR();
+        addAllSituationsToIR();
     }
 
-    private void addSituationToIR()
+    private void addAllSituationsToIR()
     {
         final String  javaRoot = String.format(JAVA_ROOT_DIR_FRMT, testSitDir, modelName);
         final File javaRootDir = new File(javaRoot);
@@ -94,10 +94,14 @@ public final class UserTestSituationLoader
 
             // If it is not assigned to a specific instruction, it is considered shared (linked to all instructions).
             final boolean sharedSituation = instructionName.isEmpty();
-
-            System.out.printf("  %s (instruction: %s)%n",
-                situationClassName, sharedSituation ? "all instructions" : instructionName);
+            addSituationToIR(situationClassName, instructionName, sharedSituation);
         }
+    }
+
+    private void addSituationToIR(String situationClassName, String instructionName, boolean sharedSituation)
+    {
+        System.out.printf("  %s (instruction: %s)%n",
+            situationClassName, sharedSituation ? "all instructions" : instructionName);
     }
 
     private static void copyDirectory(String source, String target)
