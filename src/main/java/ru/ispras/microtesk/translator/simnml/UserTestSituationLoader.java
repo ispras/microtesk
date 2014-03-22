@@ -89,19 +89,19 @@ public final class UserTestSituationLoader
             if (!matcher.matches())
                 continue;
 
-            final String situationClassName = file.replaceAll(".java$", "");
-            final String    instructionName = situationClassName.replaceAll("[_][\\w]+$", "");
+            final String situationFullName = file.replaceAll(".java$", "");
+            final String   instructionName = situationFullName.replaceAll("[_][\\w]+$", "");
 
             // If it is not assigned to a specific instruction, it is considered shared (linked to all instructions).
             final boolean sharedSituation = instructionName.isEmpty();
-            addSituationToIR(situationClassName, instructionName, sharedSituation);
+            addSituationToIR(situationFullName, instructionName, sharedSituation);
         }
     }
 
-    private void addSituationToIR(String situationClassName, String instructionName, boolean sharedSituation)
+    private void addSituationToIR(String situationFullName, String instructionName, boolean sharedSituation)
     {
         System.out.printf("  %s (instruction: %s)%n",
-            situationClassName, sharedSituation ? "all instructions" : instructionName);
+            situationFullName, sharedSituation ? "all instructions" : instructionName);
     }
 
     private static void copyDirectory(String source, String target)
