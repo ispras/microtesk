@@ -18,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 
@@ -81,7 +83,20 @@ public final class UserTestSituationLoader
 
         for (String file : javaRootDir.list())
         {
-            System.out.println("  " + file);
+            final String REX = "^[\\w]*[_][\\w]+.java$";
+
+            final Matcher matcher = Pattern.compile(REX).matcher(file);
+            if (!matcher.matches())
+                continue;
+
+            final String situationClassName = file.replaceAll(".java$", "");
+            final String    instructionName = situationClassName.replaceAll("[_][\\w]+$", "");
+
+            // If it is not assigned to a specific instruction, it is considered shared (linked to all instructions).
+            final boolean sharedSituation = instructionName.isEmpty();
+
+            System.out.printf("  %s (instruction: %s)%n",
+                situationClassName, sharedSituation ? "all instructions" : instructionName);
         }
     }
 
