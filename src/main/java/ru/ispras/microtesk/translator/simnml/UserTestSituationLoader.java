@@ -23,9 +23,13 @@ import ru.ispras.microtesk.translator.simnml.ir.IR;
 
 public final class UserTestSituationLoader
 {
-    private final IR             ir;
+    private final String  modelName;
     private final String testSitDir;
     private final String     outDir;
+    private final IR             ir;
+
+    private static final String JAVA_ROOT_DIR_FRMT =
+        "%s/java/ru/ispras/microtesk/model/%s/situation";
 
     private static final String ERR_TEST_SIT_DIR_DOES_NOT_EXIST =
         "The \"%s\" folder does not exist. No user-defied situations will be included.%n";
@@ -33,11 +37,12 @@ public final class UserTestSituationLoader
     private static final String ERR_FAILED_TO_COPY_DIR =
         "Failed to copy \"%s\" to \"%s\". Reason: %s%n";
 
-    public UserTestSituationLoader(IR ir, String testSitDir, String outDir)
+    public UserTestSituationLoader(String modelName, String testSitDir, String outDir, IR ir)
     {
-        this.ir = ir;
+        this.modelName  = modelName;
         this.testSitDir = testSitDir;
-        this.outDir = outDir;
+        this.outDir     = outDir;
+        this.ir         = ir;
     }
 
     public void load()
@@ -53,12 +58,31 @@ public final class UserTestSituationLoader
             return;
         }
 
-        System.out.println("Including " + testSitDir + "...");
-        
+        System.out.println("Adding " + testSitDir + "...");
+
         // Copy Resources (XML constraints)
         copyDirectory(testSitDir + "/resources", outDir + "/resources");
         // Copy Java Code
         copyDirectory(testSitDir + "/java", outDir + "/java");
+
+        addSituationToIR();
+    }
+
+    private void addSituationToIR()
+    {
+        final String  javaRoot = String.format(JAVA_ROOT_DIR_FRMT, testSitDir, modelName);
+        final File javaRootDir = new File(javaRoot);
+
+        if (!javaRootDir.exists() || !javaRootDir.isDirectory())
+        {
+            System.err.printf(ERR_TEST_SIT_DIR_DOES_NOT_EXIST, testSitDir);
+            return;
+        }
+
+        for (String file : javaRootDir.list())
+        {
+            System.out.println("  " + file);
+        }
     }
 
     private static void copyDirectory(String source, String target)

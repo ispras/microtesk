@@ -216,7 +216,8 @@ public final class SimnMLAnalyzer
         }
         ir.putInstructions(instructionBuilder.getInstructions());
 
-        final UserTestSituationLoader userTSLoader = new UserTestSituationLoader(ir, testSitDir, outDir);
+        final UserTestSituationLoader userTSLoader =
+            new UserTestSituationLoader(modelName, testSitDir, outDir, ir);
         userTSLoader.load();
 
         startGenerator(modelName, getShortFileName(fileName), ir);
