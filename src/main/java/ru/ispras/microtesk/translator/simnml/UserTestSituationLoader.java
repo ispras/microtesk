@@ -30,6 +30,9 @@ public final class UserTestSituationLoader
     private static final String ERR_TEST_SIT_DIR_DOES_NOT_EXIST =
         "The \"%s\" folder does not exist. No user-defied situations will be included.%n";
 
+    private static final String ERR_FAILED_TO_COPY_DIR =
+        "Failed to copy \"%s\" to \"%s\". Reason: %s%n";
+
     public UserTestSituationLoader(IR ir, String testSitDir, String outDir)
     {
         this.ir = ir;
@@ -49,42 +52,30 @@ public final class UserTestSituationLoader
             System.err.printf(ERR_TEST_SIT_DIR_DOES_NOT_EXIST, testSitDir);
             return;
         }
+
+        System.out.println("Including " + testSitDir + "...");
         
-        System.out.println("Including " + testSitDir);
-
-        copyResources();
-        copyJavaCode();
+        // Copy Resources (XML constraints)
+        copyDirectory(testSitDir + "/resources", outDir + "/resources");
+        // Copy Java Code
+        copyDirectory(testSitDir + "/java", outDir);
     }
-    
-    private void copyResources()
+
+    private static void copyDirectory(String source, String target)
     {
-        final File  srcXml = new File(testSitDir + "/resources");
-        final File destXml = new File(outDir + "/resources");
+        final File sourceFile = new File(source);
+        final File targetFile = new File(target);
+
+        if (!sourceFile.exists())
+            return;
 
         try
         {
-            copyDirectory(srcXml, destXml);
+            copyDirectory(sourceFile, targetFile);
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    private void copyJavaCode()
-    {
-        final File  srcXml = new File(testSitDir + "/java");
-        final File destXml = new File(outDir);
-
-        try
-        {
-            copyDirectory(srcXml, destXml);
-        }
-        catch (IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            System.err.printf(ERR_FAILED_TO_COPY_DIR, source, target, e.getMessage());
         }
     }
 
