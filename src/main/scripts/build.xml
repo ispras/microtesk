@@ -3,7 +3,8 @@
 
   <!-- Directories -->
   <property name="gen"  location="../gen"/>
-  <property name="src"  location="${gen}/src"/>
+  <property name="src"  location="${gen}/src/java"/>
+  <property name="res"  location="${gen}/src/resources"/>	
   <property name="bin"  location="${gen}/bin"/>
   <property name="jars" location="../lib/jars"/>
 
@@ -26,7 +27,9 @@
       classpath="${models.classpath}"
       includeantruntime="false"
     />
+    <mkdir dir="${res}"/>
     <jar destfile="${models.jar}" basedir="${bin}">
+      <fileset dir="${res}"/>
       <manifest>
         <attribute name="Class-Path" value="${models.jar.classpath}"/>
       </manifest>
