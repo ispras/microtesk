@@ -214,8 +214,9 @@ public final class SimnMLAnalyzer
             return;
         }
         ir.putInstructions(instructionBuilder.getInstructions());
-        
-        // TODO: ADD TEST SITUATIONS TO IR
+
+        final UserTestSituationLoader userTSLoader = new UserTestSituationLoader(ir, testSitDir, outDir);
+        userTSLoader.load();
 
         startGenerator(modelName, getShortFileName(fileName), ir);
     }
