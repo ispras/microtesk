@@ -93,7 +93,7 @@ public final class UserTestSituationLoader
                 continue;
 
             final String situationFullName = file.replaceAll(".java$", "");
-            final String       situationId = situationFullName.replaceAll("^^[\\w]*[_]", "");
+            final String       situationId = situationFullName.replaceAll("^^[\\w]*[_]", "").toLowerCase();
             final String   instructionName = situationFullName.replaceAll("[_][\\w]+$", "");
 
             // If it is not assigned to a specific instruction, it is considered shared (linked to all instructions).

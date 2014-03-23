@@ -127,26 +127,37 @@ public class InstructionSTBuilder implements ITemplateBuilder
 
     private void buildSituations(ST t)
     {
+        for (Situation situation : instruction.getAllSituations())
+        {
+            t.add("situation_names", situation.getFullName());
+            if (!needSitsImports) needSitsImports = true;
+        }
+
         // TODO: Temporary code that assigns the "random" situation to all instructions
         // that have at least one parameter. This is not exactly how it should be.
         // It should work only for parameters that represent input values (not flags, not output values). 
 
         if (!instruction.getArguments().isEmpty())
         {
-            t.add("situation_names", RandomSituation.class.getSimpleName());
-            t.add("imps", RandomSituation.class.getName());
+            if (!instruction.isSituationDefined(RandomSituation.INFO.getName()))
+            {
+                t.add("situation_names", RandomSituation.class.getSimpleName());
+                t.add("imps", RandomSituation.class.getName());
+            }
             
-            t.add("situation_names", AddOverflowSituation.class.getSimpleName());
-            t.add("imps", AddOverflowSituation.class.getName());
-            
-            t.add("situation_names", AddNormalSituation.class.getSimpleName());
-            t.add("imps", AddNormalSituation.class.getName());
-        }
-        
-        for (Situation situation : instruction.getAllSituations())
-        {
-            t.add("situation_names", situation.getFullName());
-            if (!needSitsImports) needSitsImports = true;
+            /*
+            if (!instruction.isSituationDefined(AddOverflowSituation.INFO.getName()))
+            {
+                t.add("situation_names", AddOverflowSituation.class.getSimpleName());
+                t.add("imps", AddOverflowSituation.class.getName());
+            }
+
+            if (!instruction.isSituationDefined(AddNormalSituation.INFO.getName()))
+            {
+                t.add("situation_names", AddNormalSituation.class.getSimpleName());
+                t.add("imps", AddNormalSituation.class.getName());
+            }
+            */
         }
     }
 
