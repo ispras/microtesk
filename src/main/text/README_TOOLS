@@ -1,13 +1,26 @@
-Installing Constraint Solvers
+-------------------------------------------------------------------------------
+| Installing Constraint Solver Tools                                          |
+-------------------------------------------------------------------------------
 
-To generate test data based on constraints, MicroTESK requires external constraint solver engines. The current version uses the Z3 constraint solver by Microsoft Research (http://z3.codeplex.com/). The Z3 executable should be downloaded and placed to the <installation dir>/tools directory.
+To generate test data based on constraints, MicroTESK requires external
+constraint solver engines. The current version uses the Z3 constraint solver
+by Microsoft Research (http://z3.codeplex.com/). The Z3 executable should be
+downloaded and placed to the <installation dir>/tools directory.
 
-1. Windows users should download Z3 (32 or 64-bit version) from the following page: http://z3.codeplex.com/releases, unpack the archive and place the z3.exe file to the <installation dir>/tools/z3/windows directory.
+1. Windows users should download Z3 (32 or 64-bit version) from the following
+   page: http://z3.codeplex.com/releases, unpack the archive and place the
+   z3.exe file to the <installation dir>/tools/z3/windows directory.
 
-2. UNIX and Linux users should use one of the links below and place the z3 executable file to the <installation dir>/tools/z3/unix/z3 directory.
-| Debian  x64 | http://z3.codeplex.com/releases/view/101916 |
-| Ubuntu  x86 | http://z3.codeplex.com/releases/view/101913 |
-| Ubuntu  x64 | http://z3.codeplex.com/releases/view/101911 |
-| FreeBSD x64 | http://z3.codeplex.com/releases/view/101907 |
+2. UNIX and Linux users should use one of the links below and place the z3
+   executable file to the <installation dir>/tools/z3/unix/z3 directory.
 
-3. OS X users should download Z3 from http://z3.codeplex.com/releases/view/101918 and place the z3 executable file to the <installation dir>/z3/osx/z3 directory.
+   -------------------------------------------------------------
+   | Debian  x64 | http://z3.codeplex.com/releases/view/101916 |
+   | Ubuntu  x86 | http://z3.codeplex.com/releases/view/101913 |
+   | Ubuntu  x64 | http://z3.codeplex.com/releases/view/101911 |
+   | FreeBSD x64 | http://z3.codeplex.com/releases/view/101907 |
+   -------------------------------------------------------------
+
+3. OS X users should download Z3 from
+   http://z3.codeplex.com/releases/view/101918 and place the z3 executable file
+   to the <installation dir>/z3/osx/z3 directory.
