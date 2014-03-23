@@ -24,6 +24,7 @@ module MTRuby
 WD = Dir.pwd
 
 def self.main
+  puts "MICROTESK_HOME: " + ENV['MICROTESK_HOME']
   puts "Current directory: " + WD
 
   check_arguments
@@ -84,6 +85,8 @@ end
 
 def self.create_model(model_file, model_name)
   require model_file
+  require ENV['MICROTESK_HOME'] + "/lib/jars/fortress.jar"
+  require ENV['MICROTESK_HOME'] + "/lib/jars/microtesk.jar"
 
   model_class_name = sprintf(MODEL_CLASS_FRMT, model_name)
 
