@@ -27,11 +27,11 @@ class ArmDemo < DemoPrepost
 
     debug { puts "This is a debug message" }
 
-    add equalcond, setsoff, reg(2), reg(2), register0 # do overflow end
+    add equalcond, setsoff, reg(2), reg(2), register0 do overflow end
 
-    add equalcond, setsoff, reg(3), reg(2), register0 # do random end
+    add equalcond, setsoff, reg(3), reg(2), register0 do random end
 
-    add equalcond, setsoff, reg(4), reg(2), register0 # do normal end
+    add equalcond, setsoff, reg(4), reg(2), register0 do normal end
     add equalcond, setsoff, reg(5), reg(2), register0
 
     block {
