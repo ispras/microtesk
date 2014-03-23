@@ -1,2 +1,2 @@
 #!/bin/sh
-java -Xmx1024m -jar "../lib/jars/jruby.jar" "../lib/ruby/template_processor.rb" "../lib/jars/models.jar" $*
+java -Xmx1024m -jar $MICROTESK_HOME/lib/jars/jruby.jar $MICROTESK_HOME/lib/ruby/template_processor.rb $MICROTESK_HOME/lib/jars/models.jar $*
