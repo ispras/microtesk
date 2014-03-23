@@ -18,7 +18,7 @@ Installation Steps
    your computer.
 
 2. Download and install constraint solver tools to the <installation dir>/tools
-   directory (see the "Installing Constraint Solvers" section).
+   directory (see the "tools/README" document for details).
 
 3. Set the <installation dir>/bin as the working directory (add the path to
    the PATH environment variable).
