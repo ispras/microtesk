@@ -1,53 +1,20 @@
 
 type word = card(32)
-type line_t = card(256)
 type hit = card(2)
+
 type va_t = card(32)
 type pa_t = card(32)
-type mem_t = card(1024)
+//type mem_t = card(1024)
 
 var va[1, va_t]
 var pa[1, pa_t]
 var data[1, word]
-var OP_MEM[1, mem_t]
-
-var L1_line[1, line_t]
-var L2_line[1, line_t]
-
-// + modes for fields
 
 var TLB_Hit[1, hit]
-//var L1_Hit[1, hit]
-//var L2_Hit[1, hit]
+var L1_Hit[1, hit]
+var L2_Hit[1, hit]
+var OP_MEM_Hit[1, hit]
 
-/*
-op LOAD(pa : pa_t, L2_Hit : hit, OP_MEM : mem_t)
-// pa : pa_t, line : line_t, TLB_hit : hit, L1_Hit : hit, L2_Hit : hit, OP_MEM : mem_t
-action = 
-{ 
-    TLB_access.action(pa);
-        if (TLB_Hit == 0) then
-            L1_access.action;
-            if L1_Hit then
-                pa = va;
-            else
-
-                L2_Hit.action; 
-                
-                if (L2_Hit==1) then
-                    pa = L2_line;
-                else
-                    pa = OP_MEM;
-                    // if miss - search the data in operation memory
-                endif;
-            endif;
-        else
-            TLB_exception; 
-        endif;
-}
-*/
-
-/*
 op TLB_access(pa)
 action = 
 {
@@ -58,30 +25,41 @@ op L1_access(pa)
 action = 
 {
     L1_Hit;
-    L1_line;
 }
 
 op L2_access(pa)
 action = 
 {
     L2_Hit; 
-    L2_line;
 }
 
-op LOAD(pa : pa_t, line : line_t)
+op OP_MEM_access(pa)
+action = 
+{
+    OP_MEM_Hit;
+}
+
+op address_conv(pa)
+action = 
+{
+    pa = va;
+}
+
+op LOAD(pa : pa_t, data : word)
 action = 
 {
     TLB_access.action(pa);
         if TLB_Hit then
             L1_access.action;
             if L1_Hit then
-                pa = va;
+               address_conv.action;
             else
                 L2_access.action;
                 if L2_Hit then
-                    pa = va;
+                  address_conv.action;
                 else
-                    pa = OP_MEM;
+                    OP_MEM_access.action(pa);
+                    address_conv.action;
                     // if miss - search the data in operation memory
                 endif;
             endif;
@@ -90,7 +68,7 @@ action =
         endif;
 }
 
-op STORE(pa : pa_t, data)
+op STORE(pa : pa_t, data : word)
 action = 
 {
     L1_access.action
@@ -108,5 +86,3 @@ action =
         OP_MEM.store(pa, data)
     endif;
   }
-
- */
