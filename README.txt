@@ -42,6 +42,7 @@
 
  4. Run the "build.xml" building script.
 
+    Run 'ant -f setup.xml' from the "<microtesk>/trunk/microtesk" folder.
     Right-click the "build.xml" file in Package Exlorer.
     Select "Run As/Ant Build" from the context menu.
     Ant will run ANRLR to generate the needed code translation classes and
