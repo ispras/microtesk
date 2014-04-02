@@ -24,10 +24,10 @@
  2. Import an existing project called "microtesk" into the workspace.
 
     Use the menu item "File/Import...".
-    Choose "General/Existing Project into Workspace".
+    Choose "General/Existing Projects into Workspace".
     Select the "<microtesk>/trunk/microtesk" folder as the root directory.
     Select the "microtesk" project located in this directory.
-    The project will be opened in the Eclipse IDE.
+    Press the "Finish" button: the project will be opened in the Eclipse IDE.
 
  3. Set up the Ant building tool integrated into Eclipse to enable it 
     to run ANTLR tasks.
@@ -38,10 +38,11 @@
     Select the "Ant Home Entries (Default)" row.
     Click the "Add JARs..." button.
     Select the "microtesk/jars/ant-antlr3.jar" JAR file.
+    Press the "OK" button.
 
  4. Run the "build.xml" building script.
 
-    Right-click the "build.xml" file in Project Exlorer.
+    Right-click the "build.xml" file in Package Exlorer.
     Select "Run As/Ant Build" from the context menu.
     Ant will run ANRLR to generate the needed code translation classes and
     build the project.
