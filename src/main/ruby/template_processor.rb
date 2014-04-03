@@ -74,7 +74,7 @@ def self.check_arguments
 end
 
 def self.check_tools
-  path = File.absolute_path("../tools")
+  path = ENV['MICROTESK_HOME'] + "/tools"
 
   if !File.exists?(path) || !File.directory?(path)
       abort "The '" + path + "' folder does not exist.\r\n" +
