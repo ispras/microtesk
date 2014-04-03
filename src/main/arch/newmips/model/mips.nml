@@ -1,0 +1,125 @@
+/*
+ * MIPS Instruction Set Specification in Sim-nML
+ *
+ * Institute for System Programming of the Russian Academy of Sciences (ISPRAS)
+ * 25, Alexander Solzhenitsyn st., Moscow, 109004, Russia
+ * http://forge.ispras.ru/projects/microtesk
+ *
+ * Based on materials provided by Indian Institute of Technology Kanpur
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//------------------------------------------------------------------------------
+// Constants
+//------------------------------------------------------------------------------
+
+let GPR_INDEX_WIDTH = 5
+
+//------------------------------------------------------------------------------
+// Type Declarations
+//------------------------------------------------------------------------------
+
+type index_t = card(GPR_INDEX_WIDTH)
+
+type int16_t = int(16)
+type int26_t = int(26)
+type int32_t = int(32)
+type int64_t = int(64)
+
+//------------------------------------------------------------------------------
+// Memory and Registers
+//------------------------------------------------------------------------------
+ 
+reg GPR[2 ** GPR_INDEX_WIDTH, int64_t]
+
+//------------------------------------------------------------------------------
+// Variables
+//------------------------------------------------------------------------------
+
+mem temp_uint32 [1, card(32)]
+mem temp_31     [1, card(1)]
+mem temp_32     [1, card(1)]
+
+//------------------------------------------------------------------------------
+// Addressing Modes
+//------------------------------------------------------------------------------
+
+mode r(i: index_t) = GPR[i]
+    syntax = format("r%d",  i)
+    image  = format("%5b",  i)
+
+mode imm26(v: int26_t) = v
+    syntax = format("%d",   v)
+    image  = format("%26b", v)
+
+mode imm16(v: int16_t) = v
+    syntax = format("%d",   v)
+    image  = format("%16b", v)
+
+//------------------------------------------------------------------------------
+// Functions
+//------------------------------------------------------------------------------
+
+mode NotWordValue(v: int64_t) =
+    if v<31> == 0 then
+        v<31..0> == 0
+    else
+        v<31..0> == 0xffffFFFF
+    endif
+
+mode SignalException(v: card(32))
+
+//------------------------------------------------------------------------------
+// Arithmetic Instructions
+//------------------------------------------------------------------------------
+
+op ADD(rd: r, rs: r, rt: r)
+    syntax = format("ADD %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+    image  = format("000000%s%s%5b00000100000", rs.image, rt.image, rd.image)
+    action =
+    {
+        //if NotWordValue(rs) || NotWordValue(rt) then
+        //    UNPREDICTABLE;
+        //endif;
+
+        temp_32::temp_31::temp_uint32 = rs<31>::rs + rt<31>::rt;
+
+        if(temp_32 != temp_31) then
+            // SignalException("IntegerOverflow");
+        else
+            rd = temp_uint32;
+        endif;
+    }	  
+
+op arithmetic_instruction = ADD
+
+//------------------------------------------------------------------------------
+// Entry Point
+//------------------------------------------------------------------------------
+
+op any_instruction = arithmetic_instruction
+
+op instruction(i: any_instruction)
+    syntax = i.syntax
+    image  = i.image
+    action =
+    {
+        // TODO:
+        i.action;
+        GPR[0] = 0;
+    }
+
+//------------------------------------------------------------------------------
+// End
+//------------------------------------------------------------------------------
