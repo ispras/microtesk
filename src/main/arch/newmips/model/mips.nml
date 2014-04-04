@@ -27,6 +27,33 @@
 let GPR_INDEX_WIDTH = 5
 
 //------------------------------------------------------------------------------
+// Exceptions
+//------------------------------------------------------------------------------
+
+let Reset                =  0
+let SoftReset            =  1
+let NonMaskableInterrupt =  2
+let MachineCheck         =  3
+let AddressError         =  4
+let TLBRefill            =  5
+let XTLBRefill           =  6
+let TLBInvalid           =  7
+let TLBModified          =  8
+let CacheError           =  9
+let BusError             = 10
+let IntegerOverflow      = 11
+let Trap                 = 12
+let SystemCall           = 13
+let Breakpoint           = 14
+let ReservedInstruction  = 15
+let CoprocessorUnusable  = 16
+let MDMXUnusable         = 17
+let FloatingPoint        = 18
+let Coprocessor2         = 19
+let Watch                = 20
+let Interrupt            = 21
+
+//------------------------------------------------------------------------------
 // Type Declarations
 //------------------------------------------------------------------------------
 
@@ -96,7 +123,7 @@ op ADD(rd: r, rs: r, rt: r)
         temp_32::temp_31::temp_uint32 = rs<31>::rs + rt<31>::rt;
 
         if(temp_32 != temp_31) then
-            // SignalException("IntegerOverflow");
+            //SignalException(IntegerOverflow);
         else
             rd = temp_uint32;
         endif;
