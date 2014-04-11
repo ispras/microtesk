@@ -103,7 +103,7 @@ def self.prepare_template_classes(model, template_file)
   TemplateBuilder.build_template_class(model)
 
   if File.file?(template_file)
-    ENV['MTRUBY'] = MTRUBY_RB
+    ENV['MTRUBY'] = MTRUBY
     require template_file
   else
     printf "MTRuby: warning: The %s file does not exist.\r\n", template_file

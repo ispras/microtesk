@@ -1,6 +1,6 @@
 # Simple demo template for MINIMIPS
 
-require_relative "../../../lib/ruby/mtruby"
+require ENV['MTRUBY']
 
 class MiniMipsDemo < Template
 
