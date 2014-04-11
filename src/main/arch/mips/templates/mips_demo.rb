@@ -1,6 +1,6 @@
 # Simple demo template for MIPS
 
-require_relative "../../../lib/ruby/mtruby"
+require ENV['MTRUBY']
 
 class MipsDemo < Template
 
