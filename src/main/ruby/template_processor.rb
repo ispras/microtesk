@@ -21,10 +21,14 @@ end
 
 module MTRuby 
 
-WD = Dir.pwd
+WD        = Dir.pwd
+HOME      = ENV['MICROTESK_HOME']
+FORTRESS  = HOME + "/lib/jars/fortress.jar"
+MICROTESK = HOME + "/lib/jars/microtesk.jar"
+TOOLS     = HOME + "/tools"
 
 def self.main
-  puts "MICROTESK_HOME: " + ENV['MICROTESK_HOME']
+  puts "Home: " + HOME
   puts "Current directory: " + WD
 
   check_arguments
@@ -74,10 +78,9 @@ def self.check_arguments
 end
 
 def self.check_tools
-  path = ENV['MICROTESK_HOME'] + "/tools"
 
-  if !File.exists?(path) || !File.directory?(path)
-      abort "The '" + path + "' folder does not exist.\r\n" +
+  if !File.exists?(TOOLS) || !File.directory?(TOOLS)
+      abort "The '" + TOOLS + "' folder does not exist.\r\n" +
             "It stores external constraint solver engines and is required to generate constraint-based test data."
   end
 
@@ -85,8 +88,8 @@ end
 
 def self.create_model(model_file, model_name)
   require model_file
-  require ENV['MICROTESK_HOME'] + "/lib/jars/fortress.jar"
-  require ENV['MICROTESK_HOME'] + "/lib/jars/microtesk.jar"
+  require FORTRESS
+  require MICROTESK
 
   model_class_name = sprintf(MODEL_CLASS_FRMT, model_name)
 
