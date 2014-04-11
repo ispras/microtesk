@@ -1,4 +1,4 @@
-require_relative "../mtruby"
+require_relative 'template'
 
 $Situation_receiver = nil
 

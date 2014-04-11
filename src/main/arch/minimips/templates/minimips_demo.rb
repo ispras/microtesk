@@ -1,12 +1,12 @@
 # Simple demo template for MINIMIPS
 
-require ENV['MTRUBY']
+require ENV["TEMPLATE"]
 
 class MiniMipsDemo < Template
 
   def initialize
     super
-    @is_executable = yes
+    @is_executable = true
   end
 
   def run

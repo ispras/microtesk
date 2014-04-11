@@ -1,11 +1,11 @@
 # Demo of a pre-post wrapper
 
-require ENV['MTRUBY']
+require ENV["TEMPLATE"]
 
 class DemoPrepost < Template
   def initialize
     super
-    @is_executable = no
+    @is_executable = false
   end
 
   def pre

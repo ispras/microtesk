@@ -1,12 +1,12 @@
 # Simple demo template for MIPS
 
-require ENV['MTRUBY']
+require ENV["TEMPLATE"]
 
 class MipsDemo < Template
 
   def initialize
     super
-    @is_executable = yes
+    @is_executable = true
   end
 
   def run

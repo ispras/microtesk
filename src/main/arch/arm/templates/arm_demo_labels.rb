@@ -1,13 +1,13 @@
 # Demo template time!
 
-require ENV['MTRUBY']
+require ENV["TEMPLATE"]
 
 require_relative "./demo_prepost"
 
 class ArmDemo < DemoPrepost
   def initialize
     super
-    @is_executable = yes
+    @is_executable = true
   end
 
   def run

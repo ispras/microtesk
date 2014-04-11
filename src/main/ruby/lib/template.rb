@@ -1,3 +1,4 @@
+require_relative "constructs/argument"
 require_relative "constructs/instruction_block"
 require_relative "constructs/instruction"
 require_relative "constructs/label"
