@@ -1,3 +1,5 @@
+require_relative "../config"
+
 require_relative "constructs/argument"
 require_relative "constructs/instruction_block"
 require_relative "constructs/instruction"
@@ -452,7 +454,11 @@ class Template
     else
       file = File.open(filename, 'w')
     end
-      
+
+    if use_file 
+      file.printf HEADER_TEXT, Time.new
+    end
+
       @final_sequences.each do |fs|
         fs.each do |inst|
           
