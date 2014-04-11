@@ -5,9 +5,9 @@
 #                              #
 
 require 'java'
-require "pathname"
-require_relative 'config'
+require 'pathname'
 
+require_relative 'config'
 require_relative 'lib/template_builder'
 require_relative 'lib/template'
 
@@ -20,12 +20,6 @@ class MTRubyError < StandardError
 end
 
 module MTRuby 
-
-WD        = Dir.pwd
-HOME      = ENV['MICROTESK_HOME']
-FORTRESS  = HOME + "/lib/jars/fortress.jar"
-MICROTESK = HOME + "/lib/jars/microtesk.jar"
-TOOLS     = HOME + "/tools"
 
 def self.main
   puts "Home: " + HOME
@@ -88,8 +82,8 @@ end
 
 def self.create_model(model_file, model_name)
   require model_file
-  require FORTRESS
-  require MICROTESK
+  require FORTRESS_JAR
+  require MICROTESK_JAR
 
   model_class_name = sprintf(MODEL_CLASS_FRMT, model_name)
 

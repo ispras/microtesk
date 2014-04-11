@@ -6,13 +6,19 @@
 
 # ---------- Start ----------- #
 
-#    Microtesk JAR location
+# --- Folders and Packages --- #
 
-JAR_FOLDER        = "../libs/jars"
-MODELS_JAR        = File.join(JAR_FOLDER, "models.jar")
-MICROTESK_JAR     = File.join(JAR_FOLDER, "microtesk.jar")
+WD               = Dir.pwd
+HOME             = ENV['MICROTESK_HOME']
 
-MODEL_CLASS_FRMT  = "ru.ispras.microtesk.model.%s.Model"
+JARS             = File.join(HOME, "lib/jars")
+TOOLS            = File.join(HOME, "tools")
+
+FORTRESS_JAR     = File.join(JARS, "fortress.jar")
+MICROTESK_JAR    = File.join(JARS, "microtesk.jar")
+MODELS_JAR       = File.join(JARS, "models.jar")
+
+MODEL_CLASS_FRMT = "ru.ispras.microtesk.model.%s.Model"
 
 ##    Sim-nml CPU description location
 ## TODO: this isn't really used yet
