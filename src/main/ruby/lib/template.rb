@@ -327,6 +327,7 @@ class Template
   def exec_sequence(seq, gen, id, label)
     r_gen = gen
     if gen == nil
+      # TODO NEED EXCEPTION HANDLER
       r_gen = @j_dg.generate(seq)
     end
     

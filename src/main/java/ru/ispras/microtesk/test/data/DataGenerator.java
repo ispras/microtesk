@@ -143,8 +143,19 @@ public class DataGenerator
         for (Argument argument : abstractCall.getArguments().values())
             situation.setOutput(argument.getName());
 
-        final Map<String, Data> output =
-            situation.solve();
+        Map<String, Data> output = null;
+
+        try 
+        {
+            output = situation.solve();
+        }
+        catch (ConfigurationException e)
+        {
+            System.out.printf("Warning! Failed to generate test data for the %s situation.\nReason: %s.\n",
+                situationInfo.getName(), e.getMessage());
+
+            return;
+        }
 
         for (Map.Entry<String, Data> entry : output.entrySet())
         {
