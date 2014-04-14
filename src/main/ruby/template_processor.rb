@@ -1,8 +1,14 @@
-#                              #
-#   MicroTESK Ruby front-end   #
-#                              #
-#       Launcher script        #
-#                              #
+#
+# Copyright (c) 2014 ISPRAS
+#
+# Institute for System Programming of Russian Academy of Sciences
+#
+# 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+#
+# All rights reserved.
+#
+# template_processor.rb, Apr 14, 2014 9:16:35 PM
+#
 
 require 'java'
 require 'pathname'

@@ -1,10 +1,22 @@
-################################################################################
-#                                                                              #
-#                MicroTESK Test Templates (Ruby Libraries)                     #
-#                                                                              #
-#                         Configuration File                                   #
-#                                                                              #
-################################################################################
+#
+# Copyright (c) 2014 ISPRAS
+#
+# Institute for System Programming of Russian Academy of Sciences
+#
+# 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+#
+# All rights reserved.
+#
+# config.rb, Apr 14, 2014 9:11:07 PM
+#
+
+#
+# Description:
+#
+# This is the configuration file for Test Templates subsystem.
+# It contains information related to package and folder structure
+# and other global settings for the subsystem. 
+#
 
 # Folders and Packages 
 
