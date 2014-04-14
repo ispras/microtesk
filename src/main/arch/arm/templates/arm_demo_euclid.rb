@@ -1,80 +1,69 @@
-# Demo template time!
+#
+# Copyright (c) 2014 ISPRAS
+#
+# Institute for System Programming of Russian Academy of Sciences
+#
+# 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+#
+# All rights reserved.
+#
+# arm_demo_euclid.rb, Apr 14, 2014 4:52:07 PM
+#
 
 require ENV["TEMPLATE"]
 
 require_relative "./demo_prepost"
 
+#
+# Description:
+#
+# This test template demonstrates how MicroTESK can simulate the execution
+# of a test program to predict the resulting state of a microprocessor
+# design under test. The described program calculates the greatest common
+# divisor of two 5-bit random numbers ([1..63]) by using the Euclidean 
+# algorithm.   
+#
+
 class ArmDemo < Template
+
   def initialize
     super
     @is_executable = true
   end
 
   def run
+    debug { puts "Euclidean Algorithm: Debug Output\n" }
 
-    # exec_debug {
-    #   puts "Euclidean algorithm - debug output\n"
-    # }
+    i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
+    j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
-    (1..5).each do |ind|
+    debug { puts "\nInput parameter values: #{i}, #{j}\n\n" }
 
-      i = Random.rand(64)
-      j = Random.rand(64)
+    EOR           blank, setsOff, REG(0), REG(0), register0
+    ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, i)
 
-      # This is what we try to set into the registers - the arguments of the Euclidean algorithm (finding MCD)
-      debug {
-         puts "Arguments: " + i.to_s + ", " + j.to_s
-       }
+    EOR           blank, setsOff, REG(1), REG(1), register1
+    ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
 
-      # newline
-      # text "Setting up arguments"
-      # newline
+    debug { puts "\nInitial register values: R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n" }
 
-      SUB           blank, setsOff, REG(0), REG(0), register0 # Keep in mind - Ruby thinks a method with no parameters starting in caps is a constant
-      ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, i)
+    label :cycle
 
-      SUB           blank, setsOff, REG(1), REG(1), register1
-      ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
+    CMP blank, REG(0), register1
+    SUB greaterThan, setsOff, REG(0), REG(0), register1
+    SUB lessThan,    setsOff, REG(1), REG(1), register0
 
-      # This is what is set in the registers at the time of execution
-      debug {
-        puts
-         puts "INPUT: R0: " + get_loc_value("GPR", 0).to_s + ", R1: " + get_loc_value("GPR", 1).to_s
-        puts
-       }
+    debug { puts "\nCurrent register values: R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n" } 
 
-      label ("cycle" + ind.to_s).to_sym
+    B notEqual, :cycle
 
-      CMP blank, REG(0), register1
-      SUB greaterThan, setsOff, REG(0), REG(0), register1
-      SUB lessThan,    setsOff, REG(1), REG(1), register0
+    MOV blank, setsOff, REG(2), register0
 
-      # This is what REG(0) and REG(1) contain during a single iteration of the cycle
-      debug {
-         puts
-         puts "DEBUG: R0: " + get_loc_value("GPR", 0).to_s + ", R1: " + get_loc_value("GPR", 1).to_s# + ", label code: " + self.send("cycle" + ind.to_s).to_s
-          puts
-       }
-
-      B   notEqual, ("cycle" + ind.to_s).to_sym
-
-      # Doesn't do anything important, just to snap a nice debug message at the end of each loop
-      SUB           blank, setsOff, REG(2), REG(2), register2
-
-      # newline
-      debug {
-        puts
-        puts  "// Simulator heavily implies the result should be " + self.get_loc_value("GPR", 0).to_s
-        puts
-       }
-      # newline
-
-      # This is the result of the algorithm
-      # exec_debug {
-      #   puts "Result: " + get_loc_value("GPR", 0).to_s
-      # }
-
-    end
-
+    debug {puts "\nResult stored in R2: #{getGPR(2)}\n"}
   end
+
+  def getGPR(index)
+    return self.get_loc_value("GPR", index).to_s 
+  end
+
 end
