@@ -63,7 +63,7 @@ class ArmDemo < Template
   end
 
   def getGPR(index)
-    return self.get_loc_value("GPR", index).to_s 
+    self.get_loc_value("GPR", index).to_s 
   end
 
 end
