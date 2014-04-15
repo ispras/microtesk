@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 ISPRAS
+# Copyright (c) 2014 ISPRAS (www.ispras.ru)
 #
 # Institute for System Programming of Russian Academy of Sciences
 #
@@ -7,7 +7,19 @@
 #
 # All rights reserved.
 #
-# microtesk.rb, Apr 14, 2014 9:16:35 PM
+# microtesk.rb, Apr 15, 2014 1:32:40 PM
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 
 require 'java'
@@ -25,7 +37,7 @@ class MTRubyError < StandardError
   end
 end
 
-module MTRuby 
+module MicroTESK 
 
 def self.main
   check_arguments
@@ -122,6 +134,6 @@ def self.get_template_file_name(template_class)
   File.basename(template_class.instance_method(:run).source_location.first)
 end
 
-end # MTRuby
+end # MicroTESK
 
-MTRuby.main
+MicroTESK.main
