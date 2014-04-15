@@ -28,18 +28,18 @@ end
 module MTRuby 
 
 def self.main
-  puts "Home: " + HOME
-  puts "Current directory: " + WD
-
   check_arguments
   check_tools
 
-  model = create_model(get_full_name(ARGV[0]), ARGV[1])
+  puts "Home: " + HOME
+  puts "Current directory: " + WD
 
-  template_file = get_full_name(ARGV[2])
+  model = create_model(ARGV[0])
+
+  template_file = get_full_name(ARGV[1])
   puts "Template: " + template_file
 
-  output_file = if ARGV.count > 3 then get_full_name(ARGV[3]) else nil end
+  output_file = if ARGV.count > 2 then get_full_name(ARGV[2]) else nil end
   if output_file then puts "Output file: " + output_file end
   
   template_classes = prepare_template_classes(model, template_file)
@@ -71,9 +71,9 @@ def self.main
 end
 
 def self.check_arguments
-  if ARGV.count < 3
+  if ARGV.count < 2
     abort "Wrong number of arguments. At least two are required.\r\n" + 
-          "Argument format: <model file>, <model name>, <template file>[, <output file>]"
+          "Argument format: <model name>, <template file>[, <output file>]"
   end
 end
 
@@ -86,8 +86,8 @@ def self.check_tools
 
 end
 
-def self.create_model(model_file, model_name)
-  require model_file
+def self.create_model(model_name)
+  require MODELS_JAR
   require FORTRESS_JAR
   require MICROTESK_JAR
 
