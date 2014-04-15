@@ -14,8 +14,8 @@ require 'java'
 require 'pathname'
 
 require_relative 'config'
-require_relative 'lib/template_builder'
-require_relative 'lib/template'
+require_relative 'template_builder'
+require_relative 'template'
 
 include TemplateBuilder
 

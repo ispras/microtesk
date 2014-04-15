@@ -1,4 +1,4 @@
-require_relative "../config"
+require_relative "config"
 
 require_relative "constructs/argument"
 require_relative "constructs/instruction_block"

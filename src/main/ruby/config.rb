@@ -30,7 +30,7 @@ FORTRESS_JAR     = File.join(JARS, "fortress.jar")
 MICROTESK_JAR    = File.join(JARS, "microtesk.jar")
 MODELS_JAR       = File.join(JARS, "models.jar")
 
-TEMPLATE         = File.join(HOME, "lib/ruby/lib/template")
+TEMPLATE         = File.join(HOME, "lib/ruby/template")
 
 MODEL_CLASS_FRMT = "ru.ispras.microtesk.model.%s.Model"
 
