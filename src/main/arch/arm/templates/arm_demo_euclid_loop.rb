@@ -63,7 +63,7 @@ class ArmDemo < Template
 
       debug { puts "\nInitial register values (iteration #{it}): R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n" }
 
-      label ("cycle" + it.to_s).to_sym
+      label :"cycle#{it}"
 
       CMP blank, REG(0), register1
       SUB greaterThan, setsOff, REG(0), REG(0), register1
@@ -71,7 +71,7 @@ class ArmDemo < Template
 
       debug { puts "\nCurrent register values (iteration #{it}): R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n" } 
 
-      B notEqual, ("cycle" + it.to_s).to_sym
+      B notEqual, :"cycle#{it}"
 
       MOV blank, setsOff, REG(2), register0
 
