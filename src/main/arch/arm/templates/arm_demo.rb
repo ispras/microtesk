@@ -19,7 +19,7 @@ class ArmDemo < DemoPrepost
     # add_immediate blank, setsoff, reg(0), reg(0), immediate(4, 1)
     # add_immediate blank, setsoff, reg(0), reg(0), immediate(8, 1)
     
-    add equalcond, setsoff, reg(2), reg(2), register2 
+    add equalcond, setsoff, reg(2), reg(2), register2
 
     print_all_registers
 
@@ -33,7 +33,7 @@ class ArmDemo < DemoPrepost
     add equalcond, setsoff, reg(3), reg(2), register0 do random end
 
     add equalcond, setsoff, reg(4), reg(2), register0 do normal end
-    add equalcond, setsoff, reg(5), reg(2), register0
+    add equalcond, setsoff, reg(5), reg(2), register0 do zero end
 
     block {
       add equalcond, setsoff, reg(1), reg(3), register0

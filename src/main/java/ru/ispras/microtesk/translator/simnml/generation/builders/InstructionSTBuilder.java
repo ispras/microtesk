@@ -25,6 +25,7 @@ import ru.ispras.microtesk.model.api.simnml.instruction.InstructionBase;
 import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.model.api.situation.builtin.RandomSituation;
+import ru.ispras.microtesk.model.api.situation.builtin.ZeroSituation;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
@@ -131,7 +132,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
             if (!needSitsImports) needSitsImports = true;
         }
 
-        // TODO: Temporary code that assigns the "random" situation to all instructions
+        // TODO: Temporary code that assigns the "random" and "zero" situations to all instructions
         // that have at least one parameter. This is not exactly how it should be.
         // It should work only for parameters that represent input values (not flags, not output values). 
 
@@ -142,20 +143,12 @@ public class InstructionSTBuilder implements ITemplateBuilder
                 t.add("situation_names", RandomSituation.class.getSimpleName());
                 t.add("imps", RandomSituation.class.getName());
             }
-            
-            /*
-            if (!instruction.isSituationDefined(AddOverflowSituation.INFO.getName()))
-            {
-                t.add("situation_names", AddOverflowSituation.class.getSimpleName());
-                t.add("imps", AddOverflowSituation.class.getName());
-            }
 
-            if (!instruction.isSituationDefined(AddNormalSituation.INFO.getName()))
+            if (!instruction.isSituationDefined(ZeroSituation.INFO.getName()))
             {
-                t.add("situation_names", AddNormalSituation.class.getSimpleName());
-                t.add("imps", AddNormalSituation.class.getName());
+                t.add("situation_names", ZeroSituation.class.getSimpleName());
+                t.add("imps", ZeroSituation.class.getName());
             }
-            */
         }
     }
 
