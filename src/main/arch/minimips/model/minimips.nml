@@ -269,14 +269,14 @@ op ADD (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
 
 op ADDU (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format ( "ADDU %d, %s, %s", rd, rs.syntax, rt.syntax)
-    // image  = format ( "000000%s%s%5b00000100001", rs.image, rt.image, rd) 
+    image  = format ( "000000%s%s%5b00000100001", rs.image, rt.image, rd) 
     action = {
         GPR [rd] = rs + rt;	
     }
 
 op SUB (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format ( "SUB %d, %s, %s", rd, rs.syntax, rt.syntax )
-    // image  = format ( "000000%s%s%5b00000100010", rs.image, rt.image, rd) 
+    image  = format ( "000000%s%s%5b00000100010", rs.image, rt.image, rd) 
     action = { 
         overflow_bit::GPR[rd] = rs - rt;
         if ( overflow_bit == 1 ) then
@@ -287,7 +287,7 @@ op SUB (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
 
 op SUBU (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format ("SUBU %d, %s, %s", rd, rs.syntax, rt.syntax)
-    // image  = format ("000000%s%s%5b00000100011", rs.image, rt.image, rd) 
+    image  = format ("000000%s%s%5b00000100011", rs.image, rt.image, rd) 
     action = {
         GPR [rd] = rs - rt;    
     }
@@ -307,7 +307,7 @@ op ADDI (rt : index, rs : REG_IND_ZERO, immediate : IMM16 )
 
 op ADDIU (rt : index, rs : REG_IND_ZERO, immediate : IMM16 )
     syntax = format ( "ADDIU %d, %s, %s", rt, rs.syntax, immediate.syntax )
-    // image  = format ( "001001%s%5b%s", rs.image, rt, immediate )
+    image  = format ( "001001%s%5b%s", rs.image, rt, immediate )
     action = {
         GPR [rt] = rs + immediate;
     }
