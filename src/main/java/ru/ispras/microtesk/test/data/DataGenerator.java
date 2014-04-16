@@ -35,7 +35,6 @@ public class DataGenerator
 {
     private final IModel model;
     private SequenceBuilder sequenceBuilder;
-    private List<IInitializerGenerator> initializerGenerators;
 
     public DataGenerator(IModel model)
     {
@@ -43,10 +42,6 @@ public class DataGenerator
         
         this.model = model;
         this.sequenceBuilder = null;
-        this.initializerGenerators = new ArrayList<IInitializerGenerator>();
-        
-        initializerGenerators.add(new ArmRegInitializerGenerator(model));
-        initializerGenerators.add(new ArmRegisterXInitializerGenerator(model));
     }
     
     private void initializeSolverEngine()
@@ -71,12 +66,6 @@ public class DataGenerator
                     System.getProperty("os.name")
                     );
         }
-    }
-
-    public void addInitializerGenerator(IInitializerGenerator ig)
-    {
-        assert null != ig;
-        initializerGenerators.add(ig);
     }
 
     public Sequence<ConcreteCall> generate(
@@ -180,7 +169,7 @@ public class DataGenerator
             value.getRawData().toBinString()
         );
 
-        for(IInitializerGenerator ig : initializerGenerators)
+        for(IInitializerGenerator ig : model.getInitializers())
         {
             if (ig.isCompatible(argument))
             {
@@ -190,14 +179,13 @@ public class DataGenerator
             }
         }
 
-        /*
-        assert false :
+        System.out.println(
             String.format(
-                "Failed to find an initializer generator for argument %s (addressing mode: %s).",
+                "Error! Failed to find an initializer generator for argument %s (addressing mode: %s).",
                  argument.getName(),
                  argument.getModeName()
-            );
-        */
+            )
+        );
     }
 
     private static void addArgumentToInstructionCall(

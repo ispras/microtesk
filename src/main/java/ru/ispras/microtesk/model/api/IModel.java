@@ -16,6 +16,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.metadata.IMetaModel;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.test.data.IInitializerGenerator;
 
 /**
  * The IModel interface is main interface that should be implemented by 
@@ -47,6 +48,8 @@ public interface IModel
      */
 
     public IInstruction getInstruction(String name) throws ConfigurationException;
+    
+    public IInitializerGenerator[] getInitializers();
 
     /**
      * Returns an object that provides access to the internal state of the model

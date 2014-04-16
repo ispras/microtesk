@@ -20,8 +20,8 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.UnsupportedInstructionException;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBlockBuilder;
-import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.instruction.InstructionCallBlockBuilder;
+import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 
 /**
  * The ProcessorModel class is base class for all families of microprocessor
@@ -75,7 +75,7 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
             
         return instructions.getInstruction(name);
     }
-
+    
     // IModel
     @Deprecated
     @Override

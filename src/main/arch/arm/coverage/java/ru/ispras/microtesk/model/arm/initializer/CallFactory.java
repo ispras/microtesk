@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ISPRAS
+ * Copyright (c) 2014 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -7,10 +7,22 @@
  * 
  * All rights reserved.
  * 
- * ArmInitializerGenerator.java, Jun 11, 2013 4:35:36 PM Andrei Tatarnikov
+ * CallFactory.java, Apr 16, 2014 1:26:22 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
-package ru.ispras.microtesk.test.data;
+package ru.ispras.microtesk.model.arm.initializer;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -18,6 +30,7 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
 import ru.ispras.microtesk.test.block.Argument;
+import ru.ispras.microtesk.test.data.ConcreteCall;
 
 /*
  * A GPR initialization is performed in the following way (a Ruby example):
@@ -37,11 +50,11 @@ import ru.ispras.microtesk.test.block.Argument;
  * add_immediate blank, setsoff, reg(0), reg(0), immediate(0, 0b00000001)
  */
 
-public abstract class ArmInitializerGenerator implements IInitializerGenerator
+final class CallFactory
 {
     private final IModel model;
 
-    public ArmInitializerGenerator(IModel model)
+    public CallFactory(IModel model)
     {
         assert null != model;
         this.model = model;
@@ -57,13 +70,13 @@ public abstract class ArmInitializerGenerator implements IInitializerGenerator
      *     mov blank, setsoff, reg(0), lsl_immediate(0, 8)
      */
 
-    protected final ConcreteCall createMOV(Argument dest) throws ConfigurationException
+    public final ConcreteCall createMOV(Argument dest) throws ConfigurationException
     {
         final int registerIndex = dest.getModeArguments().get("r").value;
         return createMOV(registerIndex);
     }
 
-    protected final ConcreteCall createMOV(int registerIndex) throws ConfigurationException
+    public final ConcreteCall createMOV(int registerIndex) throws ConfigurationException
     {
         final IInstructionCallBuilderEx callBuilder = createCallBuilder("MOV", "blank", "setSoff");
 
@@ -90,7 +103,7 @@ public abstract class ArmInitializerGenerator implements IInitializerGenerator
      *    add_immediate blank, setsoff, reg(0), reg(0), immediate(0, 0b00000001)
      */
 
-    protected final ConcreteCall createADD_IMMEDIATE(Argument dest, byte value) throws ConfigurationException
+    public final ConcreteCall createADD_IMMEDIATE(Argument dest, byte value) throws ConfigurationException
     {
         final int registerIndex = dest.getModeArguments().get("r").value;
         return createADD_IMMEDIATE(registerIndex, value);
@@ -126,13 +139,13 @@ public abstract class ArmInitializerGenerator implements IInitializerGenerator
      *     eor blank, setsoff, reg(0), reg(0), register0
      */
 
-    protected final ConcreteCall createEOR(Argument dest) throws ConfigurationException
+    public final ConcreteCall createEOR(Argument dest) throws ConfigurationException
     {
         final int registerIndex = dest.getModeArguments().get("r").value;
         return createEOR(registerIndex);
     }
     
-    protected final ConcreteCall createEOR(int registerIndex) throws ConfigurationException
+    public final ConcreteCall createEOR(int registerIndex) throws ConfigurationException
     {
         final IInstructionCallBuilderEx callBuilder = createCallBuilder("EOR", "blank", "setSoff");
 

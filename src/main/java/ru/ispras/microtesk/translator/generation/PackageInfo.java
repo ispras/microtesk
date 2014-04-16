@@ -198,7 +198,11 @@ public final class PackageInfo
     
     public static final String SITUATION_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.situation";
     public static final String   SITUATION_CLASS_FORMAT = SITUATION_PACKAGE_FORMAT + ".%s";
-    public static String geSituationFileFormat(String outDir) { return outDir + "/" + nameToPath(SITUATION_CLASS_FORMAT) + JAVA_EXT; }
+    public static String getSituationFileFormat(String outDir) { return outDir + "/" + nameToPath(SITUATION_CLASS_FORMAT) + JAVA_EXT; }
+    
+    public static final String INITIALIZER_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.initializer";
+    public static final String   INITIALIZER_CLASS_FORMAT = INITIALIZER_PACKAGE_FORMAT + ".%s";
+    public static String getInitializerFileFormat(String outDir) { return outDir + "/" + nameToPath(INITIALIZER_CLASS_FORMAT) + JAVA_EXT; }
 
     /**
      * Converts a package or class name to a corresponding path string.

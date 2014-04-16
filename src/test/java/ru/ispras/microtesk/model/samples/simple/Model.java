@@ -12,13 +12,18 @@
 
 package ru.ispras.microtesk.model.samples.simple;
 
+import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
+import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
 import ru.ispras.microtesk.model.samples.simple.instruction.ISA;
+import ru.ispras.microtesk.test.data.IInitializerGenerator;
 
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public final class Model extends SimnMLProcessorModel
 {
+    private static final IInitializerGenerator[] __INITIALIZERS = {};
+
     public Model()
     {
         super(
@@ -28,5 +33,27 @@ public final class Model extends SimnMLProcessorModel
             __LABELS,
             __STATUSES
         );
+    }
+    
+    @Override
+    public IInitializerGenerator[] getInitializers()
+    {
+        return __INITIALIZERS;
+    }
+
+    public static void printInformation()
+    {
+        final Model model = new Model();
+
+        final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(model.getMetaData());
+        metaModelPrinter.printAll();
+
+        final ModelStatePrinter modelStatePrinter = new ModelStatePrinter(model);
+        modelStatePrinter.printRegisters();
+    }
+
+    public static void main(String[] args)
+    {
+        printInformation();
     }
 }

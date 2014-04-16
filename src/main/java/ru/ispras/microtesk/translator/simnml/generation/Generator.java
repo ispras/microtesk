@@ -52,7 +52,7 @@ public final class Generator
 
     private void generateModel() throws IOException
     {
-        final IClassGenerator model = factory.createModelGenerator();
+        final IClassGenerator model = factory.createModelGenerator(ir);
         model.generate();
     }
 

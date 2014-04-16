@@ -24,7 +24,9 @@ model(file, pack, imps, simps, base, members) ::= <<
        members)> 
 >>
 
-constructor(isaclass, reg, mem, lab, stat) ::= <<
+constructor(isaclass, reg, mem, lab, stat, inits) ::= <<
+private final IInitializerGenerator[] __INITIALIZERS;
+
 public Model()
 {
     super(
@@ -33,7 +35,18 @@ public Model()
         <mem>,
         <lab>,
         <stat>
-    );
+        );
+
+    this.__INITIALIZERS = new IInitializerGenerator[]
+    {
+        <inits:{n |new <n>(this)}; separator=",\n">
+    };
+}
+
+@Override
+public IInitializerGenerator[] getInitializers()
+{
+    return __INITIALIZERS;
 }
 >>
 

@@ -24,8 +24,6 @@ import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.InstructionBase;
 import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.situation.ISituation;
-import ru.ispras.microtesk.model.api.situation.builtin.AddNormalSituation;
-import ru.ispras.microtesk.model.api.situation.builtin.AddOverflowSituation;
 import ru.ispras.microtesk.model.api.situation.builtin.RandomSituation;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;

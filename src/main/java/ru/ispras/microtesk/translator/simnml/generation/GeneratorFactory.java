@@ -37,7 +37,7 @@ public final class GeneratorFactory
         this.modelName    = modelName.toLowerCase();
     }
 
-    public IClassGenerator createModelGenerator()
+    public IClassGenerator createModelGenerator(IR ir)
     {
         final String outputFileName =
             String.format(getModelFileFormat(outDir), modelName);
@@ -49,7 +49,7 @@ public final class GeneratorFactory
         };
 
         final ITemplateBuilder modelBuilder =
-            new ModelSTBuilder(specFileName, modelName);
+            new ModelSTBuilder(specFileName, modelName, ir.getInitializers().values());
 
         return new ClassGenerator(outputFileName, templateGroups, modelBuilder);
     }

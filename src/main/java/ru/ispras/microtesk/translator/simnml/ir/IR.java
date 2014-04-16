@@ -33,6 +33,7 @@ public final class IR
     private final Map<String, MemoryExpr>  memory;
     private final Map<String, Primitive>    modes;
     private final Map<String, Primitive>      ops;
+    private final Map<String, Initializer>  inits;
 
     private Map<String, Instruction> instructions;
 
@@ -48,7 +49,10 @@ public final class IR
         this.modes   = new LinkedHashMap<String, Primitive>();
         this.ops     = new LinkedHashMap<String, Primitive>();
 
+        this.inits   = new LinkedHashMap<String, Initializer>();
+
         this.instructions = new LinkedHashMap<String, Instruction>();
+        
     }
 
     public void add(String name, LetConstant value)
@@ -86,6 +90,11 @@ public final class IR
             assert false : String.format( "Incorrect primitive kind: %s.", value.getKind());
     }
 
+    public void add(String name, Initializer value)
+    {
+        inits.put(name, value);
+    }
+
     public Map<String, LetConstant> getConstants()
     {
         return Collections.unmodifiableMap(consts);
@@ -119,6 +128,11 @@ public final class IR
     public Map<String, Primitive> getOps()
     {
         return Collections.unmodifiableMap(ops);
+    }
+
+    public Map<String, Initializer> getInitializers()
+    {
+        return Collections.unmodifiableMap(inits);
     }
 
     public Map<String, Instruction> getInstructions()

@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * Reg.java, Apr 16, 2014 1:17:16 PM Andrei Tatarnikov
+ * RegisterXInitializer.java, Apr 16, 2014 1:17:40 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -26,39 +26,54 @@ package ru.ispras.microtesk.model.arm.initializer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.block.Argument;
 import ru.ispras.microtesk.test.data.ConcreteCall;
+import ru.ispras.microtesk.test.data.IInitializerGenerator;
 
-public final class Reg extends AbstractInitializer 
+public final class RegisterXInitializer implements IInitializerGenerator 
 {
-    public Reg(IModel model)
+    private final CallFactory callFactory;
+    
+    public RegisterXInitializer(IModel model)
     {
-        super(model);
+        this.callFactory = new CallFactory(model);
     }
 
     @Override
     public boolean isCompatible(Argument dest)
     {
-        return dest.getModeName().equals("REG");
+        final Matcher matcher = Pattern.compile("^REGISTER[\\d]{1,2}$").matcher(dest.getModeName());
+        return matcher.matches();
     }
 
     @Override
     public List<ConcreteCall> createInitializingCode(Argument dest, Data data) throws ConfigurationException
     {
         final List<ConcreteCall> result = new ArrayList<ConcreteCall>();
-        result.add(createEOR(dest));
+        final int registerIndex = getRegisterIndex(dest.getModeName());
+
+        result.add(callFactory.createEOR(registerIndex));
 
         final byte dataBytes[] = data.getRawData().toByteArray(); 
         for (int byteIndex = 0; byteIndex < 4; ++byteIndex)
         {
-            result.add(createMOV(dest));
-            result.add(createADD_IMMEDIATE(dest, dataBytes[byteIndex]));
+            result.add(callFactory.createMOV(registerIndex));
+            result.add(callFactory.createADD_IMMEDIATE(registerIndex, dataBytes[byteIndex]));
         }
 
         return result;
+    }
+
+    private int getRegisterIndex(String regName)
+    {
+        final Matcher matcher = Pattern.compile("\\d{1,2}$").matcher(regName);
+        matcher.find();
+        return Integer.parseInt(matcher.group());
     }
 }
