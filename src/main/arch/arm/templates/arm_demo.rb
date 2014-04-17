@@ -18,7 +18,7 @@ class ArmDemo < DemoPrepost
     # add_immediate blank, setsoff, reg(0), reg(0), immediate(0, 1)
     # add_immediate blank, setsoff, reg(0), reg(0), immediate(4, 1)
     # add_immediate blank, setsoff, reg(0), reg(0), immediate(8, 1)
-    
+
     add equalcond, setsoff, reg(2), reg(2), register2
 
     print_all_registers
@@ -42,7 +42,7 @@ class ArmDemo < DemoPrepost
       add equalcond, setsoff, reg(4), reg(3), register0
       add equalcond, setsoff, reg(5), reg(3), register0
     }
-    
+
     add_immediate blank, setsoff, reg(2), reg(3), immediate(4, 5)
     b equalcond, 42
 
