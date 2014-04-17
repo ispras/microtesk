@@ -1,3 +1,28 @@
+#
+# Copyright (c) 2014 ISPRAS (www.ispras.ru)
+#
+# Institute for System Programming of Russian Academy of Sciences
+#
+# 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+#
+# All rights reserved.
+#
+# template_builder.rb, Apr 17, 2014 4:03:42 PM Andrei Tatarnikov
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+require 'set'
 require_relative 'template'
 
 $Situation_receiver = nil
@@ -15,41 +40,22 @@ module TemplateBuilder
   def build_template_class(j_metamodel)
 
     instructions = j_metamodel.getInstructions()
-
-    registered_modes = Hash.new
-
-
     instructions.each do |i|
 
-      instruction_name = i.getName.to_s
-      inst_arguments = i.getArguments
-      inst_situations = i.getSituations
+      inst_name = i.getName.to_s
 
-      arg_names = Array.new
-      
-      args_for_mode = Hash.new
-
-      inst_situations.each do |s|
-        #puts "Situation defined: " + s.to_s
-        s1 = s.getName
-        if !Instruction.respond_to?(s1)
-          p = lambda do
-            #$Situation_receiver.situation s1
-            Situation.new(s1)
-          end
-          Instruction.send(:define_method, s1, p)
-        elsif !Instruction.respond_to?("situation_" + s1)
-          p = lambda do
-            #$Situation_receiver.situation s1
-            Situation.new(s1)
-          end
-          Instruction.send(:define_method, "situation_" + s1, p)
-        end
-      end
+      # Defines methods for test situations (added to the Instruction class)
+      define_situation_methods i.getSituations
 
       # -------------------------------------------------------------------------------------------------------------- #
       # Generating convenient shortcuts for addressing modes                                                           #
       # -------------------------------------------------------------------------------------------------------------- #
+      
+      inst_arguments  = i.getArguments
+      
+      arg_names        = Array.new
+      args_for_mode    = Hash.new
+      registered_modes = Hash.new
 
       inst_arguments.each_with_index do |arg, index|
         arg_names.push(arg.getName())
@@ -134,10 +140,10 @@ module TemplateBuilder
       p = lambda do  |*arguments, &situations|
 
         inst = Instruction.new
-        inst.name = instruction_name
+        inst.name = inst_name
 
         if(inst_arguments.count != arguments.count)
-          raise MTRubyError, caller[0] + "\n" + "MTRuby: wrong number of arguments for instruction '" + instruction_name +
+          raise MTRubyError, caller[0] + "\n" + "MTRuby: wrong number of arguments for instruction '" + inst_name +
               "', expected: " + inst_arguments.count.to_s + ", got: " + arguments.count.to_s
         end
         arguments.each_with_index do |arg, ind|
@@ -154,7 +160,7 @@ module TemplateBuilder
           #  end
           #
           #  if(!match)
-          #    raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected label as argument '" + ind.to_s + "' for instruction '" + instruction_name
+          #    raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected label as argument '" + ind.to_s + "' for instruction '" + inst_name
           #    #raise "MTRuby: instruction arguments wrong (label) TODO proper error"
           #  end
           #
@@ -175,7 +181,7 @@ module TemplateBuilder
           #
           #  if(!match)
           #    raise MTRubyError, caller[2] + "\n" + "MTRuby: unexpected argument " + ind.to_s + ": '" + a.mode +
-          #                       "' for instruction '" + instruction_name
+          #                       "' for instruction '" + inst_name
           #  end
           #end
 
@@ -214,7 +220,7 @@ module TemplateBuilder
       # -------------------------------------------------------------------------------------------------------------- #
 
       # Make sure the method isn't defined already, add a prefix otherwise
-      method_name = instruction_name.downcase
+      method_name = inst_name.downcase
       while Template.respond_to?(method_name)
         method_name = "op_" + method_name
       end
@@ -232,8 +238,29 @@ module TemplateBuilder
     p = lambda do registered_modes end
 
     Template.send(:define_method, :registered_modes, p)
-
+    
   end
 
+  # ------------------------------------------------------------------------------------------------------------- #
+  # Defines methods for test situations (added to the Instruction class)                                          #
+  # ------------------------------------------------------------------------------------------------------------- #
+
+  def define_situation_methods(meta_situations)
+    defined_situations = Set.new
+    meta_situations.each do |situation|
+
+      name = situation.getName.to_s
+      if defined_situations.add?(name)
+        if !Instruction.method_defined?(name)
+          p = lambda do Situation.new(name) end
+          Instruction.send(:define_method, name, p)
+        elsif !Instruction.method_defined?("situation_" + name)
+          p = lambda do Situation.new(name) end
+          Instruction.send(:define_method, "situation_" + name, p)
+        end
+      end
+
+    end
+  end
 
 end
