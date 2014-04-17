@@ -42,7 +42,6 @@
 
   <!-- Directories -->
   <property name="gen"       location="gen"/>
-  <property name="out"       location="output"/>
   <property name="bin"       location="bin"/>
 
   <property name="dist"      location="dist"/>
@@ -117,7 +116,6 @@
     <delete dir="${dist}"/>
     <delete dir="${bin}"/>
   	<delete includeEmptyDirs="true"><fileset dir="${gen}" includes="**/*"/></delete>
-  	<delete includeEmptyDirs="true"><fileset dir="${out}" includes="**/*"/></delete>
   	<delete dir="target"/>
   </target>
 
