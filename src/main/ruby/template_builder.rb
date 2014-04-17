@@ -51,12 +51,10 @@ module TemplateBuilder
 
       inst_arguments  = i.getArguments
 
-      arg_names        = Array.new
       args_for_mode    = Hash.new
       registered_modes = Hash.new
 
       inst_arguments.each_with_index do |arg, index|
-        arg_names.push(arg.getName())
 
         modes = arg.getAddressingModes()
 
