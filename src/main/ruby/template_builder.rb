@@ -25,8 +25,6 @@
 require 'set'
 require_relative 'template'
 
-$Situation_receiver = nil
-
 module TemplateBuilder
 
   # TODO:
@@ -50,16 +48,16 @@ module TemplateBuilder
       # -------------------------------------------------------------------------------------------------------------- #
       # Generating convenient shortcuts for addressing modes                                                           #
       # -------------------------------------------------------------------------------------------------------------- #
-      
+
       inst_arguments  = i.getArguments
-      
+
       arg_names        = Array.new
       args_for_mode    = Hash.new
       registered_modes = Hash.new
 
       inst_arguments.each_with_index do |arg, index|
         arg_names.push(arg.getName())
-        
+
         modes = arg.getAddressingModes()
 
         args_for_mode[index] = Array.new
@@ -202,10 +200,8 @@ module TemplateBuilder
             a = arg
           end
 
-
           # TODO: The situation/composite must come at the end of a block for this to work.
           # Is there a way to apply it if it's before the attributes?
-          $Situation_receiver = inst
           if situations != nil
             result = inst.instance_eval &situations
             inst.situation(result)
@@ -236,9 +232,8 @@ module TemplateBuilder
     end
 
     p = lambda do registered_modes end
-
     Template.send(:define_method, :registered_modes, p)
-    
+
   end
 
   # ------------------------------------------------------------------------------------------------------------- #
