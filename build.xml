@@ -263,6 +263,7 @@
 
   <target name="copy.text">
     <copy file="src/main/text/README" tofile="${dist}/README"/>
+  	<copy file="ChangeLog" tofile="${dist}/ChangeLog"/>
   	<mkdir dir="${dist}/tools"/>
   	<copy file="src/main/text/README_TOOLS" tofile="${dist}/tools/README"/>
   </target>	
