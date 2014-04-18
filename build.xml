@@ -17,7 +17,7 @@
   -->
 
 <project name="microtesk" default="build.all" basedir=".">
-	
+
   <property name="buildbase.dir" value="tools/buildbase"/>
 
   <fail>
@@ -36,7 +36,7 @@
   <!-- Exported properties -->
   <property file="module.properties"/>
   <property file="version.properties"/>
-	
+
   <!-- MicroTESK version --> 
   <property name="fullver" value="${module.version.major}.${module.version.minor}.${module.version.build}-${module.version.status}-${module.version.date}"/>
 
