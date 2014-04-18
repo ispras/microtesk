@@ -56,10 +56,9 @@ module TemplateBuilder
 
       inst_arguments.each_with_index do |arg, index|
 
-        modes = arg.getAddressingModes()
-
         args_for_mode[index] = Array.new
 
+        modes = arg.getAddressingModes()
         modes.each do |m|
           mode_name = m.getName()
           
