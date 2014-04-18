@@ -6,8 +6,18 @@
  2014/03/20 MicroTESK 2.0 beta
 --------------------------------------------------------------------------------
 
+ 2014/04/17 MicroTESK 2.0.2 beta
+
+ The new build contains the following changes:
+
+ - An ability to manualy specify initialization code was implemented
+ - The test templates library was improved
+ - Test template examples for ARM were updated
+ - Several bugs related to installation of MicroTESK were fixed
+ - Default test situations Random and Zero were provided
+
  2014/03/20 MicroTESK 2.0.1 beta
- 
+
  MicroTESK is an open-source framework for generating test programs for
  microprocessors. It is customized for a specific microprocessor architecture
  with formal specifications in nML/Sim-nML. Test programs are generated on a
