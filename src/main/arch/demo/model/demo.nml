@@ -1,0 +1,85 @@
+/*
+ * Example of Sim-nML description of a trivial microprocessor ISA.
+ * 
+ * Borrowed from a Master's thesis "Functional Simulation Using Sim-nML"
+ * by Surendra Kumar Vishnoi, Indian Institute of Technology Kanpur
+ *
+ * http://www.cse.iitk.ac.in/users/moona/?page=stud
+ */
+
+let COMMENT = "This is a test Sim-nML design specification."
+
+let MSIZE = 2 ** 6
+let REGS = 16
+
+type index = card(6)
+type nibble = card(4)
+type byte_t = int(8)
+
+mem M[MSIZE, byte_t]
+reg R[REGS, byte_t]
+reg PC[1, byte_t]
+
+var SRC1[1, byte_t]
+var SRC2[1, byte_t]
+var DEST[1, byte_t]
+
+mode IMM(i: byte_t)=i
+syntax = format("[%d]", i)
+image = format("11%4b", i)
+
+mode MEM(i: index)=M[i]
+syntax = format("(%d)", i)
+image = format("%6b", i)
+
+mode IREG(i: nibble)=M[R[i]]
+syntax = format("(R%d)", i)
+image = format("00%4b", i)
+
+mode REG(i: nibble)=R[i]
+syntax = format("R%d", i)
+image = format("01%4b", i)
+
+mode OPRNDL = MEM | REG | IREG
+mode OPRNDR = OPRNDL | IMM
+
+op Add()
+syntax = "add"
+image = "00"
+action = {
+           DEST = SRC1 + SRC2; 
+         }
+
+op Sub()
+syntax = "sub"
+image = "01"
+action = {
+           DEST = SRC1 - SRC2; 
+         }
+
+op Mov()
+syntax = "mov"
+image = "10"
+action = {
+           DEST = SRC2;
+         }
+         
+op Add_sub_mov = Add | Sub | Mov
+
+op arith_mem_inst(y: Add_sub_mov, op1: OPRNDL, op2: OPRNDR)
+syntax = format("%s %s %s", y.syntax, op1.syntax, op2.syntax)
+image = format("%s %s 00%s", y.image, op1.image, op2.image)
+action = {
+           SRC1 = op1;
+           SRC2 = op2;
+           y.action;
+           op1 = DEST;
+           PC = PC + 2; 
+         }
+
+op instruction(x: arith_mem_inst)
+syntax = x.syntax
+image = x.image
+action = x.action
+
+
