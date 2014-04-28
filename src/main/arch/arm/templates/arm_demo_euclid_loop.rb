@@ -24,8 +24,6 @@
 
 require ENV["TEMPLATE"]
 
-require_relative "./demo_prepost"
-
 #
 # Description:
 #

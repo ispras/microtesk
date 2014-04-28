@@ -2,9 +2,7 @@
 
 require ENV["TEMPLATE"]
 
-require_relative "./demo_prepost"
-
-class ArmDemo < DemoPrepost
+class ArmDemo < Template
 
   def initialize
     super
