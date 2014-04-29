@@ -229,6 +229,11 @@
       <fileset dir="src/main/ruby" includes="**"/>  
     </copy>
 
+    <!-- Copies DEMO architecture specifications and test templates -->
+    <copy todir="${dist}/arch/demo">
+      <fileset dir="src/main/arch/demo" includes="**"/>  
+    </copy>
+
     <!-- Copies batch files -->
     <copy todir="${dist}/bin">
       <fileset dir="src/main/scripts" includes="**"/>  
@@ -281,6 +286,17 @@
    <!-- Target for generating and building models -->
   <target name="models.jar">
 
+    <!-- Generate code for the DEMO model -->
+    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg value="-d"/>
+      <arg value="${dist.gen}/src"/>
+      <arg value="${dist}/arch/demo/model/demo.nml"/>
+      <classpath>
+        <pathelement location="${dist.jars}/${jar}"/>
+      </classpath>
+    </java>
+
     <!-- Generate code for the ARM model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
@@ -304,7 +320,7 @@
   	    <pathelement location="${dist.jars}/${jar}"/>
   	  </classpath>
     </java>
-  	
+
     <property name="models.classpath"     value="${dist.jars}/${jar}"/>
     <property name="models.jar.classpath" value="${jar}"/>
     <property name="models.bin"           value="${dist.gen}/bin"/>
