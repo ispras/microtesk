@@ -227,7 +227,7 @@ public final class InstructionBuilder
         {
             final String    argName = uniqueName(argEntry.getKey(), arguments.keySet());
             final Primitive argType = argEntry.getValue();
-
+            
             switch (argType.getKind())
             {
                 case MODE:
@@ -247,7 +247,7 @@ public final class InstructionBuilder
 
                     opArgCount++;
                     opName = argName;
-
+                    
                     saveAllOpsToList(argType, opList);
                     break;
                 }
@@ -269,12 +269,13 @@ public final class InstructionBuilder
 
         for (PrimitiveAND op : opList)
         {
-            current.getArguments().put(opName, op);
+            final PrimitiveAND newCurrent = op.makeCopy();
+            current.getArguments().put(opName, newCurrent);
 
             if (!traverseOperationTree(
                 new LinkedHashMap<String, Primitive>(arguments),
                 root == current ? root.makeCopy() : root,
-                op.makeCopy())
+                newCurrent)
                 )
             {
                 return false;
