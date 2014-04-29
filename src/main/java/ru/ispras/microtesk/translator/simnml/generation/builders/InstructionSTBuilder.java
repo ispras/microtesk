@@ -171,7 +171,7 @@ public class InstructionSTBuilder implements ITemplateBuilder
             }
             else if (e.getValue().getKind() == Primitive.Kind.OP)
             {
-                assert !e.getValue().isOrRule() : String.format("%s is an OR rule", e.getKey());
+                assert !e.getValue().isOrRule() : String.format("%s is an OR rule: %s", e.getKey(), e.getValue().getName());
                 t.add("params", creatOperationST((PrimitiveAND) e.getValue(), group));
             }
             else
