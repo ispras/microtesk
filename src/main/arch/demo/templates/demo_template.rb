@@ -30,45 +30,45 @@ class DemoTemplate < DemoPrepost
     #  mov m[i], m[i+1]                                   # Ruby being smart
     #end
 
-    newline
-    text "// Basic instructions"
-    newline
+    # newline
+    # text "// Basic instructions"
+    # newline
 
     add mem(:i => 1), mem(:i => 1)
     sub mem(:i => 2), imm(4)
 
-    newline
-    text "// Atomic block"
-    newline
+    # newline
+    # text "// Atomic block"
+    # newline
 
-    atomic {
+    # atomic {
       mov mem(25), mem(26)
       add mem(27), imm(28)
       sub mem(29), imm(30)
-    }
+    # }
 
-    newline
-    text "// Block group sampling"
-    newline
+    # newline
+    # text "// Block group sampling"
+    # newline
 
-    block_group "my_group" do
-          prob 0.2
-          mov mem(30), mem(31)
-          prob 0.2
-          add mem(32), imm(41)
-          prob 0.6
-          sub mem(33), imm(42)
-    end
-
-    15.times do
-      my_group.sample
-    end
-
-    newline
-    text "// Block group - entire"
-    newline
-
-    my_group.all
+#    block_group "my_group" do
+#          prob 0.2
+#          mov mem(30), mem(31)
+#          prob 0.2
+#          add mem(32), imm(41)
+#          prob 0.6
+#          sub mem(33), imm(42)
+#    end
+#
+#    15.times do
+#      my_group.sample
+#    end
+#
+#    newline
+#    text "// Block group - entire"
+#    newline
+#
+#    my_group.all
 
 
   end
