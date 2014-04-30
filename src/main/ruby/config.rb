@@ -45,8 +45,3 @@ MODELS_JAR       = File.join(JARS, "models.jar")
 TEMPLATE         = File.join(HOME, "lib/ruby/template")
 
 MODEL_CLASS_FRMT = "ru.ispras.microtesk.model.%s.Model"
-
-# Debugging features 
-
-$TO_STDOUT = true # Write results to stdout?
-$TO_FILES  = true # Write results to files?
