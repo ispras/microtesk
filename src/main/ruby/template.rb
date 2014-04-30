@@ -1,3 +1,5 @@
+require_relative "utils"
+
 require_relative "constructs/argument"
 require_relative "constructs/instruction_block"
 require_relative "constructs/instruction"
@@ -49,7 +51,7 @@ class Template
     @@template_classes
   end
 
-  def set_model  (j_model)
+  def set_model(j_model)
     @j_model = j_model
     @j_monitor = @j_model.getStateObserver()
     java_import Java::Ru.ispras.microtesk.test.TestEngine
@@ -501,7 +503,7 @@ class Template
                 puts b_s
               end
             end
-          end
+          end  
           
           if b_labels.is_a? Array
             b_labels.each do |b_label|
@@ -597,13 +599,8 @@ class Template
       p = lambda do
         return i
       end
-
-      method_name = name
-      while Template.respond_to?(method_name)
-        method_name = "gr_" + method_name
-      end
-      Template.send(:define_method, method_name, p)
-
+      
+      define_method_for Template, name, "gr", p
   end
 
   def mode_group(name, modes)
@@ -619,13 +616,8 @@ class Template
       p = lambda do
         return i
       end
-
-      method_name = name
-      while Template.respond_to?(method_name)
-        method_name = "mgr_" + method_name
-      end
-      Template.send(:define_method, method_name, p)
-
+      
+      define_method_for Template, name, "mgr", p
   end
 
   def block_group(name, &block)
@@ -644,12 +636,8 @@ class Template
     p = lambda do
       return bl
     end
-
-    method_name = name
-    while Template.respond_to?(method_name)
-      method_name = "bg_" + method_name
-    end
-    Template.send(:define_method, method_name, p)
+    
+    define_method_for Template, name, "bg", p
   end
 
   def prob(p)
