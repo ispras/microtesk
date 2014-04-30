@@ -28,14 +28,9 @@ require 'pathname'
 require_relative 'config'
 require_relative 'template_builder'
 require_relative 'template'
+require_relative 'utils'
 
 include TemplateBuilder
-
-class MTRubyError < StandardError
-  def initialize(msg = "You've triggered an MTRuby Error. TODO: avoid these situations and print stack trace")
-    super
-  end
-end
 
 module MicroTESK 
 
@@ -53,7 +48,7 @@ def self.main
 
   output_file = if ARGV.count > 2 then get_full_name(ARGV[2]) else nil end
   if output_file then puts "Output file: " + output_file end
-  
+
   template_classes = prepare_template_classes(model, template_file)
   template_classes.each do |template_class|
     begin
@@ -111,10 +106,6 @@ def self.create_model(model_name)
   model = Model.new
   puts "Model object created"
   model
-end
-
-def self.get_full_name(file)
-  if (Pathname.new file).absolute? then file else File.join(WD, file) end
 end
 
 def self.prepare_template_classes(model, template_file)
