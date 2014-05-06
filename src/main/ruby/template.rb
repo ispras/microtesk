@@ -38,9 +38,6 @@ class Template
     @receiver_stack = [@core_block]
 
     @final_sequences = Array.new
-
-    # V2 LEFTOVERS
-    @probability_receiver = nil
   end
 
   def self.template_classes
