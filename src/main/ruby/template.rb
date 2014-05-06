@@ -147,35 +147,6 @@ class Template
     v
   end
 
-
-  def all(*situations)
-    situations.reduce(:&)
-  end
-
-  def choose(*situations)
-    if situations.length > 1 && (situations[1].is_a? Situation)
-      return situations.reduce(:|)
-    elsif situations.length > 1 && (situations[1].is_a? Numeric)
-      root = Situation.new
-      situations.each_with_index do |s, i|
-        if i % 2 == 0
-          root.targets.push s
-        else
-          root.probabilities.push s
-        end
-      end
-      return root
-    elsif situations[0].is_a? Array
-      root = Situation.new
-      situations.each_with_index do |s, i|
-          root.targets.push s[0]
-          root.probabilities.push s[1]
-      end
-      return root
-    end
-    situations.first
-  end
-
   # -------------------------------------------------- #
   # Memory-related methods                             #
   # -------------------------------------------------- #
