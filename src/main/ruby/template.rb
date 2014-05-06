@@ -208,7 +208,6 @@ class Template
     end
   end
 
-
   # -------------------------------------------------- #
   # Execution                                          #
   # -------------------------------------------------- #
@@ -311,7 +310,6 @@ class Template
         end
       end      
       
-      
       if (goto >= sn + 1) or (goto == -1 && cur_seq >= sn)
         continue = false
       else
@@ -384,11 +382,7 @@ class Template
       f_debug = inst.getAttribute("f_runtime_debug")
       b_debug = inst.getAttribute("b_runtime_debug")
       
-
-      
       exec = inst.getExecutable()
-
-
 
       if b_debug.is_a? Array
         b_debug.each do |b_d|
@@ -569,7 +563,6 @@ class Template
               end
             end
           end
-          
           
         end
       end
