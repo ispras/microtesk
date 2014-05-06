@@ -7,10 +7,6 @@ require_relative "constructs/label"
 require_relative "constructs/no_value"
 require_relative "constructs/situation"
 
-require_relative "groups/mode_group"
-require_relative "groups/block_group"
-require_relative "groups/instruction_group"
-
 require_relative "debug/output_debug"
 require_relative "debug/output_string"
 require_relative "debug/runtime_debug"
