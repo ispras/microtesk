@@ -36,7 +36,7 @@ class Argument
   attr_accessor :mode
 
   # Table of arguments of the addressing mode, where
-  # key (String) is argument name and value (Object) is argument value
+  # key (String) is the argument name and value (Object) is the argument value
   #
   attr_accessor :values
 
