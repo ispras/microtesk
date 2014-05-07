@@ -56,7 +56,7 @@ def self.main
       template.set_model(model)
 
       if template.is_executable
-        printf "Processing %s...\r\n", get_template_file_name(template_class)
+        puts "Processing %s..." % File.basename(template_class.instance_method(:run).source_location.first)
 
         template.parse
         template.execute
@@ -87,8 +87,8 @@ end
 def self.check_tools
 
   if !File.exists?(TOOLS) || !File.directory?(TOOLS)
-      abort "The '" + TOOLS + "' folder does not exist.\r\n" +
-            "It stores external constraint solver engines and is required to generate constraint-based test data."
+    abort "The '" + TOOLS + "' folder does not exist.\r\n" +
+          "It stores external constraint solver engines and is required to generate constraint-based test data."
   end
 
 end
@@ -112,17 +112,13 @@ def self.prepare_template_classes(model, template_file)
   TemplateBuilder.build_template_class(model)
 
   if File.file?(template_file)
-    ENV["TEMPLATE"] = TEMPLATE
+    ENV['TEMPLATE'] = TEMPLATE
     require template_file
   else
     printf "MTRuby: warning: The %s file does not exist.\r\n", template_file
   end
 
   Template::template_classes
-end
-
-def self.get_template_file_name(template_class)
-  File.basename(template_class.instance_method(:run).source_location.first)
 end
 
 end # MicroTESK
