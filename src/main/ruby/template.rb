@@ -25,7 +25,7 @@ class Template
   include StateObserver
   
   @@template_classes = Array.new
-  attr_accessor :is_executable, :j_model, :j_monitor, :j_bbf, :j_dg
+  attr_accessor :is_executable, :j_bbf, :j_dg
 
   def initialize
     super
@@ -49,9 +49,8 @@ class Template
   end
 
   def set_model(j_model)
-    @j_model = j_model
-    StateObserver.state_observer= @j_model.getStateObserver()
-    
+    StateObserver.state_observer = j_model.getStateObserver()
+
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     te = TestEngine.getInstance(j_model)
     @j_bbf = te.getBlockBuilders()
