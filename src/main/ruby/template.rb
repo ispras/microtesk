@@ -25,7 +25,7 @@ class Template
   include StateObserver
   
   @@template_classes = Array.new
-  attr_accessor :is_executable, :j_bbf, :j_dg
+  attr_accessor :is_executable
 
   def initialize
     super
