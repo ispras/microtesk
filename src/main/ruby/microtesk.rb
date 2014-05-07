@@ -30,8 +30,10 @@ require_relative 'template_builder'
 require_relative 'template'
 require_relative 'utils'
 
-module MicroTESK 
+include TemplateBuilder
 
+module MicroTESK 
+  
 def self.main
   check_arguments
   check_tools
