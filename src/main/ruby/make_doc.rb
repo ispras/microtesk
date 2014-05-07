@@ -6,11 +6,10 @@
 
 # Configuration
 
-# Edit this if the MicroTESK JAR is located elsewhere
-$MICROTESK_JAR = "./dist/jars/models.jar"
-require $MICROTESK_JAR
 
 require 'fileutils'
+require_relative 'config'
+require MODELS_JAR
 
 if(ARGV.count < 1)
   abort "Arguments required: model package"
@@ -27,11 +26,13 @@ puts "Creating model object"
 j_metamodel = Model.new
 puts "Model object created"
 
+Model.printInformation
+
 # Launcher
 
 md_code = []
 
-md_code.push j_metamodel.class.name.split("::")[1] + " instruction set reference"
+md_code.push j_metamodel.class.name.split("::")[1].to_s + " instruction set reference"
 md_code.push "====================="
 md_code.push ""
 
@@ -73,7 +74,7 @@ $working_directory = Dir.pwd
       md_code.push "Situations:"
       str_ = ""
       i.getSituations.each do |s|
-        str_ += s + ", "
+        str_ += s.getName.to_s + ", "
       end
       if str_ != ""
         md_code.push str_[0..str_.length - 2]
