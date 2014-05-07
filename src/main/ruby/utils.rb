@@ -22,50 +22,13 @@
 # limitations under the License.
 #
 
-require_relative 'config'
-
 #
 # Description:
 #
 #
 
-
 class MTRubyError < StandardError
   def initialize(msg = "You've triggered an MTRuby Error. TODO: avoid these situations and print stack trace")
     super
   end
-end
-
-#
-#
-#
-#
-def get_full_name(file)
-  if (Pathname.new file).absolute? then file else File.join(WD, file) end
-end
-
-# 
-# Defines a method in the target class. If such method is already defined,
-# the method type is added to the method name as a prefix to make the name unique.
-# If this does not help, an error is reported.  
-# 
-# Parameters:
-#   target_class Target class (Class object)
-#   method_name  Method name (String)
-#   method_type  Method type (String) 
-#   method_body  Body for the method (Proc)
-#
-def define_method_for(target_class, method_name, method_type, method_body)
-
-  method_name = method_name.downcase
-  # puts "Defining method #{target_class}.#{method_name} (#{method_type})..."
-
-  if !target_class.method_defined?(method_name)
-    target_class.send(:define_method, method_name, method_body)
-  elsif !target_class.method_defined?("#{method_type}_#{method_name}")
-    target_class.send(:define_method, "#{method_type}_#{method_name}", method_body)
-  else
-    puts "Error: Failed to define the #{method_name} method (#{method_type})"
-  end
-
 end

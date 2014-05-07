@@ -33,8 +33,8 @@
 
 module StateObserver
 
-  def self.state_observer=(value)
-    @@j_model_state_observer = value
+  def self.model=(j_model)
+    @@j_model_state_observer = j_model.getStateObserver()
   end
 
   def self.control_transfer_status

@@ -1,4 +1,5 @@
 
+require_relative "engine"
 require_relative "state_observer"
 require_relative "utils"
 
@@ -23,7 +24,7 @@ HEADER_TEXT =
 
 class Template
   include StateObserver
-  
+
   @@template_classes = Array.new
   attr_accessor :is_executable
 
@@ -48,13 +49,9 @@ class Template
     @@template_classes
   end
 
-  def set_model(j_model)
-    StateObserver.state_observer = j_model.getStateObserver()
-
-    java_import Java::Ru.ispras.microtesk.test.TestEngine
-    te = TestEngine.getInstance(j_model)
-    @j_bbf = te.getBlockBuilders()
-    @j_dg = te.getDataGenerator()
+  def self.set_model(j_model)
+    Engine.model = j_model
+    StateObserver.model = j_model
   end
 
   # This method adds every subclass of Template to the list of templates to parse
@@ -159,7 +156,7 @@ class Template
     puts " ---------- Start build ----------"
     puts
     
-    bl = @core_block.build(@j_bbf)
+    bl = @core_block.build(Engine.j_bbf)
     bl_iter = bl.getIterator()
 
     puts
@@ -264,7 +261,7 @@ class Template
 #        if sequences[i] == nil
 #          puts "what the fuck " + i.to_s
 #        end
-        @final_sequences[i] = @j_dg.generate(sequences[i])
+        @final_sequences[i] = Engine.generate_data sequences[i]
       end
     end
 
@@ -274,7 +271,7 @@ class Template
     r_gen = gen
     if gen == nil
       # TODO NEED EXCEPTION HANDLER
-      r_gen = @j_dg.generate(seq)
+      r_gen = Engine.generate_data seq
     end
     
     labels = Hash.new

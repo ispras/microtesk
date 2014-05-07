@@ -23,7 +23,6 @@
 #
 
 require 'java'
-require 'pathname'
 
 require_relative 'config'
 require_relative 'template_builder'
@@ -43,18 +42,18 @@ def self.main
 
   model = create_model(ARGV[0])
 
-  template_file = get_full_name(ARGV[1])
+  template_file = File.expand_path ARGV[1]
   puts "Template: " + template_file
 
-  output_file = if ARGV.count > 2 then get_full_name(ARGV[2]) else nil end
+  output_file = if ARGV.count > 2 then File.expand_path ARGV[2] else nil end
   if output_file then puts "Output file: " + output_file end
+    
+  Template.set_model model
 
   template_classes = prepare_template_classes(model, template_file)
   template_classes.each do |template_class|
     begin
       template = template_class.new
-      template.set_model(model)
-
       if template.is_executable
         puts "Processing %s..." % File.basename(template_class.instance_method(:run).source_location.first)
 
