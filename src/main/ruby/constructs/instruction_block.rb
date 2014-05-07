@@ -61,8 +61,6 @@ class InstructionBlock
       j_block_builder.setAttribute(key.to_s, value)
     end
 
-    was_block = false
-
     # Semantics of label inclusion:
     # The instruction attributes generally contain labels that _follow_ the instruction ("f_label")
     # Unless explicitly specified ("b_label") in case of there being no instructions
