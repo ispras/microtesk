@@ -1,6 +1,6 @@
 # Simple demo template for MIPS
 
-require ENV["TEMPLATE"]
+require ENV['TEMPLATE']
 
 class MipsDemo < Template
 
@@ -42,7 +42,7 @@ class MipsDemo < Template
     debug {
       a = "DEBUG: GRP values: "
       (0..31).each do |i|
-         s = sprintf("%034b", get_loc_value("GPR", i))
+         s = sprintf("%034b", StateObserver.get_loc_value("GPR", i))
          a += s[2, s.length] + ", "
       end
       puts a

@@ -1,3 +1,5 @@
+
+require_relative "state_observer"
 require_relative "utils"
 
 require_relative "constructs/argument"
@@ -20,6 +22,8 @@ HEADER_TEXT =
 "; http://forge.ispras.ru/projects/microtesk\n\n"
 
 class Template
+  include StateObserver
+  
   @@template_classes = Array.new
   attr_accessor :is_executable, :j_model, :j_monitor, :j_bbf, :j_dg
 
@@ -46,7 +50,8 @@ class Template
 
   def set_model(j_model)
     @j_model = j_model
-    @j_monitor = @j_model.getStateObserver()
+    StateObserver.state_observer= @j_model.getStateObserver()
+    
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     te = TestEngine.getInstance(j_model)
     @j_bbf = te.getBlockBuilders()
@@ -142,34 +147,6 @@ class Template
     v = NoValue.new(aug_value)
     v.is_immediate = true
     v
-  end
-
-  # -------------------------------------------------- #
-  # Memory-related methods                             #
-  # -------------------------------------------------- #
-
-  def get_loc_value (string, index = nil)
-    if index == nil
-      @j_monitor.accessLocation(string).getValue()
-    else
-      @j_monitor.accessLocation(string, index).getValue()
-    end
-  end
-
-  def get_loc_size (string, index = nil)
-    if index == nil
-      @j_monitor.accessLocation(string).getBitSize()
-    else
-      @j_monitor.accessLocation(string, index).getBitSize()
-    end
-  end
-
-  def set_loc_value (value, string, index = nil)
-    if index == nil
-      @j_monitor.accessLocation(string).setValue(value)
-    else
-      @j_monitor.accessLocation(string, index).setValue(value)
-    end
   end
 
   # -------------------------------------------------- #
@@ -368,8 +345,8 @@ class Template
       end
 
       # Labels
-      jump = @j_monitor.getControlTransferStatus()
-      
+      jump = StateObserver.control_transfer_status
+
       # TODO: Support instructions with 2+ labels (needs API)
       
       if jump > 0

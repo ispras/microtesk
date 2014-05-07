@@ -22,7 +22,7 @@
 # limitations under the License.
 #
 
-require ENV["TEMPLATE"]
+require ENV['TEMPLATE']
 
 #
 # Description:
@@ -79,7 +79,7 @@ class ArmDemo < Template
   end
 
   def getGPR(index)
-    self.get_loc_value("GPR", index).to_s 
+    StateObserver.get_loc_value("GPR", index).to_s 
   end
 
 end

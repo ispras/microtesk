@@ -1,6 +1,6 @@
 # Demo template time!
 
-require ENV["TEMPLATE"]
+require ENV['TEMPLATE']
 
 class ArmDemo < Template
   def initialize
@@ -10,7 +10,7 @@ class ArmDemo < Template
 
   def run
 
-    sub lessThan, setsoff, _(9), reg(0), register0
+    sub lessThan, setsoff, REG(9), reg(0), register0
     # The following code syntactically works but has no API to link to so is commented out for the time being
     #do (overflow | normal) & random end
 
@@ -21,11 +21,11 @@ class ArmDemo < Template
 
     # Uncomment here to list all GPR registers
     debug {
-        a = ""
-        (0..15).each do |i|
-          a += get_loc_value("GPR", i).to_s + ", "
-        end
-        puts a
+      a = ""
+      (0..15).each do |i|
+        a += StateObserver.get_loc_value("GPR", i).to_s + ", "
+      end
+      puts a
     }
 
     b notEqual, :valiant
