@@ -53,7 +53,7 @@ class ArmDemo < Template
     debug {
       a = "DEBUG: GRP values: "
       (0..15).each do |i|
-         s = sprintf("%034b", StateObserver.get_loc_value("GPR", i))
+         s = sprintf("%034b", get_loc_value("GPR", i))
          a += s[2, s.length] + ", "
       end
       puts a

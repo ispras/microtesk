@@ -27,8 +27,9 @@
 #
 # The StateObserver module provides wrapper methods for the model state observer
 # object provided by a model (ru.ispras.microtesk.model.api.state.IModelStateObserver).
-# The module is included into test templates so that its methods are available in all
-# test templates and can be used in their code. The methods are self-explanatory.   
+# The module is included into test templates (as a mixin)so that its methods are
+# available in all test templates and can be used in their code. The methods are
+# self-explanatory.   
 #
 
 module StateObserver
@@ -41,7 +42,7 @@ module StateObserver
     @@j_model_state_observer.getControlTransferStatus()
   end
 
-  def self.get_loc_value(string, index = nil)
+  def get_loc_value(string, index = nil)
     if index == nil
       @@j_model_state_observer.accessLocation(string).getValue()
     else
@@ -49,7 +50,7 @@ module StateObserver
     end
   end
 
-  def self.get_loc_size(string, index = nil)
+  def get_loc_size(string, index = nil)
     if index == nil
       @@j_model_state_observer.accessLocation(string).getBitSize()
     else
@@ -57,7 +58,7 @@ module StateObserver
     end
   end
 
-  def self.set_loc_value(value, string, index = nil)
+  def set_loc_value(value, string, index = nil)
     if index == nil
       @@j_model_state_observer.accessLocation(string).setValue(value)
     else

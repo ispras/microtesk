@@ -23,7 +23,7 @@ class ArmDemo < Template
     debug {
       a = ""
       (0..15).each do |i|
-        a += StateObserver.get_loc_value("GPR", i).to_s + ", "
+        a += get_loc_value("GPR", i).to_s + ", "
       end
       puts a
     }

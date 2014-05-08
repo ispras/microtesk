@@ -79,7 +79,7 @@ class ArmDemo < Template
   end
 
   def getGPR(index)
-    StateObserver.get_loc_value("GPR", index).to_s 
+    get_loc_value("GPR", index).to_s 
   end
 
 end
