@@ -152,17 +152,18 @@ class Template
   # TODO: everything
 
   def execute
+
     puts
-    puts " ---------- Start build ----------"
+    puts "---------- Start build ----------"
     puts
-    
+
     bl = @core_block.build(Engine.j_bbf)
     bl_iter = bl.getIterator()
 
     puts
-    puts " ---------- Start execute ----------"
+    puts "---------- Start execute ----------"
     puts
-    
+
     # Preprocess labels
     @labels = Hash.new
 
@@ -383,127 +384,95 @@ class Template
 
   # Print out the executable program
   def output(filename)
-    
-    puts
-    puts " ---------- Start output ----------"
-    puts
-    
-    use_file = true
-    if filename == nil or filename == ""
-      use_file = false
-    else
-      file = File.open(filename, 'w')
-    end
 
-    if use_file 
+    puts
+    puts "---------- Start output ----------"
+    puts
+
+    use_file = filename != nil and filename != ""
+    if use_file
+      file = File.open(filename, 'w')
       file.printf HEADER_TEXT, Time.new
     end
 
-      @final_sequences.each do |fs|
-        fs.each do |inst|
-          
-          f_debug = inst.getAttribute("f_output_debug")
-          b_debug = inst.getAttribute("b_output_debug")
-      
-          f_string = inst.getAttribute("f_output_string")
-          b_string = inst.getAttribute("b_output_string")
-          
-          f_labels = inst.getAttribute("f_labels")
-          b_labels = inst.getAttribute("b_labels")
-      
-          #process labels
-          
-          if b_debug.is_a? Array
-            b_debug.each do |b_d|
-              s = self.instance_eval &b_d
-              if use_file
-                file.puts s
-              end
-              if @use_stdout
-                puts s
-              end
-            end
-          end
-          
-          if b_string.is_a? Array
-            b_string.each do |b_s|
-              if use_file
-                file.puts s
-              end
-              if @use_stdout
-                puts b_s
-              end
-            end
-          end  
-          
-          if b_labels.is_a? Array
-            b_labels.each do |b_label|
-              
-              text = b_label.first
-              b_label[1].each do |t|
-                text += "_" + t.to_s
-              end
-              
-              if use_file
-                file.puts text + ":"
-              end
-              if @use_stdout
-                puts text + ":"
-              end
-            end
-          end
-
-          
-          if use_file
-            file.puts inst.getExecutable().getText()
-          end
-          if @use_stdout
-            puts inst.getExecutable().getText()
-          end
-          
-          if f_labels.is_a? Array
-            f_labels.each do |f_label|
-              
-              text = f_label.first
-              f_label[1].each do |t|
-                text += "_" + t.to_s
-              end
-              
-              if use_file
-                file.puts text + ":"
-              end
-              if @use_stdout
-                puts text + ":"
-              end
-            end
-          end
-          
-          if f_debug.is_a? Array
-            f_debug.each do |f_d|
-              s = self.instance_eval &f_d
-              if use_file
-                file.puts s
-              end
-              if @use_stdout
-                puts s
-              end
-            end
-          end
-          
-          if f_string.is_a? Array
-            f_string.each do |f_s|
-              if use_file
-                file.puts s
-              end
-              if @use_stdout
-                puts f_s
-              end
-            end
-          end
-          
-        end
+    printer = lambda do |text|
+      if use_file
+        file.puts text
       end
-      
+      if @use_stdout
+         puts text
+      end
+    end
+
+    @final_sequences.each do |fs|
+      fs.each do |inst|
+
+        f_debug = inst.getAttribute("f_output_debug")
+        b_debug = inst.getAttribute("b_output_debug")
+
+        f_string = inst.getAttribute("f_output_string")
+        b_string = inst.getAttribute("b_output_string")
+
+        f_labels = inst.getAttribute("f_labels")
+        b_labels = inst.getAttribute("b_labels")
+
+        #process labels
+
+        if b_debug.is_a? Array
+          b_debug.each do |b_d|
+            s = self.instance_eval &b_d
+            printer.call s
+          end
+        end
+
+        if b_string.is_a? Array
+          b_string.each do |b_s|
+            printer.call b_s
+          end
+        end  
+
+        if b_labels.is_a? Array
+          b_labels.each do |b_label|
+
+            text = b_label.first
+            b_label[1].each do |t|
+              text += "_" + t.to_s
+            end
+
+            printer.call text + ":"
+          end
+        end
+
+        printer.call inst.getExecutable().getText()
+
+        if f_labels.is_a? Array
+          f_labels.each do |f_label|
+
+            text = f_label.first
+            f_label[1].each do |t|
+              text += "_" + t.to_s
+            end
+
+            printer.call text + ":"
+          end
+        end
+
+        if f_debug.is_a? Array
+          f_debug.each do |f_d|
+            s = self.instance_eval &f_d
+            printer.call s
+          end
+        end
+          
+        if f_string.is_a? Array
+          f_string.each do |f_s|
+            printer.call f_s
+          end
+        end
+          
+      end
+    end
+
   end
   
 end
