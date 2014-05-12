@@ -25,6 +25,13 @@ class Instruction
     @attributes[key] = value
   end
 
+  def add_item_to_attribute(attr_name, item)
+    if !@attributes.has_key? attr_name
+      @attributes[attr_name] = Array.new
+    end
+    @attributes[attr_name].push item
+  end
+
   # Instruction construction
   def build(j_instruction_builder, labels, stack)
 
