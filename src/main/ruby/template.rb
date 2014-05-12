@@ -395,7 +395,8 @@ class Template
       file.printf HEADER_TEXT, Time.new
     end
 
-    printer = lambda do |text|
+    # prints a string to the output
+    text_printer = lambda do |text|
       if use_file
         file.puts text
       end
@@ -404,75 +405,52 @@ class Template
       end
     end
 
+    # prints an array of strings to the output
+    array_printer = lambda do |arr|
+      if arr.is_a? Array
+        arr.each do |s|
+          text_printer.call s
+        end
+      end
+    end
+
+    # prints an array of object evaluating them
+    eval_array_printer = lambda do |arr|
+      if arr.is_a? Array
+        arr.each do |item|
+          s = self.instance_eval &item
+          text_printer.call s
+        end
+      end
+    end
+
+    # prints an array of labels to the output 
+    label_array_printer = lambda do |arr|
+      if arr.is_a? Array
+        arr.each do |label|
+          text = label.first
+          label[1].each do |t|
+            text += "_" + t.to_s
+          end
+          text_printer.call text + ":"
+        end
+      end
+    end
+
     @final_sequences.each do |fs|
       fs.each do |inst|
+        eval_array_printer.call  inst.getAttribute("b_output_debug")
+        array_printer.call       inst.getAttribute("b_output_string")
+        label_array_printer.call inst.getAttribute("b_labels")
 
-        f_debug = inst.getAttribute("f_output_debug")
-        b_debug = inst.getAttribute("b_output_debug")
+        text_printer.call        inst.getExecutable().getText()
 
-        f_string = inst.getAttribute("f_output_string")
-        b_string = inst.getAttribute("b_output_string")
-
-        f_labels = inst.getAttribute("f_labels")
-        b_labels = inst.getAttribute("b_labels")
-
-        #process labels
-
-        if b_debug.is_a? Array
-          b_debug.each do |b_d|
-            s = self.instance_eval &b_d
-            printer.call s
-          end
-        end
-
-        if b_string.is_a? Array
-          b_string.each do |b_s|
-            printer.call b_s
-          end
-        end  
-
-        if b_labels.is_a? Array
-          b_labels.each do |b_label|
-
-            text = b_label.first
-            b_label[1].each do |t|
-              text += "_" + t.to_s
-            end
-
-            printer.call text + ":"
-          end
-        end
-
-        printer.call inst.getExecutable().getText()
-
-        if f_labels.is_a? Array
-          f_labels.each do |f_label|
-
-            text = f_label.first
-            f_label[1].each do |t|
-              text += "_" + t.to_s
-            end
-
-            printer.call text + ":"
-          end
-        end
-
-        if f_debug.is_a? Array
-          f_debug.each do |f_d|
-            s = self.instance_eval &f_d
-            printer.call s
-          end
-        end
-          
-        if f_string.is_a? Array
-          f_string.each do |f_s|
-            printer.call f_s
-          end
-        end
-          
+        label_array_printer.call inst.getAttribute("f_labels")
+        eval_array_printer.call  inst.getAttribute("f_output_debug")
+        array_printer.call       inst.getAttribute("f_output_string")
       end
     end
 
   end
-  
+
 end
