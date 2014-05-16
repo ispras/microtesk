@@ -61,7 +61,7 @@ class OutputString
   # otherwise. Strings to be evaluated are enclosed with double quotes.
   #
   def evaluate?
-    ?\" == text[0] and ?\" == text[-1]
+    !@text.empty? and ?\" == @text[0] and ?\" == @text[-1]
   end
 
 end
