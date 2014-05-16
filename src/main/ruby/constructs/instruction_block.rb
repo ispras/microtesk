@@ -48,11 +48,18 @@ class InstructionBlock
 
     l_stack = stack + [@block_id]
 
+    label_text_formatter = lambda do |name|
+      text = name
+      l_stack.each { |t| text += "_" + t.to_s }
+      text
+    end
+
     j_block_builder = j_block_builder_factory.newBlockBuilder()
 
     if @attributes.has_key? :compositor
       j_block_builder.setCompositor(@attributes[:compositor])
     end
+
     if @attributes.has_key? :combinator
       j_block_builder.setCombinator(@attributes[:combinator])
     end
@@ -65,10 +72,10 @@ class InstructionBlock
     # The instruction attributes generally contain labels that _follow_ the instruction ("f_label")
     # Unless explicitly specified ("b_label") in case of there being no instructions
 
-    delayed_labels = Array.new
-    delayed_outdebugs = Array.new
-    delayed_debugs = Array.new
-    delayed_outstrings = Array.new
+    delayed_labels      = Array.new
+    delayed_outdebugs   = Array.new
+    delayed_debugs      = Array.new
+    delayed_outstrings  = Array.new
     delayed_instruction = nil
 
     @items.each do |item|
@@ -79,25 +86,13 @@ class InstructionBlock
           delayed_labels.push item.name
         else
           delayed_instruction.add_item_to_attribute "f_labels", [item.name, l_stack] #[item.to_s, @block_id]
-
-          text = item.name
-          l_stack.each do |t|
-            text += "_" + t.to_s
-          end
-          puts "Label " + text
-          
+          puts "Label " + label_text_formatter.call(item.name)
         end
       else
         if delayed_instruction != nil
           delayed_labels.each do |i_item|
             delayed_instruction.add_item_to_attribute "b_labels", [i_item, l_stack] #[i_item.to_s, @block_id]
-
-            text = i_item
-            l_stack.each do |t|
-              text += "_" + t.to_s
-            end
-            puts "Label " + text
-            
+            puts "Label " + label_text_formatter.call(i_item)
           end
           delayed_labels.clear
         end
