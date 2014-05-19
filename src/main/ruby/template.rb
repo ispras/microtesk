@@ -33,9 +33,9 @@ class Template
     @use_stdout    = true
     @log_execution = true
 
-    @sl_comment_starts_with = "//" # single-line comment characters 
-    @ml_comment_starts_with = "/*" # multi-line comment start start characters
-    @ml_comment_ends_with   = "*/" # multi-line comment end characters 
+    @sl_comment_starts_with = "// " # single-line comment characters 
+    @ml_comment_starts_with = "/*"  # multi-line comment start start characters
+    @ml_comment_ends_with   = "*/"  # multi-line comment end characters 
 
     # Important variables for core Template functionality
     @core_block = InstructionBlock.new
