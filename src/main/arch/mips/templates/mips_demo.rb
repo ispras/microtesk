@@ -10,7 +10,7 @@ class MipsDemo < Template
   end
 
   def run
-    puts "# MIPS TEST"
+    comment "MIPS TEST"
 
     # "Plain" sequence
     add 3, REG_IND_ZERO(1), REG_IND_ZERO(2)
@@ -31,7 +31,7 @@ class MipsDemo < Template
     # prints register state after initialization
     # print_all_registers
 
-    debug { puts "This is a debug message" }
+    trace "This is a debug message"
 
     # block { }
 
@@ -39,13 +39,13 @@ class MipsDemo < Template
 
   def print_all_registers
 
-    debug {
+    trace_ {
       a = "DEBUG: GRP values: "
       (0..31).each do |i|
          s = sprintf("%034b", get_loc_value("GPR", i))
          a += s[2, s.length] + ", "
       end
-      puts a
+      a
     }
 
   end
