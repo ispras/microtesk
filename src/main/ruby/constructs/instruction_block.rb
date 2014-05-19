@@ -149,6 +149,9 @@ class InstructionBlock
         delayed_outstrings.clear
       end
 
+      if item.is_a? Output
+        puts item.to_s
+      end
 
       # Now that we have all of the associated labels - build instruction
       if delayed_instruction != nil
@@ -159,7 +162,9 @@ class InstructionBlock
       if item.is_a? InstructionBlock
         j_block_builder.addBlock(item.build j_block_builder_factory, labels.merge(@labels), l_stack)
         delayed_instruction = nil
-      elsif item.is_a? Instruction
+      end
+      
+      if item.is_a? Instruction
         # Delay instruction to gather labels
         delayed_instruction = item
       end
