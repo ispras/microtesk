@@ -8,11 +8,8 @@ require_relative "constructs/instruction_block"
 require_relative "constructs/instruction"
 require_relative "constructs/label"
 require_relative "constructs/no_value"
+require_relative "constructs/output"
 require_relative "constructs/situation"
-
-require_relative "debug/output_debug"
-require_relative "debug/output_string"
-require_relative "debug/runtime_debug"
 
 # Header for generated assembly files
 HEADER_TEXT =
@@ -31,10 +28,14 @@ class Template
   def initialize
     super
 
-    # User settings
+    # Settings (can be overridden by the user)
     @is_executable = true
-    @use_stdout = true
+    @use_stdout    = true
     @log_execution = true
+
+    @sl_comment_starts_with = "//" # single-line comment characters 
+    @ml_comment_starts_with = "/*" # multi-line comment start start characters
+    @ml_comment_ends_with   = "*/" # multi-line comment end characters 
 
     # Important variables for core Template functionality
     @core_block = InstructionBlock.new
@@ -114,27 +115,54 @@ class Template
     l.name = name.to_s
     @instruction_receiver.receive l
   end
-  
-  def text(text)
-    t = OutputDebug.new
-    t.text = text
-    @instruction_receiver.receive t
+
+  # Prints text into the simulator execution log
+  def trace(string)
+    @instruction_receiver.receive OutputString.new(string, true)
   end
-  
-  def debug(&block)
-    d = RuntimeDebug.new
-    d.proc = block
-    @instruction_receiver.receive d
+
+  def trace_(&block)
+    @instruction_receiver.receive OutputCode.new(block, true)
   end
-  
-  def out_debug(&block)
-    o = OutputDebug.new
-    o.proc = block
-    @instruction_receiver.receive o
+
+  # --- Methods for printing text to output
+
+  # Puts the new line character into the test program
+  def newline
+    text '' 
   end
-  
+
+  #  Puts text into the test program
+  def text(string)
+    @instruction_receiver.receive OutputString.new(string)
+  end
+
+  # Evaluates a code block at printing time and puts the resulting text into a test program  
+  def text_(&block)
+    @instruction_receiver.receive OutputCode.new(block)
+  end
+
+  # Puts a comment into the test program (uses @sl_comment_starts_with)
+  def comment(string)
+    if !string.empty? and string[0] == ?\" then #"
+      text string.insert(1, @sl_comment_starts_with)
+    else
+      text @sl_comment_starts_with + string
+    end
+  end
+
+  # Starts a multi-line comment (uses @sl_comment_starts_with)
+  def start_comment
+    text @ml_comment_starts_with
+  end
+
+  # Ends a multi-line comment (uses the ML_COMMENT_ENDS_WITH property)
+  def end_comment
+    text @ml_comment_ends_with 
+  end
+
   # --- Special "no value" method ---
-  
+
   def _(aug_value = nil)
     NoValue.new(aug_value)
   end
@@ -317,14 +345,17 @@ class Template
       inst = r_gen[cur_inst]
       i_labels = inst.getAttribute("labels")
       
-      f_debug = inst.getAttribute("f_runtime_debug")
-      b_debug = inst.getAttribute("b_runtime_debug")
+      f_debug = inst.getAttribute("f_runtime")
+      b_debug = inst.getAttribute("b_runtime")
       
       exec = inst.getExecutable()
 
       if b_debug.is_a? Array
         b_debug.each do |b_d|
-          self.instance_exec &b_d
+          b_d_text = b_d.evaluate_to_text(self) 
+          if nil != b_d_text
+            puts b_d_text
+          end
         end
       end
 
@@ -337,7 +368,10 @@ class Template
 
       if f_debug.is_a? Array
         f_debug.each do |f_d|
-          self.instance_exec &f_d
+          f_d_text = f_d.evaluate_to_text(self) 
+          if nil != f_d_text
+            puts f_d_text
+          end
         end
       end
 
@@ -405,25 +439,18 @@ class Template
       end
     end
 
-    # prints an array of strings to the output
-    array_printer = lambda do |arr|
-      if arr.is_a? Array
-        arr.each do |s|
-          text_printer.call s
-        end
-      end
-    end
-
     # prints an array of object evaluating them
     eval_array_printer = lambda do |arr|
       if arr.is_a? Array
         arr.each do |item|
-          s = self.instance_eval &item
-          text_printer.call s
+          s = item.evaluate_to_text(self)
+          if s != nil
+            text_printer.call s
+          end
         end
       end
     end
-
+    
     # prints an array of labels to the output 
     label_array_printer = lambda do |arr|
       if arr.is_a? Array
@@ -439,15 +466,13 @@ class Template
 
     @final_sequences.each do |fs|
       fs.each do |inst|
-        eval_array_printer.call  inst.getAttribute("b_output_debug")
-        array_printer.call       inst.getAttribute("b_output_string")
+        eval_array_printer.call  inst.getAttribute("b_output")
         label_array_printer.call inst.getAttribute("b_labels")
 
         text_printer.call        inst.getExecutable().getText()
 
         label_array_printer.call inst.getAttribute("f_labels")
-        eval_array_printer.call  inst.getAttribute("f_output_debug")
-        array_printer.call       inst.getAttribute("f_output_string")
+        eval_array_printer.call  inst.getAttribute("f_output")
       end
     end
 

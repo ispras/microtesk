@@ -73,10 +73,8 @@ class InstructionBlock
     # Unless explicitly specified ("b_label") in case of there being no instructions
 
     delayed_labels      = Array.new
-    delayed_outdebugs   = Array.new
-    delayed_debugs      = Array.new
-    delayed_outstrings  = Array.new
-    delayed_instruction = nil
+    delayed_outputs     = Array.new
+    delayed_instruction = nil    
 
     @items.each do |item|
 
@@ -97,60 +95,29 @@ class InstructionBlock
           delayed_labels.clear
         end
       end
-      
-      # OUTPUT DEBUG
 
-      if item.is_a? OutputDebug
-        if delayed_instruction == nil
-          delayed_outdebugs.push item.proc
-        else
-          delayed_instruction.add_item_to_attribute "f_output_debug", item.proc
-        end
-      else
-        if delayed_instruction != nil
-          delayed_outdebugs.each do |i_item|
-            delayed_instruction.add_item_to_attribute "b_output_debug", i_item
-          end
-          delayed_outdebugs.clear
-        end
-      end
-
-      # RUNTIME DEBUG
-      
-      if item.is_a? RuntimeDebug
-        if delayed_instruction == nil
-          delayed_debugs.push item.proc
-        else
-          delayed_instruction.add_item_to_attribute "f_runtime_debug", item.proc
-        end
-      else
-        if delayed_instruction != nil
-          delayed_debugs.each do |i_item|
-            delayed_instruction.add_item_to_attribute "b_runtime_debug", i_item
-          end
-          delayed_debugs.clear
-        end
-      end
-      
-      # OUTPUT STRING
-
-      if item.is_a? OutputDebug
-        if delayed_instruction == nil
-          delayed_outstrings.push item.proc
-        else
-          delayed_instruction.add_item_to_attribute "f_output_string", item.text
-        end
-      else
-        if delayed_instruction != nil
-          delayed_outstrings.each do |i_item|
-            delayed_instruction.add_item_to_attribute "b_output_string", i_item.text
-          end
-        end
-        delayed_outstrings.clear
-      end
-
+      # OUTPUT
       if item.is_a? Output
-        puts item.to_s
+        if delayed_instruction == nil
+          delayed_outputs.push item
+        else
+          if item.runtime?
+            delayed_instruction.add_item_to_attribute "f_runtime", item
+          else
+            delayed_instruction.add_item_to_attribute "f_output", item
+          end
+        end
+      else
+        if delayed_instruction != nil
+          delayed_outputs.each do |i_item|
+            if i_item.runtime?
+              delayed_instruction.add_item_to_attribute "b_runtime", i_item
+            else
+              delayed_instruction.add_item_to_attribute "b_output", i_item
+            end
+          end
+          delayed_outputs.clear
+        end
       end
 
       # Now that we have all of the associated labels - build instruction
