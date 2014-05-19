@@ -20,12 +20,12 @@ class ArmDemo < Template
     cmp_immediate blank, reg(0), immediate(0, 5)
 
     # Uncomment here to list all GPR registers
-    debug {
+    trace_ {
       a = ""
       (0..15).each do |i|
         a += get_loc_value("GPR", i).to_s + ", "
       end
-      puts a
+      a
     }
 
     b notEqual, :valiant

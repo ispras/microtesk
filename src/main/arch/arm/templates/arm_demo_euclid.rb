@@ -42,12 +42,12 @@ class ArmDemo < Template
   end
 
   def run
-    debug { puts "Euclidean Algorithm: Debug Output\n" }
+    trace "Euclidean Algorithm: Debug Output\n"
 
     i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
     j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
-    debug { puts "\nInput parameter values: #{i}, #{j}\n\n" }
+    trace "\nInput parameter values: #{i}, #{j}\n\n"
 
     EOR           blank, setsOff, REG(0), REG(0), register0
     ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, i)
@@ -55,7 +55,7 @@ class ArmDemo < Template
     EOR           blank, setsOff, REG(1), REG(1), register1
     ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
 
-    debug { puts "\nInitial register values: R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n" }
+    trace '"\nInitial register values: R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n"'
 
     label :cycle
 
@@ -63,17 +63,17 @@ class ArmDemo < Template
     SUB greaterThan, setsOff, REG(0), REG(0), register1
     SUB lessThan,    setsOff, REG(1), REG(1), register0
 
-    debug { puts "\nCurrent register values: R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n" } 
+    trace '"\nCurrent register values: R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n"' 
 
     B notEqual, :cycle
 
     MOV blank, setsOff, REG(2), register0
 
-    debug {puts "\nResult stored in R2: #{getGPR(2)}\n"}
+    trace '"\nResult stored in R2: #{getGPR(2)}\n"'
   end
 
   def getGPR(index)
-    get_loc_value("GPR", index).to_s 
+    get_loc_value('GPR', index).to_s 
   end
 
 end
