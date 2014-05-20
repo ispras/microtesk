@@ -1,16 +1,50 @@
-# Demo template time!
+#
+# Copyright (c) 2014 ISPRAS (www.ispras.ru)
+#
+# Institute for System Programming of Russian Academy of Sciences
+#
+# 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+#
+# All rights reserved.
+#
+# demo_template.rb, May 20, 2014 3:06:13 PM
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-require ENV["TEMPLATE"]
+require ENV['TEMPLATE']
 
-require_relative "./demo_prepost"
+require_relative 'demo_prepost'
 
+#
+# Description:
+#
+# The purpose of the DemoTemplate test template is to demonstrate feaures of
+# MicroTESK. This includes test template facilities to specify instruction
+# calls and addression modes, to organize the control flow, to set up 
+# instruction sequences, to add text to the test program, etc. 
+#
 class DemoTemplate < DemoPrepost
+
   def initialize
     super
     @is_executable = true
   end
 
   def run
+    trace 'Main Section:'
+    comment 'Main Section Starts'
+    newline
 
     #add m[10], r[15]                                     # Indexing register arrays
     #sub pc, pc do overflow(:op1 => 123, :op2 => 456) end # Situations with params
@@ -69,7 +103,9 @@ class DemoTemplate < DemoPrepost
 #    newline
 #
 #    my_group.all
-
-
+      
+    comment 'Main Section Ends'
+    newline
   end
+
 end
