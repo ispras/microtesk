@@ -50,6 +50,16 @@ class DemoTemplate < DemoPrepost
     comment 'Main Section Starts'
     newline
 
+    # Addressing mode arguments as a hash map
+    mov reg(:i => 0), imm(:i => 0xFF)
+    mov reg(:i => 1), reg(:i => 0)
+    newline
+
+    # Storter syntax. Addressing mode arguments as a variable-length array
+    mov reg(2), imm(0xFF)
+    mov reg(3), reg(2)
+    newline
+
     #add m[10], r[15]                                     # Indexing register arrays
     #sub pc, pc do overflow(:op1 => 123, :op2 => 456) end # Situations with params
     #mov ({:name => :value}), m, pc[0]                    # Instruction attribute
