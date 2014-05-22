@@ -39,6 +39,10 @@ class DemoTemplate < DemoPrepost
   def initialize
     super
     @is_executable = true
+
+    @sl_comment_starts_with = ";" 
+    @ml_comment_starts_with = "/="
+    @ml_comment_ends_with   = "=/" 
   end
 
   def run
