@@ -2,7 +2,65 @@
   An example of a VLIW microprocessor specification (under development).
 */
 
-op instruction()
-    syntax = "vliw"
-    image  = "0000"
-    action = {}
+
+///////////////////////////////////////////////////////////////////////////////
+// Constants
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Types
+
+type QWORD = card(128)
+type DWORD = card(64)
+type  WORD = card(32)
+type HWORD = card(16)
+type  BYTE = card(8)
+type   BIT = card(1)
+
+///////////////////////////////////////////////////////////////////////////////
+// Resources
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Addressing Modes
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Operations
+
+
+op Operation()
+   syntax = ""
+   image  = ""
+   action = { }
+
+///////////////////////////////////////////////////////////////////////////////
+// Grouping Operations to Complex Commands
+
+op Syllable = Operation
+
+op Word2(s1: Syllable, s2: Syllable)
+   syntax = format("{%s, %s}", s1.syntax, s2.syntax)
+   image  = format("1101111010101101%b%b", s1.image, s2.image)
+   action = { s1.action; s2.action; }
+   
+op Word3(s1: Syllable, s2: Syllable, s3: Syllable)
+   syntax = format("{%s, %s, %s}", s1.syntax, s2.syntax, s3.syntax)
+   image  = format("1101111010101101%b%b%b", s1.image, s2.image, s3.image)
+   action = { s1.action; s2.action; s3.action; }
+
+op Word4(s1: Syllable, s2: Syllable, s3: Syllable, s4: Syllable)
+   syntax = format("{%s, %s, %s, %s}", s1.syntax, s2.syntax, s3.syntax, s4.syntax)
+   image  = format("1101111010101101%b%b%b%b", s1.image, s2.image, s3.image, s4.image)
+   action = { s1.action; s2.action; s3.action; s4.action; }
+
+op Word = Syllable | Word2 | Word3 | Word4
+
+///////////////////////////////////////////////////////////////////////////////
+// Entry Point
+
+op instruction(x: Word)
+   syntax = x.syntax
+   image  = x.image
+   action = { x.action; }
