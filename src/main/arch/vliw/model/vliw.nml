@@ -1,11 +1,13 @@
-/* 
+/*
   An example of a VLIW microprocessor specification (under development).
 */
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Constants
 
+let REGS = 5
+let   PC = "NIA"
+let   SP = "GPR[29]"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Types
@@ -18,6 +20,17 @@ type  BYTE = card(8)
 type   BIT = card(1)
 
 ///////////////////////////////////////////////////////////////////////////////
+// Memory and Registers
+
+reg GPR[2 ** REGS, WORD]
+mem   M[2 ** 10,   BYTE]
+
+reg NIA[1, WORD] // next instruction address
+
+reg HI [1, signed_long]
+reg LO [1, signed_long]
+
+///////////////////////////////////////////////////////////////////////////////
 // Resources
 
 
@@ -25,42 +38,142 @@ type   BIT = card(1)
 // Addressing Modes
 
 
+///////////////////////////////////////////////////////////////////////////////
+// ALU Operations
+
+op ALU
 
 ///////////////////////////////////////////////////////////////////////////////
-// Operations
+// Load Store Operations
 
-
-op Operation()
-   syntax = ""
-   image  = ""
-   action = { }
+op LoadStore
 
 ///////////////////////////////////////////////////////////////////////////////
-// Grouping Operations to Complex Commands
+// Branch Operations
 
-op Syllable = Operation
+op Branch
 
-op Word2(s1: Syllable, s2: Syllable)
-   syntax = format("{%s, %s}", s1.syntax, s2.syntax)
-   image  = format("1101111010101101%b%b", s1.image, s2.image)
-   action = { s1.action; s2.action; }
-   
-op Word3(s1: Syllable, s2: Syllable, s3: Syllable)
-   syntax = format("{%s, %s, %s}", s1.syntax, s2.syntax, s3.syntax)
-   image  = format("1101111010101101%b%b%b", s1.image, s2.image, s3.image)
-   action = { s1.action; s2.action; s3.action; }
+///////////////////////////////////////////////////////////////////////////////
+// Words Grouped by Units
 
-op Word4(s1: Syllable, s2: Syllable, s3: Syllable, s4: Syllable)
-   syntax = format("{%s, %s, %s, %s}", s1.syntax, s2.syntax, s3.syntax, s4.syntax)
-   image  = format("1101111010101101%b%b%b%b", s1.image, s2.image, s3.image, s4.image)
-   action = { s1.action; s2.action; s3.action; s4.action; }
+op ALUWords1(w: ALU)
+  syntax = w.syntax
+  image  = w.image
+  action = { w.action; }
 
-op Word = Syllable | Word2 | Word3 | Word4
+op ALUWords2(w1: ALU, w2: ALU)
+  syntax = format("%s, %s", w1.syntax, w2.syntax) 
+  image  = format("%b%b", w1.image, w2.image)
+  action = {
+    w1.action;
+    w2.action;
+  }
+
+op ALUWords3(w1: ALU, w2: ALU, w3: ALU)
+  syntax = format("%s, %s, %s", w1.syntax, w2.syntax, w3.syntax) 
+  image  = format("%b%b", w1.image, w2.image, w3.image)
+  action = {
+    w1.action;
+    w2.action;
+    w3.action;
+  }
+
+op ALUWords = ALUWords1 | ALUWords2 | ALUWords3
+
+op LSWords1(w: LoadStore)
+  syntax = w.syntax
+  image  = w.image
+  action = { w.action; }
+
+op LSWords2(w1: LoadStore, w2: LoadStore)
+  syntax = format("%s, %s", w1.syntax, w2.syntax) 
+  image  = format("%b%b", w1.image, w2.image)
+  action = {
+    w1.action;
+    w2.action;
+  }
+
+op LSWords = LSWords1 | LSWords2
+
+op BWords1(w: Branch)
+  syntax = w.syntax
+  image  = w.image
+  action = { w.action; }
+
+op BWords2(w1: Branch, w2: Branch)
+  syntax = format("%s, %s", w1.syntax, w2.syntax) 
+  image  = format("%b%b", w1.image, w2.image)
+  action = {
+    w1.action;
+    w2.action;
+  }
+
+op BWords = BWords1 | BWords2
+
+///////////////////////////////////////////////////////////////////////////////
+// Long Word
+
+op LongWord_ALU(alu: ALUWords)
+  syntax = format("%s;", alu.syntax)
+  image  = alu.image
+  action = { alu.action; }
+
+op LongWord_LS(ls: LSWords)
+  syntax = format("%s;", ls.syntax)
+  image  = ls.image
+  action = { ls.action; }
+
+op LongWord_B(b: BWords)
+  syntax = format("%s;", b.syntax)
+  image  = b.image
+  action = { b.action; }
+
+op LongWord_ALU_LS(alu: ALUWords, ls: LSWords)
+  syntax = format("%s, %s;", alu.syntax, ls.syntax) 
+  image  = format("%b%b", alu.image, ls.image)
+  action = {
+    alu.action;
+    ls.action;
+  }
+
+op LongWord_ALU_B(alu: ALUWords, b: BWords)
+  syntax = format("%s, %s;", alu.syntax, b.syntax) 
+  image  = format("%b%b", alu.image, b.image)
+  action = {
+    alu.action;
+    b.action;
+  }
+
+op LongWord_LS_B(ls: LSWords, b: BWords)
+  syntax = format("%s, %s;", ls.syntax, b.syntax) 
+  image  = format("%b%b", ls.image, b.image)
+  action = {
+    alu.action;
+    ls.action;
+    b.action;
+  }
+
+op LongWord_ALU_LS_B(alu: ALUWords, ls: LSWords, b: BWords)
+  syntax = format("%s, %s, %s;", alu.syntax, ls.syntax, b.syntax) 
+  image  = format("%b%b%b", alu.image, ls.image, b.image)
+  action = {
+    alu.action;
+    ls.action;
+    b.action;
+  }
+
+op LongWord = LongWord_ALU
+            | LongWord_LS
+            | LongWord_B
+            | LongWord_ALU_LS
+            | LongWord_ALU_B
+            | LongWord_LS_B
+            | LongWord_ALU_LS_B
 
 ///////////////////////////////////////////////////////////////////////////////
 // Entry Point
 
-op instruction(x: Word)
-   syntax = x.syntax
-   image  = x.image
-   action = { x.action; }
+op instruction(x: LongWord)
+  syntax = x.syntax
+  image  = x.image
+  action = { x.action; }
