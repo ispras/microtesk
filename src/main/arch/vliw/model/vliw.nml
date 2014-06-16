@@ -255,11 +255,7 @@ op SLT (rd : REG, rs : REG, rt : REG)
   syntax = format("SLT %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%5b00000101010", rs.image, rt.image, rd.image) 
   action = {
-    if (rs < rt) then
-      rd = 1;
-    else
-      rd = 0;
-    endif;
+    rd = if rs < rt then 1 else 0 endif;
     rd.action;
   }
 
@@ -267,11 +263,7 @@ op SLTU (rd : REG, rs : REG, rt : REG)
   syntax = format("SLTU %d, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%5b00000101011", rs.image, rt.image, rd.image) 
   action = {
-    if (coerce(WORD, rs) < coerce(WORD, rt)) then
-      rd = 1;
-    else
-      rd = 0;  
-    endif;
+    rd = if coerce(WORD, rs) < coerce(WORD, rt) then 1 else 0 endif;
     rd.action;
   }
 
@@ -279,7 +271,7 @@ op SLTI (rt : REG, rs : REG, imm : IMM16)
   syntax = format("SLTI %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
   image  = format("001010%s%5b%s", rs.image, rt.image, imm.image)
   action = {
-    rt = if (rs < imm) then 1 else 0 endif;
+    rt = if rs < imm then 1 else 0 endif;
     rt.action;
   }
 
@@ -287,11 +279,7 @@ op SLTIU (rt : REG, rs : REG, imm : IMM16)
   syntax = format("SLTIU %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
   image  = format("001011%s%5b%s", rs.image, rt.image, imm.image)
   action = {
-    if (coerce(WORD, rs) < coerce (card (16), imm)) then
-      rt = 1;
-    else
-      rt = 0;   
-    endif;
+    rt = if coerce(WORD, rs) < coerce (card(16), imm) then 1 else 0 endif;
     rt.action;
   }
 
