@@ -158,7 +158,7 @@ op ORI (rt : REG, rs : REG, imm : IMM16)
   syntax = format("ORI %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
   image  = format("001101%s%5b%s", rs.image, rt.image, imm.image)
   action = {
-    rt = (coerce(WORD, imm) & 0x0000ffff) | rs;
+    rt = (ctmp_signed_word_A3;oerce(WORD, imm) & 0x0000ffff) | rs;
     rt.action;
   }
 
@@ -297,10 +297,74 @@ op ALU = Arithm_Instr
 ///////////////////////////////////////////////////////////////////////////////
 // Load Store Operations
 
-op LoadStore()
-  syntax = ""
-  image  = ""
-  action = {}
+op LUI (rt : REG, offset : IMM16)
+  syntax = format("LUI %s, %s", rt.syntax, offset.syntax)
+  image  = format("00111100000%s%s", rt.image, offset.image )
+  action = {
+    rt = offset << 16;
+    rt.action;
+  }
+
+op LB (base : REG, rt : REG, offset : IMM16)
+  syntax = format("LB %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
+  image  = format("100000%s%s%s", base.image, rt.image, offset.image)
+  action = {
+    rt = M[base + offset];
+    rt.action; 
+  }
+
+op LH (base : REG, rt : REG, offset : IMM16)
+  syntax = format("LH %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
+  image  = format("100001%s%s%s", base.image, rt.image, offset.image)
+  action = {
+    rt = M[base + offset + 1]::M[base + offset];
+    rt.action;
+  }
+
+op LW (base : REG, rt : REG, offset : IMM16 )
+  syntax = format("LW %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
+  image  = format("100011%s%s%s", base.image, rt.image, offset.image)
+  action = {
+    rt = M[base + offset + 3]::M[base + offset + 2]::M[base + offset + 1]::M[base + offset];
+    rt.action;
+  }
+
+op Load_Instr = LUI
+              | LB
+              | LH
+              | LW
+
+op SB (base : REG, rt : REG, offset : IMM16)
+  syntax = format("SB %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
+  image  = format("101000%s%s%s", base.image, rt.image, offset.image)
+  action = {
+    M[base + offset] = rt;
+  }
+
+op SH (base : REG, rt : REG, offset : IMM16)
+  syntax = format("SH %s, %s(%s)", rt.syntax , offset.syntax, base.syntax)
+  image  = format("101001%s%s%s", base.image, rt.image, offset.image)
+  action = {
+     M[base + offset] = rt<0..7>;
+     M[base + offset + 1] = rt<8..15>;
+  }
+
+op SW (base : REG, rt : REG, offset : IMM16)
+  syntax = format("SW %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
+  image  = format("101011%s%s%s", base.image, rt.image, offset.image)
+  action = {
+    M [base + offset] = rt<0..7>;
+    M [base + offset + 1] = rt<8..15>;
+    M [base + offset + 2] = rt<16..23>;
+    M [base + offset + 3] = rt<24..31>;
+  }
+
+op Store_Instr = SB
+               | SH
+               | SW
+
+op LoadStore = Load_Instr
+             | Store_Instr
 
 ///////////////////////////////////////////////////////////////////////////////
 // Branch Operations
