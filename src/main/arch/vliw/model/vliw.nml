@@ -617,4 +617,7 @@ op LongWord = LongWord_ALU
 op instruction (x: LongWord)
   syntax = x.syntax
   image  = x.image
-  action = { x.action; }
+  action = {
+    GPR[0] = 0;  
+    x.action;
+  }
