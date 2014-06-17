@@ -1,5 +1,5 @@
 /*
-  An example of a VLIW microprocessor specification (under development).
+  An example of a VLIW microprocessor specification based on the MIPS ISA.
 */
 
 ///////////////////////////////////////////////////////////////////////////////
