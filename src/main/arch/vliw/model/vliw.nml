@@ -26,10 +26,14 @@ type INDEX = card(REGS)
 reg GPR[2 ** REGS, WORD]
 mem   M[2 ** 10,   BYTE]
 
-reg NIA[1, WORD] // next instruction address
+reg NIA[WORD] // next instruction address
 
 ///////////////////////////////////////////////////////////////////////////////
 // Temporary Variables
+
+var     CIA[WORD]
+var JMPADDR[WORD]
+var  BRANCH[WORD] 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
@@ -158,7 +162,7 @@ op ORI (rt : REG, rs : REG, imm : IMM16)
   syntax = format("ORI %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
   image  = format("001101%s%5b%s", rs.image, rt.image, imm.image)
   action = {
-    rt = (ctmp_signed_word_A3;oerce(WORD, imm) & 0x0000ffff) | rs;
+    rt = (coerce(WORD, imm) & 0x0000ffff) | rs;
     rt.action;
   }
 
@@ -369,10 +373,127 @@ op LoadStore = Load_Instr
 ///////////////////////////////////////////////////////////////////////////////
 // Branch Operations
 
-op Branch()
-  syntax = ""
-  image  = ""
-  action = {}
+op B (offset : IMM16)
+  syntax = format("B %s", offset.syntax)
+  image  = format("0001000000000000%s", offset.image)
+  action = {
+    BRANCH = 1;
+    JMPADDR = NIA + (offset << 2);
+  }
+
+op BEQ (rs : REG, rt : REG, offset : IMM16)
+  syntax = format("BEQ %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
+  image  = format("000100%s%s%s", rs.image, rt.image, offset.image)
+  action = {
+    if rs == rt then
+      BRANCH = 1;
+      JMPADDR = NIA + (offset << 2);
+    endif;
+  }
+
+op BNE (rs : REG, rt : REG, offset : IMM16)
+  syntax = format("BNE %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
+  image  = format("000101%s%s%s", rs.image, rt.image, offset.image)
+  action = {
+    if rs != rt then
+      BRANCH = 1;
+      JMPADDR = NIA + (offset << 2);
+    endif;
+  }
+
+op BEQZ (rs : REG, offset : IMM16)
+  syntax = format("BEQZ %s, %s", rs.syntax, offset.syntax)
+  image  = format("000100%s00000%s", rs.image, offset.image)
+  action = {
+    if rs == 0 then
+      BRANCH = 1;
+      JMPADDR = NIA + (offset << 2);
+    endif;
+  }
+
+op BNEZ (rs : REG, offset : IMM16)
+  syntax = format("BNE %s, %s", rs.syntax , offset.syntax)
+  image  = format("000101%s00000%s", rs.image, offset.image)
+  action = {
+    if rs != 0 then
+      BRANCH = 1;
+      JMPADDR = NIA + (offset << 2);
+    endif;
+  }
+
+op BGTZ (rs : REG, offset : IMM16)
+  syntax = format("BGTZ %s, %s", rs.syntax, offset.syntax)
+  image  = format("000111%s00000%s", rs.image, offset.image)
+  action = {
+    if rs > 0 then
+      BRANCH = 1;
+      JMPADDR = NIA + (offset << 2);
+    endif;
+  }
+
+op BGEZ (rs : REG, offset : IMM16)
+  syntax = format("BGEZ %s, %s", rs.syntax, offset.syntax)	   
+  image  = format("000001%s00001%s", rs.image, offset.image)
+  action = {
+    if rs >= 0 then
+      BRANCH = 1;
+      JMPADDR = NIA + (offset << 2);
+    endif;
+  }
+
+op BLTZ (rs : REG, offset : IMM16)
+  syntax = format("BLTZ %s, %s", rs.syntax, offset.syntax)	   
+  image = format("000001%s00000%s", rs.image, offset.image)
+  action = {
+    if rs < 0 then
+      BRANCH = 1;
+      JMPADDR = NIA + (offset << 2);
+    endif;
+  }
+
+op BLEZ (rs : REG, offset : IMM16)
+  syntax = format("BLEZ %s, %s", rs.syntax, offset.syntax)
+  image  = format("000110%s00000%s", rs.image, offset.image)
+  action = {
+    if rs <= 0 then
+      BRANCH = 1;
+      JMPADDR = NIA + (offset << 2);
+    endif;
+  }
+
+op Branch_Instr = B
+                | BEQ
+                | BNE
+                | BEQZ
+                | BNEZ
+                | BGTZ
+                | BGEZ
+                | BLTZ
+                | BLEZ
+
+op J (target : IMM26)
+  syntax = format("J %s", target.syntax)
+  image  = format("000010%s", target.image)
+  action = {
+    BRANCH  = 1;
+    CIA     = NIA;
+    JMPADDR = (CIA & 0xF0000000) | ( target << 2);
+  }
+
+op JR (rs : REG) 
+  syntax = format("JR  %s", rs.syntax)
+  image  = format("000000%s000000000000000001000", rs.image)		      
+  action = {
+    BRANCH  = 1;
+    CIA     = NIA;
+    JMPADDR = rs;
+  }
+
+op Jump_Instr = J
+              | JR
+
+op Branch = Branch_Instr 
+          | Jump_Instr 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Words Grouped by Units
