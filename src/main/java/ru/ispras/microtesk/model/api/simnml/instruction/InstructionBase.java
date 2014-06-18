@@ -29,9 +29,6 @@ import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.situation.ISituation;
-import ru.ispras.microtesk.model.api.situation.builtin.AddNormalSituation;
-import ru.ispras.microtesk.model.api.situation.builtin.AddOverflowSituation;
-import ru.ispras.microtesk.model.api.situation.builtin.RandomSituation;
 
 import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
 import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
