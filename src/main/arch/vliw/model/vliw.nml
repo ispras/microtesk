@@ -31,9 +31,9 @@ reg NIA[WORD] // next instruction address
 ///////////////////////////////////////////////////////////////////////////////
 // Temporary Variables
 
-var     CIA[WORD]
-var JMPADDR[WORD]
-var  BRANCH[WORD] 
+mem     CIA[WORD]
+mem JMPADDR[WORD]
+mem  BRANCH[WORD] 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
@@ -292,18 +292,36 @@ op Set_Instr = SLT   // set on less than
              | SLTI  // set on less than immediate
              | SLTIU // set on less than unsigned immediate	
 
-op ALU = Arithm_Instr
-       | Move_Instr
-       | Logical_Instr
-       | Shift_Instr
-       | Set_Instr 
+op ALU_Instr = Arithm_Instr
+             | Move_Instr
+             | Logical_Instr
+             | Shift_Instr
+             | Set_Instr 
+
+op ALU(x : ALU_Instr)
+  syntax = x.syntax
+  image  = x.image
+  action = {
+    CIA = NIA;
+
+    // If condition to execute next instruction before jumping to the address.
+    if BRANCH == 0 then
+      NIA = NIA + 4;
+    else
+      NIA = JMPADDR;
+      BRANCH = 0;
+    endif;
+
+    GPR[0] = 0; 
+    x.action;
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Load Store Operations
 
 op LUI (rt : REG, offset : IMM16)
   syntax = format("LUI %s, %s", rt.syntax, offset.syntax)
-  image  = format("00111100000%s%s", rt.image, offset.image )
+  image  = format("00111100000%s%s", rt.image, offset.image)
   action = {
     rt = offset << 16;
     rt.action;
@@ -367,8 +385,26 @@ op Store_Instr = SB
                | SH
                | SW
 
-op LoadStore = Load_Instr
-             | Store_Instr
+op LoadStore_Instr = Load_Instr
+                   | Store_Instr
+
+op LoadStore(x : LoadStore_Instr)
+  syntax = x.syntax
+  image  = x.image
+  action = {
+    CIA = NIA;
+
+    // If condition to execute next instruction before jumping to the address.
+    if BRANCH == 0 then
+      NIA = NIA + 4;
+    else
+      NIA = JMPADDR;
+      BRANCH = 0;
+    endif;
+
+    GPR[0] = 0;
+    x.action;
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Branch Operations
@@ -461,16 +497,6 @@ op BLEZ (rs : REG, offset : IMM16)
     endif;
   }
 
-op Branch_Instr = B
-                | BEQ
-                | BNE
-                | BEQZ
-                | BNEZ
-                | BGTZ
-                | BGEZ
-                | BLTZ
-                | BLEZ
-
 op J (target : IMM26)
   syntax = format("J %s", target.syntax)
   image  = format("000010%s", target.image)
@@ -489,11 +515,35 @@ op JR (rs : REG)
     JMPADDR = rs;
   }
 
-op Jump_Instr = J
-              | JR
+op Branch_Instr = B
+                | BEQ
+                | BNE
+                | BEQZ
+                | BNEZ
+                | BGTZ
+                | BGEZ
+                | BLTZ
+                | BLEZ
+                | J
+                | JR
+          
+op Branch(x : Branch_Instr)
+  syntax = x.syntax
+  image  = x.image
+  action = {
+    CIA = NIA;
 
-op Branch = Branch_Instr 
-          | Jump_Instr 
+    // If condition to execute next instruction before jumping to the address.
+    if BRANCH == 0 then
+      NIA = NIA + 4;
+    else
+      NIA = JMPADDR;
+      BRANCH = 0;
+    endif;
+
+    GPR[0] = 0;
+    x.action;
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Words Grouped by Units
