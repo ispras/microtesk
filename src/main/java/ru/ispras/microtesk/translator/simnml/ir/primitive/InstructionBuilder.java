@@ -49,9 +49,6 @@ public final class InstructionBuilder
     public static final String NO_ROOT_OPERATION_FRMT = 
         "No entry point. The '%s' root operation is not defined.";
 
-    public static final String ROOT_OPERATION_CANT_BE_OR_RULE =
-        "The root operation cannot be an OR-rule.";
-
     public static final String UNSUPPORTED_ARG_TYPE_FRMT =
         "The '%s' argument of the '%s' primitive has an unsupported kind %s (type name is '%s')";
 
@@ -167,17 +164,19 @@ public final class InstructionBuilder
             return false;
         }
 
-        final Primitive root = operations.get(ROOT_OPERATION);
-        if (root.isOrRule())
+        final List<PrimitiveAND> roots = new ArrayList<PrimitiveAND>();
+        saveAllOpsToList(operations.get(ROOT_OPERATION), roots);
+
+        boolean result = true;
+        for (PrimitiveAND root : roots)
         {
-            reportError(ROOT_OPERATION_CANT_BE_OR_RULE);
-            return false;
+            final PrimitiveAND rootCopy = ((PrimitiveAND) root).makeCopy(); 
+            final Map<String, Primitive> arguments = new LinkedHashMap<String, Primitive>();
+
+            result &= traverseOperationTree(arguments, rootCopy, rootCopy);
         }
 
-        final PrimitiveAND            rootCopy = ((PrimitiveAND) root).makeCopy(); 
-        final Map<String, Primitive> arguments = new LinkedHashMap<String, Primitive>();
-
-        return traverseOperationTree(arguments, rootCopy, rootCopy);
+        return result;
     }
 
     /**
