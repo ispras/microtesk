@@ -653,21 +653,13 @@ op LongWord_ALU_LS_B (alu: ALUWords, ls: LSWords, b: BWords)
     b.action;
   }
 
-op LongWord = LongWord_ALU
-            | LongWord_LS
-            | LongWord_B
-            | LongWord_ALU_LS
-            | LongWord_ALU_B
-            | LongWord_LS_B
-            | LongWord_ALU_LS_B
-
 ///////////////////////////////////////////////////////////////////////////////
 // Entry Point
 
-op instruction (x: LongWord)
-  syntax = x.syntax
-  image  = x.image
-  action = {
-    GPR[0] = 0;  
-    x.action;
-  }
+op instruction = LongWord_ALU
+               | LongWord_LS
+               | LongWord_B
+               | LongWord_ALU_LS
+               | LongWord_ALU_B
+               | LongWord_LS_B
+               | LongWord_ALU_LS_B
