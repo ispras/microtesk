@@ -30,7 +30,9 @@ import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
 import ru.ispras.microtesk.model.samples.simple.instruction.ISA;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.model.samples.simple.mode.*;
+import ru.ispras.microtesk.model.samples.simple.op.*;
 
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
@@ -44,6 +46,15 @@ public final class Model extends SimnMLProcessorModel
         REG.INFO
     };
 
+    private static final IOperation.IInfo[] __OPS = new IOperation.IInfo[]
+    {
+        Add.INFO,
+        Sub.INFO,
+        Mov.INFO,
+        Arith_Mem_Inst.INFO,
+        Instruction.INFO
+    };
+
     private static final IInitializerGenerator[] __INITIALIZERS = {};
 
     public Model()
@@ -51,7 +62,7 @@ public final class Model extends SimnMLProcessorModel
         super(
             new ISA(),
             __MODES,
-            null,
+            __OPS,
             __REGISTERS,
             __MEMORY,
             __LABELS,
