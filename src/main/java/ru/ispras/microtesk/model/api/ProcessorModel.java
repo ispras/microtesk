@@ -8,6 +8,18 @@
  * All rights reserved.
  * 
  * ProcessorModel.java, Dec 3, 2012 10:10:15 AM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api;
@@ -35,18 +47,21 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
 {
     private final IInstructionSet                    instructions;
+    private final Collection<IMetaAddressingMode>   modesMetaData;
     private final Collection<IMetaLocationStore> registerMetaData;
     private final Collection<IMetaLocationStore>   memoryMetaData;
     private final IModelStateObserver                    observer;
 
     public ProcessorModel(
         IInstructionSet instructions,
+        Collection<IMetaAddressingMode> modesMetaData,
         Collection<IMetaLocationStore> registerMetaData,
         Collection<IMetaLocationStore> memoryMetaData,
         IModelStateObserver observer
         )
     {
         this.instructions     = instructions;
+        this.modesMetaData    = modesMetaData;
         this.registerMetaData = registerMetaData;
         this.memoryMetaData   = memoryMetaData;
         this.observer         = observer;
@@ -89,6 +104,13 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
     public final Iterable<IMetaInstruction> getInstructions()
     {
         return instructions.getMetaData();
+    }
+
+    // IMetaModel
+    @Override
+    public final Iterable<IMetaAddressingMode> getAddressingModes()
+    {
+        return modesMetaData;
     }
 
     // IMetaModel

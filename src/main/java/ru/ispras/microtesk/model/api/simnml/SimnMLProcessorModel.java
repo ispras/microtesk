@@ -8,6 +8,18 @@
  * All rights reserved.
  * 
  * SimnMLProcessorModel.java, Dec 3, 2012 11:18:44 AM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api.simnml;
@@ -20,7 +32,9 @@ import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
+import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Status;
 
@@ -44,6 +58,7 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
 
     public SimnMLProcessorModel(
         IInstructionSet instructions,
+        IAddressingMode.IInfo[] modes,
         Memory[] registers,
         Memory[] memory,
         Label[] labels,
@@ -52,10 +67,22 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
     {
         super(
             instructions,
+            createAddressingModeMetaData(modes),
             createRegisterMetaData(registers),
             createMemoryMetaData(memory),
             new ModelStateObserver(registers, memory, labels, statuses)
             );
+    }
+
+    private static Collection<IMetaAddressingMode> createAddressingModeMetaData(IAddressingMode.IInfo[] modes)
+    {
+        final Collection<IMetaAddressingMode> result =
+            new ArrayList<IMetaAddressingMode>();
+
+        for(IAddressingMode.IInfo i : modes)
+            result.addAll(i.getMetaData());
+
+        return Collections.unmodifiableCollection(result);
     }
 
     private static Collection<IMetaLocationStore> createRegisterMetaData(Memory[] registers)
