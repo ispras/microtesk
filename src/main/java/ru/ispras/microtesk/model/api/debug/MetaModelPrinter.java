@@ -8,6 +8,18 @@
  * All rights reserved.
  * 
  * ModelMain.java, Mar 14, 2013 4:08:24 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api.debug;
@@ -36,7 +48,10 @@ public final class MetaModelPrinter
         
         printSepator();
         printMemoryMetaData();
-        
+
+        printSepator();
+        printAddressingModeMetaData();
+
         printSepator();
         printInstructionMetaData();
         
@@ -63,6 +78,28 @@ public final class MetaModelPrinter
         for (IMetaLocationStore m: metaModel.getMemoryStores())
             System.out.printf("Name: %s, Size: %d%n", m.getName(), m.getCount());
     }
+    
+    public void printAddressingModeMetaData()
+    {
+        System.out.println("ADDRESSING MODES:");
+
+        for (IMetaAddressingMode am : metaModel.getAddressingModes())
+        {
+            final StringBuilder sb = new StringBuilder();
+
+            sb.append(String.format("Name: %s", am.getName()));
+            sb.append(", Parameters: ");
+
+            boolean isFirstArg = true;
+            for (String an : am.getArgumentNames())
+            {
+                if (isFirstArg) isFirstArg = false; else sb.append(", ");
+                sb.append(an);
+            }
+
+            System.out.println(sb);
+        }
+    }
 
     public void printInstructionMetaData()
     {
@@ -84,22 +121,8 @@ public final class MetaModelPrinter
                 boolean isFirstMode = true;
                 for (IMetaAddressingMode am : a.getAddressingModes())
                 {
-                    if (isFirstMode) isFirstMode = false;
-                    else asb.append(", ");
-
+                    if (isFirstMode) isFirstMode = false; else asb.append(", ");
                     asb.append(am.getName());
-                    asb.append("(");
-
-                    boolean isFirstArg = true;
-                    for (String an : am.getArgumentNames())
-                    {
-                        if (isFirstArg) isFirstArg = false;
-                        else asb.append(", ");
-
-                        asb.append(an);
-                    }
-
-                    asb.append(")");
                 }
 
                 asb.append("]");
