@@ -42,10 +42,7 @@ private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo
     <modes:{m |<m>.INFO}; separator=",\n">
 };
 
-private static final IInitializerGenerator[] __INITIALIZERS = new IInitializerGenerator[]
-{
-    <inits:{n |new <n>(this)}; separator=",\n">
-};
+private final IInitializerGenerator[] __INITIALIZERS;
 
 public Model()
 {
@@ -57,6 +54,11 @@ public Model()
         <lab>,
         <stat>
         );
+
+    this.__INITIALIZERS = new IInitializerGenerator[]
+    {
+        <inits:{n |new <n>(this)}; separator=",\n">
+    };
 }
 
 @Override
