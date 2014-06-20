@@ -43,6 +43,11 @@ def self.build_template_class(j_metamodel)
   $defined_situations = Set.new
   @registered_modes   = Hash.new
 
+  modes = j_metamodel.getAddressingModes()
+  modes.each do |mode|
+    define_addressing_mode mode
+  end
+
   instructions = j_metamodel.getInstructions()
   instructions.each do |instruction|
     define_instruction instruction
@@ -71,7 +76,7 @@ ERR_WRONG_INST_ARG_NUMBER =
 def define_instruction(i)
 
   inst_name = i.getName.to_s
-  #puts "Processing #{inst_name}..."
+  #puts "Defining instruction #{inst_name}..."
 
   # Methods for test situations (added to the Instruction class)
   situations = i.getSituations
@@ -90,62 +95,17 @@ def define_instruction(i)
 
     modes_for_args[index] = Array.new
 
-      modes = arg.getAddressingModes()
-      modes.each do |m|
-
+    modes = arg.getAddressingModes()
+    modes.each do |m|
       mode_name = m.getName().to_s
       modes_for_args[index].push mode_name
-
-      # Make sure we didn't add this mode before and then add it
-      if(!@registered_modes.has_key?(mode_name))
-         #puts "Defining mode #{mode_name}..."
-
-         mode_arg_names = m.getArgumentNames().to_a
-         @registered_modes[mode_name] = mode_arg_names
-
-         p = lambda do |*arguments|
-           arg = Argument.new
-           arg.mode = mode_name
-
-           if arguments.first.is_a?(Integer) or arguments.first.is_a?(String) or arguments.first.is_a?(NoValue)
-
-             if arguments.count != mode_arg_names.count
-               raise MTRubyError, ERR_WRONG_MODE_ARG_NUMBER % [caller[0], mode_name, arguments.count, mode_arg_names.count]
-             end
-
-             arg.values = {}
-             arguments.each_with_index do |n, ind|
-               arg.values[mode_arg_names[ind]] = n
-             end
-
-           elsif arguments.first.is_a?(Hash)
-
-             argumentss = arguments.first
-             if(argumentss.count != mode_arg_names.count)
-               raise MTRubyError, ERR_WRONG_MODE_ARG_NUMBER % [caller[0], mode_name, argumentss.count, mode_arg_names.count]
-             end
-
-             argumentss.keys.each do |n|
-               if(!mode_arg_names.include?(n.to_s))
-                 raise MTRubyError, ERR_WRONG_MODE_ARG % [caller[0], n, mode_name]
-               end
-             end
-
-             arg.values = argumentss
-           end
-
-           return arg
-         end
-
-         define_method_for Template, mode_name, "mode", p
-       end
-     end
+    end
 
    end
 
-   # -------------------------------------------------------------------------------------------------------------- #
-   # Generating convenient shortcuts for instructions                                                               #
-   # -------------------------------------------------------------------------------------------------------------- #
+  # -------------------------------------------------------------------------------------------------------------- #
+  # Generating convenient shortcuts for instructions                                                               #
+  # -------------------------------------------------------------------------------------------------------------- #
 
   p = lambda do  |*arguments, &situations|
 
@@ -185,10 +145,59 @@ def define_instruction(i)
     end
     @instruction_receiver.receive(inst)
   end
-     
+
   define_method_for Template, inst_name, "instruction", p
 end
-  
+
+#
+# Defines methods for addressing modes (added to the Template class)
+# 
+def define_addressing_mode(mode)
+
+  mode_name = mode.getName().to_s
+  mode_arg_names = mode.getArgumentNames().to_a
+
+  # puts "Defining mode #{mode_name}..."
+
+  @registered_modes[mode_name] = mode_arg_names
+
+  p = lambda do |*arguments|
+    arg = Argument.new
+    arg.mode = mode_name
+
+    if arguments.first.is_a?(Integer) or arguments.first.is_a?(String) or arguments.first.is_a?(NoValue)
+
+      if arguments.count != mode_arg_names.count
+        raise MTRubyError, ERR_WRONG_MODE_ARG_NUMBER % [caller[0], mode_name, arguments.count, mode_arg_names.count]
+      end
+
+      arg.values = {}
+      arguments.each_with_index do |n, ind|
+        arg.values[mode_arg_names[ind]] = n
+      end
+
+    elsif arguments.first.is_a?(Hash)
+
+      argumentss = arguments.first
+      if(argumentss.count != mode_arg_names.count)
+        raise MTRubyError, ERR_WRONG_MODE_ARG_NUMBER % [caller[0], mode_name, argumentss.count, mode_arg_names.count]
+      end
+
+      argumentss.keys.each do |n|
+        if(!mode_arg_names.include?(n.to_s))
+          raise MTRubyError, ERR_WRONG_MODE_ARG % [caller[0], n, mode_name]
+        end
+      end
+
+      arg.values = argumentss
+    end
+
+    return arg
+  end
+
+  define_method_for Template, mode_name, "mode", p
+end
+
 #
 # Defines methods for test situations (added to the Instruction class)
 #
