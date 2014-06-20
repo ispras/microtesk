@@ -32,6 +32,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
@@ -70,6 +71,7 @@ public class ModelSTBuilder implements ITemplateBuilder
         t.add("imps",  MetaModelPrinter.class.getName());
         t.add("imps",  ModelStatePrinter.class.getName());
         t.add("imps",  IAddressingMode.class.getName());
+        t.add("imps",  IOperation.class.getName());
         t.add("imps",  IInitializerGenerator.class.getName());
 
         if (!ir.getInitializers().isEmpty())
@@ -87,6 +89,40 @@ public class ModelSTBuilder implements ITemplateBuilder
         tc.add("lab",      SimnMLProcessorModel.SHARED_LABELS);
         tc.add("stat",     SimnMLProcessorModel.SHARED_STATUSES);
 
+        addAddressingModes(t, tc);
+        addOperations(t, tc);
+        addInitializers(tc);
+
+        t.add("members", tc);
+        t.add("members", group.getInstanceOf("debug_block"));
+
+        return t;
+    }
+
+    private void addInitializers(final ST tc)
+    {
+        final List<String> names = new ArrayList<String>(ir.getInitializers().size());
+        for (Initializer i : ir.getInitializers().values())
+            names.add(i.getClassName());
+        tc.add("inits", names);
+    }
+
+    private void addOperations(final ST t, final ST tc)
+    {
+        final List<String> opNames = new ArrayList<String>();
+        for (Primitive op : ir.getOps().values())
+        {
+            if (!op.isOrRule())
+                opNames.add(op.getName());
+        }
+        tc.add("ops", opNames);
+
+        if (!opNames.isEmpty())
+            t.add("imps", String.format(OP_CLASS_FORMAT, modelName, "*"));
+    }
+
+    private void addAddressingModes(final ST t, final ST tc)
+    {
         final List<String> modeNames = new ArrayList<String>();
         for (Primitive m : ir.getModes().values())
         {
@@ -97,15 +133,5 @@ public class ModelSTBuilder implements ITemplateBuilder
 
         if (!modeNames.isEmpty())
             t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
-
-        final List<String> names = new ArrayList<String>(ir.getInitializers().size());
-        for (Initializer i : ir.getInitializers().values())
-            names.add(i.getClassName());
-        tc.add("inits", names);
-
-        t.add("members", tc);
-        t.add("members", group.getInstanceOf("debug_block"));
-
-        return t;
     }
 }

@@ -35,6 +35,7 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Status;
 
@@ -59,6 +60,7 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
     public SimnMLProcessorModel(
         IInstructionSet instructions,
         IAddressingMode.IInfo[] modes,
+        IOperation.IInfo[] ops,
         Memory[] registers,
         Memory[] memory,
         Label[] labels,
