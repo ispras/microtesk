@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
+import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 
 /**
  * The InstructionSet abstract class provides implementation of a container
@@ -30,7 +30,7 @@ import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 public abstract class InstructionSet implements IInstructionSet
 {
     private final  Map<String, IInstructionEx> instructions;
-    private final Collection<IMetaInstruction> metaData;
+    private final Collection<MetaInstruction> metaData;
     
     /**
      * Creates a map of instructions and instruction meta data collection
@@ -55,9 +55,9 @@ public abstract class InstructionSet implements IInstructionSet
         return Collections.unmodifiableMap(result);
     }
 
-    private static Collection<IMetaInstruction> createMetaData(Map<String, IInstructionEx>  instructions)
+    private static Collection<MetaInstruction> createMetaData(Map<String, IInstructionEx>  instructions)
     {
-        final Collection<IMetaInstruction> result = new ArrayList<IMetaInstruction>();
+        final Collection<MetaInstruction> result = new ArrayList<MetaInstruction>();
         
         for(IInstructionEx i: instructions.values())
             result.add(i.getMetaData());
@@ -78,7 +78,7 @@ public abstract class InstructionSet implements IInstructionSet
     }
     
     @Override 
-    public final Collection<IMetaInstruction> getMetaData()
+    public final Collection<MetaInstruction> getMetaData()
     {
         return metaData;
     }

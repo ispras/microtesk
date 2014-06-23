@@ -14,7 +14,7 @@ package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.Collection;
 
-import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
+import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 
 /**
  * The IInstructionSet interface is a base interfaces for container
@@ -49,5 +49,5 @@ public interface IInstructionSet
      * @return A collection of instruction meta data.
      */
     
-    public Collection<IMetaInstruction> getMetaData();
+    public Collection<MetaInstruction> getMetaData();
 }

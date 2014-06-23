@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
-import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
+import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 
 public interface IInstructionEx extends IInstruction
 {
@@ -22,5 +22,5 @@ public interface IInstructionEx extends IInstruction
      * @return Meta data describing the given instruction.
      */
 
-    public IMetaInstruction getMetaData();
+    public MetaInstruction getMetaData();
 }

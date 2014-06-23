@@ -24,10 +24,9 @@ import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
 import ru.ispras.microtesk.model.api.exception.config.UninitializedException;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
+import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
-import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 
 import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
@@ -66,7 +65,7 @@ public abstract class InstructionBase implements IInstructionEx
 
     private final String name;
     private final Map<String, ISituation.IInfo> situations;
-    private final IMetaInstruction metaData;
+    private final MetaInstruction metaData;
 
     /**
      * Creates basic logic for some specified instruction based on its 
@@ -103,7 +102,7 @@ public abstract class InstructionBase implements IInstructionEx
         return result;
     }
 
-    private static IMetaInstruction createMetaData(
+    private static MetaInstruction createMetaData(
          String name,
          ParamDecl[] params,
          Collection<ISituation.IInfo> situations
@@ -136,7 +135,7 @@ public abstract class InstructionBase implements IInstructionEx
     }
 
     @Override
-    public final IMetaInstruction getMetaData()
+    public final MetaInstruction getMetaData()
     {
         return metaData;
     }

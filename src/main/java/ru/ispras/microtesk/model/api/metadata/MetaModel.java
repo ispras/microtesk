@@ -37,13 +37,13 @@ import java.util.Collection;
 
 public final class MetaModel
 {
-    private final Collection<IMetaInstruction>  instructions;
+    private final Collection<MetaInstruction>  instructions;
     private final Collection<MetaAddressingMode>      modes;
     private final Collection<MetaLocationStore>   registers;
     private final Collection<MetaLocationStore>      memory;
 
     public MetaModel(
-        Collection<IMetaInstruction> instructions,
+        Collection<MetaInstruction> instructions,
         Collection<MetaAddressingMode>     modes,
         Collection<MetaLocationStore>  registers,
         Collection<MetaLocationStore>     memory
@@ -73,7 +73,7 @@ public final class MetaModel
      * @return An Iterable object.
      */
 
-    public Iterable<IMetaInstruction> getInstructions()
+    public Iterable<MetaInstruction> getInstructions()
     {
         return instructions;
     }
