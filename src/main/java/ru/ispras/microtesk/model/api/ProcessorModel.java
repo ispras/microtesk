@@ -86,8 +86,7 @@ public abstract class ProcessorModel implements IModel, ISimulator
             createMemoryMetaData(memory)
             );
     }
-    
-    
+
     private static Collection<MetaOperation> createOperationMetaData(IOperation.IInfo[] ops)
     {
         final Collection<MetaOperation> result =
