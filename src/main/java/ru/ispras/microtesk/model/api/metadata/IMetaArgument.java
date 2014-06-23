@@ -29,10 +29,11 @@ public interface IMetaArgument
     public String getName();
 
     /**
-     * Returns an iterator for the collection of addressing modes associated with the argument.  
+     * Returns an iterator for the collection of type names associated with the argument.  
      * 
-     * @return An Iterable object that refers to the collection of addressing modes.
+     * @return An Iterable object that refers to the collection of type names
+     *         (e.g. addressing mode names).
      */
 
-    public Iterable<IMetaAddressingMode> getAddressingModes();
+    public Iterable<String> getTypeNames();
 }

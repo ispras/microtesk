@@ -13,7 +13,6 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
-import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.IMetaArgument;
 
 /**
@@ -25,12 +24,12 @@ import ru.ispras.microtesk.model.api.metadata.IMetaArgument;
 public class MetaArgument implements IMetaArgument
 {
     private final String name;
-    private final Collection<IMetaAddressingMode> modes; 
-    
-    public MetaArgument(String name, Collection<IMetaAddressingMode> modes)
+    private final Collection<String> typeNames; 
+
+    public MetaArgument(String name, Collection<String> typeNames)
     {
         this.name  = name;
-        this.modes = modes;
+        this.typeNames = typeNames;
     }
 
     @Override
@@ -40,8 +39,8 @@ public class MetaArgument implements IMetaArgument
     }
 
     @Override
-    public Iterable<IMetaAddressingMode> getAddressingModes()
+    public Iterable<String> getTypeNames()
     {
-        return modes;
+        return typeNames;
     }
 }

@@ -119,10 +119,10 @@ public final class MetaModelPrinter
                 asb.append(" [");
 
                 boolean isFirstMode = true;
-                for (IMetaAddressingMode am : a.getAddressingModes())
+                for (String tn : a.getTypeNames())
                 {
                     if (isFirstMode) isFirstMode = false; else asb.append(", ");
-                    asb.append(am.getName());
+                    asb.append(tn);
                 }
 
                 asb.append("]");
