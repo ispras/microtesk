@@ -24,7 +24,7 @@ import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
+import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 
@@ -195,9 +195,9 @@ public class SharedSTBuilder implements ITemplateBuilder
 
         insertEmptyLine(t);
 
-        buildMemoryLineArray(group, t, SimnMLProcessorModel.SHARED_REGISTERS, registers);
-        buildMemoryLineArray(group, t, SimnMLProcessorModel.SHARED_MEMORY, memory);
-        buildMemoryLineArray(group, t, SimnMLProcessorModel.SHARED_VARIABLES, variables);
+        buildMemoryLineArray(group, t, ProcessorModel.SHARED_REGISTERS, registers);
+        buildMemoryLineArray(group, t, ProcessorModel.SHARED_MEMORY, memory);
+        buildMemoryLineArray(group, t, ProcessorModel.SHARED_VARIABLES, variables);
     }
 
     private void buildMemoryLine(STGroup group, ST t, String name, MemoryExpr memory)
@@ -243,7 +243,7 @@ public class SharedSTBuilder implements ITemplateBuilder
         final ST tLabels = group.getInstanceOf("memory_array");
 
         tLabels.add("type", Label.class.getSimpleName() + "[]");
-        tLabels.add("name", SimnMLProcessorModel.SHARED_LABELS);
+        tLabels.add("name", ProcessorModel.SHARED_LABELS);
 
         for (LetLabel label : ir.getLabels().values())
         {
@@ -266,7 +266,7 @@ public class SharedSTBuilder implements ITemplateBuilder
         final ST tStatuses = group.getInstanceOf("memory_array");
 
         tStatuses.add("type", Status.class.getSimpleName() + "[]");
-        tStatuses.add("name", SimnMLProcessorModel.SHARED_STATUSES);
+        tStatuses.add("name", ProcessorModel.SHARED_STATUSES);
 
         for(Status status : Status.STANDARD_STATUSES.values())
         {
@@ -289,10 +289,10 @@ public class SharedSTBuilder implements ITemplateBuilder
         final ST tResetter = group.getInstanceOf("resetter");
 
         tResetter.add("type", Resetter.class.getSimpleName());
-        tResetter.add("name", SimnMLProcessorModel.SHARED_RESETTER);
+        tResetter.add("name", ProcessorModel.SHARED_RESETTER);
 
-        tResetter.add("items", SimnMLProcessorModel.SHARED_VARIABLES);
-        tResetter.add("items", SimnMLProcessorModel.SHARED_STATUSES);
+        tResetter.add("items", ProcessorModel.SHARED_VARIABLES);
+        tResetter.add("items", ProcessorModel.SHARED_STATUSES);
 
         t.add("members", tResetter);
     }

@@ -30,7 +30,7 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
+import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
@@ -65,7 +65,7 @@ public class ModelSTBuilder implements ITemplateBuilder
         t.add("file",  specFileName);
         t.add("pack",  String.format(MODEL_PACKAGE_FORMAT, modelName));
 
-        t.add("imps",  SimnMLProcessorModel.class.getName());
+        t.add("imps",  ProcessorModel.class.getName());
         t.add("imps",  String.format(INSTRUCTION_SET_CLASS_FORMAT, modelName));
 
         t.add("imps",  MetaModelPrinter.class.getName());
@@ -79,15 +79,15 @@ public class ModelSTBuilder implements ITemplateBuilder
 
         t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 
-        t.add("base",  SimnMLProcessorModel.class.getSimpleName());
+        t.add("base",  ProcessorModel.class.getSimpleName());
 
         final ST tc = group.getInstanceOf("constructor");
 
         tc.add("isaclass", INSTRUCTION_SET_CLASS_NAME);
-        tc.add("reg",      SimnMLProcessorModel.SHARED_REGISTERS);
-        tc.add("mem",      SimnMLProcessorModel.SHARED_MEMORY);
-        tc.add("lab",      SimnMLProcessorModel.SHARED_LABELS);
-        tc.add("stat",     SimnMLProcessorModel.SHARED_STATUSES);
+        tc.add("reg",      ProcessorModel.SHARED_REGISTERS);
+        tc.add("mem",      ProcessorModel.SHARED_MEMORY);
+        tc.add("lab",      ProcessorModel.SHARED_LABELS);
+        tc.add("stat",     ProcessorModel.SHARED_STATUSES);
 
         addAddressingModes(t, tc);
         addOperations(t, tc);

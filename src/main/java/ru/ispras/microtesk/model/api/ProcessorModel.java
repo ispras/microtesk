@@ -24,10 +24,18 @@
 
 package ru.ispras.microtesk.model.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
+import ru.ispras.microtesk.model.api.memory.Label;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.*;
+import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.state.ModelStateObserver;
+import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.UnsupportedInstructionException;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
@@ -46,22 +54,67 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 
 public abstract class ProcessorModel implements IModel, ISimulator
 {
+    public static final String SHARED_REGISTERS = "__REGISTERS";
+    public static final String SHARED_MEMORY    = "__MEMORY";
+    public static final String SHARED_VARIABLES = "__VARIABLES";
+    public static final String SHARED_LABELS    = "__LABELS";
+    public static final String SHARED_STATUSES  = "__STATUSES";
+    public static final String SHARED_RESETTER  = "__RESETTER";
+
     private final IInstructionSet instructions;
-    private final MetaModel           metaData;
     private final IModelStateObserver observer;
+    private final MetaModel           metaData;
 
     public ProcessorModel(
         IInstructionSet instructions,
-        Collection<MetaAddressingMode> modesMetaData,
-        Collection<MetaLocationStore> registerMetaData,
-        Collection<MetaLocationStore> memoryMetaData,
-        IModelStateObserver observer
+        IAddressingMode.IInfo[] modes,
+        IOperation.IInfo[] ops,
+        Memory[] registers,
+        Memory[] memory,
+        Label[] labels,
+        Status[] statuses
         )
     {
         this.instructions = instructions;
-        this.metaData     = new MetaModel(
-            instructions.getMetaData(), modesMetaData, registerMetaData, memoryMetaData);
-        this.observer     = observer;
+        this.observer = new ModelStateObserver(registers, memory, labels, statuses);
+        
+        this.metaData = new MetaModel(
+            instructions.getMetaData(),
+            createAddressingModeMetaData(modes),
+            createRegisterMetaData(registers),
+            createMemoryMetaData(memory)
+            );
+    }
+
+    private static Collection<MetaAddressingMode> createAddressingModeMetaData(IAddressingMode.IInfo[] modes)
+    {
+        final Collection<MetaAddressingMode> result =
+            new ArrayList<MetaAddressingMode>();
+
+        for(IAddressingMode.IInfo i : modes)
+            result.addAll(i.getMetaData());
+
+        return Collections.unmodifiableCollection(result);
+    }
+
+    private static Collection<MetaLocationStore> createRegisterMetaData(Memory[] registers)
+    {
+        final Collection<MetaLocationStore> result = new ArrayList<MetaLocationStore>();
+
+        for(Memory r : registers)
+            result.add(r.getMetaData());
+
+        return Collections.unmodifiableCollection(result);
+    }
+
+    private static Collection<MetaLocationStore> createMemoryMetaData(Memory[] memory)
+    {
+        final Collection<MetaLocationStore> result = new ArrayList<MetaLocationStore>();
+
+        for(Memory m : memory)
+            result.add(m.getMetaData());
+
+        return Collections.unmodifiableCollection(result);
     }
 
     // IModel

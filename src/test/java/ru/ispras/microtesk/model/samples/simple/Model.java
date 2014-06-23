@@ -26,7 +26,7 @@ package ru.ispras.microtesk.model.samples.simple;
 
 import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
-import ru.ispras.microtesk.model.api.simnml.SimnMLProcessorModel;
+import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.samples.simple.instruction.ISA;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
@@ -36,7 +36,7 @@ import ru.ispras.microtesk.model.samples.simple.op.*;
 
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
-public final class Model extends SimnMLProcessorModel
+public final class Model extends ProcessorModel
 {
     private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[]
     { 
