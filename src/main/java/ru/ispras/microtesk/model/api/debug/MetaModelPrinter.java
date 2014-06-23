@@ -25,7 +25,7 @@
 package ru.ispras.microtesk.model.api.debug;
 
 import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.IMetaArgument;
+import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -110,7 +110,7 @@ public final class MetaModelPrinter
             System.out.println(String.format("Name: %s", i.getName()));
             System.out.println("Parameters:");
 
-            for(IMetaArgument a : i.getArguments())
+            for(MetaArgument a : i.getArguments())
             {
                 final StringBuilder asb = new StringBuilder();
 

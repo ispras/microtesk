@@ -14,7 +14,6 @@ package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
 
-import ru.ispras.microtesk.model.api.metadata.IMetaArgument;
 import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 
 /**
@@ -26,12 +25,12 @@ import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 public class MetaInstruction implements IMetaInstruction
 {
     private final String name;
-    private final Collection<IMetaArgument> args;
+    private final Collection<MetaArgument> args;
     private final Collection<IMetaSituation> situations;
 
     public MetaInstruction(
         String name,
-        Collection<IMetaArgument> args,
+        Collection<MetaArgument> args,
         Collection<IMetaSituation> situations
         )
     {
@@ -47,7 +46,7 @@ public class MetaInstruction implements IMetaInstruction
     }
 
     @Override
-    public Iterable<IMetaArgument> getArguments()
+    public Iterable<MetaArgument> getArguments()
     {
         return args;
     }
