@@ -12,6 +12,14 @@
 
 package ru.ispras.microtesk.model.api.simnml.instruction;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import ru.ispras.microtesk.model.api.metadata.MetaArgument;
+import ru.ispras.microtesk.model.api.metadata.MetaOperation;
+
 /**
  * The Operation abstract class is the base class for all classes that
  * simulate behavior specified by "op" Sim-nML statements. The class
@@ -36,11 +44,19 @@ public abstract class Operation implements IOperation
     {
         private final Class<?> opClass;
         private final String   name;
+        private final Collection<MetaOperation> metaData;
 
         public Info(Class<?> opClass, String name)
         {
-            this.opClass = opClass;
-            this.name = name;
+            this.opClass  = opClass;
+            this.name     = name;
+            this.metaData = createMetaData(name);
+        }
+
+        private static Collection<MetaOperation> createMetaData(String name)
+        {
+            return Collections.singletonList(
+                new MetaOperation(name, Collections.<MetaArgument>emptyList()));
         }
 
         @Override
@@ -53,6 +69,12 @@ public abstract class Operation implements IOperation
         public boolean isSupported(IOperation op)
         {
             return opClass.equals(op.getClass());
+        }
+
+        @Override
+        public Collection<MetaOperation> getMetaData()
+        {
+            return metaData;
         }        
     }
 
@@ -69,11 +91,23 @@ public abstract class Operation implements IOperation
     {
         private final String  name;
         private final IInfo[] childs;
+        private final Collection<MetaOperation> metaData;
 
         public InfoOrRule(String name, IInfo ... childs)
         {
             this.name   = name;
             this.childs = childs;
+            this.metaData = createMetaData(name, childs);
+        }
+
+        private static Collection<MetaOperation> createMetaData(String name, IInfo[] childs)
+        {
+            final List<MetaOperation> result = new ArrayList<MetaOperation>();  
+
+            for (IInfo i : childs)
+                result.addAll(i.getMetaData());
+
+            return Collections.unmodifiableCollection(result);
         }
 
         @Override
@@ -90,6 +124,12 @@ public abstract class Operation implements IOperation
                     return true;
 
             return false;
+        }
+
+        @Override
+        public Collection<MetaOperation> getMetaData()
+        {
+            return metaData;
         } 
     }
 

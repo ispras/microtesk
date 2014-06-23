@@ -12,6 +12,10 @@
 
 package ru.ispras.microtesk.model.api.simnml.instruction;
 
+import java.util.Collection;
+
+import ru.ispras.microtesk.model.api.metadata.MetaOperation;
+
 /**
  * The IOperation interface is the base interfaces for operations
  * described by Op statements in the Sim-nML language. 
@@ -50,6 +54,18 @@ public interface IOperation extends IPrimitive
          * @return true if the operation is supported or false otherwise. 
          */
 
-        public boolean isSupported(IOperation op); 
+        public boolean isSupported(IOperation op);
+
+        /**
+         * Returns a collection of meta data objects describing the operation
+         * (or the group of operations) the info object refers to.
+         * In the case, when there is a single operation, the collection
+         * contains only one item.   
+         * 
+         * @return A collection of meta data objects for an operation or a group of 
+         * operations.  
+         */
+
+        public Collection<MetaOperation> getMetaData(); 
     }
 }

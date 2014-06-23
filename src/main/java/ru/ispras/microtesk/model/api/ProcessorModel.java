@@ -92,9 +92,8 @@ public abstract class ProcessorModel implements IModel, ISimulator
         final Collection<MetaOperation> result =
             new ArrayList<MetaOperation>();
 
-        // TODO:
-        // for(IOperation.IInfo i : ops)
-        //    result.addAll(i.getMetaData());
+        for(IOperation.IInfo i : ops)
+            result.addAll(i.getMetaData());
 
         return Collections.unmodifiableCollection(result);
     }
