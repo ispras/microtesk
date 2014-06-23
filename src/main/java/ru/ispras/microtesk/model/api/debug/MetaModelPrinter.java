@@ -29,6 +29,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 
 public final class MetaModelPrinter
@@ -45,19 +46,22 @@ public final class MetaModelPrinter
     {
         printSepator();
         printRegisterMetaData();
-        
+
         printSepator();
         printMemoryMetaData();
 
         printSepator();
         printAddressingModeMetaData();
+        
+        printSepator();
+        printOperationMetaData();
 
         printSepator();
         printInstructionMetaData();
         
         printSepator();
     }
-
+    
     public void printSepator()
     {
         System.out.println("************************************************");
@@ -98,6 +102,38 @@ public final class MetaModelPrinter
             }
 
             System.out.println(sb);
+        }
+    }
+    
+    private void printOperationMetaData()
+    {
+        System.out.println("OPERATIONS:");
+
+        for (MetaOperation o : metaModel.getOperations())
+        {
+            System.out.println(String.format("Name: %s", o.getName()));
+            System.out.println("Parameters:");
+
+            for(MetaArgument a : o.getArguments())
+            {
+                final StringBuilder asb = new StringBuilder();
+
+                asb.append("   ");
+                asb.append(a.getName());
+                asb.append(" [");
+
+                boolean isFirstMode = true;
+                for (String tn : a.getTypeNames())
+                {
+                    if (isFirstMode) isFirstMode = false; else asb.append(", ");
+                    asb.append(tn);
+                }
+
+                asb.append("]");
+                System.out.println(asb);
+            }
+
+            System.out.println();
         }
     }
 
