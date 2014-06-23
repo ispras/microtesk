@@ -28,14 +28,14 @@ import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.IMetaArgument;
 import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
-import ru.ispras.microtesk.model.api.metadata.IMetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 
 public final class MetaModelPrinter
 {
-    private final IMetaModel metaModel;
+    private final MetaModel metaModel;
 
-    public MetaModelPrinter(IMetaModel metaModel)
+    public MetaModelPrinter(MetaModel metaModel)
     {
         assert null != metaModel;
         this.metaModel = metaModel;

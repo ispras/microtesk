@@ -95,9 +95,9 @@ def define_instruction(i)
 
     modes_for_args[index] = Array.new
 
-    modes = arg.getAddressingModes()
+    modes = arg.getTypeNames()
     modes.each do |m|
-      mode_name = m.getName().to_s
+      mode_name = m.to_s
       modes_for_args[index].push mode_name
     end
 

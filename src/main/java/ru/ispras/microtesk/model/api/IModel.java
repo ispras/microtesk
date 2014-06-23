@@ -14,7 +14,7 @@ package ru.ispras.microtesk.model.api;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
-import ru.ispras.microtesk.model.api.metadata.IMetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 
@@ -33,7 +33,7 @@ public interface IModel
      * @return An meta data object (provides access to model's meta data). 
      */
 
-    public IMetaModel getMetaData();
+    public MetaModel getMetaData();
 
     /**
      * Returns a model state monitor object that allows getting information

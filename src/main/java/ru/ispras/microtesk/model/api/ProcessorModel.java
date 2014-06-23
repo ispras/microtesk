@@ -47,7 +47,7 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 public abstract class ProcessorModel implements IModel, ISimulator
 {
     private final IInstructionSet instructions;
-    private final IMetaModel          metaData;
+    private final MetaModel           metaData;
     private final IModelStateObserver observer;
 
     public ProcessorModel(
@@ -66,7 +66,7 @@ public abstract class ProcessorModel implements IModel, ISimulator
 
     // IModel
     @Override
-    public final IMetaModel getMetaData()
+    public final MetaModel getMetaData()
     {
         return metaData;
     }
@@ -84,7 +84,7 @@ public abstract class ProcessorModel implements IModel, ISimulator
     {
         if (!instructions.supportsInstruction(name))
             throw new UnsupportedInstructionException(name);
-            
+
         return instructions.getInstruction(name);
     }
 

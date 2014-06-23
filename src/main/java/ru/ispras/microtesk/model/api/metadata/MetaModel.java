@@ -26,7 +26,16 @@ package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
 
-public final class MetaModel implements IMetaModel
+/**
+* The MetaModel class stores information on the model and provides methods to
+* access it. The information includes the list of instructions, the list of
+* memory resources (registers, memory) and the list of test situations
+* (behavioral properties of the instructions).   
+* 
+* @author Andrei Tatarnikov
+*/
+
+public final class MetaModel
 {
     private final Collection<IMetaInstruction>  instructions;
     private final Collection<IMetaAddressingMode>      modes;
@@ -46,25 +55,46 @@ public final class MetaModel implements IMetaModel
         this.memory       = memory;
     }
 
-    @Override
+    /**
+     * Returns an iterator for the collection of addressing modes (excluding
+     * modes defined as OR rules). 
+     * 
+     * @return An Iterable object.
+     */
+    
     public Iterable<IMetaAddressingMode> getAddressingModes()
     {
         return modes;
     }
 
-    @Override
+    /**
+     * Returns an iterator for the collection of instructions. 
+     * 
+     * @return An Iterable object.
+     */
+
     public Iterable<IMetaInstruction> getInstructions()
     {
         return instructions;
     }
 
-    @Override
+    /**
+     * Returns an iterator for the collection of registers.
+     * 
+     * @return An Iterable object.
+     */
+
     public Iterable<IMetaLocationStore> getRegisters()
     {
         return registers;
     }
 
-    @Override
+    /**
+     * Returns an iterator for the collection of memory store locations.
+     * 
+     * @return An Iterable object.
+     */
+
     public Iterable<IMetaLocationStore> getMemoryStores()
     {
         return memory;
