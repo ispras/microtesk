@@ -52,7 +52,7 @@ public abstract class ProcessorModel implements IModel, ISimulator
 
     public ProcessorModel(
         IInstructionSet instructions,
-        Collection<IMetaAddressingMode> modesMetaData,
+        Collection<MetaAddressingMode> modesMetaData,
         Collection<IMetaLocationStore> registerMetaData,
         Collection<IMetaLocationStore> memoryMetaData,
         IModelStateObserver observer

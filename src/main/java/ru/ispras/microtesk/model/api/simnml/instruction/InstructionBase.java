@@ -23,7 +23,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
 import ru.ispras.microtesk.model.api.exception.config.UninitializedException;
 
-import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
@@ -116,7 +116,7 @@ public abstract class InstructionBase implements IInstructionEx
             final List<String> typeNames = 
                 new ArrayList<String>(p.info.getMetaData().size());
 
-            for (IMetaAddressingMode am : p.info.getMetaData())
+            for (MetaAddressingMode am : p.info.getMetaData())
                 typeNames.add(am.getName());
 
             metaParams.add(new MetaArgument(p.name, typeNames));

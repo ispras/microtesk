@@ -24,7 +24,7 @@
 
 package ru.ispras.microtesk.model.api.debug;
 
-import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
@@ -83,7 +83,7 @@ public final class MetaModelPrinter
     {
         System.out.println("ADDRESSING MODES:");
 
-        for (IMetaAddressingMode am : metaModel.getAddressingModes())
+        for (MetaAddressingMode am : metaModel.getAddressingModes())
         {
             final StringBuilder sb = new StringBuilder();
 

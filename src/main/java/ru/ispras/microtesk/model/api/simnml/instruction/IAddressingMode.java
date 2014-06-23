@@ -15,7 +15,7 @@ package ru.ispras.microtesk.model.api.simnml.instruction;
 import java.util.Collection;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.data.Data;
 
@@ -112,7 +112,7 @@ public interface IAddressingMode extends IPrimitive
          * addressing modes.  
          */
         
-        public Collection<IMetaAddressingMode> getMetaData();
+        public Collection<MetaAddressingMode> getMetaData();
         
         /**
          * Checks if the current addressing mode (or group of addressing modes)

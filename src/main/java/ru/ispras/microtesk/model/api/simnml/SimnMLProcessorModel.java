@@ -32,7 +32,7 @@ import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
@@ -76,10 +76,10 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
             );
     }
 
-    private static Collection<IMetaAddressingMode> createAddressingModeMetaData(IAddressingMode.IInfo[] modes)
+    private static Collection<MetaAddressingMode> createAddressingModeMetaData(IAddressingMode.IInfo[] modes)
     {
-        final Collection<IMetaAddressingMode> result =
-            new ArrayList<IMetaAddressingMode>();
+        final Collection<MetaAddressingMode> result =
+            new ArrayList<MetaAddressingMode>();
 
         for(IAddressingMode.IInfo i : modes)
             result.addAll(i.getMetaData());

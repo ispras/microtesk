@@ -20,14 +20,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.model.api.metadata.IMetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The AddressingMode abstract class is the base class for all classes that
- * simulate behavior specified by "mod" Sim-nML statements. The class
+ * simulate behavior specified by "mode" Sim-nML statements. The class
  * provides definitions of classes and static methods to be used by its
  * descendants (ones that are to implement the IAddressingMode interface). 
  * 
@@ -108,7 +107,7 @@ public abstract class AddressingMode implements IAddressingMode
         private final IFactory          factory;
         private final Map<String, Type> decls;
         
-        private Collection<IMetaAddressingMode> metaData;
+        private Collection<MetaAddressingMode> metaData;
 
         public Info(Class<?> modeClass, String name, IFactory factory, Map<String, Type> decls)
         {
@@ -135,7 +134,7 @@ public abstract class AddressingMode implements IAddressingMode
         }
 
         @Override
-        public Collection<IMetaAddressingMode> getMetaData()
+        public Collection<MetaAddressingMode> getMetaData()
         {
             if (null == metaData)
                 metaData = createMetaData(name, decls.keySet());
@@ -143,9 +142,9 @@ public abstract class AddressingMode implements IAddressingMode
             return metaData;
         }
         
-        private static Collection<IMetaAddressingMode> createMetaData(String name, Collection<String> argumentNames)
+        private static Collection<MetaAddressingMode> createMetaData(String name, Collection<String> argumentNames)
         {
-            final IMetaAddressingMode result =
+            final MetaAddressingMode result =
                 new MetaAddressingMode(name, argumentNames);
 
             return Collections.singletonList(result);
@@ -197,10 +196,10 @@ public abstract class AddressingMode implements IAddressingMode
         }
 
         @Override
-        public Collection<IMetaAddressingMode> getMetaData()
+        public Collection<MetaAddressingMode> getMetaData()
         {
-            final ArrayList<IMetaAddressingMode> result = 
-                 new ArrayList<IMetaAddressingMode>();
+            final ArrayList<MetaAddressingMode> result = 
+                 new ArrayList<MetaAddressingMode>();
 
             for (IInfo i : childs)
                 result.addAll(i.getMetaData());
