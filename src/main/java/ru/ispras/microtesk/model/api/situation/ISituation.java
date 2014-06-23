@@ -16,7 +16,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
+import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 
 public interface ISituation
 {
@@ -26,7 +26,7 @@ public interface ISituation
 
     public interface IInfo
     {
-        public IMetaSituation getMetaData();
+        public MetaSituation getMetaData();
         public String getName();
         public ISituation createSituation();
     }

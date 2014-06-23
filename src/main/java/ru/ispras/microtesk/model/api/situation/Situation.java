@@ -12,7 +12,6 @@
 
 package ru.ispras.microtesk.model.api.situation;
 
-import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
 import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 
 public abstract class Situation implements ISituation
@@ -34,7 +33,7 @@ public abstract class Situation implements ISituation
     {
         private final String name;
         private final IFactory factory;
-        private final IMetaSituation metaData;
+        private final MetaSituation metaData;
 
         public Info(String name, IFactory factory)
         {
@@ -52,7 +51,7 @@ public abstract class Situation implements ISituation
         }
 
         @Override
-        public IMetaSituation getMetaData()
+        public MetaSituation getMetaData()
         {
             return metaData;
         }

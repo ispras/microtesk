@@ -29,7 +29,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.metadata.IMetaSituation;
+import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 
 public final class MetaModelPrinter
 {
@@ -139,7 +139,7 @@ public final class MetaModelPrinter
     {
         System.out.println("Situations:");
 
-        for (IMetaSituation s: metaInstruction.getSituations())
+        for (MetaSituation s: metaInstruction.getSituations())
             System.out.println("   " + s.getName());
     }
 }

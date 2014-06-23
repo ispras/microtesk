@@ -43,5 +43,5 @@ public interface IMetaInstruction
      * @return An Iterable object.
      */
 
-    public Iterable<IMetaSituation> getSituations();
+    public Iterable<MetaSituation> getSituations();
 }

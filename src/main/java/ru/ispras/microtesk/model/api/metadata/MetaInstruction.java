@@ -26,12 +26,12 @@ public class MetaInstruction implements IMetaInstruction
 {
     private final String name;
     private final Collection<MetaArgument> args;
-    private final Collection<IMetaSituation> situations;
+    private final Collection<MetaSituation> situations;
 
     public MetaInstruction(
         String name,
         Collection<MetaArgument> args,
-        Collection<IMetaSituation> situations
+        Collection<MetaSituation> situations
         )
     {
         this.name = name;
@@ -52,7 +52,7 @@ public class MetaInstruction implements IMetaInstruction
     }
 
     @Override
-    public final Iterable<IMetaSituation> getSituations()
+    public final Iterable<MetaSituation> getSituations()
     {
         return situations;
     }
