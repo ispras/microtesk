@@ -39,18 +39,21 @@ public final class MetaModel
 {
     private final Collection<MetaInstruction>  instructions;
     private final Collection<MetaAddressingMode>      modes;
+    private final Collection<MetaOperation>      operations;
     private final Collection<MetaLocationStore>   registers;
     private final Collection<MetaLocationStore>      memory;
 
     public MetaModel(
         Collection<MetaInstruction> instructions,
         Collection<MetaAddressingMode>     modes,
+        Collection<MetaOperation>     operations,
         Collection<MetaLocationStore>  registers,
         Collection<MetaLocationStore>     memory
         )
     {
         this.instructions = instructions;
         this.modes        = modes;
+        this.operations   = operations;
         this.registers    = registers;
         this.memory       = memory;
     }
@@ -61,10 +64,22 @@ public final class MetaModel
      * 
      * @return An Iterable object.
      */
-    
+
     public Iterable<MetaAddressingMode> getAddressingModes()
     {
         return modes;
+    }
+
+    /**
+     * Returns an iterator for the collection of operations (excluding
+     * operations defined as OR rules). 
+     * 
+     * @return An Iterable object.
+     */
+
+    public Iterable<MetaOperation> getOperations()
+    {
+        return operations;
     }
 
     /**
