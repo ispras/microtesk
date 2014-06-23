@@ -108,7 +108,7 @@ def self.create_model(model_name)
 end
 
 def self.prepare_template_classes(model, template_file)
-  TemplateBuilder.build_template_class(model)
+  TemplateBuilder.build_template_class(model.getMetaData())
 
   if File.file?(template_file)
     ENV['TEMPLATE'] = TEMPLATE

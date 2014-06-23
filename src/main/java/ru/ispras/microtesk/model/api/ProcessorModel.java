@@ -44,13 +44,11 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
  * @author Andrei Tatarnikov
  */
 
-public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
+public abstract class ProcessorModel implements IModel, ISimulator
 {
-    private final IInstructionSet                    instructions;
-    private final Collection<IMetaAddressingMode>   modesMetaData;
-    private final Collection<IMetaLocationStore> registerMetaData;
-    private final Collection<IMetaLocationStore>   memoryMetaData;
-    private final IModelStateObserver                    observer;
+    private final IInstructionSet instructions;
+    private final IMetaModel          metaData;
+    private final IModelStateObserver observer;
 
     public ProcessorModel(
         IInstructionSet instructions,
@@ -60,18 +58,17 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
         IModelStateObserver observer
         )
     {
-        this.instructions     = instructions;
-        this.modesMetaData    = modesMetaData;
-        this.registerMetaData = registerMetaData;
-        this.memoryMetaData   = memoryMetaData;
-        this.observer         = observer;
+        this.instructions = instructions;
+        this.metaData     = new MetaModel(
+            instructions.getMetaData(), modesMetaData, registerMetaData, memoryMetaData);
+        this.observer     = observer;
     }
 
     // IModel
     @Override
     public final IMetaModel getMetaData()
     {
-        return this;
+        return metaData;
     }
 
     // IModel
@@ -90,41 +87,13 @@ public abstract class ProcessorModel implements IModel, IMetaModel, ISimulator
             
         return instructions.getInstruction(name);
     }
-    
+
     // IModel
     @Deprecated
     @Override
     public final ISimulator getSimulator()
     {
         return this;
-    }
-
-    // IMetaModel
-    @Override
-    public final Iterable<IMetaInstruction> getInstructions()
-    {
-        return instructions.getMetaData();
-    }
-
-    // IMetaModel
-    @Override
-    public final Iterable<IMetaAddressingMode> getAddressingModes()
-    {
-        return modesMetaData;
-    }
-
-    // IMetaModel
-    @Override
-    public final Iterable<IMetaLocationStore> getRegisters()
-    {
-        return registerMetaData;
-    }
-
-    // IMetaModel
-    @Override
-    public final Iterable<IMetaLocationStore> getMemoryStores()
-    {
-        return memoryMetaData;
     }
 
     // ISimulator
