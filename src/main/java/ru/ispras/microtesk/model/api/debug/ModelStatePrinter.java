@@ -14,7 +14,7 @@ package ru.ispras.microtesk.model.api.debug;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
+import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
 
@@ -52,7 +52,7 @@ public final class ModelStatePrinter
         System.out.println();
 
         final IModelStateObserver observer = model.getStateObserver();
-        for (IMetaLocationStore r: model.getMetaData().getRegisters())
+        for (MetaLocationStore r: model.getMetaData().getRegisters())
         {
             for (int index = 0; index < r.getCount(); ++index)
             {
@@ -78,7 +78,7 @@ public final class ModelStatePrinter
         System.out.println();
 
         final IModelStateObserver observer = model.getStateObserver();
-        for (IMetaLocationStore r: model.getMetaData().getMemoryStores())
+        for (MetaLocationStore r: model.getMetaData().getMemoryStores())
         {
             for (int index = 0; index < r.getCount(); ++index)
             {

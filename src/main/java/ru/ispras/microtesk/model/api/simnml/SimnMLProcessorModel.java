@@ -33,7 +33,7 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
+import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
@@ -87,9 +87,9 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
         return Collections.unmodifiableCollection(result);
     }
 
-    private static Collection<IMetaLocationStore> createRegisterMetaData(Memory[] registers)
+    private static Collection<MetaLocationStore> createRegisterMetaData(Memory[] registers)
     {
-        final Collection<IMetaLocationStore> result = new ArrayList<IMetaLocationStore>();
+        final Collection<MetaLocationStore> result = new ArrayList<MetaLocationStore>();
 
         for(Memory r : registers)
             result.add(r.getMetaData());
@@ -97,9 +97,9 @@ public abstract class SimnMLProcessorModel extends ProcessorModel
         return Collections.unmodifiableCollection(result);
     }
 
-    private static Collection<IMetaLocationStore> createMemoryMetaData(Memory[] memory)
+    private static Collection<MetaLocationStore> createMemoryMetaData(Memory[] memory)
     {
-        final Collection<IMetaLocationStore> result = new ArrayList<IMetaLocationStore>();
+        final Collection<MetaLocationStore> result = new ArrayList<MetaLocationStore>();
 
         for(Memory m : memory)
             result.add(m.getMetaData());

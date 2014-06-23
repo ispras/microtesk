@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -67,7 +66,7 @@ public class Memory
         return name;
     }
     
-    public final IMetaLocationStore getMetaData()
+    public final MetaLocationStore getMetaData()
     {
         return new MetaLocationStore(name, getLength());
     }

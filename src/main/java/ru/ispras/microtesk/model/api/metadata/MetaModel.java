@@ -39,14 +39,14 @@ public final class MetaModel
 {
     private final Collection<IMetaInstruction>  instructions;
     private final Collection<MetaAddressingMode>      modes;
-    private final Collection<IMetaLocationStore>   registers;
-    private final Collection<IMetaLocationStore>      memory;
+    private final Collection<MetaLocationStore>   registers;
+    private final Collection<MetaLocationStore>      memory;
 
     public MetaModel(
         Collection<IMetaInstruction> instructions,
         Collection<MetaAddressingMode>     modes,
-        Collection<IMetaLocationStore>  registers,
-        Collection<IMetaLocationStore>     memory
+        Collection<MetaLocationStore>  registers,
+        Collection<MetaLocationStore>     memory
         )
     {
         this.instructions = instructions;
@@ -84,7 +84,7 @@ public final class MetaModel
      * @return An Iterable object.
      */
 
-    public Iterable<IMetaLocationStore> getRegisters()
+    public Iterable<MetaLocationStore> getRegisters()
     {
         return registers;
     }
@@ -95,7 +95,7 @@ public final class MetaModel
      * @return An Iterable object.
      */
 
-    public Iterable<IMetaLocationStore> getMemoryStores()
+    public Iterable<MetaLocationStore> getMemoryStores()
     {
         return memory;
     }

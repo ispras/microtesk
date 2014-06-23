@@ -27,7 +27,7 @@ package ru.ispras.microtesk.model.api.debug;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.IMetaInstruction;
-import ru.ispras.microtesk.model.api.metadata.IMetaLocationStore;
+import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 
@@ -67,7 +67,7 @@ public final class MetaModelPrinter
     {
         System.out.println("REGISTERS:");
 
-        for (IMetaLocationStore r: metaModel.getRegisters())
+        for (MetaLocationStore r: metaModel.getRegisters())
             System.out.printf("Name: %s, Size: %d%n", r.getName(), r.getCount());
     }
 
@@ -75,7 +75,7 @@ public final class MetaModelPrinter
     {
         System.out.println("MEMORY STORES:");
 
-        for (IMetaLocationStore m: metaModel.getMemoryStores())
+        for (MetaLocationStore m: metaModel.getMemoryStores())
             System.out.printf("Name: %s, Size: %d%n", m.getName(), m.getCount());
     }
     
