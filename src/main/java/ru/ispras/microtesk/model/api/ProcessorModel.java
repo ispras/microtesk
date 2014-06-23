@@ -81,10 +81,23 @@ public abstract class ProcessorModel implements IModel, ISimulator
         this.metaData = new MetaModel(
             instructions.getMetaData(),
             createAddressingModeMetaData(modes),
-            Collections.<MetaOperation>emptyList(), // TODO
+            createOperationMetaData(ops),
             createRegisterMetaData(registers),
             createMemoryMetaData(memory)
             );
+    }
+    
+    
+    private static Collection<MetaOperation> createOperationMetaData(IOperation.IInfo[] ops)
+    {
+        final Collection<MetaOperation> result =
+            new ArrayList<MetaOperation>();
+
+        // TODO:
+        // for(IOperation.IInfo i : ops)
+        //    result.addAll(i.getMetaData());
+
+        return Collections.unmodifiableCollection(result);
     }
 
     private static Collection<MetaAddressingMode> createAddressingModeMetaData(IAddressingMode.IInfo[] modes)
