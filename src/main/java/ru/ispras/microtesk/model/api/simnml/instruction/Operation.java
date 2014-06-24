@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
@@ -32,6 +33,57 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 public abstract class Operation implements IOperation
 {
     /**
+     * The ParamDecl class is aimed to specify declarations
+     * operation parameters. 
+     * 
+     * @author Andrei Tatarnikov
+     */
+
+    public static final class ParamDecl
+    {
+        private final MetaArgument metaData;
+
+        public ParamDecl(String name, IOperation.IInfo info)
+        {
+            this.metaData = new MetaArgument(
+                name, operationsToTypeNameList(info.getMetaData()));
+        }
+
+        public ParamDecl(String name, IAddressingMode.IInfo info)
+        {
+            this.metaData = new MetaArgument(
+                name, modesToTypeNameList(info.getMetaData()));
+        }
+
+        public MetaArgument getMetaData()
+        {
+            return metaData;
+        }
+
+        private static List<String> modesToTypeNameList(Collection<MetaAddressingMode> modes)
+        {
+            final List<String> result =
+                new ArrayList<String>(modes.size());
+
+            for (MetaAddressingMode mode : modes)
+                result.add(mode.getName());
+
+            return result;
+        }
+
+        private static List<String> operationsToTypeNameList(Collection<MetaOperation> ops)
+        {
+            final List<String> result =
+                new ArrayList<String>(ops.size());
+
+            for (MetaOperation op : ops)
+                result.add(op.getName());
+
+            return result;
+        }
+    }
+
+    /**
      * The Info class is an implementation of the IInfo interface.
      * It is designed to store information about a single operation. 
      * The class is to be used by generated classes that implement
@@ -46,17 +98,23 @@ public abstract class Operation implements IOperation
         private final String   name;
         private final Collection<MetaOperation> metaData;
 
-        public Info(Class<?> opClass, String name)
+        public Info(Class<?> opClass, String name, ParamDecl[] params)
         {
             this.opClass  = opClass;
             this.name     = name;
-            this.metaData = createMetaData(name);
+            this.metaData = createMetaData(name, params);
         }
 
-        private static Collection<MetaOperation> createMetaData(String name)
+        private static Collection<MetaOperation> createMetaData(String name, ParamDecl[] params)
         {
+            final List<MetaArgument> args =
+                new ArrayList<MetaArgument>();
+
+            for (ParamDecl p : params)
+                args.add(p.getMetaData());
+
             return Collections.singletonList(
-                new MetaOperation(name, Collections.<MetaArgument>emptyList()));
+                new MetaOperation(name, args));
         }
 
         @Override

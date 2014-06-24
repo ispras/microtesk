@@ -17,6 +17,7 @@ import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.model.api.simnml.instruction.Operation;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
+import ru.ispras.microtesk.model.demo.op.Add_Sub_Mov;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDR;
 
@@ -38,7 +39,14 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Arith_Mem_Inst extends Operation
 {
-    public static final IInfo INFO = new Info(Arith_Mem_Inst.class, Arith_Mem_Inst.class.getSimpleName());
+    public static final ParamDecl[] PARAMS = new ParamDecl[]
+    {
+        new ParamDecl("y", Add_Sub_Mov.INFO),
+        new ParamDecl("op1", OPRNDL.INFO),
+        new ParamDecl("op2", OPRNDR.INFO)
+    };
+
+    public static final IInfo INFO = new Info(Arith_Mem_Inst.class, Arith_Mem_Inst.class.getSimpleName(), PARAMS);
 
     private static final IOperation.IInfo        yINFO = Add_sub_mov.INFO;
     private static final IAddressingMode.IInfo op1INFO = OPRNDL.INFO;

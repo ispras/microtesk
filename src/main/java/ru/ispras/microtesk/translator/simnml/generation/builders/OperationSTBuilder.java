@@ -19,6 +19,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
 import ru.ispras.microtesk.model.api.simnml.instruction.Operation;
@@ -99,13 +100,31 @@ public class OperationSTBuilder extends PrimitiveBaseSTBuilder
     
     private void buildArguments(STGroup group, ST t)
     {
+        boolean isImmModeImported = false;
+        
         for (Map.Entry<String, Primitive> e : op.getArguments().entrySet())
         {
             final String    argName = e.getKey();
             final Primitive argType = e.getValue();
 
             t.add("arg_names", argName);
-            
+
+            if (argType.getKind() ==  Primitive.Kind.IMM)
+            {
+                t.add("arg_tnames", String.format("%s.INFO(%s)",
+                    AddressingModeImm.class.getSimpleName(), argType.getName()));
+
+                if (!isImmModeImported)
+                {
+                    t.add("imps", AddressingModeImm.class.getName());
+                    isImmModeImported = true;
+                }
+            }
+            else
+            {
+                t.add("arg_tnames", String.format("%s.INFO", argType.getName()));
+            }
+
             final ST argCheckST;
             if (Primitive.Kind.MODE == argType.getKind())
             {

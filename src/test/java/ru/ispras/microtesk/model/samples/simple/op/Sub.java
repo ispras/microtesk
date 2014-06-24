@@ -29,7 +29,7 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Sub extends Operation
 {
-    public static final IInfo INFO = new Info(Sub.class, Sub.class.getSimpleName());
+    public static final IInfo INFO = new Info(Sub.class, Sub.class.getSimpleName(), new ParamDecl[] {});
 
     @Override 
     public String syntax() { return "sub"; }

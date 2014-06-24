@@ -24,15 +24,18 @@ import ru.ispras.microtesk.model.api.simnml.instruction.Operation;
 
 public class Instruction extends Operation
 {
-    public static final IInfo INFO = new Info(Instruction.class, Instruction.class.getSimpleName());
-    
-    private static final IOperation.IInfo xINFO = Arith_Mem_Inst.INFO;
+    public static final ParamDecl[] PARAMS = new ParamDecl[]
+    {
+        new ParamDecl("x", Arith_Mem_Inst.INFO),
+    };
+
+    public static final IInfo INFO = new Info(Instruction.class, Instruction.class.getSimpleName(), PARAMS);
 
     private final IOperation x;
 
     public Instruction(IOperation x)
     {
-        assert xINFO.isSupported(x);
+        assert Arith_Mem_Inst.INFO.isSupported(x);
         this.x = x;
     }
 

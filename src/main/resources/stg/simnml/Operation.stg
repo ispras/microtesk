@@ -12,7 +12,7 @@
  
 group Operation;
 
-op(name, file, pack, imps, simps, base, arg_names, arg_types, arg_checks, attrs) ::= <<
+op(name, file, pack, imps, simps, base, arg_names, arg_types, arg_checks, arg_tnames, attrs) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -21,18 +21,22 @@ op(name, file, pack, imps, simps, base, arg_names, arg_types, arg_checks, attrs)
        name,
        base,
        false,
-       body(name, arg_names, arg_types, arg_checks, attrs))>
+       body(name, arg_names, arg_types, arg_checks, arg_tnames, attrs))>
 >>
 
-body(name, arg_names, arg_types, arg_checks, attrs) ::= <<
+body(name, arg_names, arg_types, arg_checks, arg_tnames, attrs) ::= <<
 <class_string_const("String", "NAME", name)><\n>
+public static final ParamDecl[] PARAMS = new ParamDecl[]
+{
+    <arg_names, arg_tnames:{n, t | new ParamDecl("<n>", <t>)}; separator=",\n">
+};<\n>
 <class_const("IInfo", "INFO", new_op_info(name))><\n>
 <op_constructor(name, arg_names, arg_types, arg_checks)><\n>
 <attrs; separator="\n\n">
 >>
 
 new_op_info(name) ::= <<
-new Info(<name>.class, NAME)
+new Info(<name>.class, NAME, PARAMS)
 >>
 
 op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
