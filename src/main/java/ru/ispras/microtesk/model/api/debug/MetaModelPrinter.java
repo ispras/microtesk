@@ -58,8 +58,6 @@ public final class MetaModelPrinter
 
         printSepator();
         printInstructionMetaData();
-        
-        printSepator();
     }
     
     public void printSepator()
@@ -113,7 +111,8 @@ public final class MetaModelPrinter
         {
             System.out.println(String.format("Name: %s", o.getName()));
             System.out.println("Parameters:");
-
+            
+            int count = 0;
             for(MetaArgument a : o.getArguments())
             {
                 final StringBuilder asb = new StringBuilder();
@@ -131,7 +130,11 @@ public final class MetaModelPrinter
 
                 asb.append("]");
                 System.out.println(asb);
+                
+                count++;
             }
+
+            if (0 == count) System.out.println("   <none>");
 
             System.out.println();
         }
@@ -146,6 +149,7 @@ public final class MetaModelPrinter
             System.out.println(String.format("Name: %s", i.getName()));
             System.out.println("Parameters:");
 
+            int count = 0;
             for(MetaArgument a : i.getArguments())
             {
                 final StringBuilder asb = new StringBuilder();
@@ -163,7 +167,11 @@ public final class MetaModelPrinter
 
                 asb.append("]");
                 System.out.println(asb);
+                
+                count++;
             }
+            
+            if (0 == count) System.out.println("   <none>");
 
             printSituationMetaData(i);
 

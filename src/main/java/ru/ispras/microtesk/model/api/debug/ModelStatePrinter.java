@@ -59,7 +59,11 @@ public final class ModelStatePrinter
                 try
                 {
                     final ILocationAccessor location = observer.accessLocation(r.getName(), index);
-                    System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
+
+                    if (1 == r.getCount())
+                        System.out.printf("%s = %s %n", r.getName(), location.toBinString());
+                    else
+                        System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
                 }
                 catch (ConfigurationException e)
                 {
