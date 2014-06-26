@@ -43,19 +43,16 @@ public final class AddressingModeImm extends AddressingMode
         }
     };
 
-    public static Map<String, Type> DECLS(Type type)
-    {
-        final ParamDecl[] PARAMS = new ParamDecl[]
-        { 
-            new ParamDecl(PARAM_NAME, type)
-        };
-
-        return createDeclarations(PARAMS);
-    }
-
     public static IInfo INFO(Type type)
     {
-        return new Info(AddressingModeImm.class, NAME, FACTORY, DECLS(type));
+        return new Info(
+            AddressingModeImm.class,
+            NAME,
+            FACTORY,
+            new ParamDeclBuilder()
+                .declareParam(PARAM_NAME, type)
+                .build()
+            );
     }
 
     private final Location value;

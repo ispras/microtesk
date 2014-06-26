@@ -32,10 +32,8 @@ public class MEM extends AddressingMode
 {
     public static final String NAME = "MEM";
 
-    public static final ParamDecl[] PARAMS = new ParamDecl[] 
-    {
-        new ParamDecl("i", index)
-    };
+    public static final Map<String, Type> DECLS = new ParamDeclBuilder()
+        .declareParam("i", index).build();
 
     public static final IFactory FACTORY = new IFactory()
     {
@@ -46,7 +44,6 @@ public class MEM extends AddressingMode
         }
     };
 
-    public static final Map<String, Type> DECLS = createDeclarations(PARAMS);
     public static final IInfo INFO = new Info(MEM.class, NAME, FACTORY, DECLS);
 
     private final Location i;
@@ -71,18 +68,8 @@ public class MEM extends AddressingMode
     }
 
     @Override
-    public void action() {   }
-
-    @Override
-    public void onBeforeLoad()
+    public void action()
     {
-        System.out.println(getClass().getSimpleName() + ": onBeforeLoad");
-    }
-
-    @Override
-    public void onBeforeStore()
-    {
-        System.out.println(getClass().getSimpleName() + ": onBeforeStore");        
     }
 
     @Override

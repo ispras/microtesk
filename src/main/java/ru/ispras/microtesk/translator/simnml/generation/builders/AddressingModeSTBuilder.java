@@ -77,14 +77,8 @@ public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
             final String    argName = e.getKey();
             final Primitive argType = e.getValue();
 
-            final ST paramDecl = group.getInstanceOf("new_mode_param");
-
-            paramDecl.add("name", argName);
-            paramDecl.add("type", argType.getName());
-
-            t.add("param_decls", paramDecl);
-
             t.add("param_names", argName);
+            t.add("param_types", argType.getName());
         }
     }
 

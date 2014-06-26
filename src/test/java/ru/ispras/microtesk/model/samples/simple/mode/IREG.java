@@ -32,10 +32,8 @@ public class IREG extends AddressingMode
 {
     public static final String NAME = "IREG";
 
-    public static final ParamDecl[] PARAMS = new ParamDecl[] 
-    {
-        new ParamDecl("i", nibble)
-    };
+    public static final Map<String, Type> DECLS = new ParamDeclBuilder()
+        .declareParam("i", nibble).build();
 
     public static final IFactory FACTORY = new IFactory()
     {
@@ -46,9 +44,8 @@ public class IREG extends AddressingMode
         }
     };
 
-    public static final Map<String, Type> DECLS = createDeclarations(PARAMS);
     public static final IInfo INFO = new Info(IREG.class, NAME, FACTORY, DECLS);
-    
+
     private Location i;
 
     public IREG(Map<String, Data> args)
@@ -71,19 +68,8 @@ public class IREG extends AddressingMode
     }
 
     public void action()
-    { 
-    }
-
-    @Override
-    public void onBeforeLoad()
     {
-        System.out.println(getClass().getSimpleName() + ": onBeforeLoad");
-    }
-
-    @Override
-    public void onBeforeStore()
-    {
-        System.out.println(getClass().getSimpleName() + ": onBeforeStore"); 
+       // NOTHING
     }
 
     @Override

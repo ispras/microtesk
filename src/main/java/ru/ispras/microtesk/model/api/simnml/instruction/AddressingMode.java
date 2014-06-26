@@ -36,41 +36,33 @@ import ru.ispras.microtesk.model.api.type.Type;
 public abstract class AddressingMode implements IAddressingMode
 {
     /**
-     * The ParamDecl class is aimed to specify declarations
-     * addressing mode parameters. 
+     * The ParamDeclBuilder class provides facilities to build
+     * a table of addressing mode parameter declarations.
      * 
      * @author Andrei Tatarnikov
      */
 
-    public static final class ParamDecl
+    public static class ParamDeclBuilder
     {
-        public final String name;
-        public final   Type type;
+        private final Map<String, Type> decls;
 
-        public ParamDecl(String name, Type type)
+        public ParamDeclBuilder()
         {
-            this.name = name;
-            this.type = type;
-        }        
+            this.decls = new LinkedHashMap<String, Type>();
+        }
+
+        public ParamDeclBuilder declareParam(String name, Type type)
+        {
+            decls.put(name, type);
+            return this;
+        }
+
+        public Map<String, Type> build()
+        {
+            return Collections.unmodifiableMap(decls);
+        }
     }
-    
-    /**
-     * Create a table of addressing mode parameter declarations.
-     * 
-     * @param decls An array of addressing mode parameter declarations.
-     * @return The table of addressing mode parameter declarations.
-     */
 
-    protected static Map<String, Type> createDeclarations(ParamDecl[] decls)
-    {        
-        final Map<String, Type> result = new LinkedHashMap<String, Type>();
-
-        for (ParamDecl d : decls)
-            result.put(d.name, d.type);
-
-        return Collections.unmodifiableMap(result);
-    }
-    
     /**
      * Extracts the specified argument from the table of arguments and
      * wraps it into a location object. 

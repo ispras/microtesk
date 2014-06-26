@@ -33,10 +33,8 @@ public class IMM extends AddressingMode
 {
     public static final String NAME = "IMM";
 
-    public static final ParamDecl[] PARAMS = new ParamDecl[]
-    { 
-        new ParamDecl("i", byte_t) 
-    };
+    public static final Map<String, Type> DECLS = new ParamDeclBuilder()
+        .declareParam("i", byte_t).build();
 
     public static final IFactory FACTORY = new IFactory()
     {
@@ -47,16 +45,20 @@ public class IMM extends AddressingMode
         }
     };
 
-    public static final Map<String, Type> DECLS = createDeclarations(PARAMS);
     public static final IInfo INFO = new Info(IMM.class, NAME, FACTORY, DECLS);
+    
+    public IMM(Map<String, Data> args)
+    {
+        this(getArgument("i", DECLS, args));
+    }
 
     private Location i;
 
-    public IMM(Map<String, Data> args)
+    public IMM(Location i)
     {
-        this.i = getArgument("i", DECLS, args);
+        this.i = i;
     }
-    
+
     @Override
     public String syntax()
     {
@@ -75,18 +77,6 @@ public class IMM extends AddressingMode
     public void action()
     {
         // NOTHING
-    }
-
-    @Override
-    public void onBeforeLoad()
-    {
-        System.out.println(getClass().getSimpleName() + ": onBeforeLoad");
-    }
-
-    @Override
-    public void onBeforeStore()
-    {
-        System.out.println(getClass().getSimpleName() + ": onBeforeStore"); 
     }
 
     @Override

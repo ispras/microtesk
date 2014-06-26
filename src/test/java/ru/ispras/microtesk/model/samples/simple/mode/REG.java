@@ -31,11 +31,9 @@ image = format("01%4b", i)
 public class REG extends AddressingMode
 {
     public static final String NAME = "REG";
-
-    public static final ParamDecl[] PARAMS = new ParamDecl[] 
-    {
-        new ParamDecl("i", nibble)
-    };
+    
+    public static final Map<String, Type> DECLS = new ParamDeclBuilder()
+        .declareParam("i", nibble).build();
 
     public static final IFactory FACTORY = new IFactory()
     {
@@ -46,8 +44,7 @@ public class REG extends AddressingMode
         }
     };
 
-    public static final Map<String, Type>  DECLS = createDeclarations(PARAMS);
-    public static final IInfo               INFO = new Info(REG.class, NAME, FACTORY, DECLS);
+    public static final IInfo INFO = new Info(REG.class, NAME, FACTORY, DECLS);
     
     private Location i;
 
@@ -70,18 +67,9 @@ public class REG extends AddressingMode
         return null;
     }
 
-    public void action() {  }
-
-    @Override
-    public void onBeforeLoad() 
+    public void action()
     {
-        System.out.println(getClass().getSimpleName() + ": onBeforeLoad"); 
-    }
-
-    @Override
-    public void onBeforeStore()
-    {
-        System.out.println(getClass().getSimpleName() + ": onBeforeStore"); 
+        // NOTHING
     }
 
     @Override

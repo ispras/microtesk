@@ -12,7 +12,7 @@
 
 group AddressingMode;
 
-mode(name, file, pack, imps, simps, base, param_decls, param_names, attrs, ret) ::= <<
+mode(name, file, pack, imps, simps, base, param_names, param_types, attrs, ret) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -21,14 +21,13 @@ mode(name, file, pack, imps, simps, base, param_decls, param_names, attrs, ret) 
        name,
        base,
        false,
-       body(name, param_decls, param_names, attrs, ret))> 
+       body(name, param_names, param_types, attrs, ret))> 
 >>
 
-body(name, param_decls, param_names, attrs, ret) ::= <<
+body(name, param_names, param_types, attrs, ret) ::= <<
 <class_string_const("String", "NAME", name)><\n>
-<mode_param_decl(param_decls)><\n>
 <class_const("IFactory", "FACTORY", new_mode_factory(name))><\n>
-<class_const(decl_map_type(), "DECLS", "createDeclarations(PARAMS)")>
+<class_const(decl_map_type(), "DECLS", param_decls(param_names, param_types))><\n>
 <class_const("IInfo", "INFO", new_mode_info(name))><\n>
 <mode_constructor(name, param_names)><\n>
 <attrs; separator="\n\n">
@@ -53,18 +52,8 @@ new_mode_info(name) ::= <<
 new Info(<name>.class, NAME, FACTORY, DECLS)
 >>
 
-mode_param_decl(param_decls) ::= <<
-<class_const("ParamDecl[]", "PARAMS", new_mode_params(param_decls))>
->>
-
-new_mode_params(param_decls) ::= <<
-new ParamDecl[]<\n>{
-    <param_decls; separator=",\n">
-}
->>
-
-new_mode_param(name, type) ::= <<
-new ParamDecl("<name>", <type>)
+param_decls(param_names, param_types) ::= <<
+new ParamDeclBuilder()<param_names, param_types:{n, t | <\n>    .declareParam("<n>", <t>)}>.build()
 >>
 
 mode_constructor(name, param_names) ::= <<
