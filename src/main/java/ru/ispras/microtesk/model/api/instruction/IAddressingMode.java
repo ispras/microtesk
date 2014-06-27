@@ -112,7 +112,7 @@ public interface IAddressingMode extends IPrimitive
          * value is the builder). 
          */
 
-        public Map<String, IAddressingModeBuilderEx> createBuilders();
+        public Map<String, IAddressingModeBuilder> createBuilders();
 
         /**
          * Returns a collection of meta data objects describing the addressing

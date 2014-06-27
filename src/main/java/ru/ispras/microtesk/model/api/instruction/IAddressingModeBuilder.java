@@ -31,9 +31,9 @@ public interface IAddressingModeBuilder
      * @param name Mode argument name.
      * @param value Mode argument value text.
      */
-    
+
     public void setArgumentValue(String name, String value) throws ConfigurationException;
-    
+
     /**
      * Initializes the specified addressing mode argument with
      * an integer value.
@@ -43,4 +43,15 @@ public interface IAddressingModeBuilder
      */
 
     public void setArgumentValue(String name, Integer value) throws ConfigurationException;
+
+    /**
+     * Returns an addressing mode object created by the builder.
+     * 
+     * @return The addressing mode object.
+     * @throws ConfigurationException Exception that informs of an 
+     * error that occurs on attempt to build an addressing mode object
+     * due to incorrect configuration.
+     */
+
+    public IAddressingMode getProduct() throws ConfigurationException;
 }

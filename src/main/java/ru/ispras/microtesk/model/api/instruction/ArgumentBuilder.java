@@ -39,8 +39,8 @@ import ru.ispras.microtesk.model.api.exception.config.UnsupportedTypeException;
 
 public class ArgumentBuilder implements IArgumentBuilderEx
 {
-    private final Map<String, IAddressingModeBuilderEx> modeBuilders;
-    private IAddressingModeBuilderEx chosenModeBuilder = null;
+    private final Map<String, IAddressingModeBuilder> modeBuilders;
+    private IAddressingModeBuilder chosenModeBuilder = null;
 
     /**
      * Creates an argument builder based on a table of addressing mode builders.
@@ -48,7 +48,7 @@ public class ArgumentBuilder implements IArgumentBuilderEx
      * @param modeBuilders Table of addressing mode builders.
      */
 
-    public ArgumentBuilder(Map<String, IAddressingModeBuilderEx> modeBuilders)
+    public ArgumentBuilder(Map<String, IAddressingModeBuilder> modeBuilders)
     {
         assert null != modeBuilders;
         this.modeBuilders = modeBuilders;

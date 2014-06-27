@@ -43,7 +43,7 @@ import ru.ispras.microtesk.model.api.type.Type;
  * @author Andrei Tatarnikov
  */
 
-public final class AddressingModeBuilder implements IAddressingModeBuilderEx
+public final class AddressingModeBuilder implements IAddressingModeBuilder
 {
     private final String                   modeName;
     private final IAddressingMode.IFactory factory;

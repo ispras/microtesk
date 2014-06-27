@@ -129,9 +129,9 @@ public abstract class AddressingMode implements IAddressingMode
         }
 
         @Override
-        public Map<String, IAddressingModeBuilderEx> createBuilders()
+        public Map<String, IAddressingModeBuilder> createBuilders()
         {
-            final IAddressingModeBuilderEx builder =
+            final IAddressingModeBuilder builder =
                 new AddressingModeBuilder(name, factory, decls);
 
             return Collections.singletonMap(name, builder);
@@ -188,10 +188,10 @@ public abstract class AddressingMode implements IAddressingMode
         }
 
         @Override
-        public Map<String, IAddressingModeBuilderEx> createBuilders()
+        public Map<String, IAddressingModeBuilder> createBuilders()
         {
-            final Map<String, IAddressingModeBuilderEx> result =
-                new HashMap<String, IAddressingModeBuilderEx>();
+            final Map<String, IAddressingModeBuilder> result =
+                new HashMap<String, IAddressingModeBuilder>();
 
             for (IInfo i : childs)
                 result.putAll(i.createBuilders());
