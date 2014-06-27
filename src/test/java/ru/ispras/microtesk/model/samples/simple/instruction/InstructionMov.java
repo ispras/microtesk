@@ -55,7 +55,7 @@ public class InstructionMov extends InstructionBase
         }
 
         @Override
-        public IInstructionCall getCall() throws ConfigurationException
+        public InstructionCall getCall() throws ConfigurationException
         {
             final IAddressingMode op1 = getArgument("op1");
             final IAddressingMode op2 = getArgument("op2");
