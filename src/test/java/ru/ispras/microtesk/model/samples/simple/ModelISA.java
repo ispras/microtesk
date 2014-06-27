@@ -8,50 +8,66 @@
  * All rights reserved.
  * 
  * ModelISA.java, Dec 1, 2012 11:46:09 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.samples.simple;
 
 import java.util.Collections;
 
-import ru.ispras.microtesk.model.api.debug.AbstractModelISA;
+import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.debug.CallSimulator;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
-class ModelISA extends AbstractModelISA
+abstract class ModelISA extends CallSimulator
 {
-    private ModelISA() {}
-
-    public static void mov(Mode op1, Mode op2) throws ConfigurationException
+    public ModelISA(IModel model)
     {
-        setupCall("Mov", new Argument("op1", op1), new Argument("op2", op2));        
+        super(model);
     }
 
-    public static void add(Mode op1, Mode op2) throws ConfigurationException
+    public final void mov(Mode op1, Mode op2) throws ConfigurationException
     {
-        setupCall("Add", new Argument("op1", op1), new Argument("op2", op2)); 
+        addCall("Mov", new Argument("op1", op1), new Argument("op2", op2));        
     }
 
-    public static void sub(Mode op1, Mode op2) throws ConfigurationException
+    public final void add(Mode op1, Mode op2) throws ConfigurationException
     {
-        setupCall("Sub", new Argument("op1", op1), new Argument("op2", op2)); 
+        addCall("Add", new Argument("op1", op1), new Argument("op2", op2)); 
     }
 
-    public static Mode reg(int i)
+    public final void sub(Mode op1, Mode op2) throws ConfigurationException
+    {
+        addCall("Sub", new Argument("op1", op1), new Argument("op2", op2)); 
+    }
+
+    public final Mode reg(int i)
     {
         return new Mode("REG", Collections.singletonMap("i", i));
     }
 
-    public static Mode ireg(int i)
+    public final Mode ireg(int i)
     {
         return new Mode("IREG", Collections.singletonMap("i", i));
     }
 
-    public static Mode mem(int i)
+    public final Mode mem(int i)
     {
         return new Mode("MEM", Collections.singletonMap("i", i));
     }
 
-    public static Mode imm(int i)
+    public final Mode imm(int i)
     {
         return new Mode("IMM", Collections.singletonMap("i", i));
     }

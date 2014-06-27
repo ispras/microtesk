@@ -50,14 +50,4 @@ public interface IModel
     public IInstruction getInstruction(String name) throws ConfigurationException;
     
     public IInitializerGenerator[] getInitializers();
-
-    /**
-     * Returns an object that provides access to the internal state of the model
-     * (instruction set and resources). 
-     * 
-     * @return A simulator object (provides access to the model's state).
-     */
-
-    @Deprecated
-    public ISimulator getSimulator();
 }

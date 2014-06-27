@@ -39,8 +39,6 @@ import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.UnsupportedInstructionException;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
-import ru.ispras.microtesk.model.api.instruction.IInstructionCallBlockBuilder;
-import ru.ispras.microtesk.model.api.instruction.InstructionCallBlockBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 
 /**
@@ -52,7 +50,7 @@ import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
  * @author Andrei Tatarnikov
  */
 
-public abstract class ProcessorModel implements IModel, ISimulator
+public abstract class ProcessorModel implements IModel
 {
     public static final String SHARED_REGISTERS = "__REGISTERS";
     public static final String SHARED_MEMORY    = "__MEMORY";
@@ -151,21 +149,5 @@ public abstract class ProcessorModel implements IModel, ISimulator
             throw new UnsupportedInstructionException(name);
 
         return instructions.getInstruction(name);
-    }
-
-    // IModel
-    @Deprecated
-    @Override
-    public final ISimulator getSimulator()
-    {
-        return this;
-    }
-
-    // ISimulator
-    @Deprecated
-    @Override
-    public final IInstructionCallBlockBuilder createCallBlock()
-    {
-        return new InstructionCallBlockBuilder(instructions);
     }
 } 
