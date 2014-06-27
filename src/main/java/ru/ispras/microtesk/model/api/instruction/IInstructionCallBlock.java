@@ -12,6 +12,8 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
+
 /**
  * The IInstructionCallBlock interface describes a block of instruction
  * calls. It allows execution of the entire block and accessing individual calls.
@@ -20,7 +22,7 @@ package ru.ispras.microtesk.model.api.instruction;
  */
 
 @Deprecated
-public interface IInstructionCallBlock extends IInstructionCall
+public interface IInstructionCallBlock
 {
     /**
      * Returns the number of calls in the block.
@@ -46,5 +48,8 @@ public interface IInstructionCallBlock extends IInstructionCall
      * @return Instruction call object.
      */
     
-    public IInstructionCall getCall(int index);
+    public InstructionCall getCall(int index);
+    
+    public void execute();
+    public void print();
 }

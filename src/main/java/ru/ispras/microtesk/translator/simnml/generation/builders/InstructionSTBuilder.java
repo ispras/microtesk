@@ -17,7 +17,6 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.instruction.IInstructionCall;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
 import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
@@ -67,7 +66,6 @@ public class InstructionSTBuilder implements ITemplateBuilder
         t.add("pack", String.format(INSTRUCTION_PACKAGE_FORMAT, modelName));
         
         t.add("imps", ConfigurationException.class.getName());
-        t.add("imps", IInstructionCall.class.getName());
         t.add("imps", IInstructionCallBuilderEx.class.getName());
         
         t.add("imps", InstructionCall.class.getName());

@@ -14,6 +14,8 @@ package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.List;
 
+import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
+
 /**
  * The InstructionCallBlock class is a basic implementation of
  * an instruction call block. It stores a list of instruction
@@ -37,9 +39,9 @@ public class InstructionCallBlock implements IInstructionCallBlock
     public static class CallEntry
     {
         public final String name;
-        public final IInstructionCall call;
+        public final InstructionCall call;
 
-        public CallEntry(String name, IInstructionCall call)
+        public CallEntry(String name, InstructionCall call)
         {
             this.name = name;
             this.call = call;
@@ -53,24 +55,22 @@ public class InstructionCallBlock implements IInstructionCallBlock
         this.callEntries = callEntries;
     }
 
-    @Override
     public void execute()
     {
         for (CallEntry entry : callEntries)
         {
-            final IInstructionCall call = entry.call; 
+            final InstructionCall call = entry.call; 
             call.execute();
         }
     }
 
-    @Override
     public String getText()
     {
         final StringBuilder sb = new StringBuilder();
 
         for (CallEntry entry : callEntries)
         {
-            final IInstructionCall call = entry.call;
+            final InstructionCall call = entry.call;
 
             if (0 != sb.length())
                 sb.append("%n");
@@ -81,12 +81,11 @@ public class InstructionCallBlock implements IInstructionCallBlock
         return sb.toString();
     }
 
-    @Override
     public void print()
     {
         for (CallEntry entry : callEntries)
         {
-            final IInstructionCall call = entry.call; 
+            final InstructionCall call = entry.call; 
             call.print();
         }
     }
@@ -104,7 +103,7 @@ public class InstructionCallBlock implements IInstructionCallBlock
     }
 
     @Override
-    public IInstructionCall getCall(int index)
+    public InstructionCall getCall(int index)
     {
         return callEntries.get(index).call;
     }

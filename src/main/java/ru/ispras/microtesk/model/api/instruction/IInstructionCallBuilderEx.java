@@ -13,6 +13,7 @@
 package ru.ispras.microtesk.model.api.instruction;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
 
 /**
  * The IInstructionCallBuilderEx interface is an extension of the
@@ -32,5 +33,5 @@ public interface IInstructionCallBuilderEx extends IInstructionCallBuilder
      * @return Instruction call object.
      */
 
-    public IInstructionCall getCall() throws ConfigurationException;
+    public InstructionCall getCall() throws ConfigurationException;
 }

@@ -8,21 +8,32 @@
  * All rights reserved.
  * 
  * InstructionCall.java, Nov 16, 2012 4:34:11 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api.simnml.instruction;
 
-import ru.ispras.microtesk.model.api.instruction.IInstructionCall;
 import ru.ispras.microtesk.model.api.state.IStateResetter;
 
 /**
- * The InstructionCall class is a Sim-nML-based implementation
- * of the IInstructionCall interface. 
- * 
+ * The InstructionCall class provides methods to run execution
+ * simulation of some instruction within the processor model.   
+ *
  * @author Andrei Tatarnikov
  */
 
-public class InstructionCall implements IInstructionCall
+public final class InstructionCall
 {
     private final IStateResetter resetter;
     private final IOperation  instruction;
@@ -34,28 +45,49 @@ public class InstructionCall implements IInstructionCall
      * instruction. 
      * 
      * @param instruction The root operation of the Sim-nML operation hierarchy.
+     * 
+     * @throws NullPointerException if any of the parameters equals null.
      */
-    
+
     public InstructionCall(IStateResetter resetter, IOperation instruction)
     {
+        if (null == resetter)
+            throw new NullPointerException();
+        
+        if (null == instruction)
+            throw new NullPointerException();
+
         this.resetter = resetter;
         this.instruction = instruction;
     }
+    
+    /**
+     * Runs simulation of a corresponding instruction described within the model.
+     */
 
-    @Override
     public void execute()
     {
         resetter.reset();
         instruction.action();
     }
 
-    @Override
+    /**
+     * Return the assembly code for the specified call (for example, the addition
+     * instruction of a MIPS processor: addu $1, $1, $2).
+     * 
+     * @return Text for the instruction call (assembler code). 
+     */
+
     public String getText()
     {
         return instruction.syntax();
     }
+    
+    /**
+     * Prints the assembler code of the current instruction call to the output
+     * stream provided by MicroTESK. 
+     */
 
-    @Override
     public void print()
     {
         System.out.println(getText());

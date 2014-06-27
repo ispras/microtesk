@@ -79,7 +79,7 @@ public Builder()
 }
 
 @Override
-public IInstructionCall getCall() throws ConfigurationException
+public InstructionCall getCall() throws ConfigurationException
 {
     <param_names:instruction_get_param(); separator="\n">
 

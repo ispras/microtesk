@@ -18,6 +18,7 @@ import java.util.List;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.UnsupportedInstructionException;
+import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
 
 /**
  * The InstructionCallBlockBuilder class implements logic that builds 
@@ -88,7 +89,7 @@ public class InstructionCallBlockBuilder implements IInstructionCallBlockBuilder
 
         for (CallBuilderEntry builderEntry : callBuilderEntries)
         {
-            final IInstructionCall call = builderEntry.builder.getCall();
+            final InstructionCall call = builderEntry.builder.getCall();
             callEntries.add(new InstructionCallBlock.CallEntry(builderEntry.name, call));
         }        
 

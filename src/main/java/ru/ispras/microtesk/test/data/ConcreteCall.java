@@ -13,18 +13,18 @@
 package ru.ispras.microtesk.test.data;
 
 import java.util.Map;
-import ru.ispras.microtesk.model.api.instruction.IInstructionCall;
+import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
 
 public final class ConcreteCall
 {
     private final String name;
     private final Map<String, Object> attributes;
-    private final IInstructionCall executable;
+    private final InstructionCall executable;
 
     public ConcreteCall(
         String name,
         Map<String, Object> attributes,
-        IInstructionCall executable
+        InstructionCall executable
         )
     {
         this.name = name;
@@ -45,7 +45,7 @@ public final class ConcreteCall
         return attributes.get(name);
     }
 
-    public IInstructionCall getExecutable()
+    public InstructionCall getExecutable()
     {
         return executable;
     }
