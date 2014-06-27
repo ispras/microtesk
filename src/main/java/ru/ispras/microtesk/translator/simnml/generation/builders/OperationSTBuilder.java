@@ -19,10 +19,10 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
-import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
-import ru.ispras.microtesk.model.api.simnml.instruction.Operation;
+import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;

@@ -19,8 +19,8 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.simnml.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.NodeInfo;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;

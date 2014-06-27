@@ -18,10 +18,10 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
-import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
-import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.simnml.instruction.InstructionBase;
-import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.InstructionBase;
+import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.model.api.situation.builtin.RandomSituation;
 import ru.ispras.microtesk.model.api.situation.builtin.ZeroSituation;

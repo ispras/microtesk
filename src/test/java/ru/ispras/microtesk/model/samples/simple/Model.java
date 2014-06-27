@@ -29,8 +29,8 @@ import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.samples.simple.instruction.ISA;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
-import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.samples.simple.mode.*;
 import ru.ispras.microtesk.model.samples.simple.op.*;
 

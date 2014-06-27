@@ -22,7 +22,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.simnml.instruction;
+package ru.ispras.microtesk.model.api.instruction;
 
 import ru.ispras.microtesk.model.api.state.IStateResetter;
 

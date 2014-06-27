@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.simnml.instruction.AddressingModeImm;
+import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 
 public final class AbstractCallBuilder
 {

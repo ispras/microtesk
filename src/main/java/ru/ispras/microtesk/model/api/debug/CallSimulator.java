@@ -34,7 +34,7 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
-import ru.ispras.microtesk.model.api.simnml.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public abstract class CallSimulator
 {

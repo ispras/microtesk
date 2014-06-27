@@ -31,8 +31,8 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.model.api.simnml.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.simnml.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
