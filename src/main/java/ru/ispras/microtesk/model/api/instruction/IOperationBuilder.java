@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * ICallFactory.java, Jun 30, 2014 5:58:32 PM Andrei Tatarnikov
+ * IOperationBuilder.java, Jun 30, 2014 7:29:45 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,19 +22,17 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api;
+package ru.ispras.microtesk.model.api.instruction;
 
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
-import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
-import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-
-public interface ICallFactory
+public interface IOperationBuilder
 {
-    public IAddressingModeBuilder newModeInstance(String name) throws ConfigurationException;
+    public void setArgument(String name, String value);
 
-    public IOperationBuilder newOpInstance(String name, String rootName) throws ConfigurationException;
+    public void setArgument(String name, int value);
+    
+    public void setArgument(String name, IAddressingMode value);
 
-    public InstructionCall newCall(IOperation op);
+    public void setArgument(String name, IOperation value);
+
+    public IOperation build();
 }

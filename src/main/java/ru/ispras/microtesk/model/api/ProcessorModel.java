@@ -35,6 +35,7 @@ import ru.ispras.microtesk.model.api.metadata.*;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
@@ -135,7 +136,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory
     @Override
     public final IAddressingModeBuilder newModeInstance(String name) throws ConfigurationException
     {
-        final String ERROR_FORMAT = "The %s addressing mode is not supported.";
+        final String ERROR_FORMAT = "The %s addressing mode is not defined.";
 
         if (null == name)
             throw new NullPointerException();
@@ -155,7 +156,23 @@ public abstract class ProcessorModel implements IModel, ICallFactory
         return result;
     }
 
-    //public IOperationBuilder newOpInstance(String name, String rootName);
+    // ICallFactory
+    @Override
+    public final IOperationBuilder newOpInstance(String name, String rootName) throws ConfigurationException
+    {
+        final String ERROR_FORMAT = "The %s operation is not defined.";
+
+        if (null == name)
+            throw new NullPointerException();
+
+        final IOperation.IInfo opInfo = ops.getModeInfo(name); 
+
+        if (null == opInfo)
+           throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
+
+        // TODO
+        return null;
+    }
 
     // ICallFactory
     @Override
@@ -216,14 +233,24 @@ public abstract class ProcessorModel implements IModel, ICallFactory
 
     private static final class OperationStore
     {
+        private final Map<String, IOperation.IInfo> items;
         private final Collection<MetaOperation> metaData;
 
         public OperationStore(IOperation.IInfo[] ops)
         {
+            this.items = new HashMap<String, IOperation.IInfo>(ops.length);
             this.metaData = new ArrayList<MetaOperation>(ops.length);
 
             for(IOperation.IInfo i : ops)
+            {
+                items.put(i.getName(), i);
                 this.metaData.addAll(i.getMetaData());
+            }
+        }
+
+        public IOperation.IInfo getModeInfo(String name)
+        {
+            return items.get(name);
         }
 
         public Collection<MetaOperation> getMetaData()
