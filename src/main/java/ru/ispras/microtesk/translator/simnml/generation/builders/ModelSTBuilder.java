@@ -88,6 +88,7 @@ public class ModelSTBuilder implements ITemplateBuilder
         tc.add("mem",      ProcessorModel.SHARED_MEMORY);
         tc.add("lab",      ProcessorModel.SHARED_LABELS);
         tc.add("stat",     ProcessorModel.SHARED_STATUSES);
+        tc.add("reset",    ProcessorModel.SHARED_RESETTER);
 
         addAddressingModes(t, tc);
         addOperations(t, tc);

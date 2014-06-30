@@ -66,7 +66,8 @@ public final class Model extends ProcessorModel
             __REGISTERS,
             __MEMORY,
             __LABELS,
-            __STATUSES
+            __STATUSES,
+            __RESETTER
         );
     }
 

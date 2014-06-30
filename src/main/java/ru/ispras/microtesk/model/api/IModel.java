@@ -50,4 +50,6 @@ public interface IModel
     public IInstruction getInstruction(String name) throws ConfigurationException;
     
     public IInitializerGenerator[] getInitializers();
+    
+    public ICallFactory getCallFactory();
 }
