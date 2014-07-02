@@ -39,7 +39,7 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Mov extends Operation
 {
-    public static final IInfo INFO = new Info(Mov.class, Mov.class.getSimpleName(), new ParamDecl[] {});
+    public static final IInfo INFO = new Info(Mov.class, Mov.class.getSimpleName(), new ParamDecls());
 
     @Override 
     public String syntax() { return "mov"; }

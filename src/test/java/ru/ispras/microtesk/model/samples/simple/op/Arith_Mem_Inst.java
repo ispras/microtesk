@@ -50,12 +50,10 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Arith_Mem_Inst extends Operation
 {
-    public static final ParamDecl[] PARAMS = new ParamDecl[]
-    {
-        new ParamDecl("y", Add_sub_mov.INFO),
-        new ParamDecl("op1", OPRNDL.INFO),
-        new ParamDecl("op2", OPRNDR.INFO)
-    };
+    public static final ParamDecls PARAMS = new ParamDecls()
+        .declareParam("y",   Add_sub_mov.INFO)
+        .declareParam("op1", OPRNDL.INFO)
+        .declareParam("op2", OPRNDR.INFO);
 
     public static final IInfo INFO = new Info(Arith_Mem_Inst.class, Arith_Mem_Inst.class.getSimpleName(), PARAMS);
 

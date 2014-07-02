@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
@@ -51,47 +52,48 @@ public abstract class Operation implements IOperation
      * @author Andrei Tatarnikov
      */
 
-    public static final class ParamDecl
+    public final static class ParamDecls
     {
-        private final MetaArgument metaData;
+        private final Collection<MetaArgument> metaData;
 
-        public ParamDecl(String name, IOperation.IInfo info)
+        public ParamDecls()
         {
-            this.metaData = new MetaArgument(
-                name, operationsToTypeNameList(info.getMetaData()));
+            this.metaData = new ArrayList<MetaArgument>();
         }
 
-        public ParamDecl(String name, IAddressingMode.IInfo info)
+        public ParamDecls declareParam(String name, Type type)
         {
-            this.metaData = new MetaArgument(
-                name, modesToTypeNameList(info.getMetaData()));
+            metaData.add(new MetaArgument(name, Collections.singletonList(AddressingModeImm.NAME)));
+            return this;
         }
 
-        public MetaArgument getMetaData()
+        public ParamDecls declareParam(String name, IAddressingMode.IInfo info)
+        {
+            final List<String> modeNames =
+                new ArrayList<String>(info.getMetaData().size());
+
+            for (MetaAddressingMode mode : info.getMetaData())
+                modeNames.add(mode.getName());
+
+            metaData.add(new MetaArgument(name, modeNames));
+            return this;
+        }
+
+        public ParamDecls declareParam(String name, IOperation.IInfo info)
+        {
+            final List<String> opNames =
+                new ArrayList<String>(info.getMetaData().size());
+
+            for (MetaOperation op : info.getMetaData())
+                opNames.add(op.getName());
+
+            metaData.add(new MetaArgument(name, opNames));
+            return this;
+        }
+
+        public Collection<MetaArgument> getMetaData()
         {
             return metaData;
-        }
-
-        private static List<String> modesToTypeNameList(Collection<MetaAddressingMode> modes)
-        {
-            final List<String> result =
-                new ArrayList<String>(modes.size());
-
-            for (MetaAddressingMode mode : modes)
-                result.add(mode.getName());
-
-            return result;
-        }
-
-        private static List<String> operationsToTypeNameList(Collection<MetaOperation> ops)
-        {
-            final List<String> result =
-                new ArrayList<String>(ops.size());
-
-            for (MetaOperation op : ops)
-                result.add(op.getName());
-
-            return result;
         }
     }
 
@@ -110,23 +112,11 @@ public abstract class Operation implements IOperation
         private final String   name;
         private final Collection<MetaOperation> metaData;
 
-        public Info(Class<?> opClass, String name, ParamDecl[] params)
+        public Info(Class<?> opClass, String name, ParamDecls params)
         {
             this.opClass  = opClass;
             this.name     = name;
-            this.metaData = createMetaData(name, params);
-        }
-
-        private static Collection<MetaOperation> createMetaData(String name, ParamDecl[] params)
-        {
-            final List<MetaArgument> args =
-                new ArrayList<MetaArgument>();
-
-            for (ParamDecl p : params)
-                args.add(p.getMetaData());
-
-            return Collections.singletonList(
-                new MetaOperation(name, args));
+            this.metaData = Collections.singletonList(new MetaOperation(name, params.getMetaData()));
         }
 
         @Override
