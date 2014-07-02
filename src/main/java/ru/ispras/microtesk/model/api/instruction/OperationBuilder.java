@@ -24,12 +24,16 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class OperationBuilder implements IOperationBuilder
 {
     private final String               opName;
     private final IOperation.IFactory factory;
     private final Operation.ParamDecls  decls;
-
+    private final Map<String, Object>    args;
+    
     public OperationBuilder(
         String opName,
         IOperation.IFactory factory,
@@ -39,6 +43,7 @@ public final class OperationBuilder implements IOperationBuilder
         this.opName  = opName;
         this.factory = factory;
         this.decls   = decls;
+        this.args    = new HashMap<String, Object>();
     }
 
     @Override
@@ -73,6 +78,6 @@ public final class OperationBuilder implements IOperationBuilder
     public IOperation build()
     {
         // TODO Auto-generated method stub
-        return factory.create(null);
+        return factory.create(args);
     }
 }
