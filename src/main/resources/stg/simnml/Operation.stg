@@ -26,14 +26,26 @@ op(name, file, pack, imps, simps, base, arg_names, arg_types, arg_checks, arg_tn
 
 body(name, arg_names, arg_types, arg_checks, arg_tnames, attrs) ::= <<
 <class_string_const("String", "NAME", name)><\n>
-public static final ParamDecls PARAMS = new ParamDecls()<arg_names, arg_tnames:{n, t | <\n>    .declareParam("<n>", <t>)}>;<\n>
+<class_const("IFactory", "FACTORY", new_op_factory(name))><\n>
+public static final ParamDecls DECLS = new ParamDecls()<arg_names, arg_tnames:{n, t | <\n>    .declareParam("<n>", <t>)}>;<\n>
 <class_const("IInfo", "INFO", new_op_info(name))><\n>
 <op_constructor(name, arg_names, arg_types, arg_checks)><\n>
 <attrs; separator="\n\n">
 >>
 
+new_op_factory(name) ::= <<
+new IFactory()
+{
+    @Override
+    public IOperation create(Map\<String, Object\> args)
+    {
+        return new <name>(args);
+    }
+}
+>>
+
 new_op_info(name) ::= <<
-new Info(<name>.class, NAME, PARAMS)
+new Info(<name>.class, NAME, FACTORY, DECLS)
 >>
 
 op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
@@ -42,6 +54,12 @@ public <name>(<arg_names, arg_types:{n, t | <t> <n>}; separator=", ">)
 {
 <if(arg_checks)><arg_checks; separator="\n"><\n><endif>
 <arg_names:op_arg_init(); separator="\n">
+}<\n>
+public <name>(Map\<String, Object\> args)
+{
+    <if(arg_names)>
+    this(<arg_names, arg_types:{n, t | <\n>        (<t>) getArgument("<n>", DECLS, args)}; separator=",">
+    );<\n><endif>
 }
 >>
 

@@ -25,6 +25,7 @@
 package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.Collection;
+import java.util.Map;
 
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
@@ -37,6 +38,11 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
 public interface IOperation extends IPrimitive
 {
+    public interface IFactory
+    {
+        public IOperation create(Map<String, Object> args);
+    }
+    
     /**
      * The IInfo interface provides information on an operation object or
      * a group of operation object united by an OR rule. This information

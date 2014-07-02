@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -97,6 +98,13 @@ public abstract class Operation implements IOperation
         }
     }
 
+    protected static Object getArgument(String name, ParamDecls decls, Map<String, Object> args)
+    {
+        final Object arg = args.get(name);
+        // TODO Check argument
+        return arg;
+    }
+
     /**
      * The Info class is an implementation of the IInfo interface.
      * It is designed to store information about a single operation. 
@@ -112,7 +120,7 @@ public abstract class Operation implements IOperation
         private final String   name;
         private final Collection<MetaOperation> metaData;
 
-        public Info(Class<?> opClass, String name, ParamDecls params)
+        public Info(Class<?> opClass, String name, IFactory factory, ParamDecls params)
         {
             this.opClass  = opClass;
             this.name     = name;

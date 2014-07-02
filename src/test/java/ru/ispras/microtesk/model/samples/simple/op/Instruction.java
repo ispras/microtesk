@@ -24,6 +24,8 @@
 
 package ru.ispras.microtesk.model.samples.simple.op;
 
+import java.util.Map;
+
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 
@@ -36,10 +38,20 @@ import ru.ispras.microtesk.model.api.instruction.Operation;
 
 public class Instruction extends Operation
 {
-    public static final ParamDecls PARAMS = new ParamDecls()
+    public static final IFactory FACTORY = new IFactory()
+    {
+        @Override
+        public IOperation create(Map<String, Object> args)
+        {
+            return new Instruction(args);
+        }
+    };
+
+    public static final ParamDecls DECLS = new ParamDecls()
         .declareParam("x", Arith_Mem_Inst.INFO);
 
-    public static final IInfo INFO = new Info(Instruction.class, Instruction.class.getSimpleName(), PARAMS);
+    public static final IInfo INFO = new Info(
+        Instruction.class, Instruction.class.getSimpleName(), FACTORY, DECLS);
 
     private final IOperation x;
 
@@ -47,6 +59,13 @@ public class Instruction extends Operation
     {
         assert Arith_Mem_Inst.INFO.isSupported(x);
         this.x = x;
+    }
+
+    public Instruction(Map<String, Object> args)
+    {
+        this(
+            (IOperation) getArgument("x", DECLS, args)
+        );
     }
 
     @Override

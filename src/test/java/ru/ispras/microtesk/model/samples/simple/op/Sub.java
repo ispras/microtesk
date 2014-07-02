@@ -24,6 +24,9 @@
 
 package ru.ispras.microtesk.model.samples.simple.op;
 
+import java.util.Map;
+
+import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
@@ -41,7 +44,20 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Sub extends Operation
 {
-    public static final IInfo INFO = new Info(Sub.class, Sub.class.getSimpleName(), new ParamDecls());
+    public static final IFactory FACTORY = new IFactory()
+    {
+        @Override
+        public IOperation create(Map<String, Object> args)
+        {
+            return new Sub(args);
+        }
+    };
+
+    public static final IInfo INFO = new Info(Sub.class, Sub.class.getSimpleName(), FACTORY, new ParamDecls());
+
+    public Sub() {}
+
+    public Sub(Map<String, Object> args) {}
 
     @Override 
     public String syntax() { return "sub"; }

@@ -88,6 +88,8 @@ public class OperationSTBuilder extends PrimitiveBaseSTBuilder
         t.add("file", specFileName);
         t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
 
+        t.add("imps", Map.class.getName());
+        t.add("imps", IOperation.class.getName());
         t.add("imps", Operation.class.getName());
         t.add("imps", String.format("%s.*", Type.class.getPackage().getName()));
         t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));

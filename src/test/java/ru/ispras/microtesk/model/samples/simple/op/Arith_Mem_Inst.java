@@ -24,6 +24,8 @@
 
 package ru.ispras.microtesk.model.samples.simple.op;
 
+import java.util.Map;
+
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -50,12 +52,22 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Arith_Mem_Inst extends Operation
 {
-    public static final ParamDecls PARAMS = new ParamDecls()
+    public static final IFactory FACTORY = new IFactory()
+    {
+        @Override
+        public IOperation create(Map<String, Object> args)
+        {
+            return new Arith_Mem_Inst(args);
+        }
+    };
+
+    public static final ParamDecls DECLS = new ParamDecls()
         .declareParam("y",   Add_sub_mov.INFO)
         .declareParam("op1", OPRNDL.INFO)
         .declareParam("op2", OPRNDR.INFO);
 
-    public static final IInfo INFO = new Info(Arith_Mem_Inst.class, Arith_Mem_Inst.class.getSimpleName(), PARAMS);
+    public static final IInfo INFO = new Info(
+        Arith_Mem_Inst.class, Arith_Mem_Inst.class.getSimpleName(), FACTORY, DECLS);
 
     private static final IOperation.IInfo        yINFO = Add_sub_mov.INFO;
     private static final IAddressingMode.IInfo op1INFO = OPRNDL.INFO;
@@ -74,6 +86,15 @@ public class Arith_Mem_Inst extends Operation
         this.y   = y;
         this.op1 = op1;
         this.op2 = op2;
+    }
+
+    public Arith_Mem_Inst(Map<String, Object> args)
+    {
+        this(
+            (IOperation) getArgument("y", DECLS, args),
+            (IAddressingMode) getArgument("op1", DECLS, args),
+            (IAddressingMode) getArgument("op2", DECLS, args)
+        );
     }
 
     @Override
