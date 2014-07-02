@@ -67,23 +67,27 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder
     }
 
     @Override
-    public void setArgumentValue(String name, String value) throws ConfigurationException
+    public IAddressingModeBuilder setArgumentValue(String name, String value) throws ConfigurationException
     {
         checkUndeclaredArgument(name);
         checkReassignment(name);
 
         final Data data = DataEngine.valueOf(decls.get(name), value);
-        args.put(name, data);        
+        args.put(name, data);
+        
+        return this;
     }
 
     @Override
-    public void setArgumentValue(String name, Integer value) throws ConfigurationException
+    public IAddressingModeBuilder setArgumentValue(String name, Integer value) throws ConfigurationException
     {
         checkUndeclaredArgument(name);
         checkReassignment(name);
         
         final Data data = DataEngine.valueOf(decls.get(name), value);
         args.put(name, data);
+        
+        return this;
     }
 
     @Override

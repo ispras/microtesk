@@ -62,6 +62,8 @@ public interface IOperation extends IPrimitive
          */
 
         public String getName();
+        
+        public Map<String, IOperationBuilder> createBuilders();
 
         /**
          * Checks if the current operation (or group of operations) implements

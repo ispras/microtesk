@@ -32,7 +32,7 @@ public interface IAddressingModeBuilder
      * @param value Mode argument value text.
      */
 
-    public void setArgumentValue(String name, String value) throws ConfigurationException;
+    public IAddressingModeBuilder setArgumentValue(String name, String value) throws ConfigurationException;
 
     /**
      * Initializes the specified addressing mode argument with
@@ -42,7 +42,7 @@ public interface IAddressingModeBuilder
      * @param value Mode argument integer value.
      */
 
-    public void setArgumentValue(String name, Integer value) throws ConfigurationException;
+    public IAddressingModeBuilder setArgumentValue(String name, Integer value) throws ConfigurationException;
 
     /**
      * Returns an addressing mode object created by the builder.

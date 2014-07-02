@@ -26,13 +26,13 @@ package ru.ispras.microtesk.model.api.instruction;
 
 public interface IOperationBuilder
 {
-    public void setArgument(String name, String value);
+    public IOperationBuilder setArgument(String name, String value);
 
-    public void setArgument(String name, int value);
+    public IOperationBuilder setArgument(String name, int value);
     
-    public void setArgument(String name, IAddressingMode value);
+    public IOperationBuilder setArgument(String name, IAddressingMode value);
 
-    public void setArgument(String name, IOperation value);
+    public IOperationBuilder setArgument(String name, IOperation value);
 
     public IOperation build();
 }

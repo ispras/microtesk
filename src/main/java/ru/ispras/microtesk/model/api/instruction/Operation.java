@@ -27,6 +27,7 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -116,15 +117,19 @@ public abstract class Operation implements IOperation
 
     public static final class Info implements IInfo
     {
-        private final Class<?> opClass;
-        private final String   name;
+        private final Class<?>  opClass;
+        private final String       name;
+        private final IFactory  factory;
+        private final ParamDecls  decls;
         private final Collection<MetaOperation> metaData;
 
-        public Info(Class<?> opClass, String name, IFactory factory, ParamDecls params)
+        public Info(Class<?> opClass, String name, IFactory factory, ParamDecls decls)
         {
             this.opClass  = opClass;
             this.name     = name;
-            this.metaData = Collections.singletonList(new MetaOperation(name, params.getMetaData()));
+            this.factory  = factory;
+            this.decls    = decls;
+            this.metaData = Collections.singletonList(new MetaOperation(name, decls.getMetaData()));
         }
 
         @Override
@@ -143,6 +148,15 @@ public abstract class Operation implements IOperation
         public Collection<MetaOperation> getMetaData()
         {
             return metaData;
+        }
+
+        @Override
+        public Map<String, IOperationBuilder> createBuilders()
+        {
+            final IOperationBuilder builder =
+                new OperationBuilder(name, factory, decls);
+
+            return Collections.singletonMap(name, builder);
         }        
     }
 
@@ -198,6 +212,18 @@ public abstract class Operation implements IOperation
         public Collection<MetaOperation> getMetaData()
         {
             return metaData;
+        }
+
+        @Override
+        public Map<String, IOperationBuilder> createBuilders()
+        {
+            final Map<String, IOperationBuilder> result =
+                new HashMap<String, IOperationBuilder>();
+
+            for (IInfo i : childs)
+                result.putAll(i.createBuilders());
+
+            return Collections.unmodifiableMap(result);
         } 
     }
 

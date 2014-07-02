@@ -170,8 +170,14 @@ public abstract class ProcessorModel implements IModel, ICallFactory
         if (null == opInfo)
            throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
 
-        // TODO
-        return null;
+        final Map<String, IOperationBuilder> builders = opInfo.createBuilders();
+
+        final IOperationBuilder result = builders.get(name);
+
+        if (null == result)
+            throw new  UnsupportedTypeException(String.format(ERROR_FORMAT, name));
+
+        return result;
     }
 
     // ICallFactory
