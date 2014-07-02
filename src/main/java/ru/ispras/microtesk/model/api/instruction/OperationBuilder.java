@@ -26,13 +26,19 @@ package ru.ispras.microtesk.model.api.instruction;
 
 public final class OperationBuilder implements IOperationBuilder
 {
-    
+    private final String               opName;
+    private final IOperation.IFactory factory;
+    private final Operation.ParamDecls  decls;
+
     public OperationBuilder(
         String opName,
         IOperation.IFactory factory,
-        Operation.ParamDecls decls)
+        Operation.ParamDecls decls
+        )
     {
-        
+        this.opName  = opName;
+        this.factory = factory;
+        this.decls   = decls;
     }
 
     @Override
@@ -67,6 +73,6 @@ public final class OperationBuilder implements IOperationBuilder
     public IOperation build()
     {
         // TODO Auto-generated method stub
-        return null;
+        return factory.create(null);
     }
 }
