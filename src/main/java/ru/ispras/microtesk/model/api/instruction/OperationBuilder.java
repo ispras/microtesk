@@ -64,7 +64,7 @@ public final class OperationBuilder implements IOperationBuilder
         if (decl.getKind() != Operation.Param.Kind.IMM)
             throw new UndeclaredException(String.format(
                 "The %s argument of the %s operation must be an immediate value.", name, opName));
-        
+
         final Location arg = new Location(DataEngine.valueOf(decl.getType(), value));
         args.put(name, arg);
 
@@ -102,8 +102,9 @@ public final class OperationBuilder implements IOperationBuilder
                 "The %s argument of the %s operation must be an addressing mode.", name, opName));
 
         if (!decl.isSupported(value))
-            ;
-        
+            throw new UndeclaredException(String.format(
+                "The %s argument of the %s operation has an incompatible type.", name, opName));
+
         args.put(name, value);
         return this;
     }
@@ -113,7 +114,7 @@ public final class OperationBuilder implements IOperationBuilder
     {
         checkUndeclaredArgument(name);
         checkReassignment(name);
-        
+
         final Operation.Param decl = decls.get(name);
 
         if (decl.getKind() != Operation.Param.Kind.MODE)
@@ -121,7 +122,8 @@ public final class OperationBuilder implements IOperationBuilder
                 "The %s argument of the %s operation must be an operation.", name, opName));
 
         if (!decl.isSupported(value))
-            ;
+            throw new UndeclaredException(String.format(
+                "The %s argument of the %s operation has an incompatible type.", name, opName));
 
         args.put(name, value);
         return this;
