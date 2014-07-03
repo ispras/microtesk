@@ -27,8 +27,12 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.exception.config.ReassignmentException;
+import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
 import ru.ispras.microtesk.model.api.exception.config.UninitializedException;
+import ru.ispras.microtesk.model.api.memory.Location;
 
 public final class OperationBuilder implements IOperationBuilder
 {
@@ -36,7 +40,7 @@ public final class OperationBuilder implements IOperationBuilder
     private final IOperation.IFactory        factory;
     private final Map<String, Operation.Param> decls;
     private final Map<String, Object>           args;
-    
+
     public OperationBuilder(
         String opName,
         IOperation.IFactory factory,
@@ -52,23 +56,54 @@ public final class OperationBuilder implements IOperationBuilder
     @Override
     public IOperationBuilder setArgument(String name, String value) throws ConfigurationException
     {
-        // TODO Auto-generated method stub
-        // args.put(name, value);
+        checkUndeclaredArgument(name);
+        checkReassignment(name);
+
+        final Operation.Param decl = decls.get(name);
+
+        if (decl.getKind() != Operation.Param.Kind.IMM)
+            throw new UndeclaredException(String.format(
+                "The %s argument of the %s operation must be an immediate value.", name, opName));
+        
+        final Location arg = new Location(DataEngine.valueOf(decl.getType(), value));
+        args.put(name, arg);
+
         return this;
     }
 
     @Override
     public IOperationBuilder setArgument(String name, int value) throws ConfigurationException
     {
-        // TODO Auto-generated method stub
-        // args.put(name, value);
+        checkUndeclaredArgument(name);
+        checkReassignment(name);
+
+        final Operation.Param decl = decls.get(name);
+
+        if (decl.getKind() != Operation.Param.Kind.IMM)
+            throw new UndeclaredException(String.format(
+                "The %s argument of the %s operation must be an immediate value.", name, opName));
+
+        final Location arg = new Location(DataEngine.valueOf(decl.getType(), value));
+        args.put(name, arg);
+
         return this;
     }
 
     @Override
     public IOperationBuilder setArgument(String name, IAddressingMode value) throws ConfigurationException
     {
-        // TODO Auto-generated method stub
+        checkUndeclaredArgument(name);
+        checkReassignment(name);
+
+        final Operation.Param decl = decls.get(name);
+
+        if (decl.getKind() != Operation.Param.Kind.MODE)
+            throw new UndeclaredException(String.format(
+                "The %s argument of the %s operation must be an addressing mode.", name, opName));
+
+        if (!decl.isSupported(value))
+            ;
+        
         args.put(name, value);
         return this;
     }
@@ -76,7 +111,18 @@ public final class OperationBuilder implements IOperationBuilder
     @Override
     public IOperationBuilder setArgument(String name, IOperation value) throws ConfigurationException
     {
-        // TODO Auto-generated method stub
+        checkUndeclaredArgument(name);
+        checkReassignment(name);
+        
+        final Operation.Param decl = decls.get(name);
+
+        if (decl.getKind() != Operation.Param.Kind.MODE)
+            throw new UndeclaredException(String.format(
+                "The %s argument of the %s operation must be an operation.", name, opName));
+
+        if (!decl.isSupported(value))
+            ;
+
         args.put(name, value);
         return this;
     }
@@ -86,6 +132,25 @@ public final class OperationBuilder implements IOperationBuilder
     {
         checkInitialized();
         return factory.create(args);
+    }
+    
+    private void checkUndeclaredArgument(String name) throws UndeclaredException
+    {
+        final String ERROR_FORMAT = 
+            "The %s argument is not declared for the %s operation.";
+
+        if (!decls.containsKey(name))
+            throw new UndeclaredException(String.format(ERROR_FORMAT, name, opName));
+    }
+    
+    private void checkReassignment(String name) throws ReassignmentException
+    {
+        final String ERROR_FORMAT = 
+            "The value of the %s argument has already been assigned for " +
+            "the current instance of the %s operation.";
+
+        if (args.containsKey(name))
+            throw new ReassignmentException(String.format(ERROR_FORMAT, name, opName));
     }
 
     private void checkInitialized() throws UninitializedException
