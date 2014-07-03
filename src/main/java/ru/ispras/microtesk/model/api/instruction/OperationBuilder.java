@@ -27,12 +27,15 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.exception.config.UninitializedException;
+
 public final class OperationBuilder implements IOperationBuilder
 {
-    private final String               opName;
-    private final IOperation.IFactory factory;
-    private final Operation.ParamDecls  decls;
-    private final Map<String, Object>    args;
+    private final String                      opName;
+    private final IOperation.IFactory        factory;
+    private final Map<String, Operation.Param> decls;
+    private final Map<String, Object>           args;
     
     public OperationBuilder(
         String opName,
@@ -42,42 +45,58 @@ public final class OperationBuilder implements IOperationBuilder
     {
         this.opName  = opName;
         this.factory = factory;
-        this.decls   = decls;
+        this.decls   = decls.getDecls();
         this.args    = new HashMap<String, Object>();
     }
 
     @Override
-    public IOperationBuilder setArgument(String name, String value)
+    public IOperationBuilder setArgument(String name, String value) throws ConfigurationException
     {
         // TODO Auto-generated method stub
+        // args.put(name, value);
         return this;
     }
 
     @Override
-    public IOperationBuilder setArgument(String name, int value)
+    public IOperationBuilder setArgument(String name, int value) throws ConfigurationException
     {
         // TODO Auto-generated method stub
+        // args.put(name, value);
         return this;
     }
 
     @Override
-    public IOperationBuilder setArgument(String name, IAddressingMode value)
+    public IOperationBuilder setArgument(String name, IAddressingMode value) throws ConfigurationException
     {
         // TODO Auto-generated method stub
+        args.put(name, value);
         return this;
     }
 
     @Override
-    public IOperationBuilder setArgument(String name, IOperation value)
+    public IOperationBuilder setArgument(String name, IOperation value) throws ConfigurationException
     {
         // TODO Auto-generated method stub
+        args.put(name, value);
         return this;
     }
 
     @Override
-    public IOperation build()
+    public IOperation build() throws ConfigurationException
     {
-        // TODO Auto-generated method stub
+        checkInitialized();
         return factory.create(args);
+    }
+
+    private void checkInitialized() throws UninitializedException
+    {
+        final String ERROR_FORMAT =
+            "The % argument of the %s operation is not initialized.";
+
+        for (String name : decls.keySet())
+        {
+            if (!args.containsKey(name))
+                throw new UninitializedException(String.format(ERROR_FORMAT, name, opName)); 
+        }
     }
 }

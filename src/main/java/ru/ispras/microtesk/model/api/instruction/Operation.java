@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +48,133 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
 public abstract class Operation implements IOperation
 {
+    interface Param
+    {
+        public enum Kind
+        {
+            IMM,
+            MODE,
+            OP
+        }
+
+        public String getName();
+        public Kind getKind();
+        public boolean isSupported(IPrimitive o);
+        public Type getType();
+        public MetaArgument getMetaData();
+    }
+
+    private static class ParamIMM implements Param
+    {
+        private final String name;
+        private final Type   type;
+
+        private ParamIMM(String name, Type type)
+        {
+            this.name = name;
+            this.type = type;
+        }
+
+        @Override
+        public String getName() { return name; }
+
+        @Override
+        public Kind getKind() { return Kind.IMM; }
+
+        @Override
+        public boolean isSupported(IPrimitive o) { return false; }
+
+        @Override
+        public Type getType() { return type; }
+
+        @Override
+        public MetaArgument getMetaData()
+        {
+            return new MetaArgument(
+                name, Collections.singletonList(AddressingModeImm.NAME));
+        }
+    }
+
+    private static class ParamMode implements Param
+    {
+        private final String name;
+        private final IAddressingMode.IInfo info;
+
+        private ParamMode(String name, IAddressingMode.IInfo info)
+        {
+            this.name = name;
+            this.info = info;
+        }
+
+        @Override
+        public String getName() { return name; }
+
+        @Override
+        public Kind getKind() { return Kind.MODE; }
+
+        @Override
+        public boolean isSupported(IPrimitive o)
+        {
+            return (o instanceof IAddressingMode)
+                && info.isSupported((IAddressingMode) o);
+        }
+
+        @Override
+        public Type getType() { return null; }
+
+        @Override
+        public MetaArgument getMetaData()
+        {
+            final List<String> modeNames =
+                new ArrayList<String>(info.getMetaData().size());
+
+            for (MetaAddressingMode mode : info.getMetaData())
+                modeNames.add(mode.getName());
+
+             return new MetaArgument(name, modeNames);
+        }
+    }
+
+    private static class ParamOp implements Param
+    {
+        private final String name;
+        private final IOperation.IInfo info;
+
+        private ParamOp(String name, IOperation.IInfo info)
+        {
+            this.name = name;
+            this.info = info;
+        }
+
+        @Override
+        public String getName() { return name; }
+
+        @Override
+        public Kind getKind() { return Kind.OP; }
+
+        @Override
+        public boolean isSupported(IPrimitive o)
+        {
+            return (o instanceof IOperation)
+                && info.isSupported((IOperation) o);
+        }
+
+        @Override
+        public Type getType() { return null; }
+
+        @Override
+        public MetaArgument getMetaData()
+        {
+            final List<String> opNames =
+                new ArrayList<String>(info.getMetaData().size());
+
+            for (MetaOperation op : info.getMetaData())
+                opNames.add(op.getName());
+
+            return new MetaArgument(name, opNames);
+        }
+    }
+    
     /**
      * The ParamDecl class is aimed to specify declarations
      * operation parameters. 
@@ -56,46 +184,44 @@ public abstract class Operation implements IOperation
 
     public final static class ParamDecls
     {
-        private final Collection<MetaArgument> metaData;
+        private final Map<String, Param> decls;
 
         public ParamDecls()
         {
-            this.metaData = new ArrayList<MetaArgument>();
+            this.decls = new LinkedHashMap<String, Param>();
         }
 
         public ParamDecls declareParam(String name, Type type)
         {
-            metaData.add(new MetaArgument(name, Collections.singletonList(AddressingModeImm.NAME)));
+            decls.put(name, new ParamIMM(name, type));
             return this;
         }
 
         public ParamDecls declareParam(String name, IAddressingMode.IInfo info)
         {
-            final List<String> modeNames =
-                new ArrayList<String>(info.getMetaData().size());
-
-            for (MetaAddressingMode mode : info.getMetaData())
-                modeNames.add(mode.getName());
-
-            metaData.add(new MetaArgument(name, modeNames));
+            decls.put(name, new ParamMode(name, info));
             return this;
         }
 
         public ParamDecls declareParam(String name, IOperation.IInfo info)
         {
-            final List<String> opNames =
-                new ArrayList<String>(info.getMetaData().size());
-
-            for (MetaOperation op : info.getMetaData())
-                opNames.add(op.getName());
-
-            metaData.add(new MetaArgument(name, opNames));
+            decls.put(name, new ParamOp(name, info));
             return this;
         }
 
         public Collection<MetaArgument> getMetaData()
         {
+            final List<MetaArgument> metaData = new ArrayList<MetaArgument>();
+
+            for (Param p : decls.values())
+                metaData.add(p.getMetaData());
+
             return metaData;
+        }
+
+        public Map<String, Param> getDecls()
+        {
+            return decls;
         }
     }
 
