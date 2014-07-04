@@ -52,19 +52,23 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Arith_Mem_Inst extends Operation
 {
+    public static final ParamDecls DECLS = new ParamDecls()
+        .declareParam("y",   Add_sub_mov.INFO)
+        .declareParam("op1", OPRNDL.INFO)
+        .declareParam("op2", OPRNDR.INFO);
+
     public static final IFactory FACTORY = new IFactory()
     {
         @Override
         public IOperation create(Map<String, Object> args)
         {
-            return new Arith_Mem_Inst(args);
+            final IOperation y = (IOperation) getArgument("y", DECLS, args); 
+            final IAddressingMode op1 = (IAddressingMode) getArgument("op1", DECLS, args);
+            final IAddressingMode op2 = (IAddressingMode) getArgument("op2", DECLS, args);
+
+            return new Arith_Mem_Inst(y, op1, op2);
         }
     };
-
-    public static final ParamDecls DECLS = new ParamDecls()
-        .declareParam("y",   Add_sub_mov.INFO)
-        .declareParam("op1", OPRNDL.INFO)
-        .declareParam("op2", OPRNDR.INFO);
 
     public static final IInfo INFO = new Info(
         Arith_Mem_Inst.class, Arith_Mem_Inst.class.getSimpleName(), FACTORY, DECLS);
@@ -88,15 +92,6 @@ public class Arith_Mem_Inst extends Operation
         this.op2 = op2;
     }
 
-    public Arith_Mem_Inst(Map<String, Object> args)
-    {
-        this(
-            (IOperation) getArgument("y", DECLS, args),
-            (IAddressingMode) getArgument("op1", DECLS, args),
-            (IAddressingMode) getArgument("op2", DECLS, args)
-        );
-    }
-
     @Override
     public String syntax() 
     {
@@ -110,14 +105,6 @@ public class Arith_Mem_Inst extends Operation
         // image  = format("%s %s 00%s", y.image, op1.image, op2.image)
         return null;
     }
-
-    /*
-    SRC1 = op1;
-    SRC2 = op2;
-    y.action;
-    op1 = DEST;
-    PC = PC + 2;
-    */
 
     @Override
     public void action()

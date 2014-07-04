@@ -49,15 +49,13 @@ public class Add extends Operation
         @Override
         public IOperation create(Map<String, Object> args)
         {
-            return new Add(args);
+            return new Add();
         }
     };
 
     public static final IInfo INFO = new Info(Add.class, Add.class.getSimpleName(), FACTORY, new ParamDecls());
 
     public Add() {}
-
-    public Add(Map<String, Object> args) {}
 
     @Override
     public String syntax() { return "add"; }

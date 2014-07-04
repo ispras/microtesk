@@ -49,15 +49,13 @@ public class Sub extends Operation
         @Override
         public IOperation create(Map<String, Object> args)
         {
-            return new Sub(args);
+            return new Sub();
         }
     };
 
     public static final IInfo INFO = new Info(Sub.class, Sub.class.getSimpleName(), FACTORY, new ParamDecls());
 
     public Sub() {}
-
-    public Sub(Map<String, Object> args) {}
 
     @Override 
     public String syntax() { return "sub"; }

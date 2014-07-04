@@ -47,15 +47,13 @@ public class Mov extends Operation
         @Override
         public IOperation create(Map<String, Object> args)
         {
-            return new Mov(args);
+            return new Mov();
         }
     };
 
     public static final IInfo INFO = new Info(Mov.class, Mov.class.getSimpleName(), FACTORY, new ParamDecls());
 
     public Mov() {}
-
-    public Mov(Map<String, Object> args) {}
 
     @Override 
     public String syntax() { return "mov"; }
