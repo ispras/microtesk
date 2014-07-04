@@ -61,9 +61,8 @@ public final class AddressingModeImm extends AddressingMode
             AddressingModeImm.class,
             NAME,
             FACTORY,
-            new ParamDeclBuilder()
+            new ParamDecls()
                 .declareParam(PARAM_NAME, type)
-                .build()
             );
     }
 

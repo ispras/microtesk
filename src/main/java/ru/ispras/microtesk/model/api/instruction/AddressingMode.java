@@ -48,30 +48,30 @@ import ru.ispras.microtesk.model.api.type.Type;
 public abstract class AddressingMode implements IAddressingMode
 {
     /**
-     * The ParamDeclBuilder class provides facilities to build
+     * The ParamDeclsr class provides facilities to build
      * a table of addressing mode parameter declarations.
      * 
      * @author Andrei Tatarnikov
      */
 
-    public static class ParamDeclBuilder
+    public static class ParamDecls
     {
         private final Map<String, Type> decls;
 
-        public ParamDeclBuilder()
+        public ParamDecls()
         {
             this.decls = new LinkedHashMap<String, Type>();
         }
 
-        public ParamDeclBuilder declareParam(String name, Type type)
+        public ParamDecls declareParam(String name, Type type)
         {
             decls.put(name, type);
             return this;
         }
 
-        public Map<String, Type> build()
+        public Map<String, Type> getDecls()
         {
-            return Collections.unmodifiableMap(decls);
+            return decls;
         }
     }
 
@@ -85,11 +85,11 @@ public abstract class AddressingMode implements IAddressingMode
      * @return The location that stores the specified addressing mode argument. 
      */
 
-    protected static Location getArgument(String name, Map<String, Type> decls, Map<String, Data> args)
+    protected static Location getArgument(String name, ParamDecls decls, Map<String, Data> args)
     {
         final Data data = args.get(name);
 
-        assert decls.get(name).equals(data.getType()) :
+        assert decls.getDecls().get(name).equals(data.getType()) :
             String.format("The %s parameter does not exist.", name);
 
         return new Location(data);
@@ -113,12 +113,12 @@ public abstract class AddressingMode implements IAddressingMode
         
         private Collection<MetaAddressingMode> metaData;
 
-        public Info(Class<?> modeClass, String name, IFactory factory, Map<String, Type> decls)
+        public Info(Class<?> modeClass, String name, IFactory factory, ParamDecls decls)
         {
             this.modeClass = modeClass;
             this.name      = name;
             this.factory   = factory;
-            this.decls     = decls;
+            this.decls     = decls.getDecls();
             this.metaData  = null;
         }
 

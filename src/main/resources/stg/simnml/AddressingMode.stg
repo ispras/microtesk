@@ -27,14 +27,13 @@ mode(name, file, pack, imps, simps, base, param_names, param_types, attrs, ret) 
 body(name, param_names, param_types, attrs, ret) ::= <<
 <class_string_const("String", "NAME", name)><\n>
 <class_const("IFactory", "FACTORY", new_mode_factory(name))><\n>
-<class_const(decl_map_type(), "DECLS", param_decls(param_names, param_types))><\n>
+<class_const("ParamDecls", "DECLS", param_decls(param_names, param_types))><\n>
 <class_const("IInfo", "INFO", new_mode_info(name))><\n>
 <mode_constructor(name, param_names)><\n>
 <attrs; separator="\n\n">
 <if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>;})><endif>
 >>
 
-decl_map_type() ::= <<Map\<String, Type\>>>
 data_map_type() ::= <<Map\<String, Data\>>>
 
 new_mode_factory(name) ::= <<
@@ -53,7 +52,7 @@ new Info(<name>.class, NAME, FACTORY, DECLS)
 >>
 
 param_decls(param_names, param_types) ::= <<
-new ParamDeclBuilder()<param_names, param_types:{n, t | <\n>    .declareParam("<n>", <t>)}>.build()
+new ParamDecls()<param_names, param_types:{n, t | <\n>    .declareParam("<n>", <t>)}>
 >>
 
 mode_constructor(name, param_names) ::= <<

@@ -30,7 +30,6 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.DataEngine;
-import ru.ispras.microtesk.model.api.type.Type;
 
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
@@ -44,8 +43,8 @@ public class MEM extends AddressingMode
 {
     public static final String NAME = "MEM";
 
-    public static final Map<String, Type> DECLS = new ParamDeclBuilder()
-        .declareParam("i", index).build();
+    public static final ParamDecls DECLS = new ParamDecls()
+        .declareParam("i", index);
 
     public static final IFactory FACTORY = new IFactory()
     {
