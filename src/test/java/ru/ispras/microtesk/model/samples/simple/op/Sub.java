@@ -26,10 +26,13 @@ package ru.ispras.microtesk.model.samples.simple.op;
 
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
+import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;
+import ru.ispras.microtesk.model.samples.simple.mode.OPRNDR;
 
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
@@ -44,16 +47,56 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Sub extends Operation
 {
-    public static final IFactory FACTORY = new IFactory()
+    private static class Info extends InfoAndRule
     {
+        Info()
+        {
+            super(
+                Sub.class,
+                Sub.class.getSimpleName(),
+                new ParamDecls()
+            );
+        }
+
         @Override
         public IOperation create(Map<String, Object> args)
         {
             return new Sub();
         }
-    };
+    }
+    
+    // A short way to instantiate the operation with together with parent operations.
+    @SuppressWarnings("unused")
+    private static class Info_Instruction extends InfoAndRule
+    {
+        Info_Instruction()
+        {
+            super(
+               Instruction.class, 
+               "SUB",
+               new ParamDecls()
+                   .declareParam("op1", OPRNDL.INFO)
+                   .declareParam("op2", OPRNDR.INFO)
+            );
+        }
 
-    public static final IInfo INFO = new Info(Sub.class, Sub.class.getSimpleName(), FACTORY, new ParamDecls());
+        @Override
+        public IOperation create(Map<String, Object> args)
+        {
+            final IAddressingMode op1 = (IAddressingMode) getArgument("op1", args);
+            final IAddressingMode op2 = (IAddressingMode) getArgument("op2", args);
+
+            return new Instruction(
+                new Arith_Mem_Inst(
+                    new Sub(),
+                    op1,
+                    op2
+                )
+            );
+        }
+    }
+
+    public static final IInfo INFO = new Info();
 
     public Sub() {}
 

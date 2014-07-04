@@ -52,26 +52,32 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public class Arith_Mem_Inst extends Operation
 {
-    public static final ParamDecls DECLS = new ParamDecls()
-        .declareParam("y",   Add_sub_mov.INFO)
-        .declareParam("op1", OPRNDL.INFO)
-        .declareParam("op2", OPRNDR.INFO);
-
-    public static final IFactory FACTORY = new IFactory()
+    private static class Info extends InfoAndRule
     {
+        Info()
+        {
+            super(
+                Arith_Mem_Inst.class,
+                Arith_Mem_Inst.class.getSimpleName(),
+                new ParamDecls()
+                    .declareParam("y",   Add_sub_mov.INFO)
+                    .declareParam("op1", OPRNDL.INFO)
+                    .declareParam("op2", OPRNDR.INFO)
+            );
+        }
+
         @Override
         public IOperation create(Map<String, Object> args)
         {
-            final IOperation y = (IOperation) getArgument("y", DECLS, args); 
-            final IAddressingMode op1 = (IAddressingMode) getArgument("op1", DECLS, args);
-            final IAddressingMode op2 = (IAddressingMode) getArgument("op2", DECLS, args);
+            final IOperation        y = (IOperation) getArgument("y", args); 
+            final IAddressingMode op1 = (IAddressingMode) getArgument("op1", args);
+            final IAddressingMode op2 = (IAddressingMode) getArgument("op2", args);
 
             return new Arith_Mem_Inst(y, op1, op2);
         }
-    };
+    }
 
-    public static final IInfo INFO = new Info(
-        Arith_Mem_Inst.class, Arith_Mem_Inst.class.getSimpleName(), FACTORY, DECLS);
+    public static final IInfo INFO = new Info();
 
     private static final IOperation.IInfo        yINFO = Add_sub_mov.INFO;
     private static final IAddressingMode.IInfo op1INFO = OPRNDL.INFO;

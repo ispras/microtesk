@@ -36,23 +36,29 @@ import ru.ispras.microtesk.model.api.instruction.Operation;
     actions = x.action
 */
 
-public class Instruction extends Operation
+public final class Instruction extends Operation
 {
-    public static final ParamDecls DECLS = new ParamDecls()
-        .declareParam("x", Arith_Mem_Inst.INFO);
-
-    public static final IFactory FACTORY = new IFactory()
+    private static class Info extends InfoAndRule
     {
+        Info()
+        {
+            super(
+                Instruction.class,
+                Instruction.class.getSimpleName(),
+                new ParamDecls()
+                    .declareParam("x", Arith_Mem_Inst.INFO)
+            );
+        }
+
         @Override
         public IOperation create(Map<String, Object> args)
         {
-            final IOperation x = (IOperation) getArgument("x", DECLS, args);
+            final IOperation x = (IOperation) getArgument("x", args);
             return new Instruction(x);
         }
-    };
+    }
 
-    public static final IInfo INFO = new Info(
-        Instruction.class, Instruction.class.getSimpleName(), FACTORY, DECLS);
+    public static final IInfo INFO = new Info();
 
     private final IOperation x;
 

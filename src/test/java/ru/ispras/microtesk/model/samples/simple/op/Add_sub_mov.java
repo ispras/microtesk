@@ -30,7 +30,7 @@ import ru.ispras.microtesk.model.api.instruction.Operation;
    Add_sub_mov = Add | Sub | Mov
  */
 
-public abstract class Add_sub_mov extends Operation
+public final class Add_sub_mov extends Operation
 {
     public static final IInfo INFO = new InfoOrRule(Add_sub_mov.class.getSimpleName(),
         Add.INFO,

@@ -241,49 +241,54 @@ public abstract class Operation implements IOperation
      * @author Andrei Tatarnikov
      */
 
-    public static final class Info implements IInfo
+    public static abstract class InfoAndRule implements IInfo, IFactory
     {
         private final Class<?>  opClass;
         private final String       name;
-        private final IFactory  factory;
         private final ParamDecls  decls;
         private final Collection<MetaOperation> metaData;
-
-        public Info(Class<?> opClass, String name, IFactory factory, ParamDecls decls)
+        
+        public InfoAndRule(Class<?> opClass, String name, ParamDecls decls)
         {
             this.opClass  = opClass;
             this.name     = name;
-            this.factory  = factory;
             this.decls    = decls;
             this.metaData = Collections.singletonList(new MetaOperation(name, decls.getMetaData()));
         }
 
         @Override
-        public String getName()
+        public final String getName()
         {
             return name;
         }
 
         @Override
-        public boolean isSupported(IOperation op)
+        public final boolean isSupported(IOperation op)
         {
             return opClass.equals(op.getClass());
         }
 
         @Override
-        public Collection<MetaOperation> getMetaData()
+        public final Collection<MetaOperation> getMetaData()
         {
             return metaData;
         }
 
         @Override
-        public Map<String, IOperationBuilder> createBuilders()
+        public final Map<String, IOperationBuilder> createBuilders()
         {
             final IOperationBuilder builder =
-                new OperationBuilder(name, factory, decls);
+                new OperationBuilder(name, this, decls);
 
             return Collections.singletonMap(name, builder);
-        }        
+        }
+
+        protected final Object getArgument(String name, Map<String, Object> args)
+        {
+            final Object arg = args.get(name);
+            // TODO Check argument
+            return arg;
+        }
     }
 
     /**
