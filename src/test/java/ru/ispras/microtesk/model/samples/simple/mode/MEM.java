@@ -41,27 +41,33 @@ image  = format("%6b", i)
 
 public class MEM extends AddressingMode
 {
-    public static final String NAME = "MEM";
-
-    public static final ParamDecls DECLS = new ParamDecls()
-        .declareParam("i", index);
-
-    public static final IFactory FACTORY = new IFactory()
+    private static final class Info extends InfoAndRule
     {
+        Info()
+        {
+            super(
+                MEM.class,
+                "MEM",
+                new ParamDecls()
+                    .declareParam("i", index)
+            );
+        }
+        
         @Override
         public IAddressingMode create(Map<String, Data> args)
         {
-            return new MEM(args);
+            final Location i = getArgument("i", args);
+            return new MEM(i);
         }
-    };
+    }
 
-    public static final IInfo INFO = new Info(MEM.class, NAME, FACTORY, DECLS);
+    public static final IInfo INFO = new Info();
 
     private final Location i;
 
-    public MEM(Map<String, Data> args)
+    public MEM(Location i)
     {
-        this.i = getArgument("i", DECLS, args);
+        this.i = i;
     }
  
     @Override

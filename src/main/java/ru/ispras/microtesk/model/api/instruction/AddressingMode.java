@@ -54,7 +54,7 @@ public abstract class AddressingMode implements IAddressingMode
      * @author Andrei Tatarnikov
      */
 
-    public static class ParamDecls
+    protected static class ParamDecls
     {
         private final Map<String, Type> decls;
 
@@ -76,26 +76,6 @@ public abstract class AddressingMode implements IAddressingMode
     }
 
     /**
-     * Extracts the specified argument from the table of arguments and
-     * wraps it into a location object. 
-     * 
-     * @param name The name of the argument.
-     * @param decls A table of parameter declarations.
-     * @param args A table of parameters.
-     * @return The location that stores the specified addressing mode argument. 
-     */
-
-    protected static Location getArgument(String name, ParamDecls decls, Map<String, Data> args)
-    {
-        final Data data = args.get(name);
-
-        assert decls.getDecls().get(name).equals(data.getType()) :
-            String.format("The %s parameter does not exist.", name);
-
-        return new Location(data);
-    }
-    
-    /**
      * The AddressingMode.Info class is an implementation of the IInfo interface
      * that provides logic for storing information about a single addressing mode.
      * The class is to be used by generated classes that implement behavior of
@@ -104,41 +84,39 @@ public abstract class AddressingMode implements IAddressingMode
      * @author Andrei Tatarnikov
      */
 
-    protected static final class Info implements IInfo
+    protected static abstract class InfoAndRule implements IInfo, IFactory
     {
         private final Class<?>          modeClass;
         private final String            name;
-        private final IFactory          factory;
         private final Map<String, Type> decls;
         
         private Collection<MetaAddressingMode> metaData;
 
-        public Info(Class<?> modeClass, String name, IFactory factory, ParamDecls decls)
+        public InfoAndRule(Class<?> modeClass, String name, ParamDecls decls)
         {
             this.modeClass = modeClass;
             this.name      = name;
-            this.factory   = factory;
             this.decls     = decls.getDecls();
             this.metaData  = null;
         }
 
         @Override
-        public String getName()
+        public final String getName()
         {
             return name;
         }
 
         @Override
-        public Map<String, IAddressingModeBuilder> createBuilders()
+        public final Map<String, IAddressingModeBuilder> createBuilders()
         {
             final IAddressingModeBuilder builder =
-                new AddressingModeBuilder(name, factory, decls);
+                new AddressingModeBuilder(name, this, decls);
 
             return Collections.singletonMap(name, builder);
         }
 
         @Override
-        public Collection<MetaAddressingMode> getMetaData()
+        public final Collection<MetaAddressingMode> getMetaData()
         {
             if (null == metaData)
                 metaData = createMetaData(name, decls.keySet());
@@ -155,12 +133,31 @@ public abstract class AddressingMode implements IAddressingMode
         }
 
         @Override
-        public boolean isSupported(IAddressingMode mode)
+        public final boolean isSupported(IAddressingMode mode)
         {
             return modeClass.equals(mode.getClass());
         }
+        
+        /**
+         * Extracts the specified argument from the table of arguments and
+         * wraps it into a location object. 
+         * 
+         * @param name The name of the argument.
+         * @param args A table of parameters.
+         * @return The location that stores the specified addressing mode argument. 
+         */
+        
+        protected final Location getArgument(String name, Map<String, Data> args)
+        {
+            final Data data = args.get(name);
+
+            assert decls.get(name).equals(data.getType()) :
+                String.format("The %s parameter does not exist.", name);
+
+            return new Location(data);
+        }
     }
-    
+
     /**
      * The InfoOrRule class is an implementation of the IInfo interface
      * that provides logic for storing information about a group of addressing

@@ -34,34 +34,40 @@ import ru.ispras.microtesk.model.api.data.DataEngine;
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 /*
-mode IREG(i: nibble)=M[R[i]]
+mode IREG(i: nibble) = M[R[i]]
 syntax = format("(R%d)", i)
 image  = format("00%4b", i)
 */    
 
 public class IREG extends AddressingMode
 {
-    public static final String NAME = "IREG";
-
-    public static final ParamDecls DECLS = new ParamDecls()
-        .declareParam("i", nibble);
-
-    public static final IFactory FACTORY = new IFactory()
+    private static final class Info extends InfoAndRule
     {
+        Info()
+        {
+            super(
+               IREG.class,
+               "IREG",
+               new ParamDecls()
+                   .declareParam("i", nibble)
+            );
+        }
+        
         @Override
         public IAddressingMode create(Map<String, Data> args)
         {
-            return new IREG(args);
+            final Location i = getArgument("i", args);
+            return new IREG(i);
         }
-    };
+    }
 
-    public static final IInfo INFO = new Info(IREG.class, NAME, FACTORY, DECLS);
+    public static final IInfo INFO = new Info();
 
     private Location i;
 
-    public IREG(Map<String, Data> args)
+    public IREG(Location i)
     {
-        this.i = getArgument("i", DECLS, args);
+        this.i = i;
     }
 
     @Override

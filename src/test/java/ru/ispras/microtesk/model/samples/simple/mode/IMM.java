@@ -40,28 +40,29 @@ syntax = format("[%d]", i)
 image = format("11%4b", i)
 */
 
-public class IMM extends AddressingMode
+public final class IMM extends AddressingMode
 {
-    public static final String NAME = "IMM";
-
-    public static final ParamDecls DECLS = new ParamDecls()
-        .declareParam("i", byte_t);
-
-    public static final IFactory FACTORY = new IFactory()
+    private static final class Info extends InfoAndRule
     {
+        Info()
+        {
+            super(
+                IMM.class,
+                "IMM",
+                new ParamDecls()
+                    .declareParam("i", byte_t)
+            );
+        }
+        
         @Override
         public IAddressingMode create(Map<String, Data> args)
         {
-            return new IMM(args);
+            final Location i = getArgument("i", args);
+            return new IMM(i);
         }
-    };
-
-    public static final IInfo INFO = new Info(IMM.class, NAME, FACTORY, DECLS);
-    
-    public IMM(Map<String, Data> args)
-    {
-        this(getArgument("i", DECLS, args));
     }
+
+    public static final IInfo INFO = new Info();
 
     private Location i;
 

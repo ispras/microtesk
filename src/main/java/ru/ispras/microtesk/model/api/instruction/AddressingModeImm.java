@@ -46,35 +46,36 @@ public final class AddressingModeImm extends AddressingMode
     public static final String NAME = "#IMM";
     public static final String PARAM_NAME = "value";
 
-    public static final IFactory FACTORY = new IFactory()
+    private static final class Info extends InfoAndRule
     {
+        Info(Type type)
+        {
+            super(
+                AddressingModeImm.class,
+                NAME,
+                new ParamDecls()
+                    .declareParam(PARAM_NAME, type)
+            );
+        }
+        
         @Override
         public IAddressingMode create(Map<String, Data> args)
         {
-            return new AddressingModeImm(args);
+            final Location value = getArgument(PARAM_NAME, args);
+            return new AddressingModeImm(value);
         }
-    };
+    }
 
     public static IInfo INFO(Type type)
     {
-        return new Info(
-            AddressingModeImm.class,
-            NAME,
-            FACTORY,
-            new ParamDecls()
-                .declareParam(PARAM_NAME, type)
-            );
+        return new Info(type);
     }
 
     private final Location value;
 
-    public AddressingModeImm(Map<String, Data> args)
+    public AddressingModeImm(Location value)
     {
-        assert args.containsKey(PARAM_NAME) :
-            String.format("The %s parameter does not exist.", PARAM_NAME);
-
-        final Data data = args.get(PARAM_NAME);
-        this.value = new Location(data);
+        this.value = value;
     }
 
     @Override

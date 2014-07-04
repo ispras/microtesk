@@ -26,30 +26,36 @@ mode(name, file, pack, imps, simps, base, param_names, param_types, attrs, ret) 
 
 body(name, param_names, param_types, attrs, ret) ::= <<
 <class_string_const("String", "NAME", name)><\n>
-<class_const("IFactory", "FACTORY", new_mode_factory(name))><\n>
-<class_const("ParamDecls", "DECLS", param_decls(param_names, param_types))><\n>
-<class_const("IInfo", "INFO", new_mode_info(name))><\n>
+<class(["private", "static", "final"],
+       "Info",
+       "InfoAndRule",
+       false,
+       info_body(name, param_names, param_types))
+>
+<class_const("IInfo", "INFO", "new Info()")><\n>
 <mode_constructor(name, param_names)><\n>
 <attrs; separator="\n\n">
 <if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>;})><endif>
 >>
 
-data_map_type() ::= <<Map\<String, Data\>>>
-
-new_mode_factory(name) ::= <<
-new IFactory()
+info_body(name, param_names, param_types) ::= <<
+Info()
 {
-    @Override
-    public IAddressingMode create(<data_map_type()> args)
-    {
-        return new <name>(args);
-    }
+    super(
+       <name>.class,
+       "<name>",
+       <param_decls(param_names, param_types)>
+    );
+}<\n>
+@Override
+public IAddressingMode create(<data_map_type()> args)
+{
+    <param_names:{n | final Location <n> = getArgument("<n>", args);}; separator="\n">
+    return new <name>(<param_names :{n | <n>}; separator=", ">);
 }
 >>
 
-new_mode_info(name) ::= <<
-new Info(<name>.class, NAME, FACTORY, DECLS)
->>
+data_map_type() ::= <<Map\<String, Data\>>>
 
 param_decls(param_names, param_types) ::= <<
 new ParamDecls()<param_names, param_types:{n, t | <\n>    .declareParam("<n>", <t>)}>
@@ -57,18 +63,14 @@ new ParamDecls()<param_names, param_types:{n, t | <\n>    .declareParam("<n>", <
 
 mode_constructor(name, param_names) ::= <<
 <if(param_names)><param_names:mode_param_def(); separator="\n"><\n><endif>
-public <name>(<data_map_type()> args)
+public <name>(<param_names:{n | Location <n>}; separator=", ">)
 {
-    <param_names:mode_param_init(); separator="\n">
+    <param_names:{n | this.<n> = <n>;}; separator="\n">
 }
 >>
 
 mode_param_def(param_name) ::= <<
 private final Location <param_name>;
->>
-
-mode_param_init(param_name) ::= <<
-this.<param_name> = getArgument("<param_name>", DECLS, args);
 >>
 
 mode_attribute(name, rettype, stmts) ::= <<
