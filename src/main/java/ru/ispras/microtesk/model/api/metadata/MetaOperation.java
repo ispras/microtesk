@@ -25,6 +25,7 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * The MetaOperation class stores information on the given operation.
@@ -36,14 +37,25 @@ public final class MetaOperation
 {
     private final String name;
     private final Collection<MetaArgument> args;
+    private final Collection<MetaShortcut> shortcuts;
 
     public MetaOperation(
         String name,
         Collection<MetaArgument> args
         )
     {
+        this(name, args, Collections.<MetaShortcut>emptyList());
+    }
+
+    public MetaOperation(
+        String name,
+        Collection<MetaArgument> args,
+        Collection<MetaShortcut> shortcuts
+        )
+    {
         this.name = name;
         this.args = args;
+        this.shortcuts = shortcuts;
     }
 
     /**
@@ -66,5 +78,17 @@ public final class MetaOperation
     public Iterable<MetaArgument> getArguments()
     {
         return args;
+    }
+
+    /**
+     * Returns a collection of shortcuts applicable to the given
+     * operation in different contexts.
+     * 
+     * @return A collection of shortcuts.
+     */
+    
+    public Iterable<MetaShortcut> getShortcuts()
+    {
+        return shortcuts;
     }
 }
