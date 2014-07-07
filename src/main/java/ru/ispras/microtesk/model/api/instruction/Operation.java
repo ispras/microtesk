@@ -258,6 +258,11 @@ public abstract class Operation implements IOperation
 
             return result;
         }
+
+        public IInfo getShortcut(String contextName)
+        {
+            return shortcuts.get(contextName);
+        }
     }
 
     /**
@@ -274,22 +279,25 @@ public abstract class Operation implements IOperation
         private final Class<?>       opClass;
         private final String            name;
         private final ParamDecls       decls;
+        private final Shortcuts    shortcuts;
         private final MetaOperation metaData;
-        
+
         public InfoAndRule(Class<?> opClass, String name, ParamDecls decls)
         {
-            this.opClass  = opClass;
-            this.name     = name;
-            this.decls    = decls;
-            this.metaData = new MetaOperation(name, decls.getMetaData());
+            this.opClass   = opClass;
+            this.name      = name;
+            this.decls     = decls;
+            this.shortcuts = new Shortcuts();
+            this.metaData  = new MetaOperation(name, decls.getMetaData());
         }
-        
+
         public InfoAndRule(Class<?> opClass, String name, ParamDecls decls, Shortcuts shortcuts)
         {
-            this.opClass  = opClass;
-            this.name     = name;
-            this.decls    = decls;
-            this.metaData = new MetaOperation(name, decls.getMetaData(), shortcuts.getMetaData());
+            this.opClass   = opClass;
+            this.name      = name;
+            this.decls     = decls;
+            this.shortcuts = shortcuts;
+            this.metaData  = new MetaOperation(name, decls.getMetaData(), shortcuts.getMetaData());
         }
 
         @Override
@@ -324,6 +332,16 @@ public abstract class Operation implements IOperation
             final Object arg = args.get(name);
             // TODO Check argument
             return arg;
+        }
+
+        public final Map<String, IOperationBuilder> createBuildersForShortcut(String contextName)
+        {
+            final IInfo shortcut = shortcuts.getShortcut(contextName);
+
+            if (null == shortcut)
+                return null;
+
+            return shortcut.createBuilders();
         }
     }
 
@@ -391,6 +409,12 @@ public abstract class Operation implements IOperation
                 result.putAll(i.createBuilders());
 
             return Collections.unmodifiableMap(result);
+        }
+
+        @Override
+        public Map<String, IOperationBuilder> createBuildersForShortcut(String contextName)
+        {
+            return null;
         } 
     }
 

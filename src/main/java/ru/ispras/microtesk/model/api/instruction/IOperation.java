@@ -62,8 +62,9 @@ public interface IOperation extends IPrimitive
          */
 
         public String getName();
-        
+
         public Map<String, IOperationBuilder> createBuilders();
+        public Map<String, IOperationBuilder> createBuildersForShortcut(String contextName);
 
         /**
          * Checks if the current operation (or group of operations) implements
@@ -86,6 +87,6 @@ public interface IOperation extends IPrimitive
          * operations.  
          */
 
-        public Collection<MetaOperation> getMetaData(); 
+        public Collection<MetaOperation> getMetaData();
     }
 }

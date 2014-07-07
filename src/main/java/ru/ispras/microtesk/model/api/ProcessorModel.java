@@ -158,19 +158,23 @@ public abstract class ProcessorModel implements IModel, ICallFactory
 
     // ICallFactory
     @Override
-    public final IOperationBuilder newOpInstance(String name, String rootName) throws ConfigurationException
+    public final IOperationBuilder newOpInstance(String name, String contextName) throws ConfigurationException
     {
         final String ERROR_FORMAT = "The %s operation is not defined.";
 
         if (null == name)
             throw new NullPointerException();
 
-        final IOperation.IInfo opInfo = ops.getModeInfo(name); 
+        final IOperation.IInfo opInfo = ops.getOpInfo(name); 
 
         if (null == opInfo)
            throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
 
-        final Map<String, IOperationBuilder> builders = opInfo.createBuilders();
+        Map<String, IOperationBuilder> builders = null;
+        
+        builders = opInfo.createBuildersForShortcut(contextName);
+        if (null == builders)
+            builders = opInfo.createBuilders();
 
         final IOperationBuilder result = builders.get(name);
 
@@ -254,7 +258,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory
             }
         }
 
-        public IOperation.IInfo getModeInfo(String name)
+        public IOperation.IInfo getOpInfo(String name)
         {
             return items.get(name);
         }
