@@ -54,7 +54,9 @@ public class Sub extends Operation
             super(
                 Sub.class,
                 Sub.class.getSimpleName(),
-                new ParamDecls()
+                new ParamDecls(),
+                new Shortcuts()
+                    .addShortcut("#root", new Info_Instruction())
             );
         }
 
@@ -66,7 +68,6 @@ public class Sub extends Operation
     }
     
     // A short way to instantiate the operation with together with parent operations.
-    @SuppressWarnings("unused")
     private static class Info_Instruction extends InfoAndRule
     {
         Info_Instruction()

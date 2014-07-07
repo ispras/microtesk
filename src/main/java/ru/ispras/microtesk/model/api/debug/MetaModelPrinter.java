@@ -30,6 +30,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
+import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
 import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 
 public final class MetaModelPrinter
@@ -59,7 +60,7 @@ public final class MetaModelPrinter
         printSepator();
         printInstructionMetaData();
     }
-    
+
     public void printSepator()
     {
         System.out.println("************************************************");
@@ -115,25 +116,20 @@ public final class MetaModelPrinter
             int count = 0;
             for(MetaArgument a : o.getArguments())
             {
-                final StringBuilder asb = new StringBuilder();
-
-                asb.append("   ");
-                asb.append(a.getName());
-                asb.append(" [");
-
-                boolean isFirstMode = true;
-                for (String tn : a.getTypeNames())
-                {
-                    if (isFirstMode) isFirstMode = false; else asb.append(", ");
-                    asb.append(tn);
-                }
-
-                asb.append("]");
-                System.out.println(asb);
-                
+                printArgument(a);
                 count++;
             }
 
+            if (0 == count) System.out.println("   <none>");
+            
+            System.out.println("Shortcuts:");
+
+            count = 0;
+            for(MetaShortcut s : o.getShortcuts())
+            {
+                printShortcut(s);
+                count++;
+            }
             if (0 == count) System.out.println("   <none>");
 
             System.out.println();
@@ -152,25 +148,9 @@ public final class MetaModelPrinter
             int count = 0;
             for(MetaArgument a : i.getArguments())
             {
-                final StringBuilder asb = new StringBuilder();
-
-                asb.append("   ");
-                asb.append(a.getName());
-                asb.append(" [");
-
-                boolean isFirstMode = true;
-                for (String tn : a.getTypeNames())
-                {
-                    if (isFirstMode) isFirstMode = false; else asb.append(", ");
-                    asb.append(tn);
-                }
-
-                asb.append("]");
-                System.out.println(asb);
-                
+                printArgument(a);
                 count++;
             }
-            
             if (0 == count) System.out.println("   <none>");
 
             printSituationMetaData(i);
@@ -183,7 +163,47 @@ public final class MetaModelPrinter
     {
         System.out.println("Situations:");
 
+        int count = 0;
         for (MetaSituation s: metaInstruction.getSituations())
+        {
             System.out.println("   " + s.getName());
+            count++;
+        }
+        if (0 == count) System.out.println("   <none>");
+    }
+
+    private void printArgument(MetaArgument a)
+    {
+        final StringBuilder asb = new StringBuilder();
+
+        asb.append("   ");
+        asb.append(a.getName());
+        asb.append(" [");
+
+        boolean isFirstMode = true;
+        for (String tn : a.getTypeNames())
+        {
+            if (isFirstMode) isFirstMode = false; else asb.append(", ");
+            asb.append(tn);
+        }
+
+        asb.append("]");
+        System.out.println(asb);
+    }
+
+    private void printShortcut(MetaShortcut s)
+    {
+        System.out.printf("   Name: %s%n", s.getOperation().getName());
+        System.out.printf("   Context: %s%n", s.getContextName());
+        System.out.println("   Parameters:");
+
+        int count = 0;
+        for(MetaArgument a : s.getOperation().getArguments())
+        {
+            System.out.print("   ");
+            printArgument(a);
+            count++;
+        }
+        if (0 == count) System.out.println("   <none>");
     }
 }

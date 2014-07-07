@@ -54,7 +54,9 @@ public final class Add extends Operation
             super(
                 Add.class,
                 Add.class.getSimpleName(),
-                new ParamDecls()
+                new ParamDecls(),
+                new Shortcuts()
+                    .addShortcut("#root", new Info_Instruction())
             );
         }
 
@@ -66,7 +68,6 @@ public final class Add extends Operation
     }
 
     // A short way to instantiate the operation with together with parent operations.
-    @SuppressWarnings("unused")
     private static class Info_Instruction extends InfoAndRule
     {
         Info_Instruction()

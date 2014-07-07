@@ -36,6 +36,7 @@ import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
+import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
 
 /**
  * The Operation abstract class is the base class for all classes that
@@ -231,6 +232,33 @@ public abstract class Operation implements IOperation
         // TODO Check argument
         return arg;
     }
+    
+    protected static final class Shortcuts
+    {
+        private final Map<String, InfoAndRule> shortcuts;
+        
+        public Shortcuts()
+        {
+            this.shortcuts = new LinkedHashMap<String, InfoAndRule>();
+        }
+
+        public Shortcuts addShortcut(String contextName, InfoAndRule operation)
+        {
+            shortcuts.put(contextName, operation);
+            return this;
+        }
+        
+        public Collection<MetaShortcut> getMetaData()
+        {
+            final Collection<MetaShortcut> result =
+                new ArrayList<MetaShortcut>(shortcuts.size());
+
+            for (Map.Entry<String, InfoAndRule> e : shortcuts.entrySet())
+                result.add(new MetaShortcut(e.getKey(), e.getValue().metaData));
+
+            return result;
+        }
+    }
 
     /**
      * The Info class is an implementation of the IInfo interface.
@@ -243,17 +271,25 @@ public abstract class Operation implements IOperation
 
     public static abstract class InfoAndRule implements IInfo, IFactory
     {
-        private final Class<?>  opClass;
-        private final String       name;
-        private final ParamDecls  decls;
-        private final Collection<MetaOperation> metaData;
+        private final Class<?>       opClass;
+        private final String            name;
+        private final ParamDecls       decls;
+        private final MetaOperation metaData;
         
         public InfoAndRule(Class<?> opClass, String name, ParamDecls decls)
         {
             this.opClass  = opClass;
             this.name     = name;
             this.decls    = decls;
-            this.metaData = Collections.singletonList(new MetaOperation(name, decls.getMetaData()));
+            this.metaData = new MetaOperation(name, decls.getMetaData());
+        }
+        
+        public InfoAndRule(Class<?> opClass, String name, ParamDecls decls, Shortcuts shortcuts)
+        {
+            this.opClass  = opClass;
+            this.name     = name;
+            this.decls    = decls;
+            this.metaData = new MetaOperation(name, decls.getMetaData(), shortcuts.getMetaData());
         }
 
         @Override
@@ -271,7 +307,7 @@ public abstract class Operation implements IOperation
         @Override
         public final Collection<MetaOperation> getMetaData()
         {
-            return metaData;
+            return Collections.singletonList(metaData);
         }
 
         @Override
