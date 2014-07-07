@@ -170,7 +170,7 @@ public final class InstructionBuilder
         boolean result = true;
         for (PrimitiveAND root : roots)
         {
-            final PrimitiveAND rootCopy = ((PrimitiveAND) root).makeCopy(); 
+            final PrimitiveAND rootCopy = root.makeCopy(); 
             final Map<String, Primitive> arguments = new LinkedHashMap<String, Primitive>();
 
             result &= traverseOperationTree(arguments, rootCopy, rootCopy);
