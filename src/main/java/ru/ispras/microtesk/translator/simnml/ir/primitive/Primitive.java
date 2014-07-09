@@ -184,6 +184,17 @@ public class Primitive
         return attrNames;
     }
 
+    /**
+     * Checks whether the current primitive is a root primitive.
+     * A primitive is a root primitive if it does not have parents. 
+     * 
+     * @return true if it is a root primitive or false otherwise.
+     */
+    public final boolean isRoot()
+    {
+        return 0 == getParentCount();
+    }
+
     /** 
      * Returns the collection of primitives (parents) that make 
      * references to the current primitive (have parameters of
