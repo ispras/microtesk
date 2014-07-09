@@ -44,17 +44,28 @@ public final class PrimitiveAND extends Primitive
         this.retExpr = retExpr;
         this.args    = args;
         this.attrs   = Collections.unmodifiableMap(attrs);
+
+        for (Map.Entry<String, Primitive> e : args.entrySet())
+        {
+            final Primitive     target = e.getValue();
+            final String referenceName = e.getKey();
+
+            target.addParentReference(this, referenceName);
+        }
     }
-    
+
+    private PrimitiveAND(PrimitiveAND source)
+    {
+        super(source);
+
+        this.retExpr = source.retExpr;
+        this.args    = new LinkedHashMap<String, Primitive>(source.args);
+        this.attrs   = source.attrs;
+    }
+
     public PrimitiveAND makeCopy()
     {
-        return new PrimitiveAND(
-            getName(),
-            getKind(),
-            getReturnExpr(),
-            new LinkedHashMap<String, Primitive>(args),
-            attrs
-            );
+        return new PrimitiveAND(this);
     }
 
     public Map<String, Primitive> getArguments()
