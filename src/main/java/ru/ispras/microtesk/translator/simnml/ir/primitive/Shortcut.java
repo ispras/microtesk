@@ -26,7 +26,7 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Map;
 
-// TODO: UNDER DESIGN (NEED TO DEFINE THE BOOTOM LINE)
+// TODO: UNDER DESIGN (NEED TO DEFINE THE BOTTOM LINE)
 public final class Shortcut
 {
     private final String                       name;
