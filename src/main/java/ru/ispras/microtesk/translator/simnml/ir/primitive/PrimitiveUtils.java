@@ -44,10 +44,10 @@ public class PrimitiveUtils
     {
         if (null == source)
             throw new NullPointerException();
-        
+
         if (null == destination)
             throw new NullPointerException();
-        
+
         if (!source.isOrRule())
         {
             destination.add((PrimitiveAND) source);
@@ -83,5 +83,26 @@ public class PrimitiveUtils
                 count++;
 
         return count;
+    }
+
+    /**
+     * Checks whether the given primitive is a leaf primitive.
+     * A primitive is considered a leaf it does not have childs
+     * (arguments) of the same type. An OR rule cannot be a leaf. 
+     * 
+     * @param primitive Primitive to be checked.
+     * @return true if the primitive is a leaf or false otherwise.
+     */
+
+    public static boolean isLeaf(Primitive primitive)
+    {
+        if (null == primitive)
+            throw new NullPointerException();
+
+        if (primitive.isOrRule())
+            return false;
+
+        return 0 == getChildCount(
+            (PrimitiveAND) primitive, primitive.getKind());
     }
 }
