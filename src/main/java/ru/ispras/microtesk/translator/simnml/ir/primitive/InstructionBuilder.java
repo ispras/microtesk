@@ -165,7 +165,7 @@ public final class InstructionBuilder
         }
 
         final List<PrimitiveAND> roots = new ArrayList<PrimitiveAND>();
-        saveAllOpsToList(operations.get(ROOT_OPERATION), roots);
+        PrimitiveUtils.saveAllOrsToList(operations.get(ROOT_OPERATION), roots);
 
         boolean result = true;
         for (PrimitiveAND root : roots)
@@ -246,8 +246,8 @@ public final class InstructionBuilder
 
                     opArgCount++;
                     opName = argName;
-                    
-                    saveAllOpsToList(argType, opList);
+
+                    PrimitiveUtils.saveAllOrsToList(argType, opList);
                     break;
                 }
 
@@ -282,26 +282,6 @@ public final class InstructionBuilder
         }
 
         return true;
-    }
-
-    /**
-     * Creates a list of operations (OPs) based on operations linked to the
-     * current OP-object with OR-rules (nested links are resolved too). 
-     * 
-     * @param op An operation or an operation OR-rule.
-     * @param opList An out-parameter. Holds the list of operations the "op" parameter refers to.
-     */
-
-    private static void saveAllOpsToList(Primitive op, List<PrimitiveAND> opList)
-    {
-        if (!op.isOrRule())
-        {
-            opList.add((PrimitiveAND) op);
-            return;
-        }
-
-        for (Primitive o : ((PrimitiveOR) op).getORs())
-           saveAllOpsToList(o, opList);
     }
 
     /**
