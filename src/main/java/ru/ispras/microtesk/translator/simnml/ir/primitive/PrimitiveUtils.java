@@ -57,4 +57,31 @@ public class PrimitiveUtils
         for (Primitive o : ((PrimitiveOR) source).getORs())
            saveAllOrsToList(o, destination);
     }
+
+    /**
+     * Counts the number of childs (arguments) that have a specific type 
+     * for the given primitive.
+     * 
+     * @param root Root primitive. 
+     * @param kind Type of child primitives to be counted.
+     * @return Number of childs of the given type.
+     * 
+     * @throws NullPointerException if any of the parameters equals null.
+     */
+
+    public static int getChildCount(PrimitiveAND root, Primitive.Kind kind)
+    {
+        if (null == root)
+            throw new NullPointerException();
+
+        if (null == kind)
+            throw new NullPointerException();
+
+        int count = 0;
+        for (Primitive p : root.getArguments().values())
+            if (p.getKind() == kind)
+                count++;
+
+        return count;
+    }
 }
