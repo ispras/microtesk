@@ -26,6 +26,8 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.List;
 
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive.Reference;
+
 public class PrimitiveUtils
 {
     /**
@@ -130,5 +132,28 @@ public class PrimitiveUtils
 
         return 1 < getChildCount(
             (PrimitiveAND) primitive, primitive.getKind());
+    }
+
+    /**
+     * Counts non-junction parents of the given primitive.
+     * 
+     * @param primitive Primitive to be checked.
+     * @return number of non-junction parents.
+     * 
+     * @throws NullPointerException if the parameter equals null.
+     */
+
+    public static int countNonJunctionParents(Primitive primitive)
+    {
+        if (null == primitive)
+            throw new NullPointerException();
+
+        int nonJunctionParents = 0;
+
+        for (Reference ref : primitive.getParents())
+            if (!PrimitiveUtils.isJunction(ref.getSource()))
+                nonJunctionParents++;
+
+        return nonJunctionParents;
     }
 }
