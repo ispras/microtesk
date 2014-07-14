@@ -92,6 +92,8 @@ public class PrimitiveUtils
      * 
      * @param primitive Primitive to be checked.
      * @return true if the primitive is a leaf or false otherwise.
+     * 
+     * @throws NullPointerException if the parameter equals null.
      */
 
     public static boolean isLeaf(Primitive primitive)
@@ -103,6 +105,30 @@ public class PrimitiveUtils
             return false;
 
         return 0 == getChildCount(
+            (PrimitiveAND) primitive, primitive.getKind());
+    }
+
+    /**
+     * Checks whether the given primitive is a junction.
+     * A junction is an AND-rule primitive that has more than one
+     * child primitive (argument) of the same type as the junction
+     * primitive itself. An OR rule is not a junction. 
+     * 
+     * @param primitive Primitive to be checked.
+     * @return true if the primitive is a junction or false otherwise.
+     * 
+     * @throws NullPointerException if the parameter equals null.
+     */
+
+    public static boolean isJunction(Primitive primitive)
+    {
+        if (null == primitive)
+            throw new NullPointerException();
+
+        if (primitive.isOrRule())
+            return false;
+
+        return 1 < getChildCount(
             (PrimitiveAND) primitive, primitive.getKind());
     }
 }
