@@ -139,6 +139,28 @@ public class Primitive
 
         public Iterable<String> getReferenceNames()
             { return refNames; }
+
+        /**
+         * Resolves the reference and returns the source primitive that has all
+         * references resolved. To resolve a reference from source to target
+         * means to set all source arguments that can point to the target 
+         * (OR rules) to the specified target.
+         */
+
+        public PrimitiveAND resolve()
+        {
+            PrimitiveAND result = source;
+            for (String refName : refNames)
+            {
+                if (result.getArguments().get(refName) != target)
+                {
+                    if (result == source)
+                        result = source.makeCopy();
+                    result.getArguments().put(refName, target);
+                }
+            }
+            return result;
+        }
     }
 
     private final String                    name;

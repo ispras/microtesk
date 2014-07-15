@@ -101,8 +101,7 @@ public final class ShortcutBuilder
 
     private void buildShortcut(Reference refToParent, PrimitiveAND target)
     {
-        final PrimitiveAND entry = resolveReference(refToParent);
-
+        final PrimitiveAND entry = refToParent.resolve();
         for (Reference ref : entry.getParents())
         {
             if (PrimitiveUtils.isJunction(ref.getSource()))
@@ -117,24 +116,5 @@ public final class ShortcutBuilder
                 buildShortcut(ref, target);
             }
         }
-    }
-
-    private static PrimitiveAND resolveReference(Reference ref)
-    {
-        PrimitiveAND source = ref.getSource();
-
-        for (String refName : ref.getReferenceNames())
-        {
-            final Primitive target = source.getArguments().get(refName);
-            if (target != ref.getTarget())
-            {
-                if (source == ref.getSource())
-                    source = ref.getSource().makeCopy();
-
-                source.getArguments().put(refName, ref.getTarget());
-            }
-        }
-
-        return source;
     }
 }
