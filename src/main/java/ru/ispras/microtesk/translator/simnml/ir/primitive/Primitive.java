@@ -8,6 +8,18 @@
  * All rights reserved.
  * 
  * Primitive.java, Jul 9, 2013 11:32:13 AM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
@@ -55,20 +67,31 @@ public class Primitive
      * @author Andrei Tatarnikov
      */
 
-    public final class Reference
+    public static final class Reference
     {
         private final PrimitiveAND  source;
+        private final Primitive     target;
         private final Set<String> refNames;
 
         /**
          * Constructs a reference made from the source (parent)
-         * primitive to the current primitive.
+         * primitive to the target primitive.
          */
 
-        private Reference(PrimitiveAND source)
+        private Reference(PrimitiveAND source, Primitive target)
+        {
+            this(source, target, new LinkedHashSet<String>());
+        }
+
+        /**
+         * Additional constructor for making modified copies. 
+         */
+
+        private Reference(PrimitiveAND source, Primitive target , Set<String> refNames)
         {
             this.source   = source;
-            this.refNames = new LinkedHashSet<String>();
+            this.target   = target;
+            this.refNames = refNames;
         }
 
         /**
@@ -99,7 +122,7 @@ public class Primitive
          */
 
         public Primitive getTarget()
-            { return Primitive.this; }
+            { return target; }
 
         /**
          * Returns the number of references made from the parent
@@ -142,7 +165,16 @@ public class Primitive
         this.isOrRule   = source.isOrRule;
         this.returnType = source.returnType;
         this.attrNames  = source.attrNames;
-        this.parents    = source.parents;
+        this.parents    = new HashMap<String, Reference>();
+
+        for (Map.Entry<String, Reference> e : source.parents.entrySet())
+        {
+            final String     id = e.getKey();
+            final Reference ref = e.getValue();
+
+            this.parents.put(
+                id, new Reference(ref.source, this, ref.refNames));
+        }
     }
 
     /**
@@ -162,7 +194,7 @@ public class Primitive
         }
         else
         {
-            reference = new Reference(parent);
+            reference = new Reference(parent, this);
             parents.put(parent.getName(), reference);
         }
         reference.addReference(referenceName);
