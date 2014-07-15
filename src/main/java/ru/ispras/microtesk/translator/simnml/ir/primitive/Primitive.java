@@ -55,7 +55,7 @@ public class Primitive
      * @author Andrei Tatarnikov
      */
 
-    public static final class Reference
+    public final class Reference
     {
         private final Primitive     source;
         private final Set<String> refNames;
@@ -93,6 +93,13 @@ public class Primitive
 
         public Primitive getSource()
             { return source; }
+        
+        /**
+         * Returns the primitive the reference points to (current primitive).  
+         */
+
+        public Primitive getTarget()
+            { return Primitive.this; }
 
         /**
          * Returns the number of references made from the parent
