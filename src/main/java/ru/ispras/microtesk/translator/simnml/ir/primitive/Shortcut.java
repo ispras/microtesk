@@ -45,30 +45,58 @@ import java.util.Map;
 public final class Shortcut
 {
     /**
+     * The Argument class describes shortcut arguments (arguments of
+     * a composite operation).
      * 
      * @author Andrei Tatarnikov
      */
 
     public static final class Argument
     {
-        private final String       name;
         private final String uniqueName;
         private final Primitive    type;
+        private final String       name;
         private final Primitive  source;
 
         public Argument(
-            String name, String uniqueName, Primitive type, Primitive source)
+            String uniqueName, Primitive type, String name, Primitive source)
         {
-            this.name       = name;
             this.uniqueName = uniqueName;
             this.type       = type;
+            this.name       = name;
             this.source     = source;
         }
 
-        public String       getName() { return name; }
+        /**
+         * Returns a name the uniquely identifies the given argument in
+         * the set of shortcut arguments.
+         * @return Unique argument name.
+         */
+
         public String getUniqueName() { return uniqueName; }
-        public Primitive    getType() { return type; }
-        public Primitive  getSource() { return source; }
+
+        /**
+         * Returns the primitive describing the argument type.
+         * @return Argument type.
+         */
+
+        public Primitive getType() { return type; }
+
+        /**
+         * Returns the argument name as it is defined in the signature of
+         * the operation it will be actually passed to.
+         * @return Argument name from the source operation signature.
+         */
+
+        public String getName() { return name; }
+
+        /**
+         * Returns the operation on the shortcut path the argument
+         * is actually passed to.
+         * @return Source operation. 
+         */
+
+        public Primitive getSource() { return source; }
     }
 
     private final PrimitiveAND             target;
@@ -142,7 +170,7 @@ public final class Shortcut
                     createUniqueArgumentName(argName);
 
                 final Argument arg =
-                    new Argument(argName, uniqueArgName, argType, root); 
+                    new Argument(uniqueArgName, argType, argName, root); 
 
                 arguments.put(uniqueArgName, arg);
             }
@@ -229,7 +257,7 @@ public final class Shortcut
     {
         return arguments.values();
     }
-    
+
     private static void notNullCheck(Object o, String name)
     {
         if (null == o)
