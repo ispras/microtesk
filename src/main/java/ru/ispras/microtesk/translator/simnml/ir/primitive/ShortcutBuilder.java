@@ -24,8 +24,6 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
@@ -105,16 +103,13 @@ public final class ShortcutBuilder
     {
         final PrimitiveAND entry = resolveReference(refToParent);
 
-        System.out.printf("Target: %s, Entry: %s, This: %s%n",
-            target.getName(),
-            entry.getName(),
-            refToParent.getTarget().getName()
-        );
-
         for (Reference ref : entry.getParents())
         {
             if (PrimitiveUtils.isJunction(ref.getSource()))
             {
+                System.out.printf("Target: %s, Entry: %s, Context: %s%n",
+                    target.getName(), entry.getName(), ref.getSource().getName());
+
                 target.addShortcut(new Shortcut(entry, target, "contextName"));
             }
             else
@@ -124,19 +119,6 @@ public final class ShortcutBuilder
         }
     }
 
-    private static PrimitiveAND resolveReference(Reference ref)
-    {
-        final PrimitiveAND source = ref.getSource().makeCopy();
-
-        for (String refName : ref.getReferenceNames())
-        {
-            source.getArguments().put(refName, ref.getTarget());
-        }
-
-        return source;
-    }
-
-    /*
     private static PrimitiveAND resolveReference(Reference ref)
     {
         PrimitiveAND source = ref.getSource();
@@ -155,5 +137,4 @@ public final class ShortcutBuilder
 
         return source;
     }
-    */
 }
