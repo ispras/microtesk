@@ -190,6 +190,7 @@ public class Primitive
      * 
      * @return true if it is a root primitive or false otherwise.
      */
+
     public final boolean isRoot()
     {
         return 0 == getParentCount();
@@ -200,14 +201,17 @@ public class Primitive
      * references to the current primitive (have parameters of
      * the corresponding type).  
      */
+
     public final Iterable<Reference> getParents()
     {
         return parents.values(); 
     }
+
     /** 
      * Returns the number of primitives (parents) that make references
      * to the current primitive (have parameters of the corresponding type). 
      */
+
     public final int getParentCount()
     {
         return parents.size();
@@ -218,6 +222,7 @@ public class Primitive
      * from parent primitives (the total number of parameters of all parent
      * primitives which have the corresponding type).   
      */
+
     public final int getParentReferenceCount()
     {
         int count = 0;
