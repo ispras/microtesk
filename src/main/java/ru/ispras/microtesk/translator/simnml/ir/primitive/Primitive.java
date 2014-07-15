@@ -57,7 +57,7 @@ public class Primitive
 
     public final class Reference
     {
-        private final Primitive     source;
+        private final PrimitiveAND  source;
         private final Set<String> refNames;
 
         /**
@@ -65,7 +65,7 @@ public class Primitive
          * primitive to the current primitive.
          */
 
-        private Reference(Primitive source)
+        private Reference(PrimitiveAND source)
         {
             this.source   = source;
             this.refNames = new LinkedHashSet<String>();
@@ -91,7 +91,7 @@ public class Primitive
          * Returns the primitive the refers to the current primitive.
          */
 
-        public Primitive getSource()
+        public PrimitiveAND getSource()
             { return source; }
         
         /**
@@ -153,7 +153,7 @@ public class Primitive
      * @param referenceName The name of the reference (parameter) made from the 
      * parent primitive to the current primitive. 
      */
-    protected void addParentReference(Primitive parent, String referenceName)
+    protected void addParentReference(PrimitiveAND parent, String referenceName)
     {
         final Reference reference;
         if (parents.containsKey(parent.getName()))
