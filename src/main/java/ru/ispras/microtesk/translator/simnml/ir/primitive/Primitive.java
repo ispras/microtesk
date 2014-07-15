@@ -51,7 +51,10 @@ public class Primitive
      * The Reference class describes references to the current primitive made
      * from another primitive (parent). There may be several reference since
      * a primitive (AND rule) can have several parameters of the same type.  
+     * 
+     * @author Andrei Tatarnikov
      */
+
     public static final class Reference
     {
         private final Primitive     source;
@@ -61,6 +64,7 @@ public class Primitive
          * Constructs a reference made from the source (parent)
          * primitive to the current primitive.
          */
+
         private Reference(Primitive source)
         {
             this.source   = source;
@@ -71,6 +75,7 @@ public class Primitive
          * Registers a reference from the parent primitive to
          * the current primitive. 
          */
+
         private void addReference(String referenceName)
             { refNames.add(referenceName); }
 
@@ -78,12 +83,14 @@ public class Primitive
          * Returns the name of the primitive that makes a reference
          * to the current primitive.
          */
+
         public String getName()
             { return source.getName(); }
 
         /**
          * Returns the primitive the refers to the current primitive.
          */
+
         public Primitive getSource()
             { return source; }
 
@@ -91,6 +98,7 @@ public class Primitive
          * Returns the number of references made from the parent
          * primitive to the current primitive.  
          */
+
         public int getReferenceCount()
             { return refNames.size(); }
 
@@ -98,6 +106,7 @@ public class Primitive
          * Returns names of the references (parameter names) made from
          * the parent primitive to the current primitive.  
          */
+
         public Iterable<String> getReferenceNames()
             { return refNames; }
     }
@@ -199,7 +208,9 @@ public class Primitive
     /** 
      * Returns the collection of primitives (parents) that make 
      * references to the current primitive (have parameters of
-     * the corresponding type).  
+     * the corresponding type).
+     * 
+     * @return Collection of parent primitives.
      */
 
     public final Iterable<Reference> getParents()
@@ -210,6 +221,8 @@ public class Primitive
     /** 
      * Returns the number of primitives (parents) that make references
      * to the current primitive (have parameters of the corresponding type). 
+     * 
+     * @return Parent count.
      */
 
     public final int getParentCount()
@@ -220,7 +233,9 @@ public class Primitive
     /** 
      * Returns the total number of references made to the current primitive
      * from parent primitives (the total number of parameters of all parent
-     * primitives which have the corresponding type).   
+     * primitives which have the corresponding type).
+     * 
+     * @return Number of reference to this primitive from all its parents.
      */
 
     public final int getParentReferenceCount()
