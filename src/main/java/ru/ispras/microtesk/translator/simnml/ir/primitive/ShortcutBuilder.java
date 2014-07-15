@@ -32,6 +32,7 @@ import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive.Reference;
 
 public final class ShortcutBuilder
 {
@@ -75,77 +76,84 @@ public final class ShortcutBuilder
     {
         System.out.println("****************************************");
         System.out.println("BUILDING SHORTCUTS:");
-        
+
         for (Primitive op : operations.values())
-        {
-            if (!op.isRoot() && !op.isOrRule())
-                buildShortcuts(op);
-        }
+            buildShortcuts(op);
     }
-    
+
     private void buildShortcuts(Primitive op)
     {
-        System.out.println(op.getName());
-    }
-
-    private void traverse(String contextName, Primitive entryPoint)
-    {
-        final List<PrimitiveAND> roots = new ArrayList<PrimitiveAND>();
-        PrimitiveUtils.saveAllOrsToList(entryPoint, roots);
-
-        for (PrimitiveAND root : roots)
-            traverseAND(contextName, root);
-    }
-
-    private void traverseAND(String contextName, PrimitiveAND root)
-    {
-        final int childOpCount = 
-            PrimitiveUtils.getChildCount(root, Primitive.Kind.OP);
-
-        if (childOpCount == 0)
+        // Only leafs and junctions: shortcuts for other nodes are redundant.
+        if (!PrimitiveUtils.isLeaf(op) && !PrimitiveUtils.isJunction(op))
             return;
 
-        if (childOpCount > 1)
-        {
-            traverseAllChildOps(root);
+        // If all parents are junctions, shortcuts make no sense.
+        if (0 == PrimitiveUtils.countNonJunctionParents(op))
             return;
-        }
 
-        if (childOpCount == 1)
+        final PrimitiveAND target = (PrimitiveAND) op; 
+        for (Reference ref : target.getParents())
         {
-            startBuildingShortcut(contextName, root);
-            return;
+            if (!PrimitiveUtils.isJunction(ref.getSource()))
+            {
+                buildShortcut(ref, target);
+            }
         }
-
-        assert false : "Unexpected value: " + childOpCount;
     }
 
-    private void traverseAllChildOps(PrimitiveAND root)
+    private void buildShortcut(Reference refToParent, PrimitiveAND target)
     {
-        for (Primitive child : root.getArguments().values())
-            if (child.getKind() == Primitive.Kind.OP)
-                traverse(root.getName(), child);
-    }
-    
-    private void startBuildingShortcut(String contextName, PrimitiveAND root)
-    {
-        System.out.printf("Context: %s, Root: %s%n", contextName, root.getName());
-    }
+        final PrimitiveAND entry = resolveReference(refToParent);
 
-/*
-    private void traverse(String contextName, PrimitiveAND root)
-    {
-        final int childOpCount = PrimitiveUtils.getChildOpCount(root);
+        System.out.printf("Target: %s, Entry: %s, This: %s%n",
+            target.getName(),
+            entry.getName(),
+            refToParent.getTarget().getName()
+        );
 
-        System.out.printf("Context: %s, Root: %s, Child Ops: %d%n",
-            contextName, root.getName(), childOpCount);
-
-        if (childOpCount > 1)
+        for (Reference ref : entry.getParents())
         {
-            for (Primitive child : root.getArguments().values())
-                traverse(root.getName(), child);
+            if (PrimitiveUtils.isJunction(ref.getSource()))
+            {
+                target.addShortcut(new Shortcut(entry, target, "contextName"));
+            }
+            else
+            {
+                buildShortcut(ref, target);
+            }
         }
-            
     }
-*/
+
+    private static PrimitiveAND resolveReference(Reference ref)
+    {
+        final PrimitiveAND source = ref.getSource().makeCopy();
+
+        for (String refName : ref.getReferenceNames())
+        {
+            source.getArguments().put(refName, ref.getTarget());
+        }
+
+        return source;
+    }
+
+    /*
+    private static PrimitiveAND resolveReference(Reference ref)
+    {
+        PrimitiveAND source = ref.getSource();
+
+        for (String refName : ref.getReferenceNames())
+        {
+            final Primitive target = source.getArguments().get(refName);
+            if (target != ref.getTarget())
+            {
+                if (source == ref.getSource())
+                    source = ref.getSource().makeCopy();
+
+                source.getArguments().put(refName, ref.getTarget());
+            }
+        }
+
+        return source;
+    }
+    */
 }
