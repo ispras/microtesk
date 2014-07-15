@@ -8,12 +8,26 @@
  * All rights reserved.
  * 
  * PrimitiveAND.java, Jul 9, 2013 12:42:09 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
@@ -24,6 +38,7 @@ public final class PrimitiveAND extends Primitive
     private final Expr                 retExpr;
     private final Map<String, Primitive>  args;
     private final Map<String, Attribute> attrs;
+    private final List<Shortcut>     shortcuts;
 
     PrimitiveAND(
         String name,
@@ -41,9 +56,10 @@ public final class PrimitiveAND extends Primitive
             null == attrs ? null : attrs.keySet()
             );
 
-        this.retExpr = retExpr;
-        this.args    = args;
-        this.attrs   = Collections.unmodifiableMap(attrs);
+        this.retExpr   = retExpr;
+        this.args      = args;
+        this.attrs     = Collections.unmodifiableMap(attrs);
+        this.shortcuts = new ArrayList<Shortcut>();
 
         for (Map.Entry<String, Primitive> e : args.entrySet())
         {
@@ -58,9 +74,15 @@ public final class PrimitiveAND extends Primitive
     {
         super(source);
 
-        this.retExpr = source.retExpr;
-        this.args    = new LinkedHashMap<String, Primitive>(source.args);
-        this.attrs   = source.attrs;
+        this.retExpr   = source.retExpr;
+        this.args      = new LinkedHashMap<String, Primitive>(source.args);
+        this.attrs     = source.attrs;
+        this.shortcuts = source.shortcuts;
+    }
+    
+    void addShortcut(Shortcut shortcut)
+    {
+        shortcuts.add(shortcut);
     }
 
     public PrimitiveAND makeCopy()
@@ -76,6 +98,11 @@ public final class PrimitiveAND extends Primitive
     public Map<String, Attribute> getAttributes()
     {
         return attrs;
+    }
+        
+    public Iterable<Shortcut> getShortcuts()
+    {
+        return shortcuts;
     }
 
     public Expr getReturnExpr()
