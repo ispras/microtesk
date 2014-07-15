@@ -99,9 +99,9 @@ public final class Shortcut
         public Primitive getSource() { return source; }
     }
 
+    private final PrimitiveAND              entry;
     private final PrimitiveAND             target;
     private final String              contextName;
-    private final PrimitiveAND              entry;
     private final Map<String, Argument> arguments;
 
     /**
@@ -112,10 +112,10 @@ public final class Shortcut
      * built with the help of the shortcut. The map of arPrimitiveguments is built
      * by traversing the path.   
      * 
+     * @param entry The entry point where the path starts (the top point).
      * @param target The target operation of the shortcut.
      * @param contextName The identifier of the context in which the
      * shortcut can be called. 
-     * @param entry The entry point where the path starts (the top point).
      * 
      * @throws NullPointerException if any of the parameters equals null.
      * @throws IllegalArgumentException if target or entry is not an operation;
@@ -124,18 +124,18 @@ public final class Shortcut
      */
 
     public Shortcut(
-        PrimitiveAND target, String contextName, PrimitiveAND entry)
+        PrimitiveAND entry, PrimitiveAND target, String contextName)
     {
+        notNullCheck(entry, "entry");
         notNullCheck(target, "target");
         notNullCheck(contextName, "contextName");
-        notNullCheck(entry, "entry");
 
-        opCheck(target);
         opCheck(entry);
+        opCheck(target);
 
+        this.entry       = entry;
         this.target      = target;
         this.contextName = contextName;
-        this.entry       = entry;
         this.arguments   = new LinkedHashMap<String, Argument>();
 
         addArguments(entry, false);
@@ -213,6 +213,17 @@ public final class Shortcut
     }
 
     /**
+     * Returns the entry operation.
+     * 
+     * @return Entry operation.
+     */
+
+    public PrimitiveAND getEntry()
+    {
+        return entry;
+    }
+
+    /**
      * Returns the target operation.
      * 
      * @return Target operation.
@@ -234,17 +245,6 @@ public final class Shortcut
     public String getContextName()
     {
         return contextName;
-    }
-
-    /**
-     * Returns the entry operation.
-     * 
-     * @return Entry operation.
-     */
-
-    public PrimitiveAND getEntry()
-    {
-        return entry;
     }
 
     /**
