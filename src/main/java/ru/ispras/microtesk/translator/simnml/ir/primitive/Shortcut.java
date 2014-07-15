@@ -24,18 +24,19 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * The Shortcut class describes a shortcut (a short way) to address
- * a group of operation within the operation tree (some specific path)
+ * a group of operations within the operation tree (some specific path)
  * that describes a composite operation. In most specifications, there
  * are paths in the operation tree can be built in an unambiguous way
- * (there is no need for external information or a decision made by a client).
+ * (without a need for external information or a client decision).
  * To simplify describing composite instructions calls in test templates,
  * all such paths are saved as shortcuts associated with their target
- * operations (the point there the path ends, most important operation
+ * operations (the point there the path ends, the most important operation
  * that distinguishes a specific path from other similar paths).
  * 
  * @author Andrei Tatarnikov
@@ -43,17 +44,44 @@ import java.util.Map;
 
 public final class Shortcut
 {
-    private final PrimitiveAND               target;
-    private final String                contextName;
-    private final PrimitiveAND                entry;
-    private final Map<String, Primitive>  arguments;
+    /**
+     * 
+     * @author Andrei Tatarnikov
+     */
+
+    public static final class Argument
+    {
+        private final String       name;
+        private final String uniqueName;
+        private final Primitive    type;
+        private final Primitive  source;
+
+        public Argument(
+            String name, String uniqueName, Primitive type, Primitive source)
+        {
+            this.name       = name;
+            this.uniqueName = uniqueName;
+            this.type       = type;
+            this.source     = source;
+        }
+
+        public String       getName() { return name; }
+        public String getUniqueName() { return uniqueName; }
+        public Primitive    getType() { return type; }
+        public Primitive  getSource() { return source; }
+    }
+
+    private final PrimitiveAND             target;
+    private final String              contextName;
+    private final PrimitiveAND              entry;
+    private final Map<String, Argument> arguments;
 
     /**
      * Constructs a shortcut object. The shortcut object describes how
      * to create the target operation and all other operations it requires
      * from the starting point called entry. The context is the name of
-     * the operation that accepts the composite operation built with the
-     * help of the shortcut as an argument. The map of arguments is built
+     * the operation that accepts as an argument the composite operation
+     * built with the help of the shortcut. The map of arPrimitiveguments is built
      * by traversing the path.   
      * 
      * @param target The target operation of the shortcut.
@@ -62,57 +90,86 @@ public final class Shortcut
      * @param entry The entry point where the path starts (the top point).
      * 
      * @throws NullPointerException if any of the parameters equals null.
+     * @throws IllegalArgumentException if target or entry is not an operation;
+     * if an operation on the shortcut path is an OR rule (all OR rules must be
+     * resolved at this point).
      */
 
     public Shortcut(
-        PrimitiveAND target,
-        String  contextName,
-        PrimitiveAND  entry
-        )
+        PrimitiveAND target, String contextName, PrimitiveAND entry)
     {
         notNullCheck(target, "target");
         notNullCheck(contextName, "contextName");
         notNullCheck(entry, "entry");
 
-        if (!(target.getKind() == Primitive.Kind.OP) 
-          && (target.getKind() == entry.getKind()))
-            throw new IllegalArgumentException();
+        opCheck(target);
+        opCheck(entry);
 
         this.target      = target;
         this.contextName = contextName;
         this.entry       = entry;
-        this.arguments   = new LinkedHashMap<String, Primitive>();
+        this.arguments   = new LinkedHashMap<String, Argument>();
 
-        saveArguments(entry, false);
+        addArguments(entry, false);
     }
 
-    private void saveArguments(PrimitiveAND root, boolean reachedTarget)
+    /**
+     * Adds arguments of the specified operation and of all its child 
+     * operations to the argument map. The method is called recursively
+     * until the target operation is reached. 
+     * 
+     * @param root The operation to be processed. 
+     * @param reachedTarget Specifies whether the target operation is reached.
+     * It it is, the recursion stops and all child operations are added as 
+     * arguments.
+     */
+
+    private void addArguments(PrimitiveAND root, boolean reachedTarget)
     {
         for (Map.Entry<String, Primitive> e: root.getArguments().entrySet())
         {
             final String    argName = e.getKey();
             final Primitive argType = e.getValue();
 
-            if (!reachedTarget && (argType.getKind() == Primitive.Kind.OP))
+            if ((argType.getKind() == Primitive.Kind.OP) && !reachedTarget)
             {
-                if (argType.isOrRule())
-                    throw new IllegalArgumentException();
-
-                saveArguments((PrimitiveAND) argType, argType == target);
+                notOrRuleCheck(argType);
+                addArguments((PrimitiveAND) argType, argType == target);
             }
             else
             {
-                registerArgument(argName, argType);
+                final String uniqueArgName =
+                    createUniqueArgumentName(argName);
+
+                final Argument arg =
+                    new Argument(argName, uniqueArgName, argType, root); 
+
+                arguments.put(uniqueArgName, arg);
             }
         }
     }
 
-    private void registerArgument(String argName, Primitive argType)
-    {
-        if (arguments.containsKey(argName))
-            ;
+    /**
+     * Creates a name that uniquely identifies an argument of a composite
+     * operation. The name is based on the name of the argument of the
+     * operation on the shortcut path which takes the given argument.
+     * When there are arguments that use the same name (different operation
+     * on the shortcut path use the same name) a unique name is created by
+     * adding an index to the original name.    
+     * 
+     * @param name Original name.
+     * @return A unique argument name.
+     */
 
-        arguments.put(argName, argType);
+    private String createUniqueArgumentName(String name)
+    {
+        String result = name;
+
+        int index = 0;
+        while (arguments.containsKey(result))
+            result = String.format("%s_%d", name, ++index);
+
+        return result;
     }
 
     /**
@@ -126,7 +183,7 @@ public final class Shortcut
     {
         return target.getName();
     }
-    
+
     /**
      * Returns the target operation.
      * 
@@ -138,25 +195,59 @@ public final class Shortcut
         return target;
     }
 
+    /**
+     * Returns the context identifier (the name of the operation
+     * that accepts as an argument the composite object create by
+     * the shortcut).
+     * 
+     * @return The context identifier.
+     */
+
     public String getContextName()
     {
         return contextName;
     }
+
+    /**
+     * Returns the entry operation.
+     * 
+     * @return Entry operation.
+     */
 
     public PrimitiveAND getEntry()
     {
         return entry;
     }
 
-    public Map<String, Primitive> getArguments()
-    {
-        return arguments;
-    }
+    /**
+     * Returns a collection of shortcut arguments.
+     * 
+     * @return Shortcut arguments.
+     */
 
+    public Collection<Argument> getArguments()
+    {
+        return arguments.values();
+    }
+    
     private static void notNullCheck(Object o, String name)
     {
         if (null == o)
             throw new NullPointerException(
                 String.format("The %s parameter is null.", name));
+    }
+
+    private static void opCheck(Primitive p)
+    {
+        if (p.getKind() != Primitive.Kind.OP) 
+            throw new IllegalArgumentException(String.format(
+                "The %s primitive is not an operation.", p.getName()));
+    }
+
+    private static void notOrRuleCheck(Primitive p)
+    {
+        if (p.isOrRule())
+            throw new IllegalArgumentException(String.format(
+                "The %s primitive is an OR rule.", p.getName()));
     }
 }
