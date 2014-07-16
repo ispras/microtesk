@@ -25,7 +25,9 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,11 +99,18 @@ public final class Shortcut
          */
 
         public Primitive getSource() { return source; }
+
+        @Override
+        public String toString()
+        {
+            return String.format("%s: %s (%s in %s)",
+                uniqueName, type.getName(), name, source.getName());
+        }
     }
 
     private final PrimitiveAND              entry;
     private final PrimitiveAND             target;
-    private final String              contextName;
+    private final List<String>       contextNames;
     private final Map<String, Argument> arguments;
 
     /**
@@ -109,13 +118,13 @@ public final class Shortcut
      * to create the target operation and all other operations it requires
      * from the starting point called entry. The context is the name of
      * the operation that accepts as an argument the composite operation
-     * built with the help of the shortcut. The map of arPrimitiveguments is built
-     * by traversing the path.   
+     * built with the help of the shortcut. The map of arPrimitiveguments
+     * is built by traversing the path.
      * 
      * @param entry The entry point where the path starts (the top point).
      * @param target The target operation of the shortcut.
-     * @param contextName The identifier of the context in which the
-     * shortcut can be called. 
+     * @param contextNames The list of names that identify the contexts
+     * in which the shortcut can be called.
      * 
      * @throws NullPointerException if any of the parameters equals null.
      * @throws IllegalArgumentException if target or entry is not an operation;
@@ -124,21 +133,32 @@ public final class Shortcut
      */
 
     public Shortcut(
-        PrimitiveAND entry, PrimitiveAND target, String contextName)
+        PrimitiveAND entry, PrimitiveAND target, List<String> contextNames)
     {
         notNullCheck(entry, "entry");
         notNullCheck(target, "target");
-        notNullCheck(contextName, "contextName");
+        notNullCheck(contextNames, "contextNames");
 
         opCheck(entry);
         opCheck(target);
 
-        this.entry       = entry;
-        this.target      = target;
-        this.contextName = contextName;
-        this.arguments   = new LinkedHashMap<String, Argument>();
+        this.entry        = entry;
+        this.target       = target;
+        this.contextNames = contextNames;
+        this.arguments    = new LinkedHashMap<String, Argument>();
 
         addArguments(entry, false);
+    }
+
+    /**
+     * Constructor than uses one context name. 
+     */
+
+    public Shortcut(
+        PrimitiveAND entry, PrimitiveAND target, String contextName)
+    {
+        this(entry, target, Collections.singletonList(contextName));
+        notNullCheck(contextName, "contextName");
     }
 
     /**
@@ -235,16 +255,16 @@ public final class Shortcut
     }
 
     /**
-     * Returns the context identifier (the name of the operation
-     * that accepts as an argument the composite object create by
-     * the shortcut).
+     * Returns the list of context identifiers (names of operations
+     * that accept the composite object created by the shortcut
+     * as an argument).
      * 
-     * @return The context identifier.
+     * @return List of context identifiers.
      */
 
-    public String getContextName()
+    public List<String> getContextName()
     {
-        return contextName;
+        return contextNames;
     }
 
     /**
@@ -256,6 +276,39 @@ public final class Shortcut
     public Collection<Argument> getArguments()
     {
         return arguments.values();
+    }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder cnsb = new StringBuilder();
+        boolean isFirst = true;
+
+        for (String cn : contextNames)
+        {
+            if (!isFirst) cnsb.append(", ");
+            else isFirst = false;
+            cnsb.append(cn);
+        }
+
+        final StringBuilder argsb = new StringBuilder();
+        isFirst = true;
+
+        for (Argument arg : arguments.values())
+        {
+            if (!isFirst) argsb.append(", ");
+            else isFirst = false;
+            argsb.append(arg);
+        }
+
+        return String.format(
+            "%s: Entry = %s, Target = %s, Contexts = [%s], Args = [%s]",
+            getName(),
+            entry.getName(),
+            target.getName(),
+            cnsb,
+            argsb
+        );
     }
 
     private static void notNullCheck(Object o, String name)
