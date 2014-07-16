@@ -24,6 +24,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
@@ -89,7 +91,7 @@ public final class ShortcutBuilder
         if (0 == PrimitiveUtils.countNonJunctionParents(op))
             return;
 
-        final PrimitiveAND target = (PrimitiveAND) op; 
+        final PrimitiveAND target = (PrimitiveAND) op;
         for (Reference ref : target.getParents())
         {
             if (!PrimitiveUtils.isJunction(ref.getSource()))
@@ -105,27 +107,28 @@ public final class ShortcutBuilder
 
         if (entry.isRoot())
         {
-            System.out.printf(
-                "Target: %s, Entry: %s, Context: %s%n", target.getName(), entry.getName(), "#root");
-            
-            target.addShortcut(new Shortcut(entry, target, "#root"));
-            
+            final Shortcut shortcut = new Shortcut(entry, target, "#root");
+            target.addShortcut(shortcut);
+            System.out.println(shortcut);
             return;
         }
 
+        final List<String> contextNames = new ArrayList<String>();
         for (Reference ref : entry.getParents())
         {
             if (PrimitiveUtils.isJunction(ref.getSource()))
-            {
-                System.out.printf("Target: %s, Entry: %s, Context: %s%n",
-                    target.getName(), entry.getName(), ref.getSource().getName());
-
-                target.addShortcut(new Shortcut(entry, target, ref.getSource().getName()));
-            }
+                contextNames.add(ref.getSource().getName());
             else
-            {
                 buildShortcut(ref, target);
-            }
+        }
+
+        if (!contextNames.isEmpty())
+        {
+            final Shortcut shortcut =
+                new Shortcut(entry, target, contextNames);
+
+            target.addShortcut(shortcut);
+            System.out.println(shortcut);
         }
     }
 }
