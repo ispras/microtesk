@@ -195,6 +195,9 @@ public final class PrimitiveUtils
             notNullCheck(from, "from");
             notNullCheck(to, "to");
 
+            if (from.getKind() != Primitive.Kind.OP)
+                return 0;
+
             if (entries.containsKey(from.getName()))
             {
                 final Entry entry = entries.get(from.getName());
