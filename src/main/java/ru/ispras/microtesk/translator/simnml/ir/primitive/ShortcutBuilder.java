@@ -80,46 +80,43 @@ public final class ShortcutBuilder
         for (Primitive op : operations.values())
         {
             // Only leafs and junctions: shortcuts for other nodes are redundant.
-            if (!PrimitiveUtils.isLeaf(op) && !PrimitiveUtils.isJunction(op))
-                continue;
-
-            // If all parents are junctions, shortcuts make no sense.
-            if (0 == PrimitiveUtils.countNonJunctionParents(op))
-                continue;
-
-            final PrimitiveAND target = (PrimitiveAND) op;
-            for (Reference ref : target.getParents())
-            {
-                if (!PrimitiveUtils.isJunction(ref.getSource()))
-                {
-                    buildShortcut(ref, target);
-                }
+            if (PrimitiveUtils.isLeaf(op) || PrimitiveUtils.isJunction(op))
+            {    
+                final PrimitiveAND target = (PrimitiveAND) op;
+                buildShortcut(target, target);
             }
         }
     }
 
-    private void buildShortcut(Reference refToParent, PrimitiveAND target)
+    private void buildShortcut(PrimitiveAND entry, PrimitiveAND target)
     {
-        if (refToParent.getTarget().getParentCount() > 1)
+        /*
+        if (entry.getParentCount() > 1)
             System.out.printf("Warning: %s has %d parents.%n",
-                refToParent.getTarget().getName(), refToParent.getTarget().getParentCount());
-
-        final PrimitiveAND entry = refToParent.resolve();
-        if (entry.isRoot())
-        {
-            final Shortcut shortcut = new Shortcut(entry, target, "#root");
-            target.addShortcut(shortcut);
-            System.out.println(shortcut);
-            return;
-        }
+                entry.getName(), entry.getParentCount());
+        */        
 
         final List<String> contextNames = new ArrayList<String>();
-        for (Reference ref : entry.getParents())
+
+        if (entry.isRoot())
         {
-            if (PrimitiveUtils.isJunction(ref.getSource()))
-                contextNames.add(ref.getSource().getName());
-            else
-                buildShortcut(ref, target);
+            if (entry != target)
+                contextNames.add("#root");
+        }
+        else
+        {
+            for (Reference ref : entry.getParents())
+            {
+                if (PrimitiveUtils.isJunction(ref.getSource()) || (entry.getParentCount() > 1))
+                {
+                    if (entry != target)
+                        contextNames.add(ref.getSource().getName());
+                }
+                else
+                {
+                    buildShortcut(ref.resolve(), target);
+                }
+            }
         }
 
         if (!contextNames.isEmpty())
