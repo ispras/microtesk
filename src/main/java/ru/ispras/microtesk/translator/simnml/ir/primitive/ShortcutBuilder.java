@@ -102,6 +102,17 @@ public final class ShortcutBuilder
     private void buildShortcut(Reference refToParent, PrimitiveAND target)
     {
         final PrimitiveAND entry = refToParent.resolve();
+
+        if (entry.isRoot())
+        {
+            System.out.printf(
+                "Target: %s, Entry: %s, Context: %s%n", target.getName(), entry.getName(), "#root");
+            
+            target.addShortcut(new Shortcut(entry, target, "#root"));
+            
+            return;
+        }
+
         for (Reference ref : entry.getParents())
         {
             if (PrimitiveUtils.isJunction(ref.getSource()))
@@ -109,7 +120,7 @@ public final class ShortcutBuilder
                 System.out.printf("Target: %s, Entry: %s, Context: %s%n",
                     target.getName(), entry.getName(), ref.getSource().getName());
 
-                target.addShortcut(new Shortcut(entry, target, "contextName"));
+                target.addShortcut(new Shortcut(entry, target, ref.getSource().getName()));
             }
             else
             {
