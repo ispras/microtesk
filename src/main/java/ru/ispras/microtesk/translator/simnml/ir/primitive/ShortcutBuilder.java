@@ -78,33 +78,33 @@ public final class ShortcutBuilder
         System.out.println("BUILDING SHORTCUTS:");
 
         for (Primitive op : operations.values())
-            buildShortcuts(op);
-    }
-
-    private void buildShortcuts(Primitive op)
-    {
-        // Only leafs and junctions: shortcuts for other nodes are redundant.
-        if (!PrimitiveUtils.isLeaf(op) && !PrimitiveUtils.isJunction(op))
-            return;
-
-        // If all parents are junctions, shortcuts make no sense.
-        if (0 == PrimitiveUtils.countNonJunctionParents(op))
-            return;
-
-        final PrimitiveAND target = (PrimitiveAND) op;
-        for (Reference ref : target.getParents())
         {
-            if (!PrimitiveUtils.isJunction(ref.getSource()))
+            // Only leafs and junctions: shortcuts for other nodes are redundant.
+            if (!PrimitiveUtils.isLeaf(op) && !PrimitiveUtils.isJunction(op))
+                continue;
+
+            // If all parents are junctions, shortcuts make no sense.
+            if (0 == PrimitiveUtils.countNonJunctionParents(op))
+                continue;
+
+            final PrimitiveAND target = (PrimitiveAND) op;
+            for (Reference ref : target.getParents())
             {
-                buildShortcut(ref, target);
+                if (!PrimitiveUtils.isJunction(ref.getSource()))
+                {
+                    buildShortcut(ref, target);
+                }
             }
         }
     }
 
     private void buildShortcut(Reference refToParent, PrimitiveAND target)
     {
-        final PrimitiveAND entry = refToParent.resolve();
+        if (refToParent.getTarget().getParentCount() > 1)
+            System.out.printf("Warning: %s has %d parents.%n",
+                refToParent.getTarget().getName(), refToParent.getTarget().getParentCount());
 
+        final PrimitiveAND entry = refToParent.resolve();
         if (entry.isRoot())
         {
             final Shortcut shortcut = new Shortcut(entry, target, "#root");
