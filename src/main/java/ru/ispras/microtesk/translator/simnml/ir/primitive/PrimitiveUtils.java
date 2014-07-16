@@ -24,7 +24,10 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive.Reference;
 
@@ -150,13 +153,13 @@ public final class PrimitiveUtils
         return nonJunctionParents;
     }
 
-    /*
+
     /**
      * TODO
      * 
      * @author Andrei Tatarnikov
      */
-    /*
+
     public static final class AmbiguousPathCounter
     {
         private static final class Entry
@@ -171,6 +174,22 @@ public final class PrimitiveUtils
             this.entries = new HashMap<String, Entry>(); 
         }
 
+        private void remember(String from, String to, int count)
+        {
+            final Entry entry;
+            if (entries.containsKey(from))
+            {
+                entry = entries.get(from);
+            }
+            else
+            {
+                entry = new Entry();
+                entries.put(from, entry);
+            }
+
+            entry.targets.put(to, count);
+        }
+
         public int getPathCount(Primitive from, String to)
         {
             notNullCheck(from, "from");
@@ -179,15 +198,28 @@ public final class PrimitiveUtils
             if (entries.containsKey(from.getName()))
             {
                 final Entry entry = entries.get(from.getName());
-
                 if (entry.targets.containsKey(to))
                     return entry.targets.get(to); 
             }
 
-            return 0;
+            if (to.equals(from.getName()))
+            {   
+                remember(from.getName(), to, 1); 
+                return 1;
+            }
+
+            final Collection<Primitive> childs = from.isOrRule() ?
+                ((PrimitiveOR)  from).getORs() : 
+                ((PrimitiveAND) from).getArguments().values();
+
+            int count = 0;
+            for (Primitive p : childs)
+                count += getPathCount(p, to);
+
+            remember(from.getName(), to, count); 
+            return count;
         }
     }
-    */
 
     private static void notNullCheck(Object o, String name)
     {
