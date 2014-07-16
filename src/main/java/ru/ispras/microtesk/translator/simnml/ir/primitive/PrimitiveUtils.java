@@ -28,8 +28,10 @@ import java.util.List;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive.Reference;
 
-public class PrimitiveUtils
+public final class PrimitiveUtils
 {
+    private PrimitiveUtils() {} 
+    
     /**
      * Saves all AND primitives associated with the current primitive by using
      * OR rules to a list. Nested OR rules are resolved recursively. If the
@@ -44,11 +46,8 @@ public class PrimitiveUtils
 
     public static void saveAllOrsToList(Primitive source, List<PrimitiveAND> destination)
     {
-        if (null == source)
-            throw new NullPointerException();
-
-        if (null == destination)
-            throw new NullPointerException();
+        notNullCheck(source, "source");
+        notNullCheck(destination, "destination");
 
         if (!source.isOrRule())
         {
@@ -73,11 +72,8 @@ public class PrimitiveUtils
 
     public static int getChildCount(PrimitiveAND root, Primitive.Kind kind)
     {
-        if (null == root)
-            throw new NullPointerException();
-
-        if (null == kind)
-            throw new NullPointerException();
+        notNullCheck(root, "root");
+        notNullCheck(kind, "kind");
 
         int count = 0;
         for (Primitive p : root.getArguments().values())
@@ -100,8 +96,7 @@ public class PrimitiveUtils
 
     public static boolean isLeaf(Primitive primitive)
     {
-        if (null == primitive)
-            throw new NullPointerException();
+        notNullCheck(primitive, "primitive");
 
         if (primitive.isOrRule())
             return false;
@@ -124,8 +119,7 @@ public class PrimitiveUtils
 
     public static boolean isJunction(Primitive primitive)
     {
-        if (null == primitive)
-            throw new NullPointerException();
+        notNullCheck(primitive, "primitive");
 
         if (primitive.isOrRule())
             return false;
@@ -145,8 +139,7 @@ public class PrimitiveUtils
 
     public static int countNonJunctionParents(Primitive primitive)
     {
-        if (null == primitive)
-            throw new NullPointerException();
+        notNullCheck(primitive, "primitive");
 
         int nonJunctionParents = 0;
 
@@ -155,5 +148,51 @@ public class PrimitiveUtils
                 nonJunctionParents++;
 
         return nonJunctionParents;
+    }
+
+    /*
+    /**
+     * TODO
+     * 
+     * @author Andrei Tatarnikov
+     */
+    /*
+    public static final class AmbiguousPathCounter
+    {
+        private static final class Entry
+        {
+            private final Map<String, Integer> targets = new HashMap<String, Integer>();
+        }
+
+        private final Map<String, Entry> entries;
+
+        public AmbiguousPathCounter()
+        {
+            this.entries = new HashMap<String, Entry>(); 
+        }
+
+        public int getPathCount(Primitive from, String to)
+        {
+            notNullCheck(from, "from");
+            notNullCheck(to, "to");
+
+            if (entries.containsKey(from.getName()))
+            {
+                final Entry entry = entries.get(from.getName());
+
+                if (entry.targets.containsKey(to))
+                    return entry.targets.get(to); 
+            }
+
+            return 0;
+        }
+    }
+    */
+
+    private static void notNullCheck(Object o, String name)
+    {
+        if (null == o)
+            throw new NullPointerException(
+                String.format("The %s parameter is null.", name));
     }
 }
