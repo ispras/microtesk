@@ -52,7 +52,6 @@ public final class IR
         this.inits   = new LinkedHashMap<String, Initializer>();
 
         this.instructions = new LinkedHashMap<String, Instruction>();
-        
     }
 
     public void add(String name, LetConstant value)
@@ -87,7 +86,7 @@ public final class IR
         else if (Primitive.Kind.OP == value.getKind())
             ops.put(name, value);
         else
-            assert false : String.format( "Incorrect primitive kind: %s.", value.getKind());
+            assert false : String.format("Incorrect primitive kind: %s.", value.getKind());
     }
 
     public void add(String name, Initializer value)
