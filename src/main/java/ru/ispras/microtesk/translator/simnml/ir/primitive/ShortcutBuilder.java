@@ -28,21 +28,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
-import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive.Reference;
+import ru.ispras.microtesk.translator.antlrex.log.Logger;
 
-public final class ShortcutBuilder
+import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.*;
+
+public final class ShortcutBuilder extends Logger
 {
-    /** The name of the model entry point (root operation). */
-    public static final String ENTRY_POINT = "instruction";
-
     private final Map<String, Primitive> operations;
-
-    private final String fileName;
-    private final ILogStore   log;
+    private final PathCounter           pathCounter;
+    
+    private final Primitive root; 
 
     public ShortcutBuilder(
         Map<String, Primitive> operations,
@@ -50,26 +47,19 @@ public final class ShortcutBuilder
         ILogStore log
         )
     {
-        this.operations = operations;
-        this.fileName   = fileName;
-        this.log        = log;
-    }
+        super(ESenderKind.EMITTER, fileName, log);
 
-    private void report(ELogEntryKind kind, String message)
-    {
-        log.append(
-            new LogEntry(
-                kind, ESenderKind.EMITTER, fileName, 0, 0, message));
-    }
+        this.operations  = operations;
+        this.pathCounter = new PathCounter(); 
 
-    private void reportError(String message)
-    {
-        report(ELogEntryKind.ERROR, message);
-    }
+        List<Primitive> rootList = new ArrayList<Primitive>();
+        for (Primitive op : operations.values())
+        {
+           if (op.isRoot() && !op.isOrRule())
+               rootList.add(op);
+        }
 
-    private void reportWarning(String message)
-    {
-        report(ELogEntryKind.WARNING, message);
+        this.root = new PrimitiveOR("#root", Primitive.Kind.OP, rootList);
     }
 
     public void buildShortcuts()
@@ -80,7 +70,7 @@ public final class ShortcutBuilder
         for (Primitive op : operations.values())
         {
             // Only leafs and junctions: shortcuts for other nodes are redundant.
-            if (PrimitiveUtils.isLeaf(op) || PrimitiveUtils.isJunction(op))
+            if (isLeaf(op) || isJunction(op))
             {    
                 final PrimitiveAND target = (PrimitiveAND) op;
                 buildShortcut(target, target);
@@ -88,34 +78,34 @@ public final class ShortcutBuilder
         }
     }
 
+    private int getPathCount(Primitive source, Primitive target)
+    {
+        return pathCounter.getPathCount(root, target.getName());
+    }
+
     private void buildShortcut(PrimitiveAND entry, PrimitiveAND target)
     {
-        /*
-        if (entry.getParentCount() > 1)
-            System.out.printf("Warning: %s has %d parents.%n",
-                entry.getName(), entry.getParentCount());
-        */        
-
         final List<String> contextNames = new ArrayList<String>();
 
-        if (entry.isRoot())
+        if (entry.isRoot() && getPathCount(root, target) == 1)
         {
             if (entry != target)
                 contextNames.add("#root");
         }
         else
         {
-            for (Reference ref : entry.getParents())
+            for (Primitive.Reference ref : entry.getParents())
             {
-                if (PrimitiveUtils.isJunction(ref.getSource()) || (entry.getParentCount() > 1))
-                {
-                    if (entry != target)
-                        contextNames.add(ref.getSource().getName());
-                }
-                else
-                {
+                final int count = getPathCount(ref.getSource(), target);
+
+                if (count > 1)
+                    continue;
+
+                if (!isJunction(ref.getSource()))
                     buildShortcut(ref.resolve(), target);
-                }
+                
+                if (entry != target)
+                    contextNames.add(ref.getSource().getName());
             }
         }
 
