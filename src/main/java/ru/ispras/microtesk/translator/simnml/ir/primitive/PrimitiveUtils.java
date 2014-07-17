@@ -235,17 +235,18 @@ public final class PrimitiveUtils
 
         /**
          * Counts the number of possible paths from the source (parent)
-         * primitive to the target primitive. The method recursively traverses
-         * all AND- and OR- rules starting from the source primitive searching
-         * for child primitives which name equals the target name. If the
-         * source is not an OP primitive (operation) 0 is returned.
+         * primitive to the target (child) primitive. The method recursively
+         * traverses all AND- and OR- rules starting from the source primitive
+         * searching for child primitives which name equals the target name.
+         * If the source is not an OP primitive (operation) 0 is returned.
          * 
          * To avoid redundant traversals and calculations, the method
          * memorizes all previous results. This information is used
          * when it is requested again. This is important as the method 
          * works recursively. That is information on paths from a parent
          * is calculated as a sum of the result of its childs. In this case,
-         * there is no need to traverse all the hierarchy again.
+         * there is no need to traverse all the hierarchy again information
+         * on child primitives has already been calculated.
          * 
          * @param source Source (parent) primitive. 
          * @param target Target (child) primitive name.
