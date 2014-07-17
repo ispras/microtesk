@@ -8,12 +8,25 @@
  * All rights reserved.
  * 
  * IR.java, Dec 11, 2012 1:57:58 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
@@ -35,6 +48,7 @@ public final class IR
     private final Map<String, Primitive>      ops;
     private final Map<String, Initializer>  inits;
 
+    private List<Primitive>                 roots;
     private Map<String, Instruction> instructions;
 
     public IR()
@@ -51,7 +65,8 @@ public final class IR
 
         this.inits   = new LinkedHashMap<String, Initializer>();
 
-        this.instructions = new LinkedHashMap<String, Instruction>();
+        this.roots        = Collections.<Primitive>emptyList();
+        this.instructions = Collections.<String, Instruction>emptyMap();
     }
 
     public void add(String name, LetConstant value)
@@ -134,15 +149,29 @@ public final class IR
         return Collections.unmodifiableMap(inits);
     }
 
-    public Map<String, Instruction> getInstructions()
+    public List<Primitive> getRoots()
     {
-        return Collections.unmodifiableMap(instructions);
+        return roots;
     }
 
-    public void putInstructions(Map<String, Instruction> value)
+    public void setRoots(List<Primitive> value)
     {
-        assert instructions.isEmpty();
         assert null != value;
-        instructions = value;
+        assert roots.isEmpty();
+
+        roots = Collections.unmodifiableList(roots);
+    }
+
+    public Map<String, Instruction> getInstructions()
+    {
+        return instructions;
+    }
+
+    public void setInstructions(Map<String, Instruction> value)
+    {
+        assert null != value;
+        assert instructions.isEmpty();
+
+        instructions = Collections.unmodifiableMap(value);
     }
 }
