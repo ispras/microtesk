@@ -80,7 +80,7 @@ public final class ShortcutBuilder extends Logger
 
     private int getPathCount(Primitive source, Primitive target)
     {
-        return pathCounter.getPathCount(root, target.getName());
+        return pathCounter.getPathCount(source, target.getName());
     }
 
     private void buildShortcut(PrimitiveAND entry, PrimitiveAND target)
