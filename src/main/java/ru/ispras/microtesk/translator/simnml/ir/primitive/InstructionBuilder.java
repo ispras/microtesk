@@ -8,6 +8,18 @@
  * All rights reserved.
  * 
  * InstructionBuilder.java, Jan 9, 2013 6:13:18 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
@@ -18,10 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
-import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
+import ru.ispras.microtesk.translator.antlrex.log.Logger;
 
 /**
  * The InstructionBuilder class build the intermediate representation (IR) of
@@ -37,7 +48,7 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
  * @author Andrei Tatarnikov
  */
 
-public final class InstructionBuilder
+public final class InstructionBuilder extends Logger
 {
     public static final String ALREADY_SYNTHESIZED = 
         "Instructions have already been synthesized. No action will be performed.";
@@ -57,9 +68,6 @@ public final class InstructionBuilder
     private final Map<String, Primitive>   operations;
     private final Map<String, Instruction> instructions;
 
-    private final String fileName;
-    private final ILogStore   log;
-
     /**
      * Creates an instruction builder for the given IR of Sim-nML operations.
      *
@@ -74,58 +82,13 @@ public final class InstructionBuilder
         ILogStore log
         )
     {
-        assert null != operations;
-        assert null != fileName;
-        assert null != log;
+        super(ESenderKind.EMITTER,  fileName, log);
+
+        if (null == operations)
+            throw new NullPointerException();
 
         this.operations   = operations;
         this.instructions = new LinkedHashMap<String, Instruction>();
-        this.fileName     = fileName;
-        this.log          = log;
-    }
-
-    /**
-     * Reports an error message to the log.
-     * 
-     * @param message Error message.
-     */
-    
-    private void reportError(String message)
-    {
-        assert null != log;
-
-        log.append(
-            new LogEntry(
-                ELogEntryKind.ERROR,
-                ESenderKind.EMITTER,
-                fileName,
-                0,
-                0,
-                message
-                )
-            );
-    }
-
-    /**
-     * Reports an warning message to the log.
-     * 
-     * @param message Warning message.
-     */
-
-    private void reportWarning(String message)
-    {
-        assert null != log;
-
-        log.append(
-            new LogEntry(
-                ELogEntryKind.WARNING,
-                ESenderKind.EMITTER,
-                fileName,
-                0,
-                0,
-                message
-                )
-            );
     }
 
     /**
