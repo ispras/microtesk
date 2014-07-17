@@ -132,7 +132,7 @@ public class SimnMLTranslator
             System.err.println("FAILED TO SYNTHESIZE INSTRUCTIONS. TRANSLATION WAS INTERRUPTED.");
             return;
         }
-        ir.putInstructions(instructionBuilder.getInstructions());
+        ir.setInstructions(instructionBuilder.getInstructions());
 
         final Generator generator = new Generator(PackageInfo.DEFAULT_OUTDIR, modelName, getShortFileName(fileName), ir);
         generator.generate();
