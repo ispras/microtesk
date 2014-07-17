@@ -33,6 +33,7 @@ import ru.ispras.microtesk.translator.simnml.grammar.SimnMLParser;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.InstructionBuilder;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveSyntesizer;
 
 public final class SimnMLAnalyzer
 {
@@ -207,6 +208,17 @@ public final class SimnMLAnalyzer
 
         final TokenSource source = startLexer(filenames);
         final IR ir = startParserAndWalker(source);
+
+        final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
+             ir.getOps().values(), getShortFileName(fileName), LOG);
+
+        if (!primitiveSyntesizer.syntesize())
+        {
+            // TODO
+            System.err.println("!!! FAILED TO SYNTHESIZE SHORTCUTS. TRANSLATION WAS INTERRUPTED.");
+            return;
+        }
+        ir.setRoots(primitiveSyntesizer.getRoots());
 
         final InstructionBuilder instructionBuilder = new InstructionBuilder(ir.getOps(), getShortFileName(fileName), LOG);
         if (!instructionBuilder.buildInstructions())
