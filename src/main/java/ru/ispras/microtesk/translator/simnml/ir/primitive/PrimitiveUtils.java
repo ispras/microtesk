@@ -245,8 +245,8 @@ public final class PrimitiveUtils
          * when it is requested again. This is important as the method 
          * works recursively. That is information on paths from a parent
          * is calculated as a sum of the result of its childs. In this case,
-         * there is no need to traverse all the hierarchy again information
-         * on child primitives has already been calculated.
+         * there is no need to traverse all the hierarchy again if
+         * information on child primitives has already been calculated.
          * 
          * @param source Source (parent) primitive. 
          * @param target Target (child) primitive name.
