@@ -214,7 +214,7 @@ public final class SimnMLAnalyzer
             System.err.println("FAILED TO SYNTHESIZE INSTRUCTIONS. TRANSLATION WAS INTERRUPTED.");
             return;
         }
-        ir.putInstructions(instructionBuilder.getInstructions());
+        ir.setInstructions(instructionBuilder.getInstructions());
 
         final UserTestSituationLoader userTSLoader =
             new UserTestSituationLoader(modelName, testSitDir, outDir, ir);
