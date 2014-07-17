@@ -31,6 +31,14 @@ import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive.Reference;
 
+/**
+ * The PrimitiveUtils class provides a range of utilities for working
+ * with primitives. The class provides static members only and serves
+ * as a namespace. 
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public final class PrimitiveUtils
 {
     private PrimitiveUtils() {} 
@@ -153,73 +161,129 @@ public final class PrimitiveUtils
         return nonJunctionParents;
     }
 
-
     /**
-     * TODO
+     * The PathCounter class helps count the number of possible paths from
+     * a source (parent) primitive to a target (child) primitive. It memorizes
+     * all previous results to avoid redundant tree traversals.
+     * 
+     * N.B. The class can be used only for OP primitives. Other primitive
+     * kinds are not supported (there is no need for such a facility).
      * 
      * @author Andrei Tatarnikov
      */
 
-    public static final class AmbiguousPathCounter
+    public static final class PathCounter
     {
+        /**
+         * Holds information on the number of possible paths from
+         * some source primitive to target primitives.
+         * 
+         * @author Andrei Tatarnikov
+         */
+
         private static final class Entry
         {
+            /** 
+             * Key - target name;
+             * Value - number of paths from the source to the target.
+             */
+
             private final Map<String, Integer> targets = new HashMap<String, Integer>();
         }
 
+        /**
+         * Key - source name;
+         * Value - information on paths from the source to targets (Entry).
+         */
+
         private final Map<String, Entry> entries;
 
-        public AmbiguousPathCounter()
+        /**
+         * Constructs a path counter object. 
+         */
+
+        public PathCounter()
         {
             this.entries = new HashMap<String, Entry>(); 
         }
 
-        private void remember(String from, String to, int count)
+        /**
+         * Saves information on the number of paths between the source 
+         * and the target. This information will be used to avoid
+         * redundant calculations the next time it is requested.
+         * 
+         * @param source Source (parent) primitive name. 
+         * @param target Target (child) primitive name.
+         * @param count Number of paths between the source and the target.
+         */
+
+        private void remember(String source, String target, int count)
         {
             final Entry entry;
-            if (entries.containsKey(from))
+            if (entries.containsKey(source))
             {
-                entry = entries.get(from);
+                entry = entries.get(source);
             }
             else
             {
                 entry = new Entry();
-                entries.put(from, entry);
+                entries.put(source, entry);
             }
 
-            entry.targets.put(to, count);
+            entry.targets.put(target, count);
         }
 
-        public int getPathCount(Primitive from, String to)
-        {
-            notNullCheck(from, "from");
-            notNullCheck(to, "to");
+        /**
+         * Counts the number of possible paths from the source (parent)
+         * primitive to the target primitive. The method recursively traverses
+         * all AND- and OR- rules starting from the source primitive searching
+         * for child primitives which name equals the target name. If the
+         * source is not an OP primitive (operation) 0 is returned.
+         * 
+         * To avoid redundant traversals and calculations, the method
+         * memorizes all previous results. This information is used
+         * when it is requested again. This is important as the method 
+         * works recursively. That is information on paths from a parent
+         * is calculated as a sum of the result of its childs. In this case,
+         * there is no need to traverse all the hierarchy again.
+         * 
+         * @param source Source (parent) primitive. 
+         * @param target Target (child) primitive name.
+         * @return The number of possible paths from the source to the target.
+         * 
+         * @throws NullPointerException if any of the parameters equals null.  
+         */
 
-            if (from.getKind() != Primitive.Kind.OP)
+        public int getPathCount(Primitive source, String target)
+        {
+            notNullCheck(source, "from");
+            notNullCheck(target, "to");
+
+            if (source.getKind() != Primitive.Kind.OP)
                 return 0;
 
-            if (entries.containsKey(from.getName()))
+            if (entries.containsKey(source.getName()))
             {
-                final Entry entry = entries.get(from.getName());
-                if (entry.targets.containsKey(to))
-                    return entry.targets.get(to); 
+                final Entry entry = entries.get(source.getName());
+                if (entry.targets.containsKey(target))
+                    return entry.targets.get(target); 
             }
 
-            if (to.equals(from.getName()))
+            if (target.equals(source.getName()))
             {   
-                remember(from.getName(), to, 1); 
+                remember(source.getName(), target, 1); 
                 return 1;
             }
 
-            final Collection<Primitive> childs = from.isOrRule() ?
-                ((PrimitiveOR)  from).getORs() : 
-                ((PrimitiveAND) from).getArguments().values();
+            final Collection<Primitive> childs = source.isOrRule() ?
+                ((PrimitiveOR)  source).getORs() : 
+                ((PrimitiveAND) source).getArguments().values();
 
             int count = 0;
             for (Primitive p : childs)
-                count += getPathCount(p, to);
+                count += getPathCount(p, target);
 
-            remember(from.getName(), to, count); 
+            remember(source.getName(), target, count); 
             return count;
         }
     }
