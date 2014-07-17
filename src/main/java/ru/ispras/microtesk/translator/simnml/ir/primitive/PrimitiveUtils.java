@@ -26,8 +26,10 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive.Reference;
 
@@ -238,7 +240,11 @@ public final class PrimitiveUtils
          * primitive to the target (child) primitive. The method recursively
          * traverses all AND- and OR- rules starting from the source primitive
          * searching for child primitives which name equals the target name.
-         * If the source is not an OP primitive (operation) 0 is returned.
+         * 
+         * Important points: 
+         * (1) If the source is not an OP primitive (operation) 0 is returned.
+         * (2) If there are several references from a parent to a child they
+         * are considered as a single path.
          * 
          * To avoid redundant traversals and calculations, the method
          * memorizes all previous results. This information is used
@@ -257,8 +263,8 @@ public final class PrimitiveUtils
 
         public int getPathCount(Primitive source, String target)
         {
-            notNullCheck(source, "from");
-            notNullCheck(target, "to");
+            notNullCheck(source, "source");
+            notNullCheck(target, "target");
 
             if (source.getKind() != Primitive.Kind.OP)
                 return 0;
@@ -281,8 +287,16 @@ public final class PrimitiveUtils
                 ((PrimitiveAND) source).getArguments().values();
 
             int count = 0;
+
+            final Set<String> visitedChilds = new HashSet<String>();
             for (Primitive p : childs)
-                count += getPathCount(p, target);
+            {
+                if (!visitedChilds.contains(p.getName()))
+                {
+                    visitedChilds.add(p.getName());
+                    count += getPathCount(p, target);
+                }
+            }
 
             remember(source.getName(), target, count); 
             return count;
