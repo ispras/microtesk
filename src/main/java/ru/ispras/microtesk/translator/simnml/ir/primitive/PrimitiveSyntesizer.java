@@ -310,7 +310,7 @@ final class ShortcutBuilder
 
                 if (!isJunction(ref.getSource()))
                     build(ref.resolve());
-                
+
                 creator.addShortcutContext(ref.getSource().getName());
             }
         }
