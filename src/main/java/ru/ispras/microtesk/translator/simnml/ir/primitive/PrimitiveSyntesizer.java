@@ -297,7 +297,7 @@ final class ShortcutBuilder
     {
         final ShortcutCreator creator = new ShortcutCreator(entry); 
 
-        if (entry.isRoot() && isSinglePath(root, target))
+        if (entry.isRoot() && isSinglePathToTarget(root))
         {
             creator.addShortcutContext(root.getName());
         }
@@ -305,7 +305,7 @@ final class ShortcutBuilder
         {
             for (Primitive.Reference ref : entry.getParents())
             {
-                if (!isSinglePath(ref.getSource(), target))
+                if (!isSinglePathToTarget(ref.getSource()))
                     continue;
 
                 if (!isJunction(ref.getSource()))
@@ -322,20 +322,19 @@ final class ShortcutBuilder
      * Checks whether there is only a single path from the source
      * to the target. 
      * 
-     * @param from Source primitive.
-     * @param to Target primitive.
+     * @param source Source primitive.
      * @return <code>true</code> it there is a single path from
      * the source to the target or false otherwise.
      * 
      * @throws IllegalStateException if the number of possible paths from 
      * the source to the target is less than 1. This is an invariant. At least
      * one path always exists (because the build method passes it before
-     * checking that it is only one).   
+     * checking that there is only one path).   
      */
 
-    private boolean isSinglePath(Primitive from, Primitive to)
+    private boolean isSinglePathToTarget(Primitive source)
     {
-        final int count = pathCounter.getPathCount(from, to.getName());
+        final int count = pathCounter.getPathCount(source, target.getName());
 
         if (count < 1)
             throw new IllegalStateException();
