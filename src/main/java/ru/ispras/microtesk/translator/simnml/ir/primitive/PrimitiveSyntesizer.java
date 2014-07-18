@@ -138,7 +138,7 @@ public final class PrimitiveSyntesizer extends Logger
      * Checks whether the information was successfully synthesized.
      * 
      * @return <code>true</code> if the information was successfully
-     * synthesized or <code>false</code> otherwise.  
+     * synthesized or <code>false</code> otherwise.
      */
 
     public boolean isSyntesized() 
