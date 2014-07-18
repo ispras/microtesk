@@ -180,14 +180,14 @@ public final class PrimitiveSyntesizer extends Logger
 
         return true;
     }
-    
+
     /**
      * 
      */
 
     private void syntesizeShortcuts()
     {
-        final Primitive root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, roots);
+        final PrimitiveOR root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, roots);
         final PathCounter pathCounter = new PathCounter();
 
         for (Primitive op : operations)
@@ -218,7 +218,7 @@ public final class PrimitiveSyntesizer extends Logger
 
 final class ShortcutBuilder
 {
-    private final Primitive          root;
+    private final PrimitiveOR        root;
     private final PrimitiveAND     target;
     private final PathCounter pathCounter;
 
@@ -232,7 +232,7 @@ final class ShortcutBuilder
      */
 
     public ShortcutBuilder(
-        Primitive         root,
+        PrimitiveOR       root,
         PrimitiveAND    target,
         PathCounter pathCounter
         )
