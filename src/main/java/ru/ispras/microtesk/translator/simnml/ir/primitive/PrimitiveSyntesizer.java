@@ -45,8 +45,11 @@ import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.
  *   
  * (2) Shortcuts for leaf (have no child operations) and junction (have more
  * than one child operations) operations that allow addressing (instantiating
- * with all dependencies that can be resolved in an unambiguous way) these
- * operation in various contexts.
+ * with all required parent operations) these operation in various contexts.
+ * Shortcut is created when there is an unambiguous way to resolve all
+ * dependencies of parent operations on the way from an entry operation to
+ * a target operation. Shortcuts are added to IR of corresponding target 
+ * operations. 
  * 
  * @author Andrei Tatarnikov
  */
