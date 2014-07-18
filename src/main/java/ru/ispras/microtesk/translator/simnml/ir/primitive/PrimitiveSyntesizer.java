@@ -36,6 +36,8 @@ import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.
 
 public final class PrimitiveSyntesizer extends Logger
 {
+    private static final String ROOT_ID = "#root"; 
+    
     private final Collection<Primitive> operations;
     private final List<Primitive> roots;
 
@@ -96,7 +98,7 @@ public final class PrimitiveSyntesizer extends Logger
         System.out.println("****************************************");
         System.out.println("SYNTESIZING SHORTCUTS:");
         
-        final Primitive root = new PrimitiveOR("#root", Primitive.Kind.OP, roots);
+        final Primitive root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, roots);
         final PathCounter pathCounter = new PathCounter();
         
         for (Primitive op : operations)
@@ -105,7 +107,7 @@ public final class PrimitiveSyntesizer extends Logger
             if (isLeaf(op) || isJunction(op))
             {    
                 final PrimitiveAND target = (PrimitiveAND) op;
-                new ShortcutBuilder_(root, target, pathCounter).build();
+                new ShortcutBuilder(root, target, pathCounter).build();
             }
         }
     }
@@ -114,20 +116,20 @@ public final class PrimitiveSyntesizer extends Logger
         "Internal presentation has already been fully synthesized. No action was be performed.";
 }
 
-final class ShortcutBuilder_
+final class ShortcutBuilder
 {
-    private final Primitive root;
-    private final PrimitiveAND target;
+    private final Primitive          root;
+    private final PrimitiveAND     target;
     private final PathCounter pathCounter;
 
-    public ShortcutBuilder_(
+    public ShortcutBuilder(
         Primitive root,
         PrimitiveAND target,
         PathCounter pathCounter
         )
     {
-        this.root = root;
-        this.target = target;
+        this.root        = root;
+        this.target      = target;
         this.pathCounter = pathCounter;
     }
 
@@ -143,7 +145,7 @@ final class ShortcutBuilder_
         if (entry.isRoot() && getPathCount(root, target) == 1)
         {
             if (entry != target)
-                contextNames.add("#root");
+                contextNames.add(root.getName());
         }
         else
         {
