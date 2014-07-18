@@ -35,6 +35,18 @@ import ru.ispras.microtesk.translator.antlrex.log.Logger;
 import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.*;
 
 /**
+ * The PrimitiveSyntesizer class provides facilities to analyze information
+ * on relations between operations and to synthesize on its basis the following
+ * elements:
+ * 
+ * (1) The list of root operations that includes all operations described by
+ * AND rules which have no parents. Such operations serves as entry points in
+ * composite operations describing instruction calls.
+ *   
+ * (2) Shortcuts for leaf (have no child operations) and junction (have more
+ * than one child operations) operations that allow addressing (instantiating
+ * with all dependencies that can be resolved in an unambiguous way) these
+ * operation in various contexts.
  * 
  * @author Andrei Tatarnikov
  */
@@ -42,7 +54,10 @@ import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.
 public final class PrimitiveSyntesizer extends Logger
 {
     /**
-     * 
+     * Name for the fake operation (OR rule) that unites all root operations
+     * described in the specification (AND rules that have no parents).
+     * This identifier is used a context name when a shortcut is addressed
+     * from the topmost level of operation nesting in test templates. 
      */
 
     private static final String ROOT_ID = "#root"; 
@@ -75,8 +90,9 @@ public final class PrimitiveSyntesizer extends Logger
         this.roots        = new ArrayList<Primitive>();
         this.isSyntesized = false;
     }
-    
+
     /**
+     * Synthesizes 
      * 
      * @return <code>true</code> if the information was successfully
      * synthesized or <code>false</code> otherwise.
@@ -88,6 +104,12 @@ public final class PrimitiveSyntesizer extends Logger
         {
             reportWarning(ALREADY_SYNTHESIZED);
             return true;
+        }
+
+        if (operations.isEmpty())
+        {
+            reportError(NO_OPERATIONS);
+            return false;
         }
 
         if (!syntesizeRoots())
@@ -113,7 +135,7 @@ public final class PrimitiveSyntesizer extends Logger
 
     /**
      * Returns the list of root operations. A root operation is an AND rule
-     * that does not have parents. The list is synthesized.
+     * that has no parents. The list is synthesized.
      * 
      * @return List of root operations.
      */
@@ -171,6 +193,9 @@ public final class PrimitiveSyntesizer extends Logger
         }
     }
 
+    private static final String NO_OPERATIONS =
+         "The operation list is empty. No information to be analyzed.";
+
     private static final String ALREADY_SYNTHESIZED = 
         "Internal presentation has already been fully synthesized. No action was be performed.";
 
@@ -189,12 +214,30 @@ final class ShortcutBuilder
     private final PrimitiveAND     target;
     private final PathCounter pathCounter;
 
+    /**
+     * 
+     * @param root
+     * @param target
+     * @param pathCounter
+     * 
+     *  @throws NullPointerException if any of the parameters equals null.
+     */
+
     public ShortcutBuilder(
         Primitive         root,
         PrimitiveAND    target,
         PathCounter pathCounter
         )
     {
+        if (null == root)
+            throw new NullPointerException();
+
+        if (null == target)
+            throw new NullPointerException();
+
+        if (null == pathCounter)
+            throw new NullPointerException();
+
         this.root        = root;
         this.target      = target;
         this.pathCounter = pathCounter;
