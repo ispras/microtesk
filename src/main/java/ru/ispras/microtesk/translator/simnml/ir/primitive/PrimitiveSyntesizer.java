@@ -322,8 +322,8 @@ final class ShortcutBuilder
      * Checks whether there is only a single path from the source
      * to the target. 
      * 
-     * @param src Source primitive.
-     * @param targ Target primitive.
+     * @param from Source primitive.
+     * @param to Target primitive.
      * @return <code>true</code> it there is a single path from
      * the source to the target or false otherwise.
      */
