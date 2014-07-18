@@ -241,6 +241,8 @@ final class ShortcutBuilder
     private final PrimitiveAND     target;
     private final PathCounter pathCounter;
 
+    private boolean  canHaveMultiplePaths; 
+
     /**
      * Constructs a ShortcutBuilder object.
      * 
@@ -271,6 +273,9 @@ final class ShortcutBuilder
         this.root        = root;
         this.target      = target;
         this.pathCounter = pathCounter;
+
+        // False, until we meet primitives with multiple parents on our path.
+        this.canHaveMultiplePaths = false;
     }
 
     /**
@@ -303,6 +308,7 @@ final class ShortcutBuilder
         }
         else
         {
+            checkForMultipleParents(entry);
             for (Primitive.Reference ref : entry.getParents())
             {
                 if (!isSinglePathToTarget(ref.getSource()))
@@ -316,6 +322,26 @@ final class ShortcutBuilder
         }
 
         creator.createAndRegisterShortcut();
+    }
+
+    /**
+     * Checks if the given Primitive has multiple parents (more than one).
+     * If it has, the canHaveMultiplePaths flag is set to <code>true</code>.
+     * <pre></pre>
+     * This check is performed because  if there are no primitives with
+     * multiple parents on the way from the target to the source, there is
+     * only one path from the source to the target and there is no need to
+     * check for multiple paths. Otherwise, there are multiple paths and we
+     * need to look for the point where they start and exclude it from
+     * the shortcut path to avoid ambiguities. 
+     * 
+     * @param entry Primitive to be checked.
+     */
+
+    private void checkForMultipleParents(PrimitiveAND entry)
+    {
+        if (entry.getParentCount() > 1)
+            canHaveMultiplePaths = true; 
     }
 
     /**
@@ -334,6 +360,9 @@ final class ShortcutBuilder
 
     private boolean isSinglePathToTarget(Primitive source)
     {
+        if (!canHaveMultiplePaths)
+            return true;
+
         final int count = pathCounter.getPathCount(source, target.getName());
 
         if (count < 1)
