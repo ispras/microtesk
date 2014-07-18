@@ -181,7 +181,9 @@ public final class SimnMLAnalyzer
 
     public void startGenerator(String modelName, String fileName, IR ir)
     {
-        final Generator generator = new Generator(outDir + "/java", modelName, fileName, ir);
+        final Generator generator =
+            new Generator(outDir + "/java", modelName, fileName, ir);
+
         generator.generate();
     }
 
@@ -210,20 +212,21 @@ public final class SimnMLAnalyzer
         final IR ir = startParserAndWalker(source);
 
         final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
-             ir.getOps().values(), getShortFileName(fileName), LOG);
+            ir.getOps().values(), getShortFileName(fileName), LOG);
 
         if (!primitiveSyntesizer.syntesize())
         {
-            // TODO
-            System.err.println("!!! FAILED TO SYNTHESIZE SHORTCUTS. TRANSLATION WAS INTERRUPTED.");
+            System.err.println(FAILED_TO_SYNTH_PRIMITIVES);
             return;
         }
         ir.setRoots(primitiveSyntesizer.getRoots());
 
-        final InstructionBuilder instructionBuilder = new InstructionBuilder(ir.getOps(), getShortFileName(fileName), LOG);
+        final InstructionBuilder instructionBuilder = new InstructionBuilder(
+            ir.getOps(), getShortFileName(fileName), LOG);
+
         if (!instructionBuilder.buildInstructions())
         {
-            System.err.println("FAILED TO SYNTHESIZE INSTRUCTIONS. TRANSLATION WAS INTERRUPTED.");
+            System.err.println(FAILED_TO_SYNTH_INSTRUCTIONS);
             return;
         }
         ir.setInstructions(instructionBuilder.getInstructions());
@@ -266,4 +269,12 @@ public final class SimnMLAnalyzer
             { print(ast.getChild(i), indent + 1); }
     }
 */
+
+    private static final String FAILED_TO_SYNTH_INSTRUCTIONS = 
+        "FAILED TO SYNTHESIZE INSTRUCTIONS. " + 
+        "TRANSLATION WAS INTERRUPTED.";
+
+    private static final String FAILED_TO_SYNTH_PRIMITIVES =
+        "FAILED TO SYNTHESIZE INFORMATION ON DESCRIBED OPERATIONS. " +
+        "TRANSLATION WAS INTERRUPTED.";
 }
