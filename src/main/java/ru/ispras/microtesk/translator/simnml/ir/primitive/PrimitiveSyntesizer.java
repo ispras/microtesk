@@ -229,6 +229,8 @@ public final class PrimitiveSyntesizer extends Logger
 }
 
 /**
+ * The ShortcutBuilder class creates all possible shortcuts for the target
+ * operation and registers them into the corresponding object.
  * 
  * @author Andrei Tatarnikov
  */
@@ -240,12 +242,15 @@ final class ShortcutBuilder
     private final PathCounter pathCounter;
 
     /**
+     * Constructs a ShortcutBuilder object.
      * 
-     * @param root
-     * @param target
-     * @param pathCounter
+     * @param root The root primitive, root of all roots, that provides
+     * a common topmost starting point for all paths. 
+     * @param target Target primitive.
+     * @param pathCounter Path counter object that will be used to exclude
+     * ambiguous paths.
      * 
-     *  @throws NullPointerException if any of the parameters equals null.
+     * @throws NullPointerException if any of the parameters equals null.
      */
 
     public ShortcutBuilder(
@@ -267,9 +272,10 @@ final class ShortcutBuilder
         this.target      = target;
         this.pathCounter = pathCounter;
     }
-    
+
     /**
-     * 
+     * Builds shortcuts for the target primitives and adds them to the list
+     * of shortcuts of this primitive.  
      */
 
     public void build()
@@ -319,10 +325,12 @@ final class ShortcutBuilder
     }
 
     /**
+     * Returns the number of paths from the source to the target.
+     * Helper methods that encapsulates requests to the PathCounter object.  
      * 
-     * @param src
-     * @param targ
-     * @return
+     * @param src Source primitive.
+     * @param targ Target primitive.
+     * @return Number of paths from the source to the target.
      */
 
     private int getPathCount(Primitive src, Primitive targ)
