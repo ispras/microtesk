@@ -34,14 +34,31 @@ import ru.ispras.microtesk.translator.antlrex.log.Logger;
 
 import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.*;
 
+/**
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public final class PrimitiveSyntesizer extends Logger
 {
+    /**
+     * 
+     */
+
     private static final String ROOT_ID = "#root"; 
-    
+
     private final Collection<Primitive> operations;
     private final List<Primitive> roots;
-
     private boolean isSyntesized;
+
+    /**
+     * 
+     * @param operations
+     * @param fileName
+     * @param log
+     * 
+     * @throws NullPointerException if any of the parameters equals null.
+     */
 
     public PrimitiveSyntesizer(
         Collection<Primitive> operations,
@@ -58,6 +75,12 @@ public final class PrimitiveSyntesizer extends Logger
         this.roots        = new ArrayList<Primitive>();
         this.isSyntesized = false;
     }
+    
+    /**
+     * 
+     * @return <code>true</code> if the information was successfully
+     * synthesized or <code>false</code> otherwise.
+     */
 
     public boolean syntesize()
     {
@@ -67,45 +90,81 @@ public final class PrimitiveSyntesizer extends Logger
             return true;
         }
 
-        syntesizeRoots();
+        if (!syntesizeRoots())
+            return false;
+
         syntesizeShortcuts();
 
         isSyntesized = true;
         return true;
     }
 
-    public boolean isSyntesized()
+    /**
+     * Checks whether the information was successfully synthesized.
+     * 
+     * @return <code>true</code> if the information was successfully
+     * synthesized or <code>false</code> otherwise.  
+     */
+
+    public boolean isSyntesized() 
     {
         return isSyntesized;
     }
-    
+
+    /**
+     * Returns the list of root operations. A root operation is an AND rule
+     * that does not have parents. The list is synthesized.
+     * 
+     * @return List of root operations.
+     */
+
     public List<Primitive> getRoots()
     {
         return roots;
     }
 
-    private void syntesizeRoots()
+    /**
+     * Synthesizes the list of root operations (saves all root operations
+     * in the list). A root operation is considered to be an AND-rule
+     * operation that has no parents. If the method fails, the list is
+     * cleared. 
+     * 
+     * @return <code>true</code> if the list of root operations was
+     * successfully synthesized or <code>false</code> otherwise.
+     */
+
+    private boolean syntesizeRoots()
     {
         for (Primitive op : operations)
         {
-           if (op.isRoot() && !op.isOrRule())
-               roots.add(op);
+            if (op.getKind() != Primitive.Kind.OP)
+            {
+                roots.clear();
+                reportError(String.format(NOT_OPERATION, op.getName()));
+                return false;
+            }
+
+            if (op.isRoot() && !op.isOrRule())
+                roots.add(op);
         }
+
+        return true;
     }
     
+    /**
+     * 
+     */
+
     private void syntesizeShortcuts()
     {
-        System.out.println("****************************************");
-        System.out.println("SYNTESIZING SHORTCUTS:");
-        
         final Primitive root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, roots);
         final PathCounter pathCounter = new PathCounter();
-        
+
         for (Primitive op : operations)
         {
             // Only leafs and junctions: shortcuts for other nodes are redundant.
             if (isLeaf(op) || isJunction(op))
-            {    
+            {
                 final PrimitiveAND target = (PrimitiveAND) op;
                 new ShortcutBuilder(root, target, pathCounter).build();
             }
@@ -114,7 +173,15 @@ public final class PrimitiveSyntesizer extends Logger
 
     private static final String ALREADY_SYNTHESIZED = 
         "Internal presentation has already been fully synthesized. No action was be performed.";
+
+    private static final String NOT_OPERATION =
+        "Wring input data. The %s primitive is not an operation.";
 }
+
+/**
+ * 
+ * @author Andrei Tatarnikov
+ */
 
 final class ShortcutBuilder
 {
@@ -123,8 +190,8 @@ final class ShortcutBuilder
     private final PathCounter pathCounter;
 
     public ShortcutBuilder(
-        Primitive root,
-        PrimitiveAND target,
+        Primitive         root,
+        PrimitiveAND    target,
         PathCounter pathCounter
         )
     {
