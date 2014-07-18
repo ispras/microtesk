@@ -70,10 +70,12 @@ public final class PrimitiveSyntesizer extends Logger
     private boolean isSyntesized;
 
     /**
+     * Constructs a PrimitiveSyntesizer object.
      * 
-     * @param operations
-     * @param fileName
-     * @param log
+     * @param operations A list of operation IR objects to be analyzed.
+     * @param fileName Specification file name. 
+     * @param log log Log object that stores information about events
+     * and issues that may occur.
      * 
      * @throws NullPointerException if any of the parameters equals null.
      */
