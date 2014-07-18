@@ -282,17 +282,22 @@ final class ShortcutBuilder
     {
         build(target);
     }
-    
+
     /**
+     * Creates shortcuts to the target primitive starting from the entry
+     * primitive. Entry is the topmost point of the shortcut path.<pre></pre> 
      * 
-     * @param entry
+     * Algorithm description.<pre></pre>
+     * TODO:
+     * 
+     * @param entry Entry point of the shortcuts to be created.
      */
 
     private void build(PrimitiveAND entry)
     {
         final List<String> contextNames = new ArrayList<String>();
 
-        if (entry.isRoot() && getPathCount(root, target) == 1)
+        if (entry.isRoot() && isSinglePath(root, target))
         {
             if (entry != target)
                 contextNames.add(root.getName());
@@ -301,9 +306,7 @@ final class ShortcutBuilder
         {
             for (Primitive.Reference ref : entry.getParents())
             {
-                final int count = getPathCount(ref.getSource(), target);
-
-                if (count > 1)
+                if (!isSinglePath(ref.getSource(), target))
                     continue;
 
                 if (!isJunction(ref.getSource()))
@@ -325,16 +328,18 @@ final class ShortcutBuilder
     }
 
     /**
-     * Returns the number of paths from the source to the target.
-     * Helper methods that encapsulates requests to the PathCounter object.  
+     * Checks whether there is only a single path from the source
+     * to the target. 
      * 
      * @param src Source primitive.
      * @param targ Target primitive.
-     * @return Number of paths from the source to the target.
+     * @return <code>true</code> it there is a single path from
+     * the source to the target or false otherwise.
      */
 
-    private int getPathCount(Primitive src, Primitive targ)
+    private boolean isSinglePath(Primitive from, Primitive to)
     {
-        return pathCounter.getPathCount(src, targ.getName());
+        final int count = pathCounter.getPathCount(from, to.getName());
+        return count == 1;
     }
 }
