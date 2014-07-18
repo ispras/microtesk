@@ -326,16 +326,27 @@ final class ShortcutBuilder
      * @param to Target primitive.
      * @return <code>true</code> it there is a single path from
      * the source to the target or false otherwise.
+     * 
+     * @throws IllegalStateException if the number of possible paths from 
+     * the source to the target is less than 1. This is an invariant. At least
+     * one path always exists (because the build method passes it before
+     * checking that it is only one).   
      */
 
     private boolean isSinglePath(Primitive from, Primitive to)
     {
         final int count = pathCounter.getPathCount(from, to.getName());
+
+        if (count < 1)
+            throw new IllegalStateException();
+
         return count == 1;
     }
 
     /**
-     *     
+     * The ShortcutCreator class responsible for creating and registering
+     * shortcuts that describe paths starting from a common entry primitive.
+     * 
      * @author Andrei Tatarnikov
      */
 
@@ -343,18 +354,32 @@ final class ShortcutBuilder
     {
         private final PrimitiveAND        entry;
         private final List<String> contextNames;
+        
+        /**
+         * 
+         * @param entry
+         */
 
         private ShortcutCreator(PrimitiveAND entry)
         {
             this.entry = entry;
             this.contextNames = new ArrayList<String>();
         }
-        
+
+        /**
+         * 
+         * @param name
+         */
+
         private void addShortcutContext(String name)
         {
             if (entry != target)
                 contextNames.add(name);
         }
+
+        /**
+         * 
+         */
 
         private void createAndRegisterShortcut()
         {
