@@ -122,13 +122,8 @@ public final class PrimitiveSyntesizer extends Logger
 
         if (!syntesizeRoots())
             return false;
-        
-        final long start = System.currentTimeMillis();
 
         syntesizeShortcuts();
-        
-        System.out.printf("!!! syntesizeShortcuts duration: %d%n",
-                System.currentTimeMillis() - start);
 
         isSyntesized = true;
         return true;
