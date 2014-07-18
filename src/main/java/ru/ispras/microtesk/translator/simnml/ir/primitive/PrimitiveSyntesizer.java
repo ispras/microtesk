@@ -40,13 +40,13 @@ import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.
  * elements:<pre></pre>
  * 
  * 1. The list of root operations that includes all operations described by
- * AND rules which have no parents. Such operations serves as entry points in
+ * AND rules which have no parents. Such operations serve as entry points in
  * composite operations describing instruction calls.<pre></pre>
  * 
  * 2. Shortcuts for leaf (have no child operations) and junction (have more
  * than one child operations) operations that allow addressing (instantiating
  * with all required parent operations) these operation in various contexts.
- * Shortcut is created when there is an unambiguous way to resolve all
+ * A shortcut can be synthesized if there is an unambiguous way to resolve all
  * dependencies of parent operations on the way from an entry operation to
  * a target operation. Shortcuts are added to IR of corresponding target 
  * operations.<pre></pre>
@@ -99,8 +99,8 @@ public final class PrimitiveSyntesizer extends Logger
     /**
      * Synthesizes the list of root operations and shortcuts for all
      * "interesting" operations (leafs and junctions) based on the list
-     * of all defined operations. Details on building shortcuts are
-     * in the class description.
+     * of all defined operations. For details on building shortcuts,
+     * see documentation on the syntesizeShortcuts method.
      * 
      * @return <code>true</code> if the information was successfully
      * synthesized or <code>false</code> otherwise.
@@ -182,12 +182,29 @@ public final class PrimitiveSyntesizer extends Logger
     }
 
     /**
+     * Synthesizes shortcuts for leaf and junction operations and adds the them
+     * to the corresponding operations. Only leafs (no childs) and junctions
+     * (more than one child) are considered interesting because there is no
+     * need to create shortcuts for intermediate nodes.<pre></pre>
      * 
+     * Implementation details:<pre></pre>
+     * 
+     * The method iterates over the collection of operations provided by the
+     * client and uses the ShortcutBuilder class to build shortcuts for
+     * leaf (no childs) and junction (more than one child) primitives. Other
+     * operations are ignored as they are considered intermediate (they are not
+     * a final point in an unambiguous path). See documentation on the 
+     * ShortcutBuilder class for more details. 
      */
 
     private void syntesizeShortcuts()
     {
-        final PrimitiveOR root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, roots);
+        // Fake primitive, root of all roots, needed to provide a common context.
+        final PrimitiveOR root =
+            new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, roots);
+
+        // Used by ShortcutBuilder, stores all previous results to avoid
+        // redundant traversals.
         final PathCounter pathCounter = new PathCounter();
 
         for (Primitive op : operations)
@@ -250,11 +267,20 @@ final class ShortcutBuilder
         this.target      = target;
         this.pathCounter = pathCounter;
     }
+    
+    /**
+     * 
+     */
 
     public void build()
     {
         build(target);
     }
+    
+    /**
+     * 
+     * @param entry
+     */
 
     private void build(PrimitiveAND entry)
     {
@@ -291,7 +317,14 @@ final class ShortcutBuilder
             System.out.println(shortcut);
         }
     }
-    
+
+    /**
+     * 
+     * @param src
+     * @param targ
+     * @return
+     */
+
     private int getPathCount(Primitive src, Primitive targ)
     {
         return pathCounter.getPathCount(src, targ.getName());
