@@ -295,12 +295,11 @@ final class ShortcutBuilder
 
     private void build(PrimitiveAND entry)
     {
-        final List<String> contextNames = new ArrayList<String>();
+        final ShortcutCreator creator = new ShortcutCreator(entry); 
 
         if (entry.isRoot() && isSinglePath(root, target))
         {
-            if (entry != target)
-                contextNames.add(root.getName());
+            creator.addShortcutContext(root.getName());
         }
         else
         {
@@ -312,19 +311,11 @@ final class ShortcutBuilder
                 if (!isJunction(ref.getSource()))
                     build(ref.resolve());
                 
-                if (entry != target)
-                    contextNames.add(ref.getSource().getName());
+                creator.addShortcutContext(ref.getSource().getName());
             }
         }
 
-        if (!contextNames.isEmpty())
-        {
-            final Shortcut shortcut =
-                new Shortcut(entry, target, contextNames);
-
-            target.addShortcut(shortcut);
-            System.out.println(shortcut);
-        }
+        creator.createAndRegisterShortcut();
     }
 
     /**
@@ -341,5 +332,40 @@ final class ShortcutBuilder
     {
         final int count = pathCounter.getPathCount(from, to.getName());
         return count == 1;
+    }
+
+    /**
+     *     
+     * @author Andrei Tatarnikov
+     */
+
+    private final class ShortcutCreator
+    {
+        private final PrimitiveAND        entry;
+        private final List<String> contextNames;
+
+        private ShortcutCreator(PrimitiveAND entry)
+        {
+            this.entry = entry;
+            this.contextNames = new ArrayList<String>();
+        }
+        
+        private void addShortcutContext(String name)
+        {
+            if (entry != target)
+                contextNames.add(name);
+        }
+
+        private void createAndRegisterShortcut()
+        {
+            if (!contextNames.isEmpty())
+            {
+                final Shortcut shortcut =
+                    new Shortcut(entry, target, contextNames);
+
+                target.addShortcut(shortcut);
+                System.out.println(shortcut);
+            }
+        }
     }
 }
