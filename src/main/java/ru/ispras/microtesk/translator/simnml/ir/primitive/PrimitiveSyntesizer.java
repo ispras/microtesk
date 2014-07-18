@@ -37,19 +37,19 @@ import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.
 /**
  * The PrimitiveSyntesizer class provides facilities to analyze information
  * on relations between operations and to synthesize on its basis the following
- * elements:
+ * elements:<pre></pre>
  * 
- * (1) The list of root operations that includes all operations described by
+ * 1. The list of root operations that includes all operations described by
  * AND rules which have no parents. Such operations serves as entry points in
- * composite operations describing instruction calls.
- *   
- * (2) Shortcuts for leaf (have no child operations) and junction (have more
+ * composite operations describing instruction calls.<pre></pre>
+ * 
+ * 2. Shortcuts for leaf (have no child operations) and junction (have more
  * than one child operations) operations that allow addressing (instantiating
  * with all required parent operations) these operation in various contexts.
  * Shortcut is created when there is an unambiguous way to resolve all
  * dependencies of parent operations on the way from an entry operation to
  * a target operation. Shortcuts are added to IR of corresponding target 
- * operations. 
+ * operations.<pre></pre>
  * 
  * @author Andrei Tatarnikov
  */
