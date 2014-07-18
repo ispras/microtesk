@@ -95,7 +95,10 @@ public final class PrimitiveSyntesizer extends Logger
     }
 
     /**
-     * Synthesizes 
+     * Synthesizes the list of root operations and shortcuts for all
+     * "interesting" operations (leafs and junctions) based on the list
+     * of all defined operations. Details on building shortcuts are
+     * in the class description.
      * 
      * @return <code>true</code> if the information was successfully
      * synthesized or <code>false</code> otherwise.
