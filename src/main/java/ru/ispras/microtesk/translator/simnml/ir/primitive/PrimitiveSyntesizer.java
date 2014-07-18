@@ -354,10 +354,11 @@ final class ShortcutBuilder
     {
         private final PrimitiveAND        entry;
         private final List<String> contextNames;
-        
+
         /**
+         * Constructs a shortcut creator for the given entry.
          * 
-         * @param entry
+         * @param entry Entry primitive for the shortcut to be created.
          */
 
         private ShortcutCreator(PrimitiveAND entry)
@@ -367,8 +368,12 @@ final class ShortcutBuilder
         }
 
         /**
+         * Add a context in which the shortcut can be used. If the entry
+         * refers to the same primitive as the target, no context is 
+         * added since there is no need for such a shortcut (in this case,
+         * the path consists only of the target). 
          * 
-         * @param name
+         * @param name Context name. 
          */
 
         private void addShortcutContext(String name)
@@ -378,7 +383,8 @@ final class ShortcutBuilder
         }
 
         /**
-         * 
+         * Creates and registers a shortcut if there are
+         * contexts in which it can be used.
          */
 
         private void createAndRegisterShortcut()
