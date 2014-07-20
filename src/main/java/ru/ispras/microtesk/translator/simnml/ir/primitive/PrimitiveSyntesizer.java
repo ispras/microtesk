@@ -26,7 +26,9 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
@@ -63,16 +65,32 @@ public final class PrimitiveSyntesizer extends Logger
      * from the topmost level of operation nesting in test templates. 
      */
 
-    private static final String ROOT_ID = "#root"; 
+    private static final String ROOT_ID = "#root";
+
+    /**
+     * The collection of operation primitives to be processed.
+     */
 
     private final Collection<Primitive> operations;
+
+    /**
+     * The synthesized list of root primitives (all AND operations that
+     * have no parents). 
+     */
+
     private final List<Primitive> roots;
+
+    /**
+     * The flag that is set when all information has been
+     * successfully synthesized.
+     */
+
     private boolean isSyntesized;
 
     /**
      * Constructs a PrimitiveSyntesizer object.
      * 
-     * @param operations A list of operation IR objects to be analyzed.
+     * @param operations A list of operations to be processed.
      * @param fileName Specification file name. 
      * @param log log Log object that stores information about events
      * and issues that may occur.
@@ -237,11 +255,43 @@ public final class PrimitiveSyntesizer extends Logger
 
 final class ShortcutBuilder
 {
-    private final PrimitiveOR        root;
-    private final PrimitiveAND     target;
+    /**
+     * A synthetic (does not present in the specification) primitive that
+     * unites all root primitives (AND-rule operations that have parents).
+     * It is needed to check if there are ambiguous paths that start from
+     * the specification root (any of the root primitives). 
+     */
+
+    private final PrimitiveOR root;
+
+    /**
+     * Target operation for a series of shortcuts.
+     */
+
+    private final PrimitiveAND target;
+
+    /**
+     * Path counter to find ambiguous paths. It caches the results of 
+     * previous calculations and is shared among all ShortcutBuilder objects
+     * to improve performance. 
+     */
+
     private final PathCounter pathCounter;
 
-    private boolean  canHaveMultiplePaths; 
+    /**
+     * Holds the list of primitives with multiple parents that are found
+     * on a way from the target to the root. Such nodes produce 
+     * ambiguous paths. If there no such nodes, there cannot be multiple
+     * paths from the source to the target. If there are such nodes, we
+     * need to check that there is only one path from the source to
+     * each of these nodes. We don't need to check if where are multiple
+     * paths from the source to the target because these nodes are on the
+     * way from the source to the target and there is only one path from
+     * them to the target (because, otherwise, the traversal would stop and
+     * they would not be processed).
+     */
+
+    private final Set<String> opsWithMultipleParents;
 
     /**
      * Constructs a ShortcutBuilder object.
@@ -274,8 +324,8 @@ final class ShortcutBuilder
         this.target      = target;
         this.pathCounter = pathCounter;
 
-        // False, until we meet primitives with multiple parents on our path.
-        this.canHaveMultiplePaths = false;
+        // Empty by default
+        this.opsWithMultipleParents = new HashSet<String>();
     }
 
     /**
@@ -292,8 +342,24 @@ final class ShortcutBuilder
      * Creates shortcuts to the target primitive starting from the entry
      * primitive. Entry is the topmost point of the shortcut path.<pre></pre> 
      * 
-     * Algorithm description.<pre></pre>
-     * TODO:
+     * Algorithm description:<pre></pre>
+     * The method uses the ShortcutCreator class to create and register 
+     * shortcuts that describe the path from the entry node to the 
+     * target node. A shortcut can be used in one or more contexts.
+     * In the are no suitable contexts, there is no need to create
+     * the shortcut. There can be two situations: (1) the entry node
+     * is a root node and (2) it is not a root node. In the first case,
+     * if there is only one path from the root to the target, a shortcut
+     * to be used in the root context is created. The second situation
+     * is more complicated. First of all, we check if the entry node
+     * has multiple parents and register it in the set of multiple-parent
+     * nodes. This is needed to efficiently perform checks for multiple paths.
+     * When the method exits, the entry is removed from the set. Then we
+     * create shortcuts for the entry using its parents as contexts if
+     * there is only one path from them to the target. If a parent is not
+     * a junction (a node with multiple arguments than can unite paths to
+     * several targets), we invoke the build method recursively for this
+     * parent to build shortcuts that start from it.  
      * 
      * @param entry Entry point of the shortcuts to be created.
      */
@@ -319,6 +385,7 @@ final class ShortcutBuilder
 
                 creator.addShortcutContext(ref.getSource().getName());
             }
+            checkForMultipleParentsFinalize(entry);
         }
 
         creator.createAndRegisterShortcut();
@@ -326,14 +393,17 @@ final class ShortcutBuilder
 
     /**
      * Checks if the given Primitive has multiple parents (more than one).
-     * If it has, the canHaveMultiplePaths flag is set to <code>true</code>.
+     * If it has, adds it to the set of the set of primitives with multiple
+     * parents (opsWithMultipleParents) that can cause ambiguity.
+     *  
      * <pre></pre>
-     * This check is performed because  if there are no primitives with
-     * multiple parents on the way from the target to the source, there is
-     * only one path from the source to the target and there is no need to
-     * check for multiple paths. Otherwise, there are multiple paths and we
-     * need to look for the point where they start and exclude it from
-     * the shortcut path to avoid ambiguities. 
+     * This check is performed because if there are no primitives with
+     * multiple parents on the way from the target to the source, there
+     * can be only one path from the source to the target and there is
+     * no need to perform a check for multiple paths. Otherwise, there
+     * are multiple paths and we need to look for the point where they
+     * start and exclude this point (node) from the shortcut path to
+     * avoid ambiguities. 
      * 
      * @param entry Primitive to be checked.
      */
@@ -341,12 +411,39 @@ final class ShortcutBuilder
     private void checkForMultipleParents(PrimitiveAND entry)
     {
         if (entry.getParentCount() > 1)
-            canHaveMultiplePaths = true; 
+            opsWithMultipleParents.add(entry.getName());
+    }
+
+    /**
+     * Removes the specified primitive from the set of primitives
+     * with multiple parents (if it presents there). This method
+     * is called when the build method finishes traversing a certain
+     * subpaths. Nodes that were saved in the set during the traversal
+     * of some subpath, may not present in other subpaths at all.
+     * Therefore, there is no need use them in further checks. If they
+     * appear on the path again, the will be added to set a new and 
+     * all corresponding checks will be performed.
+     * 
+     * @param entry Primitive to be removed.
+     */
+
+    private void checkForMultipleParentsFinalize(PrimitiveAND entry)
+    {
+        if (!opsWithMultipleParents.isEmpty())
+            opsWithMultipleParents.remove(entry.getName());
     }
 
     /**
      * Checks whether there is only a single path from the source
-     * to the target. 
+     * to the target. In fact, the implementation is slightly more intricate.
+     * It checks if there is a single path to all nodes in the set
+     * of nodes that have multiple parents. There modes lay on the
+     * way from the source to the target on have only on path to
+     * the target. This is done for performance reasons: intermediate
+     * nodes with multiple parents is likely to present on a greater number
+     * of paths than terminal nodes (targets). Because the previous results
+     * are cached by the path counter, it works faster for such
+     * (more "popular") nodes.
      * 
      * @param source Source primitive.
      * @return <code>true</code> it there is a single path from
@@ -360,6 +457,28 @@ final class ShortcutBuilder
 
     private boolean isSinglePathToTarget(Primitive source)
     {
+        for (String ambiguousTarget : opsWithMultipleParents)
+        {
+            final int count = pathCounter.getPathCount(source, ambiguousTarget);
+            
+            if (count > 1)
+                return false;
+
+            if (count < 1)
+                throw new IllegalStateException();
+        }
+
+        return true;
+
+        /*
+        // This is an old more straightforward, more reliable
+        // implementation, but less efficient implementation.
+        // It is left here in case some issues with the current
+        // arise.
+
+        // The canHaveMultiplePaths is set to true by checkForMultipleParents
+        // when it faces a node with multiple parents.
+
         if (!canHaveMultiplePaths)
             return true;
 
@@ -369,6 +488,7 @@ final class ShortcutBuilder
             throw new IllegalStateException();
 
         return count == 1;
+        */
     }
 
     /**
@@ -423,7 +543,6 @@ final class ShortcutBuilder
                     new Shortcut(entry, target, contextNames);
 
                 target.addShortcut(shortcut);
-                System.out.println(shortcut);
             }
         }
     }
