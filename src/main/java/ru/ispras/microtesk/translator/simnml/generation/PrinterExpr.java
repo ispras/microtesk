@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ISPRAS
+ * Copyright (c) 2014 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -7,7 +7,19 @@
  * 
  * All rights reserved.
  * 
- * ExprPrinter.java, Feb 6, 2014 11:33:40 AM Andrei Tatarnikov
+ * PrinterExpr.java, Feb 6, 2014 11:33:40 AM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.generation;
@@ -32,13 +44,13 @@ import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 
-public final class ExprPrinter
+public final class PrinterExpr
 {
     private final Expr                     expr;
     private final NodeInfo             nodeInfo;
     private final List<ValueInfo> coercionChain;
 
-    public ExprPrinter(Expr expr)
+    public PrinterExpr(Expr expr)
     {
         this.expr = expr;
 
@@ -146,7 +158,7 @@ public final class ExprPrinter
 
     private String locationToString(Location source)
     {
-        return LocationPrinter.toString(source) + ".load()";
+        return PrinterLocation.toString(source) + ".load()";
     }
 
     private String operatorToString(SourceOperator source)
@@ -157,9 +169,9 @@ public final class ExprPrinter
         if (op == Operator.ITE)
         {
             return String.format("%s ? %s : %s",
-                new ExprPrinter(new Expr(nodeExpr.getOperand(0))),
-                new ExprPrinter(new Expr(nodeExpr.getOperand(1))),
-                new ExprPrinter(new Expr(nodeExpr.getOperand(2)))
+                new PrinterExpr(new Expr(nodeExpr.getOperand(0))),
+                new PrinterExpr(new Expr(nodeExpr.getOperand(1))),
+                new PrinterExpr(new Expr(nodeExpr.getOperand(2)))
                 );
         }
 
@@ -205,7 +217,7 @@ public final class ExprPrinter
     private static String operandToString(SourceOperator operatorInfo, Node operandNode, boolean needsBrackets)
     {
         final Expr        operand = new Expr(operandNode);
-        final ExprPrinter printer = new ExprPrinter(operand);
+        final PrinterExpr printer = new PrinterExpr(operand);
 
         boolean enclose = false;
         if (needsBrackets && NodeInfo.Kind.OPERATOR == operand.getNodeInfo().getKind())

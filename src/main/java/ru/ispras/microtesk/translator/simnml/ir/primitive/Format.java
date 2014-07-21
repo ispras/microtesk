@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.ispras.microtesk.model.api.type.ETypeID;
-import ru.ispras.microtesk.translator.simnml.generation.ExprPrinter;
+import ru.ispras.microtesk.translator.simnml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
@@ -171,12 +171,12 @@ public final class Format
                 methodName = "intValue";
             
             return String.format(
-                "%s.getRawData().%s()", new ExprPrinter(expr), methodName);
+                "%s.getRawData().%s()", new PrinterExpr(expr), methodName);
         }
 
         private String convertJavaTo(Marker marker)
         {
-            final ExprPrinter printer = new ExprPrinter(expr);
+            final PrinterExpr printer = new PrinterExpr(expr);
 
             return (BIN == marker) ?
                 String.format("Integer.toBinaryString(%s)", printer) : printer.toString();

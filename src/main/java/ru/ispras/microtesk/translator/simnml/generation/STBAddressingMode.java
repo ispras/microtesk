@@ -137,11 +137,11 @@ final class STBAddressingMode extends STBPrimitiveBase
         final NodeInfo returnExprNodeInfo = returnExpr.getNodeInfo();
         if (NodeInfo.Kind.LOCATION == returnExprNodeInfo.getKind() && !returnExprNodeInfo.isCoersionApplied())
         {
-            t.add("ret", LocationPrinter.toString((Location) returnExprNodeInfo.getSource()));
+            t.add("ret", PrinterLocation.toString((Location) returnExprNodeInfo.getSource()));
         }
         else
         {
-            t.add("ret", String.format("new Location(%s)", new ExprPrinter(returnExpr)));
+            t.add("ret", String.format("new Location(%s)", new PrinterExpr(returnExpr)));
         }
     }
 

@@ -136,7 +136,7 @@ final class STBShared implements ITemplateBuilder
 
             tLet.add("name",  constant.getName());
             tLet.add("type",  toValueClass(constant.getExpr().getValueInfo().getNativeType()).getSimpleName());
-            tLet.add("value", new ExprPrinter(constant.getExpr()));
+            tLet.add("value", new PrinterExpr(constant.getExpr()));
 
             t.add("members", tLet);
         }
@@ -155,7 +155,7 @@ final class STBShared implements ITemplateBuilder
 
                 tType.add("name",   type.getKey());
                 tType.add("typeid", type.getValue().getTypeId());
-                tType.add("size",   new ExprPrinter(type.getValue().getBitSizeExpr()));
+                tType.add("size",   new PrinterExpr(type.getValue().getBitSizeExpr()));
 
                 t.add("members", tType);
             }
@@ -228,12 +228,12 @@ final class STBShared implements ITemplateBuilder
             final ST tNewType = group.getInstanceOf("new_type");
 
             tNewType.add("typeid", typeExpr.getTypeId());
-            tNewType.add("size",   new ExprPrinter(typeExpr.getBitSizeExpr()));
+            tNewType.add("size",   new PrinterExpr(typeExpr.getBitSizeExpr()));
 
             tMemory.add("type", tNewType);
         }
 
-        tMemory.add("size", new ExprPrinter(memory.getSizeExpr()));
+        tMemory.add("size", new PrinterExpr(memory.getSizeExpr()));
 
         t.add("members", tMemory);
     }
