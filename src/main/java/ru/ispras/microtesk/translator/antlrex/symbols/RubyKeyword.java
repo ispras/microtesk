@@ -10,7 +10,7 @@
  * RubyKeyword.java, Dec 12, 2012 12:20:37 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.keywords;
+package ru.ispras.microtesk.translator.antlrex.symbols;
 
 public final class RubyKeyword
 {

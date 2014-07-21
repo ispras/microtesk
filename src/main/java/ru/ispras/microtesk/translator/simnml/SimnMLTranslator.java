@@ -23,10 +23,10 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
+import ru.ispras.microtesk.translator.antlrex.symbols.JavaKeyword;
+import ru.ispras.microtesk.translator.antlrex.symbols.RubyKeyword;
 
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.keywords.JavaKeyword;
-import ru.ispras.microtesk.translator.keywords.RubyKeyword;
 import ru.ispras.microtesk.translator.simnml.generation.Generator;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLLexer;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLParser;

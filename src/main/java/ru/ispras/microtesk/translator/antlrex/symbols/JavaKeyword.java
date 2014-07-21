@@ -10,7 +10,7 @@
  * JavaKeyword.java, Oct 22, 2012 1:49:01 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.keywords;
+package ru.ispras.microtesk.translator.antlrex.symbols;
 
 public final class JavaKeyword
 {
