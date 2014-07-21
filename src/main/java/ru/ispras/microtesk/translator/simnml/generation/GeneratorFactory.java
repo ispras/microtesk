@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -60,7 +60,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder modelBuilder =
-            new ModelSTBuilder(specFileName, modelName, ir);
+            new STBuilderModel(specFileName, modelName, ir);
 
         return new ClassGenerator(outputFileName, templateGroups, modelBuilder);
     }
@@ -77,7 +77,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new SharedSTBuilder(ir, specFileName, modelName);
+            new STBuilderShared(ir, specFileName, modelName);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -94,7 +94,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new InstructionSetSTBuilder(specFileName, modelName, instructionClassNames);
+            new STBuilderInstructionSet(specFileName, modelName, instructionClassNames);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -111,7 +111,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new InstructionSTBuilder(specFileName, modelName, instruction);
+            new STBuilderInstruction(specFileName, modelName, instruction);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -128,7 +128,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new AddressingModeOrSTBuilder(specFileName, modelName, mode);
+            new STBuilderAddressingModeOr(specFileName, modelName, mode);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -145,7 +145,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new AddressingModeSTBuilder(specFileName, modelName, mode);
+            new STBuilderAddressingMode(specFileName, modelName, mode);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -162,7 +162,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-             new OperationOrSTBuilder(specFileName, modelName, op);
+             new STBuilderOperationOr(specFileName, modelName, op);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -179,7 +179,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new OperationSTBuilder(specFileName, modelName, op);
+            new STBuilderOperation(specFileName, modelName, op);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
