@@ -40,8 +40,6 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
-import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 

@@ -10,7 +10,7 @@
  * LocationPrinter.java, Aug 9, 2013 3:32:22 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.generation.utils;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 import ru.ispras.microtesk.translator.simnml.ir.location.LocationAtom;

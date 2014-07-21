@@ -10,7 +10,7 @@
  * ExprPrinter.java, Feb 6, 2014 11:33:40 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.generation.utils;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import java.util.Collections;
 import java.util.EnumMap;

@@ -39,8 +39,6 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAttributeCall
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
-import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
-import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 abstract class STBPrimitiveBase implements ITemplateBuilder
 {
