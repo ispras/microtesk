@@ -236,7 +236,7 @@ op SRAV (rd : REG, rs : REG, rt : REG)
   }
 
 op SRLV (rd : REG, rs : REG, rt : REG)
-  syntax = format("SRLV %d, %s, %s",  rd.syntax, rs.syntax, rt.syntax)
+  syntax = format("SRLV %s, %s, %s",  rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%5b00000000110", rs.image, rt.image, rd.image) 
   action = {
     rd = rt >> rs<4..0>;
@@ -264,7 +264,7 @@ op SLT (rd : REG, rs : REG, rt : REG)
   }
 
 op SLTU (rd : REG, rs : REG, rt : REG)
-  syntax = format("SLTU %d, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  syntax = format("SLTU %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%5b00000101011", rs.image, rt.image, rd.image) 
   action = {
     rd = if coerce(WORD, rs) < coerce(WORD, rt) then 1 else 0 endif;
