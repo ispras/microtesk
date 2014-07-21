@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * STBuilderPrimitiveBase.java, Jul 18, 2013 11:36:48 AM Andrei Tatarnikov
+ * STBPrimitiveBase.java, Jul 18, 2013 11:36:48 AM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -42,7 +42,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
 import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
 import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
-abstract class STBuilderPrimitiveBase implements ITemplateBuilder
+abstract class STBPrimitiveBase implements ITemplateBuilder
 {
     private static final Map<Attribute.Kind, String> RET_TYPE_MAP =
         new EnumMap<Attribute.Kind, String>(Attribute.Kind.class);

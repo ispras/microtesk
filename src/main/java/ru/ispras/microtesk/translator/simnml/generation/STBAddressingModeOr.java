@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * STBuilderAddressingModeOr.java, Dec 7, 2012 1:58:00 PM Andrei Tatarnikov
+ * STBAddressingModeOr.java, Dec 7, 2012 1:58:00 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -37,13 +37,13 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-final class STBuilderAddressingModeOr implements ITemplateBuilder
+final class STBAddressingModeOr implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;
     private final PrimitiveOR mode;
 
-    public STBuilderAddressingModeOr(
+    public STBAddressingModeOr(
         String specFileName,
         String modelName,
         PrimitiveOR mode

@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * STBuilderShared.java, Dec 6, 2012 4:22:54 PM Andrei Tatarnikov
+ * STBShared.java, Dec 6, 2012 4:22:54 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -51,7 +51,7 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-class STBuilderShared implements ITemplateBuilder
+final class STBShared implements ITemplateBuilder
 {
     private static Map<Class<?>, Class<?>> CLASS_MAP = new HashMap<Class<?>, Class<?>>();
     static
@@ -75,7 +75,7 @@ class STBuilderShared implements ITemplateBuilder
     public final String modelName;
     public final IR ir;
 
-    public STBuilderShared(IR ir, String specFileName, String modelName)
+    public STBShared(IR ir, String specFileName, String modelName)
     {
         this.specFileName = specFileName;
         this.modelName = modelName;

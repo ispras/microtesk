@@ -60,7 +60,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder modelBuilder =
-            new STBuilderModel(specFileName, modelName, ir);
+            new STBModel(specFileName, modelName, ir);
 
         return new ClassGenerator(outputFileName, templateGroups, modelBuilder);
     }
@@ -77,7 +77,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new STBuilderShared(ir, specFileName, modelName);
+            new STBShared(ir, specFileName, modelName);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -94,7 +94,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new STBuilderInstructionSet(specFileName, modelName, instructionClassNames);
+            new STBInstructionSet(specFileName, modelName, instructionClassNames);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -111,7 +111,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new STBuilderInstruction(specFileName, modelName, instruction);
+            new STBInstruction(specFileName, modelName, instruction);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -128,7 +128,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new STBuilderAddressingModeOr(specFileName, modelName, mode);
+            new STBAddressingModeOr(specFileName, modelName, mode);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -145,7 +145,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new STBuilderAddressingMode(specFileName, modelName, mode);
+            new STBAddressingMode(specFileName, modelName, mode);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -162,7 +162,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-             new STBuilderOperationOr(specFileName, modelName, op);
+             new STBOperationOr(specFileName, modelName, op);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }
@@ -179,7 +179,7 @@ final class GeneratorFactory
         };
 
         final ITemplateBuilder builder =
-            new STBuilderOperation(specFileName, modelName, op);
+            new STBOperation(specFileName, modelName, op);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }

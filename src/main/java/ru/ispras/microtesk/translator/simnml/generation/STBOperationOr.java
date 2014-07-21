@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * STBuilderInstructionSet.java, Dec 7, 2012 11:35:35 AM Andrei Tatarnikov
+ * STBOperationOr.java, Dec 7, 2012 2:46:37 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -24,50 +24,55 @@
 
 package ru.ispras.microtesk.translator.simnml.generation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.instruction.IInstructionEx;
-import ru.ispras.microtesk.model.api.instruction.InstructionSet;
-
+import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-class STBuilderInstructionSet implements ITemplateBuilder
+final class STBOperationOr implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;
-    private final List<String> instructionClassNames;
+    private final PrimitiveOR op;
 
-    public STBuilderInstructionSet(
+    public STBOperationOr(
         String specFileName,
         String modelName,
-        List<String> instructionClassNames
+        PrimitiveOR op
         )
     {
+        assert op.getKind() == Primitive.Kind.OP;
+
         this.specFileName = specFileName;
-        this.modelName = modelName;
-        this.instructionClassNames = instructionClassNames;
+        this.modelName    = modelName;
+        this.op           = op;
     }
 
     @Override
     public ST build(STGroup group)
     {
-        final ST t = group.getInstanceOf("instruction_set");
+        final ST t = group.getInstanceOf("op");
 
+        t.add("name", op.getName());
         t.add("file", specFileName);
-        t.add("pack", String.format(INSTRUCTION_PACKAGE_FORMAT, modelName));
+        t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
 
-        t.add("imps", IInstructionEx.class.getName());
-        t.add("imps", InstructionSet.class.getName());
-        t.add("base", InstructionSet.class.getSimpleName());
+        t.add("imps", Operation.class.getName());
+        t.add("base", Operation.class.getSimpleName());
 
-        t.add("instr_type", IInstructionEx.class.getSimpleName());
-        t.add("instrs", instructionClassNames);
+        final List<String> opNames = new ArrayList<String>(op.getORs().size());
+        for (Primitive p : op.getORs())
+            opNames.add(p.getName());
 
+        t.add("ops", opNames);
         return t;
     }
 }

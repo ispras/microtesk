@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * STBuilderModel.java, Dec 6, 2012 11:44:08 AM Andrei Tatarnikov
+ * STBModel.java, Dec 6, 2012 11:44:08 AM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -44,13 +44,13 @@ import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-class STBuilderModel implements ITemplateBuilder
+final class STBModel implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;
     private final IR ir;
 
-    public STBuilderModel(String specFileName, String modelName, IR ir)
+    public STBModel(String specFileName, String modelName, IR ir)
     {
         this.specFileName = specFileName;
         this.modelName    = modelName;

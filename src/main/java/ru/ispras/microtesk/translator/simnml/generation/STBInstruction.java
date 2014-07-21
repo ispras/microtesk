@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * STBuilderInstruction.java, Dec 7, 2012 3:29:34 PM Andrei Tatarnikov
+ * STBInstruction.java, Dec 7, 2012 3:29:34 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -48,7 +48,7 @@ import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-class STBuilderInstruction implements ITemplateBuilder
+final class STBInstruction implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;
@@ -58,7 +58,7 @@ class STBuilderInstruction implements ITemplateBuilder
     private boolean needModeImports = false;
     private boolean needSitsImports = false;
     
-    public STBuilderInstruction(
+    public STBInstruction(
         String specFileName,
         String modelName,
         Instruction instruction

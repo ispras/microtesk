@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * STBuilderOperation.java, Dec 7, 2012 3:27:59 PM Andrei Tatarnikov
+ * STBOperation.java, Dec 7, 2012 3:27:59 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -45,7 +45,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-class STBuilderOperation extends STBuilderPrimitiveBase
+final class STBOperation extends STBPrimitiveBase
 {
     private final String specFileName;
     private final String modelName;
@@ -84,7 +84,7 @@ class STBuilderOperation extends STBuilderPrimitiveBase
         }
     }
 
-    public STBuilderOperation(
+    public STBOperation(
         String specFileName,
         String modelName,
         PrimitiveAND op

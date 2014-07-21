@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * STBuilderAddressingMode.java, Dec 7, 2012 3:26:13 PM Andrei Tatarnikov
+ * STBAddressingMode.java, Dec 7, 2012 3:26:13 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -45,13 +45,13 @@ import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-class STBuilderAddressingMode extends STBuilderPrimitiveBase
+final class STBAddressingMode extends STBPrimitiveBase
 {
     private final String specFileName;
     private final String    modelName;
     private final PrimitiveAND   mode;
 
-    public STBuilderAddressingMode(
+    public STBAddressingMode(
         String specFileName,
         String modelName,
         PrimitiveAND mode
