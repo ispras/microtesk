@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.generation.builders;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.stringtemplate.v4.ST;
@@ -24,6 +25,8 @@ import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Shortcut;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Shortcut.Argument;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
@@ -172,6 +175,95 @@ public class OperationSTBuilder extends PrimitiveBaseSTBuilder
             t.add("attrs", attrST);
         }
     }
+    
+    private void buildShortcuts(STGroup group, ST t)
+    {
+        for (Shortcut shortcut : op.getShortcuts())
+        {
+            final ST shortcutST = group.getInstanceOf("shortcut");
+
+            shortcutST.add("name",  op.getName());
+            shortcutST.add("entry", shortcut.getEntry().getName());
+
+            for (Shortcut.Argument arg : shortcut.getArguments())
+            {
+                final Primitive argType = arg.getType();
+
+                shortcutST.add("arg_names", arg.getUniqueName());
+                shortcutST.add("arg_tnames",
+                    Primitive.Kind.IMM == argType.getKind() ? 
+                    argType.getName() :
+                    String.format("%s.INFO", argType.getName()));
+
+                if (Primitive.Kind.MODE == argType.getKind())
+                {
+                    importModeDependencies(t);
+                    shortcutST.add("arg_types", IAddressingMode.class.getSimpleName());
+                }
+                else if (Primitive.Kind.OP == argType.getKind())
+                {
+                    importOpDependencies(t);
+                    shortcutST.add("arg_types", IOperation.class.getSimpleName());
+                }
+                else // if Primitive.Kind.IMM == oa.getKind()
+                {
+                    importImmDependencies(t);
+                    shortcutST.add("arg_types", Location.class.getSimpleName());
+                }
+            }
+
+            shortcutST.add("op_tree", 
+                createOperationTreeST(group, shortcut.getEntry(), shortcut.getArguments()));
+
+            t.add("shortcuts", shortcutST);
+
+            final ST shortcutDefST = group.getInstanceOf("shortcut_def");
+            shortcutDefST.add("entry", shortcut.getEntry().getName());
+
+            for (String context : shortcut.getContextName())
+                shortcutDefST.add("contexts", context);
+
+            t.add("shortcut_defs", shortcutDefST);
+        }
+    }
+    
+    private ST createOperationTreeST(STGroup group, PrimitiveAND root, Collection<Argument> args)
+    {
+        final ST t = group.getInstanceOf("op_tree_node");
+        t.add("name", root.getName());
+
+        for (Map.Entry<String, Primitive> e : root.getArguments().entrySet())
+        {
+            if (e.getValue().getKind() == Primitive.Kind.MODE)
+            {
+                t.add("params", getUniqueArgumentName(e, args));
+            }
+            else if (e.getValue().getKind() == Primitive.Kind.OP)
+            {
+                assert !e.getValue().isOrRule() : String.format("%s is an OR rule: %s", e.getKey(), e.getValue().getName());
+                t.add("params", createOperationTreeST(group, (PrimitiveAND) e.getValue(), args));
+            }
+            else
+            {
+                t.add("params", getUniqueArgumentName(e, args));
+            }
+        }
+
+        return t;
+    }
+    
+    private String getUniqueArgumentName(Map.Entry<String, Primitive> arg, Collection<Argument> arg_defs)
+    {
+        for (Argument a : arg_defs)
+        {
+            if (a.getName().equals(arg.getKey()) ||
+                a.getSource().getName().equals(arg.getValue().getName()))
+                return a.getUniqueName();
+        }
+
+        assert false : "Failed to find a unique name.";
+        return arg.getKey();
+    }
 
     @Override
     public ST build(STGroup group)
@@ -181,6 +273,7 @@ public class OperationSTBuilder extends PrimitiveBaseSTBuilder
         buildHeader(t);
         buildArguments(group, t);
         buildAttributes(group, t);
+        buildShortcuts(group, t);
 
         return t;
     }

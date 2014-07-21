@@ -56,7 +56,7 @@ public class Sub extends Operation
                 Sub.class.getSimpleName(),
                 new ParamDecls(),
                 new Shortcuts()
-                    .addShortcut("#root", new Info_Instruction())
+                    .addShortcut(new Info_Instruction(), "#root")
             );
         }
 

@@ -56,7 +56,7 @@ public final class Add extends Operation
                 Add.class.getSimpleName(),
                 new ParamDecls(),
                 new Shortcuts()
-                    .addShortcut("#root", new Info_Instruction())
+                    .addShortcut(new Info_Instruction(), "#root")
             );
         }
 

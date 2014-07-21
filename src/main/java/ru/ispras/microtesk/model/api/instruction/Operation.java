@@ -242,9 +242,14 @@ public abstract class Operation implements IOperation
             this.shortcuts = new LinkedHashMap<String, InfoAndRule>();
         }
 
-        public Shortcuts addShortcut(String contextName, InfoAndRule operation)
+        public Shortcuts addShortcut(InfoAndRule operation, String ... contexts)
         {
-            shortcuts.put(contextName, operation);
+            for (String context : contexts)
+            {
+                assert !shortcuts.containsKey(context); 
+                shortcuts.put(context, operation);    
+            }
+
             return this;
         }
         

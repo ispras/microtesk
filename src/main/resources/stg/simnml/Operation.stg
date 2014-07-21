@@ -12,7 +12,12 @@
  
 group Operation;
 
-op(name, file, pack, imps, simps, base, arg_names, arg_types, arg_checks, arg_tnames, attrs) ::= <<
+op(
+  name, file, pack, imps, simps, base,
+  arg_names, arg_types, arg_checks, arg_tnames,
+  attrs,
+  shortcuts, shortcut_defs
+) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -21,19 +26,26 @@ op(name, file, pack, imps, simps, base, arg_names, arg_types, arg_checks, arg_tn
        name,
        base,
        false,
-       body(name, arg_names, arg_types, arg_checks, arg_tnames, attrs))>
+       body(name, arg_names, arg_types, arg_checks, arg_tnames, attrs, shortcuts, shortcut_defs))>
 >>
 
-body(name, arg_names, arg_types, arg_checks, arg_tnames, attrs) ::= <<
+body(name, arg_names, arg_types, arg_checks, arg_tnames, attrs, shortcuts, shortcut_defs) ::= <<
+<info(name, arg_names, arg_types, arg_tnames, shortcut_defs)>
+<shortcuts>
+<class_const("IInfo", "INFO", "new Info()")><\n>
+<op_constructor(name, arg_names, arg_types, arg_checks)><\n>
+<attrs; separator="\n\n">
+>>
+
+///////////////////////////////////////////////////////////////////////////////
+
+info(name, arg_names, arg_types, arg_tnames, shortcut_defs) ::= <<
 <class(["private", "static", "final"],
        "Info",
        "InfoAndRule",
        false,
        info_body(name, arg_names, arg_types, arg_tnames))
 >
-<class_const("IInfo", "INFO", "new Info()")><\n>
-<op_constructor(name, arg_names, arg_types, arg_checks)><\n>
-<attrs; separator="\n\n">
 >>
 
 info_body(name, arg_names, arg_types, arg_tnames) ::= <<
@@ -42,9 +54,12 @@ Info()
     super(
        <name>.class,
        "<name>",
-       <new_op_decls(arg_names, arg_tnames)>
+       <new_op_decls(arg_names, arg_tnames)><if(shortcut_defs)>,
+       new Shortcuts()
+           <shortcut_defs; separator="\n">
+       <endif>
     );
-}
+}<\n>
 @Override
 public IOperation create(Map\<String, Object\> args)
 {
@@ -56,6 +71,56 @@ public IOperation create(Map\<String, Object\> args)
 new_op_decls(arg_names, arg_tnames) ::= <<
 new ParamDecls()<arg_names, arg_tnames:{n, t | <\n>    .declareParam("<n>", <t>)}>
 >>
+
+///////////////////////////////////////////////////////////////////////////////
+
+shortcut(name, entry, arg_names, arg_tnames, arg_types, op_tree) ::= <<
+<class(["private", "static", "final"],
+       shortcut_class(entry),
+       "InfoAndRule",
+       false,
+       shortcut_body(name, entry, arg_names, arg_tnames, arg_types, op_tree))
+>
+>>
+
+shortcut_def(entry, contexts) ::= <<
+.addShortcut(new <shortcut_class(entry)>(), <contexts :{c | "<c>"}; separator=",">)
+>>
+
+shortcut_class(entry) ::= <<
+Info_<entry>
+>>
+
+shortcut_name(entry) ::= <<
+INFO_<entry>
+>>
+
+shortcut_body(name, entry, arg_names, arg_tnames, arg_types, op_tree) ::= <<
+<shortcut_class(entry)>()
+{
+    super(
+        <entry>.class,
+        "<name>",
+        <new_op_decls(arg_names, arg_tnames)>
+    );
+}<\n>
+@Override
+public IOperation create(Map\<String, Object\> args)
+{
+    <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
+    return <op_param(op_tree)>;
+}
+>>
+
+op_tree_node(name, params) ::= <<
+new <name>(<if(params)><\n><params:op_param(); separator=",\n"><\n><endif>)
+>>
+
+op_param(p) ::= <<
+    <p>
+>>
+
+///////////////////////////////////////////////////////////////////////////////
 
 op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
 <if(arg_names)><arg_names, arg_types:{n, t | <op_arg_def(n, t)>}; separator="\n"><\n><endif>
@@ -81,6 +146,8 @@ op_arg_check_imm(arg_type, arg_name) ::= <<
 op_arg_init(name) ::= <<
     this.<name> = <name>;
 >>
+
+///////////////////////////////////////////////////////////////////////////////
 
 op_attribute(name, rettype, stmts, override) ::= <<
 <if(override)>@Override

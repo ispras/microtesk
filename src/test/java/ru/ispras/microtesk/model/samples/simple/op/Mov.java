@@ -54,8 +54,7 @@ public final class Mov extends Operation
                 Mov.class.getSimpleName(),
                 new ParamDecls(),
                 new Shortcuts()
-                    .addShortcut("#root", new Info_Instruction())
-
+                    .addShortcut(new Info_Instruction(), "#root")
             );
         }
 
