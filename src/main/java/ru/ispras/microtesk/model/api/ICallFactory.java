@@ -34,7 +34,7 @@ public interface ICallFactory
 {
     public IAddressingModeBuilder newModeInstance(String name) throws ConfigurationException;
 
-    public IOperationBuilder newOpInstance(String name, String rootName) throws ConfigurationException;
+    public IOperationBuilder newOpInstance(String name, String contextName) throws ConfigurationException;
 
     public InstructionCall newCall(IOperation op);
 }
