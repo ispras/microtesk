@@ -27,7 +27,6 @@ package ru.ispras.microtesk.translator.simnml.generation;
 import java.util.List;
 
 import ru.ispras.microtesk.translator.generation.*;
-import ru.ispras.microtesk.translator.simnml.generation.builders.*;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
@@ -36,7 +35,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public final class GeneratorFactory
+final class GeneratorFactory
 {
     private final String       outDir;
     private final String specFileName;

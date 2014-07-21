@@ -10,7 +10,7 @@
  * SharedSTBuilder.java, Dec 6, 2012 4:22:54 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.generation.builders;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public class SharedSTBuilder implements ITemplateBuilder
+class SharedSTBuilder implements ITemplateBuilder
 {
     private static Map<Class<?>, Class<?>> CLASS_MAP = new HashMap<Class<?>, Class<?>>();
     static

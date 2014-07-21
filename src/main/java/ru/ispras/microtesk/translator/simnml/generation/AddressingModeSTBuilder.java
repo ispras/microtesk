@@ -10,7 +10,7 @@
  * AddressingModeSTBuilder.java, Dec 7, 2012 3:26:13 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.generation.builders;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -33,7 +33,7 @@ import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
+class AddressingModeSTBuilder extends PrimitiveBaseSTBuilder
 {
     private final String specFileName;
     private final String    modelName;

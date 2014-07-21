@@ -10,7 +10,7 @@
  * InstructionSTBuilder.java, Dec 7, 2012 3:29:34 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.generation.builders;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import java.util.Map;
 
@@ -36,7 +36,7 @@ import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public class InstructionSTBuilder implements ITemplateBuilder
+class InstructionSTBuilder implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;

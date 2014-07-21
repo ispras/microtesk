@@ -22,7 +22,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.simnml.generation.builders;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public class ModelSTBuilder implements ITemplateBuilder
+class ModelSTBuilder implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;

@@ -10,7 +10,7 @@
  * PrimitiveBaseSTBuilder.java, Jul 18, 2013 11:36:48 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.generation.builders;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -30,7 +30,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
 import ru.ispras.microtesk.translator.simnml.generation.utils.ExprPrinter;
 import ru.ispras.microtesk.translator.simnml.generation.utils.LocationPrinter;
 
-public abstract class PrimitiveBaseSTBuilder implements ITemplateBuilder
+abstract class PrimitiveBaseSTBuilder implements ITemplateBuilder
 {
     private static final Map<Attribute.Kind, String> RET_TYPE_MAP =
         new EnumMap<Attribute.Kind, String>(Attribute.Kind.class);

@@ -10,7 +10,7 @@
  * OperationSTBuilder.java, Dec 7, 2012 3:27:59 PM Andrei Tatarnikov
  */ 
 
-package ru.ispras.microtesk.translator.simnml.generation.builders;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import java.util.Collection;
 import java.util.Map;
@@ -33,7 +33,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public class OperationSTBuilder extends PrimitiveBaseSTBuilder
+class OperationSTBuilder extends PrimitiveBaseSTBuilder
 {
     private final String specFileName;
     private final String modelName;

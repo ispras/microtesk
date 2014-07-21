@@ -10,7 +10,7 @@
  * OperationOrSTBuilder.java, Dec 7, 2012 2:46:37 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.translator.simnml.generation.builders;
+package ru.ispras.microtesk.translator.simnml.generation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-public final class OperationOrSTBuilder implements ITemplateBuilder
+final class OperationOrSTBuilder implements ITemplateBuilder
 {
     private final String specFileName;
     private final String modelName;
