@@ -23,8 +23,7 @@ import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.antlrex.symbols.JavaKeyword;
-import ru.ispras.microtesk.translator.antlrex.symbols.RubyKeyword;
+import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.simnml.generation.Generator;
@@ -144,8 +143,9 @@ public final class SimnMLAnalyzer
     public IR startParserAndWalker(TokenSource source) throws RecognitionException
     {
         final SymbolTable<ESymbolKind> symbols = new SymbolTable<ESymbolKind>();
-        symbols.defineReserved(ESymbolKind.KEYWORD, JavaKeyword.STRINGS);
-        symbols.defineReserved(ESymbolKind.KEYWORD, RubyKeyword.STRINGS);
+
+        symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.JAVA);
+        symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
         final CommonTokenStream tokens = new TokenRewriteStream();
         tokens.setTokenSource(source);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2014 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -7,16 +7,28 @@
  * 
  * All rights reserved.
  * 
- * JavaKeyword.java, Oct 22, 2012 1:49:01 PM Andrei Tatarnikov
+ * ReservedKeywords.java, Jul 21, 2014 10:23:25 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-public final class JavaKeyword
+public final class ReservedKeywords
 {
-	private JavaKeyword() { }
+	private ReservedKeywords() { }
 	
-    public static final String[] STRINGS =
+    public static final String[] JAVA =
     {
         // Reserved language keywords.
         "abstract", "continue", "for",        "new",       "switch", 
@@ -31,6 +43,12 @@ public final class JavaKeyword
         "const",    "float",    "native",     "super",     "while"
         
         // Class names from the "java.lang" package.
+        // TODO: Add names that can cause conflicts with generated constructs.
+    };
+    
+    public static final String[] RUBY =
+    {
+        // TODO: Reserved language keywords here.
         // TODO: Add names that can cause conflicts with generated constructs.
     };
 }
