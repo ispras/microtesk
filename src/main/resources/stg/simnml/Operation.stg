@@ -84,7 +84,7 @@ shortcut(name, entry, arg_names, arg_tnames, arg_types, op_tree) ::= <<
 >>
 
 shortcut_def(entry, contexts) ::= <<
-.addShortcut(new <shortcut_class(entry)>(), <contexts :{c | "<c>"}; separator=",">)
+.addShortcut(new <shortcut_class(entry)>(), <contexts :{c | "<c>"}; separator=", ">)
 >>
 
 shortcut_class(entry) ::= <<
