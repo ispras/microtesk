@@ -27,7 +27,7 @@
 #
 # The Engine module is a wrapper round the TestEngine class provided
 # by MicroTESK (ru.ispras.microtesk.test.TestEngine). It provides methods
-# to build objects describing instruction call backs and instuction call 
+# to build objects describing instruction call blocks and instuction call 
 # sequences (abstract and concrete). TODO: In the future, it is recommended
 # to consider renaming the module into MicroTESK (it will contain all 
 # wrappers for the Java part).
