@@ -25,6 +25,23 @@
 #
 # Description:
 #
+# The Output module provides methods to print textual information into
+# the simulator output or to insert it into the generated test program.
+# The module is included into test templates (as a mixin for the Template
+# class) so that its methods are available in all test templates and can
+# be used in their code.
+#
+# Preconditions:
+# 
+# It is expected that the Template class that imports the Output module
+# as a mixin implements the add_output method that registers output objects
+# created by methods provided by the Output module.
+#
+module Output
+
+#
+# Description:
+#
 # The Output class is an abstract base class for objects that contain
 # information to be printed to the simulation output to inserted into
 # the generated test program. 
@@ -180,3 +197,67 @@ class OutputString < Output
   end
 
 end
+
+#
+# Prints text into the simulator execution log.
+#
+def trace(string)
+  add_output OutputString.new(string, true)
+end
+
+#
+# Evaluates a code block at simulation time and prints the resulting
+# text into the simulator output.
+#
+def trace_(&block)
+  add_output OutputCode.new(block, true)
+end
+
+# 
+# Adds the new line character into the test program
+#
+def newline
+  text '' 
+end
+
+# 
+# Adds text into the test program.
+#
+def text(string)
+  add_output OutputString.new(string)
+end
+ 
+#
+# Evaluates a code block at printing time and puts the resulting
+# text into the test program.
+#  
+def text_(&block)
+  add_output OutputCode.new(block)
+end
+
+# 
+# Adds a comment into the test program (uses @sl_comment_starts_with).
+#
+def comment(string)
+  if !string.empty? and string[0] == ?\" then #"
+    text string.insert(1, @sl_comment_starts_with)
+  else
+    text @sl_comment_starts_with + string
+  end
+end
+
+#
+# Starts a multi-line comment (uses @sl_comment_starts_with)
+#
+def start_comment
+  text @ml_comment_starts_with
+end
+
+#
+# Ends a multi-line comment (uses the ML_COMMENT_ENDS_WITH property)
+#
+def end_comment
+  text @ml_comment_ends_with 
+end
+
+end # module Output

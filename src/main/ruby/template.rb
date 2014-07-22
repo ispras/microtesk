@@ -21,6 +21,7 @@ HEADER_TEXT =
 
 class Template
   include StateObserver
+  include Output
 
   @@template_classes = Array.new
   attr_accessor :is_executable
@@ -116,50 +117,9 @@ class Template
     @instruction_receiver.receive l
   end
 
-  # Prints text into the simulator execution log
-  def trace(string)
-    @instruction_receiver.receive OutputString.new(string, true)
-  end
-
-  def trace_(&block)
-    @instruction_receiver.receive OutputCode.new(block, true)
-  end
-
-  # --- Methods for printing text to output
-
-  # Puts the new line character into the test program
-  def newline
-    text '' 
-  end
-
-  #  Puts text into the test program
-  def text(string)
-    @instruction_receiver.receive OutputString.new(string)
-  end
-
-  # Evaluates a code block at printing time and puts the resulting text into a test program  
-  def text_(&block)
-    @instruction_receiver.receive OutputCode.new(block)
-  end
-
-  # Puts a comment into the test program (uses @sl_comment_starts_with)
-  def comment(string)
-    if !string.empty? and string[0] == ?\" then #"
-      text string.insert(1, @sl_comment_starts_with)
-    else
-      text @sl_comment_starts_with + string
-    end
-  end
-
-  # Starts a multi-line comment (uses @sl_comment_starts_with)
-  def start_comment
-    text @ml_comment_starts_with
-  end
-
-  # Ends a multi-line comment (uses the ML_COMMENT_ENDS_WITH property)
-  def end_comment
-    text @ml_comment_ends_with 
-  end
+  def add_output(o)
+    @instruction_receiver.receive o
+  end  
 
   # --- Special "no value" method ---
 
