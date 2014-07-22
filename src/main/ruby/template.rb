@@ -1,14 +1,16 @@
 
-require_relative "engine"
+# Mixins for the Template class
+require_relative "output"
 require_relative "state_observer"
-require_relative "utils"
 
+# Other dependencies
+require_relative "engine"
+require_relative "utils"
 require_relative "constructs/argument"
 require_relative "constructs/instruction_block"
 require_relative "constructs/instruction"
 require_relative "constructs/label"
 require_relative "constructs/no_value"
-require_relative "constructs/output"
 require_relative "constructs/situation"
 
 # Header for generated assembly files
