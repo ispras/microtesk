@@ -1,3 +1,5 @@
+require_relative "../output"
+
 # Instruction block class - May version
 # This class is used to build blocks by means of the MicroTESK API
 
@@ -97,7 +99,7 @@ class InstructionBlock
       end
 
       # OUTPUT
-      if item.is_a? Output
+      if item.is_a? Output::Output
         if delayed_instruction == nil
           delayed_outputs.push item
         else
