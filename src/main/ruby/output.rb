@@ -33,9 +33,18 @@
 #
 # Preconditions:
 # 
-# It is expected that the Template class that imports the Output module
+# 1. It is expected that the Template class that imports the Output module
 # as a mixin implements the add_output method that registers output objects
 # created by methods provided by the Output module.
+#
+# 2. It is expected that the class that imports the Output module provides
+# the following attributes:
+#     (1) sl_comment_starts_with,
+#     (2) ml_comment_starts_with,
+#     (3) ml_comment_ends_with.
+# They are used to form comments. In the current implementation, they are
+# defined in the Settings module that is included in the Template class
+# as a mixin. 
 #
 module Output
 
@@ -236,28 +245,28 @@ def text_(&block)
 end
 
 # 
-# Adds a comment into the test program (uses @sl_comment_starts_with).
+# Adds a comment into the test program (uses sl_comment_starts_with).
 #
 def comment(string)
   if !string.empty? and string[0] == ?\" then #"
-    text string.insert(1, @sl_comment_starts_with)
+    text string.insert(1, sl_comment_starts_with)
   else
-    text @sl_comment_starts_with + string
+    text sl_comment_starts_with + string
   end
 end
 
 #
-# Starts a multi-line comment (uses @sl_comment_starts_with)
+# Starts a multi-line comment (uses sl_comment_starts_with)
 #
 def start_comment
-  text @ml_comment_starts_with
+  text ml_comment_starts_with
 end
 
 #
-# Ends a multi-line comment (uses the ML_COMMENT_ENDS_WITH property)
+# Ends a multi-line comment (uses ml_comment_ends_with)
 #
 def end_comment
-  text @ml_comment_ends_with 
+  text ml_comment_ends_with 
 end
 
 end # module Output
