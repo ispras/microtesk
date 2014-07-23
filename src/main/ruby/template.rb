@@ -41,10 +41,10 @@ module Settings
 
   # Text that starts single-line comments.
   attr_reader :sl_comment_starts_with
-  
+
   # Text that starts multi-line comments.
   attr_reader :ml_comment_starts_with
-  
+
   # Text that terminates multi-line comments.
   attr_reader :ml_comment_ends_with
 
