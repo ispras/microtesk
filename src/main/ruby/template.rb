@@ -410,14 +410,6 @@ class Template
     [r_gen, jump_target]
     
   end
-  
-  def get_header()
-    HEADER_TEXT % [@sl_comment_starts_with, 
-                   @sl_comment_starts_with, Time.new, @sl_comment_starts_with,
-                   @sl_comment_starts_with,
-                   @sl_comment_starts_with,
-                   @sl_comment_starts_with]
-  end
 
   # Print out the executable program
   def output(filename)
@@ -426,10 +418,19 @@ class Template
     puts "---------- Start output ----------"
     puts
 
+    #generates header text
+    header_formatter = lambda do
+      HEADER_TEXT % [sl_comment_starts_with, 
+                     sl_comment_starts_with, Time.new, sl_comment_starts_with,
+                     sl_comment_starts_with,
+                     sl_comment_starts_with,
+                     sl_comment_starts_with]
+    end
+
     use_file = filename != nil and filename != ""
     if use_file
       file = File.open(filename, 'w')
-      file.printf get_header
+      file.printf header_formatter.call
     end
 
     # prints a string to the output
@@ -437,7 +438,7 @@ class Template
       if use_file
         file.puts text
       end
-      if @use_stdout
+      if use_stdout
          puts text
       end
     end
@@ -453,7 +454,7 @@ class Template
         end
       end
     end
-    
+
     # prints an array of labels to the output 
     label_array_printer = lambda do |arr|
       if arr.is_a? Array
