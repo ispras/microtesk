@@ -49,6 +49,12 @@ class DemoTemplate < DemoPrepost
     trace 'Main Section:'
     comment 'Main Section Starts'
     newline
+    
+    start_comment
+    text "Multiline comment. Line 1."
+    text "Multiline comment. Line 2."
+    text "Multiline comment. Line 3."
+    end_comment
 
     # Addressing mode arguments as a hash map
     mov reg(:i => 0), imm(:i => 0xFF)
