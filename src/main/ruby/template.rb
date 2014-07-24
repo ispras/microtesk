@@ -413,73 +413,95 @@ class Template
 
   # Print out the executable program
   def output(filename)
-
     puts
     puts "---------- Start output ----------"
     puts
 
-    #generates header text
-    header_formatter = lambda do
-      HEADER_TEXT % [sl_comment_starts_with, 
-                     sl_comment_starts_with, Time.new, sl_comment_starts_with,
-                     sl_comment_starts_with,
-                     sl_comment_starts_with,
-                     sl_comment_starts_with]
-    end
-
-    use_file = filename != nil and filename != ""
-    if use_file
-      file = File.open(filename, 'w')
-      file.printf header_formatter.call
-    end
-
-    # prints a string to the output
-    text_printer = lambda do |text|
-      if use_file
-        file.puts text
-      end
-      if use_stdout
-         puts text
-      end
-    end
-
-    # prints an array of object evaluating them
-    eval_array_printer = lambda do |arr|
-      if arr.is_a? Array
-        arr.each do |item|
-          s = item.evaluate_to_text(self)
-          if s != nil
-            text_printer.call s
-          end
-        end
-      end
-    end
-
-    # prints an array of labels to the output 
-    label_array_printer = lambda do |arr|
-      if arr.is_a? Array
-        arr.each do |label|
-          text = label.first
-          label[1].each do |t|
-            text += "_" + t.to_s
-          end
-          text_printer.call text + ":"
-        end
-      end
-    end
-
+    printer = Printer.new(filename, self, self)
     @final_sequences.each do |fs|
-      fs.each do |inst|
-        eval_array_printer.call  inst.getAttribute("b_output")
-        label_array_printer.call inst.getAttribute("b_labels")
-
-        text_printer.call        inst.getExecutable().getText()
-
-        label_array_printer.call inst.getAttribute("f_labels")
-        eval_array_printer.call  inst.getAttribute("f_output")
-      end
+      printer.print_sequence fs
     end
+  end
 
+end
+
+class Printer
+
+  def initialize(filename, settings, context)
+    raise "Wrong setting type." unless settings.is_a? Settings
+    raise "Wrong context type." unless context.is_a? StateObserver
+
+    @filename  = filename
+    @settings  = settings
+    @context   = context
+    @file      = nil
+    @is_header = true
+  end
+
+  def print_sequence(sequence)
+    print_header
+    sequence.each do |inst|
+      print_outputs inst.getAttribute("b_output")
+      print_labels  inst.getAttribute("b_labels")
+      print_text    inst.getExecutable().getText()
+      print_labels  inst.getAttribute("f_labels")
+      print_outputs inst.getAttribute("f_output")
+    end
+  end
+
+private
+
+  def use_file?
+    @filename != nil and @filename != ""
+  end
+
+  def generate_header
+    slcs = @settings.sl_comment_starts_with
+    HEADER_TEXT % [slcs, slcs, Time.new, slcs, slcs, slcs, slcs]
+  end
+
+  def print_to_stdout(text)
+    if @settings.use_stdout
+      puts text
+    end
+  end
+
+  def print_to_file(text)
+    if use_file?
+      if @file == nil
+        @file = File.open(@filename, 'w')
+      end
+      @file.puts text
+    end
+  end
+
+  def print_text(text)
+    print_to_stdout text
+    print_to_file text
+  end
+
+  def print_header
+    if @is_header
+      print_text generate_header
+      @is_header = false
+    end
+  end
+
+  def print_outputs(arr)
+    return unless arr.is_a? Array
+    arr.each do |item|
+      s = item.evaluate_to_text(self)
+      print_text s if s != nil
+    end
+  end
+
+  def print_labels(arr)
+    return unless arr.is_a? Array
+    arr.each do |label|
+      text = label.first
+      label[1].each { |t| text += "_" + t.to_s }
+      print_text text + ":"
+    end
   end
 
 end
