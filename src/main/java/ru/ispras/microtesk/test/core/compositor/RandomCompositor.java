@@ -20,8 +20,8 @@ import java.util.Arrays;
 
 import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
 import ru.ispras.microtesk.test.core.iterator.IIterator;
-import ru.ispras.microtesk.test.core.randomizer.Distribution;
-import ru.ispras.microtesk.test.core.randomizer.Randomizer;
+import ru.ispras.fortress.randomizer.Distribution;
+import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
  * This class implements the random composition (merging) of iterators.

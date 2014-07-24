@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.microtesk.test.core.iterator.IIterator;
-import ru.ispras.microtesk.test.core.randomizer.Randomizer;
+import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
  * This class implements the random combinator of iterators.
