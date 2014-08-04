@@ -78,21 +78,6 @@ class Argument
 
 end
 
-class Attribute
-
-  attr_accessor :name, :parameters
-
-  def initialize
-
-    @name = "UntitledAttribute"
-
-    # String -> Object
-    @parameters = Hash.new
-
-  end
-
-end
-
 # Instruction block class - May version
 # This class is used to build blocks by means of the MicroTESK API
 
@@ -337,6 +322,22 @@ class Instruction
 
 end
 
+
+class Attribute
+
+  attr_accessor :name, :parameters
+
+  def initialize
+
+    @name = "UntitledAttribute"
+
+    # String -> Object
+    @parameters = Hash.new
+
+  end
+
+end
+
 class Label
 
   attr_accessor :name
@@ -371,5 +372,3 @@ class Situation
   end
 
 end
-
-
