@@ -228,7 +228,6 @@ class Template
     end
 
     # Execute and generate data in the process
-    generated = Array.new
     @final_sequences = Array.new(sequences.length)
     @final_sequences.each_with_index do |sq, i| 
       @final_sequences[i] = nil 
