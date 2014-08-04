@@ -5,14 +5,9 @@ require_relative "state_observer"
 
 # Other dependencies
 require_relative "config"
+require_relative "constructs"
 require_relative "engine"
 require_relative "utils"
-require_relative "constructs/argument"
-require_relative "constructs/instruction_block"
-require_relative "constructs/instruction"
-require_relative "constructs/label"
-require_relative "constructs/no_value"
-require_relative "constructs/situation"
 
 #
 # Description: 
