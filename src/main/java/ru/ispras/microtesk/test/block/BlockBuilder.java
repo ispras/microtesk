@@ -26,7 +26,7 @@ import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 public final class BlockBuilder
 {
     private List<Block> nestedBlocks;
-    private Map<String, Object> attributes; // TODO: unused.
+    private Map<String, Object> attributes;
 
     private String compositorName;
     private String combinatorName;

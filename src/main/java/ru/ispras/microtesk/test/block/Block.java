@@ -48,7 +48,7 @@ public final class Block
         return iterator;
     }
     
-    public Object getAttaribute(String name)
+    public Object getAttribute(String name)
     {
         return attributes.get(name);
     }
