@@ -107,7 +107,7 @@ def define_instruction(i)
   # Generating convenient shortcuts for instructions                                                               #
   # -------------------------------------------------------------------------------------------------------------- #
 
-  p = lambda do  |*arguments, &situations|
+  p = lambda do |*arguments, &situations|
 
     inst = Instruction.new
     inst.name = inst_name

@@ -64,7 +64,7 @@ public final class XMLBasedConstraintFactory implements IConstraintFactory
 
         try
         {
-            final Constraint result = XMLConstraintLoader.load(url);
+            final Constraint result = XMLConstraintLoader.loadFromURL(url);
             return result;
         }
         catch (XMLNotLoadedException e)

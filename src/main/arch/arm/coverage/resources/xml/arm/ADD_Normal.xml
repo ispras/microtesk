@@ -4,8 +4,8 @@
     <Kind>FORMULA_BASED</Kind>
     <Description>AddNormal constraint</Description>
     <Signature>
-        <Variable length="64" name="src2" type="BIT_VECTOR" value=""/>
-        <Variable length="64" name="src3" type="BIT_VECTOR" value=""/>
+        <Variable length="64" name="src2" type="(BIT_VECTOR 64)" value=""/>
+        <Variable length="64" name="src3" type="(BIT_VECTOR 64)" value=""/>
     </Signature>
     <InnerRep>
         <Formula>
@@ -20,12 +20,12 @@
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                             <Expression>
                                 <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                                <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                                <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                             </Expression>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                         </Expression>
                     </Expression>
-                    <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                    <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                 </Expression>
                 <Expression>
                     <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ"/>
@@ -36,18 +36,18 @@
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                             <Expression>
                                 <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                                <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                                <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                             </Expression>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                         </Expression>
                     </Expression>
                     <Expression>
                         <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                         <Expression>
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                         </Expression>
-                        <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                        <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                     </Expression>
                 </Expression>
             </Expression>
@@ -64,12 +64,12 @@
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                             <Expression>
                                 <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                                <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                                <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                             </Expression>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                         </Expression>
                     </Expression>
-                    <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                    <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                 </Expression>
                 <Expression>
                     <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ"/>
@@ -80,18 +80,18 @@
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                             <Expression>
                                 <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                                <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                                <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                             </Expression>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                         </Expression>
                     </Expression>
                     <Expression>
                         <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                         <Expression>
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                         </Expression>
-                        <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                        <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                     </Expression>
                 </Expression>
             </Expression>
@@ -112,12 +112,12 @@
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                             <Expression>
                                 <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                                <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                                <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                             </Expression>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                         </Expression>
                     </Expression>
-                    <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                    <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                 </Expression>
                 <Expression>
                     <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ"/>
@@ -132,18 +132,18 @@
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                             <Expression>
                                 <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                                <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                                <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                             </Expression>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                         </Expression>
                     </Expression>
                     <Expression>
                         <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVLSHL"/>
                         <Expression>
                             <Operation family="ru.ispras.fortress.expression.StandardOperation" id="BVNOT"/>
-                            <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+                            <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000000000"/>
                         </Expression>
-                        <Value length="64" type="BIT_VECTOR" value="0000000000000000000000000000000000000000000000000000000000100000"/>
+                        <Value length="64" type="(BIT_VECTOR 64)" value="0000000000000000000000000000000000000000000000000000000000100000"/>
                     </Expression>
                 </Expression>
             </Expression>
