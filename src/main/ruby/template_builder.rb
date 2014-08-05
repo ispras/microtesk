@@ -69,10 +69,9 @@ ERR_WRONG_MODE_ARG =
 ERR_WRONG_INST_ARG_NUMBER =
   "%s\nDescription: wrong number of arguments for instruction '%s': %d while %d is expected" 
 
-# ---------------------------------------------------------------------------------------------- #
+#
 # 
-# ---------------------------------------------------------------------------------------------- #
-
+#
 def define_instruction(i)
 
   inst_name = i.getName.to_s
@@ -84,9 +83,9 @@ def define_instruction(i)
     define_situation situation
   end
 
-  # -------------------------------------------------------------------------------------------------------------- #
-  # Generating convenient shortcuts for addressing modes                                                           #
-  # -------------------------------------------------------------------------------------------------------------- #
+  #
+  # Generating convenient shortcuts for addressing modes
+  #
 
   modes_for_args = Hash.new
 
@@ -103,9 +102,9 @@ def define_instruction(i)
 
    end
 
-  # -------------------------------------------------------------------------------------------------------------- #
-  # Generating convenient shortcuts for instructions                                                               #
-  # -------------------------------------------------------------------------------------------------------------- #
+  #
+  # Generating convenient shortcuts for instructions
+  #
 
   p = lambda do |*arguments, &situations|
 
