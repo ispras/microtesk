@@ -19,6 +19,9 @@ import java.util.HashMap;
 
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
+import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 
 public final class BlockBuilder
 {
@@ -64,7 +67,14 @@ public final class BlockBuilder
     public void addCall(AbstractCall call)
     {
         assert null != call;
-        nestedBlocks.add(new SingleCallBlock(call));
+
+        final Sequence<AbstractCall> sequence = new Sequence<AbstractCall>();
+        sequence.add(call);
+
+        final IIterator<Sequence<AbstractCall>> iterator =
+           new SingleValueIterator<Sequence<AbstractCall>>(sequence);
+
+        nestedBlocks.add(new Block(iterator));
     }
 
     public Block build()
@@ -84,6 +94,6 @@ public final class BlockBuilder
         final Generator<AbstractCall> generator =
             generatorBuilder.getGenerator();
 
-        return new CompositeBlock(generator);
+        return new Block(generator);
     }
 }

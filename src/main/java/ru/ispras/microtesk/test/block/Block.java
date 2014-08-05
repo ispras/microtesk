@@ -15,7 +15,20 @@ package ru.ispras.microtesk.test.block;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
-public interface Block
+public final class Block
 {
-    public IIterator<Sequence<AbstractCall>> getIterator();
+    private final IIterator<Sequence<AbstractCall>> iterator;
+
+    public Block(IIterator<Sequence<AbstractCall>> iterator)
+    {
+        if (null == iterator)
+            throw new NullPointerException();
+
+        this.iterator = iterator;
+    }
+
+    public IIterator<Sequence<AbstractCall>> getIterator()
+    {
+        return iterator;
+    }
 }
