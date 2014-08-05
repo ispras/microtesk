@@ -46,17 +46,19 @@ public class DataGenerator
     
     private void initializeSolverEngine()
     {
+        final String MICROTESK_HOME = System.getenv().get("MICROTESK_HOME");
+        
         if (Environment.isUnix())
         {
-            Environment.setSolverPath("../tools/z3/unix/z3");
+            Environment.setSolverPath(MICROTESK_HOME + "/tools/z3/unix/z3");
         }
         else if(Environment.isWindows())
         {
-            Environment.setSolverPath("../tools/z3/windows/z3.exe");
+            Environment.setSolverPath(MICROTESK_HOME + "/tools/z3/windows/z3.exe");
         }
         else if(Environment.isOSX())
         {
-            Environment.setSolverPath("../tools/z3/osx/z3");
+            Environment.setSolverPath(MICROTESK_HOME + "/tools/z3/osx/z3");
         }
         else
         {
