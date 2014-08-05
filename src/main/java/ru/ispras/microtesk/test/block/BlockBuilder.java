@@ -31,7 +31,7 @@ public final class BlockBuilder
     private String compositorName;
     private String combinatorName;
 
-    protected BlockBuilder()
+    public BlockBuilder()
     {
         this.nestedBlocks = new ArrayList<Block>();
         this.attributes   = new HashMap<String, Object>();
@@ -94,6 +94,6 @@ public final class BlockBuilder
         final Generator<AbstractCall> generator =
             generatorBuilder.getGenerator();
 
-        return new Block(generator);
+        return new Block(generator, attributes);
     }
 }
