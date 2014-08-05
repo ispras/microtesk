@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.internal;
+package ru.ispras.microtesk.test.sequence.internal;
 
-import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IBoundedIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 /**
  * This class represents an iterator entry that is used in some compositors.

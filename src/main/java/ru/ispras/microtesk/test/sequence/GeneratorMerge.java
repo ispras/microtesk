@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core;
+package ru.ispras.microtesk.test.sequence;
 
 import java.util.List;
 
-import ru.ispras.microtesk.test.core.combinator.Combinator;
-import ru.ispras.microtesk.test.core.compositor.Compositor;
-import ru.ispras.microtesk.test.core.iterator.CollectionIterator;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.combinator.Combinator;
+import ru.ispras.microtesk.test.sequence.compositor.Compositor;
+import ru.ispras.microtesk.test.sequence.iterator.CollectionIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 /**
  * This class implements the test sequence generator.

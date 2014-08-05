@@ -12,8 +12,8 @@
 
 package ru.ispras.microtesk.test.block;
 
-import ru.ispras.microtesk.test.core.Sequence;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 final class CompositeBlock implements Block
 {

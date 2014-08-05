@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.compositor;
+package ru.ispras.microtesk.test.sequence.compositor;
 
 import java.util.Arrays;
 
-import ru.ispras.microtesk.test.core.iterator.IBoundedIterator;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IBoundedIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import ru.ispras.fortress.randomizer.Distribution;
 import ru.ispras.fortress.randomizer.Randomizer;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
+ * Copyright 2008-2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,37 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.iterator;
+package ru.ispras.microtesk.test.sequence.iterator;
 
 /**
- * This class implements a single-value iterator.
+ * This class implements an array iterator.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class SingleValueIterator<T> implements IBoundedIterator<T>
+public class ArrayIterator<T> implements IBoundedIterator<T>
 {
+    // The iterated array.
+    private T[] array;
+    // The current index.
+    private int index;
     // The flag that refrects availability of the value.
     private boolean hasValue;
-    // The value itself.
-    private T value;
-    
+	
     /**
-     * Constructs a single-value iterator.
-     *
-     * @param value the value to be returned by the iterator.
+     * Constructs an array iterator.
+     * 
+     * @param array the array to be iterated.
      */
-    public SingleValueIterator(T value)
-    {
-        this.value = value;
+    public ArrayIterator(final T[] array)
+    {	
+        this.array = array;
     }
     
     @Override
     public void init()
     {
-        hasValue = true;
+        index = 0;
+        hasValue = (array != null && array.length > 0);
     }
     
     @Override
@@ -53,18 +56,21 @@ public class SingleValueIterator<T> implements IBoundedIterator<T>
     @Override
     public T value()
     {
-        return value;
+        return array[index];
     }
     
     @Override
     public void next()
     {
-        hasValue = false;
+        if(index == array.length - 1)
+            { hasValue = false; }
+        else
+            { index++; }
     }
 
     @Override
     public int size()
     {
-        return 1;
+        return array.length;
     }
 }

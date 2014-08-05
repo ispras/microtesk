@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.compositor;
+package ru.ispras.microtesk.test.sequence.compositor;
 
 import java.util.ArrayList;
 
-import ru.ispras.microtesk.test.core.internal.IteratorEntry;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 /**
  * This class implements the overlapping (shift) composition of iterators.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core;
+package ru.ispras.microtesk.test.sequence;
 
 /**
  * This enumeration contains the standard compositors.

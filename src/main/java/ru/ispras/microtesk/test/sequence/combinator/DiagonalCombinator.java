@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
+ * Copyright 2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.combinator;
+package ru.ispras.microtesk.test.sequence.combinator;
 
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import java.util.HashSet;
+import java.util.Set;
+
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 /**
- * This class implements the product combinator of iterators.
+ * This class implements the diagonal combinator of iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class ProductCombinator<T> extends Combinator<T>
+public class DiagonalCombinator<T> extends Combinator<T>
 {
-    /// The current iterator index.
-    private int i;
+    /// The set of exhausted iterators.
+    private Set<Integer> exhausted = new HashSet<Integer>();
 
     @Override
     public void onInit()
     {
-        i = iterators.size() - 1;
+        exhausted.clear();
     }
 
     @Override
@@ -45,22 +48,23 @@ public class ProductCombinator<T> extends Combinator<T>
     @Override
     public boolean doNext()
     {
-        for(int j = i; j >=0; j--)
-        {
-            IIterator<T> iterator = iterators.get(j);
+       for(int i = 0; i < iterators.size(); i++)
+       {
+            IIterator<T> iterator = iterators.get(i);
 
-            if(iterator.hasValue())
-            {
-                iterator.next();
+            iterator.next();
                 
-                if(iterator.hasValue())
-                    { i = j; return true; }
+            if(!iterator.hasValue())
+            {
+                exhausted.add(i);
+                
+                if(exhausted.size() < iterators.size())
+                    { iterator.init(); }
+                else
+                    { return false; }
             }
-			
-            if(j > 0)
-                { iterator.init(); }
         }
         
-        return false;
+        return true;
     }
 }

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.compositor;
+package ru.ispras.microtesk.test.sequence.compositor;
 
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 /**
- * This class implements the concatenation (catenation) of iterators.
+ * This class implements the rotation (interleaving) composition of iterators.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class CatenationCompositor<T> extends Compositor<T>
+public class RotationCompositor<T> extends Compositor<T>
 {
     // The current iterator index.
     private int i;
@@ -33,22 +33,29 @@ public class CatenationCompositor<T> extends Compositor<T>
     {
         i = 0;
     }
-   
+
     @Override
     protected void onNext()
     {
         // Do nothing
     }
-
+    
     @Override
     protected IIterator<T> choose()
     {
-        for(; i < iterators.size(); i++)
+        for(int j = 0; j < iterators.size(); j++)
         {
-            if(iterators.get(i).hasValue())
-                { return iterators.get(i); }
-        }
+            final int k = (i + j) % iterators.size();
+            
+            if(iterators.get(k).hasValue())
+            {
+                // The next choice will start from the next iterator.
+                i = k + 1;
 
-        return null;        
+                return iterators.get(k);
+            }
+        }
+        
+        return null;
     }
 }

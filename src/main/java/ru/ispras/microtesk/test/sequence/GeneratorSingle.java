@@ -10,11 +10,11 @@
  * GeneratorSingle.java, May 29, 2013, 11:40:46 PM PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.test.core;
+package ru.ispras.microtesk.test.sequence;
 
 import java.util.Iterator;
 import java.util.List;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 public final class GeneratorSingle<T> implements Generator<T>
 {

@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core;
-
-import java.util.ArrayList;
+package ru.ispras.microtesk.test.sequence.iterator;
 
 /**
- * This class represents an abstract test sequence.
+ * This is a generic bounded iterator interface.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Sequence<T> extends ArrayList<T>
+public interface IBoundedIterator<T> extends IIterator<T>
 {
-    private static final long serialVersionUID = 3343324820030034644L;
+    /**
+     * Returns the size of the collection of the iterated items.
+     *
+     * @return the number of items being iterated.
+     */
+    public int size();
 }

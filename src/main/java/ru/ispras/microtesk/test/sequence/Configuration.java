@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core;
+package ru.ispras.microtesk.test.sequence;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.core.combinator.*;
-import ru.ispras.microtesk.test.core.compositor.*;
+import ru.ispras.microtesk.test.sequence.combinator.*;
+import ru.ispras.microtesk.test.sequence.compositor.*;
 
 /**
  * This class implements the configuration of the test sequence generator.

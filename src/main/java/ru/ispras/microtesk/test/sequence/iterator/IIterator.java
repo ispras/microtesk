@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.iterator;
+package ru.ispras.microtesk.test.sequence.iterator;
 
 /**
  * This is a generic iterator interface.

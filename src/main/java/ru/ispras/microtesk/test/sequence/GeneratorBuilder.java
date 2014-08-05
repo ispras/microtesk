@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core;
+package ru.ispras.microtesk.test.sequence;
 
-import ru.ispras.microtesk.test.core.internal.CompositeIterator;
+import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 
 /**
  * This class implements the test sequence generator.

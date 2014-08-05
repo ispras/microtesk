@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.compositor;
+package ru.ispras.microtesk.test.sequence.combinator;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.test.core.internal.CompositeIterator;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 /**
- * This class is a basic compositor of iterators. It takes several iterators
- * and merges them into a single iterator. The main restriction is that a
- * a compositor should not change the order of items returned by an iterator.
+ * This class is a basic combinator of iterators. It takes several iterators
+ * and produces different combinations of their results.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Compositor<T> extends CompositeIterator<T> implements IIterator<T>
+public abstract class Combinator<T> extends CompositeIterator<T> implements IIterator<List<T>>
 {
-    /// The currently chosen iterator.
-    private IIterator<T> chosen;
-    
+    /// Availability of the value.
+    private boolean hasValue;
+
     /**
      * Constructs a compositor with the empty list of iterators.
      */
-    public Compositor()
+    public Combinator()
     {
     }
     
@@ -45,11 +45,11 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements IIte
      *
      * @param iterators the list of iterators to be composed.
      */
-    public Compositor(final List<IIterator<T>> iterators)
+    public Combinator(final List<IIterator<T>> iterators)
     {
         addIterators(iterators);
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Callbacks that should be overloaded in subclasses
     ///////////////////////////////////////////////////////////////////////////
@@ -58,19 +58,23 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements IIte
      * The callback method called in the <code>init</code> method.
      */
     protected abstract void onInit();
-
+    
+    /**
+     * The callback method called in the <code>value</code> method.
+     *
+     * @param i the iterator index.
+     * @return the value of the i-th iterator (<code>null</code> if the iterator
+     *         has been exhausted, i.e., no value is available).
+     */
+    protected abstract T getValue(int i);
+    
     /**
      * The callback method called in the <code>next</code> method.
-     */
-    protected abstract void onNext();
-
-    /**
-     * Selects an iterator whoose value will be used at the current step.
      *
-     * @return one of the iterators from the compositor's list.
+     * @return false iff it the combinator has been exhausted.
      */
-    protected abstract IIterator<T> choose();
-    
+    protected abstract boolean doNext();
+
     ///////////////////////////////////////////////////////////////////////////
     // Callback-based implementation of the iterator method
     ///////////////////////////////////////////////////////////////////////////
@@ -82,38 +86,39 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements IIte
             { iterator.init(); }
 
         onInit();
-
-        chosen = choose();
+        
+        hasValue = true;
     }
     
     @Override
     public boolean hasValue()
     {
-        while(chosen != null)
+        if(!hasValue || iterators.isEmpty())
+            { return false; }
+
+        for(int i = 0; i < iterators.size(); i++)
         {
-            if(chosen.hasValue())
-                { return true;  }
-                
-            chosen = choose();
+            if(getValue(i) == null)
+                { return false; }
         }
-            
-        return false;
+        
+        return true;
     }
 
     @Override
-    public T value()
+    public List<T> value()
     {
-        return chosen.value();
+        final List<T> result = new ArrayList<T>(iterators.size());
+
+        for(int i = 0; i < iterators.size(); i++)
+            { result.add(getValue(i)); }
+
+        return result;
     }
 
     @Override
     public void next()
     {
-        chosen.next();
-
-        onNext();
-
-        chosen = choose();
+        hasValue = doNext();
     }
 }
-

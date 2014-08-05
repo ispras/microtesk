@@ -14,48 +14,57 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.compositor;
-
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+package ru.ispras.microtesk.test.sequence.iterator;
 
 /**
- * This class implements the rotation (interleaving) composition of iterators.
+ * This class implements a single-value iterator.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class RotationCompositor<T> extends Compositor<T>
+public class SingleValueIterator<T> implements IBoundedIterator<T>
 {
-    // The current iterator index.
-    private int i;
-
-    @Override
-    protected void onInit()
+    // The flag that refrects availability of the value.
+    private boolean hasValue;
+    // The value itself.
+    private T value;
+    
+    /**
+     * Constructs a single-value iterator.
+     *
+     * @param value the value to be returned by the iterator.
+     */
+    public SingleValueIterator(T value)
     {
-        i = 0;
-    }
-
-    @Override
-    protected void onNext()
-    {
-        // Do nothing
+        this.value = value;
     }
     
     @Override
-    protected IIterator<T> choose()
+    public void init()
     {
-        for(int j = 0; j < iterators.size(); j++)
-        {
-            final int k = (i + j) % iterators.size();
-            
-            if(iterators.get(k).hasValue())
-            {
-                // The next choice will start from the next iterator.
-                i = k + 1;
+        hasValue = true;
+    }
+    
+    @Override
+    public boolean hasValue()
+    {
+        return hasValue;
+    }
 
-                return iterators.get(k);
-            }
-        }
-        
-        return null;
+    @Override
+    public T value()
+    {
+        return value;
+    }
+    
+    @Override
+    public void next()
+    {
+        hasValue = false;
+    }
+
+    @Override
+    public int size()
+    {
+        return 1;
     }
 }

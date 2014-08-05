@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-import ru.ispras.microtesk.test.core.Generator;
-import ru.ispras.microtesk.test.core.GeneratorBuilder;
+import ru.ispras.microtesk.test.sequence.Generator;
+import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 
 public final class BlockBuilder
 {

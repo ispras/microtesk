@@ -10,9 +10,9 @@
  * Generator.java, May 29, 2013, 11:47:00 PM PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.test.core;
+package ru.ispras.microtesk.test.sequence;
 
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 public interface Generator<T> extends IIterator<Sequence<T>>
 {

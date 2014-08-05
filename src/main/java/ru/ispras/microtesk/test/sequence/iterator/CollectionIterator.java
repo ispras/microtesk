@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.iterator;
+package ru.ispras.microtesk.test.sequence.iterator;
 
 import java.util.Collection;
 import java.util.Iterator;

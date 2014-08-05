@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.test.core.internal;
+package ru.ispras.microtesk.test.sequence.internal;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 /**
  * This class is a basic class for composite iterators (e.g., combinators or compositors).
