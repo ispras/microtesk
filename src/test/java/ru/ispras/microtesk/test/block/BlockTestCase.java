@@ -21,10 +21,10 @@ import ru.ispras.microtesk.test.block.Block;
 import ru.ispras.microtesk.test.block.BlockBuilder;
 import ru.ispras.microtesk.test.block.AbstractCall;
 import ru.ispras.microtesk.test.block.AbstractCallBuilder;
-import ru.ispras.microtesk.test.core.ECombinator;
-import ru.ispras.microtesk.test.core.ECompositor;
-import ru.ispras.microtesk.test.core.Sequence;
-import ru.ispras.microtesk.test.core.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.ECombinator;
+import ru.ispras.microtesk.test.sequence.ECompositor;
+import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 public class BlockTestCase
 {
