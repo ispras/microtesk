@@ -372,17 +372,12 @@ def exec_sequence(seq, gen, id, label)
       
       inst = r_gen[cur_inst]
       i_labels = inst.getAttribute("labels")
-      
-      exec = inst.getExecutable()
 
       print_debug inst.getAttribute("b_runtime")
-
-      if @log_execution
-        puts exec.getText()
-      end
-
+      
+      exec = inst.getExecutable()
+      print_text exec.getText()
       exec.execute()
-      # execute some debug code too
 
       print_debug inst.getAttribute("f_runtime")
 
@@ -427,8 +422,14 @@ def exec_sequence(seq, gen, id, label)
     
   end
 
+  def print_text(text)
+    if @log_execution
+       puts text
+    end
+  end
+
   def print_debug(debug_arr)
-    if debug_arr.is_a? Array
+    if @log_execution and debug_arr.is_a? Array
       debug_arr.each do |debug|
         text = debug.evaluate_to_text(@context) 
         if nil != text
