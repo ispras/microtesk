@@ -363,15 +363,14 @@ def exec_sequence(seq, gen, id, label)
     end
     
     total_inst = r_gen.length
-    
+
     continue = true
-    
+
     jump_target = nil
-    
+
     while continue && cur_inst < total_inst
-      
+
       inst = r_gen[cur_inst]
-      i_labels = inst.getAttribute("labels")
 
       print_debug inst.getAttribute("b_runtime")
       
