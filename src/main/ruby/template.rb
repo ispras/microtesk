@@ -209,6 +209,10 @@ class Executor
     @abstract_calls = abstract_calls
     @log_execution = is_log
   end
+  
+  def get_concrete_calls
+    @final_sequences
+  end
 
   def execute
 
@@ -369,19 +373,9 @@ def exec_sequence(seq, gen, id, label)
       inst = r_gen[cur_inst]
       i_labels = inst.getAttribute("labels")
       
-      f_debug = inst.getAttribute("f_runtime")
-      b_debug = inst.getAttribute("b_runtime")
-      
       exec = inst.getExecutable()
 
-      if b_debug.is_a? Array
-        b_debug.each do |b_d|
-          b_d_text = b_d.evaluate_to_text(@context) 
-          if nil != b_d_text
-            puts b_d_text
-          end
-        end
-      end
+      print_debug inst.getAttribute("b_runtime")
 
       if @log_execution
         puts exec.getText()
@@ -390,14 +384,7 @@ def exec_sequence(seq, gen, id, label)
       exec.execute()
       # execute some debug code too
 
-      if f_debug.is_a? Array
-        f_debug.each do |f_d|
-          f_d_text = f_d.evaluate_to_text(@context) 
-          if nil != f_d_text
-            puts f_d_text
-          end
-        end
-      end
+      print_debug inst.getAttribute("f_runtime")
 
       # Labels
       jump = StateObserver.control_transfer_status
@@ -440,9 +427,16 @@ def exec_sequence(seq, gen, id, label)
     
   end
 
-  def get_concrete_calls
-    @final_sequences
-  end
+  def print_debug(debug_arr)
+    if debug_arr.is_a? Array
+      debug_arr.each do |debug|
+        text = debug.evaluate_to_text(@context) 
+        if nil != text
+          puts text
+        end
+      end
+    end
+  end 
 
 end
 
