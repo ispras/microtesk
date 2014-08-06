@@ -318,13 +318,10 @@ class Executor
         @final_sequences[i] = Engine.generate_data sequences[i]
       end
     end
-
-    
     
   end
   
-  
-def exec_sequence(seq, gen, id, label)
+  def exec_sequence(seq, gen, id, label)
     r_gen = gen
     if gen == nil
       # TODO NEED EXCEPTION HANDLER
