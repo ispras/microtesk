@@ -166,22 +166,54 @@ class Template
   # -------------------------------------------------- #
   # Execution                                          #
   # -------------------------------------------------- #
-
-  # TODO: everything
+  
+  def get_block_iterator
+    bl = @core_block.build(Engine.j_bbf)
+    bl.getIterator()
+  end
 
   def execute
-
     puts
     puts "---------- Start build ----------"
     puts
 
-    bl = @core_block.build(Engine.j_bbf)
-    bl_iter = bl.getIterator()
+    bl_iter = get_block_iterator
 
     puts
     puts "---------- Start execute ----------"
     puts
 
+    executor = Executor.new self, bl_iter, log_execution
+    executor.execute
+    @final_sequences = executor.get_concrete_calls
+  end
+
+  # Print out the executable program
+  def output(filename)
+    puts
+    puts "---------- Start output ----------"
+    puts
+
+    printer = Printer.new(filename, self, self)
+    @final_sequences.each do |fs|
+      printer.print_sequence fs
+    end
+  end
+
+end
+
+class Executor
+
+  def initialize(context, abstract_calls, is_log)
+    @context = context
+    @abstract_calls = abstract_calls
+    @log_execution = is_log
+  end
+
+  def execute
+
+    bl_iter = @abstract_calls
+    
     # Preprocess labels
     @labels = Hash.new
 
@@ -283,9 +315,12 @@ class Template
       end
     end
 
+    
+    
   end
   
-  def exec_sequence(seq, gen, id, label)
+  
+def exec_sequence(seq, gen, id, label)
     r_gen = gen
     if gen == nil
       # TODO NEED EXCEPTION HANDLER
@@ -341,7 +376,7 @@ class Template
 
       if b_debug.is_a? Array
         b_debug.each do |b_d|
-          b_d_text = b_d.evaluate_to_text(self) 
+          b_d_text = b_d.evaluate_to_text(@context) 
           if nil != b_d_text
             puts b_d_text
           end
@@ -357,7 +392,7 @@ class Template
 
       if f_debug.is_a? Array
         f_debug.each do |f_d|
-          f_d_text = f_d.evaluate_to_text(self) 
+          f_d_text = f_d.evaluate_to_text(@context) 
           if nil != f_d_text
             puts f_d_text
           end
@@ -405,16 +440,8 @@ class Template
     
   end
 
-  # Print out the executable program
-  def output(filename)
-    puts
-    puts "---------- Start output ----------"
-    puts
-
-    printer = Printer.new(filename, self, self)
-    @final_sequences.each do |fs|
-      printer.print_sequence fs
-    end
+  def get_concrete_calls
+    @final_sequences
   end
 
 end
