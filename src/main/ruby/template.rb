@@ -392,24 +392,11 @@ def exec_sequence(seq, gen, id, label)
           puts "Jump to nil label, transfer status: " + jump.to_s
         elsif labels.has_key? target
           cur_inst = labels[target]
-          if @log_execution
-            text = target.first
-            target[1].each do |t|
-              text += "_" + t.to_s
-            end
-            puts "Jump (internal) to label: " + text
-          end
+          print_label_jump target
           next
         else
           jump_target = target
-          if @log_execution
-            text = target.first
-            target[1].each do |t|
-              text += "_" + t.to_s
-            end
-            puts "Jump (external) to label: " + text
-
-          end
+          print_label_jump target
           break
         end
       end
@@ -437,7 +424,17 @@ def exec_sequence(seq, gen, id, label)
         end
       end
     end
-  end 
+  end
+
+  def print_label_jump(target)
+    if @log_execution
+      text = target.first
+      target[1].each do |t|
+        text += "_" + t.to_s
+      end
+      puts "Jump (internal) to label: " + text
+    end
+  end
 
 end
 
