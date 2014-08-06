@@ -56,10 +56,7 @@ def self.main
       template = template_class.new
       if template.is_executable
         puts "Processing %s..." % File.basename(template_class.instance_method(:run).source_location.first)
-
-        template.parse
-        template.execute
-        template.output(output_file)
+        template.generate output_file
       end
     rescue Exception => e
       if e.is_a?(MTRubyError)

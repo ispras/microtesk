@@ -119,13 +119,6 @@ class Template
 
   end
 
-  # Run... pre, run and post! This method parses the template
-  def parse
-    pre
-    run
-    post
-  end
-
   def block(attributes = {}, &contents)
     b = InstructionBlock.new
     b.attributes = attributes
@@ -162,40 +155,36 @@ class Template
     v.is_immediate = true
     v
   end
-
-  # -------------------------------------------------- #
-  # Execution                                          #
-  # -------------------------------------------------- #
   
-  def get_block_iterator
-    bl = @core_block.build(Engine.j_bbf)
-    bl.getIterator()
-  end
+  # -------------------------------------------------- #
+  # Generation (Execution and Printing)                #
+  # -------------------------------------------------- #
 
-  def execute
+  def generate(filename)
     puts
     puts "---------- Start build ----------"
     puts
 
-    bl_iter = get_block_iterator
+    pre
+    run
+    post
 
+    bl = @core_block.build(Engine.j_bbf)
+    bl_iter = bl.getIterator()
+    
     puts
     puts "---------- Start execute ----------"
     puts
-
+   
     executor = Executor.new self, bl_iter, log_execution
     executor.execute
-    @final_sequences = executor.get_concrete_calls
-  end
 
-  # Print out the executable program
-  def output(filename)
     puts
     puts "---------- Start output ----------"
     puts
-
+   
     printer = Printer.new(filename, self, self)
-    @final_sequences.each do |fs|
+    executor.get_concrete_calls.each do |fs|
       printer.print_sequence fs
     end
   end
