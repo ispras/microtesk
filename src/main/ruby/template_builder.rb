@@ -132,16 +132,18 @@ def define_instruction(i)
         a = arg
       end
 
-      # TODO: The situation/composite must come at the end of a block for this to work.
-      # Is there a way to apply it if it's before the attributes?
-      if situations != nil
-        result = inst.instance_eval &situations
-        inst.situation(result)
-      end
-
       inst.arguments[inst_arguments[ind].getName()] = a
 
     end
+    
+    # TODO: The situation/composite must come at the end of a block for this to work.
+    # Is there a way to apply it if it's before the attributes?
+    if situations != nil
+      puts "Situations: " + inst_name 
+      result = inst.instance_eval &situations
+      inst.situation(result)
+    end
+    
     @instruction_receiver.receive(inst)
   end
 
