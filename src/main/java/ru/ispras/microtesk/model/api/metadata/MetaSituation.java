@@ -30,7 +30,7 @@ package ru.ispras.microtesk.model.api.metadata;
  * @author Andrei Tatarnikov
  */
 
-public final class MetaSituation
+public final class MetaSituation implements MetaData
 {
     private final String name;
 
@@ -45,6 +45,7 @@ public final class MetaSituation
      * @return Situation name.
      */
 
+    @Override
     public String getName()
     {
         return name;

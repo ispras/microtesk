@@ -33,7 +33,7 @@ import java.util.Collections;
  * @author Andrei Tatarnikov
  */
 
-public final class MetaOperation
+public final class MetaOperation implements MetaData
 {
     private final String name;
     private final Collection<MetaArgument> args;
@@ -64,6 +64,7 @@ public final class MetaOperation
      * @return The operation name.
      */
 
+    @Override
     public String getName()
     {
         return name;

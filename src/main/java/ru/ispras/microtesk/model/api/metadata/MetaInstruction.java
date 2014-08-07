@@ -32,7 +32,7 @@ import java.util.Collection;
  * @author Andrei Tatarnikov
  */
 
-public final class MetaInstruction
+public final class MetaInstruction implements MetaData
 {
     private final String name;
     private final Collection<MetaArgument> args;
@@ -55,6 +55,7 @@ public final class MetaInstruction
      * @return The instruction name.
      */
 
+    @Override
     public String getName()
     {
         return name;

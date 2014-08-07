@@ -34,7 +34,7 @@ package ru.ispras.microtesk.model.api.metadata;
  * @author Andrei Tatarnikov
  */
 
-public final class MetaShortcut
+public final class MetaShortcut implements MetaData
 {
     private final String contextName;
     private final MetaOperation operation;
@@ -50,6 +50,18 @@ public final class MetaShortcut
     {
         this.contextName = contextName;
         this.operation = operation;
+    }
+
+    /**
+     * Returns the shortcut name.
+     * 
+     * @return The shortcut name.
+     */
+
+    @Override
+    public String getName()
+    {
+        return operation.getName();
     }
 
     /**

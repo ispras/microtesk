@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2014 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * MetaLocationStore.java, Nov 15, 2012 2:53:11 PM Andrei Tatarnikov
+ * MetaDataItem.java, Aug 7, 2014 4:39:13 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,43 +25,19 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 /**
- * The MetaLocationStore class describes  memory resources of the processor
- * (as registers and memory store locations). 
+ * The MetaData interface is a common interface to be implemented by
+ * metadata object. It is needed to work with collections of different
+ * metadata objects in a uniform way.  
  * 
  * @author Andrei Tatarnikov
  */
 
-public final class MetaLocationStore implements MetaData
+interface MetaData
 {
-    private final String name;
-    private final int count;
-
-    public MetaLocationStore(String name, int count)
-    {
-        this.name  = name;
-        this.count = count;
-    }
-
     /**
-     * Returns the name of the resource.
-     * 
-     * @return Memory resource name.
+     * Returns the name of the current metadata element.
+     * @return Metadata element name.
      */
 
-    @Override
-    public String getName()
-    {
-        return name;
-    }
-
-    /**
-     * Returns the count of items in the memory store.
-     * 
-     * @return Memory store item count.
-     */
-
-    public int getCount()
-    {
-        return count;
-    }
+    String getName();
 }

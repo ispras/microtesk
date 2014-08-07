@@ -32,7 +32,7 @@ import java.util.Collection;
  * @author Andrei Tatarnikov
  */
 
-public final class MetaArgument
+public final class MetaArgument implements MetaData
 {
     private final String name;
     private final Collection<String> typeNames; 
@@ -49,6 +49,7 @@ public final class MetaArgument
      * @return Argument name.
      */
 
+    @Override
     public String getName()
     {
         return name;

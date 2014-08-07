@@ -25,6 +25,8 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
 * The MetaModel class stores information on the model and provides methods to
@@ -37,11 +39,11 @@ import java.util.Collection;
 
 public final class MetaModel
 {
-    private final Collection<MetaInstruction>  instructions;
-    private final Collection<MetaAddressingMode>      modes;
-    private final Collection<MetaOperation>      operations;
-    private final Collection<MetaLocationStore>   registers;
-    private final Collection<MetaLocationStore>      memory;
+    private final Map<String, MetaInstruction>  instructions;
+    private final Map<String, MetaAddressingMode>      modes;
+    private final Map<String, MetaOperation>      operations;
+    private final Map<String, MetaLocationStore>   registers;
+    private final Map<String, MetaLocationStore>      memory;
 
     public MetaModel(
         Collection<MetaInstruction> instructions,
@@ -51,11 +53,21 @@ public final class MetaModel
         Collection<MetaLocationStore>     memory
         )
     {
-        this.instructions = instructions;
-        this.modes        = modes;
-        this.operations   = operations;
-        this.registers    = registers;
-        this.memory       = memory;
+        this.instructions = toMap(instructions);
+        this.modes        = toMap(modes);
+        this.operations   = toMap(operations);
+        this.registers    = toMap(registers);
+        this.memory       = toMap(memory);
+    }
+
+    private static <T extends MetaData> Map<String, T> toMap(Collection<T> c)
+    {
+        final Map<String, T> map = new LinkedHashMap<String, T>();
+
+        for (T t : c)
+            map.put(t.getName(), t);
+
+        return map;
     }
 
     /**
@@ -67,7 +79,19 @@ public final class MetaModel
 
     public Iterable<MetaAddressingMode> getAddressingModes()
     {
-        return modes;
+        return modes.values();
+    }
+
+    /**
+     * Returns metadata for the specified addressing mode.
+     * 
+     * @param name Addressing mode name.
+     * @return Addressing mode metadata.
+     */
+
+    public MetaAddressingMode getAddressingMode(String name)
+    {
+        return modes.get(name);
     }
 
     /**
@@ -79,7 +103,19 @@ public final class MetaModel
 
     public Iterable<MetaOperation> getOperations()
     {
-        return operations;
+        return operations.values();
+    }
+
+    /**
+     * Returns metadata for the specified operation.
+     * 
+     * @param name Operation name.
+     * @return Operation metadata.
+     */
+
+    public MetaOperation getOperation(String name)
+    {
+        return operations.get(name);
     }
 
     /**
@@ -90,7 +126,19 @@ public final class MetaModel
 
     public Iterable<MetaInstruction> getInstructions()
     {
-        return instructions;
+        return instructions.values();
+    }
+
+    /**
+     * Returns metadata for the specified instruction.
+     * 
+     * @param name Instruction name.
+     * @return Instruction metadata.
+     */
+
+    public MetaInstruction getInstruction(String name)
+    {
+        return instructions.get(name);
     }
 
     /**
@@ -101,7 +149,19 @@ public final class MetaModel
 
     public Iterable<MetaLocationStore> getRegisters()
     {
-        return registers;
+        return registers.values();
+    }
+
+    /**
+     * Returns metadata for the specified register file.
+     * 
+     * @param name Register file name.
+     * @return Register file metadata.
+     */
+
+    public MetaLocationStore getRegister(String name)
+    {
+        return registers.get(name);
     }
 
     /**
@@ -112,6 +172,18 @@ public final class MetaModel
 
     public Iterable<MetaLocationStore> getMemoryStores()
     {
-        return memory;
+        return memory.values();
+    }
+
+    /**
+     * Returns metadata for the specified memory store location.
+     * 
+     * @param name Memory store location name.
+     * @return Memory store location metadata.
+     */
+
+    public MetaLocationStore getMemoryStore(String name)
+    {
+        return memory.get(name);
     }
 }

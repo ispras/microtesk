@@ -32,7 +32,7 @@ import java.util.Collection;
  * @author Andrei Tatarnikov
  */
 
-public final class MetaAddressingMode
+public final class MetaAddressingMode implements MetaData
 {
     private final String name;
     private final Collection<String> argumentNames; 
@@ -49,6 +49,7 @@ public final class MetaAddressingMode
      * @return Mode name.
      */
 
+    @Override
     public String getName()
     {
         return name;
