@@ -15,9 +15,11 @@ package ru.ispras.microtesk.model.api.data;
 import java.util.EnumMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath.Operations;
+
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.operations.*;
@@ -95,10 +97,10 @@ public final class DataEngine
 
     public static Data valueOf(Type type, String value)
     {
-        return valueOf(type, value, ERadix.BIN);
+        return valueOf(type, value, Radix.BIN);
     }
 
-    public static Data valueOf(Type type, String value, ERadix radix)
+    public static Data valueOf(Type type, String value, Radix radix)
     { 
         checkConversionSupported(type, "String", type.getTypeID().name());
 

@@ -12,10 +12,11 @@
 
 package ru.ispras.microtesk.model.api.data.operations;
 
-import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.ERadix;
-import ru.ispras.microtesk.model.api.data.IValueConverter;
+import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+
+import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.data.IValueConverter;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public class IntCardConverter implements IValueConverter
@@ -49,7 +50,7 @@ public class IntCardConverter implements IValueConverter
     }
     
     @Override
-    public Data fromString(Type type, String value, ERadix radix)
+    public Data fromString(Type type, String value, Radix radix)
     {
         assert false : "NOT IMPLEMENTED";
         return null;

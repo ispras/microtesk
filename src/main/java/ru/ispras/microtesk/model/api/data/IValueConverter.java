@@ -12,6 +12,7 @@
 
 package ru.ispras.microtesk.model.api.data;
 
+import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public interface IValueConverter
@@ -22,5 +23,5 @@ public interface IValueConverter
     public Data fromInt(Type type, int value);
     public int toInt(Data data);
     
-    public Data fromString(Type type, String value, ERadix radix);
+    public Data fromString(Type type, String value, Radix radix);
 }
