@@ -55,7 +55,7 @@ class ArmDemo < Template
     EOR           blank, setsOff, REG(1), REG(1), register1
     ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
 
-    trace '"\nInitial register values: R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n"'
+    trace "\nInitial register values: R0 = %d, R1 = %d\n\n", getGPR(0), getGPR(1) 
 
     label :cycle
 
@@ -63,17 +63,17 @@ class ArmDemo < Template
     SUB greaterThan, setsOff, REG(0), REG(0), register1
     SUB lessThan,    setsOff, REG(1), REG(1), register0
 
-    trace '"\nCurrent register values: R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n"' 
+    trace "\nCurrent register values: R0 = %d, R1 = %d\n\n", getGPR(0), getGPR(1)
 
     B notEqual, :cycle
 
     MOV blank, setsOff, REG(2), register0
 
-    trace '"\nResult stored in R2: #{getGPR(2)}\n"'
+    trace "\nResult stored in R2: %d\n", getGPR(2)
   end
 
   def getGPR(index)
-    get_loc_value('GPR', index).to_s 
+    location('GPR', index) 
   end
 
 end
