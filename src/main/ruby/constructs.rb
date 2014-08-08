@@ -178,19 +178,20 @@ class InstructionBlock
 
       # OUTPUT
       if item.is_a? Output::Output
+        output = item.java_object
         if delayed_instruction == nil
-          delayed_outputs.push item
+          delayed_outputs.push output
         else
-          if item.runtime?
-            delayed_instruction.add_item_to_attribute "f_runtime", item
+          if output.isRuntime
+            delayed_instruction.add_item_to_attribute "f_runtime", output
           else
-            delayed_instruction.add_item_to_attribute "f_output", item
+            delayed_instruction.add_item_to_attribute "f_output", output
           end
         end
       else
         if delayed_instruction != nil
           delayed_outputs.each do |i_item|
-            if i_item.runtime?
+            if i_item.isRuntime
               delayed_instruction.add_item_to_attribute "b_runtime", i_item
             else
               delayed_instruction.add_item_to_attribute "b_output", i_item
