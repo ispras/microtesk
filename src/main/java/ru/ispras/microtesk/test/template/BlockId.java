@@ -42,6 +42,10 @@ final class BlockId
     private final List<Integer> indexes;
     private int childCount;
 
+    /**
+     * Constructs a identifier for a root block.
+     */
+
     public BlockId()
     {
         this(Collections.singletonList(1));
@@ -52,6 +56,12 @@ final class BlockId
         this.indexes = indexes;
         this.childCount = 0;
     }
+
+    /**
+     * Creates an new identifier for a child block.
+     * 
+     * @return Next child identifier.
+     */
 
     public BlockId nextChildId()
     {
@@ -65,6 +75,12 @@ final class BlockId
 
         return new BlockId(childIndexes);
     }
+
+    /**
+     * Returns textual representation of the identifier.
+     * 
+     * @return Textual representation of the identifier.
+     */
 
     @Override
     public String toString()
