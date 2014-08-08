@@ -24,6 +24,7 @@ import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
+import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class StatementFactory extends WalkerFactoryBase
 {
@@ -103,7 +104,7 @@ public final class StatementFactory extends WalkerFactoryBase
         if (null == args)
             return new StatementFormat(format, null, null);
 
-        final List<Format.Marker> markers = Format.extractMarkers(format);
+        final List<FormatMarker> markers = FormatMarker.extractMarkers(format);
 
         if (markers.size() != args.size())
             raiseError(where, String.format(WRONG_FORMAT_ARG_SPEC, markers.size(), args.size()));

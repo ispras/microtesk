@@ -39,6 +39,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAttributeCall
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
+import ru.ispras.microtesk.utils.FormatMarker;
 
 abstract class STBPrimitiveBase implements ITemplateBuilder
 {
@@ -206,7 +207,7 @@ final class StatementBuilder
             sb.append(", ");
 
             final Format.Argument argument = stmt.getArguments().get(index);
-            final Format.Marker marker = stmt.getMarkers().get(index);
+            final FormatMarker marker = stmt.getMarkers().get(index);
 
             sb.append(argument.convertTo(marker));
         }

@@ -13,14 +13,15 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.List;
+import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class StatementFormat extends Statement
 {
     private final String                   format;
-    private final List<Format.Marker>     markers;
+    private final List<FormatMarker>      markers;
     private final List<Format.Argument> arguments;
 
-    StatementFormat(String format, List<Format.Marker> markers, List<Format.Argument> arguments)
+    StatementFormat(String format, List<FormatMarker> markers, List<Format.Argument> arguments)
     {
         super(Kind.FORMAT);
 
@@ -34,7 +35,7 @@ public final class StatementFormat extends Statement
         return format;
     }
 
-    public List<Format.Marker> getMarkers()
+    public List<FormatMarker> getMarkers()
     {
         return markers;
     }

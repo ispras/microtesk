@@ -12,85 +12,20 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import ru.ispras.microtesk.model.api.type.ETypeID;
 import ru.ispras.microtesk.translator.simnml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
+import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class Format
 {
-    public static final class Marker
-    {
-        private final static String FORMAT = "[%%][\\d]*[%s]";
-        private final String tokenId;
-
-        Marker(String tokenId)
-            { this.tokenId = tokenId; }
-
-        Marker(Marker[] markers)
-        {
-            final StringBuffer sb = new StringBuffer();
-            for (Marker m : markers)
-            {
-                if (0 != sb.length()) sb.append('|');
-                sb.append(m.getTokenId());
-            }
-            this.tokenId = sb.toString();
-        }
-
-        public String getTokenId()
-            { return tokenId; }
-
-        public String getRegExp()
-            { return String.format(FORMAT, tokenId); }
-    }
-    
     public static interface Argument
     {
-        public boolean isConvertibleTo(Marker kind);
-        public String convertTo(Marker kind);
+        public boolean isConvertibleTo(FormatMarker kind);
+        public String convertTo(FormatMarker kind);
     }
 
-    public static final Marker   DEC = new Marker("d");
-    public static final Marker   BIN = new Marker("b");
-    public static final Marker   HEX = new Marker("x");
-    public static final Marker   STR = new Marker("s");
-
-    public static final Marker[] ALL_ARR = {DEC, BIN, HEX, STR};
-    public static final Marker   ALL = new Marker(ALL_ARR);
-
-    public static List<Marker> extractMarkers(String format)
-    {
-        final List<Marker> result = new ArrayList<Marker>();
-
-        final Matcher matcher = Pattern.compile(ALL.getRegExp()).matcher(format);
-        while (matcher.find())
-        {
-            final String token = matcher.group();
-            result.add(getFormatMarker(token));
-        }
-
-        return result;
-    }
-
-    private static Marker getFormatMarker(String token)
-    {
-        for (Marker m : ALL_ARR)
-        {
-            final Matcher matcher = Pattern.compile(m.getRegExp()).matcher(token);
-            if (matcher.matches())
-                return m;
-        }
-
-        assert false : "Should not reach here!";
-        return null;
-    }
-    
     public static Argument createArgument(Expr expr)
     {
         return new ExprBasedArgument(expr);
@@ -111,9 +46,9 @@ public final class Format
         }
 
         @Override
-        public boolean isConvertibleTo(Marker marker)
+        public boolean isConvertibleTo(FormatMarker marker)
         {
-            if (STR == marker)
+            if (FormatMarker.STR == marker)
                 return true;
 
             if (expr.getValueInfo().isModel())
@@ -122,12 +57,12 @@ public final class Format
             return isJavaConvertibleTo(marker);
         }
 
-        private boolean isModelConvertibleTo(Marker marker)
+        private boolean isModelConvertibleTo(FormatMarker marker)
         {
-            if (BIN == marker)
+            if (FormatMarker.BIN == marker)
                 return true;
 
-            assert ((DEC == marker) || (HEX == marker));
+            assert ((FormatMarker.DEC == marker) || (FormatMarker.HEX == marker));
 
             final Type type = expr.getValueInfo().getModelType();
             if (ETypeID.CARD == type.getTypeId() || ETypeID.INT == type.getTypeId())
@@ -137,19 +72,19 @@ public final class Format
             return false;
         }
 
-        private boolean isJavaConvertibleTo(Marker marker)
+        private boolean isJavaConvertibleTo(FormatMarker marker)
         {
             final Class<?> type = expr.getValueInfo().getNativeType();
 
             if (!type.equals(int.class) || !type.equals(Integer.class))
                 return false;
 
-            assert ((BIN == marker) || (DEC == marker) || (HEX == marker));
+            assert ((FormatMarker.BIN == marker) || (FormatMarker.DEC == marker) || (FormatMarker.HEX == marker));
             return true;
         }
 
         @Override
-        public String convertTo(Marker marker)
+        public String convertTo(FormatMarker marker)
         {
             assert isConvertibleTo(marker);
 
@@ -159,13 +94,13 @@ public final class Format
             return convertJavaTo(marker);
         }
 
-        private String convertModelTo(Marker marker)
+        private String convertModelTo(FormatMarker marker)
         {
             final String methodName;
 
-            if (BIN == marker)
+            if (FormatMarker.BIN == marker)
                 methodName = "toBinString";
-            else if (STR == marker)
+            else if (FormatMarker.STR == marker)
                 methodName = "toString";
             else
                 methodName = "intValue";
@@ -174,11 +109,11 @@ public final class Format
                 "%s.getRawData().%s()", new PrinterExpr(expr), methodName);
         }
 
-        private String convertJavaTo(Marker marker)
+        private String convertJavaTo(FormatMarker marker)
         {
             final PrinterExpr printer = new PrinterExpr(expr);
 
-            return (BIN == marker) ?
+            return (FormatMarker.BIN == marker) ?
                 String.format("Integer.toBinaryString(%s)", printer) : printer.toString();
         }
     }
@@ -205,24 +140,24 @@ public final class Format
         }
 
         @Override
-        public boolean isConvertibleTo(Marker marker)
+        public boolean isConvertibleTo(FormatMarker marker)
         {
-            if (STR == marker)
+            if (FormatMarker.STR == marker)
                 return true;
 
             if (!callInfo.getAttributeName().equals(Attribute.IMAGE_NAME))
                 return false;
 
-            assert ((BIN == marker) || (DEC == marker) || (HEX == marker));
+            assert ((FormatMarker.BIN == marker) || (FormatMarker.DEC == marker) || (FormatMarker.HEX == marker));
             return true;
         }
 
         @Override
-        public String convertTo(Marker marker)
+        public String convertTo(FormatMarker marker)
         {
             assert isConvertibleTo(marker);
 
-            if ((STR == marker) || (BIN == marker))
+            if ((FormatMarker.STR == marker) || (FormatMarker.BIN == marker))
                 return getCallText();
 
             return String.format("Integer.valueOf(%s, 2)", getCallText());
