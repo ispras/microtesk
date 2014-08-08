@@ -38,6 +38,10 @@ module StateObserver
     @@j_model_state_observer = j_model.getStateObserver()
   end
 
+  def get_state_observer
+    @@j_model_state_observer
+  end
+
   def self.control_transfer_status
     @@j_model_state_observer.getControlTransferStatus()
   end
