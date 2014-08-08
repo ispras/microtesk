@@ -61,7 +61,7 @@ end
 class Template
   include Settings
   include StateObserver
-  include Output  
+  include Output
 
   @@template_classes = Array.new
 
@@ -133,7 +133,7 @@ class Template
 
     @instruction_receiver.receive b
   end
-
+  
   def label(name)
     l = Label.new
     l.name = name.to_s
@@ -142,7 +142,7 @@ class Template
 
   def add_output(o)
     @instruction_receiver.receive o
-  end  
+  end
 
   # --- Special "no value" method ---
 
@@ -403,10 +403,10 @@ class Executor
   def print_debug(debug_arr)
     if @log_execution and debug_arr.is_a? Array
       debug_arr.each do |debug|
-        text = debug.evaluate_to_text(@context) 
+        text = debug.evaluate @context.get_state_observer
         if nil != text
           puts text
-        end
+        end 
       end
     end
   end
@@ -488,7 +488,7 @@ private
   def print_outputs(arr)
     return unless arr.is_a? Array
     arr.each do |item|
-      s = item.evaluate_to_text(self)
+      s = item.evaluate @context.get_state_observer
       print_text s if s != nil
     end
   end
