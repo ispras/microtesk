@@ -48,225 +48,108 @@
 #
 module Output
 
-#
-# Description:
-#
-# The Output class is an abstract base class for objects that contain
-# information to be printed to the simulation output to inserted into
-# the generated test program. 
-#
-class Output
-
   #
-  # Initializes a new OutputCode object.
+  # Description:
   #
-  # Arguments:
-  #   is_runtime Specifies whether evalution will be performed during simulation
-  #              or after. In the former case, the results will be printed to
-  #              the MicroTESK simulator output. In the latter case, the results  
-  #              will be inserted into the generated test program.
-  #
-  def initialize(is_runtime)
-     @is_runtime = is_runtime
-  end
-
-  #
-  # Returns true if it should be evaluated during simulation and the
-  # evaluation results should be printed to the MicroTESK simulator
-  # output or false if it should be evaluated after simulation and
-  # the results should be inserted into the generated test program.
-  #
-  def runtime?
-    @is_runtime
-  end
-
-  #
-  # An abstract method to be implemented by descendants. Evaluates the stored
-  # information in the context of the provided object and returns its textual
-  # representation.
-  #
-  def evaluate_to_text(object)
-    raise "Not implemented!"
-  end
-
-  #
-  # Returns information on the current object in a textual form.
-  #
-  def to_s
-    "Class: #{self.class}, Runtime: #{runtime?}"
-  end
-
-end
-
-#
-# Description:
-#
-# The OutputCode class holds code (a Proc object) that will be executed during
-# test program generation. The result of its execution will be inserted
-# into the generated test program or into the MicroTESK simulator output.
-#
-class OutputCode < Output
-
-  #
-  # Initializes a new OutputCode object.
-  #
-  # Arguments:
-  #   text Code to be executed (a Proc object) to produce a text.
-  #   is_runtime Specifies whether the code will be executed during simulation
-  #              or after. In the former case, the results will be printed to
-  #              the MicroTESK simulator output. In the latter case, the results  
-  #              will be inserted into the generated test program.
-  #
-  def initialize(proc, is_runtime = false)
-    super(is_runtime)
-     
-    if nil == proc or !proc.is_a? Proc
-      raise "Unsupported argument type!" 
-    end
- 
-    @proc = proc
-  end
-
-  #
-  # Executes the stored procedure in the context of the provided object.
-  # All members of the provided object are accesible from the stored
-  # procedure.
-  #
-  # Arguments:
-  #   object An object provides an execution context for the stored procedure.   
-  #
-  def evaluate_to_text(object)
-    object.instance_exec &@proc
-  end
-
-  #
-  # Returns information on the current object in a textual form.
-  #
-  def to_s
-    "#{super.to_s}, Contents: #{@proc}"
-  end
-
-end
-
-#
-# Description:
-#
-# The OutputString class holds text that will be inserted into the generated
-# test program or into the MicroTESK simulator output.
-#
-class OutputString < Output
-
-  #
-  # Initializes a new OutputString object.
-  #
-  # Arguments:
-  #   text Text to be printed.
-  #   is_runtime Specifies whether the text will be printed to the MicroTESK 
-  #              simulator output during simulation or inserted into the 
-  #              generated test program after simulation.
-  #
-  def initialize(text, is_runtime = false)
-    super(is_runtime)
-    
-    if nil == text or !text.is_a? String
-      raise "Unsupported argument type!" 
-    end
-    
-    @text = text
-  end
-
-  #
-  # Evaluates the stored text in the context of the provided object (if required).
-  # All members of the provided object are accesible during the evaluation.
-  #
-  # Arguments:
-  #   object An object provides an evaluation context.   
-  #
-  def evaluate_to_text(object)
-    if evaluate? then
-      object.instance_eval @text
-    else
-      @text
+  # The Output class is wrapper class that holds an instance of the Java Output
+  # class (ru.ispras.microtesk.test.template.Output) that holds information to
+  # be printed to the simulator output or to the test program. The class will
+  # become redundant when the generation logic will be implemented in Java. 
+  #  
+    class Output
+    # Returns the Java object Output.
+    attr_reader :java_object 
+  
+    def initialize(java_object)
+      @java_object = java_object
     end
   end
 
   #
-  # Returns true if the text should be evaluated before printing or false
-  # otherwise. Strings to be evaluated are enclosed with double quotes.
+  # Description:
   #
-  def evaluate?
-    !@text.empty? and ?\" == @text[0] and ?\" == @text[-1] #"
+  # The Location class describes an access to a specific location (register or
+  # memory address) performed when prining data.
+  #
+  class Location
+    attr_reader :name, :index 
+      
+    def initialize(name, index)
+      @name  = name
+      @index = index
+    end
   end
 
   #
-  # Returns information on the current object in a textual form.
+  # Creates a location-based format argument for format-like output methods. 
   #
-  def to_s
-    "#{super.to_s}, Contents: #{@text}"
+  def location(name, index)
+    Location.new name, index
   end
 
-end
+  #
+  # Prints text into the simulator execution log.
+  #
+  def trace(format, *args)
+    print_format true, format, *args
+  end
 
-#
-# Prints text into the simulator execution log.
-#
-def trace(string)
-  add_output OutputString.new(string, true)
-end
+  # 
+  # Adds the new line character into the test program
+  #
+  def newline
+    text '' 
+  end
 
-#
-# Evaluates a code block at simulation time and prints the resulting
-# text into the simulator output.
-#
-def trace_(&block)
-  add_output OutputCode.new(block, true)
-end
-
-# 
-# Adds the new line character into the test program
-#
-def newline
-  text '' 
-end
-
-# 
-# Adds text into the test program.
-#
-def text(string)
-  add_output OutputString.new(string)
-end
- 
-#
-# Evaluates a code block at printing time and puts the resulting
-# text into the test program.
-#  
-def text_(&block)
-  add_output OutputCode.new(block)
-end
-
-# 
-# Adds a comment into the test program (uses sl_comment_starts_with).
-#
-def comment(string)
-  if !string.empty? and string[0] == ?\" then #"
-    text string.insert(1, sl_comment_starts_with)
-  else
+  # 
+  # Adds text into the test program.
+  #
+  def text(format, *args)
+    print_format false, format, *args
+  end
+  
+  # 
+  # Adds a comment into the test program (uses sl_comment_starts_with).
+  #
+  def comment(format, *args)
     text sl_comment_starts_with + string
   end
-end
 
-#
-# Starts a multi-line comment (uses sl_comment_starts_with)
-#
-def start_comment
-  text ml_comment_starts_with
-end
+  #
+  # Starts a multi-line comment (uses sl_comment_starts_with)
+  #
+  def start_comment
+    text ml_comment_starts_with
+  end
 
-#
-# Ends a multi-line comment (uses ml_comment_ends_with)
-#
-def end_comment
-  text ml_comment_ends_with 
-end
+  #
+  # Ends a multi-line comment (uses ml_comment_ends_with)
+  #
+  def end_comment
+    text ml_comment_ends_with 
+  end
+
+  #
+  # Prints a format-based output to the simulator log or to the test program
+  # depending of the is_runtime flag.
+  #
+  def print_format(is_runtime, format, *args)
+    java_import Java::Ru.ispras.microtesk.test.template.OutputBuilder
+    builder = OutputBuilder.new is_runtime, format
+
+    args.each do |arg|
+      if arg.is_a?(Integer) or arg.is_a?(String) or 
+         arg.is_a?(TrueClass) or arg.is_a?(FalseClass)
+         builder.addArgument arg
+      elsif arg.is_a?(Location)
+        builder.addArgument arg.name, arg.index 
+      else
+        raise MTRubyError, "Illegal format argument class #{arg.class}"
+      end  
+    end
+
+    o = Output.new(builder.build)
+    add_output(o)
+  end
 
 end # module Output
