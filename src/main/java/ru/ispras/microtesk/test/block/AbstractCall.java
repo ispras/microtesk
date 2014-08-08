@@ -1,5 +1,5 @@
 /*
-+ * Copyright (c) 2013 ISPRAS
+ * Copyright (c) 2013 ISPRAS
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
