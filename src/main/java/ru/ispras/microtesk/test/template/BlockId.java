@@ -39,6 +39,7 @@ import java.util.List;
 
 final class BlockId
 {
+    private final BlockId parent;
     private final List<Integer> indexes;
     private int childCount;
 
@@ -48,11 +49,12 @@ final class BlockId
 
     public BlockId()
     {
-        this(Collections.singletonList(1));
+        this(null, Collections.singletonList(1));
     }
 
-    private BlockId(List<Integer> indexes)
+    private BlockId(BlockId parent, List<Integer> indexes)
     {
+        this.parent = parent;
         this.indexes = indexes;
         this.childCount = 0;
     }
@@ -73,7 +75,7 @@ final class BlockId
         childIndexes.addAll(indexes);
         childIndexes.add(childCount);
 
-        return new BlockId(childIndexes);
+        return new BlockId(this, childIndexes);
     }
 
     /**
@@ -85,13 +87,7 @@ final class BlockId
 
     public BlockId parentId()
     {
-        if (indexes.size() == 1)
-            return null;
-
-        final List<Integer> parentIndexes =
-            new ArrayList<Integer>(indexes.subList(0, indexes.size() - 1));
-
-        return new BlockId(parentIndexes);
+        return parent;
     }
 
     /**
