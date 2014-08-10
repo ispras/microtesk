@@ -24,7 +24,7 @@ class ArmDemo < Template
     add equalcond, setson, reg({:r => 0}), reg({:r => 0}), register1
     add equalcond, setsoff, reg(1), reg(2), register3 do overflow end
 
-    trace_ { "This is a debug message" }
+    trace "This is a debug message"
 
     add equalcond, setsoff, reg(2), reg(2), register0 do overflow end
 
@@ -49,16 +49,9 @@ class ArmDemo < Template
   end
 
   def print_all_registers
-
-    trace_ {
-      a = "DEBUG: GRP values: "
-      (0..15).each do |i|
-         s = sprintf("%034b", get_loc_value("GPR", i))
-         a += s[2, s.length] + ", "
-      end
-      a
-    }
-
+    trace "\nDEBUG: GRP values:"
+    (0..15).each { |i| trace "GRP[%d] = %s", i, location("GPR", i) }
+    trace ""
   end
 
 end
