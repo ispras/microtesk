@@ -55,7 +55,7 @@ class ArmDemo < Template
     EOR           blank, setsOff, REG(1), REG(1), register1
     ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
 
-    trace "\nInitial register values: R0 = %d, R1 = %d\n\n", getGPR(0), getGPR(1) 
+    trace "\nInitial register values: R0 = %d, R1 = %d\n\n", getGPR(0), getGPR(1)
 
     label :cycle
 
@@ -73,7 +73,7 @@ class ArmDemo < Template
   end
 
   def getGPR(index)
-    location('GPR', index) 
+    location('GPR', index)
   end
 
 end

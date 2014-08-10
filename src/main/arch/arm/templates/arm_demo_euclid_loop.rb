@@ -44,14 +44,14 @@ class ArmDemo < Template
   end
 
   def run
-    trace_ { "Euclidean Algorithm: Debug Output\n" }
-      
+    trace "Euclidean Algorithm: Debug Output\n"
+
     (1..5).each do |it|
 
       i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
       j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
-      trace_ { "\nInput parameter values (iteration #{it}): #{i}, #{j}\n\n" }
+      trace "\nInput parameter values (iteration #{it}): #{i}, #{j}\n\n"
 
       EOR           blank, setsOff, REG(0), REG(0), register0
       ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, i)
@@ -59,7 +59,7 @@ class ArmDemo < Template
       EOR           blank, setsOff, REG(1), REG(1), register1
       ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
 
-      trace_ { "\nInitial register values (iteration #{it}): R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n" }
+      trace "\nInitial register values (iteration #{it}): R0 = %d, R1 = %d\n\n", getGPR(0), getGPR(1)
 
       label :"cycle#{it}"
 
@@ -67,19 +67,18 @@ class ArmDemo < Template
       SUB greaterThan, setsOff, REG(0), REG(0), register1
       SUB lessThan,    setsOff, REG(1), REG(1), register0
 
-      trace_ { "\nCurrent register values (iteration #{it}): R0 = #{getGPR(0)}, R1 = #{getGPR(1)}\n\n" } 
+      trace "\nCurrent register values (iteration #{it}): R0 = %d, R1 = %d\n\n", getGPR(0), getGPR(1)
 
       B notEqual, :"cycle#{it}"
 
       MOV blank, setsOff, REG(2), register0
 
-      trace_ { "\nResult stored in R2 (iteration #{it}): #{getGPR(2)}\n"}
-
+      trace "\nResult stored in R2 (iteration #{it}): %d\n", getGPR(2)
     end
   end
 
   def getGPR(index)
-    get_loc_value('GPR', index).to_s 
+    location('GPR', index) 
   end
 
 end
