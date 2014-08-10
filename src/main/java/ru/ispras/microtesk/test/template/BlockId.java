@@ -77,6 +77,24 @@ final class BlockId
     }
 
     /**
+     * Returns the identifier of the parent block or <code>null</code>
+     * if there is no parent block (the current one is root).
+     * 
+     * @return Parent identifier or <code>null</code> if there is no parent.
+     */
+
+    public BlockId parentId()
+    {
+        if (indexes.size() == 1)
+            return null;
+
+        final List<Integer> parentIndexes =
+            new ArrayList<Integer>(indexes.subList(0, indexes.size() - 1));
+
+        return new BlockId(parentIndexes);
+    }
+
+    /**
      * Returns textual representation of the identifier.
      * 
      * @return Textual representation of the identifier.
