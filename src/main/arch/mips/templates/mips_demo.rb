@@ -29,8 +29,7 @@ class MipsDemo < Template
     }
 
     # prints register state after initialization
-    # print_all_registers
-
+    print_all_registers
     trace "This is a debug message"
 
     # block { }
@@ -38,16 +37,9 @@ class MipsDemo < Template
   end
 
   def print_all_registers
-
-    trace_ {
-      a = "DEBUG: GRP values: "
-      (0..31).each do |i|
-         s = sprintf("%034b", get_loc_value("GPR", i))
-         a += s[2, s.length] + ", "
-      end
-      a
-    }
-
+    trace "\nDEBUG: GRP values:"
+    (0..31).each { |i| trace "GRP[%d] = %s", i, location("GPR", i) }
+    trace ""
   end
 
 end

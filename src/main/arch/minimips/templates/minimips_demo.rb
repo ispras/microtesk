@@ -10,7 +10,7 @@ class MiniMipsDemo < Template
   end
 
   def run
-    puts "# MINIMIPS TEST"
+    comment "MINIMIPS TEST"
 
     # "Plain" sequence
     add 3, REG_IND_ZERO(1), REG_IND_ZERO(2)
@@ -18,7 +18,7 @@ class MiniMipsDemo < Template
 
     addi 3, REG_IND_ZERO(0), IMM16(0x1)
     addi 3, REG_IND_ZERO(3), IMM16(0x1)
-    
+
     # Randomized sequence
     block(:compositor => "RANDOM", :combinator => "RANDOM") {
       add 3, REG_IND_ZERO(1), REG_IND_ZERO(2)
@@ -31,23 +31,16 @@ class MiniMipsDemo < Template
     # prints register state after initialization
     # print_all_registers
 
-    debug { puts "This is a debug message" }
+    trace "This is a debug message"
 
     # block { }
 
   end
 
   def print_all_registers
-
-    debug {
-      a = "DEBUG: GRP values: "
-      (0..31).each do |i|
-         s = sprintf("%034b", get_loc_value("GPR", i))
-         a += s[2, s.length] + ", "
-      end
-      puts a
-    }
-
+    trace "\nDEBUG: GRP values:"
+    (0..31).each { |i| trace "GRP[%d] = %s", i, location("GPR", i) }
+    trace ""
   end
 
 end
