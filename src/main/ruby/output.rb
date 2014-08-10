@@ -112,7 +112,7 @@ module Output
   # Adds a comment into the test program (uses sl_comment_starts_with).
   #
   def comment(format, *args)
-    text sl_comment_starts_with + string
+    text sl_comment_starts_with + format
   end
 
   #
