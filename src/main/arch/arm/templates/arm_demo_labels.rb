@@ -1,4 +1,26 @@
-# Demo template time!
+#
+# Copyright (c) 2014 ISPRAS (www.ispras.ru)
+#
+# Institute for System Programming of Russian Academy of Sciences
+#
+# 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+#
+# All rights reserved.
+#
+# arm_demo_labels.rb, Aug 10, 2014 1:03:05 PM
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 require ENV['TEMPLATE']
 
@@ -11,22 +33,16 @@ class ArmDemo < Template
   def run
 
     sub lessThan, setsoff, REG(9), reg(0), register0
-    # The following code syntactically works but has no API to link to so is commented out for the time being
-    #do (overflow | normal) & random end
 
     label :valiant
 
-    ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, 1)
+    add_immediate blank, setsOff, REG(0), REG(0), IMMEDIATE(0, 1)
     cmp_immediate blank, reg(0), immediate(0, 5)
 
-    # Uncomment here to list all GPR registers
-    trace_ {
-      a = ""
-      (0..15).each do |i|
-        a += get_loc_value("GPR", i).to_s + ", "
-      end
-      a
-    }
+    # Prints data stored in all GPR registers
+    trace "\nDEBUG: GRP values:"
+    (0..15).each { |i| trace "GRP[%d] = %s", i, location("GPR", i) }
+    trace ""
 
     b notEqual, :valiant
     
