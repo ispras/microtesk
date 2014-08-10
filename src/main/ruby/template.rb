@@ -75,6 +75,9 @@ class Template
     @receiver_stack = [@core_block]
 
     @final_sequences = Array.new
+    
+    java_import Java::Ru.ispras.microtesk.test.template.BlockId
+    @block_id = BlockId.new
   end
 
   def self.template_classes
@@ -120,6 +123,8 @@ class Template
   end
 
   def block(attributes = {}, &contents)
+    @block_id = @block_id.nextChildId
+
     b = InstructionBlock.new
     b.attributes = attributes
 
@@ -132,12 +137,13 @@ class Template
     @instruction_receiver = @receiver_stack.last
 
     @instruction_receiver.receive b
+
+    @block_id = @block_id.parentId
   end
-  
+
   def label(name)
-    l = Label.new
-    l.name = name.to_s
-    @instruction_receiver.receive l
+    l = Java::Ru.ispras.microtesk.test.template.Label.new(name.to_s, @block_id) 
+    @instruction_receiver.receive Label.new(l)
   end
 
   def add_output(o)

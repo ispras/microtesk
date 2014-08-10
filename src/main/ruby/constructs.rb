@@ -340,15 +340,16 @@ class Attribute
 end
 
 class Label
+  # Returns the Java object Label.
+  attr_reader :java_object
 
-  attr_accessor :name
-
-  def initialize
-
-    @name = "UntitledLabel"
-
+  def initialize(java_object)
+    @java_object = java_object
   end
 
+  def name
+    @java_object.getName.to_s
+  end
 end
 
 class NoValue
