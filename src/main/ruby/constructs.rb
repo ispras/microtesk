@@ -116,13 +116,7 @@ class InstructionBlock
     end
     @items.push item
   end
-
-  def label(label)
-    #@labels[label]
-    @items.push label
-    @labels[label.name] = @block_id
-  end
-
+  
   # Block construction
   def build(j_block_builder_factory, labels = Hash.new, stack = [])
 
