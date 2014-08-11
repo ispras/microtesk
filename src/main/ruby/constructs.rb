@@ -128,12 +128,6 @@ class InstructionBlock
 
     l_stack = stack + [@block_id]
 
-    label_text_formatter = lambda do |name|
-      text = name
-      l_stack.each { |t| text += "_" + t.to_s }
-      text
-    end
-
     j_block_builder = j_block_builder_factory.newBlockBuilder()
 
     if @attributes.has_key? :compositor
@@ -161,16 +155,16 @@ class InstructionBlock
       # LABELS 
       if item.is_a? Label
         if delayed_instruction == nil
-          delayed_labels.push item.name
+          delayed_labels.push item
         else
           delayed_instruction.add_item_to_attribute "f_labels", [item.name, l_stack] #[item.to_s, @block_id]
-          puts "Label " + label_text_formatter.call(item.name)
+          puts "Label " + item.to_s
         end
       else
         if delayed_instruction != nil
           delayed_labels.each do |i_item|
-            delayed_instruction.add_item_to_attribute "b_labels", [i_item, l_stack] #[i_item.to_s, @block_id]
-            puts "Label " + label_text_formatter.call(i_item)
+            delayed_instruction.add_item_to_attribute "b_labels", [i_item.name, l_stack] #[i_item.to_s, @block_id]
+            puts "Label " + i_item.to_s
           end
           delayed_labels.clear
         end
@@ -349,6 +343,10 @@ class Label
 
   def name
     @java_object.getName.to_s
+  end
+
+  def to_s
+    @java_object.getUniqueName.to_s
   end
 end
 
