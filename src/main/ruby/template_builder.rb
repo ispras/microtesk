@@ -110,6 +110,7 @@ def define_instruction(i)
 
     inst = Instruction.new
     inst.name = inst_name
+    inst.block_id = @block_id
 
     if(inst_arguments.count != arguments.count)
       raise MTRubyError, ERR_WRONG_INST_ARG_NUMBER % [caller[0], inst_name, arguments.count, inst_arguments.count]

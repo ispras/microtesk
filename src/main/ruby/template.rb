@@ -276,22 +276,17 @@ class Executor
       if label == nil
         goto = cur_seq + 1
       else
-        unstack = [] + label[1]
-        while @labels[[label.first, unstack]] == nil && unstack.length > 0
-          unstack.pop
+        search_label = label
+        while @labels[search_label] == nil && search_label != nil
+          search_label = search_label.getParentLabel
         end
         
-        result = @labels[[label.first, unstack]]
-        
+        result = @labels[search_label]
         if result == nil
           goto = cur_seq + 1
-          text = label.first
-          label[1].each do |t|
-            text += "_" + t.to_s
-          end
-          puts "Label " + label.first + " doesn't exist"
+          puts "Label " + label.getName + " doesn't exist"
         else
-          label = [label.first, unstack]
+          label = search_label
           goto = result.first
         end
       end      
@@ -379,7 +374,7 @@ class Executor
       
       if jump > 0
         target = inst.getAttribute("labels").first.first
-        if target == nil || target.first == nil
+        if target == nil
           puts "Jump to nil label, transfer status: " + jump.to_s
         elsif labels.has_key? target
           cur_inst = labels[target]
@@ -419,11 +414,7 @@ class Executor
 
   def print_label_jump(target)
     if @log_execution
-      text = target.first
-      target[1].each do |t|
-        text += "_" + t.to_s
-      end
-      puts "Jump (internal) to label: " + text
+      puts "Jump (internal) to label: " + target.to_s
     end
   end
 
@@ -502,9 +493,7 @@ private
   def print_labels(arr)
     return unless arr.is_a? Array
     arr.each do |label|
-      text = label.first
-      label[1].each { |t| text += "_" + t.to_s }
-      print_text text + ":"
+      print_text label.to_s + ":"
     end
   end
 
