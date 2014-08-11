@@ -4,7 +4,6 @@ require_relative "output"
 require_relative "state_observer"
 
 # Other dependencies
-require_relative "config"
 require_relative "constructs"
 require_relative "engine"
 require_relative "utils"
@@ -188,11 +187,15 @@ class Template
     puts
     puts "---------- Start output ----------"
     puts
-   
-    printer = Printer.new(filename, self, self)
+    
+    printer = Java::Ru.ispras.microtesk.test.Printer.new(
+      filename, get_state_observer, sl_comment_starts_with, use_stdout)
+
     executor.get_concrete_calls.each do |fs|
-      printer.print_sequence fs
+      printer.printSequence fs
     end
+
+    printer.close
   end
 
 end
@@ -415,85 +418,6 @@ class Executor
   def print_label_jump(target)
     if @log_execution
       puts "Jump (internal) to label: " + target.to_s
-    end
-  end
-
-end
-
-class Printer
-
-  def initialize(filename, settings, context)
-    raise "Wrong setting type." unless settings.is_a? Settings
-    raise "Wrong context type." unless context.is_a? StateObserver
-
-    @filename  = filename
-    @settings  = settings
-    @context   = context
-    @file      = nil
-    @is_header = true
-  end
-
-  def print_sequence(sequence)
-    print_header
-    sequence.each do |inst|
-      print_outputs inst.getAttribute("b_output")
-      print_labels  inst.getAttribute("b_labels")
-      print_text    inst.getExecutable().getText()
-      print_labels  inst.getAttribute("f_labels")
-      print_outputs inst.getAttribute("f_output")
-    end
-  end
-
-private
-
-  def use_file?
-    @filename != nil and @filename != ""
-  end
-
-  def generate_header
-    slcs = @settings.sl_comment_starts_with
-    HEADER_TEXT % [slcs, slcs, Time.new, slcs, slcs, slcs, slcs]
-  end
-
-  def print_to_stdout(text)
-    if @settings.use_stdout
-      puts text
-    end
-  end
-
-  def print_to_file(text)
-    if use_file?
-      if @file == nil
-        @file = File.open(@filename, 'w')
-      end
-      @file.puts text
-    end
-  end
-
-  def print_text(text)
-    print_to_stdout text
-    print_to_file text
-  end
-
-  def print_header
-    if @is_header
-      print_text generate_header
-      @is_header = false
-    end
-  end
-
-  def print_outputs(arr)
-    return unless arr.is_a? Array
-    arr.each do |item|
-      s = item.evaluate @context.get_state_observer
-      print_text s if s != nil
-    end
-  end
-
-  def print_labels(arr)
-    return unless arr.is_a? Array
-    arr.each do |label|
-      print_text label.to_s + ":"
     end
   end
 
