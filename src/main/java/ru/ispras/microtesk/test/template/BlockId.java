@@ -37,7 +37,7 @@ import java.util.List;
  * @author Andrei Tatarnikov
  */
 
-final class BlockId
+public final class BlockId
 {
     private final BlockId parent;
     private final List<Integer> indexes;
