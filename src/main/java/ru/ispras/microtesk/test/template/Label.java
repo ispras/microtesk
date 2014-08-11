@@ -92,6 +92,24 @@ public final class Label
     }
 
     /**
+     * Returns a label with the same name, but belonging to the parent block.
+     * If there is no parent block, <code>null</code> is returned. Such a label
+     * may not be defined in reality. We need this objects just to perform 
+     * search among defined labels to resolve a jump from a nested block.  
+     * 
+     * @return Label with the same name in the parent block or
+     * <code>null</code> if there is no parent block.
+     */
+
+    public Label getParentLabel()
+    {
+        if (null == blockId.parentId())
+            return null;
+
+        return new Label(name, blockId.parentId());
+    }
+
+    /**
      * Returns textual representation of the label based on its unique name. 
      * 
      * @return Textual representation based on the unique name.
