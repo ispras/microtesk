@@ -18,16 +18,18 @@ import ru.ispras.microtesk.test.data.DataGenerator;
 
 public final class TestEngine
 {
-    private final BlockBuilderFactory blockBuilderFactory;
-    private final DataGenerator dataGenerator;
-
     public static TestEngine getInstance(IModel model)
     {
         return new TestEngine(model);
     }
 
+    private final IModel model;
+    private final BlockBuilderFactory blockBuilderFactory;
+    private final DataGenerator dataGenerator;
+
     private TestEngine(IModel model)
     {
+        this.model = model;
         this.blockBuilderFactory = new BlockBuilderFactory();
         this.dataGenerator = new DataGenerator(model);
     }
