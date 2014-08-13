@@ -62,6 +62,38 @@ public final class BlockId
         public int getUp()    { return up; }
         public int getDown()  { return down; }
         public int getTotal() { return up + down; }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+
+            result = prime * result + up;
+            result = prime * result + down;
+
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj) return true;
+            if (obj == null) return false;
+
+            if (getClass() != obj.getClass())
+                return false;
+
+            final Distance other = (Distance) obj;
+            return (up == other.up) && (down == other.down);
+        }
+
+        @Override
+        public String toString()
+        {
+            return String.format(
+                "Distance [up=%d, down=%d]", up, down);
+        }
     }
 
     private final BlockId parent;
