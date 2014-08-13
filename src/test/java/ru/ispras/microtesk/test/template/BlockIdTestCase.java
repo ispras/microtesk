@@ -161,6 +161,14 @@ public class BlockIdTestCase
     @Test
     public void testDistance()
     {
-        // TODO
+        final BlockId root1 = new BlockId();
+        final BlockId root2 = new BlockId();
+
+        assertEquals(root1.getDistance(root1).getTotal(), 0);
+        assertEquals(root1.getDistance(root2).getTotal(), 0);
+        assertEquals(root2.getDistance(root1).getTotal(), 0);
+        assertEquals(root2.getDistance(root2).getTotal(), 0);
+        
+        // TODO:
     }
 }
