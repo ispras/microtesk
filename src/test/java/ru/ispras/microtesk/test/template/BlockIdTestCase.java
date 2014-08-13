@@ -44,17 +44,27 @@ public class BlockIdTestCase
         assertEquals(child11, child21);
         assertNotSame(child11, child21);
 
+        assertFalse(root1.equals(child11));
+        assertFalse(root1.equals(child21));
+        assertFalse(root2.equals(child11));
+        assertFalse(root2.equals(child21));
+        
         assertEquals(child11.parentId(), child21.parentId());
         assertNotSame(child11.parentId(), child21.parentId());
 
         final BlockId child12 = root1.nextChildId();
         final BlockId child22 = root2.nextChildId();
 
+        assertEquals(child12, child22);
         assertEquals(child12.parentId(), child22.parentId());
-        assertNotSame(child12.parentId(), child22.parentId());
 
         assertEquals(child12.parentId(), child11.parentId());
         assertEquals(child22.parentId(), child21.parentId());
+
+        assertFalse(child12.equals(child11));
+        assertFalse(child12.equals(child21));
+        assertFalse(child22.equals(child11));
+        assertFalse(child22.equals(child21));
 
         final BlockId child121 = child12.nextChildId();
         final BlockId child221 = child22.nextChildId();
@@ -64,18 +74,23 @@ public class BlockIdTestCase
         assertEquals(child121.parentId().parentId(), root2);
         assertEquals(child221.parentId().parentId(), root1);
 
+        assertEquals(root1.getDepth(), root2.getDepth());
+        assertEquals(child11.getDepth(), child12.getDepth());
+        assertEquals(child11.getDepth(), child21.getDepth());
+        assertEquals(child11.getDepth(), child22.getDepth());
+
+        assertEquals(child121.getDepth(), child221.getDepth());
     }
-    
+
     @Test
     public void testParentChild()
     {
         // TODO
     }
-    
+
     @Test
     public void testDistance()
     {
         // TODO
     }
 }
-
