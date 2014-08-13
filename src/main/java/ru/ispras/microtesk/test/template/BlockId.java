@@ -91,6 +91,56 @@ public final class BlockId
     }
 
     /**
+     * Checks whether the specified block identifier refers to
+     * a block which is a parent (not necessary immediate) of
+     * the block marked by the current identifier. Note: a block
+     * is not a parent to itself.
+     * 
+     * @param parentId Identifier of the candidate parent block.
+     * @return <code>true</code> if the specified block identifier
+     * refers to a parent block or <code>false<code> otherwise.
+     * 
+     * @throws NullPointerException if the parameter is <code>null<code>.
+     */
+
+    public boolean isParent(BlockId parentId)
+    {
+        if (null == parentId)
+            throw new NullPointerException();
+
+        if (parentId.indexes.size() >= indexes.size())
+            return false;
+
+        return isEqual(
+            indexes, parentId.indexes, parentId.indexes.size());
+    }
+
+    /**
+     * Checks whether the specified block identifier refers to
+     * a block which is a child (not necessary immediate) of
+     * the block marked by the current identifier. Note: a block
+     * is not a child to itself.
+     * 
+     * @param childId Identifier of the candidate child block.
+     * @return <code>true</code> if the specified block identifier
+     * refers to a child block or <code>false<code> otherwise.
+     * 
+     * @throws NullPointerException if the parameter is <code>null<code>.
+     */
+
+    public boolean isChild(BlockId childId)
+    {
+        if (null == childId)
+            throw new NullPointerException();
+
+        if (childId.indexes.size() <= indexes.size())
+            return false;
+
+        return isEqual(
+            indexes, childId.indexes, indexes.size());
+    }
+
+    /**
      * Returns textual representation of the identifier.
      * 
      * @return Textual representation of the identifier.
@@ -111,7 +161,13 @@ public final class BlockId
     @Override
     public int hashCode()
     {
-        return indexes.hashCode();
+        final int prime = 31;
+        int result = 1;
+
+        for (int index : indexes)
+            result = prime * result + index;    
+
+        return result;
     }
 
     @Override
@@ -124,6 +180,22 @@ public final class BlockId
             return false;
 
         final BlockId other = (BlockId) obj;
-        return indexes.equals(other.indexes);
+
+        if (indexes.size() != other.indexes.size())
+            return false;
+
+        return isEqual(indexes, other.indexes, indexes.size());
+    }
+
+    private static boolean isEqual(List<Integer> a, List<Integer> b, int count)
+    {
+        assert a.size() <= count;
+        assert b.size() <= count;
+
+        for (int index = 0; index < count; ++index)
+            if (a.get(index) != b.get(index))
+                return false;
+
+        return true;
     }
 }
