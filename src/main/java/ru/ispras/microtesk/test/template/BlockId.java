@@ -39,6 +39,31 @@ import java.util.List;
 
 public final class BlockId
 {
+    /**
+     * The Distance class describe a distance between blocks.
+     * I.e. the path from one block to another including directions.
+     * First we go up (by the specified number of steps, if needed)
+     * and then go down (by the specified number of steps, if needed).
+     * 
+     * @author Andrei Tatarnikov
+     */
+
+    public static final class Distance
+    {
+        private final int up;
+        private final int down;
+
+        private Distance(int up, int down)
+        {
+            this.up = up;
+            this.down = down;
+        }
+
+        public int getUp()    { return up; }
+        public int getDown()  { return down; }
+        public int getTotal() { return up + down; }
+    }
+
     private final BlockId parent;
     private final List<Integer> indexes;
     private int childCount;
@@ -111,8 +136,8 @@ public final class BlockId
         if (parentId.indexes.size() >= indexes.size())
             return false;
 
-        return isEqual(
-            indexes, parentId.indexes, parentId.indexes.size());
+        return parentId.indexes.size() == 
+            getEqualSize(indexes, parentId.indexes);
     }
 
     /**
@@ -136,8 +161,8 @@ public final class BlockId
         if (childId.indexes.size() <= indexes.size())
             return false;
 
-        return isEqual(
-            indexes, childId.indexes, indexes.size());
+        return indexes.size() == 
+            getEqualSize(indexes, childId.indexes);
     }
     
     /**
@@ -150,6 +175,31 @@ public final class BlockId
     public int getDepth()
     {
        return indexes.size() - 1; 
+    }
+
+    /**
+     * Calculates the distance between the current block
+     * and the target block (the path you need to pass to
+     * get from the current one to the target one).
+     * 
+     * @param target Target block.
+     * @return Distance from the current block to the target block.
+     * 
+     * @throws NullPointerException if the parameter is <code>null<code>.
+     */
+
+    public Distance getDistance(BlockId target)
+    {
+        if (null == target)
+            throw new NullPointerException();
+
+        final int forkDepth =
+           getEqualSize(indexes, target.indexes) - 1;
+
+        final int up = getDepth() - forkDepth;
+        final int down = target.getDepth() - forkDepth; 
+
+        return new Distance(up, down);
     }
 
     /**
@@ -170,6 +220,14 @@ public final class BlockId
         return sb.toString();
     }
 
+    /**
+     * Calculates the hash code of the block identifier based on 
+     * the elements of the indexes list which describes the 
+     * relative location of the block. 
+     * 
+     * @return Hash code for the block identifier.  
+     */
+
     @Override
     public int hashCode()
     {
@@ -181,6 +239,14 @@ public final class BlockId
 
         return result;
     }
+
+    /**
+     * Checks whether the specified object is a block
+     * identifier that is equal to the current one. 
+     * 
+     * @return <code>true</code> the object refers to an equal block
+     * identifier or <code>false</code> other wise.
+     */
 
     @Override
     public boolean equals(Object obj)
@@ -196,18 +262,32 @@ public final class BlockId
         if (indexes.size() != other.indexes.size())
             return false;
 
-        return isEqual(indexes, other.indexes, indexes.size());
+        return indexes.size() == 
+            getEqualSize(indexes, other.indexes);
     }
 
-    private static boolean isEqual(List<Integer> a, List<Integer> b, int count)
+    /**
+     * Returns the size of a common sequence that presents in both
+     * lists and starts from the 0th position. E.g. two lists are equal,
+     * if their sizes are equal and the size of the common sequence equals
+     * the size of the lists. 
+     * 
+     * @param a First list.
+     * @param b Second list.
+     * @return Size of a common sequence starting from the 0th position.
+     */
+
+    private static int getEqualSize(List<Integer> a, List<Integer> b)
     {
-        assert a.size() <= count;
-        assert b.size() <= count;
+        final int maxEqualSize = Math.min(a.size(), b.size());
 
-        for (int index = 0; index < count; ++index)
-            if (a.get(index) != b.get(index))
-                return false;
+        int index = 0;
+        while(index < maxEqualSize && a.get(index) == b.get(index))
+            index++;
 
-        return true;
+        assert index > 1:
+            "Invariant: not empty, first elements (0-index) equal.";
+
+        return index;
     }
 }
