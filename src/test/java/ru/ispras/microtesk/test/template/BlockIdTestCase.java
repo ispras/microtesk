@@ -85,7 +85,77 @@ public class BlockIdTestCase
     @Test
     public void testParentChild()
     {
-        // TODO
+        final BlockId root1 = new BlockId();
+        final BlockId root2 = new BlockId();
+
+        assertFalse(root1.isParent(root1));
+        assertFalse(root1.isParent(root2));
+        assertFalse(root2.isParent(root2));
+        assertFalse(root2.isParent(root1));
+
+        final BlockId child11 = root1.nextChildId();
+        final BlockId child21 = root2.nextChildId();
+
+        assertTrue(child11.isParent(root1));
+        assertTrue(root1.isChild(child11));
+        assertTrue(child11.isParent(root2));
+        assertTrue(root1.isChild(child21));
+
+        final BlockId child12 = root1.nextChildId();
+        final BlockId child22 = root2.nextChildId();
+
+        assertTrue(child12.isParent(root1));
+        assertTrue(child12.isParent(root2));
+        assertTrue(child22.isParent(root1));
+        assertTrue(child22.isParent(root2));
+
+        assertTrue(root1.isChild(child11));
+        assertTrue(root1.isChild(child12));
+        assertTrue(root1.isChild(child21));
+        assertTrue(root1.isChild(child22));
+
+        assertTrue(root2.isChild(child11));
+        assertTrue(root2.isChild(child12));
+        assertTrue(root2.isChild(child21));
+        assertTrue(root2.isChild(child22));
+
+        assertFalse(child11.isChild(child12));
+        assertFalse(child21.isParent(child11));
+        assertFalse(child11.isChild(child21));
+        assertFalse(child11.isParent(child22));
+
+        final BlockId child121 = child12.nextChildId();
+        final BlockId child221 = child22.nextChildId();
+
+        assertTrue(child121.isParent(root1));
+        assertTrue(child121.isParent(root2));
+        assertTrue(child221.isParent(root1));
+        assertTrue(child221.isParent(root2));
+
+        assertTrue(root1.isChild(child121));
+        assertTrue(root2.isChild(child121));
+        assertTrue(root1.isChild(child221));
+        assertTrue(root2.isChild(child221));
+
+        assertTrue(child121.isParent(child12));
+        assertTrue(child221.isParent(child12));
+        assertTrue(child121.isParent(child22));
+        assertTrue(child221.isParent(child22));
+
+        assertTrue(child12.isChild(child121));
+        assertTrue(child12.isChild(child221));
+        assertTrue(child22.isChild(child121));
+        assertTrue(child22.isChild(child221));
+
+        assertFalse(child121.isParent(child11));
+        assertFalse(child221.isParent(child11));
+        assertFalse(child121.isParent(child21));
+        assertFalse(child221.isParent(child21));
+
+        assertFalse(child11.isChild(child121));
+        assertFalse(child11.isChild(child221));
+        assertFalse(child21.isChild(child121));
+        assertFalse(child21.isChild(child221));
     }
 
     @Test
