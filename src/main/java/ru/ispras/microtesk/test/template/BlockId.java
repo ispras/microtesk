@@ -139,6 +139,18 @@ public final class BlockId
         return isEqual(
             indexes, childId.indexes, indexes.size());
     }
+    
+    /**
+     * Returns the depth of nesting for the block described by
+     * the current identifier.
+     * 
+     * @return Nesting depth of the block described by the identifier.  
+     */
+
+    public int getDepth()
+    {
+       return indexes.size() - 1; 
+    }
 
     /**
      * Returns textual representation of the identifier.
