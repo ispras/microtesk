@@ -26,6 +26,7 @@ package ru.ispras.microtesk.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,95 +36,13 @@ import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.test.data.ConcreteCall;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.template.BlockId;
+import ru.ispras.microtesk.test.template.BlockId.Distance;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
 
 public final class Executor
 {
-    private static final class LabelEntry
-    {
-        private final Label label;
-        private final int jumpPos;
-
-        public LabelEntry(Label label, int jumpPos)
-        {
-            if (null == label)
-                throw new NullPointerException();
-
-            this.label = label;
-            this.jumpPos = jumpPos;
-        }
-    }
-
-    private static class LabelManager
-    {
-        private final Map<String, List<LabelEntry>> table;
-
-        LabelManager()
-        {
-            this.table = new HashMap<String, List<LabelEntry>>();
-        }
-
-        public void add(Label label, int jumpPos)
-        {
-            if (null == label)
-                throw new NullPointerException();
-
-            final LabelEntry entry = new LabelEntry(label, jumpPos);
-
-            final List<LabelEntry> entries;
-            if (table.containsKey(label.getName()))
-            {
-                entries = table.get(label.getName());
-            }
-            else
-            {
-                entries = new ArrayList<LabelEntry>();
-                table.put(label.getName(), entries);
-            }
-
-            entries.add(entry);
-        }
-        
-        public void addAll(Collection<?> labels, int jumpPos)
-        {
-            if (null == labels)
-                throw new NullPointerException();
-
-            for (Object item : labels)
-            {
-                if (!(item instanceof Label))
-                    throw new IllegalArgumentException(
-                        item + " is not a Label object!");
-
-                add((Label) item, jumpPos);
-            }
-        }
-
-        public LabelEntry resolve(Label label)
-        {
-            if (null == label)
-                throw new NullPointerException();
-
-            if (!table.containsKey(label.getName()))
-                return null;
-
-            final List<LabelEntry> entries = 
-                table.get(label.getName());
-
-            // If there is only one entry, there is no other choice.
-            if (1 == entries.size())
-                return entries.get(0);
-
-            // Find a label defined in the current block
-            // Find a label defined in the closest child
-            // Find a label defined in the closest parent
-            // Find a label defined in the closest sibling
-
-            return null;
-        }
-    }
-
     private final IModelStateObserver observer;
     private final boolean logExecution;
 
@@ -148,10 +67,10 @@ public final class Executor
             final ConcreteCall instr = sequence.get(index);
             
             final List<?> f_labels = toList(instr.getAttribute("f_labels"));
-            labelManager.addAll(f_labels, index);
+            labelManager.addAllLabels(f_labels, index);
 
             final List<?> b_labels = toList(instr.getAttribute("b_labels"));
-            labelManager.addAll(b_labels, index + 1);
+            labelManager.addAllLabels(b_labels, index + 1);
         }
         
         int currentPos = 0;
@@ -191,12 +110,12 @@ public final class Executor
                 }
                 else
                 {
-                    final LabelEntry target = labelManager.resolve(targetLabel);
+                    final LabelManager.Target target = labelManager.resolve(targetLabel);
                     if (null == target)
                         throw new IllegalStateException("No label called" + targetLabel.getName() + "is defined");
                     
-                    currentPos = target.jumpPos;
-                    logLabelJump(target.label);
+                    currentPos = target.getJumpPos();
+                    logLabelJump(target.getLabel());
                 }
             }
             else // If there are no transfers, continue to the next instruction
@@ -244,258 +163,159 @@ public final class Executor
     }
 }
 
-/*
+/**
+ * The job of the LabelManager class is to manage jumps to labels that
+ * have the same names, but are defined in different blocks. It stores
+ * all labels defined by the sequence and their relative positions grouped
+ * by name. When it is required to perform a jump to a label with a specific
+ * name, it chooses the most suitable label depending on the block from 
+ * which the jump is to be performed. Here are the rules according to which
+ * the choice is made: 
+ * 
+ *  <p>1. If there is only one such label (no other choice), choose it.
+ * 
+ *  <p>2. Choose a label defined in the current block,
+ *        it there is such a label defined in the current block.
+ * 
+ *  <p>3. Choose a label defined in the closest child,
+ *        it there are such labels defined in child blocks.
+ * 
+ *  <p>4. Choose a label defined in the closest parent,
+ *        it there are such labels defined in parent blocks.
+ *  
+ *  <p>5. Choose a label defined in the closest sibling.
+ * 
+ * @author Andrei Tatarnikov
+ */
 
-class Executor
+final class LabelManager
+{
+    public static final class Target
+    {
+        private final Label label;
+        private final int jumpPos;
 
-  def initialize(context, abstract_calls, is_log)
-    @context = context
-    @abstract_calls = abstract_calls
-    @log_execution = is_log
-  end
-  
-  def get_concrete_calls
-    @final_sequences
-  end
+        public Target(Label label, int jumpPos)
+        {
+            if (null == label)
+                throw new NullPointerException();
 
-  def execute
+            if (jumpPos < 0)
+                throw new IllegalArgumentException();
 
-    bl_iter = @abstract_calls
+            this.label = label;
+            this.jumpPos = jumpPos;
+        }
+
+        public Label getLabel()
+        {
+            return label;
+        }
+
+        public int getJumpPos()
+        {
+            return jumpPos;
+        }
+    }
     
-    # Preprocess labels
-    @labels = Hash.new
+    private static final class TargetDistance implements Comparable<TargetDistance>
+    {
+        private final Target target;
+        private final BlockId.Distance distance;
+        
+        private TargetDistance(Target target, Distance distance)
+        {
+            this.target = target;
+            this.distance = distance;
+        }
 
-    # look for labels in the sequences
-    bl_iter.init()
-    sn = 0
-    sequences = Array.new
-    
-    while bl_iter.hasValue()
-      seq = bl_iter.value()
+        @Override
+        public int compareTo(TargetDistance o)
+        {
+            // TODO Auto-generated method stub
+            return 0;
+        } 
+    }
 
-      seq.each_with_index do |inst, i|
-        #TODO check if sequences have nulls?
-        if inst == nil
-          next
-        end
-        
-        f_labels = inst.getAttribute("f_labels")
-        b_labels = inst.getAttribute("b_labels")
+    private final Map<String, List<Target>> table;
 
-        #process labels
-      
-        if f_labels.is_a? Array
-          f_labels.each do |label|
-            @labels[label] = [sn, i + 1]
-          end
-        end
-        
-        if b_labels.is_a? Array
-          b_labels.each do |label|
-            @labels[label] = [sn, i]
-          end 
-        end        
-      end
-      sn += 1
-      sequences.push seq
-      
-      bl_iter.next()
-    end
-    
-    # Execute and generate data in the process
-    @final_sequences = Array.new(sequences.length)
-    @final_sequences.each_with_index do |sq, i| 
-      @final_sequences[i] = nil 
-    end
-    
-    cur_seq = 0
-    continue = true
-    label = nil
-    
-    # puts @labels.to_s
-    seq.each_with_index do |inst, i|
-        #TODO check if sequences have nulls?
-        if inst == nil
-          next
-        end
-        
-        f_labels = inst.getAttribute("f_labels")
-        b_labels = inst.getAttribute("b_labels")
+    public LabelManager()
+    {
+        this.table = new HashMap<String, List<Target>>();
+    }
 
-        #process labels
-      
-        if f_labels.is_a? Array
-          f_labels.each do |label|
-            @labels[label] = [sn, i + 1]
-          end
-        end
-        
-        if b_labels.is_a? Array
-          b_labels.each do |label|
-            @labels[label] = [sn, i]
-          end 
-        end        
-      end
-      sn += 1
-      sequences.push seq
-      
-      bl_iter.next()
-    # execution loop
-    while continue && cur_seq < sequences.length
-      fin, label = exec_sequence(sequences[cur_seq], @final_sequences[cur_seq], cur_seq, label)
-      
-      if @final_sequences[cur_seq] == nil && cur_seq < sequences.length
-        @final_sequences[cur_seq] = fin
-      end
-      
-      if label == nil
-        goto = cur_seq + 1
-      else
-        search_label = label
-        while @labels[search_label] == nil && search_label != nil
-          search_label = search_label.getParentLabel
-        end
-        
-        result = @labels[search_label]
-        if result == nil
-          goto = cur_seq + 1
-          puts "Label " + label.getName + " doesn't exist"
+    public void addLabel(Label label, int jumpPos)
+    {
+        if (null == label)
+            throw new NullPointerException();
+
+        final Target target = new Target(label, jumpPos);
+
+        final List<Target> targets;
+        if (table.containsKey(label.getName()))
+        {
+            targets = table.get(label.getName());
+        }
         else
-          label = search_label
-          goto = result.first
-        end
-      end      
-      
-      if (goto >= sn + 1) or (goto == -1 && cur_seq >= sn)
-        continue = false
-      else
-        cur_seq = goto
-      end
-      
-    end
-      
-    # Generate the remaining sequences  
-    @final_sequences.each_with_index do |s, i|
-      if s == nil && i < sequences.length
-#        if sequences[i] == nil
-#          puts "what the fuck " + i.to_s
-#        end
-        @final_sequences[i] = Engine.generate_data sequences[i]
-      end
-    end
-    
-  end
-  
-  def exec_sequence(seq, gen, id, label)
-    r_gen = gen
-    if gen == nil
-      # TODO NEED EXCEPTION HANDLER
-      r_gen = Engine.generate_data seq
-    end
-    
-    labels = Hash.new
-    
-    r_gen.each_with_index do |inst, i|
-      f_labels = inst.getAttribute("f_labels")
-      b_labels = inst.getAttribute("b_labels")
-      
-      #process labels
-      
-      if f_labels.is_a? Array
-        f_labels.each do |f_label|
-          labels[f_label] = i + 1
-          # puts "Registered f_label " + f_label
-        end
-      end
-      
-      if b_labels.is_a? Array
-        b_labels.each do |b_label|
-          labels[b_label] = i
-          # puts "Registered b_label " + b_label
-        end        
-      end
-    end
-    
-    cur_inst = 0
-    
-    if label != nil
-      cur_inst = labels[label]
-      # puts label.to_s
-      # puts labels.to_s
-    end
-    
-    total_inst = r_gen.length
+        {
+            targets = new ArrayList<Target>();
+            table.put(label.getName(), targets);
+        }
 
-    continue = true
+        targets.add(target);
+    }
 
-    jump_target = nil
+    public void addAllLabels(Collection<?> labels, int jumpPos)
+    {
+        if (null == labels)
+            throw new NullPointerException();
 
-    while continue && cur_inst < total_inst
+        for (Object item : labels)
+        {
+            if (!(item instanceof Label))
+                throw new IllegalArgumentException(
+                    item + " is not a Label object!");
 
-      inst = r_gen[cur_inst]
+            addLabel((Label) item, jumpPos);
+        }
+    }
 
-      print_debug inst.getAttribute("b_runtime")
-      
-      exec = inst.getExecutable()
-      print_text exec.getText()
-      exec.execute()
+    public Target resolve(Label label)
+    {
+        // Find a label defined in the current block
+        // Find a label defined in the closest child
+        // Find a label defined in the closest parent
+        // Find a label defined in the closest sibling
+        
+        if (null == label)
+            throw new NullPointerException();
 
-      print_debug inst.getAttribute("f_runtime")
+        if (!table.containsKey(label.getName()))
+            return null;
 
-      # Labels
-      jump = StateObserver.control_transfer_status
+        final List<Target> targets = 
+            table.get(label.getName());
 
-      # TODO: Support instructions with 2+ labels (needs API)
-      
-      if jump > 0
-        target = inst.getAttribute("labels").first.first
-        if target == nil
-          puts "Jump to nil label, transfer status: " + jump.to_s
-        elsif labels.has_key? target
-          cur_inst = labels[target]
-          print_label_jump target
-          next
-        else
-          jump_target = target
-          print_label_jump target
-          break
-        end
-      end
-      
-      # If there weren't any jumps, continue on to the next instruction
-      cur_inst += 1
-    end
-    
-    [r_gen, jump_target]
-    
-  end
+        // If there is only one target, there is no other choice.
+        if (1 == targets.size())
+            return targets.get(0);
 
-  def print_text(text)
-    if @log_execution
-       puts text
-    end
-  end
+        final List<TargetDistance> distances = 
+             new ArrayList<TargetDistance>(targets.size());
 
-  def print_debug(debug_arr)
-    if @log_execution and debug_arr.is_a? Array
-      debug_arr.each do |debug|
-        text = debug.evaluate @context.get_state_observer
-        if nil != text
-          puts text
-        end 
-      end
-    end
-  end
+        for (int index = 0; index < targets.size(); ++index)
+        {
+            final Target target = targets.get(index);
+            final Label targetLabel = target.getLabel();
 
-  def print_label_jump(target)
-    if @log_execution
-      puts "Jump (internal) to label: " + target.to_s
-    end
-  end
+            final BlockId.Distance distance = 
+                label.getBlockId().getDistance(targetLabel.getBlockId());
 
-end
-
-*/
-
-
-
+            distances.add(new TargetDistance(target, distance));
+        }
+        
+        Collections.sort(distances);
+        
+        return distances.get(0).target;
+    }
+}
