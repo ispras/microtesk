@@ -43,20 +43,16 @@ import ru.ispras.microtesk.test.template.BlockId.Distance;
  * name, it chooses the most suitable label depending on the block from 
  * which the jump is performed. Here are the rules according to which
  * the choice is made: 
- * 
- *  <p>1. If there is only one such label (no other choice), choose it.
- * 
- *  <p>2. Choose a label defined in the current block,
- *        it there is such a label defined in the current block.
- * 
- *  <p>3. Choose a label defined in the closest child,
- *        it there are such labels defined in child blocks.
- * 
- *  <p>4. Choose a label defined in the closest parent,
- *        it there are such labels defined in parent blocks.
- *  
- *  <p>5. Choose a label defined in the closest sibling.
- * 
+ * <ol>
+ * <li>If there is only one such label (no other choice), choose it.</li>
+ * <li>Choose a label defined in the current block,
+ *     it there is such a label defined in the current block.</li>
+ * <li>Choose a label defined in the closest child,
+ *     it there are such labels defined in child blocks.</li>
+ * <li>Choose a label defined in the closest parent,
+ *     it there are such labels defined in parent blocks.</li>
+ * <li>Choose a label defined in the closest sibling.</li>
+ * </ol>
  * @author Andrei Tatarnikov
  */
 
@@ -90,17 +86,37 @@ final class LabelManager
         public Label getLabel()  { return label; }
         public int getPosition() { return position; }
     }
-    
+
     /**
+     * The TargetDistance class associates label targets with their
+     * relative distances (in blocks) from the reference point (the point
+     * a jump is performed from). Also, it provides a comparison method
+     * which helps sort targets by their distance from the reference point.
+     * This is needed to choose the most suitable target to perform a jump
+     * from the specified point (if there is an ambiguity caused by labels
+     * that have the same name).
+     * 
+     * <p>Sorting criteria:
+     * <ol>
+     * <li>First - labels defined in the current block (zero distance).</li>
+     * <li>Second - labels defined in child blocks 
+     *     (by the <code>down</code> path).</li>
+     * <li>Third - labels defined in parents blocks
+     *     (by the <code>up</code> path).</li>
+     * <li>Finally - labels defined in sibling blocks (by the
+     *     <code>up</code> path, the <code>down</code> path is considered
+     *     when up paths are equal).</li>
+     * </ol>
      * 
      * @author Andrei Tatarnikov
      */
 
-    private static final class TargetDistance implements Comparable<TargetDistance>
+    private static final class TargetDistance
+        implements Comparable<TargetDistance>
     {
         private final Target target;
         private final BlockId.Distance distance;
-        
+
         private TargetDistance(Target target, Distance distance)
         {
             this.target = target;
@@ -110,6 +126,11 @@ final class LabelManager
         @Override
         public int compareTo(TargetDistance o)
         {
+            final BlockId.Distance otherDistance = o.distance;
+
+            if (distance.equals(otherDistance))
+                return 0;
+            
             // TODO Auto-generated method stub
             return 0;
         } 
@@ -186,7 +207,7 @@ final class LabelManager
             addLabel((Label) item, position);
         }
     }
-    
+
     /**
      * 
      * @param label
@@ -199,21 +220,21 @@ final class LabelManager
         // Find a label defined in the closest child
         // Find a label defined in the closest parent
         // Find a label defined in the closest sibling
-        
+
         if (null == label)
             throw new NullPointerException();
 
         if (!table.containsKey(label.getName()))
             return null;
 
-        final List<Target> targets = 
+        final List<Target> targets =
             table.get(label.getName());
 
         // If there is only one target, there is no other choice.
         if (1 == targets.size())
             return targets.get(0);
 
-        final List<TargetDistance> distances = 
+        final List<TargetDistance> distances =
              new ArrayList<TargetDistance>(targets.size());
 
         for (int index = 0; index < targets.size(); ++index)
@@ -226,9 +247,9 @@ final class LabelManager
 
             distances.add(new TargetDistance(target, distance));
         }
-        
+
         Collections.sort(distances);
-        
+
         return distances.get(0).target;
     }
 }
