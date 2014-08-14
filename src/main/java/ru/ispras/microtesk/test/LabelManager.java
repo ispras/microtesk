@@ -45,13 +45,16 @@ import ru.ispras.microtesk.test.template.BlockId.Distance;
  * <ol>
  * <li>If there is only one such label (no other choice), choose it.</li>
  * <li>Choose a label defined in the current block,
- *     it there is such a label defined in the current block.</li>
+ *     if there is such a label defined in the current block.</li>
  * <li>Choose a label defined in the closest child,
- *     it there are such labels defined in child blocks.</li>
+ *     if there are such labels defined in child blocks.</li>
  * <li>Choose a label defined in the closest parent,
- *     it there are such labels defined in parent blocks.</li>
+ *     if there are such labels defined in parent blocks.</li>
  * <li>Choose a label defined in the closest sibling.</li>
  * </ol>
+ * For more implementation details, see the {@link LabelManager.TargetDistance}
+ * class.
+ * 
  * @author Andrei Tatarnikov
  */
 
@@ -261,28 +264,30 @@ final class LabelManager
     }
 
     /**
+     * Resolves a reference to a label having a specific name from a specific
+     * block and returns the most suitable target (label and its position). 
+     * The most suitable target is chosen depending on the reference position
+     * (see the {@link LabelManager} class comment).
      * 
-     * @param label
-     * @return
+     * @param referenceLabel A Label object that describes a reference to
+     * a label that has a specific name from a specific block.
+     * @return The most suitable target (label and its position) for the given
+     * reference or <code>null</code> if no label having such name is found. 
+     * 
+     * @throws NullPointerException if the parameter is <code>null</code>.
      */
 
-    public Target resolve(Label label)
+    public Target resolve(Label referenceLabel)
     {
-        // Find a label defined in the current block
-        // Find a label defined in the closest child
-        // Find a label defined in the closest parent
-        // Find a label defined in the closest sibling
-
-        if (null == label)
+        if (null == referenceLabel)
             throw new NullPointerException();
 
-        if (!table.containsKey(label.getName()))
+        if (!table.containsKey(referenceLabel.getName()))
             return null;
 
         final List<Target> targets =
-            table.get(label.getName());
+            table.get(referenceLabel.getName());
 
-        // If there is only one target, there is no other choice.
         if (1 == targets.size())
             return targets.get(0);
 
@@ -295,7 +300,7 @@ final class LabelManager
             final Label targetLabel = target.getLabel();
 
             final Distance distance = 
-                label.getBlockId().getDistance(targetLabel.getBlockId());
+                referenceLabel.getBlockId().getDistance(targetLabel.getBlockId());
 
             distances.add(new TargetDistance(target, distance));
         }
