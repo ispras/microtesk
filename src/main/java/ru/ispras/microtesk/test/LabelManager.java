@@ -306,7 +306,8 @@ final class LabelManager
         }
 
         Collections.sort(distances);
-
-        return distances.get(0).target;
+        final Target result = distances.get(0).target;
+        
+        return result;
     }
 }
