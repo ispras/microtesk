@@ -131,16 +131,23 @@ final class LabelManager
         {
             final BlockId.Distance otherDistance = o.distance;
 
+            ///////////////////////////////////////////////////////////////////
+            // This one and the other one refer to the same block.
             if (distance.equals(otherDistance))
                 return 0;
 
+            ///////////////////////////////////////////////////////////////////
+            // This one is the current block.
             if (distance.equals(ZERO))
                 return -1;
 
+            // If the other one is the current block (while this one it not)
+            // it has more priority.
             if (otherDistance.equals(ZERO))
                 return 1;
 
-            // This one is a child block
+            ///////////////////////////////////////////////////////////////////
+            // This one is a child block.
             if (0 == distance.getUp())
             {
                 // Other one is a child block too.
@@ -150,25 +157,37 @@ final class LabelManager
                     return -1;
             }
 
-            // If the other one is a child block, it has more priority.
+            // If the other one is a child block (while this one is not), 
+            // it has more priority.
             if (0 == otherDistance.getUp())
                 return 1;
 
-            // This one is a parent block
+            ///////////////////////////////////////////////////////////////////
+            // This one is a parent block.
             if (0 == distance.getDown())
             {
                 // Other one is a parent block too.
                 if (0 == otherDistance.getDown())
                     return distance.getUp() - otherDistance.getUp();
                 else
-                    return -1; 
+                    return -1;
             }
-                                    
-            // This one is a sibling block
-            // TODO Auto-generated method stub
 
-            return 0;
-        } 
+            // If the other one is a parent block (while this one is not), 
+            // it has more priority.
+            if (0 == otherDistance.getDown())
+                return 1;
+
+            ///////////////////////////////////////////////////////////////////
+            // This one and the other ones are sibling blocks.
+            final int deltaUp =
+                distance.getUp() - otherDistance.getUp();
+
+            if (0 != deltaUp)
+                return deltaUp;
+
+            return distance.getDown() - otherDistance.getDown();
+        }
     }
 
     private final Map<String, List<Target>> table;
