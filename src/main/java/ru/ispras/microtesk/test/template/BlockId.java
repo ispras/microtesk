@@ -53,8 +53,14 @@ public final class BlockId
         private final int up;
         private final int down;
 
-        private Distance(int up, int down)
+        Distance(int up, int down)
         {
+            if (up < 0)
+                throw new IllegalArgumentException();
+
+            if (down < 0)
+                throw new IllegalArgumentException();
+
             this.up = up;
             this.down = down;
         }
