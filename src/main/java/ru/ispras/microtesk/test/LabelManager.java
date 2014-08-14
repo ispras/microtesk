@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.BlockId.Distance;
 
@@ -115,10 +114,9 @@ final class LabelManager
         implements Comparable<TargetDistance>
     {
         private final Target target;
-        private final BlockId.Distance distance;
-        
-        private static final BlockId.Distance ZERO =
-            new BlockId.Distance(0, 0);
+        private final Distance distance;
+
+        private static final Distance ZERO = new Distance(0, 0);
 
         private TargetDistance(Target target, Distance distance)
         {
@@ -296,7 +294,7 @@ final class LabelManager
             final Target target = targets.get(index);
             final Label targetLabel = target.getLabel();
 
-            final BlockId.Distance distance = 
+            final Distance distance = 
                 label.getBlockId().getDistance(targetLabel.getBlockId());
 
             distances.add(new TargetDistance(target, distance));
