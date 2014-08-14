@@ -116,6 +116,9 @@ final class LabelManager
     {
         private final Target target;
         private final BlockId.Distance distance;
+        
+        private static final BlockId.Distance ZERO =
+            new BlockId.Distance(0, 0);
 
         private TargetDistance(Target target, Distance distance)
         {
@@ -130,8 +133,40 @@ final class LabelManager
 
             if (distance.equals(otherDistance))
                 return 0;
-            
+
+            if (distance.equals(ZERO))
+                return -1;
+
+            if (otherDistance.equals(ZERO))
+                return 1;
+
+            // This one is a child block
+            if (0 == distance.getUp())
+            {
+                // Other one is a child block too.
+                if (0 == otherDistance.getUp())
+                    return distance.getDown() - otherDistance.getDown();
+                else
+                    return -1;
+            }
+
+            // If the other one is a child block, it has more priority.
+            if (0 == otherDistance.getUp())
+                return 1;
+
+            // This one is a parent block
+            if (0 == distance.getDown())
+            {
+                // Other one is a parent block too.
+                if (0 == otherDistance.getDown())
+                    return distance.getUp() - otherDistance.getUp();
+                else
+                    return -1; 
+            }
+                                    
+            // This one is a sibling block
             // TODO Auto-generated method stub
+
             return 0;
         } 
     }
