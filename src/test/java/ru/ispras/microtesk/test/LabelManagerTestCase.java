@@ -177,4 +177,38 @@ public class LabelManagerTestCase
         assertEquals(targetXChild21,  labelManager.resolve(new Label("x", child21)));
         assertEquals(targetXChild211, labelManager.resolve(new Label("x", child211)));
     }
+    
+    @Test
+    public void testChooseCurrentAmbiguos()
+    {
+        final LabelManager labelManager = new LabelManager();
+
+        final Target targetXRoot0 = new Target(new Label("x", root), 5);
+        labelManager.addLabel(
+            targetXRoot0.getLabel(), targetXRoot0.getPosition());
+
+        final Target targetXRoot1 = new Target(new Label("x", root), 10);
+        labelManager.addLabel(
+            targetXRoot1.getLabel(), targetXRoot1.getPosition());
+
+        final Target targetXRoot2 = new Target(new Label("x", root), 15);
+        labelManager.addLabel(
+            targetXRoot2.getLabel(), targetXRoot2.getPosition());
+        
+        final Target targetXChild2 = new Target(new Label("x", child2), 20);
+        labelManager.addLabel(
+            targetXChild2.getLabel(), targetXChild2.getPosition());
+
+        final Target targetXChild21 = new Target(new Label("x", child21), 30);
+        labelManager.addLabel(
+            targetXChild21.getLabel(), targetXChild21.getPosition());
+
+        final Target targetXChild211 = new Target(new Label("x", child211), 40);
+        labelManager.addLabel(
+            targetXChild211.getLabel(), targetXChild211.getPosition());
+
+        assertEquals(targetXRoot0, labelManager.resolve(new Label("x", root)));
+        assertFalse(targetXRoot1.equals(labelManager.resolve(new Label("x", root))));
+        assertFalse(targetXRoot2.equals(labelManager.resolve(new Label("x", root))));
+    }
 }

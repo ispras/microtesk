@@ -298,7 +298,8 @@ final class LabelManager
      * Resolves a reference to a label having a specific name from a specific
      * block and returns the most suitable target (label and its position). 
      * The most suitable target is chosen depending on the reference position
-     * (see the {@link LabelManager} class comment).
+     * (see the {@link LabelManager} class comment). If there are several
+     * equally possible choices (ambiguity) a warning message is printed.  
      * 
      * @param referenceLabel A Label object that describes a reference to
      * a label that has a specific name from a specific block.
@@ -337,8 +338,33 @@ final class LabelManager
         }
 
         Collections.sort(distances);
-        final Target result = distances.get(0).target;
+        printAmbiguousTargets(distances);
 
-        return result;
+        return distances.get(0).target;
+    }
+
+    private void printAmbiguousTargets(List<TargetDistance> items)
+    {
+        final StringBuilder sb = new StringBuilder();
+
+        final TargetDistance chosenItem = items.get(0);
+        for (int index = 1; index < items.size(); ++index)
+        {
+            final TargetDistance item = items.get(index);
+            if (!chosenItem.distance.equals(item.distance))
+                break;
+
+            if (sb.length() != 0) sb.append(", ");
+            sb.append(item.target);
+        }
+
+        if (sb.length() == 0)
+            return;
+
+        final String MESSAGE_FRMT =
+            "Warning: Label %s was chosen, while there are other " +
+            "equally possible choices: %s.%n";
+
+        System.out.printf(MESSAGE_FRMT, chosenItem.target, sb);
     }
 }
