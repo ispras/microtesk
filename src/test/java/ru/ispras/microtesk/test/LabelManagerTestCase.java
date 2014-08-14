@@ -236,10 +236,42 @@ public class LabelManagerTestCase
         assertEquals(targetXChild11,  labelManager.resolve(new Label("x", child1)));
         assertEquals(targetXChild121, labelManager.resolve(new Label("x", child12)));
     }
-    
+
     @Test
     public void testChooseParent()
     {
-        // TODO
+        final LabelManager labelManager = new LabelManager();
+
+        final Target targetXRoot = new Target(new Label("x", root), 10);
+        labelManager.addLabel(
+            targetXRoot.getLabel(), targetXRoot.getPosition());
+
+        final Target targetXChild2 = new Target(new Label("x", child2), 20);
+        labelManager.addLabel(
+            targetXChild2.getLabel(), targetXChild2.getPosition());
+
+        final Target targetXChild22 = new Target(new Label("x", child22), 20);
+        labelManager.addLabel(
+            targetXChild22.getLabel(), targetXChild22.getPosition());
+
+        final Target targetXChild131 = new Target(new Label("x", child131), 120);
+        labelManager.addLabel(
+            targetXChild131.getLabel(), targetXChild131.getPosition());
+
+        final Target targetXChild32 = new Target(new Label("x", child32), 140);
+        labelManager.addLabel(
+            targetXChild32.getLabel(), targetXChild32.getPosition());
+
+        assertEquals(targetXRoot,     labelManager.resolve(new Label("x", child11)));
+        assertEquals(targetXRoot,     labelManager.resolve(new Label("x", child12)));
+        assertEquals(targetXChild131, labelManager.resolve(new Label("x", child13)));
+
+        assertEquals(targetXChild2,   labelManager.resolve(new Label("x", child211)));
+        assertEquals(targetXChild22,  labelManager.resolve(new Label("x", child221)));
+        assertEquals(targetXChild2,   labelManager.resolve(new Label("x", child231)));
+
+        assertEquals(targetXRoot,     labelManager.resolve(new Label("x", child311)));
+        assertEquals(targetXChild32,  labelManager.resolve(new Label("x", child321)));
+        assertEquals(targetXRoot,     labelManager.resolve(new Label("x", child331)));
     }
 }
