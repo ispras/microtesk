@@ -87,6 +87,12 @@ final class LabelManager
 
         public Label getLabel()  { return label; }
         public int getPosition() { return position; }
+
+        @Override
+        public String toString()
+        {
+            return String.format("%s at %d", label, position);
+        }
     }
 
     /**
@@ -307,7 +313,7 @@ final class LabelManager
 
         Collections.sort(distances);
         final Target result = distances.get(0).target;
-        
+
         return result;
     }
 }
