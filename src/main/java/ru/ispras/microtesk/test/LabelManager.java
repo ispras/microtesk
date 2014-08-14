@@ -127,66 +127,66 @@ final class LabelManager
         }
 
         @Override
-        public int compareTo(TargetDistance o)
+        public int compareTo(TargetDistance other)
         {
-            final BlockId.Distance otherDistance = o.distance;
-
             ///////////////////////////////////////////////////////////////////
             // This one and the other one refer to the same block.
-            if (distance.equals(otherDistance))
+            if (this.distance.equals(other.distance))
                 return 0;
 
             ///////////////////////////////////////////////////////////////////
             // This one is the current block.
-            if (distance.equals(ZERO))
+            if (this.distance.equals(ZERO))
                 return -1;
 
             // If the other one is the current block (while this one it not)
             // it has more priority.
-            if (otherDistance.equals(ZERO))
+            if (other.distance.equals(ZERO))
                 return 1;
 
             ///////////////////////////////////////////////////////////////////
             // This one is a child block.
-            if (0 == distance.getUp())
+            if (0 == this.distance.getUp())
             {
                 // Other one is a child block too.
-                if (0 == otherDistance.getUp())
-                    return distance.getDown() - otherDistance.getDown();
+                if (0 == other.distance.getUp())
+                    return this.distance.getDown() - other.distance.getDown();
                 else
-                    return -1;
+                    return -1; // Otherwise, this one has more priority. 
             }
 
             // If the other one is a child block (while this one is not), 
             // it has more priority.
-            if (0 == otherDistance.getUp())
+            if (0 == other.distance.getUp())
                 return 1;
 
             ///////////////////////////////////////////////////////////////////
             // This one is a parent block.
-            if (0 == distance.getDown())
+            if (0 == this.distance.getDown())
             {
                 // Other one is a parent block too.
-                if (0 == otherDistance.getDown())
-                    return distance.getUp() - otherDistance.getUp();
+                if (0 == other.distance.getDown())
+                    return this.distance.getUp() - other.distance.getUp();
                 else
-                    return -1;
+                    return -1; // Otherwise, this one has more priority.
             }
 
             // If the other one is a parent block (while this one is not), 
             // it has more priority.
-            if (0 == otherDistance.getDown())
+            if (0 == other.distance.getDown())
                 return 1;
 
             ///////////////////////////////////////////////////////////////////
             // This one and the other ones are sibling blocks.
-            final int deltaUp =
-                distance.getUp() - otherDistance.getUp();
 
+            final int deltaUp =
+                this.distance.getUp() - other.distance.getUp();
+
+            // The up path is not the same. 
             if (0 != deltaUp)
                 return deltaUp;
 
-            return distance.getDown() - otherDistance.getDown();
+            return this.distance.getDown() - other.distance.getDown();
         }
     }
 
