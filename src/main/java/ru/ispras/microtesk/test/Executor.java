@@ -107,7 +107,7 @@ public final class Executor
                     if (null == target)
                         throw new IllegalStateException("No label called" + targetLabel.getName() + "is defined");
                     
-                    currentPos = target.getJumpPos();
+                    currentPos = target.getPosition();
                     logLabelJump(target.getLabel());
                 }
             }

@@ -62,34 +62,40 @@ import ru.ispras.microtesk.test.template.BlockId.Distance;
 
 final class LabelManager
 {
+    /**
+     * The Target class stores information about the target
+     * the specified label points to. It associates a label
+     * with a position in an instruction call sequence.
+     *  
+     * @author Andrei Tatarnikov
+     */
+
     public static final class Target
     {
         private final Label label;
-        private final int jumpPos;
+        private final int position;
 
-        private Target(Label label, int jumpPos)
+        private Target(Label label, int position)
         {
             if (null == label)
                 throw new NullPointerException();
 
-            if (jumpPos < 0)
+            if (position < 0)
                 throw new IllegalArgumentException();
 
             this.label = label;
-            this.jumpPos = jumpPos;
+            this.position = position;
         }
 
-        public Label getLabel()
-        {
-            return label;
-        }
-
-        public int getJumpPos()
-        {
-            return jumpPos;
-        }
+        public Label getLabel()  { return label; }
+        public int getPosition() { return position; }
     }
     
+    /**
+     * 
+     * @author Andrei Tatarnikov
+     */
+
     private static final class TargetDistance implements Comparable<TargetDistance>
     {
         private final Target target;
@@ -111,17 +117,31 @@ final class LabelManager
 
     private final Map<String, List<Target>> table;
 
+    /**
+     * Constructs a new label manager that stores no information about labels.
+     */
+
     public LabelManager()
     {
         this.table = new HashMap<String, List<Target>>();
     }
 
-    public void addLabel(Label label, int jumpPos)
+    /**
+     * Adds information about a label to the table of label targets.
+     * 
+     * @param label Label to be registered.
+     * @param position Position in the sequence of the instruction
+     * the label points to.
+     * 
+     * @throws NullPointerException if the parameter is <code>null</code>.
+     */
+
+    public void addLabel(Label label, int position)
     {
         if (null == label)
             throw new NullPointerException();
 
-        final Target target = new Target(label, jumpPos);
+        final Target target = new Target(label, position);
 
         final List<Target> targets;
         if (table.containsKey(label.getName()))
@@ -137,7 +157,22 @@ final class LabelManager
         targets.add(target);
     }
 
-    public void addAllLabels(Collection<?> labels, int jumpPos)
+    /**
+     * Adds information about label in the specified collection to
+     * the table of label targets. It is supposed that all labels
+     * in the collection point to the same address (position).
+     * 
+     * @param labels Collection of labels to be registered.
+     * @param position Position in the sequence of the instruction
+     * the labels in the collection point to.
+     * 
+     * @throws NullPointerException if the <code>label</code>
+     * parameter is <code>null</code>.
+     * @throws IllegalArgumentException if an object in the <code>labels</code>
+     * collection is not a Label object.
+     */
+
+    public void addAllLabels(Collection<?> labels, int position)
     {
         if (null == labels)
             throw new NullPointerException();
@@ -148,9 +183,15 @@ final class LabelManager
                 throw new IllegalArgumentException(
                     item + " is not a Label object!");
 
-            addLabel((Label) item, jumpPos);
+            addLabel((Label) item, position);
         }
     }
+    
+    /**
+     * 
+     * @param label
+     * @return
+     */
 
     public Target resolve(Label label)
     {
