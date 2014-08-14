@@ -338,12 +338,12 @@ final class LabelManager
         }
 
         Collections.sort(distances);
-        printAmbiguousTargets(distances);
+        checkAmbiguousChoice(distances);
 
         return distances.get(0).target;
     }
 
-    private void printAmbiguousTargets(List<TargetDistance> items)
+    private void checkAmbiguousChoice(List<TargetDistance> items)
     {
         final StringBuilder sb = new StringBuilder();
 
