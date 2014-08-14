@@ -46,9 +46,13 @@ module Engine
   def self.j_bbf
     @@j_bbf
   end
-  
+
   def self.generate_data(abstract_sequence)
     @@j_dg.generate(abstract_sequence)
+  end
+
+  def self.process(sequence_it)
+    @@j_test_engine.process sequence_it
   end
 
 end
