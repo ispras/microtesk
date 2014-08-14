@@ -274,4 +274,50 @@ public class LabelManagerTestCase
         assertEquals(targetXChild32,  labelManager.resolve(new Label("x", child321)));
         assertEquals(targetXRoot,     labelManager.resolve(new Label("x", child331)));
     }
+    
+    @Test
+    public void testChooseSibling()
+    {
+        final LabelManager labelManager = new LabelManager();
+
+        // x:
+        // x1 = child31 !!!
+        // x2 = child321
+        // from child331
+
+        final Target x1 = new Target(new Label("x", child31), 310);
+        labelManager.addLabel(x1.getLabel(), x1.getPosition());
+
+        final Target x2 = new Target(new Label("x", child331), 321);
+        labelManager.addLabel(x2.getLabel(), x2.getPosition());
+
+        // y:
+        // y1 = child2  !!!
+        // y2 = child23
+        // from child1, child111
+
+        final Target y1 = new Target(new Label("y", child2), 200);
+        labelManager.addLabel(y1.getLabel(), y1.getPosition());
+
+        final Target y2 = new Target(new Label("y", child23), 230);
+        labelManager.addLabel(y2.getLabel(), y2.getPosition());
+
+        // z
+        // z1 = child121 !!!
+        // z2 = child2 
+        // from child11
+
+        final Target z1 = new Target(new Label("z", child121), 121);
+        labelManager.addLabel(z1.getLabel(), z1.getPosition());
+
+        final Target z2 = new Target(new Label("z", child2), 200);
+        labelManager.addLabel(z2.getLabel(), z2.getPosition());
+
+        assertEquals(x1, labelManager.resolve(new Label("x", child321)));
+
+        assertEquals(y1, labelManager.resolve(new Label("y", child1)));
+        assertEquals(y1, labelManager.resolve(new Label("y", child111)));
+
+        assertEquals(z1, labelManager.resolve(new Label("z", child11)));
+    }
 }
