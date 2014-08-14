@@ -211,4 +211,35 @@ public class LabelManagerTestCase
         assertFalse(targetXRoot1.equals(labelManager.resolve(new Label("x", root))));
         assertFalse(targetXRoot2.equals(labelManager.resolve(new Label("x", root))));
     }
+    
+    @Test
+    public void testChooseChild()
+    {
+        final LabelManager labelManager = new LabelManager();
+
+        final Target targetXRoot = new Target(new Label("x", root), 10);
+        labelManager.addLabel(
+            targetXRoot.getLabel(), targetXRoot.getPosition());
+
+        final Target targetXChild2 = new Target(new Label("x", child2), 20);
+        labelManager.addLabel(
+            targetXChild2.getLabel(), targetXChild2.getPosition());
+
+        final Target targetXChild11 = new Target(new Label("x", child11), 30);
+        labelManager.addLabel(
+            targetXChild11.getLabel(), targetXChild11.getPosition());
+
+        final Target targetXChild121 = new Target(new Label("x", child121), 40);
+        labelManager.addLabel(
+            targetXChild121.getLabel(), targetXChild121.getPosition());
+
+        assertEquals(targetXChild11,  labelManager.resolve(new Label("x", child1)));
+        assertEquals(targetXChild121, labelManager.resolve(new Label("x", child12)));
+    }
+    
+    @Test
+    public void testChooseParent()
+    {
+        // TODO
+    }
 }
