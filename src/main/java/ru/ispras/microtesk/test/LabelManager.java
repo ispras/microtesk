@@ -73,7 +73,7 @@ final class LabelManager
         private final Label label;
         private final int position;
 
-        private Target(Label label, int position)
+        Target(Label label, int position)
         {
             if (null == label)
                 throw new NullPointerException();
@@ -87,6 +87,31 @@ final class LabelManager
 
         public Label getLabel()  { return label; }
         public int getPosition() { return position; }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+
+            result = prime * result + label.hashCode();
+            result = prime * result + position;
+
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj) return true;
+            if (obj == null) return false;
+
+            if (getClass() != obj.getClass())
+                return false;
+
+            final Target other = (Target) obj;
+            return (position == other.position) && label.equals(other.label);
+        }
 
         @Override
         public String toString()
