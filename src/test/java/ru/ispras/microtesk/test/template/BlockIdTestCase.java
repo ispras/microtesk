@@ -166,10 +166,10 @@ public class BlockIdTestCase
 
         final BlockId.Distance ZERO = new BlockId.Distance(0, 0);
 
-        assertEquals(root1.getDistance(root1), ZERO);
-        assertEquals(root1.getDistance(root2), ZERO);
-        assertEquals(root2.getDistance(root1), ZERO);
-        assertEquals(root2.getDistance(root2), ZERO);
+        assertEquals(ZERO, root1.getDistance(root1));
+        assertEquals(ZERO, root1.getDistance(root2));
+        assertEquals(ZERO, root2.getDistance(root1));
+        assertEquals(ZERO, root2.getDistance(root2));
 
         final BlockId child11 = root1.nextChildId();
         final BlockId child21 = root2.nextChildId();
@@ -177,21 +177,21 @@ public class BlockIdTestCase
         final BlockId.Distance ONE_UP = new BlockId.Distance(1, 0);
         final BlockId.Distance ONE_DOWN = new BlockId.Distance(0, 1);
 
-        assertEquals(root1.getDistance(child11), ONE_DOWN);
-        assertEquals(root1.getDistance(child21), ONE_DOWN);
+        assertEquals(ONE_DOWN, root1.getDistance(child11));
+        assertEquals(ONE_DOWN, root1.getDistance(child21));
 
-        assertEquals(child11.getDistance(root1), ONE_UP);
-        assertEquals(child21.getDistance(root1), ONE_UP);
+        assertEquals(ONE_UP, child11.getDistance(root1));
+        assertEquals(ONE_UP, child21.getDistance(root1));
 
         final BlockId child12 = root1.nextChildId();
         final BlockId child22 = root2.nextChildId();
 
         final BlockId.Distance ONE_ONE = new BlockId.Distance(1, 1);
 
-        assertEquals(child11.getDistance(child12), ONE_ONE);
-        assertEquals(child11.getDistance(child22), ONE_ONE);
-        assertEquals(child21.getDistance(child12), ONE_ONE);
-        assertEquals(child21.getDistance(child22), ONE_ONE);
+        assertEquals(ONE_ONE, child11.getDistance(child12));
+        assertEquals(ONE_ONE, child11.getDistance(child22));
+        assertEquals(ONE_ONE, child21.getDistance(child12));
+        assertEquals(ONE_ONE, child21.getDistance(child22));
 
         final BlockId child111 = child11.nextChildId();
         final BlockId child211 = child21.nextChildId();
@@ -200,14 +200,14 @@ public class BlockIdTestCase
 
         final BlockId.Distance TWO_TWO = new BlockId.Distance(2, 2);
 
-        assertEquals(child111.getDistance(child211), ZERO);
-        assertEquals(child111.getDistance(child121), TWO_TWO);
-        assertEquals(child111.getDistance(child221), TWO_TWO);
+        assertEquals(ZERO,    child111.getDistance(child211));
+        assertEquals(TWO_TWO, child111.getDistance(child121));
+        assertEquals(TWO_TWO, child111.getDistance(child221));
 
-        assertEquals(child111.getDistance(child12), new BlockId.Distance(2, 1));
-        assertEquals(child111.getDistance(child22), new BlockId.Distance(2, 1));
+        assertEquals(new BlockId.Distance(2, 1), child111.getDistance(child12));
+        assertEquals(new BlockId.Distance(2, 1), child111.getDistance(child22));
 
-        assertEquals(child12.getDistance(child111), new BlockId.Distance(1, 2));
-        assertEquals(child22.getDistance(child111), new BlockId.Distance(1, 2));
+        assertEquals(new BlockId.Distance(1, 2), child12.getDistance(child111));
+        assertEquals(new BlockId.Distance(1, 2), child22.getDistance(child111));
     }
 }
