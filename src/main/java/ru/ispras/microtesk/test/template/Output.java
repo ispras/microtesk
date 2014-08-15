@@ -190,7 +190,7 @@ public final class Output
      * @param observer Model state observer.
      * @return Text to be printed.
      * @throws ConfigurationException if failed to evaluate the information
-     * due to an incorrect request to the model state.
+     * due to an incorrect request to the model state observer.
      * @throws NullPointerException if the parameter equals null.
      */
 
