@@ -56,7 +56,7 @@ module Output
   # be printed to the simulator output or to the test program. The class will
   # become redundant when the generation logic will be implemented in Java. 
   #  
-    class Output
+  class Output
     # Returns the Java object Output.
     attr_reader :java_object 
   
