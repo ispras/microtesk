@@ -198,7 +198,6 @@ class Template
     post
 
     java_import Java::Ru.ispras.microtesk.test.TestEngine
-
     engine = TestEngine.getInstance(@@model)
 
     # Apply settings
