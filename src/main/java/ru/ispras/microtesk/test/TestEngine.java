@@ -52,7 +52,7 @@ public final class TestEngine
     private String       fileName = null;
     private boolean  logExecution = true; 
     private boolean printToScreen = true;
-    private String   commentToken = "\\ ";
+    private String   commentToken = "// ";
 
     private TestEngine(IModel model)
     {
@@ -66,10 +66,12 @@ public final class TestEngine
         return blockBuilderFactory;
     }
 
-    public DataGenerator getDataGenerator()
-    {
-        return dataGenerator;
-    }
+    /*
+       Processes sequence by sequence:
+       1. Generate data (create concrete calls).
+       2. Execute (simulate). 
+       3. Print.
+    */
 
     public void process(IIterator<Sequence<AbstractCall>> sequenceIt)
         throws ConfigurationException, IOException
@@ -81,11 +83,8 @@ public final class TestEngine
 
         final Executor executor = new Executor(observer, logExecution);
         final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
-
-        // Processing sequence by sequence:
-        // 1. Generate data (create concrete calls).
-        // 2. Execute (simulate). 
-        // 3. Print.
+        
+        int sequenceNumber = 1;
 
         sequenceIt.init();
         while (sequenceIt.hasValue())
@@ -93,11 +92,18 @@ public final class TestEngine
             final Sequence<AbstractCall> abstractSequence =
                 sequenceIt.value();
 
+            printStageHeader(String.format("Generating data for sequence %d", sequenceNumber));
             final Sequence<ConcreteCall> concreteSequence =
                 dataGenerator.generate(abstractSequence);
 
+            printStageHeader(String.format("Executing sequence %d", sequenceNumber));
             executor.executeSequence(concreteSequence);
+
+            printStageHeader(String.format("Printing sequence %d", sequenceNumber));
             printer.printSequence(concreteSequence);
+
+            sequenceIt.next();
+            sequenceNumber++;
         }
     }
 
@@ -119,5 +125,27 @@ public final class TestEngine
     public void setCommentToken(String commentToken)
     {
         this.commentToken = commentToken;
+    }
+    
+    private void printStageHeader(String text)
+    {
+        final int LINE_WIDTH = 80;
+
+        final int  prefixWidth = (LINE_WIDTH - text.length()) / 2;
+        final int postfixWidth = LINE_WIDTH - prefixWidth - text.length();
+        
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("\r\n");
+        for(int i = 0; i < prefixWidth - 1; ++i) sb.append('-');
+        sb.append(' ');
+        
+        sb.append(text);
+
+        sb.append(' ');
+        for(int i = 0; i < postfixWidth - 1; ++i) sb.append('-');
+        sb.append("\r\n");
+
+        System.out.println(sb);
     }
 }
