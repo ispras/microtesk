@@ -42,12 +42,12 @@ class ArmDemo < Template
   end
 
   def run
-    trace "Euclidean Algorithm: Debug Output\n"
+    trace "Euclidean Algorithm: Debug Output"
 
     i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
     j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
-    trace "\nInput parameter values: #{i}, #{j}\n\n"
+    trace "\nInput parameter values: #{i}, #{j}\n"
 
     EOR           blank, setsOff, REG(0), REG(0), register0
     ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, i)
@@ -55,7 +55,7 @@ class ArmDemo < Template
     EOR           blank, setsOff, REG(1), REG(1), register1
     ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
 
-    trace "\nInitial register values: R0 = %d, R1 = %d\n\n", getGPR(0), getGPR(1)
+    trace "\nInitial register values: R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
 
     label :cycle
 
@@ -63,13 +63,13 @@ class ArmDemo < Template
     SUB greaterThan, setsOff, REG(0), REG(0), register1
     SUB lessThan,    setsOff, REG(1), REG(1), register0
 
-    trace "\nCurrent register values: R0 = %d, R1 = %d\n\n", getGPR(0), getGPR(1)
+    trace "\nCurrent register values: R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
 
     B notEqual, :cycle
 
     MOV blank, setsOff, REG(2), register0
 
-    trace "\nResult stored in R2: %d\n", getGPR(2)
+    trace "\nResult stored in R2: %d", getGPR(2)
   end
 
   def getGPR(index)
