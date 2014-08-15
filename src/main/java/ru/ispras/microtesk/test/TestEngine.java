@@ -83,27 +83,33 @@ public final class TestEngine
 
         final Executor executor = new Executor(observer, logExecution);
         final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
-        
-        int sequenceNumber = 1;
 
-        sequenceIt.init();
-        while (sequenceIt.hasValue())
+        try
         {
-            final Sequence<AbstractCall> abstractSequence =
-                sequenceIt.value();
-
-            printStageHeader(String.format("Generating data for sequence %d", sequenceNumber));
-            final Sequence<ConcreteCall> concreteSequence =
-                dataGenerator.generate(abstractSequence);
-
-            printStageHeader(String.format("Executing sequence %d", sequenceNumber));
-            executor.executeSequence(concreteSequence);
-
-            printStageHeader(String.format("Printing sequence %d", sequenceNumber));
-            printer.printSequence(concreteSequence);
-
-            sequenceIt.next();
-            sequenceNumber++;
+            int sequenceNumber = 1;
+            sequenceIt.init();
+            while (sequenceIt.hasValue())
+            {
+                final Sequence<AbstractCall> abstractSequence =
+                    sequenceIt.value();
+    
+                printStageHeader(String.format("Generating data for sequence %d", sequenceNumber));
+                final Sequence<ConcreteCall> concreteSequence =
+                    dataGenerator.generate(abstractSequence);
+    
+                printStageHeader(String.format("Executing sequence %d", sequenceNumber));
+                executor.executeSequence(concreteSequence);
+    
+                printStageHeader(String.format("Printing sequence %d", sequenceNumber));
+                printer.printSequence(concreteSequence);
+    
+                sequenceIt.next();
+                sequenceNumber++;
+            }
+        }
+        finally
+        {
+            printer.close();
         }
     }
 

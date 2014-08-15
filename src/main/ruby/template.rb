@@ -1,11 +1,9 @@
 
 # Mixins for the Template class
 require_relative "output"
-require_relative "state_observer"
 
 # Other dependencies
 require_relative "constructs"
-require_relative "engine"
 require_relative "utils"
 
 #
@@ -59,7 +57,6 @@ end
 
 class Template
   include Settings
-  include StateObserver
   include Output
 
   @@template_classes = Array.new
@@ -84,8 +81,7 @@ class Template
   end
 
   def self.set_model(j_model)
-    Engine.model = j_model
-    StateObserver.model = j_model
+    @@model = j_model
   end
 
   # This method adds every subclass of Template to the list of templates to parse
@@ -120,6 +116,10 @@ class Template
   def post
 
   end
+
+  # -------------------------------------------------- #
+  # Methods for template description facilities        #
+  # -------------------------------------------------- #
 
   def block(attributes = {}, &contents)
     @block_id = @block_id.nextChildId
@@ -167,258 +167,28 @@ class Template
 
   def generate(filename)
     puts
-    puts "---------- Start build ----------"
+    puts "--------------------------------- Start build ----------------------------------"
     puts
 
     pre
     run
     post
 
-    bl = @core_block.build(Engine.j_bbf)
-    bl_iter = bl.getIterator()
-    
-    puts
-    puts "---------- Start execute ----------"
-    puts
-   
-    executor = Executor.new self, bl_iter, log_execution
-    executor.execute
+    java_import Java::Ru.ispras.microtesk.test.TestEngine
 
-    puts
-    puts "---------- Start output ----------"
-    puts
-    
-    printer = Java::Ru.ispras.microtesk.test.Printer.new(
-      filename, get_state_observer, sl_comment_starts_with, use_stdout)
+    engine = TestEngine.getInstance(@@model)
 
-    executor.get_concrete_calls.each do |fs|
-      printer.printSequence fs
-    end
+    # Apply settings
+    engine.setFileName      filename
+    engine.setLogExecution  log_execution
+    engine.setPrintToScreen use_stdout
+    engine.setCommentToken  sl_comment_starts_with
 
-    printer.close
-  end
+    block_builders = engine.getBlockBuilders 
+    bl = @core_block.build engine.getBlockBuilders
+    bl_iter = bl.getIterator
 
-end
-
-class Executor
-
-  def initialize(context, abstract_calls, is_log)
-    @context = context
-    @abstract_calls = abstract_calls
-    @log_execution = is_log
-  end
-  
-  def get_concrete_calls
-    @final_sequences
-  end
-
-  def execute
-
-    bl_iter = @abstract_calls
-    
-    # Preprocess labels
-    @labels = Hash.new
-
-    # look for labels in the sequences
-    bl_iter.init()
-    sn = 0
-    sequences = Array.new
-    
-    while bl_iter.hasValue()
-      seq = bl_iter.value()
-
-      seq.each_with_index do |inst, i|
-        #TODO check if sequences have nulls?
-        if inst == nil
-          next
-        end
-        
-        f_labels = inst.getAttribute("f_labels")
-        b_labels = inst.getAttribute("b_labels")
-
-        #process labels
-      
-        if f_labels.is_a? Array
-          f_labels.each do |label|
-            @labels[label] = [sn, i + 1]
-          end
-        end
-        
-        if b_labels.is_a? Array
-          b_labels.each do |label|
-            @labels[label] = [sn, i]
-          end 
-        end        
-      end
-      sn += 1
-      sequences.push seq
-      
-      bl_iter.next()
-    end
-
-    # Execute and generate data in the process
-    @final_sequences = Array.new(sequences.length)
-    @final_sequences.each_with_index do |sq, i| 
-      @final_sequences[i] = nil 
-    end
-    
-    cur_seq = 0
-    continue = true
-    label = nil
-    
-    # puts @labels.to_s
-    
-    # execution loop
-    while continue && cur_seq < sequences.length
-      fin, label = exec_sequence(sequences[cur_seq], @final_sequences[cur_seq], cur_seq, label)
-      
-      if @final_sequences[cur_seq] == nil && cur_seq < sequences.length
-        @final_sequences[cur_seq] = fin
-      end
-      
-      if label == nil
-        goto = cur_seq + 1
-      else
-        search_label = label
-        while @labels[search_label] == nil && search_label != nil
-          search_label = search_label.getParentLabel
-        end
-        
-        result = @labels[search_label]
-        if result == nil
-          goto = cur_seq + 1
-          puts "Label " + label.getName + " doesn't exist"
-        else
-          label = search_label
-          goto = result.first
-        end
-      end      
-      
-      if (goto >= sn + 1) or (goto == -1 && cur_seq >= sn)
-        continue = false
-      else
-        cur_seq = goto
-      end
-      
-    end
-      
-    # Generate the remaining sequences  
-    @final_sequences.each_with_index do |s, i|
-      if s == nil && i < sequences.length
-#        if sequences[i] == nil
-#          puts "what the fuck " + i.to_s
-#        end
-        @final_sequences[i] = Engine.generate_data sequences[i]
-      end
-    end
-    
-  end
-  
-  def exec_sequence(seq, gen, id, label)
-    r_gen = gen
-    if gen == nil
-      # TODO NEED EXCEPTION HANDLER
-      r_gen = Engine.generate_data seq
-    end
-    
-    labels = Hash.new
-    
-    r_gen.each_with_index do |inst, i|
-      f_labels = inst.getAttribute("f_labels")
-      b_labels = inst.getAttribute("b_labels")
-      
-      #process labels
-      
-      if f_labels.is_a? Array
-        f_labels.each do |f_label|
-          labels[f_label] = i + 1
-          # puts "Registered f_label " + f_label
-        end
-      end
-      
-      if b_labels.is_a? Array
-        b_labels.each do |b_label|
-          labels[b_label] = i
-          # puts "Registered b_label " + b_label
-        end        
-      end
-    end
-    
-    cur_inst = 0
-    
-    if label != nil
-      cur_inst = labels[label]
-      # puts label.to_s
-      # puts labels.to_s
-    end
-    
-    total_inst = r_gen.length
-
-    continue = true
-
-    jump_target = nil
-
-    while continue && cur_inst < total_inst
-
-      inst = r_gen[cur_inst]
-
-      print_debug inst.getAttribute("b_runtime")
-      
-      exec = inst.getExecutable()
-      print_text exec.getText()
-      exec.execute()
-
-      print_debug inst.getAttribute("f_runtime")
-
-      # Labels
-      jump = StateObserver.control_transfer_status
-
-      # TODO: Support instructions with 2+ labels (needs API)
-      
-      if jump > 0
-        target = inst.getAttribute("labels").first.first
-        if target == nil
-          puts "Jump to nil label, transfer status: " + jump.to_s
-        elsif labels.has_key? target
-          cur_inst = labels[target]
-          print_label_jump target
-          next
-        else
-          jump_target = target
-          print_label_jump target
-          break
-        end
-      end
-      
-      # If there weren't any jumps, continue on to the next instruction
-      cur_inst += 1
-    end
-    
-    [r_gen, jump_target]
-    
-  end
-
-  def print_text(text)
-    if @log_execution
-       puts text
-    end
-  end
-
-  def print_debug(debug_arr)
-    if @log_execution and debug_arr.is_a? Array
-      debug_arr.each do |debug|
-        text = debug.evaluate @context.get_state_observer
-        if nil != text
-          puts text
-        end 
-      end
-    end
-  end
-
-  def print_label_jump(target)
-    if @log_execution
-      puts "Jump (internal) to label: " + target.to_s
-    end
+    engine.process bl_iter
   end
 
 end
