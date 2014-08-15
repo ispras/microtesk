@@ -151,7 +151,7 @@ public final class Printer
         final String header = String.format(
             HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
 
-        printText(header);
+        printToFile(header);
         isHeaderPrinted = true;
     }
 
