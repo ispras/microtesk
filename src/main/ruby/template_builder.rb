@@ -100,7 +100,7 @@ def define_instruction(i)
       modes_for_args[index].push mode_name
     end
 
-   end
+  end
 
   #
   # Generating convenient shortcuts for instructions
@@ -121,7 +121,7 @@ def define_instruction(i)
       if arg.is_a? NoValue and !arg.is_immediate
         a = Argument.new
         a.mode = modes_for_args[ind].sample
-    
+
         @registered_modes[a.mode].each do |mode|
           if arg.aug_value != nil
             a.values[mode] = arg.aug_value
@@ -136,7 +136,7 @@ def define_instruction(i)
       inst.arguments[inst_arguments[ind].getName()] = a
 
     end
-    
+
     # TODO: The situation/composite must come at the end of a block for this to work.
     # Is there a way to apply it if it's before the attributes?
     if situations != nil
