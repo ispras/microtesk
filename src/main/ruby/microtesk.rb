@@ -49,7 +49,7 @@ def self.main
   if output_file then puts "Output file: " + output_file end
     
   Template.set_model model
-  TemplateBuilder.build_template_class model.getMetaData
+  TemplateBuilder.define_runtime_methods model.getMetaData
 
   template_classes = prepare_template_classes(model, template_file)
   template_classes.each do |template_class|

@@ -37,7 +37,7 @@ require_relative 'utils'
 
 module TemplateBuilder
 
-def self.build_template_class(j_metamodel)
+def self.define_runtime_methods(j_metamodel)
     
   # Initializing global variables
   $defined_situations = Set.new
