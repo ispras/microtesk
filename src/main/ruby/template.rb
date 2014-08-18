@@ -27,7 +27,10 @@ require_relative "output"
 
 # Other dependencies
 require_relative "constructs"
+require_relative 'template_builder'
 require_relative "utils"
+
+include TemplateBuilder
 
 #
 # Description: 
@@ -82,6 +85,7 @@ class Template
   include Settings
   include Output
 
+  @@model = nil
   @@template_classes = Array.new
 
   def initialize
@@ -103,8 +107,15 @@ class Template
     @@template_classes
   end
 
-  def self.set_model(j_model)
-    @@model = j_model
+  def self.set_model(model)
+
+    if nil != @@model
+      puts "Model is already assigned."
+      return
+    end
+
+    TemplateBuilder.define_runtime_methods model.getMetaData
+    @@model = model
   end
 
   # This method adds every subclass of Template to the list of templates to parse

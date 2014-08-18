@@ -25,11 +25,8 @@
 require 'java'
 
 require_relative 'config'
-require_relative 'template_builder'
 require_relative 'template'
 require_relative 'utils'
-
-include TemplateBuilder
 
 module MicroTESK 
   
@@ -40,16 +37,15 @@ def self.main
   puts "Home: " + HOME
   puts "Current directory: " + WD
 
-  model = create_model(ARGV[0])
+  model = create_model ARGV[0]
 
   template_file = File.expand_path ARGV[1]
   puts "Template: " + template_file
 
   output_file = if ARGV.count > 2 then File.expand_path ARGV[2] else nil end
   if output_file then puts "Output file: " + output_file end
-    
+
   Template.set_model model
-  TemplateBuilder.define_runtime_methods model.getMetaData
 
   template_classes = prepare_template_classes(model, template_file)
   template_classes.each do |template_class|
@@ -106,6 +102,7 @@ def self.create_model(model_name)
 end
 
 def self.prepare_template_classes(model, template_file)
+
   if File.file?(template_file)
     ENV['TEMPLATE'] = TEMPLATE
     require template_file
