@@ -86,7 +86,7 @@ class Template
 
   def initialize
     super
-   
+
     # Important variables for core Template functionality
     @core_block = InstructionBlock.new
 
@@ -94,7 +94,7 @@ class Template
     @receiver_stack = [@core_block]
 
     @final_sequences = Array.new
-    
+
     java_import Java::Ru.ispras.microtesk.test.template.BlockId
     @block_id = BlockId.new
   end
@@ -183,7 +183,7 @@ class Template
     v.is_immediate = true
     v
   end
-  
+
   # -------------------------------------------------- #
   # Generation (Execution and Printing)                #
   # -------------------------------------------------- #
