@@ -23,12 +23,12 @@
 #
 
 # Mixins for the Template class
-require_relative "output"
+require_relative 'output'
 
 # Other dependencies
-require_relative "constructs"
+require_relative 'constructs'
 require_relative 'template_builder'
-require_relative "utils"
+require_relative 'utils'
 
 include TemplateBuilder
 
