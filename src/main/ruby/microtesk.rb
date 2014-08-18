@@ -49,6 +49,7 @@ def self.main
   if output_file then puts "Output file: " + output_file end
     
   Template.set_model model
+  TemplateBuilder.build_template_class model.getMetaData
 
   template_classes = prepare_template_classes(model, template_file)
   template_classes.each do |template_class|
@@ -105,8 +106,6 @@ def self.create_model(model_name)
 end
 
 def self.prepare_template_classes(model, template_file)
-  TemplateBuilder.build_template_class(model.getMetaData())
-
   if File.file?(template_file)
     ENV['TEMPLATE'] = TEMPLATE
     require template_file
