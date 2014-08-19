@@ -75,7 +75,7 @@ def define_instruction(i)
 
   # Methods for test situations (added to the Instruction class)
   situations = i.getSituations
-  situations.each do { |situation| define_situation situation }
+  situations.each { |situation| define_situation situation }
 
   #
   # Generating convenient shortcuts for addressing modes
