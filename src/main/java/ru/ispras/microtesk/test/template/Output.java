@@ -96,6 +96,12 @@ public final class Output
         {
             return value;
         }
+
+        @Override
+        public String toString()
+        {
+            return value.toString();
+        }
     }
 
     /**
@@ -127,6 +133,12 @@ public final class Output
             
             return isBinaryText ? 
                 accessor.toBinString() : accessor.getValue(); 
+        }
+
+        @Override
+        public String toString()
+        {
+            return String.format("%s[%d]", name, index);
         }
     }
 
@@ -211,5 +223,20 @@ public final class Output
         }
 
         return String.format(format, values.toArray());
+    }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder(String.format(
+            "Output (runtime: %b): \"%s\"", isRuntime, format.trim()));
+
+        for (Argument arg: args)
+        {
+            sb.append(", ");
+            sb.append(arg.toString());
+        }
+
+        return sb.toString();
     }
 }
