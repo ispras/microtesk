@@ -37,21 +37,17 @@ require_relative 'utils'
 
 module TemplateBuilder
 
-def self.define_runtime_methods(j_metamodel)
-    
+def self.define_runtime_methods(metamodel)
+
   # Initializing global variables
   $defined_situations = Set.new
   @registered_modes   = Hash.new
 
-  modes = j_metamodel.getAddressingModes()
-  modes.each do |mode|
-    define_addressing_mode mode
-  end
+  modes = metamodel.getAddressingModes
+  modes.each { |mode| define_addressing_mode mode }
 
-  instructions = j_metamodel.getInstructions()
-  instructions.each do |instruction|
-    define_instruction instruction
-  end
+  instructions = metamodel.getInstructions
+  instructions.each { |instruction| define_instruction instruction }
 end
 
 private
@@ -79,9 +75,7 @@ def define_instruction(i)
 
   # Methods for test situations (added to the Instruction class)
   situations = i.getSituations
-  situations.each do |situation|
-    define_situation situation
-  end
+  situations.each do { |situation| define_situation situation }
 
   #
   # Generating convenient shortcuts for addressing modes
