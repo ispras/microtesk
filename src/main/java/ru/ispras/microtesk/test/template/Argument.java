@@ -28,34 +28,25 @@ public final class Argument
 {
     public static enum Kind
     {
-         /** Constant value. */
-         IMM          (Integer.class),
-         /** Random value from the given range. */
-         IMM_RANDOM   (RandomValue.class),
-         /** Reserved, to be calculated as a constraint. */
-         IMM_UNKNOWN  (null), // TODO
+         IMM        (Integer.class),
+         IMM_RANDOM (RandomValue.class),
+         MODE       (Primitive.class),
+         OP         (Primitive.class);
 
-         /** Specific mode. */
-         MODE         (null), // TODO
-         /** Randomly chosen mode (from possible alternatives with a suitable signature). */
-         MODE_RANDOM  (null), // TODO
-         /** Reserved, to be calculated as a constraint. */
-         MODE_UNKNOWN (null), // TODO
+         private static String ILLEGAL_CLASS =
+             "%s is illegal value class, %s is expected.";
 
-         /** Specific operation. */
-         OP           (null), // TODO
-         /** Randomly chosen operation (from possible alternatives with a suitable signature). */
-         OP_RANDOM    (null), // TODO
-         /** Reserved, to be calculated as a constraint. */
-         OP_UNKNOWN   (null); // TODO
-
-         private final Class<?> valueClass;
+         private final Class<?> vc;
 
          private Kind(Class<?> valueClass)
-             { this.valueClass = valueClass; }
+             { this.vc = valueClass; }
 
-         private Class<?> getValueClass()
-             { return valueClass; }
+         private void checkClass(Class<?> c)
+         {
+             if (!vc.isAssignableFrom(c))
+                 throw new IllegalArgumentException(String.format(
+                      ILLEGAL_CLASS, c.getSimpleName(), vc.getSimpleName()));
+         }
     }
 
     private final String name;
@@ -64,11 +55,16 @@ public final class Argument
 
     Argument(String name, Kind kind, Object value)
     {
-        checkNotNull(name);
-        checkNotNull(kind);
-        checkNotNull(value);
+        if (null == name)
+            throw new NullPointerException();
 
-        checkValidClass(kind.getValueClass(), value.getClass());
+        if (null == kind)
+            throw new NullPointerException();
+
+        if (null == value)
+            throw new NullPointerException();
+
+        kind.checkClass(value.getClass());
 
         this.name = name;
         this.kind = kind;
@@ -88,19 +84,5 @@ public final class Argument
     public Object getValue()
     {
         return value;
-    }
-
-    private static void checkNotNull(Object o)
-    {
-        if (null == o)
-            throw new NullPointerException();
-    }
-
-    private static void checkValidClass(Class<?> expected, Class<?> actual)
-    {
-        if (!expected.isAssignableFrom(actual))
-            throw new IllegalArgumentException(String.format(
-                 "%s is illegal value class, %s is expected.",
-                 actual.getSimpleName(), expected.getSimpleName()));
     }
 }
