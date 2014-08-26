@@ -65,6 +65,13 @@ public final class RandomValueBuilder
             
             return cachedValue;
         }
+
+        @Override
+        public String toString()
+        {
+            return String.format("Random: range = [%d..%d], cached value = %s",
+               min, max, hasCachedValue ? Integer.toString(cachedValue) : "no");
+        }
     }
 
     private static final class RandomValueReference implements RandomValue
@@ -84,6 +91,12 @@ public final class RandomValueBuilder
 
         @Override
         public int getValue() { return value.getCachedValue(); }
+
+        @Override
+        public String toString()
+        {
+            return "Reference to " + value.toString();
+        }
     }
 
     private RandomValueObject value;
