@@ -29,7 +29,6 @@ import java.util.List;
 
 public final class Call
 {
-    private final String name;
     private final Primitive rootOperation;
     private final String situation;
 
@@ -37,24 +36,22 @@ public final class Call
     private final List<Output> outputs;
 
     Call(
-        String name,
         Primitive rootOperation,
         String situation,
         List<Label> labels,
         List<Output> outputs
         )
     {
-        this.name = name;
         this.rootOperation = rootOperation;
         this.situation = situation;
 
         this.labels = Collections.unmodifiableList(labels);
         this.outputs = Collections.unmodifiableList(outputs);
     }
-
-    public String getName()
+    
+    public boolean isEmpty()
     {
-        return name;
+        return null == rootOperation; 
     }
 
     public Primitive getRootOperation()

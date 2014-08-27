@@ -29,7 +29,6 @@ import java.util.List;
 
 public final class CallBuilder
 {
-    private String name;
     private Primitive rootOperation;
     private String situation;
     
@@ -38,17 +37,11 @@ public final class CallBuilder
 
     public CallBuilder()
     {
-        this.name = null;
         this.rootOperation = null;
         this.situation = null;
 
         this.labels = new ArrayList<Label>();
         this.outputs = new ArrayList<Output>();
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
     }
 
     public void setRootOperation(Primitive rootOperation)
@@ -80,7 +73,6 @@ public final class CallBuilder
     public Call build()
     {
         return new Call(
-            name,
             rootOperation,
             situation,
             labels,
