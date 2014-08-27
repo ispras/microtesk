@@ -44,56 +44,40 @@ public final class PrimitiveBuilder
     {
         return new Primitive(kind, name, args);
     }
-}
-
-/*
-
-
-public class AddressingModeBuilder
-{
-    private final String name;
-    private final MetaAddressingMode metaData;
-
-    public AddressingModeBuilder(String name, MetaAddressingMode metaData)
-    {
-        this.name = name;
-        this.metaData = metaData;
-    }
-
-    // Constant (String or Int)
-    // Random from x to y
-    // Unknown (No Value) - calculated as a constraint.
-
-    ///////////////////////////////////////////////////////////////////////
-    // For Array-based syntax
     
+    ///////////////////////////////////////////////////////////////////////////
+    // For Array-based syntax
+
     public void addArgument(int value)
     {
         
     }
-    
-    public void addArgument(String value)
+
+    public void addArgument(RandomValue value)
+    {
+        
+    }
+
+    public void addArgument(Primitive value)
     {
         
     }
     
-    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     // For Hash-based syntax
     
     public void setArgument(String name, int value)
     {
         
     }
-    
-    public void setArgument(String name, String value)
+
+    public void setArgument(String name, RandomValue value)
     {
         
     }
-    
-    public AddressingMode build()
+
+    public void setArgument(String name, Primitive value)
     {
-        return new AddressingMode();
+        
     }
 }
-
-*/
