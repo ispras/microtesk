@@ -34,31 +34,55 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 public final class Template
 {
-    //private final MetaModel metaData;
-    private IIterator<Sequence<Call>> sequences;
+    private final MetaModel metaModel;
 
     private final Deque<BlockBuilder> blockBuilders;
     private CallBuilder callBuilder;
 
+    private IIterator<Sequence<Call>> sequences;
+
     public Template(MetaModel metaModel)
     {
-        _header("Start Template");
+        _header("Begin Template");
 
-        //this.metaData = metaModel;
-        this.sequences = null;
+        if (null == metaModel)
+            throw new NullPointerException();
+
+        this.metaModel = metaModel;
 
         this.blockBuilders = new LinkedList<BlockBuilder>();
-        this.blockBuilders.addFirst(new BlockBuilder()); // Root block
+        this.blockBuilders.push(new BlockBuilder());
+
+        this.sequences = null;
+    }
+
+    public IIterator<Sequence<Call>> build()
+    {
+        _header("End Template");
+
+        if (null != sequences)
+            throw new IllegalStateException("The template is already built.");
+
+        final BlockBuilder rootBuilder = blockBuilders.getLast();
+        final Block rootBlock = rootBuilder.build();
+
+        sequences = rootBlock.getIterator();
+        return sequences;
+    }
+
+    public IIterator<Sequence<Call>> getSequences()
+    {
+        return sequences;
     }
 
     public BlockBuilder beginBlock()
     {
         _trace("Begin block");
 
-        final BlockBuilder parent = blockBuilders.getFirst();
+        final BlockBuilder parent = blockBuilders.peek();
         final BlockBuilder current = new BlockBuilder(parent);
 
-        blockBuilders.addFirst(current);
+        blockBuilders.push(current);
         return current;
     }
 
@@ -66,10 +90,10 @@ public final class Template
     {
         _trace("End block");
 
-        final BlockBuilder builder = blockBuilders.removeFirst();
+        final BlockBuilder builder = blockBuilders.pop();
         final Block block = builder.build();
 
-        blockBuilders.getFirst().addBlock(block);
+        blockBuilders.peek().addBlock(block);
     }
 
     public void addLabel(String name)
@@ -108,25 +132,6 @@ public final class Template
         this.callBuilder = new CallBuilder();
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
-    public void build()
-    {
-        final BlockBuilder builder = blockBuilders.getLast();
-        final Block block = builder.build();
-
-        sequences = block.getIterator();
-
-        _header("End Template");
-    }
-
-    public IIterator<Sequence<Call>> getSequences()
-    {
-        return sequences;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
     private static void _trace(String s)
     {
         System.out.println(s);
@@ -151,6 +156,6 @@ public final class Template
         for(int i = 0; i < postfixWidth - 1; ++i) sb.append('-');
         sb.append("\r\n");
 
-        System.out.println(sb);
+        _trace(sb.toString());
     }
 }
