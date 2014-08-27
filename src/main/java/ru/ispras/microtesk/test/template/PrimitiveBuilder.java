@@ -24,8 +24,10 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.test.template.Primitive.Kind;
 
@@ -34,11 +36,6 @@ public abstract class PrimitiveBuilder
     private Kind kind;
     private String name;
     private final Map<String, Argument> args;
-
-    PrimitiveBuilder()
-    {
-        this(null, null);
-    }
 
     PrimitiveBuilder(Kind kind, String name)
     {
@@ -54,6 +51,13 @@ public abstract class PrimitiveBuilder
 
     public final Primitive build()
     {
+        if (null == kind)
+            throw new IllegalStateException("Kind is not specified.");
+
+        if (null == name)
+            throw new IllegalStateException("Name is not specified.");
+        
+        checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
         return new Primitive(kind, name, args);
     }
 
@@ -139,4 +143,5 @@ public abstract class PrimitiveBuilder
 
     public abstract String getNextArgumentName();
     public abstract void checkValidArgument(Argument arg);
+    public abstract void checkAllArgumentsSet(Set<String> argNames);
 }
