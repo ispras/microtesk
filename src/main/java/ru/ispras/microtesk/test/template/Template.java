@@ -101,7 +101,7 @@ public final class Template
         blockBuilders.peek().addBlock(block);
     }
 
-    public void addLabel(String name)
+    public Label addLabel(String name)
     {
         if (null == name)
             throw new NullPointerException();
@@ -109,7 +109,8 @@ public final class Template
         final Label label = new Label(name, getCurrentBlockId());
         _trace("Label: " + label.toString()); 
 
-        callBuilder.addItemToAttribute("b_labels", label);
+        //callBuilder.addItemToAttribute("b_labels", label);
+        return label;
     }
 
     public void addOutput(Output output)

@@ -98,9 +98,6 @@ class Template
     @receiver_stack = [@core_block]
 
     @final_sequences = Array.new
-
-    java_import Java::Ru.ispras.microtesk.test.template.BlockId
-    @block_id = BlockId.new
   end
 
   def self.template_classes
@@ -156,7 +153,20 @@ class Template
   # -------------------------------------------------- #
 
   def block(attributes = {}, &contents)
-    @block_id = @block_id.nextChildId
+    blockBuilder = @template.beginBlock
+
+    if attributes.has_key? :compositor
+      blockBuilder.setCompositor(attributes[:compositor])
+    end
+
+    if attributes.has_key? :combinator
+      blockBuilder.setCombinator(attributes[:combinator])
+    end
+
+    attributes.each_pair do |key, value|
+      blockBuilder.setAttribute(key.to_s, value)
+    end
+
 
     b = InstructionBlock.new
     b.attributes = attributes
@@ -171,15 +181,18 @@ class Template
 
     @instruction_receiver.receive b
 
-    @block_id = @block_id.parentId
+
+    @template.endBlock
   end
 
   def label(name)
-    l = Java::Ru.ispras.microtesk.test.template.Label.new(name.to_s, @block_id) 
-    @instruction_receiver.receive Label.new(l)
+    l = Label.new @template.addLabel(name) 
+    @instruction_receiver.receive l
   end
 
   def add_output(o)
+    @template.addOutput o.java_object
+
     @instruction_receiver.receive o
   end
 
@@ -200,16 +213,18 @@ class Template
   # -------------------------------------------------- #
 
   def generate(filename)
+    java_import Java::Ru.ispras.microtesk.test.TestEngine
+    engine = TestEngine.getInstance(@@model)
+
     puts
     puts "--------------------------------- Start build ----------------------------------"
     puts
 
+    @template = engine.newTemplate
     pre
     run
     post
-
-    java_import Java::Ru.ispras.microtesk.test.TestEngine
-    engine = TestEngine.getInstance(@@model)
+    @template.build
 
     # Apply settings
     engine.setFileName      filename
