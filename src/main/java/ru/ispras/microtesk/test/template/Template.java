@@ -138,17 +138,17 @@ public final class Template
         this.callBuilder = new CallBuilder();
     }
 
-    public PrimitiveBuilder getInstructionBuilder()
+    public PrimitiveBuilder getInstructionBuilder(String name)
     {
         return new PrimitiveBuilder();
     }
 
-    public PrimitiveBuilder getOperationBuilder()
+    public PrimitiveBuilder getOperationBuilder(String name)
     {
         return new PrimitiveBuilder();
     }
 
-    public PrimitiveBuilder getModeBuilder()
+    public PrimitiveBuilder getModeBuilder(String name)
     {
         return new PrimitiveBuilder();
     }
