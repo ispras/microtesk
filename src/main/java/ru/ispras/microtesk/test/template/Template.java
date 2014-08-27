@@ -77,10 +77,10 @@ public final class Template
 
     public BlockBuilder beginBlock()
     {
-        _trace("Begin block");
-
         final BlockBuilder parent = blockBuilders.peek();
         final BlockBuilder current = new BlockBuilder(parent);
+
+        _trace("Begin block: " + current.getBlockId());
 
         blockBuilders.push(current);
         return current;
@@ -88,7 +88,7 @@ public final class Template
 
     public void endBlock()
     {
-        _trace("End block");
+        _trace("End block: " + blockBuilders.peek().getBlockId());
 
         final BlockBuilder builder = blockBuilders.pop();
         final Block block = builder.build();
