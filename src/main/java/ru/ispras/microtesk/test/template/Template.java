@@ -138,6 +138,21 @@ public final class Template
         this.callBuilder = new CallBuilder();
     }
 
+    public PrimitiveBuilder getInstructionBuilder()
+    {
+        return new PrimitiveBuilder();
+    }
+
+    public PrimitiveBuilder getOperationBuilder()
+    {
+        return new PrimitiveBuilder();
+    }
+
+    public PrimitiveBuilder getModeBuilder()
+    {
+        return new PrimitiveBuilder();
+    }
+
     private static void _trace(String s)
     {
         System.out.println(s);
