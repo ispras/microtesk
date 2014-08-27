@@ -48,10 +48,15 @@ public final class Call
         this.labels = Collections.unmodifiableList(labels);
         this.outputs = Collections.unmodifiableList(outputs);
     }
-    
+
+    public boolean isExecutable()
+    {
+        return null != rootOperation; 
+    }
+
     public boolean isEmpty()
     {
-        return null == rootOperation; 
+        return !isExecutable() && labels.isEmpty() && outputs.isEmpty();
     }
 
     public Primitive getRootOperation()
