@@ -129,8 +129,8 @@ public final class Template
     {
         _trace("Ended building a call");
 
-        //final AbstractCall call = callBuilder.build();
-        //blockBuilders.getFirst().addCall(call);
+        final Call call = callBuilder.build();
+        blockBuilders.peek().addCall(call);
 
         this.callBuilder = new CallBuilder();
     }
