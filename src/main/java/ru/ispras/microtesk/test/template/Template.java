@@ -75,6 +75,11 @@ public final class Template
         return sequences;
     }
 
+    public BlockId getCurrentBlockId()
+    {
+        return blockBuilders.peek().getBlockId();
+    }
+
     public BlockBuilder beginBlock()
     {
         final BlockBuilder parent = blockBuilders.peek();
@@ -88,7 +93,7 @@ public final class Template
 
     public void endBlock()
     {
-        _trace("End block: " + blockBuilders.peek().getBlockId());
+        _trace("End block: " + getCurrentBlockId());
 
         final BlockBuilder builder = blockBuilders.pop();
         final Block block = builder.build();
@@ -101,7 +106,7 @@ public final class Template
         if (null == name)
             throw new NullPointerException();
 
-        final Label label = new Label(name, blockBuilders.peek().getBlockId());
+        final Label label = new Label(name, getCurrentBlockId());
         _trace("Label: " + label.toString()); 
 
         callBuilder.addItemToAttribute("b_labels", label);
