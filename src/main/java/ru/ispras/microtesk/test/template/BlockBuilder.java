@@ -91,13 +91,19 @@ public final class BlockBuilder
 
     public void addBlock(Block block)
     {
-        assert null != block;
+        if (null == block)
+            throw new NullPointerException();
+            
         nestedBlocks.add(block);
     }
 
     public void addCall(Call call)
     {
-        assert null != call;
+        if (null == call)
+            throw new NullPointerException();
+
+        if (call.isEmpty())
+            return;
 
         final Sequence<Call> sequence = new Sequence<Call>();
         sequence.add(call);

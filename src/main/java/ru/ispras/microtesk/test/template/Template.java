@@ -83,6 +83,8 @@ public final class Template
 
     public BlockBuilder beginBlock()
     {
+        endBuildingCall();
+        
         final BlockBuilder parent = blockBuilders.peek();
         final BlockBuilder current = new BlockBuilder(parent);
 
@@ -94,6 +96,8 @@ public final class Template
 
     public void endBlock()
     {
+        endBuildingCall();
+
         _trace("End block: " + getCurrentBlockId());
 
         final BlockBuilder builder = blockBuilders.pop();
@@ -127,11 +131,10 @@ public final class Template
 
     public void endBuildingCall()
     {
-        _trace("Ended building a call");
-
         final Call call = callBuilder.build();
         blockBuilders.peek().addCall(call);
 
+        _trace(String.format("Ended building a call (Empty = %b)", call.isEmpty()));
         this.callBuilder = new CallBuilder();
     }
 
