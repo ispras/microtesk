@@ -126,7 +126,7 @@ public abstract class PrimitiveBuilder
             (value.getKind() != Primitive.Kind.OP))
         {
             throw new IllegalArgumentException(
-                "Unknown kind: " + value.getKind());
+                "Unsupported primitive kind: " + value.getKind());
         }
 
         final Argument.Kind kind = value.getKind() == Primitive.Kind.MODE ?
