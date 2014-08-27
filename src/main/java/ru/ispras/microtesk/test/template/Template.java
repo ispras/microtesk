@@ -52,6 +52,7 @@ public final class Template
 
         this.blockBuilders = new LinkedList<BlockBuilder>();
         this.blockBuilders.push(new BlockBuilder());
+        this.callBuilder = new CallBuilder();
 
         this.sequences = null;
     }
@@ -109,20 +110,14 @@ public final class Template
         final Label label = new Label(name, getCurrentBlockId());
         _trace("Label: " + label.toString()); 
 
-        //callBuilder.addItemToAttribute("b_labels", label);
+        callBuilder.addLabel(label);
         return label;
     }
 
     public void addOutput(Output output)
     {
         _trace(output.toString());
-
-        /*
-        if (output.isRuntime())
-            callBuilder.addItemToAttribute("b_runtime", output);
-        else
-            callBuilder.addItemToAttribute("b_output", output);
-        */
+        callBuilder.addOutput(output);
     }
 
     public CallBuilder getCurrentCallBuilder()

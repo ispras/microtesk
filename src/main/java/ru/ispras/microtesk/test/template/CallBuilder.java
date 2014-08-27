@@ -24,9 +24,7 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class CallBuilder
@@ -43,38 +41,25 @@ public final class CallBuilder
         this.rootOperation = null;
         this.situation = null;
     }
-    
+
     public void setName(String name)
     {
         this.name = name;
     }
 
-    public void setAttribute(String name, Object value)
-    {
-        assert !attributes.containsKey(name);
-        attributes.put(name, value);
-    }
-
-    @SuppressWarnings("unchecked")
-    public void addItemToAttribute(String attrName, Object item)
-    {
-        final List<Object> attr;
-        if (!attributes.containsKey(name))
-        {
-            attr = new ArrayList<Object>();
-            attributes.put(attrName, attr);
-        }
-        else
-        {
-            attr = (List<Object>)attributes.get(attrName);
-        }
-
-        attr.add(item);
-    }
-
     public void setTestSituation(String name)
     {
         situation = name;
+    }
+
+    public void addLabel(Label label)
+    {
+        
+    }
+
+    public void addOutput(Output output)
+    {
+        
     }
 
     public Call build()
