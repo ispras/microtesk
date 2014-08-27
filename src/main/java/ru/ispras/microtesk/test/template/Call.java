@@ -24,51 +24,37 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 
 public final class Call
 {
     private final String name;
-    private final Map<String, Object> attributes;
-
     private final Primitive rootOperation;
     private final String situation;
 
+    private final List<Label> labels;
+    private final List<Output> outputs;
+
     Call(
         String name,
-        Map<String, Object> attributes,
         Primitive rootOperation,
-        String situation
+        String situation,
+        List<Label> labels,
+        List<Output> outputs
         )
     {
-        if (null == name)
-            throw new NullPointerException();
-
-        if (null == attributes)
-            throw new NullPointerException();
-
-        if (null == rootOperation)
-            throw new NullPointerException();
-
         this.name = name;
-        this.attributes = attributes;
         this.rootOperation = rootOperation;
         this.situation = situation;
+
+        this.labels = Collections.unmodifiableList(labels);
+        this.outputs = Collections.unmodifiableList(outputs);
     }
 
     public String getName()
     {
         return name;
-    }
-
-    public Object getAttribute(String name)
-    {
-        return attributes.get(name);
-    }
-
-    public Map<String, Object> getAttributes()
-    {
-        return attributes;
     }
 
     public Primitive getRootOperation()
@@ -79,5 +65,15 @@ public final class Call
     public String getSituation()
     {
         return situation;
+    }
+
+    public List<Label> getLabels()
+    {
+        return labels;
+    }
+
+    public List<Output> getOutputs()
+    {
+        return outputs;
     }
 }

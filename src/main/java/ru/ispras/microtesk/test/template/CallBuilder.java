@@ -24,27 +24,36 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class CallBuilder
 {
     private String name;
-    private final Map<String, Object> attributes;
     private Primitive rootOperation;
     private String situation;
+    
+    private final List<Label> labels;
+    private final List<Output> outputs;
 
     public CallBuilder()
     {
         this.name = null;
-        this.attributes = new HashMap<String, Object>();
         this.rootOperation = null;
         this.situation = null;
+
+        this.labels = new ArrayList<Label>();
+        this.outputs = new ArrayList<Output>();
     }
 
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public void setRootOperation(Primitive rootOperation)
+    {
+        this.rootOperation = rootOperation;
     }
 
     public void setTestSituation(String name)
@@ -54,16 +63,28 @@ public final class CallBuilder
 
     public void addLabel(Label label)
     {
-        
+        if (null == label)
+            throw new NullPointerException();
+
+        labels.add(label);
     }
 
     public void addOutput(Output output)
     {
-        
+        if (null == output)
+            throw new NullPointerException();
+
+        outputs.add(output);
     }
 
     public Call build()
     {
-        return new Call(name, attributes, rootOperation, situation);
+        return new Call(
+            name,
+            rootOperation,
+            situation,
+            labels,
+            outputs
+            );
     }
 }
