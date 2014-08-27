@@ -85,10 +85,12 @@ public final class Template
     {
         _trace(output.toString());
 
+        /*
         if (output.isRuntime())
             callBuilder.addItemToAttribute("b_runtime", output);
         else
             callBuilder.addItemToAttribute("b_output", output);
+        */
     }
 
     public CallBuilder getCurrentCallBuilder()
