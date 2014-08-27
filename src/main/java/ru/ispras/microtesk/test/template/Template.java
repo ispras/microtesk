@@ -98,11 +98,13 @@ public final class Template
 
     public void addLabel(String name)
     {
-        final String uniqueName =
-            name + blockBuilders.getFirst().getBlockId();
+        if (null == name)
+            throw new NullPointerException();
 
-        _trace("Label: " + uniqueName); 
-        callBuilder.addItemToAttribute("b_labels", uniqueName);
+        final Label label = new Label(name, blockBuilders.peek().getBlockId());
+        _trace("Label: " + label.toString()); 
+
+        callBuilder.addItemToAttribute("b_labels", label);
     }
 
     public void addOutput(Output output)
