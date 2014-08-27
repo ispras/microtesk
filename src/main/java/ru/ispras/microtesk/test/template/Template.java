@@ -138,22 +138,22 @@ public final class Template
         this.callBuilder = new CallBuilder();
     }
 
-    public PrimitiveBuilder getInstructionBuilder(String name)
+    public PrimitiveBuilder newInstructionBuilder(String name)
     {
         // TODO
-        return null;
+        return PrimitiveBuilder.newInstructionBuilder();
     }
 
-    public PrimitiveBuilder getOperationBuilder(String name)
+    public PrimitiveBuilder newOperationBuilder(String name)
     {
         // TODO
-        return null;
+        return PrimitiveBuilder.newOperationBuilder();
     }
 
-    public PrimitiveBuilder getModeBuilder(String name)
+    public PrimitiveBuilder newModeBuilder(String name)
     {
         // TODO
-        return null;
+        return PrimitiveBuilder.newModeBuilder();
     }
 
     private static void _trace(String s)

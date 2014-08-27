@@ -33,6 +33,24 @@ import ru.ispras.microtesk.test.template.Primitive.Kind;
 
 public abstract class PrimitiveBuilder
 {
+    public static PrimitiveBuilder newInstructionBuilder()
+    {
+        // TODO: need implementation of corresponding class
+        return null;
+    }
+
+    public static PrimitiveBuilder newOperationBuilder()
+    {
+        // TODO: need implementation of corresponding class
+        return null;
+    }
+
+    public static PrimitiveBuilder newModeBuilder()
+    {
+        // TODO: need implementation of corresponding class
+        return null;
+    }
+
     private Kind kind;
     private String name;
     private final Map<String, Argument> args;
