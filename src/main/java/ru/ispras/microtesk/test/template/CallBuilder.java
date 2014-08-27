@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * AbstractCallBuilder.java, Aug 27, 2014 11:44:56 AM Andrei Tatarnikov
+ * CallBuilder.java, Aug 27, 2014 12:04:51 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -29,14 +29,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class AbstractCallBuilder
+public final class CallBuilder
 {
     private String name;
     private final Map<String, Object> attributes;
     private Primitive rootOperation;
     private String situation;
 
-    public AbstractCallBuilder()
+    public CallBuilder()
     {
         this.name = null;
         this.attributes = new HashMap<String, Object>();
@@ -77,8 +77,8 @@ public final class AbstractCallBuilder
         situation = name;
     }
 
-    public AbstractCall build()
+    public Call build()
     {
-        return new AbstractCall(name, attributes, rootOperation, situation);
+        return new Call(name, attributes, rootOperation, situation);
     }
 }

@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * AbstractCall.java, Aug 27, 2014 11:39:59 AM Andrei Tatarnikov
+ * Call.java, Aug 27, 2014 12:04:59 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -26,7 +26,7 @@ package ru.ispras.microtesk.test.template;
 
 import java.util.Map;
 
-public final class AbstractCall
+public final class Call
 {
     private final String name;
     private final Map<String, Object> attributes;
@@ -34,7 +34,7 @@ public final class AbstractCall
     private final Primitive rootOperation;
     private final String situation;
 
-    AbstractCall(
+    Call(
         String name,
         Map<String, Object> attributes,
         Primitive rootOperation,
