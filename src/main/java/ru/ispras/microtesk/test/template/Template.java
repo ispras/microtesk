@@ -144,7 +144,7 @@ public final class Template
         return PrimitiveBuilder.newInstructionBuilder();
     }
 
-    public PrimitiveBuilder newOperationBuilder(String name)
+    public PrimitiveBuilder newOperationBuilder(String name, String contextName)
     {
         // TODO
         return PrimitiveBuilder.newOperationBuilder();
