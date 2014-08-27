@@ -35,6 +35,7 @@ import ru.ispras.microtesk.test.data.ConcreteCall;
 import ru.ispras.microtesk.test.data.DataGenerator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.template.Template;
 
 public final class TestEngine
 {
@@ -59,6 +60,11 @@ public final class TestEngine
         this.model = model;
         this.blockBuilderFactory = new BlockBuilderFactory();
         this.dataGenerator = new DataGenerator(model);
+    }
+
+    public Template newTemplate()
+    {
+        return new Template(model.getMetaData());
     }
 
     public BlockBuilderFactory getBlockBuilders()
@@ -132,14 +138,14 @@ public final class TestEngine
     {
         this.commentToken = commentToken;
     }
-    
+
     private void printStageHeader(String text)
     {
         final int LINE_WIDTH = 80;
 
         final int  prefixWidth = (LINE_WIDTH - text.length()) / 2;
         final int postfixWidth = LINE_WIDTH - prefixWidth - text.length();
-        
+
         final StringBuilder sb = new StringBuilder();
 
         sb.append("\r\n");
