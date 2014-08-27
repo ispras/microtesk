@@ -29,26 +29,38 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
+import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.test.template.Primitive.Kind;
 
 public abstract class PrimitiveBuilder
 {
-    public static PrimitiveBuilder newInstructionBuilder()
+    public static PrimitiveBuilder newInstructionBuilder(
+        MetaInstruction metaData)
     {
-        // TODO: need implementation of corresponding class
-        return null;
+        if (null == metaData)
+            throw new NullPointerException();
+
+        return new PrimitiveBuilderInstruction(metaData);
     }
 
-    public static PrimitiveBuilder newOperationBuilder()
+    public static PrimitiveBuilder newOperationBuilder(
+        MetaOperation metaData)
     {
-        // TODO: need implementation of corresponding class
-        return null;
+        if (null == metaData)
+            throw new NullPointerException();
+
+        return new PrimitiveBuilderOperation(metaData);
     }
 
-    public static PrimitiveBuilder newModeBuilder()
+    public static PrimitiveBuilder newAddressingModeBuilder(
+        MetaAddressingMode metaData)
     {
-        // TODO: need implementation of corresponding class
-        return null;
+        if (null == metaData)
+            throw new NullPointerException();
+
+        return new PrimitiveBuilderAddressingMode(metaData);
     }
 
     private Kind kind;
@@ -74,7 +86,7 @@ public abstract class PrimitiveBuilder
 
         if (null == name)
             throw new IllegalStateException("Name is not specified.");
-        
+
         checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
         return new Primitive(kind, name, args);
     }
@@ -162,4 +174,97 @@ public abstract class PrimitiveBuilder
     public abstract String getNextArgumentName();
     public abstract void checkValidArgument(Argument arg);
     public abstract void checkAllArgumentsSet(Set<String> argNames);
+}
+
+final class PrimitiveBuilderInstruction extends PrimitiveBuilder
+{
+    private final MetaInstruction metaData;
+
+    PrimitiveBuilderInstruction(MetaInstruction metaData)
+    {
+        super(Kind.INSTR, metaData.getName());
+        this.metaData = metaData;
+    }
+
+    @Override
+    public String getNextArgumentName()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void checkValidArgument(Argument arg)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkAllArgumentsSet(Set<String> argNames)
+    {
+        // TODO Auto-generated method stub
+    }
+}
+
+final class PrimitiveBuilderOperation extends PrimitiveBuilder
+{
+    private final MetaOperation metaData;
+
+    PrimitiveBuilderOperation(MetaOperation metaData)
+    {
+        super(Kind.OP, metaData.getName());
+        this.metaData = metaData;
+    }
+
+    @Override
+    public String getNextArgumentName()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void checkValidArgument(Argument arg)
+    {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void checkAllArgumentsSet(Set<String> argNames)
+    {
+        // TODO Auto-generated method stub
+    }
+}
+
+final class PrimitiveBuilderAddressingMode extends PrimitiveBuilder
+{
+    private final MetaAddressingMode metaData;
+
+    PrimitiveBuilderAddressingMode(MetaAddressingMode metaData)
+    {
+        super(Kind.MODE, metaData.getName());
+        this.metaData = metaData;
+    }
+
+    @Override
+    public String getNextArgumentName()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void checkValidArgument(Argument arg)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkAllArgumentsSet(Set<String> argNames)
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }

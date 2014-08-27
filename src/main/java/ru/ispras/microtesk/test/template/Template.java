@@ -27,7 +27,10 @@ package ru.ispras.microtesk.test.template;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
@@ -140,20 +143,40 @@ public final class Template
 
     public PrimitiveBuilder newInstructionBuilder(String name)
     {
-        // TODO
-        return PrimitiveBuilder.newInstructionBuilder();
+        if (null == name)
+            throw new NullPointerException();
+
+        final MetaInstruction metaData = metaModel.getInstruction(name);
+        if (null == metaData)
+            throw new IllegalArgumentException("No such instruction: " + name);
+
+        return PrimitiveBuilder.newInstructionBuilder(metaData);
     }
 
-    public PrimitiveBuilder newOperationBuilder(String name, String contextName)
+    public PrimitiveBuilder newOperationBuilder(
+        String name, String /*unused*/ context)
     {
-        // TODO
-        return PrimitiveBuilder.newOperationBuilder();
+        if (null == name)
+            throw new NullPointerException();
+
+        final MetaOperation metaData = metaModel.getOperation(name);
+        if (null == metaData)
+            throw new IllegalArgumentException("No such operation: " + name);
+
+        return PrimitiveBuilder.newOperationBuilder(metaData);
     }
 
-    public PrimitiveBuilder newModeBuilder(String name)
+    public PrimitiveBuilder newAddressingModeBuilder(String name)
     {
-        // TODO
-        return PrimitiveBuilder.newModeBuilder();
+        if (null == name)
+            throw new NullPointerException();
+
+        final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
+        if (null == metaData)
+            throw new IllegalArgumentException(
+                 "No such addressing mode: " + name);
+
+        return PrimitiveBuilder.newAddressingModeBuilder(metaData);
     }
 
     private static void _trace(String s)
