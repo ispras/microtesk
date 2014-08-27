@@ -140,17 +140,20 @@ public final class Template
 
     public PrimitiveBuilder getInstructionBuilder(String name)
     {
-        return new PrimitiveBuilder();
+        // TODO
+        return null;
     }
 
     public PrimitiveBuilder getOperationBuilder(String name)
     {
-        return new PrimitiveBuilder();
+        // TODO
+        return null;
     }
 
     public PrimitiveBuilder getModeBuilder(String name)
     {
-        return new PrimitiveBuilder();
+        // TODO
+        return null;
     }
 
     private static void _trace(String s)
