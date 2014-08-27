@@ -30,15 +30,15 @@ public final class AbstractCall
 {
     private final String name;
     private final Map<String, Object> attributes;
-    
+
     private final Primitive rootOperation;
-    private final Situation situation;
+    private final String situation;
 
     AbstractCall(
         String name,
         Map<String, Object> attributes,
         Primitive rootOperation,
-        Situation situation
+        String situation
         )
     {
         if (null == name)
@@ -76,7 +76,7 @@ public final class AbstractCall
         return rootOperation;
     }
 
-    public Situation getSituation()
+    public String getSituation()
     {
         return situation;
     }
