@@ -26,6 +26,7 @@ package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * The MetaOperation class stores information on the given operation.
@@ -37,22 +38,31 @@ public final class MetaOperation implements MetaData
 {
     private final String name;
     private final Collection<MetaArgument> args;
-    private final Collection<MetaShortcut> shortcuts;
+    private final Map<String, MetaShortcut> shortcuts;
 
     public MetaOperation(
         String name,
         Collection<MetaArgument> args
         )
     {
-        this(name, args, Collections.<MetaShortcut>emptyList());
+        this(name, args, Collections.<String, MetaShortcut>emptyMap());
     }
 
     public MetaOperation(
         String name,
         Collection<MetaArgument> args,
-        Collection<MetaShortcut> shortcuts
+        Map<String, MetaShortcut> shortcuts
         )
     {
+        if (null == name)
+            throw new NullPointerException();
+
+        if (null == args)
+            throw new NullPointerException();
+
+        if (null == shortcuts)
+            throw new NullPointerException();
+
         this.name = name;
         this.args = args;
         this.shortcuts = shortcuts;
@@ -87,9 +97,23 @@ public final class MetaOperation implements MetaData
      * 
      * @return A collection of shortcuts.
      */
-    
+
     public Iterable<MetaShortcut> getShortcuts()
     {
-        return shortcuts;
+        return shortcuts.values();
+    }
+
+    /**
+     * Returns a shortcut for the given operation that can be used 
+     * in the specified context.
+     * 
+     * @param contextName Context name.
+     * @return Shortcut for the given context or {@code null} if no
+     * such shortcut exists.
+     */
+
+    public MetaShortcut getShortcut(String contextName)
+    {
+        return shortcuts.get(contextName);
     }
 }

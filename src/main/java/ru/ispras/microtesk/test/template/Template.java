@@ -31,6 +31,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
+import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
 
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
@@ -153,8 +154,7 @@ public final class Template
         return new PrimitiveBuilder(metaData);
     }
 
-    public PrimitiveBuilder newOperationBuilder(
-        String name, String /*unused*/ context)
+    public PrimitiveBuilder newOperationBuilder(String name, String contextName)
     {
         if (null == name)
             throw new NullPointerException();
@@ -162,6 +162,15 @@ public final class Template
         final MetaOperation metaData = metaModel.getOperation(name);
         if (null == metaData)
             throw new IllegalArgumentException("No such operation: " + name);
+
+        if (null != contextName)
+        {
+            final MetaShortcut metaShortcut =
+                 metaData.getShortcut(contextName);
+
+            if (null != metaShortcut)
+                new PrimitiveBuilder(metaShortcut.getOperation());
+        }
 
         return new PrimitiveBuilder(metaData);
     }

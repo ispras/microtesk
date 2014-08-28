@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -253,13 +253,21 @@ public abstract class Operation implements IOperation
             return this;
         }
         
-        public Collection<MetaShortcut> getMetaData()
+        public Map<String, MetaShortcut> getMetaData()
         {
-            final Collection<MetaShortcut> result =
-                new ArrayList<MetaShortcut>(shortcuts.size());
+            final Map<String, MetaShortcut> result =
+                new LinkedHashMap<String, MetaShortcut>(shortcuts.size());
 
             for (Map.Entry<String, InfoAndRule> e : shortcuts.entrySet())
-                result.add(new MetaShortcut(e.getKey(), e.getValue().metaData));
+            {
+                final String contextName = e.getKey();
+                final MetaOperation metaOperation = e.getValue().metaData;
+                
+                final MetaShortcut metaShortcut =
+                     new MetaShortcut(contextName, metaOperation);
+
+                result.put(contextName, metaShortcut);
+            }
 
             return result;
         }
