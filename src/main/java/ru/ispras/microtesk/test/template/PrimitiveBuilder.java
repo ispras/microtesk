@@ -302,9 +302,13 @@ public final class PrimitiveBuilder
 
         private static final String ERR_NO_MORE_ARGUMENTS = 
             "Too many arguments. The %s addressing mode has only %d arguments.";
-        
+
         private static final String ERR_UNDEFINED_ARGUMENT =
-             "The %s addressing mode does not have an argument called %s.";   
+            "The %s addressing mode does not have an argument called %s.";
+
+        private static final String ERR_WRONG_ARGUMENT_KIND =
+            "Wrong argument kind: %s. The %s argument of the %s addressing " +
+            "mode must be an immediate value.";
 
         private final MetaAddressingMode metaData;
 
@@ -348,7 +352,12 @@ public final class PrimitiveBuilder
                 throw new IllegalStateException(String.format(
                     ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
 
-            // TODO Auto-generated method stub
+            if (!arg.getKind().isImmediate())
+                throw new IllegalStateException(String.format(
+                    ERR_WRONG_ARGUMENT_KIND,
+                    arg.getKind(),
+                    arg.getName(),
+                    getName()));
         }
 
         @Override

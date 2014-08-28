@@ -28,24 +28,33 @@ public final class Argument
 {
     public static enum Kind
     {
-         IMM        (Integer.class),
-         IMM_RANDOM (RandomValue.class),
-         MODE       (Primitive.class),
-         OP         (Primitive.class);
+         IMM        (Integer.class, true),
+         IMM_RANDOM (RandomValue.class, true),
+         MODE       (Primitive.class, false),
+         OP         (Primitive.class, false);
 
          private static String ILLEGAL_CLASS =
              "%s is illegal value class, %s is expected.";
 
          private final Class<?> vc;
+         private final boolean isImmediate;
 
-         private Kind(Class<?> valueClass)
-             { this.vc = valueClass; }
+         private Kind(Class<?> valueClass, boolean isImmediate)
+         {
+             this.vc = valueClass;
+             this.isImmediate = isImmediate;
+         }
 
          private void checkClass(Class<?> c)
          {
              if (!vc.isAssignableFrom(c))
                  throw new IllegalArgumentException(String.format(
                       ILLEGAL_CLASS, c.getSimpleName(), vc.getSimpleName()));
+         }
+
+         public final boolean isImmediate()
+         {
+             return isImmediate;
          }
     }
 
