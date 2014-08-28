@@ -173,7 +173,6 @@
      <javac
        srcdir="${src.java.dir}:${gen}"
        destdir="${microtesk.bin}"
-       excludes="**/mmu/**"
        classpath="${classpath}"
        includeantruntime="false"
        deprecation="true"
