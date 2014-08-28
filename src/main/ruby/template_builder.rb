@@ -83,7 +83,7 @@ def define_instruction(i)
 
   modes_for_args = Hash.new
 
-  inst_arguments = i.getArguments
+  inst_arguments = i.getArguments.to_a
   inst_arguments.each_with_index do |arg, index|
 
     modes_for_args[index] = Array.new

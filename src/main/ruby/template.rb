@@ -190,6 +190,13 @@ class Template
     @instruction_receiver.receive l
   end
 
+  def rand(from, to)
+    if !from.is_a?(Integer) or !to.is_a?(to)
+      raise MTRubyError, "from #{from} and to #{to} must be integers." 
+    end
+    engine.newRandom from, to
+  end
+
   def add_output(o)
     @template.addOutput o.java_object
 
@@ -197,16 +204,18 @@ class Template
   end
 
   # --- Special "no value" method ---
-
-  def _(aug_value = nil)
-    NoValue.new(aug_value)
-  end
-
-  def __(aug_value = nil)
-    v = NoValue.new(aug_value)
-    v.is_immediate = true
-    v
-  end
+  # Does not have a fully functional implementation.
+  # TODO: implement in the future.
+  #
+  # def _(aug_value = nil)
+  #   NoValue.new(aug_value)
+  # end
+  #
+  # def __(aug_value = nil)
+  #   v = NoValue.new(aug_value)
+  #   v.is_immediate = true
+  #   v
+  # end
 
   # -------------------------------------------------- #
   # Generation (Execution and Printing)                #

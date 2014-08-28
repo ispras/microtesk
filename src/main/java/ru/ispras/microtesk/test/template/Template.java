@@ -187,6 +187,11 @@ public final class Template
 
         return new PrimitiveBuilder(metaData);
     }
+    
+    public RandomValueBuilder newRandom(int from, int to)
+    {
+        return new RandomValueBuilder(from, to);
+    }
 
     private static void _trace(String s)
     {

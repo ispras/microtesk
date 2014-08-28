@@ -105,7 +105,7 @@ public final class RandomValueBuilder
     private final int min;
     private final int max;
 
-    public RandomValueBuilder(int min, int max)
+    RandomValueBuilder(int min, int max)
     {
         if (min > max)
             throw new IllegalArgumentException(
