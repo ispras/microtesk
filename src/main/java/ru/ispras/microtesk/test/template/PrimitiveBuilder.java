@@ -34,43 +34,39 @@ import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.test.template.Primitive.Kind;
 
-public abstract class PrimitiveBuilder
+public final class PrimitiveBuilder
 {
-    public static PrimitiveBuilder newInstructionBuilder(
-        MetaInstruction metaData)
+    private interface Strategy
     {
-        if (null == metaData)
-            throw new NullPointerException();
-
-        return new PrimitiveBuilderInstruction(metaData);
+        String getName();
+        String getNextArgumentName();
+        void checkValidArgument(Argument arg);
+        void checkAllArgumentsSet(Set<String> argNames);
     }
 
-    public static PrimitiveBuilder newOperationBuilder(
-        MetaOperation metaData)
-    {
-        if (null == metaData)
-            throw new NullPointerException();
-
-        return new PrimitiveBuilderOperation(metaData);
-    }
-
-    public static PrimitiveBuilder newAddressingModeBuilder(
-        MetaAddressingMode metaData)
-    {
-        if (null == metaData)
-            throw new NullPointerException();
-
-        return new PrimitiveBuilderAddressingMode(metaData);
-    }
-
+    private final Strategy strategy;
     private Kind kind;
-    private String name;
     private final Map<String, Argument> args;
 
-    PrimitiveBuilder(Kind kind, String name)
+    PrimitiveBuilder(MetaInstruction metaData)
     {
+        this(new StrategyInstruction(metaData), Kind.INSTR);
+    }
+
+    PrimitiveBuilder(MetaOperation metaData)
+    {
+        this(new StrategyOperation(metaData), Kind.OP);
+    }
+
+    PrimitiveBuilder(MetaAddressingMode metaData)
+    {
+        this(new StrategyAddressingMode(metaData), Kind.MODE);
+    }
+
+    private PrimitiveBuilder(Strategy strategy, Kind kind)
+    {
+        this.strategy = strategy;
         this.kind = kind;
-        this.name = name;
         this.args = new HashMap<String, Argument>();
     }
 
@@ -79,44 +75,31 @@ public abstract class PrimitiveBuilder
         args.put(arg.getName(), arg);
     }
 
-    public final Primitive build()
+    public Primitive build()
     {
         if (null == kind)
             throw new IllegalStateException("Kind is not specified.");
-
-        if (null == name)
-            throw new IllegalStateException("Name is not specified.");
-
+  
         checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
-        return new Primitive(kind, name, args);
-    }
-
-    public final void setKind(Kind kind)
-    {
-        this.kind = kind;
-    }
-
-    public final void setName(String name)
-    {
-        this.name = name;
+        return new Primitive(kind, getName(), args);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // For Array-based syntax
 
-    public final void addArgument(int value)
+    public void addArgument(int value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
     }
 
-    public final void addArgument(RandomValue value)
+    public void addArgument(RandomValue value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
     }
 
-    public final void addArgument(Primitive value)
+    public void addArgument(Primitive value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
@@ -125,7 +108,7 @@ public abstract class PrimitiveBuilder
     ///////////////////////////////////////////////////////////////////////////
     // For Hash-based syntax
 
-    public final void setArgument(String name, int value)
+    public void setArgument(String name, int value)
     {
         if (null == name)
             throw new NullPointerException();
@@ -135,7 +118,7 @@ public abstract class PrimitiveBuilder
         putArgument(arg);
     }
 
-    public final void setArgument(String name, RandomValue value)
+    public void setArgument(String name, RandomValue value)
     {
         if (null == name)
             throw new NullPointerException();
@@ -148,7 +131,7 @@ public abstract class PrimitiveBuilder
         putArgument(arg);
     }
 
-    public final void setArgument(String name, Primitive value)
+    public void setArgument(String name, Primitive value)
     {
         if (null == name)
             throw new NullPointerException();
@@ -171,100 +154,139 @@ public abstract class PrimitiveBuilder
         putArgument(arg);
     }
 
-    public abstract String getNextArgumentName();
-    public abstract void checkValidArgument(Argument arg);
-    public abstract void checkAllArgumentsSet(Set<String> argNames);
-}
-
-final class PrimitiveBuilderInstruction extends PrimitiveBuilder
-{
-    private final MetaInstruction metaData;
-
-    PrimitiveBuilderInstruction(MetaInstruction metaData)
+    private String getName()
     {
-        super(Kind.INSTR, metaData.getName());
-        this.metaData = metaData;
+        return strategy.getName();
     }
 
-    @Override
-    public String getNextArgumentName()
+    private String getNextArgumentName()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return strategy.getNextArgumentName();
     }
 
-    @Override
-    public void checkValidArgument(Argument arg)
+    private void checkValidArgument(Argument arg)
     {
-        // TODO Auto-generated method stub
-        
+        strategy.checkValidArgument(arg);
     }
 
-    @Override
-    public void checkAllArgumentsSet(Set<String> argNames)
+    private void checkAllArgumentsSet(Set<String> argNames)
     {
-        // TODO Auto-generated method stub
-    }
-}
-
-final class PrimitiveBuilderOperation extends PrimitiveBuilder
-{
-    private final MetaOperation metaData;
-
-    PrimitiveBuilderOperation(MetaOperation metaData)
-    {
-        super(Kind.OP, metaData.getName());
-        this.metaData = metaData;
+        strategy.checkAllArgumentsSet(argNames); 
     }
 
-    @Override
-    public String getNextArgumentName()
+    private static final class StrategyInstruction implements Strategy
     {
-        // TODO Auto-generated method stub
-        return null;
+        private final MetaInstruction metaData;
+
+        private StrategyInstruction(MetaInstruction metaData)
+        {
+            if (null == metaData)
+                throw new NullPointerException();
+
+            this.metaData = metaData;
+        }
+
+        @Override
+        public String getName()
+        {
+            return metaData.getName();
+        }
+
+        @Override
+        public String getNextArgumentName()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void checkValidArgument(Argument arg)
+        {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void checkAllArgumentsSet(Set<String> argNames)
+        {
+            // TODO Auto-generated method stub
+        }
     }
 
-    @Override
-    public void checkValidArgument(Argument arg)
+    private static final class StrategyOperation implements Strategy
     {
-        // TODO Auto-generated method stub
+        private final MetaOperation metaData;
+
+        StrategyOperation(MetaOperation metaData)
+        {
+            if (null == metaData)
+                throw new NullPointerException();
+
+            this.metaData = metaData;
+        }
+
+        @Override
+        public String getName()
+        {
+            return metaData.getName();
+        }
+
+        @Override
+        public String getNextArgumentName()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void checkValidArgument(Argument arg)
+        {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void checkAllArgumentsSet(Set<String> argNames)
+        {
+            // TODO Auto-generated method stub
+        }
     }
 
-    @Override
-    public void checkAllArgumentsSet(Set<String> argNames)
+    private static final class StrategyAddressingMode implements Strategy
     {
-        // TODO Auto-generated method stub
-    }
-}
+        private final MetaAddressingMode metaData;
 
-final class PrimitiveBuilderAddressingMode extends PrimitiveBuilder
-{
-    private final MetaAddressingMode metaData;
+        StrategyAddressingMode(MetaAddressingMode metaData)
+        {
+            if (null == metaData)
+                throw new NullPointerException();
 
-    PrimitiveBuilderAddressingMode(MetaAddressingMode metaData)
-    {
-        super(Kind.MODE, metaData.getName());
-        this.metaData = metaData;
-    }
+            this.metaData = metaData;
+        }
 
-    @Override
-    public String getNextArgumentName()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
+        @Override
+        public String getName()
+        {
+            return metaData.getName();
+        }
 
-    @Override
-    public void checkValidArgument(Argument arg)
-    {
-        // TODO Auto-generated method stub
-        
-    }
+        @Override
+        public String getNextArgumentName()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-    @Override
-    public void checkAllArgumentsSet(Set<String> argNames)
-    {
-        // TODO Auto-generated method stub
-        
+        @Override
+        public void checkValidArgument(Argument arg)
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void checkAllArgumentsSet(Set<String> argNames)
+        {
+            // TODO Auto-generated method stub
+            
+        }
     }
 }

@@ -150,7 +150,7 @@ public final class Template
         if (null == metaData)
             throw new IllegalArgumentException("No such instruction: " + name);
 
-        return PrimitiveBuilder.newInstructionBuilder(metaData);
+        return new PrimitiveBuilder(metaData);
     }
 
     public PrimitiveBuilder newOperationBuilder(
@@ -163,7 +163,7 @@ public final class Template
         if (null == metaData)
             throw new IllegalArgumentException("No such operation: " + name);
 
-        return PrimitiveBuilder.newOperationBuilder(metaData);
+        return new PrimitiveBuilder(metaData);
     }
 
     public PrimitiveBuilder newAddressingModeBuilder(String name)
@@ -176,7 +176,7 @@ public final class Template
             throw new IllegalArgumentException(
                  "No such addressing mode: " + name);
 
-        return PrimitiveBuilder.newAddressingModeBuilder(metaData);
+        return new PrimitiveBuilder(metaData);
     }
 
     private static void _trace(String s)
