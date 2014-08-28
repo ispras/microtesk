@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -24,7 +24,7 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import java.util.Collection;
+import java.util.Set;
 
 /**
  * The MetaArgument class describes instruction arguments.
@@ -35,10 +35,16 @@ import java.util.Collection;
 public final class MetaArgument implements MetaData
 {
     private final String name;
-    private final Collection<String> typeNames; 
+    private final Set<String> typeNames; 
 
-    public MetaArgument(String name, Collection<String> typeNames)
+    public MetaArgument(String name, Set<String> typeNames)
     {
+        if (name == null)
+            throw new NullPointerException();
+
+        if (null == typeNames)
+            throw new NullPointerException();
+
         this.name  = name;
         this.typeNames = typeNames;
     }
@@ -56,14 +62,28 @@ public final class MetaArgument implements MetaData
     }
 
     /**
-     * Returns an iterator for the collection of type names associated with the argument.  
+     * Returns an iterator for the collection of type names associated
+     * with the argument.  
      * 
-     * @return An Iterable object that refers to the collection of type names
-     *         (e.g. addressing mode names).
+     * @return An Iterable object that refers to the collection of
+     * type names (e.g. addressing mode names).
      */
 
     public Iterable<String> getTypeNames()
     {
         return typeNames;
+    }
+
+    /**
+     * Checks whether if the specified type is accepted for the argument. 
+     * 
+     * @param typeName Type name.
+     * @return {@code true} if the specified type is accepted for the argument
+     * of {@code false} otherwise. 
+     */
+
+    public boolean isTypeAccepted(String typeName)
+    {
+        return typeNames.contains(typeName);
     }
 }

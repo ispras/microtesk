@@ -29,8 +29,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
@@ -122,8 +124,8 @@ public abstract class InstructionBase implements IInstructionEx
 
         for (ParamDecl p : params)
         {
-            final List<String> typeNames = 
-                new ArrayList<String>(p.info.getMetaData().size());
+            final Set<String> typeNames = 
+                new LinkedHashSet<String>(p.info.getMetaData().size());
 
             for (MetaAddressingMode am : p.info.getMetaData())
                 typeNames.add(am.getName());

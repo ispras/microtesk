@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
@@ -183,6 +184,10 @@ public final class PrimitiveBuilder
 
         private static final String ERR_UNDEFINED_ARGUMENT =
             "The %s instruction does not have an argument called %s.";
+        
+        private static final String ERR_IMM_NOT_ACCEPTED =
+            "Immediate values are not accepted for the %s argument of " + 
+            "the %s instruction.";
 
         private final MetaInstruction metaData;
 
@@ -228,6 +233,14 @@ public final class PrimitiveBuilder
             if (null == metaArgument)
                 throw new IllegalStateException(String.format(
                     ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
+            
+            if (arg.getKind().isImmediate())
+            {
+                if (!metaArgument.isTypeAccepted(AddressingModeImm.NAME))
+                    throw new IllegalStateException(String.format(
+                        ERR_IMM_NOT_ACCEPTED, arg.getName(), getName()));
+                return;
+            }
 
             // TODO Auto-generated method stub
         }
@@ -254,6 +267,10 @@ public final class PrimitiveBuilder
 
         private static final String ERR_UNDEFINED_ARGUMENT =
             "The %s operation does not have an argument called %s.";
+        
+        private static final String ERR_IMM_NOT_ACCEPTED =
+            "Immediate values are not accepted for the %s argument of " + 
+            "the %s operation.";
 
         private final MetaOperation metaData;
 
@@ -300,6 +317,14 @@ public final class PrimitiveBuilder
                 throw new IllegalStateException(String.format(
                     ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
 
+            if (arg.getKind().isImmediate())
+            {
+                if (!metaArgument.isTypeAccepted(AddressingModeImm.NAME))
+                    throw new IllegalStateException(String.format(
+                        ERR_IMM_NOT_ACCEPTED, arg.getName(), getName()));
+                return;
+            }
+            
             // TODO Auto-generated method stub
         }
 

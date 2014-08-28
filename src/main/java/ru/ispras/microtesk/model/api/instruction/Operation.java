@@ -29,8 +29,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -92,7 +94,7 @@ public abstract class Operation implements IOperation
         public MetaArgument getMetaData()
         {
             return new MetaArgument(
-                name, Collections.singletonList(AddressingModeImm.NAME));
+                name, Collections.singleton(AddressingModeImm.NAME));
         }
     }
 
@@ -126,13 +128,13 @@ public abstract class Operation implements IOperation
         @Override
         public MetaArgument getMetaData()
         {
-            final List<String> modeNames =
-                new ArrayList<String>(info.getMetaData().size());
+            final Set<String> modeNames =
+                new LinkedHashSet<String>(info.getMetaData().size());
 
             for (MetaAddressingMode mode : info.getMetaData())
                 modeNames.add(mode.getName());
 
-             return new MetaArgument(name, modeNames);
+            return new MetaArgument(name, modeNames);
         }
     }
 
@@ -166,8 +168,8 @@ public abstract class Operation implements IOperation
         @Override
         public MetaArgument getMetaData()
         {
-            final List<String> opNames =
-                new ArrayList<String>(info.getMetaData().size());
+            final Set<String> opNames =
+                new LinkedHashSet<String>(info.getMetaData().size());
 
             for (MetaOperation op : info.getMetaData())
                 opNames.add(op.getName());
