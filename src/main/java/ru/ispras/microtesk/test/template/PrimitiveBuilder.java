@@ -26,6 +26,7 @@ package ru.ispras.microtesk.test.template;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -177,7 +178,13 @@ public final class PrimitiveBuilder
         private static final String ERR_UNASSIGNED_ARGUMENT = 
             "The %s argument of the %s instruction is not assigned.";
 
+        private static final String ERR_NO_MORE_ARGUMENTS = 
+            "Too many arguments. The %s instruction has only %d arguments.";
+
         private final MetaInstruction metaData;
+
+        private int argumentCount;
+        private final Iterator<MetaArgument> argumentIterator;
 
         private StrategyInstruction(MetaInstruction metaData)
         {
@@ -185,6 +192,9 @@ public final class PrimitiveBuilder
                 throw new NullPointerException();
 
             this.metaData = metaData;
+
+            this.argumentCount = 0;
+            this.argumentIterator = metaData.getArguments().iterator();
         }
 
         @Override
@@ -196,8 +206,14 @@ public final class PrimitiveBuilder
         @Override
         public String getNextArgumentName()
         {
-            // TODO Auto-generated method stub
-            return null;
+            if (!argumentIterator.hasNext())
+                throw new IllegalStateException(String.format(
+                    ERR_NO_MORE_ARGUMENTS, getName(), argumentCount));
+
+            final MetaArgument argument = argumentIterator.next();
+            argumentCount++;
+
+            return argument.getName();
         }
 
         @Override
@@ -223,7 +239,13 @@ public final class PrimitiveBuilder
         private static final String ERR_UNASSIGNED_ARGUMENT = 
             "The %s argument of the %s operation is not assigned.";
 
+        private static final String ERR_NO_MORE_ARGUMENTS = 
+            "Too many arguments. The %s operation has only %d arguments.";
+
         private final MetaOperation metaData;
+
+        private int argumentCount;
+        private final Iterator<MetaArgument> argumentIterator;
 
         StrategyOperation(MetaOperation metaData)
         {
@@ -231,6 +253,9 @@ public final class PrimitiveBuilder
                 throw new NullPointerException();
 
             this.metaData = metaData;
+
+            this.argumentCount = 0;
+            this.argumentIterator = metaData.getArguments().iterator();
         }
 
         @Override
@@ -242,8 +267,14 @@ public final class PrimitiveBuilder
         @Override
         public String getNextArgumentName()
         {
-            // TODO Auto-generated method stub
-            return null;
+            if (!argumentIterator.hasNext())
+                throw new IllegalStateException(String.format(
+                    ERR_NO_MORE_ARGUMENTS, getName(), argumentCount));
+
+            final MetaArgument argument = argumentIterator.next();
+            argumentCount++;
+
+            return argument.getName();
         }
 
         @Override
@@ -259,7 +290,7 @@ public final class PrimitiveBuilder
             {
                 if (!argNames.contains(arg.getName()))
                     throw new IllegalStateException(String.format(
-                         ERR_UNASSIGNED_ARGUMENT, arg.getName(), getName()));
+                        ERR_UNASSIGNED_ARGUMENT, arg.getName(), getName()));
             }
         }
     }
@@ -269,7 +300,13 @@ public final class PrimitiveBuilder
         private static final String ERR_UNASSIGNED_ARGUMENT = 
             "The %s argument of the %s addressing mode is not assigned.";
 
+        private static final String ERR_NO_MORE_ARGUMENTS = 
+            "Too many arguments. The %s addressing mode has only %d arguments.";
+
         private final MetaAddressingMode metaData;
+
+        private int argumentCount;
+        private final Iterator<String> argumentNameIterator;
 
         StrategyAddressingMode(MetaAddressingMode metaData)
         {
@@ -277,6 +314,9 @@ public final class PrimitiveBuilder
                 throw new NullPointerException();
 
             this.metaData = metaData;
+
+            this.argumentCount = 0;
+            this.argumentNameIterator = metaData.getArgumentNames().iterator();
         }
 
         @Override
@@ -288,8 +328,14 @@ public final class PrimitiveBuilder
         @Override
         public String getNextArgumentName()
         {
-            // TODO Auto-generated method stub
-            return null;
+            if (!argumentNameIterator.hasNext())
+                throw new IllegalStateException(String.format(
+                    ERR_NO_MORE_ARGUMENTS, getName(), argumentCount));
+
+            final String argumentName = argumentNameIterator.next();
+            argumentCount++;
+
+            return argumentName;
         }
 
         @Override
@@ -306,7 +352,7 @@ public final class PrimitiveBuilder
             {
                 if (!argNames.contains(argName))
                     throw new IllegalStateException(String.format(
-                         ERR_UNASSIGNED_ARGUMENT, argName, getName()));
+                        ERR_UNASSIGNED_ARGUMENT, argName, getName()));
             }
         }
     }
