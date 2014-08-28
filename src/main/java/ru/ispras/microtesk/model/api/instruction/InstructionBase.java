@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -116,7 +117,8 @@ public abstract class InstructionBase implements IInstructionEx
          Collection<ISituation.IInfo> situations
          )
     {
-        final Collection<MetaArgument> metaParams = new ArrayList<MetaArgument>();
+        final Map<String, MetaArgument> metaParams = 
+            new LinkedHashMap<String, MetaArgument>();
 
         for (ParamDecl p : params)
         {
@@ -126,7 +128,7 @@ public abstract class InstructionBase implements IInstructionEx
             for (MetaAddressingMode am : p.info.getMetaData())
                 typeNames.add(am.getName());
 
-            metaParams.add(new MetaArgument(p.name, typeNames));
+            metaParams.put(p.name, new MetaArgument(p.name, typeNames));
         }
 
         final List<MetaSituation> metaSituations = new ArrayList<MetaSituation>();

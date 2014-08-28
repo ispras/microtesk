@@ -210,12 +210,13 @@ public abstract class Operation implements IOperation
             return this;
         }
 
-        public Collection<MetaArgument> getMetaData()
+        public Map<String, MetaArgument> getMetaData()
         {
-            final List<MetaArgument> metaData = new ArrayList<MetaArgument>();
+            final Map<String, MetaArgument> metaData = 
+                new LinkedHashMap<String, MetaArgument>(decls.size());
 
             for (Param p : decls.values())
-                metaData.add(p.getMetaData());
+                metaData.put(p.getName(), p.getMetaData());
 
             return metaData;
         }

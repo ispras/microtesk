@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -25,6 +25,7 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * The MetaInstruction class stores information on the given instruction.
@@ -35,12 +36,12 @@ import java.util.Collection;
 public final class MetaInstruction implements MetaData
 {
     private final String name;
-    private final Collection<MetaArgument> args;
+    private final Map<String, MetaArgument> args;
     private final Collection<MetaSituation> situations;
 
     public MetaInstruction(
         String name,
-        Collection<MetaArgument> args,
+        Map<String, MetaArgument> args,
         Collection<MetaSituation> situations
         )
     {
@@ -69,7 +70,21 @@ public final class MetaInstruction implements MetaData
 
     public Iterable<MetaArgument> getArguments()
     {
-        return args;
+        return args.values();
+    }
+
+    /**
+     * Return an argument of the given instruction that has the
+     * specified name. 
+     * 
+     * @param name Argument name.
+     * @return Argument with the specified name or {@code null}
+     * if no such argument is defined.  
+     */
+
+    public MetaArgument getArgument(String name)
+    {
+        return args.get(name);
     }
 
     /**

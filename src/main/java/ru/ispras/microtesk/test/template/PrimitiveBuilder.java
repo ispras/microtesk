@@ -181,6 +181,9 @@ public final class PrimitiveBuilder
         private static final String ERR_NO_MORE_ARGUMENTS = 
             "Too many arguments. The %s instruction has only %d arguments.";
 
+        private static final String ERR_UNDEFINED_ARGUMENT =
+            "The %s instruction does not have an argument called %s.";
+
         private final MetaInstruction metaData;
 
         private int argumentCount;
@@ -219,6 +222,13 @@ public final class PrimitiveBuilder
         @Override
         public void checkValidArgument(Argument arg)
         {
+            final MetaArgument metaArgument =
+                metaData.getArgument(arg.getName());
+
+            if (null == metaArgument)
+                throw new IllegalStateException(String.format(
+                    ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
+
             // TODO Auto-generated method stub
         }
 
@@ -241,6 +251,9 @@ public final class PrimitiveBuilder
 
         private static final String ERR_NO_MORE_ARGUMENTS = 
             "Too many arguments. The %s operation has only %d arguments.";
+
+        private static final String ERR_UNDEFINED_ARGUMENT =
+            "The %s operation does not have an argument called %s.";
 
         private final MetaOperation metaData;
 
@@ -280,6 +293,13 @@ public final class PrimitiveBuilder
         @Override
         public void checkValidArgument(Argument arg)
         {
+            final MetaArgument metaArgument =
+                metaData.getArgument(arg.getName());
+
+            if (null == metaArgument)
+                throw new IllegalStateException(String.format(
+                    ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
+
             // TODO Auto-generated method stub
         }
 

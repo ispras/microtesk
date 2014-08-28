@@ -24,7 +24,6 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -37,12 +36,12 @@ import java.util.Map;
 public final class MetaOperation implements MetaData
 {
     private final String name;
-    private final Collection<MetaArgument> args;
+    private final Map<String, MetaArgument> args;
     private final Map<String, MetaShortcut> shortcuts;
 
     public MetaOperation(
         String name,
-        Collection<MetaArgument> args
+        Map<String, MetaArgument> args
         )
     {
         this(name, args, Collections.<String, MetaShortcut>emptyMap());
@@ -50,7 +49,7 @@ public final class MetaOperation implements MetaData
 
     public MetaOperation(
         String name,
-        Collection<MetaArgument> args,
+        Map<String, MetaArgument> args,
         Map<String, MetaShortcut> shortcuts
         )
     {
@@ -81,14 +80,28 @@ public final class MetaOperation implements MetaData
     }
 
     /**
-     * Returns an Iterable object for the collection of operation arguments. 
+     * Returns a collection of operation arguments. 
      * 
-     * @return Iterable object.
+     * @return Collection of operation arguments.
      */
 
     public Iterable<MetaArgument> getArguments()
     {
-        return args;
+        return args.values();
+    }
+
+    /**
+     * Return an argument of the given operation that has the
+     * specified name. 
+     * 
+     * @param name Argument name.
+     * @return Argument with the specified name or {@code null}
+     * if no such argument is defined.  
+     */
+
+    public MetaArgument getArgument(String name)
+    {
+        return args.get(name);
     }
 
     /**
