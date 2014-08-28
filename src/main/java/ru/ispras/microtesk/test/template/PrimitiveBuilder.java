@@ -185,8 +185,8 @@ public final class PrimitiveBuilder
         private static final String ERR_UNDEFINED_ARGUMENT =
             "The %s instruction does not have an argument called %s.";
         
-        private static final String ERR_IMM_NOT_ACCEPTED =
-            "Immediate values are not accepted for the %s argument of " + 
+        private static final String ERR_TYPE_NOT_ACCEPTED =
+            "The %s type is not accepted for the %s argument of " + 
             "the %s instruction.";
 
         private final MetaInstruction metaData;
@@ -233,16 +233,25 @@ public final class PrimitiveBuilder
             if (null == metaArgument)
                 throw new IllegalStateException(String.format(
                     ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
-            
+
+            final String typeName;
             if (arg.getKind().isImmediate())
             {
-                if (!metaArgument.isTypeAccepted(AddressingModeImm.NAME))
-                    throw new IllegalStateException(String.format(
-                        ERR_IMM_NOT_ACCEPTED, arg.getName(), getName()));
-                return;
+                typeName = AddressingModeImm.NAME;
+            }
+            else
+            {
+                if (arg.getValue() instanceof Primitive)
+                    throw new IllegalArgumentException();
+                typeName = ((Primitive) arg.getValue()).getName();
             }
 
-            // TODO Auto-generated method stub
+            if (!metaArgument.isTypeAccepted(typeName))
+                throw new IllegalStateException(String.format(
+                    ERR_TYPE_NOT_ACCEPTED,
+                    typeName,
+                    arg.getName(),
+                    getName()));
         }
 
         @Override
@@ -268,8 +277,8 @@ public final class PrimitiveBuilder
         private static final String ERR_UNDEFINED_ARGUMENT =
             "The %s operation does not have an argument called %s.";
         
-        private static final String ERR_IMM_NOT_ACCEPTED =
-            "Immediate values are not accepted for the %s argument of " + 
+        private static final String ERR_TYPE_NOT_ACCEPTED =
+            "The %s type is not accepted for the %s argument of " + 
             "the %s operation.";
 
         private final MetaOperation metaData;
@@ -317,15 +326,24 @@ public final class PrimitiveBuilder
                 throw new IllegalStateException(String.format(
                     ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
 
+            final String typeName;
             if (arg.getKind().isImmediate())
             {
-                if (!metaArgument.isTypeAccepted(AddressingModeImm.NAME))
-                    throw new IllegalStateException(String.format(
-                        ERR_IMM_NOT_ACCEPTED, arg.getName(), getName()));
-                return;
+                typeName = AddressingModeImm.NAME;
             }
-            
-            // TODO Auto-generated method stub
+            else
+            {
+                if (arg.getValue() instanceof Primitive)
+                    throw new IllegalArgumentException();
+                typeName = ((Primitive) arg.getValue()).getName();
+            }
+
+            if (!metaArgument.isTypeAccepted(typeName))
+                throw new IllegalStateException(String.format(
+                    ERR_TYPE_NOT_ACCEPTED,
+                    typeName,
+                    arg.getName(),
+                    getName()));
         }
 
         @Override
