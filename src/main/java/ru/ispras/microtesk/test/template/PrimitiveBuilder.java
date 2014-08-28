@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.test.template.Primitive.Kind;
@@ -41,11 +42,11 @@ public final class PrimitiveBuilder
         String getName();
         String getNextArgumentName();
         void checkValidArgument(Argument arg);
-        void checkAllArgumentsSet(Set<String> argNames);
+        void checkAllArgumentsAssigned(Set<String> argNames);
     }
 
     private final Strategy strategy;
-    private Kind kind;
+    private final Kind kind;
     private final Map<String, Argument> args;
 
     PrimitiveBuilder(MetaInstruction metaData)
@@ -77,9 +78,6 @@ public final class PrimitiveBuilder
 
     public Primitive build()
     {
-        if (null == kind)
-            throw new IllegalStateException("Kind is not specified.");
-  
         checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
         return new Primitive(kind, getName(), args);
     }
@@ -171,11 +169,14 @@ public final class PrimitiveBuilder
 
     private void checkAllArgumentsSet(Set<String> argNames)
     {
-        strategy.checkAllArgumentsSet(argNames); 
+        strategy.checkAllArgumentsAssigned(argNames); 
     }
 
     private static final class StrategyInstruction implements Strategy
     {
+        private static final String ERR_UNASSIGNED_ARGUMENT = 
+            "The %s argument of the %s instruction is not assigned.";
+
         private final MetaInstruction metaData;
 
         private StrategyInstruction(MetaInstruction metaData)
@@ -206,14 +207,22 @@ public final class PrimitiveBuilder
         }
 
         @Override
-        public void checkAllArgumentsSet(Set<String> argNames)
+        public void checkAllArgumentsAssigned(Set<String> argNames)
         {
-            // TODO Auto-generated method stub
+            for (MetaArgument arg : metaData.getArguments())
+            {
+                if (!argNames.contains(arg.getName()))
+                    throw new IllegalStateException(String.format(
+                         ERR_UNASSIGNED_ARGUMENT, arg.getName(), getName()));
+            }
         }
     }
 
     private static final class StrategyOperation implements Strategy
     {
+        private static final String ERR_UNASSIGNED_ARGUMENT = 
+            "The %s argument of the %s operation is not assigned.";
+
         private final MetaOperation metaData;
 
         StrategyOperation(MetaOperation metaData)
@@ -244,14 +253,22 @@ public final class PrimitiveBuilder
         }
 
         @Override
-        public void checkAllArgumentsSet(Set<String> argNames)
+        public void checkAllArgumentsAssigned(Set<String> argNames)
         {
-            // TODO Auto-generated method stub
+            for (MetaArgument arg : metaData.getArguments())
+            {
+                if (!argNames.contains(arg.getName()))
+                    throw new IllegalStateException(String.format(
+                         ERR_UNASSIGNED_ARGUMENT, arg.getName(), getName()));
+            }
         }
     }
 
     private static final class StrategyAddressingMode implements Strategy
     {
+        private static final String ERR_UNASSIGNED_ARGUMENT = 
+            "The %s argument of the %s addressing mode is not assigned.";
+
         private final MetaAddressingMode metaData;
 
         StrategyAddressingMode(MetaAddressingMode metaData)
@@ -283,10 +300,14 @@ public final class PrimitiveBuilder
         }
 
         @Override
-        public void checkAllArgumentsSet(Set<String> argNames)
+        public void checkAllArgumentsAssigned(Set<String> argNames)
         {
-            // TODO Auto-generated method stub
-            
+            for (String argName : metaData.getArgumentNames())
+            {
+                if (!argNames.contains(argName))
+                    throw new IllegalStateException(String.format(
+                         ERR_UNASSIGNED_ARGUMENT, argName, getName()));
+            }
         }
     }
 }
