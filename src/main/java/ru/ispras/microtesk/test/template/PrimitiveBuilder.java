@@ -302,6 +302,9 @@ public final class PrimitiveBuilder
 
         private static final String ERR_NO_MORE_ARGUMENTS = 
             "Too many arguments. The %s addressing mode has only %d arguments.";
+        
+        private static final String ERR_UNDEFINED_ARGUMENT =
+             "The %s addressing mode does not have an argument called %s.";   
 
         private final MetaAddressingMode metaData;
 
@@ -341,8 +344,11 @@ public final class PrimitiveBuilder
         @Override
         public void checkValidArgument(Argument arg)
         {
+            if (!metaData.isArgumentDefined(arg.getName()))
+                throw new IllegalStateException(String.format(
+                    ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
+
             // TODO Auto-generated method stub
-            
         }
 
         @Override

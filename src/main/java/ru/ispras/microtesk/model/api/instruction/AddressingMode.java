@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -120,11 +121,11 @@ public abstract class AddressingMode implements IAddressingMode
         {
             if (null == metaData)
                 metaData = createMetaData(name, decls.keySet());
-            
+
             return metaData;
         }
-        
-        private static Collection<MetaAddressingMode> createMetaData(String name, Collection<String> argumentNames)
+
+        private static Collection<MetaAddressingMode> createMetaData(String name, Set<String> argumentNames)
         {
             final MetaAddressingMode result =
                 new MetaAddressingMode(name, argumentNames);

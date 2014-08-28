@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -24,7 +24,7 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import java.util.Collection;
+import java.util.Set;
 
 /**
  * The MetaAddressingMode class holds information on the specified addressing mode.
@@ -35,9 +35,9 @@ import java.util.Collection;
 public final class MetaAddressingMode implements MetaData
 {
     private final String name;
-    private final Collection<String> argumentNames; 
+    private final Set<String> argumentNames; 
 
-    public MetaAddressingMode(String name, Collection<String> argumentNames)
+    public MetaAddressingMode(String name, Set<String> argumentNames)
     {
         this.name = name;
         this.argumentNames = argumentNames;
@@ -64,5 +64,19 @@ public final class MetaAddressingMode implements MetaData
     public Iterable<String> getArgumentNames()
     {
         return argumentNames;
+    }
+
+    /**
+     * Checks whether the addressing mode has an argument with
+     * the specified name.
+     * 
+     * @param name Argument name.
+     * @return {@code true} if the argument is defined of {@code false}
+     * otherwise.  
+     */
+
+    public boolean isArgumentDefined(String name)
+    {
+        return argumentNames.contains(name);
     }
 }
