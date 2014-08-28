@@ -191,7 +191,7 @@ class Template
   end
 
   def rand(from, to)
-    if !from.is_a?(Integer) or !to.is_a?(to)
+    if !from.is_a?(Integer) or !to.is_a?(Integer)
       raise MTRubyError, "from #{from} and to #{to} must be integers." 
     end
     engine.newRandom from, to
