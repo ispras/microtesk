@@ -48,6 +48,14 @@ public final class CallBuilder
 
     public void setRootOperation(Primitive rootOperation)
     {
+        if (null == rootOperation)
+            throw new NullPointerException();
+
+        if (rootOperation.getKind() != Primitive.Kind.OP && 
+            rootOperation.getKind() != Primitive.Kind.INSTR)
+            throw new IllegalArgumentException(
+                "Illegal kind: " + rootOperation.getKind());
+
         this.rootOperation = rootOperation;
     }
 

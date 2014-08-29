@@ -63,6 +63,8 @@ public final class Template
 
     public IIterator<Sequence<Call>> build()
     {
+        endBuildingCall();
+        
         _header("End Template");
 
         if (null != sequences)
@@ -141,9 +143,9 @@ public final class Template
         callBuilder.setSituation(name);
     }
 
-    public CallBuilder getCurrentCallBuilder()
+    public void setRootOperation(Primitive rootOperation)
     {
-        return callBuilder;
+        callBuilder.setRootOperation(rootOperation);
     }
 
     public void endBuildingCall()
@@ -151,7 +153,10 @@ public final class Template
         final Call call = callBuilder.build();
         blockBuilders.peek().addCall(call);
 
-        _trace(String.format("Ended building a call (Empty = %b)", call.isEmpty()));
+        _trace(String.format(
+            "Ended building a call (empty = %b, executable = %b)",
+             call.isEmpty(), call.isExecutable()));
+
         this.callBuilder = new CallBuilder();
     }
 
