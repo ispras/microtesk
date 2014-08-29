@@ -225,21 +225,16 @@ class Template
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance(@@model)
 
-    puts
-    puts "--------------------------------- Start build ----------------------------------"
-    puts
+    engine.setFileName      filename
+    engine.setLogExecution  log_execution
+    engine.setPrintToScreen use_stdout
+    engine.setCommentToken  sl_comment_starts_with
 
     @template = engine.newTemplate
     pre
     run
     post
-    @template.build
-
-    # Apply settings
-    engine.setFileName      filename
-    engine.setLogExecution  log_execution
-    engine.setPrintToScreen use_stdout
-    engine.setCommentToken  sl_comment_starts_with
+    sequence_it = @template.build
 
     block_builders = engine.getBlockBuilders 
     bl = @core_block.build engine.getBlockBuilders

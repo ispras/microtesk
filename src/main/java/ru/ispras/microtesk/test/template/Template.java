@@ -47,7 +47,7 @@ public final class Template
 
     public Template(MetaModel metaModel)
     {
-        _header("Begin Template");
+        _header("Started Processing Template");
 
         if (null == metaModel)
             throw new NullPointerException();
@@ -65,7 +65,7 @@ public final class Template
     {
         endBuildingCall();
         
-        _header("End Template");
+        _header("Ended Processing Template");
 
         if (null != sequences)
             throw new IllegalStateException("The template is already built.");

@@ -101,6 +101,10 @@ def define_instruction(i)
   #
 
   p = lambda do |*arguments, &situations|
+    # instruction = create_instruction inst_name, *arguments, &situations
+    # @template.setRootOperation instruction
+    # @template.endBuildingCall
+    # return instruction 
 
     inst = Instruction.new
     inst.name = inst_name
@@ -152,11 +156,13 @@ def define_addressing_mode(mode)
   mode_name = mode.getName().to_s
   mode_arg_names = mode.getArgumentNames().to_a
 
-  # puts "Defining mode #{mode_name}..."
+  #puts "Defining mode #{mode_name}..."
 
   @registered_modes[mode_name] = mode_arg_names
 
   p = lambda do |*arguments|
+    # return create_addressing_mode mode_name, *arguments 
+
     arg = Argument.new
     arg.mode = mode_name
 
@@ -205,6 +211,78 @@ def define_situation(situation)
     end
 
     define_method_for Instruction, situation_name, "situation", p
+  end
+end
+
+def create_addressing_mode(name, *args)
+  builder = @template.newAddressingModeBuilder name
+  build_primitive builder, args
+end
+
+def create_instruction(name, *args, &situations)
+  builder = @template.newInstructionBuilder name
+
+  if situations != nil
+    situation = (Instruction.new).instance_eval &situations
+    @template.setSituation situation.name
+  end
+
+  build_primitive builder, args
+end
+
+def build_primitive(builder, args)
+  if !args.is_a?(Array)
+    raise MTRubyError, "Arguments must be stored in an array."
+  end
+
+  if args.count == 1 and args.first.is_a?(Hash)
+    set_arguments_from_hash builder, args.first
+  else
+    set_arguments_from_array builder, args
+  end
+
+  builder.build
+end
+
+def set_arguments_from_hash(builder, args)
+  java_import Java::Ru.ispras.microtesk.test.template.RandomValueBuilder
+
+  labelIndex = 0
+  args.each_pair do |name, value|
+
+    if value.is_a? String or value.is_a? Symbol
+      labelName = value.to_s
+      value = labelIndex
+      labelIndex = labelIndex + 1
+      @template.addLabelReference labelName, name, value
+    elsif value.is_a? RandomValueBuilder
+      value = value.build
+    end
+
+    builder.setArgument name, value
+  end
+end
+
+def set_arguments_from_array(builder, args)
+  java_import Java::Ru.ispras.microtesk.test.template.RandomValueBuilder
+
+  labelIndex = 0
+  args.each do |value|
+
+    labelName = nil
+    if value.is_a? String or value.is_a? Symbol
+      labelName = value.to_s 
+      value = labelIndex
+      labelIndex = labelIndex + 1
+    elsif value.is_a? RandomValueBuilder
+      value = value.build    
+    end
+
+    name = builder.addArgument value
+
+    if nil != labelName
+      @template.addLabelReference labelName, name, value
+    end
   end
 end
 
