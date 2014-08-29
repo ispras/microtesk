@@ -51,7 +51,7 @@ public final class CallBuilder
         this.rootOperation = rootOperation;
     }
 
-    public void setTestSituation(String name)
+    public void setSituation(String name)
     {
         if (null == name)
             throw new NullPointerException();

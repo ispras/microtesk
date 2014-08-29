@@ -136,9 +136,9 @@ public final class Template
         callBuilder.addOutput(output);
     }
     
-    public void setTestSituation(String name)
+    public void setSituation(String name)
     {
-        callBuilder.setTestSituation(name);
+        callBuilder.setSituation(name);
     }
 
     public CallBuilder getCurrentCallBuilder()
