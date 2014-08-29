@@ -30,14 +30,16 @@ import java.util.List;
 public final class CallBuilder
 {
     private Primitive rootOperation;
+    private final List<LabelReference> labelRefs;
     private String situation;
-    
+
     private final List<Label> labels;
     private final List<Output> outputs;
 
     public CallBuilder()
     {
         this.rootOperation = null;
+        this.labelRefs = new ArrayList<LabelReference>();
         this.situation = null;
 
         this.labels = new ArrayList<Label>();
@@ -62,6 +64,14 @@ public final class CallBuilder
         labels.add(label);
     }
 
+    public void addLabelReference(LabelReference labelRef)
+    {
+        if (null == labelRef)
+            throw new NullPointerException();
+
+        labelRefs.add(labelRef);
+    }
+
     public void addOutput(Output output)
     {
         if (null == output)
@@ -74,6 +84,7 @@ public final class CallBuilder
     {
         return new Call(
             rootOperation,
+            labelRefs,
             situation,
             labels,
             outputs

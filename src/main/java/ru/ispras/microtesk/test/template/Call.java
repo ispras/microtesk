@@ -30,6 +30,7 @@ import java.util.List;
 public final class Call
 {
     private final Primitive rootOperation;
+    private final List<LabelReference> labelRefs;
     private final String situation;
 
     private final List<Label> labels;
@@ -37,12 +38,14 @@ public final class Call
 
     Call(
         Primitive rootOperation,
+        List<LabelReference> labelRefs,
         String situation,
         List<Label> labels,
         List<Output> outputs
         )
     {
         this.rootOperation = rootOperation;
+        this.labelRefs = Collections.unmodifiableList(labelRefs);
         this.situation = situation;
 
         this.labels = Collections.unmodifiableList(labels);
@@ -72,6 +75,11 @@ public final class Call
     public List<Label> getLabels()
     {
         return labels;
+    }
+
+    public List<LabelReference> getLabelReferences()
+    {
+        return labelRefs;
     }
 
     public List<Output> getOutputs()

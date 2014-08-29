@@ -112,14 +112,22 @@ public final class Template
 
     public Label addLabel(String name)
     {
-        if (null == name)
-            throw new NullPointerException();
-
         final Label label = new Label(name, getCurrentBlockId());
         _trace("Label: " + label.toString()); 
 
         callBuilder.addLabel(label);
         return label;
+    }
+
+    public void addLabelReference(
+        String labelName, String argName, int argValue)
+    {
+        final LabelReference labelRef = new LabelReference(
+            labelName, getCurrentBlockId(), argName, argValue);
+
+        _trace(labelRef.toString());
+
+        callBuilder.addLabelReference(labelRef);
     }
 
     public void addOutput(Output output)
