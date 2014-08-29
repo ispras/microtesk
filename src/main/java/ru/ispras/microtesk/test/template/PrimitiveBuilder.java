@@ -241,7 +241,7 @@ public final class PrimitiveBuilder
             }
             else
             {
-                if (arg.getValue() instanceof Primitive)
+                if (!arg.getValue() instanceof Primitive)
                     throw new IllegalArgumentException();
                 typeName = ((Primitive) arg.getValue()).getName();
             }
@@ -333,7 +333,7 @@ public final class PrimitiveBuilder
             }
             else
             {
-                if (arg.getValue() instanceof Primitive)
+                if (!arg.getValue() instanceof Primitive)
                     throw new IllegalArgumentException();
                 typeName = ((Primitive) arg.getValue()).getName();
             }

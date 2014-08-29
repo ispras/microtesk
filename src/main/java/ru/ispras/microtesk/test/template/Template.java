@@ -147,6 +147,8 @@ public final class Template
         if (null == name)
             throw new NullPointerException();
 
+        _trace("Instruction: " + name);
+
         final MetaInstruction metaData = metaModel.getInstruction(name);
         if (null == metaData)
             throw new IllegalArgumentException("No such instruction: " + name);
@@ -159,6 +161,8 @@ public final class Template
         if (null == name)
             throw new NullPointerException();
 
+        _trace(String.format("Operation: %s (context: %s)", name, contextName));
+
         final MetaOperation metaData = metaModel.getOperation(name);
         if (null == metaData)
             throw new IllegalArgumentException("No such operation: " + name);
@@ -166,7 +170,7 @@ public final class Template
         if (null != contextName)
         {
             final MetaShortcut metaShortcut =
-                 metaData.getShortcut(contextName);
+                metaData.getShortcut(contextName);
 
             if (null != metaShortcut)
                 new PrimitiveBuilder(metaShortcut.getOperation());
@@ -180,10 +184,12 @@ public final class Template
         if (null == name)
             throw new NullPointerException();
 
+        _trace("Addressing mode: " + name);
+
         final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
         if (null == metaData)
             throw new IllegalArgumentException(
-                 "No such addressing mode: " + name);
+                "No such addressing mode: " + name);
 
         return new PrimitiveBuilder(metaData);
     }
