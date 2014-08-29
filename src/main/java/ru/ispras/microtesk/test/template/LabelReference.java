@@ -121,7 +121,7 @@ public final class LabelReference
     public String toString()
     {
         return String.format(
-            "Reference %s (linked to argument %s with fake value %d)",
+            "Reference: %s (linked to argument %s with fake value %d)",
             reference,
             argumentName,
             argumentValue
