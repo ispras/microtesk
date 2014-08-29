@@ -53,6 +53,9 @@ public final class CallBuilder
 
     public void setTestSituation(String name)
     {
+        if (null == name)
+            throw new NullPointerException();
+
         situation = name;
     }
 

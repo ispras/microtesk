@@ -135,6 +135,11 @@ public final class Template
         _trace(output.toString());
         callBuilder.addOutput(output);
     }
+    
+    public void setTestSituation(String name)
+    {
+        callBuilder.setTestSituation(name);
+    }
 
     public CallBuilder getCurrentCallBuilder()
     {
