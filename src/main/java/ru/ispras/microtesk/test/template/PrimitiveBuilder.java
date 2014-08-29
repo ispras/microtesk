@@ -87,22 +87,25 @@ public final class PrimitiveBuilder
     ///////////////////////////////////////////////////////////////////////////
     // For Array-based syntax
 
-    public void addArgument(int value)
+    public String addArgument(int value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
+        return name;
     }
 
-    public void addArgument(RandomValue value)
+    public String addArgument(RandomValue value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
+        return name;
     }
 
-    public void addArgument(Primitive value)
+    public String addArgument(Primitive value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
+        return name;
     }
 
     ///////////////////////////////////////////////////////////////////////////
