@@ -12,7 +12,6 @@
 
 package ru.ispras.microtesk.test.data;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ import ru.ispras.fortress.solver.Environment;
 public class DataGenerator
 {
     private final IModel model;
-    private SequenceBuilder sequenceBuilder;
+    private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
     public DataGenerator(IModel model)
     {
@@ -77,7 +76,7 @@ public class DataGenerator
         assert null != abstractSequence;
         assert null == sequenceBuilder;
 
-        sequenceBuilder = new SequenceBuilder();
+        sequenceBuilder = new SequenceBuilder<ConcreteCall>();
 
         try
         {
@@ -212,51 +211,5 @@ public class DataGenerator
                 modeBuilder.setArgumentValue(modeArg.name, 0);
             }
         }
-    }
-}
-
-final class SequenceBuilder
-{
-    private final List<ConcreteCall> calls;
-    private final List<ConcreteCall> initialisingCalls;
-
-    public SequenceBuilder()
-    {
-        this.calls = new ArrayList<ConcreteCall>();
-        this.initialisingCalls = new ArrayList<ConcreteCall>();
-    }
-
-    public void addCall(ConcreteCall call)
-    {
-        assert null != call;
-        calls.add(call);
-    }
-
-    public void addCalls(List<ConcreteCall> calls)
-    {
-        assert null != calls;
-        calls.addAll(calls); 
-    }
-
-    public void addInitializingCall(ConcreteCall call)
-    {
-        assert null != call;
-        initialisingCalls.add(call);
-    }
-
-    public void addInitializingCalls(List<ConcreteCall> calls)
-    {
-        assert null != calls;
-        initialisingCalls.addAll(calls); 
-    }
-
-    public Sequence<ConcreteCall> build()
-    {
-        final Sequence<ConcreteCall> result = new Sequence<ConcreteCall>();
-
-        result.addAll(initialisingCalls);
-        result.addAll(calls);
-
-        return result;
     }
 }
