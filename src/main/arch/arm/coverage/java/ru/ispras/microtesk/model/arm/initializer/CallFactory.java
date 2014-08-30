@@ -90,7 +90,7 @@ final class CallFactory
         modeBuilder.setArgumentValue("r", registerIndex);
         modeBuilder.setArgumentValue("amount", 8);
 
-        return new ConcreteCall("MOV", null, callBuilder.getCall());
+        return new ConcreteCall(null, callBuilder.getCall());
     }
 
     /*
@@ -127,7 +127,7 @@ final class CallFactory
         immediateModeBuilder.setArgumentValue("r", 0);
         immediateModeBuilder.setArgumentValue("c", (int) value);
 
-        return new ConcreteCall("ADD_IMMEDIATE", null, callBuilder.getCall());
+        return new ConcreteCall(null, callBuilder.getCall());
     }
 
     /*
@@ -160,7 +160,7 @@ final class CallFactory
         callBuilder.getArgumentBuilder("src3")
                    .getModeBuilder(String.format("REGISTER%d", registerIndex));
 
-        return new ConcreteCall("EOR", null, callBuilder.getCall());
+        return new ConcreteCall(null, callBuilder.getCall());
     }
 
     private IInstructionCallBuilderEx createCallBuilder(

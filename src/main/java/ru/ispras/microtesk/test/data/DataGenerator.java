@@ -105,7 +105,6 @@ public class DataGenerator
             addArgumentToInstructionCall(argument, callBuilder);
 
         final ConcreteCall concreteCall = new ConcreteCall(
-            abstractCall.getName(),
             abstractCall.getAttributes(),
             callBuilder.getCall()
             );

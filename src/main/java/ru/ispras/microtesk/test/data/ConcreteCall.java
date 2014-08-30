@@ -29,24 +29,16 @@ import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public final class ConcreteCall
 {
-    private final String name;
     private final Map<String, Object> attributes;
     private final InstructionCall executable;
 
     public ConcreteCall(
-        String name,
         Map<String, Object> attributes,
         InstructionCall executable
         )
     {
-        this.name = name;
         this.attributes = attributes;
         this.executable = executable;
-    }
-
-    public String getName()
-    {
-        return name;
     }
 
     public Object getAttribute(String name)
