@@ -60,7 +60,7 @@ final class SequenceBuilder<TCall>
     {
         if (null == call)
             throw new NullPointerException();
-            
+
         initialisingCalls.add(call);
     }
 
@@ -68,7 +68,7 @@ final class SequenceBuilder<TCall>
     {
         if (null == calls)
             throw new NullPointerException();
-        
+
         initialisingCalls.addAll(calls); 
     }
 
