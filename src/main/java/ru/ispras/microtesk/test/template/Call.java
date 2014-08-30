@@ -30,25 +30,25 @@ import java.util.List;
 public final class Call
 {
     private final Primitive rootOperation;
-    private final List<LabelReference> labelRefs;
     private final String situation;
 
     private final List<Label> labels;
+    private final List<LabelReference> labelRefs;
     private final List<Output> outputs;
 
     Call(
         Primitive rootOperation,
-        List<LabelReference> labelRefs,
         String situation,
         List<Label> labels,
+        List<LabelReference> labelRefs,
         List<Output> outputs
         )
     {
         this.rootOperation = rootOperation;
-        this.labelRefs = Collections.unmodifiableList(labelRefs);
         this.situation = situation;
 
         this.labels = Collections.unmodifiableList(labels);
+        this.labelRefs = Collections.unmodifiableList(labelRefs);
         this.outputs = Collections.unmodifiableList(outputs);
     }
 
