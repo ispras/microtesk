@@ -79,6 +79,9 @@ public final class Template
 
     public IIterator<Sequence<Call>> getSequences()
     {
+        if (null == sequences)
+            build();
+
         return sequences;
     }
 
