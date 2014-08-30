@@ -80,6 +80,11 @@ public final class Argument
         this.value = value;
     }
 
+    public boolean isImmediate()
+    {
+        return kind.isImmediate();
+    }
+
     public String getName()
     {
         return name;
