@@ -30,19 +30,22 @@ import ru.ispras.microtesk.test.block.Situation;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.fortress.solver.Environment;
 
-public class DataGenerator
+public final class DataGenerator
 {
     private final IModel model;
     private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
     public DataGenerator(IModel model)
     {
+        if (null == model)
+            throw new NullPointerException();
+
         initializeSolverEngine();
-        
+
         this.model = model;
         this.sequenceBuilder = null;
     }
-    
+
     private void initializeSolverEngine()
     {
         final String MICROTESK_HOME = System.getenv().get("MICROTESK_HOME");
@@ -61,11 +64,9 @@ public class DataGenerator
         }
         else
         {
-            assert false :
-                String.format(
-                    "Unsupported platform. Please set up paths for the external engine. Platform: %s",
-                    System.getProperty("os.name")
-                    );
+            throw new IllegalStateException(String.format(
+                "Failed to initialize the solver engine. " + 
+                "Unsupported platform: %s", System.getProperty("os.name")));
         }
     }
 
