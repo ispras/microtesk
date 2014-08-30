@@ -234,7 +234,9 @@ class Template
     pre
     run
     post
-    sequence_it = @template.build
+    @template.build
+
+    engine.process @template
 
     block_builders = engine.getBlockBuilders 
     bl = @core_block.build engine.getBlockBuilders
