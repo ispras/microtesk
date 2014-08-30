@@ -35,6 +35,7 @@ import ru.ispras.microtesk.test.data.ConcreteCall;
 import ru.ispras.microtesk.test.data.DataGenerator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Template;
 
 public final class TestEngine
@@ -109,6 +110,52 @@ public final class TestEngine
                 printStageHeader(String.format("Printing sequence %d", sequenceNumber));
                 printer.printSequence(concreteSequence);
     
+                sequenceIt.next();
+                sequenceNumber++;
+            }
+        }
+        finally
+        {
+            printer.close();
+        }
+    }
+
+    public void process(Template template)
+        throws ConfigurationException, IOException
+    {
+        if (null == template)
+            throw new NullPointerException();
+
+        final IIterator<Sequence<Call>> sequenceIt =
+            template.getSequences();
+
+        final IModelStateObserver observer = model.getStateObserver();
+        // final Executor executor = new Executor(observer, logExecution);
+        final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
+
+        try
+        {
+            int sequenceNumber = 1;
+            sequenceIt.init();
+            while (sequenceIt.hasValue())
+            {
+                // final Sequence<Call> abstractSequence =
+                //    sequenceIt.value();
+
+                printStageHeader(String.format(
+                    "Generating data for sequence %d", sequenceNumber));
+
+                /*
+                final Sequence<ConcreteCall> concreteSequence =
+                    dataGenerator.generate(abstractSequence);
+    
+                printStageHeader(String.format("Executing sequence %d", sequenceNumber));
+                executor.executeSequence(concreteSequence);
+    
+                printStageHeader(String.format("Printing sequence %d", sequenceNumber));
+                printer.printSequence(concreteSequence);
+                */
+
                 sequenceIt.next();
                 sequenceNumber++;
             }
