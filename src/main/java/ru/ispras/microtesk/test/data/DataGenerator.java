@@ -73,9 +73,8 @@ public final class DataGenerator
     public Sequence<ConcreteCall> generate(
         Sequence<AbstractCall> abstractSequence) throws ConfigurationException
     {
-        assert null != model;
-        assert null != abstractSequence;
-        assert null == sequenceBuilder;
+        if (null == abstractSequence)
+            throw new NullPointerException();
 
         sequenceBuilder = new SequenceBuilder<ConcreteCall>();
 
