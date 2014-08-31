@@ -38,10 +38,8 @@ require_relative 'utils'
 module TemplateBuilder
 
 def self.define_runtime_methods(metamodel)
-
   # Initializing global variables
   $defined_situations = Set.new
-  @registered_modes   = Hash.new
 
   modes = metamodel.getAddressingModes
   modes.each { |mode| define_addressing_mode mode }
@@ -52,97 +50,21 @@ end
 
 private
 
-# 
-# Constants for Error Messages
-# 
-
-ERR_WRONG_MODE_ARG_NUMBER = 
-  "%s\nDescription: wrong arguments number for addressing mode '%s': %d while %d is expected"
-
-ERR_WRONG_MODE_ARG =
-  "%s\nDescription: wrong argument '%s' for addressing mode '%s'"
-
-ERR_WRONG_INST_ARG_NUMBER =
-  "%s\nDescription: wrong number of arguments for instruction '%s': %d while %d is expected" 
-
 #
+# Defines methods for instructions (added to the Template class)
 # 
-#
 def define_instruction(i)
-
   inst_name = i.getName.to_s
   #puts "Defining instruction #{inst_name}..."
 
-  # Methods for test situations (added to the Instruction class)
   situations = i.getSituations
   situations.each { |situation| define_situation situation }
-
-  #
-  # Generating convenient shortcuts for addressing modes
-  #
-
-  modes_for_args = Hash.new
-
-  inst_arguments = i.getArguments.to_a
-  inst_arguments.each_with_index do |arg, index|
-
-    modes_for_args[index] = Array.new
-
-    modes = arg.getTypeNames()
-    modes.each do |m|
-      mode_name = m.to_s
-      modes_for_args[index].push mode_name
-    end
-
-  end
-
-  #
-  # Generating convenient shortcuts for instructions
-  #
-
+ 
   p = lambda do |*arguments, &situations|
-    # instruction = create_instruction inst_name, *arguments, &situations
-    # @template.setRootOperation instruction
-    # @template.endBuildingCall
-    # return instruction 
-
-    inst = Instruction.new
-    inst.name = inst_name
-    inst.block_id = @template.getCurrentBlockId
-
-    if(inst_arguments.count != arguments.count)
-      raise MTRubyError, ERR_WRONG_INST_ARG_NUMBER % [caller[0], inst_name, arguments.count, inst_arguments.count]
-    end
-
-    arguments.each_with_index do |arg, ind|
-        
-      if arg.is_a? NoValue and !arg.is_immediate
-        a = Argument.new
-        a.mode = modes_for_args[ind].sample
-
-        @registered_modes[a.mode].each do |mode|
-          if arg.aug_value != nil
-            a.values[mode] = arg.aug_value
-          else
-            a.values[mode] = NoValue.new
-          end
-        end
-      else
-        a = arg
-      end
-
-      inst.arguments[inst_arguments[ind].getName()] = a
-
-    end
-
-    # TODO: The situation/composite must come at the end of a block for this to work.
-    # Is there a way to apply it if it's before the attributes?
-    if situations != nil
-      result = inst.instance_eval &situations
-      inst.situation(result)
-    end
-    
-    @instruction_receiver.receive(inst)
+    instruction = create_instruction inst_name, *arguments, &situations
+    @template.setRootOperation instruction
+    @template.endBuildingCall
+    instruction 
   end
 
   define_method_for Template, inst_name, "instruction", p
@@ -152,65 +74,28 @@ end
 # Defines methods for addressing modes (added to the Template class)
 # 
 def define_addressing_mode(mode)
-
   mode_name = mode.getName().to_s
-  mode_arg_names = mode.getArgumentNames().to_a
-
   #puts "Defining mode #{mode_name}..."
 
-  @registered_modes[mode_name] = mode_arg_names
-
   p = lambda do |*arguments|
-    # return create_addressing_mode mode_name, *arguments 
-
-    arg = Argument.new
-    arg.mode = mode_name
-
-    if arguments.first.is_a?(Integer) or arguments.first.is_a?(String) or arguments.first.is_a?(NoValue)
-
-      if arguments.count != mode_arg_names.count
-        raise MTRubyError, ERR_WRONG_MODE_ARG_NUMBER % [caller[0], mode_name, arguments.count, mode_arg_names.count]
-      end
-
-      arg.values = {}
-      arguments.each_with_index do |n, ind|
-        arg.values[mode_arg_names[ind]] = n
-      end
-
-    elsif arguments.first.is_a?(Hash)
-
-      argumentss = arguments.first
-      if(argumentss.count != mode_arg_names.count)
-        raise MTRubyError, ERR_WRONG_MODE_ARG_NUMBER % [caller[0], mode_name, argumentss.count, mode_arg_names.count]
-      end
-
-      argumentss.keys.each do |n|
-        if(!mode_arg_names.include?(n.to_s))
-          raise MTRubyError, ERR_WRONG_MODE_ARG % [caller[0], n, mode_name]
-        end
-      end
-
-      arg.values = argumentss
-    end
-
-    return arg
+    create_addressing_mode mode_name, *arguments 
   end
 
   define_method_for Template, mode_name, "mode", p
 end
 
 #
-# Defines methods for test situations (added to the Instruction class)
+# Defines methods for test situations (added to the Template class)
 #
 def define_situation(situation)
   situation_name = situation.getName.to_s
   if $defined_situations.add?(situation_name)
 
     p = lambda do
-      Situation.new(situation_name)
+      situation_name
     end
 
-    define_method_for Instruction, situation_name, "situation", p
+    define_method_for Template, situation_name, "situation", p
   end
 end
 
@@ -223,8 +108,8 @@ def create_instruction(name, *args, &situations)
   builder = @template.newInstructionBuilder name
 
   if situations != nil
-    situation = (Instruction.new).instance_eval &situations
-    @template.setSituation situation.name
+    situation = self.instance_eval &situations
+    @template.setSituation situation
   end
 
   build_primitive builder, args
@@ -259,7 +144,7 @@ def set_arguments_from_hash(builder, args)
       value = value.build
     end
 
-    builder.setArgument name, value
+    builder.setArgument name.to_s, value
   end
 end
 
