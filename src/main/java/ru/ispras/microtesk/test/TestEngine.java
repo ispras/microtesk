@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ISPRAS
+ * Copyright (c) 2013 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -29,27 +29,26 @@ import java.io.IOException;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.test.block.AbstractCall;
-import ru.ispras.microtesk.test.block.BlockBuilderFactory;
-import ru.ispras.microtesk.test.data.ConcreteCall;
 import ru.ispras.microtesk.test.data.DataGenerator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Template;
 
 public final class TestEngine
 {
     public static TestEngine getInstance(IModel model)
     {
+        if (null == model)
+            throw new NullPointerException();
+
         return new TestEngine(model);
     }
 
     private final IModel model;
-
-    private final BlockBuilderFactory blockBuilderFactory;
     private final DataGenerator dataGenerator;
-    
+
     // Settings
     private String       fileName = null;
     private boolean  logExecution = true; 
@@ -59,7 +58,6 @@ public final class TestEngine
     private TestEngine(IModel model)
     {
         this.model = model;
-        this.blockBuilderFactory = new BlockBuilderFactory();
         this.dataGenerator = new DataGenerator(model);
     }
 
@@ -68,57 +66,12 @@ public final class TestEngine
         return new Template(model.getMetaData());
     }
 
-    public BlockBuilderFactory getBlockBuilders()
-    {
-        return blockBuilderFactory;
-    }
-
     /*
        Processes sequence by sequence:
        1. Generate data (create concrete calls).
        2. Execute (simulate). 
        3. Print.
     */
-
-    public void process(IIterator<Sequence<AbstractCall>> sequenceIt)
-        throws ConfigurationException, IOException
-    {
-        if (null == sequenceIt)
-            throw new NullPointerException();
-
-        final IModelStateObserver observer = model.getStateObserver();
-
-        final Executor executor = new Executor(observer, logExecution);
-        final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
-
-        try
-        {
-            int sequenceNumber = 1;
-            sequenceIt.init();
-            while (sequenceIt.hasValue())
-            {
-                final Sequence<AbstractCall> abstractSequence =
-                    sequenceIt.value();
-    
-                printStageHeader(String.format("Generating data for sequence %d", sequenceNumber));
-                final Sequence<ConcreteCall> concreteSequence =
-                    dataGenerator.generate(abstractSequence);
-    
-                printStageHeader(String.format("Executing sequence %d", sequenceNumber));
-                executor.executeSequence(concreteSequence);
-    
-                printStageHeader(String.format("Printing sequence %d", sequenceNumber));
-                printer.printSequence(concreteSequence);
-    
-                sequenceIt.next();
-                sequenceNumber++;
-            }
-        }
-        finally
-        {
-            printer.close();
-        }
-    }
 
     public void process(Template template)
         throws ConfigurationException, IOException
@@ -130,8 +83,10 @@ public final class TestEngine
             template.getSequences();
 
         final IModelStateObserver observer = model.getStateObserver();
-        // final Executor executor = new Executor(observer, logExecution);
-        final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
+        final Executor executor = new Executor(observer, logExecution);
+
+        final Printer printer = new Printer(
+            fileName, observer, commentToken, printToScreen);
 
         try
         {
@@ -139,22 +94,24 @@ public final class TestEngine
             sequenceIt.init();
             while (sequenceIt.hasValue())
             {
-                // final Sequence<Call> abstractSequence =
-                //    sequenceIt.value();
+                final Sequence<Call> abstractSequence =
+                    sequenceIt.value();
 
                 printStageHeader(String.format(
                     "Generating data for sequence %d", sequenceNumber));
 
-                /*
                 final Sequence<ConcreteCall> concreteSequence =
                     dataGenerator.generate(abstractSequence);
     
-                printStageHeader(String.format("Executing sequence %d", sequenceNumber));
+                printStageHeader(String.format(
+                    "Executing sequence %d", sequenceNumber));
+
                 executor.executeSequence(concreteSequence);
-    
-                printStageHeader(String.format("Printing sequence %d", sequenceNumber));
+
+                printStageHeader(String.format(
+                    "Printing sequence %d", sequenceNumber));
+
                 printer.printSequence(concreteSequence);
-                */
 
                 sequenceIt.next();
                 sequenceNumber++;
