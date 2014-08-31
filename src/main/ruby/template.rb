@@ -26,7 +26,6 @@
 require_relative 'output'
 
 # Other dependencies
-require_relative 'constructs'
 require_relative 'template_builder'
 require_relative 'utils'
 
@@ -90,14 +89,6 @@ class Template
 
   def initialize
     super
-
-    # Important variables for core Template functionality
-    @core_block = InstructionBlock.new
-
-    @instruction_receiver = @core_block
-    @receiver_stack = [@core_block]
-
-    @final_sequences = Array.new
   end
 
   def self.template_classes
@@ -167,27 +158,13 @@ class Template
       blockBuilder.setAttribute(key.to_s, value)
     end
 
-
-    b = InstructionBlock.new
-    b.attributes = attributes
-
-    @receiver_stack.push b
-    @instruction_receiver = @receiver_stack.last
-
     self.instance_eval &contents
-
-    @receiver_stack.pop
-    @instruction_receiver = @receiver_stack.last
-
-    @instruction_receiver.receive b
-
 
     @template.endBlock
   end
 
   def label(name)
-    l = Label.new @template.addLabel(name) 
-    @instruction_receiver.receive l
+    @template.addLabel name 
   end
 
   def rand(from, to)
@@ -198,14 +175,12 @@ class Template
   end
 
   def add_output(o)
-    @template.addOutput o.java_object
-
-    @instruction_receiver.receive o
+    @template.addOutput o
   end
 
   # --- Special "no value" method ---
-  # Does not have a fully functional implementation.
-  # TODO: implement in the future.
+  # TODO: Not implemented. Left as a requirement. 
+  # Should be implemented in the future.
   #
   # def _(aug_value = nil)
   #   NoValue.new(aug_value)
@@ -237,12 +212,6 @@ class Template
     @template.build
 
     engine.process @template
-
-    block_builders = engine.getBlockBuilders 
-    bl = @core_block.build engine.getBlockBuilders
-    bl_iter = bl.getIterator
-
-    engine.process bl_iter
   end
 
 end
