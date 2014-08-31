@@ -33,7 +33,7 @@ import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.block.Argument;
-import ru.ispras.microtesk.test.data.ConcreteCall;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 
 public final class RegisterXInitializer implements IInitializerGenerator 

@@ -30,7 +30,7 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
 import ru.ispras.microtesk.test.block.Argument;
-import ru.ispras.microtesk.test.data.ConcreteCall;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /*
  * A GPR initialization is performed in the following way (a Ruby example):
