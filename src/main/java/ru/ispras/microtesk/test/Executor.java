@@ -27,12 +27,12 @@ package ru.ispras.microtesk.test;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.test.data.ConcreteCall;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
  * The role of the Executor class is to execute (simulate) sequences of 
@@ -76,8 +76,6 @@ public final class Executor
      * @param sequence Sequence of executable (concrete) instruction calls.
      * 
      * @throws NullPointerException if the parameter is <code>null</code>.
-     * @throws IllegalArgumentException if an attribute of a call in the
-     * sequence has an invalid format. 
      * @throws ConfigurationException if during the interaction with
      * the microprocessor model an error caused by an invalid format of 
      * the request has occurred (typically, it happens when evaluating an
@@ -95,9 +93,8 @@ public final class Executor
         final LabelManager labelManager = new LabelManager();
         for (int index = 0; index < sequence.size(); ++index)
         {
-            final ConcreteCall instr = sequence.get(index);
-            addToLabelManager(labelManager, instr.getAttribute("f_labels"), index + 1);
-            addToLabelManager(labelManager, instr.getAttribute("b_labels"), index);
+            final ConcreteCall call = sequence.get(index);
+            labelManager.addAllLabels(call.getLabels(), index);
         }
 
         int currentPos = 0;
@@ -105,31 +102,9 @@ public final class Executor
 
         while (currentPos < endPos)
         {
-            final ConcreteCall instr = sequence.get(currentPos);
-            currentPos = executeCall(labelManager, instr, currentPos);
+            final ConcreteCall call = sequence.get(currentPos);
+            currentPos = executeCall(labelManager, call, currentPos);
         }
-    }
-
-    /**
-     * Adds all labels packed into an object to a label manager
-     * (is the object is not equal to <code>null</code>).
-     * 
-     * @param labelManager Label manager the labels are to be added to.
-     * @param labels An object that is supposed to hold a list of labels. 
-     * @param position Position in a sequence the labels point to. 
-     * 
-     * @IllegalArgumentException is the <code>labels</code> object is not
-     * a list of the objects it contains are not labels.
-     */
-
-    private static void addToLabelManager(
-        LabelManager labelManager, Object labels, int position)
-    {
-        if (null == labels)
-            return;
-        
-        final List<?> labelList = toList(labels);
-        labelManager.addAllLabels(labelList, position);
     }
 
     /**
@@ -143,27 +118,27 @@ public final class Executor
      * call that immediately follows the current one.
      * 
      * @param labelManager Label manager to resolve label references. 
-     * @param instr Instruction call to be executed. 
+     * @param call Instruction call to be executed. 
      * @param currentPos Position of the current call.
      * @return Position of the next instruction call to be executed.
      * 
-     * @throws IllegalArgumentException if an attribute of the call
-     * has an invalid format.
      * @throws ConfigurationException if failed to evaluate an Output
      * object associated with the instruction call.
      */
 
     private int executeCall(
-        LabelManager labelManager, ConcreteCall instr, int currentPos)
+        LabelManager labelManager, ConcreteCall call, int currentPos)
         throws ConfigurationException
     {
-        logOutputs(instr.getAttribute("b_runtime"));
+        logOutputs(call.getOutputs());
 
-        final InstructionCall call = instr.getExecutable();
+        // If the call is not executable (contains only attributes like
+        // labels or outputs, but no "body"), continue to the next instruction.
+        if (!call.isExecutable())
+            return currentPos + 1;
+
         logText(call.getText());
         call.execute();
-
-        logOutputs(instr.getAttribute("f_runtime"));
 
         // TODO: Support instructions with 2+ labels (needs API)
         final int transferStatus = observer.getControlTransferStatus();
@@ -172,27 +147,19 @@ public final class Executor
         if (0 == transferStatus)
             return currentPos + 1;
 
-        final Object labels = instr.getAttribute("labels");
-        if (null == labels)
+        final List<LabelReference> labelRefs = call.getLabelReferences();
+        if (labelRefs.isEmpty())
         {
             logText(MSG_NO_LABEL_LINKED);
             return currentPos + 1;
         }
 
-        final List<?> labelList = toList(labels);
-        // List: [label, argument name associated with the label]
-        final List<?> labelEntry = toList(labelList.get(0));
+        final Label referenceLabel = labelRefs.get(0).getReference();
+        final LabelManager.Target target = labelManager.resolve(referenceLabel);
 
-        // targetLabel = inst.getAttribute("labels").first.first
-        final Label targetLabel = (Label) labelEntry.get(0);
-        if (null == targetLabel)
-            throw new IllegalArgumentException(
-                String.format(MSG_LABEL_IS_NULL, transferStatus));
-
-        final LabelManager.Target target = labelManager.resolve(targetLabel);
         if (null == target)
         {
-            logText(String.format(MSG_NO_LABEL_DEFINED, targetLabel.getName()));
+            logText(String.format(MSG_NO_LABEL_DEFINED, referenceLabel.getName()));
             return currentPos + 1;
         }
 
@@ -201,33 +168,24 @@ public final class Executor
     }
 
     /**
-     * Evaluates and prints the collection of {@link Output} objects
-     * packed into an Object instance if it is not equal to <code>null</code>.  
+     * Evaluates and prints the collection of {@link Output} objects.
      *  
-     * @param o List of {@link Output} objects packed into an Object instance.
+     * @param o List of {@link Output} objects.
      * 
-     * @throws IllegalArgumentException if the object is not a List or
-     * the objects it holds are not Output objects.
+     * @throws NullPointerException if the parameter is {@code null}.
      * @throws ConfigurationException if failed to evaluate the information
      * in an Output object due to an incorrect request to the model
      * state observer.
      */
 
-    private void logOutputs(Object o) throws ConfigurationException
+    private void logOutputs(List<Output> outputs) throws ConfigurationException
     {
-        if (null == o)
-            return;
+        if (null == outputs)
+            throw new NullPointerException();
 
-        final List<?> list = toList(o);
-        for (Object item : list)
-        {
-            if (!(item instanceof Output))
-                throw new IllegalArgumentException(
-                    item + " is not an Output object!");
-
-            final Output output = (Output) item;
-            logText(output.evaluate(observer));
-        }
+        for (Output output : outputs)
+            if (output.isRuntime())
+                logText(output.evaluate(observer));
     }
 
     /**
@@ -238,26 +196,8 @@ public final class Executor
 
     private void logText(String text)
     {
-        if (logExecution)
+        if (logExecution && (text != null && !text.isEmpty()))
             System.out.println(text);
-    }
-
-    /**
-     * Casts the specified object to a list (see the {@link List} class).
-     * 
-     * @param o Object to be cast to a list.
-     * @return Object cast to a list.
-     * 
-     * @throw IllegalArgumentException if the object is not a list 
-     */
-
-    private static List<?> toList(Object o)
-    {
-        if (!(o instanceof List))
-            throw new IllegalArgumentException(
-                o + " is not a List object.");
-
-        return (List<?>) o;
     }
 
     private static final String MSG_HAVE_TO_CONTINUE = 
@@ -270,7 +210,4 @@ public final class Executor
     private static final String MSG_NO_LABEL_DEFINED =
         "Warning: No label called %s is defined in the current sequence. " +
         MSG_HAVE_TO_CONTINUE;
-    
-    private static final String MSG_LABEL_IS_NULL =
-        "Label reference associated with transfer status %d is null.";
 }
