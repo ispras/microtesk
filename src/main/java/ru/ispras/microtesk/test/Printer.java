@@ -172,7 +172,7 @@ public final class Printer
 
     private void printText(String text)
     {
-        if (text != null && !text.isEmpty())
+        if (text != null)
         {
             printToScreen(text);
             printToFile(text);
