@@ -32,8 +32,8 @@ import java.util.List;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.test.data.ConcreteCall;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
 
@@ -100,8 +100,6 @@ public final class Printer
      * 
      * @param sequence Instruction call sequence.
      * @throws NullPointerException if the parameter is null.
-     * @throws IllegalArgumentException if a attribute of an instruction 
-     * call, which is used in test program generation has an invalid format.
      * @throws ConfigurationException if failed to evaluate one of
      * the output object associated with an instruction call in the
      * sequence.
@@ -115,11 +113,9 @@ public final class Printer
         printHeader();
         for (ConcreteCall inst : sequence)
         {
-            printOutputs(inst.getAttribute("b_output"));
-            printLabels(inst.getAttribute("b_labels"));
-            printText(inst.getExecutable().getText());
-            printLabels(inst.getAttribute("f_labels"));
-            printOutputs(inst.getAttribute("f_output"));
+            printOutputs(inst.getOutputs());
+            printLabels(inst.getLabels());
+            printText(inst.getText());
         }
     }
 
@@ -155,44 +151,32 @@ public final class Printer
         isHeaderPrinted = true;
     }
 
-    private void printOutputs(Object o) throws ConfigurationException
+    private void printOutputs(List<Output> outputs) throws ConfigurationException
     {
-        if (null == o)
-            return;
+        if (null == outputs)
+            throw new NullPointerException();
 
-        final List<?> list = toList(o);
-        for (Object item : list)
-        {
-            if (!(item instanceof Output))
-                throw new IllegalArgumentException(
-                    item + " is not an Output object!");
-
-            final Output output = (Output) item;
-            printText(output.evaluate(observer));
-        }
+        for (Output output : outputs)
+            if (!output.isRuntime())
+                printText(output.evaluate(observer));
     }
 
-    private void printLabels(Object o)
+    private void printLabels(List<Label> labels)
     {
-        if (null == o)
-            return;
+        if (null == labels)
+            throw new NullPointerException();
 
-        final List<?> list = toList(o);
-        for (Object item : list)
-        {
-            if (!(item instanceof Label))
-                throw new IllegalArgumentException(
-                    item + " is not a Label object!");
-
-            final Label label = (Label) item;
+        for (Label label: labels)
             printText(label.getUniqueName() + ":");
-        }
     }
 
     private void printText(String text)
     {
-        printToScreen(text);
-        printToFile(text);
+        if (text != null && !text.isEmpty())
+        {
+            printToScreen(text);
+            printToFile(text);
+        }
     }
 
     private void printToScreen(String text)
@@ -205,14 +189,5 @@ public final class Printer
     {
         if (null != fileWritter)
             fileWritter.println(text);
-    }
-
-    private static List<?> toList(Object o)
-    {
-        if (!(o instanceof List))
-            throw new IllegalArgumentException(
-                o + " is not a List object.");
-
-        return (List<?>) o;
     }
 }
