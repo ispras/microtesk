@@ -85,7 +85,7 @@ public final class ConcreteCall
 
     public String getText()
     {
-        return (null != executable) ? executable.getText() : "";
+        return isExecutable() ? executable.getText() : null;
     }
 
     public List<Label> getLabels()
