@@ -10,12 +10,18 @@
  * BlockTestCase.java, May 7, 2013 12:09:57 PM Andrei Tatarnikov
  */
 
+// TODO: This test is no longer needed because the "block" package 
+// is obsolete and will be removed. This test needs to be rewritten for
+// the "template" package. The code is commented out and is left here
+// only as a reminder.
+
 package ru.ispras.microtesk.test.block;
 
 // import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/*
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.block.Block;
 import ru.ispras.microtesk.test.block.BlockBuilder;
@@ -25,12 +31,14 @@ import ru.ispras.microtesk.test.sequence.ECombinator;
 import ru.ispras.microtesk.test.sequence.ECompositor;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+*/
 
 public class BlockTestCase
 {
     @Test
     public void test()
     {
+        /*
         final TestEngine testEngine = TestEngine.getInstance(null);
         final BlockBuilder blockBuilder = testEngine.getBlockBuilders().newBlockBuilder();
 
@@ -61,5 +69,6 @@ public class BlockTestCase
 
             ++index;
         }
+        */
     }
 }
