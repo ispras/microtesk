@@ -238,7 +238,7 @@ public final class PrimitiveBuilder
                     ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
 
             final String typeName;
-            if (arg.getKind().isImmediate())
+            if (arg.isImmediate())
             {
                 typeName = AddressingModeImm.NAME;
             }
@@ -330,7 +330,7 @@ public final class PrimitiveBuilder
                     ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
 
             final String typeName;
-            if (arg.getKind().isImmediate())
+            if (arg.isImmediate())
             {
                 typeName = AddressingModeImm.NAME;
             }
@@ -418,7 +418,7 @@ public final class PrimitiveBuilder
                 throw new IllegalStateException(String.format(
                     ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
 
-            if (!arg.getKind().isImmediate())
+            if (!arg.isImmediate())
                 throw new IllegalStateException(String.format(
                     ERR_WRONG_ARGUMENT_KIND,
                     arg.getKind(),

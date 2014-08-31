@@ -52,7 +52,7 @@ public final class Argument
                       ILLEGAL_CLASS, c.getSimpleName(), vc.getSimpleName()));
          }
 
-         public final boolean isImmediate()
+         private final boolean isImmediate()
          {
              return isImmediate;
          }
