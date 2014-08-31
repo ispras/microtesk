@@ -12,23 +12,22 @@
 
 package ru.ispras.microtesk.test.data;
 
-import java.util.List;
-import java.util.Map;
+import ru.ispras.fortress.solver.Environment;
 
 import ru.ispras.microtesk.model.api.IModel;
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
-import ru.ispras.microtesk.model.api.situation.ISituation;
-import ru.ispras.microtesk.test.block.AbstractCall;
-import ru.ispras.microtesk.test.block.Argument;
-import ru.ispras.microtesk.test.block.Situation;
 import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.fortress.solver.Environment;
+import ru.ispras.microtesk.test.template.Argument;
+import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.RandomValue;
 
 public final class DataGenerator
 {
@@ -71,7 +70,7 @@ public final class DataGenerator
     }
 
     public Sequence<ConcreteCall> generate(
-        Sequence<AbstractCall> abstractSequence) throws ConfigurationException
+        Sequence<Call> abstractSequence) throws ConfigurationException
     {
         if (null == abstractSequence)
             throw new NullPointerException();
@@ -80,7 +79,7 @@ public final class DataGenerator
 
         try
         {
-            for (AbstractCall abstractCall : abstractSequence)
+            for (Call abstractCall : abstractSequence)
                 processAbstractCall(abstractCall);
 
             return sequenceBuilder.build();
@@ -92,29 +91,44 @@ public final class DataGenerator
     }
 
     private void processAbstractCall(
-        AbstractCall abstractCall) throws ConfigurationException
+        Call abstractCall) throws ConfigurationException
     {
+        if (null == abstractCall)
+            throw new NullPointerException();
+        
+        if (!abstractCall.isExecutable())
+        {
+            sequenceBuilder.addCall(new ConcreteCall(abstractCall));
+            return;
+        }
+
+
+        final Primitive rootOperation =
+            abstractCall.getRootOperation();
+
+        System.out.println("Processing call: " + rootOperation.getName());
+
         final IInstruction instruction =
-            model.getInstruction(abstractCall.getName());
+            model.getInstruction(rootOperation.getName());
 
         final IInstructionCallBuilderEx callBuilder = 
             instruction.createCallBuilder();
 
-        for (Argument argument : abstractCall.getArguments().values())
+        for (Argument argument : rootOperation.getArguments().values())
             addArgumentToInstructionCall(argument, callBuilder);
 
         final ConcreteCall concreteCall = new ConcreteCall(
-            abstractCall.getAttributes(),
-            callBuilder.getCall()
-            );
+            abstractCall, callBuilder.getCall());
 
         sequenceBuilder.addCall(concreteCall);
 
-        final Situation situationInfo = abstractCall.getSituation();
-        if (null == situationInfo)
+        final String situationName = abstractCall.getSituation();
+        if (null == situationName)
             return;
 
-        System.out.printf("%nTrying to solve situation: %s%n", abstractCall.getSituation().getName());
+        System.out.printf("%nTrying to solve situation: %s%n", situationName);
+        
+        /*
         System.out.printf("for instruction '%s' (modes:", abstractCall.getName());
 
         for (Argument argument : abstractCall.getArguments().values())
@@ -158,8 +172,10 @@ public final class DataGenerator
 
             insertInitializingCalls(argument, entry.getValue());
         }
+        */
     }
 
+    /*
     private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
     {
         System.out.printf("Initializer: argument: %7s, mode: %10s, value: %s (%s) %n",
@@ -187,7 +203,7 @@ public final class DataGenerator
             )
         );
     }
-
+*/
     private static void addArgumentToInstructionCall(
         Argument argument,
         IInstructionCallBuilder callBuilder) throws ConfigurationException
@@ -195,20 +211,54 @@ public final class DataGenerator
         final IArgumentBuilder argumentBuilder = 
             callBuilder.getArgumentBuilder(argument.getName());
 
-        final IAddressingModeBuilder modeBuilder =
-            argumentBuilder.getModeBuilder(argument.getModeName());
-
-        for (Argument.ModeArg modeArg : argument.getModeArguments().values())
+        if (argument.isImmediate())
         {
-            if (!modeArg.isRandom)
+            final IAddressingModeBuilder modeBuilder =
+                argumentBuilder.getModeBuilder(AddressingModeImm.NAME);
+
+            if (argument.getKind() == Argument.Kind.IMM)
             {
-                modeBuilder.setArgumentValue(modeArg.name, modeArg.value);
+                modeBuilder.setArgumentValue(
+                    AddressingModeImm.PARAM_NAME, ((Integer)argument.getValue()));
+            }
+            else if (argument.getKind() == Argument.Kind.IMM_RANDOM)
+            {
+                modeBuilder.setArgumentValue(
+                    AddressingModeImm.PARAM_NAME, ((RandomValue)argument.getValue()).getValue());
             }
             else
             {
-                // TODO Generate a random value within the bounds.
-                // TODO Bounds are unknown, we use 0 as a default value.
-                modeBuilder.setArgumentValue(modeArg.name, 0);
+                throw new IllegalArgumentException(
+                    "Illegal argument kind: " + argument.getKind());
+            }
+
+            return;
+        }
+
+        if (argument.getKind() != Argument.Kind.MODE)
+            throw new IllegalArgumentException();
+
+        final Primitive mode = (Primitive) argument.getValue();
+
+        final IAddressingModeBuilder modeBuilder =
+            argumentBuilder.getModeBuilder(mode.getName());
+
+        for (Argument modeArg: mode.getArguments().values())
+        {
+            if (modeArg.getKind() == Argument.Kind.IMM)
+            {
+                modeBuilder.setArgumentValue(
+                    modeArg.getName(), ((Integer) modeArg.getValue()));
+            }
+            else if (modeArg.getKind() == Argument.Kind.IMM_RANDOM)
+            {
+                modeBuilder.setArgumentValue(
+                    modeArg.getName(), ((RandomValue) modeArg.getValue()).getValue());
+            }
+            else
+            {
+                throw new IllegalArgumentException(
+                    "Illegal argument kind: " + argument.getKind());
             }
         }
     }
