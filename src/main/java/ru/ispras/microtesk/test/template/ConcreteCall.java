@@ -72,9 +72,14 @@ public final class ConcreteCall
         this.executable = executable;
     }
 
+    public boolean isExecutable()
+    {
+        return null != executable;
+    }
+
     public void execute()
     {
-        if (null != executable)
+        if (isExecutable())
             executable.execute();
     }
 
