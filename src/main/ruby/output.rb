@@ -51,23 +51,6 @@ module Output
   #
   # Description:
   #
-  # The Output class is wrapper class that holds an instance of the Java Output
-  # class (ru.ispras.microtesk.test.template.Output) that holds information to
-  # be printed to the simulator output or to the test program. The class will
-  # become redundant when the generation logic will be implemented in Java. 
-  #  
-  class Output
-    # Returns the Java object Output.
-    attr_reader :java_object 
-  
-    def initialize(java_object)
-      @java_object = java_object
-    end
-  end
-
-  #
-  # Description:
-  #
   # The Location class describes an access to a specific location (register or
   # memory address) performed when prining data.
   #
@@ -148,8 +131,7 @@ module Output
       end  
     end
 
-    o = Output.new(builder.build)
-    add_output(o)
+    add_output builder.build
   end
 
 end # module Output
