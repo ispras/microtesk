@@ -47,7 +47,6 @@ class ArmDemo < Template
     trace "Euclidean Algorithm: Debug Output"
 
     (1..5).each do |it|
-
       i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
       j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
@@ -74,6 +73,7 @@ class ArmDemo < Template
       MOV blank, setsOff, REG(2), register0
 
       trace "\nResult stored in R2 (iteration #{it}): %d", getGPR(2)
+      newline
     end
   end
 
