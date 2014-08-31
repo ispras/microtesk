@@ -196,7 +196,7 @@ public final class Executor
 
     private void logText(String text)
     {
-        if (logExecution && (text != null && !text.isEmpty()))
+        if (logExecution && text != null)
             System.out.println(text);
     }
 
