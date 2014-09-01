@@ -32,8 +32,9 @@ import java.util.regex.Pattern;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.test.block.Argument;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 
 public final class RegisterXInitializer implements IInitializerGenerator 
@@ -48,7 +49,16 @@ public final class RegisterXInitializer implements IInitializerGenerator
     @Override
     public boolean isCompatible(Argument dest)
     {
-        final Matcher matcher = Pattern.compile("^REGISTER[\\d]{1,2}$").matcher(dest.getModeName());
+        if (null == dest)
+            throw new NullPointerException();
+
+        if (dest.getKind() != Argument.Kind.MODE)
+            return false;
+
+        final String modeName =
+            ((Primitive) dest.getValue()).getName();
+
+        final Matcher matcher = Pattern.compile("^REGISTER[\\d]{1,2}$").matcher(modeName);
         return matcher.matches();
     }
 
@@ -56,7 +66,9 @@ public final class RegisterXInitializer implements IInitializerGenerator
     public List<ConcreteCall> createInitializingCode(Argument dest, Data data) throws ConfigurationException
     {
         final List<ConcreteCall> result = new ArrayList<ConcreteCall>();
-        final int registerIndex = getRegisterIndex(dest.getModeName());
+
+        final String modeName = ((Primitive) dest.getValue()).getName();
+        final int registerIndex = getRegisterIndex(modeName);
 
         result.add(callFactory.createEOR(registerIndex));
 

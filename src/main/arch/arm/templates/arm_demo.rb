@@ -10,6 +10,8 @@ class ArmDemo < Template
   end
 
   def run
+    newline
+    
     # prints register state after initialization
     print_all_registers
 

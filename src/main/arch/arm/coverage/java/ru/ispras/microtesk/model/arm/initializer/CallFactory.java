@@ -29,8 +29,10 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
-import ru.ispras.microtesk.test.block.Argument;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.RandomValue;
 
 /*
  * A GPR initialization is performed in the following way (a Ruby example):
@@ -56,7 +58,9 @@ final class CallFactory
 
     public CallFactory(IModel model)
     {
-        assert null != model;
+        if (null == model)
+            throw new NullPointerException();
+
         this.model = model;
     }
 
@@ -72,13 +76,32 @@ final class CallFactory
 
     public final ConcreteCall createMOV(Argument dest) throws ConfigurationException
     {
-        final int registerIndex = dest.getModeArguments().get("r").value;
+        if (null == dest)
+            throw new NullPointerException();
+
+        if (dest.getKind() != Argument.Kind.MODE)
+            throw new IllegalArgumentException(String.format(
+                "%s is not a mode.", dest.getName()));
+
+        final Primitive mode = (Primitive) dest.getValue();
+        final Argument r = mode.getArguments().get("r");
+        
+        final int registerIndex;
+        
+        if (r.getKind() == Argument.Kind.IMM)
+            registerIndex = (Integer) r.getValue();
+        else if (r.getKind() == Argument.Kind.IMM_RANDOM)
+            registerIndex = ((RandomValue) r.getValue()).getCachedValue();
+        else
+            throw new IllegalArgumentException("Unsupported kind: " + r.getKind());
+
         return createMOV(registerIndex);
     }
 
     public final ConcreteCall createMOV(int registerIndex) throws ConfigurationException
     {
-        final IInstructionCallBuilderEx callBuilder = createCallBuilder("MOV", "blank", "setSoff");
+        final IInstructionCallBuilderEx callBuilder =
+            createCallBuilder("MOV", "blank", "setSoff");
 
         callBuilder.getArgumentBuilder("src1")
                    .getModeBuilder("REG")
@@ -90,7 +113,7 @@ final class CallFactory
         modeBuilder.setArgumentValue("r", registerIndex);
         modeBuilder.setArgumentValue("amount", 8);
 
-        return new ConcreteCall(null, callBuilder.getCall());
+        return new ConcreteCall(callBuilder.getCall());
     }
 
     /*
@@ -105,13 +128,31 @@ final class CallFactory
 
     public final ConcreteCall createADD_IMMEDIATE(Argument dest, byte value) throws ConfigurationException
     {
-        final int registerIndex = dest.getModeArguments().get("r").value;
+        if (null == dest)
+            throw new NullPointerException();
+
+        if (dest.getKind() != Argument.Kind.MODE)
+            throw new IllegalArgumentException(String.format(
+                "%s is not a mode.", dest.getName()));
+
+        final Primitive mode = (Primitive) dest.getValue();
+        final Argument r = mode.getArguments().get("r");
+        
+        final int registerIndex;
+        if (r.getKind() == Argument.Kind.IMM)
+            registerIndex = (Integer) r.getValue();
+        else if (r.getKind() == Argument.Kind.IMM_RANDOM)
+            registerIndex = ((RandomValue) r.getValue()).getCachedValue();
+        else
+            throw new IllegalArgumentException("Unsupported kind: " + r.getKind());
+
         return createADD_IMMEDIATE(registerIndex, value);
     }
 
     protected final ConcreteCall createADD_IMMEDIATE(int registerIndex, byte value) throws ConfigurationException
     {
-        final IInstructionCallBuilderEx callBuilder = createCallBuilder("ADD_IMMEDIATE", "blank", "setSoff");
+        final IInstructionCallBuilderEx callBuilder = 
+            createCallBuilder("ADD_IMMEDIATE", "blank", "setSoff");
 
         callBuilder.getArgumentBuilder("src1")
                    .getModeBuilder("REG")
@@ -120,14 +161,14 @@ final class CallFactory
         callBuilder.getArgumentBuilder("src2")
                    .getModeBuilder("REG")
                    .setArgumentValue("r", registerIndex);
-        
+
         final IAddressingModeBuilder immediateModeBuilder =
             callBuilder.getArgumentBuilder("src3").getModeBuilder("IMMEDIATE");
 
         immediateModeBuilder.setArgumentValue("r", 0);
         immediateModeBuilder.setArgumentValue("c", (int) value);
 
-        return new ConcreteCall(null, callBuilder.getCall());
+        return new ConcreteCall(callBuilder.getCall());
     }
 
     /*
@@ -141,13 +182,31 @@ final class CallFactory
 
     public final ConcreteCall createEOR(Argument dest) throws ConfigurationException
     {
-        final int registerIndex = dest.getModeArguments().get("r").value;
+        if (null == dest)
+            throw new NullPointerException();
+
+        if (dest.getKind() != Argument.Kind.MODE)
+            throw new IllegalArgumentException(String.format(
+                "%s is not a mode.", dest.getName()));
+
+        final Primitive mode = (Primitive) dest.getValue();
+        final Argument r = mode.getArguments().get("r");
+
+        final int registerIndex;
+        if (r.getKind() == Argument.Kind.IMM)
+            registerIndex = (Integer) r.getValue();
+        else if (r.getKind() == Argument.Kind.IMM_RANDOM)
+            registerIndex = ((RandomValue) r.getValue()).getCachedValue();
+        else
+            throw new IllegalArgumentException("Unsupported kind: " + r.getKind());
+
         return createEOR(registerIndex);
     }
-    
+
     public final ConcreteCall createEOR(int registerIndex) throws ConfigurationException
     {
-        final IInstructionCallBuilderEx callBuilder = createCallBuilder("EOR", "blank", "setSoff");
+        final IInstructionCallBuilderEx callBuilder =
+            createCallBuilder("EOR", "blank", "setSoff");
 
         callBuilder.getArgumentBuilder("src1")
                    .getModeBuilder("REG")
@@ -160,14 +219,16 @@ final class CallFactory
         callBuilder.getArgumentBuilder("src3")
                    .getModeBuilder(String.format("REGISTER%d", registerIndex));
 
-        return new ConcreteCall(null, callBuilder.getCall());
+        return new ConcreteCall(callBuilder.getCall());
     }
 
     private IInstructionCallBuilderEx createCallBuilder(
         String name, String cond, String sets) throws ConfigurationException
     {
         final IInstruction instruction = model.getInstruction(name);
-        final IInstructionCallBuilderEx callBuilder = instruction.createCallBuilder();
+        
+        final IInstructionCallBuilderEx callBuilder =
+            instruction.createCallBuilder();
 
         callBuilder.getArgumentBuilder("cond").getModeBuilder(cond);
         callBuilder.getArgumentBuilder("sets").getModeBuilder(sets);

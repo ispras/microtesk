@@ -28,7 +28,7 @@ import java.util.List;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.test.block.Argument;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 public interface IInitializerGenerator
@@ -36,5 +36,5 @@ public interface IInitializerGenerator
     public boolean isCompatible(Argument dest);
 
     public List<ConcreteCall> createInitializingCode(
-        Argument dest, Data data) throws ConfigurationException; 
+        ru.ispras.microtesk.test.template.Argument dest, Data data) throws ConfigurationException; 
 }

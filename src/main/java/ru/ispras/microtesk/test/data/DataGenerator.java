@@ -12,9 +12,13 @@
 
 package ru.ispras.microtesk.test.data;
 
+import java.util.List;
+import java.util.Map;
+
 import ru.ispras.fortress.solver.Environment;
 
 import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
@@ -22,6 +26,7 @@ import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilder;
 import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
+import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
@@ -102,9 +107,13 @@ public final class DataGenerator
             return;
         }
 
-
         final Primitive rootOperation =
             abstractCall.getRootOperation();
+        
+        if (rootOperation.getKind() != Primitive.Kind.INSTR)
+            throw new IllegalArgumentException(String.format(
+                "Wrong kind: %s. %s must be an instruction.",
+                rootOperation.getKind(), rootOperation.getName()));
 
         System.out.println("Processing call: " + rootOperation.getName());
 
@@ -127,23 +136,26 @@ public final class DataGenerator
             return;
 
         System.out.printf("%nTrying to solve situation: %s%n", situationName);
-        
-        /*
-        System.out.printf("for instruction '%s' (modes:", abstractCall.getName());
+        System.out.printf("for instruction '%s' (modes:", rootOperation.getName());
 
-        for (Argument argument : abstractCall.getArguments().values())
-            System.out.print(" " + argument.getModeName());
+        for (Argument argument : rootOperation.getArguments().values())
+        {
+            System.out.print(" ");
+            System.out.print(argument.isImmediate() ?
+               AddressingModeImm.PARAM_NAME :
+               ((Primitive) argument.getValue()).getName()); 
+        }
 
         System.out.println(")");
 
         final ISituation situation =
-            instruction.createSituation(situationInfo.getName());
-
+            instruction.createSituation(situationName);
+        
         // This is needed for situations like random that do not have a signature 
         // and generate values for any parameters the client code might request.
         // Other situations may ignore these calls.
 
-        for (Argument argument : abstractCall.getArguments().values())
+        for (Argument argument : rootOperation.getArguments().values())
             situation.setOutput(argument.getName());
 
         Map<String, Data> output = null;
@@ -155,32 +167,36 @@ public final class DataGenerator
         catch (ConfigurationException e)
         {
             System.out.printf("Warning! Failed to generate test data for the %s situation.\nReason: %s.\n",
-                situationInfo.getName(), e.getMessage());
+                situationName, e.getMessage());
 
             return;
         }
 
         for (Map.Entry<String, Data> entry : output.entrySet())
         {
-            final Argument argument = abstractCall.getArguments().get(entry.getKey());
+            final Argument argument = rootOperation.getArguments().get(entry.getKey());
 
             if (null == argument)
             {
-                System.out.printf("Argument %s is not defined for instruction %s.%n", entry.getKey(), abstractCall.getName());
+                System.out.printf("Argument %s is not defined for instruction %s.%n",
+                   entry.getKey(), rootOperation.getName());
                 continue;
             }
 
             insertInitializingCalls(argument, entry.getValue());
         }
-        */
     }
 
-    /*
+    
     private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
     {
-        System.out.printf("Initializer: argument: %7s, mode: %10s, value: %s (%s) %n",
+        final String argumentTypeName = argument.isImmediate() ?
+            AddressingModeImm.NAME : ((Primitive) argument.getValue()).getName();
+        
+        System.out.printf(
+            "Initializer: argument: %7s, mode: %10s, value: %s (%s) %n",
             argument.getName(),
-            argument.getModeName(),
+            argumentTypeName,
             Integer.toHexString(value.getRawData().intValue()),
             value.getRawData().toBinString()
         );
@@ -199,11 +215,11 @@ public final class DataGenerator
             String.format(
                 "Error! Failed to find an initializer generator for argument %s (addressing mode: %s).",
                  argument.getName(),
-                 argument.getModeName()
+                 argumentTypeName
             )
         );
     }
-*/
+
     private static void addArgumentToInstructionCall(
         Argument argument,
         IInstructionCallBuilder callBuilder) throws ConfigurationException

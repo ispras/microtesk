@@ -30,8 +30,9 @@ import java.util.List;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.test.block.Argument;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 
 public final class RegInitializer implements IInitializerGenerator 
@@ -46,7 +47,16 @@ public final class RegInitializer implements IInitializerGenerator
     @Override 
     public boolean isCompatible(Argument dest)
     {
-        return dest.getModeName().equals("REG");
+        if (null == dest)
+            throw new NullPointerException();
+
+        if (dest.getKind() != Argument.Kind.MODE)
+            return false;
+
+        final String modeName =
+            ((Primitive) dest.getValue()).getName();
+
+        return modeName.equals("REG");
     }
 
     @Override
