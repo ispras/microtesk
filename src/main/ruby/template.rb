@@ -182,21 +182,6 @@ class Template
   #   v.is_immediate = true
   #   v
   # end
- 
-  #
-  # Description:
-  #
-  # The Location class describes an access to a specific location (register or
-  # memory address) performed when prining data.
-  #
-  class Location
-    attr_reader :name, :index 
-      
-    def initialize(name, index)
-      @name  = name
-      @index = index
-    end
-  end
 
   #
   # Creates a location-based format argument for format-like output methods. 
@@ -291,3 +276,18 @@ class Template
   end
 
 end # Template
+
+#
+# Description:
+#
+# The Location class describes an access to a specific location (register or
+# memory address) performed when printing data.
+#
+class Location
+  attr_reader :name, :index 
+    
+  def initialize(name, index)
+    @name  = name
+    @index = index
+  end
+end # Location
