@@ -214,10 +214,15 @@ public final class Template
 
         return new PrimitiveBuilder(metaData);
     }
-    
+
     public RandomValueBuilder newRandom(int from, int to)
     {
         return new RandomValueBuilder(from, to);
+    }
+
+    public OutputBuilder newOutput(boolean isRuntime, String format)
+    {
+        return new OutputBuilder(isRuntime, format);
     }
 
     private static void _trace(String s)

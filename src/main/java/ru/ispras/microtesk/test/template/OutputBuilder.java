@@ -55,7 +55,7 @@ public final class OutputBuilder
      * @throws NullPointerException if the format parameter equals null.
      */
 
-    public OutputBuilder(boolean isRuntime, String format)
+    OutputBuilder(boolean isRuntime, String format)
     {
         if (null == format)
             throw new NullPointerException();

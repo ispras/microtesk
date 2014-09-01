@@ -22,10 +22,6 @@
 # limitations under the License.
 #
 
-# Mixins for the Template class
-require_relative 'output'
-
-# Other dependencies
 require_relative 'template_builder'
 require_relative 'utils'
 
@@ -78,11 +74,10 @@ module Settings
     @ml_comment_ends_with   = "*/"
   end
 
-end
+end # Settings
 
 class Template
   include Settings
-  include Output
 
   @@model = nil
   @@template_classes = Array.new
@@ -139,9 +134,9 @@ class Template
 
   end
 
-  # -------------------------------------------------- #
-  # Methods for template description facilities        #
-  # -------------------------------------------------- #
+  # ------------------------------------------------------------------------- #
+  # Methods for template description facilities                               #
+  # ------------------------------------------------------------------------- #
 
   def block(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
@@ -174,10 +169,6 @@ class Template
     @template.newRandom from, to
   end
 
-  def add_output(o)
-    @template.addOutput o
-  end
-
   # --- Special "no value" method ---
   # TODO: Not implemented. Left as a requirement. 
   # Should be implemented in the future.
@@ -191,10 +182,95 @@ class Template
   #   v.is_immediate = true
   #   v
   # end
+ 
+  #
+  # Description:
+  #
+  # The Location class describes an access to a specific location (register or
+  # memory address) performed when prining data.
+  #
+  class Location
+    attr_reader :name, :index 
+      
+    def initialize(name, index)
+      @name  = name
+      @index = index
+    end
+  end
 
-  # -------------------------------------------------- #
-  # Generation (Execution and Printing)                #
-  # -------------------------------------------------- #
+  #
+  # Creates a location-based format argument for format-like output methods. 
+  #
+  def location(name, index)
+    Location.new name, index
+  end
+
+  #
+  # Prints text into the simulator execution log.
+  #
+  def trace(format, *args)
+    print_format true, format, *args
+  end
+
+  # 
+  # Adds the new line character into the test program
+  #
+  def newline
+    text '' 
+  end
+
+  # 
+  # Adds text into the test program.
+  #
+  def text(format, *args)
+    print_format false, format, *args
+  end
+  
+  # 
+  # Adds a comment into the test program (uses sl_comment_starts_with).
+  #
+  def comment(format, *args)
+    text sl_comment_starts_with + format
+  end
+
+  #
+  # Starts a multi-line comment (uses sl_comment_starts_with)
+  #
+  def start_comment
+    text ml_comment_starts_with
+  end
+
+  #
+  # Ends a multi-line comment (uses ml_comment_ends_with)
+  #
+  def end_comment
+    text ml_comment_ends_with 
+  end
+
+  #
+  # Prints a format-based output to the simulator log or to the test program
+  # depending of the is_runtime flag.
+  #
+  def print_format(is_runtime, format, *args)
+    builder = @template.newOutput is_runtime, format
+
+    args.each do |arg|
+      if arg.is_a?(Integer) or arg.is_a?(String) or 
+         arg.is_a?(TrueClass) or arg.is_a?(FalseClass)
+         builder.addArgument arg
+      elsif arg.is_a?(Location)
+        builder.addArgument arg.name, arg.index 
+      else
+        raise MTRubyError, "Illegal format argument class #{arg.class}"
+      end  
+    end
+
+    @template.addOutput builder.build
+  end
+
+  # ------------------------------------------------------------------------- #
+  # Generation (Execution and Printing)                                       #
+  # ------------------------------------------------------------------------- #
 
   def generate(filename)
     java_import Java::Ru.ispras.microtesk.test.TestEngine
@@ -214,4 +290,4 @@ class Template
     engine.process @template
   end
 
-end
+end # Template
