@@ -125,7 +125,6 @@ class DemoTemplate < DemoPrepost
 #    my_group.all
       
     comment 'Main Section Ends'
-    newline
   end
 
 end
