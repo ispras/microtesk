@@ -58,6 +58,7 @@ public final class RandomValueBuilder
             return cachedValue;
         }
 
+        @Override
         public int getCachedValue()
         {
             if (!hasCachedValue)
@@ -91,6 +92,9 @@ public final class RandomValueBuilder
 
         @Override
         public int getValue() { return value.getCachedValue(); }
+
+        @Override
+        public int getCachedValue() { return getValue(); } 
 
         @Override
         public String toString()

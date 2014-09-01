@@ -29,4 +29,5 @@ public interface RandomValue
     int getMin();
     int getMax();
     int getValue();
+    int getCachedValue();
 }
