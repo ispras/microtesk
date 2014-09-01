@@ -130,8 +130,6 @@ def build_primitive(builder, args)
 end
 
 def set_arguments_from_hash(builder, args)
-  java_import Java::Ru.ispras.microtesk.test.template.RandomValueBuilder
-
   labelIndex = 0
   args.each_pair do |name, value|
 
@@ -140,8 +138,6 @@ def set_arguments_from_hash(builder, args)
       value = labelIndex
       labelIndex = labelIndex + 1
       @template.addLabelReference labelName, name, value
-    elsif value.is_a? RandomValueBuilder
-      value = value.build
     end
 
     builder.setArgument name.to_s, value
@@ -149,8 +145,6 @@ def set_arguments_from_hash(builder, args)
 end
 
 def set_arguments_from_array(builder, args)
-  java_import Java::Ru.ispras.microtesk.test.template.RandomValueBuilder
-
   labelIndex = 0
   args.each do |value|
 
@@ -159,8 +153,6 @@ def set_arguments_from_array(builder, args)
       labelName = value.to_s 
       value = labelIndex
       labelIndex = labelIndex + 1
-    elsif value.is_a? RandomValueBuilder
-      value = value.build    
     end
 
     name = builder.addArgument value

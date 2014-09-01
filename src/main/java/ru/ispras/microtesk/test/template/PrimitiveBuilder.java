@@ -94,7 +94,7 @@ public final class PrimitiveBuilder
         return name;
     }
 
-    public String addArgument(RandomValue value)
+    public String addArgument(RandomValueBuilder value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
@@ -121,7 +121,7 @@ public final class PrimitiveBuilder
         putArgument(arg);
     }
 
-    public void setArgument(String name, RandomValue value)
+    public void setArgument(String name, RandomValueBuilder value)
     {
         if (null == name)
             throw new NullPointerException();
@@ -129,7 +129,9 @@ public final class PrimitiveBuilder
         if (null == value)
             throw new NullPointerException();
 
-        final Argument arg = new Argument(name, Argument.Kind.IMM_RANDOM, value);
+        final Argument arg = 
+            new Argument(name, Argument.Kind.IMM_RANDOM, value.build());
+
         checkValidArgument(arg);
         putArgument(arg);
     }
