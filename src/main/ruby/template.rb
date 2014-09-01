@@ -171,7 +171,7 @@ class Template
     if !from.is_a?(Integer) or !to.is_a?(Integer)
       raise MTRubyError, "from #{from} and to #{to} must be integers." 
     end
-    engine.newRandom from, to
+    @template.newRandom from, to
   end
 
   def add_output(o)

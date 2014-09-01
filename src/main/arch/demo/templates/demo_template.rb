@@ -65,6 +65,11 @@ class DemoTemplate < DemoPrepost
     mov reg(2), imm(0xFF)
     mov reg(3), reg(2)
     newline
+    
+    # Random immediate values
+    mov reg(ri = rand(0, 15)), imm(5)
+    add reg(4), reg(ri)
+    newline
 
     #add m[10], r[15]                                     # Indexing register arrays
     #sub pc, pc do overflow(:op1 => 123, :op2 => 456) end # Situations with params
