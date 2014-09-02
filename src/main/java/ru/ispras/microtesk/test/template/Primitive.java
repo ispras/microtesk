@@ -38,11 +38,13 @@ public final class Primitive
     private final Kind kind;
     private final String name;
     private final Map<String, Argument> args;
+    private final String contextName;
 
     Primitive(
         Kind kind,
         String name,
-        Map<String, Argument> args
+        Map<String, Argument> args,
+        String contextName
         )
     {
         if (null == kind)
@@ -57,6 +59,7 @@ public final class Primitive
         this.kind = kind;
         this.name = name;
         this.args = args;
+        this.contextName = contextName;
     }
 
     public Kind getKind()
@@ -72,5 +75,10 @@ public final class Primitive
     public Map<String, Argument> getArguments()
     {
         return args;
+    }
+
+    public String getContextName()
+    {
+        return contextName;
     }
 }

@@ -227,12 +227,12 @@ public final class Template
            metaData.getShortcut(contextName);
 
         if (null != metaShortcut)
-            new PrimitiveBuilder(metaShortcut.getOperation());
+            new PrimitiveBuilder(metaShortcut.getOperation(), contextName);
 
         // If there is no shortcut for the given context,
         // the operation is used as it is.
 
-        return new PrimitiveBuilder(metaData);
+        return new PrimitiveBuilder(metaData, null);
     }
 
     public PrimitiveBuilder newAddressingModeBuilder(String name)

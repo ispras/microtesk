@@ -42,6 +42,7 @@ public final class PrimitiveBuilder
     private interface Strategy
     {
         String getName();
+        String getDescription();
         String getNextArgumentName();
         void checkValidArgument(Argument arg);
         void checkAllArgumentsAssigned(Set<String> argNames);
@@ -50,27 +51,29 @@ public final class PrimitiveBuilder
     private final Strategy strategy;
     private final Kind kind;
     private final Map<String, Argument> args;
+    private final String contextName;
 
     PrimitiveBuilder(MetaInstruction metaData)
     {
-        this(new StrategyInstruction(metaData), Kind.INSTR);
+        this(new StrategyInstruction(metaData), Kind.INSTR, null);
     }
 
-    PrimitiveBuilder(MetaOperation metaData)
+    PrimitiveBuilder(MetaOperation metaData, String contextName)
     {
-        this(new StrategyOperation(metaData), Kind.OP);
+        this(new StrategyOperation(metaData, contextName), Kind.OP, contextName);
     }
 
     PrimitiveBuilder(MetaAddressingMode metaData)
     {
-        this(new StrategyAddressingMode(metaData), Kind.MODE);
+        this(new StrategyAddressingMode(metaData), Kind.MODE, null);
     }
 
-    private PrimitiveBuilder(Strategy strategy, Kind kind)
+    private PrimitiveBuilder(Strategy strategy, Kind kind, String contextName)
     {
         this.strategy = strategy;
         this.kind = kind;
         this.args = new HashMap<String, Argument>();
+        this.contextName = contextName;
     }
 
     private void putArgument(Argument arg)
@@ -81,7 +84,7 @@ public final class PrimitiveBuilder
     public Primitive build()
     {
         checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
-        return new Primitive(kind, getName(), args);
+        return new Primitive(kind, getName(), args, contextName);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -178,22 +181,24 @@ public final class PrimitiveBuilder
     {
         strategy.checkAllArgumentsAssigned(argNames); 
     }
+    
+    private static final String ERR_UNASSIGNED_ARGUMENT = 
+        "The %s argument of %s is not assigned.";
+
+    private static final String ERR_NO_MORE_ARGUMENTS = 
+        "Too many arguments: %s has only %d arguments.";
+
+    private static final String ERR_UNDEFINED_ARGUMENT =
+        "The %s argument is not defined for %s.";
+    
+    private static final String ERR_TYPE_NOT_ACCEPTED =
+        "The %s type is not accepted for the %s argument of %s.";
+    
+    private static final String ERR_ARG_NOT_PRIMITIVE =
+        "The %s argument of %s is not a primitive (OP or MODE).";
 
     private static final class StrategyInstruction implements Strategy
     {
-        private static final String ERR_UNASSIGNED_ARGUMENT = 
-            "The %s argument of the %s instruction is not assigned.";
-
-        private static final String ERR_NO_MORE_ARGUMENTS = 
-            "Too many arguments. The %s instruction has only %d arguments.";
-
-        private static final String ERR_UNDEFINED_ARGUMENT =
-            "The %s instruction does not have an argument called %s.";
-        
-        private static final String ERR_TYPE_NOT_ACCEPTED =
-            "The %s type is not accepted for the %s argument of " + 
-            "the %s instruction.";
-
         private final MetaInstruction metaData;
 
         private int argumentCount;
@@ -217,11 +222,17 @@ public final class PrimitiveBuilder
         }
 
         @Override
+        public String getDescription()
+        {
+            return String.format("the %s instruction", getName());
+        }
+
+        @Override
         public String getNextArgumentName()
         {
             if (!argumentIterator.hasNext())
                 throw new IllegalStateException(String.format(
-                    ERR_NO_MORE_ARGUMENTS, getName(), argumentCount));
+                    ERR_NO_MORE_ARGUMENTS, getDescription(), argumentCount));
 
             final MetaArgument argument = argumentIterator.next();
             argumentCount++;
@@ -237,7 +248,7 @@ public final class PrimitiveBuilder
 
             if (null == metaArgument)
                 throw new IllegalStateException(String.format(
-                    ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
+                    ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
 
             final String typeName;
             if (arg.isImmediate())
@@ -247,7 +258,11 @@ public final class PrimitiveBuilder
             else
             {
                 if (!(arg.getValue() instanceof Primitive))
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException(String.format(
+                        ERR_ARG_NOT_PRIMITIVE,
+                        arg.getName(),
+                        getDescription()));
+
                 typeName = ((Primitive) arg.getValue()).getName();
             }
 
@@ -256,7 +271,7 @@ public final class PrimitiveBuilder
                     ERR_TYPE_NOT_ACCEPTED,
                     typeName,
                     arg.getName(),
-                    getName()));
+                    getDescription()));
         }
 
         @Override
@@ -266,37 +281,28 @@ public final class PrimitiveBuilder
             {
                 if (!argNames.contains(arg.getName()))
                     throw new IllegalStateException(String.format(
-                         ERR_UNASSIGNED_ARGUMENT, arg.getName(), getName()));
+                         ERR_UNASSIGNED_ARGUMENT,
+                         arg.getName(),
+                         getDescription()));
             }
         }
     }
 
     private static final class StrategyOperation implements Strategy
     {
-        private static final String ERR_UNASSIGNED_ARGUMENT = 
-            "The %s argument of the %s operation is not assigned.";
-
-        private static final String ERR_NO_MORE_ARGUMENTS = 
-            "Too many arguments. The %s operation has only %d arguments.";
-
-        private static final String ERR_UNDEFINED_ARGUMENT =
-            "The %s operation does not have an argument called %s.";
-        
-        private static final String ERR_TYPE_NOT_ACCEPTED =
-            "The %s type is not accepted for the %s argument of " + 
-            "the %s operation.";
-
         private final MetaOperation metaData;
+        private final String contextName;
 
         private int argumentCount;
         private final Iterator<MetaArgument> argumentIterator;
 
-        StrategyOperation(MetaOperation metaData)
+        StrategyOperation(MetaOperation metaData, String contextName)
         {
             if (null == metaData)
                 throw new NullPointerException();
 
             this.metaData = metaData;
+            this.contextName = contextName;
 
             this.argumentCount = 0;
             this.argumentIterator = metaData.getArguments().iterator();
@@ -309,11 +315,24 @@ public final class PrimitiveBuilder
         }
 
         @Override
+        public String getDescription()
+        {
+            final String basicDescription =
+               String.format("the %s operation", getName());
+
+            if (null == contextName)
+                return basicDescription;
+
+            return String.format("%s (shortcut for context %s)",
+                basicDescription, contextName);
+        }
+
+        @Override
         public String getNextArgumentName()
         {
             if (!argumentIterator.hasNext())
                 throw new IllegalStateException(String.format(
-                    ERR_NO_MORE_ARGUMENTS, getName(), argumentCount));
+                    ERR_NO_MORE_ARGUMENTS, getDescription(), argumentCount));
 
             final MetaArgument argument = argumentIterator.next();
             argumentCount++;
@@ -329,7 +348,7 @@ public final class PrimitiveBuilder
 
             if (null == metaArgument)
                 throw new IllegalStateException(String.format(
-                    ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
+                    ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
 
             final String typeName;
             if (arg.isImmediate())
@@ -339,7 +358,11 @@ public final class PrimitiveBuilder
             else
             {
                 if (!(arg.getValue() instanceof Primitive))
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException(String.format(
+                        ERR_ARG_NOT_PRIMITIVE,
+                        arg.getName(),
+                        getDescription()));
+                
                 typeName = ((Primitive) arg.getValue()).getName();
             }
 
@@ -348,7 +371,7 @@ public final class PrimitiveBuilder
                     ERR_TYPE_NOT_ACCEPTED,
                     typeName,
                     arg.getName(),
-                    getName()));
+                    getDescription()));
         }
 
         @Override
@@ -358,25 +381,17 @@ public final class PrimitiveBuilder
             {
                 if (!argNames.contains(arg.getName()))
                     throw new IllegalStateException(String.format(
-                        ERR_UNASSIGNED_ARGUMENT, arg.getName(), getName()));
+                        ERR_UNASSIGNED_ARGUMENT,
+                        arg.getName(),
+                        getDescription()));
             }
         }
     }
 
     private static final class StrategyAddressingMode implements Strategy
     {
-        private static final String ERR_UNASSIGNED_ARGUMENT = 
-            "The %s argument of the %s addressing mode is not assigned.";
-
-        private static final String ERR_NO_MORE_ARGUMENTS = 
-            "Too many arguments. The %s addressing mode has only %d arguments.";
-
-        private static final String ERR_UNDEFINED_ARGUMENT =
-            "The %s addressing mode does not have an argument called %s.";
-
         private static final String ERR_WRONG_ARGUMENT_KIND =
-            "Wrong argument kind: %s. The %s argument of the %s addressing " +
-            "mode must be an immediate value.";
+            "The %s argument of %s is %s, but it must be an immediate value.";
 
         private final MetaAddressingMode metaData;
 
@@ -401,11 +416,17 @@ public final class PrimitiveBuilder
         }
 
         @Override
+        public String getDescription()
+        {
+            return String.format("the %s addressing mode");
+        }
+
+        @Override
         public String getNextArgumentName()
         {
             if (!argumentNameIterator.hasNext())
                 throw new IllegalStateException(String.format(
-                    ERR_NO_MORE_ARGUMENTS, getName(), argumentCount));
+                    ERR_NO_MORE_ARGUMENTS, getDescription(), argumentCount));
 
             final String argumentName = argumentNameIterator.next();
             argumentCount++;
@@ -418,14 +439,14 @@ public final class PrimitiveBuilder
         {
             if (!metaData.isArgumentDefined(arg.getName()))
                 throw new IllegalStateException(String.format(
-                    ERR_UNDEFINED_ARGUMENT, getName(), arg.getName()));
+                    ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
 
             if (!arg.isImmediate())
                 throw new IllegalStateException(String.format(
                     ERR_WRONG_ARGUMENT_KIND,
-                    arg.getKind(),
                     arg.getName(),
-                    getName()));
+                    getDescription(),
+                    arg.getKind()));
         }
 
         @Override
@@ -435,7 +456,7 @@ public final class PrimitiveBuilder
             {
                 if (!argNames.contains(argName))
                     throw new IllegalStateException(String.format(
-                        ERR_UNASSIGNED_ARGUMENT, argName, getName()));
+                        ERR_UNASSIGNED_ARGUMENT, argName, getDescription()));
             }
         }
     }
