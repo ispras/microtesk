@@ -38,10 +38,19 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 public final class Template
 {
+    /**
+     * See {@link ru.ispras.microtesk.translator.simnml.ir.primitive.
+     * PrimitiveSyntesizer#ROOT_ID}.
+     */
+
+    private final String ROOT_CONTEXT_NAME = "#root";
+
     private final MetaModel metaModel;
 
     private final Deque<BlockBuilder> blockBuilders;
     private CallBuilder callBuilder;
+
+    private final Deque<String> operationContexts;
 
     private IIterator<Sequence<Call>> sequences;
 
@@ -57,6 +66,9 @@ public final class Template
         this.blockBuilders = new LinkedList<BlockBuilder>();
         this.blockBuilders.push(new BlockBuilder());
         this.callBuilder = new CallBuilder();
+
+        this.operationContexts = new LinkedList<String>();
+        this.operationContexts.push(ROOT_CONTEXT_NAME);
 
         this.sequences = null;
     }
@@ -113,6 +125,28 @@ public final class Template
         final Block block = builder.build();
 
         blockBuilders.peek().addBlock(block);
+    }
+
+    public void pushOperationContext(String contextName)
+    {
+        if (null == contextName)
+            throw new NullPointerException();
+
+        operationContexts.push(contextName);
+    }
+
+    public void popOperationContext()
+    {
+        if (isInRootContext())
+            throw new IllegalStateException(
+                "It is illegal to leave the root operation context.");
+
+        operationContexts.pop();
+    }
+
+    public boolean isInRootContext()
+    {
+        return operationContexts.size() == 1;
     }
 
     public Label addLabel(String name)
@@ -177,25 +211,26 @@ public final class Template
         return new PrimitiveBuilder(metaData);
     }
 
-    public PrimitiveBuilder newOperationBuilder(String name, String contextName)
+    public PrimitiveBuilder newOperationBuilder(String name)
     {
         if (null == name)
             throw new NullPointerException();
 
+        final String contextName = operationContexts.peek();
         _trace(String.format("Operation: %s (context: %s)", name, contextName));
 
         final MetaOperation metaData = metaModel.getOperation(name);
         if (null == metaData)
             throw new IllegalArgumentException("No such operation: " + name);
 
-        if (null != contextName)
-        {
-            final MetaShortcut metaShortcut =
-                metaData.getShortcut(contextName);
+        final MetaShortcut metaShortcut =
+           metaData.getShortcut(contextName);
 
-            if (null != metaShortcut)
-                new PrimitiveBuilder(metaShortcut.getOperation());
-        }
+        if (null != metaShortcut)
+            new PrimitiveBuilder(metaShortcut.getOperation());
+
+        // If there is no shortcut for the given context,
+        // the operation is used as it is.
 
         return new PrimitiveBuilder(metaData);
     }

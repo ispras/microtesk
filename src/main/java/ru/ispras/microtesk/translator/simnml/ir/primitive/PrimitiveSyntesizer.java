@@ -65,7 +65,7 @@ public final class PrimitiveSyntesizer extends Logger
      * from the topmost level of operation nesting in test templates. 
      */
 
-    private static final String ROOT_ID = "#root";
+    public static final String ROOT_ID = "#root";
 
     /**
      * The collection of operation primitives to be processed.
