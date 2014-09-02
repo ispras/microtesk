@@ -149,13 +149,11 @@ public final class Template
         return operationContexts.size() == 1;
     }
 
-    public Label addLabel(String name)
+    public void addLabel(String name)
     {
         final Label label = new Label(name, getCurrentBlockId());
-        _trace("Label: " + label.toString()); 
-
+        _trace("Label: " + label.toString());
         callBuilder.addLabel(label);
-        return label;
     }
 
     public void addLabelReference(
