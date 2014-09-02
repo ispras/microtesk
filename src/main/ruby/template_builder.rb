@@ -54,76 +54,67 @@ end
 private
 
 #
-# Defines methods for instructions (added to the Template class)
-# 
-def define_instruction(i)
-  inst_name = i.getName.to_s
-  #puts "Defining instruction #{inst_name}..."
-
-  situations = i.getSituations
-  situations.each { |situation| define_situation situation }
- 
-  p = lambda do |*arguments, &situations|
-    instruction = create_instruction inst_name, *arguments, &situations
-    @template.setRootOperation instruction
-    @template.endBuildingCall
-    instruction 
-  end
-
-  define_method_for Template, inst_name, "instruction", p
-end
-
-#
 # Defines methods for addressing modes (added to the Template class)
 # 
 def define_addressing_mode(mode)
-  mode_name = mode.getName().to_s
-  #puts "Defining mode #{mode_name}..."
+  name = mode.getName().to_s
+  #puts "Defining mode #{name}..."
 
   p = lambda do |*arguments|
-    create_addressing_mode mode_name, *arguments 
+    builder = @template.newAddressingModeBuilder name
+    build_primitive builder, arguments
   end
 
-  define_method_for Template, mode_name, "mode", p
+  define_method_for Template, name, "mode", p
 end
 
 #
 # Defines methods for operations (added to the Template class)
 # 
 def define_operation(op)
-  op_name = op.getName().to_s
-  #puts "Defining operation #{op_name}..."
+  name = op.getName().to_s
+  #puts "Defining operation #{name}..."
+end
+
+#
+# Defines methods for instructions (added to the Template class)
+# 
+def define_instruction(i)
+  name = i.getName.to_s
+  #puts "Defining instruction #{name}..."
+
+  situations = i.getSituations
+  situations.each { |situation| define_situation situation }
+
+  p = lambda do |*arguments, &situations|
+    builder = @template.newInstructionBuilder name
+    instruction = build_primitive builder, arguments
+
+    if situations != nil
+      situation = self.instance_eval &situations
+      @template.setSituation situation
+    end
+
+    @template.setRootOperation instruction
+    @template.endBuildingCall
+  end
+
+  define_method_for Template, name, "instruction", p
 end
 
 #
 # Defines methods for test situations (added to the Template class)
 #
 def define_situation(situation)
-  situation_name = situation.getName.to_s
-  if $defined_situations.add?(situation_name)
+  name = situation.getName.to_s
+  if $defined_situations.add?(name)
 
     p = lambda do
-      situation_name
+      name
     end
 
-    define_method_for Template, situation_name, "situation", p
+    define_method_for Template, name, "situation", p
   end
-end
-
-def create_addressing_mode(name, *args)
-  builder = @template.newAddressingModeBuilder name
-  build_primitive builder, args
-end
-
-def create_instruction(name, *args, &situations)
-  builder = @template.newInstructionBuilder name
-
-  if situations != nil
-    situation = self.instance_eval &situations
-    @template.setSituation situation
-  end
-
-  build_primitive builder, args
 end
 
 def build_primitive(builder, args)
