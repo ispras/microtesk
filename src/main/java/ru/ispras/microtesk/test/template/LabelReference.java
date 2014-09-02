@@ -39,6 +39,7 @@ package ru.ispras.microtesk.test.template;
 public final class LabelReference
 {
     private final Label reference;
+    private final String primitiveName;
     private final String argumentName;
     private final int argumentValue;
 
@@ -47,10 +48,13 @@ public final class LabelReference
      * 
      * @param labelName Name of the referred label.
      * @param blockId Identifier of the block from which the reference is made.
-     * @param argumentName Name of the instruction argument the label reference
-     * is associated with. 
+     * @param primitiveName Name of the primitive (OP or MODE) the label
+     * reference was passed to as an argument. 
+     * @param argumentName Name of the primitive (OP or MODE) argument 
+     * the label reference is associated with. 
      * @param argumentValue Value assigned (instead of a real address or offset)
-     * to the instruction argument the label reference is associated with.  
+     * to the primitive argument (OP or MODE )the label reference
+     * is associated with.  
      * 
      * @throws NullPointerException if any of the following arguments is
      * {@code null}: labelName, blockId or argumentName.
@@ -59,6 +63,7 @@ public final class LabelReference
     LabelReference(
        String labelName,
        BlockId blockId,
+       String primitiveName,
        String argumentName,
        int argumentValue
        )
@@ -69,10 +74,14 @@ public final class LabelReference
         if (null == blockId)
             throw new NullPointerException();
 
+        if (null == primitiveName)
+            throw new NullPointerException();
+
         if (null == argumentName)
             throw new NullPointerException();
 
         this.reference = new Label(labelName, blockId);
+        this.primitiveName = primitiveName;
         this.argumentName = argumentName;
         this.argumentValue = argumentValue;
     }
@@ -91,12 +100,24 @@ public final class LabelReference
     {
         return reference;
     }
+
+    /**
+     * Returns the name of the primitive (OP or MODE) the label
+     * reference was passed to as an argument.
+     * 
+     * @return Name of the primitive the label reference was passed to. 
+     */
+
+    public String getPrimitiveName()
+    {
+        return primitiveName;
+    }
     
     /**
-     * Returns the name of the instruction argument the label
+     * Returns the name of the primitive (OP or MODE) argument the label
      * reference is associated with.
      * 
-     * @return Name of the associated instruction argument.
+     * @return Name of the associated primitive argument.
      */
 
     public String getArgumentName()
@@ -106,10 +127,10 @@ public final class LabelReference
 
     /**
      * Returns the value assigned (instead of a real address or
-     * offset) to the instruction argument the label reference
+     * offset) to the primitive (OP or MODE) argument the label reference
      * is associated with.  
      * 
-     * @return Value assigned to the associated instruction argument.
+     * @return Value assigned to the associated primitive argument.
      */
 
     public int getArgumentValue()
@@ -121,10 +142,11 @@ public final class LabelReference
     public String toString()
     {
         return String.format(
-            "Reference: %s (linked to argument %s with fake value %d)",
+            "Reference: %s (passed to %s via the %s paramever with value %d)",
             reference,
+            primitiveName,
             argumentName,
             argumentValue
-            ); 
+            );
     }
 }

@@ -48,28 +48,56 @@ public final class PrimitiveBuilder
         void checkAllArgumentsAssigned(Set<String> argNames);
     }
 
+    private final CallBuilder callBuilder;
     private final Strategy strategy;
     private final Kind kind;
     private final Map<String, Argument> args;
     private final String contextName;
 
-    PrimitiveBuilder(MetaInstruction metaData)
+    PrimitiveBuilder(
+        CallBuilder callBuilder, MetaInstruction metaData)
     {
-        this(new StrategyInstruction(metaData), Kind.INSTR, null);
+        this(
+           callBuilder,
+           new StrategyInstruction(metaData),
+           Kind.INSTR,
+           null
+        );
     }
 
-    PrimitiveBuilder(MetaOperation metaData, String contextName)
+    PrimitiveBuilder(
+        CallBuilder callBuilder, MetaOperation metaData, String contextName)
     {
-        this(new StrategyOperation(metaData, contextName), Kind.OP, contextName);
+        this(
+            callBuilder,
+            new StrategyOperation(metaData, contextName),
+            Kind.OP,
+            contextName
+        );
     }
 
-    PrimitiveBuilder(MetaAddressingMode metaData)
+    PrimitiveBuilder(
+        CallBuilder callBuilder, MetaAddressingMode metaData)
     {
-        this(new StrategyAddressingMode(metaData), Kind.MODE, null);
+        this(
+            callBuilder,
+            new StrategyAddressingMode(metaData),
+            Kind.MODE,
+            null
+        );
     }
 
-    private PrimitiveBuilder(Strategy strategy, Kind kind, String contextName)
+    private PrimitiveBuilder(
+        CallBuilder callBuilder,
+        Strategy strategy,
+        Kind kind,
+        String contextName
+        )
     {
+        if (null == callBuilder)
+            throw new NullPointerException();
+
+        this.callBuilder = callBuilder;
         this.strategy = strategy;
         this.kind = kind;
         this.args = new HashMap<String, Argument>();
@@ -90,25 +118,29 @@ public final class PrimitiveBuilder
     ///////////////////////////////////////////////////////////////////////////
     // For Array-based syntax
 
-    public String addArgument(int value)
+    public void addArgument(int value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
-        return name;
+    }
+    
+    // For labels
+    public void addArgument(String value)
+    {
+        final String name = getNextArgumentName();
+        setArgument(name, value);
     }
 
-    public String addArgument(RandomValueBuilder value)
+    public void addArgument(RandomValueBuilder value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
-        return name;
     }
 
-    public String addArgument(Primitive value)
+    public void addArgument(Primitive value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
-        return name;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -122,6 +154,18 @@ public final class PrimitiveBuilder
         final Argument arg = new Argument(name, Argument.Kind.IMM, value);
         checkValidArgument(arg);
         putArgument(arg);
+    }
+
+    // For labels
+    public void setArgument(String name, String value)
+    {
+        // TODO: Current limitation: 0 is instead of
+        // the actual label address/offset.
+
+        final int fakeValue = 0;
+        setArgument(name, fakeValue);
+
+        callBuilder.addLabelReference(value, getName(), name, fakeValue);
     }
 
     public void setArgument(String name, RandomValueBuilder value)

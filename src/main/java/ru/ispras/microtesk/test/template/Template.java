@@ -65,7 +65,7 @@ public final class Template
 
         this.blockBuilders = new LinkedList<BlockBuilder>();
         this.blockBuilders.push(new BlockBuilder());
-        this.callBuilder = new CallBuilder();
+        this.callBuilder = new CallBuilder(getCurrentBlockId());
 
         this.operationContexts = new LinkedList<String>();
         this.operationContexts.push(ROOT_CONTEXT_NAME);
@@ -156,17 +156,6 @@ public final class Template
         callBuilder.addLabel(label);
     }
 
-    public void addLabelReference(
-        String labelName, String argName, int argValue)
-    {
-        final LabelReference labelRef = new LabelReference(
-            labelName, getCurrentBlockId(), argName, argValue);
-
-        _trace(labelRef.toString());
-
-        callBuilder.addLabelReference(labelRef);
-    }
-
     public void addOutput(Output output)
     {
         _trace(output.toString());
@@ -192,7 +181,7 @@ public final class Template
             "Ended building a call (empty = %b, executable = %b)",
              call.isEmpty(), call.isExecutable()));
 
-        this.callBuilder = new CallBuilder();
+        this.callBuilder = new CallBuilder(getCurrentBlockId());
     }
 
     public PrimitiveBuilder newInstructionBuilder(String name)
@@ -206,7 +195,7 @@ public final class Template
         if (null == metaData)
             throw new IllegalArgumentException("No such instruction: " + name);
 
-        return new PrimitiveBuilder(metaData);
+        return new PrimitiveBuilder(callBuilder, metaData);
     }
 
     public PrimitiveBuilder newOperationBuilder(String name)
@@ -225,12 +214,13 @@ public final class Template
            metaData.getShortcut(contextName);
 
         if (null != metaShortcut)
-            new PrimitiveBuilder(metaShortcut.getOperation(), contextName);
+            new PrimitiveBuilder(
+                callBuilder, metaShortcut.getOperation(), contextName);
 
         // If there is no shortcut for the given context,
         // the operation is used as it is.
 
-        return new PrimitiveBuilder(metaData, null);
+        return new PrimitiveBuilder(callBuilder, metaData, null);
     }
 
     public PrimitiveBuilder newAddressingModeBuilder(String name)
@@ -245,7 +235,7 @@ public final class Template
             throw new IllegalArgumentException(
                 "No such addressing mode: " + name);
 
-        return new PrimitiveBuilder(metaData);
+        return new PrimitiveBuilder(callBuilder, metaData);
     }
 
     public RandomValueBuilder newRandom(int from, int to)

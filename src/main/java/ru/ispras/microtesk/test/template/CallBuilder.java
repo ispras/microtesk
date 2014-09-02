@@ -29,6 +29,8 @@ import java.util.List;
 
 public final class CallBuilder
 {
+    private final BlockId blockId;
+
     private Primitive rootOperation;
     private String situation;
 
@@ -36,8 +38,13 @@ public final class CallBuilder
     private final List<LabelReference> labelRefs;
     private final List<Output> outputs;
 
-    public CallBuilder()
+    CallBuilder(BlockId blockId)
     {
+        if (null == blockId)
+            throw new NullPointerException();
+
+        this.blockId = blockId;
+
         this.rootOperation = null;
         this.situation = null;
 
@@ -75,11 +82,26 @@ public final class CallBuilder
         labels.add(label);
     }
 
-    public void addLabelReference(LabelReference labelRef)
+    public void addLabelReference(
+        String labelName,
+        String primitiveName,
+        String argumentName,
+        int argumentValue
+        )
     {
-        if (null == labelRef)
+        if (null == labelName)
             throw new NullPointerException();
 
+        if (null == primitiveName)
+            throw new NullPointerException();
+
+        if (null == argumentName)
+            throw new NullPointerException();
+
+        final LabelReference labelRef = new LabelReference(
+             labelName, blockId, primitiveName, argumentName, argumentValue);
+
+        System.out.println(labelRef.toString());
         labelRefs.add(labelRef);
     }
 

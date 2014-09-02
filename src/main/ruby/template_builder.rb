@@ -137,36 +137,16 @@ def build_primitive(builder, args)
 end
 
 def set_arguments_from_hash(builder, args)
-  labelIndex = 0
   args.each_pair do |name, value|
-
-    if value.is_a? String or value.is_a? Symbol
-      labelName = value.to_s
-      value = labelIndex
-      labelIndex = labelIndex + 1
-      @template.addLabelReference labelName, name, value
-    end
-
+    value = value.to_s if value.is_a? Symbol
     builder.setArgument name.to_s, value
   end
 end
 
 def set_arguments_from_array(builder, args)
-  labelIndex = 0
   args.each do |value|
-
-    labelName = nil
-    if value.is_a? String or value.is_a? Symbol
-      labelName = value.to_s 
-      value = labelIndex
-      labelIndex = labelIndex + 1
-    end
-
-    name = builder.addArgument value
-
-    if nil != labelName
-      @template.addLabelReference labelName, name, value
-    end
+    value = value.to_s if value.is_a? Symbol
+    builder.addArgument value
   end
 end
 
