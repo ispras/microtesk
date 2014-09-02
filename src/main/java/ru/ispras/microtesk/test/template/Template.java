@@ -137,14 +137,14 @@ public final class Template
 
     public void popOperationContext()
     {
-        if (isInRootContext())
+        if (isOperationRootContext())
             throw new IllegalStateException(
                 "It is illegal to leave the root operation context.");
 
         operationContexts.pop();
     }
 
-    public boolean isInRootContext()
+    public boolean isOperationRootContext()
     {
         return operationContexts.size() == 1;
     }
