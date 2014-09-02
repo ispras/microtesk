@@ -127,7 +127,6 @@ def create_instruction(name, *args, &situations)
 end
 
 def build_primitive(builder, args)
-
   if args.count == 1 and args.first.is_a?(Hash)
     set_arguments_from_hash builder, args.first
   else
