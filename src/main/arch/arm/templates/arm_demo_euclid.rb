@@ -57,15 +57,17 @@ class ArmDemo < Template
 
     trace "\nInitial register values: R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
 
-    label :cycle
+    block {
+      label :cycle
 
-    CMP blank, REG(0), register1
-    SUB greaterThan, setsOff, REG(0), REG(0), register1
-    SUB lessThan,    setsOff, REG(1), REG(1), register0
+      CMP blank, REG(0), register1
+      SUB greaterThan, setsOff, REG(0), REG(0), register1
+      SUB lessThan,    setsOff, REG(1), REG(1), register0
 
-    trace "\nCurrent register values: R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
+      trace "\nCurrent register values: R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
 
-    B notEqual, :cycle
+      B notEqual, :cycle
+    }
 
     MOV blank, setsOff, REG(2), register0
 
