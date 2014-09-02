@@ -43,6 +43,9 @@ def self.define_runtime_methods(metamodel)
 
   modes = metamodel.getAddressingModes
   modes.each { |mode| define_addressing_mode mode }
+    
+  ops = metamodel.getOperations
+  ops.each { |op| define_operation op }
 
   instructions = metamodel.getInstructions
   instructions.each { |instruction| define_instruction instruction }
@@ -82,6 +85,14 @@ def define_addressing_mode(mode)
   end
 
   define_method_for Template, mode_name, "mode", p
+end
+
+#
+# Defines methods for operations (added to the Template class)
+# 
+def define_operation(op)
+  op_name = op.getName().to_s
+  #puts "Defining operation #{op_name}..."
 end
 
 #
