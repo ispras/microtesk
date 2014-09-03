@@ -40,8 +40,8 @@ def self.define_runtime_methods(metamodel)
   ops = metamodel.getOperations
   ops.each { |op| define_operation op }
 
-  instructions = metamodel.getInstructions
-  instructions.each { |instruction| define_instruction instruction }
+  # instructions = metamodel.getInstructions
+  # instructions.each { |instruction| define_instruction instruction }
 end
 
 private
@@ -68,37 +68,31 @@ def define_operation(op)
   name = op.getName().to_s
   #puts "Defining operation #{name}..."
 
-#  if op.isTerminal
-#    p = lambda do |*arguments|
-#      builder = @template.newOperationBuilder name
-#      build_primitive builder, arguments
-#
-#      # add to context (some list)
-#    end
-#  else
-#    p = lambda do |&arguments|
-#      @template.pushOperationContext name
-#      result = self.instance_eval &arguments
-#      
-#      builder = @template.newOperationBuilder name
-#      if result.is_a(Hash)
-#        # read argument from hash and set 
-#      else
-#        # read argument from context (list) and set
-#      end
-#  
-#      builder.build
-#      @template.popOperationContext
-#  
-#      if op.isRoot
-#        # set as root operation     
-#      else
-#        # add to context (some list)
-#      end
-#    end
-#  end
-#  
-#  define_method_for Template, name, "op", p
+  p = lambda do |*arguments, &situations|
+    # TODO: This line is wrong, but we need a way set
+    # the context so that all argument operations 
+    # are created in this context. 
+    # @template.pushOperationContext name
+
+    builder = @template.newOperationBuilder name
+    operation = build_primitive builder, arguments
+
+    if situations != nil
+      self.instance_eval &situations
+    end
+
+    if @template.isOperationRootContext
+      @template.setRootOperation operation
+      @template.endBuildingCall
+    end
+
+    operation
+
+    # TODO: Attention: see the above comment.
+    # @template.popOperationContext
+  end
+
+  define_method_for Template, name, "op", p
 end
 
 #
