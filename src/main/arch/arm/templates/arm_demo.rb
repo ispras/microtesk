@@ -24,16 +24,16 @@ class ArmDemo < Template
     print_all_registers
 
     add equalcond, setson, reg({:r => 0}), reg({:r => 0}), register1
-    add equalcond, setsoff, reg(1), reg(2), register3 do overflow end
+    add equalcond, setsoff, reg(1), reg(2), register3 do situation('overflow') end
 
     trace "This is a debug message"
 
-    add equalcond, setsoff, reg(2), reg(2), register0 do overflow end
+    add equalcond, setsoff, reg(2), reg(2), register0 do situation('overflow') end
 
-    add equalcond, setsoff, reg(3), reg(2), register0 do random end
+    add equalcond, setsoff, reg(3), reg(2), register0 do situation('random') end
 
-    add equalcond, setsoff, reg(4), reg(2), register0 do normal end
-    add equalcond, setsoff, reg(5), reg(2), register0 do zero end
+    add equalcond, setsoff, reg(4), reg(2), register0 do situation('normal') end
+    add equalcond, setsoff, reg(5), reg(2), register0 do situation('zero') end
 
     block {
       add equalcond, setsoff, reg(1), reg(3), register0

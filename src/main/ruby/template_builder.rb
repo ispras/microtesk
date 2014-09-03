@@ -28,22 +28,15 @@ require_relative 'template'
 require_relative 'utils'
 
 # TODO:
-# make errors display file/line numbers (there's an example of that in the last version)
-
-# TODO:
-# try to make sense of all this metaprogramming, it's only this convoluted
-# because of the way the DSL is supposed to work - injecting methods makes
-# life and code sort of complicated
+# make errors display file/line numbers (there's an example of
+# that in the last version)
 
 module TemplateBuilder
 
 def self.define_runtime_methods(metamodel)
-  # Initializing global variables
-  $defined_situations = Set.new
-
   modes = metamodel.getAddressingModes
   modes.each { |mode| define_addressing_mode mode }
-    
+
   ops = metamodel.getOperations
   ops.each { |op| define_operation op }
 
@@ -74,6 +67,38 @@ end
 def define_operation(op)
   name = op.getName().to_s
   #puts "Defining operation #{name}..."
+
+#  if op.isTerminal
+#    p = lambda do |*arguments|
+#      builder = @template.newOperationBuilder name
+#      build_primitive builder, arguments
+#
+#      # add to context (some list)
+#    end
+#  else
+#    p = lambda do |&arguments|
+#      @template.pushOperationContext name
+#      result = self.instance_eval &arguments
+#      
+#      builder = @template.newOperationBuilder name
+#      if result.is_a(Hash)
+#        # read argument from hash and set 
+#      else
+#        # read argument from context (list) and set
+#      end
+#  
+#      builder.build
+#      @template.popOperationContext
+#  
+#      if op.isRoot
+#        # set as root operation     
+#      else
+#        # add to context (some list)
+#      end
+#    end
+#  end
+#  
+#  define_method_for Template, name, "op", p
 end
 
 #
@@ -83,16 +108,12 @@ def define_instruction(i)
   name = i.getName.to_s
   #puts "Defining instruction #{name}..."
 
-  situations = i.getSituations
-  situations.each { |situation| define_situation situation }
-
   p = lambda do |*arguments, &situations|
     builder = @template.newInstructionBuilder name
     instruction = build_primitive builder, arguments
 
     if situations != nil
-      situation = self.instance_eval &situations
-      @template.setSituation situation
+      self.instance_eval &situations
     end
 
     @template.setRootOperation instruction
@@ -100,21 +121,6 @@ def define_instruction(i)
   end
 
   define_method_for Template, name, "instruction", p
-end
-
-#
-# Defines methods for test situations (added to the Template class)
-#
-def define_situation(situation)
-  name = situation.getName.to_s
-  if $defined_situations.add?(name)
-
-    p = lambda do
-      name
-    end
-
-    define_method_for Template, name, "situation", p
-  end
 end
 
 def build_primitive(builder, args)

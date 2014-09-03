@@ -162,6 +162,10 @@ class Template
     @template.addLabel name 
   end
 
+  def situation(name)
+    @template.setSituation name
+  end
+
   def rand(from, to)
     if !from.is_a?(Integer) or !to.is_a?(Integer)
       raise MTRubyError, "from #{from} and to #{to} must be integers." 
