@@ -214,7 +214,7 @@ public final class Template
            metaData.getShortcut(contextName);
 
         if (null != metaShortcut)
-            new PrimitiveBuilder(
+            return new PrimitiveBuilder(
                 callBuilder, metaShortcut.getOperation(), contextName);
 
         // If there is no shortcut for the given context,
