@@ -26,7 +26,20 @@ require ENV['TEMPLATE']
 
 class VLIWDemo < Template
 
+  def initialize
+    super
+    @is_executable = true
+  end
+
   def run
+    comment "This a demo template for a simple VLIW ISA based on MIPS"
+
+    LongWord_ALU(
+      ALUWords2(
+        alu(add(reg(3), reg(1), reg(2))),
+        alu(sub(reg(3), reg(1), reg(2)))  
+      )
+    )
 
   end
 

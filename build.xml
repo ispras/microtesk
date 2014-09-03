@@ -223,6 +223,11 @@
   <!-- Copies required text files (Ruby and Bash scripts, nML files to the distributive folder -->
   <target name="copy.scripts">
 
+    <!-- Copies batch files -->
+    <copy todir="${dist}/bin">
+      <fileset dir="src/main/scripts" includes="**"/>  
+    </copy>
+
     <!-- Copies Ruby scripts -->
     <copy todir="${dist.ruby}" >  
       <fileset dir="src/main/ruby" includes="**"/>  
@@ -233,11 +238,6 @@
       <fileset dir="src/main/arch/demo" includes="**"/>  
     </copy>
 
-    <!-- Copies batch files -->
-    <copy todir="${dist}/bin">
-      <fileset dir="src/main/scripts" includes="**"/>  
-    </copy>
-
     <!-- Copies ARM architecture specifications and test templates -->
     <copy todir="${dist}/arch/arm">
       <fileset dir="src/main/arch/arm" includes="**"/>  
@@ -246,6 +246,11 @@
   	<!-- Copies MIPS architecture specifications and test templates -->
   	<copy todir="${dist}/arch/mips">
   	   <fileset dir="src/main/arch/mips" includes="**"/>  
+  	</copy>
+
+  	<!-- Copies VLIW architecture specifications and test templates -->
+  	<copy todir="${dist}/arch/vliw">
+  	   <fileset dir="src/main/arch/vliw" includes="**"/>  
   	</copy>
 
   </target>
@@ -315,6 +320,17 @@
   	  <arg value="-d"/>
   	  <arg value="${dist.gen}/src"/>
   	  <arg value="${dist}/arch/mips/model/mips.nml"/>
+  	  <classpath>
+  	    <pathelement location="${dist.jars}/${jar}"/>
+  	  </classpath>
+    </java>
+
+    <!-- Generate code for the VLIW model -->
+    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+  	  <jvmarg value="-ea"/>
+  	  <arg value="-d"/>
+  	  <arg value="${dist.gen}/src"/>
+  	  <arg value="${dist}/arch/vliw/model/vliw.nml"/>
   	  <classpath>
   	    <pathelement location="${dist.jars}/${jar}"/>
   	  </classpath>

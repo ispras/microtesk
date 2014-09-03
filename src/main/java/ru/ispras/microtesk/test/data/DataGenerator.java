@@ -12,21 +12,14 @@
 
 package ru.ispras.microtesk.test.data;
 
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.solver.Environment;
 
+import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
-import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilder;
-import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
-import ru.ispras.microtesk.model.api.situation.ISituation;
+import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
@@ -110,24 +103,23 @@ public final class DataGenerator
         final Primitive rootOperation =
             abstractCall.getRootOperation();
         
-        if (rootOperation.getKind() != Primitive.Kind.INSTR)
+        if (rootOperation.getKind() != Primitive.Kind.OP)
             throw new IllegalArgumentException(String.format(
-                "Wrong kind: %s. %s must be an instruction.",
+                "Wrong kind: %s. %s must be an operation.",
                 rootOperation.getKind(), rootOperation.getName()));
 
         System.out.println("Processing call: " + rootOperation.getName());
-
-        final IInstruction instruction =
-            model.getInstruction(rootOperation.getName());
-
-        final IInstructionCallBuilderEx callBuilder = 
-            instruction.createCallBuilder();
-
+        
+        final ICallFactory callFactory = model.getCallFactory();
+        
+        final IOperationBuilder operationBuilder = callFactory.newOpInstance(
+            rootOperation.getName(), rootOperation.getContextName());
+                
         for (Argument argument : rootOperation.getArguments().values())
-            addArgumentToInstructionCall(argument, callBuilder);
+            addArgumentToOperation(callFactory, argument, operationBuilder);
 
         final ConcreteCall concreteCall = new ConcreteCall(
-            abstractCall, callBuilder.getCall());
+            abstractCall, callFactory.newCall(operationBuilder.build()));
 
         sequenceBuilder.addCall(concreteCall);
 
@@ -147,6 +139,8 @@ public final class DataGenerator
         }
 
         System.out.println(")");
+        
+        /*
 
         final ISituation situation =
             instruction.createSituation(situationName);
@@ -185,9 +179,10 @@ public final class DataGenerator
 
             insertInitializingCalls(argument, entry.getValue());
         }
+        */
     }
 
-    
+    /*
     private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
     {
         final String argumentTypeName = argument.isImmediate() ?
@@ -219,28 +214,25 @@ public final class DataGenerator
             )
         );
     }
+    */
 
-    private static void addArgumentToInstructionCall(
+    private static void addArgumentToOperation(
+        ICallFactory callFactory,
         Argument argument,
-        IInstructionCallBuilder callBuilder) throws ConfigurationException
+        IOperationBuilder builder) throws ConfigurationException
     {
-        final IArgumentBuilder argumentBuilder = 
-            callBuilder.getArgumentBuilder(argument.getName());
-
         if (argument.isImmediate())
         {
-            final IAddressingModeBuilder modeBuilder =
-                argumentBuilder.getModeBuilder(AddressingModeImm.NAME);
-
             if (argument.getKind() == Argument.Kind.IMM)
             {
-                modeBuilder.setArgumentValue(
-                    AddressingModeImm.PARAM_NAME, ((Integer)argument.getValue()));
+                builder.setArgument(
+                    argument.getName(), ((Integer) argument.getValue()));
             }
             else if (argument.getKind() == Argument.Kind.IMM_RANDOM)
             {
-                modeBuilder.setArgumentValue(
-                    AddressingModeImm.PARAM_NAME, ((RandomValue)argument.getValue()).getValue());
+                builder.setArgument(
+                    argument.getName(),
+                    ((RandomValue) argument.getValue()).getValue());
             }
             else
             {
@@ -251,31 +243,53 @@ public final class DataGenerator
             return;
         }
 
-        if (argument.getKind() != Argument.Kind.MODE)
-            throw new IllegalArgumentException();
-
-        final Primitive mode = (Primitive) argument.getValue();
-
-        final IAddressingModeBuilder modeBuilder =
-            argumentBuilder.getModeBuilder(mode.getName());
-
-        for (Argument modeArg: mode.getArguments().values())
+        if (argument.getKind() == Argument.Kind.MODE)
         {
-            if (modeArg.getKind() == Argument.Kind.IMM)
+            final Primitive mode = (Primitive) argument.getValue();
+    
+            final IAddressingModeBuilder modeBuilder =
+                callFactory.newModeInstance(mode.getName());
+    
+            for (Argument modeArg: mode.getArguments().values())
             {
-                modeBuilder.setArgumentValue(
-                    modeArg.getName(), ((Integer) modeArg.getValue()));
+                if (modeArg.getKind() == Argument.Kind.IMM)
+                {
+                    modeBuilder.setArgumentValue(
+                        modeArg.getName(), ((Integer) modeArg.getValue()));
+                }
+                else if (modeArg.getKind() == Argument.Kind.IMM_RANDOM)
+                {
+                    modeBuilder.setArgumentValue(
+                        modeArg.getName(), ((RandomValue) modeArg.getValue()).getValue());
+                }
+                else
+                {
+                    throw new IllegalArgumentException(
+                        "Illegal argument kind: " + argument.getKind());
+                }
             }
-            else if (modeArg.getKind() == Argument.Kind.IMM_RANDOM)
-            {
-                modeBuilder.setArgumentValue(
-                    modeArg.getName(), ((RandomValue) modeArg.getValue()).getValue());
-            }
-            else
-            {
-                throw new IllegalArgumentException(
-                    "Illegal argument kind: " + argument.getKind());
-            }
+    
+            builder.setArgument(argument.getName(), modeBuilder.getProduct());
+            
+            return;
         }
+
+        if (argument.getKind() == Argument.Kind.OP)
+        {
+            final Primitive op = (Primitive) argument.getValue();
+
+            final IOperationBuilder operationBuilder =
+                callFactory.newOpInstance(op.getName(), op.getContextName());
+
+            for (Argument arg : op.getArguments().values())
+                addArgumentToOperation(callFactory, arg, operationBuilder);
+
+            builder.setArgument(argument.getName(), operationBuilder.build());
+            
+            return;
+        }
+        
+        throw new IllegalArgumentException(
+           "Unsupported kind: " + argument.getKind());
     }
 }

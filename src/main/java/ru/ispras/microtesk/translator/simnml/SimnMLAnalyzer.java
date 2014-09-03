@@ -31,7 +31,6 @@ import ru.ispras.microtesk.translator.simnml.grammar.SimnMLLexer;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLParser;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.InstructionBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveSyntesizer;
 
 public final class SimnMLAnalyzer
@@ -275,10 +274,11 @@ public final class SimnMLAnalyzer
             { print(ast.getChild(i), indent + 1); }
     }
 */
-
+    /*
     private static final String FAILED_TO_SYNTH_INSTRUCTIONS = 
         "FAILED TO SYNTHESIZE INSTRUCTIONS. " + 
         "TRANSLATION WAS INTERRUPTED.";
+    */
 
     private static final String FAILED_TO_SYNTH_PRIMITIVES =
         "FAILED TO SYNTHESIZE INFORMATION ON DESCRIBED OPERATIONS. " +

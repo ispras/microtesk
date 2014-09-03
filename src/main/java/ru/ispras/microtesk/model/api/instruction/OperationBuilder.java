@@ -117,7 +117,7 @@ public final class OperationBuilder implements IOperationBuilder
 
         final Operation.Param decl = decls.get(name);
 
-        if (decl.getKind() != Operation.Param.Kind.MODE)
+        if (decl.getKind() != Operation.Param.Kind.OP)
             throw new UndeclaredException(String.format(
                 "The %s argument of the %s operation must be an operation.", name, opName));
 
