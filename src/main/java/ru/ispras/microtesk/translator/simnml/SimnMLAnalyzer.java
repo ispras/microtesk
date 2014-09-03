@@ -221,6 +221,10 @@ public final class SimnMLAnalyzer
         }
         ir.setRoots(primitiveSyntesizer.getRoots());
 
+        /*
+        // TODO: Obsolete, should be removed as soon as the new functionality
+        // is fully implemented and tested.
+
         final InstructionBuilder instructionBuilder = new InstructionBuilder(
             ir.getOps(), getShortFileName(fileName), LOG);
 
@@ -229,7 +233,9 @@ public final class SimnMLAnalyzer
             System.err.println(FAILED_TO_SYNTH_INSTRUCTIONS);
             return;
         }
+        
         ir.setInstructions(instructionBuilder.getInstructions());
+        */
 
         final UserTestSituationLoader userTSLoader =
             new UserTestSituationLoader(modelName, testSitDir, outDir, ir);
