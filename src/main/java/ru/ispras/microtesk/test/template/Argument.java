@@ -49,7 +49,7 @@ public final class Argument
          {
              if (!vc.isAssignableFrom(c))
                  throw new IllegalArgumentException(String.format(
-                      ILLEGAL_CLASS, c.getSimpleName(), vc.getSimpleName()));
+                     ILLEGAL_CLASS, c.getSimpleName(), vc.getSimpleName()));
          }
 
          private final boolean isImmediate()
