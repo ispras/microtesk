@@ -32,7 +32,7 @@ public final class PrimitiveBuilderDelayed
 
         if (null == metaModel)
             throw new NullPointerException();
-        
+
         if (null == name)
             throw new NullPointerException();
 
@@ -54,7 +54,7 @@ public final class PrimitiveBuilderDelayed
 
         final MetaShortcut metaShortcut =
            metaData.getShortcut(contextName);
-        
+
         final PrimitiveBuilder builder;
 
         if (null != metaShortcut)
@@ -68,7 +68,18 @@ public final class PrimitiveBuilderDelayed
             // the operation is used as it is.
             builder = new PrimitiveBuilder(callBuilder, metaData, null);
         }
-        
+
+        if (!argumentList.isEmpty())
+        {
+            for (Argument argument : argumentList)
+                argument.addToBuilder(builder);
+        }
+        else if (!argumentMap.isEmpty())
+        {
+            for (Argument argument : argumentMap.values())
+                argument.addToBuilder(builder);
+        }
+
         return builder.build();
     }
 
@@ -76,7 +87,7 @@ public final class PrimitiveBuilderDelayed
     {
         this.contextName = contextName;
     }
-    
+
     private void registerArgument(Argument argument)
     {
         if (argument.hasName())
