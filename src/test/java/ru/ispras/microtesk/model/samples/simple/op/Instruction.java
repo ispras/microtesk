@@ -45,6 +45,7 @@ public final class Instruction extends Operation
             super(
                 Instruction.class,
                 Instruction.class.getSimpleName(),
+                true,
                 new ParamDecls()
                     .declareParam("x", Arith_Mem_Inst.INFO)
             );

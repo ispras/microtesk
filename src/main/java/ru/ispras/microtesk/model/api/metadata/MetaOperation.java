@@ -36,19 +36,22 @@ import java.util.Map;
 public final class MetaOperation implements MetaData
 {
     private final String name;
+    private final boolean isRoot;
     private final Map<String, MetaArgument> args;
     private final Map<String, MetaShortcut> shortcuts;
 
     public MetaOperation(
         String name,
+        boolean isRoot,
         Map<String, MetaArgument> args
         )
     {
-        this(name, args, Collections.<String, MetaShortcut>emptyMap());
+        this(name, isRoot, args, Collections.<String, MetaShortcut>emptyMap());
     }
 
     public MetaOperation(
         String name,
+        boolean isRoot,
         Map<String, MetaArgument> args,
         Map<String, MetaShortcut> shortcuts
         )
@@ -63,6 +66,7 @@ public final class MetaOperation implements MetaData
             throw new NullPointerException();
 
         this.name = name;
+        this.isRoot = isRoot; 
         this.args = args;
         this.shortcuts = shortcuts;
     }
@@ -77,6 +81,19 @@ public final class MetaOperation implements MetaData
     public String getName()
     {
         return name;
+    }
+
+    /**
+     * Checks whether the current operation is a root.
+     * An operation is a root if it does not have parents. 
+     * 
+     * @return {@code true} if it is a root operation or
+     * {@code false} otherwise.
+     */
+
+    public boolean isRoot()
+    {
+        return isRoot;
     }
 
     /**

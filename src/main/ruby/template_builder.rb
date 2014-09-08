@@ -81,7 +81,7 @@ def define_operation(op)
       self.instance_eval &situations
     end
 
-    if @template.isOperationRootContext
+    if operation.isRoot
       @template.setRootOperation operation
       @template.endBuildingCall
     end

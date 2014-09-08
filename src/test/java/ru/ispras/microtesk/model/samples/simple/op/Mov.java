@@ -52,6 +52,7 @@ public final class Mov extends Operation
             super(
                 Mov.class,
                 Mov.class.getSimpleName(),
+                false,
                 new ParamDecls(),
                 new Shortcuts()
                     .addShortcut(new Info_Instruction(), "#root")
@@ -73,6 +74,7 @@ public final class Mov extends Operation
             super(
                Instruction.class, 
                "MOV",
+               true,
                new ParamDecls()
                    .declareParam("op1", OPRNDL.INFO)
                    .declareParam("op2", OPRNDR.INFO)

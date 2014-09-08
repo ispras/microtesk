@@ -27,7 +27,8 @@ package ru.ispras.microtesk.model.api.metadata;
 import java.util.Set;
 
 /**
- * The MetaAddressingMode class holds information on the specified addressing mode.
+ * The MetaAddressingMode class holds information on the specified
+ * addressing mode.
  * 
  * @author Andrei Tatarnikov
  */
@@ -37,8 +38,23 @@ public final class MetaAddressingMode implements MetaData
     private final String name;
     private final Set<String> argumentNames; 
 
+    /**
+     * Constructs a metadata object for an addressing mode. 
+     * 
+     * @param name Addressing mode name.
+     * @param argumentNames Argument names.
+     * 
+     * @throws NullPointerException if any of the parameters is {@code null}.
+     */
+
     public MetaAddressingMode(String name, Set<String> argumentNames)
     {
+        if (null == name)
+            throw new NullPointerException();
+
+        if (null == argumentNames)
+            throw new NullPointerException();
+
         this.name = name;
         this.argumentNames = argumentNames;
     }
@@ -78,5 +94,19 @@ public final class MetaAddressingMode implements MetaData
     public boolean isArgumentDefined(String name)
     {
         return argumentNames.contains(name);
+    }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder();
+        for (String argName : argumentNames)
+        {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(argName);
+        }
+
+        return String.format(
+            "MetaAddressingMode %s (%s)", name, sb.toString());
     }
 }

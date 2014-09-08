@@ -59,6 +59,7 @@ public class Arith_Mem_Inst extends Operation
             super(
                 Arith_Mem_Inst.class,
                 Arith_Mem_Inst.class.getSimpleName(),
+                false,
                 new ParamDecls()
                     .declareParam("y",   Add_sub_mov.INFO)
                     .declareParam("op1", OPRNDL.INFO)

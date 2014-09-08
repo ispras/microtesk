@@ -43,6 +43,7 @@ public final class PrimitiveBuilder
     {
         String getName();
         String getDescription();
+        boolean isRoot();
         String getNextArgumentName();
         void checkValidArgument(Argument arg);
         void checkAllArgumentsAssigned(Set<String> argNames);
@@ -112,7 +113,9 @@ public final class PrimitiveBuilder
     public Primitive build()
     {
         checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
-        return new Primitive(kind, getName(), args, contextName);
+
+        return new Primitive(
+            kind, getName(), strategy.isRoot(), args, contextName);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -272,6 +275,13 @@ public final class PrimitiveBuilder
         }
 
         @Override
+        public boolean isRoot()
+        {
+            // Always true for instructions.
+            return true;
+        }
+
+        @Override
         public String getNextArgumentName()
         {
             if (!argumentIterator.hasNext())
@@ -372,6 +382,12 @@ public final class PrimitiveBuilder
         }
 
         @Override
+        public boolean isRoot()
+        {
+            return metaData.isRoot();
+        }
+
+        @Override
         public String getNextArgumentName()
         {
             if (!argumentIterator.hasNext())
@@ -463,6 +479,13 @@ public final class PrimitiveBuilder
         public String getDescription()
         {
             return String.format("the %s addressing mode");
+        }
+
+        @Override
+        public boolean isRoot()
+        {
+            // Always false because addressing modes always have parents.
+            return false;
         }
 
         @Override

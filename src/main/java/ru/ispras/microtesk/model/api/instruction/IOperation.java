@@ -63,6 +63,16 @@ public interface IOperation extends IPrimitive
 
         public String getName();
 
+        /**
+         * Checks whether the current operation is a root. An operation is
+         * a root if it does not have parents. 
+         * 
+         * @return {@code true} if it is a root operation or
+         * {@code false} otherwise.
+         */
+
+        public boolean isRoot();
+
         public Map<String, IOperationBuilder> createBuilders();
         public Map<String, IOperationBuilder> createBuildersForShortcut(String contextName);
 

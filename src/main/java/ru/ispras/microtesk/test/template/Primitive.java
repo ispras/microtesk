@@ -37,12 +37,14 @@ public final class Primitive
 
     private final Kind kind;
     private final String name;
+    private final boolean isRoot;
     private final Map<String, Argument> args;
     private final String contextName;
 
     Primitive(
         Kind kind,
         String name,
+        boolean isRoot,
         Map<String, Argument> args,
         String contextName
         )
@@ -58,6 +60,7 @@ public final class Primitive
 
         this.kind = kind;
         this.name = name;
+        this.isRoot = isRoot;
         this.args = args;
         this.contextName = contextName;
     }
@@ -70,6 +73,11 @@ public final class Primitive
     public String getName()
     {
         return name;
+    }
+
+    public boolean isRoot()
+    {
+        return isRoot;
     }
 
     public Map<String, Argument> getArguments()

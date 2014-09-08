@@ -112,6 +112,7 @@ final class STBOperation extends STBPrimitiveBase
         t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 
         t.add("base", Operation.class.getSimpleName());
+        t.add("is_root", op.isRoot());
     }
     
     private void buildArguments(STGroup group, ST t)
@@ -195,6 +196,8 @@ final class STBOperation extends STBPrimitiveBase
             final ST shortcutST = group.getInstanceOf("shortcut");
 
             shortcutST.add("name",  op.getName());
+            shortcutST.add("is_root", shortcut.getEntry().isRoot());
+
             shortcutST.add("entry", shortcut.getEntry().getName());
 
             for (Shortcut.Argument arg : shortcut.getArguments())

@@ -35,9 +35,23 @@ class VLIWDemo < Template
     comment "This a demo template for a simple VLIW ISA based on MIPS"
 
     LongWord_ALU(
+      ALUWords1(
+        alu(add(reg(3), reg(1), reg(2))),
+      )
+    )
+
+    LongWord_ALU(
       ALUWords2(
         alu(add(reg(3), reg(1), reg(2))),
         alu(sub(reg(3), reg(1), reg(2)))  
+      )
+    )
+
+    LongWord_ALU(
+      ALUWords3(
+        alu(add(reg(3), reg(1), reg(2))),
+        alu(sub(reg(3), reg(1), reg(2))),
+        alu(addi(reg(3), reg(1), imm16(10)))  
       )
     )
 

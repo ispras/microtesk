@@ -54,6 +54,7 @@ public final class Add extends Operation
             super(
                 Add.class,
                 Add.class.getSimpleName(),
+                false,
                 new ParamDecls(),
                 new Shortcuts()
                     .addShortcut(new Info_Instruction(), "#root")
@@ -75,6 +76,7 @@ public final class Add extends Operation
             super(
                Instruction.class, 
                "ADD",
+               true,
                new ParamDecls()
                    .declareParam("op1", OPRNDL.INFO)
                    .declareParam("op2", OPRNDR.INFO)

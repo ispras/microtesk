@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -34,14 +34,26 @@ public final class MetaSituation implements MetaData
 {
     private final String name;
 
+    /**
+     * Constructs a metadata object for a situation that 
+     * has the specified name,
+     * 
+     * @param name Situation name.
+     * 
+     * @throws NullPointerException if the parameter is {@code null}.
+     */
+
     public MetaSituation(String name)
     {
-        this.name  = name;
+        if (null == name)
+            throw new NullPointerException();
+
+        this.name = name;
     }
 
     /**
      * Returns the name of the test situation.
-     *  
+     * 
      * @return Situation name.
      */
 
@@ -49,5 +61,11 @@ public final class MetaSituation implements MetaData
     public String getName()
     {
         return name;
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("MetaSituation %s", name);
     }
 }

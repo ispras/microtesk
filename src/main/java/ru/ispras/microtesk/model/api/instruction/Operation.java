@@ -294,32 +294,56 @@ public abstract class Operation implements IOperation
     {
         private final Class<?>       opClass;
         private final String            name;
+        private final boolean         isRoot;
         private final ParamDecls       decls;
         private final Shortcuts    shortcuts;
         private final MetaOperation metaData;
 
-        public InfoAndRule(Class<?> opClass, String name, ParamDecls decls)
+        public InfoAndRule(
+            Class<?> opClass,
+            String name,
+            boolean isRoot,
+            ParamDecls decls
+            )
         {
             this.opClass   = opClass;
             this.name      = name;
+            this.isRoot    = isRoot;
             this.decls     = decls;
             this.shortcuts = new Shortcuts();
-            this.metaData  = new MetaOperation(name, decls.getMetaData());
+            
+            this.metaData = new MetaOperation(
+                name, isRoot(), decls.getMetaData());
         }
 
-        public InfoAndRule(Class<?> opClass, String name, ParamDecls decls, Shortcuts shortcuts)
+        public InfoAndRule(
+            Class<?> opClass,
+            String name,
+            boolean isRoot,
+            ParamDecls decls,
+            Shortcuts shortcuts
+            )
         {
             this.opClass   = opClass;
             this.name      = name;
+            this.isRoot    = isRoot;
             this.decls     = decls;
             this.shortcuts = shortcuts;
-            this.metaData  = new MetaOperation(name, decls.getMetaData(), shortcuts.getMetaData());
+
+            this.metaData = new MetaOperation(
+                name, isRoot(), decls.getMetaData(), shortcuts.getMetaData());
         }
 
         @Override
         public final String getName()
         {
             return name;
+        }
+        
+        @Override
+        public final boolean isRoot()
+        {
+            return isRoot;
         }
 
         @Override
@@ -400,6 +424,16 @@ public abstract class Operation implements IOperation
         }
 
         @Override
+        public boolean isRoot()
+        {
+            for (IInfo child: childs)
+                if (!child.isRoot())
+                    return false;
+
+            return true;
+        } 
+
+        @Override
         public boolean isSupported(IOperation op)
         {
             for (IInfo i : childs)
@@ -431,7 +465,7 @@ public abstract class Operation implements IOperation
         public Map<String, IOperationBuilder> createBuildersForShortcut(String contextName)
         {
             return null;
-        } 
+        }
     }
 
     /**

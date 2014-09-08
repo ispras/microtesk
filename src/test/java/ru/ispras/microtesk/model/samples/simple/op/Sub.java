@@ -54,6 +54,7 @@ public class Sub extends Operation
             super(
                 Sub.class,
                 Sub.class.getSimpleName(),
+                false,
                 new ParamDecls(),
                 new Shortcuts()
                     .addShortcut(new Info_Instruction(), "#root")
@@ -75,6 +76,7 @@ public class Sub extends Operation
             super(
                Instruction.class, 
                "SUB",
+               true,
                new ParamDecls()
                    .declareParam("op1", OPRNDL.INFO)
                    .declareParam("op2", OPRNDR.INFO)
