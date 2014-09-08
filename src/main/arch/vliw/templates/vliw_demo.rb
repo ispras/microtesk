@@ -55,6 +55,10 @@ class VLIWDemo < Template
       )
     )
 
+    (1..3).each do |i|
+      trace "GPR[#{i}] = %s", location("GPR", i)
+    end
+
   end
 
 end
