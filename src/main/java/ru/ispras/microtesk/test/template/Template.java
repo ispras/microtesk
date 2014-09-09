@@ -27,12 +27,7 @@ package ru.ispras.microtesk.test.template;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.metadata.MetaOperation;
-import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
-
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
@@ -45,12 +40,12 @@ public final class Template
 
     private final String ROOT_CONTEXT_NAME = "#root";
 
-    private final MetaModel metaModel;
+    private final PrimitiveBuilderFactory pbFactory;
 
     private final Deque<BlockBuilder> blockBuilders;
     private CallBuilder callBuilder;
 
-    private final Deque<String> operationContexts;
+    private final Deque<String> contexts;
 
     private IIterator<Sequence<Call>> sequences;
 
@@ -61,14 +56,14 @@ public final class Template
         if (null == metaModel)
             throw new NullPointerException();
 
-        this.metaModel = metaModel;
+        this.pbFactory = new PrimitiveBuilderFactory(metaModel);
 
         this.blockBuilders = new LinkedList<BlockBuilder>();
         this.blockBuilders.push(new BlockBuilder());
         this.callBuilder = new CallBuilder(getCurrentBlockId());
 
-        this.operationContexts = new LinkedList<String>();
-        this.operationContexts.push(ROOT_CONTEXT_NAME);
+        this.contexts = new LinkedList<String>();
+        this.contexts.push(ROOT_CONTEXT_NAME);
 
         this.sequences = null;
     }
@@ -127,26 +122,31 @@ public final class Template
         blockBuilders.peek().addBlock(block);
     }
 
-    public void pushOperationContext(String contextName)
+    public void pushContext(String contextName)
     {
         if (null == contextName)
             throw new NullPointerException();
 
-        operationContexts.push(contextName);
+        contexts.push(contextName);
     }
 
-    public void popOperationContext()
+    public void popContext()
     {
-        if (isOperationRootContext())
+        if (isRootContext())
             throw new IllegalStateException(
                 "It is illegal to leave the root operation context.");
 
-        operationContexts.pop();
+        contexts.pop();
     }
 
-    public boolean isOperationRootContext()
+    public boolean isRootContext()
     {
-        return operationContexts.size() == 1;
+        return contexts.size() == 1;
+    }
+
+    public String getContext()
+    {
+        return contexts.peek();
     }
 
     public void addLabel(String name)
@@ -186,56 +186,20 @@ public final class Template
 
     public PrimitiveBuilder newInstructionBuilder(String name)
     {
-        if (null == name)
-            throw new NullPointerException();
-
         _trace("Instruction: " + name);
-
-        final MetaInstruction metaData = metaModel.getInstruction(name);
-        if (null == metaData)
-            throw new IllegalArgumentException("No such instruction: " + name);
-
-        return new PrimitiveBuilder(callBuilder, metaData);
+        return pbFactory.newInstructionBuilder(name, callBuilder);
     }
 
     public PrimitiveBuilder newOperationBuilder(String name)
     {
-        if (null == name)
-            throw new NullPointerException();
-
-        final String contextName = operationContexts.peek();
-        _trace(String.format("Operation: %s (context: %s)", name, contextName));
-
-        final MetaOperation metaData = metaModel.getOperation(name);
-        if (null == metaData)
-            throw new IllegalArgumentException("No such operation: " + name);
-
-        final MetaShortcut metaShortcut =
-           metaData.getShortcut(contextName);
-
-        if (null != metaShortcut)
-            return new PrimitiveBuilder(
-                callBuilder, metaShortcut.getOperation(), contextName);
-
-        // If there is no shortcut for the given context,
-        // the operation is used as it is.
-
-        return new PrimitiveBuilder(callBuilder, metaData, null);
+        _trace(String.format("Operation: " + name));
+        return pbFactory.newOperationBuilder(name, callBuilder);
     }
 
     public PrimitiveBuilder newAddressingModeBuilder(String name)
     {
-        if (null == name)
-            throw new NullPointerException();
-
         _trace("Addressing mode: " + name);
-
-        final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
-        if (null == metaData)
-            throw new IllegalArgumentException(
-                "No such addressing mode: " + name);
-
-        return new PrimitiveBuilder(callBuilder, metaData);
+        return pbFactory.newAddressingModeBuilder(name, callBuilder);
     }
 
     public RandomValueBuilder newRandom(int from, int to)

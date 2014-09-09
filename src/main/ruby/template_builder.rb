@@ -55,7 +55,8 @@ def define_addressing_mode(mode)
 
   p = lambda do |*arguments|
     builder = @template.newAddressingModeBuilder name
-    build_primitive builder, arguments
+    set_arguments builder, arguments
+    builder.build
   end
 
   define_method_for Template, name, "mode", p
@@ -75,7 +76,10 @@ def define_operation(op)
     # @template.pushOperationContext name
 
     builder = @template.newOperationBuilder name
-    operation = build_primitive builder, arguments
+    set_arguments builder, arguments
+
+    builder.setContext @template.getContext    
+    operation = builder.build
 
     if situations != nil
       self.instance_eval &situations
@@ -104,7 +108,9 @@ def define_instruction(i)
 
   p = lambda do |*arguments, &situations|
     builder = @template.newInstructionBuilder name
-    instruction = build_primitive builder, arguments
+
+    set_arguments builder, arguments
+    instruction = builder.build
 
     if situations != nil
       self.instance_eval &situations
@@ -117,14 +123,12 @@ def define_instruction(i)
   define_method_for Template, name, "instruction", p
 end
 
-def build_primitive(builder, args)
+def set_arguments(builder, args)
   if args.count == 1 and args.first.is_a?(Hash)
     set_arguments_from_hash builder, args.first
   else
     set_arguments_from_array builder, args
   end
-
-  builder.build
 end
 
 def set_arguments_from_hash(builder, args)
