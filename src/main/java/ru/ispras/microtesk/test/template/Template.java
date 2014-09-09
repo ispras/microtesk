@@ -33,19 +33,10 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 public final class Template
 {
-    /**
-     * See {@link ru.ispras.microtesk.translator.simnml.ir.primitive.
-     * PrimitiveSyntesizer#ROOT_ID}.
-     */
-
-    private final String ROOT_CONTEXT_NAME = "#root";
-
     private final PrimitiveBuilderFactory pbFactory;
 
     private final Deque<BlockBuilder> blockBuilders;
     private CallBuilder callBuilder;
-
-    private final Deque<String> contexts;
 
     private IIterator<Sequence<Call>> sequences;
 
@@ -61,9 +52,6 @@ public final class Template
         this.blockBuilders = new LinkedList<BlockBuilder>();
         this.blockBuilders.push(new BlockBuilder());
         this.callBuilder = new CallBuilder(getCurrentBlockId());
-
-        this.contexts = new LinkedList<String>();
-        this.contexts.push(ROOT_CONTEXT_NAME);
 
         this.sequences = null;
     }
@@ -120,33 +108,6 @@ public final class Template
         final Block block = builder.build();
 
         blockBuilders.peek().addBlock(block);
-    }
-
-    public void pushContext(String contextName)
-    {
-        if (null == contextName)
-            throw new NullPointerException();
-
-        contexts.push(contextName);
-    }
-
-    public void popContext()
-    {
-        if (isRootContext())
-            throw new IllegalStateException(
-                "It is illegal to leave the root operation context.");
-
-        contexts.pop();
-    }
-
-    public boolean isRootContext()
-    {
-        return contexts.size() == 1;
-    }
-
-    public String getContext()
-    {
-        return contexts.peek();
     }
 
     public void addLabel(String name)
