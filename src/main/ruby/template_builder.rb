@@ -78,12 +78,12 @@ def define_operation(op)
     builder = @template.newOperationBuilder name
     set_arguments builder, arguments
 
-    builder.setContext @template.getContext    
-    operation = builder.build
-
     if situations != nil
       self.instance_eval &situations
     end
+
+    builder.setContext @template.getContext    
+    operation = builder.build
 
     if operation.isRoot
       @template.setRootOperation operation
@@ -108,14 +108,13 @@ def define_instruction(i)
 
   p = lambda do |*arguments, &situations|
     builder = @template.newInstructionBuilder name
-
     set_arguments builder, arguments
-    instruction = builder.build
 
     if situations != nil
       self.instance_eval &situations
     end
 
+    instruction = builder.build
     @template.setRootOperation instruction
     @template.endBuildingCall
   end
