@@ -51,11 +51,13 @@ public interface PrimitiveBuilder
     void addArgument(String value);
     void addArgument(RandomValueBuilder value);
     void addArgument(Primitive value);
+    void addArgument(PrimitiveBuilder value);
 
     void setArgument(String name, int value);
     void setArgument(String name, String value);
     void setArgument(String name, RandomValueBuilder value);
     void setArgument(String name, Primitive value);
+    void setArgument(String name, PrimitiveBuilder value);
 }
 
 final class PrimitiveBuilderFactory
@@ -226,7 +228,14 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
     public void addArgument(Primitive value)
     {
         checkNotNull(value);
-        registerArgument(new ArgumentPrimitive(value));
+        registerArgument(new ArgumentPrim(value));
+    }
+    
+    @Override
+    public void addArgument(PrimitiveBuilder value)
+    {
+        checkNotNull(value);
+        registerArgument(new ArgumentPrimB(value));
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -256,7 +265,15 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
     {
         checkNotNull(name);
         checkNotNull(value);
-        registerArgument(new ArgumentPrimitive(name, value));
+        registerArgument(new ArgumentPrim(name, value));
+    }
+
+    @Override
+    public void setArgument(String name, PrimitiveBuilder value)
+    {
+        checkNotNull(name);
+        checkNotNull(value);
+        registerArgument(new ArgumentPrimB(name, value));
     }
 
     private static void checkNotNull(Object o)
@@ -349,12 +366,31 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
         }
     }
 
-    private static class ArgumentPrimitive extends AbstractArgument<Primitive>
+    private static class ArgumentPrim extends AbstractArgument<Primitive>
     {
-        public ArgumentPrimitive(String name, Primitive value)
+        public ArgumentPrim(String name, Primitive value)
             { super(name, value); }
 
-        public ArgumentPrimitive(Primitive value)
+        public ArgumentPrim(Primitive value)
+            { super(value); }
+
+        @Override
+        public void addToBuilder(PrimitiveBuilder builder)
+        {
+            if (hasName())
+                builder.setArgument(getName(), getValue());
+            else
+                builder.addArgument(getValue());
+        }
+    }
+
+    private static class ArgumentPrimB
+        extends AbstractArgument<PrimitiveBuilder>
+    {
+        public ArgumentPrimB(String name, PrimitiveBuilder value)
+            { super(name, value); }
+
+        public ArgumentPrimB(PrimitiveBuilder value)
             { super(value); }
 
         @Override
@@ -486,6 +522,13 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         setArgument(name, value);
     }
 
+    @Override
+    public void addArgument(PrimitiveBuilder value)
+    {
+        final String name = getNextArgumentName();
+        setArgument(name, value);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // For Hash-based syntax
 
@@ -547,6 +590,13 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         final Argument arg = new Argument(name, kind, value);
         checkValidArgument(arg);
         putArgument(arg);
+    }
+
+    @Override
+    public void setArgument(String name, PrimitiveBuilder value)
+    {
+        value.setContext(getName());
+        setArgument(name, value.build());
     }
 
     private String getName()
