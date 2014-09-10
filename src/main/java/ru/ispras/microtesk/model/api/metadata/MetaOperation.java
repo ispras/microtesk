@@ -39,6 +39,7 @@ public final class MetaOperation implements MetaData
     private final boolean isRoot;
     private final Map<String, MetaArgument> args;
     private final Map<String, MetaShortcut> shortcuts;
+    private final boolean hasRootShortcuts;
 
     public MetaOperation(
         String name,
@@ -65,6 +66,13 @@ public final class MetaOperation implements MetaData
         this.isRoot = isRoot; 
         this.args = args;
         this.shortcuts = shortcuts;
+
+        boolean rootShortcuts = false;
+        for (MetaShortcut ms : shortcuts.values())
+            if (ms.getOperation().isRoot())
+                { rootShortcuts = true; break; }
+
+        this.hasRootShortcuts = rootShortcuts;
     }
 
     /**
@@ -157,5 +165,21 @@ public final class MetaOperation implements MetaData
     public MetaShortcut getShortcut(String contextName)
     {
         return shortcuts.get(contextName);
+    }
+
+    /**
+     * Checks whether the current operation has root shortcuts.
+     * This means that the operation can be addressed directly
+     * in a test template to specify a complete instruction call
+     * (not as a part of a call specified as an argument for other
+     * operation).   
+     * 
+     * @return {@code true} if it the operation has root
+     * shortcuts or {@code false} otherwise.
+     */
+
+    public boolean hasRootShortcuts()
+    {
+        return hasRootShortcuts;
     }
 }
