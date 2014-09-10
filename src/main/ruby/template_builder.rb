@@ -68,6 +68,7 @@ end
 def define_operation(op)
   name = op.getName().to_s
   is_root = op.isRoot
+  root_shortcuts = op.hasRootShortcuts
 
   #puts "Defining operation #{name}..."
 
@@ -83,19 +84,14 @@ def define_operation(op)
     if is_root
       @template.setRootOperation builder.build
       @template.endBuildingCall
+    elsif root_shortcuts
+      # TODO: Dirty hack! Assumes that if a root shortcut exists, we always use it. 
+      builder.setContext "#root"
+      @template.setRootOperation builder.build
+      @template.endBuildingCall
     else
       builder
     end
-
-    #builder.setContext "#root"    
-    #operation = builder.build
-
-    #if operation.isRoot
-    #  @template.setRootOperation operation
-    #  @template.endBuildingCall
-    #end
-
-    #operation
   end
 
   define_method_for Template, name, "op", p
