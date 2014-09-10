@@ -45,7 +45,7 @@ class VLIWDemo < Template
     LongWord_ALU(
       ALUWords2(
         alu(add reg(3), reg(1), reg(2)),
-        alu(sub reg(3), reg(1), reg(2))  
+        alu(sub reg(3), reg(1), reg(2))
       )
     )
 
@@ -73,7 +73,7 @@ class VLIWDemo < Template
     LongWord_ALU(
       ALUWords2(
         (add reg(3), reg(1), reg(2)),
-        (sub reg(3), reg(1), reg(2))  
+        (sub reg(3), reg(1), reg(2))
       )
     )
 
@@ -81,7 +81,7 @@ class VLIWDemo < Template
       ALUWords3(
         (add  reg(3), reg(1), reg(2)),
         (sub  reg(3), reg(1), reg(2)),
-        (addi reg(3), reg(1), imm16(10))  
+        (addi reg(3), reg(1), imm16(10))
       )
     )
 
