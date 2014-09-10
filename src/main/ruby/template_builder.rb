@@ -67,13 +67,11 @@ end
 # 
 def define_operation(op)
   name = op.getName().to_s
+  is_root = op.isRoot
+
   #puts "Defining operation #{name}..."
 
   p = lambda do |*arguments, &situations|
-    # TODO: This line is wrong, but we need a way set
-    # the context so that all argument operations 
-    # are created in this context. 
-    # @template.pushOperationContext name
 
     builder = @template.newOperationBuilder name
     set_arguments builder, arguments
@@ -82,18 +80,22 @@ def define_operation(op)
       self.instance_eval &situations
     end
 
-    builder.setContext @template.getContext    
-    operation = builder.build
-
-    if operation.isRoot
-      @template.setRootOperation operation
+    if is_root
+      @template.setRootOperation builder.build
       @template.endBuildingCall
+    else
+      builder
     end
 
-    operation
+    #builder.setContext "#root"    
+    #operation = builder.build
 
-    # TODO: Attention: see the above comment.
-    # @template.popOperationContext
+    #if operation.isRoot
+    #  @template.setRootOperation operation
+    #  @template.endBuildingCall
+    #end
+
+    #operation
   end
 
   define_method_for Template, name, "op", p

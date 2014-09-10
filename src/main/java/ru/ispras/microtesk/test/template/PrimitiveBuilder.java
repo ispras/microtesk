@@ -409,6 +409,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
     private interface Strategy
     {
         String getName();
+        String getTypeName();
         String getDescription();
         boolean isRoot();
         String getNextArgumentName();
@@ -482,7 +483,13 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
 
         return new Primitive(
-            kind, getName(), strategy.isRoot(), args, contextName);
+            kind,
+            getName(),
+            strategy.getTypeName(),
+            strategy.isRoot(),
+            args,
+            contextName
+            );
     }
 
     @Override
@@ -659,6 +666,12 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         }
 
         @Override
+        public String getTypeName()
+        {
+            return getName();
+        }
+
+        @Override
         public String getDescription()
         {
             return String.format("the %s instruction", getName());
@@ -707,7 +720,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
                         arg.getName(),
                         getDescription()));
 
-                typeName = ((Primitive) arg.getValue()).getName();
+                typeName = ((Primitive) arg.getValue()).getTypeName();
             }
 
             if (!metaArgument.isTypeAccepted(typeName))
@@ -756,6 +769,12 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         public String getName()
         {
             return metaData.getName();
+        }
+
+        @Override
+        public String getTypeName()
+        {
+            return metaData.getTypeName();
         }
 
         @Override
@@ -813,7 +832,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
                         arg.getName(),
                         getDescription()));
                 
-                typeName = ((Primitive) arg.getValue()).getName();
+                typeName = ((Primitive) arg.getValue()).getTypeName();
             }
 
             if (!metaArgument.isTypeAccepted(typeName))
@@ -863,6 +882,12 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         public String getName()
         {
             return metaData.getName();
+        }
+
+        @Override
+        public String getTypeName()
+        {
+            return getName();
         }
 
         @Override

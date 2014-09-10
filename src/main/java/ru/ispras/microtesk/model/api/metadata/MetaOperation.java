@@ -24,7 +24,6 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -36,27 +35,23 @@ import java.util.Map;
 public final class MetaOperation implements MetaData
 {
     private final String name;
+    private final String typeName;
     private final boolean isRoot;
     private final Map<String, MetaArgument> args;
     private final Map<String, MetaShortcut> shortcuts;
 
     public MetaOperation(
         String name,
-        boolean isRoot,
-        Map<String, MetaArgument> args
-        )
-    {
-        this(name, isRoot, args, Collections.<String, MetaShortcut>emptyMap());
-    }
-
-    public MetaOperation(
-        String name,
+        String typeName,
         boolean isRoot,
         Map<String, MetaArgument> args,
         Map<String, MetaShortcut> shortcuts
         )
     {
         if (null == name)
+            throw new NullPointerException();
+
+        if (null == typeName)
             throw new NullPointerException();
 
         if (null == args)
@@ -66,6 +61,7 @@ public final class MetaOperation implements MetaData
             throw new NullPointerException();
 
         this.name = name;
+        this.typeName = typeName;
         this.isRoot = isRoot; 
         this.args = args;
         this.shortcuts = shortcuts;
@@ -81,6 +77,22 @@ public final class MetaOperation implements MetaData
     public String getName()
     {
         return name;
+    }
+
+    /**
+     * Returns the type name of the operation. If a meta operation
+     * describes a shortcut the type name is different from the name.
+     * The name means the name of the target operation, while the type
+     * name means the name of the entry operation (that encapsulates
+     * the path to the target).
+     * 
+     * @return The operation type name (for composite operation the name
+     * of the topmost operation).
+     */
+
+    public String getTypeName()
+    {
+        return typeName;
     }
 
     /**

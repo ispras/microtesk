@@ -37,18 +37,18 @@ public final class Primitive
 
     private final Kind kind;
     private final String name;
+    private final String typeName;
     private final boolean isRoot;
     private final Map<String, Argument> args;
     private final String contextName;
-    private final String typeName;
 
     Primitive(
         Kind kind,
         String name,
+        String typeName,
         boolean isRoot,
         Map<String, Argument> args,
-        String contextName,
-        String typeName
+        String contextName
         )
     {
         if (null == kind)
@@ -56,16 +56,19 @@ public final class Primitive
 
         if (null == name)
             throw new NullPointerException();
+        
+        if (null == typeName)
+            throw new NullPointerException();
 
         if (null == args)
             throw new NullPointerException();
 
         this.kind = kind;
         this.name = name;
+        this.typeName = typeName;
         this.isRoot = isRoot;
         this.args = args;
         this.contextName = contextName;
-        this.typeName = typeName;
     }
 
     public Kind getKind()
@@ -76,6 +79,11 @@ public final class Primitive
     public String getName()
     {
         return name;
+    }
+
+    public String getTypeName()
+    {
+        return typeName; 
     }
 
     public boolean isRoot()
@@ -91,10 +99,5 @@ public final class Primitive
     public String getContextName()
     {
         return contextName;
-    }
-
-    public String getTypeName()
-    {
-        return (null != typeName) ? typeName : getName(); 
     }
 }

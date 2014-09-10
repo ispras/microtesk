@@ -258,6 +258,9 @@ public abstract class Operation implements IOperation
         
         public Map<String, MetaShortcut> getMetaData()
         {
+            if (shortcuts.isEmpty())
+                return Collections.emptyMap();
+
             final Map<String, MetaShortcut> result =
                 new LinkedHashMap<String, MetaShortcut>(shortcuts.size());
 
@@ -303,23 +306,6 @@ public abstract class Operation implements IOperation
             Class<?> opClass,
             String name,
             boolean isRoot,
-            ParamDecls decls
-            )
-        {
-            this.opClass   = opClass;
-            this.name      = name;
-            this.isRoot    = isRoot;
-            this.decls     = decls;
-            this.shortcuts = new Shortcuts();
-            
-            this.metaData = new MetaOperation(
-                name, isRoot(), decls.getMetaData());
-        }
-
-        public InfoAndRule(
-            Class<?> opClass,
-            String name,
-            boolean isRoot,
             ParamDecls decls,
             Shortcuts shortcuts
             )
@@ -331,7 +317,22 @@ public abstract class Operation implements IOperation
             this.shortcuts = shortcuts;
 
             this.metaData = new MetaOperation(
-                name, isRoot(), decls.getMetaData(), shortcuts.getMetaData());
+                name,
+                opClass.getSimpleName(),
+                isRoot(),
+                decls.getMetaData(),
+                shortcuts.getMetaData()
+            );
+        }
+        
+        public InfoAndRule(
+            Class<?> opClass,
+            String name,
+            boolean isRoot,
+            ParamDecls decls
+            )
+        {
+            this(opClass, name, isRoot, decls, new Shortcuts());
         }
 
         @Override
