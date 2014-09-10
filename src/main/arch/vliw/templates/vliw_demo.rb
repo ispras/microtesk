@@ -34,6 +34,8 @@ class VLIWDemo < Template
   def run
     comment "This a demo template for a simple VLIW ISA based on MIPS"
 
+    # Full syntax that uses the full hierarchy of operations.
+
     LongWord_ALU(
       ALUWords1(
         alu(add(reg(3), reg(1), reg(2))),
@@ -52,6 +54,34 @@ class VLIWDemo < Template
         alu(add(reg(3), reg(1), reg(2))),
         alu(sub(reg(3), reg(1), reg(2))),
         alu(addi(reg(3), reg(1), imm16(10)))  
+      )
+    )
+
+    (1..3).each do |i|
+      trace "GPR[#{i}] = %s", location("GPR", i)
+    end
+
+    # Reduced syntax that uses shortcuts
+    # (the intermediate operation ALU is skipped).
+
+    LongWord_ALU(
+      ALUWords1(
+        add(reg(3), reg(1), reg(2)),
+      )
+    )
+
+    LongWord_ALU(
+      ALUWords2(
+        add(reg(3), reg(1), reg(2)),
+        sub(reg(3), reg(1), reg(2))  
+      )
+    )
+
+    LongWord_ALU(
+      ALUWords3(
+        add(reg(3), reg(1), reg(2)),
+        sub(reg(3), reg(1), reg(2)),
+        addi(reg(3), reg(1), imm16(10))  
       )
     )
 
