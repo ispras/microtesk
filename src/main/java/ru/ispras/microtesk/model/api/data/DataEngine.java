@@ -83,16 +83,16 @@ public final class DataEngine
 
     public static Data valueOf(Type type, long value)
     { 
-        checkConversionSupported(type, "long", type.getTypeID().name());
+        checkConversionSupported(type, "long", type.getTypeId().name());
 
-        return VALUE_CONVERTERS.get(type.getTypeID()).fromLong(type, value);
+        return VALUE_CONVERTERS.get(type.getTypeId()).fromLong(type, value);
     }
 
     public static Data valueOf(Type type, int value)
     { 
-        checkConversionSupported(type, "int", type.getTypeID().name());
+        checkConversionSupported(type, "int", type.getTypeId().name());
 
-        return VALUE_CONVERTERS.get(type.getTypeID()).fromInt(type, value);
+        return VALUE_CONVERTERS.get(type.getTypeId()).fromInt(type, value);
     }
 
     public static Data valueOf(Type type, String value)
@@ -102,28 +102,28 @@ public final class DataEngine
 
     public static Data valueOf(Type type, String value, Radix radix)
     { 
-        checkConversionSupported(type, "String", type.getTypeID().name());
+        checkConversionSupported(type, "String", type.getTypeId().name());
 
-        return VALUE_CONVERTERS.get(type.getTypeID()).fromString(type, value, radix);
+        return VALUE_CONVERTERS.get(type.getTypeId()).fromString(type, value, radix);
     }
     
     public static int intValue(Data data)
     {
-        checkConversionSupported(data.getType(), data.getType().getTypeID().name(), "int");
+        checkConversionSupported(data.getType(), data.getType().getTypeId().name(), "int");
 
-        return VALUE_CONVERTERS.get(data.getType().getTypeID()).toInt(data);
+        return VALUE_CONVERTERS.get(data.getType().getTypeId()).toInt(data);
     }
     
     public static boolean booleanValue(Data data)
     {
-        checkConversionSupported(data.getType(), data.getType().getTypeID().name(), "long");
+        checkConversionSupported(data.getType(), data.getType().getTypeId().name(), "long");
 
-        return 0 != VALUE_CONVERTERS.get(data.getType().getTypeID()).toLong(data);
+        return 0 != VALUE_CONVERTERS.get(data.getType().getTypeId()).toLong(data);
     }
 
     public static boolean isIntValueSupported(Type type)
     {
-        if (!VALUE_CONVERTERS.containsKey(type.getTypeID()))
+        if (!VALUE_CONVERTERS.containsKey(type.getTypeId()))
             return false;
         
         // If the source value is exceeds the size of an integer value,
@@ -138,14 +138,14 @@ public final class DataEngine
 
     public static long longValue(Data data)
     {
-        checkConversionSupported(data.getType(), data.getType().getTypeID().name(), "boolean");
+        checkConversionSupported(data.getType(), data.getType().getTypeId().name(), "boolean");
 
-        return VALUE_CONVERTERS.get(data.getType().getTypeID()).toLong(data);
+        return VALUE_CONVERTERS.get(data.getType().getTypeId()).toLong(data);
     }
     
     public static boolean isLongValueSupported(Type type)
     {
-        if (!VALUE_CONVERTERS.containsKey(type.getTypeID()))
+        if (!VALUE_CONVERTERS.containsKey(type.getTypeId()))
             return false;
         
         // If the source value is exceeds the size of a long value,
@@ -206,7 +206,7 @@ public final class DataEngine
     
     private static void checkConversionSupported(Type type, String fromName, String toName)
     {
-        if (!VALUE_CONVERTERS.containsKey(type.getTypeID()))
+        if (!VALUE_CONVERTERS.containsKey(type.getTypeId()))
             assert false : String.format(
                 "Unsupported coversion: %s values cannot be converted to %s.", fromName, toName);
     }
@@ -217,7 +217,7 @@ public final class DataEngine
             assert false : 
                 String.format("The %s operation cannot be performed for an %s(%d) operand.",
                     oid.name(),
-                    argType.getTypeID().name(),
+                    argType.getTypeId().name(),
                     argType.getBitSize()
                     );
     }
@@ -228,9 +228,9 @@ public final class DataEngine
             assert false : 
                 String.format("The %s operation cannot be performed for %s(%d) and %s(%d) operands.",
                     oid.name(),
-                    left.getTypeID().name(),
+                    left.getTypeId().name(),
                     left.getBitSize(),
-                    right.getTypeID().name(),
+                    right.getTypeId().name(),
                     right.getBitSize()
                     );
     }

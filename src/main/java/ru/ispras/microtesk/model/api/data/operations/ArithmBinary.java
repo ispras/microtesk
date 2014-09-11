@@ -59,7 +59,7 @@ public final class ArithmBinary implements IBinaryOperator
     {
         // result type is INT if one of the parameters is INT.
 
-        if (right.getTypeID() == ETypeID.INT)
+        if (right.getTypeId() == ETypeID.INT)
             return right;
 
         return left;
@@ -77,10 +77,10 @@ public final class ArithmBinary implements IBinaryOperator
     @Override
     public boolean supports(Type left, Type right)
     {
-        if (!SUPPORTED_TYPES.contains(left.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(left.getTypeId()))
             return false;
 
-        if (!SUPPORTED_TYPES.contains(right.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(right.getTypeId()))
             return false;
 
         // Restriction of the current version: type and size should match.

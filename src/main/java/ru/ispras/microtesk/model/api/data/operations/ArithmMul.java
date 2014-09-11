@@ -49,10 +49,10 @@ public class ArithmMul implements IBinaryOperator
     @Override
     public boolean supports(Type left, Type right)
     {
-        if (!SUPPORTED_TYPES.contains(left.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(left.getTypeId()))
             return false;
 
-        if (!SUPPORTED_TYPES.contains(right.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(right.getTypeId()))
             return false;
 
         // Restriction of the current version: type and size should match.
@@ -63,13 +63,13 @@ public class ArithmMul implements IBinaryOperator
             return false;
         
         final boolean equalType =
-            left.getTypeID() == right.getTypeID();
+            left.getTypeId() == right.getTypeId();
         
         if (!equalType)
         {
             final boolean integerTypes =
-                (left.getTypeID() == ETypeID.INT && right.getTypeID() == ETypeID.CARD) || 
-                (left.getTypeID() == ETypeID.CARD && right.getTypeID() == ETypeID.INT);
+                (left.getTypeId() == ETypeID.INT && right.getTypeId() == ETypeID.CARD) || 
+                (left.getTypeId() == ETypeID.CARD && right.getTypeId() == ETypeID.INT);
             
             if (!integerTypes)
                 return false;

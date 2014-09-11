@@ -120,7 +120,7 @@ public final class Location
     public Location concat(Location arg)
     {
         return new Location(
-           new Type(type.getTypeID(), type.getBitSize() + arg.getType().getBitSize()),
+           new Type(type.getTypeId(), type.getBitSize() + arg.getType().getBitSize()),
            BitVector.newMapping(arg.rawData /*low*/, rawData /*high*/),
            readOnly || arg.readOnly,
            handler
@@ -139,7 +139,7 @@ public final class Location
         boolean readOnly = false;
         int totalBitSize = 0;
 
-        final ETypeID typeID = locations[0].getType().getTypeID();
+        final ETypeID typeID = locations[0].getType().getTypeId();
         for (int index = 0; index < locations.length; ++index)
         {
             readOnly = readOnly || locations[index].readOnly;

@@ -13,8 +13,8 @@
 package ru.ispras.microtesk.model.api.type;
 
 /**
- * The Type class stores information on a type defined in the design specification.
- * This includes type identifier and size of the data in bits.
+ * The Type class stores information on a type defined in the design
+ * specification. This includes type identifier and size of the data in bits.
  *
  * <pre>
  * For example, the following definition in Sim-nML:
@@ -30,20 +30,21 @@ package ru.ispras.microtesk.model.api.type;
 
 public final class Type
 {
-    private final ETypeID typeID;
-    private final     int bitSize;
+    private final ETypeID typeId;
+    private final int bitSize;
 
-    public Type(ETypeID typeID, int bitSize)
+    public Type(ETypeID typeId, int bitSize)
     {
-        assert null != typeID;
+        if (null == typeId)
+            throw new NullPointerException();
 
-        this.typeID  = typeID;
+        this.typeId  = typeId;
         this.bitSize = bitSize;
     }
 
-    public ETypeID getTypeID()
+    public ETypeID getTypeId()
     {
-        return typeID;
+        return typeId;
     }
 
     public int getBitSize()
@@ -58,7 +59,7 @@ public final class Type
         int result = 1;
         
         result = prime * result + bitSize;
-        result = prime * result + typeID.hashCode();
+        result = prime * result + typeId.hashCode();
 
         return result;
     }
@@ -68,18 +69,19 @@ public final class Type
     {
         if (this == obj) return true;
         if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        
+        if (getClass() != obj.getClass())
+            return false;
 
         final Type other = (Type) obj;
-        if (typeID != other.typeID) return false;
-        if (bitSize != other.bitSize) return false;
-
-        return true;
+        return (typeId == other.typeId) && 
+               (bitSize == other.bitSize);
     }
 
     @Override
     public String toString()
     {
-        return String.format("Type(%s, %d)", typeID, bitSize);
+        return String.format(
+            "Type(%s, %d)", typeId, bitSize);
     }
 }

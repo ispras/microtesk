@@ -46,7 +46,7 @@ public final class BitBinary implements IBinaryOperator
     {
         // result type is INT if one of the parameters is INT.
 
-        if (rhs.getTypeID() == ETypeID.INT)
+        if (rhs.getTypeId() == ETypeID.INT)
             return rhs;
 
         return lhs;
@@ -64,10 +64,10 @@ public final class BitBinary implements IBinaryOperator
     @Override
     public boolean supports(Type lhs, Type rhs)
     {
-        if (!SUPPORTED_TYPES.contains(lhs.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(lhs.getTypeId()))
             return false;
 
-        if (!SUPPORTED_TYPES.contains(rhs.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(rhs.getTypeId()))
             return false;
 
         // Restriction of the current version: size should be equal

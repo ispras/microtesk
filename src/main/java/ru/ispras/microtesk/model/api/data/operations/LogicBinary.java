@@ -60,7 +60,7 @@ public final class LogicBinary implements IBinaryOperator
     {
         final BitVector result;
 
-        if (lhs.getType().getTypeID() == ETypeID.CARD)
+        if (lhs.getType().getTypeId() == ETypeID.CARD)
             result = unsignedOp.execute(lhs.getRawData(), rhs.getRawData());
         else
             result = signedOp.execute(lhs.getRawData(), rhs.getRawData());
@@ -71,10 +71,10 @@ public final class LogicBinary implements IBinaryOperator
     @Override
     public boolean supports(Type lhs, Type rhs)
     {
-        if (!SUPPORTED_TYPES.contains(lhs.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(lhs.getTypeId()))
             return false;
 
-        if (!SUPPORTED_TYPES.contains(rhs.getTypeID()))
+        if (!SUPPORTED_TYPES.contains(rhs.getTypeId()))
             return false;
 
         // Restriction of the current version: size should be equal

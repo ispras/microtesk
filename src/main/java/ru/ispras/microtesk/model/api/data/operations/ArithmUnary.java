@@ -56,6 +56,6 @@ public final class ArithmUnary implements IUnaryOperator
     @Override
     public boolean supports(Type argType)
     {
-        return SUPPORTED_TYPES.contains(argType.getTypeID());
+        return SUPPORTED_TYPES.contains(argType.getTypeId());
     }
 }

@@ -52,6 +52,6 @@ public final class BitUnary implements IUnaryOperator
     @Override
     public boolean supports(Type type)
     {
-        return SUPPORTED_TYPES.contains(type.getTypeID());
+        return SUPPORTED_TYPES.contains(type.getTypeId());
     }
 }
