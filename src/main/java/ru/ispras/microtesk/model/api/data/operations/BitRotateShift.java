@@ -19,14 +19,14 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class BitRotateShift implements IBinaryOperator
 {
-    private final static Set<ETypeID> SUPPORTED_TYPES = EnumSet.of(
-        ETypeID.INT,
-        ETypeID.CARD
+    private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(
+        TypeId.INT,
+        TypeId.CARD
     );
 
     private final BitVectorMath.Operations unsignedOp;
@@ -60,7 +60,7 @@ public final class BitRotateShift implements IBinaryOperator
     {
         final BitVector result;
 
-        if (lhs.getType().getTypeId() == ETypeID.CARD)
+        if (lhs.getType().getTypeId() == TypeId.CARD)
             result = unsignedOp.execute(lhs.getRawData(), rhs.getRawData());
         else
             result = signedOp.execute(lhs.getRawData(), rhs.getRawData());

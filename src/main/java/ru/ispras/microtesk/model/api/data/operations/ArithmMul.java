@@ -19,14 +19,14 @@ import java.util.Set;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public class ArithmMul implements IBinaryOperator
 {
-    private final static Set<ETypeID> SUPPORTED_TYPES = Collections.unmodifiableSet(EnumSet.of(
-        ETypeID.INT,
-        ETypeID.CARD
+    private final static Set<TypeId> SUPPORTED_TYPES = Collections.unmodifiableSet(EnumSet.of(
+        TypeId.INT,
+        TypeId.CARD
         //, ETypeID.FLOAT // NOT SUPPORTED IN THIS VERSION
         //, ETypeID.FIX   // NOT SUPPORTED IN THIS VERSION
     ));
@@ -68,8 +68,8 @@ public class ArithmMul implements IBinaryOperator
         if (!equalType)
         {
             final boolean integerTypes =
-                (left.getTypeId() == ETypeID.INT && right.getTypeId() == ETypeID.CARD) || 
-                (left.getTypeId() == ETypeID.CARD && right.getTypeId() == ETypeID.INT);
+                (left.getTypeId() == TypeId.INT && right.getTypeId() == TypeId.CARD) || 
+                (left.getTypeId() == TypeId.CARD && right.getTypeId() == TypeId.INT);
             
             if (!integerTypes)
                 return false;

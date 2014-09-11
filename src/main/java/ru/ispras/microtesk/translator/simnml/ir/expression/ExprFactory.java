@@ -27,7 +27,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 
@@ -201,7 +201,7 @@ public final class ExprFactory extends WalkerFactoryBase
             // All Model API values that have the BOOL type are cast to 
             // Java boolean values for the sake of simplicity.
 
-            if (operand.getValueInfo().isModelOf(ETypeID.BOOL))
+            if (operand.getValueInfo().isModelOf(TypeId.BOOL))
             {
                 final ValueInfo newValueInfo = operand.getValueInfo().toNativeType(Boolean.class);
                 final NodeInfo   newNodeInfo = operand.getNodeInfo().coerceTo(newValueInfo);
@@ -542,7 +542,7 @@ public final class ExprFactory extends WalkerFactoryBase
                 Integer.SIZE : Long.SIZE;
         }
 
-        final Type type = new Type(ETypeID.INT, size);
+        final Type type = new Type(TypeId.INT, size);
 
         final ValueInfo newValueInfo = ValueInfo.createModel(type);
         final NodeInfo   newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);

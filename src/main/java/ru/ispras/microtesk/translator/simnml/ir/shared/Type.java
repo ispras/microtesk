@@ -12,18 +12,18 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class Type
 {
-    public final static Type BOOLEAN = new Type(ETypeID.BOOL, Expr.newConstant(1));
+    public final static Type BOOLEAN = new Type(TypeId.BOOL, Expr.newConstant(1));
 
-    private final ETypeID  typeId;
+    private final TypeId  typeId;
     private final Expr    bitSize;
     private final String  refName;
 
-    public Type(ETypeID typeId, Expr bitSize, String refName)
+    public Type(TypeId typeId, Expr bitSize, String refName)
     {
         if (null == typeId)
             throw new NullPointerException();
@@ -36,17 +36,17 @@ public final class Type
         this.refName = refName;
     }
 
-    public Type(ETypeID typeId, Expr bitSize)
+    public Type(TypeId typeId, Expr bitSize)
     {
         this(typeId, bitSize, null);
     }
 
-    public Type(ETypeID typeId, int bitSize)
+    public Type(TypeId typeId, int bitSize)
     {
         this(typeId, Expr.newConstant(bitSize), null);
     }
 
-    public ETypeID getTypeId()
+    public TypeId getTypeId()
     {
         return typeId;
     }
@@ -79,7 +79,7 @@ public final class Type
         return String.format(
             "%s(%s.%s, %d)",
             ru.ispras.microtesk.model.api.type.Type.class.getSimpleName(),
-            ETypeID.class.getSimpleName(),
+            TypeId.class.getSimpleName(),
             getTypeId(),
             getBitSize()
             );

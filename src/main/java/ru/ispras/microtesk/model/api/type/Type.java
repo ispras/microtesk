@@ -30,10 +30,10 @@ package ru.ispras.microtesk.model.api.type;
 
 public final class Type
 {
-    private final ETypeID typeId;
+    private final TypeId typeId;
     private final int bitSize;
 
-    public Type(ETypeID typeId, int bitSize)
+    public Type(TypeId typeId, int bitSize)
     {
         if (null == typeId)
             throw new NullPointerException();
@@ -42,7 +42,7 @@ public final class Type
         this.bitSize = bitSize;
     }
 
-    public ETypeID getTypeId()
+    public TypeId getTypeId()
     {
         return typeId;
     }

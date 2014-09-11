@@ -24,7 +24,7 @@ import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.model.api.situation.Situation;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class RandomSituation extends Situation
@@ -75,7 +75,7 @@ public final class RandomSituation extends Situation
             final int randomInt = random.nextInt();
 
             final Data randomData =
-                DataEngine.valueOf(new Type(ETypeID.CARD, 32), randomInt);
+                DataEngine.valueOf(new Type(TypeId.CARD, 32), randomInt);
 
             result.put(outputName, randomData);
         }

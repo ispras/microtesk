@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
@@ -210,9 +210,9 @@ final class CompatibilityChecker extends WalkerFactoryBase
             where, String.format(SIZE_MISMATCH_ERROR, current.getName(), name));
     }
 
-    private boolean isInteger(final ETypeID typeID)
+    private boolean isInteger(final TypeId typeID)
     {
-        return (typeID == ETypeID.CARD) || (typeID == ETypeID.INT);
+        return (typeID == TypeId.CARD) || (typeID == TypeId.INT);
     }
 
     private void checkAttributes() throws SemanticException

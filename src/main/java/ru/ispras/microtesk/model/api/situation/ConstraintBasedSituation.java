@@ -25,7 +25,7 @@ import ru.ispras.fortress.solver.Solver;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.microtesk.model.api.situation.Situation;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public abstract class ConstraintBasedSituation extends Situation
@@ -68,7 +68,7 @@ public abstract class ConstraintBasedSituation extends Situation
 
         for (Variable variable : solverResult.getVariables())
         {
-            result.put(variable.getName(), variableToData(variable, ETypeID.CARD, 32));
+            result.put(variable.getName(), variableToData(variable, TypeId.CARD, 32));
         }
 
         return result;
@@ -90,7 +90,7 @@ public abstract class ConstraintBasedSituation extends Situation
         throw new ConstraintSolverException(sb.toString());
     }
 
-    private Data variableToData(Variable variable, ETypeID typeID, int size)
+    private Data variableToData(Variable variable, TypeId typeID, int size)
     {
         assert null != variable;
         assert variable.getData().getType().getTypeId() == DataTypeId.BIT_VECTOR;

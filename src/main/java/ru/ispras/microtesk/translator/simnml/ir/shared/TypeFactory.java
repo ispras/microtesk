@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
@@ -34,11 +34,11 @@ public final class TypeFactory extends WalkerFactoryBase
 
     public Type createIntegerType(Where where, Expr bitSize) throws SemanticException
     {
-        return new Type(ETypeID.INT, bitSize);
+        return new Type(TypeId.INT, bitSize);
     }
 
     public Type createCardType(Where where, Expr bitSize) throws SemanticException
     {
-        return new Type(ETypeID.CARD, bitSize);
+        return new Type(TypeId.CARD, bitSize);
     }
 }

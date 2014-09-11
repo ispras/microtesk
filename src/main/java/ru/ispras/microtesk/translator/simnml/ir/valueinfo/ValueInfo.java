@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.valueinfo;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 /**
@@ -226,7 +226,7 @@ public abstract class ValueInfo
      * for all other cases.
      */
 
-    public final boolean isModelOf(ETypeID type)
+    public final boolean isModelOf(TypeId type)
     {
         if (null == type)
             return false;

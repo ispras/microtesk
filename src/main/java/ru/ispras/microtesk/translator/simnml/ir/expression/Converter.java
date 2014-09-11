@@ -19,7 +19,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.valueinfo.ValueInfo;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
@@ -180,9 +180,9 @@ final class Converter
 
     private static DataType getDataTypeForModel(Type type)
     {
-        final ETypeID typeId = type.getTypeId();
+        final TypeId typeId = type.getTypeId();
 
-        if ((typeId != ETypeID.INT) && (typeId != ETypeID.CARD))
+        if ((typeId != TypeId.INT) && (typeId != TypeId.CARD))
             throw new IllegalArgumentException(String.format(ERR_UNSUPPORTED_TYPE, typeId));
 
         final int bitSize = type.getBitSize();

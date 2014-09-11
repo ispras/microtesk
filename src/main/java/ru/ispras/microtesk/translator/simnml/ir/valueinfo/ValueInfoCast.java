@@ -14,7 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.valueinfo;
 
 import java.util.List;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
@@ -105,15 +105,15 @@ class ModelTypeCastRules
 {
     private ModelTypeCastRules() {}
 
-    private static final ETypeID CAST_TYPE_MAP[][]=
+    private static final TypeId CAST_TYPE_MAP[][]=
     {
-        { null,          ETypeID.CARD,  ETypeID.INT,  ETypeID.BOOL },
-        { ETypeID.CARD,  ETypeID.CARD,  ETypeID.INT,  null         },
-        { ETypeID.INT,   ETypeID.INT,   ETypeID.INT,  null         },
-        { ETypeID.BOOL,  null,          null,         ETypeID.BOOL },
+        { null,          TypeId.CARD,  TypeId.INT,  TypeId.BOOL },
+        { TypeId.CARD,  TypeId.CARD,  TypeId.INT,  null         },
+        { TypeId.INT,   TypeId.INT,   TypeId.INT,  null         },
+        { TypeId.BOOL,  null,          null,         TypeId.BOOL },
     };
 
-    public static ETypeID getCastTypeId(ETypeID left, ETypeID right)
+    public static TypeId getCastTypeId(TypeId left, TypeId right)
     {
         int col = 0; // left -> col
         for (int columnIndex = 1; columnIndex < CAST_TYPE_MAP[0].length; ++columnIndex)
@@ -146,7 +146,7 @@ class ModelTypeCastRules
     
     public static Type getCastType(Type left, Type right)
     {
-        final ETypeID typeId = 
+        final TypeId typeId = 
             getCastTypeId(left.getTypeId(), right.getTypeId());
 
         if (null == typeId)

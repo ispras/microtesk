@@ -16,7 +16,7 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
@@ -139,7 +139,7 @@ public final class Location
         boolean readOnly = false;
         int totalBitSize = 0;
 
-        final ETypeID typeID = locations[0].getType().getTypeId();
+        final TypeId typeID = locations[0].getType().getTypeId();
         for (int index = 0; index < locations.length; ++index)
         {
             readOnly = readOnly || locations[index].readOnly;

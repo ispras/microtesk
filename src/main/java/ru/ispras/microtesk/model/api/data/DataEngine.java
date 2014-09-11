@@ -20,7 +20,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath.Operations;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.operations.*;
 
@@ -28,8 +28,8 @@ public final class DataEngine
 {   
     private DataEngine() {}
     
-    private static final Map<ETypeID, IValueConverter> VALUE_CONVERTERS =
-        new EnumMap<ETypeID, IValueConverter>(ETypeID.class);
+    private static final Map<TypeId, IValueConverter> VALUE_CONVERTERS =
+        new EnumMap<TypeId, IValueConverter>(TypeId.class);
 
     private static final Map<EOperatorID, IBinaryOperator> BINARY_OPERATORS =
         new EnumMap<EOperatorID, IBinaryOperator>(EOperatorID.class);
@@ -44,9 +44,9 @@ public final class DataEngine
         // The current prototype supports only the INT and CARD data
         // types. We use common converters for them.
 
-        VALUE_CONVERTERS.put(ETypeID.INT,  converter);
-        VALUE_CONVERTERS.put(ETypeID.CARD, converter);
-        VALUE_CONVERTERS.put(ETypeID.BOOL, converter);
+        VALUE_CONVERTERS.put(TypeId.INT,  converter);
+        VALUE_CONVERTERS.put(TypeId.CARD, converter);
+        VALUE_CONVERTERS.put(TypeId.BOOL, converter);
 
         // Bitwise operators:
 

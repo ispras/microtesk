@@ -35,7 +35,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.microtesk.model.api.memory.EMemoryKind;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
@@ -93,7 +93,7 @@ final class STBShared implements ITemplateBuilder
 
         if (!ir.getTypes().isEmpty() || !ir.getMemory().isEmpty())
         {
-            t.add("imps", ETypeID.class.getName());
+            t.add("imps", TypeId.class.getName());
             t.add("imps", ru.ispras.microtesk.model.api.type.Type.class.getName());
         }
 
@@ -153,9 +153,10 @@ final class STBShared implements ITemplateBuilder
             {
                 final ST tType = group.getInstanceOf("type");
 
-                tType.add("name",   type.getKey());
-                tType.add("typeid", type.getValue().getTypeId());
-                tType.add("size",   new PrinterExpr(type.getValue().getBitSizeExpr()));
+                tType.add("name", type.getKey());
+                tType.add("typeid", String.format("%s.%s",
+                    TypeId.class.getSimpleName(), type.getValue().getTypeId()));
+                tType.add("size", new PrinterExpr(type.getValue().getBitSizeExpr()));
 
                 t.add("members", tType);
             }
@@ -226,10 +227,9 @@ final class STBShared implements ITemplateBuilder
         else
         {
             final ST tNewType = group.getInstanceOf("new_type");
-
-            tNewType.add("typeid", typeExpr.getTypeId());
-            tNewType.add("size",   new PrinterExpr(typeExpr.getBitSizeExpr()));
-
+            tNewType.add("typeid", String.format("%s.%s",
+                TypeId.class.getSimpleName(), typeExpr.getTypeId()));
+            tNewType.add("size", new PrinterExpr(typeExpr.getBitSizeExpr()));
             tMemory.add("type", tNewType);
         }
 

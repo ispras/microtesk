@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.simnml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
@@ -65,7 +65,7 @@ public final class Format
             assert ((FormatMarker.DEC == marker) || (FormatMarker.HEX == marker));
 
             final Type type = expr.getValueInfo().getModelType();
-            if (ETypeID.CARD == type.getTypeId() || ETypeID.INT == type.getTypeId())
+            if (TypeId.CARD == type.getTypeId() || TypeId.INT == type.getTypeId())
                 return true;
 
             assert false : "Unsupported model data type.";

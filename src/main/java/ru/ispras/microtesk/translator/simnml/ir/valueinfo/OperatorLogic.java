@@ -22,14 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 enum OperatorLogic
 {
-    OR (Operator.OR, Arrays.asList(ETypeID.BOOL), 
+    OR (Operator.OR, Arrays.asList(TypeId.BOOL), 
 
         new BinaryAction(Boolean.class)
         {
@@ -38,7 +38,7 @@ enum OperatorLogic
         }
     ),
 
-    AND (Operator.AND, Arrays.asList(ETypeID.BOOL),
+    AND (Operator.AND, Arrays.asList(TypeId.BOOL),
 
         new BinaryAction(Boolean.class)
         {
@@ -47,7 +47,7 @@ enum OperatorLogic
         }
     ),
 
-    BIT_OR (Operator.BIT_OR, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+    BIT_OR (Operator.BIT_OR, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL),
 
         new BinaryAction(Integer.class)
         {
@@ -68,7 +68,7 @@ enum OperatorLogic
         }
     ),
 
-    BIT_XOR (Operator.BIT_XOR, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+    BIT_XOR (Operator.BIT_XOR, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL),
 
         new BinaryAction(Integer.class)
         {
@@ -89,7 +89,7 @@ enum OperatorLogic
         }
     ),
 
-    BIT_AND (Operator.BIT_AND, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL),
+    BIT_AND (Operator.BIT_AND, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL),
 
          new BinaryAction(Integer.class)
          {
@@ -110,7 +110,7 @@ enum OperatorLogic
          }
     ),
 
-    EQ (Operator.EQ, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL), Boolean.class,
+    EQ (Operator.EQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL), Boolean.class,
 
          new BinaryAction(Integer.class)
          {
@@ -131,7 +131,7 @@ enum OperatorLogic
          }
     ),
 
-    NOT_EQ (Operator.NOT_EQ, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT, ETypeID.BOOL), Boolean.class,
+    NOT_EQ (Operator.NOT_EQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL), Boolean.class,
 
          new BinaryAction(Integer.class)
          {
@@ -152,7 +152,7 @@ enum OperatorLogic
          }
     ),
 
-    LEQ (Operator.LEQ, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
+    LEQ (Operator.LEQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
 
         new BinaryAction(Integer.class)
         {
@@ -167,7 +167,7 @@ enum OperatorLogic
         }
     ),
 
-    GEQ (Operator.GEQ, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
+    GEQ (Operator.GEQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
 
         new BinaryAction(Integer.class)
         {
@@ -182,7 +182,7 @@ enum OperatorLogic
         }
     ),
 
-    LESS (Operator.LESS, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
+    LESS (Operator.LESS, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
 
         new BinaryAction(Integer.class)
         {
@@ -197,7 +197,7 @@ enum OperatorLogic
         }
     ),
 
-    GREATER (Operator.GREATER, Type.BOOLEAN, Arrays.asList(ETypeID.CARD, ETypeID.INT), Boolean.class,
+    GREATER (Operator.GREATER, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
 
         new BinaryAction(Integer.class)
         {
@@ -212,7 +212,7 @@ enum OperatorLogic
         }
     ),
 
-    L_SHIFT (Operator.L_SHIFT, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    L_SHIFT (Operator.L_SHIFT, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -227,7 +227,7 @@ enum OperatorLogic
         }
     ),
 
-    R_SHIFT (Operator.R_SHIFT, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    R_SHIFT (Operator.R_SHIFT, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -242,7 +242,7 @@ enum OperatorLogic
         }
     ),
 
-    L_ROTATE (Operator.L_ROTATE, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    L_ROTATE (Operator.L_ROTATE, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -251,7 +251,7 @@ enum OperatorLogic
         }
     ), 
 
-    R_ROTATE (Operator.R_ROTATE, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    R_ROTATE (Operator.R_ROTATE, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -260,7 +260,7 @@ enum OperatorLogic
         }
     ),
 
-    PLUS (Operator.PLUS, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    PLUS (Operator.PLUS, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -275,7 +275,7 @@ enum OperatorLogic
         }
     ),
 
-    MINUS (Operator.MINUS, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    MINUS (Operator.MINUS, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -290,7 +290,7 @@ enum OperatorLogic
         }
     ),
 
-    MUL (Operator.MUL, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    MUL (Operator.MUL, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -305,7 +305,7 @@ enum OperatorLogic
         }
     ),
 
-    DIV (Operator.DIV, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    DIV (Operator.DIV, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -320,7 +320,7 @@ enum OperatorLogic
         }
      ),
 
-    MOD (Operator.MOD, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    MOD (Operator.MOD, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -335,7 +335,7 @@ enum OperatorLogic
         }
     ),
 
-    POW (Operator.POW, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    POW (Operator.POW, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new BinaryAction(Integer.class)
         {
@@ -350,7 +350,7 @@ enum OperatorLogic
         }
     ),
 
-    UPLUS (Operator.UPLUS, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    UPLUS (Operator.UPLUS, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new UnaryAction(Integer.class)
         {
@@ -363,7 +363,7 @@ enum OperatorLogic
         }
     ),
            
-    UMINUS (Operator.UMINUS, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    UMINUS (Operator.UMINUS, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new UnaryAction(Integer.class)
         {
@@ -376,7 +376,7 @@ enum OperatorLogic
         }
     ),
 
-    BIT_NOT (Operator.BIT_NOT, Arrays.asList(ETypeID.CARD, ETypeID.INT),
+    BIT_NOT (Operator.BIT_NOT, Arrays.asList(TypeId.CARD, TypeId.INT),
 
         new UnaryAction(Integer.class)
         {
@@ -389,7 +389,7 @@ enum OperatorLogic
         }
     ),
 
-    NOT (Operator.NOT, Arrays.asList(ETypeID.BOOL),
+    NOT (Operator.NOT, Arrays.asList(TypeId.BOOL),
 
         new UnaryAction(Integer.class)
         {
@@ -397,7 +397,7 @@ enum OperatorLogic
         }
     ),
     
-    ITE (Operator.ITE, Arrays.asList(ETypeID.BOOL, ETypeID.CARD, ETypeID.INT)
+    ITE (Operator.ITE, Arrays.asList(TypeId.BOOL, TypeId.CARD, TypeId.INT)
     );
 
     private static final Map<Operator, OperatorLogic> operators;
@@ -419,7 +419,7 @@ enum OperatorLogic
 
     private final Operator         operator;
 
-    private final Set<ETypeID>   modelTypes;
+    private final Set<TypeId>   modelTypes;
     private final Set<Class<?>> nativeTypes;
 
     private final Type      modelResultType;
@@ -429,7 +429,7 @@ enum OperatorLogic
 
     private OperatorLogic(
         Operator           operator,    
-        List<ETypeID>    modelTypes,
+        List<TypeId>    modelTypes,
         Action ...    nativeActions
         )
     {
@@ -445,7 +445,7 @@ enum OperatorLogic
     private OperatorLogic(
         Operator           operator,
         Type        modelResultType,
-        List<ETypeID>    modelTypes,
+        List<TypeId>    modelTypes,
         Class<?>   nativeResultType,
         Action ...    nativeActions
         )

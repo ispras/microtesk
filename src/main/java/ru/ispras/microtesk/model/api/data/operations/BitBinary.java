@@ -19,14 +19,14 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class BitBinary implements IBinaryOperator
 {
-    private final static Set<ETypeID> SUPPORTED_TYPES = EnumSet.of(
-        ETypeID.INT,
-        ETypeID.CARD
+    private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(
+        TypeId.INT,
+        TypeId.CARD
     );
 
     private final BitVectorMath.Operations op;
@@ -46,7 +46,7 @@ public final class BitBinary implements IBinaryOperator
     {
         // result type is INT if one of the parameters is INT.
 
-        if (rhs.getTypeId() == ETypeID.INT)
+        if (rhs.getTypeId() == TypeId.INT)
             return rhs;
 
         return lhs;

@@ -36,7 +36,7 @@ type(name, typeid, size) ::= <<
 >>
 
 new_type(typeid, size) ::= <<
-new Type(ETypeID.<typeid>, <size>)
+new Type(<typeid>, <size>)
 >>
 
 type_alias(name, alias) ::= <<

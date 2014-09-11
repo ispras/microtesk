@@ -19,7 +19,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IUnaryOperator;
-import ru.ispras.microtesk.model.api.type.ETypeID;
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class ArithmUnary implements IUnaryOperator
@@ -27,8 +27,8 @@ public final class ArithmUnary implements IUnaryOperator
     // Sim-nML spec: these operators (unary +,-) are used only for
     // INT, FLOAT and FIX data types.
 
-    private final static Set<ETypeID> SUPPORTED_TYPES = EnumSet.of(
-        ETypeID.INT
+    private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(
+        TypeId.INT
         //, ETypeID.FLOAT // NOT SUPPORTED IN THIS VERSION
         //, ETypeID.FIX   // NOT SUPPORTED IN THIS VERSION
     );
