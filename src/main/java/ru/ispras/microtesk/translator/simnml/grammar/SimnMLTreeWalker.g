@@ -136,12 +136,13 @@ getIR().add($id.text, $te.res);
     ;
 
 typeExpr returns [Type res]
-    :   id=ID                { $res=getTypeFactory().createAlias($id.text); }
+    :   id=ID                { $res=getTypeFactory().newAlias($id.text); }
 //  |   BOOL                       // TODO: NOT SUPPORTED IN THIS VERSION
-    |   ^(t=INT  n=sizeExpr) { $res=getTypeFactory().createIntegerType(where($t), $n.res); }
-    |   ^(t=CARD n=sizeExpr) { $res=getTypeFactory().createCardType(where($t), $n.res); }
+    |   ^(t=INT  n=sizeExpr) { $res=getTypeFactory().newInt(where($t), $n.res); }
+    |   ^(t=CARD n=sizeExpr) { $res=getTypeFactory().newCard(where($t), $n.res); }
 //  |   ^(t=FIX   n=static m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
-    |   ^(t=FLOAT n=sizeExpr m=sizeExpr) { /* TODO: NOT SUPPORTED IN THIS VERSION*/ }
+    |   ^(t=FLOAT n=sizeExpr m=sizeExpr)
+            { $res=getTypeFactory().newFloat(where($t), $n.res, $m.res); }
 //  |   ^(t=RANGE n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
     ;
 

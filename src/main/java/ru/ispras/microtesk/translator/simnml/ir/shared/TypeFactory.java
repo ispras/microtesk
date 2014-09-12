@@ -26,19 +26,27 @@ public final class TypeFactory extends WalkerFactoryBase
         super(context);
     }
 
-    public Type createAlias(String name) throws SemanticException
+    public Type newAlias(String name) throws SemanticException
     {
         final Type ref = getIR().getTypes().get(name); 
         return new Type(ref.getTypeId(), ref.getBitSizeExpr(), name);
     }
 
-    public Type createIntegerType(Where where, Expr bitSize) throws SemanticException
+    public Type newInt(Where where, Expr bitSize) throws SemanticException
     {
         return new Type(TypeId.INT, bitSize);
     }
 
-    public Type createCardType(Where where, Expr bitSize) throws SemanticException
+    public Type newCard(Where where, Expr bitSize) throws SemanticException
     {
         return new Type(TypeId.CARD, bitSize);
+    }
+    
+    public Type newFloat(
+        Where where, Expr fractionBitSize, Expr exponentBitSize)
+        throws SemanticException
+    {
+        // TODO
+        return null;
     }
 }
