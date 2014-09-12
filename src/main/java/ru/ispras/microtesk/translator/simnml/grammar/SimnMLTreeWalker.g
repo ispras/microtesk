@@ -154,6 +154,7 @@ memDef
     :  ^(MEM id=ID st=sizeType alias?)
 {
 // TODO: implement IR for alises
+checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
    factory.createMemory(EMemoryKind.MEM, $st.type, $st.size) :
@@ -166,6 +167,7 @@ getIR().add($id.text, expr);
 regDef
     :  ^(REG id=ID st=sizeType)
 {
+checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
    factory.createMemory(EMemoryKind.REG, $st.type, $st.size) :
@@ -178,6 +180,7 @@ getIR().add($id.text, expr);
 varDef
     :  ^(VAR id=ID st=sizeType)
 {
+checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
    factory.createMemory(EMemoryKind.VAR, $st.type, $st.size) :
