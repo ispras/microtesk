@@ -31,7 +31,7 @@ public final class Type
 
     public Type(TypeId typeId, int bitSize)
     {
-        this(typeId, Expr.newConstant(bitSize), null);
+        this(typeId, Expr.newConstant(bitSize));
     }
 
     private Type(TypeId typeId, Expr bitSize, String refName)
