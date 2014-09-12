@@ -20,11 +20,21 @@ public final class Type
     public final static Type BOOLEAN = 
         new Type(TypeId.BOOL, Expr.newConstant(1));
 
-    private final TypeId  typeId;
-    private final Expr    bitSize;
-    private final String  refName;
+    private final TypeId typeId;
+    private final Expr bitSize;
+    private final String refName;
 
-    public Type(TypeId typeId, Expr bitSize, String refName)
+    public Type(TypeId typeId, Expr bitSize)
+    {
+        this(typeId, bitSize, null);
+    }
+
+    public Type(TypeId typeId, int bitSize)
+    {
+        this(typeId, Expr.newConstant(bitSize), null);
+    }
+
+    private Type(TypeId typeId, Expr bitSize, String refName)
     {
         if (null == typeId)
             throw new NullPointerException();
@@ -37,14 +47,15 @@ public final class Type
         this.refName = refName;
     }
 
-    public Type(TypeId typeId, Expr bitSize)
+    public Type newAlias(String name)
     {
-        this(typeId, bitSize, null);
-    }
+        if (null == name)
+            throw new NullPointerException();
 
-    public Type(TypeId typeId, int bitSize)
-    {
-        this(typeId, Expr.newConstant(bitSize), null);
+        if (name.equals(refName))
+            return this;
+
+        return new Type(getTypeId(), getBitSizeExpr(), name);
     }
 
     public TypeId getTypeId()

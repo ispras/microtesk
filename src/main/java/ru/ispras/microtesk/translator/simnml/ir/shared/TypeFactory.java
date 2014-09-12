@@ -33,7 +33,7 @@ public final class TypeFactory extends WalkerFactoryBase
         if (null == ref)
             raiseError(where, String.format("Undefined type: %s.", name));
 
-        return new Type(ref.getTypeId(), ref.getBitSizeExpr(), name);
+        return ref.newAlias(name);
     }
 
     public Type newInt(Where where, Expr bitSize) throws SemanticException
