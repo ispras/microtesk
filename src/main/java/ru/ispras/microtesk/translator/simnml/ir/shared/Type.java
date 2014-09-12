@@ -17,7 +17,8 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class Type
 {
-    public final static Type BOOLEAN = new Type(TypeId.BOOL, Expr.newConstant(1));
+    public final static Type BOOLEAN = 
+        new Type(TypeId.BOOL, Expr.newConstant(1));
 
     private final TypeId  typeId;
     private final Expr    bitSize;
