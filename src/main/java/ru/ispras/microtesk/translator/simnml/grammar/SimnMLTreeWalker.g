@@ -136,7 +136,7 @@ getIR().add($id.text, $te.res);
     ;
 
 typeExpr returns [Type res]
-    :   id=ID                { $res=getTypeFactory().newAlias($id.text); }
+    :   id=ID { $res=getTypeFactory().newAlias(where($id), $id.text); }
 //  |   BOOL                       // TODO: NOT SUPPORTED IN THIS VERSION
     |   ^(t=INT  n=sizeExpr) { $res=getTypeFactory().newInt(where($t), $n.res); }
     |   ^(t=CARD n=sizeExpr) { $res=getTypeFactory().newCard(where($t), $n.res); }
