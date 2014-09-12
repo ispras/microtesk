@@ -65,7 +65,7 @@ public final class LogicBinary implements IBinaryOperator
         else
             result = signedOp.execute(lhs.getRawData(), rhs.getRawData());
 
-        return new Data(result, new Type(TypeId.BOOL, result.getBitSize()));
+        return new Data(result, Type.BOOL(result.getBitSize()));
     }
 
     @Override

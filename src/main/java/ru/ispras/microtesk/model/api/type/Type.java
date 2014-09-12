@@ -23,13 +23,28 @@ package ru.ispras.microtesk.model.api.type;
  * 
  * corresponds to:
  * 
- * Type index = new Type(ETypeID.CARD, 6);</pre>
+ * Type index = Type.CARD(6);</pre>
  * 
  * @author Andrei Tatarnikov
  */
 
-public final class Type
+public class Type
 {
+    public static Type INT(int bitSize)
+    {
+        return new Type(TypeId.INT, bitSize);
+    }
+
+    public static Type CARD(int bitSize)
+    {
+        return new Type(TypeId.CARD, bitSize);
+    }
+
+    public static Type BOOL(int bitSize)
+    {
+        return new Type(TypeId.BOOL, bitSize);
+    }
+
     private final TypeId typeId;
     private final int bitSize;
 
@@ -42,12 +57,12 @@ public final class Type
         this.bitSize = bitSize;
     }
 
-    public TypeId getTypeId()
+    public final TypeId getTypeId()
     {
         return typeId;
     }
 
-    public int getBitSize()
+    public final int getBitSize()
     {
         return bitSize;
     }
@@ -57,7 +72,7 @@ public final class Type
     {
         final int prime = 31;
         int result = 1;
-        
+
         result = prime * result + bitSize;
         result = prime * result + typeId.hashCode();
 
@@ -69,12 +84,12 @@ public final class Type
     {
         if (this == obj) return true;
         if (obj == null) return false;
-        
+
         if (getClass() != obj.getClass())
             return false;
 
         final Type other = (Type) obj;
-        return (typeId == other.typeId) && 
+        return (typeId == other.typeId) &&
                (bitSize == other.bitSize);
     }
 
@@ -82,6 +97,6 @@ public final class Type
     public String toString()
     {
         return String.format(
-            "Type(%s, %d)", typeId, bitSize);
+            "Type.%s(%d)", typeId, bitSize);
     }
 }

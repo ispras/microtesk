@@ -19,7 +19,6 @@ import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.type.Type;
 
 import static ru.ispras.microtesk.model.api.memory.EMemoryKind.*;
-import static ru.ispras.microtesk.model.api.type.TypeId.*;
 
 public final class Shared
 {
@@ -41,9 +40,9 @@ public final class Shared
     type byte   = int(8)
     */
 
-    public static final Type  index = new Type(CARD, 6);
-    public static final Type nibble = new Type(CARD, 4);
-    public static final Type byte_t = new Type(CARD, 8);
+    public static final Type  index = Type.CARD(6);
+    public static final Type nibble = Type.CARD(4);
+    public static final Type byte_t = Type.CARD(8);
 
     /*
     mem M[MSIZE, byte]

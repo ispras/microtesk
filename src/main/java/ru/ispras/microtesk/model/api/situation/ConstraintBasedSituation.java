@@ -25,7 +25,6 @@ import ru.ispras.fortress.solver.Solver;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.microtesk.model.api.situation.Situation;
-import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public abstract class ConstraintBasedSituation extends Situation
@@ -68,7 +67,7 @@ public abstract class ConstraintBasedSituation extends Situation
 
         for (Variable variable : solverResult.getVariables())
         {
-            result.put(variable.getName(), variableToData(variable, TypeId.CARD, 32));
+            result.put(variable.getName(), variableToData(variable, Type.CARD(32)));
         }
 
         return result;
@@ -90,11 +89,14 @@ public abstract class ConstraintBasedSituation extends Situation
         throw new ConstraintSolverException(sb.toString());
     }
 
-    private Data variableToData(Variable variable, TypeId typeID, int size)
+    private Data variableToData(Variable variable, Type targetType)
     {
         assert null != variable;
+        assert null != targetType;
+
         assert variable.getData().getType().getTypeId() == DataTypeId.BIT_VECTOR;
 
+        final int size = targetType.getBitSize();
         final BitVector value = (BitVector)variable.getData().getValue();
 
         assert 0 < size && size <= value.getBitSize();
@@ -102,6 +104,6 @@ public abstract class ConstraintBasedSituation extends Situation
         final BitVector rawData = (size == value.getBitSize()) ?
             value : BitVector.newMapping(value, 0, size); 
 
-        return new Data(rawData, new Type(typeID, size));
+        return new Data(rawData, targetType);
     }
 }
