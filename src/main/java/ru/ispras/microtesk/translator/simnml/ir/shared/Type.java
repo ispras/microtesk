@@ -71,7 +71,12 @@ public final class Type
         if (null != refName)
             return refName;
 
-        return String.format("new %s", getTypeName());
+        return String.format(
+            "%s.%s(%d)",
+            ru.ispras.microtesk.model.api.type.Type.class.getSimpleName(),
+            getTypeId(),
+            getBitSize()
+        );
     }
 
     public String getTypeName()

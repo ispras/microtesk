@@ -154,8 +154,7 @@ final class STBShared implements ITemplateBuilder
                 final ST tType = group.getInstanceOf("type");
 
                 tType.add("name", type.getKey());
-                tType.add("typeid", String.format("%s.%s",
-                    TypeId.class.getSimpleName(), type.getValue().getTypeId()));
+                tType.add("typeid", type.getValue().getTypeId());
                 tType.add("size", new PrinterExpr(type.getValue().getBitSizeExpr()));
 
                 t.add("members", tType);
@@ -227,8 +226,7 @@ final class STBShared implements ITemplateBuilder
         else
         {
             final ST tNewType = group.getInstanceOf("new_type");
-            tNewType.add("typeid", String.format("%s.%s",
-                TypeId.class.getSimpleName(), typeExpr.getTypeId()));
+            tNewType.add("typeid", typeExpr.getTypeId());
             tNewType.add("size", new PrinterExpr(typeExpr.getBitSizeExpr()));
             tMemory.add("type", tNewType);
         }
