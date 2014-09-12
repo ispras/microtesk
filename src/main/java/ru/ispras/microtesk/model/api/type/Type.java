@@ -57,6 +57,13 @@ public class Type
         return new Type(TypeId.BOOL, bitSize);
     }
 
+    public static Type FLOAT(int fracBitSize, int expBitSize)
+    {
+        // TODO: Need additional fields to store the fraction and the exponent.
+        final int bitSize = fracBitSize + expBitSize;
+        return new Type(TypeId.FLOAT, bitSize);
+    }
+
     private final TypeId typeId;
     private final int bitSize;
 
