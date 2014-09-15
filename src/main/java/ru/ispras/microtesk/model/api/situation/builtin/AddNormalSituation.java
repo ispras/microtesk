@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.model.api.situation.builtin;
 
-import ru.ispras.fortress.expression.NodeExpr;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.solver.constraint.Constraint;
@@ -62,7 +62,7 @@ final class AddNormalConstraintBuilder extends OverflowConstraintFactory
         formulas.add(IsValidSignedInt(rs));
         formulas.add(IsValidSignedInt(rt));
 
-        formulas.add(IsValidSignedInt(new NodeExpr(StandardOperation.BVADD, rs, rt)));
+        formulas.add(IsValidSignedInt(new NodeOperation(StandardOperation.BVADD, rs, rt)));
         formulas.add(isNotEqual(rs, rt));
 
         return builder.build();

@@ -14,7 +14,7 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeExpr;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
@@ -228,9 +228,9 @@ public final class Expr
     private static Reduced reduceOp(Expr expr)
     {
         assert null != expr;
-        assert Node.Kind.EXPR == expr.getNode().getKind();
+        assert Node.Kind.OPERATION == expr.getNode().getKind();
 
-        final NodeExpr nodeExpr = (NodeExpr) expr.getNode();
+        final NodeOperation nodeExpr = (NodeOperation) expr.getNode();
         final NodeInfo nodeInfo = expr.getNodeInfo();
 
         final SourceOperator source =
@@ -254,7 +254,7 @@ public final class Expr
 
         if (null != left.polynomial && null != right.polynomial)
         {
-            final Node polynomial = new NodeExpr(
+            final Node polynomial = new NodeOperation(
                 nodeExpr.getOperationId(), left.polynomial.getNode(), right.polynomial.getNode());
 
             polynomial.setUserData(expr.getNodeInfo());
@@ -266,7 +266,7 @@ public final class Expr
             if (isPlus)
                 return new Reduced(constant, right.polynomial);
 
-            final Node polynomial = new NodeExpr(
+            final Node polynomial = new NodeOperation(
                 StandardOperation.MINUS, right.polynomial.getNode());
 
             polynomial.setUserData(expr.getNodeInfo());
@@ -320,7 +320,7 @@ public final class Expr
             return location1.equals(location2);
         }
 
-        if (Node.Kind.EXPR == node1.getKind())
+        if (Node.Kind.OPERATION == node1.getKind())
         {
             final SourceOperator operator1 = (SourceOperator) ni1.getSource();
             final SourceOperator operator2 = (SourceOperator) ni2.getSource();
@@ -328,8 +328,8 @@ public final class Expr
             if (!operator1.getOperator().equals(operator2.getOperator()))
                 return false;
 
-            final NodeExpr nodeExpr1 = (NodeExpr) node1;
-            final NodeExpr nodeExpr2 = (NodeExpr) node2;
+            final NodeOperation nodeExpr1 = (NodeOperation) node1;
+            final NodeOperation nodeExpr2 = (NodeOperation) node2;
 
             if (nodeExpr1.getOperandCount() != nodeExpr2.getOperandCount())
                 return false;

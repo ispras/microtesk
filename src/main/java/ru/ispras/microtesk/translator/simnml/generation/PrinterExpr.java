@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeExpr;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
@@ -163,7 +163,7 @@ public final class PrinterExpr
 
     private String operatorToString(SourceOperator source)
     {
-        final NodeExpr nodeExpr = (NodeExpr) expr.getNode();
+        final NodeOperation nodeExpr = (NodeOperation) expr.getNode();
         final Operator       op = source.getOperator();
 
         if (op == Operator.ITE)

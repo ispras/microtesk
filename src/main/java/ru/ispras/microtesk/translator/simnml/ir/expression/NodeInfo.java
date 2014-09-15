@@ -58,7 +58,7 @@ public final class NodeInfo
         LOCATION    (Location.class,       Node.Kind.VARIABLE),
         NAMED_CONST (LetConstant.class,    Node.Kind.VALUE),
         CONST       (SourceConstant.class, Node.Kind.VALUE),
-        OPERATOR    (SourceOperator.class, Node.Kind.EXPR);
+        OPERATOR    (SourceOperator.class, Node.Kind.OPERATION);
 
         private final Class<?>  sourceClass;
         private final Node.Kind    nodeKind;

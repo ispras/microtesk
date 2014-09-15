@@ -22,7 +22,7 @@ import java.util.List;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeExpr;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
@@ -220,7 +220,7 @@ public final class ExprFactory extends WalkerFactoryBase
         final NodeInfo nodeInfo = NodeInfo.newOperator(source);
 
         final Enum<?> operator = Converter.toFortressOperator(op, castValueInfo);
-        final Node node = new NodeExpr(operator, operandNodes);
+        final Node node = new NodeOperation(operator, operandNodes);
 
         node.setUserData(nodeInfo);
         return new Expr(node);
@@ -334,7 +334,7 @@ public final class ExprFactory extends WalkerFactoryBase
             final SourceOperator source = new SourceOperator(Operator.ITE, resultVI, resultVI);
             final NodeInfo nodeInfo = NodeInfo.newOperator(source);
 
-            final Node node = new NodeExpr(StandardOperation.ITE, cond.getNode(), expr.getNode(), tail.getNode());
+            final Node node = new NodeOperation(StandardOperation.ITE, cond.getNode(), expr.getNode(), tail.getNode());
             node.setUserData(nodeInfo);
 
             tail = new Expr(node);
