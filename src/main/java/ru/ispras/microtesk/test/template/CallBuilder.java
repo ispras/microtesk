@@ -58,8 +58,7 @@ public final class CallBuilder
         if (null == rootOperation)
             throw new NullPointerException();
 
-        if (rootOperation.getKind() != Primitive.Kind.OP && 
-            rootOperation.getKind() != Primitive.Kind.INSTR)
+        if (rootOperation.getKind() != Primitive.Kind.OP)
             throw new IllegalArgumentException(
                 "Illegal kind: " + rootOperation.getKind());
 

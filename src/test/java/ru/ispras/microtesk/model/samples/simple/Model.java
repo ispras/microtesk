@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -27,7 +27,6 @@ package ru.ispras.microtesk.model.samples.simple;
 import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.model.samples.simple.instruction.ISA;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
@@ -60,7 +59,6 @@ public final class Model extends ProcessorModel
     public Model()
     {
         super(
-            new ISA(),
             __MODES,
             __OPS,
             __REGISTERS,

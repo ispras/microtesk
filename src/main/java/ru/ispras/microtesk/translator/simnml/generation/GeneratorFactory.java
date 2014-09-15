@@ -24,14 +24,10 @@
 
 package ru.ispras.microtesk.translator.simnml.generation;
 
-import java.util.List;
-
 import ru.ispras.microtesk.translator.generation.*;
-
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
@@ -78,40 +74,6 @@ final class GeneratorFactory
 
         final ITemplateBuilder builder =
             new STBShared(ir, specFileName, modelName);
-
-        return new ClassGenerator(outputFileName, templateGroups, builder);
-    }
-
-    public IClassGenerator createInstructionSet(List<String> instructionClassNames)
-    {
-        final String outputFileName =
-            String.format(getInstructionSetFileFormat(outDir), modelName);
-
-        final String[] templateGroups = new String[]
-        {
-            COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-            SIMNML_TEMPLATE_DIR + "InstructionSet.stg"
-        };
-
-        final ITemplateBuilder builder =
-            new STBInstructionSet(specFileName, modelName, instructionClassNames);
-
-        return new ClassGenerator(outputFileName, templateGroups, builder);
-    }
-    
-    public IClassGenerator createInstruction(Instruction instruction)
-    {
-        final String outputFileName =
-            String.format(getInstructionFileFormat(outDir), modelName, instruction.getClassName());
-
-        final String[] templateGroups = new String[]
-        {
-            COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-            SIMNML_TEMPLATE_DIR + "Instruction.stg"
-        };
-
-        final ITemplateBuilder builder =
-            new STBInstruction(specFileName, modelName, instruction);
 
         return new ClassGenerator(outputFileName, templateGroups, builder);
     }

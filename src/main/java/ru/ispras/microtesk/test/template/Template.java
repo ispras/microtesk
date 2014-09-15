@@ -145,12 +145,6 @@ public final class Template
         this.callBuilder = new CallBuilder(getCurrentBlockId());
     }
 
-    public PrimitiveBuilder newInstructionBuilder(String name)
-    {
-        _trace("Instruction: " + name);
-        return pbFactory.newInstructionBuilder(name, callBuilder);
-    }
-
     public PrimitiveBuilder newOperationBuilder(String name)
     {
         _trace(String.format("Operation: " + name));

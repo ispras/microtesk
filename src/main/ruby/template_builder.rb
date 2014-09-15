@@ -39,9 +39,6 @@ def self.define_runtime_methods(metamodel)
 
   ops = metamodel.getOperations
   ops.each { |op| define_operation op }
-
-  # instructions = metamodel.getInstructions
-  # instructions.each { |instruction| define_instruction instruction }
 end
 
 private
@@ -95,29 +92,6 @@ def define_operation(op)
   end
 
   define_method_for Template, name, "op", p
-end
-
-#
-# Defines methods for instructions (added to the Template class)
-# 
-def define_instruction(i)
-  name = i.getName.to_s
-  #puts "Defining instruction #{name}..."
-
-  p = lambda do |*arguments, &situations|
-    builder = @template.newInstructionBuilder name
-    set_arguments builder, arguments
-
-    if situations != nil
-      self.instance_eval &situations
-    end
-
-    instruction = builder.build
-    @template.setRootOperation instruction
-    @template.endBuildingCall
-  end
-
-  define_method_for Template, name, "instruction", p
 end
 
 def set_arguments(builder, args)

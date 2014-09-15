@@ -73,7 +73,7 @@ public final class Mov extends Operation
         {
             super(
                Instruction.class, 
-               "MOV",
+               "Mov",
                true,
                new ParamDecls()
                    .declareParam("op1", OPRNDL.INFO)

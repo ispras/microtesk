@@ -75,7 +75,7 @@ public final class Add extends Operation
         {
             super(
                Instruction.class, 
-               "ADD",
+               "Add",
                true,
                new ParamDecls()
                    .declareParam("op1", OPRNDL.INFO)

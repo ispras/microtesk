@@ -66,8 +66,6 @@ final class STBModel implements ITemplateBuilder
         t.add("pack",  String.format(MODEL_PACKAGE_FORMAT, modelName));
 
         t.add("imps",  ProcessorModel.class.getName());
-        t.add("imps",  String.format(INSTRUCTION_SET_CLASS_FORMAT, modelName));
-
         t.add("imps",  MetaModelPrinter.class.getName());
         t.add("imps",  ModelStatePrinter.class.getName());
         t.add("imps",  IAddressingMode.class.getName());
@@ -83,7 +81,6 @@ final class STBModel implements ITemplateBuilder
 
         final ST tc = group.getInstanceOf("constructor");
 
-        tc.add("isaclass", INSTRUCTION_SET_CLASS_NAME);
         tc.add("reg",      ProcessorModel.SHARED_REGISTERS);
         tc.add("mem",      ProcessorModel.SHARED_MEMORY);
         tc.add("lab",      ProcessorModel.SHARED_LABELS);

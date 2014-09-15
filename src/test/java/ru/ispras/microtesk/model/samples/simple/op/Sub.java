@@ -75,7 +75,7 @@ public class Sub extends Operation
         {
             super(
                Instruction.class, 
-               "SUB",
+               "Sub",
                true,
                new ParamDecls()
                    .declareParam("op1", OPRNDL.INFO)

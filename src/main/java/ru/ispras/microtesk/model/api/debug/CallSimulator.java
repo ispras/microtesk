@@ -30,58 +30,43 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.IArgumentBuilder;
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
-import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
+import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public abstract class CallSimulator
 {
-    protected final static class Mode
+    protected final void addCall(IOperation op)
     {
-        private final String name;
-        private final Map<String, Integer> parameters;
-
-        public Mode(String name, Map<String, Integer> parameters)
-        {
-            this.name = name;
-            this.parameters = parameters;
-        }
-
-        public void visit(IArgumentBuilder argBuilder) throws ConfigurationException
-        {
-            final IAddressingModeBuilder modeBuilder =
-                argBuilder.getModeBuilder(name);
-
-            for (Map.Entry<String, Integer> e : parameters.entrySet())
-                modeBuilder.setArgumentValue(e.getKey(), e.getValue());
-        }        
+        final InstructionCall call = model.getCallFactory().newCall(op);
+        calls.add(call);
     }
     
-    protected static final class Argument
+    protected final IAddressingMode newMode(
+        String name, Map<String, Integer> args) throws ConfigurationException
     {
-        private final String name;
-        private final Mode mode;
+        final IAddressingModeBuilder modeBuilder =
+            model.getCallFactory().newModeInstance(name);
 
-        public Argument(String name, Mode mode)
-        {
-            assert null != name;
-            assert null != mode;
+        for (Map.Entry<String, Integer> arg : args.entrySet())
+            modeBuilder.setArgumentValue(arg.getKey(), arg.getValue());
 
-            this.name = name;
-            this.mode = mode;
-        }
+        return modeBuilder.getProduct();
+    }
 
-        public String getName()
-        {
-            return name;
-        }
+    protected final IOperation newOp(
+        String name, String context, Map<String, IAddressingMode> args
+        ) throws ConfigurationException
+    {
+        final IOperationBuilder opBuilder =
+            model.getCallFactory().newOpInstance(name, context);
+        
+        for (Map.Entry<String, IAddressingMode> arg : args.entrySet())
+            opBuilder.setArgument(arg.getKey(), arg.getValue());
 
-        public Mode getMode()
-        {
-            return mode;
-        }
+        return opBuilder.build();
     }
 
     private final IModel model;
@@ -96,30 +81,12 @@ public abstract class CallSimulator
         this.calls = new ArrayList<InstructionCall>();
     }
 
-    protected final void addCall(String name, Argument ... args) throws ConfigurationException
-    {
-        if (null == name)
-            throw new NullPointerException();
-
-        final IInstruction instruction = model.getInstruction(name);
-        final IInstructionCallBuilderEx callBuilder = instruction.createCallBuilder();
-
-        for (Argument arg : args)
-        {
-            final IArgumentBuilder argBuilder = callBuilder.getArgumentBuilder(arg.getName());
-            arg.getMode().visit(argBuilder);
-        }
-
-        final InstructionCall call = callBuilder.getCall();
-        calls.add(call);
-    }
-    
     public final void execute()
     {
         for (InstructionCall call : calls)
             call.execute();
     }
-    
+
     public final void print()
     {
         System.out.println("************************************************");

@@ -42,10 +42,7 @@ import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.exception.config.UnsupportedInstructionException;
 import ru.ispras.microtesk.model.api.exception.config.UnsupportedTypeException;
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
-import ru.ispras.microtesk.model.api.instruction.IInstructionSet;
 
 /**
  * The ProcessorModel class is base class for all families of microprocessor
@@ -66,15 +63,13 @@ public abstract class ProcessorModel implements IModel, ICallFactory
     public static final String SHARED_RESETTER  = "__RESETTER";
     
     private final AddressingModeStore modes;
-    private final OperationStore        ops;
+    private final OperationStore ops;
 
-    private final IInstructionSet  instructions;
-    private final IModelStateObserver  observer;
-    private final Resetter             resetter;
-    private final MetaModel           metaModel;
+    private final IModelStateObserver observer;
+    private final Resetter resetter;
+    private final MetaModel metaModel;
 
     public ProcessorModel(
-        IInstructionSet instructions,
         IAddressingMode.IInfo[] modes,
         IOperation.IInfo[] ops,
         Memory[] registers,
@@ -85,15 +80,14 @@ public abstract class ProcessorModel implements IModel, ICallFactory
         )
     {
         this.modes = new AddressingModeStore(modes);
-        this.ops   = new OperationStore(ops); 
+        this.ops = new OperationStore(ops); 
 
-        this.instructions = instructions;
-        this.observer = new ModelStateObserver(registers, memory, labels, statuses);
+        this.observer = 
+            new ModelStateObserver(registers, memory, labels, statuses);
 
         this.resetter = resetter;
 
         this.metaModel = new MetaModel(
-            instructions.getMetaData(),
             this.modes.getMetaData(),
             this.ops.getMetaData(),
             new MemoryStore(registers).getMetaData(),
@@ -113,16 +107,6 @@ public abstract class ProcessorModel implements IModel, ICallFactory
     public final IModelStateObserver getStateObserver()
     {
         return observer;
-    }
-
-    // IModel
-    @Override
-    public IInstruction getInstruction(String name) throws ConfigurationException
-    {
-        if (!instructions.supportsInstruction(name))
-            throw new UnsupportedInstructionException(name);
-
-        return instructions.getInstruction(name);
     }
 
     // IModel

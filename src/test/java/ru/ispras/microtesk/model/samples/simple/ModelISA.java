@@ -25,10 +25,13 @@
 package ru.ispras.microtesk.model.samples.simple;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.debug.CallSimulator;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 
 abstract class ModelISA extends CallSimulator
 {
@@ -37,38 +40,59 @@ abstract class ModelISA extends CallSimulator
         super(model);
     }
 
-    public final void mov(Mode op1, Mode op2) throws ConfigurationException
+    public final void mov(
+        IAddressingMode op1, IAddressingMode op2) throws ConfigurationException
     {
-        addCall("Mov", new Argument("op1", op1), new Argument("op2", op2));        
+        final Map<String, IAddressingMode> args = 
+            new LinkedHashMap<String, IAddressingMode>();
+
+        args.put("op1", op1);
+        args.put("op2", op2);
+
+        addCall(newOp("Mov", "#root", args));        
     }
 
-    public final void add(Mode op1, Mode op2) throws ConfigurationException
+    public final void add(
+        IAddressingMode op1, IAddressingMode op2) throws ConfigurationException
     {
-        addCall("Add", new Argument("op1", op1), new Argument("op2", op2)); 
+        final Map<String, IAddressingMode> args = 
+            new LinkedHashMap<String, IAddressingMode>();
+
+        args.put("op1", op1);
+        args.put("op2", op2);
+
+        addCall(newOp("Add", "#root", args)); 
     }
 
-    public final void sub(Mode op1, Mode op2) throws ConfigurationException
+    public final void sub(
+        IAddressingMode op1, IAddressingMode op2) throws ConfigurationException
     {
-        addCall("Sub", new Argument("op1", op1), new Argument("op2", op2)); 
+        final Map<String, IAddressingMode> args = 
+            new LinkedHashMap<String, IAddressingMode>();
+
+        args.put("op1", op1);
+        args.put("op2", op2);
+
+        addCall(newOp("Sub", "#root", args)); 
     }
 
-    public final Mode reg(int i)
+    public final IAddressingMode reg(int i) throws ConfigurationException
     {
-        return new Mode("REG", Collections.singletonMap("i", i));
+        return newMode("REG", Collections.singletonMap("i", i));
     }
 
-    public final Mode ireg(int i)
+    public final IAddressingMode ireg(int i) throws ConfigurationException
     {
-        return new Mode("IREG", Collections.singletonMap("i", i));
+        return newMode("IREG", Collections.singletonMap("i", i));
     }
 
-    public final Mode mem(int i)
+    public final IAddressingMode mem(int i) throws ConfigurationException
     {
-        return new Mode("MEM", Collections.singletonMap("i", i));
+        return newMode("MEM", Collections.singletonMap("i", i));
     }
 
-    public final Mode imm(int i)
+    public final IAddressingMode imm(int i) throws ConfigurationException
     {
-        return new Mode("IMM", Collections.singletonMap("i", i));
+        return newMode("IMM", Collections.singletonMap("i", i));
     }
 }

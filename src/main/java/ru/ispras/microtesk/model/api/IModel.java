@@ -12,8 +12,6 @@
 
 package ru.ispras.microtesk.model.api;
 
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.test.data.IInitializerGenerator;
@@ -42,12 +40,6 @@ public interface IModel
      */
 
     public IModelStateObserver getStateObserver();
-
-    /**
-     * Returns an instruction that has the specified name.
-     */
-
-    public IInstruction getInstruction(String name) throws ConfigurationException;
     
     public IInitializerGenerator[] getInitializers();
     

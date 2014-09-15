@@ -29,7 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
@@ -47,9 +46,7 @@ public final class IR
     private final Map<String, Primitive>    modes;
     private final Map<String, Primitive>      ops;
     private final Map<String, Initializer>  inits;
-
     private List<Primitive>                 roots;
-    private Map<String, Instruction> instructions;
 
     public IR()
     {
@@ -66,7 +63,6 @@ public final class IR
         this.inits   = new LinkedHashMap<String, Initializer>();
 
         this.roots        = Collections.<Primitive>emptyList();
-        this.instructions = Collections.<String, Instruction>emptyMap();
     }
 
     public void add(String name, LetConstant value)
@@ -160,18 +156,5 @@ public final class IR
         assert roots.isEmpty();
 
         roots = Collections.unmodifiableList(roots);
-    }
-
-    public Map<String, Instruction> getInstructions()
-    {
-        return instructions;
-    }
-
-    public void setInstructions(Map<String, Instruction> value)
-    {
-        assert null != value;
-        assert instructions.isEmpty();
-
-        instructions = Collections.unmodifiableMap(value);
     }
 }

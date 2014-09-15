@@ -31,8 +31,7 @@ public final class Primitive
     public static enum Kind
     {
         OP,
-        MODE,
-        INSTR
+        MODE
     };
 
     private final Kind kind;

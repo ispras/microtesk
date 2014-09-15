@@ -15,26 +15,26 @@
 type index = card(4)
 
 // doubleword, Word, halfword and byte
-type dword = card(64)
-type word = card(32)
-type hword = card(16)
-type byte_t = card(8)
-type nibble = card(4)
-type bit = card(1)
-type Bit5 = card(5)
-type Bit12 = card(12)
-type Int24 = int(24)
-//type single = float(23,9)  // NOT SUPPORTED IN THE CURRENT VERSION
-//type double = float(52,12) // NOT SUPPORTED IN THE CURRENT VERSION
+type dword    = card(64)
+type word     = card(32)
+type hword    = card(16)
+type byte_t   = card(8)
+type nibble   = card(4)
+type bit      = card(1)
+type Bit5     = card(5)
+type Bit12    = card(12)
+type Int24    = int(24)
+// type single   = float(23, 9)
+// type double_t = float(52, 12)
 
 //Register file
 reg GPR[32, word]
 
 //Floating point registers 
-//reg FREGS[32,single] // NOT SUPPORTED IN THE CURRENT VERSION
+// reg FREGS[32, single]
 
 //fps register
-reg FPS[1,word]
+reg FPS[1, word]
 
 // Current Program Status Register
 reg CPSR[word]

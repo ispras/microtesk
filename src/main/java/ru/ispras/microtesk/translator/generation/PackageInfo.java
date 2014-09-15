@@ -103,52 +103,6 @@ public final class PackageInfo
     public static String getSharedFileFormat(String outDir) { return outDir + "/" + nameToPath(SHARED_CLASS_FORMAT) + JAVA_EXT; }
 
     /**
-     * Format string for the name of the package where instruction classes are stored.
-     * 
-     * Format parameters: model name.
-     */
-
-    public static final String INSTRUCTION_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.instruction";
-    
-    /**
-     * The name of the class that stores the list of of supported instructions.
-     */
-
-    public static final String INSTRUCTION_SET_CLASS_NAME = "ISA";
-
-    /**
-     * The format string for the full name of the class that stores the list of of supported instructions.
-     * 
-     * Format parameters: model name.
-     */
-
-    public static final String INSTRUCTION_SET_CLASS_FORMAT = INSTRUCTION_PACKAGE_FORMAT + "." + INSTRUCTION_SET_CLASS_NAME;
-
-    /**
-     * The format string for the file name of the class that stores the list of of supported instructions.
-     * 
-     * Format parameters: model name.
-     */
-
-    public static String getInstructionSetFileFormat(String outDir) { return outDir + "/" + nameToPath(INSTRUCTION_SET_CLASS_FORMAT) + JAVA_EXT; }
-
-    /**
-     * The format string for the full name of the class that describes a specific instruction. 
-     * 
-     * Format parameters: model name and instruction class name.
-     */
-
-    public static final String INSTRUCTION_CLASS_FORMAT = INSTRUCTION_PACKAGE_FORMAT + ".%s";
-
-    /**
-     * The format string for the file name of the class that describes a specific instruction.
-     * 
-     * Format parameters: model name and instruction class name.
-     */
-
-    public static String getInstructionFileFormat(String outDir) { return outDir + "/" + nameToPath(INSTRUCTION_CLASS_FORMAT) + JAVA_EXT; }
-
-    /**
      * Format string for the name of the package that stores modes (Sim-nML).
      * 
      * Format parameters: model name.

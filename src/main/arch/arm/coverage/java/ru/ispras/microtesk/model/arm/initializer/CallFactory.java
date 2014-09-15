@@ -24,11 +24,13 @@
 
 package ru.ispras.microtesk.model.arm.initializer;
 
+import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.IInstruction;
-import ru.ispras.microtesk.model.api.instruction.IInstructionCallBuilderEx;
+import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -100,20 +102,20 @@ final class CallFactory
 
     public final ConcreteCall createMOV(int registerIndex) throws ConfigurationException
     {
-        final IInstructionCallBuilderEx callBuilder =
-            createCallBuilder("MOV", "blank", "setSoff");
+        final IOperationBuilder rootBuilder =
+            createRootBuilder("MOV", "blank", "setSoff");
 
-        callBuilder.getArgumentBuilder("src1")
-                   .getModeBuilder("REG")
-                   .setArgumentValue("r", registerIndex);
-
+        rootBuilder.setArgument("src1", createREG(registerIndex));
+        
         final IAddressingModeBuilder modeBuilder =
-             callBuilder.getArgumentBuilder("src2").getModeBuilder("LSL_IMMEDIATE");
+            model.getCallFactory().newModeInstance("LSL_IMMEDIATE");
 
         modeBuilder.setArgumentValue("r", registerIndex);
         modeBuilder.setArgumentValue("amount", 8);
 
-        return new ConcreteCall(callBuilder.getCall());
+        rootBuilder.setArgument("src2", modeBuilder.getProduct());
+
+        return createCall(rootBuilder.build());
     }
 
     /*
@@ -151,24 +153,21 @@ final class CallFactory
 
     protected final ConcreteCall createADD_IMMEDIATE(int registerIndex, byte value) throws ConfigurationException
     {
-        final IInstructionCallBuilderEx callBuilder = 
-            createCallBuilder("ADD_IMMEDIATE", "blank", "setSoff");
+        final IOperationBuilder rootBuilder =
+            createRootBuilder("ADD_IMMEDIATE", "blank", "setSoff");
 
-        callBuilder.getArgumentBuilder("src1")
-                   .getModeBuilder("REG")
-                   .setArgumentValue("r", registerIndex);
-
-        callBuilder.getArgumentBuilder("src2")
-                   .getModeBuilder("REG")
-                   .setArgumentValue("r", registerIndex);
+        rootBuilder.setArgument("src1", createREG(registerIndex));
+        rootBuilder.setArgument("src2", createREG(registerIndex));
 
         final IAddressingModeBuilder immediateModeBuilder =
-            callBuilder.getArgumentBuilder("src3").getModeBuilder("IMMEDIATE");
+            model.getCallFactory().newModeInstance("IMMEDIATE");
 
         immediateModeBuilder.setArgumentValue("r", 0);
         immediateModeBuilder.setArgumentValue("c", (int) value);
+        
+        rootBuilder.setArgument("src3", immediateModeBuilder.getProduct());
 
-        return new ConcreteCall(callBuilder.getCall());
+        return createCall(rootBuilder.build());
     }
 
     /*
@@ -205,34 +204,44 @@ final class CallFactory
 
     public final ConcreteCall createEOR(int registerIndex) throws ConfigurationException
     {
-        final IInstructionCallBuilderEx callBuilder =
-            createCallBuilder("EOR", "blank", "setSoff");
+        final IOperationBuilder rootBuilder =
+            createRootBuilder("EOR", "blank", "setSoff");
+        
+        rootBuilder.setArgument("src1", createREG(registerIndex));
+        rootBuilder.setArgument("src2", createREG(registerIndex));
+        
+        final IAddressingModeBuilder modeBuilder =
+            model.getCallFactory().newModeInstance(String.format("REGISTER%d", registerIndex));
 
-        callBuilder.getArgumentBuilder("src1")
-                   .getModeBuilder("REG")
-                   .setArgumentValue("r", registerIndex);
+        rootBuilder.setArgument("src3", modeBuilder.getProduct());
 
-        callBuilder.getArgumentBuilder("src2")
-                   .getModeBuilder("REG")
-                   .setArgumentValue("r", registerIndex);
+        return createCall(rootBuilder.build());
+    }
+    
+    private IAddressingMode createREG(int index) throws ConfigurationException
+    {
+        final ICallFactory factory = model.getCallFactory();
+        final IAddressingModeBuilder builder = factory.newModeInstance("REG");
 
-        callBuilder.getArgumentBuilder("src3")
-                   .getModeBuilder(String.format("REGISTER%d", registerIndex));
-
-        return new ConcreteCall(callBuilder.getCall());
+        builder.setArgumentValue("r", index);
+        return builder.getProduct();
     }
 
-    private IInstructionCallBuilderEx createCallBuilder(
+    private IOperationBuilder createRootBuilder(
         String name, String cond, String sets) throws ConfigurationException
     {
-        final IInstruction instruction = model.getInstruction(name);
+        final ICallFactory factory = model.getCallFactory(); 
+        final IOperationBuilder builder = factory.newOpInstance(name, "#root");
         
-        final IInstructionCallBuilderEx callBuilder =
-            instruction.createCallBuilder();
+        builder.setArgument("cond", factory.newModeInstance(cond).getProduct());
+        builder.setArgument("sets", factory.newModeInstance(sets).getProduct());
 
-        callBuilder.getArgumentBuilder("cond").getModeBuilder(cond);
-        callBuilder.getArgumentBuilder("sets").getModeBuilder(sets);
-
-        return callBuilder;
+        return builder;
+    }
+    
+    private ConcreteCall createCall(IOperation rootOperation)
+    {
+        return new ConcreteCall(
+            model.getCallFactory().newCall(rootOperation));
     }
 }

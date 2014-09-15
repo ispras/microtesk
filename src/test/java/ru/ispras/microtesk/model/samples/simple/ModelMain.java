@@ -55,10 +55,14 @@ public class ModelMain
     {
         final IModel model = new Model();
 
-        final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(model.getMetaData());
+        final MetaModelPrinter metaModelPrinter = 
+            new MetaModelPrinter(model.getMetaData());
+
         metaModelPrinter.printAll();
 
-        final ModelStatePrinter modelStatePrinter = new ModelStatePrinter(model);
+        final ModelStatePrinter modelStatePrinter =
+            new ModelStatePrinter(model);
+
         modelStatePrinter.printRegisters();
        
         try

@@ -25,15 +25,12 @@
 package ru.ispras.microtesk.translator.simnml.generation;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import ru.ispras.microtesk.translator.generation.IClassGenerator;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 
 public final class Generator
 {
@@ -53,7 +50,6 @@ public final class Generator
             generateShared();
             generateModes();
             generateOps();
-            generateInstructions();
             generateModel();
         }
         catch (IOException e)
@@ -72,23 +68,6 @@ public final class Generator
     {
         final IClassGenerator shared = factory.createSharedGenerator(ir);
         shared.generate();
-    }
-
-    private void generateInstructions() throws IOException
-    {
-        final List<String> instructionClassNames = new ArrayList<String>();
-        for (Instruction i : ir.getInstructions().values())
-        {
-            final IClassGenerator instruction = factory.createInstruction(i);
-            instruction.generate();
-
-            instructionClassNames.add(i.getClassName());
-        }
-
-        final IClassGenerator instructionSet = 
-            factory.createInstructionSet(instructionClassNames);
-
-        instructionSet.generate();
     }
 
     private void generateModes() throws IOException

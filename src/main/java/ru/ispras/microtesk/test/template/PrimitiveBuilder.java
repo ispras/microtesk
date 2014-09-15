@@ -36,7 +36,6 @@ import java.util.Set;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
-import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
@@ -70,20 +69,6 @@ final class PrimitiveBuilderFactory
             throw new NullPointerException();
 
         this.metaModel = metaModel;
-    }
-
-    public PrimitiveBuilder newInstructionBuilder(
-        String name, CallBuilder callBuilder)
-    {
-        if (null == name)
-            throw new NullPointerException();
-
-        final MetaInstruction metaData = metaModel.getInstruction(name);
-        if (null == metaData)
-            throw new IllegalArgumentException(
-                "No such instruction: " + name);
-
-        return new PrimitiveBuilderCommon(callBuilder, metaData);
     }
 
     public PrimitiveBuilder newOperationBuilder(
@@ -424,17 +409,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
     private String contextName;
 
     PrimitiveBuilderCommon(
-        CallBuilder callBuilder, MetaInstruction metaData)
-    {
-        this(
-           callBuilder,
-           new StrategyInstruction(metaData),
-           Kind.INSTR,
-           null
-        );
-    }
-
-    PrimitiveBuilderCommon(
         CallBuilder callBuilder, MetaOperation metaData, String contextName)
     {
         this(
@@ -640,110 +614,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
     
     private static final String ERR_ARG_NOT_PRIMITIVE =
         "The %s argument of %s is not a primitive (OP or MODE).";
-
-    private static final class StrategyInstruction implements Strategy
-    {
-        private final MetaInstruction metaData;
-
-        private int argumentCount;
-        private final Iterator<MetaArgument> argumentIterator;
-
-        private StrategyInstruction(MetaInstruction metaData)
-        {
-            if (null == metaData)
-                throw new NullPointerException();
-
-            this.metaData = metaData;
-
-            this.argumentCount = 0;
-            this.argumentIterator = metaData.getArguments().iterator();
-        }
-
-        @Override
-        public String getName()
-        {
-            return metaData.getName();
-        }
-
-        @Override
-        public String getTypeName()
-        {
-            return getName();
-        }
-
-        @Override
-        public String getDescription()
-        {
-            return String.format("the %s instruction", getName());
-        }
-
-        @Override
-        public boolean isRoot()
-        {
-            // Always true for instructions.
-            return true;
-        }
-
-        @Override
-        public String getNextArgumentName()
-        {
-            if (!argumentIterator.hasNext())
-                throw new IllegalStateException(String.format(
-                    ERR_NO_MORE_ARGUMENTS, getDescription(), argumentCount));
-
-            final MetaArgument argument = argumentIterator.next();
-            argumentCount++;
-
-            return argument.getName();
-        }
-
-        @Override
-        public void checkValidArgument(Argument arg)
-        {
-            final MetaArgument metaArgument =
-                metaData.getArgument(arg.getName());
-
-            if (null == metaArgument)
-                throw new IllegalStateException(String.format(
-                    ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
-
-            final String typeName;
-            if (arg.isImmediate())
-            {
-                typeName = AddressingModeImm.NAME;
-            }
-            else
-            {
-                if (!(arg.getValue() instanceof Primitive))
-                    throw new IllegalArgumentException(String.format(
-                        ERR_ARG_NOT_PRIMITIVE,
-                        arg.getName(),
-                        getDescription()));
-
-                typeName = ((Primitive) arg.getValue()).getTypeName();
-            }
-
-            if (!metaArgument.isTypeAccepted(typeName))
-                throw new IllegalStateException(String.format(
-                    ERR_TYPE_NOT_ACCEPTED,
-                    typeName,
-                    arg.getName(),
-                    getDescription()));
-        }
-
-        @Override
-        public void checkAllArgumentsAssigned(Set<String> argNames)
-        {
-            for (MetaArgument arg : metaData.getArguments())
-            {
-                if (!argNames.contains(arg.getName()))
-                    throw new IllegalStateException(String.format(
-                         ERR_UNASSIGNED_ARGUMENT,
-                         arg.getName(),
-                         getDescription()));
-            }
-        }
-    }
 
     private static final class StrategyOperation implements Strategy
     {

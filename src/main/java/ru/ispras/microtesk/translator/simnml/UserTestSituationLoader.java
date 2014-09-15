@@ -18,15 +18,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
+//import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.Initializer;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Situation;
+//import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
+//import ru.ispras.microtesk.translator.simnml.ir.primitive.Situation;
 
+@SuppressWarnings("unused")
 public final class UserTestSituationLoader
 {
     private final String  modelName;
@@ -34,8 +35,10 @@ public final class UserTestSituationLoader
     private final String     outDir;
     private final IR             ir;
 
+    /*
     private static final String JAVA_TEST_SIT_DIR_FRMT =
         "%s/java/ru/ispras/microtesk/model/%s/situation";
+    */    
 
     private static final String ERR_TEST_SIT_DIR_DOES_NOT_EXIST =
         "The \"%s\" folder does not exist. No user-defied situations will be included.%n";
@@ -77,10 +80,11 @@ public final class UserTestSituationLoader
         // Copy Java Code
         copyDirectory(testSitDir + "/java", outDir + "/java");
 
-        addAllSituationsToIR();
-        
-        addAllInitializersToIR();
+        // addAllSituationsToIR();
+        // addAllInitializersToIR();
     }
+    
+    /*
 
     private void addAllSituationsToIR()
     {
@@ -137,6 +141,8 @@ public final class UserTestSituationLoader
         final Instruction instruction = ir.getInstructions().get(instructionName);
         instruction.defineSituation(situation);
     }
+    
+    */
 
     private void addAllInitializersToIR()
     {

@@ -39,21 +39,18 @@ import java.util.Map;
 
 public final class MetaModel
 {
-    private final Map<String, MetaInstruction>  instructions;
     private final Map<String, MetaAddressingMode>      modes;
     private final Map<String, MetaOperation>      operations;
     private final Map<String, MetaLocationStore>   registers;
     private final Map<String, MetaLocationStore>      memory;
 
     public MetaModel(
-        Collection<MetaInstruction> instructions,
         Collection<MetaAddressingMode>     modes,
         Collection<MetaOperation>     operations,
         Collection<MetaLocationStore>  registers,
         Collection<MetaLocationStore>     memory
         )
     {
-        this.instructions = toMap(instructions);
         this.modes        = toMap(modes);
         this.operations   = toMap(operations);
         this.registers    = toMap(registers);
@@ -116,29 +113,6 @@ public final class MetaModel
     public MetaOperation getOperation(String name)
     {
         return operations.get(name);
-    }
-
-    /**
-     * Returns an iterator for the collection of instructions. 
-     * 
-     * @return An Iterable object.
-     */
-
-    public Iterable<MetaInstruction> getInstructions()
-    {
-        return instructions.values();
-    }
-
-    /**
-     * Returns metadata for the specified instruction.
-     * 
-     * @param name Instruction name.
-     * @return Instruction metadata.
-     */
-
-    public MetaInstruction getInstruction(String name)
-    {
-        return instructions.get(name);
     }
 
     /**

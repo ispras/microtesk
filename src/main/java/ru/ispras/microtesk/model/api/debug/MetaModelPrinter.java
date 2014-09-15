@@ -26,12 +26,10 @@ package ru.ispras.microtesk.model.api.debug;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
-import ru.ispras.microtesk.model.api.metadata.MetaInstruction;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
-import ru.ispras.microtesk.model.api.metadata.MetaSituation;
 
 public final class MetaModelPrinter
 {
@@ -57,8 +55,6 @@ public final class MetaModelPrinter
         printSepator();
         printOperationMetaData();
 
-        printSepator();
-        printInstructionMetaData();
     }
 
     public void printSepator()
@@ -134,42 +130,6 @@ public final class MetaModelPrinter
 
             System.out.println();
         }
-    }
-
-    public void printInstructionMetaData()
-    {
-        System.out.println("INSTRUCTIONS:");
-
-        for (MetaInstruction i : metaModel.getInstructions())
-        {
-            System.out.println(String.format("Name: %s", i.getName()));
-            System.out.println("Parameters:");
-
-            int count = 0;
-            for(MetaArgument a : i.getArguments())
-            {
-                printArgument(a);
-                count++;
-            }
-            if (0 == count) System.out.println("   <none>");
-
-            printSituationMetaData(i);
-
-            System.out.println();
-        }
-    }
-    
-    public void printSituationMetaData(MetaInstruction metaInstruction)
-    {
-        System.out.println("Situations:");
-
-        int count = 0;
-        for (MetaSituation s: metaInstruction.getSituations())
-        {
-            System.out.println("   " + s.getName());
-            count++;
-        }
-        if (0 == count) System.out.println("   <none>");
     }
 
     private void printArgument(MetaArgument a)
