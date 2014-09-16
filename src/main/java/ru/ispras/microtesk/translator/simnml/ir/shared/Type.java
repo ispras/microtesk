@@ -43,6 +43,12 @@ public final class Type
 
     public static Type CARD(Expr bitSize)
         { return new Type(TypeId.CARD, bitSize); }
+    
+    public static Type FLOAT(int fracBitSize, int expBitSize)
+        { return null; /*new Type(TypeId.FLOAT, bitSize);*/ }
+
+    public static Type FLOAT(Expr fracBitSize, Expr expBitSize)
+        { return null; /*new Type(TypeId.FLOAT, bitSize);*/ }
 
     private final TypeId typeId;
     private final Expr bitSize;
