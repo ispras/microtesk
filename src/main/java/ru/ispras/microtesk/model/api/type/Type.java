@@ -43,19 +43,13 @@ package ru.ispras.microtesk.model.api.type;
 public class Type
 {
     public static Type INT(int bitSize)
-    {
-        return new Type(TypeId.INT, bitSize);
-    }
+        { return new Type(TypeId.INT, bitSize); }
 
     public static Type CARD(int bitSize)
-    {
-        return new Type(TypeId.CARD, bitSize);
-    }
+        { return new Type(TypeId.CARD, bitSize); }
 
     public static Type BOOL(int bitSize)
-    {
-        return new Type(TypeId.BOOL, bitSize);
-    }
+        { return new Type(TypeId.BOOL, bitSize); }
 
     public static Type FLOAT(int fracBitSize, int expBitSize)
     {
