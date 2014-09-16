@@ -149,25 +149,12 @@ final class STBShared implements ITemplateBuilder
 
         for (Map.Entry<String, Type> type : ir.getTypes().entrySet())
         {
-            if (null == type.getValue().getAlias())
-            {
-                final ST tType = group.getInstanceOf("type");
+            final ST tType = group.getInstanceOf("type_alias");
 
-                tType.add("name", type.getKey());
-                tType.add("typeid", type.getValue().getTypeId());
-                tType.add("size", new PrinterExpr(type.getValue().getBitSizeExpr()));
+            tType.add("name",  type.getKey());
+            tType.add("alias", type.getValue().getJavaText());
 
-                t.add("members", tType);
-            }
-            else
-            {
-                final ST tType = group.getInstanceOf("type_alias");
-
-                tType.add("name",  type.getKey());
-                tType.add("alias", type.getValue().getAlias());
-
-                t.add("members", tType);                
-            }
+            t.add("members", tType);                
         }
     }
 

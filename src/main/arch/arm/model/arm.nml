@@ -24,14 +24,14 @@ type bit      = card(1)
 type Bit5     = card(5)
 type Bit12    = card(12)
 type Int24    = int(24)
-// type single   = float(23, 9)
-// type double_t = float(52, 12)
+type single   = float(23, 9)
+type double_t = float(52, 12)
 
 //Register file
 reg GPR[32, word]
 
 //Floating point registers 
-// reg FREGS[32, single]
+reg FREGS[32, single]
 
 //fps register
 reg FPS[1, word]

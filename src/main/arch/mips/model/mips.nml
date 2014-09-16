@@ -25,20 +25,20 @@ let SP = "GPR[29]"
 /* Type Declarations                                                                        */
 /********************************************************************************************/
 
-type bit            = card ( 1 )
-type byte_t         = card ( 8 )
-type word           = card ( 32 )
-type long_t         = card ( 32 )
-type signed_long    = int  ( 32 )
-type address        = card ( 32 )
-type index          = card ( REGS )
-type breakcode      = card ( 20 )
+type bit         = card(1)
+type byte_t      = card(8)
+type word        = card(32)
+type long_t      = card(32)
+type signed_long = int(32)
+type address     = card(32)
+type index       = card(REGS)
+type breakcode   = card(20)
 
-// type flot = float ( 52 , 12 ) // NOT SUPPORTED IN THE CURRENT VERSION
-// type flots = float ( 23, 9 )  // NOT SUPPORTED IN THE CURRENT VERSION
+type flot        = float(52, 12)
+type flots       = float(23, 9)
 
-type cond_code      = card ( 3 )
-type cond           = card ( 4 )
+type cond_code   = card(3)
+type cond        = card(4)
 
 /********************************************************************************************/
 /* Memory and Registers                                                                     */
@@ -56,8 +56,8 @@ reg LO [ 1, signed_long ]
 // next instruction address
 reg NIA [ 1, long_t ] 
 
-// reg FPR [ 2 ** REGS, flots] // NOT SUPPORTED IN THE CURRENT VERSION
-// port = 2,1  
+reg FPR [ 2 ** REGS, flots] 
+// port = 2,1 // NOT SUPPORTED IN THE CURRENT VERSION 
 
 // higher 32/16 bits of multiplication result of 32*16 bit or 32*32 bit operands.. remainder                             
 //  for div operations 

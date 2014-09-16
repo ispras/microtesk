@@ -25,6 +25,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.type.TypeId;
+import ru.ispras.microtesk.translator.simnml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class Type
@@ -45,29 +46,20 @@ public final class Type
         { return new Type(TypeId.CARD, bitSize); }
 
     public static Type FLOAT(int fracBitSize, int expBitSize)
-        { return new Type(TypeId.FLOAT, fracBitSize + expBitSize); }
+        { return new Type(TypeId.FLOAT, fracBitSize, expBitSize); }
 
     public static Type FLOAT(Expr fracBitSize, Expr expBitSize)
-        { return FLOAT(fracBitSize.integerValue(), expBitSize.integerValue()); }
+        { return new Type(TypeId.FLOAT, fracBitSize, expBitSize); }
 
     private static final Class<?> MODEL_API_CLASS =
         ru.ispras.microtesk.model.api.type.Type.class;
 
     private final TypeId typeId;
-    private final Expr bitSize;
     private final String aliasName;
+    private final Expr bitSize;
+    private final Expr[] fieldSizes;
 
-    private Type(TypeId typeId, Expr bitSize)
-    {
-        this(typeId, bitSize, null);
-    }
-
-    private Type(TypeId typeId, int bitSize)
-    {
-        this(typeId, Expr.newConstant(bitSize));
-    }
-
-    private Type(TypeId typeId, Expr bitSize, String aliasName)
+    private Type(TypeId typeId, String aliasName, Expr bitSize, Expr[] fieldSizes)
     {
         if (null == typeId)
             throw new NullPointerException();
@@ -75,9 +67,72 @@ public final class Type
         if (null == bitSize)
             throw new NullPointerException();
 
+        if (null == fieldSizes)
+            throw new NullPointerException();
+
         this.typeId = typeId;
-        this.bitSize = bitSize;
         this.aliasName = aliasName;
+        this.bitSize = bitSize;
+        this.fieldSizes = fieldSizes;
+    }
+
+    private Type(Type type, String aliasName)
+    {
+        this.typeId = type.typeId;
+        this.aliasName = aliasName;
+        this.bitSize = type.bitSize;
+        this.fieldSizes = type.fieldSizes;
+    }
+
+    private Type(TypeId typeId, Expr bitSize)
+    {
+        this(typeId, null, bitSize, new Expr[] { bitSize } );
+    }
+
+    private Type(TypeId typeId, int bitSize)
+    {
+        this(typeId, Expr.newConstant(bitSize));
+    }
+
+    private Type(TypeId typeId, Expr ... fieldSizes)
+    {
+        this(typeId, null, getTotalSize(fieldSizes), fieldSizes);
+    }
+    
+    private static Expr getTotalSize(Expr ... fieldSizes)
+    {
+        if (fieldSizes.length == 1)
+            return fieldSizes[0];
+
+        int total = 0;
+        for (Expr size : fieldSizes)
+            total += size.integerValue();
+
+        return Expr.newConstant(total);
+    }
+    
+    private Type(TypeId typeId, int ... fieldSizes)
+    {
+        this(typeId, null, getTotalSize(fieldSizes), toExprArray(fieldSizes));
+    }
+
+    private static Expr getTotalSize(int ... fieldSizes)
+    {
+        int total = 0;
+        for (int size : fieldSizes)
+            total += size;
+
+        return Expr.newConstant(total);
+    }
+
+    private static Expr[] toExprArray(int ... values)
+    {
+        final Expr[] exprs = new Expr[values.length];
+
+        for (int index = 0; index < exprs.length; index++)
+            exprs[index] = Expr.newConstant(values[index]);
+
+        return exprs;
     }
 
     public Type alias(String name)
@@ -88,7 +143,7 @@ public final class Type
         if (name.equals(aliasName))
             return this;
 
-        return new Type(getTypeId(), getBitSizeExpr(), name);
+        return new Type(this, name);
     }
 
     public Type resize(int newBitSize)
@@ -127,27 +182,41 @@ public final class Type
         return aliasName;
     }
 
+    /**
+     * Returns printable representation of the type
+     * for the generated Java code. Returns an alias name
+     * if it is defined. 
+     * 
+     * @return Textual representation of the type in Java format.
+     */
+
     public String getJavaText()
     {
-        if (null != aliasName)
-            return aliasName;
-
-        return String.format(
-            "%s.%s(%d)",
-            MODEL_API_CLASS.getSimpleName(),
-            getTypeId(),
-            getBitSize()
-        );
+        return (null != aliasName) ? aliasName : getTypeName();
     }
+
+    /**
+     * Return a printable name of the type to be used in various
+     * diagnostic messages.
+     *    
+     * @return Printable name of the type.
+     */
 
     public String getTypeName()
     {
+        final StringBuilder sbFieldSizes = new StringBuilder();
+        
+        for(Expr fieldSize : fieldSizes)
+        {
+            if (sbFieldSizes.length() > 0) sbFieldSizes.append(", ");
+            sbFieldSizes.append(new PrinterExpr(fieldSize).toString());
+        }
+
         return String.format(
-            "%s(%s.%s, %d)",
+            "%s.%s(%s)",
             MODEL_API_CLASS.getSimpleName(),
-            TypeId.class.getSimpleName(),
             getTypeId(),
-            getBitSize()
+            sbFieldSizes
             );
     }
 
@@ -155,8 +224,8 @@ public final class Type
     public String toString()
     {
         return String.format(
-            "Type [typeId=%s, bitSize=%d, alias=%s]",
-            typeId,
+            "%s, bitSize=%d, alias=%s",
+            getTypeName(),
             getBitSize(),
             aliasName != null ? aliasName : "<undefined>"
             );
