@@ -43,12 +43,14 @@ public final class Type
 
     public static Type CARD(Expr bitSize)
         { return new Type(TypeId.CARD, bitSize); }
-    
-    public static Type FLOAT(int fracBitSize, int expBitSize)
-        { return null; /*new Type(TypeId.FLOAT, bitSize);*/ }
 
+    // TODO: Need additional fields to store the fraction and the exponent.
+    public static Type FLOAT(int fracBitSize, int expBitSize)
+        { return new Type(TypeId.FLOAT, fracBitSize + expBitSize); }
+
+    // TODO: Need additional fields to store the fraction and the exponent.
     public static Type FLOAT(Expr fracBitSize, Expr expBitSize)
-        { return null; /*new Type(TypeId.FLOAT, bitSize);*/ }
+        { return FLOAT(fracBitSize.integerValue(), expBitSize.integerValue()); }
 
     private final TypeId typeId;
     private final Expr bitSize;
