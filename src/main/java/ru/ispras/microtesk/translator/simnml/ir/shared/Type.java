@@ -79,7 +79,7 @@ public final class Type
         this.refName = refName;
     }
 
-    public Type newAlias(String name)
+    public Type alias(String name)
     {
         if (null == name)
             throw new NullPointerException();
