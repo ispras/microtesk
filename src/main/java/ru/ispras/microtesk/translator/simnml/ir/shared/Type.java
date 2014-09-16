@@ -44,13 +44,14 @@ public final class Type
     public static Type CARD(Expr bitSize)
         { return new Type(TypeId.CARD, bitSize); }
 
-    // TODO: Need additional fields to store the fraction and the exponent.
     public static Type FLOAT(int fracBitSize, int expBitSize)
         { return new Type(TypeId.FLOAT, fracBitSize + expBitSize); }
 
-    // TODO: Need additional fields to store the fraction and the exponent.
     public static Type FLOAT(Expr fracBitSize, Expr expBitSize)
         { return FLOAT(fracBitSize.integerValue(), expBitSize.integerValue()); }
+    
+    private static final Class<?> MODEL_API_CLASS =
+        ru.ispras.microtesk.model.api.type.Type.class;
 
     private final TypeId typeId;
     private final Expr bitSize;
@@ -74,7 +75,7 @@ public final class Type
         if (null == bitSize)
             throw new NullPointerException();
 
-        this.typeId  = typeId;
+        this.typeId = typeId;
         this.bitSize = bitSize;
         this.refName = refName;
     }
@@ -133,7 +134,7 @@ public final class Type
 
         return String.format(
             "%s.%s(%d)",
-            ru.ispras.microtesk.model.api.type.Type.class.getSimpleName(),
+            MODEL_API_CLASS.getSimpleName(),
             getTypeId(),
             getBitSize()
         );
@@ -143,7 +144,7 @@ public final class Type
     {
         return String.format(
             "%s(%s.%s, %d)",
-            ru.ispras.microtesk.model.api.type.Type.class.getSimpleName(),
+            MODEL_API_CLASS.getSimpleName(),
             TypeId.class.getSimpleName(),
             getTypeId(),
             getBitSize()
