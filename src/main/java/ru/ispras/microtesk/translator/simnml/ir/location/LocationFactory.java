@@ -110,7 +110,7 @@ public final class LocationFactory extends WalkerFactoryBase
         if (pos.getValueInfo().isConstant())
             checkBitfieldBounds(where, pos.integerValue(), location.getType().getBitSize());
 
-        final Type bitfieldType = new Type(location.getType().getTypeId(), Expr.CONST_ONE);
+        final Type bitfieldType = location.getType().resize(Expr.CONST_ONE);
         return LocationAtom.createBitfield(location, pos, pos, bitfieldType);
     }
 
@@ -133,7 +133,7 @@ public final class LocationFactory extends WalkerFactoryBase
             checkBitfieldBounds(where, toPos, locationSize);
 
             final int  bitfieldSize = Math.abs(toPos - fromPos) + 1;
-            final Type bitfieldType = new Type(location.getType().getTypeId(), bitfieldSize);
+            final Type bitfieldType = location.getType().resize(bitfieldSize);
 
             return LocationAtom.createBitfield(location, from, to, bitfieldType);
         }
@@ -150,7 +150,7 @@ public final class LocationFactory extends WalkerFactoryBase
         if (reducedFrom.polynomial.equals(reducedTo.polynomial))
         {
             final int  bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
-            final Type bitfieldType = new Type(location.getType().getTypeId(), bitfieldSize);
+            final Type bitfieldType = location.getType().resize(bitfieldSize);
 
             return LocationAtom.createBitfield(location, from, to, bitfieldType);
         }
@@ -174,7 +174,7 @@ public final class LocationFactory extends WalkerFactoryBase
         final int  rightSize = right.getType().getBitSize();
         final int concatSize = leftSize + rightSize; 
 
-        final Type concatType = new Type(left.getType().getTypeId(), concatSize);
+        final Type concatType = left.getType().resize(concatSize);
 
         if (right instanceof LocationAtom)
             return new LocationConcat(concatType, Arrays.asList((LocationAtom) right, left));

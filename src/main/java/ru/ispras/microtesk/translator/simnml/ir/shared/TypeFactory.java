@@ -12,7 +12,6 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
@@ -38,14 +37,14 @@ public final class TypeFactory extends WalkerFactoryBase
 
     public Type newInt(Where where, Expr bitSize) throws SemanticException
     {
-        return new Type(TypeId.INT, bitSize);
+        return Type.INT(bitSize);
     }
 
     public Type newCard(Where where, Expr bitSize) throws SemanticException
     {
-        return new Type(TypeId.CARD, bitSize);
+        return Type.CARD(bitSize);
     }
-    
+
     public Type newFloat(
         Where where, Expr fractionBitSize, Expr exponentBitSize)
         throws SemanticException

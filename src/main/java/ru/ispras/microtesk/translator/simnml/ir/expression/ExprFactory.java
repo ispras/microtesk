@@ -542,7 +542,7 @@ public final class ExprFactory extends WalkerFactoryBase
                 Integer.SIZE : Long.SIZE;
         }
 
-        final Type type = new Type(TypeId.INT, size);
+        final Type type = Type.INT(size);
 
         final ValueInfo newValueInfo = ValueInfo.createModel(type);
         final NodeInfo   newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);

@@ -143,36 +143,20 @@ class ModelTypeCastRules
 
         return CAST_TYPE_MAP[col][row];
     }
-    
+
     public static Type getCastType(Type left, Type right)
     {
-        final TypeId typeId = 
+        final TypeId typeId =
             getCastTypeId(left.getTypeId(), right.getTypeId());
 
         if (null == typeId)
             return null;
 
-        final int bitSize;
-        final Expr bitSizeExpr;
+        final Expr bitSizeExpr = (left.getBitSize() >= right.getBitSize()) ?
+            left.getBitSizeExpr() : right.getBitSizeExpr();
 
-        if (left.getBitSize() >= right.getBitSize())
-        {
-            bitSize = left.getBitSize();
-            bitSizeExpr = left.getBitSizeExpr();
-        }
-        else
-        {
-            bitSize = right.getBitSize();
-            bitSizeExpr = right.getBitSizeExpr();
-        }
-
-        if (typeId == left.getTypeId() && bitSize == left.getBitSize())
-            return left;
-
-        if (typeId == right.getTypeId() && bitSize == right.getBitSize())
-            return right;
-
-        return new Type(typeId, bitSizeExpr);
+        return (typeId == left.getTypeId()) ?
+            left.resize(bitSizeExpr) : right.resize(bitSizeExpr);
     }
 }
 

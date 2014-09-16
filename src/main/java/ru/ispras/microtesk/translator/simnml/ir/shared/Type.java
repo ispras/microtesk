@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -8,6 +8,18 @@
  * All rights reserved.
  * 
  * Type.java, Oct 22, 2012 1:53:02 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
@@ -18,18 +30,30 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 public final class Type
 {
     public final static Type BOOLEAN = 
-        new Type(TypeId.BOOL, Expr.newConstant(1));
+        new Type(TypeId.BOOL, Expr.CONST_ONE);
+
+    public static Type INT(int bitSize)
+        { return new Type(TypeId.INT, bitSize); }
+
+    public static Type INT(Expr bitSize)
+        { return new Type(TypeId.INT, bitSize); }
+
+    public static Type CARD(int bitSize)
+        { return new Type(TypeId.CARD, bitSize); }
+
+    public static Type CARD(Expr bitSize)
+        { return new Type(TypeId.CARD, bitSize); }
 
     private final TypeId typeId;
     private final Expr bitSize;
     private final String refName;
 
-    public Type(TypeId typeId, Expr bitSize)
+    private Type(TypeId typeId, Expr bitSize)
     {
         this(typeId, bitSize, null);
     }
 
-    public Type(TypeId typeId, int bitSize)
+    private Type(TypeId typeId, int bitSize)
     {
         this(typeId, Expr.newConstant(bitSize));
     }
@@ -56,6 +80,22 @@ public final class Type
             return this;
 
         return new Type(getTypeId(), getBitSizeExpr(), name);
+    }
+
+    public Type resize(int newBitSize)
+    {
+        if (newBitSize == getBitSize())
+            return this;
+
+        return new Type(typeId, newBitSize);
+    }
+    
+    public Type resize(Expr newBitSize)
+    {
+        if (newBitSize.integerValue() == getBitSize())
+            return this;
+
+        return new Type(typeId, newBitSize);
     }
 
     public TypeId getTypeId()
