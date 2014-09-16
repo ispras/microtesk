@@ -55,7 +55,7 @@ public final class Type
 
     private final TypeId typeId;
     private final Expr bitSize;
-    private final String refName;
+    private final String aliasName;
 
     private Type(TypeId typeId, Expr bitSize)
     {
@@ -67,7 +67,7 @@ public final class Type
         this(typeId, Expr.newConstant(bitSize));
     }
 
-    private Type(TypeId typeId, Expr bitSize, String refName)
+    private Type(TypeId typeId, Expr bitSize, String aliasName)
     {
         if (null == typeId)
             throw new NullPointerException();
@@ -77,7 +77,7 @@ public final class Type
 
         this.typeId = typeId;
         this.bitSize = bitSize;
-        this.refName = refName;
+        this.aliasName = aliasName;
     }
 
     public Type alias(String name)
@@ -85,7 +85,7 @@ public final class Type
         if (null == name)
             throw new NullPointerException();
 
-        if (name.equals(refName))
+        if (name.equals(aliasName))
             return this;
 
         return new Type(getTypeId(), getBitSizeExpr(), name);
@@ -122,15 +122,15 @@ public final class Type
         return bitSize.integerValue();
     }
 
-    public String getRefName()
+    public String getAlias()
     {
-        return refName;
+        return aliasName;
     }
 
     public String getJavaText()
     {
-        if (null != refName)
-            return refName;
+        if (null != aliasName)
+            return aliasName;
 
         return String.format(
             "%s.%s(%d)",
@@ -155,10 +155,10 @@ public final class Type
     public String toString()
     {
         return String.format(
-            "Type [typeId='%s', bitSize='%d', refName='%s']",
+            "Type [typeId=%s, bitSize=%d, alias=%s]",
             typeId,
             getBitSize(),
-            refName != null ? refName : "<undefined>"
+            aliasName != null ? aliasName : "<undefined>"
             );
     }
 

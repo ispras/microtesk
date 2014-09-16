@@ -110,7 +110,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase
 
     public Primitive createImm(Type type)
     {
-        return new Primitive(type.getRefName(), Primitive.Kind.IMM, false, type, null);
+        return new Primitive(type.getAlias(), Primitive.Kind.IMM, false, type, null);
     }
 
     public Primitive getMode(Where where, String modeName) throws SemanticException

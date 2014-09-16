@@ -149,7 +149,7 @@ final class STBShared implements ITemplateBuilder
 
         for (Map.Entry<String, Type> type : ir.getTypes().entrySet())
         {
-            if (null == type.getValue().getRefName())
+            if (null == type.getValue().getAlias())
             {
                 final ST tType = group.getInstanceOf("type");
 
@@ -164,7 +164,7 @@ final class STBShared implements ITemplateBuilder
                 final ST tType = group.getInstanceOf("type_alias");
 
                 tType.add("name",  type.getKey());
-                tType.add("alias", type.getValue().getRefName());
+                tType.add("alias", type.getValue().getAlias());
 
                 t.add("members", tType);                
             }
@@ -219,9 +219,9 @@ final class STBShared implements ITemplateBuilder
         tMemory.add("kind", memory.getKind());
 
         final Type typeExpr = memory.getType();
-        if (null != typeExpr.getRefName())
+        if (null != typeExpr.getAlias())
         {
-            tMemory.add("type", typeExpr.getRefName());
+            tMemory.add("type", typeExpr.getAlias());
         }
         else
         {
