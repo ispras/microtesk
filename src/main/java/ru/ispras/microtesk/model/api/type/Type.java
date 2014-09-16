@@ -67,13 +67,21 @@ public class Type
     private final TypeId typeId;
     private final int bitSize;
 
-    public Type(TypeId typeId, int bitSize)
+    protected Type(TypeId typeId, int bitSize)
     {
         if (null == typeId)
             throw new NullPointerException();
 
         this.typeId  = typeId;
         this.bitSize = bitSize;
+    }
+    
+    public Type resize(int newBitSize)
+    {
+        if (bitSize == newBitSize)
+            return this;
+
+        return new Type(typeId, newBitSize);
     }
 
     public final TypeId getTypeId()

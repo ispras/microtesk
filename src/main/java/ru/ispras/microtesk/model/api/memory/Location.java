@@ -16,7 +16,6 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
@@ -120,7 +119,7 @@ public final class Location
     public Location concat(Location arg)
     {
         return new Location(
-           new Type(type.getTypeId(), type.getBitSize() + arg.getType().getBitSize()),
+           type.resize(type.getBitSize() + arg.getType().getBitSize()),
            BitVector.newMapping(arg.rawData /*low*/, rawData /*high*/),
            readOnly || arg.readOnly,
            handler
@@ -139,7 +138,7 @@ public final class Location
         boolean readOnly = false;
         int totalBitSize = 0;
 
-        final TypeId typeID = locations[0].getType().getTypeId();
+        final Type type = locations[0].getType();
         for (int index = 0; index < locations.length; ++index)
         {
             readOnly = readOnly || locations[index].readOnly;
@@ -148,7 +147,7 @@ public final class Location
         }
 
         return new Location(
-            new Type(typeID, totalBitSize),
+            type.resize(totalBitSize),
             BitVector.newMapping(rawDataArray),
             readOnly,
             null

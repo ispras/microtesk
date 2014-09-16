@@ -50,7 +50,8 @@ public final class TypeFactory extends WalkerFactoryBase
         Where where, Expr fractionBitSize, Expr exponentBitSize)
         throws SemanticException
     {
-        // TODO
+        // return new Type(
+        //    TypeId.FLOAT, fractionBitSize, exponentBitSize);
         return null;
     }
 }
