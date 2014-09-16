@@ -49,7 +49,7 @@ public final class Type
 
     public static Type FLOAT(Expr fracBitSize, Expr expBitSize)
         { return FLOAT(fracBitSize.integerValue(), expBitSize.integerValue()); }
-    
+
     private static final Class<?> MODEL_API_CLASS =
         ru.ispras.microtesk.model.api.type.Type.class;
 
