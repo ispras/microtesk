@@ -107,10 +107,10 @@ class ModelTypeCastRules
 
     private static final TypeId CAST_TYPE_MAP[][]=
     {
-        { null,          TypeId.CARD,  TypeId.INT,  TypeId.BOOL },
-        { TypeId.CARD,  TypeId.CARD,  TypeId.INT,  null         },
-        { TypeId.INT,   TypeId.INT,   TypeId.INT,  null         },
-        { TypeId.BOOL,  null,          null,         TypeId.BOOL },
+        { null,         TypeId.CARD,  TypeId.INT,  TypeId.BOOL },
+        { TypeId.CARD,  TypeId.CARD,  TypeId.INT,  null        },
+        { TypeId.INT,   TypeId.INT,   TypeId.INT,  null        },
+        { TypeId.BOOL,  null,         null,        TypeId.BOOL },
     };
 
     public static TypeId getCastTypeId(TypeId left, TypeId right)
