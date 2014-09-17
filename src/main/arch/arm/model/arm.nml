@@ -3876,6 +3876,126 @@ op PLD (ibit : bit, ubit : bit, rn : index, aamode : card(12))
 
 op preload_instruction =  PLD
 
+
+/********************************************************************************************/
+/* Floating Point Instructions (under development)                                          */
+/********************************************************************************************/
+
+op FMACS (cond: Condition, d: bit, fn: nibble, fd: nibble, n: bit, m: bit, fm: nibble)
+    syntax = format("FMACS%s S%d, S%d, S%d", cond.syntax, fd, fn, fm)
+    image = format("%s11100%d00%4b%4b1010%d0%d0%4b", cond.image, d, fn, fd, n, m, fm)
+    action = {
+        cond.action;
+
+        if X == 1 then
+            /* TODO: DOES NOT WORK. SUPPORT FOR FLOAT IS CURRENTLY LIMITED  
+            sd = fd :: d;
+            sn = fn :: n;
+            sm = fm :: m;
+
+            FREGS[sd] = FREGS[sd] + (FREGS[sm] * FREGS[sn]);
+            */
+        endif;
+    }
+
+op FADDS (cond: Condition, d: bit, fn: nibble, fd: nibble, n: bit, m: bit, fm: nibble)
+    syntax = format("FADDS%s S%d, S%d, S%d", cond.syntax, fd, fn, fm)
+    image = format("%s11100%d11%4b%4b1010%d0%d0%4b", cond.image, d, fn, fd, n, m, fm)
+    action = {
+        cond.action;
+
+        if X == 1 then
+            /* TODO: DOES NOT WORK. SUPPORT FOR FLOAT IS CURRENTLY LIMITED  
+            sd = fd :: d;
+            sn = fn :: n;
+            sm = fm :: m;
+
+            FREGS[sd] = FREGS[sm] + FREGS[sn];
+            */
+        endif;
+    }
+
+op f_data_processing_inst = FMACS
+                          | FADDS
+/*                        | FMACD
+                          | FNMACS
+                          | FNMACD
+                          | FMSCS
+                          | FMSCD
+                          | FNMSCS
+                          | FNMSCD
+                          | FMULS
+                          | FNMULS
+                          | FNMULD
+                          | FADDD
+                          | FSUBS
+                          | FSUBD
+                          | FDIVS
+                          | FDIVD
+*/
+
+op FLDD (cond: Condition, U: setU, Rn: nibble, Dd: nibble, offset: byte_t)
+    syntax = format("FLDD%s D%d, [R%d, #%s%d]", cond.syntax, Dd, Rn, U.syntax, offset)
+    image = format("%s1101%s001%4b%4b0001%8b", cond.image, U.image, Rn, Dd, offset)
+    action = {
+        cond.action;
+
+        if X == 1 then
+            if Rn == 15 then
+                if U == 1 then 
+                    address = GPR[Rn] + 4 + offset * 4;
+                else
+                    address = GPR[Rn] + 4 - offset * 4;
+                endif;
+            else
+                if U == 1 then 
+                    address = GPR[Rn] + offset * 4;
+                else
+                    address = GPR[Rn] - offset * 4;
+                endif;
+            endif;
+
+            FREGS[Dd*2+1] = M[address+7] :: M[address+6] :: M[address+5] :: M[address+4];
+            FREGS[Dd*2] = M[address+3] :: M[address+2] :: M[address+1] :: M[address];
+        endif;
+    }
+
+op f_load_store_inst = FLDD
+/*                   | FSTMS
+                     | FLDMS
+                     | FSTMD
+                     | FLDMD
+                     | FSTMX
+                     | FLDFX
+                     | FSTS
+                     | FLDS
+                     | FSTD
+*/
+
+op FMDLR (cond: Condition, Dn: nibble, Rd: nibble)
+    syntax = format("FMDLR%s D%d,R%d",cond.syntax, Dn, Rd)
+    image = format("%s11100000%4b%4b000100010000", cond.image, Dn, Rd)
+    action = {
+        cond.action;
+        if X == 1 then
+            FREGS[Dn*2] = GPR[Rd];
+        endif;
+    }
+
+op f_single_reg_transfer = FMDLR
+/*                       | FMSR
+                         | FMRS
+                         | FMRDL
+                         | FMDHR
+                         | FMRDH
+                         | FMXR
+                         | FMRX
+*/
+
+op floating_point_inst = f_data_processing_inst
+                       | f_load_store_inst
+                       | f_single_reg_transfer
+
 /********************************************************************************************/
 
 op inst_type =  branch_inst
@@ -3890,7 +4010,7 @@ op inst_type =  branch_inst
              |  miscellaneous_inst
              |  saturated_addsub_inst
              |  preload_instruction 
-//           |  floating_point_inst // NOT SUPPORTED IN THE CURRENT VERSION
+             |  floating_point_inst
 
 op instruction (x : inst_type)
     syntax = x.syntax
