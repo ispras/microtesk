@@ -11,6 +11,6 @@
 	<classpathentry exported="true" kind="lib" path="jars/commons-cli-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/junit-4.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/jruby.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/fortress.jar" sourcepath="/home/andrewt/Documents/ISPRAS/src/solver-api/trunk/fortress/src"/>
+	<classpathentry exported="true" kind="lib" path="jars/fortress.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
