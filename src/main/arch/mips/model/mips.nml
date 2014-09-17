@@ -1583,8 +1583,159 @@ op	special_instr   =  NOP
 /* Floating-Point Instructions                                                              */ 
 /********************************************************************************************/
 
-// NOT SUPPORTED IN THE CURRENT VERSION
-//op float_instr()
+op float_arithmetic()
+
+/*
+op MOV_S (fd : index, fs : index)
+    syntax = format("MOV_S %d,%d", fd, fs)
+    image = format("0100011000000000%5b%5b000110", fs, fd) 
+    action = {
+        FPR[fd] = FPR[fs];
+    }
+
+op MOV_D (fd : index, fs : index)
+    syntax = format("MOV_D %d,%d", fd, fs)
+    image = format("0100011000100000%5b%5b000110", fs, fd) 
+    action = {
+        FPR[fd] = FPR[fs];
+        FPR[fd + 1] = FPR[fs + 1];
+    }
+
+op MOV_fmt = MOV_S | MOV_D
+
+op MTC1 (rt : REG_IND, fs : index)
+    syntax = format("MTC1 %s,%d", rt.syntax, fs)
+    image = format("01000100100%s%5b00000000000", rt.image, fs) 
+    action = {
+        //FPR[fs] = GPR[rt];    
+		FPR[fs]<31..0> = GPR[rt]<31..0>;
+    }
+
+op MFC1 (rt : REG_IND, fs : index)
+    syntax = format("MFC1 %s, %d", rt.syntax, fs)
+    image = format("01000100000%s%5b00000000000", rt.image, fs) 
+    action = {
+        GPR[rt]<31..0> = FPR[fs]<31..0>;
+        // GPR[rt] = FPR[fs];
+    }
+
+op MOVF_S (fd : index, fs : index, cc : cond_code)
+    syntax = format("MOVF_S %d, %d", fd, fs, cc)
+    image = format("01000110000%3b00%5b%5b010001", cc, fs, fd) 
+    action = {
+        if (FCCR<cc..cc> == 0) then
+            FPR[fd] = FPR[fs];    
+        endif;
+    }
+
+op MOVF_D (fd : index, fs : index, cc : cond_code)
+    syntax = format("MOVF_D %d, %d, %d", fd, fs , cc)
+    image = format("01000110001%3b00%5b%5b010001", cc, fs, fd) 
+    action = {
+        if (FCCR<cc..cc> == 0) then
+            FPR[fd] = FPR[fs];    
+			FPR[fd + 1] = FPR[fs + 1];    
+		endif;
+    } 
+
+op MOVF_fmt = MOVF_S | MOVF_D
+
+op MOVN_S (fd : index, fs : index, rt : REG_IND_ZERO)
+    syntax = format("MOVN_S %d,%d,%s", fd, fs, rt.syntax)
+    image = format("01000110000%s%5b%5b010011", rt.image, fs, fd) 
+    action = {
+        if (rt != 0) then
+            FPR[fd] = FPR[fs];    
+        endif;
+    }
+
+op MOVN_D (fd : index, fs : index, rt : REG_IND_ZERO)
+    syntax = format("MOVN_D %d, %d, %s", fd, fs, rt.syntax)
+    image = format("01000110001%s%5b%5b010011", rt.image, fs, fd) 
+    action = {
+        if (rt != 0) then
+            FPR[fd] = FPR[fs];    
+            FPR[fd + 1] = FPR[fs + 1];    
+        endif;
+    }
+
+op MOVN_fmt = MOVN_S | MOVN_D
+
+op MOVT_S (fd : index, fs : index, cc : cond_code)
+    syntax = format("MOVT_S %d, %d", fd, fs)
+    image = format("01000110000%3b01%5b%5b010001", cc, fs, fd) 
+    action = {
+        if (FCCR<cc..cc> == 1) then
+            FPR[fd] = FPR[fs];    
+        endif;
+    }
+
+op MOVT_D (fd : index, fs : index, cc : cond_code)
+    syntax = format("MOVT_D %d, %d", fd, fs)
+    image = format("01000110001%3b01%5b%5b010001", cc, fs, fd) 
+    action = {
+        if (FCCR<cc..cc> == 1) then
+            FPR[fd] = FPR[fs];    
+            FPR[fd + 1] = FPR[fs + 1];    
+        endif;
+    }
+
+op MOVT_fmt = MOVT_S | MOVT_D
+
+op MOVZ_S (fd : index, fs : index, rt : REG_IND_ZERO)
+    syntax = format("MOVZ_S %d, %d, %s", fd, fs, rt.syntax)
+    image = format("01000110000%s%5b%5b010010", rt.image, fs, fd) 
+    action = {
+        if (rt == 0) then
+            FPR[fd] = FPR[fs];    
+        endif;
+    }
+
+op MOVZ_D (fd : index, fs : index, rt : REG_IND_ZERO)
+    syntax = format("MOVZ_D %d, %d, %s", fd, fs, rt.syntax)
+    image = format("01000110001%s%5b%5b010010", rt.image, fs, fd) 
+    action = {
+        if (rt == 0) then
+            FPR[fd + 1] = FPR[fs + 1];
+            FPR[fd] = FPR[fs];
+        endif;
+    }
+
+op MOVZ_fmt = MOVZ_S | MOVZ_D
+
+op float_move = MOV_fmt			
+              | MTC1 
+              | MFC1 
+              | MOVF_fmt
+              | MOVN_fmt
+              | MOVT_fmt
+              | MOVZ_fmt
+*/
+
+op float_move()
+op float_branch()
+op float_convert()
+op float_compare()
+
+op CFC1 (rt : REG_IND, ft : REG_IND)
+    syntax = format("CFC1 %s,%s", rt.syntax, ft.syntax)
+    image = format("01000100010%s%s00000000000", ft.image, rt.image)
+    action = {}
+
+op CTC1 (rt : REG_IND, ft : REG_IND)
+    syntax = format("CFC1 %s,%s", rt.syntax, ft.syntax )
+    image = format("01000100110%s%s00000000000", ft.image, rt.image)
+    action = {}
+
+op float_other = CFC1 |	CTC1
+
+// float Load Store handled with regular load store
+op float_instr = float_arithmetic
+               | float_move
+               | float_branch
+               | float_convert
+               | float_compare
+               | float_other
 
 /********************************************************************************************/
 /* Entry Point                                                                              */
@@ -1595,7 +1746,7 @@ op	special_instr   =  NOP
 op instr_kind    =  non_branch_instr
                  |  branch_instr
                  |  special_instr
-              // |  float_instr // NOT SUPPORTED IN THE CURRENT VERSION 
+                 |  float_instr 
               // |  dummy_instr
 
 op instruction (x : instr_kind)
