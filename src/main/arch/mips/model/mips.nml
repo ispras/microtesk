@@ -1583,19 +1583,169 @@ op	special_instr   =  NOP
 /* Floating-Point Instructions                                                              */ 
 /********************************************************************************************/
 
+/*
+op ADD_S (fd : index, fs : index, ft : index)
+    syntax = format("ADD_S %d, %d, %d", fd, fs, ft)
+    image  = format("01000110000%5b%5b%5b000000", ft, fs, fd)
+    action = {
+        FPR[fd] = FPR[fs] + FPR[ft];
+    }
+
+op ADD_D (fd : index, fs : index, ft : index)
+    syntax = format("ADD_D %d, %d, %d", fd, fs, ft)
+    image  = format("01000110001%5b%5b%5b000000", ft, fs, fd)
+    action = {
+        //FPR[fd] = FPR[fs] + FPR[ft];
+
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        TMP_FLOT = TMP_FLOT + TMP2_FLOT;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op ADD_fmt = ADD_S | ADD_D
+
+op SUB_S (fd : index, fs : index, ft : index)
+    syntax = format("SUB_S %d, %d, %d", fd, fs, ft)
+    image  = format("01000110000%5b%5b%5b000001", ft, fs, fd)
+    action = {
+        FPR[fd] = FPR[fs] - FPR[ft];
+    }
+
+op SUB_D (fd : index, fs : index, ft : index)
+    syntax = format("SUB_D %d, %d, %d", fd, fs, ft)
+    image  = format("01000110001%5b%5b%5b000001", ft, fs, fd)
+    action = {
+        //FPR[fd] = FPR[fs] - FPR[ft];
+
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        TMP_FLOT = TMP_FLOT - TMP2_FLOT;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op SUB_fmt = SUB_S | SUB_D
+
+op MUL_S (fd : index, fs : index, ft : index)
+    syntax = format("MUL_S %d, %d, %d", fd, fs, ft)
+    image  = format("01000110000%5b%5b%5b000010", ft, fs, fd)
+    action = {
+        FPR[fd] = FPR[fs] * FPR [ft];
+    }
+
+op MUL_D (fd : index, fs : index, ft : index)
+    syntax = format("MUL_D %d, %d, %d", fd, fs, ft)
+    image  = format("01000110001%5b%5b%5b000010", ft, fs, fd)
+    action = {
+        //FPR[fd] = FPR[fs] * FPR[ft];
+
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        TMP_FLOT = TMP_FLOT * TMP2_FLOT;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op MUL_fmt = MUL_S | MUL_D
+
+op DIV_S (fd : index, fs : index, ft : index)
+    syntax = format("DIV_S %d, %d, %d", fd, fs, ft)
+    image  = format("01000110000%5b%5b%5b000011", ft, fs, fd)
+    action = {
+        FPR[fd] = FPR[fs] / FPR[ft];
+    }
+
+op DIV_D (fd : index, fs : index, ft : index)
+    syntax = format("DIV_D %d, %d, %d", fd, fs, ft)
+    image  = format("01000110001%5b%5b%5b000011", ft, fs, fd)
+    action = {
+        //FPR[fd] = FPR[fs] / FPR[ft];
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31.. 0>;
+
+        TMP_FLOT = TMP_FLOT - TMP2_FLOT;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op DIV_fmt = DIV_S | DIV_D
+
+op MADD_S (fd : index, fr : index, fs : index, ft : index)
+    syntax = format("MADD_S %d, %d, %d, %d", fd, fr, fs, ft)
+    image  = format("010011%5b%5b%5b%5b100000", fr, ft, fs, fd)
+    action = {
+        FPR[fd] = (FPR[fs] * FPR[ft]) + FPR[fr];
+    }
+
+op MADD_D (fd : index, fr : index, fs : index, ft : index)
+    syntax = format("MADD_D %d, %d, %d, %d", fd, fr, fs, ft)
+    image  = format("010011%5b%5b%5b%5b100001", fr, ft, fs, fd)
+    action = {
+		//FPR[fd] = (FPR[fs] * FPR[ft]) + FPR[fr];
+
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs ]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        TMP_FLOT = TMP_FLOT * TMP2_FLOT;
+
+        TMP2_FLOT<63..32> = FPR[fr + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[fr]<31..0>;
+
+        TMP_FLOT = TMP_FLOT + TMP2_FLOT;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op MADD_fmt = MADD_S | MADD_D
+
+op float_arithmetic = ADD_fmt
+                    | SUB_fmt
+                    | MUL_fmt
+                    | DIV_fmt
+                    | MADD_fmt
+                    | MSUB_fmt  // TODO
+                    | NEG_fmt   // TODO
+                    | NMADD_fmt // TODO
+                    | NMSUB_fmt // TODO
+                    | RECIP_fmt // TODO
+                    | ABS_fmt   // TODO 
+//                  | RSQRT_fmt // NOT IMPLEMENTED
+//                  | SQRT_fmt  // NOT IMPLEMENTED
+*/
+
 op float_arithmetic()
 
 /*
 op MOV_S (fd : index, fs : index)
     syntax = format("MOV_S %d,%d", fd, fs)
-    image = format("0100011000000000%5b%5b000110", fs, fd) 
+    image  = format("0100011000000000%5b%5b000110", fs, fd) 
     action = {
         FPR[fd] = FPR[fs];
     }
 
 op MOV_D (fd : index, fs : index)
     syntax = format("MOV_D %d,%d", fd, fs)
-    image = format("0100011000100000%5b%5b000110", fs, fd) 
+    image  = format("0100011000100000%5b%5b000110", fs, fd) 
     action = {
         FPR[fd] = FPR[fs];
         FPR[fd + 1] = FPR[fs + 1];
@@ -1605,7 +1755,7 @@ op MOV_fmt = MOV_S | MOV_D
 
 op MTC1 (rt : REG_IND, fs : index)
     syntax = format("MTC1 %s,%d", rt.syntax, fs)
-    image = format("01000100100%s%5b00000000000", rt.image, fs) 
+    image  = format("01000100100%s%5b00000000000", rt.image, fs) 
     action = {
         //FPR[fs] = GPR[rt];    
 		FPR[fs]<31..0> = GPR[rt]<31..0>;
@@ -1613,7 +1763,7 @@ op MTC1 (rt : REG_IND, fs : index)
 
 op MFC1 (rt : REG_IND, fs : index)
     syntax = format("MFC1 %s, %d", rt.syntax, fs)
-    image = format("01000100000%s%5b00000000000", rt.image, fs) 
+    image  = format("01000100000%s%5b00000000000", rt.image, fs) 
     action = {
         GPR[rt]<31..0> = FPR[fs]<31..0>;
         // GPR[rt] = FPR[fs];
@@ -1621,7 +1771,7 @@ op MFC1 (rt : REG_IND, fs : index)
 
 op MOVF_S (fd : index, fs : index, cc : cond_code)
     syntax = format("MOVF_S %d, %d", fd, fs, cc)
-    image = format("01000110000%3b00%5b%5b010001", cc, fs, fd) 
+    image  = format("01000110000%3b00%5b%5b010001", cc, fs, fd) 
     action = {
         if (FCCR<cc..cc> == 0) then
             FPR[fd] = FPR[fs];    
@@ -1630,7 +1780,7 @@ op MOVF_S (fd : index, fs : index, cc : cond_code)
 
 op MOVF_D (fd : index, fs : index, cc : cond_code)
     syntax = format("MOVF_D %d, %d, %d", fd, fs , cc)
-    image = format("01000110001%3b00%5b%5b010001", cc, fs, fd) 
+    image  = format("01000110001%3b00%5b%5b010001", cc, fs, fd) 
     action = {
         if (FCCR<cc..cc> == 0) then
             FPR[fd] = FPR[fs];    
@@ -1642,7 +1792,7 @@ op MOVF_fmt = MOVF_S | MOVF_D
 
 op MOVN_S (fd : index, fs : index, rt : REG_IND_ZERO)
     syntax = format("MOVN_S %d,%d,%s", fd, fs, rt.syntax)
-    image = format("01000110000%s%5b%5b010011", rt.image, fs, fd) 
+    image  = format("01000110000%s%5b%5b010011", rt.image, fs, fd) 
     action = {
         if (rt != 0) then
             FPR[fd] = FPR[fs];    
@@ -1651,7 +1801,7 @@ op MOVN_S (fd : index, fs : index, rt : REG_IND_ZERO)
 
 op MOVN_D (fd : index, fs : index, rt : REG_IND_ZERO)
     syntax = format("MOVN_D %d, %d, %s", fd, fs, rt.syntax)
-    image = format("01000110001%s%5b%5b010011", rt.image, fs, fd) 
+    image  = format("01000110001%s%5b%5b010011", rt.image, fs, fd) 
     action = {
         if (rt != 0) then
             FPR[fd] = FPR[fs];    
@@ -1663,7 +1813,7 @@ op MOVN_fmt = MOVN_S | MOVN_D
 
 op MOVT_S (fd : index, fs : index, cc : cond_code)
     syntax = format("MOVT_S %d, %d", fd, fs)
-    image = format("01000110000%3b01%5b%5b010001", cc, fs, fd) 
+    image  = format("01000110000%3b01%5b%5b010001", cc, fs, fd) 
     action = {
         if (FCCR<cc..cc> == 1) then
             FPR[fd] = FPR[fs];    
@@ -1672,7 +1822,7 @@ op MOVT_S (fd : index, fs : index, cc : cond_code)
 
 op MOVT_D (fd : index, fs : index, cc : cond_code)
     syntax = format("MOVT_D %d, %d", fd, fs)
-    image = format("01000110001%3b01%5b%5b010001", cc, fs, fd) 
+    image  = format("01000110001%3b01%5b%5b010001", cc, fs, fd) 
     action = {
         if (FCCR<cc..cc> == 1) then
             FPR[fd] = FPR[fs];    
@@ -1684,7 +1834,7 @@ op MOVT_fmt = MOVT_S | MOVT_D
 
 op MOVZ_S (fd : index, fs : index, rt : REG_IND_ZERO)
     syntax = format("MOVZ_S %d, %d, %s", fd, fs, rt.syntax)
-    image = format("01000110000%s%5b%5b010010", rt.image, fs, fd) 
+    image  = format("01000110000%s%5b%5b010010", rt.image, fs, fd) 
     action = {
         if (rt == 0) then
             FPR[fd] = FPR[fs];    
@@ -1693,7 +1843,7 @@ op MOVZ_S (fd : index, fs : index, rt : REG_IND_ZERO)
 
 op MOVZ_D (fd : index, fs : index, rt : REG_IND_ZERO)
     syntax = format("MOVZ_D %d, %d, %s", fd, fs, rt.syntax)
-    image = format("01000110001%s%5b%5b010010", rt.image, fs, fd) 
+    image  = format("01000110001%s%5b%5b010010", rt.image, fs, fd) 
     action = {
         if (rt == 0) then
             FPR[fd + 1] = FPR[fs + 1];
