@@ -1718,17 +1718,192 @@ op MADD_D (fd : index, fr : index, fs : index, ft : index)
 
 op MADD_fmt = MADD_S | MADD_D
 
+op MSUB_S (fd : index, fr : index, fs : index, ft : index)
+    syntax = format("MSUB_S %d, %d, %d, %d", fd, fr, fs, ft)
+    image  = format("010011%5b%5b%5b%5b101000", fr, ft, fs, fd)
+    action = {
+        FPR[fd] = (FPR[fs] * FPR[ft]) - FPR[fr];
+    }
+
+op MSUB_D (fd : index, fr : index, fs : index, ft : index)
+    syntax = format("MSUB_D %d, %d, %d, %d", fd, fr, fs, ft)
+    image  = format("010011%5b%5b%5b%5b101001", fr, ft, fs, fd)
+    action = {
+        //FPR[fd] = (FPR[fs] * FPR[ft]) - FPR[fr];
+
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        TMP_FLOT = TMP_FLOT * TMP2_FLOT;
+
+        TMP2_FLOT<63..32> = FPR[fr + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[fr]<31..0>;
+
+        TMP_FLOT = TMP_FLOT - TMP2_FLOT;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op MSUB_fmt = MSUB_S | MSUB_D
+
+op NEG_S (fd : index, fs : index)
+    syntax = format("NEG_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b000111", fs, fd)
+    action = {
+        FPR[fd] = -FPR[fs];
+    }
+
+op NEG_D (fd : index, fs : index)
+    syntax = format("NEG_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b000111", fs, fd)
+    action = {
+        //FPR[fd] = -FPR[fs];
+        TMP2_FLOT<63..32> = FPR[fs + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[fs]<31..0>;
+
+        TMP_FLOT = -TMP2_FLOT;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0 > = TMP_FLOT<31..0>;
+    }
+
+op NEG_fmt = NEG_S | NEG_D
+
+op NMADD_S (fd : index, fr : index, fs : index, ft : index)
+    syntax = format("NMADD_S %d, %d, %d, %d", fd, fr, fs, ft)
+    image  = format("010011%5b%5b%5b%5b110000", fr, ft, fs, fd)
+    action = {
+        FPR[fd] = -((FPR[fs] * FPR[ft]) + FPR[fr]);
+    }
+
+op NMADD_D (fd : index, fr : index, fs : index, ft : index)
+    syntax = format("NMADD_D %d, %d, %d, %d", fd, fr, fs, ft)
+    image  = format("010011%5b%5b%5b%5b110001", fr, ft, fs, fd)
+    action = {
+        //FPR [fd] = -((FPR[fs] * FPR[ft]) + FPR[fr]);
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        TMP_FLOT = TMP_FLOT * TMP2_FLOT;
+
+        TMP2_FLOT<63..32> = FPR[fr + 1]<31..0>;
+        TMP2_FLOT<31..0> = FPR[fr]<31..0>;
+
+        TMP_FLOT = - (TMP_FLOT + TMP2_FLOT);
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op NMADD_fmt = NMADD_S | NMADD_D
+
+op NMSUB_S (fd : index, fr : index, fs : index, ft : index)
+    syntax = format("NMSUB_S %d, %d, %d, %d", fd, fr, fs, ft)
+    image  = format("010011%5b%5b%5b%5b111000", fr, ft, fs, fd)
+    action = {
+        FPR[fd] = -((FPR[fs] * FPR[ft]) - FPR[fr]);
+    }
+
+op NMSUB_D (fd : index, fr : index, fs : index, ft : index)
+    syntax = format("NMSUB_D %d, %d, %d, %d", fd, fr, fs, ft)
+    image  = format("010011%5b%5b%5b%5b111001", fr, ft, fs, fd)
+    action = {
+        //FPR[fd] = -((FPR[fs] * FPR[ft]) - FPR[fr]);
+
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        TMP_FLOT = TMP_FLOT * TMP2_FLOT;
+
+        TMP2_FLOT<63..32> = FPR[fr + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[fr]<31..0>;
+
+        TMP_FLOT = -(TMP_FLOT - TMP2_FLOT);
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op NMSUB_fmt = NMSUB_S | NMSUB_D
+
+op RECIP_S (fd : index, fs : index)
+    syntax = format("RECIP_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b010101", fs, fd)
+    action = {
+        FPR[fd] = 1.0 / FPR[fs];
+    }
+
+op RECIP_D (fd : index, fs : index )
+    syntax = format("RECIP_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b010101", fs, fd)
+    action = {
+        //FPR[fd] = 1.0 / FPR [fs];
+
+        TMP2_FLOT<63..32> = FPR[fs + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[fs]<31..0>;
+
+        TMP_FLOT = 1.0 / TMP2_FLOT;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op RECIP_fmt = RECIP_S | RECIP_D
+
+op ABS_S (fd : index, fs : index)
+    syntax = format("ABS_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b000101", fs, fd)
+    action = {
+        if (FPR[fs] < 0) then 
+            FPR[fd] = -FPR[fs];
+        else 
+            FPR[fd] = FPR[fs];
+        endif;
+    }
+
+op ABS_D (fd : index, fs : index)
+    syntax = format("ABS_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b000101", fs, fd)
+    action = {
+        // if (FPR[fs] < 0) then
+        //     FPR[fd] = -FPR[fs];
+        // else 
+        //     FPR[fd] = FPR[fs];
+        // endif;
+
+        TMP2_FLOT<63..32> = FPR[fs + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[fs]<31..0>;
+
+        if (TMP2_FLOT < 0) then
+            TMP_FLOT = -TMP2_FLOT;
+        else 
+            TMP_FLOT = TMP2_FLOT;
+        endif;
+
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op ABS_fmt = ABS_S | ABS_D
+
 op float_arithmetic = ADD_fmt
                     | SUB_fmt
                     | MUL_fmt
                     | DIV_fmt
                     | MADD_fmt
-                    | MSUB_fmt  // TODO
-                    | NEG_fmt   // TODO
-                    | NMADD_fmt // TODO
-                    | NMSUB_fmt // TODO
-                    | RECIP_fmt // TODO
-                    | ABS_fmt   // TODO 
+                    | MSUB_fmt
+                    | NEG_fmt
+                    | NMADD_fmt
+                    | NMSUB_fmt
+                    | RECIP_fmt
+                    | ABS_fmt 
 //                  | RSQRT_fmt // NOT IMPLEMENTED
 //                  | SQRT_fmt  // NOT IMPLEMENTED
 */
