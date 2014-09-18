@@ -2059,7 +2059,105 @@ op BC1T (cc : cond_code, offset : IMM16)
 
 op float_branch	= BC1F | BC1T
 
-op float_convert()
+op CEIL_L_S (fd : index, fs : index)
+    syntax = format("CEIL_L_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b001010", fs, fd)
+    action = {
+        //FPR[fd] = FPR[fs];  
+        TMP_FLOT = FPR[fs];
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op CEIL_L_D (fd : index, fs : index)
+    syntax = format("CEIL_L_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b001010", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs];
+        FPR[fd + 1] = FPR[fs + 1];
+    }
+
+op CEIL_L_fmt = CEIL_L_S | CEIL_L_D
+
+op CEIL_W_S (fd : index, fs : index)
+    syntax = format("CEIL_W_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b001110", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs];
+    }
+
+op CEIL_W_D (fd : index, fs : index)
+    syntax = format("CEIL_W_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b001110", fs, fd)
+    action = {
+        //FPR[fd] = FPR[fs]; 
+        TMP_FLOT<63..32> = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>  = FPR[fs]<31..0>;
+        FPR[fd] = TMP_FLOT;
+
+        /* 
+        tmp_unsigned_word = TMP_FLOT;
+        FPR[fd] = TMP_FLOT - tmp_unsigned_word;
+
+        if (FPR[fd] > 0) then 
+            if (TMP_FLOT > 0) then
+                FPR[fd] = tmp_unsigned_word + 1;
+            endif;
+            if (TMP_FLOT < 0) then
+                FPR[fd] = tmp_unsigned_word - 1;
+            endif;
+        else
+            FPR[fd] = TMP_FLOT;
+        endif;
+        */
+    }
+
+op CEIL_W_fmt = CEIL_W_S | CEIL_W_D
+
+op CVT_D_S (fd : index, fs : index)
+    syntax = format("CVT_D_S %d,%d", fd, fs)
+    image  = format("0100011000000000%5b%5b100001", fs, fd)
+    action = {
+        TMP_FLOT = FPR[fs];
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op CVT_D_D (fd : index, fs : index)
+    syntax = format("CVT_D_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b100001", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs]; 
+        FPR[fd + 1] = FPR[fs + 1]; 
+    }
+
+op CVT_D_W (fd : index, fs : index)
+    syntax = format("CVT_D_W %d, %d", fd, fs)
+    image  = format("0100011010000000%5b%5b100001", fs, fd)
+    action = {
+        tmp_unsigned_word<31..0> = FPR[fs]<31..0>;
+        TMP_FLOT = tmp_unsigned_word;
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+        //FPR[fd] = tmp_unsigned_word; 
+    }
+
+op CVT_D_fmt = CVT_D_S | CVT_D_D | CVT_D_W
+
+op float_convert = CEIL_L_fmt
+                 | CEIL_W_fmt
+                 | CVT_D_fmt
+/*
+                 | CVT_L_fmt   // TODO
+                 | CVT_S_fmt   // TODO
+                 | CVT_W_fmt   // TODO
+                 | FLOOR_W_fmt // TODO
+                 | ROUND_W_fmt // TODO
+                 | ROUND_L_fmt // TODO
+                 | TRUNC_L_fmt // TODO
+                 | TRUNC_W_fmt // TODO
+*/
+
 op float_compare()
 
 op CFC1 (rt : REG_IND, ft : REG_IND)
