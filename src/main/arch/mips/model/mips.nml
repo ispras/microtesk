@@ -2588,21 +2588,21 @@ op C_NGE_S (ft : index, fs : index, cc : cond_code)
         endif;
     }
 
-op C_NGE_D ( ft : index , fs : index , cc : cond_code   )
-    syntax = format ( "C_NGE_D  %d,%d,%d", cc, fs , ft )
-    image  = format ( "01000110001%5b%5b%3b00111101", ft ,fs ,cc ) 
+op C_NGE_D (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_NGE_D %d, %d, %d", cc, fs, ft)
+    image  = format("01000110001%5b%5b%3b00111101", ft, fs, cc) 
     action = {
-			TMP_FLOT < 63 .. 32 > = FPR [ fs + 1 ]< 31 .. 0 >      ;
-			TMP_FLOT < 31 .. 0 > = FPR [ fs ]< 31 .. 0 > ;
-			TMP2_FLOT < 63 .. 32 > = FPR [ ft + 1 ]< 31 .. 0 >      ;
-			TMP2_FLOT < 31 .. 0 > = FPR [ ft ]< 31 .. 0 > ;
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0> ;
 
-		if ( TMP_FLOT < TMP2_FLOT ) then
-			FCCR < cc .. cc > = 1 ; 
-		else
-			FCCR < cc .. cc > = 0 ; 
-		endif;
-             }
+        if (TMP_FLOT < TMP2_FLOT) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+        endif;
+    }
 
 op C_LE_S ( ft : index , fs : index , cc : cond_code   )
     syntax = format ( "C_LE_S  %d,%d,%d", cc, fs , ft )
