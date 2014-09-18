@@ -152,7 +152,7 @@ enum OperatorLogic
          }
     ),
 
-    LEQ (Operator.LEQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
+    LEQ (Operator.LEQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT), Boolean.class,
 
         new BinaryAction(Integer.class)
         {
