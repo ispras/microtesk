@@ -182,7 +182,7 @@ enum OperatorLogic
         }
     ),
 
-    LESS (Operator.LESS, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
+    LESS (Operator.LESS, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT), Boolean.class,
 
         new BinaryAction(Integer.class)
         {
