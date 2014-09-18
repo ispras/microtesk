@@ -2033,7 +2033,32 @@ op float_move = MOV_fmt
               | MOVT_fmt
               | MOVZ_fmt
 
-op float_branch()
+op BC1F (cc : cond_code, offset : IMM16)
+    syntax = format("BC1F %d, %s", cc, offset.syntax)	   
+    image  = format("01000101000%3b00%s", cc, offset.image)
+    action = {
+        if (FCCR<cc..cc> == 0) then
+            branch = 1;
+            tmp_signed_word = offset;
+            tmp_signed_word = tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        endif;
+    }
+
+op BC1T (cc : cond_code, offset : IMM16)
+    syntax = format("BC1T %d, %s", cc ,offset.syntax)	   
+    image  = format("01000101000%3b01%s", cc, offset.image)
+    action = {
+        if (FCCR<cc..cc> == 1) then
+            branch = 1;
+            tmp_signed_word = offset;
+            tmp_signed_word = tmp_signed_word << 2;
+            JMPADDR = NIA + tmp_signed_word;
+        endif;
+    }
+
+op float_branch	= BC1F | BC1T
+
 op float_convert()
 op float_compare()
 
