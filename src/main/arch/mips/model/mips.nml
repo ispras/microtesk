@@ -48,167 +48,160 @@ type cond        = card(4)
 // mem M[2 ** 31, byte_t] 
 mem M[2 ** 10, byte_t]
  
-reg GPR [ 2 ** REGS, signed_long ]
+reg GPR[2 ** REGS, signed_long]
 
 // lower 32 bits of multiplication result and quotient of divition result
-reg LO [ 1, signed_long ] 
+reg LO[1, signed_long] 
 
 // next instruction address
-reg NIA [ 1, long_t ] 
+reg NIA[1, long_t] 
 
-reg FPR [ 2 ** REGS, flots] 
+reg FPR[2 ** REGS, flots] 
 // port = 2,1 // NOT SUPPORTED IN THE CURRENT VERSION 
 
 // higher 32/16 bits of multiplication result of 32*16 bit or 32*32 bit operands.. remainder                             
 //  for div operations 
-reg HI [ 1, signed_long ] 
+reg HI[1, signed_long] 
 
 /********************************************************************************************/
 /* Variables                                                                                */
 /********************************************************************************************/
 
 // current instruction address
-mem CIA [ 1, long_t ] 
+mem CIA[1, long_t] 
 
-reg FPSCR [ 1, long_t ]
-reg FCCR [ 1, long_t ]
+reg FPSCR[1, long_t]
+reg FCCR[1, long_t]
 
 // In mips processors jmp instruction executes next instruction within the delay slot. Thus
 // return address is current address plus 8
 // Jmp_flag and jmp_addr are added 
-//var jmp_flag [ 1, card (1) ] = 0
-//var jmp_addr [ 1, long_t ]
+//var jmp_flag[1, card (1)] = 0
+//var jmp_addr[1, long_t]
 
-mem tmp_signed_byte [ 1 , int (8) ]
-mem tmp_unsigned_byte [ 1 , card (8) ]
-mem tmp_signed_half_word [ 1 , int (16) ]
-mem tmp_unsigned_half_word [ 1 , card (16) ]
-mem tmp_signed_word [ 1 , int (32) ]
-mem tmp_unsigned_word [ 1 , card (32) ]
-mem tmp_double_word  [ 1 , card (64) ]
-mem TMP_FLOT [ 1 , flot ]
-mem TMP_FLOTS [ 1, flots ]
-mem TMP2_FLOT [ 1 , flot ]
-mem TMP_SDWORD [ 1 , int ( 64) ]
-mem overflow_bit [ 1 , bit ]
+mem tmp_signed_byte[1, int(8)]
+mem tmp_unsigned_byte[1, card (8)]
+mem tmp_signed_half_word[1, int(16)]
+mem tmp_unsigned_half_word[1, card (16)]
+mem tmp_signed_word[1, int(32)]
+mem tmp_unsigned_word[1, card (32)]
+mem tmp_double_word [1, card (64)]
+mem TMP_FLOT[1, flot]
+mem TMP_FLOTS[1, flots]
+mem TMP2_FLOT[1, flot]
+mem TMP_SDWORD[1, int(64)]
+mem overflow_bit[1, bit]
 
 // effective address for memory access
-mem EA [ 1 , address ] 
-mem tmp_div [ 1 , int ( 64) ]
-mem mulsize [ 1 , bit ]
-mem multsize [ 1 , bit ]
-mem divsize [ 1 , card (5) ]
+mem EA[1, address] 
+mem tmp_div[1, int(64)]
+mem mulsize[1, bit]
+mem multsize[1, bit]
+mem divsize[1, card (5)]
 
 // In mips processors jmp instruction executes next instruction within the delay slot. Thus
 // return address is current address plus 8
 // branch instr will first modify this
-mem JMPADDR [ 1 , long_t ]
-mem branch [ 1 , bit ]
+mem JMPADDR[1, long_t]
+mem branch[1, bit]
 mem signadjust [1, bit]
-mem likely [ 1 , card (2) ]
+mem likely[1, card (2)]
  
 // Aliases
 
 // HalfWord Integer
 
-mem tmp_signed_half_word_A0 [ 1 , int ( 8) ]
-    alias = tmp_signed_half_word [ 8 ]
+mem tmp_signed_half_word_A0[1, int(8)]
+    alias = tmp_signed_half_word[8]
 
-mem tmp_signed_half_word_A1 [ 1 , int ( 8) ]
-    alias = tmp_signed_half_word [ 0 ]
+mem tmp_signed_half_word_A1[1, int(8)]
+    alias = tmp_signed_half_word[0]
 
 // HalfWord Card
 
-mem tmp_unsigned_half_word_A0 [ 1 , int ( 8) ]
-    alias = tmp_unsigned_half_word [ 8 ]
+mem tmp_unsigned_half_word_A0[1, int(8)]
+    alias = tmp_unsigned_half_word[8]
 
-mem tmp_unsigned_half_word_A1 [ 1 , int ( 8) ]
-    alias = tmp_unsigned_half_word [ 0 ]
+mem tmp_unsigned_half_word_A1[1, int(8)]
+    alias = tmp_unsigned_half_word[0]
 
 // Word Integers
 
-mem tmp_signed_word_A0 [ 1 , int ( 8) ]
-    alias = tmp_signed_word [ 24 ]
+mem tmp_signed_word_A0[1, int(8)]
+    alias = tmp_signed_word[24]
         
-mem tmp_signed_word_A1 [ 1 , int ( 8) ]
-    alias = tmp_signed_word [ 16 ]
+mem tmp_signed_word_A1[1, int(8)]
+    alias = tmp_signed_word[16]
 
-mem tmp_signed_word_A2 [ 1 , int ( 8) ]
-    alias = tmp_signed_word [ 8 ]
+mem tmp_signed_word_A2[1, int(8)]
+    alias = tmp_signed_word[8]
 
-mem tmp_signed_word_A3 [ 1 , int ( 8) ]
-    alias = tmp_signed_word [ 0 ]
+mem tmp_signed_word_A3[1, int(8)]
+    alias = tmp_signed_word[0]
 
 // Word Card
 
-mem tmp_unsigned_word_A0 [ 1 , int ( 8) ]
-    alias = tmp_unsigned_word [ 24 ]
+mem tmp_unsigned_word_A0[1, int(8)]
+    alias = tmp_unsigned_word[24]
         
-mem tmp_unsigned_word_A1 [ 1 , int ( 8) ]
-    alias = tmp_unsigned_word [ 16 ]
+mem tmp_unsigned_word_A1[1, int(8)]
+    alias = tmp_unsigned_word[16]
 
-mem tmp_unsigned_word_A2 [ 1 , int ( 8) ]
-    alias = tmp_unsigned_word [ 8 ]
+mem tmp_unsigned_word_A2[1, int(8)]
+    alias = tmp_unsigned_word[8]
 
-mem tmp_unsigned_word_A3 [ 1 , int ( 8) ]
-    alias = tmp_unsigned_word [ 0 ]
+mem tmp_unsigned_word_A3[1, int(8)]
+    alias = tmp_unsigned_word[0]
 
 // double word card 
 
-mem tmp_double_word_A0 [ 1 , card ( 16) ]
-    alias = tmp_double_word [ 32 ]
+mem tmp_double_word_A0[1, card (16)]
+    alias = tmp_double_word[32]
         
-mem tmp_double_word_A1 [ 1 , card ( 16) ]
-    alias = tmp_double_word [ 0 ]
+mem tmp_double_word_A1[1, card (16)]
+    alias = tmp_double_word[0]
     
 // Aliases for Float Temps
 
 // Double Presicion Float
-/*
-// NOT SUPPORTED IN THE CURRENT VERSION
 
-mem TMP_FLOT_A0 [ 1 , int ( 8) ]
-    alias = TMP_FLOT [ 56 ]
+mem TMP_FLOT_A0[1, int(8)]
+    alias = TMP_FLOT[56]
 
-mem TMP_FLOT_A1 [ 1 , int ( 8) ]
-    alias = TMP_FLOT [ 48 ]
+mem TMP_FLOT_A1[1, int(8)]
+    alias = TMP_FLOT[48]
 
-mem TMP_FLOT_A2 [ 1 , int ( 8) ]
-    alias = TMP_FLOT [ 40 ]
+mem TMP_FLOT_A2[1, int(8)]
+    alias = TMP_FLOT[40]
 
-mem TMP_FLOT_A3 [ 1 , int ( 8) ]
-    alias = TMP_FLOT [ 32 ]
+mem TMP_FLOT_A3[1, int(8)]
+    alias = TMP_FLOT[32]
 
-mem TMP_FLOT_A4 [ 1 , int ( 8) ]
-    alias = TMP_FLOT [ 24 ]
+mem TMP_FLOT_A4[1, int(8)]
+    alias = TMP_FLOT[24]
 
-mem TMP_FLOT_A5 [ 1 , int ( 8) ]
-    alias = TMP_FLOT [ 16 ]
+mem TMP_FLOT_A5[1, int(8)]
+    alias = TMP_FLOT[16]
 
-mem TMP_FLOT_A6 [ 1 , int ( 8) ]
-    alias = TMP_FLOT [ 8 ]
+mem TMP_FLOT_A6[1, int(8)]
+    alias = TMP_FLOT[8]
 
-mem TMP_FLOT_A7 [ 1 , int ( 8) ]
-    alias = TMP_FLOT [ 0 ]
-*/
+mem TMP_FLOT_A7[1, int(8)]
+    alias = TMP_FLOT[0]
 
 // Single Presicion Float
 
-/*
-// NOT SUPPORTED IN THE CURRENT VERSION
+mem TMP_FLOTS_A0[1, int(8)]
+    alias = TMP_FLOTS[24]
 
-mem TMP_FLOTS_A0 [ 1 , int ( 8) ]
-    alias = TMP_FLOTS [ 24 ]
+mem TMP_FLOTS_A1[1, int(8)]
+    alias = TMP_FLOTS[16]
 
-mem TMP_FLOTS_A1 [ 1 , int ( 8) ]
-    alias = TMP_FLOTS [ 16 ]
+mem TMP_FLOTS_A2[1, int(8)]
+    alias = TMP_FLOTS[8]
 
-mem TMP_FLOTS_A2 [ 1 , int ( 8) ]
-    alias = TMP_FLOTS [ 8 ]
-
-mem TMP_FLOTS_A3 [ 1 , int ( 8) ]
-    alias = TMP_FLOTS [ 0 ]
-*/    
+mem TMP_FLOTS_A3[1, int(8)]
+    alias = TMP_FLOTS[0]
 
 /********************************************************************************************/
 /* Addressing Modes                                                                         */
@@ -225,15 +218,15 @@ mode REG_IND_ZERO (r : index) =
     syntax = format("%d", r)
     image  = format("%5b", r)
 
-mode REG_IND ( r : index) = r
-	syntax = format( "%d", r)
-	image  = format( "%5b", r)
+mode REG_IND (r : index) = r
+	syntax = format("%d", r)
+	image  = format("%5b", r)
 
-mode IMM26 ( n : int ( 26)) = n
+mode IMM26 (n : int(26)) = n
     syntax = format("%d", n)
     image  = format("%26b", n)
 
-mode IMM16 ( n : int ( 16)) = n
+mode IMM16 (n : int(16)) = n
     syntax = format("%d", n)
     image  = format("%16b", n)
 
@@ -248,11 +241,11 @@ op ADD (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     image  = format("000000%s%s%5b00000100000", rs.image, rt.image, rd) 
     action = { 
         overflow_bit::tmp_unsigned_word = rs + rt;
-        if ( overflow_bit == 1) then
+        if (overflow_bit == 1) then
             // TODO: THE CONSTRUCTION IS NOT SUPPORTED
             // "print" ("Integer Overflow Exception");
         else
-            GPR [rd] = tmp_unsigned_word;
+            GPR[rd] = tmp_unsigned_word;
         endif;
     }	  
 
@@ -260,7 +253,7 @@ op ADDU (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("ADDU %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000100001", rs.image, rt.image, rd) 
     action = {
-        GPR [rd] = rs + rt;	
+        GPR[rd] = rs + rt;	
     }
 
 op SUB (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
@@ -268,29 +261,29 @@ op SUB (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     image  = format("000000%s%s%5b00000100010", rs.image, rt.image, rd) 
     action = { 
         overflow_bit::GPR[rd] = rs - rt;
-        if ( overflow_bit == 1) then
+        if (overflow_bit == 1) then
             // TODO: THE CONSTRUCTION IS NOT SUPPORTED
             // "print" ("Integer Overflow Exception");
         endif;
     }
 
 op SUBU (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
-    syntax = format ("SUBU %d, %s, %s", rd, rs.syntax, rt.syntax)
-    image  = format ("000000%s%s%5b00000100011", rs.image, rt.image, rd) 
+    syntax = format("SUBU %d, %s, %s", rd, rs.syntax, rt.syntax)
+    image  = format("000000%s%s%5b00000100011", rs.image, rt.image, rd) 
     action = {
-        GPR [rd] = rs - rt;    
+        GPR[rd] = rs - rt;    
     }
 
 op ADDI (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
-    syntax = format("ADDI %d, %s, %s", rt , rs.syntax, immediate.syntax)
+    syntax = format("ADDI %d, %s, %s", rt, rs.syntax, immediate.syntax)
     image  = format("001000%s%5b%s", rs.image, rt, immediate.image)
     action = { 
         overflow_bit::tmp_unsigned_word = rs + immediate;
-        if ( overflow_bit == 1) then
+        if (overflow_bit == 1) then
             // TODO: THE CONSTRUCTION IS NOT SUPPORTED
             // "print" ("Integer Overflow Exception");
         else
-            GPR [rt] = tmp_unsigned_word;
+            GPR[rt] = tmp_unsigned_word;
         endif;
     }
 
@@ -298,50 +291,50 @@ op ADDIU (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
     syntax = format("ADDIU %d, %s, %s", rt, rs.syntax, immediate.syntax)
     image  = format("001001%s%5b%s", rs.image, rt, immediate)
     action = {
-        GPR [rt] = rs + immediate;
+        GPR[rt] = rs + immediate;
     }    
 
 op MUL (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("MUL %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("011100%s%s%5b00000000010", rs.image, rt.image, rd)
     action = {
-        GPR [rd] = rs*rt;
+        GPR[rd] = rs*rt;
     }
     sizecheck = {
         tmp_signed_word = rs;
         tmp_signed_word = tmp_signed_word & 0xffff0000;
-        if ( tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000) then
+        if (tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000) then
             mulsize = 0;
         else
             mulsize = 1;
         endif;
     }
 
-op MULTU ( rs : REG_IND_ZERO , rt : REG_IND_ZERO)
-    syntax = format("MULTU %s, %s" , rs.syntax , rt.syntax)
-    image  = format("000000%s%s0000000000011001" , rs.image , rt.image)
+op MULTU (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format("MULTU %s, %s", rs.syntax, rt.syntax)
+    image  = format("000000%s%s0000000000011001", rs.image, rt.image)
     action = {
-        TMP_SDWORD = coerce ( card(32), rs) * coerce ( card (32), rt);
-        HI < 31 .. 0 > = TMP_SDWORD < 63 .. 32 > ;
-        LO < 31 .. 0 > = TMP_SDWORD < 31 .. 0 > ;
+        TMP_SDWORD = coerce (card(32), rs) * coerce (card (32), rt);
+        HI < 31..0 > = TMP_SDWORD < 63..32>;
+        LO < 31..0 > = TMP_SDWORD < 31..0>;
     }
     sizecheck = {
         tmp_signed_word = rs;
         tmp_signed_word = tmp_signed_word & 0xffff0000;
-        if ( tmp_signed_word == 0x00000000) then
+        if (tmp_signed_word == 0x00000000) then
             multsize = 0;
         else
             multsize = 1;
         endif;
     }
 
-op MADDU (rs : REG_IND_ZERO , rt : REG_IND_ZERO)
+op MADDU (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("MADDU %s, %s", rs.syntax, rt.syntax)
     image  = format("011100%s%s0000000000000001", rs.image, rt.image)
     action = {
-        TMP_SDWORD = coerce ( card(32), rs)*coerce ( card (32), rt);
-        tmp_double_word< 63 .. 32 > = HI;
-        tmp_double_word< 31 .. 0 > = LO;
+        TMP_SDWORD = coerce (card(32), rs)*coerce (card (32), rt);
+        tmp_double_word< 63..32 > = HI;
+        tmp_double_word< 31..0 > = LO;
 
 		tmp_double_word = tmp_double_word + TMP_SDWORD;
         HI = tmp_double_word_A0;
@@ -350,7 +343,7 @@ op MADDU (rs : REG_IND_ZERO , rt : REG_IND_ZERO)
     sizecheck = { 
         tmp_signed_word = rs;
         tmp_signed_word = tmp_signed_word & 0xffff0000;
-        if ( tmp_signed_word == 0x00000000) then
+        if (tmp_signed_word == 0x00000000) then
             multsize = 0;
         else
             multsize = 1;
@@ -358,54 +351,54 @@ op MADDU (rs : REG_IND_ZERO , rt : REG_IND_ZERO)
     }
 
 op MSUBU (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
-    syntax = format("MSUBU %s, %s" , rs.syntax , rt.syntax)
-    image  = format("011100%s%s0000000000000101" , rs.image, rt.image)
+    syntax = format("MSUBU %s, %s", rs.syntax, rt.syntax)
+    image  = format("011100%s%s0000000000000101", rs.image, rt.image)
     action = {
-        TMP_SDWORD = coerce ( card(32), rs)*coerce ( card (32), rt);
-        tmp_double_word< 63 .. 32 > = HI;
-        tmp_double_word< 31 .. 0 > = LO;
+        TMP_SDWORD = coerce (card(32), rs)*coerce (card (32), rt);
+        tmp_double_word< 63..32 > = HI;
+        tmp_double_word< 31..0 > = LO;
 
-        tmp_double_word = tmp_double_word - TMP_SDWORD ;
+        tmp_double_word = tmp_double_word - TMP_SDWORD;
         HI = tmp_double_word_A0;
         LO = tmp_double_word_A1;
     } 
     sizecheck = { 
         tmp_signed_word = rs;
         tmp_signed_word = tmp_signed_word & 0xffff0000;
-        if ( tmp_signed_word == 0x00000000) then
+        if (tmp_signed_word == 0x00000000) then
             multsize = 0;
         else
             multsize = 1;
         endif;
     }
 
-op MADD (rs : REG_IND_ZERO , rt : REG_IND_ZERO)
-    syntax = format("MADD %s, %s" , rs.syntax , rt.syntax)
-    image  = format("011100%s%s0000000000000000" , rs.image, rt.image)
+op MADD (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format("MADD %s, %s", rs.syntax, rt.syntax)
+    image  = format("011100%s%s0000000000000000", rs.image, rt.image)
     action = {
-        TMP_SDWORD = rs ;
+        TMP_SDWORD = rs;
 
         // Following two "if"s code looks like doing nothing 
-        // but the generated code doesn't contain ( 0xffffffff & S_GPR[rs])
+        // but the generated code doesn't contain (0xffffffff & S_GPR[rs])
         // it will contain S_GPR[rs] in the assignment statement.
 
-        if ( rs < 0) then 
-        //  TMP_SDWORD = - TMP_SDWORD ;
+        if (rs < 0) then 
+        //  TMP_SDWORD = - TMP_SDWORD;
         endif;
 
-        tmp_div = rt ;
-        if ( rt < 0) then
-        //	tmp_div = - tmp_div ;
+        tmp_div = rt;
+        if (rt < 0) then
+        //	tmp_div = - tmp_div;
         endif;
 
-        TMP_SDWORD = TMP_SDWORD * tmp_div ;
+        TMP_SDWORD = TMP_SDWORD * tmp_div;
 
         // Multiplication done.
 
-        tmp_double_word< 63 .. 32 > = HI;
-        tmp_double_word< 31 .. 0 > = LO;
+        tmp_double_word< 63..32 > = HI;
+        tmp_double_word< 31..0 > = LO;
 
-        tmp_double_word = tmp_double_word + TMP_SDWORD ;
+        tmp_double_word = tmp_double_word + TMP_SDWORD;
         HI = tmp_double_word_A0;
 		LO = tmp_double_word_A1;
     } 
@@ -413,7 +406,7 @@ op MADD (rs : REG_IND_ZERO , rt : REG_IND_ZERO)
     sizecheck = {
         tmp_signed_word = rs;
         tmp_signed_word = tmp_signed_word & 0xffff0000;
-        if ( tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000) then
+        if (tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000) then
             multsize = 0;
         else
             multsize = 1;
@@ -422,78 +415,78 @@ op MADD (rs : REG_IND_ZERO , rt : REG_IND_ZERO)
 
 op MSUB (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("MSUB %s, %s", rs.syntax, rt.syntax)
-    image  = format("011100%s%s0000000000000001" , rs.image, rt.image)
+    image  = format("011100%s%s0000000000000001", rs.image, rt.image)
     action = {
-        TMP_SDWORD = rs ;
+        TMP_SDWORD = rs;
 
         // Following two "if"s code looks like doing nothing 
-        // but the generated code doesn't contain ( 0xffffffff & S_GPR[rs])
+        // but the generated code doesn't contain (0xffffffff & S_GPR[rs])
         // it will contain S_GPR[rs] in the assignment statement.
 
-        if ( rs < 0) then 
-        //  TMP_SDWORD = - TMP_SDWORD ;
+        if (rs < 0) then 
+        //  TMP_SDWORD = - TMP_SDWORD;
         endif;
 
-        tmp_div = rt ;
-		if ( rt < 0) then
-        //  tmp_div = - tmp_div ;
+        tmp_div = rt;
+		if (rt < 0) then
+        //  tmp_div = - tmp_div;
         endif;
 
-        TMP_SDWORD = TMP_SDWORD * tmp_div ;
+        TMP_SDWORD = TMP_SDWORD * tmp_div;
 
         // Multiplication done.
 
-        tmp_double_word< 63 .. 32 > = HI;
-        tmp_double_word< 31 .. 0 > = LO;
+        tmp_double_word< 63..32 > = HI;
+        tmp_double_word< 31..0 > = LO;
 		
-        tmp_double_word = tmp_double_word - TMP_SDWORD ;
+        tmp_double_word = tmp_double_word - TMP_SDWORD;
         HI = tmp_double_word_A0;
         LO = tmp_double_word_A1;
     } 
     sizecheck = {         
         tmp_signed_word = rs;
         tmp_signed_word = tmp_signed_word & 0xffff0000;
-        if ( tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000) then
+        if (tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000) then
             multsize = 0;
         else
             multsize = 1;
         endif;
     }
 
-op MULT ( rs : REG_IND_ZERO, rt : REG_IND_ZERO)
-    syntax = format("MULT %s, %s", rs.syntax , rt.syntax)
-    image  = format("000000%s%s0000000000011000" , rs.image , rt.image)
+op MULT (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format("MULT %s, %s", rs.syntax, rt.syntax)
+    image  = format("000000%s%s0000000000011000", rs.image, rt.image)
     action = {
-        TMP_SDWORD = rs ;
+        TMP_SDWORD = rs;
 
         // Following two "if"s code looks like doing nothing 
-        // but the generated code doesn't contain ( 0xffffffff & S_GPR[rs])
+        // but the generated code doesn't contain (0xffffffff & S_GPR[rs])
         // it will contain S_GPR[rs] in the assignment statement.
 
-        if ( rs < 0) then 
-        //  TMP_SDWORD = - TMP_SDWORD ;
+        if (rs < 0) then 
+        //  TMP_SDWORD = - TMP_SDWORD;
         endif;
 
-        tmp_div = rt ;
-        if ( rt < 0) then
-        //	tmp_div = - tmp_div ;
+        tmp_div = rt;
+        if (rt < 0) then
+        //	tmp_div = - tmp_div;
         endif;
 
-        TMP_SDWORD = TMP_SDWORD * tmp_div ;
-        HI < 31 .. 0 > = TMP_SDWORD < 63 .. 32 > ;
-        LO < 31 .. 0 > = TMP_SDWORD < 31 .. 0 > ;
+        TMP_SDWORD = TMP_SDWORD * tmp_div;
+        HI < 31..0 > = TMP_SDWORD < 63..32>;
+        LO < 31..0 > = TMP_SDWORD < 31..0>;
     }    
     sizecheck = {         
         tmp_signed_word = rs;
         tmp_signed_word = tmp_signed_word & 0xffff0000;
-        if ( tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000) then
+        if (tmp_signed_word == 0x00000000) | (tmp_signed_word == 0xffff0000) then
             multsize = 0;
         else
             multsize = 1;
         endif;
     }    
 
-op DIV ( rs : REG_IND_ZERO , rt : REG_IND_ZERO)
+op DIV (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("DIV %s, %s", rs.syntax, rt.syntax)
     image  = format("000000%s%s0000000000011010", rs.image, rt.image)
     action = {
@@ -503,20 +496,20 @@ op DIV ( rs : REG_IND_ZERO , rt : REG_IND_ZERO)
     sizecheck = {     
         tmp_signed_word = rs;
         signadjust = 0;
-        if ( tmp_signed_word <31..31> == 1) then
+        if (tmp_signed_word <31..31> == 1) then
             tmp_signed_word = ~(tmp_signed_word) + 1;
             signadjust = 1;
         endif;
         tmp_signed_word = tmp_signed_word & 0xffffff00;
-        if ( tmp_signed_word == 0x00000000) then
+        if (tmp_signed_word == 0x00000000) then
             divsize = 7;
         else
             tmp_signed_word = tmp_signed_word & 0xffff0000;
-            if ( tmp_signed_word == 0x00000000) then
+            if (tmp_signed_word == 0x00000000) then
                 divsize = 15;
             else
                 tmp_signed_word = tmp_signed_word & 0xff000000;
-                if ( tmp_signed_word == 0x00000000) then
+                if (tmp_signed_word == 0x00000000) then
                     divsize = 23;
                 else
                     divsize = 31;
@@ -525,25 +518,25 @@ op DIV ( rs : REG_IND_ZERO , rt : REG_IND_ZERO)
         endif;
     }
 
-op DIVU ( rs : REG_IND_ZERO, rt : REG_IND_ZERO)
-    syntax = format("DIVU %s, %s" , rs.syntax , rt.syntax)
-    image  = format("000000%s%s0000000000011011" , rs.image , rt.image)
+op DIVU (rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format("DIVU %s, %s", rs.syntax, rt.syntax)
+    image  = format("000000%s%s0000000000011011", rs.image, rt.image)
     action = {
-        LO = coerce ( card (32), rs) / coerce ( card (32), rt);
-        HI = coerce ( card (32), rs) % coerce ( card (32), rt);
+        LO = coerce (card (32), rs) / coerce (card (32), rt);
+        HI = coerce (card (32), rs) % coerce (card (32), rt);
     }
     sizecheck = {     
         tmp_signed_word = rs;
         tmp_signed_word = tmp_signed_word & 0xffffff00;
-        if ( tmp_signed_word == 0x00000000) then
+        if (tmp_signed_word == 0x00000000) then
             divsize = 7;
         else
             tmp_signed_word = tmp_signed_word & 0xffff0000;
-            if ( tmp_signed_word == 0x00000000) then
+            if (tmp_signed_word == 0x00000000) then
                 divsize = 15;
             else
                 tmp_signed_word = tmp_signed_word & 0xff000000;
-                if ( tmp_signed_word == 0x00000000) then
+                if (tmp_signed_word == 0x00000000) then
                     divsize = 23;
                 else
                     divsize = 31;
@@ -572,8 +565,8 @@ op MOVN (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("MOVN %d, %s, %s",  rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000001011", rs.image, rt.image, rd) 
     action = {
-        if ( rt != 0) then
-            GPR [rd] = rs;
+        if (rt != 0) then
+            GPR[rd] = rs;
         endif;    
     }
 
@@ -581,44 +574,44 @@ op MOVZ (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("MOVZ %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000001010", rs.image, rt.image, rd) 
     action = {
-        if ( rt == 0) then
-            GPR [rd] = rs;
+        if (rt == 0) then
+            GPR[rd] = rs;
         endif;    
     } 
 
-op MFHI ( rd : index)
+op MFHI (rd : index)
     syntax = format("MFHI %d", rd)
     image  = format("0000000000000000%5b00000010000", rd)
     action = {
-        GPR [rd] = HI;
+        GPR[rd] = HI;
     }
 
-op MFLO ( rd : index)
+op MFLO (rd : index)
     syntax = format("MFLO %d", rd)
     image  = format("0000000000000000%5b00000010010", rd)
     action = {
-        GPR [rd] = LO;
+        GPR[rd] = LO;
     }
 
-op MTHI ( rs : REG_IND_ZERO)
-    syntax = format("MTHI %s" , rs.syntax)
-    image  = format("000000%s000000000000000010001" , rs.image)
+op MTHI (rs : REG_IND_ZERO)
+    syntax = format("MTHI %s", rs.syntax)
+    image  = format("000000%s000000000000000010001", rs.image)
     action = {
         HI = rs;
     }
 
-op MTLO ( rs : REG_IND_ZERO)
+op MTLO (rs : REG_IND_ZERO)
     syntax = format("MTLO %s", rs.syntax)
     image  = format("000000%s000000000000000010011", rs.image)
     action = {
         LO = rs;
     }
 
-op MOVE ( rd : index, rs : REG_IND_ZERO)
+op MOVE (rd : index, rs : REG_IND_ZERO)
     syntax = format("MOVE %d, %s", rd, rs.syntax)
     image  = format("000000%5b00000%s00000100001", rd, rs.image)
     action = {
-        GPR [rd] = rs;
+        GPR[rd] = rs;
     }
 
 op mov_instr    =  MOVN  // move conditional not zero
@@ -633,28 +626,28 @@ op AND (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("AND %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000100100", rs.image, rt.image, rd) 
     action = {
-        GPR [rd] = rs & rt;
+        GPR[rd] = rs & rt;
     }
  
 op NOR (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("NOR %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000100111", rs.image, rt.image, rd) 
     action = {
-        GPR [rd] = ~( rs | rt);
+        GPR[rd] = ~(rs | rt);
     }
 
 op OR (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("OR %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000100101", rs.image, rt.image, rd) 
     action = {
-        GPR [rd] = rs | rt;
+        GPR[rd] = rs | rt;
     }
 
-op XOR (rd : index , rs : REG_IND_ZERO , rt : REG_IND_ZERO)
-    syntax = format("XOR %d, %s, %s" ,  rd, rs.syntax, rt.syntax)
+op XOR (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+    syntax = format("XOR %d, %s, %s",  rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000100110", rs.image, rt.image, rd) 
     action = {
-        GPR [rd] = rs ^ rt;
+        GPR[rd] = rs ^ rt;
     }
 
 op ANDI (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
@@ -663,7 +656,7 @@ op ANDI (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
     action = {
     //  Don't  modify GPR[rt] as it can also be the source
         tmp_signed_word = immediate & 0x0000ffff;
-        GPR [rt] = tmp_signed_word & rs ;
+        GPR[rt] = tmp_signed_word & rs;
     }
 
 op ORI (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
@@ -672,16 +665,16 @@ op ORI (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
     action = {
     //  Don't  modify GPR[rt] as it can also be the source
         tmp_signed_word = immediate & 0x0000ffff;
-        GPR [rt] = tmp_signed_word | rs ;
+        GPR[rt] = tmp_signed_word | rs;
     }
 
-op XORI (rt : index , rs : REG_IND_ZERO , immediate : IMM16)
-    syntax = format("XORI %d, %s, %s" , rt , rs.syntax , immediate.syntax)
-    image = format("001110%s%5b%s" , rs.image , rt , immediate.image)
+op XORI (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
+    syntax = format("XORI %d, %s, %s", rt, rs.syntax, immediate.syntax)
+    image = format("001110%s%5b%s", rs.image, rt, immediate.image)
     action = {
     //  Don't  modify GPR[rt] as it can also be the source
         tmp_signed_word = immediate & 0x0000ffff;
-        GPR [rt] = tmp_signed_word ^ rs ;
+        GPR[rt] = tmp_signed_word ^ rs;
     }
 
 op logical_instr  =  AND  // and 
@@ -696,16 +689,16 @@ op SLL (rd : index, rt : REG_IND_ZERO, sa : index)
     syntax = format("SLL %d, %s, %d", rd, rt.syntax, sa)
     image  = format("00000000000%s%5b%5b000000", rt.image, rd, sa)
     action = {
-        GPR [rd] = rt << sa;
+        GPR[rd] = rt << sa;
     }
 
 op SRA (rd : index, rt : REG_IND_ZERO, sa : index)
     syntax = format("SRA %d, %s, %d", rd, rt.syntax, sa)
     image  = format("00000000000%s%5b%5b000011", rt.image, rd, sa)
     action = {
-        GPR [rd] = (rt >> sa);
-        if ( rt < 0) then
-            GPR[rd] = GPR [ rd ] | ( 0 - (1 << (32 - sa)));
+        GPR[rd] = (rt >> sa);
+        if (rt < 0) then
+            GPR[rd] = GPR[rd] | (0 - (1 << (32 - sa)));
         endif;
     }
 
@@ -713,9 +706,9 @@ op SRL (rd : index, rt :  REG_IND_ZERO, sa : index)
     syntax = format("SRL %d, %s, %d", rd, rt.syntax, sa)
     image  = format("00000000000%s%5b%5b000010", rt.image, rd, sa)
     action = {
-        GPR [rd] = rt >> sa;
-        if ( sa > 0) then 
-            GPR [ rd ] = GPR [ rd ] & ( 0x7fffffff >> ( sa - 1) );
+        GPR[rd] = rt >> sa;
+        if (sa > 0) then 
+            GPR[rd] = GPR[rd] & (0x7fffffff >> (sa - 1) );
         endif;
     }
 
@@ -723,27 +716,27 @@ op SLLV (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("SLLV %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000000100", rs.image, rt.image, rd) 
     action = {
-        GPR [rd] = rt << rs < 4..0 >;
+        GPR[rd] = rt << rs < 4..0>;
     }
 
 op SRAV (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("SRAV %d, %s, %s",  rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000000111", rs.image, rt.image, rd) 
     action = {
-        GPR [rd] = (rt >> rs< 4..0>) ;
-        if ( rt < 0) then
-            GPR[rd] = GPR [ rd ] | ( 0 - (1<<(32 - rs < 4..0 >)));
+        GPR[rd] = (rt >> rs< 4..0>);
+        if (rt < 0) then
+            GPR[rd] = GPR[rd] | (0 - (1<<(32 - rs < 4..0 >)));
         endif;
     }
 
-op SRLV (rd : index , rs : REG_IND_ZERO, rt : REG_IND_ZERO)
+op SRLV (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("SRLV %d, %s, %s",  rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000000110", rs.image, rt.image, rd) 
     action = {
-        tmp_unsigned_byte = rs < 4..0 > ;
-        GPR [rd] = rt >> tmp_unsigned_byte ;
-        if ( tmp_unsigned_byte > 0) then
-            GPR [ rd ] = GPR [ rd ] & ( 0x7fffffff >> ( tmp_unsigned_byte - 1));
+        tmp_unsigned_byte = rs < 4..0>;
+        GPR[rd] = rt >> tmp_unsigned_byte;
+        if (tmp_unsigned_byte > 0) then
+            GPR[rd] = GPR[rd] & (0x7fffffff >> (tmp_unsigned_byte - 1));
         endif;
     }
 
@@ -761,11 +754,11 @@ op arith_mov_bitwise_instr  =  arith_instr
                             |  mov_instr
                             |  bitwise_instr
 
-op LUI ( rt : REG_IND, offset : IMM16)
+op LUI (rt : REG_IND, offset : IMM16)
     syntax = format("LUI %s, %s", rt.syntax, offset.syntax)
     image  = format("00111100000%s%s", rt.image, offset.image)
     action = {
-       GPR [rt] = offset << 16;
+       GPR[rt] = offset << 16;
     }
 
 op LB (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
@@ -773,8 +766,8 @@ op LB (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     image  = format("100000%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA = base + offset;
-        tmp_signed_byte = M [ EA ];
-        GPR [rt] = tmp_signed_byte; 
+        tmp_signed_byte = M[EA];
+        GPR[rt] = tmp_signed_byte; 
     }
 
 op LBU (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
@@ -782,8 +775,8 @@ op LBU (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     image = format("100100%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA = base + offset;
-        tmp_unsigned_byte = M [ EA ];
-        GPR [rt] = tmp_unsigned_byte;    
+        tmp_unsigned_byte = M[EA];
+        GPR[rt] = tmp_unsigned_byte;    
     }
 
 op LH (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
@@ -791,9 +784,9 @@ op LH (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     image  = format("100001%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA = base + offset;
-        tmp_signed_half_word_A0 = M [ EA ];
-        tmp_signed_half_word_A1 = M [ EA + 1 ];	
-        GPR [rt] = tmp_signed_half_word;
+        tmp_signed_half_word_A0 = M[EA];
+        tmp_signed_half_word_A1 = M[EA + 1];	
+        GPR[rt] = tmp_signed_half_word;
     }
 
 op LHU (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
@@ -802,9 +795,9 @@ op LHU (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     action = {
         EA = base + offset;
 
-        tmp_unsigned_half_word_A0 = M [ EA ];
-        tmp_unsigned_half_word_A1 = M [ EA + 1 ];
-        GPR [rt] = tmp_unsigned_half_word;    
+        tmp_unsigned_half_word_A0 = M[EA];
+        tmp_unsigned_half_word_A1 = M[EA + 1];
+        GPR[rt] = tmp_unsigned_half_word;    
     }
 
 op LW (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
@@ -812,68 +805,68 @@ op LW (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     image  = format("100011%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA =  base + offset;
-        tmp_signed_word_A0 = M [ EA ];
-        tmp_signed_word_A1 = M [ EA + 1];
-        tmp_signed_word_A2 = M [ EA + 2];
-        tmp_signed_word_A3 = M [ EA + 3];
-        GPR [rt] = tmp_signed_word;
+        tmp_signed_word_A0 = M[EA];
+        tmp_signed_word_A1 = M[EA + 1];
+        tmp_signed_word_A2 = M[EA + 2];
+        tmp_signed_word_A3 = M[EA + 3];
+        GPR[rt] = tmp_signed_word;
     }
 
-op LWL (base : REG_IND_ZERO , rt : REG_IND , offset : IMM16) 
-    syntax = format("LWL %s, %s(%s)" , rt.syntax , offset.syntax, base.syntax)
-    image = format("100010%s%s%s" , base.image, rt.image, offset.image)
+op LWL (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16) 
+    syntax = format("LWL %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
+    image = format("100010%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA =  base + offset;
-        tmp_signed_word_A0 = M [ EA ];
-        tmp_signed_word_A1 = M [ EA + 1];
-        tmp_signed_word_A2 = M [ EA + 2];
-        tmp_signed_word_A3 = M [ EA + 3];
-        if ( EA<1..0> == 1) then
+        tmp_signed_word_A0 = M[EA];
+        tmp_signed_word_A1 = M[EA + 1];
+        tmp_signed_word_A2 = M[EA + 2];
+        tmp_signed_word_A3 = M[EA + 3];
+        if (EA<1..0> == 1) then
             tmp_signed_word = tmp_signed_word << 8;
-            GPR [rt] = GPR [rt] & 0x000000ff;
-            GPR [rt] = GPR [rt] | tmp_signed_word;
+            GPR[rt] = GPR[rt] & 0x000000ff;
+            GPR[rt] = GPR[rt] | tmp_signed_word;
         else
-            if ( EA<1..0> == 2) then             
+            if (EA<1..0> == 2) then             
                 tmp_signed_word = tmp_signed_word << 16;
-                GPR [rt] = GPR [rt] & 0x0000ffff;
-                GPR [rt] = GPR [rt] | tmp_signed_word;
+                GPR[rt] = GPR[rt] & 0x0000ffff;
+                GPR[rt] = GPR[rt] | tmp_signed_word;
             else
-                if ( EA<1..0> == 3) then
+                if (EA<1..0> == 3) then
                     tmp_signed_word = tmp_signed_word << 24;
-                    GPR [rt] = GPR [rt] & 0x00ffffff;
-                    GPR [rt] = GPR [rt] | tmp_signed_word;
+                    GPR[rt] = GPR[rt] & 0x00ffffff;
+                    GPR[rt] = GPR[rt] | tmp_signed_word;
                 else
-                    GPR [rt] = tmp_signed_word;
+                    GPR[rt] = tmp_signed_word;
                 endif;
             endif;
         endif;     
     }
 
-op LWR (base : REG_IND_ZERO , rt : REG_IND , offset : IMM16) 
+op LWR (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16) 
     syntax = format("LWR %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
     image  = format("100110%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA = base + offset;
-        tmp_signed_word_A3 = M [ EA ];
-        tmp_signed_word_A2 = M [ EA - 1];
-        tmp_signed_word_A1 = M [ EA - 2];
-        tmp_signed_word_A0 = M [ EA - 3];
-        if ( base<1..0> == 0) then 
+        tmp_signed_word_A3 = M[EA];
+        tmp_signed_word_A2 = M[EA - 1];
+        tmp_signed_word_A1 = M[EA - 2];
+        tmp_signed_word_A0 = M[EA - 3];
+        if (base<1..0> == 0) then 
             tmp_signed_word = tmp_signed_word & 0x000000ff;
-            GPR [rt] = GPR [rt] & 0xffffff00;
-            GPR [rt] = GPR [rt] | tmp_signed_word;
+            GPR[rt] = GPR[rt] & 0xffffff00;
+            GPR[rt] = GPR[rt] | tmp_signed_word;
         else
-            if ( EA<1..0> == 1) then             
+            if (EA<1..0> == 1) then             
                 tmp_signed_word = tmp_signed_word & 0x0000ffff;
-                GPR [rt] = GPR [rt] & 0xffff0000;
-                GPR [rt] = GPR [rt] | tmp_signed_word;
+                GPR[rt] = GPR[rt] & 0xffff0000;
+                GPR[rt] = GPR[rt] | tmp_signed_word;
             else 
-                if ( EA<1..0> == 2) then
+                if (EA<1..0> == 2) then
                     tmp_signed_word = tmp_signed_word & 0x00ffffff;
-                    GPR [rt] = GPR [rt] & 0xff000000;
-                    GPR [rt] = GPR [rt] | tmp_signed_word;
+                    GPR[rt] = GPR[rt] & 0xff000000;
+                    GPR[rt] = GPR[rt] | tmp_signed_word;
                 else
-                    GPR [rt] = tmp_signed_word;
+                    GPR[rt] = tmp_signed_word;
                 endif;
             endif;
         endif;     
@@ -885,11 +878,11 @@ op LWC0 (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     image  = format("110000%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA = base + offset;
-        tmp_signed_word_A0 = M [ EA ];
-        tmp_signed_word_A1 = M [ EA + 1];
-        tmp_signed_word_A2 = M [ EA + 2];
-        tmp_signed_word_A3 = M [ EA + 3];
-        GPR [rt] = tmp_signed_word;
+        tmp_signed_word_A0 = M[EA];
+        tmp_signed_word_A1 = M[EA + 1];
+        tmp_signed_word_A2 = M[EA + 2];
+        tmp_signed_word_A3 = M[EA + 3];
+        GPR[rt] = tmp_signed_word;
     }
 
 op load_instr               =  LUI 	// load upper immediate
@@ -910,17 +903,17 @@ op SB (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     action = {
         EA = base + offset;
         tmp_signed_byte = GPR[rt];
-        M [ EA ] = tmp_signed_byte;
+        M[EA] = tmp_signed_byte;
     }
 
 op SH (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
-    syntax = format("SH %s, %s(%s)", rt.syntax , offset.syntax, base.syntax)
+    syntax = format("SH %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
     image  = format("101001%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA = base + offset;
-        tmp_signed_half_word = GPR[ rt ];
-        M [ EA ] = tmp_signed_half_word_A0;
-        M [ EA + 1 ] = tmp_signed_half_word_A1;
+        tmp_signed_half_word = GPR[ rt];
+        M[EA] = tmp_signed_half_word_A0;
+        M[EA + 1] = tmp_signed_half_word_A1;
     }
 
 op SW (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
@@ -929,61 +922,61 @@ op SW (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     action = {
         EA = base + offset;
         tmp_signed_word = GPR[rt];
-        M [ EA ] = tmp_signed_word_A0;
-        M [ EA + 1 ] = tmp_signed_word_A1;
-        M [ EA + 2 ] = tmp_signed_word_A2;
-        M [ EA + 3 ] = tmp_signed_word_A3;
+        M[EA] = tmp_signed_word_A0;
+        M[EA + 1] = tmp_signed_word_A1;
+        M[EA + 2] = tmp_signed_word_A2;
+        M[EA + 3] = tmp_signed_word_A3;
     }
 
 op SWL (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
-    syntax = format("SWL %s, %s(%s)" , rt.syntax , offset.syntax, base.syntax)
-    image = format("101010%s%s%s" , base.image, rt.image, offset.image)
+    syntax = format("SWL %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
+    image = format("101010%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA = base + offset;
         tmp_signed_word = GPR[rt];
-        if ( EA<1..0> == 0) then
-            M [ EA ]     = tmp_signed_word_A0;
-            M [ EA + 1 ] = tmp_signed_word_A1;
-            M [ EA + 2 ] = tmp_signed_word_A2;
-            M [ EA + 3 ] = tmp_signed_word_A3;
+        if (EA<1..0> == 0) then
+            M[EA]     = tmp_signed_word_A0;
+            M[EA + 1] = tmp_signed_word_A1;
+            M[EA + 2] = tmp_signed_word_A2;
+            M[EA + 3] = tmp_signed_word_A3;
         else
-            if ( EA<1..0> == 1) then 
-                M [ EA ] = tmp_signed_word_A0;
-                M [ EA + 1 ] = tmp_signed_word_A1;
-                M [ EA + 2 ] = tmp_signed_word_A2;
+            if (EA<1..0> == 1) then 
+                M[EA] = tmp_signed_word_A0;
+                M[EA + 1] = tmp_signed_word_A1;
+                M[EA + 2] = tmp_signed_word_A2;
             else
-                if ( EA<1..0> == 2) then
-                    M [ EA ] = tmp_signed_word_A0;
-                    M [ EA + 1 ] = tmp_signed_word_A1;
+                if (EA<1..0> == 2) then
+                    M[EA] = tmp_signed_word_A0;
+                    M[EA + 1] = tmp_signed_word_A1;
                 else
-                    M [ EA ] = tmp_signed_word_A0;
+                    M[EA] = tmp_signed_word_A0;
                 endif;
             endif;
         endif;
     }
 
 op SWR (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
-    syntax = format("SWR %s, %s(%s)" , rt.syntax , offset.syntax, base.syntax)
-    image  = format("101110%s%s%s" , base.image, rt.image, offset.image)
+    syntax = format("SWR %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
+    image  = format("101110%s%s%s", base.image, rt.image, offset.image)
     action = {
         EA = base + offset;
         tmp_signed_word = GPR[rt];
-        if ( EA<1..0> == 0) then
-            M [ EA ] = tmp_signed_word_A3;
+        if (EA<1..0> == 0) then
+            M[EA] = tmp_signed_word_A3;
         else
-            if ( EA<1..0> == 1) then
-                M [ EA ] = tmp_signed_word_A3;
-                M [ EA - 1 ] = tmp_signed_word_A2;
+            if (EA<1..0> == 1) then
+                M[EA] = tmp_signed_word_A3;
+                M[EA - 1] = tmp_signed_word_A2;
             else
-                if ( EA<1..0> == 2) then
-                    M [ EA ] = tmp_signed_word_A3;
-                    M [ EA - 1 ] = tmp_signed_word_A2;
-                    M [ EA - 2 ] = tmp_signed_word_A1;
+                if (EA<1..0> == 2) then
+                    M[EA] = tmp_signed_word_A3;
+                    M[EA - 1] = tmp_signed_word_A2;
+                    M[EA - 2] = tmp_signed_word_A1;
                 else
-                    M [ EA  ]    = tmp_signed_word_A3;
-                    M [ EA - 1 ] = tmp_signed_word_A2;
-                    M [ EA - 2 ] = tmp_signed_word_A1;
-                    M [ EA - 3 ] = tmp_signed_word_A0;
+                    M[EA] = tmp_signed_word_A3;
+                    M[EA - 1] = tmp_signed_word_A2;
+                    M[EA - 2] = tmp_signed_word_A1;
+                    M[EA - 3] = tmp_signed_word_A0;
                 endif;
             endif;
         endif;
@@ -996,10 +989,10 @@ op SWC0 (base : REG_IND_ZERO, rt : REG_IND, offset : IMM16)
     action = {
         EA = base + offset;
         tmp_signed_word = GPR[rt];
-        M [ EA ]     = tmp_signed_word_A0;
-        M [ EA + 1 ] = tmp_signed_word_A1;
-        M [ EA + 2 ] = tmp_signed_word_A2;
-        M [ EA + 3 ] = tmp_signed_word_A3;
+        M[EA] = tmp_signed_word_A0;
+        M[EA + 1] = tmp_signed_word_A1;
+        M[EA + 2] = tmp_signed_word_A2;
+        M[EA + 3] = tmp_signed_word_A3;
         GPR[rt] = 1;
     }
 
@@ -1019,10 +1012,10 @@ op SLT (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("SLT %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000101010", rs.image, rt.image, rd) 
     action = {
-        if ( rs < rt) then
-            GPR [rd] = 1;
+        if (rs < rt) then
+            GPR[rd] = 1;
         else
-            GPR [rd] = 0;   
+            GPR[rd] = 0;   
         endif;
     }
 
@@ -1030,10 +1023,10 @@ op SLTU (rd : index, rs : REG_IND_ZERO, rt : REG_IND_ZERO)
     syntax = format("SLTU %d, %s, %s", rd, rs.syntax, rt.syntax)
     image  = format("000000%s%s%5b00000101011", rs.image, rt.image, rd) 
     action = {
-        if ( coerce ( word, rs) < coerce ( word, rt)) then
-            GPR [rd] = 1;
+        if (coerce (word, rs) < coerce (word, rt)) then
+            GPR[rd] = 1;
         else
-            GPR [rd] = 0;   
+            GPR[rd] = 0;   
         endif;
     }
 
@@ -1041,10 +1034,10 @@ op SLTI (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
     syntax = format("SLTI %d, %s, %s", rt, rs.syntax, immediate.syntax)
     image  = format("001010%s%5b%s", rs.image, rt, immediate.image)
     action = {
-        if ( rs < immediate) then
-            GPR [rt] = 1;
+        if (rs < immediate) then
+            GPR[rt] = 1;
         else
-            GPR [rt] = 0;
+            GPR[rt] = 0;
         endif;
     }
 
@@ -1052,10 +1045,10 @@ op SLTIU (rt : index, rs : REG_IND_ZERO, immediate : IMM16)
     syntax = format("SLTIU %d, %s, %s", rt, rs.syntax, immediate.syntax)
     image  = format("001011%s%5b%s", rs.image, rt, immediate.image)
     action = {
-        if ( coerce ( word, rs) < coerce ( card (16), immediate)) then
-            GPR [rt] = 1;
+        if (coerce (word, rs) < coerce (card (16), immediate)) then
+            GPR[rt] = 1;
         else
-            GPR [rt] = 0;   
+            GPR[rt] = 0;   
         endif;
     }
 
@@ -1081,13 +1074,13 @@ op BGEZAL (rs : REG_IND_ZERO, offset : IMM16)
         //  offset = offset << 2;
         //  NIA = CIA + offset;
 
-        if ( rs >= 0) then
+        if (rs >= 0) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-		//  JMPADDR = NIA + ( offset << 2);
-            GPR [31] = CIA + 8;
+		//  JMPADDR = NIA + (offset << 2);
+            GPR[31] = CIA + 8;
         endif;
     }
 
@@ -1098,13 +1091,13 @@ op BGEZALL (rs : REG_IND_ZERO, offset : IMM16)
         //  offset = offset << 2;
         //  NIA = CIA + offset;
 
-        if ( rs >= 0) then
+        if (rs >= 0) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
-            GPR [31] = CIA + 8;
+        //  JMPADDR = NIA + (offset << 2);
+            GPR[31] = CIA + 8;
         endif;
     }   
 
@@ -1115,14 +1108,14 @@ op BLTZAL (rs : REG_IND_ZERO, offset : IMM16)
         //  offset = offset << 2;
         //  NIA = CIA + offset;
 
-        if ( rs < 0) then
+        if (rs < 0) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
-        //  GPR [31] = NIA + 4;
-            GPR [31] = CIA + 8;
+        //  JMPADDR = NIA + (offset << 2);
+        //  GPR[31] = NIA + 4;
+            GPR[31] = CIA + 8;
         endif;
     }
 
@@ -1133,14 +1126,14 @@ op BLTZALL (rs : REG_IND_ZERO, offset : IMM16)
     //	offset = offset << 2;
     //	NIA = CIA + offset;
 		
-        if ( rs < 0) then
+        if (rs < 0) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //	JMPADDR = NIA + ( offset << 2);
-        //	GPR [31] = NIA + 4;
-            GPR [31] = CIA + 8;
+        //	JMPADDR = NIA + (offset << 2);
+        //	GPR[31] = NIA + 4;
+            GPR[31] = CIA + 8;
         endif;
     }  
 
@@ -1154,8 +1147,8 @@ op BAL (offset : IMM16)
         tmp_signed_word=offset;
         tmp_signed_word=tmp_signed_word << 2;
         JMPADDR = NIA + tmp_signed_word;
-    //  JMPADDR = NIA + ( offset << 2);
-        GPR [31] = CIA + 8;
+    //  JMPADDR = NIA + (offset << 2);
+        GPR[31] = CIA + 8;
     }
 
 op branch_to_link_instr	  =  BGEZAL  // BGEZ and link
@@ -1169,51 +1162,51 @@ op BGEZ (rs : REG_IND_ZERO, offset : IMM16)
     image  = format("000001%s00001%s", rs.image, offset.image)
     action = {
     //	offset = offset << 2;
-    //	NIA = NIA + ( offset << 2);
+    //	NIA = NIA + (offset << 2);
 
-        if ( rs >= 0) then
+        if (rs >= 0) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-            //  JMPADDR = NIA + ( offset << 2);
+            //  JMPADDR = NIA + (offset << 2);
         endif;
     }
 
-op BGEZL (rs : REG_IND_ZERO , offset : IMM16)
-    syntax = format("BGEZL %s, %s" , rs.syntax, offset.syntax)	   
-    image = format("000001%s00011%s" , rs.image, offset.image)
+op BGEZL (rs : REG_IND_ZERO, offset : IMM16)
+    syntax = format("BGEZL %s, %s", rs.syntax, offset.syntax)	   
+    image = format("000001%s00011%s", rs.image, offset.image)
     action = {
-        //  if ( rs >= 0) then
+        //  if (rs >= 0) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
-        //  NIA = NIA + ( offset << 2);
+        //  NIA = NIA + (offset << 2);
 
-        if ( rs >= 0) then
+        if (rs >= 0) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
+        //  JMPADDR = NIA + (offset << 2);
             GPR[31] = CIA + 8;
         endif;
     }
 
 op BLTZ (rs : REG_IND_ZERO, offset : IMM16)
-    syntax = format("BLTZ %s, %s" , rs.syntax, offset.syntax)	   
-    image = format("000001%s00000%s" , rs.image, offset.image)
+    syntax = format("BLTZ %s, %s", rs.syntax, offset.syntax)	   
+    image = format("000001%s00000%s", rs.image, offset.image)
     action = {
-        //  if ( rs < 0) then
+        //  if (rs < 0) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
-        //  NIA = NIA + ( offset << 2);
+        //  NIA = NIA + (offset << 2);
 
-        if ( rs < 0) then
+        if (rs < 0) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-            //  JMPADDR = NIA + ( offset << 2);
+            //  JMPADDR = NIA + (offset << 2);
         endif;
     }
 
@@ -1221,17 +1214,17 @@ op BLTZL (rs : REG_IND_ZERO, offset : IMM16)
     syntax = format("BLTZL %s, %s", rs.syntax, offset.syntax)	   
     image = format("000001%s00010%s", rs.image, offset.image)
     action = {
-		//if ( rs < 0) then
+		//if (rs < 0) then
 		//	offset = offset << 2;
 		//	NIA = CIA + offset;
-		//	NIA = NIA + ( offset << 2);
+		//	NIA = NIA + (offset << 2);
 
-        if ( rs < 0) then
+        if (rs < 0) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
+        //  JMPADDR = NIA + (offset << 2);
             GPR[31] = CIA + 8;
         endif;
     }
@@ -1248,12 +1241,12 @@ op BEQ (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16)
     //  offset = offset << 2;
     //  NIA = CIA + offset;
 
-        if ( rs == rt) then
+        if (rs == rt) then
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-            // JMPADDR = NIA + ( offset << 2);
+            // JMPADDR = NIA + (offset << 2);
         endif;
     }
 
@@ -1261,15 +1254,15 @@ op BEQL (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16)
     syntax = format("BEQL %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
     image = format("010100%s%s%s", rs.image, rt.image, offset.image)
     action = {
-        if ( rs <= rt) then
+        if (rs <= rt) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
-            GPR [31] = CIA + 8;
+        //  JMPADDR = NIA + (offset << 2);
+            GPR[31] = CIA + 8;
         endif;
     }
 
@@ -1277,14 +1270,14 @@ op BNE (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16)
     syntax = format("BNE %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
     image = format("000101%s%s%s", rs.image, rt.image, offset.image)
     action = {
-        if ( rs != rt) then
+        if (rs != rt) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
+        //  JMPADDR = NIA + (offset << 2);
         endif;
     }
 
@@ -1292,16 +1285,16 @@ op BNEL (rs : REG_IND_ZERO, rt : REG_IND_ZERO, offset : IMM16)
     syntax = format("BNEL %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
     image  = format("010101%s%s%s", rs.image, rt.image, offset.image)
     action = {
-        if ( rs != rt) then
+        if (rs != rt) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word = offset;
             tmp_signed_word = tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
+        //  JMPADDR = NIA + (offset << 2);
             //GPR[31] = NIA + 4;
-            GPR [31] = CIA + 8;
+            GPR[31] = CIA + 8;
         endif;
     }
 
@@ -1309,34 +1302,34 @@ op BEQZ (rs : REG_IND_ZERO, offset : IMM16)
     syntax = format("BEQZ %s, %s", rs.syntax, offset.syntax)
     image  = format("000100%s00000%s", rs.image, offset.image)
     action = {
-        if ( rs == 0) then
+        if (rs == 0) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word = offset;
             tmp_signed_word = tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-		//  JMPADDR = NIA + ( offset << 2);
+		//  JMPADDR = NIA + (offset << 2);
         endif;
     }
 
 op BNEZ (rs : REG_IND_ZERO, offset : IMM16)
-    syntax = format("BNE %s, %s", rs.syntax , offset.syntax)
+    syntax = format("BNE %s, %s", rs.syntax, offset.syntax)
     image  = format("000101%s00000%s", rs.image, offset.image)
     action = {
-        if ( rs != 0) then
+        if (rs != 0) then
 		//  offset = offset << 2;
 		//  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-		//  JMPADDR = NIA + ( offset << 2);
+		//  JMPADDR = NIA + (offset << 2);
         endif;
     }
  
 op B (offset : IMM16)
-    syntax = format("B %s" , offset.syntax)
+    syntax = format("B %s", offset.syntax)
     image  = format("0001000000000000%s", offset.image)
     action = {
     //  offset = offset << 2;
@@ -1345,7 +1338,7 @@ op B (offset : IMM16)
         tmp_signed_word=offset;
         tmp_signed_word=tmp_signed_word << 2;
         JMPADDR = NIA + tmp_signed_word;
-    //  JMPADDR = NIA + ( offset << 2);
+    //  JMPADDR = NIA + (offset << 2);
     }
 
 op branch_to_eql_instr    =  BEQ  // branch on equal
@@ -1357,17 +1350,17 @@ op branch_to_eql_instr    =  BEQ  // branch on equal
                           |  B
 
 op BGTZ (rs : REG_IND_ZERO, offset : IMM16)
-    syntax = format("BGTZ %s, %s" , rs.syntax , offset.syntax)
-    image  = format("000111%s00000%s" , rs.image , offset.image)
+    syntax = format("BGTZ %s, %s", rs.syntax, offset.syntax)
+    image  = format("000111%s00000%s", rs.image, offset.image)
     action = {
-        if ( rs > 0) then
+        if (rs > 0) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word << 2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
+        //  JMPADDR = NIA + (offset << 2);
         endif;
     }
 
@@ -1375,16 +1368,16 @@ op BGTZL (rs : REG_IND_ZERO, offset : IMM16)
     syntax = format("BGTZL %s, %s", rs.syntax, offset.syntax)
     image = format("010111%s00000%s", rs.image, offset.image)
     action = {
-        if ( rs > 0) then
+        if (rs > 0) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word<<2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
+        //  JMPADDR = NIA + (offset << 2);
             //GPR[31] = NIA + 4;
-            GPR [31] = CIA + 8;
+            GPR[31] = CIA + 8;
         endif;
     }
 
@@ -1392,29 +1385,29 @@ op BLEZ (rs : REG_IND_ZERO, offset : IMM16)
     syntax = format("BLEZ %s, %s", rs.syntax, offset.syntax)
     image  = format("000110%s00000%s", rs.image, offset.image)
     action = {
-        if ( rs <= 0) then
+        if (rs <= 0) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word<<2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
+        //  JMPADDR = NIA + (offset << 2);
         endif;
     }
 
-op BLEZL (rs : REG_IND_ZERO , offset : IMM16)
+op BLEZL (rs : REG_IND_ZERO, offset : IMM16)
     syntax = format("BLEZL %s, %s", rs.syntax, offset.syntax)
     image = format("010110%s00000%s", rs.image, offset.image)
     action =  {
-        if ( rs <= 0) then
+        if (rs <= 0) then
         //  offset = offset << 2;
         //  NIA = CIA + offset;
             branch = 1;
             tmp_signed_word=offset;
             tmp_signed_word=tmp_signed_word<<2;
             JMPADDR = NIA + tmp_signed_word;
-        //  JMPADDR = NIA + ( offset << 2);
+        //  JMPADDR = NIA + (offset << 2);
         endif;
     }             
 
@@ -1438,7 +1431,7 @@ op J (target : IMM26)
         CIA = NIA;
         JMPADDR = CIA & 4026531840;
         //target = target << 2;
-        JMPADDR = JMPADDR | ( target << 2);
+        JMPADDR = JMPADDR | (target << 2);
     }
 
 op JAL (target : IMM26)
@@ -1450,8 +1443,8 @@ op JAL (target : IMM26)
         JMPADDR = CIA & 4026531840;
 	//  target = target << 2;
 	//  NIA = NIA | target;
-        JMPADDR = JMPADDR | ( target << 2) ;
-        GPR [31] = CIA + 4;
+        JMPADDR = JMPADDR | (target << 2);
+        GPR[31] = CIA + 4;
     }  
 
 op JALR (rs : REG_IND_ZERO) 
@@ -1461,10 +1454,10 @@ op JALR (rs : REG_IND_ZERO)
         branch = 1;
         CIA = NIA;
         JMPADDR = rs;
-        GPR [31] = CIA + 4;
+        GPR[31] = CIA + 4;
     }
 
-op JR ( rs : REG_IND_ZERO) 
+op JR (rs : REG_IND_ZERO) 
     syntax = format("JR  %s", rs.syntax) 
     image  = format("000000%s000000000000000001000", rs.image)		      
     action = {
@@ -1496,26 +1489,26 @@ op SYSCALL()
     syntax = "SYSCALL"
     image  = "00000000000000000000000000001100"
     action = {
-        // "sys_call_mips" ( GPR[2], GPR[4], GPR[5],GPR[6],GPR[7]);
+        // "sys_call_mips" (GPR[2], GPR[4], GPR[5],GPR[6],GPR[7]);
 	}
 
 op CLO(rd : index, rs : REG_IND_ZERO)
-    syntax = format ("CLO %d, %s", rd, rs.syntax) 
-    image = format ("011100%s%5b%5b00000100001", rs.image, rd, rd)
+    syntax = format("CLO %d, %s", rd, rs.syntax) 
+    image = format("011100%s%5b%5b00000100001", rs.image, rd, rd)
     action = {
         tmp_signed_byte = 31;
-        GPR [rd] = 32; 
+        GPR[rd] = 32; 
         loop;
     }
 
     loop = {
         if tmp_signed_byte >= 0 then
-          	//if ( rs < rs_signed_byte .. rs_signed_byte > == 1) then
+          	//if (rs < rs_signed_byte..rs_signed_byte > == 1) then
 
-            if ( rs < tmp_signed_byte .. tmp_signed_byte > == 1) then
+            if (rs < tmp_signed_byte..tmp_signed_byte > == 1) then
                 tmp_signed_byte = tmp_signed_byte - 1;
             else
-                GPR [ rd ] = 31 - tmp_signed_byte;
+                GPR[rd] = 31 - tmp_signed_byte;
                 tmp_signed_byte = -1;
             endif;
 
@@ -1524,21 +1517,21 @@ op CLO(rd : index, rs : REG_IND_ZERO)
     }
 
 op CLZ(rd : index, rs : REG_IND_ZERO)
-    syntax = format ("CLZ %d,%s", rd, rs.syntax)
-    image  = format ("011100%s%5b%5b00000100000", rs.image, rd, rd)
+    syntax = format("CLZ %d,%s", rd, rs.syntax)
+    image  = format("011100%s%5b%5b00000100000", rs.image, rd, rd)
     action = {
         tmp_signed_byte = 31;
-        GPR [rd] = 32;
+        GPR[rd] = 32;
         loop;
     }
 
     loop = {
         if tmp_signed_byte >= 0 then
 
-            if (rs < tmp_signed_byte .. tmp_signed_byte > == 0) then
+            if (rs < tmp_signed_byte..tmp_signed_byte > == 0) then
                 tmp_signed_byte = tmp_signed_byte - 1;
             else
-                GPR [ rd ] = 31 - tmp_signed_byte;
+                GPR[rd] = 31 - tmp_signed_byte;
                 tmp_signed_byte = -1;
             endif;
 
@@ -1552,8 +1545,8 @@ op SYNC()
     action = { }
 
 op RDHWR (rd : index, rt : REG_IND_ZERO)
-    syntax = format ("RDHWR %s, %d", rt.syntax, rd)
-    image  = format ("01111100000%s%5b00000111011", rt.image, rd)
+    syntax = format("RDHWR %s, %d", rt.syntax, rd)
+    image  = format("01111100000%s%5b00000111011", rt.image, rd)
     action = {
         // RDHWR is not a syscall but an inturrupt and easy to implement as a syscall.
         // "sys_call_mips" (5111, 3, GPR[5], GPR[6], GPR[7]);
@@ -1561,13 +1554,13 @@ op RDHWR (rd : index, rt : REG_IND_ZERO)
 		}
 
 op BREAK (cde : breakcode)
-    syntax = format ("BREAK %d", cde)
-    image  = format ("000000%20b001101", cde)
+    syntax = format("BREAK %d", cde)
+    image  = format("000000%20b001101", cde)
     action = { }
 
 op TEQ (rs : REG_IND_ZERO, rt :  REG_IND_ZERO)
-    syntax = format ("TEQ %s, %s" , rs.syntax , rt.syntax)
-    image  = format ("000000%s%s0000000111110100", rs.image, rt.image)
+    syntax = format("TEQ %s, %s", rs.syntax, rt.syntax)
+    image  = format("000000%s%s0000000111110100", rs.image, rt.image)
     action = { }
 
 op	special_instr   =  NOP
@@ -1700,7 +1693,7 @@ op MADD_D (fd : index, fr : index, fs : index, ft : index)
 		//FPR[fd] = (FPR[fs] * FPR[ft]) + FPR[fr];
 
         TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
-        TMP_FLOT<31..0>   = FPR[fs ]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
         TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
         TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
 
@@ -1909,14 +1902,14 @@ op float_arithmetic = ADD_fmt
 //                  | SQRT_fmt  // TODO: NOT IMPLEMENTED
 
 op MOV_S (fd : index, fs : index)
-    syntax = format("MOV_S %d,%d", fd, fs)
+    syntax = format("MOV_S %d, %d", fd, fs)
     image  = format("0100011000000000%5b%5b000110", fs, fd) 
     action = {
         FPR[fd] = FPR[fs];
     }
 
 op MOV_D (fd : index, fs : index)
-    syntax = format("MOV_D %d,%d", fd, fs)
+    syntax = format("MOV_D %d, %d", fd, fs)
     image  = format("0100011000100000%5b%5b000110", fs, fd) 
     action = {
         FPR[fd] = FPR[fs];
@@ -1926,7 +1919,7 @@ op MOV_D (fd : index, fs : index)
 op MOV_fmt = MOV_S | MOV_D
 
 op MTC1 (rt : REG_IND, fs : index)
-    syntax = format("MTC1 %s,%d", rt.syntax, fs)
+    syntax = format("MTC1 %s, %d", rt.syntax, fs)
     image  = format("01000100100%s%5b00000000000", rt.image, fs) 
     action = {
         //FPR[fs] = GPR[rt];    
@@ -1951,7 +1944,7 @@ op MOVF_S (fd : index, fs : index, cc : cond_code)
     }
 
 op MOVF_D (fd : index, fs : index, cc : cond_code)
-    syntax = format("MOVF_D %d, %d, %d", fd, fs , cc)
+    syntax = format("MOVF_D %d, %d, %d", fd, fs, cc)
     image  = format("01000110001%3b00%5b%5b010001", cc, fs, fd) 
     action = {
         if (FCCR<cc..cc> == 0) then
@@ -1963,7 +1956,7 @@ op MOVF_D (fd : index, fs : index, cc : cond_code)
 op MOVF_fmt = MOVF_S | MOVF_D
 
 op MOVN_S (fd : index, fs : index, rt : REG_IND_ZERO)
-    syntax = format("MOVN_S %d,%d,%s", fd, fs, rt.syntax)
+    syntax = format("MOVN_S %d, %d,%s", fd, fs, rt.syntax)
     image  = format("01000110000%s%5b%5b010011", rt.image, fs, fd) 
     action = {
         if (rt != 0) then
@@ -2046,7 +2039,7 @@ op BC1F (cc : cond_code, offset : IMM16)
     }
 
 op BC1T (cc : cond_code, offset : IMM16)
-    syntax = format("BC1T %d, %s", cc ,offset.syntax)	   
+    syntax = format("BC1T %d, %s", cc,offset.syntax)	   
     image  = format("01000101000%3b01%s", cc, offset.image)
     action = {
         if (FCCR<cc..cc> == 1) then
@@ -2115,7 +2108,7 @@ op CEIL_W_D (fd : index, fs : index)
 op CEIL_W_fmt = CEIL_W_S | CEIL_W_D
 
 op CVT_D_S (fd : index, fs : index)
-    syntax = format("CVT_D_S %d,%d", fd, fs)
+    syntax = format("CVT_D_S %d, %d", fd, fs)
     image  = format("0100011000000000%5b%5b100001", fs, fd)
     action = {
         TMP_FLOT = FPR[fs];
@@ -2146,7 +2139,7 @@ op CVT_D_fmt = CVT_D_S | CVT_D_D | CVT_D_W
 
 op CVT_L_S (fd : index, fs : index)
     syntax = format("CVT_L_S %d, %d", fd, fs)
-    image  = format("0100011000000000%5b%5b100101", fs , fd)
+    image  = format("0100011000000000%5b%5b100101", fs, fd)
     action = {
         //FPR[fd] = FPR[fs]; 
 
@@ -2166,8 +2159,8 @@ op CVT_L_D (fd : index, fs : index)
 op CVT_L_fmt = CVT_L_S | CVT_L_D
 
 op CVT_S_S (fd : index, fs : index)
-    syntax = format ("CVT_S_S %d, %d", fd, fs)
-    image  = format ("0100011000000000%5b%5b100000", fs, fd)
+    syntax = format("CVT_S_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b100000", fs, fd)
     action = {
         FPR[fd] = FPR[fs]; 
     }
@@ -2595,7 +2588,7 @@ op C_NGE_D (ft : index, fs : index, cc : cond_code)
         TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
         TMP_FLOT<31..0>   = FPR[fs]<31..0>;
         TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
-        TMP2_FLOT<31..0>  = FPR[ft]<31..0> ;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
 
         if (TMP_FLOT < TMP2_FLOT) then
             FCCR<cc..cc> = 1; 
@@ -2605,56 +2598,56 @@ op C_NGE_D (ft : index, fs : index, cc : cond_code)
     }
 
 op C_LE_S (ft : index, fs : index, cc : cond_code)
-    syntax = format("C_LE_S  %d,%d,%d", cc, fs , ft)
-    image  = format("01000110000%5b%5b%3b00111110", ft ,fs ,cc) 
+    syntax = format("C_LE_S %d, %d, %d", cc, fs, ft)
+    image  = format("01000110000%5b%5b%3b00111110", ft, fs,cc) 
     action = {
-        if ( FPR [ fs ] <= FPR [ ft ]) then
-            FCCR < cc .. cc > = 1 ; 
+        if (FPR[fs] <= FPR[ft]) then
+            FCCR<cc..cc> = 1; 
         else
-            FCCR < cc .. cc > = 0 ; 
+            FCCR<cc..cc> = 0; 
         endif;
     }
 
-op C_LE_D ( ft : index , fs : index , cc : cond_code  )
-    syntax = format("C_LE_D  %d,%d,%d", cc, fs , ft)
-    image  = format("01000110001%5b%5b%3b00111110", ft ,fs ,cc) 
+op C_LE_D (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_LE_D %d, %d, %d", cc, fs, ft)
+    image  = format("01000110001%5b%5b%3b00111110", ft, fs, cc) 
     action = {
-        TMP_FLOT < 63 .. 32 > = FPR [ fs + 1 ]< 31 .. 0 >      ;
-        TMP_FLOT < 31 .. 0 > = FPR [ fs ]< 31 .. 0 > ;
-        TMP2_FLOT < 63 .. 32 > = FPR [ ft + 1 ]< 31 .. 0 >      ;
-        TMP2_FLOT < 31 .. 0 > = FPR [ ft ]< 31 .. 0 > ;
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
 
-        if ( TMP_FLOT <= TMP2_FLOT) then
-            FCCR < cc .. cc > = 1 ; 
+        if (TMP_FLOT <= TMP2_FLOT) then
+            FCCR<cc..cc> = 1; 
         else
-            FCCR < cc .. cc > = 0 ; 
+            FCCR<cc..cc> = 0; 
         endif;
     }
 
-op C_NGT_S ( ft : index , fs : index , cc : cond_code  )
-    syntax = format("C_NGT_S  %d,%d,%d", cc, fs , ft)
-    image  = format("01000110000%5b%5b%3b00111111", ft ,fs ,cc) 
+op C_NGT_S (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_NGT_S %d, %d, %d", cc, fs, ft)
+    image  = format("01000110000%5b%5b%3b00111111", ft, fs, cc) 
     action = {
-        if ( FPR [ fs ] <= FPR [ ft ]) then
-            FCCR < cc .. cc > = 1 ; 
+        if (FPR[fs] <= FPR[ft]) then
+            FCCR<cc..cc> = 1; 
         else
-            FCCR < cc .. cc > = 0 ; 
+            FCCR<cc..cc> = 0; 
         endif;
     }
 
-op C_NGT_D ( ft : index , fs : index , cc : cond_code  )
-    syntax = format("C_NGT_D  %d,%d,%d", cc, fs , ft)
-    image  = format("01000110001%5b%5b%3b00111111", ft ,fs ,cc) 
+op C_NGT_D (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_NGT_D %d, %d, %d", cc, fs, ft)
+    image  = format("01000110001%5b%5b%3b00111111", ft, fs, cc) 
     action = {
-        TMP_FLOT < 63 .. 32 > = FPR [ fs + 1 ]< 31 .. 0 >      ;
-        TMP_FLOT < 31 .. 0 > = FPR [ fs ]< 31 .. 0 > ;
-        TMP2_FLOT < 63 .. 32 > = FPR [ ft + 1 ]< 31 .. 0 >      ;
-        TMP2_FLOT < 31 .. 0 > = FPR [ ft ]< 31 .. 0 > ;
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
 
-        if ( TMP_FLOT <= TMP2_FLOT) then
-            FCCR < cc .. cc > = 1 ; 
+        if (TMP_FLOT <= TMP2_FLOT) then
+            FCCR<cc..cc> = 1;
         else
-            FCCR < cc .. cc > = 0 ; 
+            FCCR<cc..cc> = 0;
         endif;
     }
 
