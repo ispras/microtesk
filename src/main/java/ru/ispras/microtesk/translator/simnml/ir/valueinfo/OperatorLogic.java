@@ -110,7 +110,7 @@ enum OperatorLogic
          }
     ),
 
-    EQ (Operator.EQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL), Boolean.class,
+    EQ (Operator.EQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT, TypeId.BOOL), Boolean.class,
 
          new BinaryAction(Integer.class)
          {

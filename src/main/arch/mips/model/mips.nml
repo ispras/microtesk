@@ -2334,7 +2334,88 @@ op float_convert = CEIL_L_fmt
                  | TRUNC_L_fmt
                  | TRUNC_W_fmt
 
-op float_compare()
+op C_EQ_S (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_EQ_S %d, %d, %d", cc, fs, ft)
+    image  = format("01000110000%5b%5b%3b00110010", ft, fs, cc) 
+    action = {
+        if (FPR[fs] == FPR[ft]) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+		endif;
+    }
+
+op C_EQ_D (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_EQ_D %d, %d, %d", cc, fs, ft)
+    image  = format("01000110001%5b%5b%3b00110010", ft, fs, cc) 
+    action = {
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        if (TMP_FLOT == TMP2_FLOT) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+		endif;
+    }
+
+op C_UEQ_S (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_UEQ_S %d, %d, %d", cc, fs, ft)
+    image  = format("01000110000%5b%5b%3b00110011", ft, fs, cc) 
+    action = {
+        if (FPR[fs] == FPR[ft]) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+        endif;
+    }
+
+op C_UEQ_D (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_UEQ_D %d, %d, %d", cc, fs, ft)
+    image  = format("01000110001%5b%5b%3b00110011", ft, fs, cc) 
+    action = {
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        if (TMP_FLOT == TMP2_FLOT) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+        endif;
+    }
+
+op C_cond_fmt = C_EQ_S
+              | C_EQ_D
+              | C_UEQ_S
+              | C_UEQ_D
+/*
+              | C_OLT_S
+              | C_OLT_D
+              | C_ULT_S
+              | C_ULT_D
+              | C_OLE_S
+              | C_OLE_D	
+              | C_ULE_S
+              | C_ULE_D
+              | C_SEQ_S	
+              | C_SEQ_D
+              | C_NGL_S	
+              | C_NGL_D
+              | C_LT_S	
+              | C_LT_D
+              | C_NGE_S	
+              | C_NGE_D
+              | C_LE_S	
+              | C_LE_D
+              | C_NGT_S	
+              | C_NGT_D
+*/
+
+op float_compare = C_cond_fmt
 
 op CFC1 (rt : REG_IND, ft : REG_IND)
     syntax = format("CFC1 %s, %s", rt.syntax, ft.syntax)
