@@ -1573,8 +1573,10 @@ op	special_instr   =  NOP
                     |  TEQ
 
 /********************************************************************************************/
-/* Floating-Point Instructions                                                              */ 
+/* Floating Point Instructions                                                              */ 
 /********************************************************************************************/
+
+/////////////////////// Arithmetic Instructions (Floating Point) /////////////////////////////
 
 op ADD_S (fd : index, fs : index, ft : index)
     syntax = format("ADD_S %d, %d, %d", fd, fs, ft)
@@ -1901,6 +1903,8 @@ op float_arithmetic = ADD_fmt
 //                  | RSQRT_fmt // TODO: NOT IMPLEMENTED
 //                  | SQRT_fmt  // TODO: NOT IMPLEMENTED
 
+/////////////////////////// Move Instructions (Floating Point) ///////////////////////////////
+
 op MOV_S (fd : index, fs : index)
     syntax = format("MOV_S %d, %d", fd, fs)
     image  = format("0100011000000000%5b%5b000110", fs, fd) 
@@ -2025,6 +2029,8 @@ op float_move = MOV_fmt
               | MOVN_fmt
               | MOVT_fmt
               | MOVZ_fmt
+              
+//////////////////////// Branching Instructions (Floating Point) /////////////////////////////
 
 op BC1F (cc : cond_code, offset : IMM16)
     syntax = format("BC1F %d, %s", cc, offset.syntax)	   
@@ -2051,6 +2057,8 @@ op BC1T (cc : cond_code, offset : IMM16)
     }
 
 op float_branch	= BC1F | BC1T
+
+/////////////////////// Conversion Instructions (Floating Point) /////////////////////////////
 
 op CEIL_L_S (fd : index, fs : index)
     syntax = format("CEIL_L_S %d, %d", fd, fs)
@@ -2326,6 +2334,8 @@ op float_convert = CEIL_L_fmt
                  | ROUND_L_fmt
                  | TRUNC_L_fmt
                  | TRUNC_W_fmt
+
+/////////////////////// Comparison Instructions (Floating Point) /////////////////////////////
 
 op C_EQ_S (ft : index, fs : index, cc : cond_code)
     syntax = format("C_EQ_S %d, %d, %d", cc, fs, ft)
@@ -2678,6 +2688,8 @@ op C_cond_fmt = C_EQ_S
 
 op float_compare = C_cond_fmt
 
+/////////////////////// Other Instructions (Floating Point) //////////////////////////////////
+
 op CFC1 (rt : REG_IND, ft : REG_IND)
     syntax = format("CFC1 %s, %s", rt.syntax, ft.syntax)
     image = format("01000100010%s%s00000000000", ft.image, rt.image)
@@ -2704,11 +2716,11 @@ op float_instr = float_arithmetic
 
 // Instructions
 
-op instr_kind    =  non_branch_instr
-                 |  branch_instr
-                 |  special_instr
-                 |  float_instr 
-              // |  dummy_instr
+op instr_kind = non_branch_instr
+              | branch_instr
+              | special_instr
+              | float_instr 
+//            | dummy_instr
 
 op instruction (x : instr_kind)
     syntax = x.syntax
@@ -2717,7 +2729,7 @@ op instruction (x : instr_kind)
         CIA = NIA;
 
         // if condition to execute next instruction before jumping to the address.
-        if  branch == 0 then
+        if branch == 0 then
             NIA = NIA + 4;
         else
             NIA = JMPADDR;
