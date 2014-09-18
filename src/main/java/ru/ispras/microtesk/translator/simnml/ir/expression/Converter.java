@@ -14,7 +14,9 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
@@ -182,8 +184,12 @@ final class Converter
     {
         final TypeId typeId = type.getTypeId();
 
-        if ((typeId != TypeId.INT) && (typeId != TypeId.CARD))
-            throw new IllegalArgumentException(String.format(ERR_UNSUPPORTED_TYPE, typeId));
+        final Set<TypeId> supportedTypes =
+            EnumSet.of(TypeId.INT, TypeId.CARD, TypeId.FLOAT);
+
+        if (!supportedTypes.contains(typeId))
+            throw new IllegalArgumentException(
+                String.format(ERR_UNSUPPORTED_TYPE, typeId));
 
         final int bitSize = type.getBitSize();
         return DataType.BIT_VECTOR(bitSize);

@@ -1910,7 +1910,7 @@ op float_arithmetic = ADD_fmt
 
 op float_arithmetic()
 
-/*
+
 op MOV_S (fd : index, fs : index)
     syntax = format("MOV_S %d,%d", fd, fs)
     image  = format("0100011000000000%5b%5b000110", fs, fd) 
@@ -1945,7 +1945,7 @@ op MFC1 (rt : REG_IND, fs : index)
     }
 
 op MOVF_S (fd : index, fs : index, cc : cond_code)
-    syntax = format("MOVF_S %d, %d", fd, fs, cc)
+    syntax = format("MOVF_S %d, %d, %d", fd, fs, cc)
     image  = format("01000110000%3b00%5b%5b010001", cc, fs, fd) 
     action = {
         if (FCCR<cc..cc> == 0) then
@@ -2035,9 +2035,7 @@ op float_move = MOV_fmt
               | MOVN_fmt
               | MOVT_fmt
               | MOVZ_fmt
-*/
 
-op float_move()
 op float_branch()
 op float_convert()
 op float_compare()
