@@ -2214,19 +2214,125 @@ op CVT_W_D (fd : index, fs : index)
 
 op CVT_W_fmt = CVT_W_S | CVT_W_D
 
+op FLOOR_W_S (fd : index, fs : index)
+    syntax = format("FLOOR_W_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b001011", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs]; 
+    }
+
+op FLOOR_W_D (fd : index, fs : index)
+    syntax = format("FLOOR_W_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b001011", fs, fd)
+    action = {
+        //FPR[fd] = FPR[fs]; 
+        TMP_FLOT<63..32> = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>  = FPR[fs]<31..0>;
+        FPR[fd] = TMP_FLOT;
+    }
+
+op FLOOR_W_fmt = FLOOR_W_S | FLOOR_W_D
+
+/*
+op ROUND_W_S (fd : index, fs : index)
+    syntax = format("ROUND_W_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b001100", fs, fd)
+    action = {
+        tmp_unsigned_word = FPR[fs];
+        TMP2_FLOT = tmp_unsigned_word;
+        TMP_FLOT = FPR[fs] - TMP2_FLOT; 
+        
+        if TMP_FLOT > 0.5 then
+            tmp_unsigned_word = tmp_unsigned_word + 1;
+        endif;
+
+        FPR[fd]<31..0> = tmp_unsigned_word<31..0>;
+    }
+
+op ROUND_W_D (fd : index, fs : index)
+     syntax = format("ROUND_W_D %d, %d", fd, fs)
+     image  = format("0100011000100000%5b%5b001100", fs, fd)
+     action = {
+        TMP_FLOT<63..32> = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>  = FPR[fs]<31..0>;
+        tmp_unsigned_word = TMP_FLOT;
+        TMP2_FLOT = tmp_unsigned_word; 
+        TMP_FLOT  = TMP_FLOT - TMP2_FLOT;
+
+        if TMP_FLOT > 0.5 then
+            tmp_unsigned_word = tmp_unsigned_word + 1;
+        endif;
+
+        FPR[fd]<31..0> = tmp_unsigned_word<31..0>;
+    }
+
+op ROUND_W_fmt = ROUND_W_S | ROUND_W_D
+*/
+		
+op ROUND_L_S (fd : index, fs : index)
+    syntax = format("ROUND_L_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b001000", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs];
+    }
+
+op ROUND_L_D (fd : index, fs : index)
+    syntax = format("ROUND_L_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b001000", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs];
+        FPR[fd + 1] = FPR[fs + 1]; 
+    }
+
+op ROUND_L_fmt = ROUND_L_S | ROUND_L_D		
+	
+op TRUNC_W_S (fd : index, fs : index)
+    syntax = format("TRUNC_W_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b001101", fs, fd)
+    action = {
+        tmp_unsigned_word = FPR[fs]; 
+        FPR[fd]<31..0> = tmp_unsigned_word<31..0>;
+    }
+
+op TRUNC_W_D (fd : index, fs : index)
+    syntax = format("TRUNC_W_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b001101", fs, fd)
+    action = {
+        TMP_FLOT<63..32> = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>  = FPR[fs]<31..0>;
+        tmp_unsigned_word = TMP_FLOT;
+        FPR[fd]<31..0> = tmp_unsigned_word<31..0>; 
+    }
+
+op TRUNC_W_fmt = TRUNC_W_S | TRUNC_W_D
+
+op TRUNC_L_S (fd : index, fs : index)
+    syntax = format("TRUNC_L_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b001001", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs]; 
+    }
+
+op TRUNC_L_D (fd : index, fs : index)
+    syntax = format("TRUNC_L_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b001001", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs]; 
+    }
+
+op TRUNC_L_fmt = TRUNC_L_S | TRUNC_L_D
+
 op float_convert = CEIL_L_fmt
                  | CEIL_W_fmt
                  | CVT_D_fmt
                  | CVT_L_fmt
                  | CVT_S_fmt
                  | CVT_W_fmt
-/*
-                 | FLOOR_W_fmt // TODO
-                 | ROUND_W_fmt // TODO
-                 | ROUND_L_fmt // TODO
-                 | TRUNC_L_fmt // TODO
-                 | TRUNC_W_fmt // TODO
-*/
+                 | FLOOR_W_fmt
+//               | ROUND_W_fmt // TODO: DOESN'T WORK. FLOAT CONSTANTS NOT SUPPORTED.
+                 | ROUND_L_fmt
+                 | TRUNC_L_fmt
+                 | TRUNC_W_fmt
 
 op float_compare()
 
