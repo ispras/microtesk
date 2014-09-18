@@ -2495,6 +2495,174 @@ op C_ULE_D (ft : index, fs : index, cc : cond_code)
             FCCR<cc..cc> = 0; 
         endif;
     }
+    
+op C_SEQ_S (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_SEQ_S %d, %d, %d", cc, fs, ft)
+    image  = format("01000110000%5b%5b%3b00111010", ft, fs, cc) 
+    action = {
+        if (FPR[fs] == FPR[ft]) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+        endif;
+    }
+
+op C_SEQ_D (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_SEQ_D %d, %d, %d", cc, fs, ft)
+    image  = format("01000110001%5b%5b%3b00111010", ft, fs, cc) 
+    action = {
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        if (TMP_FLOT == TMP2_FLOT) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+        endif;
+    }
+
+op C_NGL_S (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_NGL_S %d, %d, %d", cc, fs, ft)
+    image  = format("01000110000%5b%5b%3b00111011", ft, fs, cc) 
+    action = {
+        if (FPR[fs] == FPR[ft]) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+        endif;
+    }
+
+op C_NGL_D (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_NGL_D %d, %d, %d", cc, fs, ft)
+    image  = format("01000110001%5b%5b%3b00111011", ft, fs, cc) 
+    action = {
+        TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
+        TMP_FLOT<31..0>   = FPR[fs]<31..0>;
+        TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
+        TMP2_FLOT<31..0>  = FPR[ft]<31..0>;
+
+        if (TMP_FLOT == TMP2_FLOT) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+        endif;
+    }
+
+op C_LT_S (ft : index, fs : index, cc : cond_code)
+    syntax = format("C_LT_S %d, %d, %d", cc, fs, ft)
+    image  = format("01000110000%5b%5b%3b00111100", ft, fs, cc) 
+    action = {
+        if (FPR[fs] < FPR[ft]) then
+            FCCR<cc..cc> = 1; 
+        else
+            FCCR<cc..cc> = 0; 
+        endif;
+    }
+
+op C_LT_D (ft : index, fs : index, cc : cond_code)
+    syntax = format ( "C_LT_D  %d,%d,%d", cc, fs , ft )
+    image  = format ( "01000110001%5b%5b%3b00111100", ft ,fs ,cc ) 
+    action = {
+		
+			TMP_FLOT < 63 .. 32 > = FPR [ fs + 1 ]< 31 .. 0 >      ;
+			TMP_FLOT < 31 .. 0 > = FPR [ fs ]< 31 .. 0 > ;
+			TMP2_FLOT < 63 .. 32 > = FPR [ ft + 1 ]< 31 .. 0 >      ;
+			TMP2_FLOT < 31 .. 0 > = FPR [ ft ]< 31 .. 0 > ;
+		if ( TMP_FLOT < TMP2_FLOT ) then
+			FCCR < cc .. cc > = 1 ; 
+		else
+			FCCR < cc .. cc > = 0 ; 
+		endif;
+             }
+
+op C_NGE_S ( ft : index , fs : index , cc : cond_code   )
+    syntax = format ( "C_NGE_S  %d,%d,%d", cc, fs , ft )
+    image  = format ( "01000110000%5b%5b%3b00111101", ft ,fs ,cc ) 
+    action = {
+		
+		if ( FPR [ fs ] < FPR [ ft ] ) then
+			FCCR < cc .. cc > = 1 ; 
+		else
+			FCCR < cc .. cc > = 0 ; 
+		endif;
+             }
+
+op C_NGE_D ( ft : index , fs : index , cc : cond_code   )
+    syntax = format ( "C_NGE_D  %d,%d,%d", cc, fs , ft )
+    image  = format ( "01000110001%5b%5b%3b00111101", ft ,fs ,cc ) 
+    action = {
+		
+			TMP_FLOT < 63 .. 32 > = FPR [ fs + 1 ]< 31 .. 0 >      ;
+			TMP_FLOT < 31 .. 0 > = FPR [ fs ]< 31 .. 0 > ;
+			TMP2_FLOT < 63 .. 32 > = FPR [ ft + 1 ]< 31 .. 0 >      ;
+			TMP2_FLOT < 31 .. 0 > = FPR [ ft ]< 31 .. 0 > ;
+
+		if ( TMP_FLOT < TMP2_FLOT ) then
+			FCCR < cc .. cc > = 1 ; 
+		else
+			FCCR < cc .. cc > = 0 ; 
+		endif;
+             }
+
+op C_LE_S ( ft : index , fs : index , cc : cond_code   )
+    syntax = format ( "C_LE_S  %d,%d,%d", cc, fs , ft )
+    image  = format ( "01000110000%5b%5b%3b00111110", ft ,fs ,cc ) 
+    action = {
+		
+		if ( FPR [ fs ] <= FPR [ ft ] ) then
+			FCCR < cc .. cc > = 1 ; 
+		else
+			FCCR < cc .. cc > = 0 ; 
+		endif;
+             }
+
+op C_LE_D ( ft : index , fs : index , cc : cond_code   )
+    syntax = format ( "C_LE_D  %d,%d,%d", cc, fs , ft )
+    image  = format ( "01000110001%5b%5b%3b00111110", ft ,fs ,cc ) 
+    action = {
+		
+			TMP_FLOT < 63 .. 32 > = FPR [ fs + 1 ]< 31 .. 0 >      ;
+			TMP_FLOT < 31 .. 0 > = FPR [ fs ]< 31 .. 0 > ;
+			TMP2_FLOT < 63 .. 32 > = FPR [ ft + 1 ]< 31 .. 0 >      ;
+			TMP2_FLOT < 31 .. 0 > = FPR [ ft ]< 31 .. 0 > ;
+
+		if ( TMP_FLOT <= TMP2_FLOT ) then
+			FCCR < cc .. cc > = 1 ; 
+		else
+			FCCR < cc .. cc > = 0 ; 
+		endif;
+             }
+
+op C_NGT_S ( ft : index , fs : index , cc : cond_code   )
+    syntax = format ( "C_NGT_S  %d,%d,%d", cc, fs , ft )
+    image  = format ( "01000110000%5b%5b%3b00111111", ft ,fs ,cc ) 
+    action = {
+		
+		if ( FPR [ fs ] <= FPR [ ft ] ) then
+			FCCR < cc .. cc > = 1 ; 
+		else
+			FCCR < cc .. cc > = 0 ; 
+		endif;
+             }
+
+op C_NGT_D ( ft : index , fs : index , cc : cond_code   )
+    syntax = format ( "C_NGT_D  %d,%d,%d", cc, fs , ft )
+    image  = format ( "01000110001%5b%5b%3b00111111", ft ,fs ,cc ) 
+    action = {
+		
+			TMP_FLOT < 63 .. 32 > = FPR [ fs + 1 ]< 31 .. 0 >      ;
+			TMP_FLOT < 31 .. 0 > = FPR [ fs ]< 31 .. 0 > ;
+			TMP2_FLOT < 63 .. 32 > = FPR [ ft + 1 ]< 31 .. 0 >      ;
+			TMP2_FLOT < 31 .. 0 > = FPR [ ft ]< 31 .. 0 > ;
+
+		if ( TMP_FLOT <= TMP2_FLOT ) then
+			FCCR < cc .. cc > = 1 ; 
+		else
+			FCCR < cc .. cc > = 0 ; 
+		endif;
+             }
 
 op C_cond_fmt = C_EQ_S
               | C_EQ_D
@@ -2508,7 +2676,6 @@ op C_cond_fmt = C_EQ_S
               | C_OLE_D
               | C_ULE_S
               | C_ULE_D
-/*
               | C_SEQ_S	
               | C_SEQ_D
               | C_NGL_S	
@@ -2521,7 +2688,6 @@ op C_cond_fmt = C_EQ_S
               | C_LE_D
               | C_NGT_S	
               | C_NGT_D
-*/
 
 op float_compare = C_cond_fmt
 
