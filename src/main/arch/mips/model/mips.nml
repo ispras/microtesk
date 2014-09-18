@@ -86,9 +86,9 @@ mem tmp_unsigned_half_word [ 1 , card (16) ]
 mem tmp_signed_word [ 1 , int (32) ]
 mem tmp_unsigned_word [ 1 , card (32) ]
 mem tmp_double_word  [ 1 , card (64) ]
-// mem TMP_FLOT [ 1 , flot ]   // NOT SUPPORTED IN THE CURRENT VERSION
-// mem TMP_FLOTS [ 1, flots ]  // NOT SUPPORTED IN THE CURRENT VERSION
-// mem TMP2_FLOT [ 1 , flot ]  // NOT SUPPORTED IN THE CURRENT VERSION
+mem TMP_FLOT [ 1 , flot ]
+mem TMP_FLOTS [ 1, flots ]
+mem TMP2_FLOT [ 1 , flot ]
 mem TMP_SDWORD [ 1 , int ( 64 ) ]
 mem overflow_bit [ 1 , bit ]
 
@@ -1583,7 +1583,6 @@ op	special_instr   =  NOP
 /* Floating-Point Instructions                                                              */ 
 /********************************************************************************************/
 
-/*
 op ADD_S (fd : index, fs : index, ft : index)
     syntax = format("ADD_S %d, %d, %d", fd, fs, ft)
     image  = format("01000110000%5b%5b%5b000000", ft, fs, fd)
@@ -1833,6 +1832,7 @@ op NMSUB_D (fd : index, fr : index, fs : index, ft : index)
 
 op NMSUB_fmt = NMSUB_S | NMSUB_D
 
+/*
 op RECIP_S (fd : index, fs : index)
     syntax = format("RECIP_S %d, %d", fd, fs)
     image  = format("0100011000000000%5b%5b010101", fs, fd)
@@ -1856,6 +1856,7 @@ op RECIP_D (fd : index, fs : index )
     }
 
 op RECIP_fmt = RECIP_S | RECIP_D
+*/
 
 op ABS_S (fd : index, fs : index)
     syntax = format("ABS_S %d, %d", fd, fs)
@@ -1902,14 +1903,10 @@ op float_arithmetic = ADD_fmt
                     | NEG_fmt
                     | NMADD_fmt
                     | NMSUB_fmt
-                    | RECIP_fmt
+//                  | RECIP_fmt // TODO: DOESN'T WORK. FLOAT CONSTANTS NOT SUPPORTED.
                     | ABS_fmt 
-//                  | RSQRT_fmt // NOT IMPLEMENTED
-//                  | SQRT_fmt  // NOT IMPLEMENTED
-*/
-
-op float_arithmetic()
-
+//                  | RSQRT_fmt // TODO: NOT IMPLEMENTED
+//                  | SQRT_fmt  // TODO: NOT IMPLEMENTED
 
 op MOV_S (fd : index, fs : index)
     syntax = format("MOV_S %d,%d", fd, fs)
@@ -2041,12 +2038,12 @@ op float_convert()
 op float_compare()
 
 op CFC1 (rt : REG_IND, ft : REG_IND)
-    syntax = format("CFC1 %s,%s", rt.syntax, ft.syntax)
+    syntax = format("CFC1 %s, %s", rt.syntax, ft.syntax)
     image = format("01000100010%s%s00000000000", ft.image, rt.image)
     action = {}
 
 op CTC1 (rt : REG_IND, ft : REG_IND)
-    syntax = format("CFC1 %s,%s", rt.syntax, ft.syntax )
+    syntax = format("CFC1 %s, %s", rt.syntax, ft.syntax)
     image = format("01000100110%s%s00000000000", ft.image, rt.image)
     action = {}
 

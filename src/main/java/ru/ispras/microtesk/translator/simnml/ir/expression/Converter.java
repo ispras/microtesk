@@ -88,7 +88,7 @@ final class Converter
         result.put(Operator.POW,      new OperatorInfo(StandardOperation.POWER,      null));
 
         result.put(Operator.UPLUS,    new OperatorInfo(StandardOperation.PLUS,       null));
-        result.put(Operator.UMINUS,   new OperatorInfo(StandardOperation.MINUS,      null));
+        result.put(Operator.UMINUS,   new OperatorInfo(StandardOperation.MINUS,      StandardOperation.BVNEG));
         result.put(Operator.BIT_NOT,  new OperatorInfo(null,                         StandardOperation.BVNOT));
         result.put(Operator.NOT,      new OperatorInfo(StandardOperation.NOT,        null));
         
@@ -139,12 +139,14 @@ final class Converter
         final OperatorInfo oi = operators.get(operator);
 
         if (null == oi)
-            throw new IllegalArgumentException(String.format(ERR_UNSUPPORTED_OP, operator));
+            throw new IllegalArgumentException(
+                String.format(ERR_UNSUPPORTED_OP, operator));
 
         final Enum<?> result = valueInfo.isModel() ? oi.getModel() : oi.getNative();
 
         if (null == result)
-            throw new IllegalArgumentException(String.format(ERR_UNSUPPORTED_FOR, operator, valueInfo.getTypeName()));
+            throw new IllegalArgumentException(
+                String.format(ERR_UNSUPPORTED_FOR, operator, valueInfo.getTypeName()));
 
         return result;
     }

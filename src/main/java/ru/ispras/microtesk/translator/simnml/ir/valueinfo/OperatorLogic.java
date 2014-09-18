@@ -260,7 +260,7 @@ enum OperatorLogic
         }
     ),
 
-    PLUS (Operator.PLUS, Arrays.asList(TypeId.CARD, TypeId.INT),
+    PLUS (Operator.PLUS, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
 
         new BinaryAction(Integer.class)
         {
@@ -275,7 +275,7 @@ enum OperatorLogic
         }
     ),
 
-    MINUS (Operator.MINUS, Arrays.asList(TypeId.CARD, TypeId.INT),
+    MINUS (Operator.MINUS, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
 
         new BinaryAction(Integer.class)
         {
@@ -290,7 +290,7 @@ enum OperatorLogic
         }
     ),
 
-    MUL (Operator.MUL, Arrays.asList(TypeId.CARD, TypeId.INT),
+    MUL (Operator.MUL, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
 
         new BinaryAction(Integer.class)
         {
@@ -305,7 +305,7 @@ enum OperatorLogic
         }
     ),
 
-    DIV (Operator.DIV, Arrays.asList(TypeId.CARD, TypeId.INT),
+    DIV (Operator.DIV, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
 
         new BinaryAction(Integer.class)
         {
@@ -350,7 +350,7 @@ enum OperatorLogic
         }
     ),
 
-    UPLUS (Operator.UPLUS, Arrays.asList(TypeId.CARD, TypeId.INT),
+    UPLUS (Operator.UPLUS, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
 
         new UnaryAction(Integer.class)
         {
@@ -363,7 +363,7 @@ enum OperatorLogic
         }
     ),
            
-    UMINUS (Operator.UMINUS, Arrays.asList(TypeId.CARD, TypeId.INT),
+    UMINUS (Operator.UMINUS, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
 
         new UnaryAction(Integer.class)
         {
