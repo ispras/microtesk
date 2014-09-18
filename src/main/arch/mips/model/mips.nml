@@ -1632,7 +1632,7 @@ op MUL_S (fd : index, fs : index, ft : index)
     syntax = format("MUL_S %d, %d, %d", fd, fs, ft)
     image  = format("01000110000%5b%5b%5b000010", ft, fs, fd)
     action = {
-        FPR[fd] = FPR[fs] * FPR [ft];
+        FPR[fd] = FPR[fs] * FPR[ft];
     }
 
 op MUL_D (fd : index, fs : index, ft : index)
@@ -1775,7 +1775,7 @@ op NMADD_D (fd : index, fr : index, fs : index, ft : index)
     syntax = format("NMADD_D %d, %d, %d, %d", fd, fr, fs, ft)
     image  = format("010011%5b%5b%5b%5b110001", fr, ft, fs, fd)
     action = {
-        //FPR [fd] = -((FPR[fs] * FPR[ft]) + FPR[fr]);
+        //FPR[fd] = -((FPR[fs] * FPR[ft]) + FPR[fr]);
         TMP_FLOT<63..32>  = FPR[fs + 1]<31..0>;
         TMP_FLOT<31..0>   = FPR[fs]<31..0>;
         TMP2_FLOT<63..32> = FPR[ft + 1]<31..0>;
@@ -1837,7 +1837,7 @@ op RECIP_D (fd : index, fs : index)
     syntax = format("RECIP_D %d, %d", fd, fs)
     image  = format("0100011000100000%5b%5b010101", fs, fd)
     action = {
-        //FPR[fd] = 1.0 / FPR [fs];
+        //FPR[fd] = 1.0 / FPR[fs];
 
         TMP2_FLOT<63..32> = FPR[fs + 1]<31..0>;
         TMP2_FLOT<31..0>  = FPR[fs]<31..0>;
