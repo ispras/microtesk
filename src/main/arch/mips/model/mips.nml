@@ -2144,11 +2144,32 @@ op CVT_D_W (fd : index, fs : index)
 
 op CVT_D_fmt = CVT_D_S | CVT_D_D | CVT_D_W
 
+op CVT_L_S (fd : index, fs : index)
+    syntax = format("CVT_L_S %d, %d", fd, fs)
+    image  = format("0100011000000000%5b%5b100101", fs , fd)
+    action = {
+        //FPR[fd] = FPR[fs]; 
+
+        TMP_FLOT = FPR[fs];
+        FPR[fd + 1]<31..0> = TMP_FLOT<63..32>;
+        FPR[fd]<31..0> = TMP_FLOT<31..0>;
+    }
+
+op CVT_L_D (fd : index, fs : index)
+    syntax = format("CVT_L_D %d, %d", fd, fs)
+    image  = format("0100011000100000%5b%5b100101", fs, fd)
+    action = {
+        FPR[fd] = FPR[fs ];
+        FPR[fd + 1] = FPR[fs + 1]; 
+    }
+
+op CVT_L_fmt = CVT_L_S | CVT_L_D
+
 op float_convert = CEIL_L_fmt
                  | CEIL_W_fmt
                  | CVT_D_fmt
+                 | CVT_L_fmt
 /*
-                 | CVT_L_fmt   // TODO
                  | CVT_S_fmt   // TODO
                  | CVT_W_fmt   // TODO
                  | FLOOR_W_fmt // TODO
