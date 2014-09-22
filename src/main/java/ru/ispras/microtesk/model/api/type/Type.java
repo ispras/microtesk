@@ -24,6 +24,8 @@
 
 package ru.ispras.microtesk.model.api.type;
 
+import java.util.Arrays;
+
 /**
  * The Type class stores information on a type defined in the design
  * specification. This includes type identifier and size of the data in bits.
@@ -40,7 +42,7 @@ package ru.ispras.microtesk.model.api.type;
  * @author Andrei Tatarnikov
  */
 
-public class Type
+public final class Type
 {
     public static Type INT(int bitSize)
         { return new Type(TypeId.INT, bitSize); }
@@ -52,24 +54,33 @@ public class Type
         { return new Type(TypeId.BOOL, bitSize); }
 
     public static Type FLOAT(int fracBitSize, int expBitSize)
-    {
-        // TODO: Need additional fields to store the fraction and the exponent.
-        final int bitSize = fracBitSize + expBitSize;
-        return new Type(TypeId.FLOAT, bitSize);
-    }
+        { return new Type(TypeId.FLOAT, fracBitSize, expBitSize); }
 
     private final TypeId typeId;
+    private final int[] fieldSizes;
     private final int bitSize;
 
-    protected Type(TypeId typeId, int bitSize)
+    private Type(TypeId typeId, int ... fieldSizes)
     {
         if (null == typeId)
             throw new NullPointerException();
 
-        this.typeId  = typeId;
-        this.bitSize = bitSize;
+        if (null == fieldSizes)
+            throw new NullPointerException();
+
+        if (0 == fieldSizes.length)
+            throw new IllegalArgumentException();
+
+        this.typeId = typeId;
+        this.fieldSizes = fieldSizes;
+
+        int totalSize = 0;
+        for (int fieldSize : fieldSizes)
+            totalSize += fieldSize;
+
+        this.bitSize = totalSize;
     }
-    
+
     public Type resize(int newBitSize)
     {
         if (bitSize == newBitSize)
@@ -78,14 +89,27 @@ public class Type
         return new Type(typeId, newBitSize);
     }
 
-    public final TypeId getTypeId()
+    public TypeId getTypeId()
     {
         return typeId;
     }
 
-    public final int getBitSize()
+    public int getBitSize()
     {
         return bitSize;
+    }
+
+    public int getFieldCount()
+    {
+        return fieldSizes.length;
+    }
+
+    public int getFieldSize(int index)
+    {
+        if ((index < 0) || (index >= getFieldCount()))
+            throw new IndexOutOfBoundsException();
+
+        return fieldSizes[index];
     }
 
     @Override
@@ -94,8 +118,8 @@ public class Type
         final int prime = 31;
         int result = 1;
 
-        result = prime * result + bitSize;
         result = prime * result + typeId.hashCode();
+        result = prime * result + Arrays.hashCode(fieldSizes);
 
         return result;
     }
@@ -110,14 +134,26 @@ public class Type
             return false;
 
         final Type other = (Type) obj;
-        return (typeId == other.typeId) &&
-               (bitSize == other.bitSize);
+        if (typeId != other.typeId)
+            return false;
+
+        if (bitSize != other.bitSize)
+            return false;
+
+        return Arrays.equals(fieldSizes, other.fieldSizes);
     }
 
     @Override
     public String toString()
     {
-        return String.format("%s.%s(%d)",
-            getClass().getSimpleName(), typeId, bitSize);
+        final StringBuilder sb = new StringBuilder();
+        for(int fieldSize : fieldSizes)
+        {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(fieldSize);
+        }
+
+        return String.format(
+            "%s.%s(%s)", getClass().getSimpleName(), typeId, sb);
     }
 }
