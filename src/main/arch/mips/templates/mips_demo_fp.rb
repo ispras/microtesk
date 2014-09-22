@@ -30,6 +30,7 @@ require ENV['TEMPLATE']
 # Sample test template that demonstrates working with
 # MIPS floating-point instructions.  
 #
+
 class MipsDemo < Template
 
   def initialize
@@ -38,7 +39,23 @@ class MipsDemo < Template
   end
 
   def run
-    # TODO
+    ADD_S 1, 2, 3
+    SUB_S 3, 4, 5
+
+    ADD_D 1, 2, 3
+    SUB_D 3, 4, 5
+
+    print_all_fprs
+  end
+
+  def fpr(index)
+    location('FPR', index)
+  end
+  
+  def print_all_fprs
+    trace "\nDEBUG: FPR values:"
+    (0..31).each { |i| trace "FPR[%d] = %s", i, fpr(i) }
+    trace ""
   end
 
 end
