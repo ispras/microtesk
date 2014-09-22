@@ -7,7 +7,7 @@
 #
 # All rights reserved.
 #
-# arm_demo_euclid.rb, Apr 15, 2014 2:24:13 PM
+# mips_demo_euclid.rb, Sep 22, 2014 2:45:38 PM Andrei Tatarnikov
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,10 +31,25 @@ require ENV['TEMPLATE']
 # of a test program to predict the resulting state of a microprocessor
 # design under test. The described program calculates the greatest common
 # divisor of two 5-bit random numbers ([1..63]) by using the Euclidean 
-# algorithm.   
+# algorithm.
+#  
+# Here is the Euclidean algorithm in MIPS assempler: 
+#
+# gcd:
+#   beq $a0, $a1, .L2   # if a = b, go to exit
+#   sgt $v0, $a1, $a0   # Is b > a?
+#   bne $v0, $zero, .L1 # Yes, goto .L1
+#   subu $a0, $a0, $a1  # Subtract b from a (b < a)
+#   b gcd               # and repeat
+# .L1:
+#   subu $a1, $a1, $a0  # Subtract a from b (a < b)
+#   b gcd               # and repeat
+# .L2:
+#   move $v0, $a0       # return a
+#   j $ra               # Return to caller
 #
 
-class ArmDemo < Template
+class MipsDemo < Template
 
   def initialize
     super
@@ -42,39 +57,38 @@ class ArmDemo < Template
   end
 
   def run
-    trace "Euclidean Algorithm (ARM): Debug Output"
+    trace "Euclidean Algorithm (MIPS): Debug Output"
 
     i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
     j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
     trace "\nInput parameter values: #{i}, #{j}\n"
 
-    EOR           blank, setsOff, REG(0), REG(0), register0
-    ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, i)
+    addi 4, REG_IND_ZERO(0), IMM16(i)
+    addi 5, REG_IND_ZERO(0), IMM16(j)
 
-    EOR           blank, setsOff, REG(1), REG(1), register1
-    ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
+    trace "\nCurrent register values: $4 = %d, $5 = %d\n", gpr(4), gpr(5)
 
-    trace "\nInitial register values: R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
+    label :cycle
+    beq REG_IND_ZERO(4), REG_IND_ZERO(5), IMM16(:done)
 
-    block {
-      label :cycle
+    slt 2, REG_IND_ZERO(4), REG_IND_ZERO(5)
+    bne REG_IND_ZERO(2), REG_IND_ZERO(0), IMM16(:if_less)
 
-      CMP blank, REG(0), register1
-      SUB greaterThan, setsOff, REG(0), REG(0), register1
-      SUB lessThan,    setsOff, REG(1), REG(1), register0
+    subu 4, REG_IND_ZERO(4), REG_IND_ZERO(5)
+    b IMM16(:cycle)
 
-      trace "\nCurrent register values: R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
+    label :if_less
+    subu 5, REG_IND_ZERO(5), REG_IND_ZERO(4)
+    b IMM16(:cycle)
 
-      B notEqual, :cycle
-    }
+    label :done
+    move 6, REG_IND_ZERO(4)
 
-    MOV blank, setsOff, REG(2), register0
-
-    trace "\nResult stored in R2: %d", getGPR(2)
+    trace "\nResult stored in $6: %d", gpr(6)
   end
 
-  def getGPR(index)
+  def gpr(index)
     location('GPR', index)
   end
 
