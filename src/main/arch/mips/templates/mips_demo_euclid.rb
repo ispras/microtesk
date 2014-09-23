@@ -44,7 +44,7 @@ class MipsDemo < Template
   def run
     trace "Euclidean Algorithm (MIPS): Debug Output"
 
-    i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
+    i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
     j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
     trace "\nInput parameter values: #{i}, #{j}\n"
