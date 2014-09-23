@@ -7,7 +7,7 @@
 #
 # All rights reserved.
 #
-# arm_demo_euclid_loop.rb, Apr 15, 2014 2:24:30 PM
+# mips_demo_euclid_loop.rb, Sep 23, 2014 11:56:44 AM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,13 +30,13 @@ require ENV['TEMPLATE']
 # This test template demonstrates how MicroTESK can simulate the execution
 # of a test program to predict the resulting state of a microprocessor
 # design under test. The described program calculates the greatest common
-# divisor of two 5-bit random numbers ([1..63]) by using the Euclidean
-# algorithm. This template is an extended version of the arm_demo_euclid.rb
+# divisor of two 5-bit random numbers ([1..63]) by using the Euclidean 
+# algorithm. This template is an extended version of the mips_demo_euclid.rb
 # template. It repeats the code of the test program five times to
 # demonstrate the use of loops in test templates.  
 #
 
-class ArmDemo < Template
+class MipsDemo < Template
 
   def initialize
     super
@@ -44,45 +44,45 @@ class ArmDemo < Template
   end
 
   def run
-    trace "Euclidean Algorithm (ARM): Debug Output"
+    trace "Euclidean Algorithm (MIPS): Debug Output"
 
     (1..5).each do |it|
       trace "\n--------------------------------------------------------------------------------"
 
-      i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
+      i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
       j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
       trace "\nInput parameter values (iteration #{it}): #{i}, #{j}\n"
 
-      EOR           blank, setsOff, REG(0), REG(0), register0
-      ADD_IMMEDIATE blank, setsOff, REG(0), REG(0), IMMEDIATE(0, i)
+      addi 4, REG_IND_ZERO(0), IMM16(i)
+      addi 5, REG_IND_ZERO(0), IMM16(j)
 
-      EOR           blank, setsOff, REG(1), REG(1), register1
-      ADD_IMMEDIATE blank, setsOff, REG(1), REG(1), IMMEDIATE(0, j)
+      trace "\nCurrent register values (iteration #{it}): $4 = %d, $5 = %d\n", gpr(4), gpr(5)
 
-      trace "\nInitial register values (iteration #{it}): R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
+      label :"cycle#{it}"
+      beq REG_IND_ZERO(4), REG_IND_ZERO(5), IMM16(:"done#{it}")
 
-      block {
-        label :"cycle#{it}"
+      slt 2, REG_IND_ZERO(4), REG_IND_ZERO(5)
+      bne REG_IND_ZERO(2), REG_IND_ZERO(0), IMM16(:"if_less#{it}")
+      nop
 
-        CMP blank, REG(0), register1
-        SUB greaterThan, setsOff, REG(0), REG(0), register1
-        SUB lessThan,    setsOff, REG(1), REG(1), register0
+      subu 4, REG_IND_ZERO(4), REG_IND_ZERO(5)
+      b IMM16(:"cycle#{it}")
+      nop
 
-        trace "\nCurrent register values (iteration #{it}): R0 = %d, R1 = %d\n", getGPR(0), getGPR(1)
+      label :"if_less#{it}"
+      subu 5, REG_IND_ZERO(5), REG_IND_ZERO(4)
+      b IMM16(:"cycle#{it}")
 
-        B notEqual, :"cycle#{it}"
-      }
+      label :"done#{it}"
+      move 6, REG_IND_ZERO(4)
 
-      MOV blank, setsOff, REG(2), register0
-
-      trace "\nResult stored in R2 (iteration #{it}): %d", getGPR(2)
-      newline
+      trace "\nResult stored in $6 (iteration #{it}): %d", gpr(6)
     end
   end
 
-  def getGPR(index)
-    location('GPR', index) 
+  def gpr(index)
+    location('GPR', index)
   end
 
 end
