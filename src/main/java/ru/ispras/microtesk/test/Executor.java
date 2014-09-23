@@ -49,6 +49,8 @@ public final class Executor
     private final IModelStateObserver observer;
     private final boolean logExecution;
 
+    private List<LabelReference> labelRefs;
+
     /**
      * Constructs an Executor object.
      * 
@@ -67,6 +69,7 @@ public final class Executor
 
         this.observer = observer;
         this.logExecution = logExecution;
+        this.labelRefs = null;
     }
 
     /**
@@ -140,6 +143,10 @@ public final class Executor
         logText(call.getText());
         call.execute();
 
+        // Saves labels to jump in case there is a branch delay slot.
+        if (!call.getLabelReferences().isEmpty())
+            labelRefs = call.getLabelReferences();
+
         // TODO: Support instructions with 2+ labels (needs API)
         final int transferStatus = observer.getControlTransferStatus();
 
@@ -147,8 +154,7 @@ public final class Executor
         if (0 == transferStatus)
             return currentPos + 1;
 
-        final List<LabelReference> labelRefs = call.getLabelReferences();
-        if (labelRefs.isEmpty())
+        if ((null == labelRefs) || labelRefs.isEmpty())
         {
             logText(MSG_NO_LABEL_LINKED);
             return currentPos + 1;
@@ -156,6 +162,9 @@ public final class Executor
 
         final Label referenceLabel = labelRefs.get(0).getReference();
         final LabelManager.Target target = labelManager.resolve(referenceLabel);
+
+        // Resets labels to jump (they are no longer needed after being used).
+        labelRefs = null;
 
         if (null == target)
         {
