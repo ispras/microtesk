@@ -51,7 +51,7 @@ class MipsDemo < Template
   def fpr(index)
     location('FPR', index)
   end
-  
+
   def print_all_fprs
     trace "\nDEBUG: FPR values:"
     (0..31).each { |i| trace "FPR[%d] = %s", i, fpr(i) }

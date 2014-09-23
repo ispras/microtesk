@@ -203,35 +203,28 @@ public final class DataEngine
         BitVectorAlgorithm.copy(value.getRawData(), 0, newRawData, 0, copyBitSize);
         return new Data(newRawData, type);
     }
-    
+
     private static void checkConversionSupported(Type type, String fromName, String toName)
     {
         if (!VALUE_CONVERTERS.containsKey(type.getTypeId()))
-            assert false : String.format(
-                "Unsupported coversion: %s values cannot be converted to %s.", fromName, toName);
+            throw new IllegalArgumentException(String.format(
+                "Unsupported coversion: %s values cannot be converted to %s.",
+                fromName, toName));
     }
-    
+
     private static void checkOperationSupported(EOperatorID oid, Type argType)
     {
         if (!isSupported(oid, argType))
-            assert false : 
-                String.format("The %s operation cannot be performed for an %s(%d) operand.",
-                    oid.name(),
-                    argType.getTypeId().name(),
-                    argType.getBitSize()
-                    );
+            throw new IllegalArgumentException(String.format(
+                "The %s operation cannot be performed for an %s operand.",
+                oid.name(), argType));
     }
-    
+
     private static void checkOperationSupported(EOperatorID oid, Type left, Type right) 
     {
         if (!isSupported(oid, left, right))
-            assert false : 
-                String.format("The %s operation cannot be performed for %s(%d) and %s(%d) operands.",
-                    oid.name(),
-                    left.getTypeId().name(),
-                    left.getBitSize(),
-                    right.getTypeId().name(),
-                    right.getBitSize()
-                    );
+            throw new IllegalArgumentException(String.format(
+                "The %s operation cannot be performed for %s and %s operands.",
+                oid.name(), left, right));
     }
 }
