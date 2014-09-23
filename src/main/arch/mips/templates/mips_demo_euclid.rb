@@ -33,21 +33,6 @@ require ENV['TEMPLATE']
 # divisor of two 5-bit random numbers ([1..63]) by using the Euclidean 
 # algorithm.
 #  
-# Here is the Euclidean algorithm in MIPS assempler: 
-#
-# gcd:
-#   beq $a0, $a1, .L2   # if a = b, go to exit
-#   sgt $v0, $a1, $a0   # Is b > a?
-#   bne $v0, $zero, .L1 # Yes, goto .L1
-#   subu $a0, $a0, $a1  # Subtract b from a (b < a)
-#   b gcd               # and repeat
-# .L1:
-#   subu $a1, $a1, $a0  # Subtract a from b (a < b)
-#   b gcd               # and repeat
-# .L2:
-#   move $v0, $a0       # return a
-#   j $ra               # Return to caller
-#
 
 class MipsDemo < Template
 
@@ -74,9 +59,11 @@ class MipsDemo < Template
 
     slt 2, REG_IND_ZERO(4), REG_IND_ZERO(5)
     bne REG_IND_ZERO(2), REG_IND_ZERO(0), IMM16(:if_less)
+    nop
 
     subu 4, REG_IND_ZERO(4), REG_IND_ZERO(5)
     b IMM16(:cycle)
+    nop
 
     label :if_less
     subu 5, REG_IND_ZERO(5), REG_IND_ZERO(4)
