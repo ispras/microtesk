@@ -43,14 +43,14 @@ public final class FloatX
 
         if (exponentSize <= 0)
             throw new IllegalArgumentException();
-        
+
         if (fractionSize <= 0)
             throw new IllegalArgumentException();
-        
+
         if (data.getBitSize() != exponentSize + fractionSize)
             throw new IllegalArgumentException();
 
-        this.data = data;
+        this.data = BitVector.unmodifiable(data);
         this.exponentSize = exponentSize;
     }
 
@@ -67,8 +67,8 @@ public final class FloatX
     {
         this(
            BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
-           Float.SIZE - FloatConsts.SIGNIFICAND_WIDTH,
-           FloatConsts.SIGNIFICAND_WIDTH
+           Float.SIZE - FloatConsts.SIGNIFICAND_WIDTH + 1,
+           FloatConsts.SIGNIFICAND_WIDTH - 1
         );
     }
 
@@ -76,31 +76,59 @@ public final class FloatX
     {
         this(
            BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
-           Double.SIZE - DoubleConsts.SIGNIFICAND_WIDTH,
-           DoubleConsts.SIGNIFICAND_WIDTH
+           Double.SIZE - DoubleConsts.SIGNIFICAND_WIDTH + 1,
+           DoubleConsts.SIGNIFICAND_WIDTH - 1
         );
     }
 
     public BitVector getData()
-        { return data; }
+    {
+        return data;
+    }
 
     public int getSize()
-        { return data.getBitSize(); }
+    {
+        return data.getBitSize();
+    }
 
     public int getExponentSize()
-        { return exponentSize; }
+    { 
+        return exponentSize;
+    }
 
     public int getFractionSize()
-        { return getSize() - exponentSize; }
+    {
+        return getSize() - exponentSize;
+    }
+
+    public boolean isSingle()
+    {
+        return (getSize() == Float.SIZE) && 
+               (getFractionSize() == FloatConsts.SIGNIFICAND_WIDTH - 1);
+    }
+
+    public boolean isDouble()
+    {
+        return (getSize() == Double.SIZE) && 
+               (getFractionSize() == DoubleConsts.SIGNIFICAND_WIDTH - 1);
+    }
 
     @Override
     public int compareTo(FloatX o)
     {
+        if (null == o)
+            throw new NullPointerException();
+
         if (equals(o))
             return 0;
 
-        // TODO Auto-generated method stub
-        return 0;
+        if (isSingle() && o.isSingle())
+            return Float.compare(floatValue(), o.floatValue());
+
+        if (isDouble() && o.isDouble())
+            return Double.compare(doubleValue(), o.doubleValue());
+
+        return data.compareTo(o.data);
     }
 
     @Override
@@ -138,13 +166,21 @@ public final class FloatX
     @Override
     public float floatValue()
     {
-        return 0;
+        if (!isSingle())
+            return Float.intBitsToFloat(data.intValue());
+
+        throw new IllegalStateException(String.format(
+            "The %s type is not a IEEE 754 single.", getTypeName()));
     }
 
     @Override
     public double doubleValue()
     {
-        return 0;
+        if (isDouble())
+            return Double.longBitsToDouble(data.longValue());
+
+        throw new IllegalStateException(String.format(
+            "The %s type is not a IEEE 754 double.", getTypeName()));
     }
 
     @Override
@@ -159,35 +195,92 @@ public final class FloatX
         return data.longValue();
     }
 
+    public String getTypeName()
+    {
+        return String.format(
+            "float(%d, %d)", getFractionSize(), getExponentSize());
+    }
+
     @Override
     public String toString()
     {
-        return "FloatX [data=" + data + 
-                ", exponentSize=" + exponentSize + "]";
+        if (isSingle())
+            return Float.toString(floatValue());
+
+        if (isDouble())
+            return Double.toString(doubleValue());
+
+        return data.toString();
     }
 
     public String toHexString()
     {
-        return "";
+        if (isSingle())
+            return Float.toHexString(floatValue());
+
+        if (isDouble())
+            return Double.toHexString(doubleValue());
+
+        return data.toHexString();
     }
 
     public FloatX neg()
     {
-        return null;
+        if (isSingle())
+            return new FloatX(-floatValue());
+
+        if (isDouble())
+            return new FloatX(-doubleValue());
+
+        throw new UnsupportedOperationException(String.format(
+            "Not supported for argument types: %s.", getTypeName()));
     }
-    
+
     public FloatX add(FloatX arg)
     {
-        return null;
+        if (null == arg)
+            throw new NullPointerException();
+
+        if (isSingle() && arg.isSingle())
+            return new FloatX(floatValue() + arg.floatValue());
+
+        if (isDouble() && arg.isDouble())
+            return new FloatX(doubleValue() + arg.doubleValue());
+
+        return raiseNotSupported(getTypeName(), arg.getTypeName());
     }
-    
+
     public FloatX sub(FloatX arg)
     {
-        return null;
+        if (null == arg)
+            throw new NullPointerException();
+
+        if (isSingle() && arg.isSingle())
+            return new FloatX(floatValue() - arg.floatValue());
+
+        if (isDouble() && arg.isDouble())
+            return new FloatX(doubleValue() - arg.doubleValue());
+
+        return raiseNotSupported(getTypeName(), arg.getTypeName());
     }
-    
+
     public FloatX mul(FloatX arg)
     {
-        return null;
+        if (null == arg)
+            throw new NullPointerException();
+
+        if (isSingle() && arg.isSingle())
+            return new FloatX(floatValue() * arg.floatValue());
+
+        if (isDouble() && arg.isDouble())
+            return new FloatX(doubleValue() * arg.doubleValue());
+
+        return raiseNotSupported(getTypeName(), arg.getTypeName());
+    }
+
+    private static FloatX raiseNotSupported(String argType1, String argType2) 
+    {
+        throw new UnsupportedOperationException(String.format(
+            "Not supported for argument types: %s and %s.", argType1, argType2));
     }
 }
