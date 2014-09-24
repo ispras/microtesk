@@ -22,6 +22,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVectorMath.Operations;
 
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.data.fp.FloatX;
 import ru.ispras.microtesk.model.api.data.operations.*;
 
 public final class DataEngine
@@ -35,6 +36,12 @@ public final class DataEngine
         new EnumMap<EOperatorID, IBinaryOperator>(EOperatorID.class);
     
     private static final Map<EOperatorID, IUnaryOperator> UNARY_OPERATORS =
+        new EnumMap<EOperatorID, IUnaryOperator>(EOperatorID.class);
+    
+    private static final Map<EOperatorID, IBinaryOperator> FLOAT_BINARY_OPERATORS =
+        new EnumMap<EOperatorID, IBinaryOperator>(EOperatorID.class);
+        
+    private static final Map<EOperatorID, IUnaryOperator> FLOAT_UNARY_OPERATORS =
         new EnumMap<EOperatorID, IUnaryOperator>(EOperatorID.class);
 
     static // Initialization section
@@ -79,6 +86,86 @@ public final class DataEngine
         UNARY_OPERATORS.put(EOperatorID.UNARY_MINUS, new ArithmUnary(Operations.NEG));
 
         BINARY_OPERATORS.put(EOperatorID.MUL,  new ArithmMul());
+        
+        ///////////////////////////////////////////////////////////////////////////////////
+        
+        final BitVector BV_TRUE = BitVector.valueOf(true);
+        final Data TRUE = new Data(BV_TRUE, Type.BOOL(BV_TRUE.getBitSize()));
+
+        final BitVector BV_FALSE = BitVector.valueOf(false);
+        final Data FALSE = new Data(BV_FALSE, Type.BOOL(BV_FALSE.getBitSize()));
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.GREATER, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return (lhs.compareTo(rhs) > 0) ? TRUE : FALSE; }
+        });
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.LESS, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return (lhs.compareTo(rhs) < 0) ? TRUE : FALSE; }
+        }); 
+                
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.GREATER_EQ,  new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return (lhs.compareTo(rhs) >= 0) ? TRUE : FALSE; }
+        });
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.LESS_EQ, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return (lhs.compareTo(rhs) < 0) ? TRUE : FALSE; }
+        });
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.EQ, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return (lhs.compareTo(rhs) == 0) ? TRUE : FALSE; }
+        });
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.NOT_EQ, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return (lhs.compareTo(rhs) != 0) ? TRUE : FALSE; }
+        });
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.PLUS, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return floatXToData(lhs.add(rhs)); }
+        });
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.MINUS, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return floatXToData(lhs.sub(rhs)); }
+        });
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.MUL, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return floatXToData(lhs.mul(rhs)); }
+        });
+
+        FLOAT_BINARY_OPERATORS.put(EOperatorID.DIV, new FloatBinary()
+        {
+            @Override protected Data calculate(FloatX lhs, FloatX rhs)
+                { return floatXToData(lhs.div(rhs)); }
+        });
+
+        FLOAT_UNARY_OPERATORS.put(EOperatorID.UNARY_PLUS, new FloatUnary()
+        {
+            @Override protected Data calculate(FloatX arg)
+                { return floatXToData(arg); }
+        });
+
+        FLOAT_UNARY_OPERATORS.put(EOperatorID.UNARY_MINUS, new FloatUnary()
+        {
+            @Override protected Data calculate(FloatX arg)
+                { return floatXToData(arg.neg()); }
+        });
     }
 
     public static Data valueOf(Type type, long value)
@@ -162,7 +249,7 @@ public final class DataEngine
     {
         checkOperationSupported(oid, arg.getType());
 
-        final IUnaryOperator op = UNARY_OPERATORS.get(oid);
+        final IUnaryOperator op = getUnaryOperator(oid, arg.getType());
         return op.execute(arg);
     }
 
@@ -170,25 +257,29 @@ public final class DataEngine
     {
         checkOperationSupported(oid, left.getType(), right.getType());
 
-        final IBinaryOperator op = BINARY_OPERATORS.get(oid);
+        final IBinaryOperator op =
+            getBinaryOperator(oid, left.getType(), right.getType());
+
         return op.execute(left, right);
     }
 
     public static boolean isSupported(EOperatorID oid, Type arg)
     {
-        if (!UNARY_OPERATORS.containsKey(oid))
+        final IUnaryOperator op = getUnaryOperator(oid, arg);
+
+        if (null == op)
             return false;
 
-        final IUnaryOperator op = UNARY_OPERATORS.get(oid);
         return op.supports(arg);
     }
 
     public static boolean isSupported(EOperatorID oid, Type left, Type right)
     {
-        if (!BINARY_OPERATORS.containsKey(oid))
+        final IBinaryOperator op = getBinaryOperator(oid, left, right);
+
+        if (null == op)
             return false;
 
-        final IBinaryOperator op = BINARY_OPERATORS.get(oid);
         return op.supports(left, right);
     }
 
@@ -202,6 +293,24 @@ public final class DataEngine
 
         BitVectorAlgorithm.copy(value.getRawData(), 0, newRawData, 0, copyBitSize);
         return new Data(newRawData, type);
+    }
+
+    private static IUnaryOperator getUnaryOperator(
+        EOperatorID oid, Type type)
+    {
+        if (type.getTypeId() == TypeId.FLOAT)
+            return FLOAT_UNARY_OPERATORS.get(oid);
+
+        return UNARY_OPERATORS.get(oid);
+    }
+
+    private static IBinaryOperator getBinaryOperator(
+        EOperatorID oid, Type type1, Type type2)
+    {
+        if (type1.getTypeId() == TypeId.FLOAT && type2.getTypeId() == TypeId.FLOAT)
+            return FLOAT_BINARY_OPERATORS.get(oid);
+
+        return BINARY_OPERATORS.get(oid);
     }
 
     private static void checkConversionSupported(Type type, String fromName, String toName)

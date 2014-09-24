@@ -25,18 +25,19 @@
 package ru.ispras.microtesk.model.api.data.fp;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import sun.misc.FloatConsts;
-import sun.misc.DoubleConsts;
 
 public final class FloatX 
     extends Number implements Comparable<FloatX>
 {
     private static final long serialVersionUID = 2006185347947148830L;
+    
+    private static final int FLOAT_FRACTION_SIZE  = 23;
+    private static final int DOUBLE_FRACTION_SIZE = 52;
 
     private final BitVector data;
     private final int exponentSize;
 
-    public FloatX(BitVector data, int exponentSize, int fractionSize)
+    public FloatX(BitVector data, int fractionSize, int exponentSize)
     {
         if (null == data)
             throw new NullPointerException();
@@ -47,17 +48,17 @@ public final class FloatX
         if (fractionSize <= 0)
             throw new IllegalArgumentException();
 
-        if (data.getBitSize() != exponentSize + fractionSize)
+        if (data.getBitSize() != fractionSize + exponentSize)
             throw new IllegalArgumentException();
 
         this.data = BitVector.unmodifiable(data);
         this.exponentSize = exponentSize;
     }
 
-    public FloatX(int exponentSize, int fractionSize)
+    public FloatX(int fractionSize, int exponentSize)
     {
         this(
-           BitVector.newEmpty(exponentSize + fractionSize),
+           BitVector.newEmpty(fractionSize + exponentSize),
            exponentSize,
            fractionSize
            );
@@ -67,8 +68,8 @@ public final class FloatX
     {
         this(
            BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
-           Float.SIZE - FloatConsts.SIGNIFICAND_WIDTH + 1,
-           FloatConsts.SIGNIFICAND_WIDTH - 1
+           FLOAT_FRACTION_SIZE,
+           Float.SIZE - FLOAT_FRACTION_SIZE
         );
     }
 
@@ -76,8 +77,8 @@ public final class FloatX
     {
         this(
            BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
-           Double.SIZE - DoubleConsts.SIGNIFICAND_WIDTH + 1,
-           DoubleConsts.SIGNIFICAND_WIDTH - 1
+           DOUBLE_FRACTION_SIZE,
+           Double.SIZE - DOUBLE_FRACTION_SIZE
         );
     }
 
@@ -104,13 +105,13 @@ public final class FloatX
     public boolean isSingle()
     {
         return (getSize() == Float.SIZE) && 
-               (getFractionSize() == FloatConsts.SIGNIFICAND_WIDTH - 1);
+               (getFractionSize() == FLOAT_FRACTION_SIZE);
     }
 
     public boolean isDouble()
     {
         return (getSize() == Double.SIZE) && 
-               (getFractionSize() == DoubleConsts.SIGNIFICAND_WIDTH - 1);
+               (getFractionSize() == DOUBLE_FRACTION_SIZE);
     }
 
     @Override
@@ -166,7 +167,7 @@ public final class FloatX
     @Override
     public float floatValue()
     {
-        if (!isSingle())
+        if (isSingle())
             return Float.intBitsToFloat(data.intValue());
 
         throw new IllegalStateException(String.format(
@@ -274,6 +275,20 @@ public final class FloatX
 
         if (isDouble() && arg.isDouble())
             return new FloatX(doubleValue() * arg.doubleValue());
+
+        return raiseNotSupported(getTypeName(), arg.getTypeName());
+    }
+    
+    public FloatX div(FloatX arg)
+    {
+        if (null == arg)
+            throw new NullPointerException();
+
+        if (isSingle() && arg.isSingle())
+            return new FloatX(floatValue() / arg.floatValue());
+
+        if (isDouble() && arg.isDouble())
+            return new FloatX(doubleValue() / arg.doubleValue());
 
         return raiseNotSupported(getTypeName(), arg.getTypeName());
     }
