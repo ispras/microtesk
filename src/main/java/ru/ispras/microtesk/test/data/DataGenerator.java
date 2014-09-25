@@ -246,14 +246,15 @@ public final class DataGenerator
 
         for (Argument arg: abstractMode.getArguments().values())
         {
+            final String argName = arg.getName();
             switch (arg.getKind())
             {
             case IMM:
-                builder.setArgumentValue(arg.getName(), getImm(arg));
+                builder.setArgumentValue(argName, getImm(arg));
                 break;
 
             case IMM_RANDOM:
-                builder.setArgumentValue(arg.getName(), getImmRandom(arg));
+                builder.setArgumentValue(argName, getImmRandom(arg));
                 break;
 
              default:
@@ -283,29 +284,30 @@ public final class DataGenerator
         final IOperationBuilder builder = getCallFactory().newOpInstance(
             abstractOp.getName(), abstractOp.getContextName());
 
-        for (Argument argument : abstractOp.getArguments().values())
+        for (Argument arg : abstractOp.getArguments().values())
         {
-            switch(argument.getKind())
+            final String argName = arg.getName();
+            switch(arg.getKind())
             {
             case IMM:
-                builder.setArgument(argument.getName(), getImm(argument));
+                builder.setArgument(argName, getImm(arg));
                 break;
 
             case IMM_RANDOM:
-                builder.setArgument(argument.getName(), getImmRandom(argument));
+                builder.setArgument(argName, getImmRandom(arg));
                 break;
 
             case MODE:
-                builder.setArgument(argument.getName(), getMode(argument));
+                builder.setArgument(argName, getMode(arg));
                 break;
 
             case OP:
-                builder.setArgument(argument.getName(), getOp(argument));
+                builder.setArgument(argName, getOp(arg));
                 break;
 
             default:
                 throw new IllegalArgumentException(
-                    "Unsupported kind: " + argument.getKind());
+                    "Unsupported kind: " + arg.getKind());
             }
         }
 
