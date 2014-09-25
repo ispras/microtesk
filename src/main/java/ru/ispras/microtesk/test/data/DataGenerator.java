@@ -96,20 +96,12 @@ public final class DataGenerator
     {
         if (null == abstractCall)
             throw new NullPointerException();
-        
-        if (!abstractCall.isExecutable())
-        {
-            sequenceBuilder.addCall(new ConcreteCall(abstractCall));
-            return;
-        }
 
-        final Primitive rootOperation =
-            abstractCall.getRootOperation();
-        
-        System.out.println("Processing call: " + rootOperation.getName());
-        
-        final ConcreteCall concreteCall = new ConcreteCall(
-            abstractCall, makeCall(rootOperation));
+        if (null != abstractCall.getName())
+            System.out.println("Processing call: " + abstractCall.getName());
+
+        final ConcreteCall concreteCall = 
+            makeConcreteCall(abstractCall);
 
         sequenceBuilder.addCall(concreteCall);
 
@@ -118,7 +110,10 @@ public final class DataGenerator
             return;
 
         System.out.printf("%nTrying to solve situation: %s%n", situationName);
-        System.out.printf("for instruction '%s' (modes:", rootOperation.getName());
+        System.out.printf("for instruction '%s' (modes:", abstractCall.getName());
+
+        final Primitive rootOperation =
+            abstractCall.getRootOperation();
 
         for (Argument argument : rootOperation.getArguments().values())
         {
@@ -330,5 +325,18 @@ public final class DataGenerator
 
         final IOperation op = makeOp(rootOp);
         return getCallFactory().newCall(op);
+    }
+
+    private ConcreteCall makeConcreteCall(Call abstractCall)
+        throws ConfigurationException
+    {
+        if (!abstractCall.isExecutable())
+            return new ConcreteCall(abstractCall);
+
+        final Primitive rootOp =
+            abstractCall.getRootOperation();
+
+        return new ConcreteCall(
+            abstractCall, makeCall(rootOp));
     }
 }
