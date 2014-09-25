@@ -63,4 +63,11 @@ public final class TypeFactory extends WalkerFactoryBase
     {
         return Type.FLOAT(fractionBitSize, exponentBitSize);
     }
+
+    public Type newFix(
+        Where where, Expr beforeBinaryPointSize, Expr afterBinaryPointSize)
+        throws SemanticException
+    {
+        return Type.FIX(beforeBinaryPointSize, afterBinaryPointSize);
+    }
 }

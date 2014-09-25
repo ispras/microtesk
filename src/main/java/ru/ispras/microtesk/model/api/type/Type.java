@@ -55,6 +55,9 @@ public final class Type
 
     public static Type FLOAT(int fracBitSize, int expBitSize)
         { return new Type(TypeId.FLOAT, fracBitSize, expBitSize); }
+    
+    public static Type FIX(int beforeBinPtSize, int afterBinPtSize)
+        { return new Type(TypeId.FIX, beforeBinPtSize, afterBinPtSize); }
 
     private final TypeId typeId;
     private final int[] fieldSizes;

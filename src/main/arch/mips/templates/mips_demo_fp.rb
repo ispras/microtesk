@@ -39,11 +39,17 @@ class MipsDemo < Template
   end
 
   def run
-    ADD_S 1, 2, 3
-    SUB_S 3, 4, 5
+    addi 4, REG_IND_ZERO(0), IMM16(8)
+    addi 5, REG_IND_ZERO(0), IMM16(16)
 
-    ADD_D 1, 2, 3
-    SUB_D 3, 4, 5
+    mtc1 REG_IND(4), 1
+    mtc1 REG_IND(5), 2
+
+    ADD_S 1, 1, 1
+    SUB_S 3, 2, 1
+
+    ADD_D 4, 1, 1
+    SUB_D 5, 2, 2
 
     print_all_fprs
   end
