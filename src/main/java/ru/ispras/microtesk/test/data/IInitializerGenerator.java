@@ -36,5 +36,5 @@ public interface IInitializerGenerator
     public boolean isCompatible(Argument dest);
 
     public List<ConcreteCall> createInitializingCode(
-        ru.ispras.microtesk.test.template.Argument dest, Data data) throws ConfigurationException; 
+        Argument dest, Data data) throws ConfigurationException; 
 }
