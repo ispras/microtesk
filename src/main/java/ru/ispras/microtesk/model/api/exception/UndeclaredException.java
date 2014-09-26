@@ -10,7 +10,7 @@
  * UndeclaredException.java, Apr 15, 2013 11:32:12 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.exception.config;
+package ru.ispras.microtesk.model.api.exception;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 

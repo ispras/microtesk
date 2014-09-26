@@ -11,7 +11,7 @@
  * Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.exception.config;
+package ru.ispras.microtesk.model.api.exception;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 

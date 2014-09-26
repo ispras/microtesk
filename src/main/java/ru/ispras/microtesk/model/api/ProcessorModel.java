@@ -42,7 +42,7 @@ import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.exception.config.UnsupportedTypeException;
+import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 
 /**
  * The ProcessorModel class is base class for all families of microprocessor

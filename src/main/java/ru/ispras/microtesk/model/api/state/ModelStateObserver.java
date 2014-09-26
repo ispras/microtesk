@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
+import ru.ispras.microtesk.model.api.exception.UndeclaredException;
 import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;

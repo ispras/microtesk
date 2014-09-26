@@ -17,7 +17,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.exception.config.ConstraintSolverException;
+import ru.ispras.microtesk.model.api.exception.ConstraintSolverException;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;

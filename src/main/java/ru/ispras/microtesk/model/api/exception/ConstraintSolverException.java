@@ -10,7 +10,7 @@
  * ConstraintSolverException.java, May 22, 2013 6:00:32 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.exception.config;
+package ru.ispras.microtesk.model.api.exception;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 

@@ -29,9 +29,9 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.exception.config.ReassignmentException;
-import ru.ispras.microtesk.model.api.exception.config.UndeclaredException;
-import ru.ispras.microtesk.model.api.exception.config.UninitializedException;
+import ru.ispras.microtesk.model.api.exception.ReassignmentException;
+import ru.ispras.microtesk.model.api.exception.UndeclaredException;
+import ru.ispras.microtesk.model.api.exception.UninitializedException;
 import ru.ispras.microtesk.model.api.memory.Location;
 
 public final class OperationBuilder implements IOperationBuilder
