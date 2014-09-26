@@ -24,7 +24,7 @@ class ArmDemo < Template
     print_all_registers
 
     add equalcond, setson, reg({:r => 0}), reg({:r => 0}), register1
-    add equalcond, setsoff, reg(1), reg(2), register3 do situation('overflow') end
+    add equalcond, setsoff, reg(1), reg(2), register3 do situation('overflow', :x => 2, :y => 12) end
 
     trace "This is a debug message"
 

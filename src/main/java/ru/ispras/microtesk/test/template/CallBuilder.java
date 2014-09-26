@@ -32,7 +32,7 @@ public final class CallBuilder
     private final BlockId blockId;
 
     private Primitive rootOperation;
-    private String situation;
+    private Situation situation;
 
     private final List<Label> labels;
     private final List<LabelReference> labelRefs;
@@ -65,12 +65,12 @@ public final class CallBuilder
         this.rootOperation = rootOperation;
     }
 
-    public void setSituation(String name)
+    public void setSituation(Situation situation)
     {
-        if (null == name)
+        if (null == situation)
             throw new NullPointerException();
 
-        situation = name;
+        this.situation = situation;
     }
 
     public void addLabel(Label label)

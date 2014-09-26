@@ -162,8 +162,14 @@ class Template
     @template.addLabel name 
   end
 
-  def situation(name)
-    @template.setSituation name
+  def situation(name, attrs = {})
+    builder = @template.newSituation name
+
+    attrs.each_pair do |name, value|
+      builder.setAttribute name.to_s, value
+    end
+
+    @template.setSituation builder.build
   end
 
   def rand(from, to)

@@ -123,9 +123,9 @@ public final class Template
         callBuilder.addOutput(output);
     }
     
-    public void setSituation(String name)
+    public void setSituation(Situation situation)
     {
-        callBuilder.setSituation(name);
+        callBuilder.setSituation(situation);
     }
 
     public void setRootOperation(Primitive rootOperation)
@@ -165,6 +165,11 @@ public final class Template
     public OutputBuilder newOutput(boolean isRuntime, String format)
     {
         return new OutputBuilder(isRuntime, format);
+    }
+
+    public SituationBuilder newSituation(String name)
+    {
+        return new SituationBuilder(name);
     }
 
     private static void _trace(String s)

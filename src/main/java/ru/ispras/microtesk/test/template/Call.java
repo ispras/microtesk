@@ -30,7 +30,7 @@ import java.util.List;
 public final class Call
 {
     private final Primitive rootOperation;
-    private final String situation;
+    private final Situation situation;
 
     private final List<Label> labels;
     private final List<LabelReference> labelRefs;
@@ -38,7 +38,7 @@ public final class Call
 
     Call(
         Primitive rootOperation,
-        String situation,
+        Situation situation,
         List<Label> labels,
         List<LabelReference> labelRefs,
         List<Output> outputs
@@ -72,7 +72,7 @@ public final class Call
         return rootOperation;
     }
 
-    public String getSituation()
+    public Situation getSituation()
     {
         return situation;
     }
