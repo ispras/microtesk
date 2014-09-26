@@ -144,8 +144,8 @@ public final class DataGenerator
         if (null == situation)
             return;
 
-        System.out.printf(
-           "Trying to solve situation: %s...%n%n", situation);
+        System.out.printf("Solving situation %s for %s...%n%n",
+            situation, p.getSignature());
 
         // TODO
     }

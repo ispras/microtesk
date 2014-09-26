@@ -30,8 +30,13 @@ public final class Primitive
 {
     public static enum Kind
     {
-        OP,
-        MODE
+        OP   ("operation"),
+        MODE ("addressing mode");
+
+        private final String text;
+
+        private Kind(String text) { this.text = text; }
+        public String getText()   { return text; }
     };
 
     private final Kind kind;
@@ -106,5 +111,34 @@ public final class Primitive
     public Situation getSituation()
     {
         return situation;
+    }
+
+    public String getSignature()
+    {
+        final StringBuilder sb = new StringBuilder();
+        for (Argument arg: args.values())
+        {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(arg.getName() + ": " + arg.getTypeName());
+        }
+
+        return String.format(
+           "%s %s(%s), context=%s, type=%s, root=%b",
+           kind.getText(),
+           name,
+           sb,
+           contextName,
+           typeName,
+           isRoot
+           );
+    }
+
+    @Override
+    public String toString()
+    {
+        return null == situation ?
+            getSignature() : 
+            String.format("%s, situation=%s", getSignature(), situation
+            );   
     }
 }

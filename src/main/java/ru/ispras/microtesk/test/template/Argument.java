@@ -24,6 +24,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
+
 public final class Argument
 {
     public static enum Kind
@@ -98,5 +100,11 @@ public final class Argument
     public Object getValue()
     {
         return value;
+    }
+
+    public String getTypeName()
+    {
+        return isImmediate() ?
+            AddressingModeImm.NAME : ((Primitive) value).getTypeName();
     }
 }

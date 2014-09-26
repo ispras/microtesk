@@ -26,14 +26,12 @@ package ru.ispras.microtesk.test.template;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -455,7 +453,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         this.callBuilder = callBuilder;
         this.strategy = strategy;
         this.kind = kind;
-        this.args = new HashMap<String, Argument>();
+        this.args = new LinkedHashMap<String, Argument>();
         this.contextName = contextName;
         this.situation = null;
     }
@@ -631,9 +629,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
     private static final String ERR_TYPE_NOT_ACCEPTED =
         "The %s type is not accepted for the %s argument of %s.";
     
-    private static final String ERR_ARG_NOT_PRIMITIVE =
-        "The %s argument of %s is not a primitive (OP or MODE).";
-
     private static final class StrategyOperation implements Strategy
     {
         private final MetaOperation metaData;
@@ -708,22 +703,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
                 throw new IllegalStateException(String.format(
                     ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
 
-            final String typeName;
-            if (arg.isImmediate())
-            {
-                typeName = AddressingModeImm.NAME;
-            }
-            else
-            {
-                if (!(arg.getValue() instanceof Primitive))
-                    throw new IllegalArgumentException(String.format(
-                        ERR_ARG_NOT_PRIMITIVE,
-                        arg.getName(),
-                        getDescription()));
-                
-                typeName = ((Primitive) arg.getValue()).getTypeName();
-            }
-
+            final String typeName = arg.getTypeName();
             if (!metaArgument.isTypeAccepted(typeName))
                 throw new IllegalStateException(String.format(
                     ERR_TYPE_NOT_ACCEPTED,
