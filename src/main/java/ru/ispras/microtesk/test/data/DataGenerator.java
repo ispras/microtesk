@@ -109,111 +109,22 @@ public final class DataGenerator
         if (null == abstractCall)
             throw new NullPointerException();
 
-        if (null != abstractCall.getName())
-            System.out.println("Processing call: " + abstractCall.getName());
-
-        final ConcreteCall concreteCall = makeConcreteCall(abstractCall);
-        sequenceBuilder.addCall(concreteCall);
-
-        /*
-        
-        final Situation situation = abstractCall.getSituation();
-        if (null == situation)
-            return;
-
-        System.out.printf("%nTrying to solve situation: %s%n", situation);
-        System.out.printf("for instruction '%s' (modes:", abstractCall.getName());
-
-        final Primitive rootOperation =
-            abstractCall.getRootOperation();
-
-        for (Argument argument : rootOperation.getArguments().values())
+        if (!abstractCall.isExecutable())
         {
-            System.out.print(" ");
-            System.out.print(argument.isImmediate() ?
-               AddressingModeImm.PARAM_NAME :
-               ((Primitive) argument.getValue()).getName()); 
-        }
-
-        System.out.println(")");
-        
-        */
-        
-        /*
-
-        final ISituation situation =
-            instruction.createSituation(situationName);
-        
-        // This is needed for situations like random that do not have a signature 
-        // and generate values for any parameters the client code might request.
-        // Other situations may ignore these calls.
-
-        for (Argument argument : rootOperation.getArguments().values())
-            situation.setOutput(argument.getName());
-
-        Map<String, Data> output = null;
-
-        try 
-        {
-            output = situation.solve();
-        }
-        catch (ConfigurationException e)
-        {
-            System.out.printf("Warning! Failed to generate test data for the %s situation.\nReason: %s.\n",
-                situationName, e.getMessage());
-
+            sequenceBuilder.addCall(new ConcreteCall(abstractCall));
             return;
         }
 
-        for (Map.Entry<String, Data> entry : output.entrySet())
-        {
-            final Argument argument = rootOperation.getArguments().get(entry.getKey());
+        final Primitive rootOp = abstractCall.getRootOperation();
+        checkRootOp(rootOp);
 
-            if (null == argument)
-            {
-                System.out.printf("Argument %s is not defined for instruction %s.%n",
-                   entry.getKey(), rootOperation.getName());
-                continue;
-            }
+        System.out.println("Processing: " + rootOp.getName());
 
-            insertInitializingCalls(argument, entry.getValue());
-        }
-        */
+        final IOperation modelOp = makeOp(rootOp);
+        final InstructionCall modelCall = getCallFactory().newCall(modelOp);
+
+        sequenceBuilder.addCall(new ConcreteCall(abstractCall, modelCall));
     }
-
-    /*
-    private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
-    {
-        final String argumentTypeName = argument.isImmediate() ?
-            AddressingModeImm.NAME : ((Primitive) argument.getValue()).getName();
-        
-        System.out.printf(
-            "Initializer: argument: %7s, mode: %10s, value: %s (%s) %n",
-            argument.getName(),
-            argumentTypeName,
-            Integer.toHexString(value.getRawData().intValue()),
-            value.getRawData().toBinString()
-        );
-
-        for(IInitializerGenerator ig : model.getInitializers())
-        {
-            if (ig.isCompatible(argument))
-            {
-                final List<ConcreteCall> calls = ig.createInitializingCode(argument, value);
-                sequenceBuilder.addInitializingCalls(calls);
-                return;
-            }
-        }
-
-        System.out.println(
-            String.format(
-                "Error! Failed to find an initializer generator for argument %s (addressing mode: %s).",
-                 argument.getName(),
-                 argumentTypeName
-            )
-        );
-    }
-    */
 
     private int makeImm(Argument argument)
     {
@@ -280,8 +191,7 @@ public final class DataGenerator
     private IOperation makeOp(Primitive abstractOp)
         throws ConfigurationException
     {
-        if (Primitive.Kind.OP != abstractOp.getKind())
-            throw new IllegalArgumentException();
+        checkOp(abstractOp);
 
         final String name = abstractOp.getName();
         final String context = abstractOp.getContextName();
@@ -319,33 +229,118 @@ public final class DataGenerator
         return builder.build();
     }
 
-    private InstructionCall makeCall(Primitive rootOp)
-        throws ConfigurationException
+    private static void checkOp(Primitive op)
     {
-        final String name = rootOp.getName();
-
-        if (Primitive.Kind.OP != rootOp.getKind())
+        if (Primitive.Kind.OP != op.getKind())
             throw new IllegalArgumentException(String.format(
-                "%s is not an operation!", name));
-
-        if (!rootOp.isRoot())
-            throw new IllegalArgumentException(String.format(
-                "%s is not a root operation!", name));
-
-        final IOperation op = makeOp(rootOp);
-        return getCallFactory().newCall(op);
+                "%s is not an operation.", op.getName()));
     }
 
-    private ConcreteCall makeConcreteCall(Call abstractCall)
-        throws ConfigurationException
+    private static void checkRootOp(Primitive op)
     {
-        if (!abstractCall.isExecutable())
-            return new ConcreteCall(abstractCall);
-
-        final Primitive rootOp =
-            abstractCall.getRootOperation();
-
-        return new ConcreteCall(
-            abstractCall, makeCall(rootOp));
+        checkOp(op);
+        if (!op.isRoot())
+            throw new IllegalArgumentException(String.format(
+                "%s is not a root operation!", op.getName()));
     }
 }
+
+
+/*
+
+final Situation situation = abstractCall.getSituation();
+if (null == situation)
+    return;
+
+System.out.printf("%nTrying to solve situation: %s%n", situation);
+System.out.printf("for instruction '%s' (modes:", abstractCall.getName());
+
+final Primitive rootOperation =
+    abstractCall.getRootOperation();
+
+for (Argument argument : rootOperation.getArguments().values())
+{
+    System.out.print(" ");
+    System.out.print(argument.isImmediate() ?
+       AddressingModeImm.PARAM_NAME :
+       ((Primitive) argument.getValue()).getName()); 
+}
+
+System.out.println(")");
+
+*/
+
+/*
+
+final ISituation situation =
+    instruction.createSituation(situationName);
+
+// This is needed for situations like random that do not have a signature 
+// and generate values for any parameters the client code might request.
+// Other situations may ignore these calls.
+
+for (Argument argument : rootOperation.getArguments().values())
+    situation.setOutput(argument.getName());
+
+Map<String, Data> output = null;
+
+try 
+{
+    output = situation.solve();
+}
+catch (ConfigurationException e)
+{
+    System.out.printf("Warning! Failed to generate test data for the %s situation.\nReason: %s.\n",
+        situationName, e.getMessage());
+
+    return;
+}
+
+for (Map.Entry<String, Data> entry : output.entrySet())
+{
+    final Argument argument = rootOperation.getArguments().get(entry.getKey());
+
+    if (null == argument)
+    {
+        System.out.printf("Argument %s is not defined for instruction %s.%n",
+           entry.getKey(), rootOperation.getName());
+        continue;
+    }
+
+    insertInitializingCalls(argument, entry.getValue());
+}
+*/
+
+/*
+private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
+{
+    final String argumentTypeName = argument.isImmediate() ?
+        AddressingModeImm.NAME : ((Primitive) argument.getValue()).getName();
+    
+    System.out.printf(
+        "Initializer: argument: %7s, mode: %10s, value: %s (%s) %n",
+        argument.getName(),
+        argumentTypeName,
+        Integer.toHexString(value.getRawData().intValue()),
+        value.getRawData().toBinString()
+    );
+
+    for(IInitializerGenerator ig : model.getInitializers())
+    {
+        if (ig.isCompatible(argument))
+        {
+            final List<ConcreteCall> calls = ig.createInitializingCode(argument, value);
+            sequenceBuilder.addInitializingCalls(calls);
+            return;
+        }
+    }
+
+    System.out.println(
+        String.format(
+            "Error! Failed to find an initializer generator for argument %s (addressing mode: %s).",
+             argument.getName(),
+             argumentTypeName
+        )
+    );
+}
+*/

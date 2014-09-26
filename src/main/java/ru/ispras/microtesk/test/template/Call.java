@@ -57,11 +57,6 @@ public final class Call
         return !isExecutable() && labels.isEmpty() && outputs.isEmpty();
     }
 
-    public String getName()
-    {
-        return rootOperation != null ? rootOperation.getName() : null;
-    }
-
     public Primitive getRootOperation()
     {
         return rootOperation;
