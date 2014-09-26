@@ -55,7 +55,7 @@ public final class Primitive
 
         if (null == name)
             throw new NullPointerException();
-        
+
         if (null == typeName)
             throw new NullPointerException();
 
