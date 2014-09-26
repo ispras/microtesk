@@ -122,11 +122,6 @@ public final class Template
         _trace(output.toString());
         callBuilder.addOutput(output);
     }
-    
-    public void setSituation(Situation situation)
-    {
-        callBuilder.setSituation(situation);
-    }
 
     public void setRootOperation(Primitive rootOperation)
     {

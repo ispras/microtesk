@@ -171,7 +171,8 @@ class Template
     attrs.each_pair do |name, value|
       builder.setAttribute name.to_s, value
     end
-    @template.setSituation builder.build
+
+    builder.build
   end
 
   def rand(from, to)

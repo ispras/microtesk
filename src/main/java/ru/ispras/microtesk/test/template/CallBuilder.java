@@ -32,8 +32,6 @@ public final class CallBuilder
     private final BlockId blockId;
 
     private Primitive rootOperation;
-    private Situation situation;
-
     private final List<Label> labels;
     private final List<LabelReference> labelRefs;
     private final List<Output> outputs;
@@ -44,10 +42,7 @@ public final class CallBuilder
             throw new NullPointerException();
 
         this.blockId = blockId;
-
         this.rootOperation = null;
-        this.situation = null;
-
         this.labels = new ArrayList<Label>();
         this.labelRefs = new ArrayList<LabelReference>();
         this.outputs = new ArrayList<Output>();
@@ -63,14 +58,6 @@ public final class CallBuilder
                 "Illegal kind: " + rootOperation.getKind());
 
         this.rootOperation = rootOperation;
-    }
-
-    public void setSituation(Situation situation)
-    {
-        if (null == situation)
-            throw new NullPointerException();
-
-        this.situation = situation;
     }
 
     public void addLabel(Label label)
@@ -116,7 +103,6 @@ public final class CallBuilder
     {
         return new Call(
             rootOperation,
-            situation,
             labels,
             labelRefs,
             outputs

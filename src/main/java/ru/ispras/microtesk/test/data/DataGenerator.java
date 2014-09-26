@@ -29,7 +29,6 @@ import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
@@ -41,7 +40,6 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
-import ru.ispras.microtesk.test.template.Situation;
 
 public final class DataGenerator
 {
@@ -116,6 +114,8 @@ public final class DataGenerator
         final ConcreteCall concreteCall = makeConcreteCall(abstractCall);
         sequenceBuilder.addCall(concreteCall);
 
+        /*
+        
         final Situation situation = abstractCall.getSituation();
         if (null == situation)
             return;
@@ -135,6 +135,8 @@ public final class DataGenerator
         }
 
         System.out.println(")");
+        
+        */
         
         /*
 
