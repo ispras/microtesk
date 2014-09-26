@@ -51,16 +51,11 @@ public final class DataGenerator
         if (null == model)
             throw new NullPointerException();
 
-        initializeSolverEngine();
-
         this.model = model;
         this.sequenceBuilder = null;
-    }
 
-    private void initializeSolverEngine()
-    {
         final String MICROTESK_HOME = System.getenv().get("MICROTESK_HOME");
-        
+
         if (Environment.isUnix())
         {
             Environment.setSolverPath(MICROTESK_HOME + "/tools/z3/unix/z3");
@@ -79,6 +74,11 @@ public final class DataGenerator
                 "Failed to initialize the solver engine. " + 
                 "Unsupported platform: %s", System.getProperty("os.name")));
         }
+    }
+
+    private ICallFactory getCallFactory()
+    {
+        return model.getCallFactory();
     }
 
     public Sequence<ConcreteCall> generate(
@@ -213,11 +213,6 @@ public final class DataGenerator
         );
     }
     */
-
-    private ICallFactory getCallFactory()
-    {
-        return model.getCallFactory();
-    }
 
     private int makeImm(Argument argument)
     {
