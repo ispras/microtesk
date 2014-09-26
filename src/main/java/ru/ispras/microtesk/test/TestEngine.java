@@ -29,7 +29,6 @@ import java.io.IOException;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.test.data.DataGenerator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import ru.ispras.microtesk.test.template.Call;

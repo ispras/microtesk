@@ -44,7 +44,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
  * @author Andrei Tatarnikov
  */
 
-public final class Executor
+final class Executor
 {
     private final IModelStateObserver observer;
     private final boolean logExecution;

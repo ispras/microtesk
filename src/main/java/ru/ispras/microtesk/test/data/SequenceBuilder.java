@@ -29,7 +29,7 @@ import java.util.List;
 
 import ru.ispras.microtesk.test.sequence.Sequence;
 
-final class SequenceBuilder<TCall>
+public final class SequenceBuilder<TCall>
 {
     private final List<TCall> calls;
     private final List<TCall> initialisingCalls;
