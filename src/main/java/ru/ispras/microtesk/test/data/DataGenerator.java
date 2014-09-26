@@ -128,16 +128,14 @@ public final class DataGenerator
 
     private int makeImm(Argument argument)
     {
-        if (Argument.Kind.IMM != argument.getKind())
-            throw new IllegalArgumentException();
+        checkArgKind(argument, Argument.Kind.IMM);
 
         return (Integer) argument.getValue();
     }
 
     private int makeImmRandom(Argument argument)
     {
-        if (Argument.Kind.IMM_RANDOM != argument.getKind())
-            throw new IllegalArgumentException();
+        checkArgKind(argument, Argument.Kind.IMM_RANDOM);
 
         return ((RandomValue) argument.getValue()).getValue();
     }
@@ -145,8 +143,7 @@ public final class DataGenerator
     private IAddressingMode makeMode(Argument argument)
         throws ConfigurationException
     {
-        if (Argument.Kind.MODE != argument.getKind())
-            throw new IllegalArgumentException();
+        checkArgKind(argument, Argument.Kind.MODE);
 
         final Primitive mode = 
             (Primitive) argument.getValue();
@@ -179,8 +176,7 @@ public final class DataGenerator
     private IOperation makeOp(Argument argument)
         throws ConfigurationException
     {
-        if (Argument.Kind.OP != argument.getKind())
-            throw new IllegalArgumentException();
+        checkArgKind(argument, Argument.Kind.OP);
 
         final Primitive abstractOp = 
             (Primitive) argument.getValue();
@@ -242,6 +238,14 @@ public final class DataGenerator
         if (!op.isRoot())
             throw new IllegalArgumentException(String.format(
                 "%s is not a root operation!", op.getName()));
+    }
+
+    private static void checkArgKind(Argument arg, Argument.Kind expected)
+    {
+        if (arg.getKind() != expected)
+            throw new IllegalArgumentException(String.format(
+                "Argument %s has kind %s while %s is expected.",
+                arg.getName(), arg.getKind(), expected));
     }
 }
 
