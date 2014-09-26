@@ -108,7 +108,7 @@ final class CallFactory
         rootBuilder.setArgument("src1", createREG(registerIndex));
         
         final IAddressingModeBuilder modeBuilder =
-            model.getCallFactory().newModeInstance("LSL_IMMEDIATE");
+            model.getCallFactory().newMode("LSL_IMMEDIATE");
 
         modeBuilder.setArgumentValue("r", registerIndex);
         modeBuilder.setArgumentValue("amount", 8);
@@ -160,7 +160,7 @@ final class CallFactory
         rootBuilder.setArgument("src2", createREG(registerIndex));
 
         final IAddressingModeBuilder immediateModeBuilder =
-            model.getCallFactory().newModeInstance("IMMEDIATE");
+            model.getCallFactory().newMode("IMMEDIATE");
 
         immediateModeBuilder.setArgumentValue("r", 0);
         immediateModeBuilder.setArgumentValue("c", (int) value);
@@ -211,7 +211,7 @@ final class CallFactory
         rootBuilder.setArgument("src2", createREG(registerIndex));
         
         final IAddressingModeBuilder modeBuilder =
-            model.getCallFactory().newModeInstance(String.format("REGISTER%d", registerIndex));
+            model.getCallFactory().newMode(String.format("REGISTER%d", registerIndex));
 
         rootBuilder.setArgument("src3", modeBuilder.getProduct());
 
@@ -221,7 +221,7 @@ final class CallFactory
     private IAddressingMode createREG(int index) throws ConfigurationException
     {
         final ICallFactory factory = model.getCallFactory();
-        final IAddressingModeBuilder builder = factory.newModeInstance("REG");
+        final IAddressingModeBuilder builder = factory.newMode("REG");
 
         builder.setArgumentValue("r", index);
         return builder.getProduct();
@@ -231,10 +231,10 @@ final class CallFactory
         String name, String cond, String sets) throws ConfigurationException
     {
         final ICallFactory factory = model.getCallFactory(); 
-        final IOperationBuilder builder = factory.newOpInstance(name, "#root");
+        final IOperationBuilder builder = factory.newOp(name, "#root");
         
-        builder.setArgument("cond", factory.newModeInstance(cond).getProduct());
-        builder.setArgument("sets", factory.newModeInstance(sets).getProduct());
+        builder.setArgument("cond", factory.newMode(cond).getProduct());
+        builder.setArgument("sets", factory.newMode(sets).getProduct());
 
         return builder;
     }

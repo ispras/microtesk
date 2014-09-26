@@ -152,7 +152,7 @@ public final class DataGenerator
             (Primitive) argument.getValue();
 
         final IAddressingModeBuilder builder =
-            getCallFactory().newModeInstance(mode.getName());
+            getCallFactory().newMode(mode.getName());
 
         for (Argument arg: mode.getArguments().values())
         {
@@ -197,7 +197,7 @@ public final class DataGenerator
         final String context = abstractOp.getContextName();
 
         final IOperationBuilder builder = 
-            getCallFactory().newOpInstance(name, context);
+            getCallFactory().newOp(name, context);
 
         for (Argument arg : abstractOp.getArguments().values())
         {

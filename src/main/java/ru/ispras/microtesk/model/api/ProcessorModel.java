@@ -118,7 +118,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory
 
     // ICallFactory
     @Override
-    public final IAddressingModeBuilder newModeInstance(String name) throws ConfigurationException
+    public final IAddressingModeBuilder newMode(String name) throws ConfigurationException
     {
         final String ERROR_FORMAT = "The %s addressing mode is not defined.";
 
@@ -142,7 +142,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory
 
     // ICallFactory
     @Override
-    public final IOperationBuilder newOpInstance(String name, String contextName) throws ConfigurationException
+    public final IOperationBuilder newOp(String name, String contextName) throws ConfigurationException
     {
         final String ERROR_FORMAT = "The %s operation is not defined.";
 

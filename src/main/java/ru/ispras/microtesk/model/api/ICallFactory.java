@@ -32,9 +32,11 @@ import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public interface ICallFactory
 {
-    public IAddressingModeBuilder newModeInstance(String name) throws ConfigurationException;
+    public IAddressingModeBuilder newMode(
+        String name) throws ConfigurationException;
 
-    public IOperationBuilder newOpInstance(String name, String contextName) throws ConfigurationException;
+    public IOperationBuilder newOp(
+        String name, String contextName) throws ConfigurationException;
 
     public InstructionCall newCall(IOperation op);
 }

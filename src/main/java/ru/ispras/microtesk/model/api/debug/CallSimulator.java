@@ -48,7 +48,7 @@ public abstract class CallSimulator
         String name, Map<String, Integer> args) throws ConfigurationException
     {
         final IAddressingModeBuilder modeBuilder =
-            model.getCallFactory().newModeInstance(name);
+            model.getCallFactory().newMode(name);
 
         for (Map.Entry<String, Integer> arg : args.entrySet())
             modeBuilder.setArgumentValue(arg.getKey(), arg.getValue());
@@ -61,7 +61,7 @@ public abstract class CallSimulator
         ) throws ConfigurationException
     {
         final IOperationBuilder opBuilder =
-            model.getCallFactory().newOpInstance(name, context);
+            model.getCallFactory().newOp(name, context);
         
         for (Map.Entry<String, IAddressingMode> arg : args.entrySet())
             opBuilder.setArgument(arg.getKey(), arg.getValue());
