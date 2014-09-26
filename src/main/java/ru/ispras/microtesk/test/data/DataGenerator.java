@@ -138,7 +138,7 @@ public final class DataGenerator
             if (Argument.Kind.OP == arg.getKind())
                 resolveSituations((Primitive) arg.getValue());
         }
-        
+
         final Situation situation = p.getSituation(); 
 
         if (null == situation)
@@ -146,7 +146,7 @@ public final class DataGenerator
 
         System.out.printf(
            "Trying to solve situation: %s...%n%n", situation);
-        
+
         // TODO
     }
 
