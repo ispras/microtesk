@@ -34,8 +34,8 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-import ru.ispras.microtesk.test.data.SequenceBuilder;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.SequenceBuilder;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -113,7 +113,7 @@ public final class DataGenerator
 
         if (!abstractCall.isExecutable())
         {
-            sequenceBuilder.addCall(new ConcreteCall(abstractCall));
+            sequenceBuilder.add(new ConcreteCall(abstractCall));
             return;
         }
 
@@ -126,7 +126,7 @@ public final class DataGenerator
         final IOperation modelOp = makeOp(rootOp);
         final InstructionCall modelCall = getCallFactory().newCall(modelOp);
 
-        sequenceBuilder.addCall(new ConcreteCall(abstractCall, modelCall));
+        sequenceBuilder.add(new ConcreteCall(abstractCall, modelCall));
     }
 
     private void resolveSituations(Primitive p)
