@@ -163,12 +163,14 @@ class Template
   end
 
   def situation(name, attrs = {})
-    builder = @template.newSituation name
+    if !attrs.is_a?(Hash)
+      raise MTRubyError, "attrs (#{attrs}) must be a Hash."  
+    end
 
+    builder = @template.newSituation name
     attrs.each_pair do |name, value|
       builder.setAttribute name.to_s, value
     end
-
     @template.setSituation builder.build
   end
 
