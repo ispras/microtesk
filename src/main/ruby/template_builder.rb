@@ -75,7 +75,7 @@ def define_operation(op)
     set_arguments builder, arguments
 
     if situations != nil
-      self.instance_eval &situations
+      builder.setSituation self.instance_eval &situations
     end
 
     if is_root

@@ -44,7 +44,9 @@ import ru.ispras.microtesk.test.template.Primitive.Kind;
 public interface PrimitiveBuilder
 {   
     Primitive build();
+
     void setContext(String contextName);
+    void setSituation(Situation situation);
 
     void addArgument(int value);
     void addArgument(String value);
@@ -102,6 +104,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
 
     private final String name;
     private String contextName;
+    private Situation situation;
 
     private final List<Argument> argumentList;
     private final Map<String, Argument> argumentMap;
@@ -127,6 +130,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
 
         this.name = name;
         this.contextName = null;
+        this.situation = null;
 
         this.argumentList = new ArrayList<Argument>();
         this.argumentMap = new LinkedHashMap<String, Argument>();
@@ -155,6 +159,8 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
                 callBuilder, metaData, null);
         }
 
+        builder.setSituation(situation);
+
         if (!argumentList.isEmpty())
         {
             for (Argument argument : argumentList)
@@ -172,6 +178,11 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
     public void setContext(String contextName)
     {
         this.contextName = contextName;
+    }
+
+    public void setSituation(Situation situation)
+    {
+        this.situation = situation;
     }
 
     private void registerArgument(Argument argument)
@@ -407,6 +418,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
     private final Kind kind;
     private final Map<String, Argument> args;
     private String contextName;
+    private Situation situation;
 
     PrimitiveBuilderCommon(
         CallBuilder callBuilder, MetaOperation metaData, String contextName)
@@ -445,6 +457,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         this.kind = kind;
         this.args = new HashMap<String, Argument>();
         this.contextName = contextName;
+        this.situation = null;
     }
 
     private void putArgument(Argument arg)
@@ -462,7 +475,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
             strategy.getTypeName(),
             strategy.isRoot(),
             args,
-            contextName
+            contextName,
+            situation
             );
     }
 
@@ -473,6 +487,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
             throw new IllegalStateException("Context is already assigned."); 
 
         this.contextName = contextName;
+    }
+
+    public void setSituation(Situation situation)
+    {
+        this.situation = situation;
     }
 
     ///////////////////////////////////////////////////////////////////////////
