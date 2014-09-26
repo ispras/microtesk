@@ -40,6 +40,7 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
+import ru.ispras.microtesk.test.template.Situation;
 
 public final class DataGenerator
 {
@@ -119,11 +120,34 @@ public final class DataGenerator
         checkRootOp(rootOp);
 
         System.out.println("Processing: " + rootOp.getName());
+        resolveSituations(rootOp);
 
         final IOperation modelOp = makeOp(rootOp);
         final InstructionCall modelCall = getCallFactory().newCall(modelOp);
 
         sequenceBuilder.addCall(new ConcreteCall(abstractCall, modelCall));
+    }
+
+    private void resolveSituations(Primitive p)
+    {
+        if (null == p)
+            throw new NullPointerException();
+
+        for (Argument arg: p.getArguments().values())
+        {
+            if (Argument.Kind.OP == arg.getKind())
+                resolveSituations((Primitive) arg.getValue());
+        }
+        
+        final Situation situation = p.getSituation(); 
+
+        if (null == situation)
+            return;
+
+        System.out.printf(
+           "Trying to solve situation: %s...%n%n", situation);
+        
+        // TODO
     }
 
     private int makeImm(Argument argument)
