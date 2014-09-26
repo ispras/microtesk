@@ -54,19 +54,20 @@ public final class DataGenerator
         this.model = model;
         this.sequenceBuilder = null;
 
-        final String MICROTESK_HOME = System.getenv().get("MICROTESK_HOME");
+        final String home = 
+            System.getenv().get("MICROTESK_HOME") + "/tools/z3";
 
         if (Environment.isUnix())
         {
-            Environment.setSolverPath(MICROTESK_HOME + "/tools/z3/unix/z3");
+            Environment.setSolverPath(home + "/unix/z3");
         }
         else if(Environment.isWindows())
         {
-            Environment.setSolverPath(MICROTESK_HOME + "/tools/z3/windows/z3.exe");
+            Environment.setSolverPath(home + "/windows/z3.exe");
         }
         else if(Environment.isOSX())
         {
-            Environment.setSolverPath(MICROTESK_HOME + "/tools/z3/osx/z3");
+            Environment.setSolverPath(home + "/osx/z3");
         }
         else
         {
