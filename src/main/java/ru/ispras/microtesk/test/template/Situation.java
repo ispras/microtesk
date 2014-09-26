@@ -58,4 +58,20 @@ public final class Situation
     {
         return attributes;
     }
+
+    @Override
+    public String toString()
+    {
+        if (attributes.isEmpty())
+            return name;
+
+        final StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> e : attributes.entrySet())
+        {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(String.format("%s=%s", e.getKey(), e.getValue()));
+        }
+
+        return String.format("%s(%s)", name, sb);
+    }
 }
