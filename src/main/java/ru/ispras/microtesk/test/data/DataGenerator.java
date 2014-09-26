@@ -100,9 +100,7 @@ public final class DataGenerator
         if (null != abstractCall.getName())
             System.out.println("Processing call: " + abstractCall.getName());
 
-        final ConcreteCall concreteCall = 
-            makeConcreteCall(abstractCall);
-
+        final ConcreteCall concreteCall = makeConcreteCall(abstractCall);
         sequenceBuilder.addCall(concreteCall);
 
         final String situationName = abstractCall.getSituation();
