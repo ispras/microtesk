@@ -41,7 +41,6 @@ public final class Situation
         this.attributes = (null != attributes) ?
             Collections.unmodifiableMap(attributes) :
             Collections.<String, Object>emptyMap();
-        
     }
 
     public String getName()
