@@ -27,7 +27,6 @@ package ru.ispras.microtesk.test;
 import ru.ispras.fortress.solver.Environment;
 
 import ru.ispras.microtesk.model.api.ICallFactory;
-import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
@@ -45,15 +44,15 @@ import ru.ispras.microtesk.test.template.Situation;
 
 public final class DataGenerator
 {
-    private final IModel model;
+    private final ICallFactory callFactory;
     private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
-    public DataGenerator(IModel model)
+    public DataGenerator(ICallFactory callFactory)
     {
-        if (null == model)
+        if (null == callFactory)
             throw new NullPointerException();
 
-        this.model = model;
+        this.callFactory = callFactory;
         this.sequenceBuilder = null;
 
         final String home = 
@@ -77,11 +76,6 @@ public final class DataGenerator
                 "Failed to initialize the solver engine. " + 
                 "Unsupported platform: %s", System.getProperty("os.name")));
         }
-    }
-
-    private ICallFactory getCallFactory()
-    {
-        return model.getCallFactory();
     }
 
     public Sequence<ConcreteCall> generate(
@@ -124,7 +118,7 @@ public final class DataGenerator
         resolveSituations(rootOp);
 
         final IOperation modelOp = makeOp(rootOp);
-        final InstructionCall modelCall = getCallFactory().newCall(modelOp);
+        final InstructionCall modelCall = callFactory.newCall(modelOp);
 
         sequenceBuilder.add(new ConcreteCall(abstractCall, modelCall));
     }
@@ -174,7 +168,7 @@ public final class DataGenerator
             (Primitive) argument.getValue();
 
         final IAddressingModeBuilder builder =
-            getCallFactory().newMode(mode.getName());
+            callFactory.newMode(mode.getName());
 
         for (Argument arg: mode.getArguments().values())
         {
@@ -218,7 +212,7 @@ public final class DataGenerator
         final String context = abstractOp.getContextName();
 
         final IOperationBuilder builder = 
-            getCallFactory().newOp(name, context);
+            callFactory.newOp(name, context);
 
         for (Argument arg : abstractOp.getArguments().values())
         {
