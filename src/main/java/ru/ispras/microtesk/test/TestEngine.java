@@ -57,7 +57,8 @@ public final class TestEngine
     private TestEngine(IModel model)
     {
         this.model = model;
-        this.dataGenerator = new DataGenerator(model.getCallFactory());
+        this.dataGenerator = new DataGenerator(
+            new TestKnowledge(model), model.getCallFactory());
     }
 
     public Template newTemplate()

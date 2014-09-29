@@ -33,6 +33,7 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.situation.ISituation;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.SequenceBuilder;
 import ru.ispras.microtesk.test.template.Argument;
@@ -45,13 +46,20 @@ import ru.ispras.microtesk.test.template.Situation;
 public final class DataGenerator
 {
     private final ICallFactory callFactory;
+    private final TestKnowledge testKnowledge;
+
     private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
-    public DataGenerator(ICallFactory callFactory)
+    public DataGenerator(
+        TestKnowledge testKnowledge, ICallFactory callFactory)
     {
+        if (null == testKnowledge)
+            throw new NullPointerException();
+
         if (null == callFactory)
             throw new NullPointerException();
 
+        this.testKnowledge = testKnowledge;
         this.callFactory = callFactory;
         this.sequenceBuilder = null;
 
@@ -141,6 +149,9 @@ public final class DataGenerator
 
         System.out.printf("Solving situation %s for %s...%n%n",
             situation, p.getSignature());
+
+        final ISituation testSituation =
+            testKnowledge.getSituation(situation, p);
 
         // TODO
     }
