@@ -41,7 +41,6 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
-import ru.ispras.microtesk.test.template.Situation;
 
 public final class DataGenerator
 {
@@ -142,16 +141,14 @@ public final class DataGenerator
                 resolveSituations((Primitive) arg.getValue());
         }
 
-        final Situation situation = p.getSituation(); 
-
-        if (null == situation)
+        if (null == p.getSituation())
             return;
 
         System.out.printf("Solving situation %s for %s...%n%n",
-            situation, p.getSignature());
+            p.getSituation(), p.getSignature());
 
-        final ISituation testSituation =
-            testKnowledge.getSituation(situation, p);
+        final ISituation situation =
+            testKnowledge.getSituation(p.getSituation(), p);
 
         // TODO
     }
@@ -194,8 +191,8 @@ public final class DataGenerator
                 builder.setArgumentValue(argName, makeImmRandom(arg));
                 break;
 
-             default:
-                 throw new IllegalArgumentException(
+            default:
+                throw new IllegalArgumentException(
                     "Illegal kind: " + argument.getKind());
             }
         }
