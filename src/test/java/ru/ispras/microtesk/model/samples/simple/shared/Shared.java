@@ -18,7 +18,7 @@ import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.type.Type;
 
-import static ru.ispras.microtesk.model.api.memory.EMemoryKind.*;
+import static ru.ispras.microtesk.model.api.memory.MemoryKind.*;
 
 public final class Shared
 {
