@@ -150,7 +150,13 @@ public final class DataGenerator
 
         final TestSituation testSituation =
             testKnowledge.getSituation(p.getSituation(), p);
-        
+
+        if (null == testSituation)
+        {
+            System.out.println("The specified test situation is not found.");
+            return;
+        }
+
         testSituation.link(p);
         
         /*
@@ -160,9 +166,9 @@ public final class DataGenerator
             // situation.setOutput(argument.getName());
         }
         */
-        
+
         final TestResult testResult = testSituation.solve();
-        if (testResult.getStatus() == TestResult.Status.OK)
+        if (TestResult.Status.OK == testResult.getStatus())
         {
             // TODO
         }
