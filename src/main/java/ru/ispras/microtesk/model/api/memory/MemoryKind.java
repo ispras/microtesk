@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-public enum EMemoryKind
+public enum MemoryKind
 {
     REG,
     MEM,

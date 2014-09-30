@@ -22,17 +22,17 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 public class Memory
 {
-    private final EMemoryKind         kind;
+    private final MemoryKind         kind;
     private final String              name;
     private final List<Location> locations;
     private final Type                type;
 
-    public Memory(EMemoryKind kind, String name, Type type)
+    public Memory(MemoryKind kind, String name, Type type)
     {
         this(kind, name, type, 1);
     }
 
-    public Memory(EMemoryKind kind, String name, Type type, int length)
+    public Memory(MemoryKind kind, String name, Type type, int length)
     {
         this.kind = kind;
         this.name = name;
@@ -56,7 +56,7 @@ public class Memory
             location.reset();
     }
 
-    public final EMemoryKind getMemoryKind()
+    public final MemoryKind getMemoryKind()
     {
         return kind;
     }
