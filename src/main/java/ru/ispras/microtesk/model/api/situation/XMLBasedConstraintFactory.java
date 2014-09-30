@@ -19,9 +19,9 @@ import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
 import ru.ispras.fortress.solver.xml.XMLNotLoadedException;
 
 /**
- * The XMLBasedConstraintFactory class provides functionality to recover a constraint
- * from an XML file. It uses an URL to load the file because this is the way to access
- * files placed to a JAR. 
+ * The XMLBasedConstraintFactory class provides functionality to recover
+ * a constraint from an XML file. It uses an URL to load the file because
+ * this is the way to access files placed to a JAR. 
  * 
  * @author Andrei Tatarnikov
  */
@@ -31,8 +31,8 @@ public final class XMLBasedConstraintFactory implements IConstraintFactory
     private final String xmlFileName;
 
     /**
-     * Constructs a constraint factory object basing on the location of the XML
-     * file that stores a constraint description.
+     * Constructs a constraint factory object basing on the location of
+     * the XML file that stores a constraint description.
      * 
      * @param xmlFileName Location of the XML file relative to the root of
      * the project's binary storage (e.g. "xml/arm/ADD_Normal.xml"). This is
@@ -59,8 +59,11 @@ public final class XMLBasedConstraintFactory implements IConstraintFactory
     @Override
     public Constraint create()
     {
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        final URL url = classLoader.getResource(xmlFileName);
+        final ClassLoader classLoader = 
+            Thread.currentThread().getContextClassLoader();
+
+        final URL url = 
+            classLoader.getResource(xmlFileName);
 
         try
         {
