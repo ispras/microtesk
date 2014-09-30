@@ -46,6 +46,6 @@ final class TestKnowledge
     {
         // TODO Auto-generated method stub
         model.getInitializers();
-        return null;
+        return new TestSituation();
     }
 }

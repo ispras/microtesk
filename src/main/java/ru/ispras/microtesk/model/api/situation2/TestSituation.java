@@ -25,7 +25,8 @@
 package ru.ispras.microtesk.model.api.situation2;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.test.template.Argument;
+import ru.ispras.microtesk.model.api.situation2.TestResult.Status;
+import ru.ispras.microtesk.test.template.Primitive;
 
 /*
 class Argument
@@ -48,7 +49,7 @@ class Argument
 
 public class TestSituation
 {
-    public void link(Argument argument)
+    public void link(Primitive p)
     {
         // TODO: ???
     }
@@ -64,6 +65,7 @@ public class TestSituation
 
     public TestResult solve() 
     {
-        return null;
+        // TODO
+        return new TestResult(Status.OK);
     }
 }

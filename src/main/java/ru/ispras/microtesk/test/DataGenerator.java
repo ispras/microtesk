@@ -33,6 +33,7 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.situation2.TestResult;
 import ru.ispras.microtesk.model.api.situation2.TestSituation;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.SequenceBuilder;
@@ -150,6 +151,8 @@ public final class DataGenerator
         final TestSituation testSituation =
             testKnowledge.getSituation(p.getSituation(), p);
         
+        testSituation.link(p);
+        
         /*
         for (Argument argument : p.getArguments().values())
         {
@@ -158,7 +161,11 @@ public final class DataGenerator
         }
         */
         
-        testSituation.solve();
+        final TestResult testResult = testSituation.solve();
+        if (testResult.getStatus() == TestResult.Status.OK)
+        {
+            // TODO
+        }
 
         // TODO
     }
