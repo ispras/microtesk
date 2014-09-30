@@ -12,7 +12,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import ru.ispras.microtesk.model.api.memory.EMemoryKind;
+import ru.ispras.microtesk.model.api.memory.MemoryKind;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
@@ -26,12 +26,12 @@ public final class MemoryExprFactory extends WalkerFactoryBase
         super(context);
     }
 
-    public MemoryExpr createMemory(EMemoryKind kind, Type type, Expr size) 
+    public MemoryExpr createMemory(MemoryKind kind, Type type, Expr size) 
     {
         return new MemoryExpr(kind, type, size);        
     }
     
-    public MemoryExpr createMemory(EMemoryKind kind, Type type)
+    public MemoryExpr createMemory(MemoryKind kind, Type type)
     {
         return new MemoryExpr(kind, type, DEFAULT_SIZE);        
     }

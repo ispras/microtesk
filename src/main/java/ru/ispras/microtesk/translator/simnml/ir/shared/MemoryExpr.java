@@ -12,16 +12,16 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import ru.ispras.microtesk.model.api.memory.EMemoryKind;
+import ru.ispras.microtesk.model.api.memory.MemoryKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class MemoryExpr
 {
-    private final EMemoryKind kind;
+    private final MemoryKind kind;
     private final Type    type;
     private final Expr        size;
 
-    public MemoryExpr(EMemoryKind kind, Type type, Expr size)
+    public MemoryExpr(MemoryKind kind, Type type, Expr size)
     {
         assert null != type;
         assert null != size;
@@ -31,7 +31,7 @@ public final class MemoryExpr
         this.kind = kind;
     }
 
-    public EMemoryKind getKind()
+    public MemoryKind getKind()
     {
         return kind;
     }

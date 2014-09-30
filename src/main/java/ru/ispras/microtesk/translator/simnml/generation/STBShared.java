@@ -32,7 +32,7 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.memory.EMemoryKind;
+import ru.ispras.microtesk.model.api.memory.MemoryKind;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.type.TypeId;
@@ -99,7 +99,7 @@ final class STBShared implements ITemplateBuilder
 
         if (!ir.getMemory().isEmpty())
         {
-            t.add("imps", EMemoryKind.class.getName());
+            t.add("imps", MemoryKind.class.getName());
         }
 
         t.add("imps", Memory.class.getName());
@@ -203,7 +203,10 @@ final class STBShared implements ITemplateBuilder
         final ST tMemory = group.getInstanceOf("memory");
 
         tMemory.add("name", name);
-        tMemory.add("kind", memory.getKind());
+        tMemory.add("kind", String.format("%s.%s",
+            memory.getKind().getClass().getSimpleName(),
+            memory.getKind())
+        );
 
         final Type typeExpr = memory.getType();
         if (null != typeExpr.getAlias())

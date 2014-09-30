@@ -63,7 +63,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.simnml.antlrex.TreeWalkerBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.model.api.memory.EMemoryKind;
+import ru.ispras.microtesk.model.api.memory.MemoryKind;
 
 import ru.ispras.microtesk.translator.simnml.ir.PCAnalyzer;
 import ru.ispras.microtesk.translator.simnml.ir.expression.*;
@@ -158,8 +158,8 @@ memDef
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemory(EMemoryKind.MEM, $st.type, $st.size) :
-   factory.createMemory(EMemoryKind.MEM, $st.type);
+   factory.createMemory(MemoryKind.MEM, $st.type, $st.size) :
+   factory.createMemory(MemoryKind.MEM, $st.type);
 
 getIR().add($id.text, expr);
 }
@@ -171,8 +171,8 @@ regDef
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemory(EMemoryKind.REG, $st.type, $st.size) :
-   factory.createMemory(EMemoryKind.REG, $st.type);
+   factory.createMemory(MemoryKind.REG, $st.type, $st.size) :
+   factory.createMemory(MemoryKind.REG, $st.type);
 
 getIR().add($id.text, expr);
 }
@@ -184,8 +184,8 @@ varDef
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemory(EMemoryKind.VAR, $st.type, $st.size) :
-   factory.createMemory(EMemoryKind.VAR, $st.type);
+   factory.createMemory(MemoryKind.VAR, $st.type, $st.size) :
+   factory.createMemory(MemoryKind.VAR, $st.type);
 
 getIR().add($id.text, expr);
 }
