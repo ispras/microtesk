@@ -33,7 +33,7 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-import ru.ispras.microtesk.model.api.situation.ISituation;
+import ru.ispras.microtesk.model.api.situation2.TestSituation;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.SequenceBuilder;
 import ru.ispras.microtesk.test.template.Argument;
@@ -147,8 +147,18 @@ public final class DataGenerator
         System.out.printf("Solving situation %s for %s...%n%n",
             p.getSituation(), p.getSignature());
 
-        final ISituation situation =
+        final TestSituation testSituation =
             testKnowledge.getSituation(p.getSituation(), p);
+        
+        /*
+        for (Argument argument : p.getArguments().values())
+        {
+            // TODO:
+            // situation.setOutput(argument.getName());
+        }
+        */
+        
+        testSituation.solve();
 
         // TODO
     }

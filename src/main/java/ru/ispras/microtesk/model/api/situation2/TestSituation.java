@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * TestKnowledge.java, Sep 29, 2014 4:15:20 PM Andrei Tatarnikov
+ * Situation.java, Sep 29, 2014 6:09:12 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,30 +22,48 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.model.api.situation2;
 
-import ru.ispras.microtesk.model.api.IModel;
-import ru.ispras.microtesk.model.api.situation2.TestSituation;
-import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.test.template.Argument;
 
-final class TestKnowledge
+/*
+class Argument
 {
-    private final IModel model;
-
-    TestKnowledge(IModel model)
+    public static enum Kind
     {
-        if (null == model)
-            throw new NullPointerException();
+        IMM, // immediate
+        MEM, // MEM, REG (, VAR)
+        MODE // MODE
+    }
+}
+*/
 
-        this.model = model;
+// - IMM
+// - MEM, REG, VAR
+// - ADDRESSING MODE
+
+// - INPUTS
+// - OUTPUTS
+
+public class TestSituation
+{
+    public void link(Argument argument)
+    {
+        // TODO: ???
     }
 
-    public TestSituation getSituation(
-        Situation situation, Primitive primitive)
+    // - Get signature
+    // - Check signature
+    // - Setting input data
+
+    public void setVariableValue(Data value)
     {
-        // TODO Auto-generated method stub
-        model.getInitializers();
+        // TODO: ???
+    }
+
+    public TestResult solve() 
+    {
         return null;
     }
 }

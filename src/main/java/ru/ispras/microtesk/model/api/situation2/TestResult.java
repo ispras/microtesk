@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * TestKnowledge.java, Sep 29, 2014 4:15:20 PM Andrei Tatarnikov
+ * TestResult.java, Sep 30, 2014 6:02:45 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,30 +22,47 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.model.api.situation2;
 
-import ru.ispras.microtesk.model.api.IModel;
-import ru.ispras.microtesk.model.api.situation2.TestSituation;
-import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.Situation;
+import java.util.Collections;
+import java.util.List;
 
-final class TestKnowledge
+public final class TestResult
 {
-    private final IModel model;
-
-    TestKnowledge(IModel model)
+    public static enum Status
     {
-        if (null == model)
-            throw new NullPointerException();
-
-        this.model = model;
+        OK,
+        FAILED,
+        NO_SOLUTION
     }
 
-    public TestSituation getSituation(
-        Situation situation, Primitive primitive)
+    private final Status status;
+    private final List<TestData> testData;
+
+    TestResult(Status status)
     {
-        // TODO Auto-generated method stub
-        model.getInitializers();
-        return null;
+        this(status, Collections.<TestData>emptyList());
+    }
+
+    TestResult(Status status, List<TestData> testData)
+    {
+        if (null == status)
+            throw new NullPointerException();
+
+        if (null == testData)
+            throw new NullPointerException();
+
+        this.status = status;
+        this.testData = testData;
+    }
+
+    public Status getStatus()
+    {
+        return status;
+    }
+
+    public List<TestData> getTestData()
+    {
+        return testData;
     }
 }
