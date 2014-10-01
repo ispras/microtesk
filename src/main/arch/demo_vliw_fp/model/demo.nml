@@ -41,19 +41,19 @@ let   SP = "GPR[29]"
 ///////////////////////////////////////////////////////////////////////////////
 // Types
 
-type QWORD = card(128)
-type DWORD = card(64)
-type  WORD = card(32)
-type HWORD = card(16)
-type  BYTE = card(8)
-type   BIT = card(1)
-type INDEX = card(REGS)
+type   WORD = card(32)
+type  HWORD = card(16)
+type   BYTE = card(8)
+type    BIT = card(1)
+type  INDEX = card(REGS)
+type SINGLE = float(23, 9)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Memory and Registers
 
 reg GPR[2 ** REGS, WORD]
-mem   M[2 ** 10,   BYTE]
+reg FPR[2 ** REGS, SINGLE]
+mem M[2 ** 31, BYTE]
 
 reg NIA[WORD] // next instruction address
 
