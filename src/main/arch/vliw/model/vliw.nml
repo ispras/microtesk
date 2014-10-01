@@ -24,7 +24,7 @@ type INDEX = card(REGS)
 // Memory and Registers
 
 reg GPR[2 ** REGS, WORD]
-mem   M[2 ** 10,   BYTE]
+mem   M[2 ** 31,   BYTE]
 
 reg NIA[WORD] // next instruction address
 
