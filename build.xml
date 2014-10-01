@@ -253,6 +253,11 @@
   	   <fileset dir="src/main/arch/vliw" includes="**"/>  
   	</copy>
 
+  	<!-- Copies VLIW + FP demo architecture specifications and test templates -->
+  	<copy todir="${dist}/arch/demo_vliw_fp">
+  	   <fileset dir="src/main/arch/demo_vliw_fp" includes="**"/>  
+  	</copy>
+
   </target>
 
   <!-- Copies all required JARS to the distributive folder -->
@@ -287,7 +292,7 @@
     </tar>
   </target>
 
-   <!-- Target for generating and building models -->
+  <!-- Target for generating and building models -->
   <target name="models.jar">
 
     <!-- Generate code for the DEMO model -->
@@ -331,6 +336,17 @@
   	  <arg value="-d"/>
   	  <arg value="${dist.gen}/src"/>
   	  <arg value="${dist}/arch/vliw/model/vliw.nml"/>
+  	  <classpath>
+  	    <pathelement location="${dist.jars}/${jar}"/>
+  	  </classpath>
+    </java>
+
+    <!-- Generate code for the VLIW + FP demo model -->
+    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+  	  <jvmarg value="-ea"/>
+  	  <arg value="-d"/>
+  	  <arg value="${dist.gen}/src"/>
+  	  <arg value="${dist}/arch/demo_vliw_fp/model/demo_vliw_fp.nml"/>
   	  <classpath>
   	    <pathelement location="${dist.jars}/${jar}"/>
   	  </classpath>
