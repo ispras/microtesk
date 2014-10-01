@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -8,24 +8,82 @@
  * All rights reserved.
  * 
  * Memory.java, Nov 1, 2012 1:33:06 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api.memory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public class Memory
+public final class Memory
 {
-    private final MemoryKind         kind;
-    private final String              name;
-    private final List<Location> locations;
-    private final Type                type;
+    public static Memory REG(String name, Type type, int length)
+        { return new Memory(MemoryKind.REG, name, type, length); }
+
+    public static Memory REG(String name, Type type)
+        { return new Memory(MemoryKind.REG, name, type); }
+
+    public static Memory MEM(String name, Type type, int length)
+        { return new Memory(MemoryKind.MEM, name, type, length); }
+
+    public static Memory MEM(String name, Type type)
+        { return new Memory(MemoryKind.MEM, name, type); }
+
+    public static Memory VAR(String name, Type type, int length)
+        { return new Memory(MemoryKind.VAR, name, type, length); }
+
+    public static Memory VAR(String name, Type type)
+        { return new Memory(MemoryKind.VAR, name, type); }
+
+    public static int BLOCK_SIZE = 4096;
+
+    private static final class Block
+    {
+        private final List<Location> locations;
+
+        Block(Type type, int length)
+        {
+            final List<Location> locationArray = 
+                new ArrayList<Location>(length);
+
+            for (int index = 0; index < length; ++index)
+                locationArray.add(new Location(type));
+
+            this.locations = locationArray;
+        }
+
+        void reset()
+        {
+            for (Location location: locations)
+                location.reset();
+        }
+
+        public Location getLocation(int index)
+        {
+            return locations.get(index);
+        }
+    }
+
+    private final MemoryKind kind;
+    private final String name;
+    private final Type type;
+    private final int length;
+    private final List<Block> blocks;
 
     public Memory(MemoryKind kind, String name, Type type)
     {
@@ -34,72 +92,115 @@ public class Memory
 
     public Memory(MemoryKind kind, String name, Type type, int length)
     {
+        if (null == kind)
+            throw new NullPointerException();
+
+        if (null == name)
+            throw new NullPointerException();
+
+        if (null == type)
+            throw new NullPointerException();
+        
+        if (length <= 0)
+            throw new IllegalArgumentException();
+
         this.kind = kind;
         this.name = name;
         this.type = type;
-        this.locations = createLocations(type, length);
+        this.length = length;
+        this.blocks = allocateBlocks(type, length);
     }
-    
-    private static List<Location> createLocations(Type type, int length)
+
+    private static List<Block> allocateBlocks(Type type, int length)
     {
-        final ArrayList<Location> result = new ArrayList<Location>();
+        final int count = 
+            length / BLOCK_SIZE + (0 == length % BLOCK_SIZE ? 0 : 1);
 
-        for (int index = 0; index < length; ++index)
-            result.add(new Location(type));
+        final List<Block> result = 
+            new ArrayList<Block>(count);
 
-        return Collections.unmodifiableList(result);
+        for (int index = 0; index < count; ++index)
+            result.add(null);
+
+        return result;
     }
-    
+
+    private Location getLocation(int index)
+    {
+        if (index < 0 || index >= length)
+            throw new IndexOutOfBoundsException(
+               String.format("Index=%s, Length=%s", index, length));
+
+        final int blockIndex = index / BLOCK_SIZE;
+        final int locationIndex = index - blockIndex * BLOCK_SIZE;
+
+        // DEBUG CODE:
+        // System.out.printf("index = %d, blockIndex = %d, locationIndex = %d%n",
+        //    index, blockIndex, locationIndex);
+
+        Block block = blocks.get(blockIndex);
+        if (null == block)
+        {
+            final int blockLength = (blockIndex < getBlockCount() - 1) ?
+                BLOCK_SIZE : length - BLOCK_SIZE * (getBlockCount() - 1);
+
+            block = new Block(type, blockLength);
+            blocks.set(blockIndex, block);
+
+            // DEBUG CODE:
+            // System.out.printf("New block: blockIndex = %d, blockLength = %d%n",
+            //    blockIndex, blockLength);
+        }
+
+        return block.getLocation(locationIndex);
+    }
+
+    int getBlockCount()
+    {
+        return blocks.size();
+    }
+
     public void reset()
     {
-        for (Location location : locations)
-            location.reset();
+        for (Block block: blocks)
+        {
+            if (null != block)
+                block.reset();
+        }
     }
 
-    public final MemoryKind getMemoryKind()
-    {
-        return kind;
-    }
-    
-    public final String getName()
-    {
-        return name;
-    }
-    
-    public final MetaLocationStore getMetaData()
+    public MetaLocationStore getMetaData()
     {
         return new MetaLocationStore(name, getLength());
     }
 
-    public final Type getType()
+    public MemoryKind getMemoryKind()
+    {
+        return kind;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public Type getType()
     {
         return type;
     }
 
-    public final int getLength()
+    public int getLength()
     {
-        return locations.size();
+        return length;
     }
 
-    public final Location access(int index)
+    public Location access(int index)
     {
-        return locations.get(index);
+        return getLocation(index);
     }
 
-    public final Location access()
+    public Location access()
     {
         return access(0);
-    }
-    
-    public Data load(int index)
-    {
-        // TODO
-        
-        return null;
-    }
-    
-    public void store(int index, Data data)
-    {
-        // TODO
     }
 }
