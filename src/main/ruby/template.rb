@@ -174,7 +174,11 @@ class Template
 
     builder.build
   end
-
+  
+  #
+  # Creates an object for generating a random integer within
+  # the specified range (to be used as an argument of a mode or op).
+  # 
   def rand(from, to)
     if !from.is_a?(Integer) or !to.is_a?(Integer)
       raise MTRubyError, "from #{from} and to #{to} must be integers." 
@@ -182,18 +186,23 @@ class Template
     @template.newRandom from, to
   end
 
+  #
+  # Creates an object that specifies an unknown immediate value to be used
+  # as an argument of a mode or op. A corresponding concrete value must be
+  # produced as a result of test data generation for some test situation.
+  #
+  def _
+    @template.newUnknown
+  end
+
   # --- Special "no value" method ---
-  # TODO: Not implemented. Left as a requirement. 
+  # Similar to the above method, but the described object is more complex
+  # than an immediate value (most likely, it will be some MODE or OP). 
+  # TODO: Not implemented. Left as a requirement.
   # Should be implemented in the future.
   #
-  # def _(aug_value = nil)
-  #   NoValue.new(aug_value)
-  # end
-  #
   # def __(aug_value = nil)
-  #   v = NoValue.new(aug_value)
-  #   v.is_immediate = true
-  #   v
+  #   NoValue.new(aug_value)
   # end
 
   #

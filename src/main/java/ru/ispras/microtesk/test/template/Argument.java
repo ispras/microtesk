@@ -30,10 +30,11 @@ public final class Argument
 {
     public static enum Kind
     {
-         IMM        (Integer.class, true),
-         IMM_RANDOM (RandomValue.class, true),
-         MODE       (Primitive.class, false),
-         OP         (Primitive.class, false);
+         IMM         (Integer.class, true),
+         IMM_RANDOM  (RandomValue.class, true),
+         IMM_UNKNOWN (UnknownValue.class, true),
+         MODE        (Primitive.class, false),
+         OP          (Primitive.class, false);
 
          private static String ILLEGAL_CLASS =
              "%s is illegal value class, %s is expected.";

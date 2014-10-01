@@ -157,6 +157,11 @@ public final class Template
         return new RandomValueBuilder(from, to);
     }
 
+    public UnknownValue newUnknown()
+    {
+        return new UnknownValue();
+    }
+
     public OutputBuilder newOutput(boolean isRuntime, String format)
     {
         return new OutputBuilder(isRuntime, format);
