@@ -51,12 +51,14 @@ public interface PrimitiveBuilder
     void addArgument(RandomValueBuilder value);
     void addArgument(Primitive value);
     void addArgument(PrimitiveBuilder value);
+    void addArgument(UnknownValue value);
 
     void setArgument(String name, int value);
     void setArgument(String name, String value);
     void setArgument(String name, RandomValueBuilder value);
     void setArgument(String name, Primitive value);
     void setArgument(String name, PrimitiveBuilder value);
+    void setArgument(String name, UnknownValue value);
 }
 
 final class PrimitiveBuilderFactory
@@ -224,12 +226,19 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
         checkNotNull(value);
         registerArgument(new ArgumentPrim(value));
     }
-    
+
     @Override
     public void addArgument(PrimitiveBuilder value)
     {
         checkNotNull(value);
         registerArgument(new ArgumentPrimB(value));
+    }
+
+    @Override
+    public void addArgument(UnknownValue value)
+    {
+        checkNotNull(value);
+        registerArgument(new ArgumentUnkVal(value));
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -268,6 +277,14 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
         checkNotNull(name);
         checkNotNull(value);
         registerArgument(new ArgumentPrimB(name, value));
+    }
+
+    @Override
+    public void setArgument(String name, UnknownValue value)
+    {
+        checkNotNull(name);
+        checkNotNull(value);
+        registerArgument(new ArgumentUnkVal(name, value));
     }
 
     private static void checkNotNull(Object o)
@@ -396,6 +413,25 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
                 builder.addArgument(getValue());
         }
     }
+
+    private static class ArgumentUnkVal 
+        extends AbstractArgument<UnknownValue>
+    {
+        public ArgumentUnkVal(String name, UnknownValue value)
+            { super(name, value); }
+
+        public ArgumentUnkVal(UnknownValue value)
+            { super(value); }
+
+        @Override
+        public void addToBuilder(PrimitiveBuilder builder)
+        {
+            if (hasName())
+                builder.setArgument(getName(), getValue());
+            else
+                builder.addArgument(getValue());
+        }
+    }
 }
 
 final class PrimitiveBuilderCommon implements PrimitiveBuilder
@@ -447,8 +483,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         String contextName
         )
     {
-        if (null == callBuilder)
-            throw new NullPointerException();
+        checkNotNull(callBuilder);
 
         this.callBuilder = callBuilder;
         this.strategy = strategy;
@@ -527,13 +562,19 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         setArgument(name, value);
     }
 
+    @Override
+    public void addArgument(UnknownValue value)
+    {
+        final String name = getNextArgumentName();
+        setArgument(name, value);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // For Hash-based syntax
 
     public void setArgument(String name, int value)
     {
-        if (null == name)
-            throw new NullPointerException();
+        checkNotNull(name);
 
         final Argument arg = new Argument(name, Argument.Kind.IMM, value);
         checkValidArgument(arg);
@@ -543,6 +584,9 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
     // For labels
     public void setArgument(String name, String value)
     {
+        checkNotNull(name);
+        checkNotNull(value); 
+
         // TODO: Current limitation: 0 is instead of
         // the actual label address/offset.
 
@@ -554,11 +598,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
 
     public void setArgument(String name, RandomValueBuilder value)
     {
-        if (null == name)
-            throw new NullPointerException();
-
-        if (null == value)
-            throw new NullPointerException();
+        checkNotNull(name);
+        checkNotNull(value); 
 
         final Argument arg = 
             new Argument(name, Argument.Kind.IMM_RANDOM, value.build());
@@ -569,11 +610,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
 
     public void setArgument(String name, Primitive value)
     {
-        if (null == name)
-            throw new NullPointerException();
-
-        if (null == value)
-            throw new NullPointerException();
+        checkNotNull(name);
+        checkNotNull(value); 
 
         if ((value.getKind() != Primitive.Kind.MODE) &&
             (value.getKind() != Primitive.Kind.OP))
@@ -597,6 +635,19 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         setArgument(name, value.build());
     }
 
+    @Override
+    public void setArgument(String name, UnknownValue value)
+    {
+        checkNotNull(name);
+        checkNotNull(value); 
+
+        final Argument arg = 
+            new Argument(name, Argument.Kind.IMM_UNKNOWN, value);
+
+        checkValidArgument(arg);
+        putArgument(arg);
+    }
+
     private String getName()
     {
         return strategy.getName();
@@ -616,7 +667,13 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
     {
         strategy.checkAllArgumentsAssigned(argNames); 
     }
-    
+
+    private static void checkNotNull(Object o)
+    {
+        if (null == o)
+            throw new NullPointerException();
+    }
+
     private static final String ERR_UNASSIGNED_ARGUMENT = 
         "The %s argument of %s is not assigned.";
 
@@ -762,7 +819,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         @Override
         public String getDescription()
         {
-            return String.format("the %s addressing mode");
+            return String.format("the %s addressing mode", getName());
         }
 
         @Override

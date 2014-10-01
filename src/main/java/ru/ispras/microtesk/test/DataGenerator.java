@@ -216,7 +216,7 @@ public final class DataGenerator
 
             default:
                 throw new IllegalArgumentException(
-                    "Illegal kind: " + argument.getKind());
+                    "Illegal kind: " + arg.getKind());
             }
         }
 
@@ -301,7 +301,6 @@ public final class DataGenerator
 
 
 /*
-
 final Situation situation = abstractCall.getSituation();
 if (null == situation)
     return;
@@ -321,11 +320,9 @@ for (Argument argument : rootOperation.getArguments().values())
 }
 
 System.out.println(")");
-
 */
 
 /*
-
 final ISituation situation =
     instruction.createSituation(situationName);
 
