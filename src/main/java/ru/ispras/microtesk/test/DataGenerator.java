@@ -53,11 +53,8 @@ public final class DataGenerator
     public DataGenerator(
         TestKnowledge testKnowledge, ICallFactory callFactory)
     {
-        if (null == testKnowledge)
-            throw new NullPointerException();
-
-        if (null == callFactory)
-            throw new NullPointerException();
+        checkNotNull(testKnowledge);
+        checkNotNull(callFactory);
 
         this.testKnowledge = testKnowledge;
         this.callFactory = callFactory;
@@ -89,8 +86,7 @@ public final class DataGenerator
     public Sequence<ConcreteCall> generate(
         Sequence<Call> abstractSequence) throws ConfigurationException
     {
-        if (null == abstractSequence)
-            throw new NullPointerException();
+        checkNotNull(abstractSequence);
 
         sequenceBuilder = new SequenceBuilder<ConcreteCall>();
 
@@ -110,8 +106,7 @@ public final class DataGenerator
     private void processAbstractCall(
         Call abstractCall) throws ConfigurationException
     {
-        if (null == abstractCall)
-            throw new NullPointerException();
+        checkNotNull(abstractCall);
 
         if (!abstractCall.isExecutable())
         {
@@ -133,8 +128,7 @@ public final class DataGenerator
 
     private void resolveSituations(Primitive p)
     {
-        if (null == p)
-            throw new NullPointerException();
+        checkNotNull(p);
 
         for (Argument arg: p.getArguments().values())
         {
@@ -273,6 +267,12 @@ public final class DataGenerator
         }
 
         return builder.build();
+    }
+
+    private static void checkNotNull(Object o)
+    {
+        if (null == o)
+            throw new NullPointerException();
     }
 
     private static void checkOp(Primitive op)
