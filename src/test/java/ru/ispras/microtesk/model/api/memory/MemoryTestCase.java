@@ -58,7 +58,7 @@ public class MemoryTestCase
 
     private static void testBlockCount(int length, int expectedBlockCount)
     {
-        final Memory mem = Memory.newMEM("M", Type.CARD(8), length);
+        final Memory mem = Memory.MEM("M", Type.CARD(8), length);
         assertEquals(length, mem.getLength());
         assertEquals(expectedBlockCount, mem.getBlockCount());
     }
@@ -68,7 +68,7 @@ public class MemoryTestCase
     {
         final Type BYTE = Type.CARD(8);
 
-        final Memory mem = Memory.newMEM("M", BYTE, 8200);
+        final Memory mem = Memory.MEM("M", BYTE, 8200);
         assertEquals(8200, mem.getLength());
         assertEquals(3, mem.getBlockCount());
 
