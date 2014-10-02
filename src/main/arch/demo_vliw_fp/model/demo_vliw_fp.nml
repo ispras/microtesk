@@ -26,7 +26,7 @@
 // Constants
 
 let REGS = 5
-let   PC = "NIA"     // Program counter is in NIA 
+let   PC = "CIA"     // Program counter is in CIA 
 let   SP = "GPR[29]" // Stack pointer is in GPR[29] 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,13 +51,13 @@ reg GPR [2 ** REGS, LONG]
 reg FPR [2 ** REGS, SINGLE]
 mem   M [2 ** 31, BYTE]
 
-reg NIA[WORD] // Next instruction address
+reg CIA[WORD] // Current instruction address
 reg FCCR[1, LONG] // FP Condition Codes register
 
 ///////////////////////////////////////////////////////////////////////////////
 // Temporary Variables (Branch-Related)
 
-var     CIA[WORD] // Current instruction address
+var     NIA[WORD] // Next instruction address
 var JMPADDR[WORD] // Address to jump
 var  BRANCH[BIT]  // Branch flag 
 
@@ -310,6 +310,42 @@ op ABS_S (fd : FREG, fs : FREG)
       fd = fs;
     endif;
   }
+  
+///////////////////////////////////////////////////////////////////////////////
+// Comparison Operations for Floating Point
+
+op C_EQ_S (ft : FREG, fs : FREG, cc : COND_CODE)
+  syntax = format("C_EQ_S %d, %s, %s", cc, fs.syntax, ft.syntax)
+  image  = format("01000110000%s%s%s00110010", ft.image, fs.image, cc) 
+  action = {
+    if (fs == ft) then
+      FCCR<cc> = 1; 
+    else
+      FCCR<cc> = 0; 
+    endif;
+  }
+
+op C_LT_S (ft : FREG, fs : FREG, cc : COND_CODE)
+  syntax = format("C_LT_S %d, %s, %s", cc, fs.syntax, ft.syntax)
+  image  = format("01000110000%s%s%s00111100", ft.image, fs.image, cc) 
+  action = {
+    if (fs < ft) then
+      FCCR<cc> = 1; 
+    else
+      FCCR<cc> = 0; 
+    endif;
+  }
+
+op C_LE_S (ft : FREG, fs : FREG, cc : COND_CODE)
+  syntax = format("C_LE_S %d, %s, %s", cc, fs.syntax, ft.syntax)
+  image  = format("01000110000%s%s%s00111110", ft.image, fs.image, cc)
+  action = {
+     if (fs <= ft) then
+       FCCR<cc> = 1; 
+     else
+       FCCR<cc> = 0; 
+     endif;
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Move Operations for Floating Point
@@ -333,6 +369,42 @@ op MFC1 (rt : REG, fs : FREG)
   image  = format("01000100000%s%s00000000000", rt.image, fs.image) 
   action = {
     rt = fs;
+  }
+  
+op MOVT_S (fd : FREG, fs : FREG, cc : COND_CODE)
+  syntax = format("MOVT_S %s, %s", fd.syntax, fs.syntax)
+  image  = format("01000110000%s01%s%s010001", cc, fs.image, fd.image) 
+  action = {
+    if (FCCR<cc> == 1) then
+      fd = fs;    
+    endif;
+  }
+
+op MOVF_S (fd : FREG, fs : FREG, cc : COND_CODE)
+  syntax = format("MOVF_S %s, %s, %d", fd.syntax, fs.syntax, cc)
+  image  = format("01000110000%s00%s%s010001", cc, fs.image, fd.image)
+  action = {
+    if (FCCR<cc> == 0) then
+      fd = fs;    
+    endif;
+  }
+
+op MOVN_S (fd : FREG, fs : FREG, rt : REG)
+  syntax = format("MOVN_S %s, %s, %s", fd.syntax, fs.syntax, rt.syntax)
+  image  = format("01000110000%s%s%s010011", rt.image, fs.image, fd.image) 
+  action = {
+    if (rt != 0) then
+      fd = fs;
+    endif;
+  }
+
+op MOVZ_S (fd : FREG, fs : FREG, rt : REG)
+  syntax = format("MOVZ_S %s, %s, %s", fd.syntax, fs.syntax, rt.syntax)
+  image  = format("01000110000%s%s%s010010", rt.image, fs.image, fd.image) 
+  action = {
+     if (rt == 0) then
+       fd = fs;    
+     endif;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -361,38 +433,45 @@ op BC1T (cc : COND_CODE, offset : SHORT)
 ///////////////////////////////////////////////////////////////////////////////
 // Operation Groups
 
-op ALU = ADD  // Arithmetical operations
-       | ADDI
-       | SUB
-       | MUL
-       | MOVN // Move operations
-       | MOVZ
-       | MOVE
-       | AND  // Logical operations
-       | OR
-       | XOR
-       | SLT  // Comparison operations
-       | SLTI
+op ALU       = ADD  // Arithmetical operations
+             | ADDI
+             | SUB
+             | MUL
+             | MOVN // Move operations
+             | MOVZ
+             | MOVE
+             | AND  // Logical operations
+             | OR
+             | XOR
+             | SLT  // Comparison operations
+             | SLTI
 
 op LoadStore = LUI
              | LW
              | SW
 
-op Branch = B
-          | BEQ
-          | BNE
+op Branch    = B
+             | BEQ
+             | BNE
 
-op FP = ADD_S // Arithmetical operations
-      | SUB_S
-      | MUL_S
-      | NEG_S
-      | ABS_S
-      | MOV_S // Move Operations
-      | MTC1
-      | MFC1
+op FP        = ADD_S  // Arithmetical operations
+             | SUB_S
+             | MUL_S
+             | NEG_S
+             | ABS_S
+             | C_EQ_S // Comparison Operations
+             | C_LT_S
+             | C_LE_S
+             | MOV_S  // Move Operations
+             | MTC1
+             | MFC1
+             | MOVT_S
+             | MOVF_S
+             | MOVN_S
+             | MOVZ_S
 
-op FPBranch = BC1F
-            | BC1T
+op FPBranch  = BC1F
+             | BC1T
 
 ///////////////////////////////////////////////////////////////////////////////
 // Channels
@@ -417,7 +496,7 @@ op vliw (c1: channel1, c2: channel2)
   syntax = format("%s, %s;", c1.syntax, c2.syntax)
   image  = format("%s%s", c1.image, c2.image)
   action = {
-    CIA = NIA;
+    NIA = CIA + 8;
 
     GPR[0] = 0;
     c1.action;
@@ -426,9 +505,9 @@ op vliw (c1: channel1, c2: channel2)
     c2.action;
 
     if BRANCH == 0 then
-      NIA = NIA + 8;
+      CIA = NIA;
     else
-      NIA = JMPADDR;
+      CIA = JMPADDR;
     endif;
   }
 
