@@ -33,7 +33,7 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
  * @author Andrei Tatarnikov
  */
 
-final class Converter
+public final class Converter
 {
     private Converter() {}
 
@@ -107,7 +107,7 @@ final class Converter
      * @throws IllegalArgumentException if the conversion is not supported to the given data type.
      */
 
-    static Data toFortressData(ValueInfo valueInfo)
+    public static Data toFortressData(ValueInfo valueInfo)
     {
         checkValueInfo(valueInfo);
 
@@ -182,7 +182,7 @@ final class Converter
         return dataType.valueUninitialized();
     }
 
-    private static DataType getDataTypeForModel(Type type)
+    public static DataType getDataTypeForModel(Type type)
     {
         final TypeId typeId = type.getTypeId();
 

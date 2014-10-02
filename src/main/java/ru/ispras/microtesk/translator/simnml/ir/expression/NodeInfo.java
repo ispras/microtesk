@@ -117,7 +117,7 @@ public final class NodeInfo
      * @throws NullPointerException if the parameter is null.
      */
 
-    static NodeInfo newLocation(Location source)
+    public static NodeInfo newLocation(Location source)
     {
         checkNotNull(source);
 
