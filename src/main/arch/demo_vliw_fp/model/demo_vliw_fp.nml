@@ -22,15 +22,6 @@
  * the License.
  */
 
-//
-// TODO: change according to the customer requirements. Remove all redundant
-// code. 
-//
-
-/*
-  An example of a VLIW microprocessor specification based on the MIPS ISA.
-*/
-
 ///////////////////////////////////////////////////////////////////////////////
 // Constants
 
@@ -41,28 +32,44 @@ let   SP = "GPR[29]"
 ///////////////////////////////////////////////////////////////////////////////
 // Types
 
+type    INT = int(32)
 type   WORD = card(32)
+type  SHORT = int(16)
 type  HWORD = card(16)
+type  SBYTE = int(8)
 type   BYTE = card(8)
 type    BIT = card(1)
 type  INDEX = card(REGS)
 type SINGLE = float(23, 9)
+type  IMM16 = int(16)
+type  IMM26 = int(26)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Memory and Registers
 
-reg GPR[2 ** REGS, WORD]
-reg FPR[2 ** REGS, SINGLE]
-mem M[2 ** 31, BYTE]
+reg GPR [2 ** REGS, WORD]
+reg FPR [2 ** REGS, SINGLE]
+mem   M [2 ** 31, BYTE]
 
 reg NIA[WORD] // next instruction address
 
 ///////////////////////////////////////////////////////////////////////////////
-// Temporary Variables
+// Global Variables
 
-mem     CIA[WORD]
+mem     CIA[WORD] // current instruction address
 mem JMPADDR[WORD]
 mem  BRANCH[WORD] 
+
+///////////////////////////////////////////////////////////////////////////////
+// Temporary Variables
+
+var overflow_bit           [BIT]
+var tmp_signed_byte        [SBYTE]
+var tmp_unsigned_byte      [BYTE]
+var tmp_signed_half_word   [SHORT]
+var tmp_unsigned_half_word [HWORD]
+var tmp_signed_word        [INT]
+var tmp_unsigned_word      [WORD]
 
 ///////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
@@ -75,49 +82,71 @@ mode REG (r : INDEX) = GPR[r]
       GPR[r] = coerce(WORD, 0);
     endif;
   }
-
-mode IMM26 (n : int(26)) = n
-  syntax = format("%d", n)
-  image  = format("%26b", n)
-
-mode IMM16 (n : int(16)) = n
-  syntax = format("%d", n)
-  image  = format("%16b", n)
-
+  
+mode FREG (r : INDEX) = FPR[r] 
+  syntax = format("%d", r)
+  image  = format("%5b", r)
+  
 ///////////////////////////////////////////////////////////////////////////////
-// ALU Operations
+// Arithmetical Operations
 
 op ADD (rd : REG, rs : REG, rt : REG)
   syntax = format("ADD %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000100001", rs.image, rt.image, rd.image)
+  image  = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image) 
   action = {
-    rd = rs + rt;
-    rd.action;
+    overflow_bit::tmp_unsigned_word = rs + rt;
+    if (overflow_bit == 1) then
+      // "print" ("Integer Overflow Exception");
+    else
+      rd = tmp_unsigned_word;
+      rd.action;
+    endif;
+  }
+
+op ADDI (rt : REG, rs : REG, imm : IMM16)
+  syntax = format("ADDI %s, %s, %d", rt.syntax, rs.syntax, imm)
+  image  = format("001000%s%s%s", rs.image, rt.image, imm)
+  action = { 
+    overflow_bit::tmp_unsigned_word = rs + (coerce(WORD, imm) & 0x0000ffff);
+    if (overflow_bit == 1) then
+      // "print" ("Integer Overflow Exception");
+    else
+      rt = tmp_unsigned_word;
+    endif;
   }
 
 op SUB (rd : REG, rs : REG, rt : REG)
   syntax = format("SUB %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000100011", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image) 
   action = {
-    rd = rs - rt;
+    overflow_bit::tmp_unsigned_word = rs - rt;
+    if (overflow_bit == 1) then
+      // "print" ("Integer Overflow Exception");
+    else
+      rd = tmp_unsigned_word;
+      rd.action;
+    endif;
+  }
+
+op MUL (rd : REG, rs : REG, rt : REG)
+  syntax = format("MUL %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image  = format("011100%s%s%s00000000010", rs.image, rt.image, rd.image)
+  action = {
+    rd = rs * rt;
     rd.action;
   }
 
-op ADDI (rt : REG, rs : REG, imm : IMM16)
-  syntax = format("ADDI %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
-  image  = format("001001%s%5b%s", rs.image, rt.image, imm.image)
-  action = {
-    rt = rs + imm;
-    rt.action;
-  }
+op Arithm_Instr = ADD
+                | ADDI
+                | SUB
+                | MUL
 
-op Arithm_Instr = ADD  // add word
-                | SUB  // subtract word 
-                | ADDI // add word immediate
+///////////////////////////////////////////////////////////////////////////////
+// Move Operations
 
 op MOVN (rd : REG, rs : REG, rt : REG)
   syntax = format("MOVN %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000001011", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000001011", rs.image, rt.image, rd.image) 
   action = {
     if (rt != 0) then
       rd = rs;
@@ -127,7 +156,7 @@ op MOVN (rd : REG, rs : REG, rt : REG)
 
 op MOVZ (rd : REG, rs : REG, rt : REG)
   syntax = format("MOVZ %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000001010", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000001010", rs.image, rt.image, rd.image) 
   action = {
     if (rt == 0) then
       rd = rs;
@@ -137,35 +166,30 @@ op MOVZ (rd : REG, rs : REG, rt : REG)
 
 op MOVE (rd : REG, rs : REG)
   syntax = format("MOVE %s, %s", rd.syntax, rs.syntax)
-  image  = format("000000%5b00000%s00000100001", rd.image, rs.image)
+  image  = format("000000%s00000%s00000100001", rd.image, rs.image)
   action = {
     rd = rs;
     rd.action;
   }
 
-op Move_Instr = MOVN // move conditional not zero
-              | MOVZ // move conditional on zero    
-              | MOVE	
+op Move_Instr = MOVN // move if not zero
+              | MOVZ // move if zero    
+              | MOVE // move always
+
+///////////////////////////////////////////////////////////////////////////////
+// Logical Operations
 
 op AND (rd : REG, rs : REG, rt : REG)
   syntax = format("AND %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000100100", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000100100", rs.image, rt.image, rd.image) 
   action = {
     rd = rs & rt;
     rd.action;
   }
 
-op NOR (rd : REG, rs : REG, rt : REG)
-  syntax = format("NOR %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000100111", rs.image, rt.image, rd.image) 
-  action = {
-    rd = ~(rs | rt);
-    rd.action;
-  }
-
 op OR (rd : REG, rs : REG, rt : REG)
-  syntax = format("OR %s, %s, %s", rd.syntax, rs.syntax, rt.syntax )
-  image  = format("000000%s%s%5b00000100101", rs.image, rt.image, rd.image) 
+  syntax = format("OR %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image  = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image) 
   action = {
     rd = rs | rt;
     rd.action;
@@ -173,47 +197,22 @@ op OR (rd : REG, rs : REG, rt : REG)
 
 op XOR (rd : REG, rs : REG, rt : REG)
   syntax = format("XOR %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000100110", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000100110", rs.image, rt.image, rd.image) 
   action = {
     rd = rs ^ rt;
     rd.action;
   }
 
-op ANDI (rt : REG, rs : REG, imm : IMM16)
-  syntax = format("ANDI %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
-  image  = format("001100%s%5b%s", rs.image, rt.image, imm.image)
-  action = {
-    rt = (coerce(WORD, imm) & 0x0000ffff) & rs;
-    rt.action;
-  }
+op Logical_Instr = AND 
+                 | OR
+                 | XOR
 
-op ORI (rt : REG, rs : REG, imm : IMM16)
-  syntax = format("ORI %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
-  image  = format("001101%s%5b%s", rs.image, rt.image, imm.image)
-  action = {
-    rt = (coerce(WORD, imm) & 0x0000ffff) | rs;
-    rt.action;
-  }
-
-op XORI (rt : REG, rs : REG, imm : IMM16)
-  syntax = format("XORI %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
-  image  = format("001110%s%5b%s", rs.image, rt.image, imm.image)
-  action = {
-    rt = (coerce(WORD, imm) & 0x0000ffff) ^ rs;
-    rt.action;
-  }
-
-op Logical_Instr = AND  // and 
-                 | NOR  // not or
-                 | OR   // or
-                 | XOR  // xor
-                 | ANDI // and immediate
-                 | ORI  // or immediate
-                 | XORI // xor immediate
+///////////////////////////////////////////////////////////////////////////////
+// Shift Operations
 
 op SLL (rd : REG, rt : REG, sa : INDEX)
   syntax = format("SLL %s, %s, %d", rd.syntax, rt.syntax, sa)
-  image  = format("00000000000%s%5b%5b000000", rt.image, rd.image, sa)
+  image  = format("00000000000%s%s%s000000", rt.image, rd.image, sa)
   action = {
     rd = rt << sa;
     rd.action;
@@ -221,7 +220,7 @@ op SLL (rd : REG, rt : REG, sa : INDEX)
 
 op SRA (rd : REG, rt : REG, sa : INDEX)
   syntax = format("SRA %s, %s, %d", rd.syntax, rt.syntax, sa)
-  image  = format("00000000000%s%5b%5b000011", rt.image, rd.image, sa)
+  image  = format("00000000000%s%s%s000011", rt.image, rd.image, sa)
   action = {
     rd = (rt >> sa);
     rd.action;
@@ -233,7 +232,7 @@ op SRA (rd : REG, rt : REG, sa : INDEX)
 
 op SRL (rd : REG, rt : REG, sa : INDEX)
   syntax = format("SRL %s, %s, %d", rd.syntax, rt.syntax, sa)
-  image  = format("00000000000%s%5b%5b000010", rt.image, rd.image, sa)
+  image  = format("00000000000%s%s%s000010", rt.image, rd.image, sa)
   action = {
     rd = rt >> sa;
     rd.action;
@@ -245,7 +244,7 @@ op SRL (rd : REG, rt : REG, sa : INDEX)
 
 op SLLV (rd : REG, rs : REG, rt : REG)
   syntax = format("SLLV %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000000100", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000000100", rs.image, rt.image, rd.image) 
   action = {
     rd = rt << rs<4..0>;
     rd.action;
@@ -253,7 +252,7 @@ op SLLV (rd : REG, rs : REG, rt : REG)
 
 op SRAV (rd : REG, rs : REG, rt : REG)
   syntax = format("SRAV %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000000111", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000000111", rs.image, rt.image, rd.image) 
   action = {
     rd = (rt >> rs<4..0>);
     rd.action;
@@ -266,7 +265,7 @@ op SRAV (rd : REG, rs : REG, rt : REG)
 
 op SRLV (rd : REG, rs : REG, rt : REG)
   syntax = format("SRLV %s, %s, %s",  rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000000110", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000000110", rs.image, rt.image, rd.image) 
   action = {
     rd = rt >> rs<4..0>;
     rd.action;
@@ -301,16 +300,16 @@ op SLTU (rd : REG, rs : REG, rt : REG)
   }
 
 op SLTI (rt : REG, rs : REG, imm : IMM16)
-  syntax = format("SLTI %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
-  image  = format("001010%s%5b%s", rs.image, rt.image, imm.image)
+  syntax = format("SLTI %s, %s, %d", rt.syntax, rs.syntax, imm)
+  image  = format("001010%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = if rs < imm then 1 else 0 endif;
     rt.action;
   }
 
 op SLTIU (rt : REG, rs : REG, imm : IMM16)
-  syntax = format("SLTIU %s, %s, %s", rt.syntax, rs.syntax, imm.syntax)
-  image  = format("001011%s%5b%s", rs.image, rt.image, imm.image)
+  syntax = format("SLTIU %s, %s, %d", rt.syntax, rs.syntax, imm)
+  image  = format("001011%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = if coerce(WORD, rs) < coerce (card(16), imm) then 1 else 0 endif;
     rt.action;
@@ -349,32 +348,32 @@ op ALU(x : ALU_Instr)
 // Load Store Operations
 
 op LUI (rt : REG, offset : IMM16)
-  syntax = format("LUI %s, %s", rt.syntax, offset.syntax)
-  image  = format("00111100000%s%s", rt.image, offset.image)
+  syntax = format("LUI %s, %d", rt.syntax, offset)
+  image  = format("00111100000%s%s", rt.image, offset)
   action = {
     rt = offset << 16;
     rt.action;
   }
 
 op LB (base : REG, rt : REG, offset : IMM16)
-  syntax = format("LB %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
-  image  = format("100000%s%s%s", base.image, rt.image, offset.image)
+  syntax = format("LB %s, %d(%s)", rt.syntax, offset, base.syntax)
+  image  = format("100000%s%s%s", base.image, rt.image, offset)
   action = {
     rt = M[base + offset];
     rt.action; 
   }
 
 op LH (base : REG, rt : REG, offset : IMM16)
-  syntax = format("LH %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
-  image  = format("100001%s%s%s", base.image, rt.image, offset.image)
+  syntax = format("LH %s, %d(%s)", rt.syntax, offset, base.syntax)
+  image  = format("100001%s%s%s", base.image, rt.image, offset)
   action = {
     rt = M[base + offset + 1]::M[base + offset];
     rt.action;
   }
 
-op LW (base : REG, rt : REG, offset : IMM16 )
-  syntax = format("LW %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
-  image  = format("100011%s%s%s", base.image, rt.image, offset.image)
+op LW (base : REG, rt : REG, offset : IMM16)
+  syntax = format("LW %s, %d(%s)", rt.syntax, offset, base.syntax)
+  image  = format("100011%s%s%s", base.image, rt.image, offset)
   action = {
     rt = M[base + offset + 3]::M[base + offset + 2]::M[base + offset + 1]::M[base + offset];
     rt.action;
@@ -386,23 +385,23 @@ op Load_Instr = LUI
               | LW
 
 op SB (base : REG, rt : REG, offset : IMM16)
-  syntax = format("SB %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
-  image  = format("101000%s%s%s", base.image, rt.image, offset.image)
+  syntax = format("SB %s, %d(%s)", rt.syntax, offset, base.syntax)
+  image  = format("101000%s%s%s", base.image, rt.image, offset)
   action = {
     M[base + offset] = rt;
   }
 
 op SH (base : REG, rt : REG, offset : IMM16)
-  syntax = format("SH %s, %s(%s)", rt.syntax , offset.syntax, base.syntax)
-  image  = format("101001%s%s%s", base.image, rt.image, offset.image)
+  syntax = format("SH %s, %d(%s)", rt.syntax , offset, base.syntax)
+  image  = format("101001%s%s%s", base.image, rt.image, offset)
   action = {
      M[base + offset] = rt<0..7>;
      M[base + offset + 1] = rt<8..15>;
   }
 
 op SW (base : REG, rt : REG, offset : IMM16)
-  syntax = format("SW %s, %s(%s)", rt.syntax, offset.syntax, base.syntax)
-  image  = format("101011%s%s%s", base.image, rt.image, offset.image)
+  syntax = format("SW %s, %d(%s)", rt.syntax, offset, base.syntax)
+  image  = format("101011%s%s%s", base.image, rt.image, offset)
   action = {
     M [base + offset] = rt<0..7>;
     M [base + offset + 1] = rt<8..15>;
@@ -439,16 +438,16 @@ op LoadStore(x : LoadStore_Instr)
 // Branch Operations
 
 op B (offset : IMM16)
-  syntax = format("B %s", offset.syntax)
-  image  = format("0001000000000000%s", offset.image)
+  syntax = format("B %d", offset)
+  image  = format("0001000000000000%s", offset)
   action = {
     BRANCH = 1;
     JMPADDR = NIA + (offset << 2);
   }
 
 op BEQ (rs : REG, rt : REG, offset : IMM16)
-  syntax = format("BEQ %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
-  image  = format("000100%s%s%s", rs.image, rt.image, offset.image)
+  syntax = format("BEQ %s, %s, %d", rs.syntax, rt.syntax, offset)
+  image  = format("000100%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs == rt then
       BRANCH = 1;
@@ -457,8 +456,8 @@ op BEQ (rs : REG, rt : REG, offset : IMM16)
   }
 
 op BNE (rs : REG, rt : REG, offset : IMM16)
-  syntax = format("BNE %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
-  image  = format("000101%s%s%s", rs.image, rt.image, offset.image)
+  syntax = format("BNE %s, %s, %d", rs.syntax, rt.syntax, offset)
+  image  = format("000101%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs != rt then
       BRANCH = 1;
@@ -467,8 +466,8 @@ op BNE (rs : REG, rt : REG, offset : IMM16)
   }
 
 op BEQZ (rs : REG, offset : IMM16)
-  syntax = format("BEQZ %s, %s", rs.syntax, offset.syntax)
-  image  = format("000100%s00000%s", rs.image, offset.image)
+  syntax = format("BEQZ %s, %d", rs.syntax, offset)
+  image  = format("000100%s00000%s", rs.image, offset)
   action = {
     if rs == 0 then
       BRANCH = 1;
@@ -477,8 +476,8 @@ op BEQZ (rs : REG, offset : IMM16)
   }
 
 op BNEZ (rs : REG, offset : IMM16)
-  syntax = format("BNE %s, %s", rs.syntax , offset.syntax)
-  image  = format("000101%s00000%s", rs.image, offset.image)
+  syntax = format("BNE %s, %d", rs.syntax, offset)
+  image  = format("000101%s00000%s", rs.image, offset)
   action = {
     if rs != 0 then
       BRANCH = 1;
@@ -487,8 +486,8 @@ op BNEZ (rs : REG, offset : IMM16)
   }
 
 op BGTZ (rs : REG, offset : IMM16)
-  syntax = format("BGTZ %s, %s", rs.syntax, offset.syntax)
-  image  = format("000111%s00000%s", rs.image, offset.image)
+  syntax = format("BGTZ %s, %d", rs.syntax, offset)
+  image  = format("000111%s00000%s", rs.image, offset)
   action = {
     if rs > 0 then
       BRANCH = 1;
@@ -497,8 +496,8 @@ op BGTZ (rs : REG, offset : IMM16)
   }
 
 op BGEZ (rs : REG, offset : IMM16)
-  syntax = format("BGEZ %s, %s", rs.syntax, offset.syntax)	   
-  image  = format("000001%s00001%s", rs.image, offset.image)
+  syntax = format("BGEZ %s, %d", rs.syntax, offset)	   
+  image  = format("000001%s00001%s", rs.image, offset)
   action = {
     if rs >= 0 then
       BRANCH = 1;
@@ -507,8 +506,8 @@ op BGEZ (rs : REG, offset : IMM16)
   }
 
 op BLTZ (rs : REG, offset : IMM16)
-  syntax = format("BLTZ %s, %s", rs.syntax, offset.syntax)	   
-  image = format("000001%s00000%s", rs.image, offset.image)
+  syntax = format("BLTZ %s, %d", rs.syntax, offset)	   
+  image = format("000001%s00000%s", rs.image, offset)
   action = {
     if rs < 0 then
       BRANCH = 1;
@@ -517,8 +516,8 @@ op BLTZ (rs : REG, offset : IMM16)
   }
 
 op BLEZ (rs : REG, offset : IMM16)
-  syntax = format("BLEZ %s, %s", rs.syntax, offset.syntax)
-  image  = format("000110%s00000%s", rs.image, offset.image)
+  syntax = format("BLEZ %s, %d", rs.syntax, offset)
+  image  = format("000110%s00000%s", rs.image, offset)
   action = {
     if rs <= 0 then
       BRANCH = 1;
@@ -527,8 +526,8 @@ op BLEZ (rs : REG, offset : IMM16)
   }
 
 op J (target : IMM26)
-  syntax = format("J %s", target.syntax)
-  image  = format("000010%s", target.image)
+  syntax = format("J %s", target)
+  image  = format("000010%s", target)
   action = {
     BRANCH  = 1;
     CIA     = NIA;
