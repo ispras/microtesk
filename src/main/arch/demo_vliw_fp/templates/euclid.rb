@@ -53,8 +53,9 @@ class VLIWDemo < Template
 
     label :cycle
     trace "\nCurrent register values: $4 = %d, $5 = %d\n", gpr(4), gpr(5)
+    vliw (beq reg(4), reg(5), :done), (move reg(6), reg(4))
 
-    vliw (beq reg(4), reg(5), :done), (slt reg(2), reg(4), reg(5))
+    vliw (slt reg(2), reg(4), reg(5)), nop
     vliw (bne reg(2), reg(0), :if_less), nop
 
     vliw (b :cycle), (sub reg(4), reg(4), reg(5))
@@ -63,8 +64,6 @@ class VLIWDemo < Template
     vliw (b :cycle), (sub reg(5), reg(5), reg(4))
 
     label :done
-    vliw (move reg(6), reg(4)), nop
-
     trace "\nResult stored in $6: %d", gpr(6)
   end
 
