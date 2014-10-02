@@ -26,13 +26,13 @@
 // Constants
 
 let REGS = 5
-let   PC = "NIA"
-let   SP = "GPR[29]"
+let   PC = "NIA"     // Program counter is in NIA 
+let   SP = "GPR[29]" // Stack pointer is in GPR[29] 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Types
 
-type    INT = int(32)
+type   LONG = int(32)
 type   WORD = card(32)
 type  SHORT = int(16)
 type  HWORD = card(16)
@@ -41,34 +41,35 @@ type   BYTE = card(8)
 type    BIT = card(1)
 type  INDEX = card(REGS)
 type SINGLE = float(23, 9)
-type  IMM16 = int(16)
-type  IMM26 = int(26)
+
+type COND_CODE = card(3)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Memory and Registers
 
-reg GPR [2 ** REGS, WORD]
+reg GPR [2 ** REGS, LONG]
 reg FPR [2 ** REGS, SINGLE]
 mem   M [2 ** 31, BYTE]
 
-reg NIA[WORD] // next instruction address
+reg NIA[WORD] // Next instruction address
+reg FCCR[1, LONG] // FP Condition Codes register
 
 ///////////////////////////////////////////////////////////////////////////////
-// Global Variables
+// Temporary Variables (Branch-Related)
 
-mem     CIA[WORD] // current instruction address
-mem JMPADDR[WORD]
-mem  BRANCH[WORD] 
+var     CIA[WORD] // Current instruction address
+var JMPADDR[WORD] // Address to jump
+var  BRANCH[BIT]  // Branch flag 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Temporary Variables
+// Temporary Variables (For Storing Intermediate Calculation Results)
 
 var overflow_bit           [BIT]
 var tmp_signed_byte        [SBYTE]
 var tmp_unsigned_byte      [BYTE]
 var tmp_signed_half_word   [SHORT]
 var tmp_unsigned_half_word [HWORD]
-var tmp_signed_word        [INT]
+var tmp_signed_word        [LONG]
 var tmp_unsigned_word      [WORD]
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,11 +83,19 @@ mode REG (r : INDEX) = GPR[r]
       GPR[r] = coerce(WORD, 0);
     endif;
   }
-  
-mode FREG (r : INDEX) = FPR[r] 
+
+mode FREG (r : INDEX) = FPR[r]
   syntax = format("%d", r)
   image  = format("%5b", r)
-  
+
+///////////////////////////////////////////////////////////////////////////////
+// Special-Purpose Operations
+
+op NOP()
+  syntax = "NOP"
+  image  = "00000000000000000000000000000000"
+  action = {}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Arithmetical Operations
 
@@ -99,11 +108,10 @@ op ADD (rd : REG, rs : REG, rt : REG)
       // "print" ("Integer Overflow Exception");
     else
       rd = tmp_unsigned_word;
-      rd.action;
     endif;
   }
 
-op ADDI (rt : REG, rs : REG, imm : IMM16)
+op ADDI (rt : REG, rs : REG, imm : SHORT)
   syntax = format("ADDI %s, %s, %d", rt.syntax, rs.syntax, imm)
   image  = format("001000%s%s%s", rs.image, rt.image, imm)
   action = { 
@@ -124,7 +132,6 @@ op SUB (rd : REG, rs : REG, rt : REG)
       // "print" ("Integer Overflow Exception");
     else
       rd = tmp_unsigned_word;
-      rd.action;
     endif;
   }
 
@@ -133,13 +140,7 @@ op MUL (rd : REG, rs : REG, rt : REG)
   image  = format("011100%s%s%s00000000010", rs.image, rt.image, rd.image)
   action = {
     rd = rs * rt;
-    rd.action;
   }
-
-op Arithm_Instr = ADD
-                | ADDI
-                | SUB
-                | MUL
 
 ///////////////////////////////////////////////////////////////////////////////
 // Move Operations
@@ -150,7 +151,6 @@ op MOVN (rd : REG, rs : REG, rt : REG)
   action = {
     if (rt != 0) then
       rd = rs;
-      rd.action;
     endif;
   }
 
@@ -160,7 +160,6 @@ op MOVZ (rd : REG, rs : REG, rt : REG)
   action = {
     if (rt == 0) then
       rd = rs;
-      rd.action;
     endif;
   }
 
@@ -169,12 +168,7 @@ op MOVE (rd : REG, rs : REG)
   image  = format("000000%s00000%s00000100001", rd.image, rs.image)
   action = {
     rd = rs;
-    rd.action;
   }
-
-op Move_Instr = MOVN // move if not zero
-              | MOVZ // move if zero    
-              | MOVE // move always
 
 ///////////////////////////////////////////////////////////////////////////////
 // Logical Operations
@@ -184,7 +178,6 @@ op AND (rd : REG, rs : REG, rt : REG)
   image  = format("000000%s%s%s00000100100", rs.image, rt.image, rd.image) 
   action = {
     rd = rs & rt;
-    rd.action;
   }
 
 op OR (rd : REG, rs : REG, rt : REG)
@@ -192,7 +185,6 @@ op OR (rd : REG, rs : REG, rt : REG)
   image  = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image) 
   action = {
     rd = rs | rt;
-    rd.action;
   }
 
 op XOR (rd : REG, rs : REG, rt : REG)
@@ -200,206 +192,43 @@ op XOR (rd : REG, rs : REG, rt : REG)
   image  = format("000000%s%s%s00000100110", rs.image, rt.image, rd.image) 
   action = {
     rd = rs ^ rt;
-    rd.action;
   }
-
-op Logical_Instr = AND 
-                 | OR
-                 | XOR
-
+               
 ///////////////////////////////////////////////////////////////////////////////
-// Shift Operations
-
-op SLL (rd : REG, rt : REG, sa : INDEX)
-  syntax = format("SLL %s, %s, %d", rd.syntax, rt.syntax, sa)
-  image  = format("00000000000%s%s%s000000", rt.image, rd.image, sa)
-  action = {
-    rd = rt << sa;
-    rd.action;
-  }
-
-op SRA (rd : REG, rt : REG, sa : INDEX)
-  syntax = format("SRA %s, %s, %d", rd.syntax, rt.syntax, sa)
-  image  = format("00000000000%s%s%s000011", rt.image, rd.image, sa)
-  action = {
-    rd = (rt >> sa);
-    rd.action;
-    if (rt < 0) then
-      rd = rd | (0 - (1 << (32 - sa)));
-      rd.action;
-    endif;
-  }
-
-op SRL (rd : REG, rt : REG, sa : INDEX)
-  syntax = format("SRL %s, %s, %d", rd.syntax, rt.syntax, sa)
-  image  = format("00000000000%s%s%s000010", rt.image, rd.image, sa)
-  action = {
-    rd = rt >> sa;
-    rd.action;
-    if (sa > 0) then
-      rd = rd & (0x7fffffff >> (sa - 1));
-      rd.action;
-    endif;
-  }
-
-op SLLV (rd : REG, rs : REG, rt : REG)
-  syntax = format("SLLV %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000000100", rs.image, rt.image, rd.image) 
-  action = {
-    rd = rt << rs<4..0>;
-    rd.action;
-  }
-
-op SRAV (rd : REG, rs : REG, rt : REG)
-  syntax = format("SRAV %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000000111", rs.image, rt.image, rd.image) 
-  action = {
-    rd = (rt >> rs<4..0>);
-    rd.action;
-
-    if ( rt < 0 ) then
-      rd = rd | ( 0 - (1 << (32 - rs <4..0>)));
-      rd.action;
-    endif;
-  }
-
-op SRLV (rd : REG, rs : REG, rt : REG)
-  syntax = format("SRLV %s, %s, %s",  rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000000110", rs.image, rt.image, rd.image) 
-  action = {
-    rd = rt >> rs<4..0>;
-    rd.action;
-
-    if (rs<4..0> > 0) then
-      rd = rd & (0x7fffffff >> (rs<4..0> - 1));
-      rd.action;
-    endif;
-  }
-
-op Shift_Instr = SLL 
-               | SRA 
-               | SRL 
-               | SLLV // shift word left logical variable
-               | SRAV // shift word right arithmetic variable
-               | SRLV // shift word right logical variable
+// Comparison Operations
 
 op SLT (rd : REG, rs : REG, rt : REG)
   syntax = format("SLT %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%5b00000101010", rs.image, rt.image, rd.image) 
   action = {
     rd = if rs < rt then 1 else 0 endif;
-    rd.action;
   }
 
-op SLTU (rd : REG, rs : REG, rt : REG)
-  syntax = format("SLTU %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000101011", rs.image, rt.image, rd.image) 
-  action = {
-    rd = if coerce(WORD, rs) < coerce(WORD, rt) then 1 else 0 endif;
-    rd.action;
-  }
-
-op SLTI (rt : REG, rs : REG, imm : IMM16)
+op SLTI (rt : REG, rs : REG, imm : SHORT)
   syntax = format("SLTI %s, %s, %d", rt.syntax, rs.syntax, imm)
   image  = format("001010%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = if rs < imm then 1 else 0 endif;
-    rt.action;
-  }
-
-op SLTIU (rt : REG, rs : REG, imm : IMM16)
-  syntax = format("SLTIU %s, %s, %d", rt.syntax, rs.syntax, imm)
-  image  = format("001011%s%s%s", rs.image, rt.image, imm)
-  action = {
-    rt = if coerce(WORD, rs) < coerce (card(16), imm) then 1 else 0 endif;
-    rt.action;
-  }
-
-op Set_Instr = SLT   // set on less than
-             | SLTU  // set on less than unsigned
-             | SLTI  // set on less than immediate
-             | SLTIU // set on less than unsigned immediate	
-
-op ALU_Instr = Arithm_Instr
-             | Move_Instr
-             | Logical_Instr
-             | Shift_Instr
-             | Set_Instr 
-
-op ALU(x : ALU_Instr)
-  syntax = x.syntax
-  image  = x.image
-  action = {
-    CIA = NIA;
-
-    // If condition to execute next instruction before jumping to the address.
-    if BRANCH == 0 then
-      NIA = NIA + 4;
-    else
-      NIA = JMPADDR;
-      BRANCH = 0;
-    endif;
-
-    GPR[0] = 0; 
-    x.action;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Load Store Operations
 
-op LUI (rt : REG, offset : IMM16)
+op LUI (rt : REG, offset : SHORT)
   syntax = format("LUI %s, %d", rt.syntax, offset)
   image  = format("00111100000%s%s", rt.image, offset)
   action = {
     rt = offset << 16;
-    rt.action;
   }
 
-op LB (base : REG, rt : REG, offset : IMM16)
-  syntax = format("LB %s, %d(%s)", rt.syntax, offset, base.syntax)
-  image  = format("100000%s%s%s", base.image, rt.image, offset)
-  action = {
-    rt = M[base + offset];
-    rt.action; 
-  }
-
-op LH (base : REG, rt : REG, offset : IMM16)
-  syntax = format("LH %s, %d(%s)", rt.syntax, offset, base.syntax)
-  image  = format("100001%s%s%s", base.image, rt.image, offset)
-  action = {
-    rt = M[base + offset + 1]::M[base + offset];
-    rt.action;
-  }
-
-op LW (base : REG, rt : REG, offset : IMM16)
+op LW (base : REG, rt : REG, offset : SHORT)
   syntax = format("LW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("100011%s%s%s", base.image, rt.image, offset)
   action = {
     rt = M[base + offset + 3]::M[base + offset + 2]::M[base + offset + 1]::M[base + offset];
-    rt.action;
   }
 
-op Load_Instr = LUI
-              | LB
-              | LH
-              | LW
-
-op SB (base : REG, rt : REG, offset : IMM16)
-  syntax = format("SB %s, %d(%s)", rt.syntax, offset, base.syntax)
-  image  = format("101000%s%s%s", base.image, rt.image, offset)
-  action = {
-    M[base + offset] = rt;
-  }
-
-op SH (base : REG, rt : REG, offset : IMM16)
-  syntax = format("SH %s, %d(%s)", rt.syntax , offset, base.syntax)
-  image  = format("101001%s%s%s", base.image, rt.image, offset)
-  action = {
-     M[base + offset] = rt<0..7>;
-     M[base + offset + 1] = rt<8..15>;
-  }
-
-op SW (base : REG, rt : REG, offset : IMM16)
+op SW (base : REG, rt : REG, offset : SHORT)
   syntax = format("SW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("101011%s%s%s", base.image, rt.image, offset)
   action = {
@@ -409,285 +238,204 @@ op SW (base : REG, rt : REG, offset : IMM16)
     M [base + offset + 3] = rt<24..31>;
   }
 
-op Store_Instr = SB
-               | SH
-               | SW
-
-op LoadStore_Instr = Load_Instr
-                   | Store_Instr
-
-op LoadStore(x : LoadStore_Instr)
-  syntax = x.syntax
-  image  = x.image
-  action = {
-    CIA = NIA;
-
-    // If condition to execute next instruction before jumping to the address.
-    if BRANCH == 0 then
-      NIA = NIA + 4;
-    else
-      NIA = JMPADDR;
-      BRANCH = 0;
-    endif;
-
-    GPR[0] = 0;
-    x.action;
-  }
-
 ///////////////////////////////////////////////////////////////////////////////
 // Branch Operations
 
-op B (offset : IMM16)
+op B (offset : SHORT)
   syntax = format("B %d", offset)
   image  = format("0001000000000000%s", offset)
   action = {
     BRANCH = 1;
-    JMPADDR = NIA + (offset << 2);
+    JMPADDR = NIA + (offset << 3);
   }
 
-op BEQ (rs : REG, rt : REG, offset : IMM16)
+op BEQ (rs : REG, rt : REG, offset : SHORT)
   syntax = format("BEQ %s, %s, %d", rs.syntax, rt.syntax, offset)
   image  = format("000100%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs == rt then
       BRANCH = 1;
-      JMPADDR = NIA + (offset << 2);
+      JMPADDR = NIA + (offset << 3);
     endif;
   }
 
-op BNE (rs : REG, rt : REG, offset : IMM16)
+op BNE (rs : REG, rt : REG, offset : SHORT)
   syntax = format("BNE %s, %s, %d", rs.syntax, rt.syntax, offset)
   image  = format("000101%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs != rt then
       BRANCH = 1;
-      JMPADDR = NIA + (offset << 2);
+      JMPADDR = NIA + (offset << 3);
     endif;
   }
 
-op BEQZ (rs : REG, offset : IMM16)
-  syntax = format("BEQZ %s, %d", rs.syntax, offset)
-  image  = format("000100%s00000%s", rs.image, offset)
+///////////////////////////////////////////////////////////////////////////////
+// Arithmetical Operations for Floating Point
+
+op ADD_S (fd : FREG, fs : FREG, ft : FREG)
+  syntax = format("ADD_S %s, %s, %s", fd.syntax, fs.syntax, ft.syntax)
+  image  = format("01000110000%s%s%s000000", ft.image, fs.image, fd.image)
   action = {
-    if rs == 0 then
+    fd = fs + ft;
+  }
+
+op SUB_S (fd : FREG, fs : FREG, ft : FREG)
+  syntax = format("SUB_S %s, %s, %s", fd.syntax, fs.syntax, ft.syntax)
+  image  = format("01000110000%s%s%s000001", ft.image, fs.image, fd.image)
+  action = {
+    FPR[fd] = FPR[fs] - FPR[ft];
+  }
+
+op MUL_S (fd : FREG, fs : FREG, ft : FREG)
+  syntax = format("MUL_S %s, %s, %s", fd.syntax, fs.syntax, ft.syntax)
+  image  = format("01000110000%s%s%s000010", ft.image, fs.image, fd.image)
+  action = {
+    fd = fs * ft;
+  }
+
+op NEG_S (fd : FREG, fs : FREG)
+  syntax = format("NEG_S %s, %s", fd.syntax, fs.syntax)
+  image  = format("0100011000000000%s%s000111", fs.image, fd.image)
+  action = {
+    fd = -fs;
+  }
+
+op ABS_S (fd : FREG, fs : FREG)
+  syntax = format("ABS_S %s, %s", fd.syntax, fs.syntax)
+  image  = format("0100011000000000%s%s000101", fs.image, fd.image)
+  action = {
+    if (fs < 0) then 
+      fd = - fs;
+    else 
+      fd = fs;
+    endif;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+// Move Operations for Floating Point
+
+op MOV_S (fd : FREG, fs : FREG)
+  syntax = format("MOV_S %s, %s", fd.syntax, fs.syntax)
+  image  = format("0100011000000000%s%s000110", fs.image, fd.image) 
+  action = {
+    fd = fs;
+  }
+
+op MTC1 (rt : REG, fs : FREG)
+  syntax = format("MTC1 %s, %s", rt.syntax, fs.syntax)
+  image  = format("01000100100%s%s00000000000", rt.image, fs.image) 
+  action = {
+    fs = rt;    
+  }
+
+op MFC1 (rt : REG, fs : FREG)
+  syntax = format("MFC1 %s, %s", rt.syntax, fs.syntax)
+  image  = format("01000100000%s%s00000000000", rt.image, fs.image) 
+  action = {
+    rt = fs;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+// Branch Operations for Floating Point
+
+op BC1F (cc : COND_CODE, offset : SHORT)
+  syntax = format("BC1F %d, %d", cc, offset)
+  image  = format("01000101000%s00%s", cc, offset)
+  action = {
+    if (FCCR<cc> == 0) then
       BRANCH = 1;
-      JMPADDR = NIA + (offset << 2);
+      JMPADDR = NIA + (offset << 3);
     endif;
   }
 
-op BNEZ (rs : REG, offset : IMM16)
-  syntax = format("BNE %s, %d", rs.syntax, offset)
-  image  = format("000101%s00000%s", rs.image, offset)
+op BC1T (cc : COND_CODE, offset : SHORT)
+  syntax = format("BC1T %d, %s", cc, offset)
+  image  = format("01000101000%s01%s", cc, offset)
   action = {
-    if rs != 0 then
+    if (FCCR<cc> == 1) then
       BRANCH = 1;
-      JMPADDR = NIA + (offset << 2);
+      JMPADDR = NIA + (offset << 3);
     endif;
   }
 
-op BGTZ (rs : REG, offset : IMM16)
-  syntax = format("BGTZ %s, %d", rs.syntax, offset)
-  image  = format("000111%s00000%s", rs.image, offset)
-  action = {
-    if rs > 0 then
-      BRANCH = 1;
-      JMPADDR = NIA + (offset << 2);
-    endif;
-  }
+///////////////////////////////////////////////////////////////////////////////
+// Operation Groups
 
-op BGEZ (rs : REG, offset : IMM16)
-  syntax = format("BGEZ %s, %d", rs.syntax, offset)	   
-  image  = format("000001%s00001%s", rs.image, offset)
-  action = {
-    if rs >= 0 then
-      BRANCH = 1;
-      JMPADDR = NIA + (offset << 2);
-    endif;
-  }
+op ALU = ADD  // Arithmetical operations
+       | ADDI
+       | SUB
+       | MUL
+       | MOVN // Move operations
+       | MOVZ
+       | MOVE
+       | AND  // Logical operations
+       | OR
+       | XOR
+       | SLT  // Comparison operations
+       | SLTI
 
-op BLTZ (rs : REG, offset : IMM16)
-  syntax = format("BLTZ %s, %d", rs.syntax, offset)	   
-  image = format("000001%s00000%s", rs.image, offset)
-  action = {
-    if rs < 0 then
-      BRANCH = 1;
-      JMPADDR = NIA + (offset << 2);
-    endif;
-  }
+op LoadStore = LUI
+             | LW
+             | SW
 
-op BLEZ (rs : REG, offset : IMM16)
-  syntax = format("BLEZ %s, %d", rs.syntax, offset)
-  image  = format("000110%s00000%s", rs.image, offset)
-  action = {
-    if rs <= 0 then
-      BRANCH = 1;
-      JMPADDR = NIA + (offset << 2);
-    endif;
-  }
+op Branch = B
+          | BEQ
+          | BNE
 
-op J (target : IMM26)
-  syntax = format("J %s", target)
-  image  = format("000010%s", target)
-  action = {
-    BRANCH  = 1;
-    CIA     = NIA;
-    JMPADDR = (CIA & 0xF0000000) | ( target << 2);
-  }
+op FP = ADD_S // Arithmetical operations
+      | SUB_S
+      | MUL_S
+      | NEG_S
+      | ABS_S
+      | MOV_S // Move Operations
+      | MTC1
+      | MFC1
 
-op JR (rs : REG) 
-  syntax = format("JR  %s", rs.syntax)
-  image  = format("000000%s000000000000000001000", rs.image)		      
-  action = {
-    BRANCH  = 1;
-    CIA     = NIA;
-    JMPADDR = rs;
-  }
+op FPBranch = BC1F
+            | BC1T
 
-op Branch_Instr = B
-                | BEQ
-                | BNE
-                | BEQZ
-                | BNEZ
-                | BGTZ
-                | BGEZ
-                | BLTZ
-                | BLEZ
-                | J
-                | JR
-          
-op Branch(x : Branch_Instr)
-  syntax = x.syntax
-  image  = x.image
+///////////////////////////////////////////////////////////////////////////////
+// Channels
+
+// All supported operations except for NOP
+op channel1 = ALU 
+            | LoadStore
+            | Branch
+            | FP
+            | FPBranch
+
+// All supported operations except for branching operations
+op channel2 = ALU 
+            | LoadStore
+            | FP
+            | NOP
+
+///////////////////////////////////////////////////////////////////////////////
+// Very Long Instruction Word
+
+op vliw (c1: channel1, c2: channel2)
+  syntax = format("%s, %s;", c1.syntax, c2.syntax)
+  image  = format("%s%s", c1.image, c2.image)
   action = {
     CIA = NIA;
 
-    // If condition to execute next instruction before jumping to the address.
+    zero_reg0;
+    c1.action;
+
+    zero_reg0;
+    c2.action;
+
     if BRANCH == 0 then
-      NIA = NIA + 4;
+      NIA = NIA + 8;
     else
       NIA = JMPADDR;
-      BRANCH = 0;
     endif;
-
-    GPR[0] = 0;
-    x.action;
   }
-
-///////////////////////////////////////////////////////////////////////////////
-// Words Grouped by Units
-
-op ALUWords1 (w: ALU)
-  syntax = w.syntax
-  image  = w.image
-  action = { w.action; }
-
-op ALUWords2 (w1: ALU, w2: ALU)
-  syntax = format("%s, %s", w1.syntax, w2.syntax) 
-  image  = format("%b%b", w1.image, w2.image)
-  action = {
-    w1.action;
-    w2.action;
-  }
-
-op ALUWords3 (w1: ALU, w2: ALU, w3: ALU)
-  syntax = format("%s, %s, %s", w1.syntax, w2.syntax, w3.syntax) 
-  image  = format("%b%b%b", w1.image, w2.image, w3.image)
-  action = {
-    w1.action;
-    w2.action;
-    w3.action;
-  }
-
-op ALUWords = ALUWords1 | ALUWords2 | ALUWords3
-
-op LSWords1 (w: LoadStore)
-  syntax = w.syntax
-  image  = w.image
-  action = { w.action; }
-
-op LSWords2 (w1: LoadStore, w2: LoadStore)
-  syntax = format("%s, %s", w1.syntax, w2.syntax) 
-  image  = format("%b%b", w1.image, w2.image)
-  action = {
-    w1.action;
-    w2.action;
-  }
-
-op LSWords = LSWords1 | LSWords2
-
-op BWords1 (w: Branch)
-  syntax = w.syntax
-  image  = w.image
-  action = { w.action; }
-
-op BWords2 (w1: Branch, w2: Branch)
-  syntax = format("%s, %s", w1.syntax, w2.syntax) 
-  image  = format("%b%b", w1.image, w2.image)
-  action = {
-    w1.action;
-    w2.action;
-  }
-
-op BWords = BWords1 | BWords2
-
-///////////////////////////////////////////////////////////////////////////////
-// Long Word. There are three kinds of unit: ALU, Load/Store, Branch
-
-op LongWord_ALU (alu: ALUWords)
-  syntax = format("%s;", alu.syntax)
-  image  = alu.image
-  action = { alu.action; }
-
-op LongWord_LS (ls: LSWords)
-  syntax = format("%s;", ls.syntax)
-  image  = ls.image
-  action = { ls.action; }
-
-op LongWord_B (b: BWords)
-  syntax = format("%s;", b.syntax)
-  image  = b.image
-  action = { b.action; }
-
-op LongWord_ALU_LS (alu: ALUWords, ls: LSWords)
-  syntax = format("%s, %s;", alu.syntax, ls.syntax) 
-  image  = format("%b%b", alu.image, ls.image)
-  action = {
-    alu.action;
-    ls.action;
-  }
-
-op LongWord_ALU_B (alu: ALUWords, b: BWords)
-  syntax = format("%s, %s;", alu.syntax, b.syntax) 
-  image  = format("%b%b", alu.image, b.image)
-  action = {
-    alu.action;
-    b.action;
-  }
-
-op LongWord_LS_B (ls: LSWords, b: BWords)
-  syntax = format("%s, %s;", ls.syntax, b.syntax)
-  image  = format("%b%b", ls.image, b.image)
-  action = {
-    ls.action;
-    b.action;
-  }
-
-op LongWord_ALU_LS_B (alu: ALUWords, ls: LSWords, b: BWords)
-  syntax = format("%s, %s, %s;", alu.syntax, ls.syntax, b.syntax)
-  image  = format("%b%b%b", alu.image, ls.image, b.image)
-  action = {
-    alu.action;
-    ls.action;
-    b.action;
+  zero_reg0 = {
+     GPR[0] = 0;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Entry Point
 
-op instruction = LongWord_ALU
-               | LongWord_LS
-               | LongWord_B
-               | LongWord_ALU_LS
-               | LongWord_ALU_B
-               | LongWord_LS_B
-               | LongWord_ALU_LS_B
+op instruction = vliw
