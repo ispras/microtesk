@@ -505,7 +505,7 @@ op vliw (c1: channel1, c2: channel2)
     c2.action;
 
     if BRANCH == 0 then
-      CIA = NIA;
+      CIA = CIA + 8;
     else
       CIA = JMPADDR;
     endif;
