@@ -219,6 +219,10 @@ public final class DataGenerator
                 builder.setArgumentValue(argName, makeImmRandom(arg));
                 break;
 
+            case IMM_UNKNOWN:
+                // TODO
+                throw new UnsupportedOperationException("IMM_UNKNOWN");
+
             default:
                 throw new IllegalArgumentException(
                     "Illegal kind: " + arg.getKind());
@@ -262,6 +266,10 @@ public final class DataGenerator
             case IMM_RANDOM:
                 builder.setArgument(argName, makeImmRandom(arg));
                 break;
+                
+            case IMM_UNKNOWN:
+                // TODO
+                throw new UnsupportedOperationException("IMM_UNKNOWN");
 
             case MODE:
                 builder.setArgument(argName, makeMode(arg));
