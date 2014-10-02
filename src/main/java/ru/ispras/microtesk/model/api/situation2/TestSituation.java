@@ -47,11 +47,33 @@ class Argument
 // - INPUTS
 // - OUTPUTS
 
-public class TestSituation
+public final class TestSituation
 {
-    public void link(Primitive p)
+    public static final class Variable
     {
-        // TODO: ???
+        
+    }
+
+    private final String name;
+
+    // Variables to be used in the constraint as input/output 
+    //private final List<Variable> variables = new ArrayList<Variable>();
+
+    // Variables (members of the constraint)
+
+    public TestSituation(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public boolean isApplicable(Primitive p)
+    {
+        return false;
     }
 
     // - Get signature

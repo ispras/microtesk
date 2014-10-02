@@ -42,6 +42,7 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
+import ru.ispras.microtesk.test.template.Situation;
 
 public final class DataGenerator
 {
@@ -136,23 +137,33 @@ public final class DataGenerator
                 resolveSituations((Primitive) arg.getValue());
         }
 
-        if (null == p.getSituation())
+        final Situation situation = p.getSituation();
+
+        // No situation is associated with the given primitive.  
+        if (null == situation)
             return;
 
-        System.out.printf("Solving situation %s for %s...%n%n",
-            p.getSituation(), p.getSignature());
+        System.out.printf("%nSolving situation %s for %s...%n",
+            situation, p.getSignature());
 
         final TestSituation testSituation =
             testKnowledge.getSituation(p.getSituation(), p);
 
         if (null == testSituation)
         {
-            System.out.println("The specified test situation is not found.");
+            System.out.printf(
+                "Situation %s is not found.%n", situation.getName());
             return;
         }
 
-        testSituation.link(p);
-        
+        if (!testSituation.isApplicable(p))
+        {
+            System.out.printf(
+                "Situation %s is not applicable to %s %s.%n",
+                situation.getName(), p.getKind().getText(), p.getName());
+            return;
+        }
+
         /*
         for (Argument argument : p.getArguments().values())
         {
