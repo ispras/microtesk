@@ -419,10 +419,10 @@ op vliw (c1: channel1, c2: channel2)
   action = {
     CIA = NIA;
 
-    zero_reg0;
+    GPR[0] = 0;
     c1.action;
 
-    zero_reg0;
+    GPR[0] = 0;
     c2.action;
 
     if BRANCH == 0 then
@@ -430,9 +430,6 @@ op vliw (c1: channel1, c2: channel2)
     else
       NIA = JMPADDR;
     endif;
-  }
-  zero_reg0 = {
-     GPR[0] = 0;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
