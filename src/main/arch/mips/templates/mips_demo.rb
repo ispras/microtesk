@@ -41,16 +41,16 @@ class MipsDemo < Template
     comment "MIPS TEST"
 
     # "Plain" sequence
-    add 3, REG_IND_ZERO(1), REG_IND_ZERO(2)
-    sub 3, REG_IND_ZERO(1), REG_IND_ZERO(2)
+    add 2, REG_IND_ZERO(1), REG_IND_ZERO(2)
+    sub 2, REG_IND_ZERO(1), REG_IND_ZERO(2)
 
     addi 3, REG_IND_ZERO(0), IMM16(0x1)
     addi 3, REG_IND_ZERO(3), IMM16(0x1)
 
     # Randomized sequence
     block(:compositor => "RANDOM", :combinator => "RANDOM") {
-      add 3, REG_IND_ZERO(1), REG_IND_ZERO(2)
-      sub 3, REG_IND_ZERO(1), REG_IND_ZERO(2)
+      add 2, REG_IND_ZERO(1), REG_IND_ZERO(2)
+      sub 2, REG_IND_ZERO(1), REG_IND_ZERO(2)
 
       addi 3, REG_IND_ZERO(0), IMM16(0x1)
       addi 3, REG_IND_ZERO(3), IMM16(0x1)
@@ -60,8 +60,8 @@ class MipsDemo < Template
   end
 
   def print_all_registers
-    trace "\nDEBUG: GRP values:"
-    (0..31).each { |i| trace "GRP[%d] = %s", i, location("GPR", i) }
+    trace "\nDEBUG: GPR values:"
+    (0..31).each { |i| trace "GPR[%d] = %s", i, location("GPR", i) }
     trace ""
   end
 
