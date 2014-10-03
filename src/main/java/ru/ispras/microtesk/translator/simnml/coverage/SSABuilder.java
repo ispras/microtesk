@@ -5,11 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeSet;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Collections;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 

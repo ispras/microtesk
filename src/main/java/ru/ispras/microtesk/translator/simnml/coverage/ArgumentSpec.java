@@ -3,7 +3,6 @@ package ru.ispras.microtesk.translator.simnml.coverage;
 import ru.ispras.fortress.expression.Node;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 
 public final class ArgumentSpec
 {
