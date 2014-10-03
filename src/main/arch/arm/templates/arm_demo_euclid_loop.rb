@@ -47,7 +47,7 @@ class ArmDemo < Template
     trace "Euclidean Algorithm (ARM): Debug Output"
 
     (1..5).each do |it|
-      trace "\n--------------------------------------------------------------------------------"
+      trace "\n" + "-" * 80
 
       i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution) 
       j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
