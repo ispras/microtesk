@@ -46,7 +46,6 @@ public final class TestEngine
     }
 
     private final IModel model;
-    private final DataGenerator dataGenerator;
 
     // Settings
     private String       fileName = null;
@@ -57,7 +56,6 @@ public final class TestEngine
     private TestEngine(IModel model)
     {
         this.model = model;
-        this.dataGenerator = new DataGenerator(model);
     }
 
     public Template newTemplate()
@@ -80,6 +78,9 @@ public final class TestEngine
 
         final IIterator<Sequence<Call>> sequenceIt =
             template.getSequences();
+      
+        final SequenceProcessor sequenceProcessor =
+            new SequenceProcessor(model);
 
         final IModelStateObserver observer = model.getStateObserver();
         final Executor executor = new Executor(observer, logExecution);
@@ -100,8 +101,8 @@ public final class TestEngine
                     "Generating data for sequence %d", sequenceNumber));
 
                 final Sequence<ConcreteCall> concreteSequence =
-                    dataGenerator.generate(abstractSequence);
-    
+                    sequenceProcessor.process(abstractSequence);
+
                 printStageHeader(String.format(
                     "Executing sequence %d", sequenceNumber));
 

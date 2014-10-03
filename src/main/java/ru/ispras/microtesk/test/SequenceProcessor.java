@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * DataGenerator.java, May 13, 2013 11:32:21 AM Andrei Tatarnikov
+ * SequenceProcessor.java, May 13, 2013 11:32:21 AM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -43,14 +43,23 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
 
-public final class DataGenerator
+/**
+ * The SequenceProcessor class processes an abstract instruction call
+ * sequence that may use hold symbolic values to build a concrete
+ * instruction call sequence that uses only concrete values and
+ * can be simulated and used to generate source code in assembly language.      
+ * 
+ * @author Andrei Tatarnikov
+ */
+
+final class SequenceProcessor
 {
     private final ICallFactory callFactory;
     private final DataEngine dataEngine;
 
     private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
-    public DataGenerator(IModel model) 
+    SequenceProcessor(IModel model) 
     {
         checkNotNull(model);
 
@@ -81,7 +90,7 @@ public final class DataGenerator
         }
     }
 
-    public Sequence<ConcreteCall> generate(
+    public Sequence<ConcreteCall> process(
         Sequence<Call> abstractSequence) throws ConfigurationException
     {
         checkNotNull(abstractSequence);
