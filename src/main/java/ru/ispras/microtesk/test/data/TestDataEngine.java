@@ -24,43 +24,32 @@
 
 package ru.ispras.microtesk.test.data;
 
-import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.testbase.TestBaseQuery;
+import ru.ispras.testbase.TestBaseQueryBuilder;
 
 public final class TestDataEngine
 {
     public TestDataEngine()
     {
-        final String home = 
-            System.getenv().get("MICROTESK_HOME") + "/tools/z3";
-
-        if (Environment.isUnix())
-        {
-            Environment.setSolverPath(home + "/unix/z3");
-        }
-        else if(Environment.isWindows())
-        {
-            Environment.setSolverPath(home + "/windows/z3.exe");
-        }
-        else if(Environment.isOSX())
-        {
-            Environment.setSolverPath(home + "/osx/z3");
-        }
-        else
-        {
-            throw new IllegalStateException(String.format(
-                "Failed to initialize the solver engine. " + 
-                "Unsupported platform: %s", System.getProperty("os.name")));
-        }
     }
 
     public TestResult generateData(Situation situation, Primitive primitive)
     {
-        System.out.printf("Solving situation %s for %s...%n",
+        System.out.printf("Processing situation %s for %s...%n",
             situation, primitive.getSignature());
 
-        return null;
+        final TestBaseQuery query = newQuery(situation, primitive); 
+        System.out.println("Query to TestBase: " + query);
+
+        return new TestResult(TestResult.Status.NODATA);
+    }
+
+    private static TestBaseQuery newQuery(
+        Situation situation, Primitive primitive)
+    {
+        return new TestBaseQueryBuilder().build();
     }
 }
     /*
