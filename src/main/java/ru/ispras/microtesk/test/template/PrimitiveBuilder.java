@@ -48,14 +48,14 @@ public interface PrimitiveBuilder
 
     void addArgument(int value);
     void addArgument(String value);
-    void addArgument(RandomValueBuilder value);
+    void addArgument(RandomValue value);
     void addArgument(Primitive value);
     void addArgument(PrimitiveBuilder value);
     void addArgument(UnknownValue value);
 
     void setArgument(String name, int value);
     void setArgument(String name, String value);
-    void setArgument(String name, RandomValueBuilder value);
+    void setArgument(String name, RandomValue value);
     void setArgument(String name, Primitive value);
     void setArgument(String name, PrimitiveBuilder value);
     void setArgument(String name, UnknownValue value);
@@ -215,10 +215,10 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
         registerArgument(new ArgumentStr(value));
     }
 
-    public void addArgument(RandomValueBuilder value)
+    public void addArgument(RandomValue value)
     {
         checkNotNull(value);
-        registerArgument(new ArgumentRVB(value));
+        registerArgument(new ArgumentRandVal(value));
     }
 
     public void addArgument(Primitive value)
@@ -257,11 +257,11 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
         registerArgument(new ArgumentStr(name, value));
     }
 
-    public void setArgument(String name, RandomValueBuilder value)
+    public void setArgument(String name, RandomValue value)
     {
         checkNotNull(name);
         checkNotNull(value);
-        registerArgument(new ArgumentRVB(name, value));
+        registerArgument(new ArgumentRandVal(name, value));
     }
 
     public void setArgument(String name, Primitive value)
@@ -359,12 +359,12 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder
         }
     }
 
-    private static class ArgumentRVB extends AbstractArgument<RandomValueBuilder>
+    private static class ArgumentRandVal extends AbstractArgument<RandomValue>
     {
-        public ArgumentRVB(String name, RandomValueBuilder value)
+        public ArgumentRandVal(String name, RandomValue value)
             { super(name, value); }
 
-        public ArgumentRVB(RandomValueBuilder value)
+        public ArgumentRandVal(RandomValue value)
             { super(value); }
 
         @Override
@@ -543,7 +543,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         setArgument(name, value);
     }
 
-    public void addArgument(RandomValueBuilder value)
+    public void addArgument(RandomValue value)
     {
         final String name = getNextArgumentName();
         setArgument(name, value);
@@ -596,13 +596,13 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder
         callBuilder.addLabelReference(value, getName(), name, fakeValue);
     }
 
-    public void setArgument(String name, RandomValueBuilder value)
+    public void setArgument(String name, RandomValue value)
     {
         checkNotNull(name);
         checkNotNull(value); 
 
         final Argument arg = 
-            new Argument(name, Argument.Kind.IMM_RANDOM, value.build());
+            new Argument(name, Argument.Kind.IMM_RANDOM, value);
 
         checkValidArgument(arg);
         putArgument(arg);

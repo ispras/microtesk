@@ -24,10 +24,40 @@
 
 package ru.ispras.microtesk.test.template;
 
-public interface RandomValue
+import ru.ispras.fortress.randomizer.Randomizer;
+
+public final class RandomValue
 {
-    int getMin();
-    int getMax();
-    int getValue();
-    int getCachedValue();
+    private final int min;
+    private final int max;
+
+    private int value;
+    private boolean isValueGenerated;
+
+    RandomValue(int min, int max)
+    {
+        if (min > max)
+            throw new IllegalArgumentException(
+                String.format("min (%d) must be <= max (%d)!", min, max));
+
+        this.min = min;
+        this.max = max;
+        this.value = 0;
+        this.isValueGenerated = false;
+    }
+
+    public int getMin() { return min; }
+
+    public int getMax() { return max; }
+
+    public int getValue()
+    {
+        if (!isValueGenerated)
+        {
+            value = Randomizer.get().nextIntRange(min, max); 
+            isValueGenerated = true;
+        }
+
+        return value;
+    }
 }

@@ -152,9 +152,9 @@ public final class Template
         return pbFactory.newAddressingModeBuilder(name, callBuilder);
     }
 
-    public RandomValueBuilder newRandom(int from, int to)
+    public RandomValue newRandom(int from, int to)
     {
-        return new RandomValueBuilder(from, to);
+        return new RandomValue(from, to);
     }
 
     public UnknownValue newUnknown()
