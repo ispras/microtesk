@@ -25,7 +25,6 @@
 package ru.ispras.microtesk.test.data;
 
 import ru.ispras.fortress.solver.Environment;
-import ru.ispras.microtesk.model.api.situation2.TestResult;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 

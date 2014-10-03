@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * TestResult.java, Sep 30, 2014 6:02:45 PM Andrei Tatarnikov
+ * Location.java, Sep 30, 2014 5:27:07 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,47 +22,49 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.situation2;
+package ru.ispras.microtesk.test.data;
 
-import java.util.Collections;
-import java.util.List;
+import ru.ispras.microtesk.model.api.memory.MemoryKind;
 
-public final class TestResult
+public final class Location
 {
-    public static enum Status
+    private final String name;
+    private final MemoryKind kind;
+    private final int index;
+
+    public Location(String name, MemoryKind kind)
     {
-        OK,
-        FAILED,
-        NO_SOLUTION
+        this(name, kind, 0);
     }
 
-    private final Status status;
-    private final List<TestData> testData;
-
-    TestResult(Status status)
+    public Location(String name, MemoryKind kind, int index)
     {
-        this(status, Collections.<TestData>emptyList());
-    }
-
-    TestResult(Status status, List<TestData> testData)
-    {
-        if (null == status)
+        if (null == name)
             throw new NullPointerException();
 
-        if (null == testData)
+        if (null == kind)
             throw new NullPointerException();
 
-        this.status = status;
-        this.testData = testData;
+        if (index < 0)
+            throw new IllegalArgumentException();
+
+        this.name = name;
+        this.kind = kind;
+        this.index = index;
     }
 
-    public Status getStatus()
+    public String getName()
     {
-        return status;
+        return name;
     }
 
-    public List<TestData> getTestData()
+    public MemoryKind getKind()
     {
-        return testData;
+        return kind;
+    }
+
+    public int getIndex()
+    {
+        return index;
     }
 }

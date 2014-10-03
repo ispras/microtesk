@@ -22,10 +22,9 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.situation2;
+package ru.ispras.microtesk.test.data;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.situation2.TestResult.Status;
 import ru.ispras.microtesk.test.template.Primitive;
 
 /*
@@ -88,6 +87,6 @@ public final class TestSituation
     public TestResult solve() 
     {
         // TODO
-        return new TestResult(Status.OK);
+        return new TestResult(TestResult.Status.OK);
     }
 }
