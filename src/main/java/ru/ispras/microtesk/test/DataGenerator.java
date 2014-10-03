@@ -118,7 +118,9 @@ public final class DataGenerator
         final Primitive rootOp = abstractCall.getRootOperation();
         checkRootOp(rootOp);
 
-        System.out.println("Processing: " + rootOp.getName());
+        System.out.printf(
+            "%nProcessing instruction (root: %s)...%n", rootOp.getName());
+
         resolveSituations(rootOp);
 
         final IOperation modelOp = makeOp(rootOp);
@@ -143,7 +145,7 @@ public final class DataGenerator
         if (null == situation)
             return;
 
-        System.out.printf("%nSolving situation %s for %s...%n",
+        System.out.printf("Solving situation %s for %s...%n",
             situation, p.getSignature());
 
         final TestSituation testSituation =
@@ -221,7 +223,7 @@ public final class DataGenerator
 
             case IMM_UNKNOWN:
                 // TODO
-                throw new UnsupportedOperationException("IMM_UNKNOWN");
+                throw new UnsupportedOperationException(arg.getKind().name());
 
             default:
                 throw new IllegalArgumentException(
@@ -266,10 +268,10 @@ public final class DataGenerator
             case IMM_RANDOM:
                 builder.setArgument(argName, makeImmRandom(arg));
                 break;
-                
+
             case IMM_UNKNOWN:
                 // TODO
-                throw new UnsupportedOperationException("IMM_UNKNOWN");
+                throw new UnsupportedOperationException(arg.getKind().name());
 
             case MODE:
                 builder.setArgument(argName, makeMode(arg));
