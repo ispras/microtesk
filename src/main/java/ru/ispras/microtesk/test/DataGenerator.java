@@ -320,17 +320,7 @@ public final class DataGenerator
     }
 }
 
-
 /*
-final Situation situation = abstractCall.getSituation();
-if (null == situation)
-    return;
-
-System.out.printf("%nTrying to solve situation: %s%n", situation);
-System.out.printf("for instruction '%s' (modes:", abstractCall.getName());
-
-final Primitive rootOperation =
-    abstractCall.getRootOperation();
 
 for (Argument argument : rootOperation.getArguments().values())
 {
