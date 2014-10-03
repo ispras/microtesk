@@ -24,8 +24,6 @@
 
 package ru.ispras.microtesk.test;
 
-import ru.ispras.fortress.solver.Environment;
-
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -66,28 +64,6 @@ final class SequenceProcessor
         this.dataEngine = new DataEngine();
         this.callFactory = model.getCallFactory();
         this.sequenceBuilder = null;
-
-        final String home = 
-            System.getenv().get("MICROTESK_HOME") + "/tools/z3";
-
-        if (Environment.isUnix())
-        {
-            Environment.setSolverPath(home + "/unix/z3");
-        }
-        else if(Environment.isWindows())
-        {
-            Environment.setSolverPath(home + "/windows/z3.exe");
-        }
-        else if(Environment.isOSX())
-        {
-            Environment.setSolverPath(home + "/osx/z3");
-        }
-        else
-        {
-            throw new IllegalStateException(String.format(
-                "Failed to initialize the solver engine. " + 
-                "Unsupported platform: %s", System.getProperty("os.name")));
-        }
     }
 
     public Sequence<ConcreteCall> process(
