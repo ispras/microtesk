@@ -49,9 +49,32 @@ public final class TestDataEngine
     private static TestBaseQuery newQuery(
         Situation situation, Primitive primitive)
     {
-        return new TestBaseQueryBuilder().build();
+        return new TestBaseQueryCreator(
+           situation, primitive).getQuery();
     }
 }
+
+final class TestBaseQueryCreator
+{
+    private final Situation situation;
+    private final Primitive primitive;
+    private final TestBaseQueryBuilder builder;
+
+    public TestBaseQueryCreator(
+        Situation situation, Primitive primitive)
+    {
+        this.situation = situation;
+        this.primitive = primitive;
+        this.builder   = new TestBaseQueryBuilder();
+    }
+
+    public TestBaseQuery getQuery()
+    {
+        return builder.build();
+    }
+}
+
+
     /*
 
 final TestSituation testSituation =
