@@ -32,7 +32,7 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-import ru.ispras.microtesk.test.data.DataEngine;
+import ru.ispras.microtesk.test.data.TestDataEngine;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.SequenceBuilder;
 import ru.ispras.microtesk.test.template.Argument;
@@ -54,7 +54,7 @@ import ru.ispras.microtesk.test.template.Situation;
 final class SequenceProcessor
 {
     private final ICallFactory callFactory;
-    private final DataEngine dataEngine;
+    private final TestDataEngine dataEngine;
 
     private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
@@ -62,7 +62,7 @@ final class SequenceProcessor
     {
         checkNotNull(model);
 
-        this.dataEngine = new DataEngine();
+        this.dataEngine = new TestDataEngine();
         this.callFactory = model.getCallFactory();
         this.sequenceBuilder = null;
     }

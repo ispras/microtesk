@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * DataEngine.java, Oct 3, 2014 3:18:19 PM Andrei Tatarnikov
+ * TestDataEngine.java, Oct 3, 2014 3:18:19 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,12 +25,13 @@
 package ru.ispras.microtesk.test.data;
 
 import ru.ispras.fortress.solver.Environment;
+import ru.ispras.microtesk.model.api.situation2.TestResult;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 
-public class DataEngine
+public final class TestDataEngine
 {
-    public DataEngine()
+    public TestDataEngine()
     {
         final String home = 
             System.getenv().get("MICROTESK_HOME") + "/tools/z3";
@@ -55,10 +56,12 @@ public class DataEngine
         }
     }
 
-    public void generateData(Situation situation, Primitive primitive)
+    public TestResult generateData(Situation situation, Primitive primitive)
     {
         System.out.printf("Solving situation %s for %s...%n",
             situation, primitive.getSignature());
+
+        return null;
     }
 }
     /*
