@@ -56,6 +56,12 @@ class VLIWDemo < Template
   def run
     trace "Data Generation Example: Debug Output"
 
+    # Random immediate values     
+    vliw(
+      (addi r(rand(1, 31)), r(0), rand(0, 31)),
+      (addi r(rand(1, 31)), r(0), rand(0, 31))
+    )
+
     vliw(
       (addi r(4), r(0), 5  do situation('overflow') end),
       (addi r(5), r(0), 10 do situation('normal') end)
