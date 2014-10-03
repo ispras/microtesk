@@ -93,7 +93,7 @@ final class CallFactory
         if (r.getKind() == Argument.Kind.IMM)
             registerIndex = (Integer) r.getValue();
         else if (r.getKind() == Argument.Kind.IMM_RANDOM)
-            registerIndex = ((RandomValue) r.getValue()).getCachedValue();
+            registerIndex = ((RandomValue) r.getValue()).getValue();
         else
             throw new IllegalArgumentException("Unsupported kind: " + r.getKind());
 
@@ -144,7 +144,7 @@ final class CallFactory
         if (r.getKind() == Argument.Kind.IMM)
             registerIndex = (Integer) r.getValue();
         else if (r.getKind() == Argument.Kind.IMM_RANDOM)
-            registerIndex = ((RandomValue) r.getValue()).getCachedValue();
+            registerIndex = ((RandomValue) r.getValue()).getValue();
         else
             throw new IllegalArgumentException("Unsupported kind: " + r.getKind());
 
@@ -195,7 +195,7 @@ final class CallFactory
         if (r.getKind() == Argument.Kind.IMM)
             registerIndex = (Integer) r.getValue();
         else if (r.getKind() == Argument.Kind.IMM_RANDOM)
-            registerIndex = ((RandomValue) r.getValue()).getCachedValue();
+            registerIndex = ((RandomValue) r.getValue()).getValue();
         else
             throw new IllegalArgumentException("Unsupported kind: " + r.getKind());
 
