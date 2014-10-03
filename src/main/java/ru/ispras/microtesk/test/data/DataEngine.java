@@ -22,7 +22,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.data;
 
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.test.template.Primitive;
