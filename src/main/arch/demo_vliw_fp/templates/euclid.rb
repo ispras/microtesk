@@ -32,7 +32,7 @@ require ENV['TEMPLATE']
 # design under test. The described program calculates the greatest common
 # divisor of two 5-bit random numbers ([1..63]) by using the Euclidean 
 # algorithm.
-#  
+#
 
 class VLIWDemo < Template
 
@@ -49,19 +49,19 @@ class VLIWDemo < Template
     j = Random.rand(63) + 1
 
     trace "\nInput parameter values: #{i}, #{j}\n"
-    vliw (addi reg(4), reg(0), i), (addi reg(5), reg(0), j)
+    vliw (addi r(4), r(0), i), (addi r(5), r(0), j)
 
     label :cycle
     trace "\nCurrent register values: $4 = %d, $5 = %d\n", gpr(4), gpr(5)
-    vliw (beq reg(4), reg(5), :done), (move reg(6), reg(4))
+    vliw (beq r(4), r(5), :done), (move r(6), r(4))
 
-    vliw (slt reg(2), reg(4), reg(5)), nop
-    vliw (bne reg(2), reg(0), :if_less), nop
+    vliw (slt r(2), r(4), r(5)), nop
+    vliw (bne r(2), r(0), :if_less), nop
 
-    vliw (b :cycle), (sub reg(4), reg(4), reg(5))
+    vliw (b :cycle), (sub r(4), r(4), r(5))
 
     label :if_less
-    vliw (b :cycle), (sub reg(5), reg(5), reg(4))
+    vliw (b :cycle), (sub r(5), r(5), r(4))
 
     label :done
     trace "\nResult stored in $6: %d", gpr(6)

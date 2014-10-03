@@ -75,18 +75,18 @@ var tmp_unsigned_word      [WORD]
 ///////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
 
-mode REG (r : INDEX) = GPR[r] 
-  syntax = format("%d", r)
-  image  = format("%5b", r)
+mode R (i : INDEX) = GPR[i] 
+  syntax = format("%d", i)
+  image  = format("%5b", i)
   action = {
-    if r == 0 then
-      GPR[r] = coerce(WORD, 0);
+    if i == 0 then
+      GPR[i] = coerce(WORD, 0);
     endif;
   }
 
-mode FREG (r : INDEX) = FPR[r]
-  syntax = format("%d", r)
-  image  = format("%5b", r)
+mode F (i : INDEX) = FPR[i]
+  syntax = format("%d", i)
+  image  = format("%5b", i)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Special-Purpose Operations
@@ -99,7 +99,7 @@ op NOP()
 ///////////////////////////////////////////////////////////////////////////////
 // Arithmetical Operations
 
-op ADD (rd : REG, rs : REG, rt : REG)
+op ADD (rd : R, rs : R, rt : R)
   syntax = format("ADD %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image) 
   action = {
@@ -111,7 +111,7 @@ op ADD (rd : REG, rs : REG, rt : REG)
     endif;
   }
 
-op ADDI (rt : REG, rs : REG, imm : SHORT)
+op ADDI (rt : R, rs : R, imm : SHORT)
   syntax = format("ADDI %s, %s, %d", rt.syntax, rs.syntax, imm)
   image  = format("001000%s%s%s", rs.image, rt.image, imm)
   action = { 
@@ -123,7 +123,7 @@ op ADDI (rt : REG, rs : REG, imm : SHORT)
     endif;
   }
 
-op SUB (rd : REG, rs : REG, rt : REG)
+op SUB (rd : R, rs : R, rt : R)
   syntax = format("SUB %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image) 
   action = {
@@ -135,7 +135,7 @@ op SUB (rd : REG, rs : REG, rt : REG)
     endif;
   }
 
-op MUL (rd : REG, rs : REG, rt : REG)
+op MUL (rd : R, rs : R, rt : R)
   syntax = format("MUL %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("011100%s%s%s00000000010", rs.image, rt.image, rd.image)
   action = {
@@ -145,7 +145,7 @@ op MUL (rd : REG, rs : REG, rt : REG)
 ///////////////////////////////////////////////////////////////////////////////
 // Move Operations
 
-op MOVN (rd : REG, rs : REG, rt : REG)
+op MOVN (rd : R, rs : R, rt : R)
   syntax = format("MOVN %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000001011", rs.image, rt.image, rd.image) 
   action = {
@@ -154,7 +154,7 @@ op MOVN (rd : REG, rs : REG, rt : REG)
     endif;
   }
 
-op MOVZ (rd : REG, rs : REG, rt : REG)
+op MOVZ (rd : R, rs : R, rt : R)
   syntax = format("MOVZ %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000001010", rs.image, rt.image, rd.image) 
   action = {
@@ -163,7 +163,7 @@ op MOVZ (rd : REG, rs : REG, rt : REG)
     endif;
   }
 
-op MOVE (rd : REG, rs : REG)
+op MOVE (rd : R, rs : R)
   syntax = format("MOVE %s, %s", rd.syntax, rs.syntax)
   image  = format("000000%s00000%s00000100001", rd.image, rs.image)
   action = {
@@ -173,21 +173,21 @@ op MOVE (rd : REG, rs : REG)
 ///////////////////////////////////////////////////////////////////////////////
 // Logical Operations
 
-op AND (rd : REG, rs : REG, rt : REG)
+op AND (rd : R, rs : R, rt : R)
   syntax = format("AND %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000100100", rs.image, rt.image, rd.image) 
   action = {
     rd = rs & rt;
   }
 
-op OR (rd : REG, rs : REG, rt : REG)
+op OR (rd : R, rs : R, rt : R)
   syntax = format("OR %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image) 
   action = {
     rd = rs | rt;
   }
 
-op XOR (rd : REG, rs : REG, rt : REG)
+op XOR (rd : R, rs : R, rt : R)
   syntax = format("XOR %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000100110", rs.image, rt.image, rd.image) 
   action = {
@@ -197,14 +197,14 @@ op XOR (rd : REG, rs : REG, rt : REG)
 ///////////////////////////////////////////////////////////////////////////////
 // Comparison Operations
 
-op SLT (rd : REG, rs : REG, rt : REG)
+op SLT (rd : R, rs : R, rt : R)
   syntax = format("SLT %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%5b00000101010", rs.image, rt.image, rd.image) 
   action = {
     rd = if rs < rt then 1 else 0 endif;
   }
 
-op SLTI (rt : REG, rs : REG, imm : SHORT)
+op SLTI (rt : R, rs : R, imm : SHORT)
   syntax = format("SLTI %s, %s, %d", rt.syntax, rs.syntax, imm)
   image  = format("001010%s%s%s", rs.image, rt.image, imm)
   action = {
@@ -214,21 +214,21 @@ op SLTI (rt : REG, rs : REG, imm : SHORT)
 ///////////////////////////////////////////////////////////////////////////////
 // Load Store Operations
 
-op LUI (rt : REG, offset : SHORT)
+op LUI (rt : R, offset : SHORT)
   syntax = format("LUI %s, %d", rt.syntax, offset)
   image  = format("00111100000%s%s", rt.image, offset)
   action = {
     rt = offset << 16;
   }
 
-op LW (base : REG, rt : REG, offset : SHORT)
+op LW (base : R, rt : R, offset : SHORT)
   syntax = format("LW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("100011%s%s%s", base.image, rt.image, offset)
   action = {
     rt = M[base + offset + 3]::M[base + offset + 2]::M[base + offset + 1]::M[base + offset];
   }
 
-op SW (base : REG, rt : REG, offset : SHORT)
+op SW (base : R, rt : R, offset : SHORT)
   syntax = format("SW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("101011%s%s%s", base.image, rt.image, offset)
   action = {
@@ -249,7 +249,7 @@ op B (offset : SHORT)
     JMPADDR = NIA + (offset << 3);
   }
 
-op BEQ (rs : REG, rt : REG, offset : SHORT)
+op BEQ (rs : R, rt : R, offset : SHORT)
   syntax = format("BEQ %s, %s, %d", rs.syntax, rt.syntax, offset)
   image  = format("000100%s%s%s", rs.image, rt.image, offset)
   action = {
@@ -259,7 +259,7 @@ op BEQ (rs : REG, rt : REG, offset : SHORT)
     endif;
   }
 
-op BNE (rs : REG, rt : REG, offset : SHORT)
+op BNE (rs : R, rt : R, offset : SHORT)
   syntax = format("BNE %s, %s, %d", rs.syntax, rt.syntax, offset)
   image  = format("000101%s%s%s", rs.image, rt.image, offset)
   action = {
@@ -272,35 +272,35 @@ op BNE (rs : REG, rt : REG, offset : SHORT)
 ///////////////////////////////////////////////////////////////////////////////
 // Arithmetical Operations for Floating Point
 
-op ADD_S (fd : FREG, fs : FREG, ft : FREG)
+op ADD_S (fd : F, fs : F, ft : F)
   syntax = format("ADD_S %s, %s, %s", fd.syntax, fs.syntax, ft.syntax)
   image  = format("01000110000%s%s%s000000", ft.image, fs.image, fd.image)
   action = {
     fd = fs + ft;
   }
 
-op SUB_S (fd : FREG, fs : FREG, ft : FREG)
+op SUB_S (fd : F, fs : F, ft : F)
   syntax = format("SUB_S %s, %s, %s", fd.syntax, fs.syntax, ft.syntax)
   image  = format("01000110000%s%s%s000001", ft.image, fs.image, fd.image)
   action = {
     FPR[fd] = FPR[fs] - FPR[ft];
   }
 
-op MUL_S (fd : FREG, fs : FREG, ft : FREG)
+op MUL_S (fd : F, fs : F, ft : F)
   syntax = format("MUL_S %s, %s, %s", fd.syntax, fs.syntax, ft.syntax)
   image  = format("01000110000%s%s%s000010", ft.image, fs.image, fd.image)
   action = {
     fd = fs * ft;
   }
 
-op NEG_S (fd : FREG, fs : FREG)
+op NEG_S (fd : F, fs : F)
   syntax = format("NEG_S %s, %s", fd.syntax, fs.syntax)
   image  = format("0100011000000000%s%s000111", fs.image, fd.image)
   action = {
     fd = -fs;
   }
 
-op ABS_S (fd : FREG, fs : FREG)
+op ABS_S (fd : F, fs : F)
   syntax = format("ABS_S %s, %s", fd.syntax, fs.syntax)
   image  = format("0100011000000000%s%s000101", fs.image, fd.image)
   action = {
@@ -314,7 +314,7 @@ op ABS_S (fd : FREG, fs : FREG)
 ///////////////////////////////////////////////////////////////////////////////
 // Comparison Operations for Floating Point
 
-op C_EQ_S (ft : FREG, fs : FREG, cc : COND_CODE)
+op C_EQ_S (ft : F, fs : F, cc : COND_CODE)
   syntax = format("C_EQ_S %d, %s, %s", cc, fs.syntax, ft.syntax)
   image  = format("01000110000%s%s%s00110010", ft.image, fs.image, cc) 
   action = {
@@ -325,7 +325,7 @@ op C_EQ_S (ft : FREG, fs : FREG, cc : COND_CODE)
     endif;
   }
 
-op C_LT_S (ft : FREG, fs : FREG, cc : COND_CODE)
+op C_LT_S (ft : F, fs : F, cc : COND_CODE)
   syntax = format("C_LT_S %d, %s, %s", cc, fs.syntax, ft.syntax)
   image  = format("01000110000%s%s%s00111100", ft.image, fs.image, cc) 
   action = {
@@ -336,7 +336,7 @@ op C_LT_S (ft : FREG, fs : FREG, cc : COND_CODE)
     endif;
   }
 
-op C_LE_S (ft : FREG, fs : FREG, cc : COND_CODE)
+op C_LE_S (ft : F, fs : F, cc : COND_CODE)
   syntax = format("C_LE_S %d, %s, %s", cc, fs.syntax, ft.syntax)
   image  = format("01000110000%s%s%s00111110", ft.image, fs.image, cc)
   action = {
@@ -350,28 +350,28 @@ op C_LE_S (ft : FREG, fs : FREG, cc : COND_CODE)
 ///////////////////////////////////////////////////////////////////////////////
 // Move Operations for Floating Point
 
-op MOV_S (fd : FREG, fs : FREG)
+op MOV_S (fd : F, fs : F)
   syntax = format("MOV_S %s, %s", fd.syntax, fs.syntax)
   image  = format("0100011000000000%s%s000110", fs.image, fd.image) 
   action = {
     fd = fs;
   }
 
-op MTC1 (rt : REG, fs : FREG)
+op MTC1 (rt : R, fs : F)
   syntax = format("MTC1 %s, %s", rt.syntax, fs.syntax)
   image  = format("01000100100%s%s00000000000", rt.image, fs.image) 
   action = {
     fs = rt;    
   }
 
-op MFC1 (rt : REG, fs : FREG)
+op MFC1 (rt : R, fs : F)
   syntax = format("MFC1 %s, %s", rt.syntax, fs.syntax)
   image  = format("01000100000%s%s00000000000", rt.image, fs.image) 
   action = {
     rt = fs;
   }
   
-op MOVT_S (fd : FREG, fs : FREG, cc : COND_CODE)
+op MOVT_S (fd : F, fs : F, cc : COND_CODE)
   syntax = format("MOVT_S %s, %s", fd.syntax, fs.syntax)
   image  = format("01000110000%s01%s%s010001", cc, fs.image, fd.image) 
   action = {
@@ -380,7 +380,7 @@ op MOVT_S (fd : FREG, fs : FREG, cc : COND_CODE)
     endif;
   }
 
-op MOVF_S (fd : FREG, fs : FREG, cc : COND_CODE)
+op MOVF_S (fd : F, fs : F, cc : COND_CODE)
   syntax = format("MOVF_S %s, %s, %d", fd.syntax, fs.syntax, cc)
   image  = format("01000110000%s00%s%s010001", cc, fs.image, fd.image)
   action = {
@@ -389,7 +389,7 @@ op MOVF_S (fd : FREG, fs : FREG, cc : COND_CODE)
     endif;
   }
 
-op MOVN_S (fd : FREG, fs : FREG, rt : REG)
+op MOVN_S (fd : F, fs : F, rt : R)
   syntax = format("MOVN_S %s, %s, %s", fd.syntax, fs.syntax, rt.syntax)
   image  = format("01000110000%s%s%s010011", rt.image, fs.image, fd.image) 
   action = {
@@ -398,7 +398,7 @@ op MOVN_S (fd : FREG, fs : FREG, rt : REG)
     endif;
   }
 
-op MOVZ_S (fd : FREG, fs : FREG, rt : REG)
+op MOVZ_S (fd : F, fs : F, rt : R)
   syntax = format("MOVZ_S %s, %s, %s", fd.syntax, fs.syntax, rt.syntax)
   image  = format("01000110000%s%s%s010010", rt.image, fs.image, fd.image) 
   action = {
