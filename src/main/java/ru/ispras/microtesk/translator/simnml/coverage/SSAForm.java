@@ -2,7 +2,6 @@ package ru.ispras.microtesk.translator.simnml.coverage;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Collections;
 
 import ru.ispras.fortress.expression.Node;
