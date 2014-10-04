@@ -25,6 +25,7 @@
 package ru.ispras.microtesk.test.data;
 
 import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.TestBaseContext;
@@ -108,6 +109,11 @@ final class TestBaseQueryCreator
         builder.setContextAttribute(TestBaseContext.PROCESSOR, processor);
         builder.setContextAttribute(TestBaseContext.PROCESSOR, primitive.getName());
         builder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
+
+        for (Argument arg : primitive.getArguments().values())
+        {
+            builder.setContextAttribute(arg.getName(), arg.getTypeName());
+        }
     }
 
     private void createParameters()
