@@ -84,6 +84,10 @@ final class TestBaseQueryCreator
     public TestBaseQuery getQuery()
     {
         createQuery();
+
+        if (null == query)
+            throw new NullPointerException();
+
         return query;
     }
 
