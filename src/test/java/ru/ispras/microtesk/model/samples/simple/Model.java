@@ -37,6 +37,8 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 public final class Model extends ProcessorModel
 {
+    public static final String NAME = "simple";
+
     private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[]
     { 
         IMM.INFO,
@@ -59,6 +61,7 @@ public final class Model extends ProcessorModel
     public Model()
     {
         super(
+            NAME,
             __MODES,
             __OPS,
             __REGISTERS,
