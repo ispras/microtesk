@@ -81,6 +81,7 @@ final class STBModel implements ITemplateBuilder
 
         final ST tc = group.getInstanceOf("constructor");
 
+        tc.add("name",     modelName);
         tc.add("reg",      ProcessorModel.SHARED_REGISTERS);
         tc.add("mem",      ProcessorModel.SHARED_MEMORY);
         tc.add("lab",      ProcessorModel.SHARED_LABELS);

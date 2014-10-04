@@ -36,7 +36,9 @@ model(file, pack, imps, simps, base, members) ::= <<
        members)> 
 >>
 
-constructor(reg, mem, lab, stat, modes, ops, inits, reset) ::= <<
+constructor(name, reg, mem, lab, stat, modes, ops, inits, reset) ::= <<
+<class_string_const("String", "NAME", name)>
+
 private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[]
 {
     <modes:{m |<m>.INFO}; separator=",\n">
@@ -52,6 +54,7 @@ private final IInitializerGenerator[] __INITIALIZERS;
 public Model()
 {
     super(
+        NAME,
         __MODES,
         __OPS,
         <reg>,

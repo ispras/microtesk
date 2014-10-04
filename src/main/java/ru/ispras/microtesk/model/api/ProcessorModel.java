@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -61,7 +61,9 @@ public abstract class ProcessorModel implements IModel, ICallFactory
     public static final String SHARED_LABELS    = "__LABELS";
     public static final String SHARED_STATUSES  = "__STATUSES";
     public static final String SHARED_RESETTER  = "__RESETTER";
-    
+
+    private final String name;
+
     private final AddressingModeStore modes;
     private final OperationStore ops;
 
@@ -70,6 +72,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory
     private final MetaModel metaModel;
 
     public ProcessorModel(
+        String name,
         IAddressingMode.IInfo[] modes,
         IOperation.IInfo[] ops,
         Memory[] registers,
@@ -79,6 +82,8 @@ public abstract class ProcessorModel implements IModel, ICallFactory
         Resetter resetter
         )
     {
+        this.name = name;
+
         this.modes = new AddressingModeStore(modes);
         this.ops = new OperationStore(ops); 
 
@@ -93,6 +98,11 @@ public abstract class ProcessorModel implements IModel, ICallFactory
             new MemoryStore(registers).getMetaData(),
             new MemoryStore(memory).getMetaData()
             );
+    }
+
+    public final String getName()
+    {
+        return name;
     }
 
     // IModel
