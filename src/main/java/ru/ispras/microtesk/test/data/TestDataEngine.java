@@ -107,7 +107,7 @@ final class TestBaseQueryCreator
     private void createContext()
     {
         builder.setContextAttribute(TestBaseContext.PROCESSOR, processor);
-        builder.setContextAttribute(TestBaseContext.PROCESSOR, primitive.getName());
+        builder.setContextAttribute(TestBaseContext.INSTRUCTION, primitive.getName());
         builder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
 
         for (Argument arg : primitive.getArguments().values())
