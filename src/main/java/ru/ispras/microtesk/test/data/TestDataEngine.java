@@ -24,6 +24,8 @@
 
 package ru.ispras.microtesk.test.data;
 
+import java.util.Map;
+
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -122,8 +124,10 @@ final class TestBaseQueryCreator
 
     private void createParameters()
     {
-        // TODO Auto-generated method stub
-        
+        for (Map.Entry<String, Object> attrEntry : situation.getAttributes().entrySet())
+        {
+            builder.setParameter(attrEntry.getKey(), attrEntry.getValue().toString());
+        }
     }
 
     private void createBindings()
