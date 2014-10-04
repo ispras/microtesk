@@ -62,7 +62,7 @@ final class SequenceProcessor
     {
         checkNotNull(model);
 
-        this.dataEngine = new TestDataEngine();
+        this.dataEngine = new TestDataEngine(model);
         this.callFactory = model.getCallFactory();
         this.sequenceBuilder = null;
     }

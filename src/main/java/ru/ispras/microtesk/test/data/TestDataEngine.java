@@ -24,15 +24,23 @@
 
 package ru.ispras.microtesk.test.data;
 
+import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 
 public final class TestDataEngine
 {
-    public TestDataEngine()
+    private final IModel model;
+    
+    public TestDataEngine(IModel model)
     {
+        if (null == model)
+            throw new NullPointerException();
+
+        this.model = model;
     }
 
     public TestResult generateData(Situation situation, Primitive primitive)
@@ -40,37 +48,78 @@ public final class TestDataEngine
         System.out.printf("Processing situation %s for %s...%n",
             situation, primitive.getSignature());
 
-        final TestBaseQuery query = newQuery(situation, primitive); 
+        final TestBaseQueryCreator queryCreator =
+            new TestBaseQueryCreator(model.getName(), situation, primitive);
+
+        final TestBaseQuery query = queryCreator.getQuery(); 
         System.out.println("Query to TestBase: " + query);
 
         return new TestResult(TestResult.Status.NODATA);
-    }
-
-    private static TestBaseQuery newQuery(
-        Situation situation, Primitive primitive)
-    {
-        return new TestBaseQueryCreator(
-           situation, primitive).getQuery();
     }
 }
 
 final class TestBaseQueryCreator
 {
+    private final String processor;
     private final Situation situation;
     private final Primitive primitive;
-    private final TestBaseQueryBuilder builder;
+
+    private boolean isCreated;
+    private TestBaseQueryBuilder builder;
+    private TestBaseQuery query;
 
     public TestBaseQueryCreator(
-        Situation situation, Primitive primitive)
+        String processor, Situation situation, Primitive primitive)
     {
+        this.processor = processor;
         this.situation = situation;
         this.primitive = primitive;
-        this.builder   = new TestBaseQueryBuilder();
+
+        this.isCreated = false;
+        this.builder   = null;
+        this.query     = null;
     }
 
     public TestBaseQuery getQuery()
     {
-        return builder.build();
+        createQuery();
+        return query;
+    }
+
+    private void createQuery()
+    {
+        if (isCreated)
+            return;
+
+        builder = new TestBaseQueryBuilder();
+
+        createContext();
+        createParameters();
+        createBindings();
+
+        query = builder.build();
+        builder = null;
+
+        isCreated = true;
+    }
+
+    private void createContext()
+    {
+        builder.setContextAttribute(TestBaseContext.PROCESSOR, processor);
+        builder.setContextAttribute(TestBaseContext.PROCESSOR, primitive.getName());
+        builder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
+    }
+
+    private void createParameters()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private void createBindings()
+    {
+        // TODO Auto-generated method stub
+        
     }
 }
 
