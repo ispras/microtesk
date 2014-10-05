@@ -24,12 +24,19 @@
 
 package ru.ispras.microtesk.test.data;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.test.template.UnknownValue;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
@@ -57,6 +64,10 @@ public final class TestDataEngine
         final TestBaseQuery query = queryCreator.getQuery(); 
         System.out.println("Query to TestBase: " + query);
 
+        final Map<String, UnknownValue> unknownValues = 
+            queryCreator.getUnknownValues();
+        System.out.println("Unknown values: " + unknownValues);
+
         return new TestResult(TestResult.Status.NODATA);
     }
 }
@@ -68,8 +79,8 @@ final class TestBaseQueryCreator
     private final Primitive primitive;
 
     private boolean isCreated;
-    private TestBaseQueryBuilder builder;
     private TestBaseQuery query;
+    private Map<String, UnknownValue> unknownValues;
 
     public TestBaseQueryCreator(
         String processor, Situation situation, Primitive primitive)
@@ -79,8 +90,8 @@ final class TestBaseQueryCreator
         this.primitive = primitive;
 
         this.isCreated = false;
-        this.builder   = null;
-        this.query     = null;
+        this.query = null;
+        this.unknownValues = null;
     }
 
     public TestBaseQuery getQuery()
@@ -93,101 +104,142 @@ final class TestBaseQueryCreator
         return query;
     }
 
+    public Map<String, UnknownValue> getUnknownValues()
+    {
+        createQuery();
+
+        if (null == unknownValues)
+            throw new NullPointerException();
+
+        return unknownValues;
+    }
+
     private void createQuery()
     {
         if (isCreated)
             return;
 
-        builder = new TestBaseQueryBuilder();
+        final TestBaseQueryBuilder queryBuilder = 
+            new TestBaseQueryBuilder();
 
-        createContext();
-        createParameters();
-        createBindings();
+        createContext(queryBuilder);
+        createParameters(queryBuilder);
 
-        query = builder.build();
-        builder = null;
+        final BindingBuilder bindingBuilder = 
+            new BindingBuilder(queryBuilder, primitive);
+
+        unknownValues = bindingBuilder.build();
+        query = queryBuilder.build();
 
         isCreated = true;
     }
 
-    private void createContext()
+    private void createContext(TestBaseQueryBuilder queryBuilder)
     {
-        builder.setContextAttribute(TestBaseContext.PROCESSOR, processor);
-        builder.setContextAttribute(TestBaseContext.INSTRUCTION, primitive.getName());
-        builder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
+        queryBuilder.setContextAttribute(
+            TestBaseContext.PROCESSOR, processor);
+
+        queryBuilder.setContextAttribute(
+            TestBaseContext.INSTRUCTION, primitive.getName());
+
+        queryBuilder.setContextAttribute(
+            TestBaseContext.TESTCASE, situation.getName());
 
         for (Argument arg : primitive.getArguments().values())
         {
-            builder.setContextAttribute(arg.getName(), arg.getTypeName());
+            queryBuilder.setContextAttribute(arg.getName(), arg.getTypeName());
         }
     }
 
-    private void createParameters()
+    private void createParameters(TestBaseQueryBuilder queryBuilder)
     {
-        for (Map.Entry<String, Object> attrEntry : situation.getAttributes().entrySet())
+        for (Map.Entry<String, Object> attrEntry :
+            situation.getAttributes().entrySet())
         {
-            builder.setParameter(attrEntry.getKey(), attrEntry.getValue().toString());
+            queryBuilder.setParameter(
+                attrEntry.getKey(), attrEntry.getValue().toString());
         }
     }
 
-    private void createBindings()
+    private static final class BindingBuilder
     {
-        // TODO Auto-generated method stub
-        
+        private final TestBaseQueryBuilder queryBuilder;
+        private final Map<String, UnknownValue> unknownValues;
+        private final Primitive primitive;
+        private boolean isBuilt;
+
+        private BindingBuilder(
+            TestBaseQueryBuilder queryBuilder,
+            Primitive primitive
+            )
+        {
+            if (null == queryBuilder)
+                throw new NullPointerException();
+
+            if (null == primitive)
+                throw new NullPointerException();
+
+            this.queryBuilder = queryBuilder;
+            this.primitive = primitive;
+            this.unknownValues = new HashMap<String, UnknownValue>();
+            this.isBuilt = false;
+        }
+
+        public Map<String, UnknownValue> build()
+        {
+            if (isBuilt)
+                throw new IllegalStateException();
+
+            visit("", primitive);
+
+            isBuilt = true;
+            return unknownValues;
+        }
+
+        private void visit(String prefix, Primitive p)
+        {
+            if (p.getSituation() != null && !prefix.isEmpty())
+                throw new IllegalArgumentException(String.format(
+                    "Error: The %s argument (type %s) is an operation with " +
+                    "test situation %s. The current version does not support " +
+                    "nesting of test situations.", prefix, p.getTypeName()));
+
+            for (Argument arg : p.getArguments().values())
+            {
+                final String argName = prefix.isEmpty() ?
+                    arg.getName() : String.format("%s.%s", prefix, arg.getName());
+
+                switch (arg.getKind())
+                {
+                case IMM:
+                    queryBuilder.setBinding(argName,
+                        NodeValue.newInteger((Integer) arg.getValue()));
+                    break;
+
+                case IMM_RANDOM:
+                    queryBuilder.setBinding(argName,
+                        NodeValue.newInteger(((RandomValue) arg.getValue()).getValue()));
+                    break;
+
+                case IMM_UNKNOWN:
+                    queryBuilder.setBinding(argName,
+                        new NodeVariable(new Variable(argName, DataType.INTEGER)));
+                    unknownValues.put(argName, (UnknownValue) arg.getValue());
+                    break;
+
+                case MODE:
+                case OP:
+                    visit(argName, (Primitive) arg.getValue());
+                    break;
+
+                default:
+                    throw new IllegalArgumentException(
+                        "Illegal kind: " + arg.getKind());
+                }
+            }
+        }
     }
 }
-
-
-    /*
-
-final TestSituation testSituation =
-    testKnowledge.getSituation(p.getSituation(), p);
-
-if (null == testSituation)
-{
-    System.out.printf(
-        "Situation %s is not found.%n", situation.getName());
-    return;
-}
-
-if (!testSituation.isApplicable(p))
-{
-    System.out.printf(
-        "Situation %s is not applicable to %s %s.%n",
-        situation.getName(), p.getKind().getText(), p.getName());
-    return;
-}
-
-/*
-for (Argument argument : p.getArguments().values())
-{
-    // TODO:
-    // situation.setOutput(argument.getName());
-}
-*/
-/*
-final TestResult testResult = testSituation.solve();
-if (TestResult.Status.OK == testResult.getStatus())
-{
-    // TODO
-}
-
-    }
-}
-
-
-/*
-
-for (Argument argument : rootOperation.getArguments().values())
-{
-    System.out.print(" ");
-    System.out.print(argument.isImmediate() ?
-       AddressingModeImm.PARAM_NAME :
-       ((Primitive) argument.getValue()).getName()); 
-}
-
-System.out.println(")");
-*/
 
 /*
 final ISituation situation =
