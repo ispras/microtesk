@@ -29,12 +29,47 @@ package ru.ispras.microtesk.test.template;
  * specified as an argument of an addressing mode or operation.
  * A corresponding concrete value must be produced as a result
  * of test data generation for some test situation linked to the
- * primitive (MODE or OP) this unknown value is passed to an an argument.  
+ * primitive (MODE or OP) this unknown value is passed to an argument.
+ * The generated concrete value is assigned to the object via the
+ * {@code setValue} method. N.B. The value can be assigned only once,
+ * otherwise an exception will be raised. This is done to avoid misuse
+ * of the class. For example, when several MODE or OP object hold
+ * a reference to the same unknown value object the concrete value must
+ * be generated and assigned only once.  
  * 
  * @author Andrei Tatarnikov
  */
 
 public final class UnknownValue
 {
-    // TODO
+    private int value;
+    private boolean isValueSet;
+
+    UnknownValue()
+    {
+        this.value = 0;
+        this.isValueSet = false;
+    }
+
+    public boolean isValueSet()
+    {
+        return isValueSet;
+    }
+
+    public int getValue()
+    {
+        if (!isValueSet)
+            throw new IllegalStateException("Value is not set.");
+
+        return value;
+    }
+
+    public void setValue(int value)
+    {
+        if (isValueSet)
+            throw new IllegalStateException("Value is already set.");
+
+        this.value = value;
+        this.isValueSet = true;
+    }
 }
