@@ -40,6 +40,8 @@ import ru.ispras.microtesk.test.template.UnknownValue;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
+import ru.ispras.testbase.TestData;
+import ru.ispras.testbase.TestDataProvider;
 
 public final class TestDataEngine
 {
@@ -68,6 +70,20 @@ public final class TestDataEngine
             queryCreator.getUnknownValues();
         System.out.println("Unknown values: " + unknownValues.keySet());
 
+        final TestDataProvider dataProvider = executeQuery(query);
+        if (null == dataProvider || !dataProvider.hasNext())
+        {
+            System.out.println("No data was generated.");
+            return;
+        }
+
+        final TestData data = dataProvider.next();
+        System.out.println(data);
+    }
+    
+    private TestDataProvider executeQuery(TestBaseQuery query)
+    {
+        return null;
     }
 }
 
