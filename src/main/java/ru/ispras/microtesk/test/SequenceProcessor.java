@@ -41,6 +41,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.test.template.UnknownValue;
 
 /**
  * The SequenceProcessor class processes an abstract instruction call
@@ -145,6 +146,13 @@ final class SequenceProcessor
 
         return ((RandomValue) argument.getValue()).getValue();
     }
+    
+    private int makeImmUnknown(Argument argument)
+    {
+        checkArgKind(argument, Argument.Kind.IMM_UNKNOWN);
+
+        return ((UnknownValue) argument.getValue()).getValue();
+    }
 
     private IAddressingMode makeMode(Argument argument)
         throws ConfigurationException
@@ -171,8 +179,8 @@ final class SequenceProcessor
                 break;
 
             case IMM_UNKNOWN:
-                // TODO
-                throw new UnsupportedOperationException(arg.getKind().name());
+                builder.setArgumentValue(argName, makeImmUnknown(arg));
+                break;
 
             default:
                 throw new IllegalArgumentException(
@@ -219,8 +227,8 @@ final class SequenceProcessor
                 break;
 
             case IMM_UNKNOWN:
-                // TODO
-                throw new UnsupportedOperationException(arg.getKind().name());
+                builder.setArgument(argName, makeImmUnknown(arg));
+                break;
 
             case MODE:
                 builder.setArgument(argName, makeMode(arg));
