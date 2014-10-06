@@ -123,7 +123,7 @@ public final class Primitive
         }
 
         return String.format(
-           "%s %s(%s), context=%s, type=%s, root=%b",
+           "%s %s(%s):[context=%s, type=%s, root=%b]",
            kind.getText(),
            name,
            sb,
