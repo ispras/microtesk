@@ -79,16 +79,10 @@ public final class TestDataEngine
         System.out.println("Modes used as arguments: " + modes);
 
         final TestBaseQueryResult queryResult = executeQuery(query);
-        if (TestBaseQueryResult.Status.ERROR == queryResult.getStatus())
+        if (TestBaseQueryResult.Status.OK != queryResult.getStatus())
         {
             printErrors(queryResult);
             return;
-        }
-
-        if (TestBaseQueryResult.Status.OK != queryResult.getStatus())
-        {
-           throw new IllegalStateException(
-               "Unknown query result status: " + queryResult.getStatus());
         }
 
         final TestDataProvider dataProvider = queryResult.getDataProvider(); 
@@ -111,8 +105,8 @@ public final class TestDataEngine
     
     private void printErrors(TestBaseQueryResult queryResult)
     {
-        final StringBuilder sb = 
-            new StringBuilder("Failed to execute the query.");
+        final StringBuilder sb = new StringBuilder(String.format(
+            "Failed to execute the query. Status: %s.", queryResult.getStatus()));
 
         if (queryResult.hasErrors())
         {
