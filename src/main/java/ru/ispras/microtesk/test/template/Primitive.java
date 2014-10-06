@@ -122,15 +122,15 @@ public final class Primitive
             sb.append(arg.getName() + ": " + arg.getTypeName());
         }
 
-        return String.format(
-           "%s %s(%s):[context=%s, type=%s, root=%b]",
-           kind.getText(),
-           name,
-           sb,
-           contextName,
-           typeName,
-           isRoot
-           );
+        final String signature = String.format(
+           "%s %s(%s)", kind.getText(), name, sb);
+
+        if (kind == Kind.MODE)
+            return signature;
+
+        // The rest attributes make sense only for OPs.
+        return signature + String.format(":[context=%s, type=%s, root=%b]",
+           contextName, typeName, isRoot);
     }
 
     @Override
