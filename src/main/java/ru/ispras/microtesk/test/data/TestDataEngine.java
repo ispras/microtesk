@@ -24,7 +24,10 @@
 
 package ru.ispras.microtesk.test.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
@@ -40,19 +43,22 @@ import ru.ispras.microtesk.test.template.UnknownValue;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
+import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
 
 public final class TestDataEngine
 {
     private final IModel model;
-    
+    private final List<TestDataProvider> providers;
+
     public TestDataEngine(IModel model)
     {
         if (null == model)
             throw new NullPointerException();
 
         this.model = model;
+        this.providers = new ArrayList<TestDataProvider>();
     }
 
     public void generateData(Situation situation, Primitive primitive)
@@ -70,10 +76,23 @@ public final class TestDataEngine
             queryCreator.getUnknownValues();
         System.out.println("Unknown values: " + unknownValues.keySet());
 
-        final TestDataProvider dataProvider = executeQuery(query);
-        if (null == dataProvider || !dataProvider.hasNext())
+        final TestBaseQueryResult queryResult = executeQuery(query);
+        if (TestBaseQueryResult.Status.ERROR == queryResult.getStatus())
         {
-            System.out.println("No data was generated.");
+            printErrors(queryResult);
+            return;
+        }
+
+        if (TestBaseQueryResult.Status.OK != queryResult.getStatus())
+        {
+           throw new IllegalStateException(
+               "Unknown query result status: " + queryResult.getStatus());
+        }
+
+        final TestDataProvider dataProvider = queryResult.getDataProvider(); 
+        if (!dataProvider.hasNext())
+        {
+            System.out.println("No data was generated for the query.");
             return;
         }
 
@@ -81,9 +100,29 @@ public final class TestDataEngine
         System.out.println(data);
     }
     
-    private TestDataProvider executeQuery(TestBaseQuery query)
+    private TestBaseQueryResult executeQuery(TestBaseQuery query)
     {
-        return null;
+        return TestBaseQueryResult.reportErrors(
+            Collections.<String>singletonList(
+                "Data generation is not supported yet."));
+    }
+    
+    private void printErrors(TestBaseQueryResult queryResult)
+    {
+        final StringBuilder sb = 
+            new StringBuilder("Failed to execute the query.");
+
+        if (queryResult.hasErrors())
+        {
+            sb.append(" Errors: ");
+            for (String error : queryResult.getErrors())
+            {
+                sb.append("\r\n  ");
+                sb.append(error);
+            }
+        }
+
+        System.out.println(sb);
     }
 }
 
