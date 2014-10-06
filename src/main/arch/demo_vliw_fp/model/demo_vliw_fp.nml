@@ -64,13 +64,7 @@ var  BRANCH[BIT]  // Branch flag
 ///////////////////////////////////////////////////////////////////////////////
 // Temporary Variables (For Storing Intermediate Calculation Results)
 
-var overflow_bit           [BIT]
-var tmp_signed_byte        [SBYTE]
-var tmp_unsigned_byte      [BYTE]
-var tmp_signed_half_word   [SHORT]
-var tmp_unsigned_half_word [HWORD]
-var tmp_signed_word        [LONG]
-var tmp_unsigned_word      [WORD]
+var temp[card(33)]
 
 ///////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
@@ -99,39 +93,82 @@ op NOP()
 ///////////////////////////////////////////////////////////////////////////////
 // Arithmetical Operations
 
+/*
+  Operation ADD:
+
+  if NotWordValue(GPR[rs]) or NotWordValue(GPR[rt]) then
+    UNPREDICTABLE
+  endif
+  temp ← (GPR[rs]31||GPR[rs]31..0) + (GPR[rt]31||GPR[rt]31..0)
+  if temp32 ≠ temp31 then
+    SignalException(IntegerOverflow)
+  else
+    GPR[rd] ← sign_extend(temp31..0)
+  endif
+*/
+
 op ADD (rd : R, rs : R, rt : R)
   syntax = format("ADD %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image) 
   action = {
-    overflow_bit::tmp_unsigned_word = rs + rt;
-    if (overflow_bit == 1) then
-      // "print" ("Integer Overflow Exception");
+    temp = rs<31>::rs + rt<31>::rt;
+    if temp<32> != temp<31> then
+      // SignalException("IntegerOverflow");
     else
-      rd = tmp_unsigned_word;
+      rd = temp<31..0>;
     endif;
   }
+
+/*
+   Operation ADDI:
+
+   if NotWordValue(GPR[rs]) then
+     UNPREDICTABLE
+   endif
+
+   temp ← (GPR[rs]31 || GPR[rs]31..0) + sign_extend(immediate)
+   if temp32 ≠ temp31 then
+     SignalException(IntegerOverflow)
+   else
+     GPR[rt] ← sign_extend(temp31..0)
+   endif
+*/
 
 op ADDI (rt : R, rs : R, imm : SHORT)
   syntax = format("ADDI %s, %s, %d", rt.syntax, rs.syntax, imm)
   image  = format("001000%s%s%s", rs.image, rt.image, imm)
   action = { 
-    overflow_bit::tmp_unsigned_word = rs + (coerce(WORD, imm) & 0x0000ffff);
-    if (overflow_bit == 1) then
-      // "print" ("Integer Overflow Exception");
+    temp = rs<31>::rs + coerce(int(33), imm);
+    if (temp<32> != temp<31>) then
+      // SignalException("IntegerOverflow");
     else
-      rt = tmp_unsigned_word;
+      rt = temp<31..0>;
     endif;
   }
+
+/*
+   Operation SUB:
+
+   if NotWordValue(GPR[rs]) or NotWordValue(GPR[rt]) then
+     UNPREDICTABLE
+   endif
+   temp ← (GPR[rs]31 || GPR[rs]31..0) − (GPR[rt]31 || GPR[rt]31..0)
+   if temp32 ≠ temp31 then
+     SignalException(IntegerOverflow)
+   else
+     GPR[rd] ← sign_extend(temp31..0)
+   endif
+*/
 
 op SUB (rd : R, rs : R, rt : R)
   syntax = format("SUB %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image  = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image) 
   action = {
-    overflow_bit::tmp_unsigned_word = rs - rt;
-    if (overflow_bit == 1) then
-      // "print" ("Integer Overflow Exception");
+    temp = rs<31>::rs - rt<31>::rt;
+    if temp<32> != temp<31> then
+      // SignalException("IntegerOverflow");
     else
-      rd = tmp_unsigned_word;
+      rd = temp<31..0>;
     endif;
   }
 
