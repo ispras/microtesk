@@ -320,7 +320,7 @@ op SUB_S (fd : F, fs : F, ft : F)
   syntax = format("SUB_S %s, %s, %s", fd.syntax, fs.syntax, ft.syntax)
   image  = format("01000110000%s%s%s000001", ft.image, fs.image, fd.image)
   action = {
-    FPR[fd] = FPR[fs] - FPR[ft];
+    fd = fs - ft;
   }
 
 op MUL_S (fd : F, fs : F, ft : F)
