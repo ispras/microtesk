@@ -35,7 +35,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.data.IInitializerGenerator;
+import ru.ispras.microtesk.test.preparator.IInitializerGenerator;
 
 public final class RegisterXInitializer implements IInitializerGenerator 
 {

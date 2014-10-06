@@ -22,7 +22,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.data;
+package ru.ispras.microtesk.test.preparator;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.test.template.Primitive;

@@ -22,7 +22,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.data;
+package ru.ispras.microtesk.test.preparator;
 
 import java.util.Collections;
 import java.util.List;

@@ -53,7 +53,7 @@ public final class TestDataEngine
         this.model = model;
     }
 
-    public TestResult generateData(Situation situation, Primitive primitive)
+    public void generateData(Situation situation, Primitive primitive)
     {
         System.out.printf("Processing situation %s for %s...%n",
             situation, primitive.getSignature());
@@ -66,9 +66,8 @@ public final class TestDataEngine
 
         final Map<String, UnknownValue> unknownValues = 
             queryCreator.getUnknownValues();
-        System.out.println("Unknown values: " + unknownValues);
+        System.out.println("Unknown values: " + unknownValues.keySet());
 
-        return new TestResult(TestResult.Status.NODATA);
     }
 }
 

@@ -27,7 +27,7 @@ package ru.ispras.microtesk.model.samples.simple;
 import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.test.data.IInitializerGenerator;
+import ru.ispras.microtesk.test.preparator.IInitializerGenerator;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.samples.simple.mode.*;
