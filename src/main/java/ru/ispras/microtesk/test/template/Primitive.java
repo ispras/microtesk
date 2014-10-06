@@ -30,8 +30,8 @@ public final class Primitive
 {
     public static enum Kind
     {
-        OP   ("operation"),
-        MODE ("addressing mode");
+        OP   ("op"),
+        MODE ("mode");
 
         private final String text;
 
