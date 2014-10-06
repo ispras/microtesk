@@ -62,6 +62,19 @@ class VLIWDemo < Template
       (addi r(rand(1, 31)), r(0), rand(0, 31))
     )
 
+    # Another way to generate random immediate values:
+    # situation imm_random(min, max).
+    vliw(
+      (addi r(_), r(_), _ do situation('imm_random', :min => 1, :max => 31) end),
+      (addi r(_), r(_), _ do situation('imm_random', :min => 1, :max => 31) end)
+    )
+
+    # Or this way:
+    vliw(
+      (addi r(_), r(_), _),
+      (addi r(_), r(_), _)
+    ) do situation('imm_random', :min => 1, :max => 31) end
+
     vliw(
       (addi r(4), r(0), 5  do situation('overflow') end),
       (addi r(5), r(0), 10 do situation('normal') end)

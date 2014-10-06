@@ -24,14 +24,19 @@
 
 package ru.ispras.microtesk.test.data;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.model.api.IModel;
@@ -50,7 +55,7 @@ import ru.ispras.testbase.TestDataProvider;
 public final class TestDataEngine
 {
     private final IModel model;
-    private final List<TestDataProvider> providers;
+    private final List<TestDataProviderBase> providers;
 
     public TestDataEngine(IModel model)
     {
@@ -58,7 +63,10 @@ public final class TestDataEngine
             throw new NullPointerException();
 
         this.model = model;
-        this.providers = new ArrayList<TestDataProvider>();
+        this.providers = Arrays.asList(
+            new TDPImmRandom(),
+            new TDPImmRange()
+            );
     }
 
     public void generateData(Situation situation, Primitive primitive)
@@ -92,17 +100,38 @@ public final class TestDataEngine
             return;
         }
 
-        final TestData data = dataProvider.next();
-        System.out.println(data);
+        final TestData testData = dataProvider.next();
+        System.out.println(testData);
+        
+        // Set unknown values
+        for (Map.Entry<String, UnknownValue> e : unknownValues.entrySet())
+        {
+            final String name = e.getKey();
+            final UnknownValue target = e.getValue();
+
+            final Node value = testData.getBindings().get(name);
+            final int intValue = extractInt(name, value);
+
+            target.setValue(intValue);
+        }
     }
-    
+
     private TestBaseQueryResult executeQuery(TestBaseQuery query)
     {
+        for(TestDataProviderBase provider : providers)
+        {
+            if (provider.isSuitable(query))
+            {
+                provider.initialize(query);
+                return TestBaseQueryResult.success(provider);
+            }
+        }
+
         return TestBaseQueryResult.reportErrors(
             Collections.<String>singletonList(
-                "Data generation is not supported yet."));
+                "No suitable test data generator is found."));
     }
-    
+
     private void printErrors(TestBaseQueryResult queryResult)
     {
         final StringBuilder sb = new StringBuilder(String.format(
@@ -119,6 +148,40 @@ public final class TestDataEngine
         }
 
         System.out.println(sb);
+    }
+    
+    private int extractInt(final String name, final Node value)
+    {
+        if (null == value || !ExprUtils.isConstant(value))
+        {
+            System.out.printf("Failed to generate a value for the %s argument." +
+                "Default value (0) will be used.%n", name);
+            return 0;
+        }
+
+        if (value.getKind() != Node.Kind.VALUE)
+           throw new IllegalStateException(String.format(
+              "Illegal kind of the %s argument value: %s.", name, value.getKind()));
+
+        final Data data = ((NodeValue) value).getData();
+        final int intValue;
+        
+        if (data.getType().getTypeId() == DataTypeId.LOGIC_INTEGER)
+        {
+            intValue = ((Integer) data.getValue()).intValue();
+        }
+        else if (data.getType().getTypeId() == DataTypeId.BIT_VECTOR)
+        {
+            intValue = ((BitVector) data.getValue()).intValue();
+        }
+        else
+        {
+            throw new IllegalStateException(String.format(
+                "The value generated for the %s argument has an illegal type: %s.",
+                name, data.getType()));
+        }
+
+        return intValue;
     }
 }
 
