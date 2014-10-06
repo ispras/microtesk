@@ -72,9 +72,11 @@ public final class TestDataEngine
         final TestBaseQuery query = queryCreator.getQuery(); 
         System.out.println("Query to TestBase: " + query);
 
-        final Map<String, UnknownValue> unknownValues = 
-            queryCreator.getUnknownValues();
+        final Map<String, UnknownValue> unknownValues = queryCreator.getUnknownValues();
         System.out.println("Unknown values: " + unknownValues.keySet());
+
+        final Map<String, Primitive> modes = queryCreator.getModes();
+        System.out.println("Modes used as arguments: " + modes);
 
         final TestBaseQueryResult queryResult = executeQuery(query);
         if (TestBaseQueryResult.Status.ERROR == queryResult.getStatus())
@@ -135,6 +137,7 @@ final class TestBaseQueryCreator
     private boolean isCreated;
     private TestBaseQuery query;
     private Map<String, UnknownValue> unknownValues;
+    private Map<String, Primitive> modes;
 
     public TestBaseQueryCreator(
         String processor, Situation situation, Primitive primitive)
@@ -146,6 +149,7 @@ final class TestBaseQueryCreator
         this.isCreated = false;
         this.query = null;
         this.unknownValues = null;
+        this.modes = null;
     }
 
     public TestBaseQuery getQuery()
@@ -168,6 +172,16 @@ final class TestBaseQueryCreator
         return unknownValues;
     }
 
+    public Map<String, Primitive> getModes()
+    {
+        createQuery();
+
+        if (null == modes)
+            throw new NullPointerException();
+
+        return modes;
+    }
+
     private void createQuery()
     {
         if (isCreated)
@@ -182,7 +196,8 @@ final class TestBaseQueryCreator
         final BindingBuilder bindingBuilder = 
             new BindingBuilder(queryBuilder, primitive);
 
-        unknownValues = bindingBuilder.build();
+        unknownValues = bindingBuilder.getUnknownValues();
+        modes = bindingBuilder.getModes();
         query = queryBuilder.build();
 
         isCreated = true;
@@ -219,8 +234,7 @@ final class TestBaseQueryCreator
     {
         private final TestBaseQueryBuilder queryBuilder;
         private final Map<String, UnknownValue> unknownValues;
-        private final Primitive primitive;
-        private boolean isBuilt;
+        private final Map<String, Primitive> modes;
 
         private BindingBuilder(
             TestBaseQueryBuilder queryBuilder,
@@ -234,20 +248,20 @@ final class TestBaseQueryCreator
                 throw new NullPointerException();
 
             this.queryBuilder = queryBuilder;
-            this.primitive = primitive;
             this.unknownValues = new HashMap<String, UnknownValue>();
-            this.isBuilt = false;
-        }
-
-        public Map<String, UnknownValue> build()
-        {
-            if (isBuilt)
-                throw new IllegalStateException();
+            this.modes = new HashMap<String, Primitive>();
 
             visit("", primitive);
+        }
 
-            isBuilt = true;
+        public Map<String, UnknownValue> getUnknownValues()
+        {
             return unknownValues;
+        }
+
+        public Map<String, Primitive> getModes()
+        {
+            return modes;
         }
 
         private void visit(String prefix, Primitive p)
@@ -282,6 +296,12 @@ final class TestBaseQueryCreator
                     break;
 
                 case MODE:
+                    queryBuilder.setBinding(argName,
+                        new NodeVariable(new Variable(argName, DataType.UNKNOWN)));
+                    modes.put(argName, (Primitive) arg.getValue());
+                    visit(argName, (Primitive) arg.getValue());
+                    break;
+
                 case OP:
                     visit(argName, (Primitive) arg.getValue());
                     break;
