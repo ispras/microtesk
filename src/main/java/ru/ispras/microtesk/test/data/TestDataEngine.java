@@ -31,6 +31,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.test.preparator.Preparator;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
@@ -111,13 +112,16 @@ public final class TestDataEngine
             if (null == targetMode)
                 continue;
 
-            System.out.printf("!!! Argument %s (%s) needs a preparator.%n",
-                name, targetMode.getSignature());
-
             final BitVector value =
                 FortressUtils.extractBitVector(e.getValue());
 
             System.out.println("Value: " + value);
+
+            final Preparator preparator = getPreparator(targetMode);
+            if (null == preparator)
+                System.out.printf(
+                    "No suitable preparator is found for argument %s (%s).%n",
+                    name, targetMode.getSignature());
         }
 
         return Collections.emptyList();
@@ -139,6 +143,11 @@ public final class TestDataEngine
         }
 
         System.out.println(sb);
+    }
+
+    private Preparator getPreparator(Primitive targetMode)
+    {
+        return null;
     }
 }
 
