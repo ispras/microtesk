@@ -156,37 +156,3 @@ public final class TestDataEngine
         return null;
     }
 }
-
-/*
-private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
-{
-    final String argumentTypeName = argument.isImmediate() ?
-        AddressingModeImm.NAME : ((Primitive) argument.getValue()).getName();
-    
-    System.out.printf(
-        "Initializer: argument: %7s, mode: %10s, value: %s (%s) %n",
-        argument.getName(),
-        argumentTypeName,
-        Integer.toHexString(value.getRawData().intValue()),
-        value.getRawData().toBinString()
-    );
-
-    for(IInitializerGenerator ig : model.getInitializers())
-    {
-        if (ig.isCompatible(argument))
-        {
-            final List<ConcreteCall> calls = ig.createInitializingCode(argument, value);
-            sequenceBuilder.addInitializingCalls(calls);
-            return;
-        }
-    }
-
-    System.out.println(
-        String.format(
-            "Error! Failed to find an initializer generator for argument %s (addressing mode: %s).",
-             argument.getName(),
-             argumentTypeName
-        )
-    );
-}
-*/
