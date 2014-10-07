@@ -24,6 +24,9 @@
 
 package ru.ispras.microtesk.test;
 
+import java.util.Collections;
+import java.util.List;
+
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -105,15 +108,17 @@ final class SequenceProcessor
         System.out.printf(
             "%nProcessing instruction (root: %s)...%n", rootOp.getName());
 
-        resolveSituations(rootOp);
+        final List<ConcreteCall> initializingCalls = 
+            resolveSituations(rootOp);
 
         final IOperation modelOp = makeOp(rootOp);
         final InstructionCall modelCall = callFactory.newCall(modelOp);
 
         sequenceBuilder.add(new ConcreteCall(abstractCall, modelCall));
+        sequenceBuilder.addToPrologue(initializingCalls);
     }
 
-    private void resolveSituations(Primitive p)
+    private List<ConcreteCall> resolveSituations(Primitive p)
     {
         checkNotNull(p);
 
@@ -126,11 +131,11 @@ final class SequenceProcessor
         final Situation situation = p.getSituation();
 
         // No situation is associated with the given primitive.  
-        if (null == situation)
-            return;
+        if (null != situation)
+            return dataEngine.generateData(situation, p);
 
-        dataEngine.generateData(situation, p);
-        // TODO
+        return Collections.emptyList();
+
     }
 
     private int makeImm(Argument argument)

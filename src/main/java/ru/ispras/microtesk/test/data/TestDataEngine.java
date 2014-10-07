@@ -26,28 +26,21 @@ package ru.ispras.microtesk.test.data;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.model.api.IModel;
-import ru.ispras.microtesk.test.template.Argument;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownValue;
-import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
@@ -71,7 +64,7 @@ public final class TestDataEngine
             );
     }
 
-    public void generateData(Situation situation, Primitive primitive)
+    public List<ConcreteCall> generateData(Situation situation, Primitive primitive)
     {
         System.out.printf("Processing situation %s for %s...%n",
             situation, primitive.getSignature());
@@ -92,14 +85,14 @@ public final class TestDataEngine
         if (TestBaseQueryResult.Status.OK != queryResult.getStatus())
         {
             printErrors(queryResult);
-            return;
+            return Collections.emptyList();
         }
 
         final TestDataProvider dataProvider = queryResult.getDataProvider(); 
         if (!dataProvider.hasNext())
         {
             System.out.println("No data was generated for the query.");
-            return;
+            return Collections.emptyList();
         }
 
         final TestData testData = dataProvider.next();
@@ -130,6 +123,8 @@ public final class TestDataEngine
             System.out.printf("!!! Argument %s (%s) needs a preparator.%n",
                 name, targetMode.getSignature());
         }
+
+        return Collections.emptyList();
     }
 
     private TestBaseQueryResult executeQuery(TestBaseQuery query)
@@ -198,193 +193,6 @@ public final class TestDataEngine
         }
 
         return intValue;
-    }
-}
-
-final class TestBaseQueryCreator
-{
-    private final String processor;
-    private final Situation situation;
-    private final Primitive primitive;
-
-    private boolean isCreated;
-    private TestBaseQuery query;
-    private Map<String, UnknownValue> unknownValues;
-    private Map<String, Primitive> modes;
-
-    public TestBaseQueryCreator(
-        String processor, Situation situation, Primitive primitive)
-    {
-        this.processor = processor;
-        this.situation = situation;
-        this.primitive = primitive;
-
-        this.isCreated = false;
-        this.query = null;
-        this.unknownValues = null;
-        this.modes = null;
-    }
-
-    public TestBaseQuery getQuery()
-    {
-        createQuery();
-
-        if (null == query)
-            throw new NullPointerException();
-
-        return query;
-    }
-
-    public Map<String, UnknownValue> getUnknownValues()
-    {
-        createQuery();
-
-        if (null == unknownValues)
-            throw new NullPointerException();
-
-        return unknownValues;
-    }
-
-    public Map<String, Primitive> getModes()
-    {
-        createQuery();
-
-        if (null == modes)
-            throw new NullPointerException();
-
-        return modes;
-    }
-
-    private void createQuery()
-    {
-        if (isCreated)
-            return;
-
-        final TestBaseQueryBuilder queryBuilder = 
-            new TestBaseQueryBuilder();
-
-        createContext(queryBuilder);
-        createParameters(queryBuilder);
-
-        final BindingBuilder bindingBuilder = 
-            new BindingBuilder(queryBuilder, primitive);
-
-        unknownValues = bindingBuilder.getUnknownValues();
-        modes = bindingBuilder.getModes();
-        query = queryBuilder.build();
-
-        isCreated = true;
-    }
-
-    private void createContext(TestBaseQueryBuilder queryBuilder)
-    {
-        queryBuilder.setContextAttribute(
-            TestBaseContext.PROCESSOR, processor);
-
-        queryBuilder.setContextAttribute(
-            TestBaseContext.INSTRUCTION, primitive.getName());
-
-        queryBuilder.setContextAttribute(
-            TestBaseContext.TESTCASE, situation.getName());
-
-        for (Argument arg : primitive.getArguments().values())
-        {
-            queryBuilder.setContextAttribute(arg.getName(), arg.getTypeName());
-        }
-    }
-
-    private void createParameters(TestBaseQueryBuilder queryBuilder)
-    {
-        for (Map.Entry<String, Object> attrEntry :
-            situation.getAttributes().entrySet())
-        {
-            queryBuilder.setParameter(
-                attrEntry.getKey(), attrEntry.getValue().toString());
-        }
-    }
-
-    private static final class BindingBuilder
-    {
-        private final TestBaseQueryBuilder queryBuilder;
-        private final Map<String, UnknownValue> unknownValues;
-        private final Map<String, Primitive> modes;
-
-        private BindingBuilder(
-            TestBaseQueryBuilder queryBuilder,
-            Primitive primitive
-            )
-        {
-            if (null == queryBuilder)
-                throw new NullPointerException();
-
-            if (null == primitive)
-                throw new NullPointerException();
-
-            this.queryBuilder = queryBuilder;
-            this.unknownValues = new HashMap<String, UnknownValue>();
-            this.modes = new HashMap<String, Primitive>();
-
-            visit("", primitive);
-        }
-
-        public Map<String, UnknownValue> getUnknownValues()
-        {
-            return unknownValues;
-        }
-
-        public Map<String, Primitive> getModes()
-        {
-            return modes;
-        }
-
-        private void visit(String prefix, Primitive p)
-        {
-            if (p.getSituation() != null && !prefix.isEmpty())
-                throw new IllegalArgumentException(String.format(
-                    "Error: The %s argument (type %s) is an operation with " +
-                    "test situation %s. The current version does not support " +
-                    "nesting of test situations.", prefix, p.getTypeName()));
-
-            for (Argument arg : p.getArguments().values())
-            {
-                final String argName = prefix.isEmpty() ?
-                    arg.getName() : String.format("%s.%s", prefix, arg.getName());
-
-                switch (arg.getKind())
-                {
-                case IMM:
-                    queryBuilder.setBinding(argName,
-                        NodeValue.newInteger((Integer) arg.getValue()));
-                    break;
-
-                case IMM_RANDOM:
-                    queryBuilder.setBinding(argName,
-                        NodeValue.newInteger(((RandomValue) arg.getValue()).getValue()));
-                    break;
-
-                case IMM_UNKNOWN:
-                    queryBuilder.setBinding(argName,
-                        new NodeVariable(new Variable(argName, DataType.INTEGER)));
-                    unknownValues.put(argName, (UnknownValue) arg.getValue());
-                    break;
-
-                case MODE:
-                    queryBuilder.setBinding(argName,
-                        new NodeVariable(new Variable(argName, DataType.UNKNOWN)));
-                    modes.put(argName, (Primitive) arg.getValue());
-                    visit(argName, (Primitive) arg.getValue());
-                    break;
-
-                case OP:
-                    visit(argName, (Primitive) arg.getValue());
-                    break;
-
-                default:
-                    throw new IllegalArgumentException(
-                        "Illegal kind: " + arg.getKind());
-                }
-            }
-        }
     }
 }
 
