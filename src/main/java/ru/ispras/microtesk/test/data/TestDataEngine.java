@@ -126,8 +126,8 @@ public final class TestDataEngine
             if (null == targetMode)
                 continue;
 
-            System.out.printf("!!! Argument %s : needs a preparator.%n",
-                name, targetMode.getName());
+            System.out.printf("!!! Argument %s (%s) needs a preparator.%n",
+                name, targetMode.getSignature());
         }
     }
 
