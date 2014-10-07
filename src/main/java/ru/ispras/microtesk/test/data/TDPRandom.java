@@ -38,7 +38,7 @@ import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 
-public final class TDPRandom extends TestDataProviderBase 
+final class TDPRandom extends TestDataProviderBase 
 {
     public static String NAME = "random";
     public static int COUNT = 1;

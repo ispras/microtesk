@@ -37,7 +37,7 @@ import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 
-public final class TDPZero extends TestDataProviderBase 
+final class TDPZero extends TestDataProviderBase 
 {
     public static String NAME = "zero";
     public static int COUNT = 1;
