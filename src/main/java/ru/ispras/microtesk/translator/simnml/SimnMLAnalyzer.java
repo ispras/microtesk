@@ -220,10 +220,6 @@ public final class SimnMLAnalyzer
         }
         ir.setRoots(primitiveSyntesizer.getRoots());
 
-        final UserTestSituationLoader userTSLoader =
-            new UserTestSituationLoader(modelName, testSitDir, outDir, ir);
-        userTSLoader.load();
-
         startGenerator(modelName, getShortFileName(fileName), ir);
     }
 

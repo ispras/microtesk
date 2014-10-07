@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.simnml.ir.Initializer;
 //import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 //import ru.ispras.microtesk.translator.simnml.ir.primitive.Situation;
 
-@SuppressWarnings("unused")
+@Deprecated
 public final class UserTestSituationLoader
 {
     private final String  modelName;
