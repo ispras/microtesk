@@ -24,6 +24,10 @@
 
 package ru.ispras.microtesk.test;
 
+import java.util.Map;
+
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -32,7 +36,9 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-import ru.ispras.microtesk.test.data.TestDataEngine;
+import ru.ispras.microtesk.test.data.TestBase;
+import ru.ispras.microtesk.test.data.TestBaseQueryCreator;
+import ru.ispras.microtesk.test.preparator.Preparator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.SequenceBuilder;
 import ru.ispras.microtesk.test.template.Argument;
@@ -42,6 +48,11 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownValue;
+import ru.ispras.microtesk.utils.FortressUtils;
+import ru.ispras.testbase.TestBaseQuery;
+import ru.ispras.testbase.TestBaseQueryResult;
+import ru.ispras.testbase.TestData;
+import ru.ispras.testbase.TestDataProvider;
 
 /**
  * The SequenceProcessor class processes an abstract instruction call
@@ -54,8 +65,9 @@ import ru.ispras.microtesk.test.template.UnknownValue;
 
 final class SequenceProcessor
 {
+    private final IModel model; 
     private final ICallFactory callFactory;
-    private final TestDataEngine dataEngine;
+    private final TestBase testBase;
 
     private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
@@ -63,8 +75,9 @@ final class SequenceProcessor
     {
         checkNotNull(model);
 
-        this.dataEngine = new TestDataEngine(model);
+        this.model = model;
         this.callFactory = model.getCallFactory();
+        this.testBase = new TestBase();
         this.sequenceBuilder = null;
     }
 
@@ -107,28 +120,117 @@ final class SequenceProcessor
         sequenceBuilder.add(new ConcreteCall(abstractCall, modelCall));
     }
 
-    private void resolveSituations(Primitive p)
+    private void generateData(Primitive primitive)
     {
-        checkNotNull(p);
+        if (null == primitive)
+            throw new NullPointerException();
+        
+        if (!primitive.hasSituation())
+            throw new IllegalArgumentException(
+                "No situations are linked to " + primitive);
+        
+        final Situation situation = primitive.getSituation();
 
-        for (Argument arg: p.getArguments().values())
+        System.out.printf("Processing situation %s for %s...%n",
+                situation, primitive.getSignature());
+
+        final TestBaseQueryCreator queryCreator =
+            new TestBaseQueryCreator(model.getName(), situation, primitive);
+
+        final TestBaseQuery query = queryCreator.getQuery(); 
+        System.out.println("Query to TestBase: " + query);
+
+        final Map<String, UnknownValue> unknownValues = queryCreator.getUnknownValues();
+        System.out.println("Unknown values: " + unknownValues.keySet());
+
+        final Map<String, Primitive> modes = queryCreator.getModes();
+        System.out.println("Modes used as arguments: " + modes);
+
+        final TestBaseQueryResult queryResult = testBase.executeQuery(query);
+        if (TestBaseQueryResult.Status.OK != queryResult.getStatus())
         {
-            if (Argument.Kind.OP == arg.getKind())
-                resolveSituations((Primitive) arg.getValue());
+            printErrors(queryResult);
+            return;
         }
 
-        final Situation situation = p.getSituation();
-        if (null != situation)
-            dataEngine.generateData(situation, p);
+        final TestDataProvider dataProvider = queryResult.getDataProvider(); 
+        if (!dataProvider.hasNext())
+        {
+            System.out.println("No data was generated for the query.");
+            return;
+        }
+
+        final TestData testData = dataProvider.next();
+        System.out.println(testData);
+
+        // Set unknown immediate values
+        for (Map.Entry<String, UnknownValue> e : unknownValues.entrySet())
+        {
+            final String name = e.getKey();
+            final UnknownValue target = e.getValue();
+
+            final Node value = testData.getBindings().get(name);
+            final int intValue = FortressUtils.extractInt(value);
+
+            target.setValue(intValue);
+        }
+
+        // Set model state using preparators that create initializing
+        // sequences based on addressing modes.
+        for (Map.Entry<String, Node> e : testData.getBindings().entrySet())
+        {
+            final String name = e.getKey();
+            final Primitive targetMode = modes.get(name);
+
+            if (null == targetMode)
+                continue;
+
+            final BitVector value =
+                FortressUtils.extractBitVector(e.getValue());
+
+            System.out.println("Value: " + value);
+
+            final Preparator preparator = getPreparator(targetMode);
+            if (null == preparator)
+            {
+                System.out.printf(
+                    "No suitable preparator is found for argument %s (%s).%n",
+                    name, targetMode.getSignature());
+                continue;
+            }
+
+            preparator.makeInitializer(targetMode, value);
+        }
     }
     
+    private void printErrors(TestBaseQueryResult queryResult)
+    {
+        final StringBuilder sb = new StringBuilder(String.format(
+            "Failed to execute the query. Status: %s.", queryResult.getStatus()));
+
+        if (queryResult.hasErrors())
+        {
+            sb.append(" Errors: ");
+            for (String error : queryResult.getErrors())
+            {
+                sb.append("\r\n  ");
+                sb.append(error);
+            }
+        }
+
+        System.out.println(sb);
+    }
+
+    private Preparator getPreparator(Primitive targetMode)
+    {
+        return null;
+    }
+
     private InstructionCall makeModelCall(
         Call abstractCall) throws ConfigurationException
     {
         final Primitive rootOp = abstractCall.getRootOperation();
         checkRootOp(rootOp);
-
-        resolveSituations(rootOp);
 
         final IOperation modelOp = makeOp(rootOp);
         return callFactory.newCall(modelOp);
@@ -207,6 +309,9 @@ final class SequenceProcessor
         throws ConfigurationException
     {
         checkOp(abstractOp);
+
+        if (abstractOp.hasSituation())
+            generateData(abstractOp);
 
         final String name = abstractOp.getName();
         final String context = abstractOp.getContextName();

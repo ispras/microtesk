@@ -108,6 +108,11 @@ public final class Primitive
         return contextName;
     }
 
+    public boolean hasSituation()
+    {
+        return null != situation;
+    }
+
     public Situation getSituation()
     {
         return situation;
