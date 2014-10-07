@@ -65,7 +65,8 @@ public final class TestDataEngine
         this.model = model;
         this.providers = Arrays.asList(
             new TDPImmRandom(),
-            new TDPImmRange()
+            new TDPImmRange(),
+            new TDPZero()
             );
     }
 
@@ -125,7 +126,7 @@ public final class TestDataEngine
             if (null == targetMode)
                 continue;
 
-            System.out.printf("!!! Argument %s :  needs a preparator.%n",
+            System.out.printf("!!! Argument %s : needs a preparator.%n",
                 name, targetMode.getName());
         }
     }

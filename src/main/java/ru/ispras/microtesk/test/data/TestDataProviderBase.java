@@ -29,6 +29,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestDataProvider;
 
@@ -56,12 +57,29 @@ abstract class TestDataProviderBase extends TestDataProvider
     protected static Map<String, Node> extractUnknownImms(TestBaseQuery query)
     {
         final Map<String, Node> result = new LinkedHashMap<String, Node>();
+        for (Map.Entry<String, Node> e : query.getBindings().entrySet())
+        {
+            final Node value = e.getValue();
+            if (value.getKind() == Node.Kind.VARIABLE &&
+                !((NodeVariable) value).getVariable().hasValue() &&
+                value.getDataType().getTypeId() == DataTypeId.LOGIC_INTEGER)
+            {
+                result.put(e.getKey(), value);
+            }
+        }
+
+        return result;
+    }
+
+    protected static Map<String, Node> extractUnknown(TestBaseQuery query)
+    {
+        final Map<String, Node> result = new LinkedHashMap<String, Node>();
         
         for (Map.Entry<String, Node> e : query.getBindings().entrySet())
         {
             final Node value = e.getValue();
             if (value.getKind() == Node.Kind.VARIABLE &&
-                value.getDataType().getTypeId() == DataTypeId.LOGIC_INTEGER)
+                !((NodeVariable) value).getVariable().hasValue())
             {
                 result.put(e.getKey(), value);
             }

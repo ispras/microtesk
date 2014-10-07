@@ -82,6 +82,12 @@ class VLIWDemo < Template
       (add r(_), r(_), r(_))
     ) do situation('imm_range', :from => 1, :to => 31, :step => 2) end
 
+    # All registers are filled with zeros.      
+    vliw(
+      (add r(1), r(3), r(5)),
+      (add r(2), r(4), r(6))
+    ) do situation('zero', :size => 32) end
+
     vliw(
       (addi r(4), r(0), 5  do situation('overflow') end),
       (addi r(5), r(0), 10 do situation('normal') end)
