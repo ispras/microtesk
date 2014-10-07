@@ -119,9 +119,14 @@ public final class TestDataEngine
 
             final Preparator preparator = getPreparator(targetMode);
             if (null == preparator)
+            {
                 System.out.printf(
                     "No suitable preparator is found for argument %s (%s).%n",
                     name, targetMode.getSignature());
+                continue;
+            }
+
+            preparator.makeInitializer(targetMode, value);
         }
 
         return Collections.emptyList();
