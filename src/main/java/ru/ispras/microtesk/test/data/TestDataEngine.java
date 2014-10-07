@@ -66,7 +66,8 @@ public final class TestDataEngine
         this.providers = Arrays.asList(
             new TDPImmRandom(),
             new TDPImmRange(),
-            new TDPZero()
+            new TDPZero(),
+            new TDPRandom()
             );
     }
 
