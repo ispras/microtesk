@@ -75,6 +75,13 @@ class VLIWDemo < Template
       (addi r(_), r(_), _)
     ) do situation('imm_random', :min => 1, :max => 31) end
 
+    # Immediate values are produced as an incremental sequence in the 
+    # specified range with the specified step  {1, 3, 5, 7, ...}
+    vliw(
+      (add r(_), r(_), r(_)),
+      (add r(_), r(_), r(_))
+    ) do situation('imm_range', :from => 1, :to => 31, :step => 2) end
+
     vliw(
       (addi r(4), r(0), 5  do situation('overflow') end),
       (addi r(5), r(0), 10 do situation('normal') end)

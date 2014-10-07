@@ -24,36 +24,72 @@
 
 package ru.ispras.microtesk.test.data;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 
 public final class TDPImmRange extends TestDataProviderBase 
 {
+    public static String NAME = "imm_range";
+    public static int COUNT = 1;
+
+    private int iteration = 0;
+
+    private int from = 0;
+    private int to = 0;
+    private int step = 0;
+
+    private Map<String, Node> unknownImms = null;
+
     @Override
     boolean isSuitable(TestBaseQuery query)
     {
-        // TODO Auto-generated method stub
-        return false;
+        return checkContextAttribute(
+            query, TestBaseContext.TESTCASE, NAME);
     }
 
     @Override
     void initialize(TestBaseQuery query)
     {
-        // TODO Auto-generated method stub
-        
+        iteration = 0;
+        from = getParameterAsInt(query, "from");
+        to   = getParameterAsInt(query, "to");
+        step = getParameterAsInt(query, "step");
+        unknownImms = extractUnknownImms(query);
     }
 
     @Override
     public boolean hasNext()
     {
-        // TODO Auto-generated method stub
-        return false;
+        return (unknownImms != null) && (iteration < COUNT);
     }
 
     @Override
     public TestData next()
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (!hasNext())
+            throw new NoSuchElementException();
+
+        final Map<String, Node> outputData = 
+            new LinkedHashMap<String, Node>();
+
+        final int delta = Math.abs(to - from);
+
+        int index = 0;
+        for (Map.Entry<String, Node> e : unknownImms.entrySet())
+        {
+            final int value = from + ((delta == 0) ? 0 : (index % delta)); 
+            outputData.put(e.getKey(), NodeValue.newInteger(value));
+            index += step;
+        }
+
+        iteration++;
+        return new TestData(outputData);
     }
 }

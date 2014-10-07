@@ -102,8 +102,8 @@ public final class TestDataEngine
 
         final TestData testData = dataProvider.next();
         System.out.println(testData);
-        
-        // Set unknown values
+
+        // Set unknown immediate values
         for (Map.Entry<String, UnknownValue> e : unknownValues.entrySet())
         {
             final String name = e.getKey();
@@ -113,6 +113,20 @@ public final class TestDataEngine
             final int intValue = extractInt(name, value);
 
             target.setValue(intValue);
+        }
+
+        // Set model state using preparators that create initializing
+        // sequences based on addressing modes.
+        for (Map.Entry<String, Node> e : testData.getBindings().entrySet())
+        {
+            final String name = e.getKey();
+            final Primitive targetMode = modes.get(name);
+
+            if (null == targetMode)
+                continue;
+
+            System.out.printf("!!! Argument %s :  needs a preparator.%n",
+                name, targetMode.getName());
         }
     }
 
