@@ -22,7 +22,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.data;
+package ru.ispras.microtesk.utils;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataTypeId;
