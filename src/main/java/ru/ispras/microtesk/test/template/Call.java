@@ -76,4 +76,10 @@ public final class Call
     {
         return outputs;
     }
+
+    public String getText()
+    {
+        return String.format("instruction call (root: %s)",
+            isExecutable() ? rootOperation.getName() : "null");
+    }
 }
