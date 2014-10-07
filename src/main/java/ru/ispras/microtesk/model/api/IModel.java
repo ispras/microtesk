@@ -26,7 +26,6 @@ package ru.ispras.microtesk.model.api;
 
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.test.preparator.IInitializerGenerator;
 
 /**
  * The IModel interface is main interface that should be implemented by 
@@ -61,7 +60,12 @@ public interface IModel
 
     public IModelStateObserver getStateObserver();
 
-    public IInitializerGenerator[] getInitializers();
+    /**
+     * Returns a factory for creating instances of operations, addressing modes
+     * and instruction calls that can be simulated with the model. 
+     * 
+     * @return Call factory.
+     */
 
     public ICallFactory getCallFactory();
 }

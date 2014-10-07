@@ -49,7 +49,7 @@ private static final IOperation.IInfo[] __OPS = new IOperation.IInfo[]
     <ops:{op |<op>.INFO}; separator=",\n">
 };
 
-private final IInitializerGenerator[] __INITIALIZERS;
+public final IInitializerGenerator[] __INITIALIZERS;
 
 public Model()
 {
@@ -68,12 +68,6 @@ public Model()
     {
         <inits:{n |new <n>(this)}; separator=",\n">
     };
-}
-
-@Override
-public IInitializerGenerator[] getInitializers()
-{
-    return __INITIALIZERS;
 }
 >>
 

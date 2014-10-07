@@ -27,7 +27,6 @@ package ru.ispras.microtesk.model.samples.simple;
 import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.test.preparator.IInitializerGenerator;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.samples.simple.mode.*;
@@ -56,8 +55,6 @@ public final class Model extends ProcessorModel
         Instruction.INFO
     };
 
-    private static final IInitializerGenerator[] __INITIALIZERS = {};
-
     public Model()
     {
         super(
@@ -70,12 +67,6 @@ public final class Model extends ProcessorModel
             __STATUSES,
             __RESETTER
         );
-    }
-
-    @Override
-    public IInitializerGenerator[] getInitializers()
-    {
-        return __INITIALIZERS;
     }
 
     public static void printInformation()
