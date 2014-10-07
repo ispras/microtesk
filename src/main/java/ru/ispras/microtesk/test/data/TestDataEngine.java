@@ -28,12 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -58,7 +54,8 @@ public final class TestDataEngine
         this.testBase = new TestBase();
     }
 
-    public List<ConcreteCall> generateData(Situation situation, Primitive primitive)
+    public List<ConcreteCall> generateData(
+        Situation situation, Primitive primitive)
     {
         System.out.printf("Processing situation %s for %s...%n",
             situation, primitive.getSignature());
@@ -99,7 +96,7 @@ public final class TestDataEngine
             final UnknownValue target = e.getValue();
 
             final Node value = testData.getBindings().get(name);
-            final int intValue = extractInt(name, value);
+            final int intValue = FortressUtils.extractInt(value);
 
             target.setValue(intValue);
         }
@@ -116,6 +113,11 @@ public final class TestDataEngine
 
             System.out.printf("!!! Argument %s (%s) needs a preparator.%n",
                 name, targetMode.getSignature());
+
+            final BitVector value =
+                FortressUtils.extractBitVector(e.getValue());
+
+            System.out.println("Value: " + value);
         }
 
         return Collections.emptyList();
@@ -137,40 +139,6 @@ public final class TestDataEngine
         }
 
         System.out.println(sb);
-    }
-    
-    private int extractInt(final String name, final Node value)
-    {
-        if (null == value || !ExprUtils.isConstant(value))
-        {
-            System.out.printf("Failed to generate a value for the %s argument." +
-                "Default value (0) will be used.%n", name);
-            return 0;
-        }
-
-        if (value.getKind() != Node.Kind.VALUE)
-           throw new IllegalStateException(String.format(
-              "Illegal kind of the %s argument value: %s.", name, value.getKind()));
-
-        final Data data = ((NodeValue) value).getData();
-        final int intValue;
-        
-        if (data.getType().getTypeId() == DataTypeId.LOGIC_INTEGER)
-        {
-            intValue = ((Integer) data.getValue()).intValue();
-        }
-        else if (data.getType().getTypeId() == DataTypeId.BIT_VECTOR)
-        {
-            intValue = ((BitVector) data.getValue()).intValue();
-        }
-        else
-        {
-            throw new IllegalStateException(String.format(
-                "The value generated for the %s argument has an illegal type: %s.",
-                name, data.getType()));
-        }
-
-        return intValue;
     }
 }
 
