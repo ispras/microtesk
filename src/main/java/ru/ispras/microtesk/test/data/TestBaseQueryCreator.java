@@ -40,7 +40,7 @@ import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 
-final class TestBaseQueryCreator
+public final class TestBaseQueryCreator
 {
     private static final String NESTED_SITUATIONS_ERROR =
         "Error: The %s argument (type %s) is an operation with " +

@@ -24,7 +24,6 @@
 
 package ru.ispras.microtesk.test.data;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ import ru.ispras.testbase.TestDataProvider;
 public final class TestDataEngine
 {
     private final IModel model;
-    private final List<TestDataProviderBase> providers;
+    private final TestBase testBase;
 
     public TestDataEngine(IModel model)
     {
@@ -56,12 +55,7 @@ public final class TestDataEngine
             throw new NullPointerException();
 
         this.model = model;
-        this.providers = Arrays.asList(
-            new TDPImmRandom(),
-            new TDPImmRange(),
-            new TDPZero(),
-            new TDPRandom()
-            );
+        this.testBase = new TestBase();
     }
 
     public List<ConcreteCall> generateData(Situation situation, Primitive primitive)
@@ -81,7 +75,7 @@ public final class TestDataEngine
         final Map<String, Primitive> modes = queryCreator.getModes();
         System.out.println("Modes used as arguments: " + modes);
 
-        final TestBaseQueryResult queryResult = executeQuery(query);
+        final TestBaseQueryResult queryResult = testBase.executeQuery(query);
         if (TestBaseQueryResult.Status.OK != queryResult.getStatus())
         {
             printErrors(queryResult);
@@ -125,22 +119,6 @@ public final class TestDataEngine
         }
 
         return Collections.emptyList();
-    }
-
-    private TestBaseQueryResult executeQuery(TestBaseQuery query)
-    {
-        for(TestDataProviderBase provider : providers)
-        {
-            if (provider.isSuitable(query))
-            {
-                provider.initialize(query);
-                return TestBaseQueryResult.success(provider);
-            }
-        }
-
-        return TestBaseQueryResult.reportErrors(
-            Collections.<String>singletonList(
-                "No suitable test data generator is found."));
     }
 
     private void printErrors(TestBaseQueryResult queryResult)
