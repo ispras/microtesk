@@ -24,6 +24,7 @@
 
 package ru.ispras.microtesk.test;
 
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -199,7 +200,10 @@ final class SequenceProcessor
                 continue;
             }
 
-            preparator.makeInitializer(targetMode, value);
+            final List<ConcreteCall> initializer =
+                 preparator.makeInitializer(targetMode, value);
+
+            sequenceBuilder.addToPrologue(initializer);
         }
     }
     
