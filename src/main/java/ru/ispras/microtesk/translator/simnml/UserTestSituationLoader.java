@@ -27,6 +27,14 @@ import ru.ispras.microtesk.translator.simnml.ir.Initializer;
 //import ru.ispras.microtesk.translator.simnml.ir.primitive.Instruction;
 //import ru.ispras.microtesk.translator.simnml.ir.primitive.Situation;
 
+/**
+ * TODO: THIS CLASS IS OBSOLETE. IT IS NOT LONGER USED. IT IS LEFT HERE
+ * IN CASE COME PARTS OF ITS CODE CAN BE REUSED (OR AT LEAST THE CONCEPT
+ * OF USER-PRODIVED SITUATIONS).
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 @Deprecated
 public final class UserTestSituationLoader
 {
@@ -143,7 +151,8 @@ public final class UserTestSituationLoader
     }
     
     */
-
+    
+    @SuppressWarnings("unused")
     private void addAllInitializersToIR()
     {
         final String  javaRoot = String.format(JAVA_INIT_DIR_FRMT, testSitDir, modelName);
