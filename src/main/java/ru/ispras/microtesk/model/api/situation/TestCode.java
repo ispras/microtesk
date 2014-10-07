@@ -10,7 +10,7 @@
  * TestCode.java, May 20, 2013 1:41:43 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.situation.builtin;
+package ru.ispras.microtesk.model.api.situation;
 
 import java.util.Map;
 

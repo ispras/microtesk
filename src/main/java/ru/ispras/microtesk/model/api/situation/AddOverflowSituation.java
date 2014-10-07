@@ -7,10 +7,10 @@
  * 
  * All rights reserved.
  * 
- * AddNormalSituation.java, May 20, 2013 11:50:19 AM Andrei Tatarnikov
+ * IntegerOverflowSituation.java, May 20, 2013 11:46:39 AM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.situation.builtin;
+package ru.ispras.microtesk.model.api.situation;
 
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -22,35 +22,35 @@ import ru.ispras.fortress.solver.constraint.Formulas;
 import ru.ispras.microtesk.model.api.situation.ConstraintBasedSituation;
 import ru.ispras.microtesk.model.api.situation.ISituation;
 
-public final class AddNormalSituation extends ConstraintBasedSituation
+public final class AddOverflowSituation extends ConstraintBasedSituation
 {
-    private static final   String    NAME = "normal";
+    private static final   String    NAME = "overflow";
     private static final IFactory FACTORY = new IFactory()
     {
         @Override
-        public ISituation create() { return new AddNormalSituation(); }
+        public ISituation create() { return new AddOverflowSituation(); }
     };
 
-    public static final IInfo INFO = new Info(NAME, FACTORY); 
+    public static final IInfo INFO = new Info(NAME, FACTORY);
 
-    public AddNormalSituation()
+    public AddOverflowSituation()
     {
         super(
-           INFO,
-           new AddNormalConstraintBuilder()
+            INFO,
+            new AddOverflowConstraintBuilder()
         );
     }
 }
 
-final class AddNormalConstraintBuilder extends OverflowConstraintFactory
+final class AddOverflowConstraintBuilder extends OverflowConstraintFactory
 {
     public Constraint create()
     {
         final ConstraintBuilder builder = new ConstraintBuilder();
 
-        builder.setName("AddNormal");
+        builder.setName("AddOverflow");
         builder.setKind(ConstraintKind.FORMULA_BASED);
-        builder.setDescription("AddNormal constraint");
+        builder.setDescription("AddOverflow constraint");
 
         // Unknown variables
         final NodeVariable rs = new NodeVariable(builder.addVariable("src2", BIT_VECTOR_TYPE));
@@ -62,7 +62,7 @@ final class AddNormalConstraintBuilder extends OverflowConstraintFactory
         formulas.add(IsValidSignedInt(rs));
         formulas.add(IsValidSignedInt(rt));
 
-        formulas.add(IsValidSignedInt(new NodeOperation(StandardOperation.BVADD, rs, rt)));
+        formulas.add(isNot(IsValidSignedInt(new NodeOperation(StandardOperation.BVADD, rs, rt))));
         formulas.add(isNotEqual(rs, rt));
 
         return builder.build();

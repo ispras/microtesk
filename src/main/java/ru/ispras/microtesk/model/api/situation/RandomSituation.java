@@ -10,7 +10,7 @@
  * RandomSituation.java, May 15, 2013 3:44:35 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.situation.builtin;
+package ru.ispras.microtesk.model.api.situation;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;

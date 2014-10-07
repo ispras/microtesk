@@ -10,7 +10,7 @@
  * OverflowConstraintFactory.java, May 23, 2013 3:34:45 PM Andrei Tatarnikov
  */
 
-package ru.ispras.microtesk.model.api.situation.builtin;
+package ru.ispras.microtesk.model.api.situation;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;

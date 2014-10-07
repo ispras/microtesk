@@ -22,7 +22,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.situation.builtin;
+package ru.ispras.microtesk.model.api.situation;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
