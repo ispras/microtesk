@@ -389,46 +389,6 @@ final class TestBaseQueryCreator
 }
 
 /*
-final ISituation situation =
-    instruction.createSituation(situationName);
-
-// This is needed for situations like random that do not have a signature 
-// and generate values for any parameters the client code might request.
-// Other situations may ignore these calls.
-
-for (Argument argument : rootOperation.getArguments().values())
-    situation.setOutput(argument.getName());
-
-Map<String, Data> output = null;
-
-try 
-{
-    output = situation.solve();
-}
-catch (ConfigurationException e)
-{
-    System.out.printf("Warning! Failed to generate test data for the %s situation.\nReason: %s.\n",
-        situationName, e.getMessage());
-
-    return;
-}
-
-for (Map.Entry<String, Data> entry : output.entrySet())
-{
-    final Argument argument = rootOperation.getArguments().get(entry.getKey());
-
-    if (null == argument)
-    {
-        System.out.printf("Argument %s is not defined for instruction %s.%n",
-           entry.getKey(), rootOperation.getName());
-        continue;
-    }
-
-    insertInitializingCalls(argument, entry.getValue());
-}
-*/
-
-/*
 private void insertInitializingCalls(Argument argument, Data value) throws ConfigurationException
 {
     final String argumentTypeName = argument.isImmediate() ?
