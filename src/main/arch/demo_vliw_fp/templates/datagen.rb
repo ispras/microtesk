@@ -120,7 +120,6 @@ class VLIWDemo < Template
       nop
     )
 
-
   end
 
   def gpr(index)
