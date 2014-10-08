@@ -24,12 +24,36 @@
 
 package ru.ispras.microtesk.test.preparator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.ispras.microtesk.test.template.Primitive;
 
 public final class PreparatorStore
 {
+    private final Map<String, Preparator> preparators;
+
+    public PreparatorStore()
+    {
+        this.preparators = new HashMap<String, Preparator>();
+    }
+
+    public void addPreparator(String targetName, Preparator preparator)
+    {
+        if (null == targetName)
+            throw new NullPointerException();
+
+        if (null == preparator)
+            throw new NullPointerException();
+
+        preparators.put(targetName, preparator);
+    }
+
     public Preparator getPreparator(Primitive targetMode)
     {
-        return null;
+        if (null == targetMode)
+            throw new NullPointerException();
+
+        return preparators.get(targetMode.getName());
     }
 }

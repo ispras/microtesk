@@ -32,9 +32,6 @@ import ru.ispras.microtesk.test.template.Primitive;
 
 public interface Preparator
 {
-    public boolean isCompatible(
-        Primitive targetMode);
-
     public List<ConcreteCall> makeInitializer(
         Primitive targetMode, BitVector data);
 }
