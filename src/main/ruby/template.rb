@@ -276,6 +276,30 @@ class Template
   end
 
   # ------------------------------------------------------------------------- #
+  # Creating Preparators                                                      #
+  # ------------------------------------------------------------------------- #
+
+  def preparator(attrs, &contents)
+    if !attrs.is_a?(Hash)
+      raise MTRubyError, "#{attrs} mush be a Hash!" 
+    end
+
+    if !attrs.has_key?(:target)
+      raise MTRubyError, "The :target attribute is not specified."
+    end
+
+    if !attrs.has_key?(:size)
+      raise MTRubyError, "The :size attribute is not specified."    
+    end
+
+    target = attrs[:target]
+    size = attrs[:size]
+
+    puts "Preparator for '#{target}' (data size = #{size})"
+    # TODO
+  end
+
+  # ------------------------------------------------------------------------- #
   # Generation (Execution and Printing)                                       #
   # ------------------------------------------------------------------------- #
 

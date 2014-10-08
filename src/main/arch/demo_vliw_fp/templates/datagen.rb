@@ -55,8 +55,6 @@ class VLIWDemo < Template
 
   def pre
     #
-    # TODO: Will be implemented soon. This is how it should work:
-    #
     # Creates an instruction sequence that writes a 32-bit value to
     # the resource referenced via the 'r' addressing mode (register GPR).
     #
@@ -67,14 +65,13 @@ class VLIWDemo < Template
     #   with all its arguments set and the value passed to the preparator
     #   respectively. The arguments of the 'value' method specify which part
     #   of the value is used. 
-    # 
-    # preparator(:target => 'r', :size => 32) {
-    #   vliw(
-    #     (lui  target, value(0, 15)),
-    #     (addi target, target, value(15, 31))
-    #   )
-    # }
     #
+    preparator(:target => 'r', :size => 32) {
+      vliw(
+        (lui  target, value(0, 15)),
+        (addi target, target, value(15, 31))
+      )
+    }
   end
 
   def run
