@@ -28,49 +28,45 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class LazyValue
 {
-    private BitVector data = null;
-
+    private final LazyData data;
     private final int start;
     private final int size;
 
-    public LazyValue()
-    {
-        this.start = 0;
-        this.size = 0; // This means that we will use all data.
-    }
-
-    public LazyValue(int start, int end)
-    {
-        if ((start < 0) || (end < 0))
-            throw new IllegalArgumentException();
-
-        this.start = Math.min(start, end);
-        this.size = Math.abs(end - start) + 1;
-    }
-
-    public void setData(BitVector data)
+    public LazyValue(LazyData data)
     {
         if (null == data)
             throw new NullPointerException();
 
         this.data = data;
+        this.start = 0;
+        this.size = 0; // This means that we will use all data.
     }
 
-    public void resetData()
+    public LazyValue(LazyData data, int start, int end)
     {
-        this.data = null;
+        if (null == data)
+            throw new NullPointerException();
+
+        if ((start < 0) || (end < 0))
+            throw new IllegalArgumentException();
+
+        this.data = data;
+        this.start = Math.min(start, end);
+        this.size = Math.abs(end - start) + 1;
     }
 
     public int getValue()
     {
-        if (null == data)
-            throw new IllegalStateException("Data is not set.");
+        final BitVector value = data.getValue();
 
-        if (0 == start && 0 == size) // Use all data
-            return data.intValue();
+        if (null == value)
+            throw new IllegalStateException("LazyData does not have a value.");
+
+        if (0 == start && (0 == size || value.getBitSize() == size))
+            return value.intValue(); // Use all data.
 
         final BitVector mapping =
-            BitVector.newMapping(data, start, size);
+            BitVector.newMapping(value, start, size);
 
         return mapping.intValue();
     }
