@@ -73,7 +73,6 @@ import ru.ispras.testbase.TestDataProvider;
 final class SequenceProcessor
 {
     private final IModel model; 
-    private final ICallFactory callFactory;
     private final TestBase testBase;
 
     private SequenceBuilder<ConcreteCall> sequenceBuilder;
@@ -83,9 +82,13 @@ final class SequenceProcessor
         checkNotNull(model);
 
         this.model = model;
-        this.callFactory = model.getCallFactory();
         this.testBase = new TestBase();
         this.sequenceBuilder = null;
+    }
+
+    private ICallFactory getCallFactory()
+    {
+        return model.getCallFactory();
     }
 
     public Sequence<ConcreteCall> process(
@@ -126,6 +129,20 @@ final class SequenceProcessor
         final InstructionCall modelCall = makeModelCall(abstractCall);
         sequenceBuilder.add(new ConcreteCall(abstractCall, modelCall));
     }
+    
+    private void processSituations(Primitive primitive)
+    {
+        checkNotNull(primitive);
+
+        for (Argument arg: primitive.getArguments().values())
+        {
+            if (Argument.Kind.OP == arg.getKind())
+                processSituations((Primitive) arg.getValue());
+        }
+
+        if (primitive.hasSituation())
+            generateData(primitive);
+    }
 
     private void generateData(Primitive primitive)
     {
@@ -139,7 +156,7 @@ final class SequenceProcessor
         final Situation situation = primitive.getSituation();
 
         System.out.printf("Processing situation %s for %s...%n",
-                situation, primitive.getSignature());
+            situation, primitive.getSignature());
 
         final TestBaseQueryCreator queryCreator =
             new TestBaseQueryCreator(model.getName(), situation, primitive);
@@ -242,8 +259,10 @@ final class SequenceProcessor
         final Primitive rootOp = abstractCall.getRootOperation();
         checkRootOp(rootOp);
 
+        processSituations(rootOp);
+
         final IOperation modelOp = makeOp(rootOp);
-        return callFactory.newCall(modelOp);
+        return getCallFactory().newCall(modelOp);
     }
 
     private int makeImm(Argument argument)
@@ -276,7 +295,7 @@ final class SequenceProcessor
             (Primitive) argument.getValue();
 
         final IAddressingModeBuilder builder =
-            callFactory.newMode(mode.getName());
+            getCallFactory().newMode(mode.getName());
 
         for (Argument arg: mode.getArguments().values())
         {
@@ -296,8 +315,8 @@ final class SequenceProcessor
                 break;
 
             default:
-                throw new IllegalArgumentException(
-                    "Illegal kind: " + arg.getKind());
+                throw new IllegalArgumentException(String.format(
+                    "Illegal kind of argument %s: %s.", argName, arg.getKind()));
             }
         }
 
@@ -320,14 +339,11 @@ final class SequenceProcessor
     {
         checkOp(abstractOp);
 
-        if (abstractOp.hasSituation())
-            generateData(abstractOp);
-
         final String name = abstractOp.getName();
         final String context = abstractOp.getContextName();
 
         final IOperationBuilder builder = 
-            callFactory.newOp(name, context);
+            getCallFactory().newOp(name, context);
 
         for (Argument arg : abstractOp.getArguments().values())
         {
@@ -355,8 +371,8 @@ final class SequenceProcessor
                 break;
 
             default:
-                throw new IllegalArgumentException(
-                    "Illegal kind: " + arg.getKind());
+                throw new IllegalArgumentException(String.format(
+                    "Illegal kind of argument %s: %s.", argName, arg.getKind()));
             }
         }
 
@@ -498,7 +514,7 @@ final class TestBaseQueryCreator
         createContext(queryBuilder);
         createParameters(queryBuilder);
 
-        final BindingBuilder bindingBuilder = 
+        final BindingBuilder bindingBuilder =
             new BindingBuilder(queryBuilder, primitive);
 
         unknownValues = bindingBuilder.getUnknownValues();
