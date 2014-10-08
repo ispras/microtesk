@@ -29,6 +29,7 @@ import java.io.IOException;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.test.preparator.PreparatorStore;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import ru.ispras.microtesk.test.template.Call;
@@ -78,9 +79,9 @@ public final class TestEngine
 
         final IIterator<Sequence<Call>> sequenceIt =
             template.getSequences();
-      
-        final SequenceProcessor sequenceProcessor =
-            new SequenceProcessor(model);
+
+        final DataGenerator dataGenerator =
+            new DataGenerator(model, new PreparatorStore());
 
         final IModelStateObserver observer = model.getStateObserver();
         final Executor executor = new Executor(observer, logExecution);
@@ -101,7 +102,7 @@ public final class TestEngine
                     "Generating data for sequence %d", sequenceNumber));
 
                 final Sequence<ConcreteCall> concreteSequence =
-                    sequenceProcessor.process(abstractSequence);
+                    dataGenerator.process(abstractSequence);
 
                 printStageHeader(String.format(
                     "Executing sequence %d", sequenceNumber));

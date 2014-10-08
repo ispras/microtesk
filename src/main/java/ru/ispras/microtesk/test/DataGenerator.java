@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * SequenceProcessor.java, May 13, 2013 11:32:21 AM Andrei Tatarnikov
+ * DataGenerator.java, May 13, 2013 11:32:21 AM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -43,6 +43,7 @@ import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.test.preparator.Preparator;
+import ru.ispras.microtesk.test.preparator.PreparatorStore;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.SequenceBuilder;
 import ru.ispras.microtesk.test.template.Argument;
@@ -62,27 +63,33 @@ import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
 
 /**
- * The SequenceProcessor class processes an abstract instruction call
- * sequence that may use hold symbolic values to build a concrete
- * instruction call sequence that uses only concrete values and
- * can be simulated and used to generate source code in assembly language.      
+ * The job of the DataGenerator class is to processes an abstract
+ * instruction call sequence (uses symbolic values) and to build
+ * a concrete instruction call sequence (uses only concrete values
+ * and can be simulated and used to generate source code in
+ * assembly language). The DataGenerator class performs all necessary
+ * data generation and all initializing calls to the generated instruction
+ * sequence.     
  * 
  * @author Andrei Tatarnikov
  */
 
-final class SequenceProcessor
+final class DataGenerator
 {
     private final IModel model; 
     private final TestBase testBase;
+    private final PreparatorStore preparators;
 
     private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
-    SequenceProcessor(IModel model) 
+    DataGenerator(IModel model, PreparatorStore preparators) 
     {
         checkNotNull(model);
+        checkNotNull(preparators);
 
         this.model = model;
         this.testBase = new TestBase();
+        this.preparators = preparators;
         this.sequenceBuilder = null;
     }
 
@@ -241,7 +248,9 @@ final class SequenceProcessor
         System.out.printf("Creating code to assign %s to %s...%n",
             value, targetMode.getSignature());
 
-        final Preparator preparator = getPreparator(targetMode);
+        final Preparator preparator =
+            preparators.getPreparator(targetMode);
+
         if (null == preparator)
         {
             System.out.printf("No suitable preparator is found for %s.%n",
@@ -250,11 +259,6 @@ final class SequenceProcessor
         }
 
         return preparator.makeInitializer(targetMode, value);
-    }
-
-    private Preparator getPreparator(Primitive targetMode)
-    {
-        return null;
     }
 
     private int makeImm(Argument argument)
