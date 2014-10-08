@@ -173,7 +173,7 @@ final class SequenceProcessor
         final TestBaseQueryResult queryResult = testBase.executeQuery(query);
         if (TestBaseQueryResult.Status.OK != queryResult.getStatus())
         {
-            printErrors(queryResult);
+            System.out.println(makeErrorMessage(queryResult));
             return;
         }
 
@@ -212,40 +212,44 @@ final class SequenceProcessor
             final BitVector value =
                 FortressUtils.extractBitVector(e.getValue());
 
-            System.out.println("Value: " + value);
-
-            final Preparator preparator = getPreparator(targetMode);
-            if (null == preparator)
-            {
-                System.out.printf(
-                    "No suitable preparator is found for argument %s (%s).%n",
-                    name, targetMode.getSignature());
-                continue;
-            }
-
             final List<ConcreteCall> initializer =
-                 preparator.makeInitializer(targetMode, value);
+                makeInitializer(targetMode, value);
 
-            sequenceBuilder.addToPrologue(initializer);
+            if (null != initializer)
+                sequenceBuilder.addToPrologue(initializer);
         }
     }
     
-    private void printErrors(TestBaseQueryResult queryResult)
+    private String makeErrorMessage(TestBaseQueryResult queryResult)
     {
         final StringBuilder sb = new StringBuilder(String.format(
             "Failed to execute the query. Status: %s.", queryResult.getStatus()));
 
-        if (queryResult.hasErrors())
+        if (!queryResult.hasErrors())
+            return sb.toString();
+
+        sb.append(" Errors: ");
+        for (String error : queryResult.getErrors())
+            sb.append("\r\n  " + error);
+
+        return sb.toString();
+    }
+
+    private List<ConcreteCall> makeInitializer(
+        Primitive targetMode, BitVector value)
+    {
+        System.out.printf("Creating code to assign %s to %s...%n",
+            value, targetMode.getSignature());
+
+        final Preparator preparator = getPreparator(targetMode);
+        if (null == preparator)
         {
-            sb.append(" Errors: ");
-            for (String error : queryResult.getErrors())
-            {
-                sb.append("\r\n  ");
-                sb.append(error);
-            }
+            System.out.printf("No suitable preparator is found for %s.%n",
+                targetMode.getSignature());
+            return null;
         }
 
-        System.out.println(sb);
+        return preparator.makeInitializer(targetMode, value);
     }
 
     private Preparator getPreparator(Primitive targetMode)
