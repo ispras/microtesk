@@ -393,13 +393,39 @@ final class SequenceProcessor
     }
 }
 
+/**
+ * The TestBaseQueryCreator class forms a query for test data that
+ * will be sent to TestBase. It dumps the following information:
+ * <ol>
+ * <li>Name of the microprocessor being tested.</li>
+ * <li>Information about the test situation (its name and attributes).</li>
+ * <li>Name of the operation the situation is linked to.</li>
+ * <li>All arguments of the operation including immediate values, addressing
+ * modes with their arguments and all arguments of nested operations.</li>
+ * </ol>
+ * Arguments are treated in the following way:
+ * <ul>
+ * <li>All immediate arguments that have values are constants
+ * (see {@link NodeValue}) of type {@link DataType#INTEGER}.</li>
+ * <li>All unknown immediate arguments (see {@link UnknownValue}) that have not 
+ * been assigned values are unknown variables (see {@link NodeVariable}) of
+ * type {@link DataType#INTEGER}.</li>
+ * <li>All addressing modes are unknown variables (see {@link NodeVariable}) of
+ * type {@link DataType#UNKNOWN}.</li>
+ * </ul>
+ * <p>N.B. If nested operations have linked test situations, these situations
+ * are ignored and no information about them is included in the query. These
+ * situations are processed separately. If they have been previously processed,
+ * unknown immediate arguments that received values are treated as known
+ * immediate values.
+ * <p>N.B. The above text describes the current behavior that may be changed
+ * in the future.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 final class TestBaseQueryCreator
 {
-    private static final String NESTED_SITUATIONS_ERROR =
-        "Error: The %s argument (type %s) is an operation with " +
-        "test situation %s. The current version does not support " +
-        "nesting of test situations.";
-
     private final String processor;
     private final Situation situation;
     private final Primitive primitive;
@@ -495,7 +521,8 @@ final class TestBaseQueryCreator
 
         for (Argument arg : primitive.getArguments().values())
         {
-            queryBuilder.setContextAttribute(arg.getName(), arg.getTypeName());
+            queryBuilder.setContextAttribute(
+                arg.getName(), arg.getTypeName());
         }
     }
 
@@ -516,9 +543,7 @@ final class TestBaseQueryCreator
         private final Map<String, Primitive> modes;
 
         private BindingBuilder(
-            TestBaseQueryBuilder queryBuilder,
-            Primitive primitive
-            )
+            TestBaseQueryBuilder queryBuilder, Primitive primitive)
         {
             if (null == queryBuilder)
                 throw new NullPointerException();
@@ -545,14 +570,11 @@ final class TestBaseQueryCreator
 
         private void visit(String prefix, Primitive p)
         {
-            if (p.getSituation() != null && !prefix.isEmpty())
-                throw new IllegalArgumentException(String.format(
-                    NESTED_SITUATIONS_ERROR, prefix, p.getTypeName()));
-
             for (Argument arg : p.getArguments().values())
             {
                 final String argName = prefix.isEmpty() ?
-                    arg.getName() : String.format("%s.%s", prefix, arg.getName());
+                    arg.getName() :
+                    String.format("%s.%s", prefix, arg.getName());
 
                 switch (arg.getKind())
                 {
@@ -562,14 +584,23 @@ final class TestBaseQueryCreator
                     break;
 
                 case IMM_RANDOM:
-                    queryBuilder.setBinding(argName,
-                        NodeValue.newInteger(((RandomValue) arg.getValue()).getValue()));
+                    queryBuilder.setBinding(argName, NodeValue.newInteger(
+                        ((RandomValue) arg.getValue()).getValue()));
                     break;
 
                 case IMM_UNKNOWN:
-                    queryBuilder.setBinding(argName,
-                        new NodeVariable(new Variable(argName, DataType.INTEGER)));
-                    unknownValues.put(argName, (UnknownValue) arg.getValue());
+                    if (!((UnknownValue) arg.getValue()).isValueSet())
+                    {
+                        queryBuilder.setBinding(argName, new NodeVariable(
+                            new Variable(argName, DataType.INTEGER)));
+                        unknownValues.put(
+                            argName, (UnknownValue) arg.getValue());
+                    }
+                    else
+                    {
+                        queryBuilder.setBinding(argName, NodeValue.newInteger(
+                            ((UnknownValue) arg.getValue()).getValue()));
+                    }
                     break;
 
                 case MODE:
