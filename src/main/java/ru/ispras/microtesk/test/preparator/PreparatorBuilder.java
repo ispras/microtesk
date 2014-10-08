@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * Preparator.java, Oct 7, 2014 5:00:43 PM Andrei Tatarnikov
+ * PreparatorBuilder.java, Oct 8, 2014 7:34:48 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -24,18 +24,44 @@
 
 package ru.ispras.microtesk.test.preparator;
 
-import java.util.Collections;
-import java.util.List;
+import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.LazyValue;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.Primitive;
-
-public class Preparator
+public final class PreparatorBuilder
 {
-    public List<ConcreteCall> makeInitializer(
-        Primitive target, BitVector value)
+    /*
+    private final String targetName;
+    private final int size;
+    */
+
+    public PreparatorBuilder(String targetName, int size)
     {
-        return Collections.emptyList();
+        // this.targetName = targetName;
+        // this.size = size;
+    }
+
+    public LazyValue newValue()
+    {
+        return null;
+    }
+
+    public LazyValue newValue(int start, int end)
+    {
+        return null;
+    }
+    
+    public Object getTarget()
+    {
+        return null;
+    }
+    
+    public void addCall(Call call)
+    {
+        
+    }
+
+    public Preparator build()
+    {
+        return null;
     }
 }
