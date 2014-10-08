@@ -126,10 +126,17 @@ final class SequenceProcessor
         System.out.printf(
             "%nProcessing %s...%n", abstractCall.getText());
 
-        final InstructionCall modelCall = makeModelCall(abstractCall);
-        sequenceBuilder.add(new ConcreteCall(abstractCall, modelCall));
+        final Primitive rootOp = abstractCall.getRootOperation();
+        checkRootOp(rootOp);
+
+        processSituations(rootOp);
+
+        final IOperation op = makeOp(rootOp);
+        final InstructionCall executable = getCallFactory().newCall(op);
+
+        sequenceBuilder.add(new ConcreteCall(abstractCall, executable));
     }
-    
+
     private void processSituations(Primitive primitive)
     {
         checkNotNull(primitive);
@@ -146,13 +153,6 @@ final class SequenceProcessor
 
     private void generateData(Primitive primitive)
     {
-        if (null == primitive)
-            throw new NullPointerException();
-        
-        if (!primitive.hasSituation())
-            throw new IllegalArgumentException(
-                "No situations are linked to " + primitive);
-        
         final Situation situation = primitive.getSituation();
 
         System.out.printf("Processing situation %s for %s...%n",
@@ -251,18 +251,6 @@ final class SequenceProcessor
     private Preparator getPreparator(Primitive targetMode)
     {
         return null;
-    }
-
-    private InstructionCall makeModelCall(
-        Call abstractCall) throws ConfigurationException
-    {
-        final Primitive rootOp = abstractCall.getRootOperation();
-        checkRootOp(rootOp);
-
-        processSituations(rootOp);
-
-        final IOperation modelOp = makeOp(rootOp);
-        return getCallFactory().newCall(modelOp);
     }
 
     private int makeImm(Argument argument)
