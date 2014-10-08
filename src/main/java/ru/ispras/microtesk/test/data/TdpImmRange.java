@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * TDPRandomImm.java, Oct 6, 2014 3:52:12 PM Andrei Tatarnikov
+ * TdpRandomImm.java, Oct 6, 2014 3:52:12 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -30,20 +30,21 @@ import java.util.NoSuchElementException;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 
-final class TDPImmRandom extends TestDataProviderBase 
+final class TdpImmRange extends TestDataProviderBase 
 {
-    public static String NAME = "imm_random";
+    public static String NAME = "imm_range";
     public static int COUNT = 1;
 
     private int iteration = 0;
 
-    private int min = 0;
-    private int max = 0;
+    private int from = 0;
+    private int to = 0;
+    private int step = 0;
+
     private Map<String, Node> unknownImms = null;
 
     @Override
@@ -57,8 +58,9 @@ final class TDPImmRandom extends TestDataProviderBase
     void initialize(TestBaseQuery query)
     {
         iteration = 0;
-        min = getParameterAsInt(query, "min");
-        max = getParameterAsInt(query, "max");
+        from = getParameterAsInt(query, "from");
+        to   = getParameterAsInt(query, "to");
+        step = getParameterAsInt(query, "step");
         unknownImms = extractUnknownImms(query);
     }
 
@@ -74,11 +76,17 @@ final class TDPImmRandom extends TestDataProviderBase
         if (!hasNext())
             throw new NoSuchElementException();
 
-        final Map<String, Node> outputData = new LinkedHashMap<String, Node>(); 
+        final Map<String, Node> outputData = 
+            new LinkedHashMap<String, Node>();
+
+        final int delta = Math.abs(to - from);
+
+        int index = 0;
         for (Map.Entry<String, Node> e : unknownImms.entrySet())
         {
-            final int value = Randomizer.get().nextIntRange(min, max); 
+            final int value = from + ((delta == 0) ? 0 : (index % delta)); 
             outputData.put(e.getKey(), NodeValue.newInteger(value));
+            index += step;
         }
 
         iteration++;

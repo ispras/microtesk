@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * TDPZero.java, Oct 7, 2014 12:35:50 PM Andrei Tatarnikov
+ * TdpZero.java, Oct 7, 2014 12:35:50 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -38,7 +38,7 @@ import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 
-final class TDPRandom extends TestDataProviderBase 
+final class TdpRandom extends TestDataProviderBase 
 {
     public static String NAME = "random";
     public static int COUNT = 1;

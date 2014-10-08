@@ -7,7 +7,7 @@
  * 
  * All rights reserved.
  * 
- * TDPZero.java, Oct 7, 2014 12:35:50 PM Andrei Tatarnikov
+ * TdpRandomImm.java, Oct 6, 2014 3:52:12 PM Andrei Tatarnikov
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -28,24 +28,23 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.DataTypeId;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 
-final class TDPZero extends TestDataProviderBase 
+final class TdpImmRandom extends TestDataProviderBase 
 {
-    public static String NAME = "zero";
+    public static String NAME = "imm_random";
     public static int COUNT = 1;
 
-    private int size = 0;
-
     private int iteration = 0;
-    private TestData testData = null;
+
+    private int min = 0;
+    private int max = 0;
+    private Map<String, Node> unknownImms = null;
 
     @Override
     boolean isSuitable(TestBaseQuery query)
@@ -58,41 +57,15 @@ final class TDPZero extends TestDataProviderBase
     void initialize(TestBaseQuery query)
     {
         iteration = 0;
-        size = getParameterAsInt(query, "size");
-
-        final Map<String, Node> unknowns = extractUnknown(query);
-        final Map<String, Node> outputData = new LinkedHashMap<String, Node>();
-
-        for (Map.Entry<String, Node> e : unknowns.entrySet())
-        {
-            final String name = e.getKey();
-            final DataType type = e.getValue().getDataType();
-
-            final Node value;
-            if (DataTypeId.LOGIC_INTEGER == type.getTypeId())
-            {
-                value = NodeValue.newInteger(0);
-            }
-            else if(DataTypeId.UNKNOWN == type.getTypeId())
-            {
-                value = NodeValue.newBitVector(BitVector.newEmpty(size));
-            }
-            else
-            {
-                throw new IllegalArgumentException(String.format(
-                    "The %s variable has unupported type: %s", name, type));
-            }
-
-            outputData.put(name, value);
-        }
-
-        testData = new TestData(outputData);
+        min = getParameterAsInt(query, "min");
+        max = getParameterAsInt(query, "max");
+        unknownImms = extractUnknownImms(query);
     }
 
     @Override
     public boolean hasNext()
     {
-        return (testData != null) && (iteration < COUNT);
+        return (unknownImms != null) && (iteration < COUNT);
     }
 
     @Override
@@ -101,7 +74,14 @@ final class TDPZero extends TestDataProviderBase
         if (!hasNext())
             throw new NoSuchElementException();
 
+        final Map<String, Node> outputData = new LinkedHashMap<String, Node>(); 
+        for (Map.Entry<String, Node> e : unknownImms.entrySet())
+        {
+            final int value = Randomizer.get().nextIntRange(min, max); 
+            outputData.put(e.getKey(), NodeValue.newInteger(value));
+        }
+
         iteration++;
-        return testData;
+        return new TestData(outputData);
     }
 }

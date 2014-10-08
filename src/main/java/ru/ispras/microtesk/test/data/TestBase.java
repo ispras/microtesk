@@ -38,10 +38,10 @@ public final class TestBase
     public TestBase()
     {
         this.providers = Arrays.asList(
-            new TDPImmRandom(),
-            new TDPImmRange(),
-            new TDPZero(),
-            new TDPRandom()
+            new TdpImmRandom(),
+            new TdpImmRange(),
+            new TdpZero(),
+            new TdpRandom()
             );
     }
 
