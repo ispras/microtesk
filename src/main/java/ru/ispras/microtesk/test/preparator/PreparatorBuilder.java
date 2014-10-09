@@ -23,24 +23,31 @@
 package ru.ispras.microtesk.test.preparator;
 
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.LazyValue;
 
 public final class PreparatorBuilder {
+
+  private final LazyData data;
+  
   /*
    * private final String targetName; private final int size;
    */
 
   public PreparatorBuilder(String targetName, int size) {
+
+    this.data = new LazyData();
+    
     // this.targetName = targetName;
     // this.size = size;
   }
 
   public LazyValue newValue() {
-    return null;
+    return new LazyValue(data);
   }
 
   public LazyValue newValue(int start, int end) {
-    return null;
+    return new LazyValue(data, start, end);
   }
 
   public Object getTarget() {
@@ -52,6 +59,6 @@ public final class PreparatorBuilder {
   }
 
   public Preparator build() {
-    return null;
+    return new Preparator(data);
   }
 }

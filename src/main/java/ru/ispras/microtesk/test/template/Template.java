@@ -28,6 +28,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.test.preparator.PreparatorStore;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
@@ -39,6 +40,7 @@ public final class Template
     private CallBuilder callBuilder;
 
     private IIterator<Sequence<Call>> sequences;
+    private final PreparatorStore preparators;
 
     public Template(MetaModel metaModel)
     {
@@ -54,6 +56,7 @@ public final class Template
         this.callBuilder = new CallBuilder(getCurrentBlockId());
 
         this.sequences = null;
+        this.preparators = new PreparatorStore();
     }
 
     public IIterator<Sequence<Call>> build()
@@ -78,6 +81,11 @@ public final class Template
             build();
 
         return sequences;
+    }
+
+    public PreparatorStore getPreparators()
+    {
+        return preparators;  
     }
 
     public BlockId getCurrentBlockId()

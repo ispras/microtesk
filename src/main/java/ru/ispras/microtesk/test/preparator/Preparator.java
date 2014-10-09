@@ -27,12 +27,22 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.Primitive;
 
 public class Preparator {
+  private final LazyData data;
 
-  public List<ConcreteCall> makeInitializer(Primitive target, BitVector value) {
-    return Collections.emptyList();
+  public Preparator(LazyData data) {
+    if (null == data) {
+      throw new NullPointerException();
+    }
+
+    this.data = data;
   }
 
+  public List<ConcreteCall> makeInitializer(Primitive target, BitVector value) {
+    data.setValue(value);
+    return Collections.emptyList();
+  }
 }
