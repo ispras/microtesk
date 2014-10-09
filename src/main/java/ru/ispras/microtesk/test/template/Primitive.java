@@ -24,7 +24,8 @@ package ru.ispras.microtesk.test.template;
 
 import java.util.Map;
 
-public final class Primitive {
+public interface Primitive
+{
   public static enum Kind {
     OP("op"),
     MODE("mode");
@@ -40,6 +41,18 @@ public final class Primitive {
     }
   };
 
+  public Kind getKind();
+  public String getName();
+  public String getTypeName();
+  public boolean isRoot();
+  public Map<String, Argument> getArguments();
+  public String getContextName();
+  public boolean hasSituation();
+  public Situation getSituation();
+  public String getSignature();
+}
+
+final class PrimitiveImpl implements Primitive {
   private final Kind kind;
   private final String name;
   private final String typeName;
@@ -48,7 +61,7 @@ public final class Primitive {
   private final String contextName;
   private final Situation situation;
 
-  Primitive(Kind kind, String name, String typeName, boolean isRoot, Map<String, Argument> args,
+  PrimitiveImpl(Kind kind, String name, String typeName, boolean isRoot, Map<String, Argument> args,
       String contextName, Situation situation) {
     checkNotNull(kind);
     checkNotNull(name);
@@ -62,12 +75,6 @@ public final class Primitive {
     this.args = args;
     this.contextName = contextName;
     this.situation = situation;
-  }
-
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
   }
 
   public Kind getKind() {
@@ -126,5 +133,11 @@ public final class Primitive {
   public String toString() {
     return null == situation ?
        getSignature() : String.format("%s, situation=%s", getSignature(), situation);
+  }
+
+  private static void checkNotNull(Object o) {
+    if (null == o) {
+      throw new NullPointerException();
+    }
   }
 }

@@ -30,40 +30,36 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.Primitive;
 
-public class Preparator {
-  private final String target;
+public final class Preparator {
+  private final String targetName;
   private final LazyData data;
   private final List<Call> calls;
 
-  public Preparator(String target, LazyData data, List<Call> calls) {
-    if (null == target) {
-      throw new NullPointerException();
-    }
-    if (null == data) {
-      throw new NullPointerException();
-    }
-    if (null == calls) {
-      throw new NullPointerException();
-    }
+  public Preparator(String targetName, LazyData data, List<Call> calls) {
+    checkNotNull(targetName);
+    checkNotNull(data);
+    checkNotNull(calls);
 
-    this.target = target;
+    this.targetName = targetName;
     this.data = data;
     this.calls = Collections.unmodifiableList(calls);
   }
 
   public String getTargetName() {
-    return target;
+    return targetName;
   }
 
   public List<Call> makeInitializer(Primitive target, BitVector value) {
-    if (null == target) {
-      throw new NullPointerException();
-    }
-    if (null == value) {
-      throw new NullPointerException();
-    }
+    checkNotNull(target);
+    checkNotNull(value);
 
     data.setValue(value);
     return calls;
+  }
+  
+  private static void checkNotNull(Object o) {
+    if (null == o) {
+      throw new NullPointerException();
+    }
   }
 }

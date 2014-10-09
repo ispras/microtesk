@@ -428,8 +428,15 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   public Primitive build() {
     checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
 
-    return new Primitive(kind, getName(), strategy.getTypeName(), strategy.isRoot(), args,
-        contextName, situation);
+    return new PrimitiveImpl(
+      kind,
+      getName(),
+      strategy.getTypeName(),
+      strategy.isRoot(),
+      args,
+      contextName,
+      situation
+      );
   }
 
   @Override
