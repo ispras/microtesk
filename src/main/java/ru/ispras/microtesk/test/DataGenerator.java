@@ -22,6 +22,7 @@
 
 package ru.ispras.microtesk.test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +118,6 @@ final class DataGenerator {
 
     // Only executable calls are worth printing.
     System.out.printf("%nProcessing %s...%n", abstractCall.getText());
-
     final Primitive rootOp = abstractCall.getRootOperation();
     checkRootOp(rootOp);
 
@@ -129,7 +129,7 @@ final class DataGenerator {
     sequenceBuilder.add(new ConcreteCall(abstractCall, executable));
   }
 
-  private void processSituations(Primitive primitive) {
+  private void processSituations(Primitive primitive) throws ConfigurationException {
     checkNotNull(primitive);
 
     for (Argument arg : primitive.getArguments().values()) {
@@ -143,13 +143,12 @@ final class DataGenerator {
     }
   }
 
-  private void generateData(Primitive primitive) {
+  private void generateData(Primitive primitive) throws ConfigurationException {
     final Situation situation = primitive.getSituation();
-
     System.out.printf("Processing situation %s for %s...%n", situation, primitive.getSignature());
 
     final TestBaseQueryCreator queryCreator =
-        new TestBaseQueryCreator(model.getName(), situation, primitive);
+      new TestBaseQueryCreator(model.getName(), situation, primitive);
 
     final TestBaseQuery query = queryCreator.getQuery();
     System.out.println("Query to TestBase: " + query);
@@ -197,10 +196,27 @@ final class DataGenerator {
       }
 
       final BitVector value = FortressUtils.extractBitVector(e.getValue());
-      final List<ConcreteCall> initializer = makeInitializer(targetMode, value);
+      final List<Call> initializingCalls = makeInitializer(targetMode, value);
 
-      if (null != initializer) {
-        sequenceBuilder.addToPrologue(initializer);
+      addCallsToPrologue(initializingCalls);
+    }
+  }
+
+  private void addCallsToPrologue(List<Call> abstractCalls) throws ConfigurationException {
+    checkNotNull(abstractCalls);
+    for (Call abstractCall : abstractCalls) {
+      checkNotNull(abstractCall);
+      if (abstractCall.isExecutable()) {
+        final Primitive rootOp = abstractCall.getRootOperation();
+        checkRootOp(rootOp);
+
+        final IOperation op = makeOp(rootOp);
+        final InstructionCall executable = getCallFactory().newCall(op);
+
+        sequenceBuilder.addToPrologue(new ConcreteCall(abstractCall, executable));
+      }
+      else {
+        sequenceBuilder.addToPrologue(new ConcreteCall(abstractCall));
       }
     }
   }
@@ -220,16 +236,16 @@ final class DataGenerator {
     return sb.toString();
   }
 
-  private List<ConcreteCall> makeInitializer(Primitive targetMode, BitVector value) {
+  private List<Call> makeInitializer(Primitive targetMode, BitVector value) {
     System.out.printf("Creating code to assign %s to %s...%n", value, targetMode.getSignature());
 
     final Preparator preparator = preparators.getPreparator(targetMode);
-    if (null == preparator) {
-      System.out.printf("No suitable preparator is found for %s.%n", targetMode.getSignature());
-      return null;
+    if (null != preparator) {
+      return preparator.makeInitializer(targetMode, value);
     }
 
-    return preparator.makeInitializer(targetMode, value);
+    System.out.printf("No suitable preparator is found for %s.%n", targetMode.getSignature());
+    return Collections.emptyList();
   }
 
   private int makeImm(Argument argument) {
@@ -269,8 +285,8 @@ final class DataGenerator {
           break;
 
         default:
-          throw new IllegalArgumentException(String.format("Illegal kind of argument %s: %s.",
-              argName, arg.getKind()));
+          throw new IllegalArgumentException(String.format(
+            "Illegal kind of argument %s: %s.", argName, arg.getKind()));
       }
     }
 

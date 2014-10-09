@@ -26,32 +26,44 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.Primitive;
 
 public class Preparator {
   private final String target;
   private final LazyData data;
+  private final List<Call> calls;
 
-  public Preparator(String target, LazyData data) {
+  public Preparator(String target, LazyData data, List<Call> calls) {
     if (null == target) {
       throw new NullPointerException();
     }
     if (null == data) {
       throw new NullPointerException();
     }
+    if (null == calls) {
+      throw new NullPointerException();
+    }
 
     this.target = target;
     this.data = data;
+    this.calls = Collections.unmodifiableList(calls);
   }
 
   public String getTarget() {
     return target;
   }
 
-  public List<ConcreteCall> makeInitializer(Primitive target, BitVector value) {
+  public List<Call> makeInitializer(Primitive target, BitVector value) {
+    if (null == target) {
+      throw new NullPointerException();
+    }
+    if (null == value) {
+      throw new NullPointerException();
+    }
+
     data.setValue(value);
-    return Collections.emptyList();
+    return calls;
   }
 }

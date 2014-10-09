@@ -22,21 +22,26 @@
 
 package ru.ispras.microtesk.test.preparator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.LazyValue;
 
 public final class PreparatorBuilder {
-  private final String target;
+  private final String targetName;
   private final LazyData data;
+  private final List<Call> calls;
 
-  public PreparatorBuilder(String target) {
-    if (null == target) {
+  public PreparatorBuilder(String targetName) {
+    if (null == targetName) {
       throw new NullPointerException();
     }
 
+    this.targetName = targetName;
     this.data = new LazyData();
-    this.target = target;
+    this.calls = new ArrayList<Call>();
   }
 
   public LazyValue newValue() {
@@ -52,10 +57,13 @@ public final class PreparatorBuilder {
   }
 
   public void addCall(Call call) {
-
+    if (null == call) {
+      throw new NullPointerException();
+    }
+    calls.add(call);
   }
 
   public Preparator build() {
-    return new Preparator(target, data);
+    return new Preparator(targetName, data, calls);
   }
 }
