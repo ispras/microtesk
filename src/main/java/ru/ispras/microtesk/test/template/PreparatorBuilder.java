@@ -30,7 +30,7 @@ import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.LazyValue;
 
 public final class PreparatorBuilder {
-  private final String targetName;
+  private final LazyPrimitive target;
   private final LazyData data;
   private final List<Call> calls;
 
@@ -39,7 +39,7 @@ public final class PreparatorBuilder {
       throw new NullPointerException();
     }
 
-    this.targetName = targetName;
+    this.target = new LazyPrimitive(Primitive.Kind.MODE, targetName, targetName);
     this.data = new LazyData();
     this.calls = new ArrayList<Call>();
   }
@@ -52,8 +52,8 @@ public final class PreparatorBuilder {
     return new LazyValue(data, start, end);
   }
 
-  public Object getTarget() {
-    return null;
+  public Primitive getTarget() {
+    return target;
   }
 
   public void addCall(Call call) {
@@ -64,6 +64,6 @@ public final class PreparatorBuilder {
   }
 
   public Preparator build() {
-    return new Preparator(null, data, calls);
+    return new Preparator(target, data, calls);
   }
 }
