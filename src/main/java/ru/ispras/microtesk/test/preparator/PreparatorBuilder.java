@@ -27,19 +27,16 @@ import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.LazyValue;
 
 public final class PreparatorBuilder {
-
+  private final String target;
   private final LazyData data;
-  
-  /*
-   * private final String targetName; private final int size;
-   */
 
-  public PreparatorBuilder(String targetName, int size) {
+  public PreparatorBuilder(String target) {
+    if (null == target) {
+      throw new NullPointerException();
+    }
 
     this.data = new LazyData();
-    
-    // this.targetName = targetName;
-    // this.size = size;
+    this.target = target;
   }
 
   public LazyValue newValue() {
@@ -59,6 +56,6 @@ public final class PreparatorBuilder {
   }
 
   public Preparator build() {
-    return new Preparator(data);
+    return new Preparator(target, data);
   }
 }

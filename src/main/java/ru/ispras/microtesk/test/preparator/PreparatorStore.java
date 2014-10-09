@@ -35,18 +35,21 @@ public final class PreparatorStore {
   }
 
   public void addPreparator(String targetName, Preparator preparator) {
-    if (null == targetName)
+    if (null == targetName) {
       throw new NullPointerException();
+    }
 
-    if (null == preparator)
+    if (null == preparator) {
       throw new NullPointerException();
+    }
 
     preparators.put(targetName, preparator);
   }
 
   public Preparator getPreparator(Primitive targetMode) {
-    if (null == targetMode)
+    if (null == targetMode) {
       throw new NullPointerException();
+    }
 
     return preparators.get(targetMode.getName());
   }

@@ -31,14 +31,23 @@ import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.Primitive;
 
 public class Preparator {
+  private final String target;
   private final LazyData data;
 
-  public Preparator(LazyData data) {
+  public Preparator(String target, LazyData data) {
+    if (null == target) {
+      throw new NullPointerException();
+    }
     if (null == data) {
       throw new NullPointerException();
     }
 
+    this.target = target;
     this.data = data;
+  }
+
+  public String getTarget() {
+    return target;
   }
 
   public List<ConcreteCall> makeInitializer(Primitive target, BitVector value) {
