@@ -9,16 +9,14 @@
  * 
  * TemplateBuilder.java, Aug 5, 2014 4:41:17 PM Andrei Tatarnikov
  * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -32,178 +30,163 @@ import ru.ispras.microtesk.test.preparator.PreparatorStore;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
-public final class Template
-{
-    private final PrimitiveBuilderFactory pbFactory;
+public final class Template {
+  private final PrimitiveBuilderFactory pbFactory;
 
-    private final Deque<BlockBuilder> blockBuilders;
-    private CallBuilder callBuilder;
+  private final Deque<BlockBuilder> blockBuilders;
+  private CallBuilder callBuilder;
 
-    private IIterator<Sequence<Call>> sequences;
-    private final PreparatorStore preparators;
+  private IIterator<Sequence<Call>> sequences;
+  private final PreparatorStore preparators;
 
-    public Template(MetaModel metaModel)
-    {
-        _header("Started Processing Template");
+  public Template(MetaModel metaModel) {
+    _header("Started Processing Template");
 
-        if (null == metaModel)
-            throw new NullPointerException();
-
-        this.pbFactory = new PrimitiveBuilderFactory(metaModel);
-
-        this.blockBuilders = new LinkedList<BlockBuilder>();
-        this.blockBuilders.push(new BlockBuilder());
-        this.callBuilder = new CallBuilder(getCurrentBlockId());
-
-        this.sequences = null;
-        this.preparators = new PreparatorStore();
+    if (null == metaModel) {
+      throw new NullPointerException();
     }
 
-    public IIterator<Sequence<Call>> build()
-    {
-        endBuildingCall();
-        
-        _header("Ended Processing Template");
+    this.pbFactory = new PrimitiveBuilderFactory(metaModel);
 
-        if (null != sequences)
-            throw new IllegalStateException("The template is already built.");
+    this.blockBuilders = new LinkedList<BlockBuilder>();
+    this.blockBuilders.push(new BlockBuilder());
+    this.callBuilder = new CallBuilder(getCurrentBlockId());
 
-        final BlockBuilder rootBuilder = blockBuilders.getLast();
-        final Block rootBlock = rootBuilder.build();
+    this.sequences = null;
+    this.preparators = new PreparatorStore();
+  }
 
-        sequences = rootBlock.getIterator();
-        return sequences;
+  public IIterator<Sequence<Call>> build() {
+    endBuildingCall();
+
+    _header("Ended Processing Template");
+
+    if (null != sequences) {
+      throw new IllegalStateException("The template is already built.");
     }
 
-    public IIterator<Sequence<Call>> getSequences()
-    {
-        if (null == sequences)
-            build();
+    final BlockBuilder rootBuilder = blockBuilders.getLast();
+    final Block rootBlock = rootBuilder.build();
 
-        return sequences;
+    sequences = rootBlock.getIterator();
+    return sequences;
+  }
+
+  public IIterator<Sequence<Call>> getSequences() {
+    if (null == sequences) {
+      build();
     }
+    return sequences;
+  }
 
-    public PreparatorStore getPreparators()
-    {
-        return preparators;  
+  public PreparatorStore getPreparators() {
+    return preparators;
+  }
+
+  public BlockId getCurrentBlockId() {
+    return blockBuilders.peek().getBlockId();
+  }
+
+  public BlockBuilder beginBlock() {
+    endBuildingCall();
+
+    final BlockBuilder parent = blockBuilders.peek();
+    final BlockBuilder current = new BlockBuilder(parent);
+
+    _trace("Begin block: " + current.getBlockId());
+
+    blockBuilders.push(current);
+    return current;
+  }
+
+  public void endBlock() {
+    endBuildingCall();
+
+    _trace("End block: " + getCurrentBlockId());
+
+    final BlockBuilder builder = blockBuilders.pop();
+    final Block block = builder.build();
+
+    blockBuilders.peek().addBlock(block);
+  }
+
+  public void addLabel(String name) {
+    final Label label = new Label(name, getCurrentBlockId());
+    _trace("Label: " + label.toString());
+    callBuilder.addLabel(label);
+  }
+
+  public void addOutput(Output output) {
+    _trace(output.toString());
+    callBuilder.addOutput(output);
+  }
+
+  public void setRootOperation(Primitive rootOperation) {
+    callBuilder.setRootOperation(rootOperation);
+  }
+
+  public void endBuildingCall() {
+    final Call call = callBuilder.build();
+    blockBuilders.peek().addCall(call);
+
+    _trace(String.format("Ended building a call (empty = %b, executable = %b)",
+      call.isEmpty(), call.isExecutable()));
+
+    this.callBuilder = new CallBuilder(getCurrentBlockId());
+  }
+
+  public PrimitiveBuilder newOperationBuilder(String name) {
+    _trace(String.format("Operation: " + name));
+    return pbFactory.newOperationBuilder(name, callBuilder);
+  }
+
+  public PrimitiveBuilder newAddressingModeBuilder(String name) {
+    _trace("Addressing mode: " + name);
+    return pbFactory.newAddressingModeBuilder(name, callBuilder);
+  }
+
+  public RandomValue newRandom(int from, int to) {
+    return new RandomValue(from, to);
+  }
+
+  public UnknownValue newUnknown() {
+    return new UnknownValue();
+  }
+
+  public OutputBuilder newOutput(boolean isRuntime, String format) {
+    return new OutputBuilder(isRuntime, format);
+  }
+
+  public SituationBuilder newSituation(String name) {
+    return new SituationBuilder(name);
+  }
+
+  private static void _trace(String s) {
+    System.out.println(s);
+  }
+
+  private static void _header(String text) {
+    final int LINE_WIDTH = 80;
+
+    final int prefixWidth = (LINE_WIDTH - text.length()) / 2;
+    final int postfixWidth = LINE_WIDTH - prefixWidth - text.length();
+
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append("\r\n");
+    for (int i = 0; i < prefixWidth - 1; ++i) {
+      sb.append('-');
     }
+    sb.append(' ');
 
-    public BlockId getCurrentBlockId()
-    {
-        return blockBuilders.peek().getBlockId();
+    sb.append(text);
+
+    sb.append(' ');
+    for (int i = 0; i < postfixWidth - 1; ++i) {
+      sb.append('-');
     }
+    sb.append("\r\n");
 
-    public BlockBuilder beginBlock()
-    {
-        endBuildingCall();
-        
-        final BlockBuilder parent = blockBuilders.peek();
-        final BlockBuilder current = new BlockBuilder(parent);
-
-        _trace("Begin block: " + current.getBlockId());
-
-        blockBuilders.push(current);
-        return current;
-    }
-
-    public void endBlock()
-    {
-        endBuildingCall();
-
-        _trace("End block: " + getCurrentBlockId());
-
-        final BlockBuilder builder = blockBuilders.pop();
-        final Block block = builder.build();
-
-        blockBuilders.peek().addBlock(block);
-    }
-
-    public void addLabel(String name)
-    {
-        final Label label = new Label(name, getCurrentBlockId());
-        _trace("Label: " + label.toString());
-        callBuilder.addLabel(label);
-    }
-
-    public void addOutput(Output output)
-    {
-        _trace(output.toString());
-        callBuilder.addOutput(output);
-    }
-
-    public void setRootOperation(Primitive rootOperation)
-    {
-        callBuilder.setRootOperation(rootOperation);
-    }
-
-    public void endBuildingCall()
-    {
-        final Call call = callBuilder.build();
-        blockBuilders.peek().addCall(call);
-
-        _trace(String.format(
-            "Ended building a call (empty = %b, executable = %b)",
-             call.isEmpty(), call.isExecutable()));
-
-        this.callBuilder = new CallBuilder(getCurrentBlockId());
-    }
-
-    public PrimitiveBuilder newOperationBuilder(String name)
-    {
-        _trace(String.format("Operation: " + name));
-        return pbFactory.newOperationBuilder(name, callBuilder);
-    }
-
-    public PrimitiveBuilder newAddressingModeBuilder(String name)
-    {
-        _trace("Addressing mode: " + name);
-        return pbFactory.newAddressingModeBuilder(name, callBuilder);
-    }
-
-    public RandomValue newRandom(int from, int to)
-    {
-        return new RandomValue(from, to);
-    }
-
-    public UnknownValue newUnknown()
-    {
-        return new UnknownValue();
-    }
-
-    public OutputBuilder newOutput(boolean isRuntime, String format)
-    {
-        return new OutputBuilder(isRuntime, format);
-    }
-
-    public SituationBuilder newSituation(String name)
-    {
-        return new SituationBuilder(name);
-    }
-
-    private static void _trace(String s)
-    {
-        System.out.println(s);
-    }
-
-    private static void _header(String text)
-    {
-        final int LINE_WIDTH = 80;
-
-        final int  prefixWidth = (LINE_WIDTH - text.length()) / 2;
-        final int postfixWidth = LINE_WIDTH - prefixWidth - text.length();
-
-        final StringBuilder sb = new StringBuilder();
-
-        sb.append("\r\n");
-        for(int i = 0; i < prefixWidth - 1; ++i) sb.append('-');
-        sb.append(' ');
-
-        sb.append(text);
-
-        sb.append(' ');
-        for(int i = 0; i < postfixWidth - 1; ++i) sb.append('-');
-        sb.append("\r\n");
-
-        _trace(sb.toString());
-    }
+    _trace(sb.toString());
+  }
 }
