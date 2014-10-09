@@ -64,6 +64,6 @@ public final class PreparatorBuilder {
   }
 
   public Preparator build() {
-    return new Preparator(targetName, data, calls);
+    return new Preparator(null, data, calls);
   }
 }

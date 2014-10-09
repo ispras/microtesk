@@ -428,7 +428,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   public Primitive build() {
     checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
 
-    return new PrimitiveImpl(
+    return new ConcretePrimitive(
       kind,
       getName(),
       strategy.getTypeName(),

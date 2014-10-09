@@ -52,7 +52,7 @@ public interface Primitive
   public String getSignature();
 }
 
-final class PrimitiveImpl implements Primitive {
+final class ConcretePrimitive implements Primitive {
   private final Kind kind;
   private final String name;
   private final String typeName;
@@ -61,7 +61,7 @@ final class PrimitiveImpl implements Primitive {
   private final String contextName;
   private final Situation situation;
 
-  PrimitiveImpl(Kind kind, String name, String typeName, boolean isRoot, Map<String, Argument> args,
+  ConcretePrimitive(Kind kind, String name, String typeName, boolean isRoot, Map<String, Argument> args,
       String contextName, Situation situation) {
     checkNotNull(kind);
     checkNotNull(name);
@@ -142,13 +142,13 @@ final class PrimitiveImpl implements Primitive {
   }
 }
 
-final class PrimitiveLazy implements Primitive {
+final class LazyPrimitive implements Primitive {
   private Primitive source;
   private final Kind kind;
   private final String name;
   private final String typeName;
 
-  PrimitiveLazy(Kind kind, String name, String typeName)
+  LazyPrimitive(Kind kind, String name, String typeName)
   {
     checkNotNull(kind);
     checkNotNull(name);

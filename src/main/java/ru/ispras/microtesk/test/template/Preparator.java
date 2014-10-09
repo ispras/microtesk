@@ -31,32 +31,34 @@ import ru.ispras.microtesk.test.template.LazyData;
 import ru.ispras.microtesk.test.template.Primitive;
 
 public final class Preparator {
-  private final String targetName;
-  private final LazyData data;
+  private final LazyPrimitive targetHolder;
+  private final LazyData dataHolder;
   private final List<Call> calls;
 
-  Preparator(String targetName, LazyData data, List<Call> calls) {
-    checkNotNull(targetName);
-    checkNotNull(data);
+  Preparator(LazyPrimitive targetHolder, LazyData dataHolder, List<Call> calls) {
+    checkNotNull(targetHolder);
+    checkNotNull(dataHolder);
     checkNotNull(calls);
 
-    this.targetName = targetName;
-    this.data = data;
+    this.targetHolder = targetHolder;
+    this.dataHolder = dataHolder;
     this.calls = Collections.unmodifiableList(calls);
   }
 
   public String getTargetName() {
-    return targetName;
+    return targetHolder.getName();
   }
 
-  public List<Call> makeInitializer(Primitive target, BitVector value) {
+  public List<Call> makeInitializer(Primitive target, BitVector data) {
     checkNotNull(target);
-    checkNotNull(value);
+    checkNotNull(data);
 
-    data.setValue(value);
+    targetHolder.setSource(target);
+    dataHolder.setValue(data);
+
     return calls;
   }
-  
+
   private static void checkNotNull(Object o) {
     if (null == o) {
       throw new NullPointerException();
