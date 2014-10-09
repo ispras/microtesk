@@ -299,6 +299,22 @@ class Template
     # TODO
   end
 
+  def target
+    @template.getPreparatorTarget
+  end
+
+  def value(*args)
+    if args.count != 0 and args.count != 2
+      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
+    end
+
+    if args.count == 2
+      @template.newLazy args.at(0), args.at(1)
+    else
+      @template.newLazy      
+    end
+  end
+
   # ------------------------------------------------------------------------- #
   # Generation (Execution and Printing)                                       #
   # ------------------------------------------------------------------------- #
