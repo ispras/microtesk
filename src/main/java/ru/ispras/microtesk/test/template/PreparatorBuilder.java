@@ -20,7 +20,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.preparator;
+package ru.ispras.microtesk.test.template;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public final class PreparatorBuilder {
   private final LazyData data;
   private final List<Call> calls;
 
-  public PreparatorBuilder(String targetName) {
+  PreparatorBuilder(String targetName) {
     if (null == targetName) {
       throw new NullPointerException();
     }

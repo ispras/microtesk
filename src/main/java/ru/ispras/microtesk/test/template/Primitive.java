@@ -141,3 +141,125 @@ final class PrimitiveImpl implements Primitive {
     }
   }
 }
+
+final class PrimitiveLazy implements Primitive {
+  private Primitive source;
+  private final Kind kind;
+  private final String name;
+  private final String typeName;
+
+  PrimitiveLazy(Kind kind, String name, String typeName)
+  {
+    checkNotNull(kind);
+    checkNotNull(name);
+    checkNotNull(typeName);
+
+    this.source = null;
+    this.kind = kind;
+    this.name = name;
+    this.typeName = typeName;
+  }
+
+  public void setSource(Primitive source) {
+    checkCompatible(source);
+    this.source = source;
+  }
+
+  private void checkCompatible(Primitive p) {
+    if (null == p) { // null can be used to reset the field.
+      return;
+    }
+
+    if (this == source) {
+      throw new IllegalArgumentException("Link to self!");
+    }
+
+    if (kind != p.getKind()) {
+      throw new IllegalArgumentException(String.format(
+        "Incompatible kind: %s (%s is expected).", p.getKind(), kind));
+    }
+
+    if (!name.equals(p.getName())) {
+      throw new IllegalArgumentException(String.format(
+        "Incompatible name: %s (%s is expected).", p.getName(), name));
+    }
+
+    if (!typeName.equals(p.getTypeName())) {
+      throw new IllegalArgumentException(String.format(
+        "Incompatible type: %s (%s is expected).", p.getTypeName(), typeName));
+    }
+  }
+
+  @Override
+  public Kind getKind() {
+    return kind;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public String getTypeName() {
+    return typeName;
+  }
+
+  @Override
+  public boolean isRoot() {
+    checkSourceAssigned();
+    return source.isRoot();
+  }
+
+  @Override
+  public Map<String, Argument> getArguments() {
+    checkSourceAssigned();
+    return source.getArguments();
+  }
+
+  @Override
+  public String getContextName() {
+    checkSourceAssigned();
+    return source.getContextName();
+  }
+
+  @Override
+  public boolean hasSituation() {
+    checkSourceAssigned();
+    return source.hasSituation();
+  }
+
+  @Override
+  public Situation getSituation() {
+    checkSourceAssigned();
+    return source.getSituation();
+  }
+
+  @Override
+  public String getSignature() {
+    checkSourceAssigned();
+    return source.getSignature();
+  }
+
+  @Override
+  public String toString() {
+    if (null != source)
+      return source.toString();
+
+    return String.format(
+      "lazy %s %s [type = %s]", kind.getText(), name, typeName); 
+  }
+
+  private void checkSourceAssigned() {
+    if (null == source) {
+      throw new IllegalStateException(String.format(
+        "Source for %s is not assigned.", name));
+    }
+  }
+
+  private static void checkNotNull(Object o) {
+    if (null == o) {
+      throw new NullPointerException();
+    }
+  }
+}

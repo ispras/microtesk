@@ -20,7 +20,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.preparator;
+package ru.ispras.microtesk.test.template;
 
 import java.util.HashMap;
 import java.util.Map;

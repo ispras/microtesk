@@ -24,7 +24,7 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
-public final class LazyData {
+final class LazyData {
   private BitVector value = null;
 
   public BitVector getValue() {

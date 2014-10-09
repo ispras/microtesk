@@ -29,7 +29,7 @@ public final class LazyValue {
   private final int start;
   private final int size;
 
-  public LazyValue(LazyData data) {
+  LazyValue(LazyData data) {
     if (null == data) {
       throw new NullPointerException();
     }
@@ -39,7 +39,7 @@ public final class LazyValue {
     this.size = 0; // This means that we will use all data.
   }
 
-  public LazyValue(LazyData data, int start, int end) {
+  LazyValue(LazyData data, int start, int end) {
     if (null == data) {
       throw new NullPointerException();
     }
