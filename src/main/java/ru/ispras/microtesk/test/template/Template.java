@@ -25,6 +25,7 @@ package ru.ispras.microtesk.test.template;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.test.preparator.PreparatorStore;
 import ru.ispras.microtesk.test.sequence.Sequence;
@@ -33,7 +34,7 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import static ru.ispras.microtesk.utils.PrintingUtils.*;
 
 public final class Template {
-  private final PrimitiveBuilderFactory pbFactory;
+  private final MetaModel metaModel;
 
   private final Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
@@ -48,7 +49,7 @@ public final class Template {
       throw new NullPointerException();
     }
 
-    this.pbFactory = new PrimitiveBuilderFactory(metaModel);
+    this.metaModel = metaModel;
 
     this.blockBuilders = new LinkedList<BlockBuilder>();
     this.blockBuilders.push(new BlockBuilder());
@@ -139,12 +140,27 @@ public final class Template {
 
   public PrimitiveBuilder newOperationBuilder(String name) {
     trace("Operation: " + name);
-    return pbFactory.newOperationBuilder(name, callBuilder);
+
+    if (null == name) {
+      throw new NullPointerException();
+    }
+
+    return new PrimitiveBuilderOperation(name, metaModel, callBuilder);
   }
 
   public PrimitiveBuilder newAddressingModeBuilder(String name) {
     trace("Addressing mode: " + name);
-    return pbFactory.newAddressingModeBuilder(name, callBuilder);
+
+    if (null == name) {
+      throw new NullPointerException();
+    }
+
+    final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
+    if (null == metaData) {
+      throw new IllegalArgumentException("No such addressing mode: " + name);
+    }
+
+    return new PrimitiveBuilderCommon(callBuilder, metaData);
   }
 
   public RandomValue newRandom(int from, int to) {

@@ -57,36 +57,6 @@ public interface PrimitiveBuilder {
   void setArgument(String name, UnknownValue value);
 }
 
-final class PrimitiveBuilderFactory {
-  private final MetaModel metaModel;
-
-  public PrimitiveBuilderFactory(MetaModel metaModel) {
-    if (null == metaModel) {
-      throw new NullPointerException();
-    }
-
-    this.metaModel = metaModel;
-  }
-
-  public PrimitiveBuilder newOperationBuilder(String name, CallBuilder callBuilder) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    return new PrimitiveBuilderOperation(name, metaModel, callBuilder);
-  }
-
-  public PrimitiveBuilder newAddressingModeBuilder(String name, CallBuilder callBuilder) {
-    final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
-
-    if (null == metaData) {
-      throw new IllegalArgumentException("No such addressing mode: " + name);
-    }
-
-    return new PrimitiveBuilderCommon(callBuilder, metaData);
-  }
-}
-
 final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   private final CallBuilder callBuilder;
   private final MetaModel metaModel;
