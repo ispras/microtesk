@@ -50,21 +50,10 @@ public final class Primitive {
 
   Primitive(Kind kind, String name, String typeName, boolean isRoot, Map<String, Argument> args,
       String contextName, Situation situation) {
-    if (null == kind) {
-      throw new NullPointerException();
-    }
-
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == typeName) {
-      throw new NullPointerException();
-    }
-
-    if (null == args) {
-      throw new NullPointerException();
-    }
+    checkNotNull(kind);
+    checkNotNull(name);
+    checkNotNull(typeName);
+    checkNotNull(args);
 
     this.kind = kind;
     this.name = name;
@@ -73,6 +62,12 @@ public final class Primitive {
     this.args = args;
     this.contextName = contextName;
     this.situation = situation;
+  }
+
+  private static void checkNotNull(Object o) {
+    if (null == o) {
+      throw new NullPointerException();
+    }
   }
 
   public Kind getKind() {
@@ -109,6 +104,7 @@ public final class Primitive {
 
   public String getSignature() {
     final StringBuilder sb = new StringBuilder();
+
     for (Argument arg : args.values()) {
       if (sb.length() > 0) {
         sb.append(", ");
