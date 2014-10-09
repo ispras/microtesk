@@ -227,7 +227,7 @@ final class DataGenerator {
 
   private String makeErrorMessage(TestBaseQueryResult queryResult) {
     final StringBuilder sb = new StringBuilder(String.format(
-        "Failed to execute the query. Status: %s.", queryResult.getStatus()));
+      "Failed to execute the query. Status: %s.", queryResult.getStatus()));
 
     if (!queryResult.hasErrors()) {
       return sb.toString();
