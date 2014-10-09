@@ -87,7 +87,6 @@ final class PrimitiveBuilderFactory {
   }
 }
 
-
 final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   private final CallBuilder callBuilder;
   private final MetaModel metaModel;
