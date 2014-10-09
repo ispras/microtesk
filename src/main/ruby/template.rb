@@ -288,14 +288,8 @@ class Template
       raise MTRubyError, "The :target attribute is not specified."
     end
 
-    if !attrs.has_key?(:size)
-      raise MTRubyError, "The :size attribute is not specified."    
-    end
-
     target = attrs[:target]
-    size = attrs[:size]
-
-    puts "Preparator for '#{target}' (data size = #{size})"
+    puts "Preparator for '#{target}'"
     # TODO
   end
 
