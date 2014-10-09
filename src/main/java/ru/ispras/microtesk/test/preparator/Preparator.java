@@ -51,7 +51,7 @@ public class Preparator {
     this.calls = Collections.unmodifiableList(calls);
   }
 
-  public String getTarget() {
+  public String getTargetName() {
     return target;
   }
 

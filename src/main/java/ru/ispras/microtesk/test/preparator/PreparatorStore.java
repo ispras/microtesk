@@ -34,16 +34,12 @@ public final class PreparatorStore {
     this.preparators = new HashMap<String, Preparator>();
   }
 
-  public void addPreparator(String targetName, Preparator preparator) {
-    if (null == targetName) {
-      throw new NullPointerException();
-    }
-
+  public void addPreparator(Preparator preparator) {
     if (null == preparator) {
       throw new NullPointerException();
     }
 
-    preparators.put(targetName, preparator);
+    preparators.put(preparator.getTargetName(), preparator);
   }
 
   public Preparator getPreparator(Primitive targetMode) {
