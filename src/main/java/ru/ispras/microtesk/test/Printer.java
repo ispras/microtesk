@@ -34,6 +34,7 @@ import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
+import ru.ispras.microtesk.utils.PrintingUtils;
 
 /**
  * The Printer class is responsible for printing generated symbolic test programs (sequences of
@@ -171,7 +172,7 @@ final class Printer {
 
   private void printToScreen(String text) {
     if (printToScreen) {
-      System.out.println(text);
+      PrintingUtils.trace(text);
     }
   }
 

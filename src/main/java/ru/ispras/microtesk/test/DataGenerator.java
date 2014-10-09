@@ -61,6 +61,8 @@ import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
 
+import static ru.ispras.microtesk.utils.PrintingUtils.*;
+
 /**
  * The job of the DataGenerator class is to processes an abstract instruction call sequence (uses
  * symbolic values) and to build a concrete instruction call sequence (uses only concrete values and
@@ -117,7 +119,7 @@ final class DataGenerator {
     }
 
     // Only executable calls are worth printing.
-    System.out.printf("%nProcessing %s...%n", abstractCall.getText());
+    trace("%nProcessing %s...", abstractCall.getText());
     final Primitive rootOp = abstractCall.getRootOperation();
     checkRootOp(rootOp);
 
@@ -149,34 +151,34 @@ final class DataGenerator {
     }
 
     final Situation situation = primitive.getSituation();
-    System.out.printf("Processing situation %s for %s...%n", situation, primitive.getSignature());
+    trace("Processing situation %s for %s...", situation, primitive.getSignature());
 
     final TestBaseQueryCreator queryCreator =
       new TestBaseQueryCreator(model.getName(), situation, primitive);
 
     final TestBaseQuery query = queryCreator.getQuery();
-    System.out.println("Query to TestBase: " + query);
+    trace("Query to TestBase: " + query);
 
     final Map<String, UnknownValue> unknownValues = queryCreator.getUnknownValues();
-    System.out.println("Unknown values: " + unknownValues.keySet());
+    trace("Unknown values: " + unknownValues.keySet());
 
     final Map<String, Primitive> modes = queryCreator.getModes();
-    System.out.println("Modes used as arguments: " + modes);
+    trace("Modes used as arguments: " + modes);
 
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
     if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
-      System.out.println(makeErrorMessage(queryResult));
+      trace(makeErrorMessage(queryResult));
       return;
     }
 
     final TestDataProvider dataProvider = queryResult.getDataProvider();
     if (!dataProvider.hasNext()) {
-      System.out.println("No data was generated for the query.");
+      trace("No data was generated for the query.");
       return;
     }
 
     final TestData testData = dataProvider.next();
-    System.out.println(testData);
+    trace(testData.toString());
 
     // Set unknown immediate values
     for (Map.Entry<String, UnknownValue> e : unknownValues.entrySet()) {
@@ -241,14 +243,14 @@ final class DataGenerator {
   }
 
   private List<Call> makeInitializer(Primitive targetMode, BitVector value) {
-    System.out.printf("Creating code to assign %s to %s...%n", value, targetMode.getSignature());
+    trace("Creating code to assign %s to %s...", value, targetMode.getSignature());
 
     final Preparator preparator = preparators.getPreparator(targetMode);
     if (null != preparator) {
       return preparator.makeInitializer(targetMode, value);
     }
 
-    System.out.printf("No suitable preparator is found for %s.%n", targetMode.getSignature());
+    trace("No suitable preparator is found for %s.", targetMode.getSignature());
     return Collections.emptyList();
   }
 

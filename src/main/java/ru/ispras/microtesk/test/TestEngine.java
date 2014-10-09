@@ -33,6 +33,8 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Template;
 
+import static ru.ispras.microtesk.utils.PrintingUtils.*;
+
 public final class TestEngine {
   public static TestEngine getInstance(IModel model) {
     return new TestEngine(model);
@@ -84,13 +86,13 @@ public final class TestEngine {
       while (sequenceIt.hasValue()) {
         final Sequence<Call> abstractSequence = sequenceIt.value();
         
-        printStageHeader(String.format("Generating data for sequence %d", sequenceNumber));
+        printHeader("Generating data for sequence %d", sequenceNumber);
         final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
 
-        printStageHeader(String.format("Executing sequence %d", sequenceNumber));
+        printHeader("Executing sequence %d", sequenceNumber);
         executor.executeSequence(concreteSequence);
 
-        printStageHeader(String.format("Printing sequence %d", sequenceNumber));
+        printHeader("Printing sequence %d", sequenceNumber);
         printer.printSequence(concreteSequence);
 
         sequenceIt.next();
@@ -115,30 +117,5 @@ public final class TestEngine {
 
   public void setCommentToken(String commentToken) {
     this.commentToken = commentToken;
-  }
-
-  private void printStageHeader(String text) {
-    final int LINE_WIDTH = 80;
-
-    final int prefixWidth = (LINE_WIDTH - text.length()) / 2;
-    final int postfixWidth = LINE_WIDTH - prefixWidth - text.length();
-
-    final StringBuilder sb = new StringBuilder();
-
-    sb.append("\r\n");
-    for (int i = 0; i < prefixWidth - 1; ++i) {
-      sb.append('-');
-    }
-    sb.append(' ');
-
-    sb.append(text);
-
-    sb.append(' ');
-    for (int i = 0; i < postfixWidth - 1; ++i) {
-      sb.append('-');
-    }
-    sb.append("\r\n");
-
-    System.out.println(sb);
   }
 }

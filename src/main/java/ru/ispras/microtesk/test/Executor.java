@@ -31,6 +31,7 @@ import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.utils.PrintingUtils;
 
 /**
  * The role of the Executor class is to execute (simulate) sequences of instruction calls (concrete
@@ -191,7 +192,7 @@ final class Executor {
 
   private void logText(String text) {
     if (logExecution && text != null) {
-      System.out.println(text);
+      PrintingUtils.trace(text);
     }
   }
 
