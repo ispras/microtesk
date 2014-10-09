@@ -35,7 +35,7 @@ public final class Preparator {
   private final LazyData data;
   private final List<Call> calls;
 
-  public Preparator(String targetName, LazyData data, List<Call> calls) {
+  Preparator(String targetName, LazyData data, List<Call> calls) {
     checkNotNull(targetName);
     checkNotNull(data);
     checkNotNull(calls);
