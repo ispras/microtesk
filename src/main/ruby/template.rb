@@ -289,8 +289,9 @@ class Template
     end
 
     target = attrs[:target]
-    puts "Preparator for '#{target}'"
+    @template.beginPreparator target.to_s
     # TODO
+    @template.endPreparator
   end
 
   def target

@@ -177,4 +177,32 @@ public final class Template {
   public SituationBuilder newSituation(String name) {
     return new SituationBuilder(name);
   }
+
+  public void beginPreparator(String targetName) {
+    // TODO
+    trace("Begin preparator for '%s'", targetName);  
+  }
+
+  public void endPreparator() {
+    // TODO
+    trace("End preparator");
+  }
+
+  public LazyValue newLazy() {
+    trace("newLazy");
+    // TODO
+    return null;
+  }
+
+  public LazyValue newLazy(int start, int end) {
+    trace("newLazy (%d, %d)", start, end);
+    // TODO
+    return null;
+  }
+
+  public Primitive getPreparatorTarget() {
+    trace("getPreparatorTarget");
+    // TODO
+    return null;
+  }
 }
