@@ -24,7 +24,7 @@ package ru.ispras.microtesk.utils;
 
 public final class PrintingUtils {
   private PrintingUtils() {}
-  
+
   public static void trace(String text) {
     System.out.println(text);
   }
