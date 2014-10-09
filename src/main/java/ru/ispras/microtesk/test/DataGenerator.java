@@ -144,6 +144,10 @@ final class DataGenerator {
   }
 
   private void generateData(Primitive primitive) throws ConfigurationException {
+    if (!primitive.hasSituation()) {
+      throw new IllegalArgumentException();
+    }
+
     final Situation situation = primitive.getSituation();
     System.out.printf("Processing situation %s for %s...%n", situation, primitive.getSignature());
 
