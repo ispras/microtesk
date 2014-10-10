@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -8,6 +8,16 @@
  * All rights reserved.
  * 
  * Scope.java, Dec 10, 2012 6:39:01 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
@@ -15,94 +25,93 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Scope<Kind extends Enum<Kind>> implements IScope<Kind>
-{
-    private final IScope<Kind>                  outerScope;
-    private final Map<String, ISymbol<Kind>> memberSymbols;
-    private final ISymbol<Kind>           associatedSymbol;
+public final class Scope<Kind extends Enum<Kind>> implements IScope<Kind> {
+  private final IScope<Kind> outerScope;
+  private final Map<String, ISymbol<Kind>> memberSymbols;
+  private final ISymbol<Kind> associatedSymbol;
 
-    public Scope(IScope<Kind> scope, ISymbol<Kind> associatedSymbol)
-    {
-        this.outerScope       = scope;
-        this.memberSymbols    = new HashMap<String, ISymbol<Kind>>();
-        this.associatedSymbol = associatedSymbol;
+  public Scope(IScope<Kind> scope, ISymbol<Kind> associatedSymbol) {
+    this.outerScope = scope;
+    this.memberSymbols = new HashMap<String, ISymbol<Kind>>();
+    this.associatedSymbol = associatedSymbol;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Scope [symbol=%s, outerScope=%s, members=%d]",
+      null != associatedSymbol ? associatedSymbol.getName() : "null",
+      null != outerScope ? "YES" : "NO",
+      memberSymbols.size());
+  }
+
+  public Scope(IScope<Kind> scope) {
+    this(scope, null);
+  }
+
+  @Override
+  public void define(ISymbol<Kind> symbol) {
+    if (null == symbol) {
+      throw new NullPointerException();
     }
 
-    @Override
-    public String toString()
-    {
-        return String.format(
-            "Scope [symbol=%s, outerScope=%s, members=%d]",
-            null != associatedSymbol ? associatedSymbol.getName() : "null",
-            null != outerScope ? "YES": "NO",
-            memberSymbols.size()
-            );
+    if (memberSymbols.containsKey(symbol.getName())) {
+      throw new IllegalAccessError(String.format(
+        "Symbol %s is already defined.", symbol.getName()));
     }
 
-    public Scope(IScope<Kind> scope)
-    {
-        this(scope, null);
+    if (!memberSymbols.containsKey(symbol.getName())) {
+      memberSymbols.put(symbol.getName(), symbol);
+    }
+  }
+
+  @Override
+  public ISymbol<Kind> resolve(String name) {
+    if (memberSymbols.containsKey(name)) {
+      return memberSymbols.get(name);
     }
 
-    @Override
-    public void define(ISymbol<Kind> symbol)
-    {
-        assert null != symbol;
-        assert !memberSymbols.containsKey(symbol.getName());
-
-        if (!memberSymbols.containsKey(symbol.getName()))
-            memberSymbols.put(symbol.getName(), symbol);
+    if (null != outerScope) {
+      return outerScope.resolve(name);
     }
 
-    @Override
-    public ISymbol<Kind> resolve(String name)
-    {
-        if (memberSymbols.containsKey(name))
-            return memberSymbols.get(name);
+    return null;
+  }
 
-        if (null != outerScope)
-            return outerScope.resolve(name);
+  @Override
+  public ISymbol<Kind> resolveMember(String name) {
+    return memberSymbols.get(name);
+  }
 
+  @Override
+  public ISymbol<Kind> resolveNested(String... names) {
+    if (names.length == 0) {
+      throw new IllegalArgumentException("No arguments.");
+    }
+
+    ISymbol<Kind> symbol = resolve(names[0]);
+    for (int index = 1; index < names.length; ++index) {
+      if (null == symbol) {
         return null;
+      }
+
+      final IScope<Kind> scope = symbol.getInnerScope();
+      if (null == scope) {
+        return null;
+      }
+
+      symbol = scope.resolveMember(names[index]);
     }
 
-    @Override
-    public ISymbol<Kind> resolveMember(String name)
-    {
-        return memberSymbols.get(name);
-    }
+    return symbol;
+  }
 
-    @Override
-    public ISymbol<Kind> resolveNested(String ... names)
-    {
-        assert names.length > 0;
+  @Override
+  public IScope<Kind> getOuterScope() {
+    return outerScope;
+  }
 
-        ISymbol<Kind> symbol = resolve(names[0]);
-        for(int index = 1; index < names.length; ++index)
-        {
-            if (null == symbol)
-                return null;
-
-            final IScope<Kind> scope = symbol.getInnerScope();
-
-            if (null == scope)
-                return null;
-
-            symbol = scope.resolveMember(names[index]);
-        }
-
-        return symbol;
-    }
-
-    @Override
-    public IScope<Kind> getOuterScope()
-    {
-        return outerScope;
-    }
-    
-    @Override
-    public ISymbol<Kind> getAssociatedSymbol()
-    {
-        return associatedSymbol; 
-    }
+  @Override
+  public ISymbol<Kind> getAssociatedSymbol() {
+    return associatedSymbol;
+  }
 }

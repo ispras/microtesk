@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -8,62 +8,75 @@
  * All rights reserved.
  * 
  * BuiltInSymbol.java, Dec 10, 2012 6:36:17 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-public final class BuiltInSymbol <Kind extends Enum<Kind>> implements ISymbol<Kind> 
-{
-    private final String name;
-    private final   Kind kind;
-    private final IScope<Kind> scope;
+public final class BuiltInSymbol<Kind extends Enum<Kind>> implements ISymbol<Kind> {
+  private final String name;
+  private final Kind kind;
+  private final IScope<Kind> scope;
 
-    public BuiltInSymbol(String name, Kind kind, IScope<Kind> scope)
-    {
-        this.name  = name;
-        this.kind  = kind;
-        this.scope = scope;
+  public BuiltInSymbol(String name, Kind kind, IScope<Kind> scope) {
+    if (null == name) {
+      throw new NullPointerException();
     }
 
-    @Override
-    public String getName()
-    {
-        return name;
+    if (null == kind) {
+      throw new NullPointerException();
     }
 
-    @Override
-    public Kind getKind()
-    {
-        return kind;
+    if (null == scope) {
+      throw new NullPointerException();
     }
 
-    @Override
-    public int getTokenIndex()
-    {
-        return -1;
-    }
+    this.name = name;
+    this.kind = kind;
+    this.scope = scope;
+  }
 
-    @Override
-    public int getLine()
-    {
-        return -1;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    public int getPositionInLine()
-    {
-        return -1;
-    }
+  @Override
+  public Kind getKind() {
+    return kind;
+  }
 
-    @Override
-    public IScope<Kind> getOuterScope()
-    {
-        return scope;
-    }
+  @Override
+  public int getTokenIndex() {
+    return -1;
+  }
 
-    @Override
-    public IScope<Kind> getInnerScope()
-    {
-        return null;
-    }
+  @Override
+  public int getLine() {
+    return -1;
+  }
+
+  @Override
+  public int getPositionInLine() {
+    return -1;
+  }
+
+  @Override
+  public IScope<Kind> getOuterScope() {
+    return scope;
+  }
+
+  @Override
+  public IScope<Kind> getInnerScope() {
+    return null;
+  }
 }

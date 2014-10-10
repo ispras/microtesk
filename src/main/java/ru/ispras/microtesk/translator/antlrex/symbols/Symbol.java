@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright (c) 2012 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -8,76 +8,83 @@
  * All rights reserved.
  * 
  * Symbol.java, Dec 7, 2012 4:37:03 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
 import org.antlr.runtime.Token;
 
-public class Symbol <Kind extends Enum<Kind>> implements ISymbol<Kind>
-{
-    private final  Token token;
-    private final   Kind kind;
-    private final IScope<Kind> scope;    
+public class Symbol<Kind extends Enum<Kind>> implements ISymbol<Kind> {
+  private final Token token;
+  private final Kind kind;
+  private final IScope<Kind> scope;
 
-    public Symbol(Token token, Kind kind, IScope<Kind> scope)
-    {
-        this.token = token;
-        this.kind  = kind;
-        this.scope = scope;
-    }
-    
-    @Override
-    public String toString()
-    {
-        return String.format(
-            "Symbol [name=%s, kind=%s, scope=%s, innerScope=%s]",
-            getName(),
-            getKind(),
-            getOuterScope(),
-            getInnerScope()
-            );
-    }
-    
-    @Override
-    public final String getName()
-    {
-        return token.getText();
+  public Symbol(Token token, Kind kind, IScope<Kind> scope) {
+    if (null == token) {
+      throw new NullPointerException();
     }
 
-    @Override
-    public final Kind getKind()
-    {
-        return kind;
+    if (null == kind) {
+      throw new NullPointerException();
     }
 
-    @Override
-    public final int getTokenIndex()
-    {
-        return token.getTokenIndex();
+    if (null == scope) {
+      throw new NullPointerException();
     }
 
-    @Override
-    public final int getLine()
-    {
-        return token.getLine();
-    }
+    this.token = token;
+    this.kind = kind;
+    this.scope = scope;
+  }
 
-    @Override
-    public final int getPositionInLine()
-    {
-        return token.getCharPositionInLine();
-    }
+  @Override
+  public String toString() {
+    return String.format("Symbol [name=%s, kind=%s, scope=%s, innerScope=%s]",
+      getName(), getKind(), getOuterScope(), getInnerScope());
+  }
 
-    @Override
-    public final IScope<Kind> getOuterScope()
-    {
-        return scope;
-    }
+  @Override
+  public final String getName() {
+    return token.getText();
+  }
 
-    @Override
-    public IScope<Kind> getInnerScope()
-    {
-        return null;
-    }
+  @Override
+  public final Kind getKind() {
+    return kind;
+  }
+
+  @Override
+  public final int getTokenIndex() {
+    return token.getTokenIndex();
+  }
+
+  @Override
+  public final int getLine() {
+    return token.getLine();
+  }
+
+  @Override
+  public final int getPositionInLine() {
+    return token.getCharPositionInLine();
+  }
+
+  @Override
+  public final IScope<Kind> getOuterScope() {
+    return scope;
+  }
+
+  @Override
+  public IScope<Kind> getInnerScope() {
+    return null;
+  }
 }
