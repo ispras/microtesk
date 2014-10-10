@@ -74,21 +74,18 @@ class VLIWDemo < Template
   end
 
   def run
-    # TODO
-
-    # Another way to generate random immediate values:
-    # situation imm_random(min, max).
-    comment 'imm_random (:min => 1, :max => 31)'
+    # Adding and subtracting data in random floating-point registers.
+    comment 'imm_random (:min => 1, :max => 31)' 
     vliw(
-      (addi r(_), r(_), _ do situation('imm_random', :min => 1, :max => 31) end),
-      (addi r(_), r(_), _ do situation('imm_random', :min => 1, :max => 31) end)
-    )
+      (add_s f(_), f(_), f(_)),
+      (sub_s f(_), f(_), f(_))
+    ) do situation('imm_random', :min => 1, :max => 31) end
 
     # All registers are filled with zeros.
     comment 'zero (:size => 32)'
     vliw(
-      (add r(1), r(3), r(5)),
-      (add r(2), r(4), r(6))
+      (add_s f(1), f(3), f(5)),
+      (add_s f(2), f(4), f(6))
     ) do situation('zero', :size => 32) end
 
     # Random registers are filled with random values.
