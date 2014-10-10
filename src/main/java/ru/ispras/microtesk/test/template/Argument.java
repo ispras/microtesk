@@ -29,6 +29,7 @@ public final class Argument {
     IMM (Integer.class, true),
     IMM_RANDOM (RandomValue.class, true),
     IMM_UNKNOWN (UnknownValue.class, true),
+    IMM_LAZY (LazyValue.class, true),
     MODE (Primitive.class, false),
     OP (Primitive.class, false);
 

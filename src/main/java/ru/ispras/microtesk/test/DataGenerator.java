@@ -46,6 +46,7 @@ import ru.ispras.microtesk.test.sequence.SequenceBuilder;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -269,6 +270,11 @@ final class DataGenerator {
     return ((UnknownValue) argument.getValue()).getValue();
   }
 
+  private int makeImmLazy(Argument argument) {
+    checkArgKind(argument, Argument.Kind.IMM_LAZY);
+    return ((LazyValue) argument.getValue()).getValue();
+  }
+
   private IAddressingMode makeMode(Argument argument) throws ConfigurationException {
     checkArgKind(argument, Argument.Kind.MODE);
 
@@ -288,6 +294,10 @@ final class DataGenerator {
 
         case IMM_UNKNOWN:
           builder.setArgumentValue(argName, makeImmUnknown(arg));
+          break;
+
+        case IMM_LAZY:
+          builder.setArgumentValue(argName, makeImmLazy(arg));
           break;
 
         default:
@@ -328,6 +338,10 @@ final class DataGenerator {
 
         case IMM_UNKNOWN:
           builder.setArgument(argName, makeImmUnknown(arg));
+          break;
+
+        case IMM_LAZY:
+          builder.setArgument(argName, makeImmLazy(arg));
           break;
 
         case MODE:

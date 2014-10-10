@@ -44,6 +44,10 @@ public final class PreparatorBuilder {
     this.calls = new ArrayList<Call>();
   }
 
+  public String getTargetName() {
+    return target.getName();
+  }
+
   public LazyValue newValue() {
     return new LazyValue(data);
   }

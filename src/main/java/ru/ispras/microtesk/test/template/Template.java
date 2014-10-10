@@ -37,6 +37,7 @@ public final class Template {
 
   private final Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
+  private PreparatorBuilder preparatorBuilder;
 
   private IIterator<Sequence<Call>> sequences;
   private final PreparatorStore preparators;
@@ -52,7 +53,9 @@ public final class Template {
 
     this.blockBuilders = new LinkedList<BlockBuilder>();
     this.blockBuilders.push(new BlockBuilder());
+
     this.callBuilder = new CallBuilder(getCurrentBlockId());
+    this.preparatorBuilder = null;
 
     this.sequences = null;
     this.preparators = new PreparatorStore();
@@ -129,10 +132,14 @@ public final class Template {
 
   public void endBuildingCall() {
     final Call call = callBuilder.build();
-    blockBuilders.peek().addCall(call);
-
     trace("Ended building a call (empty = %b, executable = %b)",
       call.isEmpty(), call.isExecutable());
+
+    if (null == preparatorBuilder) {
+      blockBuilders.peek().addCall(call);
+    } else {
+      preparatorBuilder.addCall(call);
+    }
 
     this.callBuilder = new CallBuilder(getCurrentBlockId());
   }
@@ -179,30 +186,56 @@ public final class Template {
   }
 
   public void beginPreparator(String targetName) {
-    // TODO
-    trace("Begin preparator for '%s'", targetName);  
+    endBuildingCall();
+
+    trace("Begin preparator: %s", targetName);
+    if (null == targetName) {
+      throw new NullPointerException();
+    }
+
+    if (null == metaModel.getAddressingMode(targetName)) {
+      throw new IllegalArgumentException(String.format(
+        "%s is not an addressing mode and cannot be a target for a preparator.", targetName));
+    }
+
+    if (null != preparatorBuilder) {
+      throw new IllegalStateException(String.format(
+        "Nesting is not allowed: The %s preparator cannot be nested into the %s preparator.",
+        targetName, preparatorBuilder.getTargetName()));
+    }
+
+    preparatorBuilder = new PreparatorBuilder(targetName);
   }
 
   public void endPreparator() {
-    // TODO
-    trace("End preparator");
+    endBuildingCall();
+    trace("End preparator: %s", preparatorBuilder.getTargetName());
+
+    final Preparator preparator = preparatorBuilder.build();
+    preparators.addPreparator(preparator);
+
+    preparatorBuilder = null;
   }
 
   public LazyValue newLazy() {
-    trace("newLazy");
-    // TODO
-    return null;
+    checkPreparatorBlock();
+    return preparatorBuilder.newValue();
   }
 
   public LazyValue newLazy(int start, int end) {
-    trace("newLazy (%d, %d)", start, end);
-    // TODO
-    return null;
+    checkPreparatorBlock();
+    return preparatorBuilder.newValue(start, end);
   }
 
   public Primitive getPreparatorTarget() {
-    trace("getPreparatorTarget");
-    // TODO
-    return null;
+    checkPreparatorBlock();
+    return preparatorBuilder.getTarget();
+  }
+
+  private void checkPreparatorBlock() {
+    if (null == preparatorBuilder) {
+      throw new IllegalStateException(
+        "The construct cannot be used outside a preparator block.");
+    }
   }
 }

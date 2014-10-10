@@ -289,8 +289,9 @@ class Template
     end
 
     target = attrs[:target]
+
     @template.beginPreparator target.to_s
-    # TODO
+    self.instance_eval &contents
     @template.endPreparator
   end
 

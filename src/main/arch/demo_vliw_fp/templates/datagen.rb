@@ -65,7 +65,8 @@ class VLIWDemo < Template
     #   respectively. The arguments of the 'value' method specify which part
     #   of the value is used. 
     #
-    preparator(:target => 'r') {
+    preparator(:target => 'R') {
+      comment 'Initializer for R'  
       vliw(
         (lui  target, value(0, 15)),
         (addi target, target, value(15, 31))
