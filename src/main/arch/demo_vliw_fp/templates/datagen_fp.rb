@@ -39,10 +39,20 @@ class VLIWDemo < Template
 
   def pre
     #
-    # Creates an instruction sequence that writes a value (32-bit integer) to
-    # the resource referenced via the 'r' addressing mode (register GPR).
+    # Rules for writing preparators of initializing instruction sequences:
     #
-    # Format:
+    # preparator(:target => '<name>') {
+    #   comment 'Initializer for <name>'
+    #   vliw(
+    #     (lui  target, value(0, 15)),
+    #     (addi target, target, value(15, 31))
+    #   )
+    # }
+    #
+    # The above code creates an instruction sequence that writes a value
+    # to the resource referenced via the <name> addressing mode.
+    #
+    # Keywords:
     # - The ':target' attribute specify the name of the target addressing mode.
     # - The 'target' and 'value' methods specify the target addressing mode
     #   with all its arguments set and the value passed to the preparator
@@ -55,6 +65,11 @@ class VLIWDemo < Template
         (lui  target, value(0, 15)),
         (addi target, target, value(15, 31))
       )
+    }
+    
+    preparator(:target => 'F') {
+      comment 'Initializer for F'
+      # TODO  
     }
   end
 
