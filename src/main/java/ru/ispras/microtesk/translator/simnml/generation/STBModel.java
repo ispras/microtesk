@@ -33,10 +33,8 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
-import ru.ispras.microtesk.test.preparator.IInitializerGenerator;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
-import ru.ispras.microtesk.translator.simnml.ir.Initializer;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 
 import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
@@ -70,10 +68,6 @@ final class STBModel implements ITemplateBuilder
         t.add("imps",  ModelStatePrinter.class.getName());
         t.add("imps",  IAddressingMode.class.getName());
         t.add("imps",  IOperation.class.getName());
-        t.add("imps",  IInitializerGenerator.class.getName());
-
-        if (!ir.getInitializers().isEmpty())
-            t.add("imps", String.format(INITIALIZER_CLASS_FORMAT, modelName, "*"));
 
         t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 
@@ -90,20 +84,11 @@ final class STBModel implements ITemplateBuilder
 
         addAddressingModes(t, tc);
         addOperations(t, tc);
-        addInitializers(tc);
 
         t.add("members", tc);
         t.add("members", group.getInstanceOf("debug_block"));
 
         return t;
-    }
-
-    private void addInitializers(final ST tc)
-    {
-        final List<String> names = new ArrayList<String>(ir.getInitializers().size());
-        for (Initializer i : ir.getInitializers().values())
-            names.add(i.getClassName());
-        tc.add("inits", names);
     }
 
     private void addOperations(final ST t, final ST tc)
