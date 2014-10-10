@@ -66,10 +66,18 @@ class VLIWDemo < Template
         (addi target, target, value(15, 31))
       )
     }
-    
+
     preparator(:target => 'F') {
       comment 'Initializer for F'
-      # TODO  
+      # GPR[25] holds a temporary value
+      vliw(
+        (lui  r(25), value(0, 15)),
+        (addi r(25), r(25), value(15, 31))
+      )
+      vliw(
+        (mtf r(25), target),
+        nop
+      )
     }
   end
 
@@ -94,7 +102,6 @@ class VLIWDemo < Template
       (add r(_), r(_), r(_)),
       (add r(_), r(_), r(_))
     ) do situation('random', :size => 32, :min_imm => 1, :max_imm => 31) end
-
   end
 
   def gpr(index)

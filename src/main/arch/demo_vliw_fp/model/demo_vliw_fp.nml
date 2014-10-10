@@ -394,15 +394,15 @@ op MOV_S (fd : F, fs : F)
     fd = fs;
   }
 
-op MTC1 (rt : R, fs : F)
-  syntax = format("MTC1 %s, %s", rt.syntax, fs.syntax)
+op MTF (rt : R, fs : F)
+  syntax = format("MTF %s, %s", rt.syntax, fs.syntax)
   image  = format("01000100100%s%s00000000000", rt.image, fs.image) 
   action = {
     fs = rt;    
   }
 
-op MFC1 (rt : R, fs : F)
-  syntax = format("MFC1 %s, %s", rt.syntax, fs.syntax)
+op MFF (rt : R, fs : F)
+  syntax = format("MFF %s, %s", rt.syntax, fs.syntax)
   image  = format("01000100000%s%s00000000000", rt.image, fs.image) 
   action = {
     rt = fs;
@@ -500,8 +500,8 @@ op FP        = ADD_S  // Arithmetical operations
              | C_LT_S
              | C_LE_S
              | MOV_S  // Move Operations
-             | MTC1
-             | MFC1
+             | MTF
+             | MFF
              | MOVT_S
              | MOVF_S
              | MOVN_S
