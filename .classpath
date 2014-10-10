@@ -4,8 +4,6 @@
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" output="bin" path="gen"/>
-	<classpathentry kind="src" path="src/main/arch/arm/coverage/java"/>
-	<classpathentry kind="src" path="src/main/arch/arm/coverage/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="jars/antlr-3.4-complete.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/commons-cli-1.2.jar"/>
