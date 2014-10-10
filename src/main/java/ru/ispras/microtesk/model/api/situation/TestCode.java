@@ -56,7 +56,6 @@ class TestCode
 
         try
         {
-            testRandomSituation();
             testAddOverflowSituation();
             testAddNormalSituation();
         }
@@ -65,20 +64,6 @@ class TestCode
             e.printStackTrace();
         }
     }    
-
-    private static void testRandomSituation()
-    {
-        System.out.println("Random Situation");
-
-        final RandomSituation situation = new RandomSituation();
-
-        situation.setOutput("a");
-        situation.setOutput("b");
-        situation.setOutput("c");
-        situation.setOutput("d");
-
-        printResult(situation.solve());
-    }
 
     private static void testAddOverflowSituation() throws ConfigurationException
     {
