@@ -75,8 +75,6 @@ class VLIWDemo < Template
   end
 
   def run
-    trace 'Data Generation Example: Debug Output'
-
     # Random immediate values: rand(min, max)
     comment 'rand(0, 31)'
     vliw(
@@ -120,26 +118,6 @@ class VLIWDemo < Template
       (add r(_), r(_), r(_)),
       (add r(_), r(_), r(_))
     ) do situation('random', :size => 32, :min_imm => 1, :max_imm => 31) end
-
-    vliw(
-      (addi r(4), r(0), 5  do situation('overflow') end),
-      (addi r(5), r(0), 10 do situation('normal') end)
-    )
-
-    vliw(
-      (add r(6), r(1), r(8) do situation('overflow', :x => 1, :y => 'test') end),
-      (add r(7), r(2), r(9) do situation('normal') end)
-    )
-    
-    vliw(
-      (addi r(4), r(0), 5  do situation('overflow') end),
-      nop
-    )
-
-    vliw(
-      (add r(6), r(1), r(8) do situation('overflow') end),
-      nop
-    )
 
   end
 
