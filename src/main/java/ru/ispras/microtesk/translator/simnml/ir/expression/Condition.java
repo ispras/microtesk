@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ISPRAS
+ * Copyright (c) 2014 ISPRAS (www.ispras.ru)
  * 
  * Institute for System Programming of Russian Academy of Sciences
  * 
@@ -8,13 +8,23 @@
  * All rights reserved.
  * 
  * Condition.java, Jan 31, 2014 3:20:41 PM Andrei Tatarnikov
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
 /**
- * Helper class to temporarily represent conditional expressions
- * based on the if-elif-else operator:
+ * Helper class to temporarily represent conditional expressions based on the if-elif-else operator:
+ * 
  * <pre>
  * if cond1 then 
  *    expr1
@@ -29,45 +39,40 @@ package ru.ispras.microtesk.translator.simnml.ir.expression;
  * @author Andrei Tatarnikov
  */
 
-public final class Condition
-{
-    private final Expr cond;
-    private final Expr expr;
+public final class Condition {
+  private final Expr cond;
+  private final Expr expr;
 
-    private Condition(Expr cond, Expr expr)
-    {
-        if (null == expr)
-            throw new NullPointerException();
-
-        this.cond = cond;
-        this.expr = expr;
+  private Condition(Expr cond, Expr expr) {
+    if (null == expr) {
+      throw new NullPointerException();
     }
 
-    public static Condition newIf(Expr cond, Expr expr)
-    {
-        if (null == cond)
-            throw new NullPointerException();
+    this.cond = cond;
+    this.expr = expr;
+  }
 
-        return new Condition(cond, expr);
+  public static Condition newIf(Expr cond, Expr expr) {
+    if (null == cond) {
+      throw new NullPointerException();
     }
 
-    public static Condition newElse(Expr expr)
-    {
-        return new Condition(null, expr);
-    }
+    return new Condition(cond, expr);
+  }
 
-    public Expr getCondition()
-    {
-        return cond;
-    }
+  public static Condition newElse(Expr expr) {
+    return new Condition(null, expr);
+  }
 
-    public boolean isElse()
-    {
-        return null == cond;
-    }
+  public Expr getCondition() {
+    return cond;
+  }
 
-    public Expr getExpression()
-    {
-        return expr;
-    }
+  public boolean isElse() {
+    return null == cond;
+  }
+
+  public Expr getExpression() {
+    return expr;
+  }
 }
