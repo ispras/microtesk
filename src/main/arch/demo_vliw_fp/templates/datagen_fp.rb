@@ -99,8 +99,8 @@ class VLIWDemo < Template
     # Random registers are filled with random values.
     comment 'random (:size => 32, :min_imm => 1, :max_imm => 31)'
     vliw(
-      (add r(_), r(_), r(_)),
-      (add r(_), r(_), r(_))
+      (add_s f(_), f(_), f(_)),
+      (add_s f(_), f(_), f(_))
     ) do situation('random', :size => 32, :min_imm => 1, :max_imm => 31) end
   end
 
