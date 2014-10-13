@@ -254,9 +254,9 @@
   	   <fileset dir="src/main/arch/vliw" includes="**"/>  
   	</copy>
 
-  	<!-- Copies VLIW + FP demo architecture specifications and test templates -->
-  	<copy todir="${dist}/arch/demo_vliw_fp">
-  	   <fileset dir="src/main/arch/demo_vliw_fp" includes="**"/>  
+  	<!-- Copies simple VLIW architecture specifications and test templates -->
+  	<copy todir="${dist}/arch/simple_vliw">
+  	   <fileset dir="src/main/arch/simple_vliw" includes="**"/>  
   	</copy>
 
   </target>
@@ -343,12 +343,12 @@
   	  </classpath>
     </java>
 
-    <!-- Generate code for the VLIW + FP demo model -->
+    <!-- Generate code for the simple VLIW model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
   	  <jvmarg value="-ea"/>
   	  <arg value="-d"/>
   	  <arg value="${dist.gen}/src"/>
-  	  <arg value="${dist}/arch/demo_vliw_fp/model/demo_vliw_fp.nml"/>
+  	  <arg value="${dist}/arch/simple_vliw/model/simple_vliw.nml"/>
   	  <classpath>
   	    <pathelement location="${dist.jars}/${jar}"/>
   	  </classpath>
