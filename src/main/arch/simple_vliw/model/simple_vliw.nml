@@ -179,6 +179,13 @@ op MUL (rd : R, rs : R, rt : R)
     rd = rs * rt;
   }
 
+op SLL (rd : R, rt : R, sa : INDEX)
+  syntax = format("SLL %s, %s, %d", rd.syntax, rt.syntax, sa)
+  image  = format("00000000000%s%s%s000000", rt.image, rd.image, sa)
+  action = {
+    rd = rt << sa;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 // Move Operations
 
@@ -474,6 +481,7 @@ op ALU       = ADD  // Arithmetical operations
              | ADDI
              | SUB
              | MUL
+             | SLL
              | MOVN // Move operations
              | MOVZ
              | MOVE
