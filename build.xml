@@ -249,11 +249,6 @@
   	   <fileset dir="src/main/arch/mips" includes="**"/>  
   	</copy>
 
-  	<!-- Copies VLIW architecture specifications and test templates -->
-  	<copy todir="${dist}/arch/vliw">
-  	   <fileset dir="src/main/arch/vliw" includes="**"/>  
-  	</copy>
-
   	<!-- Copies simple VLIW architecture specifications and test templates -->
   	<copy todir="${dist}/arch/simple_vliw">
   	   <fileset dir="src/main/arch/simple_vliw" includes="**"/>  
@@ -327,17 +322,6 @@
   	  <arg value="-d"/>
   	  <arg value="${dist.gen}/src"/>
   	  <arg value="${dist}/arch/mips/model/mips.nml"/>
-  	  <classpath>
-  	    <pathelement location="${dist.jars}/${jar}"/>
-  	  </classpath>
-    </java>
-
-    <!-- Generate code for the VLIW model -->
-    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
-  	  <jvmarg value="-ea"/>
-  	  <arg value="-d"/>
-  	  <arg value="${dist.gen}/src"/>
-  	  <arg value="${dist}/arch/vliw/model/vliw.nml"/>
   	  <classpath>
   	    <pathelement location="${dist.jars}/${jar}"/>
   	  </classpath>

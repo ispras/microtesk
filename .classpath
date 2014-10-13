@@ -9,7 +9,7 @@
 	<classpathentry exported="true" kind="lib" path="jars/commons-cli-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/junit-4.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/jruby.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/fortress.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/testbase.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/fortress.jar" sourcepath="/home/andrewt/Documents/ISPRAS/src/solver-api/trunk/fortress"/>
+	<classpathentry exported="true" kind="lib" path="jars/testbase.jar" sourcepath="/home/andrewt/Documents/ISPRAS/src/testbase/trunk/testbase"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
