@@ -7,7 +7,7 @@
 #
 # All rights reserved.
 #
-# arm_demo_euclid_loop.rb, Apr 15, 2014 2:24:30 PM
+# euclid_loop.rb, Apr 15, 2014 2:24:30 PM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

@@ -7,7 +7,7 @@
 #
 # All rights reserved.
 #
-# arm_demo_labels.rb, Aug 10, 2014 1:03:05 PM
+# demo_labels.rb, Aug 10, 2014 1:03:05 PM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
