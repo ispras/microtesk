@@ -7,7 +7,7 @@
 #
 # All rights reserved.
 #
-# mips_demo_fp.rb, Sep 22, 2014 5:06:26 PM
+# demo_fp.rb, Sep 22, 2014 5:06:26 PM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

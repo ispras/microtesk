@@ -7,7 +7,7 @@
 #
 # All rights reserved.
 #
-# mips_demo_euclid.rb, Sep 22, 2014 2:45:38 PM Andrei Tatarnikov
+# euclid_loop.rb, Sep 23, 2014 11:56:44 AM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,8 +31,10 @@ require ENV['TEMPLATE']
 # of a test program to predict the resulting state of a microprocessor
 # design under test. The described program calculates the greatest common
 # divisor of two 5-bit random numbers ([1..63]) by using the Euclidean 
-# algorithm.
-#  
+# algorithm. This template is an extended version of the mips_demo_euclid.rb
+# template. It repeats the code of the test program five times to
+# demonstrate the use of loops in test templates.  
+#
 
 class MipsDemo < Template
 
@@ -44,35 +46,39 @@ class MipsDemo < Template
   def run
     trace "Euclidean Algorithm (MIPS): Debug Output"
 
-    i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
-    j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
+    (1..5).each do |it|
+      trace "\n" + "-" * 80
 
-    trace "\nInput parameter values: #{i}, #{j}\n"
+      i = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
+      j = Random.rand(63) + 1 # [1..63], zero is excluded (no solution)
 
-    addi 4, REG_IND_ZERO(0), IMM16(i)
-    addi 5, REG_IND_ZERO(0), IMM16(j)
+      trace "\nInput parameter values (iteration #{it}): #{i}, #{j}\n"
 
-    trace "\nCurrent register values: $4 = %d, $5 = %d\n", gpr(4), gpr(5)
+      addi 4, REG_IND_ZERO(0), IMM16(i)
+      addi 5, REG_IND_ZERO(0), IMM16(j)
 
-    label :cycle
-    beq REG_IND_ZERO(4), REG_IND_ZERO(5), IMM16(:done)
+      trace "\nCurrent register values (iteration #{it}): $4 = %d, $5 = %d\n", gpr(4), gpr(5)
 
-    slt 2, REG_IND_ZERO(4), REG_IND_ZERO(5)
-    bne REG_IND_ZERO(2), REG_IND_ZERO(0), IMM16(:if_less)
-    nop
+      label :"cycle#{it}"
+      beq REG_IND_ZERO(4), REG_IND_ZERO(5), IMM16(:"done#{it}")
 
-    subu 4, REG_IND_ZERO(4), REG_IND_ZERO(5)
-    b IMM16(:cycle)
-    nop
+      slt 2, REG_IND_ZERO(4), REG_IND_ZERO(5)
+      bne REG_IND_ZERO(2), REG_IND_ZERO(0), IMM16(:"if_less#{it}")
+      nop
 
-    label :if_less
-    subu 5, REG_IND_ZERO(5), REG_IND_ZERO(4)
-    b IMM16(:cycle)
+      subu 4, REG_IND_ZERO(4), REG_IND_ZERO(5)
+      b IMM16(:"cycle#{it}")
+      nop
 
-    label :done
-    move 6, REG_IND_ZERO(4)
+      label :"if_less#{it}"
+      subu 5, REG_IND_ZERO(5), REG_IND_ZERO(4)
+      b IMM16(:"cycle#{it}")
 
-    trace "\nResult stored in $6: %d", gpr(6)
+      label :"done#{it}"
+      move 6, REG_IND_ZERO(4)
+
+      trace "\nResult stored in $6 (iteration #{it}): %d", gpr(6)
+    end
   end
 
   def gpr(index)

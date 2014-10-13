@@ -7,7 +7,7 @@
 #
 # All rights reserved.
 #
-# mips_demo.rb, Sep 22, 2014 2:29:28 PM
+# demo.rb, Sep 22, 2014 2:29:28 PM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
