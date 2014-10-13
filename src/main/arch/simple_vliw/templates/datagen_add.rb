@@ -68,15 +68,9 @@ class VLIWDemo < Template
     preparator(:target => 'R') {
       comment 'Initializer for R'  
       vliw(
-        (addi target, r(0), value(16, 31)),
-        (sll  target, target, 16)
+        (lui target, value(16, 31)),
+        (addi target, target, value(0, 15))
       )
-      print_all_registers
-      vliw(
-        (addi target, target, value(0, 15)),
-        nop
-      )
-      print_all_registers
     }
   end
 

@@ -68,8 +68,8 @@ class VLIWDemo < Template
     preparator(:target => 'R') {
       comment 'Initializer for R'  
       vliw(
-        (lui  target, value(0, 15)),
-        (addi target, target, value(15, 31))
+        (lui target, value(16, 31)),
+        (addi target, target, value(0, 15))
       )
     }
   end

@@ -62,8 +62,8 @@ class VLIWDemo < Template
     preparator(:target => 'R') {
       comment 'Initializer for R'  
       vliw(
-        (lui  target, value(0, 15)),
-        (addi target, target, value(15, 31))
+        (lui target, value(16, 31)),
+        (addi target, target, value(0, 15))
       )
     }
 
@@ -71,8 +71,8 @@ class VLIWDemo < Template
       comment 'Initializer for F'
       # GPR[25] holds a temporary value
       vliw(
-        (lui  r(25), value(0, 15)),
-        (addi r(25), r(25), value(15, 31))
+        (lui target, value(16, 31)),
+        (addi target, target, value(0, 15))
       )
       vliw(
         (mtf r(25), target),

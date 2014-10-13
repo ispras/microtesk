@@ -262,7 +262,7 @@ op LUI (rt : R, offset : SHORT)
   syntax = format("LUI %s, %d", rt.syntax, offset)
   image  = format("00111100000%s%s", rt.image, offset)
   action = {
-    rt = offset << 16;
+    rt = coerce(WORD, offset) << 16;
   }
 
 op LW (base : R, rt : R, offset : SHORT)
