@@ -75,17 +75,22 @@ class VLIWDemo < Template
   end
 
   def run
-    print_all_registers
+    print_gpr 3
+    print_gpr 5
+    print_gpr 4
+    print_gpr 6
+
     vliw(
       (add r(1), r(3), r(5) do situation('add', :case => 'normal', :size => 32) end),
       (add r(2), r(4), r(6) do situation('add', :case => 'overflow', :size => 32) end)
     )
+
+    print_gpr 1
+    print_gpr 2
   end
 
-  def print_all_registers
-    trace "\nDEBUG: GPR values:"
-    (0..31).each { |i| trace "GPR[%d] = %s", i, location("GPR", i) }
-    trace ""
+  def print_gpr(index)
+    trace "GPR[%d] = %s", index, location('GPR', index)
   end
 
   def gpr(index)
