@@ -1,13 +1,5 @@
 #
-# Copyright (c) 2014 ISPRAS (www.ispras.ru)
-#
-# Institute for System Programming of Russian Academy of Sciences
-#
-# 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
-#
-# All rights reserved.
-#
-# demo_prepost.rb, May 19, 2014 5:57:01 PM
+# Copyright 2014 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
