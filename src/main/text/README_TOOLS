@@ -1,6 +1,6 @@
--------------------------------------------------------------------------------
-| Installing Constraint Solver Tools                                          |
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+| Installing Constraint Solver Tools                                           |
+--------------------------------------------------------------------------------
 
 To generate test data based on constraints, MicroTESK requires external
 constraint solver engines. The current version uses the Z3 constraint solver
