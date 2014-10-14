@@ -362,28 +362,33 @@ final class DataGenerator {
   }
 
   private static void checkNotNull(Object o) {
-    if (null == o)
+    if (null == o) {
       throw new NullPointerException();
+    }
   }
 
   private static void checkOp(Primitive op) {
-    if (Primitive.Kind.OP != op.getKind())
-      throw new IllegalArgumentException(String.format("%s is not an operation.", op.getName()));
+    if (Primitive.Kind.OP != op.getKind()) {
+      throw new IllegalArgumentException(String.format(
+        "%s is not an operation.", op.getName()));
+    }
   }
 
   private static void checkRootOp(Primitive op) {
     checkOp(op);
-    if (!op.isRoot())
-      throw new IllegalArgumentException(String.format("%s is not a root operation!", op.getName()));
+    if (!op.isRoot()) {
+      throw new IllegalArgumentException(String.format(
+        "%s is not a root operation!", op.getName()));
+    }
   }
 
   private static void checkArgKind(Argument arg, Argument.Kind expected) {
-    if (arg.getKind() != expected)
+    if (arg.getKind() != expected) {
       throw new IllegalArgumentException(String.format(
-          "Argument %s has kind %s while %s is expected.", arg.getName(), arg.getKind(), expected));
+        "Argument %s has kind %s while %s is expected.", arg.getName(), arg.getKind(), expected));
+    }
   }
 }
-
 
 /**
  * The TestBaseQueryCreator class forms a query for test data that will be sent to TestBase. It
