@@ -239,16 +239,6 @@
       <fileset dir="src/main/arch/demo" includes="**"/>  
     </copy>
 
-    <!-- Copies ARM architecture specifications and test templates -->
-    <copy todir="${dist}/arch/arm">
-      <fileset dir="src/main/arch/arm" includes="**"/>  
-    </copy>
-
-  	<!-- Copies MIPS architecture specifications and test templates -->
-  	<copy todir="${dist}/arch/mips">
-  	   <fileset dir="src/main/arch/mips" includes="**"/>  
-  	</copy>
-
   	<!-- Copies simple VLIW architecture specifications and test templates -->
   	<copy todir="${dist}/arch/simple_vliw">
   	   <fileset dir="src/main/arch/simple_vliw" includes="**"/>  
@@ -301,30 +291,6 @@
       <classpath>
         <pathelement location="${dist.jars}/${jar}"/>
       </classpath>
-    </java>
-
-    <!-- Generate code for the ARM model -->
-    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg value="-d"/>
-      <arg value="${dist.gen}/src"/>
-      <arg value="-s"/>
-      <arg value="${dist}/arch/arm/coverage"/>
-      <arg value="${dist}/arch/arm/model/arm.nml"/>
-      <classpath>
-      	<pathelement location="${dist.jars}/${jar}"/>
-      </classpath>
-    </java>
-
-    <!-- Generate code for the MIPS model -->
-    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
-  	  <jvmarg value="-ea"/>
-  	  <arg value="-d"/>
-  	  <arg value="${dist.gen}/src"/>
-  	  <arg value="${dist}/arch/mips/model/mips.nml"/>
-  	  <classpath>
-  	    <pathelement location="${dist.jars}/${jar}"/>
-  	  </classpath>
     </java>
 
     <!-- Generate code for the simple VLIW model -->
