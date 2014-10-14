@@ -1,0 +1,33 @@
+   MicroTESK
+   Copyright 2007-2014 ISP RAS (http://www.ispras.ru)
+
+   This product includes software developed at Institute for System Programming
+   of the Russian Academy of Sciences (ISP RAS) (http://www.ispras.ru/).
+
+   The MicroTESK translator is based on the ANTLR package, which is open source
+   software, written and copyright (BSD License) by Terence Parr. The original
+   software is available from
+      http://www.antlr3.org/download.html
+
+   The MicroTESK translator is developed with the help of the ANTLRWorks
+   grammar development environment, written and copyright (BSD License) by
+   Jean Bovet. The original software is available from
+      http://www.antlr3.org/works/
+
+   Support for parsing command line options is provided by the the Apache
+   Commons CLI library, which is open source software, written and copyright
+   (Apache License, Version 2.0) by the The Apache Software Foundation
+   (http://www.apache.org/). The original software is available from
+      http://commons.apache.org/proper/commons-cli/
+
+   Support for Ruby as a template description language is provided by the JRuby
+   package, which is open source software, written and copyright (Ruby License)
+   by the JRuby community (http://www.jruby.org/). The original software is
+   available from
+      http://www.jruby.org/download
+
+   Support for unit testing is provided by the JUnit unit testing framework for
+   Java, which is open source software, created by Erich Gamma and Kent Beck,
+   and copyright (Eclipse Public License 1.0) by JUnit (http://junit.org/). The
+   original software is available from
+      http://junit.org/
