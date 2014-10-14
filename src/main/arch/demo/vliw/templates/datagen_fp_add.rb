@@ -53,8 +53,8 @@ class VLIWDemo < Template
     print_fpr 6
 
     vliw(
-      (add_s f(1), f(3), f(5)),
-      (add_s f(2), f(4), f(6))
+      (add_s f(1), f(3), f(5) do situation('fp.add', :case => 'normal', :exp => 8, :frac => 23) end),
+      (add_s f(2), f(4), f(6) do situation('fp.add', :case => 'overflow', :exp => 8, :frac => 23) end) 
     )
 
     print_fpr 1
