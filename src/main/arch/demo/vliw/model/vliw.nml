@@ -17,7 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Constants
 
-let REG_INDEX_SIZE = 5
+let REG_INDEX_SIZE = 5 // in bits
+let INSTRUCTION_WORD_SIZE = 4 // in bytes
 
 let PC = "CIA"     // Program counter is in CIA 
 let SP = "GPR[29]" // Stack pointer is in GPR[29] 
@@ -491,7 +492,7 @@ op vliw (c1: channel1, c2: channel2)
   syntax = format("%s, %s;", c1.syntax, c2.syntax)
   image  = format("%s%s", c1.image, c2.image)
   action = {
-    NIA = CIA + 8;
+    NIA = CIA + 2 * INSTRUCTION_WORD_SIZE;
 
     GPR[0] = 0;
     c1.action;
@@ -500,7 +501,7 @@ op vliw (c1: channel1, c2: channel2)
     c2.action;
 
     if BRANCH == 0 then
-      CIA = CIA + 8;
+      CIA = CIA + 2 * INSTRUCTION_WORD_SIZE;
     else
       CIA = JMPADDR;
     endif;
