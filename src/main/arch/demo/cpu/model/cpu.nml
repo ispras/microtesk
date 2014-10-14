@@ -65,22 +65,22 @@ mode REG(i: nibble) = R[i]
 mode OPRNDL = MEM | REG | IREG
 mode OPRNDR = OPRNDL | IMM
 
-op Add()
+op ADD()
   syntax = "add"
   image  = "00"
   action = { DEST = SRC1 + SRC2; }
 
-op Sub()
+op SUB()
   syntax = "sub"
   image  = "01"
   action = { DEST = SRC1 - SRC2; }
 
-op Mov()
+op MOV()
   syntax = "mov"
   image  = "10"
   action = { DEST = SRC2; }
 
-op Add_Sub_Mov = Add | Sub | Mov
+op Add_Sub_Mov = ADD | SUB | MOV
 
 op arith_mem_instr(y: Add_Sub_Mov, op1: OPRNDL, op2: OPRNDR)
   syntax = format("%s %s %s", y.syntax, op1.syntax, op2.syntax)
