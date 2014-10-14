@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2013 ISPRAS
+ * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * Attribute.java, Jan 2, 2013, 11:04:14 AM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
@@ -17,58 +19,59 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public final class Attribute
-{
-    public static final String SYNTAX_NAME = "syntax";
-    public static final String  IMAGE_NAME = "image";
-    public static final String ACTION_NAME = "action";
+public final class Attribute {
+  public static final String SYNTAX_NAME = "syntax";
+  public static final String IMAGE_NAME = "image";
+  public static final String ACTION_NAME = "action";
 
-    public static final Set<String> STANDARD_NAMES = createStandardNames();
+  public static final Set<String> STANDARD_NAMES = createStandardNames();
 
-    public static enum Kind
-    {
-        ACTION,
-        EXPRESSION
+  public static enum Kind {
+    ACTION,
+    EXPRESSION
+  }
+
+  private final String name;
+  private final Kind kind;
+  private final List<Statement> stmts;
+
+  Attribute(String name, Kind kind, List<Statement> stmts) {
+    if (null == name) {
+      throw new NullPointerException();
     }
 
-    private final String name;
-    private final Kind kind;
-    private final List<Statement> stmts;
-
-    Attribute(String name, Kind kind, List<Statement> stmts)
-    {
-        assert null != name;
-        assert null != kind;
-        assert null != stmts;
-        
-        this.name  = name;
-        this.kind  = kind;
-        this.stmts = Collections.unmodifiableList(stmts);
+    if (null == kind) {
+      throw new NullPointerException();
     }
 
-    public String getName()
-    {
-        return name;
+    if (null == stmts) {
+      throw new NullPointerException();
     }
 
-    public Kind getKind()
-    {
-        return kind;
-    }
+    this.name = name;
+    this.kind = kind;
+    this.stmts = Collections.unmodifiableList(stmts);
+  }
 
-    public List<Statement> getStatements()
-    {
-        return stmts;
-    }
-    
-    private static Set<String> createStandardNames()
-    {
-        final Set<String> result = new HashSet<String>();
+  public String getName() {
+    return name;
+  }
 
-        result.add(SYNTAX_NAME);
-        result.add(IMAGE_NAME);
-        result.add(ACTION_NAME);
+  public Kind getKind() {
+    return kind;
+  }
 
-        return Collections.unmodifiableSet(result);
-    }
+  public List<Statement> getStatements() {
+    return stmts;
+  }
+
+  private static Set<String> createStandardNames() {
+    final Set<String> result = new HashSet<String>();
+
+    result.add(SYNTAX_NAME);
+    result.add(IMAGE_NAME);
+    result.add(ACTION_NAME);
+
+    return Collections.unmodifiableSet(result);
+  }
 }

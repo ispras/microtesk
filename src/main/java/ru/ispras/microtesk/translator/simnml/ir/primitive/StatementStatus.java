@@ -1,39 +1,37 @@
 /*
- * Copyright (c) 2013 ISPRAS
+ * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * StatementStatus.java, Jul 24, 2013 1:01:21 PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import ru.ispras.microtesk.model.api.state.Status;
 
-public final class StatementStatus extends Statement
-{
-    private final Status status;
-    private final int newValue;
+public final class StatementStatus extends Statement {
+  private final Status status;
+  private final int newValue;
 
-    StatementStatus(Status status, int newValue)
-    {
-        super(Kind.STATUS);
+  StatementStatus(Status status, int newValue) {
+    super(Kind.STATUS);
 
-        this.status = status;
-        this.newValue  = newValue;
-    }
+    this.status = status;
+    this.newValue = newValue;
+  }
 
-    public Status getStatus()
-    {
-        return status;
-    }
+  public Status getStatus() {
+    return status;
+  }
 
-    public int getNewValue()
-    {
-        return newValue;
-    }
+  public int getNewValue() {
+    return newValue;
+  }
 }
