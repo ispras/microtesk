@@ -67,10 +67,6 @@ public final class MicroTESK {
         analyzer.setOutDir(params.getOptionValue(Parameters.OUTDIR));
       }
 
-      if (params.hasOption(Parameters.TESTSIT)) {
-        analyzer.setTestSitDir(params.getOptionValue(Parameters.TESTSIT));
-      }
-
       try {
         analyzer.start(params.getArgs());
       } catch (Exception e) {
