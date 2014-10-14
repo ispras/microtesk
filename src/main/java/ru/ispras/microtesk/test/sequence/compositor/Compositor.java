@@ -1,17 +1,15 @@
 /*
- * Copyright 2013 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.test.sequence.compositor;
@@ -22,98 +20,90 @@ import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 /**
- * This class is a basic compositor of iterators. It takes several iterators
- * and merges them into a single iterator. The main restriction is that a
- * a compositor should not change the order of items returned by an iterator.
+ * This class is a basic compositor of iterators. It takes several iterators and merges them into a
+ * single iterator. The main restriction is that a a compositor should not change the order of items
+ * returned by an iterator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Compositor<T> extends CompositeIterator<T> implements IIterator<T>
-{
-    /// The currently chosen iterator.
-    private IIterator<T> chosen;
-    
-    /**
-     * Constructs a compositor with the empty list of iterators.
-     */
-    public Compositor()
-    {
-    }
-    
-    /**
-     * Constructs a compositor with the given list of iterators.
-     *
-     * @param iterators the list of iterators to be composed.
-     */
-    public Compositor(final List<IIterator<T>> iterators)
-    {
-        addIterators(iterators);
-    }
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // Callbacks that should be overloaded in subclasses
-    ///////////////////////////////////////////////////////////////////////////
+public abstract class Compositor<T> extends CompositeIterator<T> implements IIterator<T> {
+  // / The currently chosen iterator.
+  private IIterator<T> chosen;
 
-    /**
-     * The callback method called in the <code>init</code> method.
-     */
-    protected abstract void onInit();
+  /**
+   * Constructs a compositor with the empty list of iterators.
+   */
+  public Compositor() {}
 
-    /**
-     * The callback method called in the <code>next</code> method.
-     */
-    protected abstract void onNext();
+  /**
+   * Constructs a compositor with the given list of iterators.
+   * 
+   * @param iterators the list of iterators to be composed.
+   */
+  public Compositor(final List<IIterator<T>> iterators) {
+    addIterators(iterators);
+  }
 
-    /**
-     * Selects an iterator whoose value will be used at the current step.
-     *
-     * @return one of the iterators from the compositor's list.
-     */
-    protected abstract IIterator<T> choose();
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // Callback-based implementation of the iterator method
-    ///////////////////////////////////////////////////////////////////////////
+  // /////////////////////////////////////////////////////////////////////////
+  // Callbacks that should be overloaded in subclasses
+  // /////////////////////////////////////////////////////////////////////////
 
-    @Override
-    public void init()
-    {
-        for(IIterator<T> iterator : iterators)
-            { iterator.init(); }
+  /**
+   * The callback method called in the <code>init</code> method.
+   */
+  protected abstract void onInit();
 
-        onInit();
+  /**
+   * The callback method called in the <code>next</code> method.
+   */
+  protected abstract void onNext();
 
-        chosen = choose();
-    }
-    
-    @Override
-    public boolean hasValue()
-    {
-        while(chosen != null)
-        {
-            if(chosen.hasValue())
-                { return true;  }
-                
-            chosen = choose();
-        }
-            
-        return false;
+  /**
+   * Selects an iterator whoose value will be used at the current step.
+   * 
+   * @return one of the iterators from the compositor's list.
+   */
+  protected abstract IIterator<T> choose();
+
+  // /////////////////////////////////////////////////////////////////////////
+  // Callback-based implementation of the iterator method
+  // /////////////////////////////////////////////////////////////////////////
+
+  @Override
+  public void init() {
+    for (IIterator<T> iterator : iterators) {
+      iterator.init();
     }
 
-    @Override
-    public T value()
-    {
-        return chosen.value();
+    onInit();
+
+    chosen = choose();
+  }
+
+  @Override
+  public boolean hasValue() {
+    while (chosen != null) {
+      if (chosen.hasValue()) {
+        return true;
+      }
+
+      chosen = choose();
     }
 
-    @Override
-    public void next()
-    {
-        chosen.next();
+    return false;
+  }
 
-        onNext();
+  @Override
+  public T value() {
+    return chosen.value();
+  }
 
-        chosen = choose();
-    }
+  @Override
+  public void next() {
+    chosen.next();
+
+    onNext();
+
+    chosen = choose();
+  }
 }
-
