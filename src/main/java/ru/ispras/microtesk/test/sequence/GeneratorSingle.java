@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2013 ISPRAS
+ * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * GeneratorSingle.java, May 29, 2013, 11:40:46 PM PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.test.sequence;
@@ -16,61 +18,53 @@ import java.util.Iterator;
 import java.util.List;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
-public final class GeneratorSingle<T> implements Generator<T>
-{
-    private final Sequence<T> sequence;
-    private boolean hasValue;
+public final class GeneratorSingle<T> implements Generator<T> {
+  private final Sequence<T> sequence;
+  private boolean hasValue;
 
-    public GeneratorSingle(List<IIterator<Sequence<T>>> iterators)
-    {
-        assert null != iterators;
-
-        this.sequence = createSingleSequence(iterators);
-        this.hasValue = false;
+  public GeneratorSingle(List<IIterator<Sequence<T>>> iterators) {
+    if (null == iterators) {
+      throw new NullPointerException(); 
     }
 
-    private static <T> Sequence<T> createSingleSequence(List<IIterator<Sequence<T>>> iterators)
-    {
-        final Sequence<T> result = new Sequence<T>();
+    this.sequence = createSingleSequence(iterators);
+    this.hasValue = false;
+  }
 
-        final Iterator<IIterator<Sequence<T>>> it = iterators.iterator();
-        while(it.hasNext())
-        {
-            final IIterator<Sequence<T>> sequenceIterator = it.next();
+  private static <T> Sequence<T> createSingleSequence(List<IIterator<Sequence<T>>> iterators) {
+    final Sequence<T> result = new Sequence<T>();
+    final Iterator<IIterator<Sequence<T>>> it = iterators.iterator();
 
-            sequenceIterator.init();
-            while (sequenceIterator.hasValue())
-            {
-                result.addAll(sequenceIterator.value());
-                sequenceIterator.next();
-            }
-        }
-
-        return result;
+    while (it.hasNext()) {
+      final IIterator<Sequence<T>> sequenceIterator = it.next();
+      sequenceIterator.init();
+      while (sequenceIterator.hasValue()) {
+        result.addAll(sequenceIterator.value());
+        sequenceIterator.next();
+      }
     }
 
-    @Override
-    public void init()
-    {
-        hasValue = true;
-    }
+    return result;
+  }
 
-    @Override
-    public boolean hasValue()
-    {
-        return hasValue;
-    }
+  @Override
+  public void init() {
+    hasValue = true;
+  }
 
-    @Override
-    public Sequence<T> value()
-    {
-        assert hasValue;
-        return sequence;
-    }
+  @Override
+  public boolean hasValue() {
+    return hasValue;
+  }
 
-    @Override
-    public void next()
-    {
-        hasValue = false;
-    }
+  @Override
+  public Sequence<T> value() {
+    assert hasValue;
+    return sequence;
+  }
+
+  @Override
+  public void next() {
+    hasValue = false;
+  }
 }
