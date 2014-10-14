@@ -17,9 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Constants
 
-let REGS = 5
-let   PC = "CIA"     // Program counter is in CIA 
-let   SP = "GPR[29]" // Stack pointer is in GPR[29] 
+let REG_INDEX_SIZE = 5
+
+let PC = "CIA"     // Program counter is in CIA 
+let SP = "GPR[29]" // Stack pointer is in GPR[29] 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Types
@@ -31,7 +32,7 @@ type  HWORD = card(16)
 type  SBYTE = int(8)
 type   BYTE = card(8)
 type    BIT = card(1)
-type  INDEX = card(REGS)
+type  INDEX = card(REG_INDEX_SIZE)
 type SINGLE = float(23, 9)
 
 type COND_CODE = card(3)
@@ -39,8 +40,8 @@ type COND_CODE = card(3)
 ////////////////////////////////////////////////////////////////////////////////
 // Memory and Registers
 
-reg GPR [2 ** REGS, LONG]
-reg FPR [2 ** REGS, SINGLE]
+reg GPR [2 ** REG_INDEX_SIZE, LONG]
+reg FPR [2 ** REG_INDEX_SIZE, SINGLE]
 mem   M [2 ** 31, BYTE]
 
 reg CIA[WORD] // Current instruction address
