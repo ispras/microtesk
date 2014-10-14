@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * ParserBase.java, Oct 26, 2012 5:40:55 PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.antlrex;
@@ -26,94 +28,98 @@ import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
-public class ParserBase extends ParserEx
-{   
-    private SymbolTable<ESymbolKind> symbols = null;
+public class ParserBase extends ParserEx {
+  private SymbolTable<ESymbolKind> symbols = null;
 
-    public ParserBase(TokenStream input, RecognizerSharedState state)
-    {
-        super(input, state);
+  public ParserBase(TokenStream input, RecognizerSharedState state) {
+    super(input, state);
+  }
+
+  public final void assignSymbols(SymbolTable<ESymbolKind> symbols) {
+    this.symbols = symbols;
+  }
+
+  protected final void declare(Token t, ESymbolKind kind, boolean scoped) throws SemanticException {
+    if (null == symbols) {
+      throw new NullPointerException();
     }
 
-    public final void assignSymbols(SymbolTable<ESymbolKind> symbols)
-    {
-        this.symbols = symbols;
+    checkRedeclared(t);
+
+    final ISymbol<ESymbolKind> symbol = scoped ?
+      new ScopedSymbol<ESymbolKind>(t, kind, symbols.peek()) :
+      new Symbol<ESymbolKind>(t, kind, symbols.peek());
+
+    symbols.define(symbol);
+  }
+
+  protected final void declareAndPushSymbolScope(Token t, ESymbolKind kind)
+      throws SemanticException {
+    if (null == symbols) {
+      throw new NullPointerException();
     }
 
-    protected final void declare(Token t, ESymbolKind kind, boolean scoped) throws SemanticException
-    {
-        assert null != symbols;
+    checkRedeclared(t);
 
-        checkRedeclared(t);
+    final ISymbol<ESymbolKind> symbol = 
+      new ScopedSymbol<ESymbolKind>(t, kind, symbols.peek());
 
-        final ISymbol<ESymbolKind> symbol = scoped ?
-            new ScopedSymbol<ESymbolKind>(t, kind, symbols.peek()) :
-            new Symbol<ESymbolKind>(t, kind, symbols.peek());
+    symbols.define(symbol);
+    symbols.push(symbol.getInnerScope());
+  }
 
-        symbols.define(symbol);
+  protected void popSymbolScope() {
+    symbols.pop();
+  }
+
+  private final void checkRedeclared(final Token t) throws SemanticException {
+    if (null == symbols) {
+      throw new NullPointerException();
     }
 
-    protected final void declareAndPushSymbolScope(Token t, ESymbolKind kind) throws SemanticException
-    {
-        assert null != symbols;
-
-        checkRedeclared(t);
-
-        final ISymbol<ESymbolKind> symbol = 
-            new ScopedSymbol<ESymbolKind>(t, kind, symbols.peek());
-
-        symbols.define(symbol);
-        symbols.push(symbol.getInnerScope());
+    final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
+    if (null == symbol) {// OK
+      return;
     }
 
-    protected void popSymbolScope()
-    {
-        symbols.pop();
+    raiseError(where(t), new RedeclaredSymbol(symbol));
+  }
+
+  protected final void checkDeclaration(Token t, ESymbolKind expectedKind) throws SemanticException {
+    if (null == symbols) {
+      throw new NullPointerException();
     }
 
-    private final void checkRedeclared(final Token t) throws SemanticException
-    {
-        assert null != symbols;
-
-        final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
-
-        if (null == symbol) // OK
-            return;
-
-        raiseError(where(t), new RedeclaredSymbol(symbol));  
+    final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
+    if (null == symbol) {
+      raiseError(new UndeclaredSymbol(t.getText()));
     }
 
-    protected final void checkDeclaration(Token t, ESymbolKind expectedKind) throws SemanticException
-    {
-        assert null != symbols;
+    if (expectedKind != symbol.getKind()) {
+      raiseError(new SymbolTypeMismatch<ESymbolKind>(t.getText(), symbol.getKind(), expectedKind));
+    }
+  }
 
-        final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
-
-        if (null == symbol)
-            raiseError(new UndeclaredSymbol(t.getText()));
-
-        if (expectedKind != symbol.getKind())
-            raiseError(new SymbolTypeMismatch<ESymbolKind>(t.getText(), symbol.getKind(), expectedKind));
+  protected final boolean isDeclaredAs(Token t, ESymbolKind expectedKind) {
+    if (null == symbols) {
+      throw new NullPointerException();
     }
 
-    protected final boolean isDeclaredAs(Token t, ESymbolKind expectedKind)
-    {
-        assert null != symbols;
-
-        final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
-
-        if (null == symbol)
-            return false;
-
-        if (expectedKind != symbol.getKind())
-            return false;
-
-        return true;
+    final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
+    if (null == symbol) {
+      return false;
     }
 
-    protected void checkNotNull(Token t, Object obj) throws RecognitionException
-    {
-        if (null == obj)
-            raiseError(where(t), new UnrecognizedStructure());        
+    if (expectedKind != symbol.getKind()) {
+      return false;
     }
+
+    return true;
+  }
+
+  protected void checkNotNull(Token t, Object obj) throws RecognitionException {
+    if (null == obj) {
+      raiseError(where(t), new UnrecognizedStructure());
+    }
+  }
 }
