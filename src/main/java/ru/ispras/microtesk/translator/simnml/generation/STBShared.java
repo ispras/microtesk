@@ -1,24 +1,14 @@
 /*
- * Copyright (c) 2012 ISPRAS (www.ispras.ru)
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
- * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
- * 
- * All rights reserved.
- * 
- * STBShared.java, Dec 6, 2012 4:22:54 PM Andrei Tatarnikov
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -50,266 +40,241 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
-final class STBShared implements ITemplateBuilder
-{
-    private static Map<Class<?>, Class<?>> CLASS_MAP = new HashMap<Class<?>, Class<?>>();
-    static
-    {
-        CLASS_MAP.put(Integer.class, int.class);
-        CLASS_MAP.put(Long.class,    long.class);
-        CLASS_MAP.put(Boolean.class, boolean.class);
+final class STBShared implements ITemplateBuilder {
+  private static Map<Class<?>, Class<?>> CLASS_MAP = new HashMap<Class<?>, Class<?>>();
+  static {
+    CLASS_MAP.put(Integer.class, int.class);
+    CLASS_MAP.put(Long.class, long.class);
+    CLASS_MAP.put(Boolean.class, boolean.class);
+  }
+
+  private static Class<?> toValueClass(Class<?> cl) {
+    final Class<?> result = CLASS_MAP.get(cl);
+    if (null == result) {
+      return cl;
     }
 
-    private static Class<?> toValueClass(Class<?> cl)
-    {
-        final Class<?> result = CLASS_MAP.get(cl);
+    return result;
+  }
 
-        if (null == result)
-            return cl;
+  public final String specFileName;
+  public final String modelName;
+  public final IR ir;
 
-        return result;
+  public STBShared(IR ir, String specFileName, String modelName) {
+    this.specFileName = specFileName;
+    this.modelName = modelName;
+    this.ir = ir;
+  }
+
+  private void insertEmptyLine(ST t) {
+    t.add("members", "");
+  }
+
+  private void buildHeader(ST t) {
+    t.add("file", specFileName);
+    t.add("pack", String.format(SHARED_PACKAGE_FORMAT, modelName));
+
+    if (!ir.getTypes().isEmpty() || !ir.getMemory().isEmpty()) {
+      t.add("imps", TypeId.class.getName());
+      t.add("imps", ru.ispras.microtesk.model.api.type.Type.class.getName());
     }
 
-    public final String specFileName;
-    public final String modelName;
-    public final IR ir;
-
-    public STBShared(IR ir, String specFileName, String modelName)
-    {
-        this.specFileName = specFileName;
-        this.modelName = modelName;
-        this.ir = ir;
+    if (!ir.getMemory().isEmpty()) {
+      t.add("imps", MemoryKind.class.getName());
     }
 
-    private void insertEmptyLine(ST t)
-    {
-        t.add("members", "");
+    t.add("imps", Memory.class.getName());
+    t.add("imps", Label.class.getName());
+    t.add("imps", Status.class.getName());
+    t.add("imps", Resetter.class.getName());
+  }
+
+  private void buildLetStrings(STGroup group, ST t) {
+    if (!ir.getStrings().isEmpty()) {
+      insertEmptyLine(t);
     }
 
-    private void buildHeader(ST t)
-    {
-        t.add("file", specFileName);
-        t.add("pack", String.format(SHARED_PACKAGE_FORMAT, modelName));
+    for (LetString string : ir.getStrings().values()) {
+      final ST tLet = group.getInstanceOf("let");
 
-        if (!ir.getTypes().isEmpty() || !ir.getMemory().isEmpty())
-        {
-            t.add("imps", TypeId.class.getName());
-            t.add("imps", ru.ispras.microtesk.model.api.type.Type.class.getName());
-        }
+      tLet.add("name", string.getName());
+      tLet.add("type", String.class.getSimpleName());
+      tLet.add("value", String.format("\"%s\"", string.getText()));
 
-        if (!ir.getMemory().isEmpty())
-        {
-            t.add("imps", MemoryKind.class.getName());
-        }
+      t.add("members", tLet);
+    }
+  }
 
-        t.add("imps", Memory.class.getName());
-        t.add("imps", Label.class.getName());
-        t.add("imps", Status.class.getName());
-        t.add("imps", Resetter.class.getName());
+  private void buildLetConstants(STGroup group, ST t) {
+    if (!ir.getConstants().isEmpty()) {
+      insertEmptyLine(t);
     }
 
-    private void buildLetStrings(STGroup group, ST t)
-    {
-        if (!ir.getStrings().isEmpty())
-            insertEmptyLine(t);
+    for (LetConstant constant : ir.getConstants().values()) {
+      final ST tLet = group.getInstanceOf("let");
 
-        for (LetString string : ir.getStrings().values())
-        {
-            final ST tLet = group.getInstanceOf("let");
+      tLet.add("name", constant.getName());
+      tLet.add("type", toValueClass(constant.getExpr().getValueInfo().getNativeType())
+          .getSimpleName());
+      tLet.add("value", new PrinterExpr(constant.getExpr()));
 
-            tLet.add("name",  string.getName());
-            tLet.add("type",  String.class.getSimpleName());
-            tLet.add("value", String.format("\"%s\"", string.getText()));
+      t.add("members", tLet);
+    }
+  }
 
-            t.add("members", tLet);
-        }
+  private void buildTypes(STGroup group, ST t) {
+    if (!ir.getTypes().isEmpty()) {
+      insertEmptyLine(t);
     }
 
-    private void buildLetConstants(STGroup group, ST t)
-    {
-        if (!ir.getConstants().isEmpty())
-            insertEmptyLine(t);
+    for (Map.Entry<String, Type> type : ir.getTypes().entrySet()) {
+      final ST tType = group.getInstanceOf("type_alias");
 
-        for (LetConstant constant : ir.getConstants().values())
-        {
-            final ST tLet = group.getInstanceOf("let");
+      tType.add("name", type.getKey());
+      tType.add("alias", type.getValue().getJavaText());
 
-            tLet.add("name",  constant.getName());
-            tLet.add("type",  toValueClass(constant.getExpr().getValueInfo().getNativeType()).getSimpleName());
-            tLet.add("value", new PrinterExpr(constant.getExpr()));
+      t.add("members", tType);
+    }
+  }
 
-            t.add("members", tLet);
-        }
+  private void buildMemory(STGroup group, ST t) {
+    if (!ir.getMemory().isEmpty()) {
+      insertEmptyLine(t);
     }
 
-    private void buildTypes(STGroup group, ST t)
-    {
-        if (!ir.getTypes().isEmpty())
-            insertEmptyLine(t);
+    final List<String> registers = new ArrayList<String>();
+    final List<String> memory = new ArrayList<String>();
+    final List<String> variables = new ArrayList<String>();
 
-        for (Map.Entry<String, Type> type : ir.getTypes().entrySet())
-        {
-            final ST tType = group.getInstanceOf("type_alias");
+    for (Map.Entry<String, MemoryExpr> mem : ir.getMemory().entrySet()) {
+      buildMemoryLine(group, t, mem.getKey(), mem.getValue());
 
-            tType.add("name",  type.getKey());
-            tType.add("alias", type.getValue().getJavaText());
+      switch (mem.getValue().getKind()) {
+        case REG:
+          registers.add(mem.getKey());
+          break;
 
-            t.add("members", tType);                
-        }
+        case MEM:
+          memory.add(mem.getKey());
+          break;
+
+        case VAR:
+          variables.add(mem.getKey());
+          break;
+
+        default:
+          assert false : "Unknown kind!";
+          break;
+      }
     }
 
-    private void buildMemory(STGroup group, ST t)
-    {
-        if (!ir.getMemory().isEmpty())
-            insertEmptyLine(t);
+    insertEmptyLine(t);
 
-        final List<String> registers = new ArrayList<String>();
-        final List<String> memory = new ArrayList<String>();
-        final List<String> variables = new ArrayList<String>();
+    buildMemoryLineArray(group, t, ProcessorModel.SHARED_REGISTERS, registers);
+    buildMemoryLineArray(group, t, ProcessorModel.SHARED_MEMORY, memory);
+    buildMemoryLineArray(group, t, ProcessorModel.SHARED_VARIABLES, variables);
+  }
 
-        for (Map.Entry<String, MemoryExpr> mem : ir.getMemory().entrySet())
-        {
-            buildMemoryLine(group, t, mem.getKey(), mem.getValue());
+  private void buildMemoryLine(STGroup group, ST t, String name, MemoryExpr memory) {
+    final ST tMemory = group.getInstanceOf("memory");
 
-            switch (mem.getValue().getKind())
-            {
-            case REG:
-                registers.add(mem.getKey());
-                break;
+    tMemory.add("name", name);
+    tMemory.add("kind", String.format("%s.%s",
+      memory.getKind().getClass().getSimpleName(), memory.getKind()));
 
-            case MEM:
-                memory.add(mem.getKey());
-                break;
-
-            case VAR:
-                variables.add(mem.getKey());
-                break;
-
-            default:
-                assert false : "Unknown kind!";
-                break;
-            }
-        }
-
-        insertEmptyLine(t);
-
-        buildMemoryLineArray(group, t, ProcessorModel.SHARED_REGISTERS, registers);
-        buildMemoryLineArray(group, t, ProcessorModel.SHARED_MEMORY, memory);
-        buildMemoryLineArray(group, t, ProcessorModel.SHARED_VARIABLES, variables);
+    final Type typeExpr = memory.getType();
+    if (null != typeExpr.getAlias()) {
+      tMemory.add("type", typeExpr.getAlias());
+    } else {
+      final ST tNewType = group.getInstanceOf("new_type");
+      tNewType.add("typeid", typeExpr.getTypeId());
+      tNewType.add("size", new PrinterExpr(typeExpr.getBitSizeExpr()));
+      tMemory.add("type", tNewType);
     }
 
-    private void buildMemoryLine(STGroup group, ST t, String name, MemoryExpr memory)
-    {
-        final ST tMemory = group.getInstanceOf("memory");
+    tMemory.add("size", new PrinterExpr(memory.getSizeExpr()));
 
-        tMemory.add("name", name);
-        tMemory.add("kind", String.format("%s.%s",
-            memory.getKind().getClass().getSimpleName(),
-            memory.getKind())
-        );
+    t.add("members", tMemory);
+  }
 
-        final Type typeExpr = memory.getType();
-        if (null != typeExpr.getAlias())
-        {
-            tMemory.add("type", typeExpr.getAlias());
-        }
-        else
-        {
-            final ST tNewType = group.getInstanceOf("new_type");
-            tNewType.add("typeid", typeExpr.getTypeId());
-            tNewType.add("size", new PrinterExpr(typeExpr.getBitSizeExpr()));
-            tMemory.add("type", tNewType);
-        }
+  private void buildMemoryLineArray(STGroup group, ST t, String name, List<String> items) {
+    final ST tArray = group.getInstanceOf("memory_array");
 
-        tMemory.add("size", new PrinterExpr(memory.getSizeExpr()));
+    tArray.add("type", Memory.class.getSimpleName() + "[]");
+    tArray.add("name", name);
+    tArray.add("items", items);
 
-        t.add("members", tMemory);
+    t.add("members", tArray);
+  }
+
+  private void buildLabels(STGroup group, ST t) {
+    final ST tLabels = group.getInstanceOf("memory_array");
+
+    tLabels.add("type", Label.class.getSimpleName() + "[]");
+    tLabels.add("name", ProcessorModel.SHARED_LABELS);
+
+    for (LetLabel label : ir.getLabels().values()) {
+      final ST tNewLabel = group.getInstanceOf("new_label");
+
+      tNewLabel.add("name", label.getName());
+      tNewLabel.add("memory", label.getMemoryName());
+      tNewLabel.add("index", label.getIndex());
+
+      tLabels.add("items", tNewLabel);
     }
 
-    private void buildMemoryLineArray(STGroup group, ST t, String name, List<String> items)
-    {
-        final ST tArray = group.getInstanceOf("memory_array");
+    t.add("members", tLabels);
+  }
 
-        tArray.add("type", Memory.class.getSimpleName() + "[]");
-        tArray.add("name", name);
-        tArray.add("items", items);
+  private void buildStatuses(STGroup group, ST t) {
+    insertEmptyLine(t);
 
-        t.add("members", tArray);
+    final ST tStatuses = group.getInstanceOf("memory_array");
+
+    tStatuses.add("type", Status.class.getSimpleName() + "[]");
+    tStatuses.add("name", ProcessorModel.SHARED_STATUSES);
+
+    for (Status status : Status.STANDARD_STATUSES.values()) {
+      final ST tStatus = group.getInstanceOf("status");
+
+      tStatus.add("name", status.getName());
+      tStatus.add("def_value", status.getDefault());
+      t.add("members", tStatus);
+
+      tStatuses.add("items", status.getName());
     }
 
-    private void buildLabels(STGroup group, ST t)
-    {
-        final ST tLabels = group.getInstanceOf("memory_array");
+    t.add("members", tStatuses);
+  }
 
-        tLabels.add("type", Label.class.getSimpleName() + "[]");
-        tLabels.add("name", ProcessorModel.SHARED_LABELS);
+  private void buildResetter(STGroup group, ST t) {
+    insertEmptyLine(t);
 
-        for (LetLabel label : ir.getLabels().values())
-        {
-            final ST tNewLabel = group.getInstanceOf("new_label");
+    final ST tResetter = group.getInstanceOf("resetter");
 
-            tNewLabel.add("name", label.getName());
-            tNewLabel.add("memory", label.getMemoryName());
-            tNewLabel.add("index", label.getIndex());
+    tResetter.add("type", Resetter.class.getSimpleName());
+    tResetter.add("name", ProcessorModel.SHARED_RESETTER);
 
-            tLabels.add("items", tNewLabel);
-        }
+    tResetter.add("items", ProcessorModel.SHARED_VARIABLES);
+    tResetter.add("items", ProcessorModel.SHARED_STATUSES);
 
-        t.add("members", tLabels);
-    }
+    t.add("members", tResetter);
+  }
 
-    private void buildStatuses(STGroup group, ST t)
-    {
-        insertEmptyLine(t);
+  @Override
+  public ST build(STGroup group) {
+    final ST t = group.getInstanceOf("shared");
 
-        final ST tStatuses = group.getInstanceOf("memory_array");
+    buildHeader(t);
+    buildLetStrings(group, t);
+    buildLetConstants(group, t);
+    buildTypes(group, t);
+    buildMemory(group, t);
+    buildLabels(group, t);
+    buildStatuses(group, t);
+    buildResetter(group, t);
 
-        tStatuses.add("type", Status.class.getSimpleName() + "[]");
-        tStatuses.add("name", ProcessorModel.SHARED_STATUSES);
-
-        for(Status status : Status.STANDARD_STATUSES.values())
-        {
-            final ST tStatus = group.getInstanceOf("status");
-
-            tStatus.add("name", status.getName());
-            tStatus.add("def_value", status.getDefault());
-            t.add("members", tStatus);
-
-            tStatuses.add("items", status.getName());
-        }
-
-        t.add("members", tStatuses);
-    }
-
-    private void buildResetter(STGroup group, ST t)
-    {
-        insertEmptyLine(t);
-
-        final ST tResetter = group.getInstanceOf("resetter");
-
-        tResetter.add("type", Resetter.class.getSimpleName());
-        tResetter.add("name", ProcessorModel.SHARED_RESETTER);
-
-        tResetter.add("items", ProcessorModel.SHARED_VARIABLES);
-        tResetter.add("items", ProcessorModel.SHARED_STATUSES);
-
-        t.add("members", tResetter);
-    }
-
-    @Override
-    public ST build(STGroup group)
-    {
-        final ST t = group.getInstanceOf("shared");
-
-        buildHeader(t);
-        buildLetStrings(group, t);
-        buildLetConstants(group, t);
-        buildTypes(group, t);
-        buildMemory(group, t);
-        buildLabels(group, t);
-        buildStatuses(group, t);
-        buildResetter(group, t);
-
-        return t;
-    }
+    return t;
+  }
 }
