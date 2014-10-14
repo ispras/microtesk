@@ -1,45 +1,61 @@
 /*
- * Copyright (c) 2014 ISPRAS
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * Action.java, Jan 17, 2014 5:57:41 PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.valueinfo;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Operands;
 
-abstract class Action
-{
-    private final Class<?> type;
-    private final int  operands;
+abstract class Action {
+  private final Class<?> type;
+  private final int operands;
 
-    public Action(Class<?> type, Operands operands)
-    {
-        assert null != type; 
-        assert null != operands;
-
-        this.type = type;
-        this.operands = operands.count();
+  public Action(Class<?> type, Operands operands) {
+    if (null == type) {
+      throw new NullPointerException();
     }
 
-    public final Class<?> getType() { return type; }
-    public final int  getOperands() { return operands; }
+    if (null == operands) {
+      throw new NullPointerException();
+    }
+
+    this.type = type;
+    this.operands = operands.count();
+  }
+
+  public final Class<?> getType() {
+    return type;
+  }
+
+  public final int getOperands() {
+    return operands;
+  }
 }
 
-abstract class UnaryAction extends Action
-{
-    public UnaryAction(Class<?> type) { super(type, Operands.UNARY); }
-    public abstract Object calculate(Object value);
+
+abstract class UnaryAction extends Action {
+  public UnaryAction(Class<?> type) {
+    super(type, Operands.UNARY);
+  }
+
+  public abstract Object calculate(Object value);
 }
 
-abstract class BinaryAction extends Action
-{
-    public BinaryAction(Class<?> type) { super(type, Operands.BINARY); }
-    public abstract Object calculate(Object left, Object right);
+
+abstract class BinaryAction extends Action {
+  public BinaryAction(Class<?> type) {
+    super(type, Operands.BINARY);
+  }
+
+  public abstract Object calculate(Object left, Object right);
 }
