@@ -396,16 +396,16 @@ op MOVZ_S (fd : F, fs : F, rt : R)
   syntax = format("MOVZ_S %s, %s, %s", fd.syntax, fs.syntax, rt.syntax)
   image  = format("01000110000%s%s%s010010", rt.image, fs.image, fd.image) 
   action = {
-     if (rt == 0) then
-       fd = fs;    
-     endif;
+    if (rt == 0) then
+      fd = fs;    
+    endif;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Branch Operations for Floating Point
 
 op BFF (cc : COND_CODE, offset : SHORT)
-  syntax = format("BC1F %d, %d", cc, offset)
+  syntax = format("BFF %d, %d", cc, offset)
   image  = format("01000101000%s00%s", cc, offset)
   action = {
     if (FCCR<cc> == 0) then
@@ -415,7 +415,7 @@ op BFF (cc : COND_CODE, offset : SHORT)
   }
 
 op BFT (cc : COND_CODE, offset : SHORT)
-  syntax = format("BC1T %d, %s", cc, offset)
+  syntax = format("BFT %d, %s", cc, offset)
   image  = format("01000101000%s01%s", cc, offset)
   action = {
     if (FCCR<cc> == 1) then
