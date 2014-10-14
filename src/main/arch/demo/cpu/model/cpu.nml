@@ -80,9 +80,9 @@ op MOV()
   image  = "10"
   action = { DEST = SRC2; }
 
-op Add_Sub_Mov = ADD | SUB | MOV
+op ADD_SUB_MOV = ADD | SUB | MOV
 
-op arith_mem_instr(y: Add_Sub_Mov, op1: OPRNDL, op2: OPRNDR)
+op arith_mem_instr(y: ADD_SUB_MOV, op1: OPRNDL, op2: OPRNDR)
   syntax = format("%s %s %s", y.syntax, op1.syntax, op2.syntax)
   image  = format("%s %s 00%s", y.image, op1.image, op2.image)
   action = {
