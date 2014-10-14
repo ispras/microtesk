@@ -235,13 +235,13 @@
     </copy>
 
     <!-- Copies CPU demo architecture specifications and test templates -->
-    <copy todir="${dist}/arch/cpu_demo">
-      <fileset dir="src/main/arch/cpu_demo" includes="**"/>  
+    <copy todir="${dist}/arch/demo/cpu">
+      <fileset dir="src/main/arch/demo/cpu" includes="**"/>  
     </copy>
 
   	<!-- Copies VLIW demo architecture specifications and test templates -->
-  	<copy todir="${dist}/arch/vliw_demo">
-  	   <fileset dir="src/main/arch/vliw_demo" includes="**"/>  
+  	<copy todir="${dist}/arch/demo/vliw">
+  	   <fileset dir="src/main/arch/demo/vliw" includes="**"/>  
   	</copy>
 
   </target>
@@ -287,7 +287,7 @@
       <jvmarg value="-ea"/>
       <arg value="-d"/>
       <arg value="${dist.gen}/src"/>
-      <arg value="${dist}/arch/cpu_demo/model/cpu_demo.nml"/>
+      <arg value="${dist}/arch/demo/cpu/model/cpu.nml"/>
       <classpath>
         <pathelement location="${dist.jars}/${jar}"/>
       </classpath>
@@ -298,7 +298,7 @@
   	  <jvmarg value="-ea"/>
   	  <arg value="-d"/>
   	  <arg value="${dist.gen}/src"/>
-  	  <arg value="${dist}/arch/vliw_demo/model/vliw_demo.nml"/>
+  	  <arg value="${dist}/arch/demo/vliw/model/vliw.nml"/>
   	  <classpath>
   	    <pathelement location="${dist.jars}/${jar}"/>
   	  </classpath>
