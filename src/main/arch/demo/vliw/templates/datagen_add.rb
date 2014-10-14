@@ -82,7 +82,7 @@ class VLIWDemo < Template
   end
 
   def print_gpr(index)
-    trace "GPR[%d] = %s", index, location('GPR', index)
+    trace "GPR[%d] = %s", index, gpr(index)
   end
 
   def gpr(index)

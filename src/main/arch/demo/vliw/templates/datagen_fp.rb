@@ -63,8 +63,8 @@ class VLIWDemo < Template
       comment 'Initializer for F'
       # GPR[25] holds a temporary value
       vliw(
-        (lui target, value(16, 31)),
-        (addi target, target, value(0, 15))
+        (lui r(25), value(16, 31)),
+        (addi r(25), r(25), value(0, 15))
       )
       vliw(
         (mtf r(25), target),
