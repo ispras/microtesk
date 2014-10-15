@@ -31,6 +31,7 @@ JARS             = File.join(HOME, "lib/jars")
 TOOLS            = File.join(HOME, "tools")
 
 FORTRESS_JAR     = File.join(JARS, "fortress.jar")
+TESTBASE_JAR     = File.join(JARS, "testbase.jar")
 MICROTESK_JAR    = File.join(JARS, "microtesk.jar")
 MODELS_JAR       = File.join(JARS, "models.jar")
 

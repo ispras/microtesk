@@ -81,6 +81,7 @@ end
 def self.create_model(model_name)
   require MODELS_JAR
   require FORTRESS_JAR
+  require TESTBASE_JAR
   require MICROTESK_JAR
 
   model_class_name = sprintf(MODEL_CLASS_FRMT, model_name)
