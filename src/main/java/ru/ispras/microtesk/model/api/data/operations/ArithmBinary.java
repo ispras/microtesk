@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2014 ISPRAS
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * ArithmBinary.java, Feb 21, 2014 4:18:21 PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api.data.operations;
@@ -23,70 +25,69 @@ import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /*
- * TODO: This implementation should be reviewed and rewritten in accordance
- * with the Sim-nML specification (see Kanpur theses).
+ * TODO: This implementation should be reviewed and rewritten in accordance with the Sim-nML
+ * specification (see Kanpur theses).
  * 
  * The current implementation of ArithmPlus has the following restrictions:
  * 
- * 1. Operands are assumed to have the same type (and size).
- * 2. In the case of overflow (when we are working with two big values) data is truncated.
- * According to Sim-nML specification, the resulting data might be extended with additional bits.
+ * 1. Operands are assumed to have the same type (and size). 2. In the case of overflow (when we are
+ * working with two big values) data is truncated. According to Sim-nML specification, the resulting
+ * data might be extended with additional bits.
  */
 
-public final class ArithmBinary implements IBinaryOperator
-{
-    private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(
-        TypeId.INT,
-        TypeId.CARD
-        //, ETypeID.FLOAT // NOT SUPPORTED IN THIS VERSION
-        //, ETypeID.FIX   // NOT SUPPORTED IN THIS VERSION
-    );
+public final class ArithmBinary implements IBinaryOperator {
+  private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(TypeId.INT, TypeId.CARD
+// , ETypeID.FLOAT // NOT SUPPORTED IN THIS VERSION
+// , ETypeID.FIX // NOT SUPPORTED IN THIS VERSION
+  );
 
-    private final BitVectorMath.Operations op;
+  private final BitVectorMath.Operations op;
 
-    public ArithmBinary(BitVectorMath.Operations op)
-    {
-        if (null == op)
-            throw new NullPointerException();
-
-        if (op.getOperands() != BitVectorMath.Operands.BINARY)
-            throw new IllegalArgumentException();
-
-        this.op = op;
+  public ArithmBinary(BitVectorMath.Operations op) {
+    if (null == op) {
+      throw new NullPointerException();
     }
 
-    private static Type getResultType(Type left, Type right)
-    {
-        // result type is INT if one of the parameters is INT.
-
-        if (right.getTypeId() == TypeId.INT)
-            return right;
-
-        return left;
+    if (op.getOperands() != BitVectorMath.Operands.BINARY) {
+      throw new IllegalArgumentException();
     }
 
-    @Override
-    public final Data execute(Data left, Data right)
-    {
-        final Type  resultType = getResultType(left.getType(), right.getType());
-        final BitVector result = op.execute(left.getRawData(), right.getRawData());
+    this.op = op;
+  }
 
-        return new Data(result, resultType);
+  private static Type getResultType(Type left, Type right) {
+    // result type is INT if one of the parameters is INT.
+
+    if (right.getTypeId() == TypeId.INT) {
+      return right;
     }
 
-    @Override
-    public boolean supports(Type left, Type right)
-    {
-        if (!SUPPORTED_TYPES.contains(left.getTypeId()))
-            return false;
+    return left;
+  }
 
-        if (!SUPPORTED_TYPES.contains(right.getTypeId()))
-            return false;
+  @Override
+  public final Data execute(Data left, Data right) {
+    final Type resultType = getResultType(left.getType(), right.getType());
+    final BitVector result = op.execute(left.getRawData(), right.getRawData());
 
-        // Restriction of the current version: type and size should match.
-        if (left.getBitSize() != right.getBitSize())
-            return false;
+    return new Data(result, resultType);
+  }
 
-        return true;
+  @Override
+  public boolean supports(Type left, Type right) {
+    if (!SUPPORTED_TYPES.contains(left.getTypeId())) {
+      return false;
     }
+
+    if (!SUPPORTED_TYPES.contains(right.getTypeId())) {
+      return false;
+    }
+
+    // Restriction of the current version: type and size should match.
+    if (left.getBitSize() != right.getBitSize()) {
+      return false;
+    }
+
+    return true;
+  }
 }

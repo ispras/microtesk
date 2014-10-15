@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2014 ISPRAS
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * BitBinary.java, Feb 21, 2014 2:01:52 PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api.data.operations;
@@ -22,58 +24,56 @@ import ru.ispras.microtesk.model.api.data.IBinaryOperator;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public final class BitBinary implements IBinaryOperator
-{
-    private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(
-        TypeId.INT,
-        TypeId.CARD
-    );
+public final class BitBinary implements IBinaryOperator {
+  private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(TypeId.INT, TypeId.CARD);
 
-    private final BitVectorMath.Operations op;
+  private final BitVectorMath.Operations op;
 
-    public BitBinary(BitVectorMath.Operations op)
-    {
-        if (null == op)
-            throw new NullPointerException();
-
-        if (op.getOperands() != BitVectorMath.Operands.BINARY)
-            throw new IllegalArgumentException();
-
-        this.op = op;
+  public BitBinary(BitVectorMath.Operations op) {
+    if (null == op) {
+      throw new NullPointerException();
     }
 
-    private static Type getResultType(Type lhs, Type rhs)
-    {
-        // result type is INT if one of the parameters is INT.
-
-        if (rhs.getTypeId() == TypeId.INT)
-            return rhs;
-
-        return lhs;
-    }    
-
-    @Override
-    public final Data execute(Data lhs, Data rhs)
-    {
-        final Type  resultType = getResultType(lhs.getType(), rhs.getType());
-        final BitVector result = op.execute(lhs.getRawData(), rhs.getRawData());
-
-        return new Data(result, resultType);
+    if (op.getOperands() != BitVectorMath.Operands.BINARY) {
+      throw new IllegalArgumentException();
     }
 
-    @Override
-    public boolean supports(Type lhs, Type rhs)
-    {
-        if (!SUPPORTED_TYPES.contains(lhs.getTypeId()))
-            return false;
+    this.op = op;
+  }
 
-        if (!SUPPORTED_TYPES.contains(rhs.getTypeId()))
-            return false;
+  private static Type getResultType(Type lhs, Type rhs) {
+    // result type is INT if one of the parameters is INT.
 
-        // Restriction of the current version: size should be equal
-        if (lhs.getBitSize() != rhs.getBitSize())
-            return false;
-
-        return true;
+    if (rhs.getTypeId() == TypeId.INT) {
+      return rhs;
     }
+
+    return lhs;
+  }
+
+  @Override
+  public final Data execute(Data lhs, Data rhs) {
+    final Type resultType = getResultType(lhs.getType(), rhs.getType());
+    final BitVector result = op.execute(lhs.getRawData(), rhs.getRawData());
+
+    return new Data(result, resultType);
+  }
+
+  @Override
+  public boolean supports(Type lhs, Type rhs) {
+    if (!SUPPORTED_TYPES.contains(lhs.getTypeId())) {
+      return false;
+    }
+
+    if (!SUPPORTED_TYPES.contains(rhs.getTypeId())) {
+      return false;
+    }
+
+    // Restriction of the current version: size should be equal
+    if (lhs.getBitSize() != rhs.getBitSize()) {
+      return false;
+    }
+
+    return true;
+  }
 }

@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2014 ISPRAS
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * ArithmUnary.java, Feb 21, 2014 3:47:42 PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api.data.operations;
@@ -22,40 +24,38 @@ import ru.ispras.microtesk.model.api.data.IUnaryOperator;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public final class ArithmUnary implements IUnaryOperator
-{
-    // Sim-nML spec: these operators (unary +,-) are used only for
-    // INT, FLOAT and FIX data types.
+public final class ArithmUnary implements IUnaryOperator {
+  // Sim-nML spec: these operators (unary +,-) are used only for
+  // INT, FLOAT and FIX data types.
 
-    private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(
-        TypeId.INT
-        //, ETypeID.FLOAT // NOT SUPPORTED IN THIS VERSION
-        //, ETypeID.FIX   // NOT SUPPORTED IN THIS VERSION
-    );
+  private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(
+    TypeId.INT
+    // , ETypeID.FLOAT // NOT SUPPORTED IN THIS VERSION
+    // , ETypeID.FIX // NOT SUPPORTED IN THIS VERSION
+  );
 
-    private final BitVectorMath.Operations op;
+  private final BitVectorMath.Operations op;
 
-    public ArithmUnary(BitVectorMath.Operations op)
-    {
-        if (null == op)
-            throw new NullPointerException();
-
-        if (op.getOperands() != BitVectorMath.Operands.UNARY)
-            throw new IllegalArgumentException();
-
-        this.op = op;
+  public ArithmUnary(BitVectorMath.Operations op) {
+    if (null == op) {
+      throw new NullPointerException();
     }
 
-    @Override
-    public Data execute(Data data)
-    {
-        final BitVector result = op.execute(data.getRawData());
-        return new Data(result, data.getType());
+    if (op.getOperands() != BitVectorMath.Operands.UNARY) {
+      throw new IllegalArgumentException();
     }
 
-    @Override
-    public boolean supports(Type argType)
-    {
-        return SUPPORTED_TYPES.contains(argType.getTypeId());
-    }
+    this.op = op;
+  }
+
+  @Override
+  public Data execute(Data data) {
+    final BitVector result = op.execute(data.getRawData());
+    return new Data(result, data.getType());
+  }
+
+  @Override
+  public boolean supports(Type argType) {
+    return SUPPORTED_TYPES.contains(argType.getTypeId());
+  }
 }
