@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require ENV['TEMPLATE']
+require_relative 'base_template'
 
 #
 # Description:
@@ -22,55 +22,11 @@ require ENV['TEMPLATE']
 # This test template demonstrates the use of data generators 
 # for floating-point instructions in MicroTESK.
 #
-class VliwDemo < Template
+class VliwDemo < VliwDemoTemplate
 
   def initialize
     super
     @is_executable = true
-  end
-
-  def pre
-    #
-    # Rules for writing preparators of initializing instruction sequences:
-    #
-    # preparator(:target => '<name>') {
-    #   comment 'Initializer for <name>'
-    #   vliw(
-    #     (lui  target, value(0, 15)),
-    #     (addi target, target, value(15, 31))
-    #   )
-    # }
-    #
-    # The above code creates an instruction sequence that writes a value
-    # to the resource referenced via the <name> addressing mode.
-    #
-    # Keywords:
-    # - The ':target' attribute specify the name of the target addressing mode.
-    # - The 'target' and 'value' methods specify the target addressing mode
-    #   with all its arguments set and the value passed to the preparator
-    #   respectively. The arguments of the 'value' method specify which part
-    #   of the value is used. 
-    #
-    preparator(:target => 'R') {
-      comment 'Initializer for R'  
-      vliw(
-        (lui target, value(16, 31)),
-        (addi target, target, value(0, 15))
-      )
-    }
-
-    preparator(:target => 'F') {
-      comment 'Initializer for F'
-      # GPR[25] holds a temporary value
-      vliw(
-        (lui r(25), value(16, 31)),
-        (addi r(25), r(25), value(0, 15))
-      )
-      vliw(
-        (mtf r(25), target),
-        nop
-      )
-    }
   end
 
   def run
@@ -96,11 +52,4 @@ class VliwDemo < Template
     ) do situation('random', :size => 32, :min_imm => 1, :max_imm => 31) end
   end
 
-  def gpr(index)
-    location('GPR', index)
-  end
-
-  def fpr(index)
-    location('FPR', index)
-  end
 end

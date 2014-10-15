@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require ENV['TEMPLATE']
+require_relative 'base_template'
 
 #
 # Description:
@@ -28,7 +28,7 @@ require ENV['TEMPLATE']
 # demonstrate the use of loops in test templates.  
 #
 
-class VliwDemo < Template
+class VliwDemo < VliwDemoTemplate
 
   def initialize
     super
@@ -63,10 +63,6 @@ class VliwDemo < Template
       label :"done#{it}"
       trace "\nResult stored in $6 (iteration #{it}): %d", gpr(6)
     end
-  end
-
-  def gpr(index)
-    location('GPR', index)
   end
 
 end

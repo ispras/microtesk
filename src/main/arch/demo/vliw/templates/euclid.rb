@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require ENV['TEMPLATE']
+require_relative 'base_template'
 
 #
 # Description:
@@ -26,7 +26,7 @@ require ENV['TEMPLATE']
 # algorithm.
 #
 
-class VliwDemo < Template
+class VliwDemo < VliwDemoTemplate
 
   def initialize
     super
@@ -57,10 +57,6 @@ class VliwDemo < Template
 
     label :done
     trace "\nResult stored in $6: %d", gpr(6)
-  end
-
-  def gpr(index)
-    location('GPR', index)
   end
 
 end

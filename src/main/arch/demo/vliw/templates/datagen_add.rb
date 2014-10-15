@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require ENV['TEMPLATE']
+require_relative 'base_template'
 
 #
 # Description:
@@ -38,54 +38,27 @@ require ENV['TEMPLATE']
 #   addi(r(5), r(0), 10) do situation('normal') end
 # )
 #
-class VliwDemo < Template
+
+class VliwDemo < VliwDemoTemplate
 
   def initialize
     super
     @is_executable = true
   end
 
-  def pre
-    #
-    # Creates an instruction sequence that writes a value (32-bit integer) to
-    # the resource referenced via the 'r' addressing mode (register GPR).
-    #
-    # Format:
-    # - The ':target' attribute specify the name of the target addressing mode.
-    # - The 'target' and 'value' methods specify the target addressing mode
-    #   with all its arguments set and the value passed to the preparator
-    #   respectively. The arguments of the 'value' method specify which part
-    #   of the value is used. 
-    #
-    preparator(:target => 'R') {
-      comment 'Initializer for R'  
-      vliw(
-        (lui target, value(16, 31)),
-        (addi target, target, value(0, 15))
-      )
-    }
-  end
-
   def run
-    print_gpr 3
-    print_gpr 5
-    print_gpr 4
-    print_gpr 6
+    trace_gpr 3
+    trace_gpr 5
+    trace_gpr 4
+    trace_gpr 6
 
     vliw(
       (add r(1), r(3), r(5) do situation('add', :case => 'normal', :size => 32) end),
       (add r(2), r(4), r(6) do situation('add', :case => 'overflow', :size => 32) end)
     )
 
-    print_gpr 1
-    print_gpr 2
+    trace_gpr 1
+    trace_gpr 2
   end
 
-  def print_gpr(index)
-    trace "GPR[%d] = %s", index, gpr(index)
-  end
-
-  def gpr(index)
-    location('GPR', index)
-  end
 end
