@@ -20,8 +20,9 @@
 let REG_INDEX_SIZE = 5 // in bits
 let INSTRUCTION_WORD_SIZE = 4 // in bytes
 
-let PC = "CIA"     // Program counter is in CIA 
-let SP = "GPR[29]" // Stack pointer is in GPR[29] 
+// Informs that CIA is a program counter. This information 
+// is needed to handle control transfer instructions.
+let PC = "CIA" 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Types
