@@ -140,6 +140,13 @@ op SLL (rd : R, rt : R, sa : INDEX)
     rd = rt << sa;
   }
 
+op SRL (rd : R, rt : R, sa : INDEX)
+  syntax = format("SRL %s, %s, %d", rd.syntax, rt.syntax, sa)
+  image  = format("00000000000%s%s%s000010", rt.image, rd.image, sa)
+  action = {
+    rd = rt >> sa;
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Move Instructions
 
@@ -443,6 +450,7 @@ op ALU       = ADD  // Arithmetical instructions
              | SUB
              | MUL
              | SLL
+             | SRL
              | MOVN // Move instructions
              | MOVZ
              | MOVE
