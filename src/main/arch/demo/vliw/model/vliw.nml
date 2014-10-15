@@ -228,10 +228,7 @@ op SW (base : R, rt : R, offset : SHORT)
   syntax = format("SW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("101011%s%s%s", base.image, rt.image, offset)
   action = {
-    M [base + offset] = rt<0..7>;
-    M [base + offset + 1] = rt<8..15>;
-    M [base + offset + 2] = rt<16..23>;
-    M [base + offset + 3] = rt<24..31>;
+    M[base + offset + 3]::M[base + offset + 2]::M[base + offset + 1]::M[base + offset] = rt;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
