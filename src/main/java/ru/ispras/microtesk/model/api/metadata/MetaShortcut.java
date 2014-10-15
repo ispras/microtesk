@@ -1,13 +1,5 @@
 /*
- * Copyright (c) 2014 ISPRAS (www.ispras.ru)
- * 
- * Institute for System Programming of Russian Academy of Sciences
- * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
- * 
- * All rights reserved.
- * 
- * MetaShortcut.java, Jul 7, 2014 11:00:29 AM Andrei Tatarnikov
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
