@@ -19,20 +19,20 @@ require ENV['TEMPLATE']
 #
 # Description:
 #
-# The purpose of the DemoPrepost is to demonstrate how code of test templates
-# can be reused by other test templates. The class provides implementations
-# of the pre and post methods that are the initialization and finalization
-# sections respectively. These method can be reused by other test templates
-# using the mechanism of class inheritance.
+# The purpose of the CpuDemoTemplate is to demonstrate how code of test
+# templates can be reused by other test templates. The class provides
+# implementations of the 'pre' and 'post' methods that are the initialization
+# and finalization sections respectively. These methods can be reused by other
+# test templates using the mechanism of class inheritance.
 #
 class CpuDemoTemplate < Template
 
   def initialize
     super
 
-    # This means that DemoPrepost is designed for reuse only. It is an abstract
-    # class to be inherited by other test templates and it cannot be used as an
-    # independent test template to generate a test program.
+    # This line means that CpuDemoTemplate is designed for reuse only. It is an
+    # abstract class to be inherited by other test templates and it cannot be
+    # used as an independent test template to generate a test program.
 
     @is_executable = false
   end

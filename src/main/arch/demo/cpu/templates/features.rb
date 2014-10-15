@@ -14,19 +14,17 @@
 # limitations under the License.
 #
 
-require ENV['TEMPLATE']
-
-require_relative 'demo_prepost'
+require_relative 'base_template'
 
 #
 # Description:
 #
-# The purpose of the DemoTemplate test template is to demonstrate feaures of
-# MicroTESK. This includes test template facilities to specify instruction
-# calls and addression modes, to organize the control flow, to set up 
-# instruction sequences, to add text to the test program, etc. 
+# The purpose of the Features test template is to demonstrate feaures of
+# MicroTESK. This includes test template facilities to describe instruction
+# calls, organize the control flow, set up instruction sequences, generate test
+# data for "interesting" situations, add text to the test program, etc. 
 #
-class DemoTemplate < CpuDemoTemplate
+class Features < CpuDemoTemplate
 
   def initialize
     super
@@ -41,7 +39,7 @@ class DemoTemplate < CpuDemoTemplate
     trace 'Main Section:'
     comment 'Main Section Starts'
     newline
-    
+
     start_comment
     text "Multiline comment. Line 1."
     text "Multiline comment. Line 2."
@@ -57,10 +55,15 @@ class DemoTemplate < CpuDemoTemplate
     mov reg(2), imm(0xFF)
     mov reg(3), reg(2)
     newline
-    
+
     # Random immediate values
     mov reg(ri = rand(0, 15)), imm(5)
     add reg(4), reg(ri)
+    newline
+
+    # Random immediate values via a test situation
+    mov reg(ri = _), imm(_) do situation('imm_random', :min => 0, :max => 15) end
+    add reg(5), reg(ri)
     newline
 
     #add m[10], r[15]                                     # Indexing register arrays
@@ -120,7 +123,7 @@ class DemoTemplate < CpuDemoTemplate
 #    newline
 #
 #    my_group.all
-      
+
     comment 'Main Section Ends'
   end
 
