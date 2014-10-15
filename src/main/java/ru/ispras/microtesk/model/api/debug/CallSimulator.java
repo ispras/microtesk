@@ -1,24 +1,14 @@
 /*
- * Copyright (c) 2014 ISPRAS (www.ispras.ru)
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
- * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
- * 
- * All rights reserved.
- * 
- * CallSimulator.java, Jun 27, 2014 3:30:20 PM Andrei Tatarnikov
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -36,62 +26,56 @@ import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
-public abstract class CallSimulator
-{
-    protected final void addCall(IOperation op)
-    {
-        final InstructionCall call = model.getCallFactory().newCall(op);
-        calls.add(call);
-    }
-    
-    protected final IAddressingMode newMode(
-        String name, Map<String, Integer> args) throws ConfigurationException
-    {
-        final IAddressingModeBuilder modeBuilder =
-            model.getCallFactory().newMode(name);
+public abstract class CallSimulator {
+  protected final void addCall(IOperation op) {
+    final InstructionCall call = model.getCallFactory().newCall(op);
+    calls.add(call);
+  }
 
-        for (Map.Entry<String, Integer> arg : args.entrySet())
-            modeBuilder.setArgumentValue(arg.getKey(), arg.getValue());
+  protected final IAddressingMode newMode(String name, Map<String, Integer> args)
+      throws ConfigurationException {
+    final IAddressingModeBuilder modeBuilder = model.getCallFactory().newMode(name);
 
-        return modeBuilder.getProduct();
+    for (Map.Entry<String, Integer> arg : args.entrySet()) {
+      modeBuilder.setArgumentValue(arg.getKey(), arg.getValue());
     }
 
-    protected final IOperation newOp(
-        String name, String context, Map<String, IAddressingMode> args
-        ) throws ConfigurationException
-    {
-        final IOperationBuilder opBuilder =
-            model.getCallFactory().newOp(name, context);
-        
-        for (Map.Entry<String, IAddressingMode> arg : args.entrySet())
-            opBuilder.setArgument(arg.getKey(), arg.getValue());
+    return modeBuilder.getProduct();
+  }
 
-        return opBuilder.build();
+  protected final IOperation newOp(String name, String context, Map<String, IAddressingMode> args)
+      throws ConfigurationException {
+    final IOperationBuilder opBuilder = model.getCallFactory().newOp(name, context);
+
+    for (Map.Entry<String, IAddressingMode> arg : args.entrySet()) {
+      opBuilder.setArgument(arg.getKey(), arg.getValue());
     }
 
-    private final IModel model;
-    private final List<InstructionCall> calls;
+    return opBuilder.build();
+  }
 
-    protected CallSimulator(IModel model)
-    {
-        if (null == model)
-            throw new NullPointerException();
+  private final IModel model;
+  private final List<InstructionCall> calls;
 
-        this.model = model;
-        this.calls = new ArrayList<InstructionCall>();
+  protected CallSimulator(IModel model) {
+    if (null == model) {
+      throw new NullPointerException();
     }
 
-    public final void execute()
-    {
-        for (InstructionCall call : calls)
-            call.execute();
-    }
+    this.model = model;
+    this.calls = new ArrayList<InstructionCall>();
+  }
 
-    public final void print()
-    {
-        System.out.println("************************************************");
-
-        for (InstructionCall call : calls)
-            call.print();
+  public final void execute() {
+    for (InstructionCall call : calls) {
+      call.execute();
     }
+  }
+
+  public final void print() {
+    System.out.println("************************************************");
+    for (InstructionCall call : calls) {
+      call.print();
+    }
+  }
 }
