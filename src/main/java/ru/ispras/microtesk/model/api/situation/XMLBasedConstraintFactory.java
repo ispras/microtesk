@@ -1,24 +1,14 @@
 /*
- * Copyright (c) 2014 ISPRAS (www.ispras.ru)
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
- * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
- * 
- * All rights reserved.
- * 
- * XMLBasedConstraintFactory.java, Mar 21, 2014 4:31:58 PM Andrei Tatarnikov
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -31,62 +21,53 @@ import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
 import ru.ispras.fortress.solver.xml.XMLNotLoadedException;
 
 /**
- * The XMLBasedConstraintFactory class provides functionality to recover
- * a constraint from an XML file. It uses an URL to load the file because
- * this is the way to access files placed to a JAR. 
+ * The XMLBasedConstraintFactory class provides functionality to recover a constraint from an XML
+ * file. It uses an URL to load the file because this is the way to access files placed to a JAR.
  * 
  * @author Andrei Tatarnikov
  */
 
-public final class XMLBasedConstraintFactory implements IConstraintFactory
-{
-    private final String xmlFileName;
+public final class XMLBasedConstraintFactory implements IConstraintFactory {
+  private final String xmlFileName;
 
-    /**
-     * Constructs a constraint factory object basing on the location of
-     * the XML file that stores a constraint description.
-     * 
-     * @param xmlFileName Location of the XML file relative to the root of
-     * the project's binary storage (e.g. "xml/arm/ADD_Normal.xml"). This is
-     * done so to be able to load XML files packed into JAR files.
-     * 
-     * @throws NullPointerException if the parameter is <code>null</code>.
-     */
+  /**
+   * Constructs a constraint factory object basing on the location of the XML file that stores a
+   * constraint description.
+   * 
+   * @param xmlFileName Location of the XML file relative to the root of the project's binary
+   *        storage (e.g. "xml/arm/ADD_Normal.xml"). This is done so to be able to load XML files
+   *        packed into JAR files.
+   * 
+   * @throws NullPointerException if the parameter is <code>null</code>.
+   */
 
-    public XMLBasedConstraintFactory(String xmlFileName)
-    {
-        if (null == xmlFileName)
-            throw new NullPointerException();
-
-        this.xmlFileName = xmlFileName;
+  public XMLBasedConstraintFactory(String xmlFileName) {
+    if (null == xmlFileName) {
+      throw new NullPointerException();
     }
 
-    /**
-     * Loads a constraint from the specified XML file.
-     * 
-     * @return A new constraint loaded from the XML file or <code>null</code>
-     * if loading fails for some reason.
-     */
+    this.xmlFileName = xmlFileName;
+  }
 
-    @Override
-    public Constraint create()
-    {
-        final ClassLoader classLoader = 
-            Thread.currentThread().getContextClassLoader();
+  /**
+   * Loads a constraint from the specified XML file.
+   * 
+   * @return A new constraint loaded from the XML file or <code>null</code> if loading fails for
+   *         some reason.
+   */
 
-        final URL url = 
-            classLoader.getResource(xmlFileName);
+  @Override
+  public Constraint create() {
+    final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    final URL url = classLoader.getResource(xmlFileName);
 
-        try
-        {
-            final Constraint result = XMLConstraintLoader.loadFromURL(url);
-            return result;
-        }
-        catch (XMLNotLoadedException e)
-        {
-            e.printStackTrace();
-        }
-
-        return null;
+    try {
+      final Constraint result = XMLConstraintLoader.loadFromURL(url);
+      return result;
+    } catch (XMLNotLoadedException e) {
+      e.printStackTrace();
     }
+
+    return null;
+  }
 }

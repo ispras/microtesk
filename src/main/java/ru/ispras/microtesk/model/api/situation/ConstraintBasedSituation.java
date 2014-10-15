@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2013 ISPRAS
+ * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * ConstraintBasedSituation.java, May 23, 2013 3:03:08 PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package ru.ispras.microtesk.model.api.situation;
@@ -27,83 +29,76 @@ import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.microtesk.model.api.situation.Situation;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public abstract class ConstraintBasedSituation extends Situation
-{
-    private final IConstraintFactory constraintFactory;
+public abstract class ConstraintBasedSituation extends Situation {
+  private final IConstraintFactory constraintFactory;
 
-    public ConstraintBasedSituation(IInfo info, IConstraintFactory constraintFactory)
-    {
-        super(info);
-        this.constraintFactory = constraintFactory;
+  public ConstraintBasedSituation(IInfo info, IConstraintFactory constraintFactory) {
+    super(info);
+    this.constraintFactory = constraintFactory;
+  }
+
+  public ConstraintBasedSituation(IInfo info, String xmlFileName) {
+    this(info, new XMLBasedConstraintFactory(xmlFileName));
+  }
+
+  @Override
+  public boolean setInput(String name, Data value) {
+    return false;
+  }
+
+  @Override
+  public boolean setOutput(String name) {
+    return false;
+  }
+
+  @Override
+  public final Map<String, Data> solve() throws ConfigurationException {
+    final Constraint constraint = constraintFactory.create();
+    final Solver solver = constraint.getKind().getDefaultSolverId().getSolver();
+
+    final SolverResult solverResult = solver.solve(constraint);
+    checkSolverResult(solverResult);
+
+    final Map<String, Data> result = new HashMap<String, Data>();
+
+    for (Variable variable : solverResult.getVariables()) {
+      result.put(variable.getName(), variableToData(variable, Type.CARD(32)));
     }
 
-    public ConstraintBasedSituation(IInfo info, String xmlFileName)
-    {
-        this(info, new XMLBasedConstraintFactory(xmlFileName));
+    return result;
+  }
+
+  private void checkSolverResult(SolverResult solverResult) throws ConfigurationException {
+    if (!solverResult.hasErrors()) {
+      return;
     }
 
-    @Override
-    public boolean setInput(String name, Data value)
-    {
-        return false;
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append(String.format("Unable to solve the %s test situation. ", getInfo().getName()));
+    sb.append("Constraint solver failure. Reason: ");
+
+    for (String error : solverResult.getErrors()) {
+      sb.append(error);
     }
 
-    @Override
-    public boolean setOutput(String name)
-    {
-        return false;
-    }
+    throw new ConstraintSolverException(sb.toString());
+  }
 
-    @Override
-    public final Map<String, Data> solve() throws ConfigurationException
-    {
-        final Constraint  constraint = constraintFactory.create();
-        final Solver solver = constraint.getKind().getDefaultSolverId().getSolver(); 
+  private Data variableToData(Variable variable, Type targetType) {
+    assert null != variable;
+    assert null != targetType;
 
-        final SolverResult solverResult = solver.solve(constraint);
-        checkSolverResult(solverResult);
+    assert variable.getData().getType().getTypeId() == DataTypeId.BIT_VECTOR;
 
-        final Map<String, Data> result = new HashMap<String, Data>();
+    final int size = targetType.getBitSize();
+    final BitVector value = (BitVector) variable.getData().getValue();
 
-        for (Variable variable : solverResult.getVariables())
-        {
-            result.put(variable.getName(), variableToData(variable, Type.CARD(32)));
-        }
+    assert 0 < size && size <= value.getBitSize();
 
-        return result;
-    }
-    
-    private void checkSolverResult(SolverResult solverResult) throws ConfigurationException
-    {
-        if (!solverResult.hasErrors())
-            return;
+    final BitVector rawData = (size == value.getBitSize()) ?
+      value : BitVector.newMapping(value, 0, size);
 
-        final StringBuilder sb = new StringBuilder();
-
-        sb.append(String.format("Unable to solve the %s test situation. ", getInfo().getName()));
-        sb.append("Constraint solver failure. Reason: ");
-
-        for (String error : solverResult.getErrors())
-            sb.append(error);
-
-        throw new ConstraintSolverException(sb.toString());
-    }
-
-    private Data variableToData(Variable variable, Type targetType)
-    {
-        assert null != variable;
-        assert null != targetType;
-
-        assert variable.getData().getType().getTypeId() == DataTypeId.BIT_VECTOR;
-
-        final int size = targetType.getBitSize();
-        final BitVector value = (BitVector)variable.getData().getValue();
-
-        assert 0 < size && size <= value.getBitSize();
-
-        final BitVector rawData = (size == value.getBitSize()) ?
-            value : BitVector.newMapping(value, 0, size); 
-
-        return new Data(rawData, targetType);
-    }
+    return new Data(rawData, targetType);
+  }
 }
