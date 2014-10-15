@@ -53,8 +53,10 @@ reg FCCR[1, LONG] // FP Condition Codes register
 // Temporary Variables (Branch-Related)
 
 var     NIA[WORD] // Next instruction address
-var JMPADDR[WORD] // Address to jump
-var  BRANCH[BIT]  // Branch flag 
+var JMPADDR[WORD] // Jump address
+
+// Flag that specifies whether control is to be transferred to the jump address
+var BRANCH[BIT]  
 
 ////////////////////////////////////////////////////////////////////////////////
 // Temporary Variables (For Storing Intermediate Calculation Results)
@@ -238,7 +240,9 @@ op B (offset : SHORT)
   syntax = format("B %d", offset)
   image  = format("0001000000000000%s", offset)
   action = {
+    // Informs that control transfer is to be performed
     BRANCH = 1;
+    // Calculates the jump address and saves it to a temporary variable
     JMPADDR = NIA + (offset << 3);
   }
 
@@ -247,7 +251,9 @@ op BEQ (rs : R, rt : R, offset : SHORT)
   image  = format("000100%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs == rt then
+      // Informs that control transfer is to be performed
       BRANCH = 1;
+      // Calculates the jump address and saves it to a temporary variable
       JMPADDR = NIA + (offset << 3);
     endif;
   }
@@ -257,7 +263,9 @@ op BNE (rs : R, rt : R, offset : SHORT)
   image  = format("000101%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs != rt then
+      // Informs that control transfer is to be performed
       BRANCH = 1;
+      // Calculates the jump address and saves it to a temporary variable
       JMPADDR = NIA + (offset << 3);
     endif;
   }
@@ -408,7 +416,9 @@ op BFF (cc : COND_CODE, offset : SHORT)
   image  = format("01000101000%s00%s", cc, offset)
   action = {
     if (FCCR<cc> == 0) then
+      // Informs that control transfer is to be performed
       BRANCH = 1;
+      // Calculates the jump address and saves it to a temporary variable
       JMPADDR = NIA + (offset << 3);
     endif;
   }
@@ -418,7 +428,9 @@ op BFT (cc : COND_CODE, offset : SHORT)
   image  = format("01000101000%s01%s", cc, offset)
   action = {
     if (FCCR<cc> == 1) then
+      // Informs that control transfer is to be performed
       BRANCH = 1;
+      // Calculates the jump address and saves it to a temporary variable
       JMPADDR = NIA + (offset << 3);
     endif;
   }
@@ -492,15 +504,19 @@ op vliw (c1: channel1, c2: channel2)
   action = {
     NIA = CIA + 2 * INSTRUCTION_WORD_SIZE;
 
+    // Invariant: register GPR[0] always holds zero  
     GPR[0] = 0;
     c1.action;
 
+    // Invariant: register GPR[0] always holds zero
     GPR[0] = 0;
     c2.action;
 
     if BRANCH == 0 then
+      // If the flag is not set, proceeds to the next instruction 
       CIA = CIA + 2 * INSTRUCTION_WORD_SIZE;
     else
+      // Otherwise, transfers control to the jump address
       CIA = JMPADDR;
     endif;
   }
