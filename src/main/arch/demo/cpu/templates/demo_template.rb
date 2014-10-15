@@ -26,7 +26,7 @@ require_relative 'demo_prepost'
 # calls and addression modes, to organize the control flow, to set up 
 # instruction sequences, to add text to the test program, etc. 
 #
-class DemoTemplate < DemoPrepost
+class DemoTemplate < CpuDemoTemplate
 
   def initialize
     super

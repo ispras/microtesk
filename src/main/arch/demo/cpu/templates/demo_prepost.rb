@@ -25,7 +25,7 @@ require ENV['TEMPLATE']
 # sections respectively. These method can be reused by other test templates
 # using the mechanism of class inheritance.
 #
-class DemoPrepost < Template
+class CpuDemoTemplate < Template
 
   def initialize
     super
