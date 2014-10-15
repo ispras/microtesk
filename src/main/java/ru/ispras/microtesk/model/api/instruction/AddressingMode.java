@@ -36,7 +36,7 @@ import ru.ispras.microtesk.model.api.type.Type;
  * @author Andrei Tatarnikov
  */
 
-public abstract class AddressingMode implements IAddressingMode {
+public abstract class AddressingMode extends StandardFunctions implements IAddressingMode {
   /**
    * The ParamDeclsr class provides facilities to build a table of addressing mode parameter
    * declarations.

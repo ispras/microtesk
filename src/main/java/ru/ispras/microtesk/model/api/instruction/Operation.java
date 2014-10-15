@@ -38,7 +38,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
  * @author Andrei Tatarnikov
  */
 
-public abstract class Operation implements IOperation {
+public abstract class Operation extends StandardFunctions implements IOperation {
   interface Param {
     public enum Kind {
       IMM,

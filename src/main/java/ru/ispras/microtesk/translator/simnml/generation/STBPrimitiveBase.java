@@ -28,6 +28,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFormat;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementStatus;
 import ru.ispras.microtesk.utils.FormatMarker;
 
@@ -109,6 +110,10 @@ final class StatementBuilder {
       case FORMAT:
         addStatement((StatementFormat) stmt);
         break;
+        
+      case FUNCALL:
+        addStatement((StatementFunctionCall) stmt);
+        break;
 
       default:
         assert false : String.format("Unsupported statement type: %s.", stmt.getKind());
@@ -179,6 +184,19 @@ final class StatementBuilder {
     }
 
     addStatement(String.format("String.format(\"%s\"%s);", stmt.getFormat(), sb.toString()));
+  }
+  
+  private void addStatement(StatementFunctionCall stmt) {
+    final StringBuffer sb = new StringBuffer();
+    for (int index = 0; index < stmt.getArgumentCount(); ++index) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+
+      sb.append(stmt.getArgument(index));
+    }
+
+    addStatement(String.format("%s(%s);", stmt.getName(), sb.toString()));
   }
 
   private void addStatement(StatementStatus stmt) {

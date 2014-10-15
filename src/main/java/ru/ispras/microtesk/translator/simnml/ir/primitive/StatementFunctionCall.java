@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,23 +14,30 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
-public abstract class Statement {
-  public static enum Kind {
-    CALL,
-    ASSIGN,
-    COND,
-    FORMAT,
-    STATUS,
-    FUNCALL
+public final class StatementFunctionCall extends Statement {
+  private final String name;
+  private final Object[] args;
+
+  StatementFunctionCall(String name, Object ... args) {
+    super(Kind.FUNCALL);
+
+    if (null == name) {
+      throw new NullPointerException();
+    }
+
+    this.name = name;
+    this.args = args;
   }
 
-  private final Kind kind;
-
-  Statement(Kind kind) {
-    this.kind = kind;
+  public String getName() {
+    return name;
   }
 
-  public final Kind getKind() {
-    return kind;
+  public int getArgumentCount() {
+    return args.length;
+  }
+
+  public Object getArgument(int index) {
+    return args[index];
   }
 }

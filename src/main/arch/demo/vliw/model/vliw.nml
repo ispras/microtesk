@@ -96,7 +96,7 @@ op ADD (rd : R, rs : R, rt : R)
   action = {
     temp = rs<31>::rs + rt<31>::rt;
     if temp<32> != temp<31> then
-      // SignalException("IntegerOverflow");
+      exception("IntegerOverflow");
     else
       rd = temp<31..0>;
     endif;
@@ -108,7 +108,7 @@ op ADDI (rt : R, rs : R, imm : SHORT)
   action = { 
     temp = rs<31>::rs + coerce(int(33), imm);
     if (temp<32> != temp<31>) then
-      // SignalException("IntegerOverflow");
+      exception("IntegerOverflow");
     else
       rt = temp<31..0>;
     endif;
@@ -120,7 +120,7 @@ op SUB (rd : R, rs : R, rt : R)
   action = {
     temp = rs<31>::rs - rt<31>::rt;
     if temp<32> != temp<31> then
-      // SignalException("IntegerOverflow");
+      exception("IntegerOverflow");
     else
       rd = temp<31..0>;
     endif;

@@ -117,4 +117,8 @@ public final class StatementFactory extends WalkerFactoryBase {
 
     return new StatementFormat(format, markers, args);
   }
+
+  public Statement createExceptionCall(Where where, String text){
+    return new StatementFunctionCall("exception", String.format("\"%s\"", text));
+  }
 }

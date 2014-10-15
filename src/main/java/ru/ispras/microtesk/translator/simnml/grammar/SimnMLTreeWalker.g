@@ -457,8 +457,11 @@ $res = $as.res;
 checkNotNull($cs.start, $cs.res, $cs.text);
 $res = $cs.res;
 }
-//  |  functionCall
-//  |  ERROR^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
+    |  fcs=functionCallStatement
+{
+checkNotNull($fcs.start, $fcs.res, $fcs.text);
+$res = $fcs.res;
+}
     ;
 
 attributeCallStatement returns [List<Statement> res]
@@ -522,7 +525,14 @@ elseStmt returns [StatementCondition.Block res]
 $res = StatementCondition.Block.newElseBlock($stmts.res);
 }
     ;
-
+    
+functionCallStatement returns [List<Statement> res]
+    :  ^(id=EXCEPTION str=STRING_CONST)
+{
+$res = Collections.singletonList(
+   getStatementFactory().createExceptionCall(where($id), $str.text));
+}
+    ;
 /*======================================================================================*/
 /* Extended Expression Rules                                                            */
 /*                                                                                      */

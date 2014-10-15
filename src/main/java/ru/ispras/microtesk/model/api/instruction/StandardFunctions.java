@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,25 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.simnml.ir.primitive;
+package ru.ispras.microtesk.model.api.instruction;
 
-public abstract class Statement {
-  public static enum Kind {
-    CALL,
-    ASSIGN,
-    COND,
-    FORMAT,
-    STATUS,
-    FUNCALL
-  }
-
-  private final Kind kind;
-
-  Statement(Kind kind) {
-    this.kind = kind;
-  }
-
-  public final Kind getKind() {
-    return kind;
+public abstract class StandardFunctions {
+  public static void exception(String text) {
+    System.out.println("Exception was raised: " + text);
   }
 }

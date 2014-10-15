@@ -342,8 +342,7 @@ statement
     |  ID DOT^ (ACTION | ID)
     |  location ASSIGN^ expr
     |  conditionalStatement
-//  |  functionCall
-//  |  ERROR^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
+    |  functionCallStatement
     ;
 
 conditionalStatement
@@ -360,6 +359,11 @@ elseIfStmt
 
 elseStmt
     :  ELSE^ sequence
+    ;
+    
+functionCallStatement
+    :  EXCEPTION^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
+//  |  ERROR^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
     ;
 
 /*======================================================================================*/

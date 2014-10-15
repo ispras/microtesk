@@ -183,6 +183,7 @@ ENUM                    :    'enum';
 /* Special function keywords */
 COERCE                  :    'coerce';
 FORMAT                  :    'format';
+EXCEPTION               :    'exception';
 
 /* Conditional keywords */
 IF                      :    'if';
