@@ -38,7 +38,7 @@ require ENV['TEMPLATE']
 #   addi(r(5), r(0), 10) do situation('normal') end
 # )
 #
-class VLIWDemo < Template
+class VliwDemo < Template
 
   def initialize
     super

@@ -26,7 +26,7 @@ require ENV['TEMPLATE']
 # algorithm.
 #
 
-class VLIWDemo < Template
+class VliwDemo < Template
 
   def initialize
     super

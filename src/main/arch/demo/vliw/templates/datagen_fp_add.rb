@@ -16,7 +16,7 @@
 
 require ENV['TEMPLATE']
 
-class VLIWDemo < Template
+class VliwDemo < Template
 
   def initialize
     super

@@ -22,7 +22,7 @@ require ENV['TEMPLATE']
 # This test template demonstrates the use of data generators 
 # for floating-point instructions in MicroTESK.
 #
-class VLIWDemo < Template
+class VliwDemo < Template
 
   def initialize
     super

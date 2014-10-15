@@ -28,7 +28,7 @@ require ENV['TEMPLATE']
 # demonstrate the use of loops in test templates.  
 #
 
-class VLIWDemo < Template
+class VliwDemo < Template
 
   def initialize
     super
