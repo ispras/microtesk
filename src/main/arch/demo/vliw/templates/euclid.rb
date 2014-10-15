@@ -26,7 +26,7 @@ require_relative 'base_template'
 # algorithm.
 #
 
-class VliwDemo < VliwDemoTemplate
+class Euclid < VliwDemoTemplate
 
   def initialize
     super

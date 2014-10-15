@@ -28,7 +28,7 @@ require_relative 'base_template'
 # demonstrate the use of loops in test templates.  
 #
 
-class VliwDemo < VliwDemoTemplate
+class EuclidWithLoop < VliwDemoTemplate
 
   def initialize
     super
