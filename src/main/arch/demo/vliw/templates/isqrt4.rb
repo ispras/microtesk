@@ -1,13 +1,5 @@
 #
-# Copyright (c) 2014 ISPRAS (www.ispras.ru)
-#
-# Institute for System Programming of Russian Academy of Sciences
-#
-# 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
-#
-# All rights reserved.
-#
-# isqrt4.rb, Oct 15, 2014 8:55:00 PM
+# Copyright 2014 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,7 +44,7 @@ class Isqrt4 < VliwDemoTemplate
     label :cycle    
     trace "\nCurrent register values: $1 = %d, $2 = %d, $3 = %d\n", gpr(1), gpr(2), gpr(3)
 
-	vliw (beq r(1), r(0), :done), (OR r(3), r(2), r(1))
+    vliw (beq r(1), r(0), :done), (OR r(3), r(2), r(1))
 
     vliw (srl r(2), r(2), 1), (slt r(6), r(4), r(3))   
     vliw (bne r(6), r(0), :if_less), nop
@@ -64,10 +56,6 @@ class Isqrt4 < VliwDemoTemplate
     
     label :done
     trace "\isqrt of #{i} : %d\n", gpr(2)
-  end
-
-  def gpr(index)
-    location('GPR', index)
   end
 
 end
