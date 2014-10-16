@@ -19,32 +19,69 @@ require_relative 'base_template'
 #
 # Description:
 #
-# The purpose of the Features test template is to demonstrate feaures of
+# The purpose of the Features test template is to demonstrate features of
 # MicroTESK. This includes test template facilities to describe instruction
 # calls, organize the control flow, set up instruction sequences, generate test
 # data for "interesting" situations, add text to the test program, etc. 
 #
 class Features < CpuDemoTemplate
 
+  #
+  # Template is initialized here (settings are applied).
+  #
   def initialize
     super
+
+    # States that this template is concrete class that can be used
+    # independently to generate a test program.
     @is_executable = true
 
-    @sl_comment_starts_with = ";" 
+    # Sets token for a single-line comment
+    @sl_comment_starts_with = ";"
+
+    # Sets starting token for a multi-line comment 
     @ml_comment_starts_with = "/="
-    @ml_comment_ends_with   = "=/" 
+
+    # Sets terminating token for a multi-line comment
+    @ml_comment_ends_with = "=/" 
   end
 
+  #
+  # The 'run' method contains the main code of the test case. Code that
+  # performs initialization and finalization is specified in the 'pre'
+  # and 'post' methods correspondingly (see the CpuDemoTemplate class
+  # in the 'base_template' file.
+  #
   def run
-    trace 'Main Section:'
-    comment 'Main Section Starts'
-    newline
+    ############################################################################
+    # Text-printing facilities
 
+    # Writes a message to the simulator log
+    trace 'Main Section:'
+    # Inserts a text to the generated test program
+    text 'Main Section:'
+
+    # Printing information on the state of the model (registers, memory)
+    # NOTE: trace obtains information on the model state during simulation,
+    # while text obtains it during test program generation when simulation
+    # is finished (concequently, it works with the most recent state).
+    trace 'GPR[0] = %s, M[0] = %s', location('GPR', 0), location('M', 0)
+    text  'GPR[0] = %s, M[0] = %s', location('GPR', 0), location('M', 0)
+
+    # Adds an empty line to the test program
+    newline
+    # Adds a single-line comment to the test program
+    comment 'Main Section Starts'
+
+    # Multi-line comments are created in the following way:
     start_comment
     text "Multiline comment. Line 1."
     text "Multiline comment. Line 2."
     text "Multiline comment. Line 3."
     end_comment
+    
+    ############################################################################
+    # Specifyting instruction calls
 
     # Addressing mode arguments as a hash map
     mov reg(:i => 0), imm(:i => 0xFF)
@@ -56,15 +93,34 @@ class Features < CpuDemoTemplate
     mov reg(3), reg(2)
     newline
 
-    # Random immediate values
+    ############################################################################
+    # Random instruction arguments
+
+    # Random values vi the 'rand' function.
+    # Values can be shared via a variable, for example 'ri'.
     mov reg(ri = rand(0, 15)), imm(5)
     add reg(4), reg(ri)
     newline
 
-    # Random immediate values via a test situation
+    # Random values via a test situation
     mov reg(ri = _), imm(_) do situation('imm_random', :min => 0, :max => 15) end
     add reg(5), reg(ri)
     newline
+    
+    ############################################################################
+    # Data generation
+    
+    # TODO
+    
+    ############################################################################
+    # How branching works
+
+    # TODO
+    
+    ############################################################################
+    # Building instruction sequences
+
+    # TODO
 
     #add m[10], r[15]                                     # Indexing register arrays
     #sub pc, pc do overflow(:op1 => 123, :op2 => 456) end # Situations with params
@@ -100,29 +156,6 @@ class Features < CpuDemoTemplate
       add mem(27), imm(28)
       sub mem(29), imm(30)
     # }
-
-    # newline
-    # text "// Block group sampling"
-    # newline
-
-#    block_group "my_group" do
-#          prob 0.2
-#          mov mem(30), mem(31)
-#          prob 0.2
-#          add mem(32), imm(41)
-#          prob 0.6
-#          sub mem(33), imm(42)
-#    end
-#
-#    15.times do
-#      my_group.sample
-#    end
-#
-#    newline
-#    text "// Block group - entire"
-#    newline
-#
-#    my_group.all
 
     comment 'Main Section Ends'
   end
