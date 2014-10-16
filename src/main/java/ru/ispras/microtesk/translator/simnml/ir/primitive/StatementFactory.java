@@ -110,6 +110,9 @@ public final class StatementFactory extends WalkerFactoryBase {
       return new StatementFormat(format, null, null);
     }
 
+    // TODO: Temporary hack to support labels. 
+    format = format.replaceAll("%<label>", "<label>%");
+
     final List<FormatMarker> markers = FormatMarker.extractMarkers(format);
     if (markers.size() != args.size()) {
       raiseError(where, String.format(WRONG_FORMAT_ARG_SPEC, markers.size(), args.size()));

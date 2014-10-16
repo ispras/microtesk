@@ -27,16 +27,37 @@ package ru.ispras.microtesk.test.template;
 
 public final class LabelReference {
   private final Label reference;
-  private final String primitiveName;
+  private final Primitive primitive;
   private final String argumentName;
   private final int argumentValue;
+
+  public static final class Target
+  {
+    private final Label label;
+    private final int position;
+
+    private Target(Label label, int position) {
+      this.label = label;
+      this.position = position;
+    }
+
+    public Label getLabel() {
+      return label;
+    }
+
+    public int getPosition() {
+      return position;
+    }
+  }
+
+  private Target target = null;
 
   /**
    * Constructs a label reference object.
    * 
    * @param labelName Name of the referred label.
    * @param blockId Identifier of the block from which the reference is made.
-   * @param primitiveName Name of the primitive (OP or MODE) the label reference was passed to as an
+   * @param primitive Primitive (OP or MODE) the label reference was passed to as an
    *        argument.
    * @param argumentName Name of the primitive (OP or MODE) argument the label reference is
    *        associated with.
@@ -47,7 +68,7 @@ public final class LabelReference {
    *         blockId or argumentName.
    */
 
-  LabelReference(String labelName, BlockId blockId, String primitiveName, String argumentName,
+  LabelReference(String labelName, BlockId blockId, Primitive primitive, String argumentName,
       int argumentValue) {
     if (null == labelName) {
       throw new NullPointerException();
@@ -57,7 +78,7 @@ public final class LabelReference {
       throw new NullPointerException();
     }
 
-    if (null == primitiveName) {
+    if (null == primitive) {
       throw new NullPointerException();
     }
 
@@ -66,7 +87,7 @@ public final class LabelReference {
     }
 
     this.reference = new Label(labelName, blockId);
-    this.primitiveName = primitiveName;
+    this.primitive = primitive;
     this.argumentName = argumentName;
     this.argumentValue = argumentValue;
   }
@@ -85,14 +106,14 @@ public final class LabelReference {
   }
 
   /**
-   * Returns the name of the primitive (OP or MODE) the label reference was passed to as an
+   * The primitive (OP or MODE) the label reference was passed to as an
    * argument.
    * 
-   * @return Name of the primitive the label reference was passed to.
+   * @return Primitive the label reference was passed to.
    */
 
-  public String getPrimitiveName() {
-    return primitiveName;
+  public Primitive getPrimitive() {
+    return primitive;
   }
 
   /**
@@ -116,9 +137,29 @@ public final class LabelReference {
     return argumentValue;
   }
 
+  public Target getTarget() {
+    return target;
+  }
+
+  public void setTarget(Label label, int position) {
+    if (null == label) {
+      throw new NullPointerException();
+    }
+
+    if (position < 0) {
+      throw new IllegalArgumentException();
+    }
+
+    target = new Target(label, position);
+  }
+
+  public void resetTarget() {
+    target = null;
+  }
+
   @Override
   public String toString() {
     return String.format("Reference: %s (passed to %s via the %s paramever with value %d)",
-      reference, primitiveName, argumentName, argumentValue);
+      reference, primitive.getName(), argumentName, argumentValue);
   }
 }

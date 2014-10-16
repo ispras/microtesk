@@ -76,11 +76,44 @@ final class Executor {
       throw new NullPointerException();
     }
 
-    // Remember all labels defined by the sequence and its positions.
+    // Remembers all labels defined by the sequence and its positions.
     final LabelManager labelManager = new LabelManager();
     for (int index = 0; index < sequence.size(); ++index) {
       final ConcreteCall call = sequence.get(index);
       labelManager.addAllLabels(call.getLabels(), index);
+    }
+
+    // Resolves all label references and patches the instruction call text accordingly.
+    for (int index = 0; index < sequence.size(); ++index) {
+      final ConcreteCall call = sequence.get(index);
+      call.resetText();
+
+      for (LabelReference labelRef : call.getLabelReferences()) {
+        labelRef.resetTarget();
+
+        final Label source = labelRef.getReference();
+        final LabelManager.Target target = labelManager.resolve(source);
+
+        if (null == target) {
+          logText(String.format(MSG_FAILED_TO_RESOLVE, source.getName()));
+          continue;
+        }
+
+        labelRef.setTarget(target.getLabel(), target.getPosition());
+
+        // TODO: TEMPORARY IMPLEMENTATION
+        final String searchPattern = 
+           String.format("<label>%d", labelRef.getArgumentValue());
+        final String patchedText =
+           call.getText().replace(searchPattern, target.getLabel().getUniqueName());
+
+        call.setText(patchedText);
+      }
+
+      // Kill all unused "<label>" markers.
+      if (null != call.getText()) {
+        call.setText(call.getText().replace("<label>", ""));
+      }
     }
 
     int currentPos = 0;
@@ -88,7 +121,7 @@ final class Executor {
 
     while (currentPos < endPos) {
       final ConcreteCall call = sequence.get(currentPos);
-      currentPos = executeCall(labelManager, call, currentPos);
+      currentPos = executeCall(call, currentPos);
     }
   }
 
@@ -99,7 +132,6 @@ final class Executor {
    * method fails to deal with a control transfer in a proper way it prints a warning message and
    * returns the position of the instruction call that immediately follows the current one.
    * 
-   * @param labelManager Label manager to resolve label references.
    * @param call Instruction call to be executed.
    * @param currentPos Position of the current call.
    * @return Position of the next instruction call to be executed.
@@ -108,7 +140,7 @@ final class Executor {
    *         instruction call.
    */
 
-  private int executeCall(LabelManager labelManager, ConcreteCall call, int currentPos)
+  private int executeCall(ConcreteCall call, int currentPos)
       throws ConfigurationException {
     logOutputs(call.getOutputs());
 
@@ -139,14 +171,14 @@ final class Executor {
       return currentPos + 1;
     }
 
-    final Label referenceLabel = labelRefs.get(0).getReference();
-    final LabelManager.Target target = labelManager.resolve(referenceLabel);
+    final LabelReference reference = labelRefs.get(0);
+    final LabelReference.Target target = reference.getTarget();
 
     // Resets labels to jump (they are no longer needed after being used).
     labelRefs = null;
 
     if (null == target) {
-      logText(String.format(MSG_NO_LABEL_DEFINED, referenceLabel.getName()));
+      logText(String.format(MSG_NO_LABEL_DEFINED, reference.getReference().getName()));
       return currentPos + 1;
     }
 
@@ -187,8 +219,12 @@ final class Executor {
       PrintingUtils.trace(text);
     }
   }
+  
+  private static final String MSG_FAILED_TO_RESOLVE =
+    "Warning: Failed to resolve a reference to the %s label. ";
 
-  private static final String MSG_HAVE_TO_CONTINUE = "Have to continue to the next instruction.";
+  private static final String MSG_HAVE_TO_CONTINUE =
+    "Have to continue to the next instruction.";
 
   private static final String MSG_NO_LABEL_LINKED =
     "Warning: No label to jump is linked to the current instruction. " + MSG_HAVE_TO_CONTINUE;

@@ -421,13 +421,15 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     void checkValidArgument(Argument arg);
     void checkAllArgumentsAssigned(Set<String> argNames);
   }
-
+ 
   private final CallBuilder callBuilder;
   private final Strategy strategy;
   private final Kind kind;
   private final Map<String, Argument> args;
   private String contextName;
   private Situation situation;
+
+  private final LazyPrimitive lazyPrimitive; // Needed for label references.
 
   PrimitiveBuilderCommon(CallBuilder callBuilder, MetaOperation metaData, String contextName) {
     this(callBuilder, new StrategyOperation(metaData, contextName), Kind.OP, contextName);
@@ -447,6 +449,9 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     this.args = new LinkedHashMap<String, Argument>();
     this.contextName = contextName;
     this.situation = null;
+
+    this.lazyPrimitive = new LazyPrimitive(
+      kind, strategy.getName(), strategy.getTypeName());
   }
 
   private void putArgument(Argument arg) {
@@ -456,7 +461,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   public Primitive build() {
     checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
 
-    return new ConcretePrimitive(
+    final Primitive primitive = new ConcretePrimitive(
       kind,
       getName(),
       strategy.getTypeName(),
@@ -465,6 +470,9 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
       contextName,
       situation
       );
+
+    lazyPrimitive.setSource(primitive);
+    return primitive;
   }
 
   @Override
@@ -544,7 +552,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final int fakeValue = 0;
     setArgument(name, fakeValue);
 
-    callBuilder.addLabelReference(value, getName(), name, fakeValue);
+    callBuilder.addLabelReference(value, lazyPrimitive, name, fakeValue);
   }
 
   public void setArgument(String name, RandomValue value) {

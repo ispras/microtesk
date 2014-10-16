@@ -57,13 +57,13 @@ public final class CallBuilder {
     labels.add(label);
   }
 
-  public void addLabelReference(String labelName, String primitiveName, String argumentName,
+  public void addLabelReference(String labelName, Primitive primitive, String argumentName,
       int argumentValue) {
     if (null == labelName) {
       throw new NullPointerException();
     }
 
-    if (null == primitiveName) {
+    if (null == primitive) {
       throw new NullPointerException();
     }
 
@@ -71,8 +71,8 @@ public final class CallBuilder {
       throw new NullPointerException();
     }
 
-    final LabelReference labelRef =
-      new LabelReference(labelName, blockId, primitiveName, argumentName, argumentValue);
+    final LabelReference labelRef = new LabelReference(
+      labelName, blockId, primitive, argumentName, argumentValue);
 
     System.out.println(labelRef.toString());
     labelRefs.add(labelRef);

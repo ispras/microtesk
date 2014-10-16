@@ -25,6 +25,8 @@ public final class ConcreteCall {
   private final List<Output> outputs;
   private final InstructionCall executable;
 
+  private String text = null;
+
   public ConcreteCall(Call abstractCall, InstructionCall executable) {
     if (null == abstractCall) {
       throw new NullPointerException();
@@ -38,6 +40,8 @@ public final class ConcreteCall {
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
+
+    resetText();
   }
 
   public ConcreteCall(Call abstractCall) {
@@ -49,6 +53,8 @@ public final class ConcreteCall {
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = null;
+    
+    resetText();
   }
 
   public ConcreteCall(InstructionCall executable) {
@@ -60,6 +66,8 @@ public final class ConcreteCall {
     this.labelRefs = Collections.<LabelReference>emptyList();
     this.outputs = Collections.<Output>emptyList();
     this.executable = executable;
+    
+    resetText();
   }
 
   public boolean isExecutable() {
@@ -73,7 +81,19 @@ public final class ConcreteCall {
   }
 
   public String getText() {
-    return isExecutable() ? executable.getText() : null;
+    return text;
+  }
+
+  public void setText(String text) {
+    if (null == text) {
+      throw new NullPointerException();
+    }
+
+    this.text = text;
+  }
+
+  public void resetText() {
+    this.text = isExecutable() ? executable.getText() : null;
   }
 
   public List<Label> getLabels() {

@@ -244,7 +244,7 @@ op SW (base : R, rt : R, offset : SHORT)
 // Branch Instructions
 
 op B (offset : SHORT)
-  syntax = format("B %d", offset)
+  syntax = format("B %<label>d", offset)
   image  = format("0001000000000000%s", offset)
   action = {
     // Informs that control transfer is to be performed
@@ -254,7 +254,7 @@ op B (offset : SHORT)
   }
 
 op BEQ (rs : R, rt : R, offset : SHORT)
-  syntax = format("BEQ %s, %s, %d", rs.syntax, rt.syntax, offset)
+  syntax = format("BEQ %s, %s, %<label>d", rs.syntax, rt.syntax, offset)
   image  = format("000100%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs == rt then
@@ -266,7 +266,7 @@ op BEQ (rs : R, rt : R, offset : SHORT)
   }
 
 op BNE (rs : R, rt : R, offset : SHORT)
-  syntax = format("BNE %s, %s, %d", rs.syntax, rt.syntax, offset)
+  syntax = format("BNE %s, %s, %<label>d", rs.syntax, rt.syntax, offset)
   image  = format("000101%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs != rt then
@@ -419,7 +419,7 @@ op MOVZ_S (fd : F, fs : F, rt : R)
 // Branch Instructions for Floating Point
 
 op BFF (cc : COND_CODE, offset : SHORT)
-  syntax = format("BFF %d, %d", cc, offset)
+  syntax = format("BFF %d, %<label>d", cc, offset)
   image  = format("01000101000%s00%s", cc, offset)
   action = {
     if (FCCR<cc> == 0) then
@@ -431,7 +431,7 @@ op BFF (cc : COND_CODE, offset : SHORT)
   }
 
 op BFT (cc : COND_CODE, offset : SHORT)
-  syntax = format("BFT %d, %s", cc, offset)
+  syntax = format("BFT %d, %<label>d", cc, offset)
   image  = format("01000101000%s01%s", cc, offset)
   action = {
     if (FCCR<cc> == 1) then
@@ -507,7 +507,7 @@ op channel2 = ALU
 // Very Long Instruction Word
 
 op vliw (c1: channel1, c2: channel2)
-  syntax = format("%s, %s;", c1.syntax, c2.syntax)
+  syntax = format("%s; %s;", c1.syntax, c2.syntax)
   image  = format("%s%s", c1.image, c2.image)
   action = {
     NIA = CIA + 2 * INSTRUCTION_WORD_SIZE;
