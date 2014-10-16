@@ -43,7 +43,7 @@ class VliwDemo < VliwDemoTemplate
 
     vliw(
       (sub_s f(13), f(13), f(14) do situation('fp.sub', :case => 'underflow', :exp => 8, :frac => 23) end),
-      (sub_s f(15), f(15), f(0) do situation('fp.sub', :case => 'inexact', :exp => 8, :frac => 23) end) 
+      (sub_s f(15), f(15), f(0)  do situation('fp.sub', :case => 'inexact', :exp => 8, :frac => 23) end) 
     )
 
     trace_all_fprs
