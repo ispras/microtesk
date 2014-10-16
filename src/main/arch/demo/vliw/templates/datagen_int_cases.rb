@@ -19,10 +19,11 @@ require_relative 'base_template'
 #
 # Description:
 #
-# This test template demonstrates the use of test situations and 
-# data generators in MicroTESK.
+# This test template demonstrates how to generate test cases 
+# for integer arithmetics. This includes situations
+# 'Normal' and 'Overflow' for integer addition and subtraction. 
 #
-class VliwDemo < VliwDemoTemplate
+class IntegerArithmeticCases < VliwDemoTemplate
 
   def initialize
     super
@@ -30,6 +31,7 @@ class VliwDemo < VliwDemoTemplate
   end
 
   def run
+    # Prints initial state (after initialization)
     trace_all_gprs
 
     vliw(
@@ -38,10 +40,11 @@ class VliwDemo < VliwDemoTemplate
     )
 
     vliw(
-      (sub r(7), r(8), r(9) do situation('sub', :case => 'normal', :size => 32) end),
+      (sub r(7),   r(8),  r(9) do situation('sub', :case => 'normal', :size => 32) end),
       (sub r(10), r(11), r(12) do situation('sub', :case => 'overflow', :size => 32) end)
     )
 
+    # Prints resulting state
     trace_all_gprs
   end
 

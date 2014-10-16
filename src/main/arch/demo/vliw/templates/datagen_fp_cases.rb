@@ -16,7 +16,15 @@
 
 require_relative 'base_template'
 
-class VliwDemo < VliwDemoTemplate
+#
+# Description:
+#
+# This test template demonstrates how to generate test cases 
+# for floating-point arithmetics. This includes situations
+# 'Normal', 'Overflow', 'Underflow' and 'Inexact' for floating-point
+# addition and subtraction. 
+#
+class FPArithmeticCases < VliwDemoTemplate
 
   def initialize
     super
@@ -24,6 +32,7 @@ class VliwDemo < VliwDemoTemplate
   end
 
   def run
+    # Prints initial state (after initialization)
     trace_all_fprs
 
     vliw(
@@ -46,9 +55,11 @@ class VliwDemo < VliwDemoTemplate
       (sub_s f(15), f(15), f(0)  do situation('fp.sub', :case => 'inexact', :exp => 8, :frac => 23) end) 
     )
 
+    # Prints resulting state
     trace_all_fprs
   end
 
+  # Prints values of all involved FPRs
   def trace_all_fprs
     trace ''
     (0..15).each { |index| trace_fpr index }
