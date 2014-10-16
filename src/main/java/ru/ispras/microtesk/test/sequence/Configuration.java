@@ -44,7 +44,7 @@ public class Configuration<T> {
     // Available compositors
     compositors.put(ECompositor.CATENATION.name(), CatenationCompositor.class);
     compositors.put(ECompositor.ROTATION.name(), RotationCompositor.class);
-    compositors.put(ECompositor.CATENATION.name(), OverlappingCompositor.class);
+    compositors.put(ECompositor.OVERLAPPING.name(), OverlappingCompositor.class);
     compositors.put(ECompositor.NESTING.name(), NestingCompositor.class);
     compositors.put(ECompositor.RANDOM.name(), RandomCompositor.class);
   }
