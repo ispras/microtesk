@@ -40,7 +40,7 @@ type SINGLE = float(23, 9)
 type COND_CODE = card(3)
 
 ////////////////////////////////////////////////////////////////////////////////
-// Memory and Registers
+// Registers and Memory
 
 reg GPR [2 ** REG_INDEX_SIZE, LONG]
 reg FPR [2 ** REG_INDEX_SIZE, SINGLE]

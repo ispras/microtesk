@@ -21,41 +21,70 @@
  * Provided to demonstrate various features of Sim-nML.
  */
 
-let COMMENT = "This is a demo Sim-nML specification."
+////////////////////////////////////////////////////////////////////////////////
+// Constants
 
-let MSIZE = 2 ** 8
-let  REGS = 16
+let    MEM_SIZE = 2 ** 8 // Memory size, 2 to the power of 8
+let  REG_NUMBER = 16     // Number of general-purpose registers
 
-type  index = card(8)
-type nibble = card(4)
-type byte_t = int(8)
+////////////////////////////////////////////////////////////////////////////////
+// Types
 
-mem  M[MSIZE, byte_t]
-reg  R[REGS,  byte_t]
-reg PC[1,     index]
+type  INDEX = card(8) // 8-bit unsigned integer 
+type NIBBLE = card(4) // 4-bit unsigned integer
+type   BYTE = int(8)  // 8-bit signed integer
 
-var SRC1[1, byte_t]
-var SRC2[1, byte_t]
-var DEST[1, byte_t]
+////////////////////////////////////////////////////////////////////////////////
+// Registers and Memory
 
-mode IMM(i: byte_t) = i
-  syntax = format("[%d]", i)
-  image  = format("11%4b", i)
+// General-purpose registers. 
+reg GPR[REG_NUMBER, BYTE] // Format: <name>[<number>, <type>]
 
-mode MEM(i: index) = M[i]
-  syntax = format("(%d)", i)
-  image  = format("%6b", i)
+// A register for storing the program counter. 
+reg PC[INDEX] // This format means that there is 1 register of type INDEX
 
-mode IREG(i: nibble) = M[R[i]]
-  syntax = format("(R%d)", i)
-  image  = format("00%4b", i)
+// A memory line
+mem M[MEM_SIZE, BYTE]
 
-mode REG(i: nibble) = R[i]
+////////////////////////////////////////////////////////////////////////////////
+// Temporary Variables 
+//
+// They are not preserved across instruction calls and serve to exchange data
+// between operations that make up an instruction. 
+
+var SRC1[BYTE]
+var SRC2[BYTE]
+var DEST[BYTE]
+
+////////////////////////////////////////////////////////////////////////////////
+// Addressing Modes
+
+// An addressing mode for an immediate value. 
+mode IMM(i: BYTE) = i         // Value expression
+  syntax = format("[%d]", i)  // Textual format
+  image  = format("11%4b", i) // Binary format
+
+// An addressing mode for a register access.
+mode REG(i: NIBBLE) = GPR[i]
   syntax = format("R%d", i)
   image  = format("01%4b", i)
 
+// An addressing mode for a memory access.
+mode MEM(i: INDEX) = M[i]
+  syntax = format("(%d)", i)
+  image  = format("%6b", i)
+
+// An addressing mode for an indirect memory access.
+mode IREG(i: NIBBLE) = M[GPR[i]]
+  syntax = format("(R%d)", i)
+  image  = format("00%4b", i)
+
+// Addressing modes are united into groups.
 mode OPRNDL = MEM | REG | IREG
 mode OPRNDR = OPRNDL | IMM
+
+////////////////////////////////////////////////////////////////////////////////
+// Arithmetic and Logic Instructions
 
 op ADD()
   syntax = "add"
@@ -72,31 +101,47 @@ op MOV()
   image  = "10"
   action = { DEST = SRC2; }
 
-op ADD_SUB_MOV = ADD | SUB | MOV
+// A common alias for ADD, SUB and MOV
+op ALU = ADD | SUB | MOV
 
-op arith_mem_instr(y: ADD_SUB_MOV, op1: OPRNDL, op2: OPRNDR)
-  syntax = format("%s %s %s", y.syntax, op1.syntax, op2.syntax)
-  image  = format("%s %s 00%s", y.image, op1.image, op2.image)
+// A common specification of all ALU instructions that describes their common
+// format, performs all common actions and delegates unique responsibilities 
+// to specific operations (or subinstructions).  
+
+op alu_instr(command: ALU, op1: OPRNDL, op2: OPRNDR)
+  syntax = format("%s %s %s", command.syntax, op1.syntax, op2.syntax)
+  image  = format("%s%s00%s", command.image, op1.image, op2.image)
   action = {
     SRC1 = op1;
     SRC2 = op2;
-    y.action;
+    command.action;
     op1 = DEST;
     PC = PC + 2;
   }
 
-op J (target : index)
-  syntax = format("j %d", target)
+////////////////////////////////////////////////////////////////////////////////
+// Control Transfer Instructions
+
+// Transfers control to the specified address.
+//
+// IMPORTANT NOTE: The target address can be specified via a label. In order to
+// use the label name rather than an address constant in the generated test
+// program, the <label> tag should be included in the specification of
+// instruction's syntax. It must be put between the '%' character and the
+// converter token (e.g 'd'). See the code below.
+
+op J (target : INDEX)
+  syntax = format("j %<label>d", target)
   image  = format("011%b", target)
   action = { PC = target; }
 
-op JR (rs : REG)
-  syntax = format("jr %s", rs.syntax)
-  image  = format("101%s", rs.image)		      
-  action = { PC = rs; }
-
 op branch_instr = J 
-                | JR
 
-op instruction = arith_mem_instr
+////////////////////////////////////////////////////////////////////////////////
+// Entry Point
+//
+// By nML conventions, the "instruction" operation is the root of the tree 
+// describing a microprocessor ISA.
+
+op instruction = alu_instr
                | branch_instr 
