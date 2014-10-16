@@ -74,13 +74,8 @@ mode MEM(i: INDEX) = M[i]
   syntax = format("(%d)", i)
   image  = format("%6b", i)
 
-// An addressing mode for an indirect memory access.
-mode IREG(i: NIBBLE) = M[GPR[i]]
-  syntax = format("(R%d)", i)
-  image  = format("00%4b", i)
-
 // Addressing modes are united into groups.
-mode OPRNDL = MEM | REG | IREG
+mode OPRNDL = MEM | REG
 mode OPRNDR = OPRNDL | IMM
 
 ////////////////////////////////////////////////////////////////////////////////

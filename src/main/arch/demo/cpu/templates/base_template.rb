@@ -27,6 +27,9 @@ require ENV['TEMPLATE']
 #
 class CpuDemoTemplate < Template
 
+  #
+  # Template is initialized here (settings for this template are applied).
+  #
   def initialize
     super
 
@@ -37,7 +40,34 @@ class CpuDemoTemplate < Template
     @is_executable = false
   end
 
+  #
+  # Initialization section. Contains code to be inserted in the beginning of
+  # of a test case. It also contains descriptions of preparators. A preparator
+  # is a rule used by test data generators to creation initialization 
+  # sequences of instructions. This sequences assign the generated values to 
+  # corresponding registers and addresses and are inserted in the beginning of 
+  # the test program.  
+  #
   def pre
+    #
+    # The code below specifies an instruction sequence that writes a value
+    # to the specified general-purpose register (GPR) using the REG addressing
+    # mode.
+    #
+    preparator(:target => 'REG') {
+      comment 'Initializer for REG'  
+      mov target, imm(value)  
+    }
+
+    #
+    # The code below specifies an instruction sequence that writes a value
+    # to the specified memory address using the MEM addressing mode.
+    #
+    preparator(:target => 'MEM') {
+      comment 'Initializer for MEM'  
+      mov target, imm(value)  
+    }
+
     trace 'Initialization:'
     comment 'Initialization Section Starts'
     add mem(:i => 12), mem(:i => 13)
@@ -45,6 +75,10 @@ class CpuDemoTemplate < Template
     newline
   end
 
+  #
+  # Finalization section. Contains code to be inserted in the end
+  # of a test case.
+  #
   def post
     newline
     trace 'Finalization:'

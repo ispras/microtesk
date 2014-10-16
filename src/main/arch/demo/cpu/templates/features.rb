@@ -102,16 +102,21 @@ class Features < CpuDemoTemplate
     add reg(4), reg(ri)
     newline
 
-    # Random values via a test situation
+    # Random values via a test situation.
+    # Values to be generated are specified as '_'. 
     mov reg(ri = _), imm(_) do situation('imm_random', :min => 0, :max => 15) end
     add reg(5), reg(ri)
     newline
     
     ############################################################################
     # Data generation
-    
-    # TODO
-    
+
+    # All registers are filled with zeros.
+    add reg(1), reg(2) do situation('zero', :size => 8) end
+
+    # Random registers are filled with random values.
+    add reg(_), reg(_) do situation('random', :size => 8, :min_imm => 0, :max_imm => 15) end
+
     ############################################################################
     # How branching works
 
