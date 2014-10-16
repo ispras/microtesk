@@ -116,51 +116,51 @@ class Features < CpuDemoTemplate
 
     # Random registers are filled with random values.
     add reg(_), reg(_) do situation('random', :size => 8, :min_imm => 0, :max_imm => 15) end
+    newline
+
+    # 'Normal' and 'Overflow' situations for integer addition.
+    add reg(3), reg(4) do situation('add', :case => 'normal', :size => 8) end
+    add reg(5), reg(6) do situation('add', :case => 'overflow', :size => 8) end
+    newline
+
+    # 'Normal' and 'Overflow' situations for integer addition.
+    sub reg(7), reg(8) do situation('sub', :case => 'normal', :size => 8) end
+    sub reg(9), reg(10) do situation('sub', :case => 'overflow', :size => 8) end
+    newline
 
     ############################################################################
     # How branching works
 
-    # TODO
-    
+    # Incrementally descreases value stored in GPR[11] from 5 to 0.
+    # Control transfer is performed using labels that are specified
+    # in the following way: label :<label_name> 
+
+    mov reg(11), imm(5)
+    label :start
+    trace "GPR[11] = %d", location('GPR', 11)
+    jz reg(11), :end
+    sub reg(11), imm(1)
+    j :start
+    label :end
+    endline
+
     ############################################################################
     # Building instruction sequences
 
-    # TODO
+    # Instruction sequences are described as blocks that use two kind of
+    # sequence generators: (1) compositors and (2) combinators.
+    # Supported compositors: CATENATION, ROTATION, OVERLAPPING, NESTING, RANDOM
+    # Supported combinators: PRODUCT, DIAGONAL, RANDOM    
 
-    #add m[10], r[15]                                     # Indexing register arrays
-    #sub pc, pc do overflow(:op1 => 123, :op2 => 456) end # Situations with params
-    #mov ({:name => :value}), m, pc[0]                    # Instruction attribute
-    #newline                                              # Newline
-    #text "// This is a really, really useless test"      # Custom/comment text
-    #newline
-    #sub m[10..20], m[k=rand(0...16)]                     # Ranges as array index
-    #newline
-    #3.times do
-    #  sub m, r
-    #  mov r[1], r[k] do normal end                       # Situations w/o params
-    #  newline
-    #end
-    #newline
-    #(1..5).each do |i|
-    #  mov m[i], m[i+1]                                   # Ruby being smart
-    #end
-
-    # newline
-    # text "// Basic instructions"
-    # newline
-
-    add mem(:i => 1), mem(:i => 1)
-    sub mem(:i => 2), imm(4)
-
-    # newline
-    # text "// Atomic block"
-    # newline
-
-    # atomic {
-      mov mem(25), mem(26)
-      add mem(27), imm(28)
-      sub mem(29), imm(30)
-    # }
+    # Randomized sequence
+    comment 'Randomized sequence'
+    block(:compositor => "RANDOM", :combinator => "RANDOM") {
+      (1..3).each { # Repeat 3 times
+        add reg(_), imm(_) do situation('imm_random', :min => 0, :max => 15) end
+        sub reg(_), reg(_) do situation('imm_random', :min => 0, :max => 15) end
+        mov reg(_), reg(_) do situation('imm_random', :min => 0, :max => 15) end
+      }
+    }
 
     comment 'Main Section Ends'
   end

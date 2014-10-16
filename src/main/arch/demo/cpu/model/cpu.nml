@@ -130,7 +130,17 @@ op J (target : INDEX)
   image  = format("011%b", target)
   action = { PC = target; }
 
-op branch_instr = J 
+// Transfers control to the specified address if source equals 0.
+op JZ (source: OPRNDL, target : INDEX)
+  syntax = format("jz %<label>d", target)
+  image  = format("111%b", target)
+  action = {
+    if source == 0 then
+      PC = target;
+    endif;
+  }
+
+op branch_instr = J | JZ 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Entry Point
