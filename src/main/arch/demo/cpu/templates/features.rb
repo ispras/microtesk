@@ -142,7 +142,7 @@ class Features < CpuDemoTemplate
     sub reg(11), imm(1)
     j :start
     label :end
-    endline
+    newline
 
     ############################################################################
     # Building instruction sequences
