@@ -22,7 +22,7 @@ require_relative 'base_template'
 # This test template demonstrates the use of data generators 
 # for floating-point instructions in MicroTESK.
 #
-class VliwDemo < VliwDemoTemplate
+class FPDataGeneration < VliwDemoTemplate
 
   def initialize
     super

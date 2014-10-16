@@ -20,9 +20,9 @@ require_relative 'base_template'
 # Description:
 #
 # This test template demonstrates the use of test situations and 
-# data generators in MicroTESK.
+# data generators in MicroTESK (generating integer values).
 #
-class VliwDemo < VliwDemoTemplate
+class IntegerDataGeneration < VliwDemoTemplate
 
   def initialize
     super
