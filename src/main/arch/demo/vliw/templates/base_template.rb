@@ -26,6 +26,28 @@ require ENV['TEMPLATE']
 #
 class VliwDemoTemplate < Template
 
+  #
+  # Possible syntax styles to address the VLIW ISA:
+  #
+  # Style 1:
+  #
+  # vliw(
+  #   (addi r(4), r(0), 5  do situation('overflow') end),
+  #   (addi r(5), r(0), 10 do situation('normal') end)
+  # )
+  #
+  # Style 2:
+  #
+  # vliw(
+  #   addi(r(4), r(0), 5)  do situation('overflow') end,
+  #   addi(r(5), r(0), 10) do situation('normal') end
+  # )
+  #
+  
+  ##############################################################################
+  # Constructor of the class. Place where all settings for this template are
+  # applied.
+
   def initialize
     super
 

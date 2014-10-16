@@ -22,23 +22,6 @@ require_relative 'base_template'
 # This test template demonstrates the use of test situations and 
 # data generators in MicroTESK.
 #
-# Possible syntax styles:
-#
-# Style 1:
-#
-# vliw(
-#   (addi r(4), r(0), 5  do situation('overflow') end),
-#   (addi r(5), r(0), 10 do situation('normal') end)
-# )
-#
-# Style 2:
-#
-# vliw(
-#   addi(r(4), r(0), 5)  do situation('overflow') end,
-#   addi(r(5), r(0), 10) do situation('normal') end
-# )
-#
-
 class VliwDemo < VliwDemoTemplate
 
   def initialize
