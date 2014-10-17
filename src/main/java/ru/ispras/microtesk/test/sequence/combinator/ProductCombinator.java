@@ -22,13 +22,8 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class ProductCombinator<T> extends Combinator<T> {
-  // / The current iterator index.
-  private int i;
-
   @Override
-  public void onInit() {
-    i = iterators.size() - 1;
-  }
+  public void onInit() {}
 
   @Override
   public T getValue(int i) {
@@ -38,20 +33,18 @@ public class ProductCombinator<T> extends Combinator<T> {
 
   @Override
   public boolean doNext() {
-    for (int j = i; j >= 0; j--) {
+    for (int j = iterators.size() - 1; j >= 0; j--) {
       final IIterator<T> iterator = iterators.get(j);
+
       if (iterator.hasValue()) {
         iterator.next();
 
         if (iterator.hasValue()) {
-          i = j;
           return true;
         }
       }
 
-      if (j > 0) {
-        iterator.init();
-      }
+      iterator.init();
     }
 
     return false;
