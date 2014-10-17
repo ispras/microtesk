@@ -40,11 +40,11 @@ def self.main
   Template.set_model model
 
   template_classes = prepare_template_classes(model, template_file)
-  template_classes.each do |template_class|
+  template_classes.each do |template_class, template_class_file|
     begin
-      template = template_class.new
-      if template.is_executable
-        puts "Processing %s..." % File.basename(template_class.instance_method(:run).source_location.first)
+      if template_class_file.eql?(template_file)
+        puts "Processing #{template_class} defined in #{template_class_file}..." 
+        template = template_class.new
         template.generate output_file
       end
     rescue Exception => e

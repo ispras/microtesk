@@ -27,14 +27,10 @@ require_relative 'cpu_base'
 class ExampleTemplate < CpuBaseTemplate
 
   #
-  # Template is initialized here (settings are applied).
+  # Template settings are overridden here.
   #
   def initialize
     super
-
-    # States that this template is concrete class that can be used
-    # independently to generate a test program.
-    @is_executable = true
 
     # Sets token for a single-line comment
     @sl_comment_starts_with = ";"

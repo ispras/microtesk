@@ -24,11 +24,6 @@ require_relative 'vliw_base'
 #
 class IntExampleTemplate < VliwBaseTemplate
 
-  def initialize
-    super
-    @is_executable = true
-  end
-
   def run
     # Random immediate values: rand(min, max)
     comment 'rand(0, 31)'

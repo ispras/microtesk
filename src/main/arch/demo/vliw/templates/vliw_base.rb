@@ -45,20 +45,6 @@ class VliwBaseTemplate < Template
   #
   
   ##############################################################################
-  # Constructor of the class. Place where all settings for this template are
-  # applied.
-
-  def initialize
-    super
-
-    # This line means that VliwDemoTemplate is designed for reuse only. It is
-    # an abstract class to be inherited by other test templates and it cannot
-    # be used as an independent test template to generate a test program.
-
-    @is_executable = false
-  end
-  
-  ##############################################################################
   # Initialization Section
   
   def pre

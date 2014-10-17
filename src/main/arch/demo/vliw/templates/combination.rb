@@ -25,11 +25,6 @@ require_relative 'vliw_base'
 
 class CombinationTemplate < VliwBaseTemplate
 
-  def initialize
-    super
-    @is_executable = true
-  end
-
   def run
     # Randomized sequence
     comment "Randomized sequence"

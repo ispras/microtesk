@@ -28,19 +28,6 @@ require ENV['TEMPLATE']
 class CpuBaseTemplate < Template
 
   #
-  # Template is initialized here (settings for this template are applied).
-  #
-  def initialize
-    super
-
-    # This line means that CpuDemoTemplate is designed for reuse only. It is an
-    # abstract class to be inherited by other test templates and it cannot be
-    # used as an independent test template to generate a test program.
-
-    @is_executable = false
-  end
-
-  #
   # Initialization section. Contains code to be inserted in the beginning of
   # of a test case. It also contains descriptions of preparators. A preparator
   # is a rule used by test data generators to creation initialization 

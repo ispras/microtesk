@@ -28,11 +28,6 @@ require_relative 'vliw_base'
 
 class EuclidTemplate < VliwBaseTemplate
 
-  def initialize
-    super
-    @is_executable = true
-  end
-
   def run
     trace "Euclidean Algorithm: Debug Output"
 

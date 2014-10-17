@@ -24,11 +24,6 @@ require_relative 'vliw_base'
 #
 class FpExampleTemplate < VliwBaseTemplate
 
-  def initialize
-    super
-    @is_executable = true
-  end
-
   def run
     # Adding and subtracting data in random floating-point registers.
     comment 'imm_random (:min => 1, :max => 31)' 

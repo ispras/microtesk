@@ -31,13 +31,6 @@ include TemplateBuilder
 #
 module Settings
 
-  # Specifies whether the template is a concrete template used as
-  # a basis for test generation or it is an abstract template designed
-  # to be reused by other test templates that inherit from it. In the
-  # latter case, no tests are generated.
-  # TODO: This feature needs to be reviewed.
-  attr_reader :is_executable
-
   # Print the generated code to the console.
   attr_reader :use_stdout
 
@@ -57,7 +50,6 @@ module Settings
   # Assigns default values to the attributes.
   # 
   def initialize
-    @is_executable = true
     @use_stdout    = true
     @log_execution = true
 
@@ -72,7 +64,7 @@ class Template
   include Settings
 
   @@model = nil
-  @@template_classes = Array.new
+  @@template_classes = Hash.new
 
   def initialize
     super
@@ -95,7 +87,9 @@ class Template
 
   # This method adds every subclass of Template to the list of templates to parse
   def self.inherited(subclass)
-    @@template_classes.push subclass
+    subclass_file = caller[0].split(':')[0]
+    puts "Loaded template class #{subclass} defined in #{subclass_file}"
+    @@template_classes.store subclass, subclass_file
   end
 
   # Hack to allow limited use of capslocked characters

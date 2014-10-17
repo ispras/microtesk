@@ -26,11 +26,6 @@ require_relative 'vliw_base'
 #
 class FpExceptionTemplate < VliwBaseTemplate
 
-  def initialize
-    super
-    @is_executable = true
-  end
-
   def run
     # Prints initial state (after initialization)
     trace_all_fprs
