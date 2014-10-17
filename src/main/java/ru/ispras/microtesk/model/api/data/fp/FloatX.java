@@ -23,6 +23,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   private static final int DOUBLE_FRACTION_SIZE = 52;
 
   private final BitVector data;
+  private final int fractionSize;
   private final int exponentSize;
 
   public FloatX(BitVector data, int fractionSize, int exponentSize) {
@@ -38,23 +39,31 @@ public final class FloatX extends Number implements Comparable<FloatX> {
       throw new IllegalArgumentException();
     }
 
-    if (data.getBitSize() != fractionSize + exponentSize) {
+    // 1 is added to make room for implicit sign bit
+    final int expectedBitSize = fractionSize + exponentSize + 1;
+    if (data.getBitSize() != expectedBitSize) {
       throw new IllegalArgumentException();
     }
 
     this.data = BitVector.unmodifiable(data);
+    this.fractionSize = fractionSize;
     this.exponentSize = exponentSize;
   }
 
   public FloatX(int fractionSize, int exponentSize) {
-    this(BitVector.newEmpty(fractionSize + exponentSize), exponentSize, fractionSize);
+    // 1 is added to make room for implicit sign bit
+    this(
+      BitVector.newEmpty(fractionSize + exponentSize + 1),
+      fractionSize,
+      exponentSize
+      );
   }
 
   public FloatX(float floatData) {
     this(
       BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
       FLOAT_FRACTION_SIZE,
-      Float.SIZE - FLOAT_FRACTION_SIZE
+      Float.SIZE - FLOAT_FRACTION_SIZE - 1 // Minus sign bit
     );
   }
 
@@ -62,7 +71,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     this(
       BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
       DOUBLE_FRACTION_SIZE,
-      Double.SIZE - DOUBLE_FRACTION_SIZE
+      Double.SIZE - DOUBLE_FRACTION_SIZE - 1 // Minus sign bit 
     );
   }
 
@@ -79,7 +88,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   public int getFractionSize() {
-    return getSize() - exponentSize;
+    return fractionSize;
   }
 
   public boolean isSingle() {
@@ -117,6 +126,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     int result = 1;
 
     result = prime * result + data.hashCode();
+    result = prime * result + fractionSize;
     result = prime * result + exponentSize;
 
     return result;
@@ -142,6 +152,10 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     }
 
     if (exponentSize != other.exponentSize) {
+      return false;
+    }
+
+    if (fractionSize != other.fractionSize) {
       return false;
     }
 
@@ -217,7 +231,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     }
 
     throw new UnsupportedOperationException(String.format(
-      "Not supported for argument types: %s.", getTypeName()));
+      "Not supported for argument type: %s.", getTypeName()));
   }
 
   public FloatX add(FloatX arg) {

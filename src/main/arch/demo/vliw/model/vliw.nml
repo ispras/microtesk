@@ -35,7 +35,9 @@ type  SBYTE = int(8)
 type   BYTE = card(8)
 type    BIT = card(1)
 type  INDEX = card(REG_INDEX_SIZE)
-type SINGLE = float(23, 9)
+
+// IEEE 754 single(32 bits): 23-bit fraction, 8-bit exponent + implicit sign bit 
+type SINGLE = float(23, 8)
 
 type COND_CODE = card(3)
 

@@ -45,38 +45,28 @@ public final class Type {
   }
 
   public static Type FLOAT(int fracBitSize, int expBitSize) {
-    return new Type(TypeId.FLOAT, fracBitSize, expBitSize);
+    // 1 is added to make room for implicit sign bit 
+    final int bitSize = fracBitSize + expBitSize + 1;
+    return new Type(TypeId.FLOAT, bitSize, fracBitSize, expBitSize);
   }
 
   public static Type FIX(int beforeBinPtSize, int afterBinPtSize) {
-    return new Type(TypeId.FIX, beforeBinPtSize, afterBinPtSize);
+    final int bitSize = beforeBinPtSize + afterBinPtSize;
+    return new Type(TypeId.FIX, bitSize, beforeBinPtSize, afterBinPtSize);
   }
 
   private final TypeId typeId;
   private final int[] fieldSizes;
   private final int bitSize;
 
-  private Type(TypeId typeId, int... fieldSizes) {
+  private Type(TypeId typeId, int bitSize, int ... fieldSizes) {
     if (null == typeId) {
       throw new NullPointerException();
     }
 
-    if (null == fieldSizes) {
-      throw new NullPointerException();
-    }
-
-    if (0 == fieldSizes.length) {
-      throw new IllegalArgumentException();
-    }
-
     this.typeId = typeId;
+    this.bitSize = bitSize;
     this.fieldSizes = fieldSizes;
-
-    int totalSize = 0;
-    for (int fieldSize : fieldSizes) {
-      totalSize += fieldSize;
-    }
-    this.bitSize = totalSize;
   }
 
   public Type resize(int newBitSize) {

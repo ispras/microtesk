@@ -38,11 +38,39 @@ public final class Type {
   }
 
   public static Type FLOAT(int fracBitSize, int expBitSize) {
-    return new Type(TypeId.FLOAT, fracBitSize, expBitSize);
+    if (fracBitSize <= 0) {
+      throw new IllegalArgumentException();
+    }
+
+    if (expBitSize <= 0) {
+      throw new IllegalArgumentException();
+    }
+
+    // 1 is added to make room for implicit sign bit
+    final int bitSize = fracBitSize + expBitSize + 1;
+
+    return new Type(
+      TypeId.FLOAT,
+      null,
+      Expr.newConstant(bitSize),
+      toExprArray(fracBitSize, expBitSize)
+      );
   }
 
   public static Type FLOAT(Expr fracBitSize, Expr expBitSize) {
-    return new Type(TypeId.FLOAT, fracBitSize, expBitSize);
+    checkNotNull(fracBitSize);
+    checkNotNull(expBitSize);
+
+    // 1 is added to make room for implicit sign bit
+    final int bitSize = 
+      fracBitSize.integerValue() + expBitSize.integerValue() + 1;
+
+    return new Type(
+      TypeId.FLOAT,
+      null,
+      Expr.newConstant(bitSize),
+      new Expr[] { fracBitSize, expBitSize }
+      );
   }
 
   public static Type FIX(int beforeBinPtSize, int afterBinPtSize) {
@@ -61,17 +89,9 @@ public final class Type {
   private final Expr[] fieldSizes;
 
   private Type(TypeId typeId, String aliasName, Expr bitSize, Expr[] fieldSizes) {
-    if (null == typeId) {
-      throw new NullPointerException();
-    }
-
-    if (null == bitSize) {
-      throw new NullPointerException();
-    }
-
-    if (null == fieldSizes) {
-      throw new NullPointerException();
-    }
+    checkNotNull(typeId);
+    checkNotNull(bitSize);
+    checkNotNull(fieldSizes);
 
     this.typeId = typeId;
     this.aliasName = aliasName;
@@ -134,9 +154,7 @@ public final class Type {
   }
 
   public Type alias(String name) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
 
     if (name.equals(aliasName)) {
       return this;
@@ -248,5 +266,11 @@ public final class Type {
     }
 
     return true;
+  }
+  
+  private static void checkNotNull(Object o) {
+    if (null == o) {
+      throw new NullPointerException();
+    }
   }
 }
