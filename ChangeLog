@@ -3,6 +3,26 @@
 ================================================================================
 
 --------------------------------------------------------------------------------
+ 2014/10/17 MicroTESK 2.1 beta
+--------------------------------------------------------------------------------
+
+ 2014/10/17 MicroTESK 2.1.0 beta
+
+ The new build contains the following changes:
+
+ - Support for VLIW was implemented
+ - Support for floating-point types was implemented
+ - Ability to specify initialization code in test templates
+   (the 'preparator' construct) was implemented
+ - New test data generators were implemented
+ - The test templates library was improved (including new text printing
+   facilities and ability to specify unknown immediate values)
+ - New examples of test templates demonstrating features of MicroTESK
+   were added  
+ - Ability to use labels rather than addresses in the generated code
+   was implemented
+
+--------------------------------------------------------------------------------
  2014/03/20 MicroTESK 2.0 beta
 --------------------------------------------------------------------------------
 
@@ -10,7 +30,7 @@
 
  The new build contains the following changes:
 
- - An ability to manualy specify initialization code was implemented
+ - An ability to manually specify initialization code was implemented
  - The test templates library was improved
  - Test template examples for ARM were updated
  - Several bugs related to installation of MicroTESK were fixed
