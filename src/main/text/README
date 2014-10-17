@@ -21,11 +21,36 @@ Installation Steps
    tools to the <installation dir>/tools directory (see the "tools/README"
    document for details).
 
-3. [Optional] Set the <installation dir>/bin as the working directory (add the
-   path to the PATH environment variable).
+3. Set the <installation dir>/bin as the working directory (add the path to the
+   PATH environment variable) to be able to run MicroTESK utilities from any
+   path.
 
 4. Now you can run the compile.sh (or .bat) script to create a microprocessor
    model and the generate.sh (or .bat) script to generate tests for this model.
+   
+Setting Environment Variables
+
+Windows:
+
+1. Open the "System Properties" window.
+2. Switch to the "Advanced" tab.
+3. Click on Environment Variables.
+4. Click "New.." under "System Variables".
+5. In the "New System Variable" dialog specify variable name as MICROTESK_HOME
+   and variable value as <instrallation dir>.
+6. Click "OK" on all open windows.
+7. Reopen the command prompt window.
+
+Linux and OS X:
+
+Add the command below to the ~.bash_profile (Linux) or ~/.profile (OS X) file:
+
+export MICROTESK_HOME=<installation dir>
+
+To start editing the file, type vi ~/.bash_profile (or vi ~/.profile). Changes
+will be applied after restarting the command-line terminal or reboot. You can 
+also execute the command in your command-line terminal to make temporary
+changes.
 
 Installation Directory Structure
 
