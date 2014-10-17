@@ -32,7 +32,7 @@ def self.main
   model = create_model ARGV[0]
 
   template_file = File.expand_path ARGV[1]
-  puts "Template: " + template_file
+  puts "Template file: " + template_file
 
   output_file = if ARGV.count > 2 then File.expand_path ARGV[2] else nil end
   if output_file then puts "Output file: " + output_file end
@@ -43,7 +43,7 @@ def self.main
   template_classes.each do |template_class, template_class_file|
     begin
       if template_class_file.eql?(template_file)
-        puts "Processing #{template_class} defined in #{template_class_file}..." 
+        puts "Processing template #{template_class} defined in #{template_class_file}..." 
         template = template_class.new
         template.generate output_file
       end

@@ -88,7 +88,7 @@ class Template
   # This method adds every subclass of Template to the list of templates to parse
   def self.inherited(subclass)
     subclass_file = caller[0].split(':')[0]
-    puts "Loaded template class #{subclass} defined in #{subclass_file}"
+    puts "Loaded template #{subclass} defined in #{subclass_file}"
     @@template_classes.store subclass, subclass_file
   end
 
