@@ -50,7 +50,7 @@ the VLIW demo specification:
 
 sh bin/compile.sh arch/demo/vliw/model/vliw.nml 
 
-NOTE: Models for all demo specifications are already build and included in the
+NOTE: Models for all demo specifications are already built and included in the
 MicroTESK distribution package. So a user can start working with MicroTESK from
 generating test programs for these models.
 
