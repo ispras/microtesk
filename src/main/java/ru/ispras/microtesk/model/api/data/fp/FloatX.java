@@ -42,7 +42,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     // 1 is added to make room for implicit sign bit
     final int expectedBitSize = fractionSize + exponentSize + 1;
     if (data.getBitSize() != expectedBitSize) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Not IEEE 754 format!");
     }
 
     this.data = BitVector.unmodifiable(data);
