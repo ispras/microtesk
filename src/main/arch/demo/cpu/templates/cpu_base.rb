@@ -25,7 +25,7 @@ require ENV['TEMPLATE']
 # and finalization sections respectively. These methods can be reused by other
 # test templates using the mechanism of class inheritance.
 #
-class CpuDemoTemplate < Template
+class CpuBaseTemplate < Template
 
   #
   # Template is initialized here (settings for this template are applied).

@@ -14,19 +14,18 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'vliw_base'
 
 #
 # Description:
 #
 # This test template demonstrates how MicroTESK can simulate the execution
 # of a test program to predict the resulting state of a microprocessor
-# design under test. The described program calculates the quotient and
-# the remainder of division of two random numbers by using 
-# the simple algorithm of repeated subtraction.
+# design under test. The described program calculates the integer square root
+# a positive integer.
 #
 
-class Divide < VliwDemoTemplate
+class IntSqrtTemplate < VliwBaseTemplate
 
   def initialize
     super
@@ -34,27 +33,31 @@ class Divide < VliwDemoTemplate
   end
 
   def run
-    trace "Division: Debug Output"
+    trace "Integer square root: Debug Output"
 
     i = Random.rand(1024)
-    j = Random.rand(63) + 1 #zero is excluded
 
-    trace "\nInput parameter values: dividend = #{i}, divisor = #{j}\n"
-    vliw (addi r(4), r(0), i), (addi r(5), r(0), j)
-    vliw (move r(1), r(0)),    (move r(2), r(4))
-
-    label :cycle
-    trace "\nCurrent register values: $1 = %d, $2 = %d, $3 = %d, $4 = %d, $5 = %d\n", gpr(1), gpr(2), gpr(3), gpr(4), gpr(5)
+    trace "\nInput parameter value: x = #{i}\n"
+    vliw (addi r(3), r(0), i), (addi r(1), r(0), 1)
+    vliw (move r(2), r(0)),    (addi r(4), r(0), 1)
     
-    vliw (sub r(3), r(2), r(5)),  nop
+    label :cycle    
+    trace "\nCurrent register values: $1 = %d, $2 = %d, $3 = %d\n", gpr(1), gpr(2), gpr(3)
+
+    vliw (slt r(6), r(0), r(3)), nop
+    vliw (beq r(6), r(0), :done), nop
+  
+    vliw (sub r(3), r(3), r(1)),  nop
+    vliw (addi r(1), r(1), 2),  nop
+    
     vliw (slt r(6), r(3), r(0)),  nop
-    vliw (bne r(6), r(0), :done), nop
+    vliw (sub r(5), r(4), r(6)), nop
+    vliw (add r(2), r(2), r(5)), nop
     
-    vliw (move r(2), r(3)), (addi r(1), r(1), 1)
     vliw (b :cycle), nop
     
     label :done
-    trace "\nResult : quotient = %d, remainder = %d\n", gpr(1), gpr(2)
+    trace "\isqrt of #{i} : %d\n", gpr(2)
   end
 
 end

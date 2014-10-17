@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'vliw_base'
 
 #
 # Description:
@@ -26,7 +26,7 @@ require_relative 'base_template'
 # algorithm.
 #
 
-class Euclid < VliwDemoTemplate
+class EuclidTemplate < VliwBaseTemplate
 
   def initialize
     super

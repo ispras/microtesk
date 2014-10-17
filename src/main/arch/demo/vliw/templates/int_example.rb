@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'vliw_base'
 
 #
 # Description:
@@ -22,7 +22,7 @@ require_relative 'base_template'
 # This test template demonstrates the use of test situations and 
 # data generators in MicroTESK (generating integer values).
 #
-class IntegerDataGeneration < VliwDemoTemplate
+class IntExampleTemplate < VliwBaseTemplate
 
   def initialize
     super

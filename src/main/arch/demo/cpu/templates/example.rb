@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'cpu_base'
 
 #
 # Description:
@@ -24,7 +24,7 @@ require_relative 'base_template'
 # calls, organize the control flow, set up instruction sequences, generate test
 # data for "interesting" situations, add text to the test program, etc. 
 #
-class Features < CpuDemoTemplate
+class ExampleTemplate < CpuBaseTemplate
 
   #
   # Template is initialized here (settings are applied).

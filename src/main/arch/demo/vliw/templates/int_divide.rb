@@ -14,18 +14,19 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'vliw_base'
 
 #
 # Description:
 #
 # This test template demonstrates how MicroTESK can simulate the execution
 # of a test program to predict the resulting state of a microprocessor
-# design under test. The described program calculates the integer square root
-# a positive integer.
+# design under test. The described program calculates the quotient and
+# the remainder of division of two random numbers by using 
+# the simple algorithm of repeated subtraction.
 #
 
-class Isqrt4 < VliwDemoTemplate
+class IntDivideTemplate < VliwBaseTemplate
 
   def initialize
     super
@@ -33,29 +34,27 @@ class Isqrt4 < VliwDemoTemplate
   end
 
   def run
-    trace "Integer square root: Debug Output"
+    trace "Division: Debug Output"
 
     i = Random.rand(1024)
+    j = Random.rand(63) + 1 #zero is excluded
 
-    trace "\nInput parameter value: x = #{i}\n"      
-    vliw (addi r(4), r(0), i), (lui r(1), 0x4000)
-    vliw (move r(2), r(0)), nop
+    trace "\nInput parameter values: dividend = #{i}, divisor = #{j}\n"
+    vliw (addi r(4), r(0), i), (addi r(5), r(0), j)
+    vliw (move r(1), r(0)),    (move r(2), r(4))
+
+    label :cycle
+    trace "\nCurrent register values: $1 = %d, $2 = %d, $3 = %d, $4 = %d, $5 = %d\n", gpr(1), gpr(2), gpr(3), gpr(4), gpr(5)
     
-    label :cycle    
-    trace "\nCurrent register values: $1 = %d, $2 = %d, $3 = %d\n", gpr(1), gpr(2), gpr(3)
-
-    vliw (beq r(1), r(0), :done), (OR r(3), r(2), r(1))
-
-    vliw (srl r(2), r(2), 1), (slt r(6), r(4), r(3))   
-    vliw (bne r(6), r(0), :if_less), nop
+    vliw (sub r(3), r(2), r(5)),  nop
+    vliw (slt r(6), r(3), r(0)),  nop
+    vliw (bne r(6), r(0), :done), nop
     
-    vliw (sub r(4), r(4), r(3)), (OR r(2), r(2), r(1))
-  
-    label :if_less
-    vliw (b :cycle), (srl r(1), r(1), 2)
+    vliw (move r(2), r(3)), (addi r(1), r(1), 1)
+    vliw (b :cycle), nop
     
     label :done
-    trace "\isqrt of #{i} : %d\n", gpr(2)
+    trace "\nResult : quotient = %d, remainder = %d\n", gpr(1), gpr(2)
   end
 
 end

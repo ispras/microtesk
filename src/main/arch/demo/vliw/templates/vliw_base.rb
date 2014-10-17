@@ -24,7 +24,7 @@ require ENV['TEMPLATE']
 # of preparators (rules for creating initialization sequences for specific
 # resources) and other useful code to be reused.   
 #
-class VliwDemoTemplate < Template
+class VliwBaseTemplate < Template
 
   #
   # Possible syntax styles to address the VLIW ISA:

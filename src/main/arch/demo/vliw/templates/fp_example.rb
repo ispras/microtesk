@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'vliw_base'
 
 #
 # Description:
@@ -22,7 +22,7 @@ require_relative 'base_template'
 # This test template demonstrates the use of data generators 
 # for floating-point instructions in MicroTESK.
 #
-class FPDataGeneration < VliwDemoTemplate
+class FpExampleTemplate < VliwBaseTemplate
 
   def initialize
     super

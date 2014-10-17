@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'vliw_base'
 
 #
 # Description:
@@ -23,7 +23,7 @@ require_relative 'base_template'
 # of instructions.
 #
 
-class Combinatorics < VliwDemoTemplate
+class CombinationTemplate < VliwBaseTemplate
 
   def initialize
     super

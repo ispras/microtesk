@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'vliw_base'
 
 #
 # Description:
@@ -23,7 +23,7 @@ require_relative 'base_template'
 # for integer arithmetics. This includes situations
 # 'Normal' and 'Overflow' for integer addition and subtraction. 
 #
-class IntegerArithmeticCases < VliwDemoTemplate
+class IntExceptionTemplate < VliwBaseTemplate
 
   def initialize
     super

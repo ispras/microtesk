@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require_relative 'base_template'
+require_relative 'vliw_base'
 
 #
 # Description:
@@ -25,7 +25,7 @@ require_relative 'base_template'
 # a positive integer.
 #
 
-class Isqrt < VliwDemoTemplate
+class IntSqrt4Template < VliwBaseTemplate
 
   def initialize
     super
@@ -37,24 +37,22 @@ class Isqrt < VliwDemoTemplate
 
     i = Random.rand(1024)
 
-    trace "\nInput parameter value: x = #{i}\n"
-    vliw (addi r(3), r(0), i), (addi r(1), r(0), 1)
-    vliw (move r(2), r(0)),    (addi r(4), r(0), 1)
+    trace "\nInput parameter value: x = #{i}\n"      
+    vliw (addi r(4), r(0), i), (lui r(1), 0x4000)
+    vliw (move r(2), r(0)), nop
     
     label :cycle    
     trace "\nCurrent register values: $1 = %d, $2 = %d, $3 = %d\n", gpr(1), gpr(2), gpr(3)
 
-    vliw (slt r(6), r(0), r(3)), nop
-    vliw (beq r(6), r(0), :done), nop
+    vliw (beq r(1), r(0), :done), (OR r(3), r(2), r(1))
+
+    vliw (srl r(2), r(2), 1), (slt r(6), r(4), r(3))   
+    vliw (bne r(6), r(0), :if_less), nop
+    
+    vliw (sub r(4), r(4), r(3)), (OR r(2), r(2), r(1))
   
-    vliw (sub r(3), r(3), r(1)),  nop
-    vliw (addi r(1), r(1), 2),  nop
-    
-    vliw (slt r(6), r(3), r(0)),  nop
-    vliw (sub r(5), r(4), r(6)), nop
-    vliw (add r(2), r(2), r(5)), nop
-    
-    vliw (b :cycle), nop
+    label :if_less
+    vliw (b :cycle), (srl r(1), r(1), 2)
     
     label :done
     trace "\isqrt of #{i} : %d\n", gpr(2)
