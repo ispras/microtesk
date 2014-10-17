@@ -40,14 +40,14 @@ class IntDivideTemplate < VliwBaseTemplate
 
     label :cycle
     trace "\nCurrent register values: $1 = %d, $2 = %d, $3 = %d, $4 = %d, $5 = %d\n", gpr(1), gpr(2), gpr(3), gpr(4), gpr(5)
-    
+
     vliw (sub r(3), r(2), r(5)),  nop
     vliw (slt r(6), r(3), r(0)),  nop
     vliw (bne r(6), r(0), :done), nop
-    
+
     vliw (move r(2), r(3)), (addi r(1), r(1), 1)
     vliw (b :cycle), nop
-    
+
     label :done
     trace "\nResult : quotient = %d, remainder = %d\n", gpr(1), gpr(2)
   end

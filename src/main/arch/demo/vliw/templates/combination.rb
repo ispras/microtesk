@@ -54,7 +54,7 @@ class CombinationTemplate < VliwBaseTemplate
       }
     }
     newline
-    
+
   end
 
 end

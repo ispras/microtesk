@@ -35,7 +35,7 @@ class IntSqrt4Template < VliwBaseTemplate
     trace "\nInput parameter value: x = #{i}\n"      
     vliw (addi r(4), r(0), i), (lui r(1), 0x4000)
     vliw (move r(2), r(0)), nop
-    
+
     label :cycle    
     trace "\nCurrent register values: $1 = %d, $2 = %d, $3 = %d\n", gpr(1), gpr(2), gpr(3)
 
@@ -43,12 +43,12 @@ class IntSqrt4Template < VliwBaseTemplate
 
     vliw (srl r(2), r(2), 1), (slt r(6), r(4), r(3))   
     vliw (bne r(6), r(0), :if_less), nop
-    
+
     vliw (sub r(4), r(4), r(3)), (OR r(2), r(2), r(1))
-  
+
     label :if_less
     vliw (b :cycle), (srl r(1), r(1), 2)
-    
+
     label :done
     trace "\isqrt of #{i} : %d\n", gpr(2)
   end
