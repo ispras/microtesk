@@ -132,12 +132,14 @@ class ExampleTemplate < CpuBaseTemplate
     # in the following way: label :<label_name> 
 
     mov reg(11), imm(5)
+    mov reg(12), imm(1)
     label :start
     trace "GPR[11] = %d", location('GPR', 11)
     jz reg(11), :end
-    sub reg(11), imm(1)
+    sub reg(11), reg(12)
     j :start
     label :end
+    mov reg(12), imm(0)
     newline
 
     ############################################################################
@@ -150,14 +152,21 @@ class ExampleTemplate < CpuBaseTemplate
 
     # Randomized sequence
     comment 'Randomized sequence'
-    block(:compositor => "RANDOM", :combinator => "RANDOM") {
-      (1..3).each { # Repeat 3 times
+    block(:compositor => "RANDOM", :combinator => "PRODUCT") {
+      block {
         add reg(_), imm(_) do situation('imm_random', :min => 0, :max => 15) end
         sub reg(_), reg(_) do situation('imm_random', :min => 0, :max => 15) end
         mov reg(_), reg(_) do situation('imm_random', :min => 0, :max => 15) end
       }
+
+      block {
+        add reg(3), reg(4) do situation('add', :case => 'overflow', :size => 8) end
+        sub reg(3), reg(4) do situation('sub', :case => 'overflow', :size => 8) end
+        mov reg(4), reg(3)
+      }
     }
 
+    newline
     comment 'Main Section Ends'
   end
 
