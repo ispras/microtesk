@@ -42,9 +42,12 @@ public final class Template {
     }
 
     this.metaModel = metaModel;
+    
+    final BlockBuilder rootBlockBuilder = new BlockBuilder();
+    rootBlockBuilder.setAtomic(true);
 
     this.blockBuilders = new LinkedList<BlockBuilder>();
-    this.blockBuilders.push(new BlockBuilder());
+    this.blockBuilders.push(rootBlockBuilder);
 
     this.callBuilder = new CallBuilder(getCurrentBlockId());
     this.preparatorBuilder = null;

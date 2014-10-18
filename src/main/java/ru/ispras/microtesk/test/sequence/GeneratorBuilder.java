@@ -35,6 +35,10 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>> {
   // / The compositor used in the generator.
   private String compositor = null;
 
+  // / Specifies whether a single sequence must be generated 
+  // / (all sequences returned by all iterators are united into a single sequence).
+  private boolean isSingle = false;
+
   /**
    * Constructs a test sequence generator.
    */
@@ -61,17 +65,33 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>> {
   }
 
   /**
+   * Sets the isSingle flag (whether a single sequence must be generated).
+   * 
+   * @param isSingle {@code true} to generate a single sequence or {@code false} to prevent this.
+   */
+
+  public void setSingle(boolean isSingle) {
+    this.isSingle = isSingle;
+  }
+
+  /**
    * Returns the test sequence generator for the template block.
    * 
    * @return the test sequence generator.
    */
 
   public Generator<T> getGenerator() {
+    // If the isSingle flag is set we the single sequence generator.
+    if (isSingle) {
+      return new GeneratorSingle<T>(getIterators());
+    }
+
     // If no compositor and no combinator is specified
-    // we use the single sequence generator.
+    // we use the sequence generator (creates a sequence for each nested iterator
+    // and iterates over these sequences).
 
     if ((null == combinator) && (null == compositor)) {
-      return new GeneratorSingle<T>(getIterators());
+      return new GeneratorSequence<T>(getIterators());
     }
 
     if (null == combinator) { 

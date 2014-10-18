@@ -34,6 +34,8 @@ public final class BlockBuilder {
   private String compositorName;
   private String combinatorName;
 
+  private boolean isAtomic;
+
   BlockBuilder() {
     this(new BlockId());
   }
@@ -50,6 +52,8 @@ public final class BlockBuilder {
 
     this.compositorName = null;
     this.combinatorName = null;
+    
+    this.isAtomic = false;
   }
 
   public BlockId getBlockId() {
@@ -64,6 +68,10 @@ public final class BlockBuilder {
   public void setCombinator(String name) {
     assert null == combinatorName;
     combinatorName = name;
+  }
+  
+  public void setAtomic(boolean value) {
+    this.isAtomic = value;
   }
 
   public void setAttribute(String name, Object value) {
@@ -96,6 +104,7 @@ public final class BlockBuilder {
 
   public Block build() {
     final GeneratorBuilder<Call> generatorBuilder = new GeneratorBuilder<Call>();
+    generatorBuilder.setSingle(isAtomic);
 
     if (null != combinatorName) {
       generatorBuilder.setCombinator(combinatorName);

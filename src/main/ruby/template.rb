@@ -144,6 +144,14 @@ class Template
     @template.endBlock
   end
 
+def atomic(&contents)
+  blockBuilder = @template.beginBlock
+  blockBuilder.setAtomic true
+
+  self.instance_eval &contents
+  @template.endBlock
+end
+
   def label(name)
     @template.addLabel name 
   end
