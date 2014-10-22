@@ -40,611 +40,568 @@ import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 
 import static ru.ispras.microtesk.translator.simnml.coverage.Expression.*;
 
-final class SSABuilder
-{
-    private final OpInstance    instance;
-    private final String        tag;
-    private VariableStore       store;
-    private List<Node>          context;
+final class SSABuilder {
+  private final OpInstance instance;
+  private final String tag;
+  private VariableStore store;
+  private List<Node> context;
 
-    private final static class LValue
-    {
-        public final Variable   base;
-        public final Node       index;
-        public final Node       minorBit;
-        public final Node       majorBit;
 
-        public final DataType   baseType;
-        public final DataType   sourceType;
-        public final DataType   targetType;
+  private static final class LValue {
+    public final Variable base;
+    public final Node index;
+    public final Node minorBit;
+    public final Node majorBit;
 
-        public LValue(Variable base, Node index, Node minorBit, Node majorBit, DataType baseType, DataType sourceType, DataType targetType)
-        {
-            this.base       = base;
-            this.index      = index;
-            this.minorBit   = minorBit;
-            this.majorBit   = majorBit;
-            this.baseType   = baseType;
-            this.sourceType = sourceType;
-            this.targetType = targetType;
-        }
+    public final DataType baseType;
+    public final DataType sourceType;
+    public final DataType targetType;
 
-        public boolean isArray()
-        {
-            return index != null;
-        }
-
-        public boolean hasBitfield()
-        {
-            return minorBit != null && majorBit != null;
-        }
-
-        public boolean hasStaticBitfield()
-        {
-            return  hasBitfield() &&
-                    minorBit.getKind() == Node.Kind.VALUE &&
-                    majorBit.getKind() == Node.Kind.VALUE;
-        }
+    public LValue(Variable base, Node index, Node minorBit, Node majorBit, DataType baseType,
+        DataType sourceType, DataType targetType) {
+      this.base = base;
+      this.index = index;
+      this.minorBit = minorBit;
+      this.majorBit = majorBit;
+      this.baseType = baseType;
+      this.sourceType = sourceType;
+      this.targetType = targetType;
     }
 
-    private void addToContext(Node node)
-    {
-        this.context = Utility.appendElement(context, node);
+    public boolean isArray() {
+      return index != null;
     }
 
-    private void addToContext(List<Node> list)
-    {
-        this.context = Utility.appendList(context, list);
+    public boolean hasBitfield() {
+      return minorBit != null && majorBit != null;
     }
 
-    private final static class Intermediate
-    {
-        public final Node       ssa;
-        public final Variable[] changed;
-
-        public Intermediate(Node ssa, Variable ... changed)
-        {
-            this.ssa = ssa;
-            this.changed = changed;
-        }
+    public boolean hasStaticBitfield() {
+      return hasBitfield() &&
+          minorBit.getKind() == Node.Kind.VALUE &&
+          majorBit.getKind() == Node.Kind.VALUE;
     }
+  }
 
-    private final static class VariableCmp implements Comparator<Variable>
-    {
-        @Override
-        public int compare(Variable lhs, Variable rhs)
-        {
-            return lhs.getName().compareTo(rhs.getName());
-        }
+  private void addToContext(Node node) {
+    this.context = Utility.appendElement(context, node);
+  }
+
+  private void addToContext(List<Node> list) {
+    this.context = Utility.appendList(context, list);
+  }
+
+  private static final class Intermediate {
+    public final Node ssa;
+    public final Variable[] changed;
+
+    public Intermediate(Node ssa, Variable... changed) {
+      this.ssa = ssa;
+      this.changed = changed;
     }
+  }
 
-    private NodeVariable createTemporary(DataType type)
-    {
-        return new NodeVariable(store.createTemporary(type));
+
+  private static final class VariableCmp implements Comparator<Variable> {
+    @Override
+    public int compare(Variable lhs, Variable rhs) {
+      return lhs.getName().compareTo(rhs.getName());
     }
+  }
 
-    private NodeVariable storeVariable(Variable var)
-    {
-        return new NodeVariable(store.storeVariable(var));
-    }
+  private NodeVariable createTemporary(DataType type) {
+    return new NodeVariable(store.createTemporary(type));
+  }
 
-    private NodeVariable updateVariable(Variable var)
-    {
-        return new NodeVariable(store.updateVariable(var));
-    }
+  private NodeVariable storeVariable(Variable var) {
+    return new NodeVariable(store.storeVariable(var));
+  }
 
-    /**
-     * Assemble LValue object into Node instance representing rvalue.
-     * Named variables are considered latest in current builder state.
-     * Variables are not updated by this method.
-     */
-    private Node createRValue(LValue lvalue)
-    {
-        Node root = storeVariable(lvalue.base);
+  private NodeVariable updateVariable(Variable var) {
+    return new NodeVariable(store.updateVariable(var));
+  }
 
-        if (lvalue.isArray())
-            root = SELECT(root, lvalue.index);
+  /**
+   * Assemble LValue object into Node instance representing rvalue.
+   * Named variables are considered latest in current builder state.
+   * Variables are not updated by this method.
+   */
+  private Node createRValue(LValue lvalue) {
+    Node root = storeVariable(lvalue.base);
 
-        if (lvalue.hasStaticBitfield())
-            return EXTRACT(
-                (NodeValue) lvalue.minorBit,
-                (NodeValue) lvalue.majorBit,
-                root);
+    if (lvalue.isArray())
+      root = SELECT(root, lvalue.index);
 
-        if (lvalue.hasBitfield())
-            return EXTRACT(
-                NodeValue.newInteger(0),
-                lvalue.targetType.getSize(),
-                new NodeOperation(StandardOperation.BVLSHR, root, lvalue.minorBit));
+    if (lvalue.hasStaticBitfield())
+      return EXTRACT(
+          (NodeValue) lvalue.minorBit,
+          (NodeValue) lvalue.majorBit,
+          root);
 
-        return root;
-    }
+    if (lvalue.hasBitfield())
+      return EXTRACT(
+          NodeValue.newInteger(0),
+          lvalue.targetType.getSize(),
+          new NodeOperation(StandardOperation.BVLSHR, root, lvalue.minorBit));
 
-    private Node[] createRValues(LValue[] lhs)
-    {
-        final Node[] arg = new Node[lhs.length];
-        for (int i = 0; i < arg.length; ++i)
-            arg[i] = createRValue(lhs[i]);
+    return root;
+  }
 
-        return arg;
-    }
+  private Node[] createRValues(LValue[] lhs) {
+    final Node[] arg = new Node[lhs.length];
+    for (int i = 0; i < arg.length; ++i)
+      arg[i] = createRValue(lhs[i]);
 
-    private LValue[] fetchConcatLValues(Location loc)
-    {
-        final LocationConcat conc = (LocationConcat) loc;
+    return arg;
+  }
 
-        final LValue[] lhs = new LValue[conc.getLocations().size()];
-        for (int i = 0; i < lhs.length; ++i)
-            lhs[i] = createLValue(conc.getLocations().get(i));
+  private LValue[] fetchConcatLValues(Location loc) {
+    final LocationConcat conc = (LocationConcat) loc;
 
-        return lhs;
-    }
+    final LValue[] lhs = new LValue[conc.getLocations().size()];
+    for (int i = 0; i < lhs.length; ++i)
+      lhs[i] = createLValue(conc.getLocations().get(i));
 
-    private Intermediate assignmentToSSA(Statement stmt)
-    {
-        final StatementAssignment s = (StatementAssignment) stmt;
+    return lhs;
+  }
 
-        final Node rhs = convertNode(s.getRight().getNode());
-        if (s.getLeft() instanceof LocationAtom)
-            return assignToAtom(s.getLeft(), rhs);
+  private Intermediate assignmentToSSA(Statement stmt) {
+    final StatementAssignment s = (StatementAssignment) stmt;
 
-        if (s.getLeft() instanceof LocationConcat)
-            return assignToConcat(s.getLeft(), rhs);
+    final Node rhs = convertNode(s.getRight().getNode());
+    if (s.getLeft() instanceof LocationAtom)
+      return assignToAtom(s.getLeft(), rhs);
 
-        throw new UnsupportedOperationException("Unexpected Location subtype occured");
-    }
+    if (s.getLeft() instanceof LocationConcat)
+      return assignToConcat(s.getLeft(), rhs);
 
-    private Intermediate assignToAtom(Location lhs, Node value)
-    {
-        final LValue lvalue = createLValue(lhs);
+    throw new UnsupportedOperationException("Unexpected Location subtype occured");
+  }
 
-        final Node expr =
-            (lvalue.isArray())
+  private Intermediate assignToAtom(Location lhs, Node value) {
+    final LValue lvalue = createLValue(lhs);
+
+    final Node expr =
+        (lvalue.isArray())
             ? EQ(updateArrayElement(lvalue), value)
             : EQ(updateScalar(lvalue), value);
 
-        return new Intermediate(expr, lvalue.base);
+    return new Intermediate(expr, lvalue.base);
+  }
+
+  private Node updateScalar(LValue lvalue) {
+    if (!lvalue.hasBitfield())
+      return updateVariable(lvalue.base);
+
+    final NodeVariable older = storeVariable(lvalue.base);
+    final NodeVariable newer = updateVariable(lvalue.base);
+
+    if (lvalue.hasStaticBitfield())
+      return updateStaticSubvector(newer, older, lvalue);
+
+    return updateDynamicSubvector(newer, older, lvalue);
+  }
+
+  private Node updateArrayElement(LValue lvalue) {
+    final Node olderArray = storeVariable(lvalue.base);
+    final Node newerArray = updateVariable(lvalue.base);
+
+    final NodeVariable newer = createTemporary(lvalue.sourceType);
+    addToContext(EQ(newerArray, STORE(olderArray, lvalue.index, newer)));
+
+    if (!lvalue.hasBitfield())
+      return newer;
+
+    final NodeVariable older = createTemporary(lvalue.sourceType);
+    addToContext(EQ(older, SELECT(olderArray, lvalue.index)));
+
+    if (lvalue.hasStaticBitfield())
+      return updateStaticSubvector(newer, older, lvalue);
+
+    return updateDynamicSubvector(newer, older, lvalue);
+  }
+
+  private Node updateStaticSubvector(NodeVariable newer, NodeVariable older, LValue lvalue) {
+    final int olderHiBit = older.getData().getType().getSize() - 1;
+    final int newerHiBit = newer.getData().getType().getSize() - 1;
+
+    if (olderHiBit != newerHiBit)
+      throw new IllegalArgumentException("Overlapping variables with different sizes is forbidden");
+
+    final int hibit = olderHiBit;
+    final NodeValue minor = (NodeValue) lvalue.minorBit;
+    final NodeValue major = (NodeValue) lvalue.majorBit;
+
+    addToContext(EQ(EXTRACT(0, minor, newer), EXTRACT(0, minor, older)));
+    addToContext(EQ(EXTRACT(major, hibit, newer), EXTRACT(major, hibit, older)));
+
+    return EXTRACT(minor, major, newer);
+  }
+
+  private Node updateDynamicSubvector(NodeVariable newer, NodeVariable older, LValue lvalue) {
+    final int olderSize = older.getData().getType().getSize();
+    final int newerSize = newer.getData().getType().getSize();
+
+    if (olderSize != newerSize)
+      throw new IllegalArgumentException("Overlapping variables with different sizes is forbidden");
+
+    final int bitsize = olderSize;
+
+    final NodeOperation shLeftAmount =
+        new NodeOperation(StandardOperation.BVSUB,
+            NodeValue.newBitVector(BitVector.valueOf(bitsize, bitsize)),
+            lvalue.minorBit);
+
+    addToContext(EQ(
+        new NodeOperation(StandardOperation.BVLSHL, older, shLeftAmount),
+        new NodeOperation(StandardOperation.BVLSHL, newer, shLeftAmount)));
+
+    final NodeOperation shRightAmount =
+        new NodeOperation(StandardOperation.BVADD,
+            lvalue.majorBit,
+            NodeValue.newBitVector(BitVector.valueOf(1, bitsize)));
+
+    addToContext(EQ(
+        new NodeOperation(StandardOperation.BVLSHR, older, shRightAmount),
+        new NodeOperation(StandardOperation.BVLSHR, newer, shRightAmount)));
+
+    final DataType subtype = lvalue.targetType;
+    final NodeVariable subvector = createTemporary(subtype);
+
+    addToContext(EQ(
+        EXTRACT(
+            NodeValue.newInteger(0),
+            NodeValue.newInteger(subtype.getSize()),
+            new NodeOperation(StandardOperation.BVLSHR, newer, lvalue.minorBit)),
+        subvector));
+
+    return subvector;
+  }
+
+  private Intermediate assignToConcat(Location lhs, Node value) {
+    final LValue[] lvalues = fetchConcatLValues(lhs);
+    final Node[] arg = new Node[lvalues.length];
+
+    for (int i = 0; i < lvalues.length; ++i)
+      if (lvalues[i].isArray())
+        arg[i] = updateArrayElement(lvalues[i]);
+      else
+        arg[i] = updateScalar(lvalues[i]);
+
+    final Variable[] changed = new Variable[lvalues.length];
+    for (int i = 0; i < changed.length; ++i)
+      changed[i] = lvalues[i].base;
+
+    return new Intermediate(EQ(CONCAT(arg), value), changed);
+  }
+
+  private static Variable[] mergeIntermediateVariables(Intermediate... in) {
+    final TreeSet<Variable> variableSet = new TreeSet<Variable>(new VariableCmp());
+    for (Intermediate inter : in)
+      for (Variable v : inter.changed)
+        variableSet.add(v);
+
+    return variableSet.toArray(new Variable[variableSet.size()]);
+  }
+
+  private Intermediate conditionToSSA(Statement s) {
+    final StatementCondition branch = (StatementCondition) s;
+
+    final Node[] conditions = new Node[branch.getBlockCount() + 1];
+    final Node[] variables = new Node[branch.getBlockCount()];
+
+    for (int i = 0; i < variables.length; ++i)
+      variables[i] = createTemporary(DataType.BOOLEAN);
+
+    final Node[] guards = new Node[variables.length];
+    for (int i = 0; i < guards.length; ++i)
+      guards[i] = EQ(variables[i], FALSE);
+
+    for (int i = 0; i < branch.getBlockCount(); ++i) {
+      Node cond = null;
+      if (branch.getBlock(i).isElseBlock()) {
+        final Node[] elseCond = new Node[i];
+        for (int j = 0; j < i; ++j)
+          elseCond[j] = guards[j];
+        cond = AND(elseCond);
+      } else
+        cond = convertNode(branch.getBlock(i).getCondition().getNode());
+
+      conditions[i] = EQ(variables[i], cond);
     }
 
-    private Node updateScalar(LValue lvalue)
-    {
-        if (!lvalue.hasBitfield())
-            return updateVariable(lvalue.base);
+    final VariableStore snapshot = store.createSnapshot();
 
-        final NodeVariable older = storeVariable(lvalue.base);
-        final NodeVariable newer = updateVariable(lvalue.base);
+    final Intermediate[] blocks = new Intermediate[branch.getBlockCount()];
+    final Intermediate[] blueprints = new Intermediate[branch.getBlockCount()];
 
-        if (lvalue.hasStaticBitfield())
-            return updateStaticSubvector(newer, older, lvalue);
+    for (int i = 0; i < blocks.length; ++i) {
+      blocks[i] = codeToSSA(branch.getBlock(i).getStatements());
+      blueprints[i] = createPhiBlueprint(i, guards, blocks[i]);
+    }
+    final Variable[] changed = mergeIntermediateVariables(blocks);
+    final Node[] fallback = new Node[changed.length];
+    final String[] nameSet = new String[changed.length];
 
-        return updateDynamicSubvector(newer, older, lvalue);
+    for (int i = 0; i < fallback.length; ++i) {
+      fallback[i] = EQ(
+          updateVariable(changed[i]),
+          new NodeVariable(snapshot.getVariable(changed[i].getName())));
+      nameSet[i] = changed[i].getName();
     }
 
-    private Node updateArrayElement(LValue lvalue)
-    {
-        final Node olderArray = storeVariable(lvalue.base);
-        final Node newerArray = updateVariable(lvalue.base);
+    final Node[] result = new Node[blueprints.length];
+    for (int i = 0; i < result.length; ++i)
+      result[i] = createPhiNode(blueprints[i], nameSet, fallback);
 
-        final NodeVariable newer = createTemporary(lvalue.sourceType);
-        addToContext(EQ(newerArray, STORE(olderArray, lvalue.index, newer)));
+    conditions[conditions.length - 1] = OR(result);
+    return new Intermediate(AND(conditions), changed);
+  }
 
-        if (!lvalue.hasBitfield())
-            return newer;
+  private Node createPhiNode(Intermediate blueprint, String[] nameSet, Node[] fallback) {
+    final Node[] effective = Arrays.copyOf(fallback, fallback.length + 1);
+    effective[effective.length - 1] = blueprint.ssa;
 
-        final NodeVariable older = createTemporary(lvalue.sourceType);
-        addToContext(EQ(older, SELECT(olderArray, lvalue.index)));
-
-        if (lvalue.hasStaticBitfield())
-            return updateStaticSubvector(newer, older, lvalue);
-
-        return updateDynamicSubvector(newer, older, lvalue);
+    for (Variable v : blueprint.changed) {
+      final int pos = Arrays.binarySearch(nameSet, store.getBaseName(v));
+      if (pos >= 0)
+        effective[pos] = EQ(
+            ((NodeOperation) effective[pos]).getOperand(0),
+            new NodeVariable(v));
     }
+    return AND(effective);
+  }
 
-    private Node updateStaticSubvector(NodeVariable newer, NodeVariable older, LValue lvalue)
-    {
-        final int olderHiBit = older.getData().getType().getSize() - 1;
-        final int newerHiBit = newer.getData().getType().getSize() - 1;
+  private Intermediate createPhiBlueprint(int index, Node[] guards, Intermediate inter) {
+    final Node[] effGuards = Arrays.copyOf(guards, guards.length + 1);
+    effGuards[index] = EQ(((NodeOperation) effGuards[index]).getOperand(0), TRUE);
+    effGuards[effGuards.length - 1] = inter.ssa;
 
-        if (olderHiBit != newerHiBit)
-            throw new IllegalArgumentException("Overlapping variables with different sizes is forbidden");
+    final Variable[] slice = new Variable[inter.changed.length];
+    for (int i = 0; i < slice.length; ++i)
+      slice[i] = store.storeVariable(inter.changed[i]);
 
-        final int hibit = olderHiBit;
-        final NodeValue minor = (NodeValue) lvalue.minorBit;
-        final NodeValue major = (NodeValue) lvalue.majorBit;
+    return new Intermediate(AND(effGuards), slice);
+  }
 
-        addToContext(EQ(EXTRACT(0, minor, newer), EXTRACT(0, minor, older)));
-        addToContext(EQ(EXTRACT(major, hibit, newer), EXTRACT(major, hibit, older)));
+  private Intermediate callToSSA(Statement s) {
+    final StatementAttributeCall call = (StatementAttributeCall) s;
 
-        return EXTRACT(minor, major, newer);
-    }
-
-    private Node updateDynamicSubvector(NodeVariable newer, NodeVariable older, LValue lvalue)
-    {
-        final int olderSize = older.getData().getType().getSize();
-        final int newerSize = newer.getData().getType().getSize();
-
-        if (olderSize != newerSize)
-            throw new IllegalArgumentException("Overlapping variables with different sizes is forbidden");
-
-        final int bitsize = olderSize;
-
-        final NodeOperation shLeftAmount =
-            new NodeOperation(StandardOperation.BVSUB,
-                NodeValue.newBitVector(BitVector.valueOf(bitsize, bitsize)),
-                lvalue.minorBit);
-
-        addToContext(EQ(
-            new NodeOperation(StandardOperation.BVLSHL, older, shLeftAmount),
-            new NodeOperation(StandardOperation.BVLSHL, newer, shLeftAmount)));
-
-        final NodeOperation shRightAmount =
-            new NodeOperation(StandardOperation.BVADD,
-                lvalue.majorBit,
-                NodeValue.newBitVector(BitVector.valueOf(1, bitsize)));
-
-        addToContext(EQ(
-            new NodeOperation(StandardOperation.BVLSHR, older, shRightAmount),
-            new NodeOperation(StandardOperation.BVLSHR, newer, shRightAmount)));
-
-        final DataType subtype = lvalue.targetType;
-        final NodeVariable subvector = createTemporary(subtype);
-
-        addToContext(EQ(
-            EXTRACT(
-                NodeValue.newInteger(0),
-                NodeValue.newInteger(subtype.getSize()),
-                new NodeOperation(StandardOperation.BVLSHR, newer, lvalue.minorBit)),
-            subvector));
-
-        return subvector;
-    }
-
-    private Intermediate assignToConcat(Location lhs, Node value)
-    {
-        final LValue[] lvalues = fetchConcatLValues(lhs);
-        final Node[] arg = new Node[lvalues.length];
-
-        for (int i = 0; i < lvalues.length; ++i)
-            if (lvalues[i].isArray())
-                arg[i] = updateArrayElement(lvalues[i]);
-            else
-                arg[i] = updateScalar(lvalues[i]);
-
-        final Variable[] changed = new Variable[lvalues.length];
-        for (int i = 0; i < changed.length; ++i)
-            changed[i] = lvalues[i].base;
-
-        return new Intermediate(EQ(CONCAT(arg), value), changed);
-    }
-
-    private static Variable[] mergeIntermediateVariables(Intermediate ... in)
-    {
-        final TreeSet<Variable> variableSet = new TreeSet<Variable>(new VariableCmp());
-        for (Intermediate inter : in)
-            for (Variable v : inter.changed)
-                variableSet.add(v);
-
-        return variableSet.toArray(new Variable[variableSet.size()]);
-    }
-
-    private Intermediate conditionToSSA(Statement s)
-    {
-        final StatementCondition branch = (StatementCondition) s;
-
-        final Node[] conditions = new Node[branch.getBlockCount() + 1];
-        final Node[] variables = new Node[branch.getBlockCount()];
-
-        for (int i = 0; i < variables.length; ++i)
-            variables[i] = createTemporary(DataType.BOOLEAN);
-
-        final Node[] guards = new Node[variables.length];
-        for (int i = 0; i < guards.length; ++i)
-            guards[i] = EQ(variables[i], FALSE);
-
-        for (int i = 0; i < branch.getBlockCount(); ++i)
-        {
-            Node cond = null;
-            if (branch.getBlock(i).isElseBlock())
-            {
-                final Node[] elseCond = new Node[i];
-                for (int j = 0; j < i; ++j)
-                    elseCond[j] = guards[j];
-                cond = AND(elseCond);
-            }
-            else
-                cond = convertNode(branch.getBlock(i).getCondition().getNode());
-
-            conditions[i] = EQ(variables[i], cond);
-        }
-
-        final VariableStore snapshot = store.createSnapshot();
-
-        final Intermediate[] blocks = new Intermediate[branch.getBlockCount()];
-        final Intermediate[] blueprints = new Intermediate[branch.getBlockCount()];
-
-        for (int i = 0; i < blocks.length; ++i)
-        {
-            blocks[i] = codeToSSA(branch.getBlock(i).getStatements());
-            blueprints[i] = createPhiBlueprint(i, guards, blocks[i]);
-        }
-        final Variable[] changed = mergeIntermediateVariables(blocks);
-        final Node[] fallback = new Node[changed.length];
-        final String[] nameSet = new String[changed.length];
-
-        for (int i = 0; i < fallback.length; ++i)
-        {
-            fallback[i] = EQ(
-                updateVariable(changed[i]),
-                new NodeVariable(snapshot.getVariable(changed[i].getName())));
-            nameSet[i] = changed[i].getName();
-        }
-
-        final Node[] result = new Node[blueprints.length];
-        for (int i = 0; i < result.length; ++i)
-            result[i] = createPhiNode(blueprints[i], nameSet, fallback);
-
-        conditions[conditions.length - 1] = OR(result);
-        return new Intermediate(AND(conditions), changed);
-    }
-
-    private Node createPhiNode(Intermediate blueprint, String[] nameSet, Node[] fallback)
-    {
-        final Node[] effective = Arrays.copyOf(fallback, fallback.length + 1);
-        effective[effective.length - 1] = blueprint.ssa;
-
-        for (Variable v : blueprint.changed)
-        {
-            final int pos = Arrays.binarySearch(nameSet, store.getBaseName(v));
-            if (pos >= 0)
-                effective[pos] = EQ(
-                    ((NodeOperation) effective[pos]).getOperand(0),
-                    new NodeVariable(v));
-        }
-        return AND(effective);
-    }
-
-    private Intermediate createPhiBlueprint(int index, Node[] guards, Intermediate inter)
-    {
-        final Node[] effGuards = Arrays.copyOf(guards, guards.length + 1);
-        effGuards[index] = EQ(((NodeOperation) effGuards[index]).getOperand(0), TRUE);
-        effGuards[effGuards.length - 1] = inter.ssa;
-
-        final Variable[] slice = new Variable[inter.changed.length];
-        for (int i = 0; i < slice.length; ++i)
-            slice[i] = store.storeVariable(inter.changed[i]);
-
-        return new Intermediate(AND(effGuards), slice);
-    }
-
-    private Intermediate callToSSA(Statement s)
-    {
-        final StatementAttributeCall call = (StatementAttributeCall) s;
-
-        final OpInstance callee =
-            (call.getCalleeName() != null)
+    final OpInstance callee =
+        (call.getCalleeName() != null)
             ? instance.getBinding(call.getCalleeName())
             : instance;
 
-        final SSAForm stored = callee.getAttributes().get(call.getAttributeName());
-        final SSAForm actual = stored.rebase(store.getVersions());
+    final SSAForm stored = callee.getAttributes().get(call.getAttributeName());
+    final SSAForm actual = stored.rebase(store.getVersions());
 
-        final TreeSet<String> nameSet =
-            new TreeSet<String>(actual.getStore().getVersions().keySet());
-        nameSet.remove(actual.getStore().TEMPORARY_NAME);
+    final TreeSet<String> nameSet =
+        new TreeSet<String>(actual.getStore().getVersions().keySet());
+    nameSet.remove(actual.getStore().TEMPORARY_NAME);
 
-        final List<Variable> tmp = new ArrayList<Variable>(nameSet.size());
-        for (String name : nameSet)
-            tmp.add(new Variable(name, actual.getStore().getVariable(name).getData()));
+    final List<Variable> tmp = new ArrayList<Variable>(nameSet.size());
+    for (String name : nameSet)
+      tmp.add(new Variable(name, actual.getStore().getVariable(name).getData()));
 
-        return new Intermediate(actual.getExpression(), tmp.toArray(new Variable[tmp.size()]));
+    return new Intermediate(actual.getExpression(), tmp.toArray(new Variable[tmp.size()]));
+  }
+
+  private Intermediate codeToSSA(List<Statement> code) {
+    if (code.isEmpty())
+      return new Intermediate(Expression.TRUE);
+
+    int index = 0;
+    final List<Intermediate> inter = new ArrayList<Intermediate>();
+    for (Statement s : code) {
+      switch (s.getKind()) {
+        case ASSIGN:
+          inter.add(assignmentToSSA(s));
+          break;
+        case COND:
+          inter.add(conditionToSSA(s));
+          break;
+        case CALL:
+          inter.add(callToSSA(s));
+          break;
+        case STATUS:
+          break;
+
+        default:
+          throw new UnsupportedOperationException(s.getKind().toString());
+      }
+      ++index;
     }
 
-    private Intermediate codeToSSA(List<Statement> code)
-    {
-        if (code.isEmpty())
-            return new Intermediate(Expression.TRUE);
+    final Node[] parts = new Node[inter.size()];
+    for (int i = 0; i < inter.size(); ++i)
+      parts[i] = inter.get(i).ssa;
 
-        int index = 0;
-        final List<Intermediate> inter = new ArrayList<Intermediate>();
-        for (Statement s : code)
-        {
-            switch (s.getKind())
-            {
-                case ASSIGN:    inter.add(assignmentToSSA(s)); break;
-                case COND:      inter.add(conditionToSSA(s)); break;
-                case CALL:      inter.add(callToSSA(s)); break;
-                case STATUS:    break;
+    final Intermediate[] tmp = inter.toArray(new Intermediate[inter.size()]);
+    return new Intermediate(
+        AND(parts),
+        mergeIntermediateVariables(tmp));
+  }
 
-                default: throw new UnsupportedOperationException(s.getKind().toString());
-            }
-            ++index;
-        }
+  private LValue createLValue(Location loc) {
+    final LocationAtom atom = (LocationAtom) loc;
 
-        final Node[] parts = new Node[inter.size()];
-        for (int i = 0; i < inter.size(); ++i)
-            parts[i] = inter.get(i).ssa;
+    String name = atom.getName();
+    if (atom.getSource().getSymbolKind() == ESymbolKind.ARGUMENT)
+      name = tag + "." + atom.getName();
 
-        final Intermediate[] tmp = inter.toArray(new Intermediate[inter.size()]);
-        return new Intermediate(
-            AND(parts),
-            mergeIntermediateVariables(tmp));
+    final DataType sourceType = Converter.getDataTypeForModel(atom.getSource().getType());
+    final DataType targetType = Converter.getDataTypeForModel(atom.getType());
+
+    Node index;
+    DataType baseType;
+
+    if (atom.getIndex() != null) {
+      // Array type with Integer indices represented with BitVector 32
+      index = convertNode(atom.getIndex().getNode());
+      baseType = DataType.MAP(DataType.BIT_VECTOR(32), sourceType);
+    } else {
+      index = null;
+      baseType = sourceType;
     }
 
-    private LValue createLValue(Location loc)
-    {
-        final LocationAtom atom = (LocationAtom) loc;
+    final Variable base = new Variable(name, baseType);
+    if (atom.getBitfield() != null) {
+      final Node minor = convertNode(atom.getBitfield().getFrom().getNode());
+      final Node major = convertNode(atom.getBitfield().getTo().getNode());
+      return new LValue(base, index, minor, major, baseType, sourceType, targetType);
+    }
 
-        String name = atom.getName();
-        if (atom.getSource().getSymbolKind() == ESymbolKind.ARGUMENT)
-            name = tag + "." + atom.getName();
+    return new LValue(base, index, null, null, baseType, sourceType, targetType);
+  }
 
-        final DataType sourceType = Converter.getDataTypeForModel(atom.getSource().getType());
-        final DataType targetType = Converter.getDataTypeForModel(atom.getType());
+  /**
+   * Convert given expression accordingly to current builder state.
+   * Replaces named variables with versioned equivalents. Current builder
+   * state versions are used. Context and variables are not updated.
+   *
+   * @param expression Expression to be converted.
+   */
+  private Node convertNode(Node expression) {
+    final TransformerRule rule = new TransformerRule() {
+      @Override
+      public boolean isApplicable(Node in) {
+        return in.getKind() == Node.Kind.VARIABLE
+            && locationFromNodeVariable((NodeVariable) in) != null;
+      }
 
-        Node index;
-        DataType baseType;
-
-        if (atom.getIndex() != null)
-        {
-            // Array type with Integer indices represented with BitVector 32
-            index = convertNode(atom.getIndex().getNode());
-            baseType = DataType.MAP(DataType.BIT_VECTOR(32), sourceType);
-        }
+      @Override
+      public Node apply(Node in) {
+        final Location loc = locationFromNodeVariable(in);
+        if (loc instanceof LocationAtom)
+          return createRValue(createLValue(loc));
+        else if (loc instanceof LocationConcat)
+          return CONCAT(createRValues(fetchConcatLValues(loc)));
         else
-        {
-            index = null;
-            baseType = sourceType;
-        }
+          throw new UnsupportedOperationException();
+      }
+    };
 
-        final Variable base = new Variable(name, baseType);
-        if (atom.getBitfield() != null)
-        {
-            final Node minor = convertNode(atom.getBitfield().getFrom().getNode());
-            final Node major = convertNode(atom.getBitfield().getTo().getNode());
-            return new LValue(base, index, minor, major, baseType, sourceType, targetType);
-        }
+    final NodeTransformer transformer = new NodeTransformer();
+    transformer.addRule(Node.Kind.VARIABLE, rule);
+    transformer.walk(expression);
 
-        return new LValue(base, index, null, null, baseType, sourceType, targetType);
+    return transformer.getResult().iterator().next();
+  }
+
+  private Node adoptNode(Node expression) {
+    final TransformerRule rule = new TransformerRule() {
+      @Override
+      public boolean isApplicable(Node in) {
+        return in.getKind() == Node.Kind.VARIABLE;
+      }
+
+      @Override
+      public Node apply(Node in) {
+        final NodeVariable node = (NodeVariable) in;
+        final Location loc = locationFromNodeVariable(in);
+        if (loc instanceof LocationAtom)
+          return createRValue(createLValue(loc));
+        else if (loc instanceof LocationConcat)
+          return CONCAT(createRValues(fetchConcatLValues(loc)));
+        else
+          throw new UnsupportedOperationException();
+      }
+    };
+
+    final NodeTransformer transformer = new NodeTransformer();
+    transformer.addRule(Node.Kind.VARIABLE, rule);
+    transformer.walk(expression);
+
+    return transformer.getResult().iterator().next();
+  }
+
+  /**
+   * Extract Location user-data from Node instance.
+   *
+   * @return Location object if correct instance is attached to node,
+   * null otherwise.
+   */
+  private static Location locationFromNodeVariable(Node node) {
+    if (node.getUserData() instanceof NodeInfo) {
+      final NodeInfo info = (NodeInfo) node.getUserData();
+      if (info.getSource() instanceof Location)
+        return (Location) info.getSource();
     }
+    return null;
+  }
 
-    /**
-     * Convert given expression accordingly to current builder state.
-     * Replaces named variables with versioned equivalents. Current builder
-     * state versions are used. Context and variables are not updated.
-     *
-     * @param expression Expression to be converted.
-     */
-    private Node convertNode(Node expression)
-    {
-        final TransformerRule rule = new TransformerRule() {
-            @Override
-            public boolean isApplicable(Node in) {
-                return in.getKind() == Node.Kind.VARIABLE
-                    && locationFromNodeVariable((NodeVariable) in) != null;
-            }
+  public SSAForm build(String attribute) {
+    if (attribute == null)
+      throw new NullPointerException();
 
-            @Override
-            public Node apply(Node in)
-            {
-                final Location loc = locationFromNodeVariable(in);
-                if (loc instanceof LocationAtom)
-                    return createRValue(createLValue(loc));
-                else if (loc instanceof LocationConcat)
-                    return CONCAT(createRValues(fetchConcatLValues(loc)));
-                else
-                    throw new UnsupportedOperationException();
-            }
-        };
+    this.store = new VariableStore();
+    this.context = Collections.emptyList();
 
-        final NodeTransformer transformer = new NodeTransformer();
-        transformer.addRule(Node.Kind.VARIABLE, rule);
-        transformer.walk(expression);
+    final Intermediate intermediate = codeToSSA(
+        instance.getImage().getAttributes().get(attribute).getStatements());
 
-        return transformer.getResult().iterator().next();
-    }
+    if (context.isEmpty())
+      return new SSAForm(intermediate.ssa, store);
 
-    private Node adoptNode(Node expression)
-    {
-        final TransformerRule rule = new TransformerRule() {
-            @Override
-            public boolean isApplicable(Node in) {
-                return in.getKind() == Node.Kind.VARIABLE;
-            }
+    final Node[] nodes = context.toArray(new Node[context.size() + 1]);
+    nodes[nodes.length - 1] = intermediate.ssa;
+    return new SSAForm(AND(nodes), store);
+  }
 
-            @Override
-            public Node apply(Node in)
-            {
-                final NodeVariable node = (NodeVariable) in;
-                final Location loc = locationFromNodeVariable(in);
-                if (loc instanceof LocationAtom)
-                    return createRValue(createLValue(loc));
-                else if (loc instanceof LocationConcat)
-                    return CONCAT(createRValues(fetchConcatLValues(loc)));
-                else
-                    throw new UnsupportedOperationException();
-            }
-        };
+  public static SSAForm fromMode(Primitive in) {
+    if (in == null)
+      throw new NullPointerException();
 
-        final NodeTransformer transformer = new NodeTransformer();
-        transformer.addRule(Node.Kind.VARIABLE, rule);
-        transformer.walk(expression);
+    final PrimitiveAND mode = (PrimitiveAND) in;
+    if (mode.getReturnExpr() == null)
+      return SSAForm.EMPTY_FORM;
 
-        return transformer.getResult().iterator().next();
-    }
+    final SSABuilder builder = new SSABuilder(mode.getName());
 
-    /**
-     * Extract Location user-data from Node instance.
-     *
-     * @return Location object if correct instance is attached to node,
-     * null otherwise.
-     */
-    private static Location locationFromNodeVariable(Node node)
-    {
-        if (node.getUserData() instanceof NodeInfo)
-        {
-            final NodeInfo info = (NodeInfo) node.getUserData();
-            if (info.getSource() instanceof Location)
-                return (Location) info.getSource();
-        }
-        return null;
-    }
+    final Expr expr = mode.getReturnExpr();
+    final Data data = Converter.toFortressData(expr.getValueInfo());
 
-    public SSAForm build(String attribute)
-    {
-        if (attribute == null)
-            throw new NullPointerException();
+    final Node variable =
+        builder.storeVariable(new Variable(mode.getName(), data));
 
-        this.store = new VariableStore();
-        this.context = Collections.emptyList();
+    return new SSAForm(
+        EQ(variable, builder.convertNode(expr.getNode())),
+        builder.store);
+  }
 
-        final Intermediate intermediate = codeToSSA(
-            instance.getImage().getAttributes().get(attribute).getStatements());
+  private SSABuilder(String tag) {
+    this.instance = null;
+    this.tag = tag;
+    this.store = new VariableStore();
+    this.context = Collections.emptyList();
+  }
 
-        if (context.isEmpty())
-            return new SSAForm(intermediate.ssa, store);
+  public SSABuilder(OpInstance instance) {
+    if (instance == null)
+      throw new NullPointerException();
 
-        final Node[] nodes = context.toArray(new Node[context.size() + 1]);
-        nodes[nodes.length - 1] = intermediate.ssa;
-        return new SSAForm(AND(nodes), store);
-    }
-
-    public static SSAForm fromMode(Primitive in)
-    {
-        if (in == null)
-            throw new NullPointerException();
-
-        final PrimitiveAND mode = (PrimitiveAND) in;
-        if (mode.getReturnExpr() == null)
-            return SSAForm.EMPTY_FORM;
-
-        final SSABuilder builder = new SSABuilder(mode.getName());
-
-        final Expr expr = mode.getReturnExpr();
-        final Data data = Converter.toFortressData(expr.getValueInfo());
-
-        final Node variable =
-            builder.storeVariable(new Variable(mode.getName(), data));
-
-        return new SSAForm(
-            EQ(variable, builder.convertNode(expr.getNode())),
-            builder.store);
-    }
-
-    private SSABuilder(String tag)
-    {
-        this.instance = null;
-        this.tag = tag;
-        this.store = new VariableStore();
-        this.context = Collections.emptyList();
-    }
-
-    public SSABuilder(OpInstance instance)
-    {
-        if (instance == null)
-            throw new NullPointerException();
-
-        this.instance = instance;
-        this.tag = instance.getImage().getName();
-        this.context = Collections.emptyList();
-    }
+    this.instance = instance;
+    this.tag = instance.getImage().getName();
+    this.context = Collections.emptyList();
+  }
 }

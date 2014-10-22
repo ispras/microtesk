@@ -20,20 +20,16 @@ import ru.ispras.fortress.expression.Node;
 
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 
-final class IncrementalSSABuilder
-{
-    private VariableStore   store;
-    private List<Node>      blocks;
+final class IncrementalSSABuilder {
+  private VariableStore store;
+  private List<Node> blocks;
 
-    public void appendStatement(Statement s)
-    {
-    }
+  public void appendStatement(Statement s) {
+  }
 
-    public void appendCode(List<Statement> code)
-    {
-    }
+  public void appendCode(List<Statement> code) {
+  }
 
-    public void appendSSA()
-    {
-    }
+  public void appendSSA() {
+  }
 }
