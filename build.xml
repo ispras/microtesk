@@ -239,10 +239,10 @@
       <fileset dir="src/main/arch/demo/cpu" includes="**"/>  
     </copy>
 
-  	<!-- Copies VLIW demo architecture specifications and test templates -->
-  	<copy todir="${dist}/arch/demo/vliw">
-  	   <fileset dir="src/main/arch/demo/vliw" includes="**"/>  
-  	</copy>
+    <!-- Copies VLIW demo architecture specifications and test templates -->
+    <copy todir="${dist}/arch/demo/vliw">
+       <fileset dir="src/main/arch/demo/vliw" includes="**"/>  
+    </copy>
 
   </target>
 
