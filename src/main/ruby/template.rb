@@ -87,9 +87,21 @@ class Template
 
   # This method adds every subclass of Template to the list of templates to parse
   def self.inherited(subclass)
-    subclass_file = caller[0].split(':')[0]
+    subclass_file = parse_caller(caller[0])[0]
     puts "Loaded template #{subclass} defined in #{subclass_file}"
     @@template_classes.store subclass, subclass_file
+  end
+
+  # Parses the text of stack entries returned by the "caller" method,
+  # which have the following format: <file:line> or <file:line: in `method'>.
+  def self.parse_caller(at)
+    if /^(.+?):(\d+)(?::in `(.*)')?/ =~ at
+      file   = Regexp.last_match[1]
+      line   = Regexp.last_match[2].to_i
+      method = Regexp.last_match[3]
+      return [file, line, method]
+    end
+    raise MTRubyError, "Failed to parse #{at}."
   end
 
   # Hack to allow limited use of capslocked characters

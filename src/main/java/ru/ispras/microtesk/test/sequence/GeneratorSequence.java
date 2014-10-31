@@ -35,7 +35,7 @@ public final class GeneratorSequence<T> implements Generator<T> {
       sequences.add(sequence);
     }
 
-    this.collectionIterator = new CollectionIterator<>(sequences);
+    this.collectionIterator = new CollectionIterator<Sequence<T>>(sequences);
   }
 
   private static <T> Sequence<T> createSingleSequence(IIterator<Sequence<T>> sequenceIterator)
