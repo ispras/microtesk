@@ -104,6 +104,34 @@
     </sequential>
   </macrodef>
 
+  <!--
+  Macro for processing templates. Executes the following command for each
+  Ruby template file in the source directory:
+
+  java -jar dist/lib/jars/jruby.jar dist/lib/ruby/microtesk.rb <arch.name> <src.path> <file.name>
+  -->
+  <macrodef name="templates">
+    <attribute name="src.path"/>
+    <attribute name="arch.name"/>
+    <attribute name="file.name"/>
+    <sequential>
+      <echo message="templates for @{arch.name} from @{src.path} to file @{file.name}"/>
+      <apply executable="java" failonerror="true">
+        <arg value="-ea"/>
+        <arg value="-jar"/>
+        <arg value="${dist.jars}/${jruby.jar}"/>
+        <arg value="${dist.ruby}/microtesk.rb"/>
+        <arg value="@{arch.name}"/>
+        <srcfile/>
+        <arg value="@{file.name}"/>
+        <fileset dir="@{src.path}">
+          <include name="**/*.rb"/>
+          <exclude name="**/*_base.rb"/>
+        </fileset>	
+      </apply>
+    </sequential>
+  </macrodef>
+
   <!-- Init target, creates dirs -->
   <target name="create.dirs">
     <mkdir dir="${gen}/${simnml_grammar.path}"/>
@@ -213,7 +241,7 @@
         <attribute name="Class-Path" value="${jar.classpath}"/>
         <attribute name="Title"      value="MicroTESK"/>
         <attribute name="Version"    value="${fullver}"/>
-        <attribute name="Vendor"     value="ISPRAS (www.ispras.ru)"/>
+        <attribute name="Vendor"     value="ISP RAS (http://www.ispras.ru)"/>
       </manifest>
     </jar>
   </target>
@@ -328,13 +356,14 @@
         <attribute name="Class-Path" value="${models.jar.classpath}"/>
         <attribute name="Title"      value="MicroTESK Models"/>
         <attribute name="Version"    value="${fullver}"/>
-        <attribute name="Vendor"     value="ISPRAS (www.ispras.ru)"/>
+        <attribute name="Vendor"     value="ISP RAS (http://www.ispras.ru)"/>
       </manifest>
     </jar>
   </target>
 
-  <!-- Test target (compile and run JUnit tests) -->
+  <!-- Test target -->
   <target name="test" depends="javac.test">
+    <!-- Compile and run JUnit tests -->
     <path id="classpath.test">
       <pathelement location="jars/junit-4.10.jar"/>
       <pathelement location="${test.bin}"/>
@@ -342,7 +371,6 @@
     </path>
 
   	<mkdir dir="target/tests/reports"/>
-
     <junit fork="no" printsummary="yes" showoutput="yes">
       <classpath refid="classpath.test"/>
       <formatter type="plain" usefile="false"/>
@@ -352,6 +380,19 @@
         <fileset dir="${src.test.java.dir}" includes="**/*TestCase*.java"/>
       </batchtest>
     </junit>
+
+    <!-- Process all test templates included in the distribution package -->
+    <templates
+      src.path="${dist}/arch/demo/vliw"
+      arch.name="vliw"
+      file.name="${dist}/test.s"
+    />
+    <templates
+      src.path="${dist}/arch/demo/cpu"
+      arch.name="cpu"
+      file.name="${dist}/test.s"
+    />
+    <delete file="${dist}/test.s"/>
   </target>
 
 </project>
