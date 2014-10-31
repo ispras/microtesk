@@ -117,6 +117,7 @@
     <sequential>
       <echo message="templates for @{arch.name} from @{src.path} to file @{file.name}"/>
       <apply executable="java" failonerror="true">
+        <env key="MICROTESK_HOME" value="${dist}"/>
         <arg value="-ea"/>
         <arg value="-jar"/>
         <arg value="${dist.jars}/${jruby.jar}"/>
@@ -394,5 +395,5 @@
     />
     <delete file="${dist}/test.s"/>
   </target>
-
+ 
 </project>
