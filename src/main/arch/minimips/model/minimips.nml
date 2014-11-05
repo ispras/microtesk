@@ -1,0 +1,188 @@
+//////////////////////////////////CONSTANTS/////////////////////////////////////////
+
+let REGISTER_INDEX_SIZE = 5
+let DATA_WORD_SIZE = 1
+
+//////////////////////////////////TYPES/////////////////////////////////////////////
+
+type   BYTE = card(8)
+type   WORD = int(32)
+type  INDEX = card(3) //only 3 bits for address are required
+type    BIT = card(1)
+
+/////////////////////REGISTERS AND MEMORY//////////////////////////////////////////
+
+reg REGISTERS [8, BYTE]
+mem   MEMORY [2 ** 8, BYTE] //8-bit addressing
+reg PC[1, BYTE] //Program counter
+
+/////////////////////////ADDRESSING MODES///////////////////////////////////////////
+
+mode REG (i : INDEX) = REGISTERS[i] 
+  syntax = format("$%d", i)
+  image  = format("%5b", i) //maybe 2 bits are redundant?
+
+//////////////////////////VARIABLES/////////////////////////////////////////////////
+
+var JMPADDR[BYTE] // Jump address
+var BRANCH[BIT]   //branch flag
+
+///////////////////////////////////INSTRUCTION SET//////////////////////////////////
+
+//ARITHMETIC
+op add (rd: REG, rs: REG, rt: REG)
+  syntax = format("add, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image)
+  action = {
+     
+    temp = rs<31>::rs + rt<31>::rt; // concat with greatest significant bits in each, then add
+    if temp<32> != temp<31> then    //true, if adding led to carrying into the concatenated bit (overflow happened)
+      exception("IntegerOverflow");
+    else
+      rd = temp<31..0>;
+    endif;
+
+
+  }
+
+  op sub (rd: REGISTER, rs: REGISTER, rt: REGISTER)
+  syntax = format("sub, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image)
+  action = {
+     
+    temp = rs<31>::rs - rt<31>::rt; // concat with greatest significant bits in each, then substract
+    if temp<32> != temp<31> then    // true, if substraction led to carrying into the concatenated bit (overflow happened)
+      exception("IntegerOverflow");
+    else
+      rd = temp<31..0>;
+    endif;
+
+
+  }
+
+op addi (rs: REGISTER, rt: REGISTER, immediate: BYTE)
+  syntax = format("addi, %s, %s, %sd, rt.syntax, rs.syntax, immediate.syntax)
+  image = format("000000%s%s%d00000000", rs.image, rt.image, immediate)
+  action = {
+     
+    temp = rs<31>::rs + coerce(int(33), rt); // concat with greatest significant bits in each, then add
+    if temp<32> != temp<31> then             // true, if adding led to carrying into the concatenated bit (overflow happened)
+      exception("IntegerOverflow");
+    else
+      rd = temp<31..0>;
+    endif;
+
+
+  }
+
+//LOGICAL
+op and (rd: REG, rs: REG, rt: REG)
+  syntax = format("and, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image = format("000000%s%s%s00000100100", rs.image, rt.image, rd.image)
+  action = {
+     
+    rd = rs & rt;
+
+  }
+
+ op or (rd: REG, rs: REG, rt: REG)
+  syntax = format("or, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image)
+  action = {
+     
+    rd = rs | rt;
+
+  }
+
+  //MEMORY OPERATIONS
+  op lb (rt: REG, address: REG, offset: BYTE)
+  syntax = format("lb %s, %d(%s)", rt.syntax, offset.syntax, address.syntax)
+  image = format("100011%s%s%d00000000", address.image, rt.image, offset)
+  action = {
+     
+    rt = M[address + offset * DATA_WORD_SIZE];
+
+  }
+
+  op sb (rd: REG, address: REG, offset: BYTE)
+  syntax = format("sb %s, %d(%s)", rd.syntax, offset.syntax, address.syntax)
+  image = format("101011%s%s%d00000000", address.image, rt.image, offset)
+  action = {
+
+    M[address + offset * DATA_WORD_SIZE] = rt;
+
+  }
+
+  op beq (rt: REG, rs: REG, immed: BYTE)
+  syntax = format("beq %s, %s, %s", rt.syntax, rs.syntax, immed.syntax)
+  image = format("000100%s%s%d00000000", rt.image, rs.image, immed)
+  action = {
+
+    if rt == rs then
+      BRANCH = 1;
+      JMPADDR = PC + 4 * immed + 4;
+    endif;
+  }
+
+  op slt (rd: REG, rs: REG, rt: REG)
+  syntax = format("slt %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image = format("000000%s%s%s00000101010", rs.image, rt.image rd.image)
+  action = {
+
+    if rs < rt then
+      rd = 1;
+    else
+      rd = 0;
+    endif;
+  }
+
+  op j (addr: card())
+  syntax = format("slt %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image = format("000010%s%s%s00000101010", rs.image, rt.image rd.image)
+  action = {
+
+    BRANCH = 1;
+    JMPADDR = 4 * immed;
+  }
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+op Operations = add
+              | sub
+              | addi
+
+              | and
+              | or
+
+              | lw
+              | sw
+              //is it suitable here?   | lui
+
+              | beq
+
+              | slt
+              | slti
+              
+              | j
+
+
+
+op miniMips (command: Operations)
+  syntax = command.syntax
+  image  = command.image
+  action = {
+
+    REGISTERS[0] = 0;
+    BRANCH = 0;
+    command.action;
+
+    if BRANCH == 0 then
+      // If the flag is not set, proceeds to the next instruction 
+      PC = PC + 4;
+    else
+      // Otherwise, transfers control to the jump address
+      PC = JMPADDR;
+    endif;
+  }
+
+  op instruction = miniMips
