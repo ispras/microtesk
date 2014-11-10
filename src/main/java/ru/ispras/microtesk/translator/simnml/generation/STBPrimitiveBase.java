@@ -179,11 +179,14 @@ final class StatementBuilder {
 
     final StringBuffer sb = new StringBuffer();
     for (int index = 0; index < stmt.getArguments().size(); ++index) {
-      sb.append(", ");
-
       final Format.Argument argument = stmt.getArguments().get(index);
       final FormatMarker marker = stmt.getMarkers().get(index);
+      
+      if (null == argument || null == marker) {
+        continue;
+      }
 
+      sb.append(", ");
       sb.append(argument.convertTo(marker));
     }
 

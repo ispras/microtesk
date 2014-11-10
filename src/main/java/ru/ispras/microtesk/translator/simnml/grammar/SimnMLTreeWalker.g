@@ -332,7 +332,7 @@ argType returns [Primitive res]
 @init  {final PrimitiveFactory factory = getPrimitiveFactory();}
     :  ^(ARG_MODE id=ID) {$res = factory.getMode(where($id), $id.text);}
     |  ^(ARG_OP id=ID)   {$res = factory.getOp(where($id), $id.text);}
-    |  te=typeExpr       {$res = factory.createImm($te.res);}
+    |  te=typeExpr       {checkNotNull($te.start, $te.res, $te.text); $res = factory.createImm($te.res);}
     ;
 
 /*======================================================================================*/
@@ -486,6 +486,7 @@ analyzer.startTrackingSource();
 }
     me=dataExpr)
 {
+checkNotNull($me.start, $me.res, $me.text);
 final List<Statement> result = new ArrayList<Statement>();
 result.add(getStatementFactory().createAssignment($le.res, $me.res));
 
