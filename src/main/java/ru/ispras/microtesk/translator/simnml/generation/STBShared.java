@@ -180,8 +180,7 @@ final class STBShared implements ITemplateBuilder {
     final ST tMemory = group.getInstanceOf("memory");
 
     tMemory.add("name", name);
-    tMemory.add("kind", String.format("%s.%s",
-      memory.getKind().getClass().getSimpleName(), memory.getKind()));
+    tMemory.add("kind", memory.getKind());
 
     final Type typeExpr = memory.getType();
     if (null != typeExpr.getAlias()) {

@@ -48,7 +48,7 @@ memory(name, kind, type, size) ::= <<
 >>
 
 new_memory(kind, name, type, size) ::= <<
-new Memory(<kind>, "<name>", <type>, <size>)
+Memory.<kind>("<name>", <type>, <size>)
 >>
 
 memory_array(type, name, items) ::= <<
