@@ -84,7 +84,11 @@ mode OPRNDR = OPRNDL | IMM
 op ADD()
   syntax = "add"
   image  = "00"
-  action = { DEST = SRC1 + SRC2; }
+  action = { 
+    DEST = SRC1 + SRC2;
+    // Function 'trace' prints text messages to the simulator log
+    trace("%d + %d = %d", SRC1, SRC2, DEST);   
+  }
 
 op SUB()
   syntax = "sub"
