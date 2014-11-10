@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import ru.ispras.microtesk.model.api.memory.MemoryKind;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class MemoryExpr {
-  private final MemoryKind kind;
+  private final Memory.Kind kind;
   private final Type type;
   private final Expr size;
 
-  public MemoryExpr(MemoryKind kind, Type type, Expr size) {
+  public MemoryExpr(Memory.Kind kind, Type type, Expr size) {
     if (null == type) {
       throw new NullPointerException();
     }
@@ -36,7 +36,7 @@ public final class MemoryExpr {
     this.kind = kind;
   }
 
-  public MemoryKind getKind() {
+  public Memory.Kind getKind() {
     return kind;
   }
 

@@ -21,28 +21,33 @@ import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Memory {
+
+  public enum Kind {
+    REG, MEM, VAR
+  }
+  
   public static Memory REG(String name, Type type, int length) {
-    return new Memory(MemoryKind.REG, name, type, length);
+    return new Memory(Kind.REG, name, type, length);
   }
 
   public static Memory REG(String name, Type type) {
-    return new Memory(MemoryKind.REG, name, type);
+    return new Memory(Kind.REG, name, type);
   }
 
   public static Memory MEM(String name, Type type, int length) {
-    return new Memory(MemoryKind.MEM, name, type, length);
+    return new Memory(Kind.MEM, name, type, length);
   }
 
   public static Memory MEM(String name, Type type) {
-    return new Memory(MemoryKind.MEM, name, type);
+    return new Memory(Kind.MEM, name, type);
   }
 
   public static Memory VAR(String name, Type type, int length) {
-    return new Memory(MemoryKind.VAR, name, type, length);
+    return new Memory(Kind.VAR, name, type, length);
   }
 
   public static Memory VAR(String name, Type type) {
-    return new Memory(MemoryKind.VAR, name, type);
+    return new Memory(Kind.VAR, name, type);
   }
 
   public static int BLOCK_SIZE = 4096;
@@ -70,17 +75,17 @@ public final class Memory {
     }
   }
 
-  private final MemoryKind kind;
+  private final Kind kind;
   private final String name;
   private final Type type;
   private final int length;
   private final List<Block> blocks;
 
-  public Memory(MemoryKind kind, String name, Type type) {
+  public Memory(Kind kind, String name, Type type) {
     this(kind, name, type, 1);
   }
 
-  public Memory(MemoryKind kind, String name, Type type, int length) {
+  public Memory(Kind kind, String name, Type type, int length) {
     if (null == kind) {
       throw new NullPointerException();
     }
@@ -160,7 +165,7 @@ public final class Memory {
     return new MetaLocationStore(name, getLength());
   }
 
-  public MemoryKind getMemoryKind() {
+  public Kind getMemoryKind() {
     return kind;
   }
 

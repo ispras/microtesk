@@ -18,8 +18,6 @@ import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.type.Type;
 
-import static ru.ispras.microtesk.model.api.memory.MemoryKind.*;
-
 public final class Shared
 {
     private Shared() {}
@@ -50,17 +48,17 @@ public final class Shared
     reg PC[1, byte]
     */
 
-    public static final Memory  M = new Memory(MEM, "M",  byte_t, MSIZE); 
-    public static final Memory  R = new Memory(REG, "R",  byte_t, REGS);
-    public static final Memory PC = new Memory(REG, "PC", byte_t, 1);
+    public static final Memory  M = Memory.MEM("M",  byte_t, MSIZE); 
+    public static final Memory  R = Memory.REG("R",  byte_t, REGS);
+    public static final Memory PC = Memory.REG("PC", byte_t, 1);
 
     /*
     var SRC1[1, byte], SRC2[1, byte], DEST[1, byte]
     */
 
-    public static final Memory SRC1 = new Memory(VAR, "SRC1", byte_t, 1);
-    public static final Memory SRC2 = new Memory(VAR, "SRC2", byte_t, 1);
-    public static final Memory DEST = new Memory(VAR, "DEST", byte_t, 1);
+    public static final Memory SRC1 = Memory.VAR("SRC1", byte_t, 1);
+    public static final Memory SRC2 = Memory.VAR("SRC2", byte_t, 1);
+    public static final Memory DEST = Memory.VAR("DEST", byte_t, 1);
 
     /*
     MetaData Source (collections for memory and registers).  

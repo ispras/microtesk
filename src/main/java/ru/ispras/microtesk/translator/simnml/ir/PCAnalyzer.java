@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.simnml.ir;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.model.api.memory.MemoryKind;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.location.LocationFactory;
@@ -107,7 +107,7 @@ public final class PCAnalyzer {
     assert location.getSource() instanceof LocationAtom.MemorySource;
 
     final MemoryExpr memory = ((LocationAtom.MemorySource) location.getSource()).getMemory();
-    if (memory.getKind() != MemoryKind.REG) {
+    if (memory.getKind() != Memory.Kind.REG) {
       return false;
     }
 
