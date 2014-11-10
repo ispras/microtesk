@@ -18,16 +18,27 @@ import java.util.List;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class StatementFormat extends Statement {
+  private final String funcName;
   private final String format;
   private final List<FormatMarker> markers;
   private final List<Format.Argument> arguments;
 
-  StatementFormat(String format, List<FormatMarker> markers, List<Format.Argument> arguments) {
+  StatementFormat(
+      String funcName, String format, List<FormatMarker> markers, List<Format.Argument> arguments) {
     super(Kind.FORMAT);
 
+    this.funcName = funcName;
     this.format = format;
     this.markers = markers;
     this.arguments = arguments;
+  }
+  
+  StatementFormat(String format, List<FormatMarker> markers, List<Format.Argument> arguments) {
+    this(null, format, markers, arguments);
+  }
+
+  public String getFunction() {
+    return funcName;
   }
 
   public String getFormat() {

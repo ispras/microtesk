@@ -106,6 +106,7 @@ public final class StatementFactory extends WalkerFactoryBase {
 
   public Statement createFormat(Where where, String format, List<Format.Argument> args)
       throws SemanticException {
+
     if (null == args) {
       return new StatementFormat(format, null, null);
     }
@@ -119,6 +120,22 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
 
     return new StatementFormat(format, markers, args);
+  }
+  
+  public Statement createTrace(Where where, String format, List<Format.Argument> args)
+      throws SemanticException {
+
+    final String FUNCTION_NAME = "trace"; 
+    if (null == args) {
+      return new StatementFormat(FUNCTION_NAME, format, null, null);
+    }
+
+    final List<FormatMarker> markers = FormatMarker.extractMarkers(format);
+    if (markers.size() != args.size()) {
+      raiseError(where, String.format(WRONG_FORMAT_ARG_SPEC, markers.size(), args.size()));
+    }
+
+    return new StatementFormat(FUNCTION_NAME, format, markers, args);
   }
 
   public Statement createExceptionCall(Where where, String text){

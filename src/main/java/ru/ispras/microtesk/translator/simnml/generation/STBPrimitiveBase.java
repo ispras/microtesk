@@ -169,7 +169,11 @@ final class StatementBuilder {
 
   private void addStatement(StatementFormat stmt) {
     if (null == stmt.getArguments()) {
-      addStatement(String.format("\"%s\";", stmt.getFormat()));
+      if (null == stmt.getFunction()) {
+        addStatement(String.format("\"%s\";", stmt.getFormat()));
+      } else {
+        addStatement(String.format("%s(\"%s\");", stmt.getFunction(), stmt.getFormat()));
+      }
       return;
     }
 
@@ -183,9 +187,13 @@ final class StatementBuilder {
       sb.append(argument.convertTo(marker));
     }
 
-    addStatement(String.format("String.format(\"%s\"%s);", stmt.getFormat(), sb.toString()));
+    if (null == stmt.getFunction()) {
+      addStatement(String.format("String.format(\"%s\"%s);", stmt.getFormat(), sb.toString()));
+    } else {
+      addStatement(String.format("%s(\"%s\"%s);", stmt.getFunction(), stmt.getFormat(), sb.toString()));
+    }
   }
-  
+
   private void addStatement(StatementFunctionCall stmt) {
     final StringBuffer sb = new StringBuffer();
     for (int index = 0; index < stmt.getArgumentCount(); ++index) {

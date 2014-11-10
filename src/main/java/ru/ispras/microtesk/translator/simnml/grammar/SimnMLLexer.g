@@ -184,6 +184,7 @@ ENUM                    :    'enum';
 COERCE                  :    'coerce';
 FORMAT                  :    'format';
 EXCEPTION               :    'exception';
+TRACE                   :    'trace';
 
 /* Conditional keywords */
 IF                      :    'if';

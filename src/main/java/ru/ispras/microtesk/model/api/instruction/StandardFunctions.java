@@ -18,4 +18,8 @@ public abstract class StandardFunctions {
   public static void exception(String text) {
     System.out.println("Exception was raised: " + text);
   }
+
+  public static void trace(String format, Object ... args) {
+    System.out.println(String.format(format, args));
+  }
 }
