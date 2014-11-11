@@ -19,7 +19,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.UndeclaredException;
-import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 
@@ -86,12 +86,12 @@ public final class ModelStateObserver implements IModelStateObserver {
   }
 
   @Override
-  public ILocationAccessor accessLocation(String name) throws ConfigurationException {
+  public LocationAccessor accessLocation(String name) throws ConfigurationException {
     return accessLocation(name, 0);
   }
 
   @Override
-  public ILocationAccessor accessLocation(String name, int index) throws ConfigurationException {
+  public LocationAccessor accessLocation(String name, int index) throws ConfigurationException {
     if (labelMap.containsKey(name)) {
       if (0 != index) {
         throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));

@@ -29,7 +29,7 @@ import ru.ispras.microtesk.model.api.type.Type;
  */
 
 public final class Location {
-  private final class Accessor implements ILocationAccessor {
+  private final class Accessor implements LocationAccessor {
     @Override
     public int getBitSize() {
       return type.getBitSize();
@@ -63,7 +63,7 @@ public final class Location {
   private final boolean readOnly;
 
   private IMemoryAccessHandler handler;
-  private final ILocationAccessor accessor;
+  private final LocationAccessor accessor;
 
   public Location(Type type) {
     this(type, BitVector.newEmpty(type.getBitSize()), false, null);
@@ -204,7 +204,7 @@ public final class Location {
    * public void unadvise() { assert null != this.handler; this.handler = null; }
    */
 
-  public ILocationAccessor externalAccess() {
+  public LocationAccessor externalAccess() {
     return accessor;
   }
 }

@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 
 /**
@@ -103,7 +103,7 @@ public final class Output {
 
     @Override
     public Object evaluate(IModelStateObserver observer) throws ConfigurationException {
-      final ILocationAccessor accessor = observer.accessLocation(name, index);
+      final LocationAccessor accessor = observer.accessLocation(name, index);
       return isBinaryText ? accessor.toBinString() : accessor.getValue();
     }
 

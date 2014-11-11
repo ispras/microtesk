@@ -22,7 +22,7 @@ import java.math.BigInteger;
  * @author Andrei Tatarnikov
  */
 
-public interface ILocationAccessor {
+public interface LocationAccessor {
   /**
    * Returns the size of the location in bits.
    * 

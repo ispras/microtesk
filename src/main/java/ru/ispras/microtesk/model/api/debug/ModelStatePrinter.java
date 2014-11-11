@@ -18,7 +18,7 @@ import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.model.api.memory.ILocationAccessor;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
 public final class ModelStatePrinter {
   private final IModel model;
@@ -55,7 +55,7 @@ public final class ModelStatePrinter {
     for (MetaLocationStore r : model.getMetaData().getRegisters()) {
       for (int index = 0; index < r.getCount(); ++index) {
         try {
-          final ILocationAccessor location = observer.accessLocation(r.getName(), index);
+          final LocationAccessor location = observer.accessLocation(r.getName(), index);
 
           if (1 == r.getCount()) {
             System.out.printf("%s = %s %n", r.getName(), location.toBinString());
@@ -80,7 +80,7 @@ public final class ModelStatePrinter {
     for (MetaLocationStore r : model.getMetaData().getMemoryStores()) {
       for (int index = 0; index < r.getCount(); ++index) {
         try {
-          final ILocationAccessor location = observer.accessLocation(r.getName(), index);
+          final LocationAccessor location = observer.accessLocation(r.getName(), index);
           System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
         } catch (ConfigurationException e) {
           e.printStackTrace();
