@@ -20,37 +20,96 @@ import java.util.List;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public final class Memory {
+public abstract class Memory {
 
   public enum Kind {
     REG, MEM, VAR
   }
   
-  public static Memory REG(String name, Type type, int length) {
-    return new Memory(Kind.REG, name, type, length);
+  public static MemoryStore REG(String name, Type type, int length) {
+    return new MemoryStore(Kind.REG, name, type, length);
   }
 
-  public static Memory REG(String name, Type type) {
-    return new Memory(Kind.REG, name, type);
+  public static MemoryStore REG(String name, Type type) {
+    return new MemoryStore(Kind.REG, name, type);
   }
 
-  public static Memory MEM(String name, Type type, int length) {
-    return new Memory(Kind.MEM, name, type, length);
+  public static MemoryStore MEM(String name, Type type, int length) {
+    return new MemoryStore(Kind.MEM, name, type, length);
   }
 
-  public static Memory MEM(String name, Type type) {
-    return new Memory(Kind.MEM, name, type);
+  public static MemoryStore MEM(String name, Type type) {
+    return new MemoryStore(Kind.MEM, name, type);
   }
 
-  public static Memory VAR(String name, Type type, int length) {
-    return new Memory(Kind.VAR, name, type, length);
+  public static MemoryStore VAR(String name, Type type, int length) {
+    return new MemoryStore(Kind.VAR, name, type, length);
   }
 
-  public static Memory VAR(String name, Type type) {
-    return new Memory(Kind.VAR, name, type);
+  public static MemoryStore VAR(String name, Type type) {
+    return new MemoryStore(Kind.VAR, name, type);
   }
+
+  private final Kind kind;
+  private final String name;
+  private final Type type;
+  private final int length;
+
+  public Memory(Kind kind, String name, Type type) {
+    this(kind, name, type, 1);
+  }
+
+  public Memory(Kind kind, String name, Type type, int length) {
+    checkNotNull(kind);
+    checkNotNull(name);
+    checkNotNull(type);
+
+    if (length <= 0) {
+      throw new IllegalArgumentException();
+    }
+
+    this.kind = kind;
+    this.name = name;
+    this.type = type;
+    this.length = length;
+  }
+
+  public MetaLocationStore getMetaData() {
+    return new MetaLocationStore(name, getLength());
+  }
+
+  public final Kind getMemoryKind() {
+    return kind;
+  }
+
+  public final String getName() {
+    return name;
+  }
+
+  public final Type getType() {
+    return type;
+  }
+
+  public final int getLength() {
+    return length;
+  }
+
+  public abstract Location access(int index);
+  public abstract Location access();
+  public abstract void reset();
+
+  protected static void checkNotNull(Object o) {
+    if (null == o) {
+      throw new NullPointerException();
+    }
+  }
+}
+
+final class MemoryStore extends Memory {
 
   public static int BLOCK_SIZE = 4096;
+
+  private final List<Block> blocks;
 
   private static final class Block {
     private final List<Location> locations;
@@ -75,37 +134,12 @@ public final class Memory {
     }
   }
 
-  private final Kind kind;
-  private final String name;
-  private final Type type;
-  private final int length;
-  private final List<Block> blocks;
-
-  public Memory(Kind kind, String name, Type type) {
+  public MemoryStore(Kind kind, String name, Type type) {
     this(kind, name, type, 1);
   }
 
-  public Memory(Kind kind, String name, Type type, int length) {
-    if (null == kind) {
-      throw new NullPointerException();
-    }
-
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == type) {
-      throw new NullPointerException();
-    }
-
-    if (length <= 0) {
-      throw new IllegalArgumentException();
-    }
-
-    this.kind = kind;
-    this.name = name;
-    this.type = type;
-    this.length = length;
+  public MemoryStore(Kind kind, String name, Type type, int length) {
+    super(kind, name, type, length);
     this.blocks = allocateBlocks(type, length);
   }
 
@@ -119,11 +153,11 @@ public final class Memory {
 
     return result;
   }
-
+  
   private Location getLocation(int index) {
-    if (index < 0 || index >= length) {
+    if (index < 0 || index >= getLength()) {
       throw new IndexOutOfBoundsException(String.format(
-        "Index=%s, Length=%s", index, length));
+        "Index=%s, Length=%s", index, getLength()));
     }
 
     final int blockIndex = index / BLOCK_SIZE;
@@ -136,9 +170,9 @@ public final class Memory {
     Block block = blocks.get(blockIndex);
     if (null == block) {
       final int blockLength = (blockIndex < getBlockCount() - 1) ?
-        BLOCK_SIZE : length - BLOCK_SIZE * (getBlockCount() - 1);
+        BLOCK_SIZE : getLength() - BLOCK_SIZE * (getBlockCount() - 1);
 
-      block = new Block(type, blockLength);
+      block = new Block(getType(), blockLength);
       blocks.set(blockIndex, block);
 
       // DEBUG CODE:
@@ -153,6 +187,7 @@ public final class Memory {
     return blocks.size();
   }
 
+  @Override
   public void reset() {
     for (Block block : blocks) {
       if (null != block) {
@@ -161,30 +196,12 @@ public final class Memory {
     }
   }
 
-  public MetaLocationStore getMetaData() {
-    return new MetaLocationStore(name, getLength());
-  }
-
-  public Kind getMemoryKind() {
-    return kind;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public Type getType() {
-    return type;
-  }
-
-  public int getLength() {
-    return length;
-  }
-
+  @Override
   public Location access(int index) {
     return getLocation(index);
   }
 
+  @Override
   public Location access() {
     return access(0);
   }

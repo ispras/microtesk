@@ -49,8 +49,8 @@ public class MemoryTestCase
         {
             final int length = (int) Math.pow(2, powerOfTwo);
             final int blockCount = 
-                length / Memory.BLOCK_SIZE +
-                (0 == length % Memory.BLOCK_SIZE ? 0 : 1);
+              length / MemoryStore.BLOCK_SIZE +
+              (0 == length % MemoryStore.BLOCK_SIZE ? 0 : 1);
 
             testBlockCount(length, blockCount);
         }
@@ -58,7 +58,7 @@ public class MemoryTestCase
 
     private static void testBlockCount(int length, int expectedBlockCount)
     {
-        final Memory mem = Memory.MEM("M", Type.CARD(8), length);
+        final MemoryStore mem = Memory.MEM("M", Type.CARD(8), length);
         assertEquals(length, mem.getLength());
         assertEquals(expectedBlockCount, mem.getBlockCount());
     }
@@ -68,7 +68,7 @@ public class MemoryTestCase
     {
         final Type BYTE = Type.CARD(8);
 
-        final Memory mem = Memory.MEM("M", BYTE, 8200);
+        final MemoryStore mem = Memory.MEM("M", BYTE, 8200);
         assertEquals(8200, mem.getLength());
         assertEquals(3, mem.getBlockCount());
 
