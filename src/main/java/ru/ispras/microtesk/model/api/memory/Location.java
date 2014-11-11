@@ -57,7 +57,6 @@ public final class Location {
   private final boolean readOnly;
 
   private IMemoryAccessHandler handler;
-  private final LocationAccessor accessor;
 
   public Location(Type type) {
     this(type, BitVector.newEmpty(type.getBitSize()), false, null);
@@ -72,7 +71,6 @@ public final class Location {
     this.rawData = rawData;
     this.readOnly = readOnly;
     this.handler = handler;
-    this.accessor = new Accessor();
   }
 
   public final Type getType() {
@@ -199,6 +197,6 @@ public final class Location {
    */
 
   public LocationAccessor externalAccess() {
-    return accessor;
+    return new Accessor();
   }
 }
