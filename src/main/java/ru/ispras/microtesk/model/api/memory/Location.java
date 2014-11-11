@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -29,28 +27,6 @@ import ru.ispras.microtesk.model.api.type.Type;
  */
 
 public final class Location {
-  private final class Accessor implements LocationAccessor {
-    @Override
-    public int getBitSize() {
-      return type.getBitSize();
-    }
-
-    @Override
-    public String toBinString() {
-      return rawData.toBinString();
-    }
-
-    @Override
-    public BigInteger getValue() {
-      return new BigInteger(rawData.toByteArray());
-    }
-
-    @Override
-    public void setValue(BigInteger value) {
-      assert !readOnly;
-      rawData.assign(BitVector.valueOf(value.toByteArray(), type.getBitSize()));
-    }
-  }
 
   private final Type type;
   private final BitVector rawData;
@@ -71,6 +47,10 @@ public final class Location {
     this.rawData = rawData;
     this.readOnly = readOnly;
     this.handler = handler;
+  }
+
+  BitVector getRawData() {
+    return rawData;
   }
 
   public final Type getType() {
@@ -197,6 +177,6 @@ public final class Location {
    */
 
   public LocationAccessor externalAccess() {
-    return new Accessor();
+    return new LocationAccessor(this);
   }
 }

@@ -15,21 +15,35 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * The ILocationAccessor interface provides access to data stored in the specified location.
+ * The LocationAccessor class provides access to data stored in the specified location.
  * 
  * @author Andrei Tatarnikov
  */
 
-public interface LocationAccessor {
+public final class LocationAccessor {
+  
+  private final Location location;
+
+  LocationAccessor(Location location) {
+    if (null == location) {
+      throw new NullPointerException();
+    }
+
+    this.location = location;
+  }
+
   /**
    * Returns the size of the location in bits.
    * 
    * @return Size in bits.
    */
-
-  public int getBitSize();
+  
+  public int getBitSize() {
+    return location.getType().getBitSize();
+  }
 
   /**
    * Returns textual representation of stored data (a string of 0 and 1 characters).
@@ -37,7 +51,9 @@ public interface LocationAccessor {
    * @return Binary string.
    */
 
-  public String toBinString();
+  public String toBinString() {
+    return location.getRawData().toBinString();
+  }
 
   /**
    * Returns the value stored in the location packed in a BigInteger object.
@@ -45,7 +61,9 @@ public interface LocationAccessor {
    * @return Binary data packed in a BigInteger object.
    */
 
-  public BigInteger getValue();
+  public BigInteger getValue() {
+    return new BigInteger(location.getRawData().toByteArray());
+  }
 
   /**
    * Sets the value of the specified location.
@@ -53,5 +71,11 @@ public interface LocationAccessor {
    * @param value Binary data packed in a BigInteger object.
    */
 
-  public void setValue(BigInteger value);
+  public void setValue(BigInteger value) {
+    if (null == value) {
+      throw new NullPointerException();
+    }
+
+    location.getRawData().assign(BitVector.valueOf(value.toByteArray(), getBitSize()));
+  }
 }
