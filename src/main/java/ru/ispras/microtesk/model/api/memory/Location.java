@@ -84,7 +84,7 @@ public final class Location {
       );
   }
 
-  public static Location concat(Location... locations) {
+  public static Location concat(Location ... locations) {
     assert locations.length > 0;
 
     if (1 == locations.length) {
