@@ -34,7 +34,7 @@ var temp[card(9)]
 
 //ARITHMETIC
 op add (rd: REG, rs: REG, rt: REG)
-  syntax = format("add, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  syntax = format("add %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image)
   action = {
      
@@ -49,7 +49,7 @@ op add (rd: REG, rs: REG, rt: REG)
   }
 
 op sub (rd: REG, rs: REG, rt: REG)
-  syntax = format("sub, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  syntax = format("sub %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image)
   action = {
     temp = rs<7>::rs - rt<7>::rt; // concat with greatest significant bits in each, then substract
@@ -61,7 +61,7 @@ op sub (rd: REG, rs: REG, rt: REG)
   }
 
 op addi (rt: REG, rs: REG, immediate: BYTE)
-  syntax = format("addi, %s, %s, %d", rt.syntax, rs.syntax, immediate)
+  syntax = format("addi %s, %s, %d", rt.syntax, rs.syntax, immediate)
   image = format("000000%s%s%d00000000", rs.image, rt.image, immediate)
   action = {
     temp = rs<7>::rs + immediate<7>::immediate; // concat with greatest significant bits in each, then add
@@ -74,7 +74,7 @@ op addi (rt: REG, rs: REG, immediate: BYTE)
 
 //LOGICAL
 op and (rd: REG, rs: REG, rt: REG)
-  syntax = format("and, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  syntax = format("and %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100100", rs.image, rt.image, rd.image)
   action = {
      
@@ -83,7 +83,7 @@ op and (rd: REG, rs: REG, rt: REG)
   }
 
 op or (rd: REG, rs: REG, rt: REG)
-  syntax = format("or, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  syntax = format("or %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image)
   action = {
      
