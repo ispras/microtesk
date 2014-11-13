@@ -523,6 +523,7 @@ $res = StatementCondition.Block.newIfBlock($cond.res, $stmts.res);
 elseStmt returns [StatementCondition.Block res]
     :  ^(ELSE stmts=sequence)
 {
+checkNotNull($stmts.start, $stmts.res, $stmts.text);
 $res = StatementCondition.Block.newElseBlock($stmts.res);
 }
     ;

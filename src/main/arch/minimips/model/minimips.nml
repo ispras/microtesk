@@ -14,7 +14,7 @@ type    BIT = card(1)
 /////////////////////REGISTERS AND MEMORY//////////////////////////////////////////
 
 reg REGISTERS [8, BYTE]
-mem   MEMORY [2 ** 8, BYTE] //8-bit 
+mem   M [2 ** 8, BYTE] //8-bit 
 reg CIA[BYTE] //Program counter
 
 
@@ -52,30 +52,24 @@ op sub (rd: REG, rs: REG, rt: REG)
   syntax = format("sub, %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image)
   action = {
-     
     temp = rs<7>::rs - rt<7>::rt; // concat with greatest significant bits in each, then substract
     if temp<8> != temp<7> then    // true, if substraction led to carrying into the concatenated bit (overflow happened)
       exception("IntegerOverflow");
     else
       rd = temp<7..0>;
     endif;
-
-
   }
 
-op addi (rs: REG, rt: REG, immediate: BYTE)
-  syntax = format("addi, %s, %s, %d, rt.syntax, rs.syntax, immediate)
+op addi (rt: REG, rs: REG, immediate: BYTE)
+  syntax = format("addi, %s, %s, %d", rt.syntax, rs.syntax, immediate)
   image = format("000000%s%s%d00000000", rs.image, rt.image, immediate)
   action = {
-     
-    temp = rs<7>::rs + coerce(int(9), rt); // concat with greatest significant bits in each, then add
+    temp = rs<7>::rs + immediate<7>::immediate; // concat with greatest significant bits in each, then add
     if temp<8> != temp<7> then             // true, if adding led to carrying into the concatenated bit (overflow happened)
       exception("IntegerOverflow");
     else
-      rd = temp<7..0>;
+      rt = temp<7..0>;
     endif;
-
-
   }
 
 //LOGICAL
@@ -109,10 +103,10 @@ op lb (rt: REG, address: REG, offset: BYTE)
 
 op sb (rd: REG, address: REG, offset: BYTE)
   syntax = format("sb %s, %d(%s)", rd.syntax, offset, address.syntax)
-  image = format("101011%s%s%d00000000", address.image, rt.image, offset)
+  image = format("101011%s%s%d00000000", address.image, rd.image, offset)
   action = {
 
-    M[address + offset * DATA_WORD_SIZE] = rt;
+    M[address + offset * DATA_WORD_SIZE] = rd;
 
   }
 
@@ -129,7 +123,7 @@ op beq (rt: REG, rs: REG, immed: BYTE)
 
 op slt (rd: REG, rs: REG, rt: REG)
   syntax = format("slt %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image = format("000000%s%s%s00000101010", rs.image, rt.image rd.image)
+  image = format("000000%s%s%s00000101010", rs.image, rt.image, rd.image)
   action = {
 
     if rs < rt then
@@ -140,7 +134,7 @@ op slt (rd: REG, rs: REG, rt: REG)
   }
 
 op j (addr: BYTE)
-  syntax = format("j %d, addr)
+  syntax = format("j %d", addr)
   image = format("000010%d000000000000000000", addr)
   action = {
 
@@ -159,10 +153,10 @@ op Operations = add |
                 sb  |
                 beq |
                 slt |
-                j   |
+                j
 
 
-op minimips (command: Operations)
+op instruction (command: Operations)
   syntax = command.syntax
   image  = command.image
   action = {
@@ -179,5 +173,3 @@ op minimips (command: Operations)
       CIA = JMPADDR;
     endif;
   }
-
-op instruction = minimips
