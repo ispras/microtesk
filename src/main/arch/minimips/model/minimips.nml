@@ -1,34 +1,53 @@
+/*
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 //////////////////////////////////CONSTANTS/////////////////////////////////////////
 
 let REGISTER_INDEX_SIZE = 5
-let DATA_WORD_SIZE = 1
 let PC = "CIA"
 
 //////////////////////////////////TYPES/////////////////////////////////////////////
 
 type   BYTE = card(8)
 type   WORD = int(32)
-type  INDEX = card(3) //only 3 bits for address are required
+type   SHORT = int(32)
+type  INDEX = card(5) //only 5 bits for address are required
 type    BIT = card(1)
+type   JUMP_ADDR_TYPE = card(24)
+type   INSTRUCTION_OFFSET_TYPE = card(14)
+type   DATA_OFFSET_TYPE = card(16)
 
 /////////////////////REGISTERS AND MEMORY//////////////////////////////////////////
 
-reg REGISTERS [8, BYTE]
-mem   M [2 ** 8, BYTE] //8-bit 
-reg CIA[BYTE] //Program counter
+reg GPR [8, WORD]
+mem   M [2 ** 8, WORD] //32-bit 
+reg CIA[WORD] //Program counter
 
 
 /////////////////////////ADDRESSING MODES///////////////////////////////////////////
 
-mode REG (i : INDEX) = REGISTERS[i] 
+mode REG (i : INDEX) = GPR[i] 
   syntax = format("$%d", i)
   image  = format("%5b", i) //maybe 2 bits are redundant?
 
 //////////////////////////VARIABLES/////////////////////////////////////////////////
 
-var JMPADDR[BYTE] // Jump address
+var JMPADDR[JUMP_ADDR_TYPE] // Jump address
 var BRANCH[BIT]   //branch flag
-var temp[card(9)]
+var temp[card(33)]
 
 ///////////////////////////////////INSTRUCTION SET//////////////////////////////////
 
@@ -38,11 +57,11 @@ op add (rd: REG, rs: REG, rt: REG)
   image = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image)
   action = {
      
-    temp = rs<7>::rs + rt<7>::rt; // concat with greatest significant bits in each, then add
-    if temp<7> != temp<8> then    //true, if adding led to carrying into the concatenated bit (overflow happened)
+    temp = rs<31>::rs + rt<31>::rt; // concat with greatest significant bits in each, then add
+    if temp<32> != temp<31> then    //true, if adding led to carrying into the concatenated bit (overflow happened)
       exception("IntegerOverflow");
     else
-      rd = temp<7..0>;
+      rd = temp<31..0>;
     endif;
 
 
@@ -52,23 +71,23 @@ op sub (rd: REG, rs: REG, rt: REG)
   syntax = format("sub %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image)
   action = {
-    temp = rs<7>::rs - rt<7>::rt; // concat with greatest significant bits in each, then substract
-    if temp<8> != temp<7> then    // true, if substraction led to carrying into the concatenated bit (overflow happened)
+    temp = rs<31>::rs - rt<31>::rt; // concat with greatest significant bits in each, then substract
+    if temp<32> != temp<31> then    // true, if substraction led to carrying into the concatenated bit (overflow happened)
       exception("IntegerOverflow");
     else
-      rd = temp<7..0>;
+      rd = temp<31..0>;
     endif;
   }
 
-op addi (rt: REG, rs: REG, immediate: BYTE)
-  syntax = format("addi %s, %s, %d", rt.syntax, rs.syntax, immediate)
-  image = format("000000%s%s%d00000000", rs.image, rt.image, immediate)
+op addi (rt: REG, rs: REG, immed: SHORT)
+  syntax = format("addi %s, %s, %d", rt.syntax, rs.syntax, immed)
+  image = format("000000%s%s%d", rs.image, rt.image, immed)
   action = {
-    temp = rs<7>::rs + immediate<7>::immediate; // concat with greatest significant bits in each, then add
-    if temp<8> != temp<7> then             // true, if adding led to carrying into the concatenated bit (overflow happened)
+    temp = rs<31>::rs + immed<31>::immed; // concat with greatest significant bits in each, then add
+    if temp<32> != temp<31> then             // true, if adding led to carrying into the concatenated bit (overflow happened)
       exception("IntegerOverflow");
     else
-      rt = temp<7..0>;
+      rt = temp<31..0>;
     endif;
   }
 
@@ -92,32 +111,32 @@ op or (rd: REG, rs: REG, rt: REG)
   }
 
   //MEMORY OPERATIONS
-op lb (rt: REG, address: REG, offset: BYTE)
-  syntax = format("lb %s, %d(%s)", rt.syntax, offset, address.syntax)
-  image = format("100011%s%s%d00000000", address.image, rt.image, offset)
+op lw (rt: REG, address: REG, offset: DATA_OFFSET_TYPE)
+  syntax = format("lw %s, %d(%s)", rt.syntax, offset, address.syntax)
+  image = format("100011%s%s%d", address.image, rt.image, offset)
   action = {
      
-    rt = M[address + offset * DATA_WORD_SIZE];
+    rt = M[address + offset];
 
   }
 
-op sb (rd: REG, address: REG, offset: BYTE)
-  syntax = format("sb %s, %d(%s)", rd.syntax, offset, address.syntax)
-  image = format("101011%s%s%d00000000", address.image, rd.image, offset)
+op sw (rd: REG, address: REG, offset: DATA_OFFSET_TYPE)
+  syntax = format("sw %s, %d(%s)", rd.syntax, offset, address.syntax)
+  image = format("101011%s%s%d", address.image, rd.image, offset)
   action = {
 
-    M[address + offset * DATA_WORD_SIZE] = rd;
+    M[address + offset] = rd;
 
   }
 
-op beq (rt: REG, rs: REG, immed: BYTE)
+op beq (rt: REG, rs: REG, immed: INSTRUCTION_OFFSET_TYPE)
   syntax = format("beq %s, %s, %d", rt.syntax, rs.syntax, immed)
-  image = format("000100%s%s%d00000000", rt.image, rs.image, immed)
+  image = format("000100%s%s%d00", rt.image, rs.image, immed)
   action = {
 
     if rt == rs then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * immed + 4;
+      JMPADDR = CIA + immed + 4;
     endif;
   }
 
@@ -133,9 +152,9 @@ op slt (rd: REG, rs: REG, rt: REG)
     endif;
   }
 
-op j (addr: BYTE)
+op j (addr: JUMP_ADDR_TYPE)
   syntax = format("j %d", addr)
-  image = format("000010%d000000000000000000", addr)
+  image = format("000010%d00", addr)
   action = {
 
     BRANCH = 1;
@@ -149,8 +168,8 @@ op Operations = add |
                 addi|
                 and |
                 or  |
-                lb  | //lui
-                sb  |
+                lw  | //+ lui?
+                sw  |
                 beq |
                 slt |
                 j
@@ -161,13 +180,13 @@ op instruction (command: Operations)
   image  = command.image
   action = {
 
-    REGISTERS[0] = 0;
+    GPR[0] = 0;
     BRANCH = 0;
     command.action;
 
     if BRANCH == 0 then
       // If the flag is not set, proceeds to the next instruction 
-      CIA = CIA + 4;
+      CIA = CIA + 1;
     else
       // Otherwise, transfers control to the jump address
       CIA = JMPADDR;
