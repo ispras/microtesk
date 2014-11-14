@@ -67,4 +67,10 @@ public final class MemoryRegion {
   public BitVector getData() {
     return data;
   }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "MemoryRegion [bitSize=%d, index=%d, data=%s]", bitSize, index, data);
+  }
 }
