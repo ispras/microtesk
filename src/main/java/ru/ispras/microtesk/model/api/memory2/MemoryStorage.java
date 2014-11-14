@@ -14,12 +14,192 @@
 
 package ru.ispras.microtesk.model.api.memory2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
-public interface MemoryStorage {
-  int getRegionCount();
-  int getRegionBitSize();
+public final class MemoryStorage {
+  private static final int MAX_BLOCK_BIT_SIZE = 4096 * 8; 
 
-  BitVector read(MemoryRegion region);
-  void write(MemoryRegion region);
+  private final int regionCount;
+  private final int regionBitSize;
+
+  private final int maxBlockBitSize;
+  private final int maxRegionsInBlock;
+
+  private final BitVector zeroRegion;
+  private final List<Block> blocks; 
+
+  final class Block {
+    private final int regionsInBlock;
+    private BitVector storage;
+
+    public Block(int regionsInBlock) {
+      checkGreaterThanZero(regionsInBlock);
+
+      this.regionsInBlock = regionsInBlock;
+      this.storage = null; 
+    }
+
+    public void reset() {
+      if (null != storage) {
+        storage.reset();
+      }
+    }
+
+    public BitVector readRegion(int index) {
+      checkRange(index);
+
+      if (null == storage) {
+        return zeroRegion;
+      }
+
+      final int regionBitPos = index * regionBitSize;
+      return BitVector.unmodifiable(BitVector.newMapping(storage, regionBitPos, regionBitSize));
+    }
+
+    public void writeRegion(int index, BitVector data) {
+      checkRange(index);
+      checkNotNull(data);
+
+      if (data.getBitSize() != regionBitSize) {
+        throw new IllegalArgumentException();
+      }
+
+      if (null == storage) {
+        final int blockBitSize = regionsInBlock * regionBitSize;
+        storage = BitVector.newEmpty(blockBitSize); 
+      }
+      
+      final int regionBitPos = index * regionBitSize;
+      final BitVector target = BitVector.newMapping(storage, regionBitPos, regionBitSize);
+
+      target.assign(data);
+    }
+
+    private void checkRange(int index) {
+      if (index <= 0 || index > regionsInBlock) {
+        throw new IndexOutOfBoundsException();
+      }
+    }
+  }
+
+  int getBlockCount() {
+    return blocks.size();
+  }
+
+  Block getBlock(int blockIndex) {
+    return blocks.get(blockIndex);
+  }
+
+  public MemoryStorage(final int regionCount, final int regionBitSize) {
+    checkGreaterThanZero(regionCount);
+    checkGreaterThanZero(regionBitSize);
+
+    System.out.println(regionCount);
+    System.out.println(regionBitSize);
+
+    this.regionCount = regionCount;
+    this.regionBitSize = regionBitSize;
+    
+    this.maxBlockBitSize = MAX_BLOCK_BIT_SIZE - (MAX_BLOCK_BIT_SIZE % regionBitSize);
+    this.maxRegionsInBlock = maxBlockBitSize / regionBitSize;
+
+    this.zeroRegion = BitVector.unmodifiable(BitVector.newEmpty(regionBitSize));
+    this.blocks = reserveBlocks(regionCount, regionBitSize);
+  }
+
+  private List<Block> reserveBlocks(final int regionCount, final int regionBitSize) {
+    final int remainder = regionCount % maxRegionsInBlock;
+
+    final int blockCount = 
+        regionCount / maxRegionsInBlock + (0 == remainder ? 0 : 1);
+
+    final int regionsInLastBlock = 
+        0 == remainder ? maxRegionsInBlock : remainder;
+
+    final List<Block> blocks = new ArrayList<Block>(blockCount); 
+    for (int index = 0; index < blocks.size() - 1; index++) {
+      blocks.add(new Block(maxRegionsInBlock));  
+    }
+
+    blocks.add(new Block(regionsInLastBlock));
+    return blocks;
+  }
+
+  public int getRegionCount() {
+    return regionCount;
+  }
+
+  public int getRegionBitSize() {
+    return regionBitSize;
+  }
+
+  public BitVector read(MemoryRegion region) {
+    checkValidRegion(region);
+
+    if (region.hasData()) {
+      throw new IllegalArgumentException();
+    }
+
+    final Block block = getBlock(region);
+    final int regionInBlockIndex = getRegionInBlockIndex(region);
+
+    return block.readRegion(regionInBlockIndex);
+  }
+
+  public void write(MemoryRegion region) {
+    checkValidRegion(region);
+
+    if (!region.hasData()) {
+      throw new IllegalArgumentException();
+    }
+
+    final Block block = getBlock(region);
+    final int regionInBlockIndex = getRegionInBlockIndex(region);
+
+    block.writeRegion(regionInBlockIndex, region.getData());
+  }
+
+  private Block getBlock(MemoryRegion region) {
+    final int blockIndex = region.getIndex() / maxRegionsInBlock;
+    return blocks.get(blockIndex);
+  }
+
+  private int getRegionInBlockIndex(MemoryRegion region) {
+    return region.getIndex() % maxRegionsInBlock;
+  }
+
+  public void reset() {
+    for (Block block : blocks) {
+      block.reset();
+    }
+  }
+
+  private void checkValidRegion(MemoryRegion region) {
+    checkNotNull(region);
+
+    if (region.getBitSize() != regionBitSize) {
+      throw new IllegalArgumentException(String.format(
+          "wrong region size: %d, expected: %d", region.getBitSize(), regionBitSize));
+    }
+    
+    if (region.getIndex() >= regionCount) {
+      throw new IndexOutOfBoundsException(String.format(
+          "%d >= %d", region.getIndex(), regionCount));
+    }
+  }
+
+  private static void checkNotNull(Object o) {
+    if (null == o) {
+      throw new NullPointerException();
+    }
+  }
+
+  private static void checkGreaterThanZero(int n ) {
+    if (n <= 0) {
+      throw new IllegalArgumentException(String.format("%d <= 0", n));      
+    }
+  }
 }
