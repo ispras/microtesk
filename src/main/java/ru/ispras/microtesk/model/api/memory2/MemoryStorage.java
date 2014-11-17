@@ -97,9 +97,6 @@ public final class MemoryStorage {
     checkGreaterThanZero(regionCount);
     checkGreaterThanZero(regionBitSize);
 
-    System.out.println(regionCount);
-    System.out.println(regionBitSize);
-
     this.regionCount = regionCount;
     this.regionBitSize = regionBitSize;
     
@@ -136,58 +133,38 @@ public final class MemoryStorage {
     return regionBitSize;
   }
 
-  public BitVector read(MemoryRegion region) {
-    checkValidRegion(region);
-
-    if (region.hasData()) {
-      throw new IllegalArgumentException();
+  public BitVector read(int regionIndex) {
+    if (!(0 <= regionIndex && regionIndex < regionCount)) { 
+      throw new IndexOutOfBoundsException();
     }
 
-    final Block block = getBlock(region);
-    final int regionInBlockIndex = getRegionInBlockIndex(region);
+    final int blockIndex = regionIndex / maxRegionsInBlock;
+    final int regionInBlockIndex = regionIndex % maxRegionsInBlock;
 
+    final Block block = blocks.get(blockIndex);
     return block.readRegion(regionInBlockIndex);
   }
 
-  public void write(MemoryRegion region) {
-    checkValidRegion(region);
-
-    if (!region.hasData()) {
+  public void write(int regionIndex, BitVector data) {
+    checkNotNull(data);
+    if (data.getBitSize() != regionBitSize) {
       throw new IllegalArgumentException();
     }
 
-    final Block block = getBlock(region);
-    final int regionInBlockIndex = getRegionInBlockIndex(region);
+    if (!(0 <= regionIndex && regionIndex < regionCount)) { 
+      throw new IndexOutOfBoundsException();
+    }
 
-    block.writeRegion(regionInBlockIndex, region.getData());
-  }
+    final int blockIndex = regionIndex / maxRegionsInBlock;
+    final int regionInBlockIndex = regionIndex % maxRegionsInBlock;
 
-  private Block getBlock(MemoryRegion region) {
-    final int blockIndex = region.getIndex() / maxRegionsInBlock;
-    return blocks.get(blockIndex);
-  }
-
-  private int getRegionInBlockIndex(MemoryRegion region) {
-    return region.getIndex() % maxRegionsInBlock;
+    final Block block = blocks.get(blockIndex);
+    block.writeRegion(regionInBlockIndex, data);
   }
 
   public void reset() {
     for (Block block : blocks) {
       block.reset();
-    }
-  }
-
-  private void checkValidRegion(MemoryRegion region) {
-    checkNotNull(region);
-
-    if (region.getBitSize() != regionBitSize) {
-      throw new IllegalArgumentException(String.format(
-          "wrong region size: %d, expected: %d", region.getBitSize(), regionBitSize));
-    }
-    
-    if (region.getIndex() >= regionCount) {
-      throw new IndexOutOfBoundsException(String.format(
-          "%d >= %d", region.getIndex(), regionCount));
     }
   }
 
@@ -199,7 +176,7 @@ public final class MemoryStorage {
 
   private static void checkGreaterThanZero(int n ) {
     if (n <= 0) {
-      throw new IllegalArgumentException(String.format("%d <= 0", n));      
+      throw new IllegalArgumentException();      
     }
   }
 }
