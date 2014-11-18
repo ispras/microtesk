@@ -19,7 +19,16 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
+/**
+ * Serves as a memory storage organized as a sequence of fixed-size regions grouped into blocks.
+ * Blocks are allocated when data is being written to them for the first time. When a region
+ * in an unallocated block is read, a bit vector filled with zeros is returned.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public final class MemoryStorage {
+  /** Maximal size of memory block in bits */
   private static final int MAX_BLOCK_BIT_SIZE = 4096 * 8; 
 
   private final int regionCount;
