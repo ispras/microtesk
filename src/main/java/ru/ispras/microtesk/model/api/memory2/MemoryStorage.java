@@ -29,7 +29,7 @@ public final class MemoryStorage {
   private final int maxRegionsInBlock;
 
   private final BitVector zeroRegion;
-  private final List<Block> blocks; 
+  private final List<Block> blocks;
 
   final class Block {
     private final int regionsInBlock;
@@ -39,7 +39,7 @@ public final class MemoryStorage {
       checkGreaterThanZero(regionsInBlock);
 
       this.regionsInBlock = regionsInBlock;
-      this.storage = null; 
+      this.storage = null;
     }
 
     public void reset() {
@@ -55,8 +55,8 @@ public final class MemoryStorage {
         return zeroRegion;
       }
 
-      final int regionBitPos = index * regionBitSize;
-      return BitVector.unmodifiable(BitVector.newMapping(storage, regionBitPos, regionBitSize));
+      final BitVector target = getRegionMapping(index);
+      return BitVector.unmodifiable(target);
     }
 
     public void writeRegion(int index, BitVector data) {
@@ -68,14 +68,21 @@ public final class MemoryStorage {
       }
 
       if (null == storage) {
-        final int blockBitSize = regionsInBlock * regionBitSize;
-        storage = BitVector.newEmpty(blockBitSize); 
+        storage = allocateBlock(); 
       }
-      
-      final int regionBitPos = index * regionBitSize;
-      final BitVector target = BitVector.newMapping(storage, regionBitPos, regionBitSize);
 
+      final BitVector target = getRegionMapping(index);
       target.assign(data);
+    }
+
+    private BitVector allocateBlock() {
+      final int blockBitSize = regionsInBlock * regionBitSize;
+      return BitVector.newEmpty(blockBitSize);
+    }
+
+    private BitVector getRegionMapping(int index) {
+      final int regionBitPos = index * regionBitSize;
+      return BitVector.newMapping(storage, regionBitPos, regionBitSize);
     }
 
     private void checkRange(int index) {
@@ -99,7 +106,7 @@ public final class MemoryStorage {
 
     this.regionCount = regionCount;
     this.regionBitSize = regionBitSize;
-    
+
     this.maxBlockBitSize = MAX_BLOCK_BIT_SIZE - (MAX_BLOCK_BIT_SIZE % regionBitSize);
     this.maxRegionsInBlock = maxBlockBitSize / regionBitSize;
 
@@ -134,31 +141,25 @@ public final class MemoryStorage {
   }
 
   public BitVector read(int regionIndex) {
-    if (!(0 <= regionIndex && regionIndex < regionCount)) { 
-      throw new IndexOutOfBoundsException();
-    }
+    checkRegionRange(regionIndex);
 
-    final int blockIndex = regionIndex / maxRegionsInBlock;
-    final int regionInBlockIndex = regionIndex % maxRegionsInBlock;
+    final Block block = getBlockForRegion(regionIndex);
+    final int regionInBlockIndex = getRegionInBlockIndex(regionIndex);
 
-    final Block block = blocks.get(blockIndex);
     return block.readRegion(regionInBlockIndex);
   }
 
   public void write(int regionIndex, BitVector data) {
+    checkRegionRange(regionIndex);
+
     checkNotNull(data);
     if (data.getBitSize() != regionBitSize) {
       throw new IllegalArgumentException();
     }
 
-    if (!(0 <= regionIndex && regionIndex < regionCount)) { 
-      throw new IndexOutOfBoundsException();
-    }
+    final Block block = getBlockForRegion(regionIndex);
+    final int regionInBlockIndex = getRegionInBlockIndex(regionIndex);
 
-    final int blockIndex = regionIndex / maxRegionsInBlock;
-    final int regionInBlockIndex = regionIndex % maxRegionsInBlock;
-
-    final Block block = blocks.get(blockIndex);
     block.writeRegion(regionInBlockIndex, data);
   }
 
@@ -166,6 +167,15 @@ public final class MemoryStorage {
     for (Block block : blocks) {
       block.reset();
     }
+  }
+
+  private Block getBlockForRegion(int regionIndex) {
+    final int blockIndex = regionIndex / maxRegionsInBlock;
+    return blocks.get(blockIndex);
+  }
+
+  private int getRegionInBlockIndex(int regionIndex) {
+    return regionIndex % maxRegionsInBlock;
   }
 
   private static void checkNotNull(Object o) {
@@ -177,6 +187,12 @@ public final class MemoryStorage {
   private static void checkGreaterThanZero(int n ) {
     if (n <= 0) {
       throw new IllegalArgumentException();      
+    }
+  }
+
+  private void checkRegionRange(int regionIndex) {
+    if (!(0 <= regionIndex && regionIndex < regionCount)) { 
+      throw new IndexOutOfBoundsException();
     }
   }
 }
