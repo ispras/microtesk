@@ -16,20 +16,39 @@ package ru.ispras.microtesk.model.api.mmu;
 
 import java.util.LinkedList;
 
+import ru.ispras.fortress.randomizer.Randomizer;
+
 /**
  * Base interface to be implemented by all data replacement policies.
  * 
- * @author Tatiana Sergeeva
+ * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
 
-public interface Policy {
+public abstract class Policy {
+  /** The associativity. */
+  protected int associativity;
+
+  /**
+   * Constructs a data replacement controller.
+   * 
+   * @param associativity the buffer associativity.
+   */
+
+  protected Policy(int associativity) {
+    if (associativity <= 0) {
+      throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
+    }
+
+    this.associativity = associativity;
+  }
+
   /**
    * Handles a buffer hit.
    * 
    * @param index the line being hit.
    */
 
-  void accessLine(int index);
+  public abstract void accessLine(int index);
 
   /**
    * Handles a buffer miss.
@@ -37,19 +56,65 @@ public interface Policy {
    * @return the line to be replaced.
    */
 
-  int chooseVictim();
+  public abstract int chooseVictim();
 }
 
+//--------------------------------------------------------------------------------------------------
+// Random
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * The random data replacement policy.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ */
+
+final class PolicyRandom extends Policy {
+
+  /**
+   * Constructs a random data replacement controller.
+   * 
+   * @param associativity the buffer associativity.
+   */
+
+  PolicyRandom(int associativity) {
+    super(associativity);
+  }
+
+  @Override
+  public void accessLine(int index) {
+    // Do nothing.
+  }
+
+  @Override
+  public int chooseVictim() {
+    return Randomizer.get().nextIntRange(0, associativity - 1);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+// FIFO
+//--------------------------------------------------------------------------------------------------
 
 /**
  * The FIFO (First In - First Out) data replacement policy.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 
-final class PolicyFIFO implements Policy {
-  /** Keeps line indexes in the order of their usage. */
-  private LinkedList<Integer> fifo = new LinkedList<Integer>();
+final class PolicyFIFO extends Policy {
+  /** Keeps line indices in the order of their usage. */
+  private LinkedList<Integer> fifo = new LinkedList<>();
+
+  /**
+   * Constructs a FIFO data replacement controller.
+   * 
+   * @param associativity the buffer associativity.
+   */
 
   PolicyFIFO(int associativity) {
+    super(associativity);
+
     for (int i = 0; i < associativity; i++) {
       fifo.add(i);
     }
@@ -75,61 +140,101 @@ final class PolicyFIFO implements Policy {
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+// LRU
+//--------------------------------------------------------------------------------------------------
 
 /**
  * The LRU (Least Recently Used) data replacement policy.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 
-final class PolicyLRU implements Policy {
+final class PolicyLRU extends Policy {
+  /** Maps index to time. */
+  private int times[];
+  /** Current time. */
+  private int time = 0;
+
+  /**
+   * Constructs an LRU data replacement controller.
+   * 
+   * @param associativity the buffer associativity.
+   */
+
   PolicyLRU(int associativity) {
-    // TODO:
+    super(associativity);
+
+    times = new int[associativity];
+    for (int i = 0; i < associativity; i++) {
+      times[i] = time++;
+    }
   }
 
   @Override
   public void accessLine(int index) {
-    // TODO:
+    times[index] = time++;
   }
 
   @Override
   public int chooseVictim() {
-    // TODO:
-    return 0;
+    int victim = 0;
+    int minTime = times[0];
+
+    for (int i = 1; i < times.length; i++) {
+      if (times[i] < minTime) {
+        victim = i;
+        minTime = times[i];
+      }
+    }
+
+    return victim;
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+// PLRU
+//--------------------------------------------------------------------------------------------------
 
 /**
  * The PLRU (Pseudo Least Recently Used) data replacement policy.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 
-final class PolicyPLRU implements Policy {
-  /** The associativity. */
-  private int associativity;
-
+final class PolicyPLRU extends Policy {
   /** The PLRU bits. */
   private int bits;
+  /** The last access. */
+  private int last;
 
   /**
-   * {@inheritDoc}
+   * Constructs a PLRU data replacement controller.
    * 
-   * The associativity should not exceed 32.
+   * @param associativity the buffer associativity.
    */
 
   PolicyPLRU(int associativity) {
-    this.associativity = associativity;
+    super(associativity);
+
+    if (associativity > 32) {
+      throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
+    }
   }
 
   @Override
   public void accessLine(int index) {
     setBit(index);
+    System.out.format("Bits %x\n", bits);
   }
 
   @Override
   public int chooseVictim() {
     for (int i = 0; i < associativity; i++) {
-      if ((bits & (1 << i)) == 0) {
-        setBit(i);
-        return i;
+      final int j = (last + i) % associativity;
+
+      if ((bits & (1 << j)) == 0) {
+        return j;
       }
     }
 
@@ -137,7 +242,7 @@ final class PolicyPLRU implements Policy {
   }
 
   private void setBit(int i) {
-    final int mask = (1 << i);
+    final int mask = (1 << (last = i));
 
     bits |= mask;
     if (bits == ((1 << associativity) - 1)) {

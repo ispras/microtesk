@@ -22,6 +22,17 @@ package ru.ispras.microtesk.model.api.mmu;
 
 public enum PolicyId {
   /**
+   * The random data replacement policy.
+   */
+
+  RANDOM {
+    @Override
+    public Policy newPolicy(int associativity) {
+      return new PolicyRandom(associativity);
+    }
+  },
+
+  /**
    * The FIFO (First In - First Out) data replacement policy.
    */
 
