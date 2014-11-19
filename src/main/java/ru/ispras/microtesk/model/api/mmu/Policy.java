@@ -225,7 +225,6 @@ final class PolicyPLRU extends Policy {
   @Override
   public void accessLine(int index) {
     setBit(index);
-    System.out.format("Bits %x\n", bits);
   }
 
   @Override

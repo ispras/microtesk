@@ -21,6 +21,7 @@ package ru.ispras.microtesk.model.api.mmu;
  */
 
 public enum PolicyId {
+
   /**
    * The random data replacement policy.
    */
