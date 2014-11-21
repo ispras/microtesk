@@ -27,14 +27,14 @@ let PC = "CIA"
 ////////////////////////////////////////////////////////////////////////////////
 // Types
 
-type   LONG = int(32)
-type   WORD = card(32)
-type  SHORT = int(16)
-type  HWORD = card(16)
-type  SBYTE = int(8)
-type   BYTE = card(8)
-type    BIT = card(1)
-type  INDEX = card(REG_INDEX_SIZE)
+type  LONG = int(32)
+type  WORD = card(32)
+type SHORT = int(16)
+type HWORD = card(16)
+type SBYTE = int(8)
+type  BYTE = card(8)
+type   BIT = card(1)
+type INDEX = card(REG_INDEX_SIZE)
 
 // IEEE 754 single(32 bits): 23-bit fraction, 8-bit exponent + implicit sign bit 
 type SINGLE = float(23, 8)
