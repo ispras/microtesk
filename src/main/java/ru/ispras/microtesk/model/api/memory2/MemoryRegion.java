@@ -17,20 +17,30 @@ package ru.ispras.microtesk.model.api.memory2;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class MemoryRegion {
+  private final MemoryStorage target;
   private final int index;
   private final BitVector data;
 
-  MemoryRegion(int index) {
-    this(index, null);
+  MemoryRegion(MemoryStorage target, int index) {
+    this(target, index, null);
   }
 
-  MemoryRegion(int index, BitVector data) {
+  MemoryRegion(MemoryStorage target, int index, BitVector data) {
+    if (null == target) {
+      throw new NullPointerException();
+    }
+
     if (index < 0) {
       throw new IndexOutOfBoundsException("index < 0 : " + index);
     }
 
+    this.target = target;
     this.index = index;
     this.data = data;
+  }
+
+  public MemoryStorage getTarget() {
+    return target;
   }
 
   public int getIndex() {
@@ -47,6 +57,7 @@ public final class MemoryRegion {
 
   @Override
   public String toString() {
-    return String.format("MemoryRegion [index=%d, data=%s]", index, data);
+    return String.format(
+        "MemoryRegion [target=%s, index=%d, data=%s]", target, index, data);
   }
 }

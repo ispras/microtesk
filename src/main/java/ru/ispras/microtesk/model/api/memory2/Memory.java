@@ -143,8 +143,8 @@ public class Memory {
     @Override
     public Data load() {
       if (null != handler) {
-        final List<MemoryRegion> regions = handler.onLoad(storage,
-            Collections.singletonList(new MemoryRegion(index)));
+        final List<MemoryRegion> regions = handler.onLoad(
+            Collections.singletonList(new MemoryRegion(storage, index)));
         return new Data(regions.get(0).getData(), type);
       }
 
@@ -154,8 +154,8 @@ public class Memory {
     @Override
     public void store(Data data) {
       if (null != handler) {
-        handler.onStore(storage,
-            Collections.singletonList(new MemoryRegion(index, data.getRawData())));
+        handler.onStore(Collections.singletonList(
+            new MemoryRegion(storage, index, data.getRawData())));
         return;
       }
 

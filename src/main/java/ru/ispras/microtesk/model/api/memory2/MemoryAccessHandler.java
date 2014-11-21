@@ -17,6 +17,6 @@ package ru.ispras.microtesk.model.api.memory2;
 import java.util.List;
 
 public interface MemoryAccessHandler {
-  List<MemoryRegion> onLoad(MemoryStorage memory, List<MemoryRegion> regions);
-  void onStore(MemoryStorage memory, List<MemoryRegion> regions);
+  List<MemoryRegion> onLoad(List<MemoryRegion> regions);
+  void onStore(List<MemoryRegion> regions);
 }

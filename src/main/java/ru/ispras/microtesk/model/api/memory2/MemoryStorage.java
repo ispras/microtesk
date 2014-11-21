@@ -179,6 +179,13 @@ public final class MemoryStorage {
     }
   }
 
+  @Override
+  public String toString() {
+    return String.format(
+        "MemoryStorage [regions=%s, region bit size=%s, blocks=%s]",
+        getRegionCount(), getRegionBitSize(), getBlockCount());
+  }
+
   private Block getBlockForRegion(int regionIndex) {
     final int blockIndex = regionIndex / maxRegionsInBlock;
     return blocks.get(blockIndex);
