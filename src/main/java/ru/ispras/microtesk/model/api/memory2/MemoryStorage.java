@@ -29,7 +29,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class MemoryStorage {
   /** Maximal size of memory block in bits */
-  private static final int MAX_BLOCK_BIT_SIZE = 4096 * 8; 
+  public static final int MAX_BLOCK_BIT_SIZE = 4096 * 8; 
 
   private final int regionCount;
   private final int regionBitSize;
@@ -95,8 +95,9 @@ public final class MemoryStorage {
     }
 
     private void checkRange(int index) {
-      if (index <= 0 || index > regionsInBlock) {
-        throw new IndexOutOfBoundsException();
+      if (! (0 <= index && index < regionsInBlock)) {
+        throw new IndexOutOfBoundsException(String.format(
+            "%s is out of bounds [%d..%d)", index, 0, regionsInBlock));
       }
     }
   }
@@ -133,7 +134,7 @@ public final class MemoryStorage {
         0 == remainder ? maxRegionsInBlock : remainder;
 
     final List<Block> blocks = new ArrayList<Block>(blockCount); 
-    for (int index = 0; index < blocks.size() - 1; index++) {
+    for (int index = 0; index < blockCount - 1; index++) {
       blocks.add(new Block(maxRegionsInBlock));  
     }
 
@@ -201,7 +202,8 @@ public final class MemoryStorage {
 
   private void checkRegionRange(int regionIndex) {
     if (!(0 <= regionIndex && regionIndex < regionCount)) { 
-      throw new IndexOutOfBoundsException();
+      throw new IndexOutOfBoundsException(String.format(
+          "%s is out of bounds [%d..%d)", regionIndex, 0, regionCount));
     }
   }
 }
