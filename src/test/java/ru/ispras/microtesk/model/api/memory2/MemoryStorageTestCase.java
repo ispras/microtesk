@@ -17,22 +17,70 @@ package ru.ispras.microtesk.model.api.memory2;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.randomizer.Randomizer;
 
-public class MemoryStorageTestCase {
+public final class MemoryStorageTestCase {
   @Test
-  public void test() {
-    final MemoryStorage ms = new MemoryStorage((int) Math.pow(2, 30), 8);
-    final BitVector regionData = BitVector.valueOf("11001010");
+  public void test()  {
+    for (int regionCountExp = 0; regionCountExp < 32; regionCountExp++) {
+      final int regionCount = (int) Math.pow(2, regionCountExp);
 
-    assertEquals(BitVector.newEmpty(8), ms.read(11));
-    ms.write(11, regionData);
-    assertEquals(regionData, ms.read(11));
+      test(regionCount, 3);
+      test(regionCount, 5);
+      test(regionCount, 7);
+      test(regionCount, 10);
+      test(regionCount, 12);
+      test(regionCount, 14);
+      test(regionCount, 18);
+      test(regionCount, 24);
+      test(regionCount, 26);
+      test(regionCount, 28);
 
-    System.out.println(MemoryStorage.MAX_BLOCK_BIT_SIZE);
-    System.out.println(ms.getRegionBitSize());
-    System.out.println(ms.getRegionCount());
-    System.out.println(ms.getBlockCount());
+      for (int regionBitSizeExp = 0; regionBitSizeExp <= 8; regionBitSizeExp++) {
+        final int regionBitSize = (int) Math.pow(2, regionBitSizeExp);
+        test(regionCount, regionBitSize);
+      }
+    }
+  }
+
+  private void test(int regionCount, int regionBitSize) {
+    System.out.printf("%nTest: region count = %d, region bit size = %d%n", regionCount, regionBitSize);
+
+    final MemoryStorage ms = new MemoryStorage(regionCount, regionBitSize);
+    
+    final int maxBlockBitSize = 
+        MemoryStorage.MAX_BLOCK_BIT_SIZE - (MemoryStorage.MAX_BLOCK_BIT_SIZE % regionBitSize);
+
+    final int maxRegionsInBlock = 
+        maxBlockBitSize / regionBitSize;
+    
+    final int blockCount = 
+        regionCount / maxRegionsInBlock + (0 == regionCount % maxRegionsInBlock ? 0 : 1);
+    
+    System.out.printf(
+        "Max block size = %d, max block size (adjusted) = %d%n",
+        MemoryStorage.MAX_BLOCK_BIT_SIZE, maxBlockBitSize, maxRegionsInBlock);
+    
+    System.out.printf(
+        "Max regions in block = %d, block count = %d%n", blockCount, maxRegionsInBlock);
+
+    assertEquals(regionCount, ms.getRegionCount());
+    assertEquals(regionBitSize, ms.getRegionBitSize());
+    assertEquals(blockCount, ms.getBlockCount());
+    
+    for (int i = 0; i < 1000; i++) {
+      randomAccessTest(ms, Randomizer.get().nextIntRange(0, ms.getRegionCount()-1));
+    }
+  }
+
+  private void randomAccessTest(MemoryStorage ms, int regionIndex) {
+    final BitVector data = BitVector.newEmpty(ms.getRegionBitSize());
+    Randomizer.get().fill(data);
+
+    //System.out.printf("Accessing region %d, data: %s%n", regionIndex, data);
+
+    ms.write(regionIndex, data);
+    assertEquals(data, ms.read(regionIndex));
   }
 }
