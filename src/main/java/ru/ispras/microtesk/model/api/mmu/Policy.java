@@ -104,7 +104,7 @@ final class PolicyRandom extends Policy {
 
 final class PolicyFIFO extends Policy {
   /** Keeps line indices in the order of their usage. */
-  private LinkedList<Integer> fifo = new LinkedList<>();
+  private LinkedList<Integer> fifo = new LinkedList<Integer>();
 
   /**
    * Constructs a FIFO data replacement controller.
