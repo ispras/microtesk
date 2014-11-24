@@ -122,7 +122,7 @@ public final class Location {
 
     final int bitSize = end - start + 1;
     return new Location(
-      type,
+      type.resize(bitSize),
       BitVector.newMapping(rawData, start, bitSize),
       readOnly,
       handler
