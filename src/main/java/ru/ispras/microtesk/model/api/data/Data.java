@@ -25,9 +25,9 @@ public final class Data {
     checkNotNull(rawData);
     checkNotNull(type);
 
-    if (rawData.getByteSize() != type.getBitSize()) {
+    if (rawData.getBitSize() != type.getBitSize()) {
       throw new IllegalArgumentException(String.format(
-          "Wrong data size: %d, expected: %d", rawData.getByteSize(), type.getBitSize()));
+          "Wrong data size: %d, expected: %d", rawData.getBitSize(), type.getBitSize()));
     }
 
     this.rawData = rawData;
