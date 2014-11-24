@@ -18,8 +18,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Data {
-  private BitVector rawData;
-  private Type type;
+  private final BitVector rawData;
+  private final Type type;
 
   public Data(BitVector rawData, Type type) {
     checkNotNull(rawData);
