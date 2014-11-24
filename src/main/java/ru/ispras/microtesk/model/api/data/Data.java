@@ -56,6 +56,11 @@ public final class Data {
     return type;
   }
 
+  @Override
+  public String toString() {
+    return String.format("Data [type=%s, value=%s]", type, rawData);
+  }
+
   private static void checkNotNull(Object o) {
     if (null == o) {
       throw new NullPointerException();
