@@ -14,186 +14,161 @@
 
 package ru.ispras.microtesk.model.api.memory2;
 
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public class Memory {
-
+public abstract class Memory {
+  
   public enum Kind {
     REG, MEM, VAR
   }
-
-  public static Memory REG(String name, Type type, int length) {
-    return new Memory(Kind.REG, name, type, length, false);
+  
+  public static Memory newMemory(
+      Kind kind, String name, Type type, int length) {
+    return new MemoryDirect(kind, name, type, length);
   }
 
-  public static Memory REG(String name, Type type) {
-    return REG(name, type, 1);
+  public static Memory newMemoryAlias(
+      Kind kind, String name, Type type, int length, Memory source, int sourceIndex) {
+
+    checkNotNull(source);
+
+    return null; // new Memory(kind, name, type, length);
   }
 
-  public static Memory MEM(String name, Type type, int length) {
-    return new Memory(Kind.MEM, name, type, length, false);
+  public static Memory newMemoryAlias(
+      Kind kind, String name, Type type, int length, Location source) {
+
+    checkNotNull(source);
+
+    return null; //new Memory(kind, name, type, length);
   }
 
-  public static Memory MEM(String name, Type type) {
-    return MEM(name, type, 1);
-  }
-
-  public static Memory VAR(String name, Type type, int length) {
-    return new Memory(Kind.VAR, name, type, length, false);
-  }
-
-  public static Memory VAR(String name, Type type) {
-    return VAR(name, type, 1);
-  }
+  private static MemoryAccessHandler handler = null;
 
   private final Kind kind;
   private final String name;
   private final Type type;
   private final int length;
-  private final boolean isReadOnly;
+  private final MemoryStorage storage; 
 
-  private final MemoryStorage storage;
-  private MemoryAccessHandler handler;
+  protected Memory(
+      Kind kind, String name, Type type, int length, MemoryStorage storage) {
 
-  private Memory(Kind kind, String name, Type type, int length, boolean isReadOnly) {
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(type);
-
-    if (length <= 0) {
-      throw new IllegalArgumentException();
-    }
+    checkGreaterThanZero(length);
+    checkNotNull(storage);
 
     this.kind = kind;
     this.name = name;
     this.type = type;
     this.length = length;
-    this.isReadOnly = isReadOnly;
-
-    this.storage = new MemoryStorage(length, type.getBitSize());
-    this.handler = null;
+    this.storage = storage;
   }
 
-  public MetaLocationStore getMetaData() {
+  public final MetaLocationStore getMetaData() {
     return new MetaLocationStore(name, getLength());
   }
 
-  public Kind getKind() {
+  public final Kind getKind() {
     return kind;
   }
 
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
-  public Type getType() {
+  public final Type getType() {
     return type;
   }
 
-  public int getLength() {
+  public final int getLength() {
     return length;
   }
 
-  public boolean isReadOnly() {
-    return isReadOnly;
+  final MemoryStorage getStorage() {
+    return storage;
   }
 
-  public void reset() {
-    storage.reset();
-  }
-
-  public Location access(int index) {
-    if (!(0 <= index && index < length)) {
-      throw new IndexOutOfBoundsException();
-    }
-
-    return new LocationImpl(index);
-  }
-
-  public Location access() {
+  public final Location access() {
     return access(0);
   }
 
-  public void setHandler(MemoryAccessHandler handler) {
-    this.handler = handler;
+  public abstract Location access(int index);
+
+  public abstract void reset();
+
+  public static void setHandler(MemoryAccessHandler value) {
+    handler = value;
   }
 
-  public MemoryAccessHandler getHandler() {
+  public static MemoryAccessHandler getHandler() {
     return handler;
-  }
-
-  private class LocationImpl implements Location {
-    private final int index;
-
-    private LocationImpl(int index) {
-      this.index = index;
-    }
-
-    @Override
-    public Type getType() {
-      return type;
-    }
-
-    @Override
-    public Data load() {
-      if (null != handler) {
-        final List<MemoryRegion> regions = handler.onLoad(
-            Collections.singletonList(new MemoryRegion(storage, index)));
-        return new Data(regions.get(0).getData(), type);
-      }
-
-      return new Data(storage.read(index), type);
-    }
-
-    @Override
-    public void store(Data data) {
-      if (null != handler) {
-        handler.onStore(Collections.singletonList(
-            new MemoryRegion(storage, index, data.getRawData())));
-        return;
-      }
-
-      storage.write(index, data.getRawData());
-    }
-
-    @Override
-    public Location assign(Location arg) {
-      store(arg.load());
-      return this;
-    }
-
-    @Override
-    public Location bitField(int start, int end) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public Location concat(Location arg) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public String toBinString() {
-      return storage.read(index).toBinString();
-    }
-
-    @Override
-    public BigInteger getValue() {
-      return new BigInteger(storage.read(index).toByteArray());
-    }
   }
 
   protected static void checkNotNull(Object o) {
     if (null == o) {
       throw new NullPointerException();
     }
+  }
+
+  protected static void checkGreaterThanZero(int n) {
+    if (n <= 0) {
+      throw new IllegalArgumentException();      
+    }
+  }
+
+  protected final void checkBounds(int index) {
+    if (!(0 <= index && index < getLength())) {
+      throw new IndexOutOfBoundsException();
+    }
+  }
+}
+
+final class MemoryDirect extends Memory {
+
+  MemoryDirect(Kind kind, String name, Type type, int length) {
+    super(kind, name, type, length, newMemoryStorage(type, length));
+  }
+
+  private static MemoryStorage newMemoryStorage(Type type, int length) {
+    checkNotNull(type);
+    checkGreaterThanZero(length);
+    return new MemoryStorage(length, type.getBitSize());
+  }
+
+  @Override
+  public Location access(int index) {
+    checkBounds(index);
+
+    return Location.newLocationForRegion(
+        getType(), getStorage(), index, getKind() == Kind.MEM);
+  }
+
+  @Override
+  public void reset() {
+    getStorage().reset();
+  }
+}
+
+final class MemoryAlias extends Memory {
+
+  MemoryAlias(Kind kind, String name, Type type, int length, Memory source, int sourceIndex) {
+    super(kind, name, type, length, source.getStorage());
+    // TODO Auto-generated constructor stub
+  }
+
+  @Override
+  public Location access(int index) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void reset() {
+    // TODO Auto-generated method stub
+    
   }
 }
