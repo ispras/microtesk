@@ -22,16 +22,28 @@ public final class Data {
   private Type type;
 
   public Data(BitVector rawData, Type type) {
+    checkNotNull(rawData);
+    checkNotNull(type);
+
+    if (rawData.getByteSize() != type.getBitSize()) {
+      throw new IllegalArgumentException(String.format(
+          "Wrong data size: %d, expected: %d", rawData.getByteSize(), type.getBitSize()));
+    }
+
     this.rawData = rawData;
     this.type = type;
   }
 
   public Data(Data data) {
+    checkNotNull(data);
+
     this.rawData = data.getRawData().copy();
     this.type = data.getType();
   }
 
   public Data(Type type) {
+    checkNotNull(type);
+
     this.rawData = BitVector.newEmpty(type.getBitSize());
     this.type = type;
   }
@@ -42,5 +54,11 @@ public final class Data {
 
   public Type getType() {
     return type;
+  }
+
+  private static void checkNotNull(Object o) {
+    if (null == o) {
+      throw new NullPointerException();
+    }
   }
 }
