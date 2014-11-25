@@ -29,7 +29,9 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class MemoryStorage {
   /** Maximal size of memory block in bits */
-  public static final int MAX_BLOCK_BIT_SIZE = 4096 * 8; 
+  public static final int MAX_BLOCK_BIT_SIZE = 4096 * 8;
+
+  private final String id;
 
   private final int regionCount;
   private final int regionBitSize;
@@ -110,9 +112,15 @@ public final class MemoryStorage {
     return blocks.get(blockIndex);
   }
 
-  public MemoryStorage(final int regionCount, final int regionBitSize) {
+  public MemoryStorage(int regionCount, int regionBitSize) {
+    this (null, regionCount, regionBitSize);
+  }
+
+  public MemoryStorage(String id, final int regionCount, final int regionBitSize) {
     checkGreaterThanZero(regionCount);
     checkGreaterThanZero(regionBitSize);
+
+    this.id = id; 
 
     this.regionCount = regionCount;
     this.regionBitSize = regionBitSize;
@@ -140,6 +148,10 @@ public final class MemoryStorage {
 
     blocks.add(new Block(regionsInLastBlock));
     return blocks;
+  }
+
+  public String getId() {
+    return id;
   }
 
   public int getRegionCount() {
@@ -182,8 +194,8 @@ public final class MemoryStorage {
   @Override
   public String toString() {
     return String.format(
-        "MemoryStorage [regions=%s, region bit size=%s, blocks=%s]",
-        getRegionCount(), getRegionBitSize(), getBlockCount());
+        "MemoryStorage [id=%s, regions=%s, region bit size=%s, blocks=%s]",
+        id, getRegionCount(), getRegionBitSize(), getBlockCount());
   }
 
   private Block getBlockForRegion(int regionIndex) {
