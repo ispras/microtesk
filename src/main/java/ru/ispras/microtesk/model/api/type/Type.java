@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.type;
 
 import java.util.Arrays;
+import static ru.ispras.microtesk.utils.InvariantChecks.*;
 
 /**
  * The Type class stores information on a type defined in the design specification. This includes
@@ -60,9 +61,8 @@ public final class Type {
   private final int bitSize;
 
   private Type(TypeId typeId, int bitSize, int ... fieldSizes) {
-    if (null == typeId) {
-      throw new NullPointerException();
-    }
+    checkNotNull(typeId);
+    checkGreaterThanZero(bitSize);
 
     this.typeId = typeId;
     this.bitSize = bitSize;
@@ -70,10 +70,23 @@ public final class Type {
   }
 
   public Type resize(int newBitSize) {
+    checkGreaterThanZero(bitSize);
+
     if (bitSize == newBitSize) {
       return this;
     }
+
     return new Type(typeId, newBitSize);
+  }
+
+  public Type castTo(TypeId newTypeId) {
+    checkNotNull(typeId);
+
+    if (typeId == newTypeId) {
+      return this;
+    }
+
+    return new Type(newTypeId, bitSize);
   }
 
   public TypeId getTypeId() {
@@ -89,9 +102,7 @@ public final class Type {
   }
 
   public int getFieldSize(int index) {
-    if ((index < 0) || (index >= getFieldCount())) {
-      throw new IndexOutOfBoundsException();
-    }
+    checkBounds(index, getFieldCount());
     return fieldSizes[index];
   }
 
