@@ -7,7 +7,7 @@
 /* - "TODO" notes                                                                       */     
 /*======================================================================================*/
 
-tree grammar MMuTreeWalker;
+tree grammar MmuTreeWalker;
 
 /*======================================================================================*/
 /* Options                                                                              */
@@ -15,7 +15,7 @@ tree grammar MMuTreeWalker;
 
 options {
   language=Java;
-  tokenVocab=MMuParser;
+  tokenVocab=MmuParser;
   ASTLabelType=CommonTree;
   superClass=TreeWalkerBase;
 }

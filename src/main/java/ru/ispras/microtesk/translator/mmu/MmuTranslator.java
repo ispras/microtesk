@@ -11,15 +11,15 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.keywords.JavaKeyword;
-import ru.ispras.microtesk.translator.keywords.RubyKeyword;
-import ru.ispras.microtesk.translator.mmu.generation.Generator;
-import ru.ispras.microtesk.translator.mmu.grammar.MMuLexer;
-import ru.ispras.microtesk.translator.mmu.grammar.MMuParser;
-import ru.ispras.microtesk.translator.mmu.grammar.MMuTreeWalker;
+//import ru.ispras.microtesk.translator.keywords.JavaKeyword;
+//import ru.ispras.microtesk.translator.keywords.RubyKeyword;
+//import ru.ispras.microtesk.translator.mmu.generation.Generator;
+import ru.ispras.microtesk.translator.mmu.grammar.MmuLexer;
+import ru.ispras.microtesk.translator.mmu.grammar.MmuParser;
+import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.translator.mmu.ir.IR;
 
-public class MMuTranslator
+public class MmuTranslator
 {
     private static final ILogStore LOG = new ILogStore()
     {
@@ -63,8 +63,8 @@ public class MMuTranslator
 
         final SymbolTable<ESymbolKind> symbols = new SymbolTable<ESymbolKind>();
 
-        symbols.defineReserved(ESymbolKind.KEYWORD, JavaKeyword.STRINGS);
-        symbols.defineReserved(ESymbolKind.KEYWORD, RubyKeyword.STRINGS);
+//        symbols.defineReserved(ESymbolKind.KEYWORD, JavaKeyword.STRINGS);
+//        symbols.defineReserved(ESymbolKind.KEYWORD, RubyKeyword.STRINGS);
         
         final IR ir = new IR();
 
@@ -73,15 +73,15 @@ public class MMuTranslator
             final ANTLRReaderStream input = new ANTLRReaderStream(new FileReader(fileName));
             input.name = fileName;
 
-            final MMuLexer lexer = new MMuLexer(input);
+            final MmuLexer lexer = new MmuLexer(input);
             final CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-            final MMuParser parser = new MMuParser(tokens);
+            final MmuParser parser = new MmuParser(tokens);
 
             parser.assignLog(LOG);
             parser.assignSymbols(symbols);
 
-            final MMuParser.startRule_return r = parser.startRule();
+            final MmuParser.startRule_return r = parser.startRule();
             final CommonTree t = (CommonTree) r.getTree();
 
             System.out.println("AST: " + t.toStringTree());
@@ -95,7 +95,7 @@ public class MMuTranslator
             final CommonTreeNodeStream nodes = new CommonTreeNodeStream(t);
             nodes.setTokenStream(tokens);
 
-            final MMuTreeWalker walker = new MMuTreeWalker(nodes);
+            final MmuTreeWalker walker = new MmuTreeWalker(nodes);
             walker.assignLog(LOG);
             walker.assignSymbols(symbols);
             walker.assignIR(ir);
@@ -113,8 +113,8 @@ public class MMuTranslator
             e.printStackTrace();
         }
         
-        final Generator generator = new Generator(modelName, getShortFileName(fileName), ir);
-        generator.generate();
+//        final Generator generator = new Generator(modelName, getShortFileName(fileName), ir);
+//        generator.generate();
         
         
     }

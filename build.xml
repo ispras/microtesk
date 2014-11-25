@@ -165,14 +165,14 @@
   <!-- Target for generating parsers for MMU specification code from grammars with ANTLR -->
   <property name="mmu_grammar.package" value="translator/mmu/grammar"/>
   <property name="mmu_grammar.path"    value="${main.package}/${mmu_grammar.package}"/>
-  <property name="mmu_lexer.name"      value="MMuLexer.g"/>
-  <property name="mmu_parser.name"     value="MMuParser.g"/>
-  <property name="mmu_walker.name"     value="MMuTreeWalker.g"/>
+  <property name="mmu_lexer.name"      value="MmuLexer.g"/>
+  <property name="mmu_parser.name"     value="MmuParser.g"/>
+  <property name="mmu_walker.name"     value="MmuTreeWalker.g"/>
 
   <target name="antlr_mmu">
-    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu.java.dir}"/>
-    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu.java.dir}"/>
-    <antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.mmu.java.dir}"/>
+    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.java.dir}"/>
+    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.java.dir}"/>
+    <antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.java.dir}"/>
   </target>	
 
   <!-- JavaDoc target, generates documentation for source code in ${src.java.dir} and places it into ${doc}/javadoc -->
@@ -247,7 +247,7 @@
     </jar>
   </target>
 
-  <target name="build.jar" depends="antlr_simnml,javac.main,microtesk.jar"/>
+  <target name="build.jar" depends="antlr_simnml,antlr_mmu,javac.main,microtesk.jar"/>
   <target name="build.jar.mmu" depends="antlr_simnml,antlr_mmu,javac.mmu,microtesk.jar"/>
 	
   <!-- Copies required text files (Ruby and Bash scripts, nML files to the distributive folder -->

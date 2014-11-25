@@ -7,7 +7,7 @@
 /* - "TODO" notes                                                                       */
 /*======================================================================================*/
 
-parser grammar MMuParser;
+parser grammar MmuParser;
 
 /*======================================================================================*/
 /* Options                                                                              */
@@ -15,7 +15,7 @@ parser grammar MMuParser;
 
 options {
   language=Java;
-  tokenVocab=MMuLexer;
+  tokenVocab=MmuLexer;
   output=AST;
   superClass=ParserBase;
 }
