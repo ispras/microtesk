@@ -144,8 +144,7 @@ final class MemoryDirect extends Memory {
 final class MemoryAlias extends Memory {
   private final Location source;
 
-  MemoryAlias(
-      Kind kind, String name, Type type, int length, Location source) {
+  MemoryAlias(Kind kind, String name, Type type, int length, Location source) {
     super(kind, name, type, length, true);
 
     checkNotNull(source);
