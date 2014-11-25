@@ -98,6 +98,11 @@ public final class Location {
 
   public void store(Data value) {
     checkNotNull(value);
+
+    if (getBitSize() != value.getType().getBitSize()) {
+      throw new IllegalArgumentException();
+    }
+
     writeData(value.getRawData(), true);
   }
 
@@ -187,13 +192,32 @@ public final class Location {
   }
 
   private BitVector readData(boolean handle) {
+    final MemoryAccessHandler handler = handle ? Memory.getHandler() : null;
+    for (Source source : sources) {
+      if (source.isHandled && null != handler) {
+        
+      }
+      else {
+
+      }
+    }
+
     // TODO !!!
     return null;
   }
   
   private void writeData(BitVector data, boolean handle) {
+    final MemoryAccessHandler handler = handle ? Memory.getHandler() : null;
+    for (Source source : sources) {
+      if (source.isHandled && null != handler) {
+        
+      }
+      else {
+
+      }
+    }
+
     // TODO !!!
-    
   }
 
   private static void checkNotNull(Object o) {
