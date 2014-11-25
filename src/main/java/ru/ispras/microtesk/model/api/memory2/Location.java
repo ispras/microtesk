@@ -246,36 +246,3 @@ public final class Location {
   }
 
 }
-/*
-
-  private class LocationImpl implements Location {
-    private final int index;
-
-    private LocationImpl(int index) {
-      this.index = index;
-    }
-
-    @Override
-    public Data load() {
-      if (null != handler) {
-        final List<MemoryRegion> regions = handler.onLoad(
-            Collections.singletonList(new MemoryRegion(storage, index)));
-        return new Data(regions.get(0).getData(), type);
-      }
-
-      return new Data(storage.read(index), type);
-    }
-
-    @Override
-    public void store(Data data) {
-      if (null != handler) {
-        handler.onStore(Collections.singletonList(
-            new MemoryRegion(storage, index, data.getRawData())));
-        return;
-      }
-
-      storage.write(index, data.getRawData());
-    }
-  }
-
-*/
