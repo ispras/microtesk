@@ -27,15 +27,12 @@ public final class Location {
 
   private static final class Source {
     final MemoryStorage storage;
-    final boolean isHandled;
-
     final int regionIndex;
     final int bitSize;
     final int startBitPos;
 
     Source(
         MemoryStorage storage,
-        boolean isHandled,
         int regionIndex,
         int bitSize,
         int startBitPos) {
@@ -43,14 +40,13 @@ public final class Location {
       checkNotNull(storage);
 
       this.storage = storage;
-      this.isHandled = isHandled;
       this.regionIndex = regionIndex;
       this.bitSize = bitSize;
       this.startBitPos = startBitPos;
     }
 
     Source resize(int newBitSize, int newStartBitPos) {
-      return new Source(storage, isHandled, regionIndex, newBitSize, newStartBitPos);
+      return new Source(storage, regionIndex, newBitSize, newStartBitPos);
     }
   }
 
@@ -58,7 +54,7 @@ public final class Location {
   private final List<Source> sources;
 
   static Location newLocationForRegion(
-      Type type, MemoryStorage storage, int regionIndex, boolean isHandled) {
+      Type type, MemoryStorage storage, int regionIndex) {
 
     checkNotNull(type);
     checkNotNull(storage);
@@ -72,7 +68,7 @@ public final class Location {
     }
 
     final List<Source> sources = Collections.singletonList(
-        new Source(storage, isHandled, regionIndex, type.getBitSize(), 0));
+        new Source(storage, regionIndex, type.getBitSize(), 0));
 
     return new Location(type, sources);
   }
@@ -200,7 +196,7 @@ public final class Location {
     for (int index = 0; index < sources.size(); ++index) {
       final Source source = sources.get(index);
 
-      if (source.isHandled && null != handler) {
+      if (null != handler) {
         // TODO
         throw new UnsupportedOperationException("Not supported yet");
       }
@@ -225,9 +221,8 @@ public final class Location {
   private void writeData(BitVector data, boolean handle) {
     final MemoryAccessHandler handler = handle ? Memory.getHandler() : null;
 
-    int pos = 0;
     for (Source source : sources) {
-      if (source.isHandled && null != handler) {
+      if (null != handler) {
         // TODO
         throw new UnsupportedOperationException("Not supported yet");
       } else {
@@ -237,8 +232,6 @@ public final class Location {
 
         }
       }
-
-      pos += source.bitSize; 
     }
 
     // TODO !!!

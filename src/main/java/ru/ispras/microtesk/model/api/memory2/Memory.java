@@ -18,54 +18,65 @@ import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public abstract class Memory {
-  
-  public enum Kind {
+
+  public static enum Kind {
     REG, MEM, VAR
   }
   
-  public static Memory newMemory(
-      Kind kind, String name, Type type, int length) {
-    return new MemoryDirect(kind, name, type, length);
+  public static Memory REG(String name, Type type, int length) {
+    return REG(name, type, length, null);
   }
 
-  public static Memory newMemoryAlias(
-      Kind kind, String name, Type type, int length, Memory source, int sourceIndex) {
-
-    checkNotNull(source);
-
-    return null; // new Memory(kind, name, type, length);
+  public static Memory REG(String name, Type type, int length, Location alias) {
+    return newMemory(Kind.REG, name, type, length, alias);
+  }
+  
+  public static Memory MEM(String name, Type type, int length) {
+    return MEM(name, type, length, null);
   }
 
-  public static Memory newMemoryAlias(
-      Kind kind, String name, Type type, int length, Location source) {
-
-    checkNotNull(source);
-
-    return null; //new Memory(kind, name, type, length);
+  public static Memory MEM(String name, Type type, int length, Location alias) {
+    return newMemory(Kind.MEM, name, type, length, alias);
   }
 
-  private static MemoryAccessHandler handler = null;
+  public static Memory VAR(String name, Type type, int length) {
+    return VAR(name, type, length, null);
+  }
+
+  public static Memory VAR(String name, Type type, int length, Location alias) {
+    return newMemory(Kind.VAR, name, type, length, alias);
+  }
+
+  private static Memory newMemory(
+      Kind kind, String name, Type type, int length, Location alias) {
+    if (null == alias) {
+      return new MemoryDirect(kind, name, type, length);
+    } else {
+      return new MemoryAlias(kind, name, type, length, alias);
+    }
+  }
+
+  private static MemoryAccessHandler handler = new MemoryAccessHandlerDefault();
 
   private final Kind kind;
   private final String name;
   private final Type type;
   private final int length;
-  private final MemoryStorage storage; 
+  private final boolean alias;
 
   protected Memory(
-      Kind kind, String name, Type type, int length, MemoryStorage storage) {
+      Kind kind, String name, Type type, int length, boolean alias) {
 
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(type);
     checkGreaterThanZero(length);
-    checkNotNull(storage);
 
     this.kind = kind;
     this.name = name;
     this.type = type;
     this.length = length;
-    this.storage = storage;
+    this.alias = alias;
   }
 
   public final MetaLocationStore getMetaData() {
@@ -87,9 +98,9 @@ public abstract class Memory {
   public final int getLength() {
     return length;
   }
-
-  final MemoryStorage getStorage() {
-    return storage;
+  
+  public final boolean isAlias() {
+    return alias;
   }
 
   public final Location access() {
@@ -97,7 +108,6 @@ public abstract class Memory {
   }
 
   public abstract Location access(int index);
-
   public abstract void reset();
 
   public static void setHandler(MemoryAccessHandler value) {
@@ -129,34 +139,30 @@ public abstract class Memory {
 
 final class MemoryDirect extends Memory {
 
-  MemoryDirect(Kind kind, String name, Type type, int length) {
-    super(kind, name, type, length, newMemoryStorage(type, length));
-  }
+  private final MemoryStorage storage;
 
-  private static MemoryStorage newMemoryStorage(Type type, int length) {
-    checkNotNull(type);
-    checkGreaterThanZero(length);
-    return new MemoryStorage(length, type.getBitSize());
+  MemoryDirect(Kind kind, String name, Type type, int length) {
+    super(kind, name, type, length, false);
+    this.storage = new MemoryStorage(name, length, type.getBitSize());
   }
 
   @Override
   public Location access(int index) {
     checkBounds(index);
-
-    return Location.newLocationForRegion(
-        getType(), getStorage(), index, getKind() == Kind.MEM);
+    return Location.newLocationForRegion(getType(), storage, index);
   }
 
   @Override
   public void reset() {
-    getStorage().reset();
+    storage.reset();
   }
 }
 
 final class MemoryAlias extends Memory {
 
-  MemoryAlias(Kind kind, String name, Type type, int length, Memory source, int sourceIndex) {
-    super(kind, name, type, length, source.getStorage());
+  MemoryAlias(
+      Kind kind, String name, Type type, int length, Location source) {
+    super(kind, name, type, length, true);
     // TODO Auto-generated constructor stub
   }
 
@@ -171,4 +177,5 @@ final class MemoryAlias extends Memory {
     // TODO Auto-generated method stub
     
   }
+  
 }
