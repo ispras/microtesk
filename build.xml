@@ -273,6 +273,11 @@
        <fileset dir="src/main/arch/demo/vliw" includes="**"/>  
     </copy>
 
+    <!-- Copies miniMIPS architecture specifications and test templates -->
+    <copy todir="${dist}/arch/minimips">
+       <fileset dir="src/main/arch/minimips" includes="**"/>  
+    </copy>
+
   </target>
 
   <!-- Copies all required JARS to the distributive folder -->
@@ -335,6 +340,17 @@
   	  </classpath>
     </java>
 
+    <!-- Generate code for the miniMIPS model -->
+    <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+  	  <jvmarg value="-ea"/>
+   	  <arg value="-d"/>
+   	  <arg value="${dist.gen}/src"/>
+      <arg value="${dist}/arch/minimips/model/minimips.nml"/>
+      <classpath>
+        <pathelement location="${dist.jars}/${jar}"/>
+      </classpath>
+    </java>
+
     <property name="models.classpath"     value="${dist.jars}/${jar}"/>
     <property name="models.jar.classpath" value="${jar}"/>
     <property name="models.bin"           value="${dist.gen}/bin"/>
@@ -393,7 +409,12 @@
       arch.name="cpu"
       file.name="${dist}/test.s"
     />
+    <templates
+      src.path="${dist}/arch/minimips"
+      arch.name="minimips"
+      file.name="${dist}/test.s"
+    />
     <delete file="${dist}/test.s"/>
   </target>
- 
+
 </project>
