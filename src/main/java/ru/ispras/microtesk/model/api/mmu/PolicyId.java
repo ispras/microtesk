@@ -23,6 +23,17 @@ package ru.ispras.microtesk.model.api.mmu;
 public enum PolicyId {
 
   /**
+   * The trivial data replacement policy.
+   */
+
+  NONE {
+    @Override
+    public Policy newPolicy(int associativity) {
+      return new PolicyNone(associativity);
+    }
+  },
+
+  /**
    * The random data replacement policy.
    */
 

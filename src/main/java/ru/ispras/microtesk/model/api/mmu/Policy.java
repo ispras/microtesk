@@ -60,6 +60,39 @@ public abstract class Policy {
 }
 
 //--------------------------------------------------------------------------------------------------
+// None
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * The trivial data replacement policy.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ */
+
+final class PolicyNone extends Policy {
+
+  /**
+   * Constructs a trivial data replacement controller.
+   * 
+   * @param associativity the buffer associativity.
+   */
+
+  PolicyNone(int associativity) {
+   super(associativity);
+  }
+
+  @Override
+  public void accessLine(int index) {
+   // Do nothing.
+  }
+
+  @Override
+  public int chooseVictim() {
+    return 0;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
 // Random
 //--------------------------------------------------------------------------------------------------
 
@@ -140,6 +173,7 @@ final class PolicyFIFO extends Policy {
   }
 }
 
+
 //--------------------------------------------------------------------------------------------------
 // LRU
 //--------------------------------------------------------------------------------------------------
@@ -191,6 +225,7 @@ final class PolicyLRU extends Policy {
     return victim;
   }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 // PLRU
