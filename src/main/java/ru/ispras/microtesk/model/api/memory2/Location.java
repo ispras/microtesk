@@ -198,7 +198,7 @@ public final class Location {
   }
 
   private BitVector readData(boolean handle) {
-    final MemoryAccessHandler handler = handle ? Memory.getHandler() : null;
+    final MemoryAccessHandler handler = handle ? Memory.getGlobalHandler() : null;
     final BitVector[] dataItems = new BitVector[sources.size()]; 
     
     for (int index = 0; index < sources.size(); ++index) {
@@ -227,7 +227,7 @@ public final class Location {
   }
 
   private void writeData(BitVector data, boolean handle) {
-    final MemoryAccessHandler handler = handle ? Memory.getHandler() : null;
+    final MemoryAccessHandler handler = handle ? Memory.getGlobalHandler() : null;
 
     for (Source source : sources) {
       if (null != handler) {

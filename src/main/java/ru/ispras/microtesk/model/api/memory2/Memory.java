@@ -58,13 +58,26 @@ public abstract class Memory {
     }
   }
 
-  private static MemoryAccessHandler handler = null;
-
   private final Kind kind;
   private final String name;
   private final Type type;
   private final int length;
   private final boolean isAlias;
+  
+  private static final MemoryAccessHandlerEngine handlerEngine = new MemoryAccessHandlerEngine();
+  private static boolean isHandlingEnabled = true;
+
+  static MemoryAccessHandler getGlobalHandler() {
+    return isHandlingEnabled ? getHandlerEngine() : null;
+  }
+
+  protected static MemoryAccessHandlerEngine getHandlerEngine() {
+    return handlerEngine;
+  }
+
+  public static void setHandlingEnabled(boolean value) {
+    isHandlingEnabled = value;
+  }
 
   protected Memory(
       Kind kind, String name, Type type, int length, boolean isAlias) {
@@ -111,14 +124,7 @@ public abstract class Memory {
 
   public abstract Location access(int index);
   public abstract void reset();
-
-  public static void setHandler(MemoryAccessHandler value) {
-    handler = value;
-  }
-
-  public static MemoryAccessHandler getHandler() {
-    return handler;
-  }
+  public abstract void setHandler(MemoryAccessHandler handler);
 }
 
 final class MemoryDirect extends Memory {
@@ -138,6 +144,12 @@ final class MemoryDirect extends Memory {
   @Override
   public void reset() {
     storage.reset();
+  }
+
+  @Override
+  public void setHandler(MemoryAccessHandler handler) {
+    checkNotNull(handler);
+    getHandlerEngine().registerHandler(storage, handler);
   }
 }
 
@@ -171,6 +183,11 @@ final class MemoryAlias extends Memory {
 
   @Override
   public void reset() {
+    assert false : "Does not work for aliases.";
+  }
+
+  @Override
+  public void setHandler(MemoryAccessHandler handler) {
     assert false : "Does not work for aliases.";
   }
 }
