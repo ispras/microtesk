@@ -22,6 +22,9 @@ import java.util.List;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.type.TypeId;
+
+import static ru.ispras.microtesk.utils.InvariantChecks.*;
 
 public final class Location {
 
@@ -80,6 +83,11 @@ public final class Location {
     this.type = type;
     this.sources = sources;
   }
+  
+  public Location castTo(TypeId typeId) {
+    checkNotNull(typeId);
+    return new Location(type.castTo(typeId), sources);
+  }
 
   public Type getType() {
     return type;
@@ -114,8 +122,8 @@ public final class Location {
   }
 
   public Location bitField(int start, int end) {
-    checkBounds(start);
-    checkBounds(end);
+    checkBounds(start, getBitSize());
+    checkBounds(end, getBitSize());
 
     if (start > end) {
       return bitField(end, start);
@@ -237,19 +245,7 @@ public final class Location {
     // TODO !!!
   }
 
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
-  }
-
-  private final void checkBounds(int index) {
-    if (!(0 <= index && index < getBitSize())) {
-      throw new IndexOutOfBoundsException();
-    }
-  }
 }
-
 /*
 
   private class LocationImpl implements Location {

@@ -17,6 +17,8 @@ package ru.ispras.microtesk.model.api.memory2;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.*;
+
 public abstract class Memory {
 
   public static enum Kind {
@@ -56,7 +58,7 @@ public abstract class Memory {
     }
   }
 
-  private static MemoryAccessHandler handler = new MemoryAccessHandlerDefault();
+  private static MemoryAccessHandler handler = null;
 
   private final Kind kind;
   private final String name;
@@ -98,7 +100,7 @@ public abstract class Memory {
   public final int getLength() {
     return length;
   }
-  
+
   public final boolean isAlias() {
     return alias;
   }
@@ -117,28 +119,9 @@ public abstract class Memory {
   public static MemoryAccessHandler getHandler() {
     return handler;
   }
-
-  protected static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
-  }
-
-  protected static void checkGreaterThanZero(int n) {
-    if (n <= 0) {
-      throw new IllegalArgumentException();      
-    }
-  }
-
-  protected final void checkBounds(int index) {
-    if (!(0 <= index && index < getLength())) {
-      throw new IndexOutOfBoundsException();
-    }
-  }
 }
 
 final class MemoryDirect extends Memory {
-
   private final MemoryStorage storage;
 
   MemoryDirect(Kind kind, String name, Type type, int length) {
@@ -148,7 +131,7 @@ final class MemoryDirect extends Memory {
 
   @Override
   public Location access(int index) {
-    checkBounds(index);
+    checkBounds(index, getLength());
     return Location.newLocationForRegion(getType(), storage, index);
   }
 
@@ -159,23 +142,37 @@ final class MemoryDirect extends Memory {
 }
 
 final class MemoryAlias extends Memory {
+  private final Location source;
 
   MemoryAlias(
       Kind kind, String name, Type type, int length, Location source) {
     super(kind, name, type, length, true);
-    // TODO Auto-generated constructor stub
+
+    checkNotNull(source);
+
+    final int totalBitSize = type.getBitSize() * length;
+    if (source.getBitSize() != totalBitSize) {
+      throw new IllegalArgumentException();
+    }
+
+    this.source = source;
   }
 
   @Override
   public Location access(int index) {
-    // TODO Auto-generated method stub
-    return null;
+    checkBounds(index, getLength());
+
+    final int locationBitSize = getType().getBitSize();
+
+    final int start = locationBitSize * index;
+    final int end = start + locationBitSize;
+
+    final Location bitField = source.bitField(start, end);
+    return bitField.castTo(getType().getTypeId());
   }
 
   @Override
   public void reset() {
-    // TODO Auto-generated method stub
-    
+    assert false : "Does not work for aliases.";
   }
-  
 }
