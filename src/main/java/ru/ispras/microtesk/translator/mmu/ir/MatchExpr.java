@@ -1,6 +1,6 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
-import ru.ispras.microtesk.model.api.mmu.buffer.Address;
+import ru.ispras.microtesk.model.api.mmu.Address;
 import ru.ispras.microtesk.translator.mmu.ir.MatchExpr;
 import ru.ispras.microtesk.translator.mmu.ir.expression.ConstExpr;
 

@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.model.api.mmu.buffer;
+package ru.ispras.microtesk.model.api.mmu;
 
 import java.util.ArrayList;
 
-import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
-import ru.ispras.microtesk.model.api.mmu.policy.Policy;
-import ru.ispras.microtesk.model.api.mmu.policy.PolicyFactory;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
@@ -40,11 +37,11 @@ public class Set<L extends Line> extends Buffer<L>
 	 * 
 	 * @param associativity the number of sets.
 	 */
-	public Set(final EPolicy policy, int associativity)
+	public Set(final PolicyId policyId, int associativity)
 	{
-		super(associativity, 1, policy);
+		super(associativity, 1, policyId);
 		
-		this.policy = PolicyFactory.create(policy, associativity);
+		this.policy = policyId.newPolicy(associativity);
 		
 	}
 

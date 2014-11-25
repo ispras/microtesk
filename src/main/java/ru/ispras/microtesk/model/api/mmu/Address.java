@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.model.api.mmu.buffer;
+package ru.ispras.microtesk.model.api.mmu;
 
 /**
  * This class represents an address.

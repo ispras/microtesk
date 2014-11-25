@@ -1,6 +1,6 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
-import ru.ispras.microtesk.model.api.mmu.buffer.*;
+import ru.ispras.microtesk.model.api.mmu.Address;
 
 class AddressExp
 {

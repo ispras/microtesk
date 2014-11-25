@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.model.api.mmu.buffer;
+package ru.ispras.microtesk.model.api.mmu;
 
 import java.util.HashMap;
 
-import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
@@ -37,11 +36,11 @@ public abstract class Buffer<L extends Line>
      * @param number_of_sets the number of sets in the buffer.
      * @param number_of_lines the number of lines in a set.
      */
-    public Buffer(int number_of_sets, int number_of_lines, EPolicy policy)
+    public Buffer(int number_of_sets, int number_of_lines, PolicyId policyId)
     {
         for (int i = 0; i < number_of_sets; i++)
         {
-            buffer.put(i, new Set<L>(policy, number_of_lines));
+            buffer.put(i, new Set<L>(policyId, number_of_lines));
         }
     }
 

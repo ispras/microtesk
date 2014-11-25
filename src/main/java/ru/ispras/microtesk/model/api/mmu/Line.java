@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ru.ispras.microtesk.model.api.mmu.buffer;
+package ru.ispras.microtesk.model.api.mmu;
 
-import ru.ispras.microtesk.model.api.mmu.policy.EPolicy;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
@@ -35,7 +34,7 @@ public abstract class Line extends Buffer<Line>
      */
     public Line(int size)
     {
-        super(1, 1, EPolicy.FIFO);
+        super(1, 1, PolicyId.FIFO);
         this.data = BitVector.newEmpty(size);
     }
 
