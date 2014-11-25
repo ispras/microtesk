@@ -146,7 +146,6 @@ final class MemoryAlias extends Memory {
 
   MemoryAlias(Kind kind, String name, Type type, int length, Location source) {
     super(kind, name, type, length, true);
-
     checkNotNull(source);
 
     final int totalBitSize = type.getBitSize() * length;
