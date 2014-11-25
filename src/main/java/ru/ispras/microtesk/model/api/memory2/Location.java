@@ -40,6 +40,8 @@ public final class Location {
         int bitSize,
         int startBitPos) {
 
+      checkNotNull(storage);
+
       this.storage = storage;
       this.isHandled = isHandled;
       this.regionIndex = regionIndex;
@@ -193,28 +195,50 @@ public final class Location {
 
   private BitVector readData(boolean handle) {
     final MemoryAccessHandler handler = handle ? Memory.getHandler() : null;
-    for (Source source : sources) {
+    final BitVector[] dataItems = new BitVector[sources.size()]; 
+    
+    for (int index = 0; index < sources.size(); ++index) {
+      final Source source = sources.get(index);
+
       if (source.isHandled && null != handler) {
-        
+        // TODO
+        throw new UnsupportedOperationException("Not supported yet");
       }
       else {
-
+        final BitVector region = source.storage.read(source.regionIndex);
+        
+        if (region.getBitSize() == source.bitSize) {
+          dataItems[index] = region;
+        } else {
+          dataItems[index] = BitVector.newMapping(region, source.startBitPos, source.bitSize);
+        }
       }
     }
 
-    // TODO !!!
-    return null;
+    if (1 == dataItems.length) {
+      return dataItems[0];
+    }
+
+    return BitVector.newMapping(dataItems);
   }
-  
+
   private void writeData(BitVector data, boolean handle) {
     final MemoryAccessHandler handler = handle ? Memory.getHandler() : null;
+
+    int pos = 0;
     for (Source source : sources) {
       if (source.isHandled && null != handler) {
-        
-      }
-      else {
+        // TODO
+        throw new UnsupportedOperationException("Not supported yet");
+      } else {
+        if (source.bitSize == source.storage.getRegionBitSize()) {
+          
+        } else {
 
+        }
       }
+
+      pos += source.bitSize; 
     }
 
     // TODO !!!
