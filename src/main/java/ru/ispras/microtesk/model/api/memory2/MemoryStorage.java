@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import static ru.ispras.microtesk.utils.InvariantChecks.*;
 
 /**
  * Serves as a memory storage organized as a sequence of fixed-size regions grouped into blocks.
@@ -163,7 +164,7 @@ public final class MemoryStorage {
   }
 
   public BitVector read(int regionIndex) {
-    checkRegionRange(regionIndex);
+    checkBounds(regionIndex, regionCount);
 
     final Block block = getBlockForRegion(regionIndex);
     final int regionInBlockIndex = getRegionInBlockIndex(regionIndex);
@@ -172,7 +173,7 @@ public final class MemoryStorage {
   }
 
   public void write(int regionIndex, BitVector data) {
-    checkRegionRange(regionIndex);
+    checkBounds(regionIndex, regionCount);
 
     checkNotNull(data);
     if (data.getBitSize() != regionBitSize) {
@@ -205,24 +206,5 @@ public final class MemoryStorage {
 
   private int getRegionInBlockIndex(int regionIndex) {
     return regionIndex % maxRegionsInBlock;
-  }
-
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
-  }
-
-  private static void checkGreaterThanZero(int n ) {
-    if (n <= 0) {
-      throw new IllegalArgumentException();      
-    }
-  }
-
-  private void checkRegionRange(int regionIndex) {
-    if (!(0 <= regionIndex && regionIndex < regionCount)) { 
-      throw new IndexOutOfBoundsException(String.format(
-          "%s is out of bounds [%d..%d)", regionIndex, 0, regionCount));
-    }
   }
 }
