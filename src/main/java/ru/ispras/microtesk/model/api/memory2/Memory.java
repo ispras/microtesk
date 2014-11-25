@@ -183,11 +183,11 @@ final class MemoryAlias extends Memory {
 
   @Override
   public void reset() {
-    assert false : "Does not work for aliases.";
+    // Does not work for aliases.
   }
 
   @Override
   public void setHandler(MemoryAccessHandler handler) {
-    assert false : "Does not work for aliases.";
+    // Does not work for aliases.
   }
 }
