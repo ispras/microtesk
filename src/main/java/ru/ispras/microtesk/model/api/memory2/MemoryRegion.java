@@ -16,6 +16,8 @@ package ru.ispras.microtesk.model.api.memory2;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.*;
+
 public final class MemoryRegion {
   private final MemoryStorage target;
   private final int index;
@@ -26,10 +28,8 @@ public final class MemoryRegion {
   }
 
   MemoryRegion(MemoryStorage target, int index, BitVector data) {
-    if (null == target) {
-      throw new NullPointerException();
-    }
-
+    checkNotNull(target);
+    
     if (index < 0) {
       throw new IndexOutOfBoundsException("index < 0 : " + index);
     }
