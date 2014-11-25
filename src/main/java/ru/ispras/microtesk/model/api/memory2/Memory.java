@@ -64,10 +64,10 @@ public abstract class Memory {
   private final String name;
   private final Type type;
   private final int length;
-  private final boolean alias;
+  private final boolean isAlias;
 
   protected Memory(
-      Kind kind, String name, Type type, int length, boolean alias) {
+      Kind kind, String name, Type type, int length, boolean isAlias) {
 
     checkNotNull(kind);
     checkNotNull(name);
@@ -78,7 +78,7 @@ public abstract class Memory {
     this.name = name;
     this.type = type;
     this.length = length;
-    this.alias = alias;
+    this.isAlias = isAlias;
   }
 
   public final MetaLocationStore getMetaData() {
@@ -102,7 +102,7 @@ public abstract class Memory {
   }
 
   public final boolean isAlias() {
-    return alias;
+    return isAlias;
   }
 
   public final Location access() {
