@@ -125,6 +125,12 @@ public abstract class Memory {
   public abstract Location access(int index);
   public abstract void reset();
   public abstract void setHandler(MemoryAccessHandler handler);
+
+  @Override
+  public String toString() {
+    return String.format("%s %s[%d, %s], alias=%b",
+        kind.name().toLowerCase(), name, length, type, isAlias);
+  }
 }
 
 final class MemoryDirect extends Memory {
