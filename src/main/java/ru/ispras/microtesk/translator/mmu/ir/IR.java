@@ -11,7 +11,7 @@ public final class IR {
   private Map<String, SetsExpr> set = new LinkedHashMap<String, SetsExpr>();
   private Map<String, LineExpr> line = new LinkedHashMap<String, LineExpr>();
   private Map<String, IndexExpr> index = new LinkedHashMap<String, IndexExpr>();
-  private Map<String, EPolicyType> policy = new LinkedHashMap<String, EPolicyType>();
+  private Map<String, String> policy = new LinkedHashMap<String, String>();
   private Map<String, AddressExpr> address = new LinkedHashMap<String, AddressExpr>();
   private Map<String, MatchExpr> match = new LinkedHashMap<String, MatchExpr>();
   private Map<String, TagExpr> tag = new LinkedHashMap<String, TagExpr>();
@@ -34,7 +34,7 @@ public final class IR {
     line.put(name, value);
   }
 
-  public void add(String name, EPolicyType value) {
+  public void add(String name, String value) {
     policy.put(name, value);
   }
 
@@ -50,7 +50,7 @@ public final class IR {
     tag.put(name, value);
   }
 
-  public Map<String, EPolicyType> getPolicy() {
+  public Map<String, String> getPolicy() {
     return policy;
   }
 

@@ -14,8 +14,4 @@ class LengthExp {
 
 
 public class LengthExpr {
-  public static void main(String[] args) {
-    LengthExp length = new LengthExp(40);
-    System.out.println(length.getNumber());
-  }
 }

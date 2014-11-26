@@ -238,7 +238,7 @@ matchExpr returns [MatchExpr res]
 /*  Policy Type Rules                                                                   */
 /*======================================================================================*/
 
-policy returns [EPolicyType res]
+policy returns [String res]
 	:  ^(id=POLICY pol=policyExpr) {$res = $pol.res; }
 { 
 checkNotNull($id, $pol.res, $pol.text);
@@ -248,10 +248,10 @@ System.out.println("policy OK!");
 }
     ;
 
-policyExpr returns [EPolicyType res]
-	:  LRU  {$res = EPolicyType.LRU;}
-	|  PLRU  {$res = EPolicyType.PLRU;}
-	|  FIFO {$res = EPolicyType.FIFO;}
+policyExpr returns [String res]
+	:  LRU  {$res = "LRU";}
+	|  PLRU  {$res = "PLRU";}
+	|  FIFO {$res = "FIFO";}
 	;
 catch [RecognitionException re] {
     reportError(re);

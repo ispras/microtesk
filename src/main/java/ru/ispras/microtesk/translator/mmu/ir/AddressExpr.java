@@ -14,7 +14,6 @@ class AddressExp {
   }
 }
 
-
 public class AddressExpr extends Address {
   public AddressExpr(String text, Object object) {}
 }
