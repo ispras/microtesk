@@ -173,9 +173,8 @@ final class MemoryAlias extends Memory {
     checkBounds(index, getLength());
 
     final int locationBitSize = getType().getBitSize();
-
     final int start = locationBitSize * index;
-    final int end = start + locationBitSize;
+    final int end = start + locationBitSize - 1;
 
     final Location bitField = source.bitField(start, end);
     return bitField.castTo(getType().getTypeId());
