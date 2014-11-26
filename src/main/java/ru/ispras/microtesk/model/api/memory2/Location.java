@@ -49,6 +49,12 @@ public final class Location {
     Source resize(int newBitSize, int newStartBitPos) {
       return new Source(storage, regionIndex, newBitSize, newStartBitPos);
     }
+
+    @Override
+    public String toString() {
+      return String.format("%s[%d]<%d..%d>",
+          storage.getId(), regionIndex, startBitPos, startBitPos + bitSize - 1);
+    }
   }
 
   private final Type type;
@@ -138,6 +144,8 @@ public final class Location {
   }
 
   public Location bitField(int start, int end) {
+    // System.out.printf("Bit field: %d %d %n", start, end);
+    
     checkBounds(start, getBitSize());
     checkBounds(end, getBitSize());
 
@@ -157,13 +165,15 @@ public final class Location {
 
       if (sourceStart <= start && start <= sourceEnd) {
         if (end <= sourceEnd) {
-          sources.add(source.resize(newBitSize, source.startBitPos + (source.bitSize - newBitSize)));
+          final int newStartBitPos = source.startBitPos + (start - pos);
+          final Source newSource = source.resize(newBitSize, newStartBitPos); 
+          newSources.add(newSource);
           break;
         } else {
-          sources.add(source);
+          newSources.add(source);
         }
       } else if (sourceStart <= end && end <= sourceEnd) {
-        sources.add(source.resize(source.bitSize - (sourceEnd - end), source.startBitPos));
+        newSources.add(source.resize(source.bitSize - (sourceEnd - end), source.startBitPos));
         break;
       }
 
