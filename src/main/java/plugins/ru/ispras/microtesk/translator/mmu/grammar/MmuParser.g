@@ -213,8 +213,7 @@ policy
     	;
     	
 policyExpr returns [ESymbolKind res]
-    : MMU_NONE
-    | MMU_RANDOM
+    : MMU_RANDOM
     | MMU_FIFO
     | MMU_PLRU
     | MMU_LRU
