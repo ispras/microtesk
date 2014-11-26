@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,75 +14,50 @@
 
 package ru.ispras.microtesk.model.api.mmu;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-
 /**
- * This class represents line of a buffer.
+ * This is an abstract representation of a cache line.
+ * 
+ * @param <D> the data type.
+ * @param <A> the address type.
  * 
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
-public abstract class Line extends Buffer<Line> {
-  private BitVector data;
+
+public final class Line<D extends Data, A extends Address> implements Buffer<D, A> {
+
+  /** The stored data. */
+  private D data;
+  
+  /** The data-address matcher. */
+  private Matcher<D, A> matcher;
 
   /**
-   * Constructs a line with a given size.
+   * Constructs a default (invalid) line.
    * 
-   * @param size the number of sets.
+   * @param matcher the data-address matcher.
    */
-  public Line(int size) {
-    super(1, 1, PolicyId.NONE);
-    this.data = BitVector.newEmpty(size);
+
+  public Line(final Matcher<D, A> matcher) {
+    this.matcher = matcher;
   }
 
-  /**
-   * Checks whether there is a buffer hit for the given address.
-   * 
-   * @return the index in the buffer set.
-   */
-  public abstract boolean match(final Address address);
-
-  /**
-   * Returns the index of the buffer set for the given address.
-   * 
-   * @return the index in the buffer set.
-   */
-  public abstract int index(final Address address);
-
-  /**
-   * Returns data.
-   * 
-   * @return data.
-   */
-  public BitVector getData() {
-    return data;
+  @Override
+  public boolean isHit(final A address) {
+    return matcher.areMatching(data, address);
   }
 
-  public void setData(BitVector data) {
-    this.data = data;
+  @Override
+  public D getData(final A address) {
+    return isHit(address) ? data : null;
   }
 
-  /**
-   * Reads data with a given address.
-   * 
-   * @return data.
-   */
-  public BitVector read(Address address) {
-    return getData();
-  }
+  @Override
+  public D setData(final A address, final D newData) {
+    if (isHit(address)) {
+      final D oldData = data;
 
-  /**
-   * Writes data with a given address and data. If there is a hit returns old data, otherwise it
-   * returns null.
-   * 
-   * @returns data.
-   */
-  public BitVector write(Address address, BitVector data) {
-    if (match(address)) {
-      BitVector old = data;
-
-      setData(data);
-
-      return old;
+      data = newData;
+      return oldData;
     }
 
     return null;

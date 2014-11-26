@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,111 +16,88 @@ package ru.ispras.microtesk.model.api.mmu;
 
 import java.util.ArrayList;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-
 /**
- * This class represents a set of lines.
+ * This class implements a cache set, which is a fully associative buffer consisting of cache lines.
+ * 
+ * @param <D> the data type.
+ * @param <A> the address type.
  *
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
-public class Set<L extends Line> extends Buffer<L> {
-  // / Array of lines.
-  private ArrayList<L> set = new ArrayList<L>();
-  // / Data replacement policy.
+
+public final class Set<D extends Data, A extends Address> implements Buffer<D, A> {
+  /** The array of cache lines. */
+  private ArrayList<Line<D, A>> lines = new ArrayList<>();
+
+  /** The data replacement policy. */
   private Policy policy;
 
   /**
-   * Constructs a set with a given associativity.
+   * Constructs a cache set of the given associativity.
    * 
-   * @param associativity the number of sets.
+   * @param associativity the number of lines in the set.
+   * @param policyId the identifier of the data replacement policy.
+   * @param matcher the data-address matcher.
    */
-  public Set(final PolicyId policyId, int associativity) {
-    super(associativity, 1, policyId);
+
+  public Set(int associativity, final PolicyId policyId, final Matcher<D, A> matcher) {
+    // Fill the set with the default (invalid) lines.
+    for (int i = 0; i < associativity; i++) {
+      lines.add(new Line<D, A>(matcher));
+    }
 
     this.policy = policyId.newPolicy(associativity);
+  }
 
+  @Override
+  public boolean isHit(final A address) {
+    return getLine(address) != null;
+  }
+
+  @Override
+  public D getData(final A address) {
+    final Line<D, A> line = getLine(address);
+    return line != null ? line.getData(address) : null;
+  }
+
+  @Override
+  public D setData(final A address, final D data) {
+    Line<D, A> line = getLine(address);
+
+    // If there is a miss, choose a victim.
+    if (line == null) {
+      line = lines.get(policy.chooseVictim()); 
+    }
+
+    return line.setData(address, data);
   }
 
   /**
-   * For each line in buffer with given address it checks if there is a hit. Returns true if there
-   * is hit.
-   * 
-   * @param address the address.
-   * @return true iff there is a buffer hit, otherwise returns false.
+   * Returns the line associated with the given address.
+   *  
+   * @param address the data address.
+   * @return the line associated with the given address if it exists; <code>null</code> otherwise.
    */
-  public boolean match(final Address address) {
-    for (L line : set) {
-      if (line.match(address)) {
-        return true;
+
+  private Line<D, A> getLine(final A address) {
+    int index = -1;
+
+    for (int i = 0; i < lines.size(); i++) {
+      final Line<D, A> line = lines.get(i);
+
+      if (line.isHit(address)) {
+        if (index != -1) {
+          throw new IllegalStateException("Multiple hits in a cache set");
+        }
+
+        index = i;
       }
     }
 
-    return false;
-  }
-
-  /**
-   * For each line in set checks if there is a hit, and if so it return data with a given address.If
-   * there is miss chooses policy to be used to replace the data.
-   * 
-   * @param address the address.
-   * @return data with a given address.
-   */
-  public BitVector read(Address address) {
-    for (L line : set) {
-      if (line.match(address)) {
-        policy.accessLine(index(address));
-        return line.read(address);
-      }
+    if (index != -1) {
+      policy.accessLine(index);
     }
 
-    int victim = policy.chooseVictim();
-    L line = set.get(victim);
-
-    // TODO: to have access to the next buffer to replace line[victim]
-
-    // TODO: replace
-    return line.read(address);
-  }
-
-  /**
-   * For each line in set checks if there is a hit, and if so it accesses the line with address
-   * index and writes data with a given address. If there is miss chooses policy to be used to
-   * replace the data.
-   *
-   * @param address the address.
-   * @return replaced data with a given address and data.
-   */
-  public BitVector write(Address address, BitVector data) {
-    for (L line : set) {
-      if (line.match(address)) {
-        policy.accessLine(index(address));
-        return line.write(address, data);
-      }
-    }
-
-    int victim = policy.chooseVictim();
-    L line = set.get(victim);
-
-    return line.write(address, data);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int index(final Address address) {
-    return 0;
-  }
-
-  /**
-   * Returns policy.
-   * 
-   * @return policy.
-   */
-  public Policy getPolicy() {
-    return policy;
-  }
-
-  public void setPolicy(final Policy policy) {
-    this.policy = policy;
+    return index == -1 ? null : lines.get(index);
   }
 }

@@ -4,58 +4,46 @@ import ru.ispras.microtesk.model.api.mmu.Address;
 import ru.ispras.microtesk.translator.mmu.ir.MatchExpr;
 import ru.ispras.microtesk.translator.mmu.ir.expression.ConstExpr;
 
-public class MatchExpr 
-{
-	public class IndexExpr
-	{
-		public int addr(int a)
-		{	
-			return a;
-		}
-	}
+public class MatchExpr {
+  public class IndexExpr {
+    public int addr(int a) {
+      return a;
+    }
+  }
 
-	abstract class PA extends Address
-	{
-		public int getBitField(int i, int j) 
-		{
-			return 0;
-		}
-	 }
+  abstract class PA extends Address {
+    public int getBitField(int i, int j) {
+      return 0;
+    }
+  }
 
-	class IndexIR
-	{
-	    IndexExpr expr;
-	    AddressExpr addrType;
-	}
+  class IndexIR {
+    IndexExpr expr;
+    AddressExpr addrType;
+  }
 
-	class AddrBitFieldExpr
-	{
-	    ConstExpr from;
-	    ConstExpr to;   
-	}
+  class AddrBitFieldExpr {
+    ConstExpr from;
+    ConstExpr to;
+  }
 
-	class LineAttrAccess
-	{
-	    String attrName; // = "tag"
-	}
-	
-	@SuppressWarnings("rawtypes")
-	class L1 extends BufferExpr
-	{
-	    @SuppressWarnings("unchecked")
-		public L1(Object s, Object li, Object l, IndexExpr in, MatchExpr ma,
-				Object po) {
-			super(s, li, l, in, ma, po);
-		}
+  class LineAttrAccess {
+    String attrName; // = "tag"
+  }
 
-		int index(PA addr)
-	    {
-	        return addr.getBitField(8, 9);
-	    }
+  @SuppressWarnings("rawtypes")
+  class L1 extends BufferExpr {
+    @SuppressWarnings("unchecked")
+    public L1(Object s, Object li, Object l, IndexExpr in, MatchExpr ma, Object po) {
+      super(s, li, l, in, ma, po);
+    }
 
-	    boolean match(PA addr, LineExpr line)
-	    {
-	        return LineExpr.tag() == addr.getBitField(10, 39);
-	    }
-	}
+    int index(PA addr) {
+      return addr.getBitField(8, 9);
+    }
+
+    boolean match(PA addr, LineExpr line) {
+      return LineExpr.tag() == addr.getBitField(10, 39);
+    }
+  }
 }

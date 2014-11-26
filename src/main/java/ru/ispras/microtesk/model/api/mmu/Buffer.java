@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,80 +14,43 @@
 
 package ru.ispras.microtesk.model.api.mmu;
 
-import java.util.HashMap;
-
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-
 /**
- * This class represents a partially associative buffer.
+ * This is a generic interface of a buffer (i.e., a component that stores addressable data).
  * 
- * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
+ * @param <D> the data type.
+ * @param <A> the address type.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Buffer<L extends Line> {
-  // / Internal representation of the buffer (Index -> Set).
-  protected HashMap<Integer, Set<L>> buffer = new HashMap<Integer, Set<L>>();
+
+public interface Buffer<D, A> {
 
   /**
-   * Constructs a buffer with the given number of sets and lines.
+   * Checks whether the given address causes a hit.
    * 
-   * @param number_of_sets the number of sets in the buffer.
-   * @param number_of_lines the number of lines in a set.
+   * @param address the data address.
+   * @return <code>true</code> if the address causes a hit; <code>false</code> otherwise.
    */
-  public Buffer(int number_of_sets, int number_of_lines, PolicyId policyId) {
-    for (int i = 0; i < number_of_sets; i++) {
-      buffer.put(i, new Set<L>(policyId, number_of_lines));
-    }
-  }
+
+  public boolean isHit(final A address);
 
   /**
-   * Returns the index of the buffer set for the given address.
+   * Returns the data associated with the given address.
    * 
-   * @return the index in the buffer set.
+   * @param address the data address.
+   * @return the data object if the address causes a hit; <code>null</code> otherwise.
    */
-  public abstract int index(final Address address);
+
+  public D getData(final A address);
 
   /**
-   * Checks whether there is a buffer hit for the given address.
+   * Updates the data associated with the given address.
    * 
-   * @param address the address.
-   * @return true iff there is a buffer hit.
-   */
-  public boolean match(final Address address) {
-    return getSet(index(address)).match(address);
-  }
-
-  /**
-   * Gets index in buffer set.
+   * @param address the data address.
+   * @param data the new data.
    * 
-   * @param index is the index in the buffer set.
-   * @return index in the buffer set.
+   * @return the old data if they exist; <code>null</code> otherwise.
    */
-  private Set<L> getSet(int index) {
-    return buffer.get(index);
-  }
 
-  /**
-   * Reads set with the given index of address and returns set.
-   * 
-   * @param address the address.
-   * @return set.
-   */
-  public BitVector read(Address address) {
-    Set<L> set = getSet(index(address));
-
-    return set.read(address);
-  }
-
-  /**
-   * Writes set with the given address and data.
-   * 
-   * @param address the address.
-   * @param data the data.
-   * @return set with the given address and data.
-   */
-  public BitVector write(Address address, BitVector data) {
-    Set<L> set = getSet(index(address));
-
-    return set.write(address, data);
-  }
+  public D setData(final A address, final D data);
 }
