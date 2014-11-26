@@ -40,8 +40,6 @@ public final class Location {
         int bitSize,
         int startBitPos) {
 
-      checkNotNull(storage);
-
       this.storage = storage;
       this.regionIndex = regionIndex;
       this.bitSize = bitSize;
@@ -61,13 +59,10 @@ public final class Location {
 
     checkNotNull(type);
     checkNotNull(storage);
+    checkBounds(regionIndex, storage.getRegionCount());
 
     if (type.getBitSize() != storage.getRegionBitSize()) {
       throw new IllegalArgumentException();
-    }
-
-    if (!(0 <= regionIndex && regionIndex < storage.getRegionCount())) { 
-      throw new IndexOutOfBoundsException();
     }
 
     final List<Source> sources = Collections.singletonList(
@@ -80,10 +75,14 @@ public final class Location {
     checkNotNull(type);
     checkNotNull(sources);
 
+    if (sources.isEmpty()) {
+      throw new IllegalArgumentException();
+    }
+
     this.type = type;
     this.sources = sources;
   }
-  
+
   public Location castTo(TypeId typeId) {
     checkNotNull(typeId);
     return new Location(type.castTo(typeId), sources);
@@ -98,21 +97,38 @@ public final class Location {
   }
 
   public Data load() {
-    final BitVector rawData = readData(true);
+    final MemoryAccessHandler handler = Memory.getGlobalHandler();
+
+    final BitVector rawData;
+    if (null == handler) {
+      rawData = readDataDirecty(sources);
+    } else {
+      rawData = readDataViaHandler(handler, sources);
+    }
+
     return new Data(rawData, type);
   }
 
-  public void store(Data value) {
-    checkNotNull(value);
+  public void store(Data data) {
+    checkNotNull(data);
 
-    if (getBitSize() != value.getType().getBitSize()) {
+    if (getBitSize() != data.getType().getBitSize()) {
       throw new IllegalArgumentException();
     }
 
-    writeData(value.getRawData(), true);
+    final BitVector rawData = data.getRawData();
+    checkNotNull(rawData);
+
+    final MemoryAccessHandler handler = Memory.getGlobalHandler();
+    if (null == handler) {
+      writeDataDirecty(rawData, sources);
+    } else {
+      writeDataViaHandler(handler, rawData, sources);
+    }
   }
 
   public Location assign(Location source) {
+    checkNotNull(source);
     store(source.load());
     return this;
   }
@@ -188,34 +204,25 @@ public final class Location {
   }
 
   public String toBinString() {
-    final BitVector rawData = readData(false); 
+    final BitVector rawData = readDataDirecty(sources); 
     return rawData.toBinString();
   }
 
   public BigInteger getValue() {
-    final BitVector rawData = readData(false);
+    final BitVector rawData = readDataDirecty(sources);
     return new BigInteger(rawData.toByteArray());
   }
-
-  private BitVector readData(boolean handle) {
-    final MemoryAccessHandler handler = handle ? Memory.getGlobalHandler() : null;
+  
+  private static BitVector readDataDirecty(List<Source> sources) {
     final BitVector[] dataItems = new BitVector[sources.size()]; 
-    
     for (int index = 0; index < sources.size(); ++index) {
       final Source source = sources.get(index);
+      final BitVector region = source.storage.read(source.regionIndex);
 
-      if (null != handler) {
-        // TODO
-        throw new UnsupportedOperationException("Not supported yet");
-      }
-      else {
-        final BitVector region = source.storage.read(source.regionIndex);
-        
-        if (region.getBitSize() == source.bitSize) {
-          dataItems[index] = region;
-        } else {
-          dataItems[index] = BitVector.newMapping(region, source.startBitPos, source.bitSize);
-        }
+      if (region.getBitSize() == source.bitSize) {
+        dataItems[index] = region;
+      } else {
+        dataItems[index] = BitVector.newMapping(region, source.startBitPos, source.bitSize);
       }
     }
 
@@ -226,23 +233,40 @@ public final class Location {
     return BitVector.newMapping(dataItems);
   }
 
-  private void writeData(BitVector data, boolean handle) {
-    final MemoryAccessHandler handler = handle ? Memory.getGlobalHandler() : null;
-
-    for (Source source : sources) {
-      if (null != handler) {
-        // TODO
-        throw new UnsupportedOperationException("Not supported yet");
-      } else {
-        if (source.bitSize == source.storage.getRegionBitSize()) {
-          
-        } else {
-
-        }
-      }
-    }
-
-    // TODO !!!
+  private static BitVector readDataViaHandler(MemoryAccessHandler handler, List<Source> sources) {
+    //TODO: NOT IMPLEMENTED
+    throw new UnsupportedOperationException();
   }
 
+  private static void writeDataDirecty(BitVector data, List<Source> sources) {
+    int position = 0;
+    for (Source source : sources) {
+      final MemoryStorage storage = source.storage;
+
+      final BitVector dataItem = 
+          BitVector.newMapping(data, position, source.bitSize);
+
+      final BitVector regionData;
+
+      if (source.bitSize == storage.getRegionBitSize()) {
+        regionData = dataItem;
+      } else {
+        regionData = storage.read(source.regionIndex).copy();
+
+        final BitVector mapping = 
+            BitVector.newMapping(regionData, source.startBitPos, source.bitSize);
+
+        mapping.assign(dataItem);
+      }
+
+      storage.write(source.regionIndex, regionData);
+      position += source.bitSize;
+    }
+  }
+
+  private static void writeDataViaHandler(
+      MemoryAccessHandler handler, BitVector rawData, List<Source> sources) {
+    //TODO: NOT IMPLEMENTED
+    throw new UnsupportedOperationException();
+  }
 }
