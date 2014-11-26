@@ -66,4 +66,37 @@ public final class Data {
       throw new NullPointerException();
     }
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+
+    result = prime * result + type.hashCode();
+    result = prime * result + rawData.hashCode();
+
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
+    final Data other = (Data) obj;
+    if (!type.equals(other.type)) {
+      return false;
+    }
+
+    return rawData.equals(other.rawData);
+  }
 }
