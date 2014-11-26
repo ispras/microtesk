@@ -170,9 +170,9 @@
   <property name="mmu_walker.name"     value="MmuTreeWalker.g"/>
 
   <target name="antlr_mmu">
-    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.java.dir}"/>
-    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.java.dir}"/>
-    <antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.java.dir}"/>
+    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.java.plugins.dir}"/>
+    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.java.plugins.dir}"/>
+    <antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.java.plugins.dir}"/>
   </target>	
 
   <!-- JavaDoc target, generates documentation for source code in ${src.java.dir} and places it into ${doc}/javadoc -->
@@ -197,8 +197,8 @@
     />
   </target>
 
-  <!-- Compiles with Javac source code in the ${src.java.dir} folder (main functionality of MicroTESK) --> 	
-  <target name="javac.main">
+  <!-- Compiles MicroTESK core (folder ${src.java.dir}) with Javac --> 	
+  <target name="javac.core" depends="antlr_simnml">
      <mkdir dir="${microtesk.bin}"/>
      <javac
        srcdir="${src.java.dir}:${gen}"
@@ -209,11 +209,11 @@
     />
   </target>
 
-  <!-- Compiles with Javac source code in the ${src.java.dir} and ${src.mmu.java.dir} folders (main functionality + MMU support) --> 	
-  <target name="javac.mmu">
+  <!-- Compiles MicroTESK plugins (folder ${src.java.plugins.dir} + ${src.java.dir}) with Javac --> 	
+  <target name="javac.plugins" depends="antlr_mmu">
      <mkdir dir="${microtesk.bin}"/>
      <javac
-       srcdir="${src.java.dir}:${src.mmu.java.dir}:${gen}"
+       srcdir="${src.java.dir}:${src.java.plugins.dir}:${gen}"
        destdir="${microtesk.bin}"
        classpath="${classpath}"
        includeantruntime="false"
@@ -247,9 +247,8 @@
     </jar>
   </target>
 
-  <target name="build.jar" depends="antlr_simnml,antlr_mmu,javac.main,microtesk.jar"/>
-  <target name="build.jar.mmu" depends="antlr_simnml,antlr_mmu,javac.mmu,microtesk.jar"/>
-	
+  <target name="build.jar" depends="javac.core,javac.plugins,microtesk.jar"/>
+  	
   <!-- Copies required text files (Ruby and Bash scripts, nML files to the distributive folder -->
   <target name="copy.scripts">
 
