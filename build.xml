@@ -237,6 +237,7 @@
   <target name="microtesk.jar">
     <jar destfile="${dist.jars}/${jar}" basedir="${microtesk.bin}">
       <fileset dir="${src.res.dir}"/>
+      <fileset dir="${src.res.plugins.dir}"/>
       <manifest>
         <attribute name="Main-Class" value="${jar.mainclass}"/>
         <attribute name="Class-Path" value="${jar.classpath}"/>
