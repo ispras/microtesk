@@ -55,7 +55,6 @@ MMU_LINE          : 'line';
 MMU_TAG           : 'tag';
 MMU_DATA          : 'data';
 
-MMU_NONE          : 'none';
 MMU_RANDOM        : 'random';
 MMU_FIFO          : 'fifo';
 MMU_PLRU          : 'plru';
