@@ -146,11 +146,16 @@ public final class Type {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    for (int fieldSize : fieldSizes) {
-      if (sb.length() > 0) {
-        sb.append(", ");
+    
+    if (fieldSizes.length == 0) {
+      sb.append(bitSize);
+    } else {
+      for (int fieldSize : fieldSizes) {
+        if (sb.length() > 0) {
+          sb.append(", ");
+        }
+        sb.append(fieldSize);
       }
-      sb.append(fieldSize);
     }
 
     return String.format("%s.%s(%s)",
