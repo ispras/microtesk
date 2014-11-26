@@ -108,7 +108,7 @@ bufferoraddress
 /*======================================================================================*/
  
  addressRule
-			:	ADDRESS^ id=ID LEFT_BRACE! WIDTH! ASSIGN! addr=addressExpr SEMI! RIGHT_BRACE! { declare($id, $addr.res, false); }
+			:	MMU_ADDRESS^ id=ID LEFT_BRACE! WIDTH! ASSIGN! addr=addressExpr SEMI! RIGHT_BRACE! { declare($id, $addr.res, false); }
 			;
 	
 			addressExpr returns [ESymbolKind res]
@@ -120,7 +120,7 @@ bufferoraddress
 /*======================================================================================*/
 
 bufferRule 
-    		:  BUFFER^ id=ID LEFT_BRACE! buf=bufferExpr RIGHT_BRACE! { declare($id, $buf.res, false); } //{ System.out.println("!EOF"); } 
+    		:  MMU_BUFFER^ id=ID LEFT_BRACE! buf=bufferExpr RIGHT_BRACE! { declare($id, $buf.res, false); } 
     		;
 
 			bufferExpr returns [ESymbolKind res]
@@ -141,7 +141,7 @@ parameter returns [ESymbolKind res]
 /*======================================================================================*/
 
 associativity
-			:	id=ASSOCIATIVITY^ ASSIGN! ass=associativityExpr SEMI! { declare($id, $ass.res, false); }
+			:	id=MMU_ASSOCIATIVITY^ ASSIGN! ass=associativityExpr SEMI! { declare($id, $ass.res, false); }
 			;
 			
 	associativityExpr returns [ESymbolKind res]
@@ -149,7 +149,7 @@ associativity
 		;
 
 sets
-			:	id=SETS^ ASSIGN! sete=setsExpr SEMI! { declare($id, $sete.res, false); } 
+			:	id=MMU_SETS^ ASSIGN! sete=setsExpr SEMI! { declare($id, $sete.res, false); } 
 			;    	
 	
 	setsExpr returns [ESymbolKind res]
@@ -173,11 +173,11 @@ lineExpr returns [ESymbolKind res]
 		;
 		
 		tag
-			:	id=TAG^ COLON! lengthExpr { declare($id, $lengthExpr.res, false); }
+			:	id=MMU_TAG^ COLON! lengthExpr { declare($id, $lengthExpr.res, false); }
 			;
 		
 		data
-			:	id=DATA^ COLON! lengthExpr { declare($id, $lengthExpr.res, false); }
+			:	id=MMU_DATA^ COLON! lengthExpr { declare($id, $lengthExpr.res, false); }
 			;
 		
 		lengthExpr returns [ESymbolKind res]
@@ -189,7 +189,7 @@ lineExpr returns [ESymbolKind res]
 /*======================================================================================*/
 
 index
-	:	INDEX^ LEFT_PARENTH! ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! ADDR! LEFT_BROCKET! ind=indexExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ind.res); }
+	:	MMU_INDEX^ LEFT_PARENTH! MMU_ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! MMU_ADDR! LEFT_BROCKET! ind=indexExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ind.res); }
 	;
 	
 	indexExpr returns [ESymbolKind res]
@@ -197,7 +197,7 @@ index
 		;
 	
 match
-	:	MATCH^ LEFT_PARENTH! ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! LINE! DOT! TAG! EQ! ADDR! LEFT_BROCKET! ma=matchExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ma.res); }
+	:	MMU_MATCH^ LEFT_PARENTH! MMU_ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! LINE! DOT! TAG! EQ! MMU_ADDR! LEFT_BROCKET! ma=matchExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ma.res); }
 	;
 		
 	matchExpr returns [ESymbolKind res]
@@ -209,14 +209,16 @@ match
 /*======================================================================================*/
 
 policy
-    	:	id=POLICY^ ASSIGN! pol=policyExpr  SEMI! { declare($id, $pol.res, false); }
+    	:	id=MMU_POLICY^ ASSIGN! pol=policyExpr  SEMI! { declare($id, $pol.res, false); }
     	;
     	
-	policyExpr returns [ESymbolKind res]
-		:  LRU
-		|  PLRU  
-		|  FIFO	
-		;
+policyExpr returns [ESymbolKind res]
+    : MMU_NONE
+    | MMU_RANDOM
+    | MMU_FIFO
+    | MMU_PLRU
+    | MMU_LRU
+;
 catch [RecognitionException re] {
     reportError(re);
     recover(input,re);
