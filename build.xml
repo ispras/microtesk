@@ -221,11 +221,11 @@
     />
   </target>
 
-  <!-- Compiles with Javac source code of unit tests located in the ${src.test.java.dir} folder --> 	
+  <!-- Compiles unit tests (${src.test.java.dir} + ${src.test.java.plugins.dir}) with Javac --> 	
   <target name="javac.test">
      <mkdir dir="${test.bin}"/>
      <javac
-       srcdir="${src.test.java.dir}"
+       srcdir="${src.test.java.dir}:${src.test.java.plugins.dir}"
        destdir="${test.bin}"
        classpath="${classpath}:${dist.jars}/${jar}"
        includeantruntime="false"
@@ -395,6 +395,7 @@
 
       <batchtest haltonfailure="no" todir="target/tests/reports">
         <fileset dir="${src.test.java.dir}" includes="**/*TestCase*.java"/>
+        <fileset dir="${src.test.java.plugins.dir}" includes="**/*TestCase*.java"/>
       </batchtest>
     </junit>
 

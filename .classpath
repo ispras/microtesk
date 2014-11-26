@@ -2,9 +2,10 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java/core"/>
 	<classpathentry kind="src" path="src/main/resources/core"/>
+	<classpathentry kind="src" path="src/test/java/core"/>
 	<classpathentry kind="src" path="src/main/java/plugins"/>
 	<classpathentry kind="src" path="src/main/resources/plugins"/>
-	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/test/java/plugins"/>
 	<classpathentry kind="src" output="bin" path="gen"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="jars/antlr-3.4-complete.jar"/>
