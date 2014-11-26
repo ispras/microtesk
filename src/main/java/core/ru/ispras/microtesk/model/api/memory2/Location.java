@@ -91,6 +91,11 @@ public final class Location {
 
   public Location castTo(TypeId typeId) {
     checkNotNull(typeId);
+
+    if (type.getTypeId() == typeId) {
+      return this;
+    }
+
     return new Location(type.castTo(typeId), sources);
   }
 
@@ -151,6 +156,10 @@ public final class Location {
 
     if (start > end) {
       return bitField(end, start);
+    }
+
+    if ((start == 0) && (end == (getBitSize() - 1))) {
+      return this;
     }
 
     final int newBitSize = end - start + 1;
