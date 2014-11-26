@@ -189,7 +189,8 @@ lineExpr returns [ESymbolKind res]
 /*======================================================================================*/
 
 index
-	:	MMU_INDEX^ LEFT_PARENTH! MMU_ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! MMU_ADDR! LEFT_BROCKET! ind=indexExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ind.res); }
+	:	MMU_INDEX^ LEFT_PARENTH! ID COLON! id=ID RIGHT_PARENTH! ASSIGN!
+	    ind=indexExpr SEMI! { checkDeclaration($id, $ind.res); }
 	;
 	
 	indexExpr returns [ESymbolKind res]
@@ -197,7 +198,8 @@ index
 		;
 	
 match
-	:	MMU_MATCH^ LEFT_PARENTH! MMU_ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! LINE! DOT! TAG! EQ! MMU_ADDR! LEFT_BROCKET! ma=matchExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ma.res); }
+	:	MMU_MATCH^ LEFT_PARENTH! ID COLON! id=ID RIGHT_PARENTH! ASSIGN!
+	    ma=matchExpr SEMI! { checkDeclaration($id, $ma.res); }
 	;
 		
 	matchExpr returns [ESymbolKind res]

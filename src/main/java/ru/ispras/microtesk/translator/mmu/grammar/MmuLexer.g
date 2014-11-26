@@ -49,7 +49,6 @@ MMU_POLICY        : 'policy';
 MMU_INDEX         : 'index';
 MMU_MATCH         : 'match';
 MMU_ADDRESS       : 'address';
-MMU_ADDR          : 'addr';
 MMU_ASSOCIATIVITY : 'associativity';
 MMU_SETS          : 'sets';
 MMU_LINE          : 'line';
