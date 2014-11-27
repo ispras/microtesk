@@ -210,29 +210,25 @@ public final class Location {
     return Location.concat(this, argument);
   }
 
-  public static Location concat(Location first, Location second, Location ... others) {
-    checkNotNull(first);
-    checkNotNull(second);
-
-    int newSourceCount = first.sources.size() + second.sources.size();
-    int newBitSize = first.getBitSize() + second.getBitSize();
-
-    for (Location location : others) {
-      checkNotNull(location);
-      newSourceCount += location.sources.size();
-      newBitSize += location.getBitSize();
+  public static Location concat(Location ... locations) {
+    if (locations.length == 0) {
+      throw new IllegalArgumentException();
     }
 
-    final List<Source> newSources = new ArrayList<Source>(newSourceCount);
+    if (locations.length == 1) {
+      return locations[0];
+    }
 
-    newSources.addAll(first.sources);
-    newSources.addAll(second.sources);
+    int newBitSize = 0;
+    final List<Source> newSources = new ArrayList<Source>();
 
-    for (Location location : others) {
+    for (Location location : locations) {
+      checkNotNull(location);
+      newBitSize += location.getBitSize();
       newSources.addAll(location.sources);
     }
 
-    final Type newType = first.getType().resize(newBitSize);
+    final Type newType = locations[0].getType().resize(newBitSize);
     return new Location(newType, newSources);
   }
 

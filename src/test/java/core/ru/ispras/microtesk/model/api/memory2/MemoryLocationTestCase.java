@@ -71,17 +71,26 @@ public final class MemoryLocationTestCase {
       int fieldSize = locationSize / 2;
       while (fieldSize >= 1) {
         final int fieldCount = locationSize / fieldSize;
+        
+        final Location[] fields = new Location[fieldCount];
         for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
           final int start = fieldSize * fieldIndex;
           final int end = start + fieldSize - 1;
-
+          
           final BitVector expected = 
               BitVector.newMapping(randomData.get(locationIndex).getRawData(), start, fieldSize);
-          final BitVector current = 
-              mem.access(locationIndex).bitField(start, end).load().getRawData();
+
+          final Location field = mem.access(locationIndex).bitField(start, end);
+          final BitVector current = field.load().getRawData();
 
           assertEquals(expected, current);
+          
+          fields[fieldIndex] = field;
         }
+
+        final Location concat = Location.concat(fields);
+        assertEquals(randomData.get(locationIndex), concat.load());
+
         fieldSize = fieldSize / 2;
       }
     }
