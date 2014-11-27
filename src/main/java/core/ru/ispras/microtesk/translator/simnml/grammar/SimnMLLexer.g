@@ -45,10 +45,9 @@ import  ru.ispras.microtesk.translator.simnml.SimnMLAnalyzer;
 @members {
   private SimnMLAnalyzer analyzer;
 
-  public SimnMLLexer(CharStream chars, SimnMLAnalyzer analyzer)
-  {
-      this(chars);
-      this.analyzer = analyzer;
+  public SimnMLLexer(CharStream chars, SimnMLAnalyzer analyzer) {
+    this(chars);
+    this.analyzer = analyzer;
   }
 }
 
@@ -56,10 +55,9 @@ import  ru.ispras.microtesk.translator.simnml.SimnMLAnalyzer;
 // Preprocessor Directives
 //==================================================================================================
 
-PP_INCLUDE : 'include' WHITESPACE '"' filename=PP_FILENAME '"' (WHITESPACE)? NEWLINE
-{
-    analyzer.lexInclude($filename.getText());
-    skip();
+PP_INCLUDE : 'include' WHITESPACE '"' filename=PP_FILENAME '"' (WHITESPACE)? NEWLINE {
+  analyzer.lexInclude($filename.getText());
+  skip();
 };
 
 fragment

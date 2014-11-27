@@ -135,6 +135,7 @@ public final class SimnMLAnalyzer {
     final SimnMLParser parser = new SimnMLParser(tokens);
     parser.assignLog(LOG);
     parser.assignSymbols(symbols);
+    parser.commonParser.assignSymbols(symbols);
     parser.setTreeAdaptor(new CommonTreeAdaptor());
 
     final RuleReturnScope result = parser.startRule();

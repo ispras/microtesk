@@ -35,6 +35,8 @@ options {
   backtrack=true;
 }
 
+import commonParser=CommonParser;
+
 /*======================================================================================*/
 /* Additional tokens. Lists additional tokens to be inserted in the AST by the parser   */
 /* to express some syntactic properties.                                                */
@@ -114,19 +116,13 @@ import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 }
 
 @members {
-/**
-This is a global flag needed to indicate that the "bitFieldExpr" rule is being executed.
-It is needed to avoid problems related to translation of bit field expressions.
-The issue is that the parser incorrectly recognizes constructions like that: "GPR<1..2> + 1".
-It recognizes the ">" token as the "greater than" operator instead of bit field expression
-termination characher. So it recognizes "2> + 1" as a correct expression, but then fails
-to continue parsing as it cannot find expected termination character. To overcome the problem,
-comparison operators are excluded form expression rules when a bit field expression is being parsed.
-This imposes a certain restriction. However, it is not important bacause bit field expresions
-are expected to be evaluated to an integer value, but a boolean. Thus, comparison operators
-should not be used in this case from a semantic point of view.
-*/
-private boolean inBitfield = false;
+boolean isInBitField() {
+  return commonParser.isInBitField();
+}
+
+void setInBitField(boolean value) {
+  commonParser.setInBitField(value);
+}
 }
 
 /*======================================================================================*/
@@ -157,7 +153,7 @@ catch [RecognitionException re] {
 }
 
 /*======================================================================================*/
-/* Let-rules (statically calculated constatns and aliases for memory locations)         */
+/* Let-rules (statically calculated constants and aliases for memory locations)         */
 /*======================================================================================*/
 
 letDef
@@ -177,17 +173,6 @@ letExpr returns [ESymbolKind res]
 
 typeDef
     :  TYPE^ id=ID ASSIGN! typeExpr { declare($id, ESymbolKind.TYPE, false); }
-    ;
-
-typeExpr
-    :  id=ID  { checkDeclaration($id,ESymbolKind.TYPE); }
-//  |  BOOL // TODO: NOT SUPPORTED IN THE CURRENT VERSION 
-    |  INT^ LEFT_PARENTH! expr RIGHT_PARENTH!
-    |  CARD^ LEFT_PARENTH! expr RIGHT_PARENTH!
-    |  FIX^ LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
-    |  FLOAT^ LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
-//  |  LEFT_HOOK constExpr DOUBLE_DOT constExpr RIGHT_HOOK -> ^(RANGE constExpr constExpr) // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
-//  |  ENUM^ LEFT_PARENTH! identifierList RIGHT_PARENTH! // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
     ;
 
 // TODO: NOT SUPPORTED IN THE CURRENT VERSION 
@@ -312,7 +297,7 @@ actionDef
     ;
 
 /*======================================================================================*/
-/* Expresion-like attribute rules(format expressions in the symtax and image attributes)*/
+/* Expression-like attribute rules(format expressions in the syntax and image attributes)*/
 /*======================================================================================*/
 
 attrExpr
@@ -366,138 +351,3 @@ functionCallStatement
     |  TRACE^ LEFT_PARENTH! STRING_CONST (COMMA! formatIdList)? RIGHT_PARENTH!
 //  |  ERROR^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
     ;
-
-/*======================================================================================*/
-/* Expression rules                                                                     */
-/*======================================================================================*/
-
-expr
-    :  nonNumExpr
-    |  numExpr
-    ;
-
-/*======================================================================================*/
-/* Non-numeric expressions                                                              */
-/*======================================================================================*/
-
-nonNumExpr
-    :  ifExpr
-    ;
-
-ifExpr
-    :  IF^ expr THEN! expr elseIfExpr* elseExpr? ENDIF!
-    ;
-
-elseIfExpr
-    :  ELSEIF^ expr THEN! expr
-    ;
-
-elseExpr
-    :  ELSE^ expr
-    ;
-
-/*======================================================================================*/
-/* Numeric expressions                                                                  */
-/*======================================================================================*/
-
-numExpr
-    :  orLogicExpr
-    ;
-
-orLogicExpr
-    :  andLogicExpr (OR^ andLogicExpr)*
-    ;
-
-andLogicExpr
-    :  orBitExpr (AND^ orBitExpr)*
-    ;
-
-orBitExpr
-    :  xorBitExpr (VERT_BAR^ xorBitExpr)*
-    ;
-
-xorBitExpr
-    :  andBitExpr (UP_ARROW^ andBitExpr)*
-    ;
-
-andBitExpr
-    :  relationExpr (AMPER^ relationExpr)*
-    ;
-
-relationExpr
-    :  comparisionExpr ((EQ^ | NEQ^) comparisionExpr)*
-    ;
-
-comparisionExpr
-    :  {!inBitfield}? => shiftExpr ((LEQ^ | GEQ^ | LEFT_BROCKET^ | RIGHT_BROCKET^) shiftExpr)*
-    |  shiftExpr
-    ;
-
-shiftExpr
-    :  plusExpr ((LEFT_SHIFT^ | RIGHT_SHIFT^ | ROTATE_LEFT^ | ROTATE_RIGHT^) plusExpr)*
-    ;
-
-plusExpr
-    :  mulExpr ((PLUS^ | MINUS^) mulExpr)*
-    ;
-
-mulExpr
-    :  powExpr ((MUL^ | DIV^ | REM^) powExpr)*
-    ;
-
-powExpr
-    :  unaryExpr (DOUBLE_STAR^ unaryExpr)*
-    ;
-
-unaryExpr
-    :  PLUS   unaryExpr -> ^(UPLUS unaryExpr)
-    |  MINUS  unaryExpr -> ^(UMINUS unaryExpr)
-    |  TILDE^ unaryExpr
-    |  NOT^   unaryExpr
-    |  atom
-    ;
-
-atom
-    :  LEFT_PARENTH! expr RIGHT_PARENTH!
-    |  letConst
-    |  location
-    |  CARD_CONST
-    |  BINARY_CONST
-    |  HEX_CONST
-    |  COERCE^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
-    ;
-
-letConst
-    : {isDeclaredAs(input.LT(1), ESymbolKind.LET_CONST)}? ID -> ^(CONST ID)
-    ;
-
-/*======================================================================================*/
-/* Location rules (rules for accessing model memory)                                    */
-/*======================================================================================*/
-
-location
-    :  locationExpr -> ^(LOCATION locationExpr)
-    ;
-
-locationExpr
-    :  locationVal (DOUBLE_COLON^ locationExpr)*
-    ;
-
-/*  If the bitFieldExpr expression fires, we rewrite the rule as a bitfield expression,
-    otherwise we leave it as it is. */
-locationVal
-    :  locationAtom (bitFieldExpr -> ^(LOCATION_BITFIELD locationAtom bitFieldExpr) | -> locationAtom)
-    ;
-
-locationAtom
-    :  ID
-    |  ID LEFT_HOOK expr RIGHT_HOOK -> ^(LOCATION_INDEX ID expr)
-    ;
-
-bitFieldExpr
-@init   {inBitfield = true;}
-    :  LEFT_BROCKET! expr (DOUBLE_DOT! expr)? RIGHT_BROCKET!
-    ;
-finally {inBitfield = false;}
-
-/*======================================================================================*/
