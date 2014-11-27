@@ -86,8 +86,9 @@ public final class Location implements LocationAccessor {
     final int bitSize = type.getBitSize();
 
     final MemoryStorage storage = new MemoryStorage(STORAGE_ID, 1, bitSize);
-    final Source source = new Source(storage, 0, bitSize, 0);
+    storage.write(0, data.getRawData());
 
+    final Source source = new Source(storage, 0, bitSize, 0);
     return new Location(type, Collections.singletonList(source));
   }
 
