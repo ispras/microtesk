@@ -77,6 +77,20 @@ public final class Location {
     return new Location(type, sources);
   }
 
+  public static Location newLocationForConst(Data data) {
+    checkNotNull(data);
+
+    final String STORAGE_ID = "#constant";
+
+    final Type type = data.getType();
+    final int bitSize = type.getBitSize();
+
+    final MemoryStorage storage = new MemoryStorage(STORAGE_ID, 1, bitSize);
+    final Source source = new Source(storage, 0, bitSize, 0);
+
+    return new Location(type, Collections.singletonList(source));
+  }
+
   private Location(Type type, List<Source> sources) {
     checkNotNull(type);
     checkNotNull(sources);
