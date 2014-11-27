@@ -26,7 +26,7 @@ import ru.ispras.microtesk.model.api.type.TypeId;
 
 import static ru.ispras.microtesk.utils.InvariantChecks.*;
 
-public final class Location {
+public final class Location implements LocationAccessor {
 
   private static final class Source {
     final MemoryStorage storage;
@@ -117,6 +117,7 @@ public final class Location {
     return type;
   }
 
+  @Override
   public int getBitSize() {
     return type.getBitSize();
   }
@@ -232,11 +233,13 @@ public final class Location {
     return new Location(newType, newSources);
   }
 
+  @Override
   public String toBinString() {
     final BitVector rawData = readDataDirecty(sources); 
     return rawData.toBinString();
   }
 
+  @Override
   public BigInteger getValue() {
     final BitVector rawData = readDataDirecty(sources);
     return new BigInteger(rawData.toByteArray());
