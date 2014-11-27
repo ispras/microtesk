@@ -73,7 +73,7 @@ public final class REG extends AddressingMode
     @Override
     public String syntax()
     { 
-        return String.format("R%d", DataEngine.intValue(i.getDataCopy()));
+        return String.format("R%d", i.getValue());
     }
 
     @Override

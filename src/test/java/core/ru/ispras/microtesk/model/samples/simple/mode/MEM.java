@@ -73,7 +73,7 @@ public class MEM extends AddressingMode
     @Override
     public String syntax()
     { 
-        return String.format("(%d)", DataEngine.intValue(i.getDataCopy()));
+        return String.format("(%d)", i.getValue());
     }
 
     @Override

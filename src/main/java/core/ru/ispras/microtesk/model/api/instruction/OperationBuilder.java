@@ -49,7 +49,7 @@ public final class OperationBuilder implements IOperationBuilder {
         "The %s argument of the %s operation must be an immediate value.", name, opName));
     }
 
-    final Location arg = new Location(DataEngine.valueOf(decl.getType(), value));
+    final Location arg = Location.newLocationForConst(DataEngine.valueOf(decl.getType(), value));
     args.put(name, arg);
 
     return this;
@@ -67,7 +67,7 @@ public final class OperationBuilder implements IOperationBuilder {
         "The %s argument of the %s operation must be an immediate value.", name, opName));
     }
 
-    final Location arg = new Location(DataEngine.valueOf(decl.getType(), value));
+    final Location arg = Location.newLocationForConst(DataEngine.valueOf(decl.getType(), value));
     args.put(name, arg);
 
     return this;

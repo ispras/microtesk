@@ -499,7 +499,7 @@ op instruction (command: Operations)
   syntax = command.syntax
   image  = command.image
   action = {
-    GPR[0] = 0;
+    GPR[0] = coerce(WORD, 0);
     BRANCH = 0;
     command.action;
 

@@ -27,7 +27,6 @@ package ru.ispras.microtesk.model.samples.simple.mode;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
@@ -74,7 +73,7 @@ public final class IMM extends AddressingMode
     @Override
     public String syntax()
     {
-        return String.format("[%d]", DataEngine.intValue(i.getDataCopy()));
+        return String.format("[%d]", i.getValue());
     }
 
     @Override

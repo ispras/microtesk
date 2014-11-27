@@ -515,11 +515,11 @@ op vliw (c1: channel1, c2: channel2)
     NIA = CIA + 2 * INSTRUCTION_WORD_SIZE;
 
     // Invariant: register GPR[0] always holds zero  
-    GPR[0] = 0;
+    GPR[0] = coerce(WORD, 0);
     c1.action;
 
     // Invariant: register GPR[0] always holds zero
-    GPR[0] = 0;
+    GPR[0] = coerce(WORD, 0);
     c2.action;
 
     if BRANCH == 0 then

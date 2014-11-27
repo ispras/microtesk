@@ -128,7 +128,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
       assert decls.get(name).equals(data.getType()) : String.format(
           "The %s parameter does not exist.", name);
 
-      return new Location(data);
+      return Location.newLocationForConst(data);
     }
   }
 

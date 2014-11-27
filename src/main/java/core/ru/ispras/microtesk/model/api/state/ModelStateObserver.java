@@ -97,7 +97,7 @@ public final class ModelStateObserver implements IModelStateObserver {
         throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
       }
 
-      return labelMap.get(name).access().externalAccess();
+      return labelMap.get(name).access();
     }
 
     if (!memoryMap.containsKey(name)) {
@@ -109,7 +109,7 @@ public final class ModelStateObserver implements IModelStateObserver {
       throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
     }
 
-    return current.access(index).externalAccess();
+    return current.access(index);
   }
 
   @Override

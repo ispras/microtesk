@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,71 +14,91 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.*;
+
 public abstract class Memory {
 
-  public enum Kind {
+  public static enum Kind {
     REG, MEM, VAR
   }
   
-  public static MemoryStore REG(String name, Type type, int length) {
-    return new MemoryStore(Kind.REG, name, type, length);
+  public static Memory REG(String name, Type type, int length) {
+    return REG(name, type, length, null);
   }
 
-  public static MemoryStore REG(String name, Type type) {
-    return new MemoryStore(Kind.REG, name, type);
+  public static Memory REG(String name, Type type, int length, Location alias) {
+    return newMemory(Kind.REG, name, type, length, alias);
+  }
+  
+  public static Memory MEM(String name, Type type, int length) {
+    return MEM(name, type, length, null);
   }
 
-  public static MemoryStore MEM(String name, Type type, int length) {
-    return new MemoryStore(Kind.MEM, name, type, length);
+  public static Memory MEM(String name, Type type, int length, Location alias) {
+    return newMemory(Kind.MEM, name, type, length, alias);
   }
 
-  public static MemoryStore MEM(String name, Type type) {
-    return new MemoryStore(Kind.MEM, name, type);
+  public static Memory VAR(String name, Type type, int length) {
+    return VAR(name, type, length, null);
   }
 
-  public static MemoryStore VAR(String name, Type type, int length) {
-    return new MemoryStore(Kind.VAR, name, type, length);
+  public static Memory VAR(String name, Type type, int length, Location alias) {
+    return newMemory(Kind.VAR, name, type, length, alias);
   }
 
-  public static MemoryStore VAR(String name, Type type) {
-    return new MemoryStore(Kind.VAR, name, type);
+  private static Memory newMemory(
+      Kind kind, String name, Type type, int length, Location alias) {
+    if (null == alias) {
+      return new MemoryDirect(kind, name, type, length);
+    } else {
+      return new MemoryAlias(kind, name, type, length, alias);
+    }
   }
 
   private final Kind kind;
   private final String name;
   private final Type type;
   private final int length;
+  private final boolean isAlias;
+  
+  private static final MemoryAccessHandlerEngine handlerEngine = new MemoryAccessHandlerEngine();
+  private static boolean isHandlingEnabled = false;
 
-  public Memory(Kind kind, String name, Type type) {
-    this(kind, name, type, 1);
+  static MemoryAccessHandler getGlobalHandler() {
+    return isHandlingEnabled ? getHandlerEngine() : null;
   }
 
-  public Memory(Kind kind, String name, Type type, int length) {
+  protected static MemoryAccessHandlerEngine getHandlerEngine() {
+    return handlerEngine;
+  }
+
+  public static void setHandlingEnabled(boolean value) {
+    isHandlingEnabled = value;
+  }
+
+  protected Memory(
+      Kind kind, String name, Type type, int length, boolean isAlias) {
+
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(type);
-
-    if (length <= 0) {
-      throw new IllegalArgumentException();
-    }
+    checkGreaterThanZero(length);
 
     this.kind = kind;
     this.name = name;
     this.type = type;
     this.length = length;
+    this.isAlias = isAlias;
   }
 
-  public MetaLocationStore getMetaData() {
+  public final MetaLocationStore getMetaData() {
     return new MetaLocationStore(name, getLength());
   }
 
-  public final Kind getMemoryKind() {
+  public final Kind getKind() {
     return kind;
   }
 
@@ -94,115 +114,85 @@ public abstract class Memory {
     return length;
   }
 
-  public abstract Location access(int index);
-  public abstract Location access();
-  public abstract void reset();
+  public final boolean isAlias() {
+    return isAlias;
+  }
 
-  protected static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
+  public final Location access() {
+    return access(0);
+  }
+
+  public abstract Location access(int index);
+  public abstract void reset();
+  public abstract void setHandler(MemoryAccessHandler handler);
+
+  @Override
+  public String toString() {
+    return String.format("%s %s[%d, %s], alias=%b",
+        kind.name().toLowerCase(), name, length, type, isAlias);
   }
 }
 
-final class MemoryStore extends Memory {
+final class MemoryDirect extends Memory {
+  private final MemoryStorage storage;
 
-  public static int BLOCK_SIZE = 4096;
-
-  private final List<Block> blocks;
-
-  private static final class Block {
-    private final List<Location> locations;
-
-    Block(Type type, int length) {
-      final List<Location> locationArray = new ArrayList<Location>(length);
-      for (int index = 0; index < length; ++index) {
-        locationArray.add(new Location(type));
-      }
-
-      this.locations = locationArray;
-    }
-
-    void reset() {
-      for (Location location : locations) {
-        location.reset();
-      }
-    }
-
-    public Location getLocation(int index) {
-      return locations.get(index);
-    }
-  }
-
-  public MemoryStore(Kind kind, String name, Type type) {
-    this(kind, name, type, 1);
-  }
-
-  public MemoryStore(Kind kind, String name, Type type, int length) {
-    super(kind, name, type, length);
-    this.blocks = allocateBlocks(type, length);
-  }
-
-  private static List<Block> allocateBlocks(Type type, int length) {
-    final int count = length / BLOCK_SIZE + (0 == length % BLOCK_SIZE ? 0 : 1);
-
-    final List<Block> result = new ArrayList<Block>(count);
-    for (int index = 0; index < count; ++index) {
-      result.add(null);
-    }
-
-    return result;
-  }
-  
-  private Location getLocation(int index) {
-    if (index < 0 || index >= getLength()) {
-      throw new IndexOutOfBoundsException(String.format(
-        "Index=%s, Length=%s", index, getLength()));
-    }
-
-    final int blockIndex = index / BLOCK_SIZE;
-    final int locationIndex = index - blockIndex * BLOCK_SIZE;
-
-    // DEBUG CODE:
-    // System.out.printf("index = %d, blockIndex = %d, locationIndex = %d%n",
-    // index, blockIndex, locationIndex);
-
-    Block block = blocks.get(blockIndex);
-    if (null == block) {
-      final int blockLength = (blockIndex < getBlockCount() - 1) ?
-        BLOCK_SIZE : getLength() - BLOCK_SIZE * (getBlockCount() - 1);
-
-      block = new Block(getType(), blockLength);
-      blocks.set(blockIndex, block);
-
-      // DEBUG CODE:
-      // System.out.printf("New block: blockIndex = %d, blockLength = %d%n",
-      // blockIndex, blockLength);
-    }
-
-    return block.getLocation(locationIndex);
-  }
-
-  int getBlockCount() {
-    return blocks.size();
-  }
-
-  @Override
-  public void reset() {
-    for (Block block : blocks) {
-      if (null != block) {
-        block.reset();
-      }
-    }
+  MemoryDirect(Kind kind, String name, Type type, int length) {
+    super(kind, name, type, length, false);
+    this.storage = new MemoryStorage(name, length, type.getBitSize());
   }
 
   @Override
   public Location access(int index) {
-    return getLocation(index);
+    checkBounds(index, getLength());
+    return Location.newLocationForRegion(getType(), storage, index);
   }
 
   @Override
-  public Location access() {
-    return access(0);
+  public void reset() {
+    storage.reset();
+  }
+
+  @Override
+  public void setHandler(MemoryAccessHandler handler) {
+    checkNotNull(handler);
+    getHandlerEngine().registerHandler(storage, handler);
+  }
+}
+
+final class MemoryAlias extends Memory {
+  private final Location source;
+
+  MemoryAlias(Kind kind, String name, Type type, int length, Location source) {
+    super(kind, name, type, length, true);
+    checkNotNull(source);
+
+    final int totalBitSize = type.getBitSize() * length;
+    if (source.getBitSize() != totalBitSize) {
+      throw new IllegalArgumentException();
+    }
+
+    this.source = source;
+  }
+
+  @Override
+  public Location access(int index) {
+    checkBounds(index, getLength());
+
+    final int locationBitSize = getType().getBitSize();
+    final int start = locationBitSize * index;
+    final int end = start + locationBitSize - 1;
+
+    final Location bitField = source.bitField(start, end);
+    return bitField.castTo(getType().getTypeId());
+  }
+
+  @Override
+  public void reset() {
+    // Does not work for aliases (and should not be called)
+  }
+
+  @Override
+  public void setHandler(MemoryAccessHandler handler) {
+    // Does not work for aliases (and should not be called)
   }
 }
