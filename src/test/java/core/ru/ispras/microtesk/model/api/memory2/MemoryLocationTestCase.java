@@ -46,23 +46,25 @@ public final class MemoryLocationTestCase {
     final Memory mem = Memory.MEM("MEM", WORD, COUNT);
 
     // Creates random data
-    final List<Data> randomData = new ArrayList<Data>(COUNT);
+    final List<Location> etalonData = new ArrayList<Location>(COUNT);
     for (int index = 0; index < COUNT; ++index) {
       final BitVector rawData = BitVector.newEmpty(WORD.getBitSize());
       Randomizer.get().fill(rawData);
 
       final Data data = new Data(rawData, WORD);
-      randomData.add(data);
+      final Location location = Location.newLocationForConst(data);
+
+      etalonData.add(location);
     }
 
     // Stores random data
     for (int locationIndex = 0; locationIndex < COUNT; ++locationIndex) {
-      mem.access(locationIndex).store(randomData.get(locationIndex));
+      mem.access(locationIndex).assign(etalonData.get(locationIndex));
     }
 
     // Loads data and checks its validity
     for (int locationIndex = 0; locationIndex < COUNT; ++locationIndex) {
-      assertEquals(randomData.get(locationIndex), mem.access(locationIndex).load());
+      assertEquals(etalonData.get(locationIndex).load(), mem.access(locationIndex).load());
     }
 
     // Reads data using bit fields and checks its validity
@@ -78,7 +80,7 @@ public final class MemoryLocationTestCase {
           final int end = start + fieldSize - 1;
           
           final BitVector expected = 
-              BitVector.newMapping(randomData.get(locationIndex).getRawData(), start, fieldSize);
+              BitVector.newMapping(etalonData.get(locationIndex).load().getRawData(), start, fieldSize);
 
           final Location field = mem.access(locationIndex).bitField(start, end);
           final BitVector current = field.load().getRawData();
@@ -89,7 +91,7 @@ public final class MemoryLocationTestCase {
         }
 
         final Location concat = Location.concat(fields);
-        assertEquals(randomData.get(locationIndex), concat.load());
+        assertEquals(etalonData.get(locationIndex).load(), concat.load());
 
         fieldSize = fieldSize / 2;
       }
