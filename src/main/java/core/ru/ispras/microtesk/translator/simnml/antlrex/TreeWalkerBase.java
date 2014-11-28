@@ -30,7 +30,6 @@ import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
-import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
@@ -217,7 +216,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
     return true;
   }
 
-  protected final void declare(CommonTree t, ESymbolKind kind, boolean scoped)
+  protected final void declare(CommonTree t, Enum<?> kind, boolean scoped)
       throws RecognitionException {
     if (null == symbols) {
       throw new NullPointerException();
@@ -232,7 +231,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
     symbols.define(symbol);
   }
 
-  protected final void checkMemberDeclared(CommonTree t, ESymbolKind expectedKind)
+  protected final void checkMemberDeclared(CommonTree t, Enum<?> expectedKind)
       throws SemanticException {
     if (null == symbols) {
       throw new NullPointerException();
