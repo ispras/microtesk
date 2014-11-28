@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.expression;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -166,9 +167,13 @@ public final class Converter {
     // FIXME: TEMPORARY FIX. MAY CAUSE INCORRECT WORK
     // BECAUSE OF VALUE TRUNCATION. LONG IS NOT CURRENTY
     // SUPPORTED BY FORTRESS.
+    
+    if (Integer.class == value.getClass()) {
+      return Data.newInteger((Integer) value);
+    }
 
     if (Long.class == value.getClass()) {
-      value = ((Long) value).intValue();
+      return Data.newInteger((Long) value);
     }
 
     final DataType dataType = getDataTypeForNative(value.getClass());
@@ -196,7 +201,7 @@ public final class Converter {
   }
 
   private static DataType getDataTypeForNative(Class<?> type) {
-    if (Integer.class == type) {
+    if (Integer.class == type || Long.class == type || BigInteger.class == type) {
       return DataType.INTEGER;
     }
 
