@@ -168,9 +168,8 @@ typeExpr returns [Type res]
 /*======================================================================================*/
 
 memDef
-    :  ^(MEM id=ID st=sizeType alias?)
+    :  ^(MEM id=ID st=sizeType al=alias?)
 {
-// TODO: implement IR for alises
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = (null != $st.size) ?
@@ -223,8 +222,12 @@ $size = null;
 }
     ;
 
-alias
-    :  ^(ALIAS location)
+alias returns [Location res]
+    :  ^(ALIAS le=location)
+{
+checkNotNull($le.start, $le.res, $le.text);
+$res = $le.res;
+}
     ;
 
 /*======================================================================================*/

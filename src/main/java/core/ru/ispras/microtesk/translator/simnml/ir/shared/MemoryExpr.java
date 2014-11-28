@@ -16,13 +16,19 @@ package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 
 public final class MemoryExpr {
   private final Memory.Kind kind;
   private final Type type;
   private final Expr size;
+  private final Location alias;
 
   public MemoryExpr(Memory.Kind kind, Type type, Expr size) {
+    this(kind, type, size, null);
+  }
+
+  public MemoryExpr(Memory.Kind kind, Type type, Expr size, Location alias) {
     if (null == type) {
       throw new NullPointerException();
     }
@@ -34,6 +40,7 @@ public final class MemoryExpr {
     this.size = size;
     this.type = type;
     this.kind = kind;
+    this.alias = alias;
   }
 
   public Memory.Kind getKind() {
@@ -52,8 +59,12 @@ public final class MemoryExpr {
     return size.integerValue();
   }
 
+  public Location getAlias() {
+    return alias;
+  }
+
   @Override
   public String toString() {
-    return String.format("MemoryExp [kind=%s, type= %s, size= %s]", kind, type, size);
+    return String.format("MemoryExp [kind=%s, type=%s, size=%s]", kind, type, size);
   }
 }
