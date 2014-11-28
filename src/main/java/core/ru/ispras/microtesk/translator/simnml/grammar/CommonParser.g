@@ -21,6 +21,23 @@ options {
   backtrack=true;
 }
 
+tokens {
+  // Unary plus operator.
+  UPLUS;
+  // Unary minus operator.
+  UMINUS;
+
+  // Location (used as an expression atom).
+  LOCATION;
+  // Access to a location by index (e.g. GPR[1]).
+  LOCATION_INDEX;
+  // Access to a location's bit field (e.g. GPR[0]<0..8>).
+  LOCATION_BITFIELD;
+
+  // Reference to a LET constant (used as an expression atom).
+  CONST;
+}
+
 @members {
 /**
 This is a global flag needed to indicate that the "bitFieldExpr" rule is being executed.

@@ -18,7 +18,10 @@ options {
   tokenVocab=MmuLexer;
   output=AST;
   superClass=ParserBase;
+  backtrack=true;
 }
+
+import CommonParser;
 
 /*======================================================================================*/
 /* Additional tokens. Lists additional tokens to be inserted in the AST by the parser   */
@@ -129,11 +132,11 @@ bufferRule
 
 parameter returns [ESymbolKind res]
 	:	associativity
-	|	sets
-	|	line
-	|	index
-	|	match
-	|	policy
+//	|	sets
+//	|	line
+//	|	index
+//	|	match
+//	|	policy
 	;
 	
 /*======================================================================================*/
@@ -193,7 +196,7 @@ index
 	;
 	
 	indexExpr returns [ESymbolKind res]
-		:	constDotExpr     { $res = ESymbolKind.OP;  }  
+		:	constExpr     { $res = ESymbolKind.OP;  }  
 		;
 	
 match
@@ -201,7 +204,7 @@ match
 	;
 		
 	matchExpr returns [ESymbolKind res]
-		:	constDotExpr     { $res = ESymbolKind.OP;  }
+		:	constExpr     { $res = ESymbolKind.OP;  }
 		;
 		
 /*======================================================================================*/
@@ -228,70 +231,6 @@ catch [RecognitionException re] {
 /*======================================================================================*/
 
 constExpr
-    :  constOrLogicExpr
+    :  expr
     ;
 
-constOrLogicExpr
-    :  constAndLogicExpr (OR^ constAndLogicExpr)*
-    ;
-
-constAndLogicExpr
-    :  constOrBitExpr (AND^ constOrBitExpr)*
-    ;
-
-constOrBitExpr
-    :  constXorBitExpr (VERT_BAR^ constXorBitExpr)*
-    ;
-
-constXorBitExpr
-    :  constAndBitExpr (UP_ARROW^ constAndBitExpr)*
-    ;
-
-constAndBitExpr
-    :  constRelationExpr (AMPER^ constRelationExpr)*
-    ;
-
-constRelationExpr
-    :  constComparisionExpr ((EQ^ | NEQ^) constComparisionExpr)*
-    ;
-
-constComparisionExpr
-    :  constShiftExpr ((LEQ^ | GEQ^ | LEFT_BROCKET^ | RIGHT_BROCKET^) constShiftExpr)*
-    ;
-
-constShiftExpr
-    :  constPlusExpr ((LEFT_SHIFT^ | RIGHT_SHIFT^ | ROTATE_LEFT^ | ROTATE_RIGHT^) constPlusExpr)*
-    ;
-
-constPlusExpr
-    :  constMulExpr ((PLUS^ | MINUS^) constMulExpr)*
-    ;
-
-constMulExpr
-    :  constPowExpr ((MUL^ | DIV^ | REM^) constPowExpr)*
-    ;
-
-constPowExpr
-    :  constUnaryExpr (DOUBLE_STAR^ constUnaryExpr)*
-    ;
-
-constDotExpr
-	:  constExpr DOUBLE_DOT constExpr -> ^(DOUBLE_DOT constExpr constExpr)
-	;
-
-constUnaryExpr
-    :  PLUS constUnaryExpr -> ^(UNARY_PLUS constUnaryExpr)
-    |  MINUS constUnaryExpr -> ^(UNARY_MINUS constUnaryExpr)
-    |  TILDE^ constUnaryExpr
-    |  NOT^ constUnaryExpr
-    |  constAtom
-    ;
-
-constAtom
-    :  LEFT_PARENTH! constExpr RIGHT_PARENTH!
-    |  ID 
-    |  CARD_CONST 
-    |  BINARY_CONST
-    |  HEX_CONST
-    |  FIXED_CONST 
-    ;
