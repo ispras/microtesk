@@ -11,10 +11,10 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
+import ru.ispras.microtesk.translator.mmu.grammar.MmuLexer;
+import ru.ispras.microtesk.translator.mmu.grammar.MmuParser;
+import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.grammar.MmuLexer;
-import ru.ispras.microtesk.translator.simnml.grammar.MmuParser;
-import ru.ispras.microtesk.translator.simnml.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 
 public class MmuTranslator
@@ -61,9 +61,6 @@ public class MmuTranslator
 
         final SymbolTable<ESymbolKind> symbols = new SymbolTable<ESymbolKind>();
 
-//        symbols.defineReserved(ESymbolKind.KEYWORD, JavaKeyword.STRINGS);
-//        symbols.defineReserved(ESymbolKind.KEYWORD, RubyKeyword.STRINGS);
-        
         final IR ir = new IR();
 
         try

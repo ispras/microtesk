@@ -86,8 +86,8 @@ catch (RecognitionException re) { // Default behavior
 package ru.ispras.microtesk.translator.mmu.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.mmu.ESymbolKind;
-import ru.ispras.microtesk.translator.mmu.antlrex.ParserBase;
+import ru.ispras.microtesk.translator.simnml.ESymbolKind;
+import ru.ispras.microtesk.translator.simnml.antlrex.ParserBase;
 }
 
 /*======================================================================================*/
@@ -112,7 +112,7 @@ bufferoraddress
 			;
 	
 			addressExpr returns [ESymbolKind res]
-			:	constExpr     { $res = ESymbolKind.ADDRESS_CONST;  }
+			:	constExpr     { $res = ESymbolKind.OP;  }
 			;
 
 /*======================================================================================*/
@@ -145,7 +145,7 @@ associativity
 			;
 			
 	associativityExpr returns [ESymbolKind res]
-		:	constExpr     { $res = ESymbolKind.ASSOCIATIVITY_CONST;  }
+		:	constExpr     { $res = ESymbolKind.OP;  }
 		;
 
 sets
@@ -153,7 +153,7 @@ sets
 			;    	
 	
 	setsExpr returns [ESymbolKind res]
-		:	constExpr     { $res = ESymbolKind.SETS_CONST;  }
+		:	constExpr     { $res = ESymbolKind.OP;  }
 		;
 		
 
@@ -181,7 +181,7 @@ lineExpr returns [ESymbolKind res]
 			;
 		
 		lengthExpr returns [ESymbolKind res]
-			: 		constExpr { $res = ESymbolKind.LENGTH;  }		
+			: 		constExpr { $res = ESymbolKind.OP;  }		
 			;
 		
 /*======================================================================================*/
@@ -193,7 +193,7 @@ index
 	;
 	
 	indexExpr returns [ESymbolKind res]
-		:	constDotExpr     { $res = ESymbolKind.ADDRESS_CONST;  }  
+		:	constDotExpr     { $res = ESymbolKind.OP;  }  
 		;
 	
 match
@@ -201,7 +201,7 @@ match
 	;
 		
 	matchExpr returns [ESymbolKind res]
-		:	constDotExpr     { $res = ESymbolKind.ADDRESS_CONST;  }
+		:	constDotExpr     { $res = ESymbolKind.OP;  }
 		;
 		
 /*======================================================================================*/

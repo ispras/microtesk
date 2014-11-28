@@ -168,7 +168,7 @@
   </target>
 
   <!-- Target for generating parsers for MMU specification code from grammars with ANTLR -->
-  <property name="mmu_grammar.package" value="translator/simnml/grammar"/>
+  <property name="mmu_grammar.package" value="translator/mmu/grammar"/>
   <property name="mmu_grammar.path"    value="${main.package}/${mmu_grammar.package}"/>
   <property name="mmu_lexer.name"      value="MmuLexer.g"/>
   <property name="mmu_parser.name"     value="MmuParser.g"/>

@@ -49,13 +49,20 @@ catch (RecognitionException re) { // Default behavior
  */
 
 package ru.ispras.microtesk.translator.mmu.grammar;
+
+import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
-import ru.ispras.microtesk.translator.mmu.antlrex.TreeWalkerBase;
-import ru.ispras.microtesk.translator.mmu.ESymbolKind;
+import ru.ispras.microtesk.translator.simnml.antlrex.TreeWalkerBase;
+import ru.ispras.microtesk.translator.simnml.ESymbolKind;
+import ru.ispras.microtesk.model.api.memory.Memory;
 
-import ru.ispras.microtesk.translator.mmu.ir.*;
-import ru.ispras.microtesk.translator.mmu.ir.expression.*;
+import ru.ispras.microtesk.translator.simnml.ir.*;
+import ru.ispras.microtesk.translator.simnml.ir.expression.*;
+import ru.ispras.microtesk.translator.simnml.ir.location.*;
+import ru.ispras.microtesk.translator.simnml.ir.shared.*;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.*;
+import ru.ispras.microtesk.translator.simnml.ir.valueinfo.*;
 }
 
 /*======================================================================================*/
@@ -97,44 +104,35 @@ System.out.println("MMu: " + $bufferRule.text);
 /*=======================================================================================*/
     
 address
-			:  ^(ADDRESS id=ID addr=addressExpr)
+			:  ^(ADDRESS id=ID addr=constExpr)
   
 {
 checkNotNull($id, $addr.res, $addr.text);
-getIR().add($id.text, $addr.res);
+//getIR().add($id.text, $addr.res);
 }
 			;
 			
-addressExpr returns [AddressExpr res]
-			: ce = constExpr[0] { if (null != $ce.res) { $res = new AddressExpr($ce.res.getText(), $ce.res.getValue());} }
-	  		;
-	  		
 /*======================================================================================*/
 /* Buffer Rules                                                                         */
 /*======================================================================================*/
 
 buffer
-    		:  ^(BUFFER id=ID buf=bufferExpr)
+    		:  ^(BUFFER id=ID buf=constExpr)
 {  
 checkNotNull($id, $buf.res, $buf.text);
-getIR().add($id.text, $buf.res);
+//getIR().add($id.text, $buf.res);
 
 System.out.println("buf OK!");
 }
     ;
 
-bufferExpr returns [BufferExpr res]
-    :
-    	p=parameter*    { $res = new BufferExpr($p.res); }
-    ;
-
-parameter returns [ParameterExpr res]
+parameter returns [Expr res]
 :	as=associativity
-|	s=sets
-|	l=line
-|	in=index
-|	ma=match
-|	po=policy { $res = new ParameterExpr($as.res, $s.res, $l.res, $in.res, $ma.res, $po.res); }  
+//|	s=sets
+//|	l=line
+//|	in=index
+//|	ma=match
+//|	po=policy  
 ;
 
 	
@@ -142,199 +140,271 @@ parameter returns [ParameterExpr res]
 /* Associativity Sets Rules                                                                     */
 /*======================================================================================*/
 
-associativity returns [AssociativityExpr res]
-	:  ^(id=ASSOCIATIVITY ass=associativityExpr) {$res = $ass.res; }
+associativity returns [Expr res]
+	:  ^(id=ASSOCIATIVITY ass=constExpr) {$res = $ass.res; }
 { 
 checkNotNull($id, $ass.res, $ass.text);
-getIR().add($id.text, $ass.res);
+//getIR().add($id.text, $ass.res);
 
 System.out.println("associativity OK!");
 }
-    ;
-
-associativityExpr returns [AssociativityExpr res]
-	:  ce = constExpr[0] { if (null != $ce.res) { $res = new AssociativityExpr($ce.res.getText(), $ce.res.getValue());} }
-	;
-
-
-sets returns [SetsExpr res]
-		:  ^(id=SETS sete=setsExpr) {$res = $sete.res; }
-{ 
-checkNotNull($id, $sete.res, $sete.text);
-getIR().add($id.text, $sete.res);
-
-System.out.println("sets OK!");
-}
-    ;
-
-setsExpr returns [SetsExpr res]
-	:  ce = constExpr[0] { if (null != $ce.res) { $res = new SetsExpr($ce.res.getText(), $ce.res.getValue());} }
-	;
-	
-
-/*======================================================================================*/
-/*  Line Rules                                                                          */
-/*======================================================================================*/
-	
-line returns [LineExpr res]
-	:  ^(id=LINE l=lineExpr)  {$res = $l.res; }
-{
-checkNotNull($id, $l.res, $l.text);
-getIR().add($id.text, $l.res);
-
-System.out.println("line OK!");
-}
-	;
-	
-	lineExpr returns [LineExpr res]
-		:	
-			t=tag 
-			d=data { $res = new LineExpr($t.res, $d.res); }
-		;
-		
-tag returns [LengthExpr res]
-	:  ^(id=TAG lengthExpr) {$res = $lengthExpr.res; }
-    ;
-    	
-    	lengthExpr returns [LengthExpr res]
-    	:  ce = constExpr[0] { if (null != $ce.res) { $res = new LengthExpr();} }
-		;		
-	
-data returns [LengthExpr res]
-	:  ^(id=DATA lengthExpr) {$res = $lengthExpr.res; }
-	;
-	
-/*======================================================================================*/
-/* Index Match Rules																	*/
-/*======================================================================================*/
-
-index returns [IndexExpr res]
-	:  ^(INDEX id=ID ind=indexExpr) {$res = $ind.res; }
-{ 
-getIR().add($id.text, $ind.res);
-
-System.out.println("index OK!");
-}
-    ;
-
-indexExpr returns [IndexExpr res]
-	:   ce = constDotExpr { if (null != $ce.res) { $res = new IndexExpr();} }
-	;	
-	
-match returns [MatchExpr res]
-	:	^(MATCH id=ID mat=matchExpr) {$res = $mat.res; }
-{ 
-getIR().add($id.text, $mat.res);
-
-System.out.println("match OK!");
-}	
-	;
-	
-matchExpr returns [MatchExpr res]
-	:	ce = constDotExpr { if (null != $ce.res) { $res = new MatchExpr();} }
-	;
-
-/*======================================================================================*/
-/*  Policy Type Rules                                                                   */
-/*======================================================================================*/
-
-policy returns [String res]
-	:  ^(id=POLICY pol=policyExpr) {$res = $pol.res; }
-{ 
-checkNotNull($id, $pol.res, $pol.text);
-getIR().add($id.text, $pol.res);
-
-System.out.println("policy OK!");
-}
-    ;
-
-policyExpr returns [String res]
-	:  LRU  {$res = "LRU";}
-	|  PLRU  {$res = "PLRU";}
-	|  FIFO {$res = "FIFO";}
-	;
-catch [RecognitionException re] {
-    reportError(re);
-    recover(input,re);
-}	
+;
 
 /*======================================================================================*/
 /* Constant Rules                                                                       */
 /*======================================================================================*/
-   
-constExpr [int depth] returns [ConstExpr res]
-scope {
-int exprCount;
+
+constExpr returns [Expr res]
+    :  e=expr[ValueInfo.Kind.NATIVE, 0]
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().evaluateConst(where($e.start), $e.res);
 }
-@init {
-if (0 == depth) { $constExpr::exprCount = 0; }
-else            { $constExpr::exprCount++; }
+    ;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+/*======================================================================================*/
+/* Type Rules                                                                           */
+/*======================================================================================*/
+
+typeDef
+    :  ^(TYPE id=ID te=typeExpr)
+{
+checkNotNull($id, $te.res, $te.text);
+//getIR().add($id.text, $te.res);
 }
-    :   be=constBinaryExpr[depth] { $res = $be.res; }  
-    |   ue=constUnaryExpr[depth]  { $res = $ue.res; }
-    |   a=constAtom               { $res = $a.res;  }
     ;
 
-constBinaryExpr [int depth] returns [ConstExpr res]
-@init {
-final ConstExprFactory factory = getConstExprFactory();
-}
-@after {
-checkNotNull($op, $e1.res, $e1.text);
-checkNotNull($op, $e2.res, $e2.text);
-$res=factory.createBinaryExpr(where($op), $op.text, $e1.res, $e2.res);
-}
-    :   ^(op=OR e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=AND e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=VERT_BAR e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=UP_ARROW e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=AMPER e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=EQ e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=NEQ e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=LEQ e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=GEQ e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=LEFT_BROCKET e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=RIGHT_BROCKET e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=LEFT_SHIFT e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=RIGHT_SHIFT e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=ROTATE_LEFT e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=ROTATE_RIGHT e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=PLUS e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=MINUS e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=MUL e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=DIV e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=REM e1=constExpr[depth + 1] e2=constExpr[depth + 1])
-    |   ^(op=DOUBLE_STAR e1=constExpr[depth + 1] e2=constExpr[depth + 1])
+typeExpr returns [Type res]
+    :   id=ID { $res=getTypeFactory().newAlias(where($id), $id.text); }
+//  |   BOOL                       // TODO: NOT SUPPORTED IN THIS VERSION
+    |   ^(t=INT   n=sizeExpr) { $res=getTypeFactory().newInt(where($t), $n.res); }
+    |   ^(t=CARD  n=sizeExpr) { $res=getTypeFactory().newCard(where($t), $n.res); }
+    |   ^(t=FIX   n=sizeExpr m=sizeExpr)
+            { $res=getTypeFactory().newFix(where($t), $n.res, $m.res); }
+    |   ^(t=FLOAT n=sizeExpr m=sizeExpr)
+            { $res=getTypeFactory().newFloat(where($t), $n.res, $m.res); }
+//  |   ^(t=RANGE n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
     ;
 
-constUnaryExpr [int depth] returns [ConstExpr res]
-@init {
-final ConstExprFactory factory = getConstExprFactory();
+    
+    
+sizeExpr returns [Expr res]
+    :  e=expr[ValueInfo.Kind.NATIVE, 0]
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().evaluateSize(where($e.start), $e.res);
 }
-@after {
-checkNotNull($op, $e.res, $e.text);
-$res=factory.createUnaryExpr(where($op), $op.text, $e.res);
-}
-    :   ^(op=UNARY_PLUS e=constExpr[depth + 1])
-    |   ^(op=UNARY_MINUS e=constExpr[depth + 1])
-    |   ^(op=TILDE e=constExpr[depth + 1])
-    |   ^(op=NOT e=constExpr[depth + 1])
     ;
 
-constAtom returns [ConstExpr res]
-@init {
-final ConstExprFactory factory = getConstExprFactory();
+indexExpr returns [Expr res]
+    :  e=expr[ValueInfo.Kind.NATIVE, 0]
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().evaluateIndex(where($e.start), $e.res);
 }
-    :   token=ID             { $res=factory.createReference($token.text);        }
-    |   token=CARD_CONST     { $res=factory.createIntegerConst($token.text, 10); }
-    |   token=BINARY_CONST   { $res=factory.createIntegerConst($token.text, 2);  }
-    |   token=HEX_CONST      { $res=factory.createIntegerConst($token.text, 16); }
-    |   token=FIXED_CONST    { $res=factory.createRealConst($token.text);        }
     ;
 
-constDotExpr returns [ConstExpr res]
-@init {
-final ConstExprFactory factory = getConstExprFactory();
+logicExpr returns [Expr res]
+    :  e=expr[ValueInfo.Kind.NATIVE, 0]
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().evaluateLogic(where($e.start), $e.res);
 }
-    : ^(DOUBLE_DOT constExpr[0] constExpr[0])
-	;
+    ;
+
+dataExpr returns [Expr res]
+    :  e=expr[ValueInfo.Kind.MODEL, 0]
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().evaluateData(where($e.start), $e.res);
+}
+    ;   
+
+/*======================================================================================*/
+/* Expression rules                                                                     */
+/*======================================================================================*/
+
+expr [ValueInfo.Kind target, int depth] returns [Expr res]
+@after {$res = $e.res;}
+    : e=nonNumExpr[target, depth]
+    | e=numExpr[target, depth]
+    ;
+
+/*======================================================================================*/
+/* Non-numeric expressions (TODO: temporary implementation)                             */
+/*======================================================================================*/
+
+nonNumExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+@after {$res = $e.res;}
+    : e=ifExpr[target, depth]   
+    ;
+
+ifExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+@init  {final List<Condition> conds = new ArrayList<Condition>();}
+    :  ^(op=IF cond=logicExpr e=expr[target, depth]
+{
+checkNotNull($cond.start, $cond.res, $cond.text);
+checkNotNull($e.start, $e.res, $e.text);
+conds.add(Condition.newIf($cond.res, $e.res));
+}
+       (eifc=elseIfExpr[target, depth]
+{
+checkNotNull($eifc.start, $eifc.res, $eifc.text);
+conds.add($eifc.res);
+})*
+       (elsc=elseExpr[target, depth]
+{
+checkNotNull($elsc.start, $elsc.res, $elsc.text);
+conds.add($elsc.res);
+})?)
+{
+$res = getExprFactory().condition(where($op), conds);
+}
+    ;
+
+elseIfExpr [ValueInfo.Kind target, int depth] returns [Condition res]
+    :  ^(ELSEIF cond=logicExpr e=expr[target, depth]) {$res=Condition.newIf($cond.res, $e.res);}
+    ;
+
+elseExpr [ValueInfo.Kind target, int depth] returns [Condition res]
+    :  ^(ELSE e=expr[target, depth]) {$res=Condition.newElse($e.res);}
+    ;
+
+/*======================================================================================*/
+/* Numeric expressions                                                                  */
+/*======================================================================================*/
+    
+numExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+@after {$res = $e.res;}
+    :  e=binaryExpr[target, depth]
+    |   e=unaryExpr[target, depth]
+    |        e=atom
+    ;
+
+binaryExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+@after
+{
+checkNotNull($e1.start, $e1.res, $e1.text);
+checkNotNull($e2.start, $e2.res, $e2.text);
+$res = getExprFactory().operator(where($op), target, $op.text, $e1.res, $e2.res);
+}
+    :  ^(op=OR            e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=AND           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=VERT_BAR      e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=UP_ARROW      e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=AMPER         e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=EQ            e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=NEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=LEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=GEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=LEFT_BROCKET  e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=RIGHT_BROCKET e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=LEFT_SHIFT    e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=RIGHT_SHIFT   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=ROTATE_LEFT   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=ROTATE_RIGHT  e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=PLUS          e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=MINUS         e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=MUL           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=DIV           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=REM           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    |  ^(op=DOUBLE_STAR   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    ;
+
+unaryExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+@after
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().operator(where($op), target, $op.text, $e.res);
+}
+    :  ^(op=UPLUS   e=expr[target, depth + 1])
+    |  ^(op=UMINUS  e=expr[target, depth + 1])
+    |  ^(op=TILDE   e=expr[target, depth + 1])
+    |  ^(op=NOT     e=expr[target, depth + 1])
+    ;
+
+atom returns [Expr res]
+    :  ^(CONST token=ID)  {$res = getExprFactory().namedConstant(where($token), $token.text);}
+    |  ^(token=LOCATION le=locationExpr[0])
+{
+checkNotNull($le.start, $le.res, $le.text);
+$res = getExprFactory().location($le.res);
+}
+    |  token=CARD_CONST   {$res = getExprFactory().constant(where($token), $token.text,10);}
+    |  token=BINARY_CONST {$res = getExprFactory().constant(where($token), $token.text, 2);}
+    |  token=HEX_CONST    {$res = getExprFactory().constant(where($token), $token.text,16);}
+    |  ^(token=COERCE te=typeExpr e=dataExpr)
+{
+checkNotNull($te.start, $te.res, $te.text);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+}
+    ;
+
+/*======================================================================================*/
+/* Location rules (rules for accessing model memory)                                    */
+/*======================================================================================*/
+
+location returns [Location res]
+    :  ^(LOCATION le=locationExpr[0] {checkNotNull($le.start, $le.res, $le.text);})
+{
+$res = $le.res;
+}
+    ;
+
+locationExpr [int depth] returns [Location res]
+    :  ^(node=DOUBLE_COLON left=locationVal right=locationExpr[depth+1])
+{
+checkNotNull($left.start,  $left.res,  $left.text);
+checkNotNull($right.start, $right.res, $right.text);
+
+$res = getLocationFactory().concat(where($node), $left.res, $right.res);
+}
+    |  value=locationVal
+{
+$res = $value.res;
+}
+    ;
+
+locationVal returns [LocationAtom res]
+    :  ^(node=LOCATION_BITFIELD la=locationAtom je1=indexExpr (je2=indexExpr)?)
+{
+checkNotNull($la.start, $la.res, $la.text);
+checkNotNull($je1.start, $je1.res, $je1.text);
+
+if (null == $je2.res)
+    $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res);
+else
+    $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res, $je2.res);
+}
+    |  la=locationAtom
+{
+$res = $la.res;
+}
+    ;
+
+locationAtom returns [LocationAtom res]
+    :  ^(LOCATION_INDEX id=ID e=indexExpr)
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getLocationFactory().location(where($id), $id.text, $e.res);
+}
+    |  id=ID
+{
+$res = getLocationFactory().location(where($id), $id.text);
+}
+    ;
+
+/*======================================================================================*/
+    
