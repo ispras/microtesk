@@ -257,8 +257,8 @@
   </target>
 
   <target name="build.jar" depends="javac.core,javac.plugins.mmu,microtesk.jar"/>
-  	
-  <!-- Copies required text files (Ruby and Bash scripts, nML files to the distributive folder -->
+
+  <!-- Copies required text files (Ruby and Bash scripts, nML files to the distributive folder) -->
   <target name="copy.scripts">
 
     <!-- Copies batch files -->
