@@ -22,7 +22,6 @@ import org.antlr.runtime.TokenStream;
 import ru.ispras.microtesk.translator.antlrex.symbols.*;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.ParserEx;
-import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
@@ -39,7 +38,7 @@ public class ParserBase extends ParserEx {
     this.symbols = symbols;
   }
 
-  protected final void declare(Token t, ESymbolKind kind, boolean scoped) throws SemanticException {
+  protected final void declare(Token t, Enum<?> kind, boolean scoped) throws SemanticException {
     if (null == symbols) {
       throw new NullPointerException();
     }
@@ -53,7 +52,7 @@ public class ParserBase extends ParserEx {
     symbols.define(symbol);
   }
 
-  protected final void declareAndPushSymbolScope(Token t, ESymbolKind kind)
+  protected final void declareAndPushSymbolScope(Token t, Enum<?> kind)
       throws SemanticException {
     if (null == symbols) {
       throw new NullPointerException();
@@ -83,7 +82,7 @@ public class ParserBase extends ParserEx {
     raiseError(where(t), new RedeclaredSymbol(symbol));
   }
 
-  protected final void checkDeclaration(Token t, ESymbolKind expectedKind) throws SemanticException {
+  protected final void checkDeclaration(Token t, Enum<?> expectedKind) throws SemanticException {
     if (null == symbols) {
       throw new NullPointerException();
     }
@@ -98,7 +97,7 @@ public class ParserBase extends ParserEx {
     }
   }
 
-  protected final boolean isDeclaredAs(Token t, ESymbolKind expectedKind) {
+  protected final boolean isDeclaredAs(Token t, Enum<?> expectedKind) {
     if (null == symbols) {
       throw new NullPointerException();
     }
