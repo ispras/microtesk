@@ -16,12 +16,12 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 
 import org.antlr.runtime.Token;
 
-public class Symbol<Kind extends Enum<Kind>> implements ISymbol<Kind> {
+public class Symbol implements ISymbol {
   private final Token token;
-  private final Kind kind;
-  private final IScope<Kind> scope;
+  private final Enum<?> kind;
+  private final IScope scope;
 
-  public Symbol(Token token, Kind kind, IScope<Kind> scope) {
+  public Symbol(Token token, Enum<?> kind, IScope scope) {
     if (null == token) {
       throw new NullPointerException();
     }
@@ -51,7 +51,7 @@ public class Symbol<Kind extends Enum<Kind>> implements ISymbol<Kind> {
   }
 
   @Override
-  public final Kind getKind() {
+  public final Enum<?> getKind() {
     return kind;
   }
 
@@ -71,12 +71,12 @@ public class Symbol<Kind extends Enum<Kind>> implements ISymbol<Kind> {
   }
 
   @Override
-  public final IScope<Kind> getOuterScope() {
+  public final IScope getOuterScope() {
     return scope;
   }
 
   @Override
-  public IScope<Kind> getInnerScope() {
+  public IScope getInnerScope() {
     return null;
   }
 }

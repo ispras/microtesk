@@ -14,7 +14,6 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuLexer;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuParser;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
-import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 
 public class MmuTranslator
@@ -59,7 +58,7 @@ public class MmuTranslator
         System.out.println("Model name: " + modelName);
         System.out.println();
 
-        final SymbolTable<ESymbolKind> symbols = new SymbolTable<ESymbolKind>();
+        final SymbolTable symbols = new SymbolTable();
 
         final IR ir = new IR();
 

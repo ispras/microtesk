@@ -49,7 +49,7 @@ public final class LetFactory extends WalkerFactoryBase {
     final int indexPos = text.indexOf('[');
     final String memoryName = (-1 == indexPos) ? text : text.substring(0, indexPos);
 
-    final ISymbol<ESymbolKind> symbol = getSymbols().resolve(memoryName);
+    final ISymbol symbol = getSymbols().resolve(memoryName);
     if ((null == symbol) || (symbol.getKind() != ESymbolKind.MEMORY)) {
       return null;
     }

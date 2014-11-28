@@ -17,14 +17,14 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Scope<Kind extends Enum<Kind>> implements IScope<Kind> {
-  private final IScope<Kind> outerScope;
-  private final Map<String, ISymbol<Kind>> memberSymbols;
-  private final ISymbol<Kind> associatedSymbol;
+public final class Scope implements IScope {
+  private final IScope outerScope;
+  private final Map<String, ISymbol> memberSymbols;
+  private final ISymbol associatedSymbol;
 
-  public Scope(IScope<Kind> scope, ISymbol<Kind> associatedSymbol) {
+  public Scope(IScope scope, ISymbol associatedSymbol) {
     this.outerScope = scope;
-    this.memberSymbols = new HashMap<String, ISymbol<Kind>>();
+    this.memberSymbols = new HashMap<String, ISymbol>();
     this.associatedSymbol = associatedSymbol;
   }
 
@@ -36,12 +36,12 @@ public final class Scope<Kind extends Enum<Kind>> implements IScope<Kind> {
       memberSymbols.size());
   }
 
-  public Scope(IScope<Kind> scope) {
+  public Scope(IScope scope) {
     this(scope, null);
   }
 
   @Override
-  public void define(ISymbol<Kind> symbol) {
+  public void define(ISymbol symbol) {
     if (null == symbol) {
       throw new NullPointerException();
     }
@@ -57,7 +57,7 @@ public final class Scope<Kind extends Enum<Kind>> implements IScope<Kind> {
   }
 
   @Override
-  public ISymbol<Kind> resolve(String name) {
+  public ISymbol resolve(String name) {
     if (memberSymbols.containsKey(name)) {
       return memberSymbols.get(name);
     }
@@ -70,23 +70,23 @@ public final class Scope<Kind extends Enum<Kind>> implements IScope<Kind> {
   }
 
   @Override
-  public ISymbol<Kind> resolveMember(String name) {
+  public ISymbol resolveMember(String name) {
     return memberSymbols.get(name);
   }
 
   @Override
-  public ISymbol<Kind> resolveNested(String... names) {
+  public ISymbol resolveNested(String... names) {
     if (names.length == 0) {
       throw new IllegalArgumentException("No arguments.");
     }
 
-    ISymbol<Kind> symbol = resolve(names[0]);
+    ISymbol symbol = resolve(names[0]);
     for (int index = 1; index < names.length; ++index) {
       if (null == symbol) {
         return null;
       }
 
-      final IScope<Kind> scope = symbol.getInnerScope();
+      final IScope scope = symbol.getInnerScope();
       if (null == scope) {
         return null;
       }
@@ -98,12 +98,12 @@ public final class Scope<Kind extends Enum<Kind>> implements IScope<Kind> {
   }
 
   @Override
-  public IScope<Kind> getOuterScope() {
+  public IScope getOuterScope() {
     return outerScope;
   }
 
   @Override
-  public ISymbol<Kind> getAssociatedSymbol() {
+  public ISymbol getAssociatedSymbol() {
     return associatedSymbol;
   }
 }

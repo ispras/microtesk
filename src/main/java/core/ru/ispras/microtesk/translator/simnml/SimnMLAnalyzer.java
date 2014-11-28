@@ -124,7 +124,7 @@ public final class SimnMLAnalyzer {
   // /////////////////////////////////////////////////////////////////////////
 
   public IR startParserAndWalker(TokenSource source) throws RecognitionException {
-    final SymbolTable<ESymbolKind> symbols = new SymbolTable<ESymbolKind>();
+    final SymbolTable symbols = new SymbolTable();
 
     symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.JAVA);
     symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.RUBY);

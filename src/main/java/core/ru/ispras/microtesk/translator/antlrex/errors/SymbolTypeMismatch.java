@@ -19,32 +19,32 @@ import java.util.List;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
-public final class SymbolTypeMismatch<Kind extends Enum<Kind>> implements ISemanticError {
+public final class SymbolTypeMismatch implements ISemanticError {
   public static final String FORMAT =
     "The '%s' symbol uses a wrong type. It is %s while %s is expected in this expression.";
 
   private final String symbolName;
-  private final Kind kind;
-  private final List<Kind> expected;
+  private final Enum<?> kind;
+  private final List<Enum<?>> expected;
 
-  public SymbolTypeMismatch(String symbolName, Kind kind, Kind expected) {
-    this(symbolName, kind, Collections.singletonList(expected));
+  public SymbolTypeMismatch(String symbolName, Enum<?> kind, Enum<?> expected) {
+    this(symbolName, kind,  Collections.<Enum<?>>singletonList(expected));
   }
 
-  public SymbolTypeMismatch(String symbolName, Kind kind, List<Kind> expected) {
+  public SymbolTypeMismatch(String symbolName, Enum<?> kind, List<Enum<?>> expected) {
     this.symbolName = symbolName;
     this.kind = kind;
     this.expected = expected;
   }
 
-  private static <Kind extends Enum<Kind>> String kindsToString(List<Kind> kinds) {
+  private static String kindsToString(List<Enum<?>> kinds) {
     final StringBuffer sb = new StringBuffer();
 
     if (kinds.size() > 1) {
       sb.append('{');
     }
 
-    for (Kind k : kinds) {
+    for (Enum<?> k : kinds) {
       if (sb.length() > 0) {
         sb.append(", ");
       }

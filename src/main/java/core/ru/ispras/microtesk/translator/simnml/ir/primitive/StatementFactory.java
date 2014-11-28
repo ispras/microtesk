@@ -62,7 +62,7 @@ public final class StatementFactory extends WalkerFactoryBase {
       throw new NullPointerException();
     }
 
-    final ISymbol<ESymbolKind> symbol = getSymbols().resolveMember(attributeName);
+    final ISymbol symbol = getSymbols().resolveMember(attributeName);
     if ((null == symbol) || (symbol.getKind() != ESymbolKind.ATTRIBUTE)) {
       raiseError(where, new UndefinedPrimitive(attributeName, ESymbolKind.ATTRIBUTE));
     }

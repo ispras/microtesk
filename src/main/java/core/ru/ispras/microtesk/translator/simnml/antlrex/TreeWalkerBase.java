@@ -48,7 +48,7 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.TypeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExprFactory;
 
 public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
-  private SymbolTable<ESymbolKind> symbols;
+  private SymbolTable symbols;
   private IR ir;
 
   private Map<String, Primitive> thisArgs;
@@ -69,12 +69,12 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
     return this;
   }
 
-  public final void assignSymbols(SymbolTable<ESymbolKind> symbols) {
+  public final void assignSymbols(SymbolTable symbols) {
     this.symbols = symbols;
   }
 
   @Override
-  public final SymbolTable<ESymbolKind> getSymbols() {
+  public final SymbolTable getSymbols() {
     return symbols;
   }
 
@@ -193,7 +193,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
   /* ====================================================================================== */
 
   protected final void checkRedeclared(CommonTree current) throws RecognitionException {
-    final ISymbol<ESymbolKind> symbol = symbols.resolve(current.getText());
+    final ISymbol symbol = symbols.resolve(current.getText());
 
     if (null != symbol) {
       raiseError(where(current), new RedeclaredSymbol(symbol));
@@ -205,7 +205,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
       throw new NullPointerException();
     }
 
-    final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
+    final ISymbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
       return false;
     }
@@ -225,9 +225,9 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
 
     checkRedeclared(t);
 
-    final ISymbol<ESymbolKind> symbol = scoped ?
-      new ScopedSymbol<ESymbolKind>(t.getToken(), kind, symbols.peek()) :
-      new Symbol<ESymbolKind>(t.getToken(), kind, symbols.peek());
+    final ISymbol symbol = scoped ?
+        new ScopedSymbol(t.getToken(), kind, symbols.peek()) :
+        new Symbol(t.getToken(), kind, symbols.peek());
 
     symbols.define(symbol);
   }
@@ -238,7 +238,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
       throw new NullPointerException();
     }
 
-    final ISymbol<ESymbolKind> symbol = symbols.resolveMember(t.getText());
+    final ISymbol symbol = symbols.resolveMember(t.getText());
     if (null == symbol) {
       raiseError(where(t), new UndeclaredSymbol(t.getText()));
     }
@@ -246,7 +246,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
     if (expectedKind != symbol.getKind()) {
       raiseError(
         where(t),
-        new SymbolTypeMismatch<ESymbolKind>(t.getText(),
+        new SymbolTypeMismatch(t.getText(),
         symbol.getKind(),
         expectedKind)
       );
@@ -271,7 +271,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
       throw new NullPointerException();
     }
 
-    final ISymbol<ESymbolKind> scopeSymbol = symbols.resolve(scopeID.getText());
+    final ISymbol scopeSymbol = symbols.resolve(scopeID.getText());
     assert (null != scopeSymbol) : String.format(
       "The %s symbol must be registered in the symbol table.", scopeID.getText());
 

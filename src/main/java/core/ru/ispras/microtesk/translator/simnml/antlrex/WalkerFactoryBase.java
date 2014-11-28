@@ -20,7 +20,6 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 
@@ -40,7 +39,7 @@ public class WalkerFactoryBase implements WalkerContext {
   }
 
   @Override
-  public SymbolTable<ESymbolKind> getSymbols() {
+  public SymbolTable getSymbols() {
     return context.getSymbols();
   }
 

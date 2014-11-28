@@ -29,13 +29,13 @@ import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
 public class ParserBase extends ParserEx {
-  private SymbolTable<ESymbolKind> symbols = null;
+  private SymbolTable symbols = null;
 
   public ParserBase(TokenStream input, RecognizerSharedState state) {
     super(input, state);
   }
 
-  public final void assignSymbols(SymbolTable<ESymbolKind> symbols) {
+  public final void assignSymbols(SymbolTable symbols) {
     this.symbols = symbols;
   }
 
@@ -46,9 +46,9 @@ public class ParserBase extends ParserEx {
 
     checkRedeclared(t);
 
-    final ISymbol<ESymbolKind> symbol = scoped ?
-      new ScopedSymbol<ESymbolKind>(t, kind, symbols.peek()) :
-      new Symbol<ESymbolKind>(t, kind, symbols.peek());
+    final ISymbol symbol = scoped ?
+        new ScopedSymbol(t, kind, symbols.peek()) :
+        new Symbol(t, kind, symbols.peek());
 
     symbols.define(symbol);
   }
@@ -60,9 +60,7 @@ public class ParserBase extends ParserEx {
     }
 
     checkRedeclared(t);
-
-    final ISymbol<ESymbolKind> symbol = 
-      new ScopedSymbol<ESymbolKind>(t, kind, symbols.peek());
+    final ISymbol symbol = new ScopedSymbol(t, kind, symbols.peek());
 
     symbols.define(symbol);
     symbols.push(symbol.getInnerScope());
@@ -77,7 +75,7 @@ public class ParserBase extends ParserEx {
       throw new NullPointerException();
     }
 
-    final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
+    final ISymbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {// OK
       return;
     }
@@ -90,13 +88,13 @@ public class ParserBase extends ParserEx {
       throw new NullPointerException();
     }
 
-    final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
+    final ISymbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
       raiseError(new UndeclaredSymbol(t.getText()));
     }
 
     if (expectedKind != symbol.getKind()) {
-      raiseError(new SymbolTypeMismatch<ESymbolKind>(t.getText(), symbol.getKind(), expectedKind));
+      raiseError(new SymbolTypeMismatch(t.getText(), symbol.getKind(), expectedKind));
     }
   }
 
@@ -105,7 +103,7 @@ public class ParserBase extends ParserEx {
       throw new NullPointerException();
     }
 
-    final ISymbol<ESymbolKind> symbol = symbols.resolve(t.getText());
+    final ISymbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
       return false;
     }

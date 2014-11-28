@@ -14,25 +14,25 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-public final class SymbolTable<Kind extends Enum<Kind>> implements IScope<Kind> {
-  private final IScope<Kind> globalScope = new Scope<Kind>(null);
-  private IScope<Kind> scope;
+public final class SymbolTable implements IScope {
+  private final IScope globalScope = new Scope(null);
+  private IScope scope;
 
   public SymbolTable() {
     this.scope = globalScope;
   }
 
-  public void defineReserved(Kind kind, String[] names) {
+  public void defineReserved(Enum<?> kind, String[] names) {
     for (String s : names) {
-      globalScope.define(new BuiltInSymbol<Kind>(s, kind, globalScope));
+      globalScope.define(new BuiltInSymbol(s, kind, globalScope));
     }
   }
 
   public void push() {
-    this.scope = new Scope<Kind>(scope);
+    this.scope = new Scope(scope);
   }
 
-  public void push(IScope<Kind> scope) {
+  public void push(IScope scope) {
     if (null == scope) {
       throw new NullPointerException();
     }
@@ -56,37 +56,37 @@ public final class SymbolTable<Kind extends Enum<Kind>> implements IScope<Kind> 
     scope = scope.getOuterScope();
   }
 
-  public IScope<Kind> peek() {
+  public IScope peek() {
     return scope;
   }
 
   @Override
-  public void define(ISymbol<Kind> symbol) {
+  public void define(ISymbol symbol) {
     peek().define(symbol);
   }
 
   @Override
-  public ISymbol<Kind> resolve(String name) {
+  public ISymbol resolve(String name) {
     return peek().resolve(name);
   }
 
   @Override
-  public ISymbol<Kind> resolveMember(String name) {
+  public ISymbol resolveMember(String name) {
     return peek().resolveMember(name);
   }
 
   @Override
-  public ISymbol<Kind> resolveNested(String ... names) {
+  public ISymbol resolveNested(String ... names) {
     return peek().resolveNested(names);
   }
 
   @Override
-  public IScope<Kind> getOuterScope() {
+  public IScope getOuterScope() {
     return peek().getOuterScope();
   }
 
   @Override
-  public ISymbol<Kind> getAssociatedSymbol() {
+  public ISymbol getAssociatedSymbol() {
     return peek().getAssociatedSymbol();
   }
 }

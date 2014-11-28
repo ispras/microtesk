@@ -65,14 +65,14 @@ public final class LocationFactory extends WalkerFactoryBase {
   }
 
   public LocationAtom location(Where where, String name) throws SemanticException {
-    final ISymbol<ESymbolKind> symbol = findSymbol(where, name);
-    final ESymbolKind kind = symbol.getKind();
+    final ISymbol symbol = findSymbol(where, name);
+    final Enum<?> kind = symbol.getKind();
 
     if ((ESymbolKind.MEMORY != kind) && (ESymbolKind.ARGUMENT != kind)) {
       raiseError(
         where,
-        new SymbolTypeMismatch<ESymbolKind>(
-          name, kind, Arrays.asList(ESymbolKind.MEMORY, ESymbolKind.ARGUMENT))
+        new SymbolTypeMismatch(
+          name, kind, Arrays.<Enum<?>>asList(ESymbolKind.MEMORY, ESymbolKind.ARGUMENT))
       );
     }
 
@@ -89,11 +89,11 @@ public final class LocationFactory extends WalkerFactoryBase {
   public LocationAtom location(Where where, String name, Expr index) throws SemanticException {
     checkNotNull(index);
 
-    final ISymbol<ESymbolKind> symbol = findSymbol(where, name);
-    final ESymbolKind kind = symbol.getKind();
+    final ISymbol symbol = findSymbol(where, name);
+    final Enum<?> kind = symbol.getKind();
 
     if (ESymbolKind.MEMORY != kind) {
-      raiseError(where, new SymbolTypeMismatch<ESymbolKind>(name, kind, ESymbolKind.MEMORY));
+      raiseError(where, new SymbolTypeMismatch(name, kind, ESymbolKind.MEMORY));
     }
 
     final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, index);
@@ -188,8 +188,8 @@ public final class LocationFactory extends WalkerFactoryBase {
     return new LocationConcat(concatType, concatenated);
   }
 
-  private ISymbol<ESymbolKind> findSymbol(Where where, String name) throws SemanticException {
-    final ISymbol<ESymbolKind> symbol = getSymbols().resolve(name);
+  private ISymbol findSymbol(Where where, String name) throws SemanticException {
+    final ISymbol symbol = getSymbols().resolve(name);
 
     if (null == symbol) {
       raiseError(where, new UndeclaredSymbol(name));

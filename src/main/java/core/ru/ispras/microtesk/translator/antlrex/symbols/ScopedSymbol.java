@@ -16,16 +16,16 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 
 import org.antlr.runtime.Token;
 
-public final class ScopedSymbol<Kind extends Enum<Kind>> extends Symbol<Kind> {
-  private final IScope<Kind> innerScope;
+public final class ScopedSymbol extends Symbol {
+  private final IScope innerScope;
 
-  public ScopedSymbol(Token token, Kind kind, IScope<Kind> scope) {
+  public ScopedSymbol(Token token, Enum<?> kind, IScope scope) {
     super(token, kind, scope);
-    this.innerScope = new Scope<Kind>(scope, this);
+    this.innerScope = new Scope(scope, this);
   }
 
   @Override
-  public final IScope<Kind> getInnerScope() {
+  public final IScope getInnerScope() {
     return innerScope;
   }
 }

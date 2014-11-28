@@ -25,9 +25,9 @@ public final class RedeclaredSymbol implements ISemanticError {
   private final String FORMAT_KEYWORD =
     "The '%s' name is already used a reserved keyword (the %s type).";
 
-  private final ISymbol<?> symbol;
+  private final ISymbol symbol;
 
-  public RedeclaredSymbol(ISymbol<?> symbol) {
+  public RedeclaredSymbol(ISymbol symbol) {
     this.symbol = symbol;
   }
 

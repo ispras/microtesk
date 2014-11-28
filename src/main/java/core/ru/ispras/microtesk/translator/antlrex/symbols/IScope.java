@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-public interface IScope<Kind extends Enum<Kind>> {
-  public void define(ISymbol<Kind> symbol);
+public interface IScope {
+  public void define(ISymbol symbol);
 
-  public ISymbol<Kind> resolve(String name);
-  public ISymbol<Kind> resolveMember(String name);
-  public ISymbol<Kind> resolveNested(String ... names);
+  public ISymbol resolve(String name);
+  public ISymbol resolveMember(String name);
+  public ISymbol resolveNested(String ... names);
 
-  public IScope<Kind> getOuterScope();
-  public ISymbol<Kind> getAssociatedSymbol();
+  public IScope getOuterScope();
+  public ISymbol getAssociatedSymbol();
 }

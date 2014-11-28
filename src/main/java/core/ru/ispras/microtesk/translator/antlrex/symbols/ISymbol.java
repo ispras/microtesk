@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-public interface ISymbol<Kind extends Enum<Kind>> {
+public interface ISymbol {
   public String getName();
-  public Kind getKind();
+  public Enum<?> getKind();
   public int getTokenIndex();
   public int getLine();
   public int getPositionInLine();
-  public IScope<Kind> getOuterScope();
-  public IScope<Kind> getInnerScope();
+  public IScope getOuterScope();
+  public IScope getInnerScope();
 }

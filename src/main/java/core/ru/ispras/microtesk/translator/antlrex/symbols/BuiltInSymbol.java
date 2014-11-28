@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-public final class BuiltInSymbol<Kind extends Enum<Kind>> implements ISymbol<Kind> {
+public final class BuiltInSymbol implements ISymbol {
   private final String name;
-  private final Kind kind;
-  private final IScope<Kind> scope;
+  private final Enum<?> kind;
+  private final IScope scope;
 
-  public BuiltInSymbol(String name, Kind kind, IScope<Kind> scope) {
+  public BuiltInSymbol(String name, Enum<?> kind, IScope scope) {
     if (null == name) {
       throw new NullPointerException();
     }
@@ -43,7 +43,7 @@ public final class BuiltInSymbol<Kind extends Enum<Kind>> implements ISymbol<Kin
   }
 
   @Override
-  public Kind getKind() {
+  public Enum<?> getKind() {
     return kind;
   }
 
@@ -63,12 +63,12 @@ public final class BuiltInSymbol<Kind extends Enum<Kind>> implements ISymbol<Kin
   }
 
   @Override
-  public IScope<Kind> getOuterScope() {
+  public IScope getOuterScope() {
     return scope;
   }
 
   @Override
-  public IScope<Kind> getInnerScope() {
+  public IScope getInnerScope() {
     return null;
   }
 }
