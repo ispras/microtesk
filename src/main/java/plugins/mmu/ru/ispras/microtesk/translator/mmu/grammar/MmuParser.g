@@ -89,8 +89,8 @@ catch (RecognitionException re) { // Default behavior
 package ru.ispras.microtesk.translator.mmu.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.ParserBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
-import ru.ispras.microtesk.translator.simnml.antlrex.ParserBase;
 }
 
 /*======================================================================================*/

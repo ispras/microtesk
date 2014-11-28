@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.simnml.antlrex;
+package ru.ispras.microtesk.translator.antlrex;
 
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
@@ -20,8 +20,6 @@ import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 
 import ru.ispras.microtesk.translator.antlrex.symbols.*;
-import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.antlrex.ParserEx;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
