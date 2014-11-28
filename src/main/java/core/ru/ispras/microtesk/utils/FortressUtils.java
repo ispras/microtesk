@@ -37,7 +37,7 @@ public final class FortressUtils {
 
     switch (data.getType().getTypeId()) {
       case LOGIC_INTEGER:
-        intValue = ((Integer) data.getValue()).intValue();
+        intValue = ((Number) data.getValue()).intValue();
         break;
 
       case BIT_VECTOR:
