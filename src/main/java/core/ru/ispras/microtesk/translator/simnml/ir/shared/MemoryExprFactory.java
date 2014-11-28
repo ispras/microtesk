@@ -15,22 +15,37 @@
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.translator.antlrex.SemanticException;
+import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 
 public final class MemoryExprFactory extends WalkerFactoryBase {
+  private static final String ERROR_INVALID_SIZE = 
+      "Size of the alias (%d) must be equal to the size of the defined memory (%d).";
+
   private static final Expr DEFAULT_SIZE = Expr.newConstant(1);
 
   public MemoryExprFactory(WalkerContext context) {
     super(context);
   }
 
-  public MemoryExpr createMemory(Memory.Kind kind, Type type, Expr size, Location alias) {
+  public MemoryExpr createMemory(
+      Where where, Memory.Kind kind, Type type, Expr size, Location alias) throws SemanticException {
 
     if (null == size) {
       size = DEFAULT_SIZE;
+    }
+
+    if (null != alias) {
+      final int memoryBitSize = type.getBitSize() * size.integerValue();
+      final int aliasBitSize = alias.getType().getBitSize();
+
+      if (memoryBitSize != aliasBitSize) {
+        raiseError(where, String.format(ERROR_INVALID_SIZE, aliasBitSize, memoryBitSize));
+      }
     }
 
     return new MemoryExpr(kind, type, size, alias);

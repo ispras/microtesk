@@ -173,7 +173,7 @@ memDef
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = 
-   factory.createMemory(Memory.Kind.MEM, $st.type, $st.size, $al.res);
+   factory.createMemory(where($id), Memory.Kind.MEM, $st.type, $st.size, $al.res);
 
 getIR().add($id.text, expr);
 }
@@ -185,7 +185,7 @@ regDef
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr =
-   factory.createMemory(Memory.Kind.REG, $st.type, $st.size, $al.res);
+   factory.createMemory(where($id), Memory.Kind.REG, $st.type, $st.size, $al.res);
 
 getIR().add($id.text, expr);
 }
@@ -197,7 +197,7 @@ varDef
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr =
-   factory.createMemory(Memory.Kind.VAR, $st.type, $st.size, $al.res);
+   factory.createMemory(where($id), Memory.Kind.VAR, $st.type, $st.size, $al.res);
 
 getIR().add($id.text, expr);
 }
