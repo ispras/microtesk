@@ -87,20 +87,22 @@
 
   <!-- Macro for ANTRL targets -->
   <macrodef name="antlr3">
-  	<attribute name="grammar.root"/>
-  	<attribute name="grammar.path"/>
+    <attribute name="grammar.root"/>
+    <attribute name="grammar.path"/>
     <attribute name="grammar.name"/>
-	<sequential>
-	  <echo message="antlr @{grammar.name}"/>
-	  <ant-antlr3
-	    xmlns:antlr="antlib:org/apache/tools/ant/antlr"
-	    target="@{grammar.root}/@{grammar.path}/@{grammar.name}"
-	    outputdirectory="${gen}/@{grammar.path}"
-	    debug="${debug}">
-	    <classpath>
-	      <pathelement path="${classpath}"/>
-	    </classpath>
-	  </ant-antlr3>
+    <attribute name="grammar.lib"/>
+    <sequential>
+      <echo message="antlr @{grammar.name}"/>
+      <ant-antlr3
+        xmlns:antlr="antlib:org/apache/tools/ant/antlr"
+        target="@{grammar.root}/@{grammar.path}/@{grammar.name}"
+        outputdirectory="${gen}/@{grammar.path}"
+        libdirectory="@{grammar.lib}"
+        debug="${debug}">
+        <classpath>
+         <pathelement path="${classpath}"/>
+        </classpath>
+      </ant-antlr3>
     </sequential>
   </macrodef>
 
@@ -136,17 +138,17 @@
   <!-- Init target, creates dirs -->
   <target name="create.dirs">
     <mkdir dir="${gen}/${simnml_grammar.path}"/>
-	<mkdir dir="${gen}/${mmu_grammar.path}"/>
-	<mkdir dir="${bin}"/>
-	<mkdir dir="${dist}"/>
+    <mkdir dir="${gen}/${mmu_grammar.path}"/>
+    <mkdir dir="${bin}"/>
+    <mkdir dir="${dist}"/>
   </target>
 
   <!-- Clean target, removes builded dirs and files -->
   <target name="clean">
     <delete dir="${dist}"/>
     <delete dir="${bin}"/>
-  	<delete includeEmptyDirs="true"><fileset dir="${gen}" includes="**/*"/></delete>
-  	<delete dir="target"/>
+    <delete includeEmptyDirs="true"><fileset dir="${gen}" includes="**/*"/></delete>
+    <delete dir="target"/>
   </target>
 
   <!-- Target for generating parsers for Sim-nML code from grammars with ANTLR -->
@@ -157,22 +159,28 @@
   <property name="simnml_walker.name"     value="SimnMLTreeWalker.g"/>
 
   <target name="antlr_simnml">
-    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}" grammar.root="${src.java.dir}"/>
-    <antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src.java.dir}"/>
-    <antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}" grammar.root="${src.java.dir}"/>
+    <antlr3 grammar.name="${simnml_lexer.name}"  grammar.path="${simnml_grammar.path}"
+            grammar.root="${src.java.dir}"       grammar.lib="${src.java.dir}/${simnml_grammar.path}"/>
+    <antlr3 grammar.name="${simnml_parser.name}" grammar.path="${simnml_grammar.path}"
+            grammar.root="${src.java.dir}"       grammar.lib="${src.java.dir}/${simnml_grammar.path}"/>
+    <antlr3 grammar.name="${simnml_walker.name}" grammar.path="${simnml_grammar.path}"
+            grammar.root="${src.java.dir}"       grammar.lib="${src.java.dir}/${simnml_grammar.path}"/>
   </target>
 
   <!-- Target for generating parsers for MMU specification code from grammars with ANTLR -->
-  <property name="mmu_grammar.package" value="translator/mmu/grammar"/>
+  <property name="mmu_grammar.package" value="translator/simnml/grammar"/>
   <property name="mmu_grammar.path"    value="${main.package}/${mmu_grammar.package}"/>
   <property name="mmu_lexer.name"      value="MmuLexer.g"/>
   <property name="mmu_parser.name"     value="MmuParser.g"/>
   <property name="mmu_walker.name"     value="MmuTreeWalker.g"/>
 
   <target name="antlr_mmu">
-    <antlr3 grammar.name="${mmu_lexer.name}"  grammar.path="${mmu_grammar.path}" grammar.root="${src.java.plugins.mmu.dir}"/>
-    <antlr3 grammar.name="${mmu_parser.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.java.plugins.mmu.dir}"/>
-    <antlr3 grammar.name="${mmu_walker.name}" grammar.path="${mmu_grammar.path}" grammar.root="${src.java.plugins.mmu.dir}"/>
+    <antlr3 grammar.name="${mmu_lexer.name}"           grammar.path="${mmu_grammar.path}"
+            grammar.root="${src.java.plugins.mmu.dir}" grammar.lib="${src.java.dir}/${simnml_grammar.path}"/>
+    <antlr3 grammar.name="${mmu_parser.name}"          grammar.path="${mmu_grammar.path}"
+            grammar.root="${src.java.plugins.mmu.dir}" grammar.lib="${src.java.dir}/${simnml_grammar.path}"/>
+    <antlr3 grammar.name="${mmu_walker.name}"          grammar.path="${mmu_grammar.path}"
+            grammar.root="${src.java.plugins.mmu.dir}" grammar.lib="${src.java.dir}/${simnml_grammar.path}"/>
   </target>	
 
   <!-- JavaDoc target, generates documentation for source code in ${src.java.dir} and places it into ${doc}/javadoc -->
@@ -282,27 +290,27 @@
 
   <!-- Copies all required JARS to the distributive folder -->
   <target name="copy.jars">
-	<copy file="${jars.path}/${antlr.jar}"    todir="${dist.jars}"/>
-  	<copy file="${jars.path}/${cli.jar}"      todir="${dist.jars}"/>
-  	<copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
-  	<copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
-  	<copy file="${jars.path}/${testbase.jar}" todir="${dist.jars}"/>
+    <copy file="${jars.path}/${antlr.jar}"    todir="${dist.jars}"/>
+    <copy file="${jars.path}/${cli.jar}"      todir="${dist.jars}"/>
+    <copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
+    <copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
+    <copy file="${jars.path}/${testbase.jar}" todir="${dist.jars}"/>
   </target>
 
   <!-- Copies MicroTESK documentation to the distributive folder -->
   <target name="copy.docs">
     <copy todir="${doc}">
-  	   <fileset dir="xdocs" includes="**"/>  
-  	</copy>
+      <fileset dir="xdocs" includes="**"/>  
+    </copy>
   </target>
 
   <target name="copy.text">
     <copy file="src/main/text/README" tofile="${dist}/README"/>
-  	<copy file="ChangeLog" tofile="${dist}/ChangeLog"/>
-  	<copy file="NOTICE" tofile="${dist}/NOTICE"/>
-  	<copy file="LICENSE" tofile="${dist}/LICENSE"/>
-  	<mkdir dir="${dist}/tools"/>
-  	<copy file="src/main/text/README_TOOLS" tofile="${dist}/tools/README"/>
+    <copy file="ChangeLog" tofile="${dist}/ChangeLog"/>
+    <copy file="NOTICE" tofile="${dist}/NOTICE"/>
+    <copy file="LICENSE" tofile="${dist}/LICENSE"/>
+    <mkdir dir="${dist}/tools"/>
+    <copy file="src/main/text/README_TOOLS" tofile="${dist}/tools/README"/>
   </target>	
 
   <target name="build.all" depends="init,clean,create.dirs,build.jar,copy.jars,copy.scripts,copy.docs,copy.text,models.jar,pack.all">
@@ -331,20 +339,20 @@
 
     <!-- Generate code for the simple VLIW model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
-  	  <jvmarg value="-ea"/>
-  	  <arg value="-d"/>
-  	  <arg value="${dist.gen}/src"/>
-  	  <arg value="${dist}/arch/demo/vliw/model/vliw.nml"/>
-  	  <classpath>
-  	    <pathelement location="${dist.jars}/${jar}"/>
-  	  </classpath>
+      <jvmarg value="-ea"/>
+      <arg value="-d"/>
+      <arg value="${dist.gen}/src"/>
+      <arg value="${dist}/arch/demo/vliw/model/vliw.nml"/>
+      <classpath>
+        <pathelement location="${dist.jars}/${jar}"/>
+      </classpath>
     </java>
 
     <!-- Generate code for the miniMIPS model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
-  	  <jvmarg value="-ea"/>
-   	  <arg value="-d"/>
-   	  <arg value="${dist.gen}/src"/>
+      <jvmarg value="-ea"/>
+      <arg value="-d"/>
+      <arg value="${dist.gen}/src"/>
       <arg value="${dist}/arch/minimips/model/minimips.nml"/>
       <classpath>
         <pathelement location="${dist.jars}/${jar}"/>

@@ -1,4 +1,4 @@
-package ru.ispras.microtesk.translator.mmu;
+package ru.ispras.microtesk.translator.simnml;
 
 import java.io.File;
 import java.io.FileReader;
@@ -11,10 +11,10 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.grammar.MmuLexer;
 import ru.ispras.microtesk.translator.simnml.grammar.MmuParser;
 import ru.ispras.microtesk.translator.simnml.grammar.MmuTreeWalker;
+//import ru.ispras.microtesk.translator.simnml.ir.MmuIR;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 
 public class MmuTranslator
@@ -64,6 +64,7 @@ public class MmuTranslator
 //        symbols.defineReserved(ESymbolKind.KEYWORD, JavaKeyword.STRINGS);
 //        symbols.defineReserved(ESymbolKind.KEYWORD, RubyKeyword.STRINGS);
         
+        //final MmuIR ir = new MmuIR();
         final IR ir = new IR();
 
         try
