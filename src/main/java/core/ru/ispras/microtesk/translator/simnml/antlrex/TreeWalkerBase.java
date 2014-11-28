@@ -199,7 +199,7 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
     }
   }
 
-  protected final boolean isDeclaredAs(CommonTree t, ESymbolKind expectedKind) {
+  protected final boolean isDeclaredAs(CommonTree t, Enum<?> expectedKind) {
     if (null == symbols) {
       throw new NullPointerException();
     }
