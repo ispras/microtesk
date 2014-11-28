@@ -18,6 +18,7 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.simnml.ir.location.Location;
 
 public final class MemoryExprFactory extends WalkerFactoryBase {
   private static final Expr DEFAULT_SIZE = Expr.newConstant(1);
@@ -26,11 +27,12 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
     super(context);
   }
 
-  public MemoryExpr createMemory(Memory.Kind kind, Type type, Expr size) {
-    return new MemoryExpr(kind, type, size);
-  }
+  public MemoryExpr createMemory(Memory.Kind kind, Type type, Expr size, Location alias) {
 
-  public MemoryExpr createMemory(Memory.Kind kind, Type type) {
-    return new MemoryExpr(kind, type, DEFAULT_SIZE);
+    if (null == size) {
+      size = DEFAULT_SIZE;
+    }
+
+    return new MemoryExpr(kind, type, size, alias);
   }
 }

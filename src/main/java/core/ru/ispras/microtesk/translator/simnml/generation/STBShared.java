@@ -189,6 +189,9 @@ final class STBShared implements ITemplateBuilder {
 
     tMemory.add("size", new PrinterExpr(memory.getSizeExpr()));
 
+    tMemory.add("alias", memory.getAlias() == null ? 
+        false : PrinterLocation.toString(memory.getAlias())); 
+
     t.add("members", tMemory);
   }
 

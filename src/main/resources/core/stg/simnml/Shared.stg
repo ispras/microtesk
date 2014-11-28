@@ -43,12 +43,12 @@ type_alias(name, alias) ::= <<
 <class_const("Type", name, alias)>
 >>
 
-memory(name, kind, type, size) ::= <<
-<class_const("Memory", name, new_memory(kind, name, type, size))>
+memory(name, kind, type, size, alias) ::= <<
+<class_const("Memory", name, new_memory(kind, name, type, size, alias))>
 >>
 
-new_memory(kind, name, type, size) ::= <<
-Memory.<kind>("<name>", <type>, <size>)
+new_memory(kind, name, type, size, alias) ::= <<
+Memory.<kind>("<name>", <type>, <size><if(alias)>, <alias><endif>)
 >>
 
 memory_array(type, name, items) ::= <<

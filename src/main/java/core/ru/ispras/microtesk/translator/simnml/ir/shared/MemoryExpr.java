@@ -24,11 +24,7 @@ public final class MemoryExpr {
   private final Expr size;
   private final Location alias;
 
-  public MemoryExpr(Memory.Kind kind, Type type, Expr size) {
-    this(kind, type, size, null);
-  }
-
-  public MemoryExpr(Memory.Kind kind, Type type, Expr size, Location alias) {
+  MemoryExpr(Memory.Kind kind, Type type, Expr size, Location alias) {
     if (null == type) {
       throw new NullPointerException();
     }

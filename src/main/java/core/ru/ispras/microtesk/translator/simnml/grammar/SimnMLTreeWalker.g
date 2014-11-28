@@ -172,35 +172,32 @@ memDef
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemory(Memory.Kind.MEM, $st.type, $st.size) :
-   factory.createMemory(Memory.Kind.MEM, $st.type);
+final MemoryExpr expr = 
+   factory.createMemory(Memory.Kind.MEM, $st.type, $st.size, $al.res);
 
 getIR().add($id.text, expr);
 }
     ;
 
 regDef
-    :  ^(REG id=ID st=sizeType)
+    :  ^(REG id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemory(Memory.Kind.REG, $st.type, $st.size) :
-   factory.createMemory(Memory.Kind.REG, $st.type);
+final MemoryExpr expr =
+   factory.createMemory(Memory.Kind.REG, $st.type, $st.size, $al.res);
 
 getIR().add($id.text, expr);
 }
     ;
 
 varDef
-    :  ^(VAR id=ID st=sizeType)
+    :  ^(VAR id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr = (null != $st.size) ?
-   factory.createMemory(Memory.Kind.VAR, $st.type, $st.size) :
-   factory.createMemory(Memory.Kind.VAR, $st.type);
+final MemoryExpr expr =
+   factory.createMemory(Memory.Kind.VAR, $st.type, $st.size, $al.res);
 
 getIR().add($id.text, expr);
 }

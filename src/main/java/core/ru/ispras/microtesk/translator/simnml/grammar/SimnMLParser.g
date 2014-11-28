@@ -191,12 +191,12 @@ memDef
 
 regRef
     :  REG^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK! 
-                                         {declare($id, ESymbolKind.MEMORY, false);}
+                                         {declare($id, ESymbolKind.MEMORY, false);} alias?
     ;
 
 varDef
     :  VAR^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK!
-                                         {declare($id, ESymbolKind.MEMORY, false);}
+                                         {declare($id, ESymbolKind.MEMORY, false);} alias?
     ;
 
 sizeType
