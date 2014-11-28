@@ -44,14 +44,16 @@ package ru.ispras.microtesk.translator.mmu.grammar;
 // MMU Keywords
 //==================================================================================================
 
-MMU_BUFFER        : 'buffer';
-MMU_POLICY        : 'policy';
-MMU_INDEX         : 'index';
-MMU_MATCH         : 'match';
 MMU_ADDRESS       : 'address';
+MMU_WIDTH         : 'width';
+
+MMU_BUFFER        : 'buffer';
 MMU_ASSOCIATIVITY : 'associativity';
 MMU_SETS          : 'sets';
 MMU_LINE          : 'line';
+MMU_POLICY        : 'policy';
+MMU_INDEX         : 'index';
+MMU_MATCH         : 'match';
 MMU_TAG           : 'tag';
 MMU_DATA          : 'data';
 

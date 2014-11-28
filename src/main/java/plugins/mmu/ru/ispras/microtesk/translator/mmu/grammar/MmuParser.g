@@ -1,17 +1,22 @@
-/*======================================================================================*/
-/* README SECTION                                                                       */
-/*                                                                                      */
-/* TODO:                                                                                */
-/* - Brief description of the parser rules' structure and format                        */
-/* - Instructions on how to debug and extend the rules                                  */
-/* - "TODO" notes                                                                       */
-/*======================================================================================*/
+/*
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
 parser grammar MmuParser;
 
-/*======================================================================================*/
-/* Options                                                                              */
-/*======================================================================================*/
+//==================================================================================================
+// Options
+//==================================================================================================
 
 options {
   language=Java;
@@ -23,65 +28,38 @@ options {
 
 import CommonParser;
 
-/*======================================================================================*/
-/* Additional tokens. Lists additional tokens to be inserted in the AST by the parser   */
-/* to express some syntactic properties.                                                */
-/*======================================================================================*/
-
-tokens {
-  LOCATION;    // TODO: give info
-
-  RANGE;       // for the range type ([a..b])
-
-  ARGS;        // for AND-rules
-  ATTRS;       // for MODE and OP structures 
-  RETURN;      // for MODE structures
-  
-  INDEX;
-  BIT_FIELD_OP;
-
-  SEQUENCE;
-
-  UNARY_PLUS;  
-  UNARY_MINUS;
-
-  SIZE_TYPE;
-}
-
-/*======================================================================================*/
-/* Default Exception Handler Code                                                       */
-/*======================================================================================*/
+//==================================================================================================
+// Default Exception Handler
+//==================================================================================================
 
 @rulecatch {
-catch (SemanticException re) { // Default behavior
+  catch (SemanticException re) {
     reportError(re);
     recover(input,re);
-    // We don't insert error nodes in the IR (walker tree). 
-    //retval.tree = (Object)adaptor.errorNode(input, retval.start, input.LT(-1), re);
-}
-catch (RecognitionException re) { // Default behavior
+  }
+  catch (RecognitionException re) {
     reportError(re);
     recover(input,re);
-    // We don't insert error nodes in the IR (walker tree). 
-    //retval.tree = (Object)adaptor.errorNode(input, retval.start, input.LT(-1), re);
-}
+  }
 }
 
-/*======================================================================================*/
-/* Header for the generated parser Java class file (header comments, imports, etc).     */  
-/*======================================================================================*/
+//==================================================================================================
+// Header for the Generated Java File
+//==================================================================================================
 
 @header {
 /*
- * Copyright (c) 2012 ISPRAS (www.ispras.ru)
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * MMuParser.java 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  *
  * WARNING: THIS FILE IS AUTOMATICALLY GENERATED. PLEASE DO NOT MODIFY IT. 
  */
@@ -93,81 +71,68 @@ import ru.ispras.microtesk.translator.antlrex.ParserBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 }
 
-/*======================================================================================*/
-/* Root Rules of Processor Specification                                                */
-/*======================================================================================*/
+//==================================================================================================
+// MMU Specification
+//==================================================================================================
 
 startRule 
-	:	bufferoraddress* EOF!
-	;
-	
-bufferoraddress
-	:	addressRule
-	|	bufferRule
-	;
- 
-/*======================================================================================*/
-/* Address     																		    */
-/*======================================================================================*/
- 
- addressRule
-			:	MMU_ADDRESS^ id=ID LEFT_BRACE! WIDTH! ASSIGN! addr=addressExpr SEMI! RIGHT_BRACE! { declare($id, $addr.res, false); }
-			;
-	
-			addressExpr returns [ESymbolKind res]
-			:	constExpr     { $res = ESymbolKind.OP;  }
-			;
+    : bufferOrAddress* EOF!
+    ;
 
-/*======================================================================================*/
-/* Buffer     																		    */
-/*======================================================================================*/
+bufferOrAddress
+    : address
+    | buffer
+    ;
 
-bufferRule 
-    		:  MMU_BUFFER^ id=ID LEFT_BRACE! buf=bufferExpr RIGHT_BRACE! { declare($id, $buf.res, false); } 
-    		;
+//==================================================================================================
+// Address
+//==================================================================================================
 
-			bufferExpr returns [ESymbolKind res]
-			:	(parameter)*
-			;
+address
+    : MMU_ADDRESS^ ID LEFT_BRACE!
+        (addressParameter SEMI!)*
+      RIGHT_BRACE!
+    ;
 
-parameter returns [ESymbolKind res]
-	:	associativity
-//	|	sets
-//	|	line
-//	|	index
-//	|	match
-//	|	policy
-	;
-	
-/*======================================================================================*/
-/* Attribute rules (line, associativity)                                                          */
-/*======================================================================================*/
+addressParameter
+    : width
+    ;
+
+width
+    : MMU_WIDTH! ASSIGN! constExpr
+    ;
+
+//==================================================================================================
+// Buffer
+//==================================================================================================
+
+buffer
+    : MMU_BUFFER^ ID LEFT_BRACE!
+        (bufferParameter SEMI!)*
+      RIGHT_BRACE!
+    ;
+
+bufferParameter
+    : associativity
+    | sets
+    | line
+    | index
+    | match
+    | policy
+    ;
 
 associativity
-			:	id=MMU_ASSOCIATIVITY^ ASSIGN! ass=associativityExpr SEMI! { declare($id, $ass.res, false); }
-			;
-			
-	associativityExpr returns [ESymbolKind res]
-		:	constExpr     { $res = ESymbolKind.OP;  }
-		;
+    : MMU_ASSOCIATIVITY^ ASSIGN! constExpr
+    ;
 
 sets
-			:	id=MMU_SETS^ ASSIGN! sete=setsExpr SEMI! { declare($id, $sete.res, false); } 
-			;    	
-	
-	setsExpr returns [ESymbolKind res]
-		:	constExpr     { $res = ESymbolKind.OP;  }
-		;
-		
-
-/*======================================================================================*/
-/* Attribute line                                                                       */
-/*======================================================================================*/
+    : MMU_SETS^ ASSIGN! constExpr
+    ;
 
 line
-		:	id=LINE^ LEFT_PARENTH! l=lineExpr RIGHT_PARENTH! SEMI! { declare($id, $l.res, false); } 
-		;
-		
+    : MMU_LINE^ LEFT_PARENTH! l=lineExpr RIGHT_PARENTH! 
+    ;
+
 lineExpr returns [ESymbolKind res]
 		:	
 			tag
@@ -187,10 +152,6 @@ lineExpr returns [ESymbolKind res]
 			: 		constExpr { $res = ESymbolKind.OP;  }		
 			;
 		
-/*======================================================================================*/
-/* Expression rules (index, match)
-/*======================================================================================*/
-
 index
 	:	MMU_INDEX^ LEFT_PARENTH! MMU_ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! MMU_ADDR! LEFT_BROCKET! ind=indexExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ind.res); }
 	;
@@ -207,10 +168,6 @@ match
 		:	constExpr     { $res = ESymbolKind.OP;  }
 		;
 		
-/*======================================================================================*/
-/*  Policy Type Rules                                                                   */
-/*======================================================================================*/
-
 policy
     	:	id=MMU_POLICY^ ASSIGN! pol=policyExpr  SEMI! { declare($id, $pol.res, false); }
     	;
@@ -225,12 +182,15 @@ catch [RecognitionException re] {
     reportError(re);
     recover(input,re);
 }
-		
-/*======================================================================================*/
-/* Constant expression rules (statically calculated)                                    */
-/*======================================================================================*/
+
+//==================================================================================================
+// Expression
+//==================================================================================================
 
 constExpr
-    :  expr
+    : expr
     ;
 
+//==================================================================================================
+// The End
+//==================================================================================================
