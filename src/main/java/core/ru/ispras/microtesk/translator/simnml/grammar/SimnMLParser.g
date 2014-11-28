@@ -205,7 +205,7 @@ sizeType
     ;
 
 alias
-    :  ALIAS^ ASSIGN! locationAtom
+    :  ALIAS^ ASSIGN! location
     ;
 
 /*======================================================================================*/
