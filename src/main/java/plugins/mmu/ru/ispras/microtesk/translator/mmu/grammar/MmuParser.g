@@ -29,21 +29,6 @@ options {
 import CommonParser;
 
 //==================================================================================================
-// Default Exception Handler
-//==================================================================================================
-
-@rulecatch {
-  catch (SemanticException re) {
-    reportError(re);
-    recover(input,re);
-  }
-  catch (RecognitionException re) {
-    reportError(re);
-    recover(input,re);
-  }
-}
-
-//==================================================================================================
 // Header for the Generated Java File
 //==================================================================================================
 
@@ -98,8 +83,10 @@ addressParameter
     : width
     ;
 
+//--------------------------------------------------------------------------------------------------
+
 width
-    : MMU_WIDTH! ASSIGN! constExpr
+    : MMU_WIDTH! ASSIGN! expr
     ;
 
 //==================================================================================================
@@ -121,74 +108,55 @@ bufferParameter
     | policy
     ;
 
+//--------------------------------------------------------------------------------------------------
+
 associativity
-    : MMU_ASSOCIATIVITY^ ASSIGN! constExpr
+    : MMU_ASSOCIATIVITY^ ASSIGN! expr
     ;
+
+//--------------------------------------------------------------------------------------------------
 
 sets
-    : MMU_SETS^ ASSIGN! constExpr
+    : MMU_SETS^ ASSIGN! expr
     ;
+
+//--------------------------------------------------------------------------------------------------
 
 line
-    : MMU_LINE^ LEFT_PARENTH! l=lineExpr RIGHT_PARENTH! 
+    : MMU_LINE^ LEFT_PARENTH!
+        field (COMA! field)*
+      RIGHT_PARENTH! SEMI!
     ;
 
-lineExpr returns [ESymbolKind res]
-		:	
-			tag
-			COMMA!
-			data
-		;
-		
-		tag
-			:	id=MMU_TAG^ COLON! lengthExpr { declare($id, $lengthExpr.res, false); }
-			;
-		
-		data
-			:	id=MMU_DATA^ COLON! lengthExpr { declare($id, $lengthExpr.res, false); }
-			;
-		
-		lengthExpr returns [ESymbolKind res]
-			: 		constExpr { $res = ESymbolKind.OP;  }		
-			;
-		
+field
+    : ID COLON! expr
+    ;
+
+//--------------------------------------------------------------------------------------------------
+
 index
-	:	MMU_INDEX^ LEFT_PARENTH! MMU_ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! MMU_ADDR! LEFT_BROCKET! ind=indexExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ind.res); }
-	;
-	
-	indexExpr returns [ESymbolKind res]
-		:	constExpr     { $res = ESymbolKind.OP;  }  
-		;
-	
+    : MMU_INDEX^ LEFT_PARENTH! addressArg=ID COLON! addressType=ID RIGHT_PARENTH!
+        ASSIGN! expr
+    ;
+
+//--------------------------------------------------------------------------------------------------
+
 match
-	:	MMU_MATCH^ LEFT_PARENTH! MMU_ADDR! COLON! id=ID RIGHT_PARENTH! ASSIGN! LINE! DOT! TAG! EQ! MMU_ADDR! LEFT_BROCKET! ma=matchExpr RIGHT_BROCKET! SEMI! { checkDeclaration($id, $ma.res); }
-	;
-		
-	matchExpr returns [ESymbolKind res]
-		:	constExpr     { $res = ESymbolKind.OP;  }
-		;
-		
+    : MMU_MATCH^ LEFT_PARENTH! addressArg=ID COLON! addressType=ID RIGHT_PARENTH!
+        ASSIGN! expr
+    ;
+
+//--------------------------------------------------------------------------------------------------
+
 policy
-    	:	id=MMU_POLICY^ ASSIGN! pol=policyExpr  SEMI! { declare($id, $pol.res, false); }
-    	;
-    	
-policyExpr returns [ESymbolKind res]
+    : MMU_POLICY^ ASSIGN! policyId
+    ;
+
+policyId
     : MMU_RANDOM
     | MMU_FIFO
     | MMU_PLRU
     | MMU_LRU
-;
-catch [RecognitionException re] {
-    reportError(re);
-    recover(input,re);
-}
-
-//==================================================================================================
-// Expression
-//==================================================================================================
-
-constExpr
-    : expr
     ;
 
 //==================================================================================================
