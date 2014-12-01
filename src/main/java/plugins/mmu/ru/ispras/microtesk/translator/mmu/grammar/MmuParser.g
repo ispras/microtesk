@@ -81,6 +81,7 @@ address
 
 addressParameter
     : width
+    | format
     ;
 
 //--------------------------------------------------------------------------------------------------
@@ -100,9 +101,9 @@ buffer
     ;
 
 bufferParameter
-    : associativity
+    : ways
     | sets
-    | line
+    | format
     | index
     | match
     | policy
@@ -110,8 +111,8 @@ bufferParameter
 
 //--------------------------------------------------------------------------------------------------
 
-associativity
-    : MMU_ASSOCIATIVITY^ ASSIGN! expr
+ways
+    : MMU_WAYS^ ASSIGN! expr
     ;
 
 //--------------------------------------------------------------------------------------------------
@@ -122,14 +123,14 @@ sets
 
 //--------------------------------------------------------------------------------------------------
 
-line
-    : MMU_LINE^ LEFT_PARENTH!
+format
+    : MMU_FORMAT^ ASSIGN! LEFT_PARENTH!
         field (COMA! field)*
-      RIGHT_PARENTH! SEMI!
+      RIGHT_PARENTH!
     ;
 
 field
-    : ID COLON! expr
+    : ID COLON! expr (ASSIGN! expr)?
     ;
 
 //--------------------------------------------------------------------------------------------------
@@ -149,14 +150,7 @@ match
 //--------------------------------------------------------------------------------------------------
 
 policy
-    : MMU_POLICY^ ASSIGN! policyId
-    ;
-
-policyId
-    : MMU_RANDOM
-    | MMU_FIFO
-    | MMU_PLRU
-    | MMU_LRU
+    : MMU_POLICY^ ASSIGN! ID
     ;
 
 //==================================================================================================

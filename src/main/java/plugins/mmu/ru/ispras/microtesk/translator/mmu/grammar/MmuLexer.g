@@ -48,19 +48,12 @@ MMU_ADDRESS       : 'address';
 MMU_WIDTH         : 'width';
 
 MMU_BUFFER        : 'buffer';
-MMU_ASSOCIATIVITY : 'associativity';
+MMU_WAYS          : 'ways';
 MMU_SETS          : 'sets';
-MMU_LINE          : 'line';
-MMU_POLICY        : 'policy';
+MMU_FORMAT        : 'format';
 MMU_INDEX         : 'index';
 MMU_MATCH         : 'match';
-MMU_TAG           : 'tag';
-MMU_DATA          : 'data';
-
-MMU_RANDOM        : 'random';
-MMU_FIFO          : 'fifo';
-MMU_PLRU          : 'plru';
-MMU_LRU           : 'lru';
+MMU_POLICY        : 'policy';
 
 //==================================================================================================
 // The end
