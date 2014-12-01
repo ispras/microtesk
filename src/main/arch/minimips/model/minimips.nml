@@ -47,7 +47,7 @@ mode REG (i : INDEX) = GPR[i]
 
 //////////////////////////VARIABLES/////////////////////////////////////////////////
 
-var JMPADDR[JUMP_ADDR_TYPE] // Jump address
+var JMPADDR[WORD] // Jump address
 var BRANCH[BIT]   //branch flag
 var temp[card(33)]
 var mult_result[int(64)]
@@ -358,9 +358,9 @@ op slt (rd: REG, rs: REG, rt: REG)
   image = format("000000%s%s%s00000101010", rs.image, rt.image, rd.image)
   action = {
     if rs < rt then
-      rd = 1;
+      rd = coerce(WORD, 1);
     else
-      rd = 0;
+      rd = coerce(WORD, 0);
     endif;
   }
 
@@ -369,9 +369,9 @@ op slti (rt: REG, rs: REG, immed: SHORT)
   image = format("001010%s%s%d", rs.image, rt.image, immed)
   action = {
     if rs < immed then
-      rt = 1;
+      rt = coerce(WORD, 1);
     else
-      rt = 0;
+      rt = coerce(WORD, 0);
     endif;
   }
 
@@ -380,9 +380,9 @@ op sltiu (rt: REG, rs: REG, immed: SHORT)
   image = format("001011%s%s%d", rs.image, rt.image, immed)
   action = {
     if coerce(card(32), rs) < coerce(card(32), immed) then
-      rt = 1;
+      rt = coerce(WORD, 1);
     else
-      rt = 0;
+      rt = coerce(WORD, 0);
     endif;
   }
 
@@ -391,9 +391,9 @@ op sltu (rd: REG, rs: REG, rt: REG)
   image = format("000000%s%s%s00000101011", rs.image, rt.image, rd.image)
   action = {
     if coerce(card(32), rs) < coerce(card(32), rt) then
-      rd = 1;
+      rd = coerce(WORD, 1);
     else
-      rd = 0;
+      rd = coerce(WORD, 0);
     endif;
   }
 
