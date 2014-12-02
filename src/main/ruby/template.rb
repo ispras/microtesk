@@ -75,7 +75,6 @@ class Template
   end
 
   def self.set_model(model)
-
     if nil != @@model
       puts "Model is already assigned."
       return
@@ -156,13 +155,13 @@ class Template
     @template.endBlock
   end
 
-def atomic(&contents)
-  blockBuilder = @template.beginBlock
-  blockBuilder.setAtomic true
+  def atomic(&contents)
+    blockBuilder = @template.beginBlock
+    blockBuilder.setAtomic true
 
-  self.instance_eval &contents
-  @template.endBlock
-end
+    self.instance_eval &contents
+    @template.endBlock
+  end
 
   def label(name)
     @template.addLabel name 
@@ -315,6 +314,18 @@ end
     else
       @template.newLazy      
     end
+  end
+
+  # ------------------------------------------------------------------------- #
+  # Data Definition Facilities                                                #
+  # ------------------------------------------------------------------------- #
+
+  def types(&contents)
+    # TODO
+  end
+
+  def data(attributes = {}, &contents)
+    # TODO
   end
 
   # ------------------------------------------------------------------------- #
