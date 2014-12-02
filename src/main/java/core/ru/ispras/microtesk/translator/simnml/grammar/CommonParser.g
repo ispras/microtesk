@@ -202,6 +202,7 @@ locationVal
 locationAtom
     :  ID
     |  ID LEFT_HOOK expr RIGHT_HOOK -> ^(LOCATION_INDEX ID expr)
+    |  ID DOT^ ID
     ;
 
 bitFieldExpr
