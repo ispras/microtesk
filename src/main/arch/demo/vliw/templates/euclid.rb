@@ -36,7 +36,7 @@ class EuclidTemplate < VliwBaseTemplate
     j = Random.rand(63) + 1
 
     trace "\nInput parameter values: #{i}, #{j}\n"
-    vliw (addi r(4), r(0), i), (addi r(5), r(0), j)
+    vliw (ori r(4), r(0), i), (ori r(5), r(0), j)
 
     label :cycle
     trace "\nCurrent register values: $4 = %d, $5 = %d\n", gpr(4), gpr(5)
