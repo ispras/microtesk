@@ -406,7 +406,7 @@ op j (addr: JUMP_ADDR_TYPE)
   image = format("000010%d00", addr)
   action = {
     BRANCH = 1;
-    JMPADDR = addr;
+    JMPADDR = coerce(WORD, addr);
   }
 
 
