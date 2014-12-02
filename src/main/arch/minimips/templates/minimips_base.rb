@@ -26,13 +26,13 @@ class MinimipsBaseTemplate < Template
   def pre
     # Type definitions
     types {
-      define_type :id => :byte,     :text => ".byte",     :type => card(8)
-      define_type :id => :halfword, :text => ".halfword", :type => card(16)
-      define_type :id => :word,     :text => ".word",     :type => card(32)
+      define_type :id => :byte,     :text => '.byte',     :type => card(8)
+      define_type :id => :halfword, :text => '.halfword', :type => card(16)
+      define_type :id => :word,     :text => '.word',     :type => card(32)
 
-      define_space  :id => :space,  :text => ".space",  :type => card(8), :fillWith => 0
-      define_string :id => :ascii,  :text => ".ascii",  :type => int(8),  :zeroTerm => false
-      define_string :id => :asciiz, :text => ".asciiz", :type => int(8),  :zeroTerm => true
+      define_space  :id => :space,  :text => '.space',  :type => card(8), :fillWith => 0
+      define_string :id => :ascii,  :text => '.ascii',  :type => int(8),  :zeroTerm => false
+      define_string :id => :asciiz, :text => '.asciiz', :type => int(8),  :zeroTerm => true
     }
   end
 
