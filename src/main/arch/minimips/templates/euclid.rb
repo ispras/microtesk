@@ -27,6 +27,26 @@ require_relative 'minimips_base'
 #  
 
 class EuclidTemplate < MinimipsBaseTemplate
+  
+  def pre
+    super
+
+    data(:text => '.data', :align => '2') {
+      label :data1
+      word 1, 2, 3, 4
+    
+      label :data2 
+      halfword 0xDEAD, 0xBEEF
+    
+      label :hello
+      ascii  "Hello" 
+    
+      label :world
+      asciiz "World" 
+    
+      space 8
+    }
+  end
 
   def run
     trace "Euclidean Algorithm (miniMIPS): Debug Output"
@@ -46,11 +66,11 @@ class EuclidTemplate < MinimipsBaseTemplate
 
     slt reg(2), reg(4), reg(5)
     bne reg(2), reg(0), :if_less
-    sll reg(0), reg(0), reg(0) # nop (miniMIPS idiom)
+    sll reg(0), reg(0), 0 # means 'nop' (idiom)
 
     subu reg(4), reg(4), reg(5)
     j :cycle
-    sll reg(0), reg(0), reg(0) # nop (miniMIPS idiom)
+    sll reg(0), reg(0), 0 # means 'nop' (idiom)
 
     label :if_less
     subu reg(5), reg(5), reg(4)
