@@ -45,17 +45,9 @@ import commonParser=CommonParser;
 tokens {
 //RANGE; // root node for range type definitions ([a..b]). Not supported in this version.
 
-  UPLUS;  // token for the unary plus operator (used in expressions)
-  UMINUS; // token for the unary minus operator (used in expressions)
-
   SIZE_TYPE; // node for constructions that specify type and size of memory resources (reg, mem, var)
 
-  LOCATION;          // node for locations (used as an expression atom)
-  LOCATION_INDEX;    // node for constructions that specify access for a location by index (e.g. GPR[1])
-  LOCATION_BITFIELD; // node for constructions that specify access to bitfields of a location (e.g. GPR[0]<0..8>)
-
   LABEL; // imaginary token for let expression that specify an alias for some specified location
-  CONST; // imaginary token to distingush references to Let constants (used as an expression atom)
 
   ARGS;      // node for the list of args specified in AND-rules for mode and ops
   ARG_MODE;  // node to distinguish a mode argument 
