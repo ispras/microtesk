@@ -57,7 +57,6 @@ tokens {
 
   ATTRS;    // node for the list of attributes MODE and OP structures
   RETURN;   // node for the "return" attribute of MODE structure
-  SEQUENCE; // node for the sequence of statements
 }
 
 /*======================================================================================*/
