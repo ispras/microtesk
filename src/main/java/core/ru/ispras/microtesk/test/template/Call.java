@@ -59,4 +59,22 @@ public final class Call {
     return String.format("instruction call (root: %s)",
       isExecutable() ? rootOperation.getName() : "null");
   }
+
+  public boolean isBranch() {
+    if (!isExecutable()) {
+      return false;
+    }
+
+    // TODO
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean isConditionalBranch() {
+    if (!isExecutable()) {
+      return false;
+    }
+
+    // TODO
+    throw new UnsupportedOperationException();
+  }
 }
