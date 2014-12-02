@@ -285,16 +285,7 @@ class Template
   # ------------------------------------------------------------------------- #
 
   def preparator(attrs, &contents)
-    if !attrs.is_a?(Hash)
-      raise MTRubyError, "#{attrs} mush be a Hash!" 
-    end
-
-    if !attrs.has_key?(:target)
-      raise MTRubyError, "The :target attribute is not specified."
-    end
-
-    target = attrs[:target]
-
+    target = get_attribute attrs, :target
     @template.beginPreparator target.to_s
     self.instance_eval &contents
     @template.endPreparator
@@ -321,11 +312,19 @@ class Template
   # ------------------------------------------------------------------------- #
 
   def types(&contents)
-    # TODO
+    puts "Defining data types..."
+    # TemplateBuilder.instance_eval &contents
   end
 
-  def data(attributes = {}, &contents)
-    # TODO
+  def data(attributes, &contents)
+    puts "Defining data..."
+
+    text_value = get_attribute attributes, :text
+    align_value = get_attribute attributes, :align
+
+    # self.instance_eval &contents
+
+    text text_value
   end
 
   # ------------------------------------------------------------------------- #
@@ -349,6 +348,20 @@ class Template
 
     engine.process @template
   end
+  
+private
+
+  def get_attribute(attrs, key)
+    if !attrs.is_a?(Hash)
+      raise MTRubyError, "#{attrs} mush be a Hash!" 
+    end
+
+    if !attrs.has_key?(key)
+      raise MTRubyError, "The :#{key} attribute is not specified."
+    end
+
+    attrs[key]
+  end  
 
 end # Template
 
