@@ -41,7 +41,7 @@ def self.define_type(attrs)
   # TODO
 end
 
-def self.define_space(args)
+def self.define_space(attrs)
   id       = get_attribute attrs, :id
   text     = get_attribute attrs, :text
   type     = get_attribute attrs, :type
@@ -50,7 +50,7 @@ def self.define_space(args)
   # TODO
 end
 
-def self.define_string(args)
+def self.define_string(attrs)
   id       = get_attribute attrs, :id
   text     = get_attribute attrs, :text
   type     = get_attribute attrs, :type
