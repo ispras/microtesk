@@ -74,9 +74,8 @@ bufferOrAddress
 //==================================================================================================
 
 address
-    : MMU_ADDRESS^ ID LEFT_BRACE!
-        (addressParameter SEMI!)*
-      RIGHT_BRACE!
+    : MMU_ADDRESS^ ID
+        (addressParameter)*
     ;
 
 addressParameter
@@ -95,9 +94,8 @@ width
 //==================================================================================================
 
 buffer
-    : MMU_BUFFER^ ID LEFT_BRACE!
-        (bufferParameter SEMI!)*
-      RIGHT_BRACE!
+    : MMU_BUFFER^ ID LEFT_PARENTH! addressType=ID addressArg=ID RIGHT_PARENTH!
+        (bufferParameter)*
     ;
 
 bufferParameter
@@ -136,15 +134,13 @@ field
 //--------------------------------------------------------------------------------------------------
 
 index
-    : MMU_INDEX^ LEFT_PARENTH! addressArg=ID COLON! addressType=ID RIGHT_PARENTH!
-        ASSIGN! expr
+    : MMU_INDEX^ ASSIGN! expr
     ;
 
 //--------------------------------------------------------------------------------------------------
 
 match
-    : MMU_MATCH^ LEFT_PARENTH! addressArg=ID COLON! addressType=ID RIGHT_PARENTH!
-        ASSIGN! expr
+    : MMU_MATCH^ ASSIGN! expr
     ;
 
 //--------------------------------------------------------------------------------------------------
