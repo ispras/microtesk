@@ -33,6 +33,40 @@ def self.define_runtime_methods(metamodel)
   ops.each { |op| define_operation op }
 end
 
+def self.define_type(attrs)
+  id   = get_attribute attrs, :id
+  text = get_attribute attrs, :text
+  type = get_attribute attrs, :type
+
+  # TODO
+end
+
+def self.define_space(args)
+  id       = get_attribute attrs, :id
+  text     = get_attribute attrs, :text
+  type     = get_attribute attrs, :type
+  fillWith = get_attribute attrs, :fillWith
+
+  # TODO
+end
+
+def self.define_string(args)
+  id       = get_attribute attrs, :id
+  text     = get_attribute attrs, :text
+  type     = get_attribute attrs, :type
+  zeroTerm = get_attribute attrs, :zeroTerm
+
+  # TODO
+end
+
+def card(x)
+  # Temporary stub
+end
+
+def int(x)
+  # Temporary stub 
+end
+
 private
 
 #

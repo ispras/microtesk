@@ -27,3 +27,19 @@ class MTRubyError < StandardError
     super
   end
 end
+
+#
+# Gets an attribute value from the specified hash. Raises exception if the 
+# 'attrs' parameter is not a hash or if it does not contain the specified key. 
+#
+def get_attribute(attrs, key)
+  if !attrs.is_a?(Hash)
+    raise MTRubyError, "#{attrs} mush be a Hash!" 
+  end
+
+  if !attrs.has_key?(key)
+    raise MTRubyError, "The :#{key} attribute is not specified."
+  end
+
+  attrs[key]
+end

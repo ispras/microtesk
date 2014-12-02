@@ -313,7 +313,7 @@ class Template
 
   def types(&contents)
     puts "Defining data types..."
-    # TemplateBuilder.instance_eval &contents
+    TemplateBuilder.instance_eval &contents
   end
 
   def data(attributes, &contents)
@@ -348,20 +348,6 @@ class Template
 
     engine.process @template
   end
-  
-private
-
-  def get_attribute(attrs, key)
-    if !attrs.is_a?(Hash)
-      raise MTRubyError, "#{attrs} mush be a Hash!" 
-    end
-
-    if !attrs.has_key?(key)
-      raise MTRubyError, "The :#{key} attribute is not specified."
-    end
-
-    attrs[key]
-  end  
 
 end # Template
 
