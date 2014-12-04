@@ -67,6 +67,7 @@ startRule
 bufferOrAddress
     : address
     | buffer
+    | memory
     ;
 
 //==================================================================================================
@@ -80,6 +81,7 @@ address
 
 addressParameter
     : width
+    | segment
     | format
     ;
 
@@ -87,6 +89,12 @@ addressParameter
 
 width
     : MMU_WIDTH! ASSIGN! expr
+    ;
+
+//--------------------------------------------------------------------------------------------------
+
+segment
+    : MMU_SEGMENT! segmentID=ID ASSIGN! LEFT_PARENTH! expr COMA! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
@@ -122,7 +130,7 @@ sets
 //--------------------------------------------------------------------------------------------------
 
 format
-    : MMU_FORMAT^ ASSIGN! LEFT_PARENTH!
+    : MMU_FORMAT^ (formatID=ID)? ASSIGN! LEFT_PARENTH!
         field (COMA! field)*
       RIGHT_PARENTH!
     ;

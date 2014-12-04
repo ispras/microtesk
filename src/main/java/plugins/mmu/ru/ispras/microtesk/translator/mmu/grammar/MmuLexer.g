@@ -46,6 +46,7 @@ package ru.ispras.microtesk.translator.mmu.grammar;
 
 MMU_ADDRESS : 'address';
 MMU_WIDTH   : 'width';
+MMU_SEGMENT : 'segment';
 
 MMU_BUFFER  : 'buffer';
 MMU_WAYS    : 'ways';
