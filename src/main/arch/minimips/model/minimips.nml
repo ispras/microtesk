@@ -23,12 +23,10 @@ let PC = "CIA"
 
 type   BYTE = card(8)
 type   WORD = int(32)
-type   SHORT = int(32)
-type  INDEX = card(5) //only 5 bits for address are required
-type    BIT = card(1)
-type   JUMP_ADDR_TYPE = card(32)
-type   INSTRUCTION_OFFSET_TYPE = card(14)
-type   DATA_OFFSET_TYPE = card(32)
+type   SHORT = int(16)
+type   INDEX = card(5) //only 5 bits for address are required
+type   BIT = card(1)
+type   JUMP_ADDR_TYPE = card(26)
 
 /////////////////////REGISTERS AND MEMORY//////////////////////////////////////////
 
@@ -55,8 +53,10 @@ mode COP0 (i : INDEX) = coproc_reg[i]
 var JMPADDR[WORD] // Jump address
 var BRANCH[BIT]   //branch flag
 var temp[card(33)]
+var temp_jump[card(28)]
 var mult_result[int(64)]
 var mult_result_unsigned[card(64)]
+var cia_copy[WORD]
 
 ///////////////////////////////////INSTRUCTION SET//////////////////////////////////
 
@@ -79,7 +79,8 @@ op addi (rt: REG, rs: REG, immed: SHORT)
   syntax = format("addi %s, %s, %d", rt.syntax, rs.syntax, immed)
   image = format("000000%s%s%d", rs.image, rt.image, immed)
   action = {
-    temp = rs<31>::rs + immed<31>::immed; // concat with greatest significant bits in each, then add
+    temp = coerce(WORD, immed);
+    temp = rs<31>::rs + temp<31>::temp; // concat with greatest significant bits in each, then add
     if temp<32> != temp<31> then             // true, if adding led to carrying into the concatenated bit (overflow happened)
       exception("IntegerOverflow");
     else
@@ -474,8 +475,9 @@ op j (addr: JUMP_ADDR_TYPE)
   syntax = format("j %d", addr)
   image = format("000010%d", addr)
   action = {
-    BRANCH = 1;
-    JMPADDR = coerce(WORD, addr);
+    cia_copy = CIA + 4;                                                                    //is it correct?
+    temp_jump = coerce(card(28), addr) << 2;
+    JMPADDR = CIA<31..28>::addr;
   }
 
 op jr (addr: REG)
@@ -491,10 +493,9 @@ op jal (addr: card(26))
   image = format("000011%d", addr)
   action = {
     GPR[31] = CIA + 4 + 4;
-    CIA = CIA + 4;                                                                    //is it correct?
-    addr = addr << 2;
-    JMPADDR = CIA<31..28>::addr<25..0> << 2;
-    CIA = CIA - 4;
+    cia_copy = CIA + 4;                                                                    //is it correct?
+    temp_jump = coerce(card(28), addr) << 2;
+    JMPADDR = CIA<31..28>::addr;
   }
 
 op jalr (rd: REG, rs: REG)
