@@ -94,7 +94,7 @@ width
 //--------------------------------------------------------------------------------------------------
 
 segment
-    : MMU_SEGMENT! segmentID=ID ASSIGN! LEFT_PARENTH! expr COMA! expr RIGHT_PARENTH!
+    : MMU_SEGMENT! (segmentID=ID)? ASSIGN! LEFT_PARENTH! expr COMA! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
