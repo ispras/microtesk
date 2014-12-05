@@ -31,12 +31,12 @@ class EuclidTemplate < MinimipsBaseTemplate
   def pre
     super
 
-    data(:text => '.data', :align => '2') {
+    data(:text => '.data', :align => '2', :mem => 'M') {
       label :data1
       word 1, 2, 3, 4
     
       label :data2 
-      halfword 0xDEAD, 0xBEEF
+      half 0xDEAD, 0xBEEF
     
       label :hello
       ascii  "Hello" 
