@@ -33,7 +33,7 @@ public final class MemoryStorage {
   public static final int MAX_BLOCK_BIT_SIZE = 4096 * 8;
 
   private final String id;
-  private final boolean isReadOnly;
+  private boolean isReadOnly;
 
   private final int regionCount;
   private final int regionBitSize;
@@ -114,16 +114,16 @@ public final class MemoryStorage {
     return blocks.get(blockIndex);
   }
 
-  public MemoryStorage(int regionCount, int regionBitSize, boolean isReadOnly) {
-    this (null, regionCount, regionBitSize, isReadOnly);
+  public MemoryStorage(int regionCount, int regionBitSize) {
+    this (null, regionCount, regionBitSize);
   }
 
-  public MemoryStorage(String id, int regionCount, int regionBitSize, boolean isReadOnly) {
+  public MemoryStorage(String id, int regionCount, int regionBitSize) {
     checkGreaterThanZero(regionCount);
     checkGreaterThanZero(regionBitSize);
 
     this.id = id;
-    this.isReadOnly = isReadOnly;
+    this.isReadOnly = false;
 
     this.regionCount = regionCount;
     this.regionBitSize = regionBitSize;
@@ -159,6 +159,10 @@ public final class MemoryStorage {
 
   public boolean isReadOnly() {
     return isReadOnly;
+  }
+
+  public void setReadOnly(boolean isReadOnly) {
+    this.isReadOnly = isReadOnly;
   }
 
   public int getRegionCount() {

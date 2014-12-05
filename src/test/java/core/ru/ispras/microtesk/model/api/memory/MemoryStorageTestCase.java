@@ -47,7 +47,7 @@ public final class MemoryStorageTestCase {
   private void test(int regionCount, int regionBitSize) {
     System.out.printf("%nTest: region count = %d, region bit size = %d%n", regionCount, regionBitSize);
 
-    final MemoryStorage ms = new MemoryStorage(regionCount, regionBitSize, false);
+    final MemoryStorage ms = new MemoryStorage(regionCount, regionBitSize);
     
     final int maxBlockBitSize = 
         MemoryStorage.MAX_BLOCK_BIT_SIZE - (MemoryStorage.MAX_BLOCK_BIT_SIZE % regionBitSize);

@@ -138,7 +138,7 @@ final class MemoryDirect extends Memory {
 
   MemoryDirect(Kind kind, String name, Type type, int length) {
     super(kind, name, type, length, false);
-    this.storage = new MemoryStorage(name, length, type.getBitSize(), false);
+    this.storage = new MemoryStorage(name, length, type.getBitSize());
   }
 
   @Override
