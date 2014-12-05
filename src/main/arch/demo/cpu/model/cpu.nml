@@ -24,8 +24,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Constants
 
-let    MEM_SIZE = 2 ** 8 // Memory size, 2 to the power of 8
-let  REG_NUMBER = 16     // Number of general-purpose registers
+let   MEM_SIZE = 2 ** 8 // Memory size, 2 to the power of 8
+let REG_NUMBER = 16     // Number of general-purpose registers
 
 ////////////////////////////////////////////////////////////////////////////////
 // Types
