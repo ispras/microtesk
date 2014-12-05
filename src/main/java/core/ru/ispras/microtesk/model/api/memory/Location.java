@@ -85,7 +85,7 @@ public final class Location implements LocationAccessor {
     final Type type = data.getType();
     final int bitSize = type.getBitSize();
 
-    final MemoryStorage storage = new MemoryStorage(STORAGE_ID, 1, bitSize);
+    final MemoryStorage storage = new MemoryStorage(STORAGE_ID, 1, bitSize, true);
     storage.write(0, data.getRawData());
 
     final Source source = new Source(storage, 0, bitSize, 0);

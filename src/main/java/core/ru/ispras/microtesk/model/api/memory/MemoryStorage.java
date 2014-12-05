@@ -33,6 +33,7 @@ public final class MemoryStorage {
   public static final int MAX_BLOCK_BIT_SIZE = 4096 * 8;
 
   private final String id;
+  private final boolean isReadOnly;
 
   private final int regionCount;
   private final int regionBitSize;
@@ -113,15 +114,16 @@ public final class MemoryStorage {
     return blocks.get(blockIndex);
   }
 
-  public MemoryStorage(int regionCount, int regionBitSize) {
-    this (null, regionCount, regionBitSize);
+  public MemoryStorage(int regionCount, int regionBitSize, boolean isReadOnly) {
+    this (null, regionCount, regionBitSize, isReadOnly);
   }
 
-  public MemoryStorage(String id, final int regionCount, final int regionBitSize) {
+  public MemoryStorage(String id, int regionCount, int regionBitSize, boolean isReadOnly) {
     checkGreaterThanZero(regionCount);
     checkGreaterThanZero(regionBitSize);
 
-    this.id = id; 
+    this.id = id;
+    this.isReadOnly = isReadOnly;
 
     this.regionCount = regionCount;
     this.regionBitSize = regionBitSize;
@@ -155,6 +157,10 @@ public final class MemoryStorage {
     return id;
   }
 
+  public boolean isReadOnly() {
+    return isReadOnly;
+  }
+
   public int getRegionCount() {
     return regionCount;
   }
@@ -173,9 +179,13 @@ public final class MemoryStorage {
   }
 
   public void write(int regionIndex, BitVector data) {
-    checkBounds(regionIndex, regionCount);
+    if (isReadOnly) {
+      return;
+    }
 
+    checkBounds(regionIndex, regionCount);
     checkNotNull(data);
+
     if (data.getBitSize() != regionBitSize) {
       throw new IllegalArgumentException();
     }

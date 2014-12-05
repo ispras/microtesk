@@ -34,16 +34,16 @@ class EuclidTemplate < MinimipsBaseTemplate
     data(:text => '.data', :align => '2', :mem => 'M') {
       label :data1
       word 1, 2, 3, 4
-    
+
       label :data2 
       half 0xDEAD, 0xBEEF
-    
+
       label :hello
       ascii  "Hello" 
-    
+
       label :world
       asciiz "World" 
-    
+
       space 8
     }
   end
