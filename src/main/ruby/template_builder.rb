@@ -59,12 +59,8 @@ def self.define_string(attrs)
   # TODO
 end
 
-def card(x)
-  # Temporary stub
-end
-
-def int(x)
-  # Temporary stub 
+def type(*args)
+  # TODO
 end
 
 private
