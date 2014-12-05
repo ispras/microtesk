@@ -58,7 +58,7 @@ mode COP0 (i : INDEX) = COP0_R[i]
 var JMPADDR[WORD] // Jump address
 var BRANCH[BIT]   //branch flag
 
-var temp[card(33)]
+var temp[int(33)]
 var temp_jump[card(28)]
 var mult_result[int(64)]
 var mult_result_unsigned[card(64)]
@@ -88,11 +88,10 @@ op addi (rt: REG, rs: REG, immed: SHORT)
   syntax = format("addi %s, %s, %d", rt.syntax, rs.syntax, immed)
   image = format("000000%s%s%d", rs.image, rt.image, immed)
   action = {
-    temp = coerce(WORD, immed);
     // concat with greatest significant bits in each, then add
-    temp = rs<31>::rs + temp<31>::temp; 
+    temp = rs<31>::rs + coerce(int(33), immed); 
     // true, if adding led to carrying into the concatenated bit (overflow happened)
-    if temp<32> != temp<31> then             
+    if temp<32> != temp<31> then
       exception("IntegerOverflow");
     else
       rt = temp<31..0>;
@@ -498,7 +497,7 @@ op j (addr: JUMP_IMMED)
   action = {
     cia_copy = CIA + 4;                                                                    //is it correct?
     temp_jump = coerce(card(28), addr) << 2;
-    JMPADDR = CIA<31..28>::addr;
+    JMPADDR = CIA<31..28>::temp_jump;
   }
 
 op jr (addr: REG)
@@ -516,7 +515,7 @@ op jal (addr: JUMP_IMMED)
     GPR[31] = CIA + 4 + 4;
     cia_copy = CIA + 4;                                                                    //is it correct?
     temp_jump = coerce(card(28), addr) << 2;
-    JMPADDR = CIA<31..28>::addr;
+    JMPADDR = CIA<31..28>::temp_jump;
   }
 
 op jalr (rd: REG, rs: REG)
