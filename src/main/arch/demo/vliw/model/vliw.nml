@@ -44,11 +44,11 @@ type COND_CODE = card(3)
 ////////////////////////////////////////////////////////////////////////////////
 // Registers and Memory
 
-reg GPR [2 ** REG_INDEX_SIZE, LONG]
-reg FPR [2 ** REG_INDEX_SIZE, SINGLE]
-mem   M [2 ** 31, BYTE]
+reg GPR[2 ** REG_INDEX_SIZE, LONG]
+reg FPR[2 ** REG_INDEX_SIZE, SINGLE]
+mem   M[2 ** 31, BYTE]
 
-reg CIA[WORD] // Current instruction address
+reg  CIA[WORD] // Current instruction address
 reg FCCR[1, LONG] // FP Condition Codes register
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -232,14 +232,20 @@ op LW (base : R, rt : R, offset : SHORT)
   syntax = format("LW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("100011%s%s%s", base.image, rt.image, offset)
   action = {
-    rt = M[base + offset + 3]::M[base + offset + 2]::M[base + offset + 1]::M[base + offset];
+    rt = M[base + offset + 3]
+       ::M[base + offset + 2]
+       ::M[base + offset + 1]
+       ::M[base + offset];
   }
 
 op SW (base : R, rt : R, offset : SHORT)
   syntax = format("SW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("101011%s%s%s", base.image, rt.image, offset)
   action = {
-    M[base + offset + 3]::M[base + offset + 2]::M[base + offset + 1]::M[base + offset] = rt;
+    M[base + offset + 3]::
+    M[base + offset + 2]::
+    M[base + offset + 1]::
+    M[base + offset] = rt;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
