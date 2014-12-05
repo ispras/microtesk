@@ -14,61 +14,70 @@
  * the License.
  */
 
-//////////////////////////////////CONSTANTS/////////////////////////////////////////
+//////////////////////////////////CONSTANTS////////////////////////////////////
 
 let REGISTER_INDEX_SIZE = 5
 let PC = "CIA"
 
-//////////////////////////////////TYPES/////////////////////////////////////////////
+//!!!!!!!!!!!!!!!!!!!!!!!!!!
+///formatting
+//labels
+///s
+
+//////////////////////////////////TYPES////////////////////////////////////////
 
 type   BYTE = card(8)
 type   WORD = int(32)
 type   SHORT = int(16)
 type   INDEX = card(5) //only 5 bits for address are required
 type   BIT = card(1)
-type   JUMP_ADDR_TYPE = card(26)
+type   JUMP_IMMED = card(26)
 
-/////////////////////REGISTERS AND MEMORY//////////////////////////////////////////
+/////////////////////REGISTERS AND MEMORY//////////////////////////////////////
 
 reg GPR [32, WORD]
-reg coproc_reg[32, WORD]
-reg HI [1, WORD]
-reg LO [1, WORD]
+reg COP0_R[32, WORD]
+reg HI [WORD]
+reg LO [WORD]
 mem   M [2 ** 8, WORD] //32-bit 
 reg CIA[WORD] //Program counter
 
 
-/////////////////////////ADDRESSING MODES///////////////////////////////////////////
+/////////////////////////ADDRESSING MODES//////////////////////////////////////
 
 mode REG (i : INDEX) = GPR[i] 
   syntax = format("$%d", i)
   image  = format("%5b", i) //maybe 2 bits are redundant?
 
-mode COP0 (i : INDEX) = coproc_reg[i] 
+mode COP0 (i : INDEX) = COP0_R[i] 
    syntax = format("$%d", i) //----------------is it correct?                                                                  
    image  = format("%5b", i)
 
-//////////////////////////VARIABLES/////////////////////////////////////////////////
+//////////////////////////VARIABLES////////////////////////////////////////////
 
 var JMPADDR[WORD] // Jump address
 var BRANCH[BIT]   //branch flag
+
 var temp[card(33)]
 var temp_jump[card(28)]
 var mult_result[int(64)]
 var mult_result_unsigned[card(64)]
 var cia_copy[WORD]
 
-///////////////////////////////////INSTRUCTION SET//////////////////////////////////
+///////////////////////////////////INSTRUCTION SET/////////////////////////////
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ARITHMETIC
+///////////////////////////////////////////////////////////////////////////////
+////ARITHMETIC
 
 
 op add (rd: REG, rs: REG, rt: REG)
   syntax = format("add %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image)
   action = {
-    temp = rs<31>::rs + rt<31>::rt; // concat with greatest significant bits in each, then add
-    if temp<32> != temp<31> then    //true, if adding led to carrying into the concatenated bit (overflow happened)
+  // concat with greatest significant bits in each, then add
+    temp = rs<31>::rs + rt<31>::rt; 
+    //true, if adding led to carrying into the concatenated bit (overflow happened)
+    if temp<32> != temp<31> then    
       exception("IntegerOverflow");
     else
       rd = temp<31..0>;
@@ -80,8 +89,10 @@ op addi (rt: REG, rs: REG, immed: SHORT)
   image = format("000000%s%s%d", rs.image, rt.image, immed)
   action = {
     temp = coerce(WORD, immed);
-    temp = rs<31>::rs + temp<31>::temp; // concat with greatest significant bits in each, then add
-    if temp<32> != temp<31> then             // true, if adding led to carrying into the concatenated bit (overflow happened)
+    // concat with greatest significant bits in each, then add
+    temp = rs<31>::rs + temp<31>::temp; 
+    // true, if adding led to carrying into the concatenated bit (overflow happened)
+    if temp<32> != temp<31> then             
       exception("IntegerOverflow");
     else
       rt = temp<31..0>;
@@ -151,7 +162,8 @@ op multu (rs: REG, rt: REG)
   }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////LOGICAL
+///////////////////////////////////////////////////////////////////////////////
+///////LOGICAL
 
 
 op and (rd: REG, rs: REG, rt: REG)
@@ -203,7 +215,8 @@ op xori (rt: REG, rs: REG, immed: SHORT)
   }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////SHIFTS
+///////////////////////////////////////////////////////////////////////////////
+//////SHIFTS
 
 
 op sll (rd: REG, rt: REG, sa: card(5))
@@ -250,7 +263,8 @@ op srlv (rd: REG, rt: REG, rs: REG)
    rd = coerce(card(32), rt) >> rs<4..0>;
   }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////MEMORY OPERATIONS
+///////////////////////////////////////////////////////////////////////////////
+///MEMORY OPERATIONS
 
 
 op lw (rt: REG, offset: SHORT , address: REG)
@@ -258,7 +272,8 @@ op lw (rt: REG, offset: SHORT , address: REG)
   image = format("100011%s%s%d", address.image, rt.image, offset)
   action = {
      
-    rt = M[address + offset];
+    //----------!!!!!!!!!!!!!!!!!!!!
+    rt = M[(address + offset) >> 2];
   }
 
 op lui (rt: REG, immed:SHORT)
@@ -274,7 +289,8 @@ op sw (rd: REG, offset: SHORT, address: REG)
   image = format("101011%s%s%d", address.image, rd.image, offset)
   action = {
 
-    M[address + offset] = rd;
+    
+    M[(address + offset) >> 2] = rd;
   }
 
 op mfhi (rd: REG)
@@ -309,36 +325,40 @@ op mtlo (rs: REG)
     LO[0] = rs;
   }
 
-op swc0 (cs: COP0, offset: SHORT, address: REG)                          //initial implementation (to be reworked)
+
+op swc0 (cs: COP0, offset: SHORT, address: REG)  
   syntax = format("swc0 %s, %d(%s)", cs.syntax, offset, address.syntax)
   image = format("111000%s%s%d", address.image, cs.image, offset)
   action = {
-    M[address + offset] = cs;
+    M[(address + offset) >> 2] = cs;
   }
 
-op lwc0 (cs: COP0, offset: SHORT, address: REG)                          //initial implementation (to be reworked)
+//-----------------------initial implementation (to be reworked)
+op lwc0 (cs: COP0, offset: SHORT, address: REG)                          
   syntax = format("lwc0 %s, %d(%s)", cs.syntax, offset, address.syntax)
   image = format("110000%s%s%d", address.image, cs.image, offset)
   action = {
-    cs = M[address + offset];
+    cs = M[(address + offset) >> 2];
   }
 
-
-op mfc0 (rt: REG, cs: COP0) //move from coprocessor                      //initial implementation (to be reworked) 
+//-----------------------initial implementation (to be reworked)
+op mfc0 (rt: REG, cs: COP0) //move from coprocessor                      
   syntax = format("mfc0 %s, %s", rt.syntax, cs.syntax)
   image = format("01000000000%s%s00000000000", rt.image, cs.image)
   action = {
     rt = cs;
   }
 
-op mtc0 (rt: REG, cs: COP0) //move from coprocessor                      //initial implementation (to be reworked) 
+//-----------------------initial implementation (to be reworked)
+op mtc0 (rt: REG, cs: COP0) //move from coprocessor                      
   syntax = format("mtc0 %s, %s", rt.syntax, cs.syntax)
   image = format("01000000100%s%s00000000000", rt.image, cs.image)
   action = {
     cs = rt;
   }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////BRANCHING
+///////////////////////////////////////////////////////////////////////////////
+/////BRANCHING
 
 
 op beq (rt: REG, rs: REG, immed: SHORT)
@@ -468,10 +488,11 @@ op sltu (rd: REG, rs: REG, rt: REG)
   }
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////JUMPS
+///////////////////////////////////////////////////////////////////////////////
+//////JUMPS
 
 
-op j (addr: JUMP_ADDR_TYPE)
+op j (addr: JUMP_IMMED)
   syntax = format("j %d", addr)
   image = format("000010%d", addr)
   action = {
@@ -488,7 +509,7 @@ op jr (addr: REG)
     JMPADDR = addr;
   }
 
-op jal (addr: card(26))
+op jal (addr: JUMP_IMMED)
   syntax = format("jal %d", addr)
   image = format("000011%d", addr)
   action = {
@@ -507,11 +528,12 @@ op jalr (rd: REG, rs: REG)
   }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////OTHER
+///////////////////////////////////////////////////////////////////////////////
+///////////OTHER
 
-op syscall ()                                                                          //add code insertion!!!
+op syscall ()                                                                          
   syntax = format("syscall")                                                           
-  image = format("0000000000000000000000000001100")                                    //"000000"::code::"001100"
+  image = format("0000000000000000000000000001100")                                    
   action = {
     exception("SystemCall");
   }
@@ -524,14 +546,14 @@ op cop0 (cop_fun: card(21))
   }
 
 op mips_break ()
-  syntax = format("break")                                                           //add code insertion!!!
-  image = format("00000000000000000000000000001101")                         //"000000"::code::"001101"
+  syntax = format("break")                                                           
+  image = format("00000000000000000000000000001101")                         
   action = {
     exception("Breakpoint");
   }
 
 
-//////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 op Operations =  add   
                 |addi  
