@@ -32,7 +32,7 @@ import ru.ispras.microtesk.model.api.type.Type;
 public final class MemoryAllocator {
   private final MemoryStorage memory;
 
-  private final int addressableBitSize;
+  private final int addressableUnitBitSize;
   private final int addressableUnitsInRegion;
 
   private int currentAddress; // in addressable units
@@ -63,7 +63,7 @@ public final class MemoryAllocator {
     }
 
     this.memory = memory;
-    this.addressableBitSize = addressableBitSize;
+    this.addressableUnitBitSize = addressableBitSize;
     this.addressableUnitsInRegion = regionBitSize / addressableBitSize;
 
     this.currentAddress = 0;
@@ -84,7 +84,7 @@ public final class MemoryAllocator {
    */
 
   public int getAddressableUnitBitSize() {
-    return addressableBitSize;
+    return addressableUnitBitSize;
   }
 
   /**
@@ -105,6 +105,28 @@ public final class MemoryAllocator {
     return addressableUnitsInRegion;
   }
 
+  /**
+   * Allocates memory in the memory storage to hold the specified data and
+   * returns its address (in addressable units). The data is aligned in
+   * the memory by its size (in addressable units). Space between allocations
+   * is filled with zeros. 
+   * 
+   * @param data Data to be stored in the memory storage.
+   * @return Address of the allocated memory (in addressable units).
+   */
+
+  public int allocate(BitVector data) {
+    checkNotNull(data);
+
+    final int sizeInAddressableUnits = bitsToAddressableUnits(data.getBitSize());
+    final int allocatedAddress = alignAddress(currentAddress, sizeInAddressableUnits);
+
+    currentAddress = allocatedAddress + sizeInAddressableUnits;
+    writeToMemory(data, allocatedAddress, sizeInAddressableUnits);
+
+    return allocatedAddress;
+  }
+
   public int allocateData(Type type, BigInteger data) {
     checkNotNull(type);
     checkNotNull(data);
@@ -112,7 +134,7 @@ public final class MemoryAllocator {
     final BitVector value = 
         BitVector.valueOf(data.toByteArray(), type.getBitSize());
 
-    return allocateNext(value);
+    return allocate(value);
   }
 
   public int allocateSpace(Type type, int count, int fillWith) {
@@ -124,7 +146,7 @@ public final class MemoryAllocator {
 
     int address = 0;
     for(int index = 0; index < count; ++index) {
-      final int allocatedAddress = allocateNext(value);
+      final int allocatedAddress = allocate(value);
       if (0 == index) {
         address = allocatedAddress;
       }
@@ -140,31 +162,16 @@ public final class MemoryAllocator {
     return allocateAcsiiString(asciiString);
   }
   
-  public int allocateNext(BitVector value) {
-    checkNotNull(value);
-    
-    final int sizeInAddressableUnits =
-        bitsToAddressableUnits(value.getBitSize());
-    
-    final int allocatedAddress = 
-        alignAddress(currentAddress, sizeInAddressableUnits);
-
-    writeToMemory(value, allocatedAddress, sizeInAddressableUnits);
-    currentAddress = allocatedAddress + sizeInAddressableUnits;
-
-    return allocatedAddress;
-  }
-
   @Override
   public String toString() {
     return String.format(
-        "MemoryAllocator [memory=%s, addressableBitSize=%d, addressableUnitsInRegion=%d]",
-        memory, addressableBitSize, addressableUnitsInRegion);
+        "MemoryAllocator [memory=%s, addressableUnitBitSize=%d, addressableUnitsInRegion=%d]",
+        memory, addressableUnitBitSize, addressableUnitsInRegion);
   }
 
   private void writeToMemory(BitVector value, int address, int sizeInUnits) {
     int regionIndex = address / addressableUnitsInRegion;
-    int bitOffset = (address % addressableUnitsInRegion) * addressableBitSize;
+    int bitOffset = (address % addressableUnitsInRegion) * addressableUnitBitSize;
 
     final int bitSize = value.getBitSize();
     int bitPosition = 0;
@@ -198,12 +205,12 @@ public final class MemoryAllocator {
     int startBitPos = 0;
     for (int index = 0; index < sizeInAddressableUnits; ++index) {
       final int bitSize = 
-          Math.min(asciiString.getBitSize() - startBitPos, addressableBitSize); 
+          Math.min(asciiString.getBitSize() - startBitPos, addressableUnitBitSize); 
 
       final BitVector value = BitVector.newMapping(asciiString, startBitPos, bitSize);
       startBitPos += bitSize;
 
-      final int allocatedAddress = allocateNext(value);
+      final int allocatedAddress = allocate(value);
       if (index == 0) {
         address = allocatedAddress;
       }
@@ -227,7 +234,7 @@ public final class MemoryAllocator {
   }
 
   private int bitsToAddressableUnits(int bitSize) {
-    return (bitSize / addressableBitSize) + bitSize % addressableBitSize == 0 ? 0 : 1;
+    return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
   }
 
   private static int alignAddress(int address, int alignment) {

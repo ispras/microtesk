@@ -41,6 +41,12 @@ public class MemoryAllocatorTestCase {
     assertEquals(allocator.getRegionBitSize(), REGION_SIZE);
     assertEquals(allocator.getAddressableUnitsInRegion(), 4);
 
+    int address = 0;
+
+    // Check correct allocation/alignment
+    address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32));
+    assertEquals(address, 0);
+
     int a1 = allocator.allocateData(Type.INT(32), BigInteger.valueOf(1));
     allocator.allocateData(Type.INT(32), BigInteger.valueOf(0xFFFFFFFF));
 
