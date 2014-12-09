@@ -127,6 +127,26 @@ public final class MemoryAllocator {
     return allocatedAddress;
   }
 
+  /**
+   * Returns the minimal number of addressable units required to store data of
+   * the specified size (in bits). 
+   * 
+   * @param bitSize Size in bits.
+   * @return Size in addressable units.
+   * 
+   * @throws IllegalArgumentException if the {@code bitSize} argument is 0 or negative.
+   */
+
+  int bitsToAddressableUnits(int bitSize) {
+    checkGreaterThanZero(bitSize);
+    return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
+  }
+
+  /* TODO: Description + Unit tests */
+  static int alignAddress(int address, int alignment) {
+    return address % alignment == 0 ? address : address + (alignment - address % alignment);
+  }
+
   public int allocateData(Type type, BigInteger data) {
     checkNotNull(type);
     checkNotNull(data);
@@ -231,13 +251,5 @@ public final class MemoryAllocator {
         (stringBytes.length + (zeroTerm ? 1 : 0)) * BitVector.BITS_IN_BYTE;
 
     return BitVector.valueOf(stringBytes, bitSize);
-  }
-
-  private int bitsToAddressableUnits(int bitSize) {
-    return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
-  }
-
-  private static int alignAddress(int address, int alignment) {
-    return address % alignment == 0 ? address : address + alignment;
   }
 }

@@ -20,6 +20,8 @@ import java.math.BigInteger;
 
 import org.junit.Test;
 
+import com.sun.org.apache.bcel.internal.generic.AllocationInstruction;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -40,6 +42,16 @@ public class MemoryAllocatorTestCase {
     assertEquals(allocator.getAddressableUnitBitSize(), ADDRESSABLE_UNIT_SIZE);
     assertEquals(allocator.getRegionBitSize(), REGION_SIZE);
     assertEquals(allocator.getAddressableUnitsInRegion(), 4);
+    
+    // Check package-private helper routines
+
+    // Check bitsToAddressableUnits
+    assertEquals(1, allocator.bitsToAddressableUnits(1));
+    assertEquals(1, allocator.bitsToAddressableUnits(8));
+    assertEquals(2, allocator.bitsToAddressableUnits(9));
+    assertEquals(4, allocator.bitsToAddressableUnits(31));
+    assertEquals(4, allocator.bitsToAddressableUnits(32));
+    assertEquals(5, allocator.bitsToAddressableUnits(35));
 
     int address = 0;
 
