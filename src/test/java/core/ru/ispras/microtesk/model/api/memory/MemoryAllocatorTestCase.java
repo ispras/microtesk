@@ -47,13 +47,12 @@ public class MemoryAllocatorTestCase {
     address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32));
     assertEquals(address, 0);
 
-    int a1 = allocator.allocateData(Type.INT(32), BigInteger.valueOf(1));
+    address = allocator.allocate(BitVector.valueOf(0xF0F0F0F, 32));
+    assertEquals(address, 4);
+
+    allocator.allocateData(Type.INT(32), BigInteger.valueOf(1));
     allocator.allocateData(Type.INT(32), BigInteger.valueOf(0xFFFFFFFF));
-
-    System.out.println("Address1: " + a1);
-
-    int a2 = allocator.allocateSpace(Type.CARD(8), 3, 0xFF);
-    System.out.println("Address2: " + a2);
+    allocator.allocateSpace(Type.CARD(8), 3, 0xFF);
     
     allocator.allocateAsciiString("TEST", true);
 
