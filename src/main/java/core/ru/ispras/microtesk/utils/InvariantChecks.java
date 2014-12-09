@@ -38,6 +38,13 @@ public final class InvariantChecks {
     }
   }
 
+  public static void checkGreaterOrEqZero(int n) {
+    if (n < 0) {
+      throw new IllegalArgumentException(
+          String.format("%d must be >= 0", n));      
+    }
+  }
+
   public static void checkBounds(int index, int length) {
     if (!(0 <= index && index < length)) {
       throw new IndexOutOfBoundsException(String.format(

@@ -15,41 +15,25 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.utils.InvariantChecks.checkBounds;
 import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
-/**
- * Minimum alignment = 1 byte (8 bits)
- * Maximum align is specified by user.
- * 
- * @author andrewt
- */
-
 public final class MemoryAllocator {
   private final MemoryStorage memory;
 
-  private final int baseRegionIndex;
-  private final int baseOffset; // bits
   private final int addressableSize; // bits
+  private final int addressableUnitsInRegion;
 
-  private int currentAddress;   // bytes
+  private int currentAddress; // addressable units
 
   public MemoryAllocator(MemoryStorage memory, int addressableSize) {
-    this(memory, 0, 0, addressableSize);
-  }
-
-  public MemoryAllocator(
-      MemoryStorage memory, int baseRegionIndex, int baseOffset, int addressableSize) {
     checkNotNull(memory);
-
-    checkBounds(baseRegionIndex, memory.getRegionCount());
-    checkBounds(baseOffset, memory.getRegionBitSize());
 
     checkGreaterThanZero(addressableSize);
     if (memory.getRegionBitSize() % addressableSize != 0) {
@@ -59,10 +43,9 @@ public final class MemoryAllocator {
     }
 
     this.memory = memory;
-    this.baseRegionIndex = baseRegionIndex;
-    this.baseOffset = baseOffset;
-
     this.addressableSize = addressableSize;
+    this.addressableUnitsInRegion = memory.getRegionBitSize() / addressableSize;
+
     this.currentAddress = 0;
   }
 
@@ -129,24 +112,87 @@ public final class MemoryAllocator {
   }
 
   private int allocateNext(BitVector value) {
-    return 0;
+    final int sizeInAddressableUnits =
+        bitsToAddressableUnits(value.getBitSize());
+
+    final int allocatedAddress = 
+        alignAddress(currentAddress, sizeInAddressableUnits);
+
+    writeToMemory(value, allocatedAddress, sizeInAddressableUnits);
+    currentAddress = allocatedAddress + sizeInAddressableUnits;
+
+    return allocatedAddress;
+  }
+
+  private void writeToMemory(BitVector value, int address, int sizeInUnits) {
+    int regionIndex = address / addressableUnitsInRegion;
+    int bitOffset = (address % addressableUnitsInRegion) * addressableSize;
+
+    final int bitSize = value.getBitSize();
+    int bitPosition = 0;
+    while (bitPosition < bitSize) {
+      final int bitsToWrite = Math.min(bitSize, memory.getRegionBitSize() - bitOffset);
+      final BitVector sourceData = BitVector.newMapping(value, bitPosition, bitsToWrite);
+      
+      final BitVector dataToWrite;
+      if (bitsToWrite == memory.getRegionBitSize()) {
+        dataToWrite = sourceData;
+      } else {
+        final BitVector dataToMerge = memory.read(regionIndex);
+        dataToWrite = dataToMerge.copy();
+        final BitVector mapping = BitVector.newMapping(dataToWrite, bitOffset, bitsToWrite);
+        mapping.assign(sourceData);
+      }
+
+      memory.write(regionIndex, dataToWrite);
+      bitPosition += bitsToWrite;
+
+      regionIndex++;
+      bitOffset = 0;
+    }
   }
 
   private int allocateAcsiiString(BitVector asciiString) {
-    // TODO Auto-generated method stub
-    return 0;
+    final int sizeInAddressableUnits = 
+        bitsToAddressableUnits(asciiString.getBitSize());
+
+    int address = 0;
+    int startBitPos = 0;
+    for (int index = 0; index < sizeInAddressableUnits; ++index) {
+      final int bitSize = 
+          Math.min(asciiString.getBitSize() - startBitPos, addressableSize); 
+
+      final BitVector value = BitVector.newMapping(asciiString, startBitPos, bitSize);
+      startBitPos += bitSize;
+
+      final int allocatedAddress = allocateNext(value);
+      if (index == 0) {
+        address = allocatedAddress;
+      }
+    }
+
+    return address;
   }
 
   private BitVector toAsciiBinary(String string, boolean zeroTerm) {
-    //final byte[] stringBytes = string.getBytes("US-ASCII");
-    return null;
+    final byte[] stringBytes;
+    try {
+      stringBytes = string.getBytes("US-ASCII");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalArgumentException(e);
+    }
+
+    final int bitSize = 
+        (stringBytes.length + (zeroTerm ? 1 : 0)) * BitVector.BITS_IN_BYTE;
+
+    return BitVector.valueOf(stringBytes, bitSize);
   }
 
-  /*
-  private static int bitsToBytes(int bits) {
-    checkGreaterThanZero(bits);
-    final int quotient = bits / BitVector.BITS_IN_BYTE;
-    return bits % BitVector.BITS_IN_BYTE == 0 ? quotient : quotient + 1; 
+  private int bitsToAddressableUnits(int bitSize) {
+    return bitSize / addressableSize + bitSize % addressableSize == 0 ? 0 : 1;
   }
-  */
+
+  private static int alignAddress(int address, int alignment) {
+    return address % alignment == 0 ? address : address + alignment;
+  }
 }

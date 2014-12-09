@@ -31,7 +31,7 @@ class EuclidTemplate < MinimipsBaseTemplate
   def pre
     super
 
-    data(:text => '.data', :align => '2', :mem => 'M') {
+    data(:text => '.data', :mem => 'M') {
       label :data1
       word 1, 2, 3, 4
 
