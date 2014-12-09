@@ -17,7 +17,6 @@ package ru.ispras.microtesk.model.api.memory;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -25,24 +24,32 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public class MemoryAllocatorTestCase {
-
-  private static final int BITS_IN_BYTE = 8;
+  private static final int ADDRESSABLE_UNIT_SIZE = 8;
+  private static final int REGION_SIZE = 32;
+  private static final int REGION_COUNT = 128;
 
   @Test
   public void test() {
-    assertTrue(true);
-    
-    final MemoryStorage memory = new MemoryStorage(128, 32);
-    final MemoryAllocator allocator = new MemoryAllocator(memory, BITS_IN_BYTE);
+    final MemoryStorage memory = new MemoryStorage(REGION_COUNT, REGION_SIZE);
+    final MemoryAllocator allocator = new MemoryAllocator(memory, ADDRESSABLE_UNIT_SIZE);
 
-    dumpMemory(memory);
-    
-    int a1 = allocator.allocateData(Type.INT(32), Arrays.asList(BigInteger.valueOf(1), BigInteger.valueOf(0xFFFFFFFF)));
+    System.out.println(allocator);
+
+    // Check correct initialization
+    assertEquals(allocator.getCurrentAddress(), 0);
+    assertEquals(allocator.getAddressableUnitBitSize(), ADDRESSABLE_UNIT_SIZE);
+    assertEquals(allocator.getRegionBitSize(), REGION_SIZE);
+    assertEquals(allocator.getAddressableUnitsInRegion(), 4);
+
+    int a1 = allocator.allocateData(Type.INT(32), BigInteger.valueOf(1));
+    allocator.allocateData(Type.INT(32), BigInteger.valueOf(0xFFFFFFFF));
+
     System.out.println("Address1: " + a1);
 
     int a2 = allocator.allocateSpace(Type.CARD(8), 3, 0xFF);
     System.out.println("Address2: " + a2);
     
+    allocator.allocateAsciiString("TEST", true);
 
     dumpMemory(memory);
   }
@@ -54,7 +61,7 @@ public class MemoryAllocatorTestCase {
         System.out.println();
       }
       final BitVector region = memory.read(index);
-      System.out.printf("%03d: %08x ", index, new BigInteger(region.toByteArray()));
+      System.out.printf("%03d: %08x ", index, region.intValue());
     }
     System.out.println();
   }
