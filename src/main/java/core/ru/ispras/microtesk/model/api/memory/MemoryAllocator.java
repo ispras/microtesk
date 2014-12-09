@@ -62,6 +62,7 @@ public final class MemoryAllocator {
     for (BigInteger dataItem : data) {
       final BitVector value = 
           BitVector.valueOf(dataItem.toByteArray(), type.getBitSize());
+      
       final int allocatedAddress = allocateNext(value);
       if (isFirst) {
         address = allocatedAddress;
@@ -72,13 +73,12 @@ public final class MemoryAllocator {
     return address;
   }
 
-  public int allocateSpace(Type type, int count, BigInteger fillWith) {
+  public int allocateSpace(Type type, int count, int fillWith) {
     checkNotNull(type);
     checkNotNull(fillWith);
     checkGreaterThanZero(count);
 
-    final BitVector value = 
-        BitVector.valueOf(fillWith.toByteArray(), type.getBitSize());
+    final BitVector value = BitVector.valueOf(fillWith, type.getBitSize());
 
     int address = 0;
     for(int index = 0; index < count; ++index) {
@@ -114,6 +114,9 @@ public final class MemoryAllocator {
   private int allocateNext(BitVector value) {
     final int sizeInAddressableUnits =
         bitsToAddressableUnits(value.getBitSize());
+    
+    System.out.println(value.getBitSize());
+    System.out.println("sizeInAddressableUnits = " + sizeInAddressableUnits);
 
     final int allocatedAddress = 
         alignAddress(currentAddress, sizeInAddressableUnits);
@@ -125,13 +128,16 @@ public final class MemoryAllocator {
   }
 
   private void writeToMemory(BitVector value, int address, int sizeInUnits) {
+    System.out.println(value);
+    
     int regionIndex = address / addressableUnitsInRegion;
     int bitOffset = (address % addressableUnitsInRegion) * addressableSize;
 
     final int bitSize = value.getBitSize();
     int bitPosition = 0;
     while (bitPosition < bitSize) {
-      final int bitsToWrite = Math.min(bitSize, memory.getRegionBitSize() - bitOffset);
+      final int bitsToWrite = Math.min(bitSize - bitPosition, memory.getRegionBitSize() - bitOffset);
+      System.out.println(bitPosition + " - " + bitSize + " - " + bitsToWrite);
       final BitVector sourceData = BitVector.newMapping(value, bitPosition, bitsToWrite);
       
       final BitVector dataToWrite;
@@ -189,7 +195,10 @@ public final class MemoryAllocator {
   }
 
   private int bitsToAddressableUnits(int bitSize) {
-    return bitSize / addressableSize + bitSize % addressableSize == 0 ? 0 : 1;
+    System.out.println(addressableSize);
+    System.out.printf("|%d - %d|%n", bitSize, addressableSize);
+    
+    return (bitSize / addressableSize) + bitSize % addressableSize == 0 ? 0 : 1;
   }
 
   private static int alignAddress(int address, int alignment) {
