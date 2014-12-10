@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.memory;
 
 import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterOrEqZero;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -142,9 +143,23 @@ public final class MemoryAllocator {
     return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
   }
 
-  /* TODO: Description + Unit tests */
+  /** 
+   * Aligns the specified address by the specified length and returns the resulting 
+   * aligned address.  
+   * 
+   * @param address Address to be aligned.
+   * @param alignment Alignment length.
+   * @return Aligned address.
+   * 
+   * @throws IllegalArgumentException if any of the parameters is negative.
+   */
+
   static int alignAddress(int address, int alignment) {
-    return address % alignment == 0 ? address : address + (alignment - address % alignment);
+    checkGreaterOrEqZero(address);
+    checkGreaterOrEqZero(alignment);
+
+    final int unaligned = address % alignment;
+    return unaligned == 0 ? address : address + (alignment - unaligned);
   }
 
   public int allocateData(Type type, BigInteger data) {

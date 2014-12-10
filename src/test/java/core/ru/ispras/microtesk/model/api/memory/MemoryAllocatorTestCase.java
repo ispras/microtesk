@@ -20,8 +20,6 @@ import java.math.BigInteger;
 
 import org.junit.Test;
 
-import com.sun.org.apache.bcel.internal.generic.AllocationInstruction;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -43,15 +41,9 @@ public class MemoryAllocatorTestCase {
     assertEquals(allocator.getRegionBitSize(), REGION_SIZE);
     assertEquals(allocator.getAddressableUnitsInRegion(), 4);
     
-    // Check package-private helper routines
-
-    // Check bitsToAddressableUnits
-    assertEquals(1, allocator.bitsToAddressableUnits(1));
-    assertEquals(1, allocator.bitsToAddressableUnits(8));
-    assertEquals(2, allocator.bitsToAddressableUnits(9));
-    assertEquals(4, allocator.bitsToAddressableUnits(31));
-    assertEquals(4, allocator.bitsToAddressableUnits(32));
-    assertEquals(5, allocator.bitsToAddressableUnits(35));
+    // Test package-private helper routines
+    testBitsToAddressableUnits(allocator);
+    testAlignAddress();
 
     int address = 0;
 
@@ -69,6 +61,28 @@ public class MemoryAllocatorTestCase {
     allocator.allocateAsciiString("TEST", true);
 
     dumpMemory(memory);
+  }
+
+  private void testAlignAddress() {
+    assertEquals(0, MemoryAllocator.alignAddress(0, 4));
+    assertEquals(4, MemoryAllocator.alignAddress(1, 4));
+    assertEquals(4, MemoryAllocator.alignAddress(2, 4));
+    assertEquals(4, MemoryAllocator.alignAddress(3, 4));
+    assertEquals(4, MemoryAllocator.alignAddress(4, 4));
+    assertEquals(8, MemoryAllocator.alignAddress(5, 4));
+    assertEquals(8, MemoryAllocator.alignAddress(6, 4));
+    assertEquals(256, MemoryAllocator.alignAddress(255, 4));
+    assertEquals(256, MemoryAllocator.alignAddress(256, 4));
+    assertEquals(260, MemoryAllocator.alignAddress(257, 4));
+  }
+
+  private void testBitsToAddressableUnits(MemoryAllocator allocator) {
+    assertEquals(1, allocator.bitsToAddressableUnits(1));
+    assertEquals(1, allocator.bitsToAddressableUnits(8));
+    assertEquals(2, allocator.bitsToAddressableUnits(9));
+    assertEquals(4, allocator.bitsToAddressableUnits(31));
+    assertEquals(4, allocator.bitsToAddressableUnits(32));
+    assertEquals(5, allocator.bitsToAddressableUnits(35));
   }
 
   private static void dumpMemory(MemoryStorage memory) {
