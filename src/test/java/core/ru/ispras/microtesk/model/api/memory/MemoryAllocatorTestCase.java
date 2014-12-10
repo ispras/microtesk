@@ -36,11 +36,11 @@ public class MemoryAllocatorTestCase {
     System.out.println(allocator);
 
     // Check correct initialization
-    assertEquals(allocator.getCurrentAddress(), 0);
-    assertEquals(allocator.getAddressableUnitBitSize(), ADDRESSABLE_UNIT_SIZE);
-    assertEquals(allocator.getRegionBitSize(), REGION_SIZE);
-    assertEquals(allocator.getAddressableUnitsInRegion(), 4);
-    
+    assertEquals(0, allocator.getCurrentAddress());
+    assertEquals(ADDRESSABLE_UNIT_SIZE, allocator.getAddressableUnitBitSize());
+    assertEquals(REGION_SIZE, allocator.getRegionBitSize());
+    assertEquals(4, allocator.getAddressableUnitsInRegion());
+
     // Test package-private helper routines
     testBitsToAddressableUnits(allocator);
     testAlignAddress();
@@ -49,14 +49,26 @@ public class MemoryAllocatorTestCase {
 
     // Check correct allocation/alignment
     address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32));
-    assertEquals(address, 0);
+    assertEquals(0, address);
+    assertEquals(BitVector.valueOf(0xDEADBEEF, 32), memory.read(0));
 
     address = allocator.allocate(BitVector.valueOf(0xF0F0F0F, 32));
-    assertEquals(address, 4);
+    assertEquals(4, address);
+    assertEquals(BitVector.valueOf(0xF0F0F0F, 32), memory.read(1));
+
+    address = allocator.allocate(BitVector.valueOf(0xFF, ADDRESSABLE_UNIT_SIZE), 5);
+    assertEquals(8, address);
+    assertEquals(BitVector.valueOf(0xFFFFFFFF, 32), memory.read(2));
+    assertEquals(BitVector.valueOf(0x000000FF, 32), memory.read(3));
+    
+    address = allocator.allocateAsciiString("TEST", true);
+    assertEquals(13, address);
+    assertEquals(BitVector.valueOf(0x534554ff, 32), memory.read(3));
+    assertEquals(BitVector.valueOf(0x00000054, 32), memory.read(4));
+    
 
     allocator.allocateData(Type.INT(32), BigInteger.valueOf(1));
     allocator.allocateData(Type.INT(32), BigInteger.valueOf(0xFFFFFFFF));
-    allocator.allocateSpace(Type.CARD(8), 3, 0xFF);
     
     allocator.allocateAsciiString("TEST", true);
 

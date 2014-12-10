@@ -22,6 +22,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
+import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm.IOperation;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
@@ -114,6 +116,8 @@ public final class MemoryAllocator {
    * 
    * @param data Data to be stored in the memory storage.
    * @return Address of the allocated memory (in addressable units).
+   * 
+   * @throws NullPointerException if the parameter is {@code null}.
    */
 
   public int allocate(BitVector data) {
@@ -126,6 +130,75 @@ public final class MemoryAllocator {
     writeToMemory(data, allocatedAddress, sizeInAddressableUnits);
 
     return allocatedAddress;
+  }
+ 
+  /**
+   * Allocates memory in the memory storage to hold the specified number of 
+   * the specified data and returns the address (in addressable units) of
+   * the first element. The data is aligned in the memory by its size
+   * (in addressable units). Space between allocations is filled with zeros.
+   * 
+   * @param data Data to be placed in the memory storage.
+   * @param count Number of copies to be placed in the memory storage.
+   * @return Address of the allocated memory (in addressable units)
+   * 
+   * @throws NullPointerException if the parameter is {@code null}.
+   */
+ 
+  public int allocate(BitVector data, int count) {
+    checkNotNull(data);
+    checkGreaterThanZero(count);
+
+    int address = 0;
+    for(int index = 0; index < count; ++index) {
+      final int allocatedAddress = allocate(data);
+      if (0 == index) {
+        address = allocatedAddress;
+      }
+    }
+
+    return address;
+  }
+
+  /**
+   * Allocates memory in the memory storage to store the specified string converted to
+   * the ASCII encoding and returns the address of string. The ASCII string is copied 
+   * to memory byte by byte so that each character could be addressable. Therefore,
+   * each byte is aligned by the boundary of an addressable units. If any space is left
+   * between characters, it is filled with zeros.
+   *     
+   * @param string String to be placed in the memory. 
+   * @param zeroTerm Specifies whether the string must be terminated with zero.
+   * @return Address of the allocated ASCII string (in addressable units).
+   * 
+   * @throws NullPointerException if the {@code string} parameter equals {@code null}.
+   * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.
+   */
+
+  public int allocateAsciiString(String string, boolean zeroTerm) {
+    checkNotNull(string);
+
+    final BitVector data = toAsciiBinary(string, zeroTerm);
+
+    final int dataBitSize = data.getBitSize();
+    final int sizeInAddressableUnits = bitsToAddressableUnits(dataBitSize);
+
+    int address = 0;
+    int startBitPos = 0;
+
+    for (int index = 0; index < sizeInAddressableUnits; ++index) {
+      final int unitBitSize = Math.min(dataBitSize - startBitPos, addressableUnitBitSize);
+
+      final BitVector unitData = BitVector.newMapping(data, startBitPos, unitBitSize);
+      startBitPos += unitBitSize;
+
+      final int allocatedAddress = allocate(unitData);
+      if (index == 0) {
+        address = allocatedAddress;
+      }
+    }
+
+    return address;
   }
 
   /**
@@ -171,31 +244,6 @@ public final class MemoryAllocator {
 
     return allocate(value);
   }
-
-  public int allocateSpace(Type type, int count, int fillWith) {
-    checkNotNull(type);
-    checkNotNull(fillWith);
-    checkGreaterThanZero(count);
-
-    final BitVector value = BitVector.valueOf(fillWith, type.getBitSize());
-
-    int address = 0;
-    for(int index = 0; index < count; ++index) {
-      final int allocatedAddress = allocate(value);
-      if (0 == index) {
-        address = allocatedAddress;
-      }
-    }
-
-    return address;
-  }
-
-  public int allocateAsciiString(String string, boolean zeroTerm) {
-    checkNotNull(string);
-
-    final BitVector asciiString = toAsciiBinary(string, zeroTerm);
-    return allocateAcsiiString(asciiString);
-  }
   
   @Override
   public String toString() {
@@ -232,39 +280,41 @@ public final class MemoryAllocator {
     }
   }
 
-  private int allocateAcsiiString(BitVector asciiString) {
-    final int sizeInAddressableUnits = 
-        bitsToAddressableUnits(asciiString.getBitSize());
-
-    int address = 0;
-    int startBitPos = 0;
-    for (int index = 0; index < sizeInAddressableUnits; ++index) {
-      final int bitSize = 
-          Math.min(asciiString.getBitSize() - startBitPos, addressableUnitBitSize); 
-
-      final BitVector value = BitVector.newMapping(asciiString, startBitPos, bitSize);
-      startBitPos += bitSize;
-
-      final int allocatedAddress = allocate(value);
-      if (index == 0) {
-        address = allocatedAddress;
-      }
-    }
-
-    return address;
-  }
+  /**
+   * Converts the specified Java string to a bit vector that holds its 
+   * ASCII representation.
+   * 
+   * @param string String to be converted.
+   * @param zeroTerm Specifies whether the string must be terminated with zero.
+   * @return ASCII representation of the string stored in a bit vector.
+   * 
+   * @throws NullPointerException if the {@code string} argument is {@code null}.
+   * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.  
+   */
 
   private BitVector toAsciiBinary(String string, boolean zeroTerm) {
+    checkNotNull(string);
+
     final byte[] stringBytes;
     try {
       stringBytes = string.getBytes("US-ASCII");
     } catch (UnsupportedEncodingException e) {
-      throw new IllegalArgumentException(e);
+      throw new IllegalStateException(e);
     }
 
-    final int bitSize = 
-        (stringBytes.length + (zeroTerm ? 1 : 0)) * BitVector.BITS_IN_BYTE;
+    final int charCount = stringBytes.length + (zeroTerm ? 1 : 0);
+    final int bitSize = charCount * BitVector.BITS_IN_BYTE;
 
-    return BitVector.valueOf(stringBytes, bitSize);
+    final BitVector result = BitVector.newEmpty(bitSize);
+    final IOperation op = new IOperation() {
+      private int index = 0;
+      @Override
+      public byte run() {
+        return index < stringBytes.length ? stringBytes[index++] : 0;
+      }
+    };
+
+    BitVectorAlgorithm.generate(result, op);
+    return result;
   }
 }
