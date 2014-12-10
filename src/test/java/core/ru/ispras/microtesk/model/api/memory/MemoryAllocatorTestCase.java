@@ -16,12 +16,8 @@ package ru.ispras.microtesk.model.api.memory;
 
 import static org.junit.Assert.*;
 
-import java.math.BigInteger;
-
 import org.junit.Test;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.microtesk.model.api.type.Type;
 
 public class MemoryAllocatorTestCase {
   private static final int ADDRESSABLE_UNIT_SIZE = 8;
@@ -66,11 +62,10 @@ public class MemoryAllocatorTestCase {
     assertEquals(BitVector.valueOf(0x534554ff, 32), memory.read(3));
     assertEquals(BitVector.valueOf(0x00000054, 32), memory.read(4));
     
-
-    allocator.allocateData(Type.INT(32), BigInteger.valueOf(1));
-    allocator.allocateData(Type.INT(32), BigInteger.valueOf(0xFFFFFFFF));
-    
-    allocator.allocateAsciiString("TEST", true);
+    address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32), BitVector.valueOf(0xBAADF00D, 32));
+    assertEquals(20, address);
+    assertEquals(BitVector.valueOf(0xDEADBEEF, 32), memory.read(5));
+    assertEquals(BitVector.valueOf(0xBAADF00D, 32), memory.read(6));
 
     dumpMemory(memory);
   }

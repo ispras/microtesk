@@ -19,12 +19,13 @@ import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterOrEqZero;
 
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
 import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm.IOperation;
-import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The job of the MemoryAllocator class is to place data in the memory storage.
@@ -39,20 +40,20 @@ public final class MemoryAllocator {
   private final int addressableUnitsInRegion;
 
   private int currentAddress; // in addressable units
-  
-  private static String ERROR_INVALID_SIZE = 
+
+  private static String ERROR_INVALID_SIZE =
       "Memory region size (%d) must be a multiple of addressable unit size (%d).";
 
   /**
-   * Constructs a memory allocator object with the specified parameters.
-   * Important precondition: memory region size must be a multiple of addressable unit size.
+   * Constructs a memory allocator object with the specified parameters. Important precondition:
+   * memory region size must be a multiple of addressable unit size.
    * 
    * @param memory Memory storage to store the data.
    * @param addressableBitSize Size of an addressable unit in bits.
    * 
    * @throws NullPointerException if the {@code memory} parameter is {@code null}.
-   * @throws IllegalArgumentException if the specified size of an addressable unit
-   * is negative or is not a divisor of memory region size.
+   * @throws IllegalArgumentException if the specified size of an addressable unit is negative or is
+   *         not a divisor of memory region size.
    */
 
   public MemoryAllocator(MemoryStorage memory, int addressableBitSize) {
@@ -61,8 +62,8 @@ public final class MemoryAllocator {
 
     final int regionBitSize = memory.getRegionBitSize();
     if (regionBitSize % addressableBitSize != 0) {
-      throw new IllegalArgumentException(String.format(
-          ERROR_INVALID_SIZE, regionBitSize, addressableBitSize));
+      throw new IllegalArgumentException(String.format(ERROR_INVALID_SIZE, regionBitSize,
+          addressableBitSize));
     }
 
     this.memory = memory;
@@ -74,6 +75,7 @@ public final class MemoryAllocator {
 
   /**
    * Returns the current address.
+   * 
    * @return Current address (in addressable units).
    */
 
@@ -83,6 +85,7 @@ public final class MemoryAllocator {
 
   /**
    * Returns the size of an addressable unit.
+   * 
    * @return Size of an addressable unit in bits.
    */
 
@@ -91,7 +94,8 @@ public final class MemoryAllocator {
   }
 
   /**
-   * Returns the size of memory regions stored in the memory storage. 
+   * Returns the size of memory regions stored in the memory storage.
+   * 
    * @return Bit size of memory regions stored in the memory storage.
    */
 
@@ -99,8 +103,9 @@ public final class MemoryAllocator {
     return memory.getRegionBitSize();
   }
 
-  /** 
+  /**
    * Returns the number of addressable units in a memory region.
+   * 
    * @return Number of addressable units in a memory region
    */
 
@@ -109,10 +114,9 @@ public final class MemoryAllocator {
   }
 
   /**
-   * Allocates memory in the memory storage to hold the specified data and
-   * returns its address (in addressable units). The data is aligned in
-   * the memory by its size (in addressable units). Space between allocations
-   * is filled with zeros. 
+   * Allocates memory in the memory storage to hold the specified data and returns its address (in
+   * addressable units). The data is aligned in the memory by its size (in addressable units). Space
+   * between allocations is filled with zeros.
    * 
    * @param data Data to be stored in the memory storage.
    * @return Address of the allocated memory (in addressable units).
@@ -131,12 +135,11 @@ public final class MemoryAllocator {
 
     return allocatedAddress;
   }
- 
+
   /**
-   * Allocates memory in the memory storage to hold the specified number of 
-   * the specified data and returns the address (in addressable units) of
-   * the first element. The data is aligned in the memory by its size
-   * (in addressable units). Space between allocations is filled with zeros.
+   * Allocates memory in the memory storage to hold the specified number of the specified data and
+   * returns the address (in addressable units) of the first element. The data is aligned in the
+   * memory by its size (in addressable units). Space between allocations is filled with zeros.
    * 
    * @param data Data to be placed in the memory storage.
    * @param count Number of copies to be placed in the memory storage.
@@ -144,13 +147,13 @@ public final class MemoryAllocator {
    * 
    * @throws NullPointerException if the parameter is {@code null}.
    */
- 
+
   public int allocate(BitVector data, int count) {
     checkNotNull(data);
     checkGreaterThanZero(count);
 
     int address = 0;
-    for(int index = 0; index < count; ++index) {
+    for (int index = 0; index < count; ++index) {
       final int allocatedAddress = allocate(data);
       if (0 == index) {
         address = allocatedAddress;
@@ -159,15 +162,85 @@ public final class MemoryAllocator {
 
     return address;
   }
+  
+  /**
+   * Allocates memory in the memory storage to hold data elements provided as arguments
+   * and return the address (in addressable units) of the first element. The data is aligned
+   * in memory by the size of data elements (in addressable units). Space between allocations
+   * (if any is left) is filled with zeros.
+   * 
+   * @param data Collection of data elements to be stored in the memory storage.
+   * @return Address of the first allocated element.
+   * 
+   * @throws IllegalArgumentException if the list is empty or it list elements have
+   * different sizes. 
+   */
+
+  public int allocate(BitVector ... data) {
+    checkGreaterThanZero(data.length);
+    return allocate(Arrays.asList(data));
+  }
 
   /**
-   * Allocates memory in the memory storage to store the specified string converted to
-   * the ASCII encoding and returns the address of string. The ASCII string is copied 
-   * to memory byte by byte so that each character could be addressable. Therefore,
-   * each byte is aligned by the boundary of an addressable units. If any space is left
-   * between characters, it is filled with zeros.
-   *     
-   * @param string String to be placed in the memory. 
+   * Allocates memory in the memory storage to hold data elements in the specified list
+   * and return the address (in addressable units) of the first element. The data is aligned
+   * in memory by the size of data elements (in addressable units). Space between allocations
+   * (if any is left) is filled with zeros.
+   * 
+   * @param data Collection of data elements to be stored in the memory storage.
+   * @return Address of the first allocated element.
+   * 
+   * @throws NullPointerException if the parameter is {@code null}.
+   * @throws IllegalArgumentException if the list is empty or it list elements have
+   * different sizes. 
+   */
+
+  public int allocate(List<BitVector> data) {
+    checkNotNull(data);
+
+    if (data.isEmpty()) {
+      throw new IllegalArgumentException("The list is empty.");
+    }
+
+    checkEqualBitSize(data);
+
+    final Iterator<BitVector> dataIt = data.iterator();
+    final int address = allocate(dataIt.next());
+
+    while (dataIt.hasNext()) {
+      allocate(dataIt.next());
+    }
+
+    return address;
+  }
+
+  /**
+   * Checks whether all bit vectors in the list have the same size and throws an exception of the
+   * they do not.
+   * 
+   * @param data List of bit vectors to be checked.
+   * @throws IllegalArgumentException if bit vectors in the list have different sizes.
+   */
+
+  private static void checkEqualBitSize(List<BitVector> data) {
+    final Iterator<BitVector> it = data.iterator();
+    final BitVector first = it.next();
+
+    while (it.hasNext()) {
+      final BitVector current = it.next();
+      if (current.getBitSize() != first.getBitSize()) {
+        throw new IllegalArgumentException("All data items must have the same bit size!");
+      }
+    }
+  }
+
+  /**
+   * Allocates memory in the memory storage to store the specified string converted to the ASCII
+   * encoding and returns the address of string. The ASCII string is copied to memory byte by byte
+   * so that each character could be addressable. Therefore, each byte is aligned by the boundary of
+   * an addressable units. If any space is left between characters, it is filled with zeros.
+   * 
+   * @param string String to be placed in the memory.
    * @param zeroTerm Specifies whether the string must be terminated with zero.
    * @return Address of the allocated ASCII string (in addressable units).
    * 
@@ -202,8 +275,8 @@ public final class MemoryAllocator {
   }
 
   /**
-   * Returns the minimal number of addressable units required to store data of
-   * the specified size (in bits). 
+   * Returns the minimal number of addressable units required to store data of the specified size
+   * (in bits).
    * 
    * @param bitSize Size in bits.
    * @return Size in addressable units.
@@ -216,9 +289,8 @@ public final class MemoryAllocator {
     return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
   }
 
-  /** 
-   * Aligns the specified address by the specified length and returns the resulting 
-   * aligned address.  
+  /**
+   * Aligns the specified address by the specified length and returns the resulting aligned address.
    * 
    * @param address Address to be aligned.
    * @param alignment Alignment length.
@@ -235,22 +307,14 @@ public final class MemoryAllocator {
     return unaligned == 0 ? address : address + (alignment - unaligned);
   }
 
-  public int allocateData(Type type, BigInteger data) {
-    checkNotNull(type);
-    checkNotNull(data);
-
-    final BitVector value = 
-        BitVector.valueOf(data.toByteArray(), type.getBitSize());
-
-    return allocate(value);
-  }
-  
   @Override
   public String toString() {
     return String.format(
         "MemoryAllocator [memory=%s, addressableUnitBitSize=%d, addressableUnitsInRegion=%d]",
         memory, addressableUnitBitSize, addressableUnitsInRegion);
   }
+  
+  // TODO: review
 
   private void writeToMemory(BitVector value, int address, int sizeInUnits) {
     int regionIndex = address / addressableUnitsInRegion;
@@ -259,9 +323,10 @@ public final class MemoryAllocator {
     final int bitSize = value.getBitSize();
     int bitPosition = 0;
     while (bitPosition < bitSize) {
-      final int bitsToWrite = Math.min(bitSize - bitPosition, memory.getRegionBitSize() - bitOffset);
+      final int bitsToWrite =
+          Math.min(bitSize - bitPosition, memory.getRegionBitSize() - bitOffset);
       final BitVector sourceData = BitVector.newMapping(value, bitPosition, bitsToWrite);
-      
+
       final BitVector dataToWrite;
       if (bitsToWrite == memory.getRegionBitSize()) {
         dataToWrite = sourceData;
@@ -281,15 +346,14 @@ public final class MemoryAllocator {
   }
 
   /**
-   * Converts the specified Java string to a bit vector that holds its 
-   * ASCII representation.
+   * Converts the specified Java string to a bit vector that holds its ASCII representation.
    * 
    * @param string String to be converted.
    * @param zeroTerm Specifies whether the string must be terminated with zero.
    * @return ASCII representation of the string stored in a bit vector.
    * 
    * @throws NullPointerException if the {@code string} argument is {@code null}.
-   * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.  
+   * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.
    */
 
   private BitVector toAsciiBinary(String string, boolean zeroTerm) {
@@ -308,6 +372,7 @@ public final class MemoryAllocator {
     final BitVector result = BitVector.newEmpty(bitSize);
     final IOperation op = new IOperation() {
       private int index = 0;
+
       @Override
       public byte run() {
         return index < stringBytes.length ? stringBytes[index++] : 0;
