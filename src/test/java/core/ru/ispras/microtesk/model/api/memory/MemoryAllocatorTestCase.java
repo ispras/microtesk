@@ -66,6 +66,15 @@ public class MemoryAllocatorTestCase {
     assertEquals(20, address);
     assertEquals(BitVector.valueOf(0xDEADBEEF, 32), memory.read(5));
     assertEquals(BitVector.valueOf(0xBAADF00D, 32), memory.read(6));
+    
+    address = allocator.allocate(BitVector.valueOf(0xC0DE, 16), BitVector.valueOf(0xC001, 16));
+    assertEquals(28, address);
+    assertEquals(BitVector.valueOf(0xC001C0DE, 32), memory.read(7));
+    
+    allocator.allocate(BitVector.valueOf(0xFF, 8));
+    allocator.allocate(BitVector.valueOf(0xF00D, 16));
+
+    assertEquals(BitVector.valueOf(0xF00D00FF, 32), memory.read(8));
 
     dumpMemory(memory);
   }

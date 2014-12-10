@@ -126,14 +126,46 @@ public final class MemoryAllocator {
 
   public int allocate(BitVector data) {
     checkNotNull(data);
+    final int dataBitSize = data.getBitSize();
 
-    final int sizeInAddressableUnits = bitsToAddressableUnits(data.getBitSize());
-    final int allocatedAddress = alignAddress(currentAddress, sizeInAddressableUnits);
+    final int sizeInAddressableUnits = bitsToAddressableUnits(dataBitSize);
+    final int address = alignAddress(currentAddress, sizeInAddressableUnits);
 
-    currentAddress = allocatedAddress + sizeInAddressableUnits;
-    writeToMemory(data, allocatedAddress, sizeInAddressableUnits);
+    int regionIndex = regionIndexForAddress(address);
+    int regionBitOffset = regionBitOffsetForAddress(address);
 
-    return allocatedAddress;
+    int bitPos = 0;
+    while (bitPos < dataBitSize) {
+      final int bitsToWrite = Math.min(dataBitSize - bitPos, getRegionBitSize() - regionBitOffset);
+      final BitVector dataItem = BitVector.newMapping(data, bitPos, bitsToWrite);
+
+      final BitVector dataToWrite;
+      if (bitsToWrite == memory.getRegionBitSize()) {
+        dataToWrite = dataItem;
+      } else {
+        final BitVector dataToMerge = memory.read(regionIndex);
+        dataToWrite = dataToMerge.copy();
+        final BitVector mapping = BitVector.newMapping(dataToWrite, regionBitOffset, bitsToWrite);
+        mapping.assign(dataItem);
+      }
+
+      memory.write(regionIndex, dataToWrite);
+      bitPos += bitsToWrite;
+
+      regionIndex++;
+      regionBitOffset = 0;
+    }
+
+    currentAddress = address + sizeInAddressableUnits;
+    return address;
+  }
+
+  private int regionBitOffsetForAddress(final int address) {
+    return (address % addressableUnitsInRegion) * addressableUnitBitSize;
+  }
+
+  private int regionIndexForAddress(final int address) {
+    return address / addressableUnitsInRegion;
   }
 
   /**
@@ -313,37 +345,6 @@ public final class MemoryAllocator {
         "MemoryAllocator [memory=%s, addressableUnitBitSize=%d, addressableUnitsInRegion=%d]",
         memory, addressableUnitBitSize, addressableUnitsInRegion);
   }
-  
-  // TODO: review
-
-  private void writeToMemory(BitVector value, int address, int sizeInUnits) {
-    int regionIndex = address / addressableUnitsInRegion;
-    int bitOffset = (address % addressableUnitsInRegion) * addressableUnitBitSize;
-
-    final int bitSize = value.getBitSize();
-    int bitPosition = 0;
-    while (bitPosition < bitSize) {
-      final int bitsToWrite =
-          Math.min(bitSize - bitPosition, memory.getRegionBitSize() - bitOffset);
-      final BitVector sourceData = BitVector.newMapping(value, bitPosition, bitsToWrite);
-
-      final BitVector dataToWrite;
-      if (bitsToWrite == memory.getRegionBitSize()) {
-        dataToWrite = sourceData;
-      } else {
-        final BitVector dataToMerge = memory.read(regionIndex);
-        dataToWrite = dataToMerge.copy();
-        final BitVector mapping = BitVector.newMapping(dataToWrite, bitOffset, bitsToWrite);
-        mapping.assign(sourceData);
-      }
-
-      memory.write(regionIndex, dataToWrite);
-      bitPosition += bitsToWrite;
-
-      regionIndex++;
-      bitOffset = 0;
-    }
-  }
 
   /**
    * Converts the specified Java string to a bit vector that holds its ASCII representation.
@@ -372,7 +373,6 @@ public final class MemoryAllocator {
     final BitVector result = BitVector.newEmpty(bitSize);
     final IOperation op = new IOperation() {
       private int index = 0;
-
       @Override
       public byte run() {
         return index < stringBytes.length ? stringBytes[index++] : 0;

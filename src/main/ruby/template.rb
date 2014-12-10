@@ -320,7 +320,6 @@ class Template
     puts "Defining data..."
 
     text_value = get_attribute attributes, :text
-    align_value = get_attribute attributes, :align
 
     # self.instance_eval &contents
 
