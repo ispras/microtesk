@@ -74,7 +74,7 @@ public final class Type {
     return creator.createWithParams(params);
   }
 
-  public static void typeDef(String name, Type type) {
+  public static Type typeDef(String name, Type type) {
     checkNotNull(name);
     checkNotNull(type);
 
@@ -84,6 +84,7 @@ public final class Type {
     }
 
     typeCreators.put(name, new TypeDefCreator(name, type));
+    return type;
   }
 
   public static Type INT(int bitSize) {
