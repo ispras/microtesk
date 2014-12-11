@@ -15,6 +15,10 @@
 package ru.ispras.microtesk.model.api.type;
 
 /**
+ * The TypeCreator interface describes the protocol for creating
+ * a type object parameterized with a variable parameter count.
+ * This is needed when a type is created from some external data
+ * (e.g. provided by user in a test template). 
  * 
  * @author Andrei Tatarnikov
  */
