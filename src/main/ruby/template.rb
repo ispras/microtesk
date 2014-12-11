@@ -311,18 +311,14 @@ class Template
   # Data Definition Facilities                                                #
   # ------------------------------------------------------------------------- #
 
-  def types(&contents)
-    puts "Defining data types..."
+  def data_config(attributes, &contents)
+    puts "Defining data-relates constructs..."
     TemplateBuilder.instance_eval &contents
   end
 
-  def data(attributes, &contents)
+  def data(&contents)
     puts "Defining data..."
-
-    text_value = get_attribute attributes, :text
-
     # self.instance_eval &contents
-
     text text_value
   end
 
