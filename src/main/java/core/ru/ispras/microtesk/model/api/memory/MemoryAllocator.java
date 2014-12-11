@@ -316,7 +316,7 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the {@code bitSize} argument is 0 or negative.
    */
 
-  int bitsToAddressableUnits(int bitSize) {
+  public int bitsToAddressableUnits(int bitSize) {
     checkGreaterThanZero(bitSize);
     return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
   }
