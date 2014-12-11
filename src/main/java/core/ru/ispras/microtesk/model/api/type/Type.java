@@ -34,33 +34,30 @@ import static ru.ispras.microtesk.utils.InvariantChecks.*;
 
 public final class Type {
   public static Type INT(int bitSize) {
-    return new Type(TypeId.INT, bitSize);
+    return TypeId.INT.createWithParams(bitSize);
   }
 
   public static Type CARD(int bitSize) {
-    return new Type(TypeId.CARD, bitSize);
+    return TypeId.CARD.createWithParams(bitSize);
   }
 
   public static Type BOOL(int bitSize) {
-    return new Type(TypeId.BOOL, bitSize);
+    return TypeId.BOOL.createWithParams(bitSize);
   }
 
   public static Type FLOAT(int fracBitSize, int expBitSize) {
-    // 1 is added to make room for implicit sign bit 
-    final int bitSize = fracBitSize + expBitSize + 1;
-    return new Type(TypeId.FLOAT, bitSize, fracBitSize, expBitSize);
+    return TypeId.FLOAT.createWithParams(fracBitSize, expBitSize);
   }
 
   public static Type FIX(int beforeBinPtSize, int afterBinPtSize) {
-    final int bitSize = beforeBinPtSize + afterBinPtSize;
-    return new Type(TypeId.FIX, bitSize, beforeBinPtSize, afterBinPtSize);
+    return TypeId.FIX.createWithParams(beforeBinPtSize, afterBinPtSize);
   }
 
   private final TypeId typeId;
   private final int[] fieldSizes;
   private final int bitSize;
 
-  private Type(TypeId typeId, int bitSize, int ... fieldSizes) {
+  Type(TypeId typeId, int bitSize, int ... fieldSizes) {
     checkNotNull(typeId);
     checkGreaterThanZero(bitSize);
 
