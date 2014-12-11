@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.model.api.type;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import static ru.ispras.microtesk.utils.InvariantChecks.*;
 
 /**
@@ -33,6 +36,63 @@ import static ru.ispras.microtesk.utils.InvariantChecks.*;
  */
 
 public final class Type {
+  private static final class TypeDefCreator implements TypeCreator {
+    private final String name;
+    private final Type type;
+
+    TypeDefCreator(String name, Type type) {
+      this.name = name;
+      this.type = type;
+    }
+
+    @Override
+    public Type createWithParams(int ... params) {
+      if (params.length > 0) {
+        throw new IllegalArgumentException(String.format(
+            "The %s type not have any parameters.", name));
+      }
+      return type;
+    }
+  }
+
+  private static final Map<String, TypeCreator> typeCreators = new HashMap<String, TypeCreator>();
+  static {
+    for (TypeId typeId : TypeId.values()) {
+      typeCreators.put(typeId.name(), typeId);
+      typeCreators.put(typeId.name().toLowerCase(), typeId);
+    }
+  }
+
+  public static Type typeOf(String name, int ... params) {
+    if (null == name) {
+      throw new NullPointerException();
+    }
+
+    final TypeCreator creator = typeCreators.get(name);
+    if (null == creator) {
+      throw new IllegalArgumentException("Unknown type: " + name);
+    }
+
+    return creator.createWithParams(params);
+  }
+
+  public static void typeDef(String name, Type type) {
+    if (null == name) {
+      throw new NullPointerException();
+    }
+
+    if (null == type) {
+      throw new NullPointerException();
+    }
+
+    if (typeCreators.containsKey(name)) {
+      throw new IllegalArgumentException(String.format(
+          "The %s type is already defined.", name)); 
+    }
+
+    typeCreators.put(name, new TypeDefCreator(name, type));
+  }
+
   public static Type INT(int bitSize) {
     return TypeId.INT.createWithParams(bitSize);
   }
