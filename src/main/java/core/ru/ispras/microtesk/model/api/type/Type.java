@@ -64,9 +64,7 @@ public final class Type {
   }
 
   public static Type typeOf(String name, int ... params) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
 
     final TypeCreator creator = typeCreators.get(name);
     if (null == creator) {
@@ -77,13 +75,8 @@ public final class Type {
   }
 
   public static void typeDef(String name, Type type) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == type) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(type);
 
     if (typeCreators.containsKey(name)) {
       throw new IllegalArgumentException(String.format(
