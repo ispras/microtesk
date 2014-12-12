@@ -55,8 +55,8 @@ mode COP0 (i : INDEX) = COP0_R[i]
 
 //////////////////////////VARIABLES////////////////////////////////////////////
 
-var JMPADDR[WORD] // Jump address
-var BRANCH[BIT]   //branch flag
+mem JMPADDR[WORD] // Jump address
+mem BRANCH[BIT]   //branch flag
 
 var temp[int(33)]
 var temp_jump[card(28)]
@@ -616,8 +616,7 @@ op instruction (command: Operations)
   image  = command.image
   action = {
     GPR[0] = coerce(WORD, 0);
-    BRANCH = 0;
-    
+
     //such order forces to put delay slots
     if BRANCH == 0 then
       // If the flag is not set, proceeds to the next instruction 
