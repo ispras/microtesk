@@ -151,6 +151,8 @@ public abstract class Memory {
   public abstract void reset();
 
   public abstract void setHandler(MemoryAccessHandler handler);
+  
+  public abstract MemoryAllocator newAllocator(int addressableUnitBitSize);
 
   @Override
   public String toString() {
@@ -181,6 +183,11 @@ public abstract class Memory {
     public void setHandler(MemoryAccessHandler handler) {
       checkNotNull(handler);
       getHandlerEngine().registerHandler(storage, handler);
+    }
+
+    @Override
+    public MemoryAllocator newAllocator(int addressableUnitBitSize) {
+      return new MemoryAllocator(storage, addressableUnitBitSize);
     }
   }
 
@@ -219,6 +226,12 @@ public abstract class Memory {
     @Override
     public void setHandler(MemoryAccessHandler handler) {
       // Does not work for aliases (and should not be called)
+    }
+
+    @Override
+    public MemoryAllocator newAllocator(int addressableUnitBitSize) {
+      throw new UnsupportedOperationException(
+          "Memory allocators are not supported for aliases.");
     }
   }
 }

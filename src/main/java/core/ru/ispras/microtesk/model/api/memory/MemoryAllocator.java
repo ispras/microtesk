@@ -47,26 +47,26 @@ public final class MemoryAllocator {
    * memory region size must be a multiple of addressable unit size.
    * 
    * @param memory Memory storage to store the data.
-   * @param addressableBitSize Size of an addressable unit in bits.
+   * @param addressableUnitBitSize Size of an addressable unit in bits.
    * 
    * @throws NullPointerException if the {@code memory} parameter is {@code null}.
    * @throws IllegalArgumentException if the specified size of an addressable unit is negative or is
    *         not a divisor of memory region size.
    */
 
-  public MemoryAllocator(MemoryStorage memory, int addressableBitSize) {
+  public MemoryAllocator(MemoryStorage memory, int addressableUnitBitSize) {
     checkNotNull(memory);
-    checkGreaterThanZero(addressableBitSize);
+    checkGreaterThanZero(addressableUnitBitSize);
 
     final int regionBitSize = memory.getRegionBitSize();
-    if (regionBitSize % addressableBitSize != 0) {
+    if (regionBitSize % addressableUnitBitSize != 0) {
       throw new IllegalArgumentException(String.format(ERROR_INVALID_SIZE, regionBitSize,
-          addressableBitSize));
+          addressableUnitBitSize));
     }
 
     this.memory = memory;
-    this.addressableUnitBitSize = addressableBitSize;
-    this.addressableUnitsInRegion = regionBitSize / addressableBitSize;
+    this.addressableUnitBitSize = addressableUnitBitSize;
+    this.addressableUnitsInRegion = regionBitSize / addressableUnitBitSize;
 
     this.currentAddress = 0;
   }
