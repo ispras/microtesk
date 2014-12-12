@@ -370,16 +370,5 @@ public final class MemoryAllocator {
     final int charCount = stringBytes.length + (zeroTerm ? 1 : 0);
     final int bitSize = charCount * BitVector.BITS_IN_BYTE;
 
-    final BitVector result = BitVector.newEmpty(bitSize);
-    final IOperation op = new IOperation() {
-      private int index = 0;
-      @Override
-      public byte run() {
-        return index < stringBytes.length ? stringBytes[index++] : 0;
-      }
-    };
-
-    BitVectorAlgorithm.generate(result, op);
-    return result;
-  }
+    return BitVector.valueOf(stringBytes, bitSize);  }
 }
