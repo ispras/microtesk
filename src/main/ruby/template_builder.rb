@@ -58,7 +58,7 @@ def self.define_ascii_string(attrs)
 end
 
 def type(*args)
-  # TODO
+  Type.new *args
 end
 
 private

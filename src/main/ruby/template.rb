@@ -311,15 +311,32 @@ class Template
   # Data Definition Facilities                                                #
   # ------------------------------------------------------------------------- #
 
-  def data_config(attributes, &contents)
-    puts "Defining data-relates constructs..."
-    TemplateBuilder.instance_eval &contents
+  # TODO: under development
+  def data_config(attrs, &contents)
+    puts "Defining data configuration..."
+
+    if nil != @data_manager
+      raise MTRubyError, "Data configuration is already defined"
+    end
+
+    text = get_attribute attrs, :text
+    target = get_attribute attrs, :target
+    addressableSize = get_attribute attrs, :addressableSize
+
+    #TemplateBuilder.instance_eval &contents
+
+    @data_manager = DataManager.new
   end
 
+  # TODO: under development
   def data(&contents)
     puts "Defining data..."
-    # self.instance_eval &contents
-    text text_value
+
+    if nil == @data_manager
+      raise MTRubyError, "Data configuration is not defined"
+    end
+
+    # @data_manager.instance_eval &contents
   end
 
   # ------------------------------------------------------------------------- #
@@ -360,3 +377,65 @@ class Location
     @index = index
   end
 end # Location
+
+class Type
+  attr_reader :name
+
+  def initialize(*args)
+    
+  end
+
+end # Type
+
+class DataManager
+  
+  def self.define_type(attrs)
+    id   = get_attribute attrs, :id
+    text = get_attribute attrs, :text
+    type = get_attribute attrs, :type
+    
+    p = lambda do |*arguments|
+    end
+  
+    # TODO
+  end
+  
+  def self.define_space(attrs)
+    id       = get_attribute attrs, :id
+    text     = get_attribute attrs, :text
+    fillWith = get_attribute attrs, :fillWith
+  
+    # TODO
+  end
+  
+  def self.define_ascii_string(attrs)
+    id       = get_attribute attrs, :id
+    text     = get_attribute attrs, :text
+    zeroTerm = get_attribute attrs, :zeroTerm
+  
+    # TODO
+  end
+
+  def label(name) 
+  end
+
+  def word(*values)
+    # for each -> Type.valueOf(value)
+    # address = allocator.allocate (values)
+    # size = sizeof(value) - in units
+    # if label -> save to memoryMap: label, address, size  
+  end
+
+  def half(*values)
+  end
+
+  def ascii(text)
+  end
+
+  def asciiz(text)
+  end
+
+  def space(length)
+  end
+
+end # Data
