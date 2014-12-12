@@ -14,17 +14,22 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.checkBounds;
+import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.type.Type;
-
-import static ru.ispras.microtesk.utils.InvariantChecks.*;
 
 public abstract class Memory {
 
   public static enum Kind {
     REG, MEM, VAR
   }
-  
+
   public static Memory REG(String name, Type type, int length) {
     return REG(name, type, length, null);
   }
@@ -32,7 +37,7 @@ public abstract class Memory {
   public static Memory REG(String name, Type type, int length, Location alias) {
     return newMemory(Kind.REG, name, type, length, alias);
   }
-  
+
   public static Memory MEM(String name, Type type, int length) {
     return MEM(name, type, length, null);
   }
@@ -49,21 +54,35 @@ public abstract class Memory {
     return newMemory(Kind.VAR, name, type, length, alias);
   }
 
+  private static final Map<String, Memory> memoryTable = new HashMap<String, Memory>();
+
   private static Memory newMemory(
       Kind kind, String name, Type type, int length, Location alias) {
-    if (null == alias) {
-      return new MemoryDirect(kind, name, type, length);
-    } else {
-      return new MemoryAlias(kind, name, type, length, alias);
+
+    checkNotNull(name);
+    if (memoryTable.containsKey(name)) {
+      throw new IllegalArgumentException(name + " is already defined!");
     }
+
+    final Memory result = (null == alias) ?
+        new MemoryDirect(kind, name, type, length) :
+        new MemoryAlias(kind, name, type, length, alias);
+
+    memoryTable.put(name, result);
+    return result;
   }
 
-  private final Kind kind;
-  private final String name;
-  private final Type type;
-  private final int length;
-  private final boolean isAlias;
-  
+  public static Memory getMemory(String name) {
+    checkNotNull(name);
+
+    final Memory result = memoryTable.get(name);
+    if (null == result) {
+      throw new IllegalArgumentException(name + " is not defined!");
+    }
+
+    return result;
+  }
+
   private static final MemoryAccessHandlerEngine handlerEngine = new MemoryAccessHandlerEngine();
   private static boolean isHandlingEnabled = false;
 
@@ -71,7 +90,7 @@ public abstract class Memory {
     return isHandlingEnabled ? getHandlerEngine() : null;
   }
 
-  protected static MemoryAccessHandlerEngine getHandlerEngine() {
+  private static MemoryAccessHandlerEngine getHandlerEngine() {
     return handlerEngine;
   }
 
@@ -79,8 +98,13 @@ public abstract class Memory {
     isHandlingEnabled = value;
   }
 
-  protected Memory(
-      Kind kind, String name, Type type, int length, boolean isAlias) {
+  private final Kind kind;
+  private final String name;
+  private final Type type;
+  private final int length;
+  private final boolean isAlias;
+
+  private Memory(Kind kind, String name, Type type, int length, boolean isAlias) {
 
     checkNotNull(kind);
     checkNotNull(name);
@@ -123,7 +147,9 @@ public abstract class Memory {
   }
 
   public abstract Location access(int index);
+
   public abstract void reset();
+
   public abstract void setHandler(MemoryAccessHandler handler);
 
   @Override
@@ -131,68 +157,68 @@ public abstract class Memory {
     return String.format("%s %s[%d, %s], alias=%b",
         kind.name().toLowerCase(), name, length, type, isAlias);
   }
-}
 
-final class MemoryDirect extends Memory {
-  private final MemoryStorage storage;
+  static final class MemoryDirect extends Memory {
+    private final MemoryStorage storage;
 
-  MemoryDirect(Kind kind, String name, Type type, int length) {
-    super(kind, name, type, length, false);
-    this.storage = new MemoryStorage(name, length, type.getBitSize());
-  }
-
-  @Override
-  public Location access(int index) {
-    checkBounds(index, getLength());
-    return Location.newLocationForRegion(getType(), storage, index);
-  }
-
-  @Override
-  public void reset() {
-    storage.reset();
-  }
-
-  @Override
-  public void setHandler(MemoryAccessHandler handler) {
-    checkNotNull(handler);
-    getHandlerEngine().registerHandler(storage, handler);
-  }
-}
-
-final class MemoryAlias extends Memory {
-  private final Location source;
-
-  MemoryAlias(Kind kind, String name, Type type, int length, Location source) {
-    super(kind, name, type, length, true);
-    checkNotNull(source);
-
-    final int totalBitSize = type.getBitSize() * length;
-    if (source.getBitSize() != totalBitSize) {
-      throw new IllegalArgumentException();
+    MemoryDirect(Kind kind, String name, Type type, int length) {
+      super(kind, name, type, length, false);
+      this.storage = new MemoryStorage(name, length, type.getBitSize());
     }
 
-    this.source = source;
+    @Override
+    public Location access(int index) {
+      checkBounds(index, getLength());
+      return Location.newLocationForRegion(getType(), storage, index);
+    }
+
+    @Override
+    public void reset() {
+      storage.reset();
+    }
+
+    @Override
+    public void setHandler(MemoryAccessHandler handler) {
+      checkNotNull(handler);
+      getHandlerEngine().registerHandler(storage, handler);
+    }
   }
 
-  @Override
-  public Location access(int index) {
-    checkBounds(index, getLength());
+  static final class MemoryAlias extends Memory {
+    private final Location source;
 
-    final int locationBitSize = getType().getBitSize();
-    final int start = locationBitSize * index;
-    final int end = start + locationBitSize - 1;
+    MemoryAlias(Kind kind, String name, Type type, int length, Location source) {
+      super(kind, name, type, length, true);
+      checkNotNull(source);
 
-    final Location bitField = source.bitField(start, end);
-    return bitField.castTo(getType().getTypeId());
-  }
+      final int totalBitSize = type.getBitSize() * length;
+      if (source.getBitSize() != totalBitSize) {
+        throw new IllegalArgumentException();
+      }
 
-  @Override
-  public void reset() {
-    // Does not work for aliases (and should not be called)
-  }
+      this.source = source;
+    }
 
-  @Override
-  public void setHandler(MemoryAccessHandler handler) {
-    // Does not work for aliases (and should not be called)
+    @Override
+    public Location access(int index) {
+      checkBounds(index, getLength());
+
+      final int locationBitSize = getType().getBitSize();
+      final int start = locationBitSize * index;
+      final int end = start + locationBitSize - 1;
+
+      final Location bitField = source.bitField(start, end);
+      return bitField.castTo(getType().getTypeId());
+    }
+
+    @Override
+    public void reset() {
+      // Does not work for aliases (and should not be called)
+    }
+
+    @Override
+    public void setHandler(MemoryAccessHandler handler) {
+      // Does not work for aliases (and should not be called)
+    }
   }
 }
