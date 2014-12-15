@@ -14,11 +14,13 @@
 
 package ru.ispras.microtesk.model.api.type;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.checkBounds;
+import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import static ru.ispras.microtesk.utils.InvariantChecks.*;
 
 /**
  * The Type class stores information on a type defined in the design specification. This includes
