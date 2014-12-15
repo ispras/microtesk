@@ -19,6 +19,7 @@ import java.util.LinkedList;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.test.DataManager;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
@@ -26,6 +27,7 @@ import static ru.ispras.microtesk.utils.PrintingUtils.*;
 
 public final class Template {
   private final MetaModel metaModel;
+  private final DataManager dataManager;
 
   private final Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
@@ -42,7 +44,8 @@ public final class Template {
     }
 
     this.metaModel = metaModel;
-    
+    this.dataManager = new DataManager();
+
     final BlockBuilder rootBlockBuilder = new BlockBuilder();
     rootBlockBuilder.setAtomic(true);
 
@@ -54,6 +57,10 @@ public final class Template {
 
     this.sequences = null;
     this.preparators = new PreparatorStore();
+  }
+
+  public DataManager getDataManager() {
+    return dataManager;
   }
 
   public IIterator<Sequence<Call>> build() {

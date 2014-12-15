@@ -308,6 +308,14 @@ class Template
   end
 
   # ------------------------------------------------------------------------- #
+  # Pseudo Instruction Definition Facilities                                  #
+  # ------------------------------------------------------------------------- #
+
+  def pseudo_instruction(attrs, &contents)
+    # TODO
+  end
+  
+  # ------------------------------------------------------------------------- #
   # Data Definition Facilities                                                #
   # ------------------------------------------------------------------------- #
 
@@ -323,9 +331,8 @@ class Template
     target = get_attribute attrs, :target
     addressableSize = get_attribute attrs, :addressableSize
 
-    #TemplateBuilder.instance_eval &contents
-
-    @data_manager = DataManager.new
+    @data_manager = DataManager.new @template.getDataManager, text, target, addressableSize
+    @data_manager.instance_eval &contents
   end
 
   # TODO: under development
@@ -336,7 +343,7 @@ class Template
       raise MTRubyError, "Data configuration is not defined"
     end
 
-    # @data_manager.instance_eval &contents
+    @data_manager.instance_eval &contents
   end
 
   # ------------------------------------------------------------------------- #
@@ -371,71 +378,84 @@ end # Template
 #
 class Location
   attr_reader :name, :index 
-    
+
   def initialize(name, index)
     @name  = name
     @index = index
   end
 end # Location
 
-class Type
-  attr_reader :name
+class DataManager
 
-  def initialize(*args)
-    
+  class Type
+    attr_reader :name
+    attr_reader :args
+
+    def initialize(*args)
+      @name = args[0]
+      @args = args.length > 1 ? args[1..args.length-1] : []
+    end
   end
 
-end # Type
+  def initialize(manager, text, target, addressableSize)
+    @manager = manager
+    @manager.init text, target, addressableSize
+  end
 
-class DataManager
-  
-  def self.define_type(attrs)
+  def type(*args)
+    Type.new *args
+  end
+
+  def label(id)
+    @manager.addLabel id
+
+    p = lambda do |*args|
+      @manager.resolveLabel id, (args.empty? ? 0 : args[0]) 
+    end
+
+    define_method_for Template, id, 'label', p
+  end
+
+  def define_type(attrs)
     id   = get_attribute attrs, :id
     text = get_attribute attrs, :text
     type = get_attribute attrs, :type
-    
+
+    @manager.defineType id, text, type.name, type.args
+
     p = lambda do |*arguments|
+      @manager.addData id, arguments 
     end
-  
-    # TODO
+
+    define_method_for DataManager, id, 'type', p
   end
-  
-  def self.define_space(attrs)
+
+  def define_space(attrs)
     id       = get_attribute attrs, :id
     text     = get_attribute attrs, :text
     fillWith = get_attribute attrs, :fillWith
-  
-    # TODO
+
+    @manager.defineSpace id, text, fillWith
+
+    p = lambda do |length|
+      @manager.addSpace length
+    end
+
+    define_method_for DataManager, id, 'space', p
   end
-  
-  def self.define_ascii_string(attrs)
+
+  def define_ascii_string(attrs)
     id       = get_attribute attrs, :id
     text     = get_attribute attrs, :text
     zeroTerm = get_attribute attrs, :zeroTerm
-  
-    # TODO
-  end
 
-  def label(name) 
-  end
+    @manager.defineAsciiString id, text, zeroTerm
 
-  def word(*values)
-    # for each -> Type.valueOf(value)
-    # address = allocator.allocate (values)
-    # size = sizeof(value) - in units
-    # if label -> save to memoryMap: label, address, size  
-  end
+    p = lambda do |*strings|
+      @manager.addAsciiStrings zeroTerm, strings 
+    end
 
-  def half(*values)
-  end
-
-  def ascii(text)
-  end
-
-  def asciiz(text)
-  end
-
-  def space(length)
+    define_method_for DataManager, id, 'string', p
   end
 
 end # Data

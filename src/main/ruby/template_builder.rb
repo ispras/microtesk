@@ -33,36 +33,6 @@ def self.define_runtime_methods(metamodel)
   ops.each { |op| define_operation op }
 end
 
-def self.define_type(attrs)
-  id   = get_attribute attrs, :id
-  text = get_attribute attrs, :text
-  type = get_attribute attrs, :type
-
-  # TODO
-end
-
-def self.define_space(attrs)
-  id       = get_attribute attrs, :id
-  text     = get_attribute attrs, :text
-  fillWith = get_attribute attrs, :fillWith
-
-  # TODO
-end
-
-def self.define_ascii_string(attrs)
-  id       = get_attribute attrs, :id
-  text     = get_attribute attrs, :text
-  zeroTerm = get_attribute attrs, :zeroTerm
-
-  # TODO
-end
-
-def type(*args)
-  Type.new *args
-end
-
-private
-
 #
 # Defines methods for addressing modes (added to the Template class)
 # 
