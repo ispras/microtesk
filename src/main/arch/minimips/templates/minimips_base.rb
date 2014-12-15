@@ -25,9 +25,9 @@ class MinimipsBaseTemplate < Template
 
   def pre
     data_config(:text => '.data', :target => 'M', :addressableSize => 8) {
-      define_type :id => :byte,     :text => '.byte', :type => type('card', 8)
-      define_type :id => :halfword, :text => '.half', :type => type('card', 16)
-      define_type :id => :word,     :text => '.word', :type => type('card', 32)
+      define_type :id => :byte, :text => '.byte', :type => type('card', 8)
+      define_type :id => :half, :text => '.half', :type => type('card', 16)
+      define_type :id => :word, :text => '.word', :type => type('card', 32)
 
       define_space :id => :space, :text => '.space', :fillWith => 0
       define_ascii_string :id => :ascii,  :text => '.ascii',  :zeroTerm => false
