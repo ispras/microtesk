@@ -245,9 +245,9 @@ public final class Location implements LocationAccessor {
   @Override
   public BigInteger getValue() {
     final BitVector rawData = readDataDirecty(sources);
-    return new BigInteger(rawData.toByteArray());
+    return rawData.bigIntegerValue();
   }
-  
+
   private static BitVector readDataDirecty(List<Source> sources) {
     final BitVector[] dataItems = new BitVector[sources.size()]; 
     for (int index = 0; index < sources.size(); ++index) {
