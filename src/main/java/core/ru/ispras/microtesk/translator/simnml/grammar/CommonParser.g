@@ -241,11 +241,15 @@ sequence
     ;
 
 statement
-    :  ID
-    |  ID DOT^ (ACTION | ID)
+    :  attributeCallStatement
     |  location ASSIGN^ expr
     |  conditionalStatement
     |  functionCallStatement
+    ;
+
+attributeCallStatement
+    :  ID
+    |  ID DOT^ (ACTION | ID)
     ;
 
 conditionalStatement
