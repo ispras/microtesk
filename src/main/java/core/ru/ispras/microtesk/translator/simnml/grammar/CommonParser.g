@@ -39,6 +39,11 @@ tokens {
 
   // Sequence of statements.
   SEQUENCE;
+
+  // Statically instantiated MODE or OP
+  INSTANCE;
+  // Call to the 'action' attribute of a statically instantiated MODE or OP 
+  INSTANCE_CALL;
 }
 
 @members {
@@ -228,8 +233,13 @@ formatIdList
     ;
 
 formatId
-    :  ID DOT^ (SYNTAX | IMAGE)
-    |  expr
+    :  expr
+    |  ID DOT^ attributeFormatCall
+    |  instance DOT attributeFormatCall -> ^(INSTANCE_CALL instance attributeFormatCall)
+    ;
+
+attributeFormatCall
+    :  SYNTAX | IMAGE
     ;
 
 /*======================================================================================*/
@@ -249,7 +259,21 @@ statement
 
 attributeCallStatement
     :  ID
-    |  ID DOT^ (ACTION | ID)
+    |  ID DOT^ attributeCall
+    |  instance DOT attributeCall -> ^(INSTANCE_CALL instance attributeCall)
+    ;
+
+attributeCall
+    :  ACTION | ID
+    ;
+
+instance
+    :  {isDeclaredAs(input.LT(1), ESymbolKind.MODE) || isDeclaredAs(input.LT(1), ESymbolKind.OP)}? ID LEFT_PARENTH (instance_arg (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE instance_arg*)
+    ;
+
+instance_arg
+    : instance
+    | expr
     ;
 
 conditionalStatement

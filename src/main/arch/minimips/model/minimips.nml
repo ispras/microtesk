@@ -554,8 +554,7 @@ op mips_break ()
     exception("Breakpoint");
   }
 
-
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 op Operations =  add   
                 |addi  
@@ -613,7 +612,6 @@ op Operations =  add
                 |xor
                 |xori
 
-
 op instruction (command: Operations)
   syntax = command.syntax
   image  = command.image
@@ -631,4 +629,15 @@ op instruction (command: Operations)
 
     BRANCH = 0;
     command.action;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+// Pseudo Instructions
+
+op la(rd : REG, addr : WORD)
+  syntax = format("la %s, %d", rd.syntax, addr)
+  image  = format("%s%s", lui(rd, addr<16..31>).image, ori(rd, rd, addr<0..15>).image)
+  action = {
+    instruction(lui(rd, addr<16..31>)).action;
+    instruction(ori(rd, rd, addr<16..31>)).action;
   }

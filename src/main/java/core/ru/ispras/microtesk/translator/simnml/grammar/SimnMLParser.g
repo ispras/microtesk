@@ -246,7 +246,7 @@ andRule
     ;
 
 argDef
-    :  ID^ COLON! argType
+    :  id=ID^ COLON! argType {declare($id, ESymbolKind.ARGUMENT, false);}
     ;
 
 argType

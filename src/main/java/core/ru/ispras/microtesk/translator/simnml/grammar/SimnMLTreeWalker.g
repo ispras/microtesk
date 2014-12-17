@@ -323,7 +323,6 @@ andRule returns [Map<String,Primitive> res]
     :  ^(ARGS (^(id=ID at=argType)
 {
 checkNotNull($id, $at.res, $at.text);
-declare($id, ESymbolKind.ARGUMENT, false);
 args.put($id.text, $at.res);
 })*)
     ;
@@ -417,13 +416,17 @@ formatIdList returns [List<Format.Argument> res]
     ;
 
 formatId returns [Format.Argument res]
-    :  ^(DOT id=ID name=(SYNTAX | IMAGE))
+    :  e=dataExpr
+{
+$res = Format.createArgument($e.res);
+}
+    |  ^(DOT id=ID name=(SYNTAX | IMAGE))
 {
 $res = Format.createArgument((StatementAttributeCall)getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
 }
-    |  e=dataExpr
+    |  ^(INSTANCE_CALL instance (SYNTAX | IMAGE))
 {
-$res = Format.createArgument($e.res);
+$res = null; // TODO
 }
     ;
 
@@ -475,6 +478,14 @@ $res = Collections.singletonList(
 $res = Collections.singletonList(
     getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
 }
+    |  ^(INSTANCE_CALL instance (ACTION | ID))
+{
+$res = Collections.<Statement>emptyList();
+}
+    ;
+
+instance
+    :  ^(INSTANCE (dataExpr | instance)*)
     ;
 
 assignmentStatement returns [List<Statement> res]
