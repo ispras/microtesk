@@ -67,7 +67,7 @@ public final class StatementFactory extends WalkerFactoryBase {
       raiseError(where, new UndefinedPrimitive(attributeName, ESymbolKind.ATTRIBUTE));
     }
 
-    return new StatementAttributeCall(null, attributeName);
+    return StatementAttributeCall.newThisCall(attributeName);
   }
 
   public Statement createAttributeCall(Where where, String calleeName, String attributeName)
@@ -97,7 +97,7 @@ public final class StatementFactory extends WalkerFactoryBase {
       raiseError(where, String.format(UNDEFINED_ATTR, attributeName, callee.getName()));
     }
 
-    return new StatementAttributeCall(calleeName, attributeName);
+    return StatementAttributeCall.newArgumentCall(calleeName, attributeName);
   }
 
   public Statement createControlTransfer(int index) {

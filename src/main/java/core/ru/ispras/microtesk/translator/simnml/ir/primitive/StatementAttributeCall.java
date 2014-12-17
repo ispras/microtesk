@@ -15,15 +15,37 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 public final class StatementAttributeCall extends Statement {
+  private final Instance calleeInstance;
   private final String calleeName;
   private final String attributeName;
 
-  StatementAttributeCall(String calleeName, String attributeName) {
+  static StatementAttributeCall newThisCall(String attributeName) {
+    return new StatementAttributeCall(null, null, attributeName);
+  }
+
+  static StatementAttributeCall newArgumentCall(String calleeName, String attributeName) {
+    if (null == calleeName) {
+      throw new NullPointerException();
+    }
+
+    return new StatementAttributeCall(null, calleeName, attributeName);
+  }
+  
+  static StatementAttributeCall newInstanceCall(Instance calleeInstance, String attributeName) {
+    if (null == calleeInstance) {
+      throw new NullPointerException();
+    }
+
+    return new StatementAttributeCall(calleeInstance, null, attributeName);
+  }
+
+  private StatementAttributeCall(Instance calleeInstance, String calleeName, String attributeName) {
     super(Kind.CALL);
     if (null == attributeName) {
       throw new NullPointerException();
     }
 
+    this.calleeInstance = calleeInstance;
     this.calleeName = calleeName;
     this.attributeName = attributeName;
   }
@@ -34,5 +56,9 @@ public final class StatementAttributeCall extends Statement {
 
   public String getAttributeName() {
     return attributeName;
+  }
+
+  public Instance getCalleeInstance() {
+    return calleeInstance;
   }
 }
