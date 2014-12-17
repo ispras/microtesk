@@ -82,6 +82,7 @@ public final class TestEngine {
         final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
 
         printHeader("Executing sequence %d", sequenceNumber);
+        trace(template.getDataManager().getDataDeclText());
         executor.executeSequence(concreteSequence);
 
         printHeader("Printing sequence %d", sequenceNumber);
