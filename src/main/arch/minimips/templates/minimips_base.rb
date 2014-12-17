@@ -30,7 +30,7 @@ class MinimipsBaseTemplate < Template
       define_type :id => :word, :text => '.word', :type => type('card', 32)
 
       define_space :id => :space, :text => '.space', :fillWith => 0
-      define_ascii_string :id => :ascii,  :text => '.ascii',  :zeroTerm => false
+      define_ascii_string :id => :ascii, :text => '.ascii', :zeroTerm => false
       define_ascii_string :id => :asciiz, :text => '.asciiz', :zeroTerm => true
     }
 
@@ -46,5 +46,9 @@ class MinimipsBaseTemplate < Template
 
   def gpr(index)
     location('GPR', index)
+  end
+  
+  def mem(index)
+    location('M', index)
   end
 end
