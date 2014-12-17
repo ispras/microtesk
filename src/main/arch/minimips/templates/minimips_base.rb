@@ -33,11 +33,6 @@ class MinimipsBaseTemplate < Template
       define_ascii_string :id => :ascii, :text => '.ascii', :zeroTerm => false
       define_ascii_string :id => :asciiz, :text => '.asciiz', :zeroTerm => true
     }
-
-    pseudo_instruction(:id => 'la', :format => "la %s, %d", :args => ['rd', 'addr']) {
-      lui rd, addr(16, 31)
-      ori rd, rd, addr(0, 15)
-    }
   end
 
   def post
