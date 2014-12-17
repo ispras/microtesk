@@ -46,6 +46,16 @@ class EuclidTemplate < MinimipsBaseTemplate
 
       space 8
     }
+
+    trace "%x", mem(0)
+    trace "%x", mem(1)
+    trace "%x", mem(2)
+    trace "%x", mem(3)
+
+    trace "data1: %x", data1
+    trace "data2: %x", data2
+    trace "hello: %x", hello
+    trace "world: %x", world
   end
 
   def run

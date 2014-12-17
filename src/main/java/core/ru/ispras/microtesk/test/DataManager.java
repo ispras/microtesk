@@ -25,57 +25,173 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class DataManager {
-  private final MemoryMap memoryMap;
-  private boolean isInitialized;
+  private static interface DataDeclItem {
+    String getText();
+  }
 
-  private String text;
-  private String target;
-  private int addressableSize;
+  private static class DetaDeclText implements DataDeclItem {
+    private final String text;
+
+    DetaDeclText(String text) {
+      this.text = text;
+    }
+
+    @Override
+    public String getText() {
+      return text;
+    }
+  }
+
+  private static final class DetaDeclLabel extends DetaDeclText {
+    DetaDeclLabel(String text) {
+      super(text);
+    }
+
+    @Override
+    public String getText() {
+      return super.text + ":";
+    }
+  }
+
+  private static final class DetaDeclSpace extends DetaDeclText {
+    private final int count;
+    
+    DetaDeclSpace(String text, int count) {
+      super(text);
+      this.count = count;
+    }
+
+    @Override
+    public String getText() {
+      return String.format("%s %d", super.getText(), count);
+    }
+  }
+  
+  private static final class DetaDeclStrings extends DetaDeclText {
+    final String[] strings;
+
+    DetaDeclStrings(String text, String[] strings) {
+      super(text);
+      this.strings = strings;
+    }
+
+    @Override
+    public String getText() {
+      final StringBuilder sb = new StringBuilder();
+      sb.append(super.getText());
+
+      for (int i = 0; i < strings.length; i++) {
+        if (i > 0) {
+          sb.append(",");
+        }
+
+        sb.append(String.format(" \"%s\"", strings[i]));
+      }
+
+      return sb.toString();
+    }
+  }
+  
+  private static final class DetaDecl extends DetaDeclText {
+    final BigInteger[] values;
+
+    DetaDecl(String text, BigInteger[] values) {
+      super(text);
+      this.values = values;
+    }
+
+    @Override
+    public String getText() {
+      final StringBuilder sb = new StringBuilder();
+      sb.append(super.getText());
+
+      for (int i = 0; i < values.length; i++) {
+        if (i > 0) {
+          sb.append(",");
+        }
+
+        sb.append(String.format(" 0x%x", values[i]));
+      }
+
+      return sb.toString();
+    }
+  }
+
+  private final MemoryMap memoryMap;
+  private final List<DataDeclItem> dataDecls;
 
   private MemoryAllocator allocator;
   private List<String> labels;
 
+  private String spaceText;
+  private BitVector spaceData;
+  private String ztermStrText;
+  private String nztermStrText;
+  
+  private final Map<String, TypeInfo> typeMap;
+  final static class TypeInfo {
+    final Type type;
+    final String text;
+
+    public TypeInfo(Type type, String text) {
+      this.type = type;
+      this.text = text;
+    }
+  }
+
   public DataManager() {
     this.memoryMap = new MemoryMap();
-    this.isInitialized = false;
-
-    this.text = "";
-    this.target = "";
-    this.addressableSize = 0;
+    this.dataDecls = new ArrayList<>();
 
     this.allocator = null;
     this.labels = null;
+
+    this.spaceText = null;
+    this.spaceData = null;
+    this.ztermStrText = null;
+    this.nztermStrText = null;
+
+    this.typeMap = new HashMap<>(); 
   }
 
-  public void init(String text, String target, int addressableSize) {
+  public void init(final String text, final String target, final int addressableSize) {
     checkNotNull(text);
     checkNotNull(target);
 
-    if (isInitialized) {
+    if (isInitialized()) {
       throw new IllegalStateException("DataManager is already initialized!");
     }
 
-    this.isInitialized = true;
-
-    this.text = text;
-    this.target = target;
-    this.addressableSize = addressableSize;
-
     final Memory memory = Memory.getMemory(target);
-    this.allocator = memory.newAllocator(addressableSize);
+    allocator = memory.newAllocator(addressableSize);
+
+    dataDecls.add(new DetaDeclText(text)); 
   }
-  
-  public String getText() {
-    if (!isInitialized) {
+
+  public boolean isInitialized() {
+    return allocator != null;
+  }
+
+  public String getDataDeclText() {
+    if (!isInitialized()) {
       return null;
     }
 
-    return text;
+    final StringBuilder sb = new StringBuilder();
+    sb.append("Data declarations:\r\n\r\n");
+
+    for (DataDeclItem item : dataDecls) {
+      sb.append(item.getText());
+      sb.append("\r\n");
+    }
+
+    return sb.toString();
   }
 
   public void defineType(String id, String text, String typeName, int[] typeArgs) {
@@ -83,26 +199,39 @@ public final class DataManager {
     checkNotNull(text);
     checkNotNull(typeName);
     checkNotNull(typeArgs);
+
     checkInitialized();
 
     final Type type = Type.typeOf(typeName, typeArgs);
     trace("Defining %s as %s ('%s')...", type, id, text);
+
+    typeMap.put(id, new TypeInfo(type, text));
   }
 
   public void defineSpace(String id, String text, BigInteger fillWith) {
     checkNotNull(id);
     checkNotNull(text);
+    checkNotNull(fillWith);
+
     checkInitialized();
-   
     trace("Defining space as %s ('%s') filled with %x...", id, text, fillWith);
+
+    spaceText = text;
+    spaceData = BitVector.valueOf(fillWith, allocator.getAddressableUnitBitSize());
   }
-  
+
   public void defineAsciiString(String id, String text, boolean zeroTerm) {
     checkNotNull(id);
     checkNotNull(text);
     checkInitialized();
 
     trace("Defining %snull-terminated ASCII string as %s ('%s')...", zeroTerm ? "" : "not ", id, text);
+    
+    if (zeroTerm) {
+      ztermStrText = text;
+    } else {
+      nztermStrText = text;
+    }
   }
 
   public void addLabel(String id) {
@@ -110,12 +239,24 @@ public final class DataManager {
     checkInitialized();
 
     trace("Label %s", id);
-    
+
     if (null == labels) {
       labels = new ArrayList<>();
     }
 
     labels.add(id);
+    dataDecls.add(new DetaDeclLabel(id));
+  }
+
+  private void setAllLabelsToAddress(int address, int sizeInAddresableUnits) {
+    checkInitialized();
+
+    if (null != labels) {
+      for (String label : labels) {
+        memoryMap.addLabel(label, address, sizeInAddresableUnits);
+      }
+      labels = null;
+    }
   }
 
   public int resolveLabel(String id, int index) {
@@ -129,29 +270,69 @@ public final class DataManager {
   }
 
   public void addData(String id, BigInteger[] values) {
+    checkNotNull(id);
+    checkNotNull(values);
+    checkGreaterThanZero(values.length);
+
     checkInitialized();
 
-    /*
-    # for each -> Type.valueOf(value)
-    # address = allocator.allocate (values)
-    # size = sizeof(value) - in units
-    # if label -> save to memoryMap: label, address, size
-    */  
+    final TypeInfo typeInfo = typeMap.get(id);
+    if (null == typeInfo) {
+      throw new IllegalStateException();
+    }
 
+    final int address = allocator.allocate(
+        BitVector.valueOf(values[0], typeInfo.type.getBitSize()));
+
+    for (int i = 1; i < values.length; i++) {
+      allocator.allocate(
+          BitVector.valueOf(values[i], typeInfo.type.getBitSize()));
+    }
+
+    setAllLabelsToAddress(
+        address, allocator.bitsToAddressableUnits(typeInfo.type.getBitSize()));
+
+    dataDecls.add(new DetaDecl(typeInfo.text, values));
   }
 
   public void addSpace(int length) {
     checkGreaterThanZero(length);
     checkInitialized();
-    
+
+    if (null == spaceData) {
+      throw new IllegalStateException();
+    }
+
+    final int address = allocator.allocate(spaceData, length);
+
+    setAllLabelsToAddress(address, 1);
+    dataDecls.add(new DetaDeclSpace(spaceText, length));
   }
 
   public void addAsciiStrings(boolean zeroTerm, String[] strings) {
+    checkNotNull(strings);
+    checkGreaterThanZero(strings.length);
     checkInitialized();
+
+    if (zeroTerm && (null == ztermStrText)) {
+      throw new IllegalStateException();
+    }
+
+    if (!zeroTerm && (null == nztermStrText)) {
+      throw new IllegalStateException();
+    }
+
+    final int address = allocator.allocateAsciiString(strings[0], zeroTerm);
+    for (int index = 1; index < strings.length; index++) {
+      allocator.allocateAsciiString(strings[index], zeroTerm);
+    }
+
+    setAllLabelsToAddress(address, 1);
+    dataDecls.add(new DetaDeclStrings((zeroTerm ? ztermStrText : nztermStrText), strings));
   }
-  
+
   private void checkInitialized() {
-    if (!isInitialized) {
+    if (!isInitialized()) {
       throw new IllegalStateException("DataManager is not initialized!");
     }
   }
