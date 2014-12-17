@@ -485,7 +485,13 @@ $res = Collections.<Statement>emptyList();
     ;
 
 instance
-    :  ^(INSTANCE (dataExpr | instance)*)
+    :  ^(INSTANCE instance_arg*)
+    ;
+
+instance_arg
+    :  instance 
+    |  dataExpr
+    |  ^(ARGUMENT_OP ID)
     ;
 
 assignmentStatement returns [List<Statement> res]

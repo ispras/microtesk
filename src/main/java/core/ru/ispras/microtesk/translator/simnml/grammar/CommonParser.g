@@ -44,6 +44,9 @@ tokens {
   INSTANCE;
   // Call to the 'action' attribute of a statically instantiated MODE or OP 
   INSTANCE_CALL;
+  
+  // Argument of a MODE or OP that has type OP.
+  ARGUMENT_OP;
 }
 
 @members {
@@ -272,7 +275,8 @@ instance
     ;
 
 instance_arg
-    : instance
+    : {isDeclaredAs(input.LT(1), ESymbolKind.ARGUMENT_OP)}? ID -> ^(ARGUMENT_OP ID)
+    | instance
     | expr
     ;
 

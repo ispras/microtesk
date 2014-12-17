@@ -48,6 +48,9 @@ public enum ESymbolKind {
   /** Argument of a mode or an operation. */
   ARGUMENT,
 
+  /** Argument of a mode or an operation that has type OP. */
+  ARGUMENT_OP,
+
   /** Attribute of a mode or an operation (e.g. syntax, format, image). */
   ATTRIBUTE
 }
