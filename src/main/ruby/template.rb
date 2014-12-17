@@ -410,7 +410,7 @@ class DataManager
     @manager.addLabel id
 
     p = lambda do |*args|
-      @manager.resolveLabel id, (args.empty? ? 0 : args[0]) 
+      @template.getDataManager.resolveLabel id, (args.empty? ? 0 : args[0]) 
     end
 
     define_method_for Template, id, 'label', p
