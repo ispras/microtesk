@@ -491,7 +491,7 @@ instance
 instance_arg
     :  instance 
     |  dataExpr
-    |  ^(ARGUMENT_OP ID)
+    |  ^(ARGUMENT id=ID)
     ;
 
 assignmentStatement returns [List<Statement> res]
