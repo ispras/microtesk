@@ -42,7 +42,7 @@ class MinimipsBaseTemplate < Template
   def gpr(index)
     location('GPR', index)
   end
-  
+
   def mem(index)
     location('M', index)
   end
