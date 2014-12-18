@@ -39,7 +39,7 @@ reg GPR [32, WORD]
 reg COP0_R[32, WORD]
 reg HI [WORD]
 reg LO [WORD]
-mem   M [2 ** 8, WORD] //32-bit 
+mem   M [2 ** 16, WORD] //32-bit 
 reg CIA[WORD] //Program counter
 
 
@@ -102,7 +102,6 @@ op addu (rd: REG, rs: REG, rt: REG) //unchecked addition
   syntax = format("addu %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100001", rs.image, rt.image, rd.image)
   action = {
-
       rd = rs + rt;
   }
 
@@ -110,7 +109,6 @@ op addiu (rt: REG, rs: REG, immed: SHORT)
   syntax = format("addiu %s, %s, %d", rt.syntax, rs.syntax, immed)
   image = format("000000%s%s%d", rs.image, rt.image, immed)
   action = {
-    
     rt = rs + immed;
   }
 
@@ -118,7 +116,6 @@ op andi (rt: REG, rs: REG, immed: SHORT)
   syntax = format("andi %s, %s, %d", rt.syntax, rs.syntax, immed)
   image = format("000000%s%s%d", rs.image, rt.image, immed)
   action = {
-    
     rt = rs & immed;
   }
 
@@ -146,7 +143,7 @@ op mult (rs: REG, rt: REG)
   syntax = format("mult %s, %s", rs.syntax, rt.syntax)
   image = format("000000%s%s0000000000011000", rs.image, rt.image)
   action = {
-    mult_result = rs * rt;
+    mult_result = coerce(int(64), rs) * coerce(int(64), rt);
     HI[0] = mult_result<63..32>;
     LO[0] = mult_result<31..0>;
   }
@@ -169,7 +166,6 @@ op and (rd: REG, rs: REG, rt: REG)
   syntax = format("and %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100100", rs.image, rt.image, rd.image)
   action = {
-
     rd = rs & rt;
   }
 
@@ -177,7 +173,6 @@ op or (rd: REG, rs: REG, rt: REG)
   syntax = format("or %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image)
   action = {
-     
     rd = rs | rt;
   }
 
@@ -185,7 +180,6 @@ op nor (rd: REG, rs: REG, rt: REG)
   syntax = format("nor %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100111", rs.image, rt.image, rd.image)
   action = {
-     
     rd = ~(rs | rt);
   }
 
@@ -193,7 +187,6 @@ op xor (rd: REG, rs: REG, rt: REG)
   syntax = format("xor %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100110", rs.image, rt.image, rd.image)
   action = {
-     
     rd = rs ^ rt;
   }
 
@@ -201,7 +194,6 @@ op ori (rt: REG, rs: REG, immed: SHORT)
   syntax = format("ori %s, %s, %d", rt.syntax, rs.syntax, immed)
   image = format("001101%s%s%d", rs.image, rt.image, immed)
   action = {
-     
     rt = rs | immed;
   }
 
@@ -209,7 +201,6 @@ op xori (rt: REG, rs: REG, immed: SHORT)
   syntax = format("xori %s, %s, %d", rt.syntax, rs.syntax, immed)
   image = format("001110%s%s%d", rs.image, rt.image, immed)
   action = {
-     
     rt = rs ^ immed;
   }
 
@@ -236,7 +227,6 @@ op sra (rd: REG, rt: REG, sa: card(5))
   syntax = format("sra %s, %s, %s", rd.syntax, rt.syntax, sa)
   image = format("00000000000%s%s%s000011", rt.image, rd.image, sa)
   action = {
-
    rd = coerce(int(32), rt) >> sa;
   }
 
@@ -244,7 +234,6 @@ op srav (rd: REG, rt: REG, rs: REG)
   syntax = format("srav %s, %s, %s", rd.syntax, rt.syntax, rs.syntax)
   image = format("00000000000%s%s%s000111", rt.image, rd.image, rs.image)
   action = {
-
    rd = coerce(int(32), rt) >> rs<4..0>;
   }
 
@@ -267,10 +256,9 @@ op srlv (rd: REG, rt: REG, rs: REG)
 
 
 op lw (rt: REG, offset: SHORT , address: REG)
-  syntax = format("lw %s, %d(%s)", rt.syntax, offset, address.syntax)
+  syntax = format("lw %s, %d, %s", rt.syntax, offset, address.syntax)
   image = format("100011%s%s%d", address.image, rt.image, offset)
   action = {
-     
     //----------!!!!!!!!!!!!!!!!!!!!
     rt = M[(address + offset) >> 2];
   }
@@ -279,16 +267,13 @@ op lui (rt: REG, immed:SHORT)
   syntax = format("lui %s, %d", rt.syntax, immed)
   image = format("001111%s%d", rt.image, immed)
   action = {
-     
     rt = immed << 8;
   }
 
 op sw (rd: REG, offset: SHORT, address: REG)
-  syntax = format("sw %s, %d(%s)", rd.syntax, offset, address.syntax)
+  syntax = format("sw %s, %d, %s", rd.syntax, offset, address.syntax)
   image = format("101011%s%s%d", address.image, rd.image, offset)
   action = {
-
-    
     M[(address + offset) >> 2] = rd;
   }
 
@@ -296,7 +281,6 @@ op mfhi (rd: REG)
   syntax = format("mfhi %s", rd.syntax)
   image = format("0000000000000000%s00000010000", rd.image)
   action = {
-     
     rd = HI[0];
   }
 
@@ -304,7 +288,6 @@ op mflo (rd: REG)
   syntax = format("mflo %s", rd.syntax)
   image = format("0000000000000000%s00000010010", rd.image)
   action = {
-     
     rd = LO[0];
   }
 
@@ -312,7 +295,6 @@ op mthi (rs: REG)
   syntax = format("mthi %s", rs.syntax)
   image = format("0000000000000000%s00000010000", rs.image)
   action = {
-     
     HI[0] = rs;
   }
 
@@ -320,7 +302,6 @@ op mtlo (rs: REG)
   syntax = format("mtlo %s", rs.syntax)
   image = format("0000000000000000%s00000010010", rs.image)
   action = {
-     
     LO[0] = rs;
   }
 
