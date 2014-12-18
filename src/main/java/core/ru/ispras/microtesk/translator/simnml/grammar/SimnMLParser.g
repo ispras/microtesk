@@ -246,13 +246,13 @@ andRule
     ;
 
 argDef
-    :  id=ID^ COLON! t=argType {declare($id, t.is_op ? ESymbolKind.ARGUMENT_OP : ESymbolKind.ARGUMENT, false);}
+    :  id=ID^ COLON! argType {declare($id, ESymbolKind.ARGUMENT, false);}
     ;
 
-argType returns [boolean is_op]
-    :  {isDeclaredAs(input.LT(1), ESymbolKind.MODE)}? ID {$is_op = false; } -> ^(ARG_MODE ID)
-    |  {isDeclaredAs(input.LT(1), ESymbolKind.OP)}? ID {$is_op = true; } -> ^(ARG_OP ID) 
-    |  typeExpr {$is_op = false; }
+argType
+    :  {isDeclaredAs(input.LT(1), ESymbolKind.MODE)}? ID -> ^(ARG_MODE ID)
+    |  {isDeclaredAs(input.LT(1), ESymbolKind.OP)}? ID -> ^(ARG_OP ID) 
+    |  typeExpr
     ;
 
 /*======================================================================================*/
