@@ -16,7 +16,7 @@
 
 require_relative 'minimips_base'
 
-class  BubbleSortTemplate < MinimipsBaseTemplate
+class  InsertionSortTemplate < MinimipsBaseTemplate
 
 
     def pre
@@ -52,7 +52,7 @@ class  BubbleSortTemplate < MinimipsBaseTemplate
         mflo reg(6) #the fact that the result of multiplication is less than
                     #32 bit long is not guaranteed!
 
-        add reg(6), reg(6), reg(5) #computing the addres of new element
+        add reg(6), reg(6), reg(5) #computing the address of new element
     
         lw reg(9), 0, reg(6) #load new elenent
     
