@@ -14,6 +14,11 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+
+import java.util.List;
+
+
 /**
  * The Instance class describes a statically created instance of a MODE or OP.
  * 
@@ -21,8 +26,22 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
  */
 
 public final class Instance {
-  public static enum Kind {
-    MODE, OP
+  private final PrimitiveAND primitive;
+  private final List<InstanceArgument> arguments;
+
+  Instance(PrimitiveAND primitive, List<InstanceArgument> arguments) {
+    checkNotNull(primitive);
+    checkNotNull(arguments);
+
+    this.primitive = primitive;
+    this.arguments = arguments;
   }
 
+  public PrimitiveAND getPrimitive() {
+    return primitive;
+  }
+
+  public List<InstanceArgument> getArguments() {
+    return arguments;
+  }
 }
