@@ -99,6 +99,17 @@ public final class StatementFactory extends WalkerFactoryBase {
 
     return StatementAttributeCall.newArgumentCall(calleeName, attributeName);
   }
+  
+  public Statement createAttributeCall(
+      Where where, Instance calleeInstance, String attributeName) throws SemanticException {
+
+    final Primitive callee = calleeInstance.getPrimitive();
+    if (!callee.getAttrNames().contains(attributeName)) {
+      raiseError(where, String.format(UNDEFINED_ATTR, attributeName, callee.getName()));
+    }
+
+    return StatementAttributeCall.newInstanceCall(calleeInstance, attributeName);
+  }
 
   public Statement createControlTransfer(int index) {
     return new StatementStatus(Status.CTRL_TRANSFER, index);

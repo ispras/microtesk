@@ -422,11 +422,13 @@ $res = Format.createArgument($e.res);
 }
     |  ^(DOT id=ID name=(SYNTAX | IMAGE))
 {
-$res = Format.createArgument((StatementAttributeCall)getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
+$res = Format.createArgument((StatementAttributeCall)
+    getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
 }
-    |  ^(INSTANCE_CALL instance (SYNTAX | IMAGE))
+    |  ^(INSTANCE_CALL i=instance name=(SYNTAX | IMAGE))
 {
-$res = null; // TODO
+$res = Format.createArgument((StatementAttributeCall)
+    getStatementFactory().createAttributeCall(where($i.start), $i.res, $name.text));
 }
     ;
 
@@ -478,9 +480,10 @@ $res = Collections.singletonList(
 $res = Collections.singletonList(
     getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
 }
-    |  ^(INSTANCE_CALL instance (ACTION | ID))
+    |  ^(INSTANCE_CALL i=instance name=(ACTION | ID))
 {
-$res = Collections.<Statement>emptyList();
+$res = Collections.singletonList(
+   getStatementFactory().createAttributeCall(where($i.start), $i.res, $name.text)); 
 }
     ;
 
