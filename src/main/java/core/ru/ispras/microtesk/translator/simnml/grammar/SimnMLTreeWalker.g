@@ -507,7 +507,7 @@ $res = InstanceArgument.newExpr($e.res);
     |  ^(ARGUMENT id=ID)
 {
 $res = InstanceArgument.newPrimitive(
-    getPrimitiveFactory().getArgument(where($id), $id.text));
+    $id.text, getPrimitiveFactory().getArgument(where($id), $id.text));
 }
     ;
 

@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.simnml.generation.PrinterExpr;
+import ru.ispras.microtesk.translator.simnml.generation.PrinterInstance;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 import ru.ispras.microtesk.utils.FormatMarker;
@@ -128,6 +129,8 @@ public final class Format {
 
       if (null != callInfo.getCalleeName()) {
         sb.append(String.format("%s.", callInfo.getCalleeName()));
+      } else if (null != callInfo.getCalleeInstance()) {
+        sb.append(String.format("%s.", PrinterInstance.toString(callInfo.getCalleeInstance())));
       }
 
       sb.append(String.format("%s()", callInfo.getAttributeName()));

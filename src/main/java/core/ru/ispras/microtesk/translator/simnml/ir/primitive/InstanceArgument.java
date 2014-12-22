@@ -31,21 +31,22 @@ public final class InstanceArgument {
   }
 
   public static InstanceArgument newInstance(Instance instance) {
-    return new InstanceArgument(Kind.INSTANCE, instance);
+    return new InstanceArgument(Kind.INSTANCE, instance, null);
   }
 
   public static InstanceArgument newExpr(Expr expr) {
-    return new InstanceArgument(Kind.EXPR, expr);
+    return new InstanceArgument(Kind.EXPR, expr, null);
   }
 
-  public static InstanceArgument newPrimitive(Primitive primitive) {
-    return new InstanceArgument(Kind.PRIMITIVE, primitive);
+  public static InstanceArgument newPrimitive(String name, Primitive type) {
+    return new InstanceArgument(Kind.PRIMITIVE, type, name);
   }
 
   private final Kind kind;
   private final Object value;
+  private final String name;
 
-  private InstanceArgument(Kind kind, Object value) {
+  private InstanceArgument(Kind kind, Object value, String name) {
     checkNotNull(kind);
     checkNotNull(value);
 
@@ -55,6 +56,7 @@ public final class InstanceArgument {
 
     this.kind = kind;
     this.value = value;
+    this.name = name;
   }
 
   public Kind getKind() {
@@ -71,6 +73,10 @@ public final class InstanceArgument {
 
   public Primitive getPrimitive() {
     return (Primitive) getValueIfAssignable(Primitive.class);
+  }
+
+  public String getName() {
+    return name;
   }
 
   private Object getValueIfAssignable(Class<?> targetClass) {

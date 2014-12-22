@@ -38,9 +38,15 @@ public final class PrinterExpr {
   private final Expr expr;
   private final NodeInfo nodeInfo;
   private final List<ValueInfo> coercionChain;
+  private final boolean asLocation;
 
   public PrinterExpr(Expr expr) {
+    this(expr, false);
+  }
+
+  public PrinterExpr(Expr expr, boolean asLocation) {
     this.expr = expr;
+    this.asLocation = asLocation;
 
     if (null != expr) {
       this.nodeInfo = expr.getNodeInfo();
@@ -128,6 +134,10 @@ public final class PrinterExpr {
   }
 
   private String locationToString(Location source) {
+    if (asLocation) {
+      return PrinterLocation.toString(source);
+    }
+
     return PrinterLocation.toString(source) + ".load()";
   }
 
