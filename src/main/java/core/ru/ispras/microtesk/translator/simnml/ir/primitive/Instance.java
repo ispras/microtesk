@@ -18,7 +18,6 @@ import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
 
 import java.util.List;
 
-
 /**
  * The Instance class describes a statically created instance of a MODE or OP.
  * 

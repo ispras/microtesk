@@ -484,14 +484,28 @@ $res = Collections.<Statement>emptyList();
 }
     ;
 
-instance
-    :  ^(INSTANCE instance_arg*)
+instance returns [Instance res]
+@init  {final List<InstanceArgument> args = new ArrayList<>();}
+    :  ^(INSTANCE id=ID (arg=instance_arg {args.add($arg.res);})*)
+{
+$res = getPrimitiveFactory().newInstance(where($id), $id.text, args);
+}
     ;
 
-instance_arg
-    :  instance 
-    |  dataExpr
+instance_arg returns [InstanceArgument res]
+    :  i=instance
+{
+$res = InstanceArgument.newInstance($i.res);
+}
+    |  e=dataExpr
+{
+$res = InstanceArgument.newExpr($e.res);
+}
     |  ^(ARGUMENT id=ID)
+{
+$res = InstanceArgument.newPrimitive(
+    getPrimitiveFactory().getArgument(where($id), $id.text));
+}
     ;
 
 assignmentStatement returns [List<Statement> res]

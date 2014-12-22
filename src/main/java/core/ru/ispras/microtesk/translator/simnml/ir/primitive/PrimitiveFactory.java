@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,9 @@ import java.util.Set;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
+import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
+import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.simnml.antlrex.WalkerFactoryBase;
@@ -106,6 +110,42 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     return getIR().getOps().get(opName);
+  }
+
+  public Primitive getArgument(Where where, String name) throws SemanticException {
+    if (!getThisArgs().containsKey(name)) {
+      raiseError(where, new UndefinedPrimitive(name, ESymbolKind.ARGUMENT));
+    }
+
+    return getThisArgs().get(name);
+  }
+
+  public Instance newInstance(
+      Where where, String name, List<InstanceArgument> args) throws SemanticException {
+
+    final ISymbol symbol = getSymbols().resolve(name);
+    if (null == symbol) {
+      raiseError(where, new UndeclaredSymbol(name));
+    }
+
+    if ((symbol.getKind() != ESymbolKind.MODE) && (symbol.getKind() != ESymbolKind.OP)) {
+      raiseError(where, new SymbolTypeMismatch(name, symbol.getKind(),
+          Arrays.<Enum<?>>asList(ESymbolKind.MODE, ESymbolKind.OP)));
+    }
+
+    final Primitive primitive = symbol.getKind() == ESymbolKind.MODE ?
+        getIR().getModes().get(name) : getIR().getOps().get(name);
+
+    if (null == primitive) {
+      raiseError(where, new UndefinedPrimitive(name, (ESymbolKind)symbol.getKind()));
+    }
+
+    if (primitive.isOrRule()) {
+      raiseError(where, String.format("%s is not an AND rule!", name)); 
+    }
+
+    final PrimitiveAND primitiveAND = (PrimitiveAND) primitive;
+    return new Instance(primitiveAND, args);
   }
 }
 
