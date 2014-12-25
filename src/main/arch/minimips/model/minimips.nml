@@ -267,7 +267,7 @@ op lui (rt: REG, immed:SHORT)
   syntax = format("lui %s, %d", rt.syntax, immed)
   image = format("001111%s%d", rt.image, immed)
   action = {
-    rt = immed << 8;
+    rt = coerce(WORD, immed) << 8;
   }
 
 op sw (rd: REG, offset: SHORT, address: REG)
