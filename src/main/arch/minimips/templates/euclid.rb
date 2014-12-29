@@ -27,36 +27,6 @@ require_relative 'minimips_base'
 #  
 
 class EuclidTemplate < MinimipsBaseTemplate
-  
-  def pre
-    super
-
-    data {
-      label :data1
-      word 1, 2, 3, 4
-
-      label :data2
-      half 0xDEAD, 0xBEEF
-
-      label :hello
-      ascii  'Hello'
-
-      label :world
-      asciiz 'World'
-
-      space 8
-    }
-
-    trace "%x", mem(0)
-    trace "%x", mem(1)
-    trace "%x", mem(2)
-    trace "%x", mem(3)
-
-    trace "data1: %x", data1
-    trace "data2: %x", data2
-    trace "hello: %x", hello
-    trace "world: %x", world
-  end
 
   def run
     trace "Euclidean Algorithm (miniMIPS): Debug Output"
