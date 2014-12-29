@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -26,6 +28,8 @@ import static ru.ispras.microtesk.utils.PrintingUtils.*;
 
 public final class Template {
   private final MetaModel metaModel;
+
+  private final MemoryMap memoryMap;
   private final DataManager dataManager;
 
   private final Deque<BlockBuilder> blockBuilders;
@@ -43,7 +47,9 @@ public final class Template {
     }
 
     this.metaModel = metaModel;
-    this.dataManager = new DataManager();
+
+    this.memoryMap = new MemoryMap();
+    this.dataManager = new DataManager(this.memoryMap);
 
     final BlockBuilder rootBlockBuilder = new BlockBuilder();
     rootBlockBuilder.setAtomic(true);
@@ -56,6 +62,10 @@ public final class Template {
 
     this.sequences = null;
     this.preparators = new PreparatorStore();
+  }
+  
+  public MemoryMap getMemoryMap() {
+    return memoryMap;
   }
 
   public DataManager getDataManager() {
@@ -134,7 +144,7 @@ public final class Template {
   public void endBuildingCall() {
     final Call call = callBuilder.build();
     trace("Ended building a call (empty = %b, executable = %b)",
-      call.isEmpty(), call.isExecutable());
+        call.isEmpty(), call.isExecutable());
 
     if (null == preparatorBuilder) {
       blockBuilders.peek().addCall(call);
@@ -147,27 +157,21 @@ public final class Template {
 
   public PrimitiveBuilder newOperationBuilder(String name) {
     trace("Operation: " + name);
+    checkNotNull(name);
 
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    return new PrimitiveBuilderOperation(name, metaModel, callBuilder);
+    return new PrimitiveBuilderOperation(name, metaModel, callBuilder, memoryMap);
   }
 
   public PrimitiveBuilder newAddressingModeBuilder(String name) {
     trace("Addressing mode: " + name);
-
-    if (null == name) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
 
     final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
     if (null == metaData) {
       throw new IllegalArgumentException("No such addressing mode: " + name);
     }
 
-    return new PrimitiveBuilderCommon(callBuilder, metaData);
+    return new PrimitiveBuilderCommon(callBuilder, memoryMap, metaData);
   }
 
   public RandomValue newRandom(int from, int to) {
@@ -190,9 +194,7 @@ public final class Template {
     endBuildingCall();
 
     trace("Begin preparator: %s", targetName);
-    if (null == targetName) {
-      throw new NullPointerException();
-    }
+    checkNotNull(targetName);
 
     if (null == metaModel.getAddressingMode(targetName)) {
       throw new IllegalArgumentException(String.format(

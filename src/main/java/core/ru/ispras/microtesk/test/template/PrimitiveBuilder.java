@@ -52,35 +52,32 @@ public interface PrimitiveBuilder {
 }
 
 final class PrimitiveBuilderOperation implements PrimitiveBuilder {
-  private final CallBuilder callBuilder;
-  private final MetaModel metaModel;
-
   private final String name;
   private String contextName;
   private Situation situation;
+  
+  private final MetaModel metaModel;
+  private final CallBuilder callBuilder;
+  private final MemoryMap memoryMap;
 
   private final List<Argument> argumentList;
   private final Map<String, Argument> argumentMap;
 
   private static final String ERR_WRONG_USE =
-    "Illegal use: Arguments can be added using either " +
-     "addArgument or setArgument methods, but not both.";
+      "Illegal use: Arguments can be added using either " +
+      "addArgument or setArgument methods, but not both.";
 
-  PrimitiveBuilderOperation(String name, MetaModel metaModel, CallBuilder callBuilder) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
+  PrimitiveBuilderOperation(
+      String name, MetaModel metaModel, CallBuilder callBuilder, MemoryMap memoryMap) {
 
-    if (null == metaModel) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(metaModel);
+    checkNotNull(callBuilder);
+    checkNotNull(memoryMap);
 
-    if (null == callBuilder) {
-      throw new NullPointerException();
-    }
-
-    this.callBuilder = callBuilder;
     this.metaModel = metaModel;
+    this.callBuilder = callBuilder;
+    this.memoryMap = memoryMap;
 
     this.name = name;
     this.contextName = null;
@@ -100,10 +97,12 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
 
     final PrimitiveBuilder builder;
     if (null != metaShortcut) {
-      builder = new PrimitiveBuilderCommon(callBuilder, metaShortcut.getOperation(), contextName);
+      builder = new PrimitiveBuilderCommon(
+          callBuilder, memoryMap, metaShortcut.getOperation(), contextName);
     } else {
       // If there is no shortcut for the given context, the operation is used as it is.
-      builder = new PrimitiveBuilderCommon(callBuilder, metaData, null);
+      builder = new PrimitiveBuilderCommon(
+          callBuilder, memoryMap, metaData, null);
     }
 
     builder.setSituation(situation);
@@ -423,6 +422,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
  
   private final CallBuilder callBuilder;
+  private final MemoryMap memoryMap;
+ 
   private final Strategy strategy;
   private final Kind kind;
   private final Map<String, Argument> args;
@@ -431,19 +432,24 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   private final LazyPrimitive lazyPrimitive; // Needed for label references.
 
-  PrimitiveBuilderCommon(CallBuilder callBuilder, MetaOperation metaData, String contextName) {
-    this(callBuilder, new StrategyOperation(metaData, contextName), Kind.OP, contextName);
+  PrimitiveBuilderCommon(
+      CallBuilder callBuilder, MemoryMap memoryMap, MetaOperation metaData, String contextName) {
+    this(callBuilder, memoryMap, new StrategyOperation(metaData, contextName), Kind.OP, contextName);
   }
 
-  PrimitiveBuilderCommon(CallBuilder callBuilder, MetaAddressingMode metaData) {
-    this(callBuilder, new StrategyAddressingMode(metaData), Kind.MODE, null);
+  PrimitiveBuilderCommon(
+      CallBuilder callBuilder, MemoryMap memoryMap, MetaAddressingMode metaData) {
+    this(callBuilder, memoryMap, new StrategyAddressingMode(metaData), Kind.MODE, null);
   }
 
-  private PrimitiveBuilderCommon(CallBuilder callBuilder, Strategy strategy, Kind kind,
-      String contextName) {
+  private PrimitiveBuilderCommon(
+      CallBuilder callBuilder, MemoryMap memoryMap, Strategy strategy, Kind kind, String contextName) {
     checkNotNull(callBuilder);
+    checkNotNull(memoryMap);
 
     this.callBuilder = callBuilder;
+    this.memoryMap = memoryMap;
+
     this.strategy = strategy;
     this.kind = kind;
     this.args = new LinkedHashMap<String, Argument>();
@@ -548,11 +554,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
     // TODO: Current limitation: 0 is instead of
     // the actual label address/offset.
-
     final int fakeValue = 0;
-    setArgument(name, fakeValue);
+    final int address = memoryMap.resolveWithDefault(value, fakeValue);
 
-    callBuilder.addLabelReference(value, lazyPrimitive, name, fakeValue);
+    setArgument(name, address);
+    callBuilder.addLabelReference(value, lazyPrimitive, name, address);
   }
 
   public void setArgument(String name, RandomValue value) {

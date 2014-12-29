@@ -94,18 +94,21 @@ final class Executor {
         final Label source = labelRef.getReference();
         final LabelManager.Target target = labelManager.resolve(source);
 
-        if (null == target) {
-          logText(String.format(MSG_FAILED_TO_RESOLVE, source.getName()));
-          continue;
-        }
+        final String uniqueName;
 
-        labelRef.setTarget(target.getLabel(), target.getPosition());
+        if (null != target) {
+          uniqueName = target.getLabel().getUniqueName();
+          labelRef.setTarget(target.getLabel(), target.getPosition());
+        } else {
+          // For data labels 
+          uniqueName = source.getName();
+        }
 
         // TODO: TEMPORARY IMPLEMENTATION
         final String searchPattern = 
-           String.format("<label>%d", labelRef.getArgumentValue());
-        final String patchedText =
-           call.getText().replace(searchPattern, target.getLabel().getUniqueName());
+            String.format("<label>%d", labelRef.getArgumentValue());
+        final String patchedText = 
+            call.getText().replace(searchPattern, uniqueName);
 
         call.setText(patchedText);
       }
@@ -214,7 +217,7 @@ final class Executor {
    * @param text Text to be printed.
    */
 
-  private void logText(String text) {
+  public void logText(String text) {
     if (logExecution && text != null) {
       PrintingUtils.trace(text);
     }

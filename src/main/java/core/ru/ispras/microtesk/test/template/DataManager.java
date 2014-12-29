@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
-import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterOrEqZero;
 import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.math.BigInteger;
@@ -133,7 +132,7 @@ public final class DataManager {
   private BitVector spaceData;
   private String ztermStrText;
   private String nztermStrText;
-  
+
   private final Map<String, TypeInfo> typeMap;
   final static class TypeInfo {
     final Type type;
@@ -145,8 +144,10 @@ public final class DataManager {
     }
   }
 
-  DataManager() {
-    this.memoryMap = new MemoryMap();
+  DataManager(MemoryMap memoryMap) {
+    checkNotNull(memoryMap);
+
+    this.memoryMap = memoryMap;
     this.dataDecls = new ArrayList<>();
 
     this.allocator = null;
@@ -184,8 +185,6 @@ public final class DataManager {
     }
 
     final StringBuilder sb = new StringBuilder();
-    sb.append("Data declarations:\r\n\r\n");
-
     for (DataDeclItem item : dataDecls) {
       sb.append(item.getText());
       sb.append("\r\n");
@@ -248,25 +247,15 @@ public final class DataManager {
     dataDecls.add(new DetaDeclLabel(id));
   }
 
-  private void setAllLabelsToAddress(int address, int sizeInAddresableUnits) {
+  private void setAllLabelsToAddress(int address) {
     checkInitialized();
 
     if (null != labels) {
       for (String label : labels) {
-        memoryMap.addLabel(label, address, sizeInAddresableUnits);
+        memoryMap.addLabel(label, address);
       }
       labels = null;
     }
-  }
-
-  public int resolveLabel(String id, int index) {
-    checkNotNull(id);
-    checkGreaterOrEqZero(index);
-
-    checkInitialized();
-    trace("Resolving label reference %s(%d)", id, index); 
-
-    return memoryMap.resolve(id, index);
   }
 
   public void addData(String id, BigInteger[] values) {
@@ -289,9 +278,7 @@ public final class DataManager {
           BitVector.valueOf(values[i], typeInfo.type.getBitSize()));
     }
 
-    setAllLabelsToAddress(
-        address, allocator.bitsToAddressableUnits(typeInfo.type.getBitSize()));
-
+    setAllLabelsToAddress(address);
     dataDecls.add(new DetaDecl(typeInfo.text, values));
   }
 
@@ -305,7 +292,7 @@ public final class DataManager {
 
     final int address = allocator.allocate(spaceData, length);
 
-    setAllLabelsToAddress(address, 1);
+    setAllLabelsToAddress(address);
     dataDecls.add(new DetaDeclSpace(spaceText, length));
   }
 
@@ -327,7 +314,7 @@ public final class DataManager {
       allocator.allocateAsciiString(strings[index], zeroTerm);
     }
 
-    setAllLabelsToAddress(address, 1);
+    setAllLabelsToAddress(address);
     dataDecls.add(new DetaDeclStrings((zeroTerm ? ztermStrText : nztermStrText), strings));
   }
 

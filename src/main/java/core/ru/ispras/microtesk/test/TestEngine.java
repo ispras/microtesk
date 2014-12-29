@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test;
 
+import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
+
 import java.io.IOException;
 
 import ru.ispras.microtesk.model.api.IModel;
@@ -24,8 +26,6 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Template;
-
-import static ru.ispras.microtesk.utils.PrintingUtils.*;
 
 public final class TestEngine {
   public static TestEngine getInstance(IModel model) {
@@ -71,6 +71,8 @@ public final class TestEngine {
     final IModelStateObserver observer = model.getStateObserver();
     final Executor executor = new Executor(observer, logExecution);
     final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
+    
+    final String dataDeclText = template.getDataManager().getDataDeclText();
 
     try {
       int sequenceNumber = 1;
@@ -82,10 +84,12 @@ public final class TestEngine {
         final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
 
         printHeader("Executing sequence %d", sequenceNumber);
-        trace(template.getDataManager().getDataDeclText());
+        executor.logText("Data declarations:\r\n\r\n");
+        executor.logText(dataDeclText);
         executor.executeSequence(concreteSequence);
 
         printHeader("Printing sequence %d", sequenceNumber);
+        printer.printText(dataDeclText);
         printer.printSequence(concreteSequence);
 
         sequenceIt.next();

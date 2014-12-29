@@ -167,6 +167,10 @@ class Template
     @template.addLabel name 
   end
 
+  def address(label)
+    @template.getMemoryMap.resolve label.to_s 
+  end
+
   def situation(name, attrs = {})
     if !attrs.is_a?(Hash)
       raise MTRubyError, "attrs (#{attrs}) must be a Hash."  
@@ -311,7 +315,6 @@ class Template
   # Data Definition Facilities                                                #
   # ------------------------------------------------------------------------- #
 
-  # TODO: under development
   def data_config(attrs, &contents)
     puts "Defining data configuration..."
 
@@ -319,15 +322,14 @@ class Template
       raise MTRubyError, "Data configuration is already defined"
     end
 
-    text = get_attribute attrs, :text
-    target = get_attribute attrs, :target
+    text            = get_attribute attrs, :text
+    target          = get_attribute attrs, :target
     addressableSize = get_attribute attrs, :addressableSize
 
     @data_manager = DataManager.new @template.getDataManager, text, target, addressableSize
     @data_manager.instance_eval &contents
   end
 
-  # TODO: under development
   def data(&contents)
     puts "Defining data..."
 
@@ -400,12 +402,6 @@ class DataManager
 
   def label(id)
     @manager.addLabel id
-
-    p = lambda do |*args|
-      @template.getDataManager.resolveLabel id, (args.empty? ? 0 : args[0]) 
-    end
-
-    define_method_for Template, id, 'label', p
   end
 
   def define_type(attrs)

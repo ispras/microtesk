@@ -34,10 +34,10 @@ class  InsertionSortTemplate < MinimipsBaseTemplate
     def run
 
     #looks terrible, there sould be "lw" instruction for data
-    addi reg(1), reg(0), length
+    addi reg(1), reg(0), :length
     lw reg(4), 0, reg(1)
 
-    la reg(5), array
+    la reg(5), :array
     add reg(20), reg(0), reg(5)
     trace "%x", gpr(5)
     
@@ -116,7 +116,7 @@ class  InsertionSortTemplate < MinimipsBaseTemplate
     #trace "%x", array
     
     add reg(4), reg(0), reg(0) #reset to zero of $4 (temporary hack)
-    la reg(4), array
+    la reg(4), :array
     $i = 0
     while $i < 12 do
     	lw reg(3), 0, reg(4)    

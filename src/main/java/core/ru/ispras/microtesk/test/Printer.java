@@ -155,7 +155,7 @@ final class Printer {
     }
   }
 
-  private void printText(String text) {
+  public void printText(String text) {
     if (text != null) {
       printToScreen(text);
       printToFile(text);

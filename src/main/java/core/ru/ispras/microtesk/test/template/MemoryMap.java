@@ -15,50 +15,42 @@
 package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterOrEqZero;
-import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public final class MemoryMap {
-  private static class Pointer {
-    final int address;
-    final int sizeInAddresableUnits;
-
-    Pointer(int address, int sizeInAddresableUnits) {
-      this.address = address;
-      this.sizeInAddresableUnits = sizeInAddresableUnits;
-    }
-  }
-
-  private final Map<String, Pointer> labels;
+  private final Map<String, Integer> labels;
 
   MemoryMap() {
-    this.labels = new HashMap<String, Pointer>(); 
+    this.labels = new HashMap<String, Integer>(); 
   }
 
-  public void addLabel(String label, int address, int sizeInAddresableUnits) {
+  public void addLabel(String label, int address) {
     checkNotNull(label);
     checkGreaterOrEqZero(address);
-    checkGreaterThanZero(sizeInAddresableUnits);
 
-    labels.put(label, new Pointer(address, sizeInAddresableUnits));
+    labels.put(label, address);
   }
 
   public int resolve(String label) {
-    return resolve(label, 0);
-  }
-
-  public int resolve(String label, int index) {
     checkNotNull(label);
-    checkGreaterOrEqZero(index);
 
-    final Pointer pointer = labels.get(label);
-    if (null == pointer) {
+    if (!labels.containsKey(label)) {
       throw new IllegalArgumentException(String.format("The %s label is not defined.", label));
     }
 
-    return pointer.address + pointer.sizeInAddresableUnits * index;
+    return labels.get(label);
+  }
+
+  public int resolveWithDefault(String label, int defaultValue) {
+    checkNotNull(label);
+
+    if (!labels.containsKey(label)) {
+      return defaultValue;
+    }
+
+    return labels.get(label);
   }
 }
