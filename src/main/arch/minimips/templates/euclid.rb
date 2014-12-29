@@ -67,29 +67,29 @@ class EuclidTemplate < MinimipsBaseTemplate
 
     trace "\nInput parameter values: #{x}, #{y}\n"
 
-    addi reg(4), reg(0), x
-    addi reg(5), reg(0), y
+    addi t1, zero, x
+    addi t2, zero, y
 
     label :cycle
-    trace "\nCurrent register values: $4 = %d, $5 = %d\n", gpr(4), gpr(5)
-    beq reg(4), reg(5), :done
+    trace "\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr(9), gpr(10)
+    beq t1, t2, :done
 
-    slt reg(2), reg(4), reg(5)
-    bne reg(2), reg(0), :if_less
-    sll reg(0), reg(0), 0 # means 'nop' (idiom)
+    slt t0, t1, t2
+    bne t0, zero, :if_less
+    sll zero, zero, 0 # means 'nop' (idiom)
 
-    subu reg(4), reg(4), reg(5)
+    subu t1, t1, t2
     j :cycle
-    sll reg(0), reg(0), 0 # means 'nop' (idiom)
+    sll zero, zero, 0 # means 'nop' (idiom)
 
     label :if_less
-    subu reg(5), reg(5), reg(4)
+    subu t2, t2, t1
     j :cycle
 
     label :done
-    add reg(6), reg(4), reg(0)
+    add t3, t1, zero
 
-    trace "\nResult stored in $6: %d", gpr(6)
+    trace "\nResult stored in $t3($11): %d", gpr(11)
   end
 
 end
