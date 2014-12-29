@@ -24,34 +24,37 @@ let PC = "CIA"
 //labels
 ///s
 
-//////////////////////////////////TYPES////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Types
 
-type   BYTE = card(8)
-type   WORD = int(32)
-type   SHORT = int(16)
-type   INDEX = card(5) //only 5 bits for address are required
+type  BYTE = card(8)
+type  WORD = int(32)
+type SHORT = int(16)
+type INDEX = card(5) //only 5 bits for address are required
 type   BIT = card(1)
-type   JUMP_IMMED = card(26)
 
-/////////////////////REGISTERS AND MEMORY//////////////////////////////////////
+type JUMP_IMMED = card(26)
+
+////////////////////////////////////////////////////////////////////////////////
+// Registers and Memory
 
 reg GPR [32, WORD]
 reg COP0_R[32, WORD]
 reg HI [WORD]
 reg LO [WORD]
-mem   M [2 ** 16, WORD] //32-bit 
+mem  M [2 ** 16, WORD] //32-bit 
 reg CIA[WORD] //Program counter
 
-
-/////////////////////////ADDRESSING MODES//////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Addressing Modes
 
 mode REG (i : INDEX) = GPR[i] 
   syntax = format("$%d", i)
-  image  = format("%5b", i) //maybe 2 bits are redundant?
+  image  = format("%s", i)
 
 mode COP0 (i : INDEX) = COP0_R[i] 
-   syntax = format("$%d", i) //----------------is it correct?                                                                  
-   image  = format("%5b", i)
+  syntax = format("$%d", i)                                                                  
+  image  = format("%s", i)
 
 //////////////////////////VARIABLES////////////////////////////////////////////
 
@@ -342,7 +345,7 @@ op mtc0 (rt: REG, cs: COP0) //move from coprocessor
 
 
 op beq (rt: REG, rs: REG, immed: SHORT)
-  syntax = format("beq %s, %s, %d", rs.syntax, rt.syntax, immed)
+  syntax = format("beq %s, %s, %<label>d", rs.syntax, rt.syntax, immed)
   image = format("000100%s%s%d", rs.image, rt.image, immed)
   action = {
     if rt == rs then
@@ -352,7 +355,7 @@ op beq (rt: REG, rs: REG, immed: SHORT)
   }
 
 op bgez (rs: REG, immed: SHORT)
-  syntax = format("bgez %s, %d", rs.syntax, immed)
+  syntax = format("bgez %s, %<label>d", rs.syntax, immed)
   image = format("000001%s00001%d", rs.image, immed)
   action = {
     if rs >= 0 then
@@ -362,7 +365,7 @@ op bgez (rs: REG, immed: SHORT)
   }
 
 op bgezal (rs: REG, offset: SHORT)
-  syntax = format("bgezal %s, %d", rs.syntax, offset)
+  syntax = format("bgezal %s, %<label>d", rs.syntax, offset)
   image = format("000001%s10001%d", rs.image, offset)
   action = {
     if rs >= 0 then
@@ -373,7 +376,7 @@ op bgezal (rs: REG, offset: SHORT)
   }
 
 op bgtz (rs: REG, immed: SHORT)
-  syntax = format("bgtz %s, %d", rs.syntax, immed)
+  syntax = format("bgtz %s, %<label>d", rs.syntax, immed)
   image = format("000111%s00000%d", rs.image, immed)
   action = {
     if rs > 0 then
@@ -383,7 +386,7 @@ op bgtz (rs: REG, immed: SHORT)
   }
 
 op blez (rs: REG, immed: SHORT)
-  syntax = format("blez %s, %d", rs.syntax, immed)
+  syntax = format("blez %s, %<label>d", rs.syntax, immed)
   image = format("000110%s00000%d", rs.image, immed)
   action = {
     if rs <= 0 then
@@ -393,7 +396,7 @@ op blez (rs: REG, immed: SHORT)
   }
 
 op bltz (rs: REG, immed: SHORT)
-  syntax = format("bltz %s, %d", rs.syntax, immed)
+  syntax = format("bltz %s, %<label>d", rs.syntax, immed)
   image = format("000001%s00000%d", rs.image, immed)
   action = {
     if rs < 0 then
@@ -403,7 +406,7 @@ op bltz (rs: REG, immed: SHORT)
   }
 
 op bltzal (rs: REG, offset: SHORT)
-  syntax = format("bltzal %s, %d", rs.syntax, offset)
+  syntax = format("bltzal %s, %<label>d", rs.syntax, offset)
   image = format("000001%s00000%d", rs.image, offset)
   action = {
     if rs < 0 then
@@ -414,7 +417,7 @@ op bltzal (rs: REG, offset: SHORT)
   }
 
 op bne (rt: REG, rs: REG, immed: SHORT)
-  syntax = format("bne %s, %s, %d", rt.syntax, rs.syntax, immed)
+  syntax = format("bne %s, %s, %<label>d", rt.syntax, rs.syntax, immed)
   image = format("000101%s%s%d", rt.image, rs.image, immed)
   action = {
     if rt != rs then
@@ -473,8 +476,8 @@ op sltu (rd: REG, rs: REG, rt: REG)
 
 
 op j (addr: JUMP_IMMED)
-  syntax = format("j %d", addr)
-  image = format("000010%d", addr)
+  syntax = format("j %<label>d", addr)
+  image = format("000010%s", addr)
   action = {
     cia_copy = CIA + 4;                                                                    //is it correct?
     temp_jump = coerce(card(28), addr) << 2;
@@ -491,8 +494,8 @@ op jr (addr: REG)
   }
 
 op jal (addr: JUMP_IMMED)
-  syntax = format("jal %d", addr)
-  image = format("000011%d", addr)
+  syntax = format("jal %<label>d", addr)
+  image = format("000011%s", addr)
   action = {
     GPR[31] = CIA + 4 + 4;
     cia_copy = CIA + 4;                                                                    //is it correct?
@@ -616,7 +619,7 @@ op instruction (command: Operations)
 // Pseudo Instructions
 
 op la(rd : REG, addr : WORD)
-  syntax = format("la %s, %d", rd.syntax, addr)
+  syntax = format("la %s, %<label>d", rd.syntax, addr)
   image  = format("%s%s", lui(rd, addr<16..31>).image, ori(rd, rd, addr<0..15>).image)
   action = {
     instruction(lui(rd, addr<0..15>)).action;
