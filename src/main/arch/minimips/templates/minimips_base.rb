@@ -38,6 +38,151 @@ class MinimipsBaseTemplate < Template
   def post
     # Place your finalization code here
   end
+  
+  # Aliases for accessing General-Purpose Registers
+  #   Name    Number Usage                Preserved?
+  #   $zero      0   Constant zero
+  #   $at        1   Reserved (assembler)
+  #   $v0–$v1   2–3  Function result
+  #   $a0–$a3   4–7  Function arguments
+  #   $t0–$t7  8–15  Temporaries
+  #   $s0–$s7  16–23 Saved                    yes
+  #   $t8–$t9  24–25 Temporaries
+  #   $k0–$k1  26-27 Reserved (OS)
+  #   $gp       28   Global pointer           yes
+  #   $sp       29   Stack pointer            yes
+  #   $fp       30   Frame pointer            yes
+  #   $ra       31   Return address           yes
+
+  def zero
+    reg(0)
+  end
+
+  def at
+    reg(1)
+  end
+
+  def v0
+    reg(2)
+  end
+
+  def v1
+    reg(3)
+  end
+
+  def a0
+    reg(4)
+  end
+
+  def a1
+    reg(5)
+  end
+
+  def a2
+    reg(6)
+  end
+
+  def a3
+    reg(7)
+  end
+
+  def t0
+    reg(8)
+  end
+
+  def t1
+    reg(9)
+  end
+
+  def t2
+    reg(10)
+  end
+
+  def t3
+    reg(11)
+  end
+
+  def t4
+    reg(12)
+  end
+
+  def t5
+    reg(13)
+  end
+
+  def t6
+    reg(14)
+  end
+
+  def t7
+    reg(15)
+  end
+
+  def s0
+    reg(16)
+  end
+
+  def s1
+    reg(17)
+  end
+
+  def s2
+    reg(18)
+  end
+
+  def s3
+    reg(19)
+  end
+
+  def s4
+    reg(20)
+  end
+
+  def s5
+    reg(21)
+  end
+
+  def s6
+    reg(22)
+  end
+
+  def s7
+    reg(23)
+  end
+
+  def t8 
+    reg(24)
+  end
+
+  def t9
+    reg(25)
+  end
+
+  def k0 
+    reg(26)
+  end
+
+  def k1 
+    reg(27)
+  end
+
+  def gp
+    reg(28)
+  end
+
+  def sp
+    reg(29)
+  end
+
+  def fp
+    reg(30)
+  end
+
+  def ra
+    reg(31)
+  end
+
+  # Shortcut methods to access memory resources in debug messages
 
   def gpr(index)
     location('GPR', index)
