@@ -19,7 +19,6 @@ import java.util.LinkedList;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.test.DataManager;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 

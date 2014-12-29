@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
@@ -145,7 +145,7 @@ public final class DataManager {
     }
   }
 
-  public DataManager() {
+  DataManager() {
     this.memoryMap = new MemoryMap();
     this.dataDecls = new ArrayList<>();
 

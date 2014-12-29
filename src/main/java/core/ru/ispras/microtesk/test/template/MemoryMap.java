@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterOrEqZero;
 import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
