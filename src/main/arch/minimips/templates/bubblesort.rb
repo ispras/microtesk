@@ -33,64 +33,69 @@ class  BubbleSortTemplate < MiniMipsBaseTemplate
     end
     def run
 
-    #t0 array address
-    addi at, zero, :length
-    lw a0, 0, at
 
-    la a1, :array
-    add s4, zero, a1
+  #t0 array address
+  addi at, zero, :length
+  lw a0, 0, at
 
-    add t0, zero, zero #counter of the top-level loop
+  la a1, :array
 
-    addi a2, zero, 1
-    sub t7, a0, a2
+  add t0, zero, zero #counter of the top-level loop
 
-    label :loop
-      beq t0, a0, exit
-      add t1, zero, zero
-      label :loop1
-        beq t7, t1, exit1
+  addi at, zero, 1
+  sub t7, a0, at
 
-        addi t6, zero, 4
-        mult t3, t1
-        mflo t3
+  label :loop
+    trace "%x", gpr(8)
+    trace "%x", gpr(4)
+    beq t0, a0, :exit
+    sll zero, zero, 0 #DELAY SLOT
 
-        addi t3, t3, a1
-        addi t4, t3, 4
-        
-        lw t2, 0, t3
-        lw t5, 0, t4
+    add t1, zero, zero
+
+
+    label :loop1
+       beq t7, t1, :exit1
+       sll zero, zero, 0 #DELAY SLOT
+
+       addi at, zero, 4
+       mult t1, at
+       mflo t3
+
+       add t3, t3, a1
+       addi t4, t3, 4
        
-        slt at, t2, t5
+       lw t2, 0, t3
+       lw t5, 0, t4
        
-        add t2, t2, t5
-        sub t5, t2, t5
-        sub t2, t2, t5
+       slt at, t2, t5
+       bne at, zero, :cont
+       sll zero, zero, 0 #DELAY SLOT
        
-        sw t2, 0, t3
-        sw t5, 0, t4
+       #SWAP
+       add t2, t2, t5
+       sub t5, t2, t5
+       sub t2, t2, t5
        
-        label :cont
-        addi t1, t1, 1
-        j loop1
-      label :exit1
+       sw t2, 0, t3
+       sw t5, 0, t4
+       
+       label :cont
+       addi t1, t1, 1
+       
+       j :loop1
+       sll zero, zero, 0 #DELAY SLOT
+
+    label :exit1
     
-      addi t0, t0, 1
-      j :loop
-    label :exit
+    addi t0, t0, 1
+    j :loop
+    sll zero, zero, 0 #DELAY SLOT
+  label :exit
 
 
 #OUTPUT
     
-    #la a0, array
-    #addi a2, reg(0), 8
-    
-
-    #sub a0, a0, a2
-    #trace "%x", gpr(4)
-    #trace "%x", array
-    
-    add a0, reg(0), reg(0) #reset to zero of 4 (temporary hack)
     la a0, :array
     i = 0
     while i < 12 do
