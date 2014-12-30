@@ -254,9 +254,16 @@ op srlv (rd: REG, rt: REG, rs: REG)
 ///////////////////////////////////////////////////////////////////////////////
 ///MEMORY OPERATIONS
 
+<<<<<<< .mine
+
+op lw (rt: REG, offset: SHORT , address: REG)
+  syntax = format("lw %s, %d(%s)", rt.syntax, offset, address.syntax)
+  image = format("100011%s%s%d", address.image, rt.image, offset)
+=======
 op lw (rt: REG, offset: SHORT, address: REG)
   syntax = format("lw %s, %d(%s)", rt.syntax, offset, address.syntax)
   image = format("100011%s%s%s", address.image, rt.image, offset)
+>>>>>>> .r2959
   action = {
     //----------!!!!!!!!!!!!!!!!!!!!
     rt = M[(address + offset) >> 2];
@@ -270,7 +277,7 @@ op lui (rt: REG, immed:SHORT)
   }
 
 op sw (rd: REG, offset: SHORT, address: REG)
-  syntax = format("sw %s, %d, %s", rd.syntax, offset, address.syntax)
+  syntax = format("sw %s, %d(%s)", rd.syntax, offset, address.syntax)
   image = format("101011%s%s%d", address.image, rd.image, offset)
   action = {
     M[(address + offset) >> 2] = rd;
@@ -340,7 +347,7 @@ op mtc0 (rt: REG, cs: COP0) //move from coprocessor
 /////BRANCHING
 
 
-op beq (rt: REG, rs: REG, immed: SHORT)
+op beq (rs: REG, rt: REG, immed: SHORT)
   syntax = format("beq %s, %s, %<label>d", rs.syntax, rt.syntax, immed)
   image = format("000100%s%s%d", rs.image, rt.image, immed)
   action = {
@@ -412,8 +419,8 @@ op bltzal (rs: REG, offset: SHORT)
     endif;
   }
 
-op bne (rt: REG, rs: REG, immed: SHORT)
-  syntax = format("bne %s, %s, %<label>d", rt.syntax, rs.syntax, immed)
+op bne (rs: REG, rt: REG, immed: SHORT)
+  syntax = format("bne %s, %s, %<label>d", rs.syntax, rt.syntax, immed)
   image = format("000101%s%s%d", rt.image, rs.image, immed)
   action = {
     if rt != rs then
