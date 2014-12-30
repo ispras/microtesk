@@ -591,6 +591,9 @@ op Operations =  add
                 |syscall
                 |xor
                 |xori
+                
+////////////////////////////////////////////////////////////////////////////////
+// Entry Point
 
 op instruction (command: Operations)
   syntax = command.syntax
@@ -616,7 +619,8 @@ op instruction (command: Operations)
 
 op la(rd : REG, addr : WORD)
   syntax = format("la %s, %<label>d", rd.syntax, addr)
-  image  = format("%s%s", lui(rd, addr<16..31>).image, ori(rd, rd, addr<0..15>).image)
+  image  = format("%s%s", lui(rd, addr<16..31>).image,
+                          ori(rd, rd, addr<0..15>).image)
   action = {
     instruction(lui(rd, addr<16..31>)).action;
     instruction(ori(rd, rd, addr<0..15>)).action;
