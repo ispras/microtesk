@@ -338,7 +338,6 @@ class Template
     end
 
     @data_manager.instance_eval &contents
-    @data_manager.end_data_section
   end
 
   # ------------------------------------------------------------------------- #
@@ -445,10 +444,6 @@ class DataManager
     end
 
     define_method_for DataManager, id, 'string', p
-  end
-
-  def end_data_section
-    @manager.endDataSection
   end
 
 end # Data

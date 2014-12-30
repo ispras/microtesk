@@ -222,9 +222,6 @@ final class Executor {
       PrintingUtils.trace(text);
     }
   }
-  
-  private static final String MSG_FAILED_TO_RESOLVE =
-    "Warning: Failed to resolve a reference to the %s label. ";
 
   private static final String MSG_HAVE_TO_CONTINUE =
     "Have to continue to the next instruction.";

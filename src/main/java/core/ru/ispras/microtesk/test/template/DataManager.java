@@ -318,10 +318,6 @@ public final class DataManager {
     dataDecls.add(new DetaDeclStrings((zeroTerm ? ztermStrText : nztermStrText), strings));
   }
 
-  public void endDataSection() {
-    setAllLabelsToAddress(allocator.getCurrentAddress());
-  }
-
   private void checkInitialized() {
     if (!isInitialized()) {
       throw new IllegalStateException("DataManager is not initialized!");
