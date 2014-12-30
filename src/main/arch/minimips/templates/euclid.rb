@@ -26,7 +26,7 @@ require_relative 'minimips_base'
 # algorithm.
 #  
 
-class EuclidTemplate < MinimipsBaseTemplate
+class EuclidTemplate < MiniMipsBaseTemplate
 
   def run
     trace "Euclidean Algorithm (miniMIPS): Debug Output"
@@ -46,11 +46,11 @@ class EuclidTemplate < MinimipsBaseTemplate
 
     slt t0, t1, t2
     bne t0, zero, :if_less
-    sll zero, zero, 0 # means 'nop' (idiom)
+    nop
 
     subu t1, t1, t2
     j :cycle
-    sll zero, zero, 0 # means 'nop' (idiom)
+    nop
 
     label :if_less
     subu t2, t2, t1

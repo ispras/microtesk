@@ -16,7 +16,7 @@
 
 require_relative 'minimips_base'
 
-class  InsertionSortTemplate < MinimipsBaseTemplate
+class  InsertionSortTemplate < MiniMipsBaseTemplate
 
 
     def pre

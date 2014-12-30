@@ -22,7 +22,7 @@ require_relative 'minimips_base'
 # This test template demonstrates how to work with data declaration constucts. 
 #  
 
-class DataDemoTemplate < MinimipsBaseTemplate
+class DataDemoTemplate < MiniMipsBaseTemplate
   
   def pre
     super

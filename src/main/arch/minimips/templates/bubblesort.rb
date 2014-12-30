@@ -16,7 +16,7 @@
 
 require_relative 'minimips_base'
 
-class  BubbleSortTemplate < MinimipsBaseTemplate
+class  BubbleSortTemplate < MiniMipsBaseTemplate
 
 
     def pre

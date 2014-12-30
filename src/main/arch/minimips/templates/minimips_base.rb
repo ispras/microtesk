@@ -16,7 +16,7 @@
 
 require ENV['TEMPLATE']
 
-class MinimipsBaseTemplate < Template
+class MiniMipsBaseTemplate < Template
 
   def initialize
     super
@@ -38,7 +38,12 @@ class MinimipsBaseTemplate < Template
   def post
     # Place your finalization code here
   end
-  
+
+  # Alias for the NOP instruction (MIPS idiom)
+  def nop
+    sll zero, zero, 0
+  end
+
   # Aliases for accessing General-Purpose Registers
   #   Name    Number Usage                Preserved?
   #   $zero      0   Constant zero
