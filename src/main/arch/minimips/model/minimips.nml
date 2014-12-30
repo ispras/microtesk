@@ -14,15 +14,11 @@
  * the License.
  */
 
-//////////////////////////////////CONSTANTS////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Constants
 
 let REGISTER_INDEX_SIZE = 5
 let PC = "CIA"
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!
-///formatting
-//labels
-///s
 
 ////////////////////////////////////////////////////////////////////////////////
 // Types
@@ -33,7 +29,7 @@ type SHORT = int(16)
 type INDEX = card(5) //only 5 bits for address are required
 type   BIT = card(1)
 
-type JUMP_IMMED = card(26)
+type JUMP_IMM = card(26)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Registers and Memory
@@ -56,10 +52,11 @@ mode COP0 (i : INDEX) = COP0_R[i]
   syntax = format("$%d", i)                                                                  
   image  = format("%s", i)
 
-//////////////////////////VARIABLES////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Variables
 
-mem JMPADDR[WORD] // Jump address
-mem BRANCH[BIT]   //branch flag
+mem JMPADDR[WORD]
+mem BRANCH[BIT]
 
 var temp[int(33)]
 var temp_jump[card(28)]
@@ -257,9 +254,8 @@ op srlv (rd: REG, rt: REG, rs: REG)
 ///////////////////////////////////////////////////////////////////////////////
 ///MEMORY OPERATIONS
 
-
 op lw (rt: REG, offset: SHORT, address: REG)
-  syntax = format("lw %s, %d, %s", rt.syntax, offset, address.syntax)
+  syntax = format("lw %s, %d(%s)", rt.syntax, offset, address.syntax)
   image = format("100011%s%s%s", address.image, rt.image, offset)
   action = {
     //----------!!!!!!!!!!!!!!!!!!!!
@@ -475,7 +471,7 @@ op sltu (rd: REG, rs: REG, rt: REG)
 //////JUMPS
 
 
-op j (addr: JUMP_IMMED)
+op j (addr: JUMP_IMM)
   syntax = format("j %<label>d", addr)
   image = format("000010%s", addr)
   action = {
@@ -493,7 +489,7 @@ op jr (addr: REG)
     JMPADDR = addr;
   }
 
-op jal (addr: JUMP_IMMED)
+op jal (addr: JUMP_IMM)
   syntax = format("jal %<label>d", addr)
   image = format("000011%s", addr)
   action = {
