@@ -16,22 +16,21 @@
 
 require_relative 'minimips_base'
 
-class  InsertionSortTemplate < MiniMipsBaseTemplate
+class InsertionSortTemplate < MiniMipsBaseTemplate
 
+  def pre
+    super
 
-    def pre
-      super
+    data {
+      label :array
+      word 1, 6, 2, 7, 5, 6, 3, 8, 9, 5, 6, 3
+      label :length
+      word 12
+    }
+  end
 
-      data {
-        label :array
-        word 1, 6, 2, 7, 5, 6, 3, 8, 9, 5, 6, 3
-
-        label :length
-        word 12
-      }
-
-    end
-    def run
+  def run
+    print_data
 
     #looks terrible, there sould be "lw" instruction for data
     addi at, zero, :length
@@ -104,27 +103,20 @@ class  InsertionSortTemplate < MiniMipsBaseTemplate
     sll zero, zero, 0 #DELAY SLOT
     
     label :exit
+    
+    print_data
+  end
 
-#OUTPUT
-    
-    #la a0, array
-    #addi a2, zero, 8
-    
+  def print_data
+    count = (address(:length) - address(:array)) / 4 + 1
 
-    #sub a0, a0, a2
-    #trace "%x", gpr(4)
-    #trace "%x", array
-    
-    add a0, zero, zero #reset to zero of $4 (temporary hack)
-    la a0, :array
-    $i = 0
-    while $i < 12 do
-    	lw v1, 0, a0    
-        #trace "%x", gpr(5)
-        trace "%x", gpr(3)
-        addi a0, a0, 4
-        
-        $i +=1
-    end
-    end
+    trace "\nData starts: %d", address(:array)
+    trace "Data ends:   %d", address(:length)
+    trace "Data count:  %d", count
+
+    trace "\nData values:"
+    (0..(count-1)).each { |i| trace "M[%d]: %d", i, mem(i) }
+    trace ""
+  end
+
 end
