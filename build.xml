@@ -283,7 +283,11 @@
 
     <!-- Copies miniMIPS architecture specifications and test templates -->
     <copy todir="${dist}/arch/minimips">
-       <fileset dir="src/main/arch/minimips" includes="**"/>  
+       <fileset dir="src/main/arch/minimips" includes="**">
+         <exclude name="templates/insertionsort.rb"/>
+         <exclude name="templates/bubblesort.rb"/>
+         <exclude name="templates/datademo.rb"/>
+       </fileset>
     </copy>
 
   </target>
