@@ -6,6 +6,16 @@
  2014/10/18 MicroTESK 2.1 beta
 --------------------------------------------------------------------------------
 
+ 2014/12/30 MicroTESK 2.1.2 beta
+
+ The new build contains the following changes:
+
+ - Facilities to describe the data segment in test templates were implemented  
+ - Function 'trace' (nML) was supported
+ - Possibility to create instances of modes and ops in nML code was implemented 
+ - Aliases for memory locations (mem, reg, var) were supported 
+ - Specification of the miniMIPS ISA was added to examples 
+
  2014/10/31 MicroTESK 2.1.1 beta
 
  The new build contains the following changes:
