@@ -258,9 +258,9 @@ op srlv (rd: REG, rt: REG, rs: REG)
 ///MEMORY OPERATIONS
 
 
-op lw (rt: REG, offset: SHORT , address: REG)
+op lw (rt: REG, offset: SHORT, address: REG)
   syntax = format("lw %s, %d, %s", rt.syntax, offset, address.syntax)
-  image = format("100011%s%s%d", address.image, rt.image, offset)
+  image = format("100011%s%s%s", address.image, rt.image, offset)
   action = {
     //----------!!!!!!!!!!!!!!!!!!!!
     rt = M[(address + offset) >> 2];
@@ -622,6 +622,6 @@ op la(rd : REG, addr : WORD)
   syntax = format("la %s, %<label>d", rd.syntax, addr)
   image  = format("%s%s", lui(rd, addr<16..31>).image, ori(rd, rd, addr<0..15>).image)
   action = {
-    instruction(lui(rd, addr<0..15>)).action;
-    instruction(ori(rd, rd, addr<16..31>)).action;
+    instruction(lui(rd, addr<16..31>)).action;
+    instruction(ori(rd, rd, addr<0..15>)).action;
   }
