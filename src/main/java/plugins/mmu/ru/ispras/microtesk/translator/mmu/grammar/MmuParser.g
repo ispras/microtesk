@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -34,7 +34,7 @@ import CommonParser;
 
 @header {
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -61,10 +61,10 @@ import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 //==================================================================================================
 
 startRule 
-    : bufferOrAddress* EOF!
+    : declaration* EOF!
     ;
 
-bufferOrAddress
+declaration
     : address
     | buffer
     | memory
@@ -88,13 +88,13 @@ addressParameter
 //--------------------------------------------------------------------------------------------------
 
 width
-    : MMU_WIDTH! ASSIGN! expr
+    : MMU_WIDTH^ ASSIGN! expr
     ;
 
 //--------------------------------------------------------------------------------------------------
 
 segment
-    : MMU_SEGMENT! (segmentID=ID)? ASSIGN! LEFT_PARENTH! expr COMA! expr RIGHT_PARENTH!
+    : MMU_SEGMENT^ segmentID=ID ASSIGN! LEFT_PARENTH! expr COMA! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
@@ -130,7 +130,7 @@ sets
 //--------------------------------------------------------------------------------------------------
 
 format
-    : MMU_FORMAT^ (formatID=ID)? ASSIGN! LEFT_PARENTH!
+    : MMU_FORMAT^ formatID=ID ASSIGN! LEFT_PARENTH!
         field (COMA! field)*
       RIGHT_PARENTH!
     ;
