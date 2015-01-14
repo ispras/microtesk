@@ -36,15 +36,15 @@ public final class IRWalker {
   public void traverse(IRVisitor visitor) {
     checkNotNull(visitor);
 
-    visitor.beginResourceDefinitions();
-
+    visitor.onResourcesBegin();
+    
     traverseConstants(visitor);
     traverseStrings(visitor);
     traverseLabels(visitor);
     traverseTypes(visitor);
     traverseMemory(visitor);
 
-    visitor.endResourceDefinitions();
+    visitor.onResourcesEnd();
 
     traverseModes(visitor);
     traverseOps(visitor);

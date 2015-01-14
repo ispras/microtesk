@@ -22,8 +22,8 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
 public interface IRVisitor {
-  void beginResourceDefinitions();
-  void endResourceDefinitions();
+  void onResourcesBegin();
+  void onResourcesEnd();
 
   void onLetConstant(String name, LetConstant value);
   void onLetString(String name, LetString value);
