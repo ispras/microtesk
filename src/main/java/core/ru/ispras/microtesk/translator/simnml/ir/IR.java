@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,11 +138,5 @@ public final class IR {
     }
 
     roots = Collections.unmodifiableList(roots);
-  }
-
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
   }
 }
