@@ -146,7 +146,7 @@ public final class IRWalker {
         visitor.onAttributeBegin(attribute);
         visitor.onAttributeEnd(attribute);
       }
-      
+
       for(Shortcut shortcut : p.getShortcuts()) {
         visitor.onShortcutBegin(
             shortcut.getName(),
@@ -154,9 +154,10 @@ public final class IRWalker {
             shortcut.getEntry(),
             shortcut.getTarget()
             );
-        
+       
         for (Shortcut.Argument sa : shortcut.getArguments()) {
-          // TODO
+          visitor.onArgumentBegin(sa.getUniqueName(), sa.getType());
+          visitor.onArgumentEnd(sa.getUniqueName(), sa.getType());
         }
 
         visitor.onShortcutEnd(
