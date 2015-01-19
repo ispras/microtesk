@@ -14,7 +14,12 @@
 
 package ru.ispras.microtesk.translator.simnml.ir;
 
+import java.util.List;
+
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetString;
@@ -28,10 +33,32 @@ public interface IRVisitor {
   void onLetConstant(String name, LetConstant value);
   void onLetString(String name, LetString value);
   void onLetLabel(String name, LetLabel value);
-  
+
   void onType(String name, Type value);
   void onMemory(String name, MemoryExpr value);
-  
-  void onMode(String name, Primitive value);
-  void onOp(String name, Primitive value);
+
+  void onPrimitiveBegin(String name, Primitive value);
+  void onPrimitiveEnd(String name, Primitive value);
+
+  void onAlternativeBegin(Primitive value);
+  void onAlternativeEnd(Primitive value);
+
+  void onArgumentBegin(String name, Primitive value);
+  void onArgumentEnd(String name, Primitive value);
+
+  void onAttributeBegin(Attribute attribute);
+  void onAttributeEnd(Attribute attribute);
+  void onStatement(Statement stmt);
+
+  void onShortcutBegin(
+      String name,
+      List<String> contexts,
+      PrimitiveAND entry,
+      PrimitiveAND target);
+
+  void onShortcutEnd(
+      String name,
+      List<String> contexts,
+      PrimitiveAND entry,
+      PrimitiveAND target);
 }
