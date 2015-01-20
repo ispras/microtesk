@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
+
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,17 +38,9 @@ public final class Attribute {
   private final List<Statement> stmts;
 
   Attribute(String name, Kind kind, List<Statement> stmts) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == kind) {
-      throw new NullPointerException();
-    }
-
-    if (null == stmts) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(kind);
+    checkNotNull(stmts);
 
     this.name = name;
     this.kind = kind;

@@ -43,9 +43,9 @@ public final class Shortcut {
     private final String uniqueName;
     private final Primitive type;
     private final String name;
-    private final Primitive source;
+    private final PrimitiveAND source;
 
-    public Argument(String uniqueName, Primitive type, String name, Primitive source) {
+    public Argument(String uniqueName, Primitive type, String name, PrimitiveAND source) {
       this.uniqueName = uniqueName;
       this.type = type;
       this.name = name;
@@ -89,7 +89,7 @@ public final class Shortcut {
      * @return Source operation.
      */
 
-    public Primitive getSource() {
+    public PrimitiveAND getSource() {
       return source;
     }
 
