@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterOrEqZero;
+
 public final class LetLabel {
   private final String name;
   private final String memoryName;
@@ -24,6 +27,10 @@ public final class LetLabel {
   }
 
   LetLabel(String name, String memoryName, int index) {
+    checkNotNull(name);
+    checkNotNull(memoryName);
+    checkGreaterOrEqZero(index);
+
     this.name = name;
     this.memoryName = memoryName;
     this.index = index;

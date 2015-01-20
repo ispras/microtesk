@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,18 +14,15 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+
 public final class LetString {
   private final String name;
   private final String text;
 
   LetString(String name, String text) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == text) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(text);
 
     this.name = name;
     this.text = text;

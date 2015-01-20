@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
+import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
 public final class LetConstant {
@@ -21,13 +23,8 @@ public final class LetConstant {
   private final Expr expr;
 
   LetConstant(String name, Expr expr) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == expr) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(expr);
 
     this.name = name;
     this.expr = expr;
