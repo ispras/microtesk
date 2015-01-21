@@ -94,7 +94,7 @@ width
 //--------------------------------------------------------------------------------------------------
 
 segment
-    : MMU_SEGMENT^ segmentID=ID ASSIGN! LEFT_PARENTH! expr COMA! expr RIGHT_PARENTH!
+    : MMU_SEGMENT^ segmentID=ID ASSIGN! LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
@@ -130,9 +130,7 @@ sets
 //--------------------------------------------------------------------------------------------------
 
 format
-    : MMU_FORMAT^ formatID=ID ASSIGN! LEFT_PARENTH!
-        field (COMA! field)*
-      RIGHT_PARENTH!
+    : MMU_FORMAT^ formatID=ID ASSIGN! LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
     ;
 
 field
