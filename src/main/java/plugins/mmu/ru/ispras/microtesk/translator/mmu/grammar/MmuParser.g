@@ -26,7 +26,7 @@ options {
   backtrack=true;
 }
 
-import CommonParser;
+import commonParser=CommonParser;
 
 //==================================================================================================
 // Header for the Generated Java File

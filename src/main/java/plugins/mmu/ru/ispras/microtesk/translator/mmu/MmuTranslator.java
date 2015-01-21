@@ -74,6 +74,8 @@ public class MmuTranslator
 
             parser.assignLog(LOG);
             parser.assignSymbols(symbols);
+            parser.commonParser.assignLog(LOG);
+            parser.commonParser.assignSymbols(symbols);
 
             final MmuParser.startRule_return r = parser.startRule();
             final CommonTree t = (CommonTree) r.getTree();
