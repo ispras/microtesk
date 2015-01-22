@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.model.api.type;
 
-import static ru.ispras.microtesk.utils.InvariantChecks.checkBounds;
-import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
-import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;

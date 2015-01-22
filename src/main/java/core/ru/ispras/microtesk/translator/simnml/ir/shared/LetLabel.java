@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterOrEqZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
 
 public final class LetLabel {
   private final String name;

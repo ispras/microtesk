@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 public final class LetString {
   private final String name;

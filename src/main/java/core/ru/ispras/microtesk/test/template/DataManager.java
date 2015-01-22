@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.utils.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.math.BigInteger;

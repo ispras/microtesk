@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,9 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
+import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -23,8 +25,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
-
-import static ru.ispras.microtesk.utils.PrintingUtils.*;
 
 public final class Template {
   private final MetaModel metaModel;
@@ -42,10 +42,7 @@ public final class Template {
   public Template(MetaModel metaModel) {
     printHeader("Started Processing Template");
 
-    if (null == metaModel) {
-      throw new NullPointerException();
-    }
-
+    checkNotNull(metaModel);
     this.metaModel = metaModel;
 
     this.memoryMap = new MemoryMap();

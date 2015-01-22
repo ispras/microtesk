@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.shared;
 
-import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 

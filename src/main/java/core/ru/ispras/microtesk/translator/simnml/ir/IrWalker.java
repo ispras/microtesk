@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.simnml.ir;
 
-import static ru.ispras.microtesk.utils.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Collection;
 import java.util.Map;
