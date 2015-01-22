@@ -26,10 +26,6 @@ options {
 }
 
 @rulecatch {
-catch(SemanticException se) {
-    reportError(se);
-    recover(input,se);
-}
 catch (RecognitionException re) {
     reportError(re);
     recover(input,re);
@@ -127,15 +123,115 @@ memory
 // Common
 //==================================================================================================
 
-// TODO:
-expr
-    : PLUS
-;
-
-// TODO:
 sequence
-    : MINUS
-;
+    : ^(SEQUENCE statement*)
+    ;
+
+statement
+    : attributeCallStatement
+    | assignmentStatement
+    | conditionalStatement
+    ;
+
+attributeCallStatement
+    :  ID
+    |  ^(DOT ID ID)
+    ;
+
+assignmentStatement
+    :  ^(ASSIGN location expr)
+    ;
+
+conditionalStatement
+    :  ifStmt
+    ;
+
+ifStmt
+    :  ^(IF expr sequence elseIfStmt* elseStmt?)
+    ;
+
+elseIfStmt
+    :  ^(ELSEIF expr sequence)
+    ;
+
+elseStmt
+    :  ^(ELSE sequence)
+    ;
+
+//==================================================================================================
+
+expr
+    :  numExpr[0]
+    ;
+
+numExpr [int depth]
+    :  binaryExpr[depth]
+    |  unaryExpr[depth]
+    |  atom
+    ;
+
+binaryExpr [int depth]
+    :  ^(OR            numExpr[depth+1] numExpr[depth+1])
+    |  ^(AND           numExpr[depth+1] numExpr[depth+1])
+    |  ^(VERT_BAR      numExpr[depth+1] numExpr[depth+1])
+    |  ^(UP_ARROW      numExpr[depth+1] numExpr[depth+1])
+    |  ^(AMPER         numExpr[depth+1] numExpr[depth+1])
+    |  ^(EQ            numExpr[depth+1] numExpr[depth+1])
+    |  ^(NEQ           numExpr[depth+1] numExpr[depth+1])
+    |  ^(LEQ           numExpr[depth+1] numExpr[depth+1])
+    |  ^(GEQ           numExpr[depth+1] numExpr[depth+1])
+    |  ^(LEFT_BROCKET  numExpr[depth+1] numExpr[depth+1])
+    |  ^(RIGHT_BROCKET numExpr[depth+1] numExpr[depth+1])
+    |  ^(LEFT_SHIFT    numExpr[depth+1] numExpr[depth+1])
+    |  ^(RIGHT_SHIFT   numExpr[depth+1] numExpr[depth+1])
+    |  ^(ROTATE_LEFT   numExpr[depth+1] numExpr[depth+1])
+    |  ^(ROTATE_RIGHT  numExpr[depth+1] numExpr[depth+1])
+    |  ^(PLUS          numExpr[depth+1] numExpr[depth+1])
+    |  ^(MINUS         numExpr[depth+1] numExpr[depth+1])
+    |  ^(MUL           numExpr[depth+1] numExpr[depth+1])
+    |  ^(DIV           numExpr[depth+1] numExpr[depth+1])
+    |  ^(REM           numExpr[depth+1] numExpr[depth+1])
+    |  ^(DOUBLE_STAR   numExpr[depth+1] numExpr[depth+1])
+    ;
+
+unaryExpr [int depth]
+    :  ^(UPLUS  numExpr[depth+1])
+    |  ^(UMINUS numExpr[depth+1])
+    |  ^(TILDE  numExpr[depth+1])
+    |  ^(NOT    numExpr[depth+1])
+    ;
+
+atom 
+    :  constant
+    |  location
+    ;
+
+constant
+    : CARD_CONST
+    | BINARY_CONST
+    | HEX_CONST
+    ;
+
+//==================================================================================================
+
+location 
+    :  ^(LOCATION locationExpr[0])
+    ;
+
+locationExpr [int depth]
+    :  ^(DOUBLE_COLON locationVal locationExpr[depth+1])
+    |  locationVal
+    ;
+
+locationVal
+    :  ^(LOCATION_BITFIELD locationAtom expr expr?)
+    |  locationAtom
+    ;
+
+locationAtom
+    :  ID
+    |  ^(DOT ID ID)
+    ;
 
 //==================================================================================================
 // The End

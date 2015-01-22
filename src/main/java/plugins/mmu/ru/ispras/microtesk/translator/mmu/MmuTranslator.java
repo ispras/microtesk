@@ -101,14 +101,13 @@ public class MmuTranslator {
       walker.assignSymbols(symbols);
       walker.assignIR(ir);
 
-      /*
       walker.startRule();
 
       if (!walker.isCorrect()) {
         System.err.println("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
         return;
       }
-      */
+
     } catch (Exception e) {
       e.printStackTrace();
     }
