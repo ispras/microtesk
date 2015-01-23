@@ -55,6 +55,11 @@ catch (RecognitionException re) {
 
 package ru.ispras.microtesk.translator.mmu.grammar;
 
+import static ru.ispras.microtesk.utils.PrintingUtils.trace;
+
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
+
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
@@ -213,18 +218,24 @@ unaryExpr [int depth]
     ;
 
 atom 
-    : constant
+    : c = constant { trace($c.res); }
     | location
     ;
-    
+
 //==================================================================================================
 // Constant    
 //==================================================================================================
 
-constant
-    : CARD_CONST
-    | BINARY_CONST
-    | HEX_CONST
+constant returns [Node res]
+@init {
+int radix = 10;
+}
+@after {
+$res = NodeValue.newInteger($t.text, radix);
+}
+    : t=CARD_CONST   { radix = 10; }
+    | t=BINARY_CONST { radix = 2; }
+    | t=HEX_CONST    { radix = 16; }
     ;
 
 //==================================================================================================

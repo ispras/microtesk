@@ -21,6 +21,10 @@ public final class PrintingUtils {
     System.out.println(text);
   }
 
+  public static void trace(Object o) {
+    trace(o.toString());
+  }
+
   public static void trace(String format, Object... args) {
     trace(String.format(format, args));
   }
