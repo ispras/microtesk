@@ -14,6 +14,54 @@
 
 package ru.ispras.microtesk.translator.mmu.ir;
 
-public class Address {
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
+public final class Address {
+  private final String name;
+  private final int width;
+  private final Map<String, Format> formats;
+  private final Map<String, Segment> segments;
+
+  Address(String name, int width, Map<String, Format> formats, Map<String, Segment> segments) {
+    checkNotNull(name);
+    checkGreaterThanZero(width);
+    checkNotNull(formats);
+    checkNotNull(segments);
+
+    this.name = name;
+    this.width = width;
+    this.formats = formats;
+    this.segments = segments;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public int getWidth() {
+    return width;
+  }
+
+  public Collection<Format> getFormats() {
+    return Collections.unmodifiableCollection(formats.values());
+  }
+
+  public Format getFormat(String name) {
+    checkNotNull(name);
+    return formats.get(name);
+  }
+
+  public Collection<Segment> getSegments() {
+    return Collections.unmodifiableCollection(segments.values());
+  }
+
+  public Segment getSegment(String name) {
+    checkNotNull(name);
+    return segments.get(name);
+  }
 }
