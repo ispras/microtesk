@@ -14,6 +14,97 @@
 
 package ru.ispras.microtesk.translator.mmu.ir;
 
-public class Buffer {
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.microtesk.model.api.mmu.PolicyId;
+
+public final class Buffer {
+  private final String name;
+  private final Address addressType;
+  private final String addressName;
+  private final int ways;
+  private final int sets;
+  private final Map<String, Format> formats;
+  private final Node index;
+  private final Node match;
+  private final PolicyId policy;
+
+  Buffer(
+      String name,
+      Address addressType,
+      String addressName,
+      int ways,
+      int sets,
+      Map<String, Format> formats,
+      Node index,
+      Node match,
+      PolicyId policy) {
+
+    checkNotNull(name);
+    checkNotNull(addressType);
+    checkNotNull(addressName);
+    checkGreaterThanZero(ways);
+    checkGreaterThanZero(sets);
+    checkNotNull(formats);
+    checkNotNull(index);
+    checkNotNull(match);
+    checkNotNull(policy);
+
+    this.name = name;
+    this.addressType = addressType;
+    this.addressName = addressName;
+    this.ways = ways;
+    this.sets = sets;
+    this.formats = formats;
+    this.index = index;
+    this.match = match;
+    this.policy = policy;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Address getAddressType() {
+    return addressType;
+  }
+
+  public String getAddressName() {
+    return addressName;
+  }
+
+  public int getWays() {
+    return ways;
+  }
+
+  public int getSets() {
+    return sets;
+  }
+
+  public Collection<Format> getFormats() {
+    return Collections.unmodifiableCollection(formats.values());
+  }
+
+  public Format getFormat(String name) {
+    checkNotNull(name);
+    return formats.get(name);
+  }
+
+  public Node getIndex() {
+    return index;
+  }
+
+  public Node getMatch() {
+    return match;
+  }
+
+  public PolicyId getPolicy() {
+    return policy;
+  }
 }
