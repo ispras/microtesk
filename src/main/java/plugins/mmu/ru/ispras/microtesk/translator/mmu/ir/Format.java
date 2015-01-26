@@ -21,19 +21,13 @@ import java.util.Collections;
 import java.util.Map;
 
 public final class Format {
-  private final String name;
+  public static final Format EMPTY = new Format(Collections.<String, Field>emptyMap());
+
   private final Map<String, Field> fields;
 
-  Format(String name, Map<String, Field> fields) {
-    checkNotNull(name);
+  Format(Map<String, Field> fields) {
     checkNotNull(fields);
-
-    this.name = name;
     this.fields = fields;
-  }
-
-  public String getName() {
-    return name;
   }
 
   public Collection<Field> getFields() {
