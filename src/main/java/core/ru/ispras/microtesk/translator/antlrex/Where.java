@@ -15,9 +15,9 @@
 package ru.ispras.microtesk.translator.antlrex;
 
 public final class Where {
-  private String unit;
-  private int line;
-  private int position;
+  private final String unit;
+  private final int line;
+  private final int position;
 
   public Where(String unit, int line, int position) {
     this.unit = unit;
@@ -41,5 +41,4 @@ public final class Where {
   public String toString() {
     return String.format("%s %d:%d", unit, line, position);
   }
-
 }
