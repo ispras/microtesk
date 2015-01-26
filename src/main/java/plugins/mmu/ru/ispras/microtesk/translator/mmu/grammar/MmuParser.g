@@ -130,7 +130,7 @@ sets
 //--------------------------------------------------------------------------------------------------
 
 format
-    : MMU_FORMAT^ formatID=ID ASSIGN! LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
+    : MMU_FORMAT^ ASSIGN! LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
     ;
 
 field

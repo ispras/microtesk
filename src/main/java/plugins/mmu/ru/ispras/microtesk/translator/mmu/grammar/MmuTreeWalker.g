@@ -89,7 +89,7 @@ address
         (
             ^(MMU_WIDTH expr[0])
           | ^(MMU_SEGMENT ID expr[0] expr[0])
-          | ^(MMU_FORMAT ID (ID expr[0] expr[0]?)+)
+          | ^(MMU_FORMAT (ID expr[0] expr[0]?)+)
         )*
       )
     ;
@@ -103,7 +103,7 @@ buffer
         (
             ^(MMU_WAYS expr[0])
           | ^(MMU_SETS expr[0])
-          | ^(MMU_FORMAT ID (ID expr[0] expr[0]?)+)
+          | ^(MMU_FORMAT (ID expr[0] expr[0]?)+)
           | ^(MMU_INDEX expr[0])
           | ^(MMU_MATCH expr[0])
           | ^(MMU_POLICY ID)
