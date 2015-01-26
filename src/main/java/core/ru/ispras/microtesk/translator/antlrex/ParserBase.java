@@ -50,6 +50,10 @@ public class ParserBase extends ParserEx {
     this.symbols = symbols;
   }
 
+  public final SymbolTable getSymbols() {
+    return symbols;
+  }
+
   protected final void declare(Token t, Enum<?> kind, boolean scoped) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
