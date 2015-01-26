@@ -22,7 +22,7 @@ options {
   language=Java;
   tokenVocab=MmuParser;
   ASTLabelType=CommonTree;
-  superClass=TreeWalkerBase;
+  superClass=MmuTreeWalkerBase;
 }
 
 @rulecatch {
@@ -63,7 +63,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
-import ru.ispras.microtesk.translator.antlrex.TreeWalkerBase;
+import ru.ispras.microtesk.translator.mmu.MmuTreeWalkerBase;
 }
 
 //==================================================================================================

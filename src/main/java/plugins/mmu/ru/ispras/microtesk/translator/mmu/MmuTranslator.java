@@ -28,7 +28,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuLexer;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuParser;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
-import ru.ispras.microtesk.translator.simnml.ir.IR;
+import ru.ispras.microtesk.translator.mmu.ir.Ir;
 
 public class MmuTranslator {
   private static final ILogStore LOG = new ILogStore() {
@@ -67,7 +67,7 @@ public class MmuTranslator {
 
     final SymbolTable symbols = new SymbolTable();
 
-    final IR ir = new IR();
+    final Ir ir = new Ir();
 
     try {
       final ANTLRReaderStream input = new ANTLRReaderStream(new FileReader(fileName));
@@ -99,7 +99,7 @@ public class MmuTranslator {
       final MmuTreeWalker walker = new MmuTreeWalker(nodes);
       walker.assignLog(LOG);
       walker.assignSymbols(symbols);
-      //walker.assignIR(ir);
+      walker.assignIR(ir);
 
       walker.startRule();
 
