@@ -17,10 +17,6 @@ package ru.ispras.microtesk.translator.mmu.ir;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 
@@ -30,7 +26,7 @@ public final class Buffer {
   private final String addressName;
   private final int ways;
   private final int sets;
-  private final Map<String, Format> formats;
+  private final Format format;
   private final Node index;
   private final Node match;
   private final PolicyId policy;
@@ -41,7 +37,7 @@ public final class Buffer {
       String addressName,
       int ways,
       int sets,
-      Map<String, Format> formats,
+      Format format,
       Node index,
       Node match,
       PolicyId policy) {
@@ -51,7 +47,7 @@ public final class Buffer {
     checkNotNull(addressName);
     checkGreaterThanZero(ways);
     checkGreaterThanZero(sets);
-    checkNotNull(formats);
+    checkNotNull(format);
     checkNotNull(index);
     checkNotNull(match);
     checkNotNull(policy);
@@ -61,7 +57,7 @@ public final class Buffer {
     this.addressName = addressName;
     this.ways = ways;
     this.sets = sets;
-    this.formats = formats;
+    this.format = format;
     this.index = index;
     this.match = match;
     this.policy = policy;
@@ -87,13 +83,8 @@ public final class Buffer {
     return sets;
   }
 
-  public Collection<Format> getFormats() {
-    return Collections.unmodifiableCollection(formats.values());
-  }
-
-  public Format getFormat(String name) {
-    checkNotNull(name);
-    return formats.get(name);
+  public Format getFormat() {
+    return format;
   }
 
   public Node getIndex() {
