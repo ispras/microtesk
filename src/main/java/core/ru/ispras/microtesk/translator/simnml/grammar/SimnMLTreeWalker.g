@@ -31,7 +31,7 @@ options {
   language=Java;
   tokenVocab=SimnMLParser;
   ASTLabelType=CommonTree;
-  superClass=TreeWalkerBase;
+  superClass=SimnMLTreeWalkerBase;
 }
 
 @rulecatch {
@@ -77,7 +77,7 @@ import java.util.LinkedHashMap;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
-import ru.ispras.microtesk.translator.simnml.antlrex.TreeWalkerBase;
+import ru.ispras.microtesk.translator.simnml.antlrex.SimnMLTreeWalkerBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 import ru.ispras.microtesk.model.api.memory.Memory;
 

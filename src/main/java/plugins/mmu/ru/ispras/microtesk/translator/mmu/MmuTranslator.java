@@ -99,7 +99,7 @@ public class MmuTranslator {
       final MmuTreeWalker walker = new MmuTreeWalker(nodes);
       walker.assignLog(LOG);
       walker.assignSymbols(symbols);
-      walker.assignIR(ir);
+      //walker.assignIR(ir);
 
       walker.startRule();
 

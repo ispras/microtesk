@@ -63,7 +63,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
-import ru.ispras.microtesk.translator.simnml.antlrex.TreeWalkerBase;
+import ru.ispras.microtesk.translator.antlrex.TreeWalkerBase;
 }
 
 //==================================================================================================

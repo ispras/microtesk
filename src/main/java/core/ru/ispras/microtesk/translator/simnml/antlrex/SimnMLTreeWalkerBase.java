@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,24 +16,11 @@ package ru.ispras.microtesk.translator.simnml.antlrex;
 
 import java.util.Map;
 
-import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
-import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.TreeNodeStream;
 
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
-import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.antlrex.TreeParserEx;
-import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-
-import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
-import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
+import ru.ispras.microtesk.translator.antlrex.TreeWalkerBase;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.expression.ExprFactory;
@@ -46,19 +33,15 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.LetFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.TypeFactory;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExprFactory;
 
-public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
-  private SymbolTable symbols;
+public class SimnMLTreeWalkerBase extends TreeWalkerBase implements WalkerContext {
   private IR ir;
-
   private Map<String, Primitive> thisArgs;
   private Primitive.Holder thisPrimitive;
 
-  public TreeWalkerBase(TreeNodeStream input, RecognizerSharedState state) {
+  public SimnMLTreeWalkerBase(TreeNodeStream input, RecognizerSharedState state) {
     super(input, state);
 
-    this.symbols = null;
     this.ir = null;
-
     this.thisArgs = null;
     this.thisPrimitive = null;
   }
@@ -66,15 +49,6 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
   @Override
   public final IErrorReporter getReporter() {
     return this;
-  }
-
-  public final void assignSymbols(SymbolTable symbols) {
-    this.symbols = symbols;
-  }
-
-  @Override
-  public final SymbolTable getSymbols() {
-    return symbols;
   }
 
   public final void assignIR(IR ir) {
@@ -187,100 +161,5 @@ public class TreeWalkerBase extends TreeParserEx implements WalkerContext {
       statementFactory = new StatementFactory(this);
     }
     return statementFactory;
-  }
-
-  /* ====================================================================================== */
-
-  protected final void checkRedeclared(CommonTree current) throws RecognitionException {
-    final ISymbol symbol = symbols.resolve(current.getText());
-
-    if (null != symbol) {
-      raiseError(where(current), new RedeclaredSymbol(symbol));
-    }
-  }
-
-  protected final boolean isDeclaredAs(CommonTree t, Enum<?> expectedKind) {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
-
-    final ISymbol symbol = symbols.resolve(t.getText());
-    if (null == symbol) {
-      return false;
-    }
-
-    if (expectedKind != symbol.getKind()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  protected final void declare(CommonTree t, Enum<?> kind, boolean scoped)
-      throws RecognitionException {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
-
-    checkRedeclared(t);
-
-    final ISymbol symbol = scoped ?
-        new ScopedSymbol(t.getToken(), kind, symbols.peek()) :
-        new Symbol(t.getToken(), kind, symbols.peek());
-
-    symbols.define(symbol);
-  }
-
-  protected final void checkMemberDeclared(CommonTree t, Enum<?> expectedKind)
-      throws SemanticException {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
-
-    final ISymbol symbol = symbols.resolveMember(t.getText());
-    if (null == symbol) {
-      raiseError(where(t), new UndeclaredSymbol(t.getText()));
-    }
-
-    if (expectedKind != symbol.getKind()) {
-      raiseError(
-        where(t),
-        new SymbolTypeMismatch(t.getText(),
-        symbol.getKind(),
-        expectedKind)
-      );
-    }
-  }
-
-  protected void checkNotNull(CommonTree current, Object obj, String text)
-      throws RecognitionException {
-    if (null == obj) {
-      raiseError(where(current), new UnrecognizedStructure(text));
-    }
-  }
-
-  protected void checkNotNull(Where w, Object obj, String text) throws RecognitionException {
-    if (null == obj) {
-      raiseError(w, new UnrecognizedStructure(text));
-    }
-  }
-
-  protected void pushSymbolScope(CommonTree scopeID) {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
-
-    final ISymbol scopeSymbol = symbols.resolve(scopeID.getText());
-    assert (null != scopeSymbol) : String.format(
-      "The %s symbol must be registered in the symbol table.", scopeID.getText());
-
-    assert (null != scopeSymbol.getInnerScope()) : String.format(
-      "The %s symbol must be a scoped symbol.", scopeID.getText());
-
-    symbols.push(scopeSymbol.getInnerScope());
-  }
-
-  protected void popSymbolScope() {
-    symbols.pop();
   }
 }
