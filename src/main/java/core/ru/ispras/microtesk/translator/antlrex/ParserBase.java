@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,11 +19,24 @@ import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 
-import ru.ispras.microtesk.translator.antlrex.symbols.*;
+import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
+import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
+
+/**
+ * The ParserBase class is a base class for implementing ANTLR-based parsers.
+ * It includes support for error reporting (inherited from {@link ParserEx})
+ * and support for working with symbol tables.
+ * 
+ * @author Andrei Tatarnikov
+ */
 
 public class ParserBase extends ParserEx {
   private SymbolTable symbols = null;
@@ -33,13 +46,12 @@ public class ParserBase extends ParserEx {
   }
 
   public final void assignSymbols(SymbolTable symbols) {
+    InvariantChecks.checkNotNull(symbols);
     this.symbols = symbols;
   }
 
   protected final void declare(Token t, Enum<?> kind, boolean scoped) throws SemanticException {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
 
@@ -50,8 +62,8 @@ public class ParserBase extends ParserEx {
     symbols.define(symbol);
   }
 
-  protected final void declareAndPushSymbolScope(Token t, Enum<?> kind)
-      throws SemanticException {
+  protected final void declareAndPushSymbolScope(
+      Token t, Enum<?> kind) throws SemanticException {
     if (null == symbols) {
       throw new NullPointerException();
     }
@@ -68,9 +80,7 @@ public class ParserBase extends ParserEx {
   }
 
   private final void checkRedeclared(final Token t) throws SemanticException {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(symbols);
 
     final ISymbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {// OK
@@ -81,9 +91,7 @@ public class ParserBase extends ParserEx {
   }
 
   protected final void checkDeclaration(Token t, Enum<?> expectedKind) throws SemanticException {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(symbols);
 
     final ISymbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
@@ -96,9 +104,7 @@ public class ParserBase extends ParserEx {
   }
 
   protected final boolean isDeclaredAs(Token t, Enum<?> expectedKind) {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(symbols);
 
     final ISymbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
@@ -112,7 +118,7 @@ public class ParserBase extends ParserEx {
     return true;
   }
 
-  protected void checkNotNull(Token t, Object obj) throws RecognitionException {
+  protected final void checkNotNull(Token t, Object obj) throws RecognitionException {
     if (null == obj) {
       raiseError(where(t), new UnrecognizedStructure());
     }

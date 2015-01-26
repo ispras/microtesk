@@ -29,6 +29,14 @@ import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 
+/**
+ * The ParserEx class is an extension of the ANTLR library class Parser that
+ * provides means of error reporting based on MicroTESK library classes
+ * facilitating logging.
+ * 
+ * @author Andrei Tatarnikov
+ */
+
 public class ParserEx extends Parser implements IErrorReporter {
   private ILogStore log = null;
   private int errorCount = 0;
