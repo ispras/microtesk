@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.translator.antlrex;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.File;
 
@@ -45,8 +47,10 @@ public class ParserEx extends Parser implements IErrorReporter {
 
   @Override
   public final void reportError(RecognitionException re) {
-    assert (null != log);
-    assert !(re instanceof SemanticException);
+    checkNotNull(log);
+    if (re instanceof SemanticException) {
+      throw new IllegalArgumentException();
+    }
 
     tempErrorMessage = "";
     super.reportError(re);
@@ -65,7 +69,7 @@ public class ParserEx extends Parser implements IErrorReporter {
   }
 
   public final void reportError(SemanticException se) {
-    assert (null != log);
+    checkNotNull(log);
 
     final LogEntry logEntry = new LogEntry(
       ELogEntryKind.ERROR,
