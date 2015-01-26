@@ -24,18 +24,18 @@ import java.util.Map;
 public final class Address {
   private final String name;
   private final int width;
-  private final Map<String, Format> formats;
+  private final Format format;
   private final Map<String, Segment> segments;
 
-  Address(String name, int width, Map<String, Format> formats, Map<String, Segment> segments) {
+  Address(String name, int width, Format format, Map<String, Segment> segments) {
     checkNotNull(name);
     checkGreaterThanZero(width);
-    checkNotNull(formats);
+    checkNotNull(format);
     checkNotNull(segments);
 
     this.name = name;
     this.width = width;
-    this.formats = formats;
+    this.format = format;
     this.segments = segments;
   }
 
@@ -47,13 +47,8 @@ public final class Address {
     return width;
   }
 
-  public Collection<Format> getFormats() {
-    return Collections.unmodifiableCollection(formats.values());
-  }
-
-  public Format getFormat(String name) {
-    checkNotNull(name);
-    return formats.get(name);
+  public Format getFormat() {
+    return format;
   }
 
   public Collection<Segment> getSegments() {
