@@ -58,7 +58,6 @@ public class ParserBase extends ParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-
     final ISymbol symbol = scoped ?
         new ScopedSymbol(t, kind, symbols.peek()) :
         new Symbol(t, kind, symbols.peek());
@@ -68,9 +67,7 @@ public class ParserBase extends ParserEx {
 
   protected final void declareAndPushSymbolScope(
       Token t, Enum<?> kind) throws SemanticException {
-    if (null == symbols) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
     final ISymbol symbol = new ScopedSymbol(t, kind, symbols.peek());
