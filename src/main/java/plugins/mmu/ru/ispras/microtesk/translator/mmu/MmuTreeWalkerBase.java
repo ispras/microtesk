@@ -18,10 +18,10 @@ import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.TreeNodeStream;
 
 import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
-import ru.ispras.microtesk.translator.antlrex.TreeWalkerBase;
+import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 
-public class MmuTreeWalkerBase extends TreeWalkerBase {
+public class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
 
   public MmuTreeWalkerBase(TreeNodeStream input, RecognizerSharedState state) {

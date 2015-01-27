@@ -35,17 +35,17 @@ import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
 /**
- * The TreeWalkerBase class is a base class for implementing ANTLR-based tree walkers.
+ * The TreeParserBase class is a base class for implementing ANTLR-based tree walkers.
  * It includes support for error reporting (inherited from {@link TreeParserEx})
  * and support for working with symbol tables.
  * 
  * @author Andrei Tatarnikov
  */
 
-public class TreeWalkerBase extends TreeParserEx {
+public class TreeParserBase extends TreeParserEx {
   private SymbolTable symbols;
 
-  public TreeWalkerBase(TreeNodeStream input, RecognizerSharedState state) {
+  public TreeParserBase(TreeNodeStream input, RecognizerSharedState state) {
     super(input, state);
     this.symbols = null;
   }
