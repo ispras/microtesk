@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.TreeNodeStream;
@@ -57,7 +56,7 @@ public class TreeParserBase extends TreeParserEx {
     return symbols;
   }
 
-  protected final void checkRedeclared(CommonTree current) throws RecognitionException {
+  protected final void checkRedeclared(CommonTree current) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
     final ISymbol symbol = symbols.resolve(current.getText());
@@ -83,7 +82,7 @@ public class TreeParserBase extends TreeParserEx {
   }
 
   protected final void declare(
-      CommonTree t, Enum<?> kind, boolean scoped) throws RecognitionException {
+      CommonTree t, Enum<?> kind, boolean scoped) throws SemanticException {
 
     InvariantChecks.checkNotNull(symbols);
 
@@ -94,6 +93,17 @@ public class TreeParserBase extends TreeParserEx {
         new Symbol(t.getToken(), kind, symbols.peek());
 
     symbols.define(symbol);
+  }
+  
+  protected final void declareAndPushSymbolScope(
+      CommonTree t, Enum<?> kind) throws SemanticException {
+    InvariantChecks.checkNotNull(symbols);
+
+    checkRedeclared(t);
+    final ISymbol symbol = new ScopedSymbol(t.getToken(), kind, symbols.peek());
+
+    symbols.define(symbol);
+    symbols.push(symbol.getInnerScope());
   }
 
   protected final void checkMemberDeclared(
