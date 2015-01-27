@@ -214,6 +214,7 @@ locationAtom
     :  ID
     |  ID LEFT_HOOK expr RIGHT_HOOK -> ^(LOCATION_INDEX ID expr)
     |  ID DOT^ ID
+    |  instance (DOT ID)? -> ^(INSTANCE_CALL instance ID?)
     ;
 
 bitFieldExpr
