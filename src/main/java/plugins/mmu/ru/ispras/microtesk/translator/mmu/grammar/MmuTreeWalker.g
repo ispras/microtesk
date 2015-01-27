@@ -137,11 +137,13 @@ statement
     : attributeCallStatement
     | assignmentStatement
     | conditionalStatement
+    | functionCallStatement
     ;
 
 attributeCallStatement
     : ID
     | ^(DOT ID ID)
+    | ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)
     ;
 
 assignmentStatement
@@ -162,6 +164,10 @@ elseIfStmt
 
 elseStmt
     : ^(ELSE sequence)
+    ;
+
+functionCallStatement
+    :  ^(EXCEPTION STRING_CONST)
     ;
 
 //==================================================================================================
@@ -219,7 +225,7 @@ unaryExpr [int depth]
     ;
 
 atom 
-    : c = constant { trace($c.res); }
+    : c = constant
     | location
     ;
 
@@ -260,6 +266,7 @@ locationVal
 locationAtom
     : ID
     | ^(DOT ID ID)
+    | ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)
     ;
 
 //==================================================================================================
