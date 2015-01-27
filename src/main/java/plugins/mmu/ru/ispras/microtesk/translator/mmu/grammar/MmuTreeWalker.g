@@ -64,6 +64,7 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.mmu.MmuTreeWalkerBase;
+import ru.ispras.microtesk.translator.mmu.MmuSymbolKind;
 }
 
 //==================================================================================================
@@ -85,7 +86,7 @@ declaration
 //==================================================================================================
 
 address
-    : ^(MMU_ADDRESS ID
+    : ^(MMU_ADDRESS addressId=ID
         (
             ^(MMU_WIDTH expr[0])
           | ^(MMU_SEGMENT ID expr[0] expr[0])
