@@ -118,6 +118,7 @@ buffer
 
 memory
     : ^(MMU_MEMORY ID ID ID
+        (^(MMU_VAR ID ID))*
         (
             ^(MMU_READ sequence)
           | ^(MMU_WRITE sequence)

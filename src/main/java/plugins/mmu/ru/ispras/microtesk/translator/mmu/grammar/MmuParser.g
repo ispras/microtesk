@@ -161,7 +161,12 @@ policy
 
 memory
     : MMU_MEMORY^ ID LEFT_PARENTH! addressType=ID addressArg=ID RIGHT_PARENTH!
+        (memoryVariable)*
         (memoryParameter)*
+    ;
+
+memoryVariable
+    : MMU_VAR^ ID COLON! ID SEMI!
     ;
 
 memoryParameter
