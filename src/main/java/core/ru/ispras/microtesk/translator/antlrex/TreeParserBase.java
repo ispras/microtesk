@@ -23,7 +23,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserEx;
-import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
@@ -32,7 +31,6 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 
 /**
  * The TreeParserBase class is a base class for implementing ANTLR-based tree walkers.
@@ -115,22 +113,6 @@ public class TreeParserBase extends TreeParserEx {
         symbol.getKind(),
         expectedKind)
       );
-    }
-  }
-
-  protected final void checkNotNull(
-      CommonTree current, Object obj, String text) throws RecognitionException {
-
-    if (null == obj) {
-      raiseError(where(current), new UnrecognizedStructure(text));
-    }
-  }
-
-  protected final void checkNotNull(
-      Where w, Object obj, String text) throws RecognitionException {
-
-    if (null == obj) {
-      raiseError(w, new UnrecognizedStructure(text));
     }
   }
 

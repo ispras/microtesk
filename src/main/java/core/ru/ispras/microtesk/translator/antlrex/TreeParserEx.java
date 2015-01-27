@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,6 +22,9 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.TreeNodeStream;
 import org.antlr.runtime.tree.TreeParser;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
+import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
@@ -32,7 +35,7 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
  * advanced error-handling facilities by overriding standard error-handling methods. This allows
  * collecting full information about errors in a special log store.
  * 
- * To enable the feature in your implementation, inherit specify TreeParserEx as a base class for
+ * <p>To enable the feature in your implementation, inherit specify TreeParserEx as a base class for
  * you tree parser class (in a grammar file or in your code) add the following code to the top of
  * your tree parser grammar file:
  * 
@@ -45,8 +48,7 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
  * catch (RecognitionException re) { // Default behavior
  *     reportError(re);
  *     recover(input,re);
- * }
- * </pre>
+ * }</pre>
  * 
  * This will enable handling custom error messages thrown by semantic actions.
  * 
@@ -104,8 +106,10 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
 
   @Override
   public final void reportError(RecognitionException re) {
-    assert (null != log);
-    assert !(re instanceof SemanticException);
+    InvariantChecks.checkNotNull(log);
+    if (re instanceof SemanticException) {
+      throw new IllegalArgumentException();
+    }
 
     tempErrorMessage = "";
     super.reportError(re);
@@ -131,7 +135,7 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
    */
 
   public final void reportError(SemanticException se) {
-    assert (null != log);
+    InvariantChecks.checkNotNull(log);
 
     final LogEntry logEntry = new LogEntry(
       ELogEntryKind.ERROR,
@@ -180,7 +184,7 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
   /**
    * Checks if parsing was successful (no errors occurred).
    * 
-   * @return <b>true</b> if no parsing errors were detected and <b>false</b> if there were errors.
+   * @return {@code true} if no parsing errors were detected and {@code false} if there were errors.
    */
 
   public final boolean isCorrect() {
@@ -199,5 +203,17 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
 
   protected final Where where(CommonTree node) {
     return new Where(getSourceName(), node.getLine(), node.getCharPositionInLine());
+  }
+
+  protected final void checkNotNull(
+      Where w, Object obj, String text) throws RecognitionException {
+    if (null == obj) {
+      raiseError(w, new UnrecognizedStructure(text));
+    }
+  }
+
+  protected final void checkNotNull(
+      CommonTree current, Object obj, String text) throws RecognitionException {
+    checkNotNull(where(current), obj, text);
   }
 }

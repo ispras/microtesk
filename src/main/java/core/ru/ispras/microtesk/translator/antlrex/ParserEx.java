@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.io.File;
 
 import org.antlr.runtime.Parser;
@@ -24,6 +22,9 @@ import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
+import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
@@ -55,7 +56,7 @@ public class ParserEx extends Parser implements IErrorReporter {
 
   @Override
   public final void reportError(RecognitionException re) {
-    checkNotNull(log);
+    InvariantChecks.checkNotNull(log);
     if (re instanceof SemanticException) {
       throw new IllegalArgumentException();
     }
@@ -77,7 +78,7 @@ public class ParserEx extends Parser implements IErrorReporter {
   }
 
   public final void reportError(SemanticException se) {
-    checkNotNull(log);
+    InvariantChecks.checkNotNull(log);
 
     final LogEntry logEntry = new LogEntry(
       ELogEntryKind.ERROR,
@@ -121,5 +122,17 @@ public class ParserEx extends Parser implements IErrorReporter {
 
   protected final Where where(Token node) {
     return new Where(sourceName, node.getLine(), node.getCharPositionInLine());
+  }
+
+  protected final void checkNotNull(Token t, Object obj) throws RecognitionException {
+    if (null == obj) {
+      raiseError(where(t), new UnrecognizedStructure());
+    }
+  }
+
+  protected final void checkNotNull(Token t, Object obj, String text) throws RecognitionException {
+    if (null == obj) {
+      raiseError(where(t), new UnrecognizedStructure(text));
+    }
   }
 }

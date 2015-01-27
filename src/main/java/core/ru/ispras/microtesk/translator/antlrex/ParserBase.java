@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
@@ -24,7 +23,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
@@ -117,11 +115,5 @@ public class ParserBase extends ParserEx {
     }
 
     return true;
-  }
-
-  protected final void checkNotNull(Token t, Object obj) throws RecognitionException {
-    if (null == obj) {
-      raiseError(where(t), new UnrecognizedStructure());
-    }
   }
 }
