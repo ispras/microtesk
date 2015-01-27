@@ -86,21 +86,22 @@ declaration
 //==================================================================================================
 
 address
-    : ^(MMU_ADDRESS addressId=ID
+    : ^(MMU_ADDRESS addressId=ID {declareAndPushSymbolScope($addressId, MmuSymbolKind.ADDRESS);}
         (
             ^(MMU_WIDTH expr[0])
           | ^(MMU_SEGMENT ID expr[0] expr[0])
           | ^(MMU_FORMAT (ID expr[0] expr[0]?)+)
         )*
       )
-    ;
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Buffer
 //==================================================================================================
 
 buffer
-    : ^(MMU_BUFFER ID ID ID
+    : ^(MMU_BUFFER bufferId=ID {declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER);}
+        ID ID
         (
             ^(MMU_WAYS expr[0])
           | ^(MMU_SETS expr[0])
@@ -110,21 +111,22 @@ buffer
           | ^(MMU_POLICY ID)
         )*
       )
-    ;
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Memory
 //==================================================================================================
 
 memory
-    : ^(MMU_MEMORY ID ID ID
+    : ^(MMU_MEMORY memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
+        ID ID
         (^(MMU_VAR ID ID))*
         (
             ^(MMU_READ sequence)
           | ^(MMU_WRITE sequence)
         )*
       )
-    ;
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Statements
