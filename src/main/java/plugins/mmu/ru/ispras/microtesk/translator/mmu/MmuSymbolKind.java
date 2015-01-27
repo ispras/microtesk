@@ -15,5 +15,7 @@
 package ru.ispras.microtesk.translator.mmu;
 
 public enum MmuSymbolKind {
-
+  ADDRESS,
+  BUFFER,
+  MEMORY
 }
