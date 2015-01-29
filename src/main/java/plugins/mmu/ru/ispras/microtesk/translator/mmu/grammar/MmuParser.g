@@ -66,8 +66,9 @@ startRule
 
 declaration
     : address
+    | segment
     | buffer
-    | memory
+    | mmu
     ;
 
 //==================================================================================================
@@ -75,26 +76,22 @@ declaration
 //==================================================================================================
 
 address
-    : MMU_ADDRESS^ ID
-        (addressParameter)*
+    : MMU_ADDRESS^ ID LEFT_PARENTH! width=expr RIGHT_PARENTH!
     ;
-
-addressParameter
-    : width
-    | segment
-    | format
-    ;
-
-//--------------------------------------------------------------------------------------------------
-
-width
-    : MMU_WIDTH^ ASSIGN! expr
-    ;
-
-//--------------------------------------------------------------------------------------------------
+    
+//==================================================================================================
+// Segment
+//==================================================================================================
 
 segment
-    : MMU_SEGMENT^ segmentID=ID ASSIGN! LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
+    : MMU_SEGMENT^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
+        range
+    ;
+
+//--------------------------------------------------------------------------------------------------
+
+range
+    : MMU_RANGE^ ASSIGN! LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
@@ -102,14 +99,14 @@ segment
 //==================================================================================================
 
 buffer
-    : MMU_BUFFER^ ID LEFT_PARENTH! addressType=ID addressArg=ID RIGHT_PARENTH!
+    : MMU_BUFFER^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
         (bufferParameter)*
     ;
 
 bufferParameter
     : ways
     | sets
-    | format
+    | entry
     | index
     | match
     | policy
@@ -129,8 +126,8 @@ sets
 
 //--------------------------------------------------------------------------------------------------
 
-format
-    : MMU_FORMAT^ ASSIGN! LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
+entry
+    : MMU_ENTRY^ ASSIGN! LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
     ;
 
 field
@@ -156,34 +153,25 @@ policy
     ;
 
 //==================================================================================================
-// Memory
+// MMU Logic
 //==================================================================================================
 
-memory
-    : MMU_MEMORY^ ID LEFT_PARENTH! addressType=ID addressArg=ID RIGHT_PARENTH!
-        (memoryVariable)*
-        (memoryParameter)*
+mmu
+    : MMU^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH! ASSIGN! ID
+        (mmuVariable)*
+        (mmuFunction)*
     ;
 
-memoryVariable
-    : MMU_VAR^ ID COLON! ID SEMI!
+mmuVariable
+    : MMU_VAR^ ID COLON! mmuVariableType SEMI!
     ;
 
-memoryParameter
-    : read
-    | write
+mmuVariableType
+    : ID (DOT MMU_ENTRY)? -> ID
     ;
 
-//--------------------------------------------------------------------------------------------------
-
-read
-    : MMU_READ^ ASSIGN! LEFT_BRACE! sequence RIGHT_BRACE!
-    ;
-
-//--------------------------------------------------------------------------------------------------
-
-write
-    : MMU_WRITE^ ASSIGN! LEFT_BRACE! sequence RIGHT_BRACE!
+mmuFunction
+    : ID ASSIGN! LEFT_BRACE! sequence RIGHT_BRACE!
     ;
 
 //==================================================================================================

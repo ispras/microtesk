@@ -77,8 +77,9 @@ startRule
 
 declaration
     : address
+    | segment
     | buffer
-    | memory
+    | mmu
     ;
 
 //==================================================================================================
@@ -86,47 +87,50 @@ declaration
 //==================================================================================================
 
 address
-    : ^(MMU_ADDRESS addressId=ID {declareAndPushSymbolScope($addressId, MmuSymbolKind.ADDRESS);}
-        (
-            ^(MMU_WIDTH expr[0])
-          | ^(MMU_SEGMENT ID expr[0] expr[0])
-          | ^(MMU_FORMAT (ID expr[0] expr[0]?)+)
-        )*
+    : ^(MMU_ADDRESS addressId=ID expr[0])
+    ;
+
+//==================================================================================================
+// Segment
+//==================================================================================================
+
+segment
+    : ^(MMU_SEGMENT segmentId=ID argName=ID argType=ID
+        range
       )
-    ; finally {popSymbolScope();}
+    ;
+
+range
+    : ^(MMU_RANGE expr[0] expr[0])
+    ;
 
 //==================================================================================================
 // Buffer
 //==================================================================================================
 
 buffer
-    : ^(MMU_BUFFER bufferId=ID {declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER);}
-        ID ID
+    : ^(MMU_BUFFER bufferId=ID ID ID
         (
             ^(MMU_WAYS expr[0])
           | ^(MMU_SETS expr[0])
-          | ^(MMU_FORMAT (ID expr[0] expr[0]?)+)
+          | ^(MMU_ENTRY (ID expr[0] expr[0]?)+)
           | ^(MMU_INDEX expr[0])
           | ^(MMU_MATCH expr[0])
           | ^(MMU_POLICY ID)
         )*
       )
-    ; finally {popSymbolScope();}
+    ;
 
 //==================================================================================================
 // Memory
 //==================================================================================================
 
-memory
-    : ^(MMU_MEMORY memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
-        ID ID
+mmu
+    : ^(MMU memoryId=ID ID ID ID
         (^(MMU_VAR ID ID))*
-        (
-            ^(MMU_READ sequence)
-          | ^(MMU_WRITE sequence)
-        )*
+        (ID sequence)*
       )
-    ; finally {popSymbolScope();}
+    ;
 
 //==================================================================================================
 // Statements
@@ -249,10 +253,10 @@ $res = NodeValue.newInteger($t.text, radix);
     ;
 
 //==================================================================================================
-// Location (variable)
+// Location
 //==================================================================================================
 
-location 
+location
     : ^(LOCATION locationExpr[0])
     ;
 
@@ -269,6 +273,7 @@ locationVal
 locationAtom
     : ID
     | ^(DOT ID ID)
+    | ^(LOCATION_INDEX ID expr[0])
     | ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)
     ;
 

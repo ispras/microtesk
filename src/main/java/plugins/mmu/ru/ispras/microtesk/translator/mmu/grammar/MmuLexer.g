@@ -45,22 +45,20 @@ package ru.ispras.microtesk.translator.mmu.grammar;
 //==================================================================================================
 
 MMU_ADDRESS : 'address';
-MMU_WIDTH   : 'width';
+
 MMU_SEGMENT : 'segment';
+MMU_RANGE   : 'range';
 
 MMU_BUFFER  : 'buffer';
 MMU_WAYS    : 'ways';
 MMU_SETS    : 'sets';
-MMU_FORMAT  : 'format';
+MMU_ENTRY   : 'entry';
 MMU_INDEX   : 'index';
 MMU_MATCH   : 'match';
 MMU_POLICY  : 'policy';
 
-MMU_MEMORY  : 'memory';
-MMU_READ    : 'read';
-MMU_WRITE   : 'write';
-
-MMU_VAR     : 'var'; 
+MMU         : 'mmu';
+MMU_VAR     : 'var';
 
 //==================================================================================================
 // The end
