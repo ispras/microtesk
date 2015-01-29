@@ -235,8 +235,11 @@ unaryExpr [int depth] returns [Node res]
     ;
 
 atom returns [Node res]
-    : c = constant
-    | variable
+@after {
+$res = n;
+}
+    : n=constant 
+    | n=variable
     ;
 
 //==================================================================================================
@@ -259,21 +262,21 @@ $res = NodeValue.newInteger($t.text, radix);
 // Variable
 //==================================================================================================
 
-variable
-    : ^(LOCATION variableConcat[0])
+variable returns [Node res]
+    : ^(LOCATION v=variableConcat[0]) { $res=v; }
     ;
 
-variableConcat [int depth]
+variableConcat [int depth] returns [Node res]
     : ^(DOUBLE_COLON variableBitfield variableConcat[depth+1])
-    | variableBitfield
+    | vb=variableBitfield { $res=vb; }
     ;
 
-variableBitfield
+variableBitfield returns [Node res]
     : ^(LOCATION_BITFIELD variableAtom expr[0] expr[0]?)
-    | variableAtom
+    | va=variableAtom  { $res=va; }
     ;
 
-variableAtom
+variableAtom returns [Node res]
     : ID
     | ^(DOT ID ID)
     | ^(LOCATION_INDEX ID expr[0])
