@@ -154,7 +154,7 @@ attributeCallStatement
     ;
 
 assignmentStatement
-    : ^(ASSIGN location expr[0])
+    : ^(ASSIGN variable expr[0])
     ;
 
 conditionalStatement
@@ -233,7 +233,7 @@ unaryExpr [int depth]
 
 atom 
     : c = constant
-    | location
+    | variable
     ;
 
 //==================================================================================================
@@ -253,24 +253,24 @@ $res = NodeValue.newInteger($t.text, radix);
     ;
 
 //==================================================================================================
-// Location
+// Variable
 //==================================================================================================
 
-location
-    : ^(LOCATION locationExpr[0])
+variable
+    : ^(LOCATION variableConcat[0])
     ;
 
-locationExpr [int depth]
-    : ^(DOUBLE_COLON locationVal locationExpr[depth+1])
-    | locationVal
+variableConcat [int depth]
+    : ^(DOUBLE_COLON variableBitfield variableConcat[depth+1])
+    | variableBitfield
     ;
 
-locationVal
-    : ^(LOCATION_BITFIELD locationAtom expr[0] expr[0]?)
-    | locationAtom
+variableBitfield
+    : ^(LOCATION_BITFIELD variableAtom expr[0] expr[0]?)
+    | variableAtom
     ;
 
-locationAtom
+variableAtom
     : ID
     | ^(DOT ID ID)
     | ^(LOCATION_INDEX ID expr[0])
