@@ -87,7 +87,7 @@ declaration
 //==================================================================================================
 
 address
-    : ^(MMU_ADDRESS addressId=ID expr[0])
+    : ^(MMU_ADDRESS addressId=ID {declare($addressId, MmuSymbolKind.ADDRESS, false);} width=expr[0])
     ;
 
 //==================================================================================================
@@ -95,7 +95,8 @@ address
 //==================================================================================================
 
 segment
-    : ^(MMU_SEGMENT segmentId=ID argName=ID argType=ID
+    : ^(MMU_SEGMENT segmentId=ID {declare($segmentId, MmuSymbolKind.SEGMENT, false);} 
+        addressArgId=ID addressArgType=ID
         range
       )
     ;
@@ -109,7 +110,8 @@ range
 //==================================================================================================
 
 buffer
-    : ^(MMU_BUFFER bufferId=ID ID ID
+    : ^(MMU_BUFFER bufferId=ID {declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER);}
+        addressArgId=ID addressArgType=ID
         (
             ^(MMU_WAYS expr[0])
           | ^(MMU_SETS expr[0])
@@ -119,18 +121,19 @@ buffer
           | ^(MMU_POLICY ID)
         )*
       )
-    ;
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Memory
 //==================================================================================================
 
 mmu
-    : ^(MMU memoryId=ID ID ID ID
+    : ^(MMU memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
+        addressArgId=ID addressArgType=ID dataArgId=ID
         (^(MMU_VAR ID ID))*
         (ID sequence)*
       )
-    ;
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Statements
@@ -181,7 +184,7 @@ functionCallStatement
 // Expressions
 //==================================================================================================
 
-expr [int depth]
+expr [int depth] returns [Node res]
     : ifExpr[depth+1]  
     | binaryExpr[depth+1]
     | unaryExpr[depth+1]
@@ -200,7 +203,7 @@ elseExpr [int depth]
     : ^(ELSE expr[depth])
     ;
 
-binaryExpr [int depth]
+binaryExpr [int depth] returns [Node res]
     : ^(OR            expr[depth+1] expr[depth+1])
     | ^(AND           expr[depth+1] expr[depth+1])
     | ^(VERT_BAR      expr[depth+1] expr[depth+1])
@@ -224,14 +227,14 @@ binaryExpr [int depth]
     | ^(DOUBLE_STAR   expr[depth+1] expr[depth+1])
     ;
 
-unaryExpr [int depth]
+unaryExpr [int depth] returns [Node res]
     : ^(UPLUS  expr[depth+1])
     | ^(UMINUS expr[depth+1])
     | ^(TILDE  expr[depth+1])
     | ^(NOT    expr[depth+1])
     ;
 
-atom 
+atom returns [Node res]
     : c = constant
     | variable
     ;
