@@ -22,38 +22,52 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.StandardOperation;
 
 public enum Operator {
+  //------------------------------------------------------------------------------------------------
   OR("||",     rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.OR)),
 
+  //------------------------------------------------------------------------------------------------
   AND("&&",    rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.AND)),
-
+  
+  //------------------------------------------------------------------------------------------------
   BIT_OR("|",  rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVOR)),
   BIT_XOR("^", rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVXOR)),
   BIT_AND("&", rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVAND)),
 
+  //------------------------------------------------------------------------------------------------
   EQ("==",     rule(DataTypeId.BIT_VECTOR,    StandardOperation.EQ),
                rule(DataTypeId.LOGIC_INTEGER, StandardOperation.EQ)),
   NOT_EQ("!=", rule(DataTypeId.BIT_VECTOR,    StandardOperation.NOTEQ),
                rule(DataTypeId.LOGIC_INTEGER, StandardOperation.NOTEQ)),
+  LEQ("<=",    rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVULE),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.LESSEQ)),
+  GEQ(">=",    rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVUGE),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.GREATEREQ)),
+  LESS("<",    rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVULT),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.LESS)),
+  GREATER(">", rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVUGT),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.GREATER)),
 
-  LEQ("<="),
-  GEQ(">="),
-  LESS("<"),
-  GREATER(">"),
-
+  //------------------------------------------------------------------------------------------------
   L_SHIFT("<<"),
   R_SHIFT(">>"),
   L_ROTATE("<<<"),
   R_ROTATE(">>>"),
 
-  PLUS("+"),
-  MINUS("-"),
+  //------------------------------------------------------------------------------------------------
+  PLUS("+",    rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVADD),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.ADD)),
+  MINUS("-",   rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVSUB),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.SUB)),
 
+  //------------------------------------------------------------------------------------------------
   MUL("*"),
   DIV("/"),
   MOD("%"),
 
+  //------------------------------------------------------------------------------------------------
   POW("**"),
 
+  //------------------------------------------------------------------------------------------------
   UPLUS("UPLUS"),
   UMINUS("UMINUS"),
   BIT_NOT("~"),
