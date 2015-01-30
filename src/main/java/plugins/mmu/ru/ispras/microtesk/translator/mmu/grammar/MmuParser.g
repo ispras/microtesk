@@ -168,6 +168,7 @@ mmuVariable
 
 mmuVariableType
     : ID (DOT MMU_ENTRY)? -> ID
+    | expr
     ;
 
 mmuFunction

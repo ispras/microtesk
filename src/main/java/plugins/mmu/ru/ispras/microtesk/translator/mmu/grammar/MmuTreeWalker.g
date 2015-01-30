@@ -130,7 +130,7 @@ buffer
 mmu
     : ^(MMU memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
         addressArgId=ID addressArgType=ID dataArgId=ID
-        (^(MMU_VAR ID ID))*
+        (^(MMU_VAR ID (ID | expr[0])))*
         (ID sequence)*
       )
     ; finally {popSymbolScope();}
