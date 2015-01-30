@@ -116,8 +116,18 @@ public class ParserEx extends Parser implements IErrorReporter {
   }
 
   @Override
+  public final void raiseError(String what) throws SemanticException {
+    raiseError(new SemanticError(what));
+  }
+
+  @Override
   public void raiseError(Where where, ISemanticError error) throws SemanticException {
     throw new SemanticException(where, error);
+  }
+
+  @Override
+  public void raiseError(Where where, String what) throws SemanticException {
+    throw new SemanticException(where, new SemanticError(what));
   }
 
   protected final Where where(Token node) {

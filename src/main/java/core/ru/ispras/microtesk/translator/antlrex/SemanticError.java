@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,14 +14,13 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 public class SemanticError implements ISemanticError {
   private final String message;
 
   public SemanticError(String message) {
-    if (null == message) {
-      throw new NullPointerException();
-    }
-
+    checkNotNull(message);
     this.message = message;
   }
 
