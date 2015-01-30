@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -58,13 +58,8 @@ public class WalkerFactoryBase implements WalkerContext {
     return context.getThis();
   }
 
-  protected final void raiseError(final Where where, final String what) throws SemanticException {
-    raiseError(where, new ISemanticError() {
-      @Override
-      public String getMessage() {
-        return what;
-      }
-    });
+  protected final void raiseError(final Where where, String what) throws SemanticException {
+    getReporter().raiseError(where, what);
   }
 
   protected final void raiseError(Where where, ISemanticError what) throws SemanticException {
