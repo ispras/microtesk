@@ -60,12 +60,13 @@ public enum Operator {
                rule(DataTypeId.LOGIC_INTEGER, StandardOperation.SUB)),
 
   //------------------------------------------------------------------------------------------------
-  MUL("*"),
+  MUL("*",     rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVMUL),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MUL)),
   DIV("/"),
   MOD("%"),
 
   //------------------------------------------------------------------------------------------------
-  POW("**"),
+  POW("**",    rule(DataTypeId.LOGIC_INTEGER, StandardOperation.POWER)),
 
   //------------------------------------------------------------------------------------------------
   UPLUS("UPLUS"),
