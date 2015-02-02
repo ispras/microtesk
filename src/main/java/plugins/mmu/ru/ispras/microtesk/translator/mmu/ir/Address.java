@@ -36,4 +36,9 @@ public final class Address {
   public int getWidth() {
     return width;
   }
+
+  @Override
+  public String toString() {
+    return String.format("address %s(%d)", id, width);
+  }
 }

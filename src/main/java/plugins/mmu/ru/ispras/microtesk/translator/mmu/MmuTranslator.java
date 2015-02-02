@@ -107,6 +107,8 @@ public class MmuTranslator {
         System.err.println("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
         return;
       }
+      
+      System.out.println(ir);
 
     } catch (Exception e) {
       e.printStackTrace();

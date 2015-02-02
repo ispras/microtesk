@@ -22,17 +22,23 @@ import java.util.Map;
 
 public final class Ir {
   private final Map<String, Address> addresses;
+  private final Map<String, Segment> segments;
   private final Map<String, Buffer> buffers;
   private final Map<String, Memory> memories;
 
   public Ir() {
-    this.addresses = new LinkedHashMap<String, Address>();
-    this.buffers = new LinkedHashMap<String, Buffer>();
-    this.memories = new LinkedHashMap<String, Memory>();
+    this.addresses = new LinkedHashMap<>();
+    this.segments = new LinkedHashMap<>();
+    this.buffers = new LinkedHashMap<>();
+    this.memories = new LinkedHashMap<>();
   }
 
   public Map<String, Address> getAddresses() {
     return Collections.unmodifiableMap(addresses);
+  }
+
+  public Map<String, Segment> getSegments() {
+    return Collections.unmodifiableMap(segments);
   }
 
   public Map<String, Buffer> getBuffers() {
@@ -43,17 +49,24 @@ public final class Ir {
     return Collections.unmodifiableMap(memories);
   }
 
-  public void addAddress(String name, Address value) {
-    checkNotNull(name);
-    checkNotNull(value);
-
-    addresses.put(name, value);
+  public void addAddress(Address address) {
+    checkNotNull(address);
+    addresses.put(address.getId(), address);
   }
 
-  public void addBuffer(String name, Buffer value) {
-    checkNotNull(name);
-    checkNotNull(value);
+  public void addSegment(Segment segment) {
+    checkNotNull(segment);
+    segments.put(segment.getId(), segment);
+  }
 
-    buffers.put(name, value);
+  @Override
+  public String toString() {
+    return String.format(
+        "Ir [addresses=%s, segments=%s, buffers=%s, memories=%s]", 
+        addresses,
+        segments,
+        buffers,
+        memories
+        );
   }
 }
