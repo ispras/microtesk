@@ -62,7 +62,7 @@ public final class Ir {
   @Override
   public String toString() {
     return String.format(
-        "Ir [addresses=%s, segments=%s, buffers=%s, memories=%s]", 
+        "Mmu Ir:%n addresses=%s%n segments=%s%n buffers=%s%n memories=%s", 
         addresses,
         segments,
         buffers,
