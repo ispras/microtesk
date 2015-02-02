@@ -48,10 +48,10 @@ public enum Operator {
                rule(DataTypeId.LOGIC_INTEGER, StandardOperation.GREATER)),
 
   //------------------------------------------------------------------------------------------------
-  L_SHIFT("<<"),
-  R_SHIFT(">>"),
-  L_ROTATE("<<<"),
-  R_ROTATE(">>>"),
+  L_SHIFT("<<",   rule(DataTypeId.BIT_VECTOR, StandardOperation.BVLSHL)),
+  R_SHIFT(">>",   rule(DataTypeId.BIT_VECTOR, StandardOperation.BVLSHR)),
+  L_ROTATE("<<<", rule(DataTypeId.BIT_VECTOR, StandardOperation.BVROL)),
+  R_ROTATE(">>>", rule(DataTypeId.BIT_VECTOR, StandardOperation.BVROR)),
 
   //------------------------------------------------------------------------------------------------
   PLUS("+",    rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVADD),
@@ -62,17 +62,19 @@ public enum Operator {
   //------------------------------------------------------------------------------------------------
   MUL("*",     rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVMUL),
                rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MUL)),
-  DIV("/"),
-  MOD("%"),
+  DIV("/",     rule(DataTypeId.LOGIC_INTEGER, StandardOperation.DIV)),
+  MOD("%",     rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVSMOD),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MOD)),
 
   //------------------------------------------------------------------------------------------------
   POW("**",    rule(DataTypeId.LOGIC_INTEGER, StandardOperation.POWER)),
 
   //------------------------------------------------------------------------------------------------
-  UPLUS("UPLUS"),
-  UMINUS("UMINUS"),
-  BIT_NOT("~"),
-  NOT("!");
+  UPLUS("UPLUS",   rule(DataTypeId.LOGIC_INTEGER, StandardOperation.PLUS)),
+  UMINUS("UMINUS", rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVNEG),
+                   rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MINUS)),
+  BIT_NOT("~",     rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVNOT)),
+  NOT("!",         rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.NOT));
 
   private static final Map<String, Operator> operators;
   static {
