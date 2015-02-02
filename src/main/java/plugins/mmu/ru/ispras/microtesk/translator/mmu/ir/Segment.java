@@ -69,4 +69,13 @@ public final class Segment {
   public BitVector getRangeEnd() {
     return rangeEnd;
   }
+
+  @Override
+  public String toString() {
+    return String.format("segment %s(%s: %s) range = (%x, %x)",
+        id, addressArgId,
+        addressArgType.getId(),
+        rangeStart.toHexString(),
+        rangeEnd.toHexString());
+  }
 }
