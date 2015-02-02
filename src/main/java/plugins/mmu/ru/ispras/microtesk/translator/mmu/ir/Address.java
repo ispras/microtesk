@@ -21,7 +21,7 @@ public final class Address {
   private final String id;
   private final int width;
 
-  Address(String id, int width) {
+  public Address(String id, int width) {
     checkNotNull(id);
     checkGreaterThanZero(width);
 
