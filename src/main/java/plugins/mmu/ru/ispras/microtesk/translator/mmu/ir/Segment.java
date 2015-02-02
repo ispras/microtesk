@@ -19,34 +19,54 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class Segment {
-  private final String name;
-  private final BitVector from;
-  private final BitVector to;
+  private final String id;
 
-  Segment(String name, BitVector from, BitVector to) {
-    checkNotNull(name);
-    checkNotNull(from);
-    checkNotNull(to);
+  private final String addressArgId;
+  private final Address addressArgType;
 
-    if (from.getBitSize() != to.getBitSize()) {
-      throw new IllegalArgumentException(String.format(
-          "Size mistach: %d against %d", from.getBitSize(), to.getBitSize()));
+  private final BitVector rangeStart;
+  private final BitVector rangeEnd;
+
+  public Segment(
+      String id,
+      String addressArgId, Address addressArgType,
+      BitVector rangeStart, BitVector rangeEnd) {
+
+    checkNotNull(id);
+    checkNotNull(addressArgId);
+    checkNotNull(addressArgType);
+    checkNotNull(rangeStart);
+    checkNotNull(rangeEnd);
+
+    if (addressArgType.getWidth() != rangeStart.getBitSize() ||
+        addressArgType.getWidth() != rangeEnd.getBitSize()) {
+      throw new IllegalArgumentException();      
     }
 
-    this.name = name;
-    this.from = from;
-    this.to = to;
+    this.id = id;
+    this.addressArgId = addressArgId ;
+    this.addressArgType = addressArgType;
+    this.rangeStart = rangeStart;
+    this.rangeEnd = rangeEnd;
   }
 
-  public String getName() {
-    return name;
+  public String getId() {
+    return id;
   }
 
-  public BitVector getFrom() {
-    return from;
+  public String getAddressArgId() {
+    return addressArgId;
   }
 
-  public BitVector getTo() {
-    return to;
+  public Address getAddressArgType() {
+    return addressArgType;
+  }
+
+  public BitVector getRangeStart() {
+    return rangeStart;
+  }
+
+  public BitVector getRangeEnd() {
+    return rangeEnd;
   }
 }
