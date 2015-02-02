@@ -18,5 +18,6 @@ public enum MmuSymbolKind {
   ADDRESS,
   SEGMENT,
   BUFFER,
-  MEMORY
+  MEMORY,
+  ARGUMENT
 }
