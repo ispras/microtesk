@@ -72,10 +72,8 @@ public final class Segment {
 
   @Override
   public String toString() {
-    return String.format("segment %s(%s: %s) range = (%x, %x)",
-        id, addressArgId,
-        addressArgType.getId(),
-        rangeStart.toHexString(),
-        rangeEnd.toHexString());
+    return String.format("segment %s(%s: %s(%d)) range = (%s, %s)",
+        id, addressArgId, addressArgType.getId(), addressArgType.getWidth(),
+        rangeStart.toHexString(), rangeEnd.toHexString());
   }
 }
