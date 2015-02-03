@@ -88,6 +88,7 @@ declaration
 
 address
     : ^(MMU_ADDRESS addressId=ID {declare($addressId, MmuSymbolKind.ADDRESS, false);} width=expr[0])
+      {newAddress($addressId, $width.res);}
     ;
 
 //==================================================================================================
@@ -95,15 +96,11 @@ address
 //==================================================================================================
 
 segment
-    : ^(MMU_SEGMENT segmentId=ID {declare($segmentId, MmuSymbolKind.SEGMENT, false);} 
-        addressArgId=ID addressArgType=ID
-        range
-      )
-    ;
-
-range
-    : ^(MMU_RANGE expr[0] expr[0])
-    ;
+    : ^(MMU_SEGMENT segmentId=ID {declareAndPushSymbolScope($segmentId, MmuSymbolKind.SEGMENT);} 
+        addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
+        ^(MMU_RANGE from=expr[0] to=expr[0])
+      ) {newSegment($segmentId, $addressArgId, $addressArgType, $from.res, $to.res);}
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Buffer
@@ -185,10 +182,13 @@ functionCallStatement
 //==================================================================================================
 
 expr [int depth] returns [Node res]
-    : ifExpr[depth+1]  
-    | binaryExpr[depth+1]
-    | unaryExpr[depth+1]
-    | atom
+@after {
+$res = n;
+}
+    : n=atom
+    | n=binaryExpr[depth+1]
+    | n=unaryExpr[depth+1]
+//  | ifExpr[depth+1]
     ;
 
 ifExpr [int depth]
