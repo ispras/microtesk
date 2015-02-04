@@ -133,13 +133,6 @@ public class MmuTreeWalkerBase extends TreeParserBase {
           "Range start (%d) is greater than range end (%d).", rangeStart, rangeEnd));
     }
 
-    final BitVector rangeStartBV = BitVector.valueOf(rangeStart, address.getWidth());
-    final BitVector rangeEndBV = BitVector.valueOf(rangeEnd, address.getWidth());
-
-    System.out.println(rangeStart.toString(16) + " - " + rangeEnd.toString(16));
-    System.out.println(rangeStartBV.toHexString() + " - " + rangeEndBV.toHexString());
-    System.out.println(rangeStartBV.bigIntegerValue().toString(16) + " - " + rangeEndBV.bigIntegerValue().toString(16));
-
     final Segment segment = new Segment(
         segmentId.getText(),
         addressArgId.getText(),

@@ -108,7 +108,7 @@ segment
 
 buffer
     : ^(MMU_BUFFER bufferId=ID {declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER);}
-        addressArgId=ID addressArgType=ID
+        addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
         (
             ^(MMU_WAYS expr[0])
           | ^(MMU_SETS expr[0])

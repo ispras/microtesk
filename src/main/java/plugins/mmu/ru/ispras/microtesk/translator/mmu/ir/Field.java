@@ -28,7 +28,7 @@ public final class Field {
 
   public Field(String name, int bitPos, int bitSize, BitVector defValue) {
     checkNotNull(name);
-    checkGreaterOrEqZero(bitSize);
+    checkGreaterOrEqZero(bitPos);
     checkGreaterThanZero(bitSize);
 
     this.name = name;
