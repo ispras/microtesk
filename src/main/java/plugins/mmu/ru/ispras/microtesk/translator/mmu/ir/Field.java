@@ -31,6 +31,11 @@ public final class Field {
     checkGreaterOrEqZero(bitPos);
     checkGreaterThanZero(bitSize);
 
+    if (null != defValue && bitSize != defValue.getBitSize()) {
+      throw new IllegalArgumentException(
+          "Illegal size of the default value: " + defValue.getBitSize());
+    }
+
     this.name = name;
     this.bitPos = bitPos;
     this.bitSize = bitSize;
@@ -51,5 +56,11 @@ public final class Field {
 
   public BitVector getDefValue() {
     return defValue;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("field %s: %d (%d..%d) = %s", name, bitSize,
+        bitPos, bitPos + bitSize - 1, null != defValue ? defValue.toHexString() : "null");  
   }
 }
