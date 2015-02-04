@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.translator.mmu;
 
 import java.math.BigInteger;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
@@ -37,6 +39,9 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
+import ru.ispras.microtesk.translator.mmu.ir.Buffer;
+import ru.ispras.microtesk.translator.mmu.ir.Entry;
+import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
 
@@ -143,6 +148,81 @@ public class MmuTreeWalkerBase extends TreeParserBase {
 
     ir.addSegment(segment);
     return segment;
+  }
+  
+  public class BufferBuilder {
+    
+    
+    
+    public Buffer build() {
+      return null;//return new Buffer
+      
+    }
+  }
+
+  public BufferBuilder newBufferBuilder(
+      CommonTree bufferId,
+      CommonTree addressArgId,
+      CommonTree addressArgType) {
+    
+    return new BufferBuilder();
+  }
+  
+  /**
+   * TODO:
+   * 
+   * @author andrewt
+   *
+   */
+  
+  public class EntryBuilder {
+    private int currentPos;
+    private Map<String, Field> fields;
+
+    private EntryBuilder() {
+      this.currentPos = 0;
+      this.fields = new LinkedHashMap<>();
+    }
+
+    public void addField(CommonTree fieldId, Node sizeExpr, Node valueExpr) throws SemanticException {
+      InvariantChecks.checkNotNull(fieldId);
+      InvariantChecks.checkNotNull(sizeExpr);
+      
+      final Where w = where(fieldId);
+      final String id = fieldId.getText();
+
+      final BigInteger size = extractInteger(sizeExpr, w, id + " field size");
+      final int bitSize = size.intValue();
+
+      if (bitSize <= 0) {
+        raiseError(w, String.format("Illegal size of the %s field: %d", id, bitSize));
+      }
+
+      BitVector defValue = null;
+      if (null != valueExpr) {
+        final BigInteger value =  extractInteger(valueExpr, w, id + " field value");
+        defValue = BitVector.valueOf(value, bitSize);
+      }
+
+      final Field field = new Field(id, currentPos, bitSize, defValue);
+      currentPos += bitSize;
+
+      fields.put(field.getId(), field);
+    }
+
+    public Entry build() {
+      return fields.isEmpty() ? Entry.EMPTY : new Entry(fields);
+    }
+  }
+
+  /**
+   * TODO:
+   * 
+   * @return
+   */
+
+  protected EntryBuilder newEntryBuilder() {
+    return new EntryBuilder();
   }
 
   /**

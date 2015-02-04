@@ -26,6 +26,10 @@ options {
 }
 
 @rulecatch {
+catch (SemanticException se) {
+    reportError(se);
+    recover(input,se);
+}
 catch (RecognitionException re) {
     reportError(re);
     recover(input,re);
@@ -65,6 +69,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.mmu.MmuTreeWalkerBase;
 import ru.ispras.microtesk.translator.mmu.MmuSymbolKind;
+import ru.ispras.microtesk.translator.mmu.ir.Entry;
 }
 
 //==================================================================================================
@@ -112,13 +117,20 @@ buffer
         (
             ^(MMU_WAYS expr[0])
           | ^(MMU_SETS expr[0])
-          | ^(MMU_ENTRY (ID expr[0] expr[0]?)+)
+          | entry
           | ^(MMU_INDEX expr[0])
           | ^(MMU_MATCH expr[0])
           | ^(MMU_POLICY ID)
         )*
       )
     ; finally {popSymbolScope();}
+
+entry returns [Entry res]
+@init {final EntryBuilder builder = newEntryBuilder();}
+@after {$res = builder.build();} 
+    : ^(MMU_ENTRY (fieldId=ID {declare($fieldId, MmuSymbolKind.FIELD, false);}
+        size=expr[0] value=expr[0]? {builder.addField($fieldId, $size.res, $value.res);})+)
+    ;
 
 //==================================================================================================
 // Memory
