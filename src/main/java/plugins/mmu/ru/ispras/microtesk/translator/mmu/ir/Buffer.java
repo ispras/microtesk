@@ -26,7 +26,7 @@ public final class Buffer {
   private final String addressName;
   private final int ways;
   private final int sets;
-  private final Format format;
+  private final Entry format;
   private final Node index;
   private final Node match;
   private final PolicyId policy;
@@ -37,7 +37,7 @@ public final class Buffer {
       String addressName,
       int ways,
       int sets,
-      Format format,
+      Entry format,
       Node index,
       Node match,
       PolicyId policy) {
@@ -83,7 +83,7 @@ public final class Buffer {
     return sets;
   }
 
-  public Format getFormat() {
+  public Entry getFormat() {
     return format;
   }
 

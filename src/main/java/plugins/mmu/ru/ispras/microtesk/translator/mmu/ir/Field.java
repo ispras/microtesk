@@ -21,13 +21,13 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class Field {
-  private final String name;
+  private final String id;
   private final int bitPos;
   private final int bitSize;
   private final BitVector defValue;
 
-  public Field(String name, int bitPos, int bitSize, BitVector defValue) {
-    checkNotNull(name);
+  public Field(String id, int bitPos, int bitSize, BitVector defValue) {
+    checkNotNull(id);
     checkGreaterOrEqZero(bitPos);
     checkGreaterThanZero(bitSize);
 
@@ -36,14 +36,14 @@ public final class Field {
           "Illegal size of the default value: " + defValue.getBitSize());
     }
 
-    this.name = name;
+    this.id = id;
     this.bitPos = bitPos;
     this.bitSize = bitSize;
     this.defValue = defValue;
   }
 
-  public String getName() {
-    return name;
+  public String getId() {
+    return id;
   }
 
   public int getBitPos() {
@@ -60,7 +60,7 @@ public final class Field {
 
   @Override
   public String toString() {
-    return String.format("field %s: %d (%d..%d) = %s", name, bitSize,
-        bitPos, bitPos + bitSize - 1, null != defValue ? defValue.toHexString() : "null");  
+    return String.format("field %s(%d, [%d..%d]%s)", id, bitSize,
+        bitPos, bitPos + bitSize - 1, null != defValue ? ", " + defValue.toHexString() : "");  
   }
 }
