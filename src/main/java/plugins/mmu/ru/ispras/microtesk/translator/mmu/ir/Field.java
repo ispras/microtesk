@@ -60,7 +60,10 @@ public final class Field {
 
   @Override
   public String toString() {
-    return String.format("field %s(%d, [%d..%d]%s)", id, bitSize,
-        bitPos, bitPos + bitSize - 1, null != defValue ? ", " + defValue.toHexString() : "");  
+    final int endBitPos = bitPos + bitSize - 1;
+    final String defValueText = null != defValue ? ", 0x" + defValue.toHexString() : "";
+
+    return String.format("field %s(%d, [%d..%d]%s)",
+        id, bitSize, bitPos, endBitPos, defValueText);  
   }
 }
