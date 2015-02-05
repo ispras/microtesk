@@ -64,6 +64,17 @@ public enum PolicyId {
     public Policy newPolicy(int associativity) {
       return new PolicyPLRU(associativity);
     }
+  },
+
+  /**
+   * The NONE policy. Means no data replacement is allowed.
+   */
+
+  NONE {
+    @Override
+    public Policy newPolicy(int associativity) {
+      return null;
+    }
   };
 
   public abstract Policy newPolicy(int associativity);
