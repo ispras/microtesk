@@ -59,6 +59,11 @@ public final class Ir {
     segments.put(segment.getId(), segment);
   }
 
+  public void addBuffer(Buffer buffer) {
+    checkNotNull(buffer);
+    buffers.put(buffer.getId(), buffer);
+  }
+
   @Override
   public String toString() {
     return String.format(

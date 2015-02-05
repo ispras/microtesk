@@ -50,8 +50,11 @@ public final class Buffer {
     checkGreaterThanZero(ways);
     checkGreaterThanZero(sets);
     checkNotNull(entry);
+
+    /*
     checkNotNull(index);
     checkNotNull(match);
+    */
 
     this.id = id;
     this.addressArgId = addressArgId;
@@ -98,5 +101,14 @@ public final class Buffer {
 
   public PolicyId getPolicy() {
     return policy;
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "buffer %s(%s: %s(%d)) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s}",
+        id, addressArgId, addressArgType.getId(), addressArgType.getWidth(),
+        ways, sets, entry, index, match, policy
+        );
   }
 }
