@@ -21,20 +21,22 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 
 public final class Buffer {
-  private final String name;
-  private final Address addressType;
-  private final String addressName;
+  private final String id;
+
+  private final String addressArgId;
+  private final Address addressArgType;
+
   private final int ways;
   private final int sets;
-  private final Entry format;
+  private final Entry entry;
   private final Node index;
   private final Node match;
   private final PolicyId policy;
 
   Buffer(
-      String name,
-      Address addressType,
-      String addressName,
+      String id,
+      String addressArgId,
+      Address addressArgType,
       int ways,
       int sets,
       Entry format,
@@ -42,37 +44,36 @@ public final class Buffer {
       Node match,
       PolicyId policy) {
 
-    checkNotNull(name);
-    checkNotNull(addressType);
-    checkNotNull(addressName);
+    checkNotNull(id);
+    checkNotNull(addressArgId);
+    checkNotNull(addressArgType);
     checkGreaterThanZero(ways);
     checkGreaterThanZero(sets);
     checkNotNull(format);
     checkNotNull(index);
     checkNotNull(match);
-    checkNotNull(policy);
 
-    this.name = name;
-    this.addressType = addressType;
-    this.addressName = addressName;
+    this.id = id;
+    this.addressArgId = addressArgId;
+    this.addressArgType = addressArgType;
     this.ways = ways;
     this.sets = sets;
-    this.format = format;
+    this.entry = format;
     this.index = index;
     this.match = match;
     this.policy = policy;
   }
 
-  public String getName() {
-    return name;
+  public String getId() {
+    return id;
   }
 
-  public Address getAddressType() {
-    return addressType;
+  public String getAddressArgId() {
+    return addressArgId;
   }
 
-  public String getAddressName() {
-    return addressName;
+  public Address getAddressArgType() {
+    return addressArgType;
   }
 
   public int getWays() {
@@ -83,8 +84,8 @@ public final class Buffer {
     return sets;
   }
 
-  public Entry getFormat() {
-    return format;
+  public Entry getEntry() {
+    return entry;
   }
 
   public Node getIndex() {
