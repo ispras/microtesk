@@ -17,29 +17,30 @@ package ru.ispras.microtesk.translator.mmu.ir;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 public final class Memory {
-  private final String name;
-  private final Address addressType;
-  private final String addressName;
+  private final String id;
 
-  Memory(String name, Address addressType, String addressName) {
-    checkNotNull(name);
-    checkNotNull(addressType);
-    checkNotNull(addressName);
+  private final String addressArgId;
+  private final Address addressArgType;
 
-    this.name = name;
-    this.addressType = addressType;
-    this.addressName = addressName;
+  public Memory(String id, String addressArgId, Address addressArgType) {
+    checkNotNull(id);
+    checkNotNull(addressArgId);
+    checkNotNull(addressArgType);
+
+    this.id = id;
+    this.addressArgId = addressArgId;
+    this.addressArgType = addressArgType;
   }
 
-  public String getName() {
-    return name;
+  public String getId() {
+    return id;
   }
 
-  public Address getAddressType() {
-    return addressType;
+  public String getAddressArgId() {
+    return addressArgId;
   }
 
-  public String getAddressName() {
-    return addressName;
+  public Address getAddressArgType() {
+    return addressArgType;
   }
 }

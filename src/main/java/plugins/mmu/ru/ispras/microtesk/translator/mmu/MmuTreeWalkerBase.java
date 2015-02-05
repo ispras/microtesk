@@ -327,13 +327,32 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       CommonTree addressArgId,
       CommonTree addressArgType,
       CommonTree dataArgId) throws SemanticException {
+    
+    final Where w = where(memoryId);
+    final Address address = getAddress(w, addressArgType.getText());
 
-    return new MemoryBuilder();
+    return new MemoryBuilder(w, memoryId.getText(), addressArgId.getText(), address);
   }
 
   protected final class MemoryBuilder {
+    private final Where where;
+
+    private final String id;
+    private final String addressArgId;
+    private final Address addressArgType;
+
+    private MemoryBuilder(
+        Where where, String id, String addressArgId, Address addressArgType) {
+      this.where = where;
+      this.id = id;
+      this.addressArgId = addressArgId;
+      this.addressArgType = addressArgType;
+    }
+
     public Memory build() {
-      return null;
+      final Memory memory = new Memory(id, addressArgId, addressArgType);
+      ir.addMemory(memory);
+      return memory;
     }
   }
  

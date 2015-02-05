@@ -64,6 +64,11 @@ public final class Ir {
     buffers.put(buffer.getId(), buffer);
   }
 
+  public void addMemory(Memory memory) {
+    checkNotNull(memory);
+    memories.put(memory.getId(), memory);
+  }
+
   @Override
   public String toString() {
     return String.format(
