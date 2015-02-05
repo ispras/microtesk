@@ -33,13 +33,13 @@ public final class Buffer {
   private final Node match;
   private final PolicyId policy;
 
-  Buffer(
+  public Buffer(
       String id,
       String addressArgId,
       Address addressArgType,
       int ways,
       int sets,
-      Entry format,
+      Entry entry,
       Node index,
       Node match,
       PolicyId policy) {
@@ -49,7 +49,7 @@ public final class Buffer {
     checkNotNull(addressArgType);
     checkGreaterThanZero(ways);
     checkGreaterThanZero(sets);
-    checkNotNull(format);
+    checkNotNull(entry);
     checkNotNull(index);
     checkNotNull(match);
 
@@ -58,7 +58,7 @@ public final class Buffer {
     this.addressArgType = addressArgType;
     this.ways = ways;
     this.sets = sets;
-    this.entry = format;
+    this.entry = entry;
     this.index = index;
     this.match = match;
     this.policy = policy;
