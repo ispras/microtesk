@@ -142,10 +142,14 @@ mmu
     : ^(MMU memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
         dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);}
-        (^(MMU_VAR varId=ID {declare($varId, MmuSymbolKind.VAR, false);} (ID | expr[0])))*
+        (^(MMU_VAR mmuVar))*
         (ID sequence)*
       )
     ; finally {popSymbolScope();}
+
+mmuVar
+    : varId=ID {declare($varId, MmuSymbolKind.VAR, false);} (ID | expr[0])
+    ;
 
 //==================================================================================================
 // Statements
