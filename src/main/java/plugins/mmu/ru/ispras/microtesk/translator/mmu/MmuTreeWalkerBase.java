@@ -43,6 +43,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Entry;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
+import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
@@ -216,6 +217,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return new BufferBuilder(w, bufferId.getText(), addressArgId.getText(), address);
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  // TODO: Review + comments are needed
+
   /**
    * Builder for Builder objects. Helps create a Buffer from attributes.
    */
@@ -315,6 +319,21 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       ir.addBuffer(buffer);
       return buffer;
+    }
+  }
+
+  protected final MemoryBuilder newMemoryBuilder(
+      CommonTree memoryId,
+      CommonTree addressArgId,
+      CommonTree addressArgType,
+      CommonTree dataArgId) throws SemanticException {
+
+    return new MemoryBuilder();
+  }
+
+  protected final class MemoryBuilder {
+    public Memory build() {
+      return null;
     }
   }
  

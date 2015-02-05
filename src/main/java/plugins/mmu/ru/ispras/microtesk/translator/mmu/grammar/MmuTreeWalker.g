@@ -142,8 +142,10 @@ mmu
     : ^(MMU memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
         dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);}
+        {final MemoryBuilder builder = newMemoryBuilder($memoryId, $addressArgId, $addressArgType, $dataArgId);}
         (^(MMU_VAR mmuVar))*
         (ID sequence)*
+        {builder.build();}
       )
     ; finally {popSymbolScope();}
 
