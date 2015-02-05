@@ -56,6 +56,8 @@ public final class Buffer {
     checkNotNull(match);
     */
 
+    checkNotNull(policy);
+
     this.id = id;
     this.addressArgId = addressArgId;
     this.addressArgType = addressArgType;
