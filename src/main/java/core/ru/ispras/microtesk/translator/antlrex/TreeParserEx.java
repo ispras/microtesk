@@ -216,14 +216,19 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
   }
 
   protected final void checkNotNull(
-      Where w, Object obj, String text) throws RecognitionException {
+      Where w, Object obj, String text) throws SemanticException {
     if (null == obj) {
       raiseError(w, new UnrecognizedStructure(text));
     }
   }
 
   protected final void checkNotNull(
-      CommonTree current, Object obj, String text) throws RecognitionException {
+      CommonTree current, Object obj, String text) throws SemanticException {
     checkNotNull(where(current), obj, text);
+  }
+
+  protected final void checkNotNull(
+      CommonTree current, Object obj) throws SemanticException {
+    checkNotNull(where(current), obj, current.getText());
   }
 }
