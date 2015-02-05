@@ -21,18 +21,21 @@ public enum MmuSymbolKind {
   /** Segment */
   SEGMENT,
 
+  /** Address argument (used by segment, buffer and memory entities) */
+  ARGUMENT,
+
   /** Buffer */
   BUFFER,
+
+  /** Entry field (included in Buffer.Entry) */
+  FIELD,
 
   /** Memory logic (MMU) */
   MEMORY,
 
-  /** Address argument (used by segment, buffer and memory entities) */
-  ARGUMENT,
-
   /** Data argument (used by memory entities */
   DATA,
 
-  /** Entry field (included in Buffer.Entry) */
-  FIELD
+  /** Local variable (used in attributes of memory entities */
+  VAR
 }
