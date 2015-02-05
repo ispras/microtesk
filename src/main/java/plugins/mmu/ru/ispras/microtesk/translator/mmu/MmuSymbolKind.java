@@ -15,10 +15,24 @@
 package ru.ispras.microtesk.translator.mmu;
 
 public enum MmuSymbolKind {
+  /** Address */
   ADDRESS,
+
+  /** Segment */
   SEGMENT,
+
+  /** Buffer */
   BUFFER,
+
+  /** Memory logic (MMU) */
   MEMORY,
+
+  /** Address argument (used by segment, buffer and memory entities) */
   ARGUMENT,
+
+  /** Data argument (used by memory entities */
+  DATA,
+
+  /** Entry field (included in Buffer.Entry) */
   FIELD
 }

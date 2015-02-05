@@ -140,7 +140,8 @@ entry returns [Entry res]
 
 mmu
     : ^(MMU memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
-        addressArgId=ID addressArgType=ID dataArgId=ID
+        addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
+        dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);}
         (^(MMU_VAR ID (ID | expr[0])))*
         (ID sequence)*
       )
