@@ -114,22 +114,24 @@ segment
 buffer
     : ^(MMU_BUFFER bufferId=ID {declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER);}
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
+        {final BufferBuilder builder = newBufferBuilder($bufferId, $addressArgId, $addressArgType);}
         (
-            ^(MMU_WAYS expr[0])
-          | ^(MMU_SETS expr[0])
-          | entry
-          | ^(MMU_INDEX expr[0])
-          | ^(MMU_MATCH expr[0])
-          | ^(MMU_POLICY ID)
+            ^(w=MMU_WAYS ways=expr[0]) {builder.setWays($w, $ways.res);}
+          | ^(w=MMU_SETS sets=expr[0]) {builder.setSets($w, $sets.res);}
+          | ^(w=MMU_ENTRY e=entry)     {builder.setEntry($w, $e.res);}
+          | ^(MMU_INDEX index=expr[0]) {builder.setIndex($index.res);}
+          | ^(MMU_MATCH match=expr[0]) {builder.setMatch($match.res);}
+          | ^(w=MMU_POLICY policyId=ID){builder.setPolicyId($w, $policyId);}
         )*
+        {builder.build();}
       )
     ; finally {popSymbolScope();}
 
 entry returns [Entry res]
 @init {final EntryBuilder builder = newEntryBuilder();}
 @after {$res = builder.build();} 
-    : ^(MMU_ENTRY (fieldId=ID {declare($fieldId, MmuSymbolKind.FIELD, false);}
-        size=expr[0] value=expr[0]? {builder.addField($fieldId, $size.res, $value.res);})+)
+    : (fieldId=ID {declare($fieldId, MmuSymbolKind.FIELD, false);}
+      size=expr[0] value=expr[0]? {builder.addField($fieldId, $size.res, $value.res);})+
     ;
 
 //==================================================================================================
