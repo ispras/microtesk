@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.mmu;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -38,12 +39,16 @@ import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
+import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
+import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Entry;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
+import ru.ispras.microtesk.translator.mmu.ir.MemoryVar;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
@@ -193,7 +198,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      */
 
     public Entry build() {
-      return fields.isEmpty() ? Entry.EMPTY : new Entry(fields);
+      return fields.isEmpty() ? Entry.EMPTY : new Entry(currentPos, fields);
     }
   }
 
@@ -340,6 +345,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final String id;
     private final String addressArgId;
     private final Address addressArgType;
+    private final Map<String, MemoryVar> variables;
 
     private MemoryBuilder(
         Where where, String id, String addressArgId, Address addressArgType) {
@@ -347,10 +353,43 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.id = id;
       this.addressArgId = addressArgId;
       this.addressArgType = addressArgType;
+      this.variables = new LinkedHashMap<>();
+    }
+
+    public void addVariable(CommonTree varId, Node sizeExpr) throws SemanticException {
+      checkNotNull(varId, sizeExpr);
+
+      final int bitSize = extractPositiveInt(
+          where(varId), sizeExpr, String.format("Variable %s size", varId.getText()));
+
+      final MemoryVar var = MemoryVar.newInstance(varId.getText(), bitSize);
+      variables.put(var.getId(), var);
+    }
+
+    public void addVariable(CommonTree varId, CommonTree typeId) throws SemanticException {
+      final Where w = where(typeId);
+      final ISymbol symbol = getSymbols().resolve(typeId.getText());
+      if (null == symbol) {
+        raiseError(w, new UndeclaredSymbol(typeId.getText()));
+      }
+
+      MemoryVar var = null;
+      if (MmuSymbolKind.BUFFER == symbol.getKind()) {
+        final Buffer buffer = getBuffer(w, typeId.getText());
+        var = MemoryVar.newInstance(varId.getText(), buffer.getEntry());
+      } else if (MmuSymbolKind.ADDRESS == symbol.getKind()) {
+        final Address address = getAddress(w, typeId.getText());
+        var = MemoryVar.newInstance(varId.getText(), address.getWidth());
+      } else {
+        raiseError(w, new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
+            Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));
+      }
+
+      variables.put(var.getId(), var);
     }
 
     public Memory build() {
-      final Memory memory = new Memory(id, addressArgId, addressArgType);
+      final Memory memory = new Memory(id, addressArgId, addressArgType, variables);
       ir.addMemory(memory);
       return memory;
     }
@@ -438,6 +477,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     return address;
+  }
+
+  private Buffer getBuffer(Where w, String bufferId) throws SemanticException {
+    final Buffer buffer = ir.getBuffers().get(bufferId);
+    if (null == buffer) {
+      raiseError(w, String.format("%s is not defined or is not a buffer.", bufferId));
+    }
+
+    return buffer;
   }
 
   private BigInteger extractBigInteger(

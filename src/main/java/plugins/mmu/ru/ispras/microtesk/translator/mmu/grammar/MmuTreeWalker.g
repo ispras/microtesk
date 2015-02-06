@@ -143,15 +143,14 @@ mmu
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
         dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);}
         {final MemoryBuilder builder = newMemoryBuilder($memoryId, $addressArgId, $addressArgType, $dataArgId);}
-        (^(MMU_VAR mmuVar))*
+        (^(MMU_VAR varId=ID  {declare($varId, MmuSymbolKind.VAR, false);}(
+             bufferId=ID     {builder.addVariable($varId, $bufferId);}
+           | varSize=expr[0] {builder.addVariable($varId, $varSize.res);})
+        ))*
         (ID sequence)*
         {builder.build();}
       )
     ; finally {popSymbolScope();}
-
-mmuVar
-    : varId=ID {declare($varId, MmuSymbolKind.VAR, false);} (ID | expr[0])
-    ;
 
 //==================================================================================================
 // Statements
