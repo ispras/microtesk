@@ -36,12 +36,14 @@ import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
 
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
+
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
+
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Entry;
@@ -289,11 +291,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       entry = attr;
     }
 
-    public void setIndex(Node node) {
+    public void setIndex(CommonTree attrId, Node attr) {
 
     }
 
-    public void setMatch(Node node) {
+    public void setMatch(CommonTree attrId, Node attr) {
 
     }
 

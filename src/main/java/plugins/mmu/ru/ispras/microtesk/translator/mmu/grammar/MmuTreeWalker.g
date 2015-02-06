@@ -116,12 +116,12 @@ buffer
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
         {final BufferBuilder builder = newBufferBuilder($bufferId, $addressArgId, $addressArgType);}
         (
-            ^(w=MMU_WAYS ways=expr[0]) {builder.setWays($w, $ways.res);}
-          | ^(w=MMU_SETS sets=expr[0]) {builder.setSets($w, $sets.res);}
-          | ^(w=MMU_ENTRY e=entry)     {builder.setEntry($w, $e.res);}
-          | ^(MMU_INDEX index=expr[0]) {builder.setIndex($index.res);}
-          | ^(MMU_MATCH match=expr[0]) {builder.setMatch($match.res);}
-          | ^(w=MMU_POLICY policyId=ID){builder.setPolicyId($w, $policyId);}
+            ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}
+          | ^(w=MMU_SETS sets=expr[0])   {builder.setSets($w, $sets.res);}
+          | ^(w=MMU_ENTRY e=entry)       {builder.setEntry($w, $e.res);}
+          | ^(w=MMU_INDEX index=expr[0]) {builder.setIndex($w, $index.res);}
+          | ^(w=MMU_MATCH match=expr[0]) {builder.setMatch($w, $match.res);}
+          | ^(w=MMU_POLICY policyId=ID)  {builder.setPolicyId($w, $policyId);}
         )*
         {builder.build();}
       )
