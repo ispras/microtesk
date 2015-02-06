@@ -333,12 +333,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       CommonTree memoryId,
       CommonTree addressArgId,
       CommonTree addressArgType,
-      CommonTree dataArgId) throws SemanticException {
-    
+      CommonTree dataArgId,
+      Node dataArgSizeExpr) throws SemanticException {
+
     final Where w = where(memoryId);
     final Address address = getAddress(w, addressArgType.getText());
+    
+    final int dataSize = extractPositiveInt(
+        where(dataArgId), dataArgSizeExpr, "Data argument size");
 
-    return new MemoryBuilder(w, memoryId.getText(), addressArgId.getText(), address);
+    return new MemoryBuilder(w, 
+        memoryId.getText(), addressArgId.getText(), address, dataArgId.getText(), dataSize);
   }
 
   protected final class MemoryBuilder {
@@ -347,14 +352,21 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final String id;
     private final String addressArgId;
     private final Address addressArgType;
+
+    private final String dataArgId;
+    private final int dataArgBitSize;
+
     private final Map<String, MemoryVar> variables;
 
-    private MemoryBuilder(
-        Where where, String id, String addressArgId, Address addressArgType) {
+    private MemoryBuilder(Where where, String id,
+        String addressArgId, Address addressArgType, String dataArgId, int dataArgBitSize) {
+
       this.where = where;
       this.id = id;
       this.addressArgId = addressArgId;
       this.addressArgType = addressArgType;
+      this.dataArgId = dataArgId;
+      this.dataArgBitSize = dataArgBitSize;
       this.variables = new LinkedHashMap<>();
     }
 
@@ -391,7 +403,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public Memory build() {
-      final Memory memory = new Memory(id, addressArgId, addressArgType, variables);
+      final Memory memory = new Memory(
+          id, addressArgId, addressArgType, dataArgId, dataArgBitSize, variables);
+
       ir.addMemory(memory);
       return memory;
     }

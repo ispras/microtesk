@@ -157,7 +157,8 @@ policy
 //==================================================================================================
 
 mmu
-    : MMU^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH! ASSIGN! ID
+    : MMU^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH! ASSIGN!
+              LEFT_PARENTH! ID COLON! expr RIGHT_PARENTH!
         (mmuVariable)*
         (mmuFunction)*
     ;

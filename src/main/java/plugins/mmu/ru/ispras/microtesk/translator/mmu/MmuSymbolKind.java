@@ -33,9 +33,12 @@ public enum MmuSymbolKind {
   /** Memory logic (MMU) */
   MEMORY,
 
-  /** Data argument (used by memory entities */
+  /** Data argument (used by memory entities) */
   DATA,
 
-  /** Local variable (used in attributes of memory entities */
-  VAR
+  /** Local variable (used in attributes of memory entities) */
+  VAR,
+
+  /** Method (used in memory entities to describe attributes) */
+  METHOD
 }

@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
 import java.util.Map;
 
@@ -23,23 +24,32 @@ public final class Memory {
 
   private final String addressArgId;
   private final Address addressArgType;
-  
+
+  private final String dataArgId;
+  private final int dataArgBitSize;
+
   private final Map<String, MemoryVar> variables;
 
   public Memory(
       String id,
       String addressArgId,
       Address addressArgType,
+      String dataArgId,
+      int dataArgBitSize,
       Map<String, MemoryVar> variables) {
 
     checkNotNull(id);
     checkNotNull(addressArgId);
     checkNotNull(addressArgType);
+    checkNotNull(dataArgId);
+    checkGreaterThanZero(dataArgBitSize);
     checkNotNull(variables);
 
     this.id = id;
     this.addressArgId = addressArgId;
     this.addressArgType = addressArgType;
+    this.dataArgId = dataArgId;
+    this.dataArgBitSize = dataArgBitSize;
     this.variables = variables;
   }
 
@@ -55,9 +65,19 @@ public final class Memory {
     return addressArgType;
   }
 
+  public String getDataArgId() {
+    return dataArgId;
+  }
+
+  public int getDataArgBitSize() {
+    return dataArgBitSize;
+  }
+
   @Override
   public String toString() {
-    return String.format("mmu %s(%s: %s(%d)) = {variables=%s}",
-        id, addressArgId, addressArgType.getId(), addressArgType.getWidth(), variables);
+    return String.format("mmu %s(%s: %s(%d))=(%s: %d) [vars=%s]",
+        id, addressArgId, addressArgType.getId(), addressArgType.getWidth(),
+        dataArgId, dataArgBitSize, variables
+        );
   }
 }

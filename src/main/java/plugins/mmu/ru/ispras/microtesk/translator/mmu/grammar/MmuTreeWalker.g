@@ -141,8 +141,8 @@ entry returns [Entry res]
 mmu
     : ^(MMU memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
-        dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);}
-        {final MemoryBuilder builder = newMemoryBuilder($memoryId, $addressArgId, $addressArgType, $dataArgId);}
+        dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);} dataArgSize=expr[0]
+        {final MemoryBuilder builder = newMemoryBuilder($memoryId, $addressArgId, $addressArgType, $dataArgId, $dataArgSize.res);}
         (^(MMU_VAR varId=ID  {declare($varId, MmuSymbolKind.VAR, false);}(
              bufferId=ID     {builder.addVariable($varId, $bufferId);}
            | varSize=expr[0] {builder.addVariable($varId, $varSize.res);})
