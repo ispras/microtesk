@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,19 +14,28 @@
 
 package ru.ispras.microtesk.translator.simnml;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ListIterator;
 
-import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
+import org.antlr.runtime.ANTLRFileStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.RuleReturnScope;
+import org.antlr.runtime.TokenRewriteStream;
+import org.antlr.runtime.TokenSource;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.CommonTreeAdaptor;
+import org.antlr.runtime.tree.CommonTreeNodeStream;
 
 import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
+import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
-import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
-
+import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.simnml.generation.Generator;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLLexer;
@@ -35,7 +44,7 @@ import ru.ispras.microtesk.translator.simnml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveSyntesizer;
 
-public final class SimnMLAnalyzer {
+public final class SimnMLAnalyzer implements TokenSourceIncluder {
   private String outDir;
 
   private final ILogStore LOG = new ILogStore() {
@@ -96,17 +105,14 @@ public final class SimnMLAnalyzer {
 
     // Process the files in reverse order (emulate inclusion).
     while (iterator.hasPrevious()) {
-      lexInclude(iterator.previous());
+      includeTokensFrom(iterator.previous());
     }
 
     return source;
   }
 
-  public void startSublexer(CharStream chars) {
-    source.push(new SimnMLLexer(chars, this));
-  }
-
-  public void lexInclude(final String filename) {
+  @Override
+  public void includeTokensFrom(String filename) {
     final ANTLRFileStream stream = finder.openFile(filename);
 
     System.out.println("Included: " + filename);
@@ -116,7 +122,7 @@ public final class SimnMLAnalyzer {
       return;
     }
 
-    startSublexer(stream);
+    source.push(new SimnMLLexer(stream, this));
   }
 
   // /////////////////////////////////////////////////////////////////////////
