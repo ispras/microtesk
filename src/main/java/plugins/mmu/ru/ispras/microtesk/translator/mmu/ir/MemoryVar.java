@@ -15,24 +15,35 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
-public final class Entry {
-  public static final Entry EMPTY = new Entry(0, Collections.<String, Field>emptyMap());
-
+public final class MemoryVar {
+  private final String id;
   private final int bitSize;
-  private final Map<String, Field> fields;
+  private final Entry entry;
 
-  public Entry(int bitSize, Map<String, Field> fields) {
-    checkGreaterOrEqZero(bitSize);
-    checkNotNull(fields);
+  public static MemoryVar newInstance(String id, int bitSize) {
+    return new MemoryVar(id, bitSize, Entry.EMPTY);
+  }
 
+  public static MemoryVar newInstance(String id, Entry entry) {
+    return new MemoryVar(id, entry.getBitSize(), entry);
+  }
+
+  private MemoryVar(String id, int bitSize, Entry entry) {
+    checkNotNull(id);
+    checkGreaterThanZero(bitSize);
+    checkNotNull(entry);
+
+    this.id = id;
     this.bitSize = bitSize;
-    this.fields = fields;
+    this.entry = entry;
+  }
+
+  public String getId() {
+    return id;
   }
 
   public int getBitSize() {
@@ -40,20 +51,20 @@ public final class Entry {
   }
 
   public int getFieldCount() {
-    return fields.size();
+    return entry.getFieldCount();
   }
 
   public Collection<Field> getFields() {
-    return Collections.unmodifiableCollection(fields.values());
+    return entry.getFields();
   }
 
   public Field getField(String name) {
-    checkNotNull(name);
-    return fields.get(name);
+    return entry.getField(name);
   }
 
   @Override
   public String toString() {
-    return String.format("entry [fields=%s]", fields);
+    return String.format("var %s(%d)%s",
+        id, bitSize, getFieldCount() == 0 ? "" : getFields());
   }
 }
