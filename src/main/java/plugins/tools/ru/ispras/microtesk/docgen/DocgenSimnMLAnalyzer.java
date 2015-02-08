@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.docgen;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
@@ -41,6 +43,8 @@ import ru.ispras.microtesk.translator.simnml.grammar.SimnMLLexer;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLParser;
 import ru.ispras.microtesk.translator.simnml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
+import ru.ispras.microtesk.translator.simnml.ir.IrWalker;
+import ru.ispras.microtesk.translator.simnml.ir.IrWalker.Direction;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveSyntesizer;
 
 public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
@@ -184,6 +188,28 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     ir.setRoots(primitiveSyntesizer.getRoots());
 
     // TO PLATON >> TODO: YOUR CODE GOES HERE
+    IrWalker walker = new IrWalker(ir, Direction.LINEAR);
+	XML xml = new XML(modelName, XmlElementType.INTERMEDIATE, null);
+    XmlDocumenter documenter = null;
+    
+    try {
+		documenter = new XmlDocumenter(xml, modelName);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+    walker.traverse(documenter);
+    XmlWriter writer = null;
+    
+    try {
+		writer = new XmlWriter(new FileWriter(new File("documentation.xml")));
+	    writer.write(xml);
+	    writer.close();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+    
     System.out.println("HERE MUST BE PLATON'S CODE");
   }
 
