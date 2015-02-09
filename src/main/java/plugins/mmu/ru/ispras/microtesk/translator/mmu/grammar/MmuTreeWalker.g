@@ -211,15 +211,15 @@ $res = n;
 //  | ifExpr[depth+1]
     ;
 
-ifExpr [int depth]
+ifExpr [int depth] returns [Node res]
     : ^(IF expr[depth] expr[depth] elseIfExpr[depth]* elseExpr[depth]?)
     ;
 
-elseIfExpr [int depth]
+elseIfExpr [int depth] returns [Node res]
     : ^(ELSEIF expr[depth] expr[depth])
     ;
 
-elseExpr [int depth]
+elseExpr [int depth] returns [Node res]
     : ^(ELSE expr[depth])
     ;
 
