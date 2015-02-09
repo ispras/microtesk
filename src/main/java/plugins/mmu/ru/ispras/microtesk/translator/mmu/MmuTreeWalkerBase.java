@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.mmu;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,10 +28,12 @@ import org.antlr.runtime.tree.TreeNodeStream;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
@@ -67,6 +70,48 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   public final Ir getIR() {
     return ir;
+  }
+ 
+  protected static final class Context {
+    public static enum Kind {
+      GLOBAL,
+      BUFFER,
+      MEMORY
+    }
+
+    private static final Context GLOBAL = new Context(Kind.GLOBAL, "");
+
+    private final Kind kind;
+    private final String id;
+    private final Map<String, NodeVariable> variables;
+
+    private Context(Kind kind, String id) {
+      this.kind = kind;
+      this.id = id;
+      this.variables = new HashMap<String, NodeVariable>();
+    }
+
+    public Kind getKind() {
+      return kind;
+    }
+
+    public String getId() {
+      return id;
+    }
+    
+    public void defineVariable(NodeVariable variable) {
+      variables.put(variable.getName(), variable);
+    }
+
+    public NodeVariable getVariable(String variableId) {
+      return variables.get(variableId);
+    }
+  }
+
+  private Context context = Context.GLOBAL;
+
+  protected void resetContext() {
+    this.context = Context.GLOBAL;
   }
 
   /**
@@ -258,6 +303,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.index = null;
       this.match = null;
       this.policy = null;
+
+      context = new Context(Context.Kind.BUFFER, id);
+
+      final Variable addressArg = new Variable(
+          addressArgId, DataType.BIT_VECTOR(addressArgType.getWidth()));
+
+      final NodeVariable addressArgNode = new NodeVariable(addressArg);
+      context.defineVariable(addressArgNode);
     }
 
     private void checkRedefined(CommonTree attrId, boolean isRedefined) throws SemanticException {
@@ -289,14 +342,24 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, entry != null);
       entry = attr;
+
+      for (Field f : attr.getFields()) {
+        final Variable field = new Variable(f.getId(), DataType.BIT_VECTOR(f.getBitSize()));
+        final NodeVariable fieldNode = new NodeVariable(field);
+        context.defineVariable(fieldNode);
+      }
     }
 
-    public void setIndex(CommonTree attrId, Node attr) {
-
+    public void setIndex(CommonTree attrId, Node attr) throws SemanticException {
+      checkNotNull(attrId, attr);
+      checkRedefined(attrId, index != null);
+      index = attr;
     }
 
-    public void setMatch(CommonTree attrId, Node attr) {
-
+    public void setMatch(CommonTree attrId, Node attr) throws SemanticException {
+      checkNotNull(attrId, attr);
+      checkRedefined(attrId, match != null);
+      match = attr;
     }
 
     public void setPolicyId(CommonTree attrId, CommonTree attr) throws SemanticException {
@@ -368,6 +431,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.dataArgId = dataArgId;
       this.dataArgBitSize = dataArgBitSize;
       this.variables = new LinkedHashMap<>();
+      
+      context = new Context(Context.Kind.BUFFER, id);
+
+      final Variable addressArg = new Variable(
+          addressArgId, DataType.BIT_VECTOR(addressArgType.getWidth()));
+
+      final NodeVariable addressArgNode = new NodeVariable(addressArg);
+      context.defineVariable(addressArgNode);
     }
 
     public void addVariable(CommonTree varId, Node sizeExpr) throws SemanticException {
@@ -378,6 +449,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       final MemoryVar var = MemoryVar.newInstance(varId.getText(), bitSize);
       variables.put(var.getId(), var);
+      
+      final Variable variable = new Variable(var.getId(), DataType.BIT_VECTOR(var.getBitSize()));
+      final NodeVariable variableNode = new NodeVariable(variable);
+      context.defineVariable(variableNode);
     }
 
     public void addVariable(CommonTree varId, CommonTree typeId) throws SemanticException {
@@ -400,6 +475,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       variables.put(var.getId(), var);
+
+      final Variable variable = new Variable(var.getId(), DataType.BIT_VECTOR(var.getBitSize()));
+      final NodeVariable variableNode = new NodeVariable(variable);
+      context.defineVariable(variableNode);
     }
 
     public Memory build() {
@@ -470,15 +549,30 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return new NodeOperation(fortressOp, reducedOperands);
   }
 
-  public Node newVariable(String id) {
-    return null;
+  public Node newBitfield(Where w, Node variable, Node fromExpr, Node toExpr) {
+    return new NodeOperation(
+        StandardOperation.BVEXTRACT, fromExpr, toExpr, variable);
   }
 
-  public Node newIndexedVariable(String id, Node index) {
+  public Node newVariable(CommonTree id) {
+    return context.getVariable(id.getText());
+  }
+
+  public Node newIndexedVariable(CommonTree id, Node index) {
+    final ISymbol symbol = getSymbols().resolve(id.getText());
+
+    System.out.println(symbol);
+    System.out.println(context.getVariable(id.getText()));
+
     return null;
   }
   
-  public Node newAttributeCall(String id, String attributeId) {
+  public Node newAttributeCall(CommonTree id, CommonTree attributeId) {
+    final ISymbol symbol = getSymbols().resolve(id.getText());
+
+    System.out.println(symbol);
+    
+    
     return null;
   }
   

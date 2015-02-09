@@ -125,7 +125,7 @@ buffer
         )*
         {builder.build();}
       )
-    ; finally {popSymbolScope();}
+    ; finally {popSymbolScope(); resetContext();}
 
 entry returns [Entry res]
 @init {final EntryBuilder builder = newEntryBuilder();}
@@ -150,7 +150,7 @@ mmu
         (ID sequence)*
         {builder.build();}
       )
-    ; finally {popSymbolScope();}
+    ; finally {popSymbolScope(); resetContext();}
 
 //==================================================================================================
 // Statements
@@ -224,34 +224,40 @@ elseExpr [int depth]
     ;
 
 binaryExpr [int depth] returns [Node res]
-    : ^(OR            expr[depth+1] expr[depth+1])
-    | ^(AND           expr[depth+1] expr[depth+1])
-    | ^(VERT_BAR      expr[depth+1] expr[depth+1])
-    | ^(UP_ARROW      expr[depth+1] expr[depth+1])
-    | ^(AMPER         expr[depth+1] expr[depth+1])
-    | ^(EQ            expr[depth+1] expr[depth+1])
-    | ^(NEQ           expr[depth+1] expr[depth+1])
-    | ^(LEQ           expr[depth+1] expr[depth+1])
-    | ^(GEQ           expr[depth+1] expr[depth+1])
-    | ^(LEFT_BROCKET  expr[depth+1] expr[depth+1])
-    | ^(RIGHT_BROCKET expr[depth+1] expr[depth+1])
-    | ^(LEFT_SHIFT    expr[depth+1] expr[depth+1])
-    | ^(RIGHT_SHIFT   expr[depth+1] expr[depth+1])
-    | ^(ROTATE_LEFT   expr[depth+1] expr[depth+1])
-    | ^(ROTATE_RIGHT  expr[depth+1] expr[depth+1])
-    | ^(PLUS          expr[depth+1] expr[depth+1])
-    | ^(MINUS         expr[depth+1] expr[depth+1])
-    | ^(MUL           expr[depth+1] expr[depth+1])
-    | ^(DIV           expr[depth+1] expr[depth+1])
-    | ^(REM           expr[depth+1] expr[depth+1])
-    | ^(DOUBLE_STAR   expr[depth+1] expr[depth+1])
+@after {
+$res = newExpression($op, $e1.res, $e2.res);
+}
+    : ^(op=OR            e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=AND           e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=VERT_BAR      e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=UP_ARROW      e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=AMPER         e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=EQ            e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=NEQ           e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=LEQ           e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=GEQ           e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=LEFT_BROCKET  e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=RIGHT_BROCKET e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=LEFT_SHIFT    e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=RIGHT_SHIFT   e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=ROTATE_LEFT   e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=ROTATE_RIGHT  e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=PLUS          e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=MINUS         e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=MUL           e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=DIV           e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=REM           e1=expr[depth+1] e2=expr[depth+1])
+    | ^(op=DOUBLE_STAR   e1=expr[depth+1] e2=expr[depth+1])
     ;
 
 unaryExpr [int depth] returns [Node res]
-    : ^(UPLUS  expr[depth+1])
-    | ^(UMINUS expr[depth+1])
-    | ^(TILDE  expr[depth+1])
-    | ^(NOT    expr[depth+1])
+@after {
+$res = newExpression($op, $e.res);
+}
+    : ^(op=UPLUS  e=expr[depth+1])
+    | ^(op=UMINUS e=expr[depth+1])
+    | ^(op=TILDE  e=expr[depth+1])
+    | ^(op=NOT    e=expr[depth+1])
     ;
 
 atom returns [Node res]
@@ -283,23 +289,24 @@ $res = NodeValue.newInteger($t.text, radix);
 //==================================================================================================
 
 variable returns [Node res]
-    : ^(LOCATION v=variableConcat[0]) { $res=v; }
+    : ^(LOCATION v=variableConcat[0]) {$res=$v.res;}
     ;
 
 variableConcat [int depth] returns [Node res]
     : ^(DOUBLE_COLON variableBitfield variableConcat[depth+1])
-    | vb=variableBitfield { $res=vb; }
+    | vb=variableBitfield {$res=vb;}
     ;
 
 variableBitfield returns [Node res]
-    : ^(LOCATION_BITFIELD variableAtom expr[0] expr[0]?)
-    | va=variableAtom  { $res=va; }
+    : ^(LOCATION_BITFIELD va=variableAtom from=expr[0] to=expr[0]?)
+      {$res = newBitfield(where($va.start), $va.res, $from.res, $to.res);}
+    | va=variableAtom  {$res=$va.res;}
     ;
 
 variableAtom returns [Node res]
-    : ID
-    | ^(DOT ID ID)
-    | ^(LOCATION_INDEX ID expr[0])
+    : varId=ID {$res = newVariable($varId);}
+    | ^(DOT objId=ID attrId=ID) {$res=newAttributeCall($objId, $attrId);}
+    | ^(LOCATION_INDEX varId=ID index=expr[0]) {$res = newIndexedVariable($varId, $index.res);}
     | ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)
     ;
 
