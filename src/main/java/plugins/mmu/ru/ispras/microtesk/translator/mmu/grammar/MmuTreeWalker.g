@@ -293,14 +293,15 @@ variable returns [Node res]
     ;
 
 variableConcat [int depth] returns [Node res]
-    : ^(DOUBLE_COLON variableBitfield variableConcat[depth+1])
-    | vb=variableBitfield {$res=vb;}
+    : ^(DOUBLE_COLON l=variableBitfield r=variableConcat[depth+1])
+      {$res=newConcat($l.start, $l.res, $r.res);}
+    | vb=variableBitfield {$res=$vb.res;}
     ;
 
 variableBitfield returns [Node res]
     : ^(LOCATION_BITFIELD va=variableAtom from=expr[0] to=expr[0]?)
-      {$res = newBitfield(where($va.start), $va.res, $from.res, $to.res);}
-    | va=variableAtom  {$res=$va.res;}
+      {$res = newBitfield($va.start, $va.res, $from.res, $to.res);}
+    | va=variableAtom {$res=$va.res;}
     ;
 
 variableAtom returns [Node res]

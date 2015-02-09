@@ -549,7 +549,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return new NodeOperation(fortressOp, reducedOperands);
   }
 
-  public Node newBitfield(Where w, Node variable, Node fromExpr, Node toExpr) {
+  public Node newConcat(CommonTree where, Node left, Node right) {
+    return new NodeOperation(StandardOperation.BVCONCAT, left, right);
+  }
+
+  public Node newBitfield(CommonTree where, Node variable, Node fromExpr, Node toExpr) {
     return new NodeOperation(
         StandardOperation.BVEXTRACT, fromExpr, toExpr, variable);
   }
