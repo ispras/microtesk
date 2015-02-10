@@ -28,7 +28,7 @@ public final class Memory {
   private final String dataArgId;
   private final int dataArgBitSize;
 
-  private final Map<String, MemoryVar> variables;
+  private final Map<String, Var> variables;
 
   public Memory(
       String id,
@@ -36,7 +36,7 @@ public final class Memory {
       Address addressArgType,
       String dataArgId,
       int dataArgBitSize,
-      Map<String, MemoryVar> variables) {
+      Map<String, Var> variables) {
 
     checkNotNull(id);
     checkNotNull(addressArgId);

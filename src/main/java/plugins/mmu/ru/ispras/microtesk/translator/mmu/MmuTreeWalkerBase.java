@@ -53,7 +53,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Entry;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
-import ru.ispras.microtesk.translator.mmu.ir.MemoryVar;
+import ru.ispras.microtesk.translator.mmu.ir.Var;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
@@ -418,7 +418,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final String dataArgId;
     private final int dataArgBitSize;
 
-    private final Map<String, MemoryVar> variables;
+    private final Map<String, Var> variables;
 
     private MemoryBuilder(Where where, String id,
         String addressArgId, Address addressArgType, String dataArgId, int dataArgBitSize) {
@@ -446,7 +446,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final int bitSize = extractPositiveInt(
           where(varId), sizeExpr, String.format("Variable %s size", varId.getText()));
 
-      final MemoryVar var = MemoryVar.newInstance(varId.getText(), bitSize);
+      final Var var = Var.newInstance(varId.getText(), bitSize);
       variables.put(var.getId(), var);
       
       final Variable variable = new Variable(var.getId(), DataType.BIT_VECTOR(var.getBitSize()));
@@ -461,13 +461,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         raiseError(w, new UndeclaredSymbol(typeId.getText()));
       }
 
-      MemoryVar var = null;
+      Var var = null;
       if (MmuSymbolKind.BUFFER == symbol.getKind()) {
         final Buffer buffer = getBuffer(w, typeId.getText());
-        var = MemoryVar.newInstance(varId.getText(), buffer.getEntry());
+        var = Var.newInstance(varId.getText(), buffer.getEntry());
       } else if (MmuSymbolKind.ADDRESS == symbol.getKind()) {
         final Address address = getAddress(w, typeId.getText());
-        var = MemoryVar.newInstance(varId.getText(), address.getWidth());
+        var = Var.newInstance(varId.getText(), address.getWidth());
       } else {
         raiseError(w, new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));

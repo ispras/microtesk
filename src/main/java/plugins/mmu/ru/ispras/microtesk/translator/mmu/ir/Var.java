@@ -19,20 +19,20 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
 import java.util.Collection;
 
-public final class MemoryVar {
+public final class Var {
   private final String id;
   private final int bitSize;
   private final Entry entry;
 
-  public static MemoryVar newInstance(String id, int bitSize) {
-    return new MemoryVar(id, bitSize, Entry.EMPTY);
+  public static Var newInstance(String id, int bitSize) {
+    return new Var(id, bitSize, Entry.EMPTY);
   }
 
-  public static MemoryVar newInstance(String id, Entry entry) {
-    return new MemoryVar(id, entry.getBitSize(), entry);
+  public static Var newInstance(String id, Entry entry) {
+    return new Var(id, entry.getBitSize(), entry);
   }
 
-  private MemoryVar(String id, int bitSize, Entry entry) {
+  private Var(String id, int bitSize, Entry entry) {
     checkNotNull(id);
     checkGreaterThanZero(bitSize);
     checkNotNull(entry);
