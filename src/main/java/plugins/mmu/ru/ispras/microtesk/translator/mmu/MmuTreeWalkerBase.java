@@ -490,7 +490,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       attributes.put(attr.getId(), attr);
     }
 
-    public Memory build() {
+    public Memory build() throws SemanticException {
+      if (!attributes.containsKey("read")) {
+        raiseError(where, "The 'read' action is not defined.");
+      }
+
+      if (!attributes.containsKey("write")) {
+        raiseError(where, "The 'write' action is not defined.");
+      }
+
       final Memory memory = new Memory(
           id, addressArgId, addressArgType, dataArgId, dataArgBitSize, variables, attributes);
 
@@ -582,6 +590,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   
   public Node newAttributeCall(CommonTree id, CommonTree attributeId) {
     final ISymbol symbol = getSymbols().resolve(id.getText());
+    
 
     System.out.println(symbol);
     

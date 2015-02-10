@@ -41,6 +41,6 @@ public final class Attribute {
 
   @Override
   public String toString() {
-    return String.format("attribute %s", id);
+    return String.format("attribute %s = %s", id, stmts);
   }
 }

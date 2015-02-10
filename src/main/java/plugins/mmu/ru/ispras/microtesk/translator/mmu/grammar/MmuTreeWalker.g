@@ -148,7 +148,8 @@ mmu
              bufferId=ID     {builder.addVariable($varId, $bufferId);}
            | varSize=expr[0] {builder.addVariable($varId, $varSize.res);})
         ))*
-        (attrId=ID stmts=sequence {builder.addAttribute($attrId, $stmts.res);})*
+        (attrId=ID {declare($attrId, MmuSymbolKind.ATTRIBUTE, false);}
+         stmts=sequence {builder.addAttribute($attrId, $stmts.res);})*
         {builder.build();}
       )
     ; finally {popSymbolScope(); resetContext();}
@@ -174,7 +175,7 @@ statement returns [Stmt res]
 attributeCallStmt returns [Stmt res]
     : ID
     | ^(DOT ID ID)
-    | ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)
+    | ^(INSTANCE_CALL instance ID?)
     ;
 
 assignmentStmt returns [Stmt res]
@@ -199,6 +200,14 @@ elseStmt
 
 functionCallStmt returns [Stmt res]
     :  ^(EXCEPTION STRING_CONST)
+    ;
+    
+//==================================================================================================
+// Instance
+//==================================================================================================
+
+instance
+    : ^(INSTANCE ID expr[0]*)
     ;
 
 //==================================================================================================
@@ -312,7 +321,7 @@ variableAtom returns [Node res]
     : varId=ID {$res = newVariable($varId);}
     | ^(DOT objId=ID attrId=ID) {$res=newAttributeCall($objId, $attrId);}
     | ^(LOCATION_INDEX varId=ID index=expr[0]) {$res = newIndexedVariable($varId, $index.res);}
-    | ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)
+    | ^(INSTANCE_CALL instance ID?)
     ;
 
 //==================================================================================================
