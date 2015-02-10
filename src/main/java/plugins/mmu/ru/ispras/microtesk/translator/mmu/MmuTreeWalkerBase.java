@@ -376,9 +376,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkUndefined("ways", ways == 0);
       checkUndefined("sets", sets == 0);
       checkUndefined("entry", entry == null); 
-
-      //checkUndefined("index", index == null);
-      //checkUndefined("match", match == null);
+      checkUndefined("index", index == null);
+      checkUndefined("match", match == null);
 
       if (null == policy) {
         policy = PolicyId.NONE;

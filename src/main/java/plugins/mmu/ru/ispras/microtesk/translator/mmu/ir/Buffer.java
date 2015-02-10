@@ -50,12 +50,8 @@ public final class Buffer {
     checkGreaterThanZero(ways);
     checkGreaterThanZero(sets);
     checkNotNull(entry);
-
-    /*
     checkNotNull(index);
     checkNotNull(match);
-    */
-
     checkNotNull(policy);
 
     this.id = id;
