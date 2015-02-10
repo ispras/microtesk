@@ -575,7 +575,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     System.out.println(symbol);
     
-    
     return null;
   }
   

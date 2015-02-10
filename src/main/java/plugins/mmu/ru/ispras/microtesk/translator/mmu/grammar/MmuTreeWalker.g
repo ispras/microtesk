@@ -70,6 +70,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.mmu.MmuTreeWalkerBase;
 import ru.ispras.microtesk.translator.mmu.MmuSymbolKind;
 import ru.ispras.microtesk.translator.mmu.ir.Entry;
+import ru.ispras.microtesk.translator.mmu.ir.Stmt;
 }
 
 //==================================================================================================
@@ -156,28 +157,31 @@ mmu
 // Statements
 //==================================================================================================
 
-sequence
-    : ^(SEQUENCE statement*)
+sequence returns [List<Stmt> res]
+@init  {final List<Stmt> stmts = new ArrayList<>();}
+@after {$res = stmts;}
+    : ^(SEQUENCE (stmt=statement {stmts.add($stmt.res);})*)
     ;
 
-statement
-    : attributeCallStatement
-    | assignmentStatement
-    | conditionalStatement
-    | functionCallStatement
+statement returns [Stmt res]
+@after {$res = $stmt.res;}
+    : stmt=attributeCallStatement
+    | stmt=assignmentStatement
+    | stmt=conditionalStatement
+    | stmt=functionCallStatement
     ;
 
-attributeCallStatement
+attributeCallStatement returns [Stmt res]
     : ID
     | ^(DOT ID ID)
     | ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)
     ;
 
-assignmentStatement
+assignmentStatement returns [Stmt res]
     : ^(ASSIGN variable expr[0])
     ;
 
-conditionalStatement
+conditionalStatement returns [Stmt res]
     : ifStmt
     ;
 
@@ -193,7 +197,7 @@ elseStmt
     : ^(ELSE sequence)
     ;
 
-functionCallStatement
+functionCallStatement returns [Stmt res]
     :  ^(EXCEPTION STRING_CONST)
     ;
 
