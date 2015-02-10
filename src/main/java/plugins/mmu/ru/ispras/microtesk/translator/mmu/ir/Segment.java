@@ -38,8 +38,8 @@ public final class Segment {
     checkNotNull(rangeStart);
     checkNotNull(rangeEnd);
 
-    if (addressArgType.getWidth() != rangeStart.getBitSize() ||
-        addressArgType.getWidth() != rangeEnd.getBitSize()) {
+    if (addressArgType.getBitSize() != rangeStart.getBitSize() ||
+        addressArgType.getBitSize() != rangeEnd.getBitSize()) {
       throw new IllegalArgumentException();      
     }
 
@@ -73,7 +73,7 @@ public final class Segment {
   @Override
   public String toString() {
     return String.format("segment %s(%s: %s(%d)) range = (%s, %s)",
-        id, addressArgId, addressArgType.getId(), addressArgType.getWidth(),
+        id, addressArgId, addressArgType.getId(), addressArgType.getBitSize(),
         rangeStart.toHexString(), rangeEnd.toHexString());
   }
 }

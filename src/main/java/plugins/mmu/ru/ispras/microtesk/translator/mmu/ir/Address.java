@@ -19,26 +19,26 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
 public final class Address {
   private final String id;
-  private final int width;
+  private final int bitSize;
 
-  public Address(String id, int width) {
+  public Address(String id, int bitSize) {
     checkNotNull(id);
-    checkGreaterThanZero(width);
+    checkGreaterThanZero(bitSize);
 
     this.id = id;
-    this.width = width;
+    this.bitSize = bitSize;
   }
 
   public String getId() {
     return id;
   }
 
-  public int getWidth() {
-    return width;
+  public int getBitSize() {
+    return bitSize;
   }
 
   @Override
   public String toString() {
-    return String.format("address %s(%d)", id, width);
+    return String.format("address %s(%d)", id, bitSize);
   }
 }

@@ -29,8 +29,10 @@ public final class Buffer {
   private final int ways;
   private final int sets;
   private final Entry entry;
+
   private final Node index;
   private final Node match;
+  
   private final PolicyId policy;
 
   public Buffer(
@@ -105,7 +107,7 @@ public final class Buffer {
   public String toString() {
     return String.format(
         "buffer %s(%s: %s(%d)) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s}",
-        id, addressArgId, addressArgType.getId(), addressArgType.getWidth(),
+        id, addressArgId, addressArgType.getId(), addressArgType.getBitSize(),
         ways, sets, entry, index, match, policy
         );
   }

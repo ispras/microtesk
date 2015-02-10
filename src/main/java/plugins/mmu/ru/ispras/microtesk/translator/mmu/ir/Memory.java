@@ -79,7 +79,7 @@ public final class Memory {
   @Override
   public String toString() {
     return String.format("mmu %s(%s: %s(%d))=(%s: %d) [vars=%s, attributes=%s]",
-        id, addressArgId, addressArgType.getId(), addressArgType.getWidth(),
+        id, addressArgId, addressArgType.getId(), addressArgType.getBitSize(),
         dataArgId, dataArgBitSize, variables, attributes
         );
   }

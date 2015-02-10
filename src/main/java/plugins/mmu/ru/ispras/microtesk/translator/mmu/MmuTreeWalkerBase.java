@@ -182,8 +182,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         segmentId.getText(),
         addressArgId.getText(),
         address,
-        BitVector.valueOf(rangeStart, address.getWidth()),
-        BitVector.valueOf(rangeEnd, address.getWidth())
+        BitVector.valueOf(rangeStart, address.getBitSize()),
+        BitVector.valueOf(rangeEnd, address.getBitSize())
         );
 
     ir.addSegment(segment);
@@ -310,7 +310,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       context = new Context(Context.Kind.BUFFER, id);
 
       final Variable addressArg = new Variable(
-          addressArgId, DataType.BIT_VECTOR(addressArgType.getWidth()));
+          addressArgId, DataType.BIT_VECTOR(addressArgType.getBitSize()));
 
       final NodeVariable addressArgNode = new NodeVariable(addressArg);
       context.defineVariable(addressArgNode);
@@ -439,7 +439,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       context = new Context(Context.Kind.BUFFER, id);
 
       final Variable addressArg = new Variable(
-          addressArgId, DataType.BIT_VECTOR(addressArgType.getWidth()));
+          addressArgId, DataType.BIT_VECTOR(addressArgType.getBitSize()));
 
       final NodeVariable addressArgNode = new NodeVariable(addressArg);
       context.defineVariable(addressArgNode);
@@ -472,7 +472,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         var = Var.newInstance(varId.getText(), buffer.getEntry());
       } else if (MmuSymbolKind.ADDRESS == symbol.getKind()) {
         final Address address = getAddress(w, typeId.getText());
-        var = Var.newInstance(varId.getText(), address.getWidth());
+        var = Var.newInstance(varId.getText(), address.getBitSize());
       } else {
         raiseError(w, new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));
