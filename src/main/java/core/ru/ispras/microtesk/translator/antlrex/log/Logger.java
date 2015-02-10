@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.antlrex.log;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull; 
+
 /**
  * The Logger is a helper class that provides facilities to post messages to the log.
  * 
@@ -26,17 +28,9 @@ public class Logger {
   private final ILogStore log;
 
   public Logger(ESenderKind sender, String fileName, ILogStore log) {
-    if (null == sender) {
-      throw new NullPointerException();
-    }
-
-    if (null == fileName) {
-      throw new NullPointerException();
-    }
-
-    if (null == log) {
-      throw new NullPointerException();
-    }
+    checkNotNull(sender);
+    checkNotNull(fileName);
+    checkNotNull(log);
 
     this.sender = sender;
     this.fileName = fileName;
