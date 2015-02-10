@@ -438,10 +438,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       
       context = new Context(Context.Kind.BUFFER, id);
 
-      final Variable addressArg = new Variable(
-          addressArgId, DataType.BIT_VECTOR(addressArgType.getBitSize()));
-
+      final Variable addressArg = new Variable(addressArgId, addressArgType.getDataType());
       final NodeVariable addressArgNode = new NodeVariable(addressArg);
+
       context.defineVariable(addressArgNode);
     }
 
