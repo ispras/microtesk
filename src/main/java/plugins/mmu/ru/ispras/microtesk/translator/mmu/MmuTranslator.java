@@ -14,8 +14,12 @@
 
 package ru.ispras.microtesk.translator.mmu;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.io.File;
 import java.io.FileReader;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -50,6 +54,27 @@ public class MmuTranslator {
 
   public static String getShortFileName(String fileName) {
     return new File(fileName).getName();
+  }
+  
+  private static final Map<String, MmuTranslatorHandler> handlers = new LinkedHashMap<>();
+
+  public static void addHandler(MmuTranslatorHandler handler) {
+    checkNotNull(handler);
+    handlers.put(handler.getId(), handler);
+  }
+
+  static {
+    addHandler(new MmuTranslatorHandler() {
+      @Override
+      public String getId() {
+        return "default";
+      }
+
+      @Override
+      public void processIr(Ir ir) {
+        System.out.println(ir);
+      }
+    });
   }
 
   public static void main(String[] args) {
@@ -107,14 +132,12 @@ public class MmuTranslator {
         System.err.println("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
         return;
       }
-      
-      System.out.println(ir);
 
+      for (MmuTranslatorHandler handler : handlers.values()) {
+        handler.processIr(ir);
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
-
-    // final Generator generator = new Generator(modelName, getShortFileName(fileName), ir);
-    // generator.generate();
   }
 }
