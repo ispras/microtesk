@@ -18,12 +18,14 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class Field {
   private final String id;
   private final int bitPos;
-  private final int bitSize;
+  
+  private final DataType type;
   private final BitVector defValue;
 
   public Field(String id, int bitPos, int bitSize, BitVector defValue) {
@@ -38,7 +40,8 @@ public final class Field {
 
     this.id = id;
     this.bitPos = bitPos;
-    this.bitSize = bitSize;
+
+    this.type = DataType.BIT_VECTOR(bitSize);
     this.defValue = defValue;
   }
 
@@ -49,9 +52,13 @@ public final class Field {
   public int getBitPos() {
     return bitPos;
   }
+  
+  public DataType getDataType() {
+    return type;
+  }
 
   public int getBitSize() {
-    return bitSize;
+    return type.getSize();
   }
 
   public BitVector getDefValue() {
@@ -60,10 +67,10 @@ public final class Field {
 
   @Override
   public String toString() {
-    final int endBitPos = bitPos + bitSize - 1;
+    final int endBitPos = bitPos + getBitSize() - 1;
     final String defValueText = null != defValue ? ", 0x" + defValue.toHexString() : "";
 
     return String.format("field %s(%d, [%d..%d]%s)",
-        id, bitSize, bitPos, endBitPos, defValueText);  
+        id, getBitSize(), bitPos, endBitPos, defValueText);  
   }
 }

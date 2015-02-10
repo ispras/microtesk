@@ -347,7 +347,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       entry = attr;
 
       for (Field f : attr.getFields()) {
-        final Variable field = new Variable(f.getId(), DataType.BIT_VECTOR(f.getBitSize()));
+        final Variable field = new Variable(f.getId(), f.getDataType());
         final NodeVariable fieldNode = new NodeVariable(field);
         context.defineVariable(fieldNode);
       }

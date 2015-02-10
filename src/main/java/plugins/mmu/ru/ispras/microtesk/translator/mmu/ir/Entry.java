@@ -32,7 +32,7 @@ public final class Entry {
     checkNotNull(fields);
 
     this.bitSize = bitSize;
-    this.fields = fields;
+    this.fields = Collections.unmodifiableMap(fields);
   }
 
   public int getBitSize() {
@@ -44,7 +44,7 @@ public final class Entry {
   }
 
   public Collection<Field> getFields() {
-    return Collections.unmodifiableCollection(fields.values());
+    return fields.values();
   }
 
   public Field getField(String name) {
