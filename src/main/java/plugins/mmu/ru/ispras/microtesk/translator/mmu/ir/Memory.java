@@ -29,6 +29,7 @@ public final class Memory {
   private final int dataArgBitSize;
 
   private final Map<String, Var> variables;
+  private final Map<String, Attribute> attributes; 
 
   public Memory(
       String id,
@@ -36,7 +37,8 @@ public final class Memory {
       Address addressArgType,
       String dataArgId,
       int dataArgBitSize,
-      Map<String, Var> variables) {
+      Map<String, Var> variables,
+      Map<String, Attribute> attributes) {
 
     checkNotNull(id);
     checkNotNull(addressArgId);
@@ -51,6 +53,7 @@ public final class Memory {
     this.dataArgId = dataArgId;
     this.dataArgBitSize = dataArgBitSize;
     this.variables = variables;
+    this.attributes = attributes;
   }
 
   public String getId() {
@@ -75,9 +78,9 @@ public final class Memory {
 
   @Override
   public String toString() {
-    return String.format("mmu %s(%s: %s(%d))=(%s: %d) [vars=%s]",
+    return String.format("mmu %s(%s: %s(%d))=(%s: %d) [vars=%s, attributes=%s]",
         id, addressArgId, addressArgType.getId(), addressArgType.getWidth(),
-        dataArgId, dataArgBitSize, variables
+        dataArgId, dataArgBitSize, variables, attributes
         );
   }
 }

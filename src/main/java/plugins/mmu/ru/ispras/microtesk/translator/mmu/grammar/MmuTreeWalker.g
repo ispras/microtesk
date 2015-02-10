@@ -148,7 +148,7 @@ mmu
              bufferId=ID     {builder.addVariable($varId, $bufferId);}
            | varSize=expr[0] {builder.addVariable($varId, $varSize.res);})
         ))*
-        (ID sequence)*
+        (attrId=ID stmts=sequence {builder.addAttribute($attrId, $stmts.res);})*
         {builder.build();}
       )
     ; finally {popSymbolScope(); resetContext();}
@@ -165,23 +165,23 @@ sequence returns [List<Stmt> res]
 
 statement returns [Stmt res]
 @after {$res = $stmt.res;}
-    : stmt=attributeCallStatement
-    | stmt=assignmentStatement
-    | stmt=conditionalStatement
-    | stmt=functionCallStatement
+    : stmt=attributeCallStmt
+    | stmt=assignmentStmt
+    | stmt=conditionalStmt
+    | stmt=functionCallStmt
     ;
 
-attributeCallStatement returns [Stmt res]
+attributeCallStmt returns [Stmt res]
     : ID
     | ^(DOT ID ID)
     | ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)
     ;
 
-assignmentStatement returns [Stmt res]
+assignmentStmt returns [Stmt res]
     : ^(ASSIGN variable expr[0])
     ;
 
-conditionalStatement returns [Stmt res]
+conditionalStmt returns [Stmt res]
     : ifStmt
     ;
 
@@ -197,7 +197,7 @@ elseStmt
     : ^(ELSE sequence)
     ;
 
-functionCallStatement returns [Stmt res]
+functionCallStmt returns [Stmt res]
     :  ^(EXCEPTION STRING_CONST)
     ;
 

@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
@@ -48,11 +49,13 @@ import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 
 import ru.ispras.microtesk.translator.mmu.ir.Address;
+import ru.ispras.microtesk.translator.mmu.ir.Attribute;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Entry;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
+import ru.ispras.microtesk.translator.mmu.ir.Stmt;
 import ru.ispras.microtesk.translator.mmu.ir.Var;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
 
@@ -419,6 +422,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final int dataArgBitSize;
 
     private final Map<String, Var> variables;
+    private final Map<String, Attribute> attributes;
 
     private MemoryBuilder(Where where, String id,
         String addressArgId, Address addressArgType, String dataArgId, int dataArgBitSize) {
@@ -430,6 +434,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.dataArgId = dataArgId;
       this.dataArgBitSize = dataArgBitSize;
       this.variables = new LinkedHashMap<>();
+      this.attributes = new LinkedHashMap<>();
       
       context = new Context(Context.Kind.BUFFER, id);
 
@@ -480,9 +485,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       context.defineVariable(variableNode);
     }
 
+    public void addAttribute(CommonTree attrId, List<Stmt> stmts) {
+      final Attribute attr = new Attribute(attrId.getText(), stmts);
+      attributes.put(attr.getId(), attr);
+    }
+
     public Memory build() {
       final Memory memory = new Memory(
-          id, addressArgId, addressArgType, dataArgId, dataArgBitSize, variables);
+          id, addressArgId, addressArgType, dataArgId, dataArgBitSize, variables, attributes);
 
       ir.addMemory(memory);
       return memory;
