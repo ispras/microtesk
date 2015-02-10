@@ -485,7 +485,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public void addAttribute(CommonTree attrId, List<Stmt> stmts) {
-      final Attribute attr = new Attribute(attrId.getText(), stmts);
+      final Attribute attr = new Attribute(attrId.getText(), attrId.getText().equals("read") ? DataType.BIT_VECTOR(dataArgBitSize) : null, stmts);
       attributes.put(attr.getId(), attr);
     }
 

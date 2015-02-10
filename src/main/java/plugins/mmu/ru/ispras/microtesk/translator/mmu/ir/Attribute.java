@@ -19,24 +19,32 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.data.DataType;
+
 public final class Attribute {
   private final String id;
   private final List<Stmt> stmts;
+  private final DataType type;
 
-  public Attribute(String id, List<Stmt> stmts) {
+  public Attribute(String id, DataType type, List<Stmt> stmts) {
     checkNotNull(id);
     checkNotNull(stmts);
 
     this.id = id;
-    this.stmts = stmts;
+    this.type = type;
+    this.stmts = Collections.unmodifiableList(stmts);
   }
 
   public String getId() {
     return id;
   }
 
-  public List<Stmt> getStatement() {
-    return Collections.unmodifiableList(stmts);
+  public DataType getType() {
+    return type;
+  }
+
+  public List<Stmt> getStatements() {
+    return stmts;
   }
 
   @Override
