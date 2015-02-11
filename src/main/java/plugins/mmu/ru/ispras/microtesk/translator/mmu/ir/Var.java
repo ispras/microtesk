@@ -16,6 +16,10 @@ package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeVariable;
 
@@ -25,6 +29,8 @@ public final class Var {
 
   private final TypeProvider typeProvider; // Address, Buffer(entry) or null.
   private final NodeVariable variable;
+  
+  private final Map<String, NodeVariable> fieldVariables;
 
   public Var(String id, Type type) {
     this(id, type, null);
@@ -39,9 +45,20 @@ public final class Var {
     }
 
     this.id = id;
+
     this.type = type;
     this.typeProvider = typeProvider;
+
     this.variable = new NodeVariable(id, type.getDataType());
+    this.variable.setUserData(this);
+
+    this.fieldVariables = (0 == type.getFieldCount()) ?
+        Collections.<String, NodeVariable>emptyMap() : new HashMap<String, NodeVariable>();
+
+    for (Field field : type.getFields()) {
+      final NodeVariable fieldVariable = new NodeVariable(field.getId(), field.getDataType());
+      this.fieldVariables.put(fieldVariable.getName(), fieldVariable);
+    }
   }
 
   public String getId() {
@@ -62,6 +79,10 @@ public final class Var {
 
   public NodeVariable getVariable() {
     return variable;
+  }
+
+  public NodeVariable getVariableForField(String fieldId) {
+    return fieldVariables.get(fieldId);
   }
 
   @Override
