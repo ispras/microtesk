@@ -69,7 +69,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.mmu.MmuTreeWalkerBase;
 import ru.ispras.microtesk.translator.mmu.MmuSymbolKind;
-import ru.ispras.microtesk.translator.mmu.ir.Entry;
+import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
 }
 
@@ -128,7 +128,7 @@ buffer
       )
     ; finally {popSymbolScope(); resetContext();}
 
-entry returns [Entry res]
+entry returns [Type res]
 @init {final EntryBuilder builder = newEntryBuilder();}
 @after {$res = builder.build();} 
     : (fieldId=ID {declare($fieldId, MmuSymbolKind.FIELD, false);}

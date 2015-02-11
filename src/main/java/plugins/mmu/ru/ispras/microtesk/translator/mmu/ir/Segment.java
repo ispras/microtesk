@@ -20,9 +20,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class Segment {
   private final String id;
-
-  private final String addressArgId;
-  private final Address addressArgType;
+  private final Var addressArg;
 
   private final BitVector rangeStart;
   private final BitVector rangeEnd;
@@ -44,8 +42,7 @@ public final class Segment {
     }
 
     this.id = id;
-    this.addressArgId = addressArgId ;
-    this.addressArgType = addressArgType;
+    this.addressArg = new Var(addressArgId, addressArgType.getType(), addressArgType);
     this.rangeStart = rangeStart;
     this.rangeEnd = rangeEnd;
   }
@@ -54,12 +51,8 @@ public final class Segment {
     return id;
   }
 
-  public String getAddressArgId() {
-    return addressArgId;
-  }
-
-  public Address getAddressArgType() {
-    return addressArgType;
+  public Var getAddressArg() {
+    return addressArg;
   }
 
   public BitVector getRangeStart() {
@@ -73,7 +66,6 @@ public final class Segment {
   @Override
   public String toString() {
     return String.format("segment %s(%s: %s(%d)) range = (%s, %s)",
-        id, addressArgId, addressArgType.getId(), addressArgType.getBitSize(),
-        rangeStart.toHexString(), rangeEnd.toHexString());
+        id, addressArg, rangeStart.toHexString(), rangeEnd.toHexString());
   }
 }

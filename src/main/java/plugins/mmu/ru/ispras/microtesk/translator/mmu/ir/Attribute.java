@@ -43,7 +43,7 @@ public final class Attribute {
     return type;
   }
 
-  public List<Stmt> getStatements() {
+  public List<Stmt> getStmts() {
     return stmts;
   }
 

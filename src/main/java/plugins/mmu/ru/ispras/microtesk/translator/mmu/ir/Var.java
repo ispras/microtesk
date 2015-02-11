@@ -60,6 +60,6 @@ public final class Var {
   @Override
   public String toString() {
     final String typeAlias = (typeProvider == null) ? "" : typeProvider.getTypeAlias() + "="; 
-    return String.format("var %s[%s%s]", id, typeAlias, type);
+    return String.format("%s: %s%s", id, typeAlias, type);
   }
 }
