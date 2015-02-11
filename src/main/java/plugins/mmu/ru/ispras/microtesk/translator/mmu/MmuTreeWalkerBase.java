@@ -452,11 +452,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           where(varId), sizeExpr, String.format("Variable %s size", varId.getText()));
 
       final Var var = new Var(varId.getText(), new Type(bitSize));
+
       variables.put(var.getId(), var);
-      
-      final Variable variable = new Variable(var.getId(), DataType.BIT_VECTOR(var.getBitSize()));
-      final NodeVariable variableNode = new NodeVariable(variable);
-      context.defineVariable(variableNode);
+      context.defineVariable(var.getVariable());
     }
 
     public void addVariable(CommonTree varId, CommonTree typeId) throws SemanticException {
@@ -479,10 +477,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       variables.put(var.getId(), var);
-
-      final Variable variable = new Variable(var.getId(), DataType.BIT_VECTOR(var.getBitSize()));
-      final NodeVariable variableNode = new NodeVariable(variable);
-      context.defineVariable(variableNode);
+      context.defineVariable(var.getVariable());
     }
 
     public void addAttribute(CommonTree attrId, List<Stmt> stmts) {
