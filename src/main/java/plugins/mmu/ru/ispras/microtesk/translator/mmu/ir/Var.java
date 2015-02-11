@@ -15,14 +15,16 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.NodeVariable;
 
 public final class Var {
   private final String id;
   private final Type type;
 
-  // Address, Buffer(entry) or null.
-  private final TypeProvider typeProvider;
+  private final TypeProvider typeProvider; // Address, Buffer(entry) or null.
+  private final NodeVariable variable;
 
   public Var(String id, Type type) {
     this(id, type, null);
@@ -39,6 +41,7 @@ public final class Var {
     this.id = id;
     this.type = type;
     this.typeProvider = typeProvider;
+    this.variable = new NodeVariable(id, type.getDataType());
   }
 
   public String getId() {
@@ -55,6 +58,10 @@ public final class Var {
 
   public int getBitSize() {
     return type.getBitSize();
+  }
+
+  public NodeVariable getVariable() {
+    return variable;
   }
 
   @Override
