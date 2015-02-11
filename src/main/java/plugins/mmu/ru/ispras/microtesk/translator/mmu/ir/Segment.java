@@ -16,7 +16,16 @@ package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.StandardOperation;
 
 public final class Segment {
   private final String id;
@@ -24,27 +33,49 @@ public final class Segment {
 
   private final BitVector rangeStart;
   private final BitVector rangeEnd;
+  
+  private final Map<String, Attribute> attributes;
 
   public Segment(
       String id,
-      String addressArgId, Address addressArgType,
+      String addressArgId, Address addressType,
       BitVector rangeStart, BitVector rangeEnd) {
 
     checkNotNull(id);
     checkNotNull(addressArgId);
-    checkNotNull(addressArgType);
+    checkNotNull(addressType);
     checkNotNull(rangeStart);
     checkNotNull(rangeEnd);
 
-    if (addressArgType.getBitSize() != rangeStart.getBitSize() ||
-        addressArgType.getBitSize() != rangeEnd.getBitSize()) {
+    if (addressType.getBitSize() != rangeStart.getBitSize() ||
+        addressType.getBitSize() != rangeEnd.getBitSize()) {
       throw new IllegalArgumentException();      
     }
 
     this.id = id;
-    this.addressArg = new Var(addressArgId, addressArgType.getType(), addressArgType);
+    this.addressArg = new Var(addressArgId, addressType.getType(), addressType);
     this.rangeStart = rangeStart;
     this.rangeEnd = rangeEnd;
+    
+    final Node hitExpr = new NodeOperation(
+        StandardOperation.AND,
+        new NodeOperation(
+            StandardOperation.BVUGE,
+            addressArg.getVariable(),
+            NodeValue.newBitVector(rangeStart)
+            ),
+        new NodeOperation(
+            StandardOperation.BVULE,
+            addressArg.getVariable(),
+            NodeValue.newBitVector(rangeEnd)
+            )
+        );
+
+    final Attribute hitAttr = new Attribute("hit", DataType.BOOLEAN,
+        Collections.<Stmt>singletonList(new StmtExpr(hitExpr)));
+
+    this.attributes =
+        Collections.singletonMap(hitAttr.getId(), hitAttr);
   }
 
   public String getId() {
@@ -61,6 +92,19 @@ public final class Segment {
 
   public BitVector getRangeEnd() {
     return rangeEnd;
+  }
+  
+  public int getAttributeCount() {
+    return attributes.size();
+  }
+
+  public Collection<Attribute> getAttributes() {
+    return attributes.values();
+  }
+
+  public Attribute getAttribute(String name) {
+    checkNotNull(name);
+    return attributes.get(name);
   }
 
   @Override
