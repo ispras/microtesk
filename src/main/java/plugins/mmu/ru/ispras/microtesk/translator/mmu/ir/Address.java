@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.mmu.ir;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.fortress.data.DataType;
 
-public final class Address {
+public final class Address implements TypeProvider {
   private final String id;
   private final Type type;
 
@@ -33,8 +33,14 @@ public final class Address {
     return id;
   }
 
+  @Override
   public Type getType() {
     return type;
+  }
+
+  @Override
+  public String getTypeAlias() {
+    return getId();
   }
 
   public DataType getDataType() {

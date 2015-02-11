@@ -20,7 +20,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 
-public final class Buffer {
+public final class Buffer implements TypeProvider {
   private final String id;
 
   private final String addressArgId;
@@ -28,7 +28,7 @@ public final class Buffer {
 
   private final int ways;
   private final int sets;
-  private final Entry entry;
+  private final Type entry;
 
   private final Node index;
   private final Node match;
@@ -41,7 +41,7 @@ public final class Buffer {
       Address addressArgType,
       int ways,
       int sets,
-      Entry entry,
+      Type entry,
       Node index,
       Node match,
       PolicyId policy) {
@@ -71,6 +71,16 @@ public final class Buffer {
     return id;
   }
 
+  @Override
+  public Type getType() {
+    return getEntry();
+  }
+
+  @Override
+  public String getTypeAlias() {
+    return String.format("%s.%s", getId(), "entry");
+  }
+
   public String getAddressArgId() {
     return addressArgId;
   }
@@ -87,7 +97,7 @@ public final class Buffer {
     return sets;
   }
 
-  public Entry getEntry() {
+  public Type getEntry() {
     return entry;
   }
 
