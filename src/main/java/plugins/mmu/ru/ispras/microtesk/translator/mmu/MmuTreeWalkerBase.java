@@ -51,7 +51,6 @@ import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Attribute;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
-import ru.ispras.microtesk.translator.mmu.ir.Entry;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
@@ -249,8 +248,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      * @return New Entry.
      */
 
-    public Entry build() {
-      return fields.isEmpty() ? Entry.EMPTY : new Entry(currentPos, fields);
+    public Type build() {
+      return new Type(fields);
     }
   }
 
@@ -290,7 +289,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     private int ways;
     private int sets;
-    private Entry entry;
+    private Type entry;
     private Node index;
     private Node match;
     private PolicyId policy;
@@ -343,7 +342,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       sets = extractPositiveInt(where(attrId), attr, attrId.getText());
     }
 
-    public void setEntry(CommonTree attrId, Entry attr) throws SemanticException {
+    public void setEntry(CommonTree attrId, Type attr) throws SemanticException {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, entry != null);
       entry = attr;
@@ -452,7 +451,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final int bitSize = extractPositiveInt(
           where(varId), sizeExpr, String.format("Variable %s size", varId.getText()));
 
-      final Var var = Var.newInstance(varId.getText(), bitSize);
+      final Var var = new Var(varId.getText(), new Type(bitSize));
       variables.put(var.getId(), var);
       
       final Variable variable = new Variable(var.getId(), DataType.BIT_VECTOR(var.getBitSize()));
@@ -470,10 +469,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       Var var = null;
       if (MmuSymbolKind.BUFFER == symbol.getKind()) {
         final Buffer buffer = getBuffer(w, typeId.getText());
-        var = Var.newInstance(varId.getText(), buffer.getEntry());
+        var = new Var(varId.getText(), buffer.getEntry(), buffer);
       } else if (MmuSymbolKind.ADDRESS == symbol.getKind()) {
         final Address address = getAddress(w, typeId.getText());
-        var = Var.newInstance(varId.getText(), address.getBitSize());
+        var = new Var(varId.getText(), address.getType(), address);
       } else {
         raiseError(w, new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));

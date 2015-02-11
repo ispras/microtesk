@@ -15,56 +15,51 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
-
-import java.util.Collection;
+import ru.ispras.fortress.data.DataType;
 
 public final class Var {
   private final String id;
-  private final int bitSize;
-  private final Entry entry;
+  private final Type type;
 
-  public static Var newInstance(String id, int bitSize) {
-    return new Var(id, bitSize, Entry.EMPTY);
+  // Address, Buffer(entry) or null.
+  private final TypeProvider typeProvider;
+
+  public Var(String id, Type type) {
+    this(id, type, null);
   }
 
-  public static Var newInstance(String id, Entry entry) {
-    return new Var(id, entry.getBitSize(), entry);
-  }
-
-  private Var(String id, int bitSize, Entry entry) {
+  public Var(String id, Type type, TypeProvider typeProvider) {
     checkNotNull(id);
-    checkGreaterThanZero(bitSize);
-    checkNotNull(entry);
+    checkNotNull(type);
+
+    if (type == Type.VOID) {
+      throw new IllegalArgumentException(Type.VOID + " is not allowed.");
+    }
 
     this.id = id;
-    this.bitSize = bitSize;
-    this.entry = entry;
+    this.type = type;
+    this.typeProvider = typeProvider;
   }
 
   public String getId() {
     return id;
   }
 
+  public Type getType() {
+    return type;
+  }
+
+  public DataType getDataType() {
+    return type.getDataType();
+  }
+
   public int getBitSize() {
-    return bitSize;
-  }
-
-  public int getFieldCount() {
-    return entry.getFieldCount();
-  }
-
-  public Collection<Field> getFields() {
-    return entry.getFields();
-  }
-
-  public Field getField(String name) {
-    return entry.getField(name);
+    return type.getBitSize();
   }
 
   @Override
   public String toString() {
-    return String.format("var %s(%d)%s",
-        id, bitSize, getFieldCount() == 0 ? "" : getFields());
+    final String typeAlias = (typeProvider == null) ? "" : typeProvider.getTypeAlias() + "="; 
+    return String.format("var %s[%s%s]", id, typeAlias, type);
   }
 }
