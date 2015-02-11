@@ -56,6 +56,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
+import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Var;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
 
@@ -134,11 +135,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(addressId, widthExpr);
 
     final Where w = where(addressId);
-    final int value = extractPositiveInt(w, widthExpr, "Address width");
+    final int addressSize = extractPositiveInt(w, widthExpr, "Address width");
 
-    final Address address = new Address(addressId.getText(), value);
+    final Type type = new Type(addressSize); 
+    final Address address = new Address(addressId.getText(), type);
+    
     ir.addAddress(address);
-
     return address;
   }
 

@@ -15,35 +15,38 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import ru.ispras.fortress.data.DataType;
 
 public final class Address {
   private final String id;
-  private final DataType type;
+  private final Type type;
 
-  public Address(String id, int bitSize) {
+  public Address(String id, Type type) {
     checkNotNull(id);
-    checkGreaterThanZero(bitSize);
+    checkNotNull(type);
 
     this.id = id;
-    this.type = DataType.BIT_VECTOR(bitSize);
+    this.type = type;
   }
 
   public String getId() {
     return id;
   }
-  
-  public DataType getDataType() {
+
+  public Type getType() {
     return type;
   }
 
+  public DataType getDataType() {
+    return type.getDataType();
+  }
+
   public int getBitSize() {
-    return type.getSize();
+    return type.getBitSize();
   }
 
   @Override
   public String toString() {
-    return String.format("address %s(%d)", id, getBitSize());
+    return String.format("address %s[%s]", id, type);
   }
 }
