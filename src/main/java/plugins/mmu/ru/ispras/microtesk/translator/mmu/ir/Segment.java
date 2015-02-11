@@ -109,7 +109,7 @@ public final class Segment {
 
   @Override
   public String toString() {
-    return String.format("segment %s(%s: %s(%d)) range = (%s, %s)",
+    return String.format("segment %s(%s) range = (%s, %s)",
         id, addressArg, rangeStart.toHexString(), rangeEnd.toHexString());
   }
 }
