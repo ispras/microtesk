@@ -23,8 +23,7 @@ import ru.ispras.microtesk.model.api.mmu.PolicyId;
 public final class Buffer implements TypeProvider {
   private final String id;
 
-  private final String addressArgId;
-  private final Address addressArgType;
+  private final Var addressArg;
 
   private final int ways;
   private final int sets;
@@ -32,7 +31,7 @@ public final class Buffer implements TypeProvider {
 
   private final Node index;
   private final Node match;
-  
+
   private final PolicyId policy;
 
   public Buffer(
@@ -57,8 +56,7 @@ public final class Buffer implements TypeProvider {
     checkNotNull(policy);
 
     this.id = id;
-    this.addressArgId = addressArgId;
-    this.addressArgType = addressArgType;
+    this.addressArg = new Var(addressArgId, addressArgType.getType(), addressArgType);
     this.ways = ways;
     this.sets = sets;
     this.entry = entry;
@@ -81,12 +79,8 @@ public final class Buffer implements TypeProvider {
     return String.format("%s.%s", getId(), "entry");
   }
 
-  public String getAddressArgId() {
-    return addressArgId;
-  }
-
-  public Address getAddressArgType() {
-    return addressArgType;
+  public Var getAddressArg() {
+    return addressArg;
   }
 
   public int getWays() {
@@ -116,9 +110,7 @@ public final class Buffer implements TypeProvider {
   @Override
   public String toString() {
     return String.format(
-        "buffer %s(%s: %s(%d)) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s}",
-        id, addressArgId, addressArgType.getId(), addressArgType.getBitSize(),
-        ways, sets, entry, index, match, policy
-        );
+        "buffer %s(%s) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s}",
+        id, addressArg, ways, sets, entry, index, match, policy);
   }
 }

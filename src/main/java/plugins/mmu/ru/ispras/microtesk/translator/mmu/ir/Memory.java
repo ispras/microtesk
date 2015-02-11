@@ -22,11 +22,8 @@ import java.util.Map;
 public final class Memory {
   private final String id;
 
-  private final String addressArgId;
-  private final Address addressArgType;
-
-  private final String dataArgId;
-  private final int dataArgBitSize;
+  private final Var addressArg;
+  private final Var dataArg;
 
   private final Map<String, Var> variables;
   private final Map<String, Attribute> attributes; 
@@ -48,10 +45,8 @@ public final class Memory {
     checkNotNull(variables);
 
     this.id = id;
-    this.addressArgId = addressArgId;
-    this.addressArgType = addressArgType;
-    this.dataArgId = dataArgId;
-    this.dataArgBitSize = dataArgBitSize;
+    this.addressArg = new Var(addressArgId, addressArgType.getType());
+    this.dataArg = new Var(dataArgId, new Type(dataArgBitSize));
     this.variables = variables;
     this.attributes = attributes;
   }
@@ -60,27 +55,17 @@ public final class Memory {
     return id;
   }
 
-  public String getAddressArgId() {
-    return addressArgId;
+  public Var getAddressArg() {
+    return addressArg;
   }
 
-  public Address getAddressArgType() {
-    return addressArgType;
-  }
-
-  public String getDataArgId() {
-    return dataArgId;
-  }
-
-  public int getDataArgBitSize() {
-    return dataArgBitSize;
+  public Var getDataArg() {
+    return dataArg;
   }
 
   @Override
   public String toString() {
-    return String.format("mmu %s(%s: %s(%d))=(%s: %d) [vars=%s, attributes=%s]",
-        id, addressArgId, addressArgType.getId(), addressArgType.getBitSize(),
-        dataArgId, dataArgBitSize, variables, attributes
-        );
+    return String.format("mmu %s(%s)=(%s) [vars=%s, attributes=%s]",
+        id, addressArg, dataArg, variables, attributes);
   }
 }
