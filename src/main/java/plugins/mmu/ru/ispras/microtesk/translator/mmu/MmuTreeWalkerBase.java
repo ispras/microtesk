@@ -96,10 +96,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     final Where w = where(addressId);
     final int addressSize = extractPositiveInt(w, widthExpr, "Address width");
+    final Address address = new Address(addressId.getText(), addressSize);
 
-    final Type type = new Type(addressSize); 
-    final Address address = new Address(addressId.getText(), type);
-    
     ir.addAddress(address);
     return address;
   }
@@ -139,27 +137,16 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(w, String.format(
           "Range start (%d) is greater than range end (%d).", rangeStart, rangeEnd));
     }
-    
-    final Var addressArg = new Var(addressArgId.getText(), address.getType(), address);
 
     final Segment segment = new Segment(
         segmentId.getText(),
-        addressArg,
+        new Var(addressArgId.getText(), address),
         BitVector.valueOf(rangeStart, address.getBitSize()),
         BitVector.valueOf(rangeEnd, address.getBitSize())
         );
 
     ir.addSegment(segment);
     return segment;
-  }
-
-  /**
-   * Creates a builder for a Type object.
-   * @return Type builder.
-   */
-
-  protected final TypeBuilder newTypeBuilder() {
-    return new TypeBuilder();
   }
 
   /**
@@ -170,7 +157,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private int currentPos;
     private Map<String, Field> fields;
 
-    private TypeBuilder() {
+    public TypeBuilder() {
       this.currentPos = 0;
       this.fields = new LinkedHashMap<>();
     }
@@ -259,7 +246,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.where = where;
 
       this.id = id;
-      this.addressArg = new Var(addressArgId, addressArgType.getType());
+      this.addressArg = new Var(addressArgId, addressArgType);
 
       this.ways = 0;
       this.sets = 0;
@@ -382,8 +369,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       this.where = where;
       this.id = id;
-      this.addressArg = new Var(addressArgId, addressArgType.getType());
-      this.dataArg = new Var(dataArgId, new Type(dataArgBitSize));
+      this.addressArg = new Var(addressArgId, addressArgType);
+      this.dataArg = new Var(dataArgId, dataArgBitSize);
       this.variables = new LinkedHashMap<>();
       this.attributes = new LinkedHashMap<>();
 
@@ -398,7 +385,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final int bitSize = extractPositiveInt(
           where(varId), sizeExpr, String.format("Variable %s size", varId.getText()));
 
-      final Var var = new Var(varId.getText(), new Type(bitSize));
+      final Var var = new Var(varId.getText(), bitSize);
 
       variables.put(var.getId(), var);
       context.defineVariable(var);
@@ -414,10 +401,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       Var var = null;
       if (MmuSymbolKind.BUFFER == symbol.getKind()) {
         final Buffer buffer = getBuffer(w, typeId.getText());
-        var = new Var(varId.getText(), buffer.getEntry(), buffer);
+        var = new Var(varId.getText(), buffer);
       } else if (MmuSymbolKind.ADDRESS == symbol.getKind()) {
         final Address address = getAddress(w, typeId.getText());
-        var = new Var(varId.getText(), address.getType(), address);
+        var = new Var(varId.getText(), address);
       } else {
         raiseError(w, new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));

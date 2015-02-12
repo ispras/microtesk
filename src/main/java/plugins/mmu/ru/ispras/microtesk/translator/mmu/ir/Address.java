@@ -21,6 +21,10 @@ public final class Address implements TypeProvider {
   private final String id;
   private final Type type;
 
+  public Address(String id, int bitSize) {
+    this(id, new Type(bitSize));
+  }
+
   public Address(String id, Type type) {
     checkNotNull(id);
     checkNotNull(type);

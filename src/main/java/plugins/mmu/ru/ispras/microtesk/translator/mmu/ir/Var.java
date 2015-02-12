@@ -29,14 +29,22 @@ public final class Var {
 
   private final TypeProvider typeProvider; // Address, Buffer(entry) or null.
   private final NodeVariable variable;
-  
+
   private final Map<String, NodeVariable> fieldVariables;
+
+  public Var(String id, int bitSize) {
+    this(id, new Type(bitSize));
+  }
 
   public Var(String id, Type type) {
     this(id, type, null);
   }
 
-  public Var(String id, Type type, TypeProvider typeProvider) {
+  public Var(String id, TypeProvider typeProvider) {
+    this(id, null != typeProvider ? typeProvider.getType() : null, typeProvider);
+  }
+
+  private Var(String id, Type type, TypeProvider typeProvider) {
     checkNotNull(id);
     checkNotNull(type);
 
