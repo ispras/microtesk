@@ -193,29 +193,29 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   /**
-   * Creates a builder for an Entry object.
-   * @return Entry builder.
+   * Creates a builder for a Type object.
+   * @return Type builder.
    */
 
-  protected final EntryBuilder newEntryBuilder() {
-    return new EntryBuilder();
+  protected final TypeBuilder newTypeBuilder() {
+    return new TypeBuilder();
   }
 
   /**
-   * Builder for an Entry. Helps create an Entry from a sequence of Fields. 
+   * Builder for a Type. Helps create a complex type from a sequence of fields.
    */
 
-  protected final class EntryBuilder {
+  protected final class TypeBuilder {
     private int currentPos;
     private Map<String, Field> fields;
 
-    private EntryBuilder() {
+    private TypeBuilder() {
       this.currentPos = 0;
       this.fields = new LinkedHashMap<>();
     }
 
     /**
-     * Adds a field to Entry to be created.
+     * Adds a field to Type to be created.
      * 
      * @param fieldId Field identifier.
      * @param sizeExpr Field size expression.
@@ -245,8 +245,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     /**
-     * Builds an Entry from the collection of fields.
-     * @return New Entry.
+     * Builds a Type from the collection of fields.
+     * @return New Type.
      */
 
     public Type build() {

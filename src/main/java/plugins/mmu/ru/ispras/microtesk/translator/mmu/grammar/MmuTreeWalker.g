@@ -129,7 +129,7 @@ buffer
     ; finally {popSymbolScope(); resetContext();}
 
 entry returns [Type res]
-@init {final EntryBuilder builder = newEntryBuilder();}
+@init {final TypeBuilder builder = newTypeBuilder();}
 @after {$res = builder.build();} 
     : (fieldId=ID {declare($fieldId, MmuSymbolKind.FIELD, false);}
       size=expr[0] value=expr[0]? {builder.addField($fieldId, $size.res, $value.res);})+
