@@ -178,11 +178,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(w, String.format(
           "Range start (%d) is greater than range end (%d).", rangeStart, rangeEnd));
     }
+    
+    final Var addressArg = new Var(addressArgId.getText(), address.getType(), address);
 
     final Segment segment = new Segment(
         segmentId.getText(),
-        addressArgId.getText(),
-        address,
+        addressArg,
         BitVector.valueOf(rangeStart, address.getBitSize()),
         BitVector.valueOf(rangeEnd, address.getBitSize())
         );

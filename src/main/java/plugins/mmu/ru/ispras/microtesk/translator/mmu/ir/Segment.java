@@ -16,7 +16,6 @@ package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -27,63 +26,43 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 
-public final class Segment {
-  private final String id;
-  private final Var addressArg;
-
+public final class Segment extends AbstractStorage {
   private final BitVector rangeStart;
   private final BitVector rangeEnd;
-  
-  private final Map<String, Attribute> attributes;
 
   public Segment(
-      String id,
-      String addressArgId, Address addressType,
-      BitVector rangeStart, BitVector rangeEnd) {
+      String id, Var addressArg, BitVector rangeStart, BitVector rangeEnd) {
 
-    checkNotNull(id);
-    checkNotNull(addressArgId);
-    checkNotNull(addressType);
+    super(id, addressArg, null, createAttributes(addressArg, rangeStart, rangeEnd));
+
+    this.rangeStart = rangeStart;
+    this.rangeEnd = rangeEnd;
+  }
+
+  private static Map<String, Attribute> createAttributes(
+      Var addressArg, BitVector rangeStart, BitVector rangeEnd) {
+
+    checkNotNull(addressArg);
     checkNotNull(rangeStart);
     checkNotNull(rangeEnd);
 
-    if (addressType.getBitSize() != rangeStart.getBitSize() ||
-        addressType.getBitSize() != rangeEnd.getBitSize()) {
+    if (addressArg.getBitSize() != rangeStart.getBitSize() ||
+        addressArg.getBitSize() != rangeEnd.getBitSize()) {
       throw new IllegalArgumentException();      
     }
 
-    this.id = id;
-    this.addressArg = new Var(addressArgId, addressType.getType(), addressType);
-    this.rangeStart = rangeStart;
-    this.rangeEnd = rangeEnd;
-    
     final Node hitExpr = new NodeOperation(
         StandardOperation.AND,
-        new NodeOperation(
-            StandardOperation.BVUGE,
-            addressArg.getVariable(),
-            NodeValue.newBitVector(rangeStart)
-            ),
-        new NodeOperation(
-            StandardOperation.BVULE,
-            addressArg.getVariable(),
-            NodeValue.newBitVector(rangeEnd)
-            )
+        new NodeOperation(StandardOperation.BVUGE,
+            addressArg.getVariable(), NodeValue.newBitVector(rangeStart)),
+        new NodeOperation(StandardOperation.BVULE,
+            addressArg.getVariable(), NodeValue.newBitVector(rangeEnd))
         );
 
-    final Attribute hitAttr = new Attribute("hit", DataType.BOOLEAN,
-        Collections.<Stmt>singletonList(new StmtExpr(hitExpr)));
+    final Attribute hitAttr = new Attribute(HIT_ATTR_NAME,
+        DataType.BOOLEAN, Collections.<Stmt>singletonList(new StmtExpr(hitExpr)));
 
-    this.attributes =
-        Collections.singletonMap(hitAttr.getId(), hitAttr);
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public Var getAddressArg() {
-    return addressArg;
+    return Collections.singletonMap(hitAttr.getId(), hitAttr);
   }
 
   public BitVector getRangeStart() {
@@ -93,23 +72,10 @@ public final class Segment {
   public BitVector getRangeEnd() {
     return rangeEnd;
   }
-  
-  public int getAttributeCount() {
-    return attributes.size();
-  }
-
-  public Collection<Attribute> getAttributes() {
-    return attributes.values();
-  }
-
-  public Attribute getAttribute(String name) {
-    checkNotNull(name);
-    return attributes.get(name);
-  }
 
   @Override
   public String toString() {
     return String.format("segment %s(%s) range = (%s, %s)",
-        id, addressArg, rangeStart.toHexString(), rangeEnd.toHexString());
+        getId(), getAddressArg(), rangeStart.toHexString(), rangeEnd.toHexString());
   }
 }

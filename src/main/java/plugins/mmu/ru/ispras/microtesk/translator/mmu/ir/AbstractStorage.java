@@ -20,12 +20,16 @@ import java.util.Collection;
 import java.util.Map;
 
 public abstract class AbstractStorage {
+  public static final String HIT_ATTR_NAME = "hit";
+
   private final String id;
   private final Var addressArg;
   private final Var dataArg;
   private final Map<String, Attribute> attributes;
 
-  protected AbstractStorage(String id, Var addressArg, Var dataArg, Map<String, Attribute> attributes) {
+  protected AbstractStorage(
+      String id, Var addressArg, Var dataArg, Map<String, Attribute> attributes) {
+
     checkNotNull(id);
     checkNotNull(addressArg);
     checkNotNull(attributes);
@@ -48,16 +52,15 @@ public abstract class AbstractStorage {
     return dataArg;
   }
 
-  public int getAttributeCount() {
+  public final int getAttributeCount() {
     return attributes.size();
   }
 
-  public Collection<Attribute> getAttributes() {
+  public final Collection<Attribute> getAttributes() {
     return attributes.values();
   }
 
-  public Attribute getAttribute(String attrId) {
-    checkNotNull(attrId);
+  public final Attribute getAttribute(String attrId) {
     return attributes.get(attrId);
   }
 }
