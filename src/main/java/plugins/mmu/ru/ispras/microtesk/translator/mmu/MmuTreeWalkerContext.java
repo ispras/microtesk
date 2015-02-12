@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.mmu;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.microtesk.translator.mmu.ir.Var;
 
 class MmuTreeWalkerContext {
   public static enum Kind {
@@ -31,12 +31,12 @@ class MmuTreeWalkerContext {
 
   private final Kind kind;
   private final String id;
-  private final Map<String, NodeVariable> variables;
+  private final Map<String, Var> variables;
 
   MmuTreeWalkerContext(Kind kind, String id) {
     this.kind = kind;
     this.id = id;
-    this.variables = new HashMap<String, NodeVariable>();
+    this.variables = new HashMap<>();
   }
 
   public Kind getKind() {
@@ -46,12 +46,12 @@ class MmuTreeWalkerContext {
   public String getId() {
     return id;
   }
-  
-  public void defineVariable(NodeVariable variable) {
-    variables.put(variable.getName(), variable);
+
+  public void defineVariable(Var variable) {
+    variables.put(variable.getId(), variable);
   }
 
-  public NodeVariable getVariable(String variableId) {
+  public Var getVariable(String variableId) {
     return variables.get(variableId);
   }
 }

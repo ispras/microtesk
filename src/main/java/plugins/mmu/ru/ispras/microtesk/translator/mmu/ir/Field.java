@@ -25,7 +25,7 @@ public final class Field {
   private final String id;
   private final int bitPos;
   
-  private final DataType type;
+  private final Type type;
   private final BitVector defValue;
 
   public Field(String id, int bitPos, int bitSize, BitVector defValue) {
@@ -41,12 +41,16 @@ public final class Field {
     this.id = id;
     this.bitPos = bitPos;
 
-    this.type = DataType.BIT_VECTOR(bitSize);
+    this.type = new Type(bitSize);
     this.defValue = defValue;
   }
 
   public String getId() {
     return id;
+  }
+  
+  public Type getType() {
+    return type;
   }
 
   public int getBitPos() {
@@ -54,11 +58,11 @@ public final class Field {
   }
   
   public DataType getDataType() {
-    return type;
+    return type.getDataType();
   }
 
   public int getBitSize() {
-    return type.getSize();
+    return type.getBitSize();
   }
 
   public BitVector getDefValue() {

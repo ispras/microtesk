@@ -28,12 +28,10 @@ import org.antlr.runtime.tree.TreeNodeStream;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
@@ -248,8 +246,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final Where where;
     
     private final String id;
-    private final String addressArgId;
-    private final Address addressArgType;
+    private final Var addressArg;
 
     private int ways;
     private int sets;
@@ -262,9 +259,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.where = where;
 
       this.id = id;
-      this.addressArgId = addressArgId;
-      this.addressArgType = addressArgType;
-      
+      this.addressArg = new Var(addressArgId, addressArgType.getType());
+
       this.ways = 0;
       this.sets = 0;
       this.entry = null;
@@ -273,12 +269,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.policy = null;
 
       context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
-
-      final Variable addressArg = new Variable(
-          addressArgId, DataType.BIT_VECTOR(addressArgType.getBitSize()));
-
-      final NodeVariable addressArgNode = new NodeVariable(addressArg);
-      context.defineVariable(addressArgNode);
+      context.defineVariable(addressArg);
     }
 
     private void checkRedefined(CommonTree attrId, boolean isRedefined) throws SemanticException {
@@ -312,9 +303,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       entry = attr;
 
       for (Field f : attr.getFields()) {
-        final Variable field = new Variable(f.getId(), f.getDataType());
-        final NodeVariable fieldNode = new NodeVariable(field);
-        context.defineVariable(fieldNode);
+        // TODO: MUST BE CREATED IN PROPER WAY (via getVariableForField)
+        final Var field = new Var(f.getId(), f.getType());
+        context.defineVariable(field);
       }
     }
 
@@ -351,9 +342,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         policy = PolicyId.NONE;
       }
 
-      final Var addressArg = new Var(
-          addressArgId, addressArgType.getType(), addressArgType);
-
       final Buffer buffer = new Buffer(
           id, addressArg, ways, sets, entry, index, match, policy);
 
@@ -383,11 +371,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final Where where;
 
     private final String id;
-    private final String addressArgId;
-    private final Address addressArgType;
-
-    private final String dataArgId;
-    private final int dataArgBitSize;
+    private final Var addressArg;
+    private final Var dataArg;
 
     private final Map<String, Var> variables;
     private final Map<String, Attribute> attributes;
@@ -397,19 +382,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       this.where = where;
       this.id = id;
-      this.addressArgId = addressArgId;
-      this.addressArgType = addressArgType;
-      this.dataArgId = dataArgId;
-      this.dataArgBitSize = dataArgBitSize;
+      this.addressArg = new Var(addressArgId, addressArgType.getType());
+      this.dataArg = new Var(dataArgId, new Type(dataArgBitSize));
       this.variables = new LinkedHashMap<>();
       this.attributes = new LinkedHashMap<>();
-      
+
       context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
-
-      final Variable addressArg = new Variable(addressArgId, addressArgType.getDataType());
-      final NodeVariable addressArgNode = new NodeVariable(addressArg);
-
-      context.defineVariable(addressArgNode);
+      context.defineVariable(addressArg);
+      context.defineVariable(dataArg);
     }
 
     public void addVariable(CommonTree varId, Node sizeExpr) throws SemanticException {
@@ -421,7 +401,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Var var = new Var(varId.getText(), new Type(bitSize));
 
       variables.put(var.getId(), var);
-      context.defineVariable(var.getVariable());
+      context.defineVariable(var);
     }
 
     public void addVariable(CommonTree varId, CommonTree typeId) throws SemanticException {
@@ -444,11 +424,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       variables.put(var.getId(), var);
-      context.defineVariable(var.getVariable());
+      context.defineVariable(var);
     }
 
     public void addAttribute(CommonTree attrId, List<Stmt> stmts) {
-      final Attribute attr = new Attribute(attrId.getText(), attrId.getText().equals("read") ? DataType.BIT_VECTOR(dataArgBitSize) : null, stmts);
+      final Attribute attr = new Attribute(attrId.getText(), attrId.getText().equals("read") ? dataArg.getDataType() : null, stmts);
       attributes.put(attr.getId(), attr);
     }
 
@@ -460,9 +440,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       if (!attributes.containsKey("write")) {
         raiseError(where, "The 'write' action is not defined.");
       }
-
-      final Var addressArg = new Var(addressArgId, addressArgType.getType());
-      final Var dataArg = new Var(dataArgId, new Type(dataArgBitSize));
 
       final Memory memory = new Memory(
           id, addressArg, dataArg, variables, attributes);
@@ -541,7 +518,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   public Node newVariable(CommonTree id) {
-    return context.getVariable(id.getText());
+    return context.getVariable(id.getText()).getVariable();
   }
 
   public Node newIndexedVariable(CommonTree id, Node index) {
