@@ -16,7 +16,6 @@ package ru.ispras.microtesk.translator.mmu;
 
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,47 +73,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   public final Ir getIR() {
     return ir;
   }
- 
-  protected static final class Context {
-    public static enum Kind {
-      GLOBAL,
-      BUFFER,
-      MEMORY
-    }
 
-    private static final Context GLOBAL = new Context(Kind.GLOBAL, "");
-
-    private final Kind kind;
-    private final String id;
-    private final Map<String, NodeVariable> variables;
-
-    private Context(Kind kind, String id) {
-      this.kind = kind;
-      this.id = id;
-      this.variables = new HashMap<String, NodeVariable>();
-    }
-
-    public Kind getKind() {
-      return kind;
-    }
-
-    public String getId() {
-      return id;
-    }
-    
-    public void defineVariable(NodeVariable variable) {
-      variables.put(variable.getName(), variable);
-    }
-
-    public NodeVariable getVariable(String variableId) {
-      return variables.get(variableId);
-    }
-  }
-
-  private Context context = Context.GLOBAL;
+  private MmuTreeWalkerContext context = MmuTreeWalkerContext.GLOBAL;
 
   protected void resetContext() {
-    this.context = Context.GLOBAL;
+    this.context = MmuTreeWalkerContext.GLOBAL;
   }
 
   /**
@@ -309,7 +272,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.match = null;
       this.policy = null;
 
-      context = new Context(Context.Kind.BUFFER, id);
+      context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
 
       final Variable addressArg = new Variable(
           addressArgId, DataType.BIT_VECTOR(addressArgType.getBitSize()));
@@ -441,7 +404,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.variables = new LinkedHashMap<>();
       this.attributes = new LinkedHashMap<>();
       
-      context = new Context(Context.Kind.BUFFER, id);
+      context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
 
       final Variable addressArg = new Variable(addressArgId, addressArgType.getDataType());
       final NodeVariable addressArgNode = new NodeVariable(addressArg);
