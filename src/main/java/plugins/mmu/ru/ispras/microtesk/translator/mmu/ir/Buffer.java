@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
@@ -42,7 +43,7 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
       Node match,
       PolicyId policy) {
 
-    super(id, addressArg, null, createAttributes(addressArg));
+    super(id, addressArg, null, createAttributes(addressArg, entry));
 
     checkGreaterThanZero(ways);
     checkGreaterThanZero(sets);
@@ -59,11 +60,22 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
     this.policy = policy;
   }
 
-  private static Map<String, Attribute> createAttributes(Var addressArg) {
+  private static Map<String, Attribute> createAttributes(Var addressArg, Type entry) {
     checkNotNull(addressArg);
+    checkNotNull(entry);
 
-    final Attribute hitAttr = new Attribute(HIT_ATTR_NAME, DataType.BOOLEAN);
-    return Collections.singletonMap(hitAttr.getId(), hitAttr);
+    final Attribute[] attrs = new Attribute[] { 
+        new Attribute(HIT_ATTR_NAME, DataType.BOOLEAN),
+        new Attribute(READ_ATTR_NAME, entry.getDataType()),
+        new Attribute(WRITE_ATTR_NAME, entry.getDataType())
+    };
+
+    final Map<String, Attribute> result = new LinkedHashMap<>();
+    for (Attribute attr : attrs) {
+      result.put(attr.getId(), attr);
+    }
+
+    return Collections.unmodifiableMap(result);
   }
 
   @Override

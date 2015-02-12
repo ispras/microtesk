@@ -16,11 +16,11 @@ package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-public final class FieldReference {
+public final class FieldRef {
   private final Var variable;
   private final Field field;
 
-  FieldReference(Var variable, Field field) {
+  FieldRef(Var variable, Field field) {
     checkNotNull(variable);
     checkNotNull(field);
 
