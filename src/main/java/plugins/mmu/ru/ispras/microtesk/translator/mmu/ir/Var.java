@@ -57,6 +57,7 @@ public final class Var {
 
     for (Field field : type.getFields()) {
       final NodeVariable fieldVariable = new NodeVariable(field.getId(), field.getDataType());
+      fieldVariable.setUserData(new FieldReference(this, field));
       this.fieldVariables.put(fieldVariable.getName(), fieldVariable);
     }
   }
