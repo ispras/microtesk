@@ -234,10 +234,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     
     private final String id;
     private final Var addressArg;
-
+    
+    private Var dataArg; // stores entries
     private int ways;
     private int sets;
-    private Type entry;
     private Node index;
     private Node match;
     private PolicyId policy;
@@ -248,9 +248,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.id = id;
       this.addressArg = new Var(addressArgId, addressArgType);
 
+      this.dataArg = null;
       this.ways = 0;
       this.sets = 0;
-      this.entry = null;
       this.index = null;
       this.match = null;
       this.policy = null;
@@ -286,8 +286,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     public void setEntry(CommonTree attrId, Type attr) throws SemanticException {
       checkNotNull(attrId, attr);
-      checkRedefined(attrId, entry != null);
-      entry = attr;
+      checkRedefined(attrId, dataArg != null);
+      dataArg = new Var(attrId.getText(), attr);
 
       for (Field f : attr.getFields()) {
         // TODO: MUST BE CREATED IN PROPER WAY (via getVariableForField)
@@ -321,7 +321,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     public Buffer build() throws SemanticException {
       checkUndefined("ways", ways == 0);
       checkUndefined("sets", sets == 0);
-      checkUndefined("entry", entry == null); 
+      checkUndefined("entry", dataArg == null); 
       checkUndefined("index", index == null);
       checkUndefined("match", match == null);
 
@@ -330,7 +330,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Buffer buffer = new Buffer(
-          id, addressArg, ways, sets, entry, index, match, policy);
+          id, addressArg, dataArg, ways, sets, index, match, policy);
 
       ir.addBuffer(buffer);
       return buffer;
