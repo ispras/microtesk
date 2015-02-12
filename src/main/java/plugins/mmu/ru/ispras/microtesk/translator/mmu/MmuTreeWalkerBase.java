@@ -388,8 +388,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         policy = PolicyId.NONE;
       }
 
+      final Var addressArg = new Var(
+          addressArgId, addressArgType.getType(), addressArgType);
+
       final Buffer buffer = new Buffer(
-          id, addressArgId, addressArgType, ways, sets, entry, index, match, policy);
+          id, addressArg, ways, sets, entry, index, match, policy);
 
       ir.addBuffer(buffer);
       return buffer;

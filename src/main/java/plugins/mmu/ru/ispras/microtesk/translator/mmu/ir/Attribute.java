@@ -26,13 +26,17 @@ public final class Attribute {
   private final List<Stmt> stmts;
   private final DataType type;
 
+  public Attribute(String id, DataType type) {
+    this(id, type, Collections.<Stmt>emptyList());
+  }
+
   public Attribute(String id, DataType type, List<Stmt> stmts) {
     checkNotNull(id);
     checkNotNull(stmts);
 
     this.id = id;
     this.type = type;
-    this.stmts = Collections.unmodifiableList(stmts);
+    this.stmts = stmts;
   }
 
   public String getId() {
