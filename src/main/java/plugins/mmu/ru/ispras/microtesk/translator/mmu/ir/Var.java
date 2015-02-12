@@ -64,7 +64,9 @@ public final class Var {
         Collections.<String, NodeVariable>emptyMap() : new HashMap<String, NodeVariable>();
 
     for (Field field : type.getFields()) {
-      final NodeVariable fieldVariable = new NodeVariable(field.getId(), field.getDataType());
+      final String fieldVarId = String.format("%s.%s", id, field.getId());
+      final NodeVariable fieldVariable = new NodeVariable(fieldVarId, field.getDataType());
+
       fieldVariable.setUserData(new FieldRef(this, field));
       this.fieldVariables.put(fieldVariable.getName(), fieldVariable);
     }
