@@ -498,8 +498,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         raiseError(where, "The 'write' action is not defined.");
       }
 
+      final Var addressArg = new Var(addressArgId, addressArgType.getType());
+      final Var dataArg = new Var(dataArgId, new Type(dataArgBitSize));
+
       final Memory memory = new Memory(
-          id, addressArgId, addressArgType, dataArgId, dataArgBitSize, variables, attributes);
+          id, addressArg, dataArg, variables, attributes);
 
       ir.addMemory(memory);
       return memory;
