@@ -43,7 +43,7 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
       Node match,
       PolicyId policy) {
 
-    super(id, addressArg, null, createAttributes(addressArg, entry));
+    super(id, addressArg, new Var(ENTRY_NAME, entry), createAttributes(addressArg, entry));
 
     checkGreaterThanZero(ways);
     checkGreaterThanZero(sets);

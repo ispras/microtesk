@@ -23,6 +23,7 @@ public abstract class AbstractStorage {
   public static final String HIT_ATTR_NAME = "hit";
   public static final String READ_ATTR_NAME = "read";
   public static final String WRITE_ATTR_NAME = "write";
+  public static final String ENTRY_NAME = "entry";
 
   private final String id;
   private final Var addressArg;
