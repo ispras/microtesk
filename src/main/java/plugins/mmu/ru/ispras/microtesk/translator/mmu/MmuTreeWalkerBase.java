@@ -519,6 +519,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   // Methods to create variable atoms
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
+  protected final Node newAttributeRef(CommonTree id, List<Node> args, CommonTree attrId) {
+    // TODO
+    System.out.println("Call " + id.getText() + ((attrId != null) ? "." + attrId.getText() : ""));
+    return null;
+  }
+
   protected final Node newVariable(CommonTree id) throws SemanticException {
     return getVariable(id);
   }

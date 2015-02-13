@@ -207,7 +207,9 @@ functionCallStmt returns [Stmt res]
 //==================================================================================================
 
 attributeRef returns [Node res]
-    : ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)	
+@init {final List<Node> args = new ArrayList<>();}
+    : ^(INSTANCE_CALL ^(INSTANCE id=ID (arg=expr[0]{args.add($arg.res);})*) attrId=ID?)	
+      {$res = newAttributeRef($id, args, $attrId);}
     ;
 
 //==================================================================================================
