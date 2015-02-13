@@ -207,28 +207,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       return new Type(fields);
     }
   }
-
-  /**
-   * Creates a builder for a Buffer object.
-   *    
-   * @param bufferId Buffer identifier.
-   * @param addressArgId Address argument identifier. 
-   * @param addressArgType Address argument type (identifier).
-   * @return New BufferBulder object.
-   * @throws SemanticException if the specified address type is not defined.
-   */
-
-  protected final BufferBuilder newBufferBuilder(
-      CommonTree bufferId,
-      CommonTree addressArgId,
-      CommonTree addressArgType) throws SemanticException {
-
-    final Address address = getAddress(addressArgType);
-
-    return new BufferBuilder(
-        where(bufferId), bufferId.getText(), addressArgId.getText(), address);
-  }
-
+  
   //////////////////////////////////////////////////////////////////////////////
   // TODO: Review + comments are needed
 
@@ -237,9 +216,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final class BufferBuilder {
-    private final Where where;
-    
-    private final String id;
+    private final CommonTree id;
     private final Var addressArg;
     
     private Var dataArg; // stores entries
@@ -249,11 +226,24 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private Node match;
     private PolicyId policy;
 
-    private BufferBuilder(Where where, String id, String addressArgId, Address addressArgType) {
-      this.where = where;
+    /**
+     * Constructs a builder for a Buffer object.
+     *    
+     * @param bufferId Buffer identifier.
+     * @param addressArgId Address argument identifier. 
+     * @param addressArgType Address argument type (identifier).
+     * @throws SemanticException if the specified address type is not defined.
+     */
+
+    public BufferBuilder(
+        CommonTree id,
+        CommonTree addressArgId,
+        CommonTree addressArgType) throws SemanticException {
+
+      final Address address = getAddress(addressArgType);
 
       this.id = id;
-      this.addressArg = new Var(addressArgId, addressArgType);
+      this.addressArg = new Var(addressArgId.getText(), address);
 
       this.dataArg = null;
       this.ways = 0;
@@ -262,7 +252,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.match = null;
       this.policy = null;
 
-      context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
+      context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id.getText());
       context.defineVariable(addressArg);
     }
 
@@ -275,7 +265,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     private void checkUndefined(String attrId, boolean isUndefined) throws SemanticException {
       if (isUndefined) {
-        raiseError(where, String.format("The %s attribute is undefined.", attrId));
+        raiseError(where(id), String.format("The %s attribute is undefined.", attrId));
       }
     }
 
@@ -336,7 +326,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Buffer buffer = new Buffer(
-          id, addressArg, dataArg, ways, sets, index, match, policy);
+          id.getText(), addressArg, dataArg, ways, sets, index, match, policy);
 
       ir.addBuffer(buffer);
       return buffer;
