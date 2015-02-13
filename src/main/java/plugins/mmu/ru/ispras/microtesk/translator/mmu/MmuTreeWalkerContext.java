@@ -16,10 +16,12 @@ package ru.ispras.microtesk.translator.mmu;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
 
 final class MmuTreeWalkerContext {
@@ -34,7 +36,9 @@ final class MmuTreeWalkerContext {
 
   private final Kind kind;
   private final String id;
+
   private final Map<String, NodeVariable> variables;
+  private final Map<String, AbstractStorage> globalObjects;
 
   MmuTreeWalkerContext(Kind kind, String id) {
     checkNotNull(kind);
@@ -43,6 +47,7 @@ final class MmuTreeWalkerContext {
     this.kind = kind;
     this.id = id;
     this.variables = new HashMap<>();
+    this.globalObjects = new HashMap<>();
   }
 
   public Kind getKind() {
@@ -77,5 +82,21 @@ final class MmuTreeWalkerContext {
 
   public NodeVariable getVariable(String variableId) {
     return variables.get(variableId);
+  }
+
+  public void defineGlobalObjects(Collection<? extends AbstractStorage> objects) {
+    checkNotNull(objects);
+    for (AbstractStorage object : objects) {
+      defineGlobalObject(object);
+    }
+  }
+
+  public void defineGlobalObject(AbstractStorage object) {
+    checkNotNull(object);
+    globalObjects.put(object.getId(), object);
+  }
+
+  public AbstractStorage getGlobalObject(String objectId) {
+    return globalObjects.get(objectId);
   }
 }

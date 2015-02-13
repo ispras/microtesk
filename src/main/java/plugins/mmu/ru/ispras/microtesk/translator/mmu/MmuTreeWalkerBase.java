@@ -45,6 +45,7 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 
+import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Attribute;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
@@ -377,6 +378,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           DataType.MAP(DataType.UNKNOWN, dataArg.getDataType()));
 
       context.defineVariable(memoryVar);
+
+      context.defineGlobalObjects(ir.getSegments().values());
+      context.defineGlobalObjects(ir.getBuffers().values());
     }
 
     public void addVariable(CommonTree varId, Node sizeExpr) throws SemanticException {
@@ -521,6 +525,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   protected final Node newAttributeRef(CommonTree id, List<Node> args, CommonTree attrId) {
     // TODO
+    final AbstractStorage storage = context.getGlobalObject(id.getText());
+    System.out.println(storage);
+
     System.out.println("Call " + id.getText() + ((attrId != null) ? "." + attrId.getText() : ""));
     return null;
   }
