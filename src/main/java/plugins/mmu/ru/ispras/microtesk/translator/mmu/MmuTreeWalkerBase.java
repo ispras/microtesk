@@ -43,7 +43,6 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
-import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 
 import ru.ispras.microtesk.translator.mmu.ir.Address;
@@ -119,17 +118,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final Segment newSegment(
-      final CommonTree segmentId,
-      final CommonTree addressArgId,
-      final CommonTree addressArgType,
-      final Node rangeStartExpr,
-      final Node rangeEndExpr) throws SemanticException {
+      CommonTree segmentId,
+      CommonTree addressArgId,
+      CommonTree addressArgType,
+      Node rangeStartExpr,
+      Node rangeEndExpr) throws SemanticException {
 
     checkNotNull(segmentId, rangeStartExpr);
     checkNotNull(segmentId, rangeEndExpr);
 
+    final Address address = getAddress(addressArgType);
     final Where w = where(segmentId);
-    final Address address = getAddress(w, addressArgType.getText());
 
     final BigInteger rangeStart = extractBigInteger(w, rangeStartExpr, "Range start");
     final BigInteger rangeEnd = extractBigInteger(w, rangeEndExpr, "Range end");
@@ -158,6 +157,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private int currentPos;
     private Map<String, Field> fields;
 
+    /**
+     * Constructs a new type builder.
+     */
+
     public TypeBuilder() {
       this.currentPos = 0;
       this.fields = new LinkedHashMap<>();
@@ -173,7 +176,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      * the size expression cannot be evaluated to a positive integer value (Java int).
      */
 
-    public void addField(CommonTree fieldId, Node sizeExpr, Node valueExpr) throws SemanticException {
+    public void addField(
+        CommonTree fieldId, Node sizeExpr, Node valueExpr) throws SemanticException {
+
       checkNotNull(fieldId, sizeExpr);
       
       final Where w = where(fieldId);
@@ -218,9 +223,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       CommonTree addressArgId,
       CommonTree addressArgType) throws SemanticException {
 
-    final Where w = where(bufferId);
-    final Address address = getAddress(w, addressArgType.getText());
-    return new BufferBuilder(w, bufferId.getText(), addressArgId.getText(), address);
+    final Address address = getAddress(addressArgType);
+
+    return new BufferBuilder(
+        where(bufferId), bufferId.getText(), addressArgId.getText(), address);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -344,13 +350,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       CommonTree dataArgId,
       Node dataArgSizeExpr) throws SemanticException {
 
-    final Where w = where(memoryId);
-    final Address address = getAddress(w, addressArgType.getText());
-    
+    final Address address = getAddress(addressArgType);
+
     final int dataSize = extractPositiveInt(
         where(dataArgId), dataArgSizeExpr, "Data argument size");
 
-    return new MemoryBuilder(w, 
+    return new MemoryBuilder(where(memoryId), 
         memoryId.getText(), addressArgId.getText(), address, dataArgId.getText(), dataSize);
   }
 
@@ -392,21 +397,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public void addVariable(CommonTree varId, CommonTree typeId) throws SemanticException {
-      final Where w = where(typeId);
-      final ISymbol symbol = getSymbols().resolve(typeId.getText());
-      if (null == symbol) {
-        raiseError(w, new UndeclaredSymbol(typeId.getText()));
-      }
+      final ISymbol symbol = getSymbol(typeId);
 
       Var var = null;
       if (MmuSymbolKind.BUFFER == symbol.getKind()) {
-        final Buffer buffer = getBuffer(w, typeId.getText());
+        final Buffer buffer = getBuffer(typeId);
         var = new Var(varId.getText(), buffer);
       } else if (MmuSymbolKind.ADDRESS == symbol.getKind()) {
-        final Address address = getAddress(w, typeId.getText());
+        final Address address = getAddress(typeId);
         var = new Var(varId.getText(), address);
       } else {
-        raiseError(w, new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
+        raiseError(where(typeId), new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));
       }
 
@@ -504,47 +505,67 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         StandardOperation.BVEXTRACT, fromExpr, toExpr, variable);
   }
 
-  public Node newVariable(CommonTree id) {
-    return context.getVariable(id.getText());
+  public Node newVariable(CommonTree id) throws SemanticException {
+    return getVariable(id);
   }
 
-  public Node newIndexedVariable(CommonTree id, Node index) {
-    final ISymbol symbol = getSymbols().resolve(id.getText());
+  public Node newIndexedVariable(CommonTree id, Node indexExpr) throws SemanticException {
+    checkNotNull(id, indexExpr);
+    final ISymbol symbol = getSymbol(id);
+
+    //final NodeVariable variable = context.getVariable(id.getText());
 
     System.out.println(symbol);
     System.out.println(context.getVariable(id.getText()));
 
     return null;
   }
-  
-  public Node newAttributeCall(CommonTree id, CommonTree attributeId) {
-    final ISymbol symbol = getSymbols().resolve(id.getText());
-    
 
-    System.out.println(symbol);
-    
-    return null;
+  public Node newAttributeCall(CommonTree id, CommonTree attributeId) throws SemanticException {
+    final NodeVariable variableNode = getVariable(id);
+    if (!(variableNode.getUserData() instanceof Var)) {
+      raiseError(where(id), String.format(
+          "Cannot access fields of the %s variable. No type information.", id.getText()));
+    }
+
+    final Var variable = (Var) variableNode.getUserData();
+    final NodeVariable fieldNode = variable.getVariableForField(attributeId.getText());
+    if (null == fieldNode) {
+      raiseError(where(id), String.format(
+          "The %s variable does not include the %s field.", id.getText(), attributeId.getText()));
+    }
+
+    return fieldNode;
   }
   
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Utility Methods
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private Address getAddress(Where w, String addressId) throws SemanticException {
-    final Address address = ir.getAddresses().get(addressId);
-    if (null == address) {
-      raiseError(w, String.format("%s is not defined or is not an address.", addressId));
+  private NodeVariable getVariable(CommonTree variableId) throws SemanticException {
+    final NodeVariable variable = context.getVariable(variableId.getText());
+    if (null == variable) {
+      raiseError(where(variableId), String.format(
+          "%s is undefined in the current scope or is not a variable.", variableId.getText()));
     }
+    return variable;
+  }
 
+  private Address getAddress(CommonTree addressId) throws SemanticException {
+    final Address address = ir.getAddresses().get(addressId.getText());
+    if (null == address) {
+      raiseError(where(addressId), String.format(
+          "%s is not defined or is not an address.", addressId.getText()));
+    }
     return address;
   }
 
-  private Buffer getBuffer(Where w, String bufferId) throws SemanticException {
-    final Buffer buffer = ir.getBuffers().get(bufferId);
+  private Buffer getBuffer(CommonTree bufferId) throws SemanticException {
+    final Buffer buffer = ir.getBuffers().get(bufferId.getText());
     if (null == buffer) {
-      raiseError(w, String.format("%s is not defined or is not a buffer.", bufferId));
+      raiseError(where(bufferId), String.format(
+          "%s is not defined or is not a buffer.", bufferId.getText()));
     }
-
     return buffer;
   }
 

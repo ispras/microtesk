@@ -147,4 +147,12 @@ public class TreeParserBase extends TreeParserEx {
   protected final void popSymbolScope() {
     symbols.pop();
   }
+
+  protected final ISymbol getSymbol(CommonTree id) throws SemanticException {
+    final ISymbol symbol = getSymbols().resolve(id.getText());
+    if (null == symbol) {
+      raiseError(where(id), new UndeclaredSymbol(id.getText()));
+    }
+    return symbol;
+  }
 }
