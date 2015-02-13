@@ -32,6 +32,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
@@ -118,11 +119,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final Segment newSegment(
-      CommonTree segmentId,
-      CommonTree addressArgId,
-      CommonTree addressArgType,
-      Node rangeStartExpr,
-      Node rangeEndExpr) throws SemanticException {
+      final CommonTree segmentId,
+      final CommonTree addressArgId,
+      final CommonTree addressArgType,
+      final Node rangeStartExpr,
+      final Node rangeEndExpr) throws SemanticException {
 
     checkNotNull(segmentId, rangeStartExpr);
     checkNotNull(segmentId, rangeEndExpr);
@@ -289,10 +290,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkRedefined(attrId, dataArg != null);
       dataArg = new Var(attrId.getText(), attr);
 
-      for (Field f : attr.getFields()) {
-        // TODO: MUST BE CREATED IN PROPER WAY (via getVariableForField)
-        final Var field = new Var(f.getId(), f.getType());
-        context.defineVariable(field);
+      for (Field field : attr.getFields()) {
+        final NodeVariable valiable = dataArg.getVariableForField(field.getId());
+        context.defineVariableAs(field.getId(), valiable);
       }
     }
 
@@ -505,7 +505,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   public Node newVariable(CommonTree id) {
-    return context.getVariable(id.getText()).getVariable();
+    return context.getVariable(id.getText());
   }
 
   public Node newIndexedVariable(CommonTree id, Node index) {

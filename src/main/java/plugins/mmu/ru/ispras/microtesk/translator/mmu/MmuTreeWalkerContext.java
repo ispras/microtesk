@@ -19,6 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.translator.mmu.ir.Var;
 
 final class MmuTreeWalkerContext {
@@ -33,7 +34,7 @@ final class MmuTreeWalkerContext {
 
   private final Kind kind;
   private final String id;
-  private final Map<String, Var> variables;
+  private final Map<String, NodeVariable> variables;
 
   MmuTreeWalkerContext(Kind kind, String id) {
     checkNotNull(kind);
@@ -54,16 +55,27 @@ final class MmuTreeWalkerContext {
 
   public void defineVariable(Var variable) {
     checkNotNull(variable);
-    variables.put(variable.getId(), variable);
+    variables.put(variable.getId(), variable.getVariable());
+  }
+
+  public void defineVariable(NodeVariable variable) {
+    checkNotNull(variable);
+    variables.put(variable.getName(), variable);
   }
 
   public void defineVariableAs(String variableId, Var variable) {
     checkNotNull(variableId);
     checkNotNull(variable);
+    variables.put(variableId, variable.getVariable());
+  }
+
+  public void defineVariableAs(String variableId, NodeVariable variable) {
+    checkNotNull(variableId);
+    checkNotNull(variable);
     variables.put(variableId, variable);
   }
 
-  public Var getVariable(String variableId) {
+  public NodeVariable getVariable(String variableId) {
     return variables.get(variableId);
   }
 }
