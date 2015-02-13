@@ -268,7 +268,7 @@ attributeCallStatement
     ;
 
 attributeCall
-    :  ACTION | ID
+    :  ACTION
     ;
 
 instance
