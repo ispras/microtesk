@@ -382,6 +382,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
       context.defineVariable(addressArg);
       context.defineVariable(dataArg);
+
+      final NodeVariable memoryVar = new NodeVariable(id,
+          DataType.MAP(DataType.UNKNOWN, dataArg.getDataType()));
+
+      context.defineVariable(memoryVar);
     }
 
     public void addVariable(CommonTree varId, Node sizeExpr) throws SemanticException {
@@ -505,20 +510,19 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         StandardOperation.BVEXTRACT, fromExpr, toExpr, variable);
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Methods to create variable atoms
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
   public Node newVariable(CommonTree id) throws SemanticException {
     return getVariable(id);
   }
 
   public Node newIndexedVariable(CommonTree id, Node indexExpr) throws SemanticException {
     checkNotNull(id, indexExpr);
-    final ISymbol symbol = getSymbol(id);
 
-    //final NodeVariable variable = context.getVariable(id.getText());
-
-    System.out.println(symbol);
-    System.out.println(context.getVariable(id.getText()));
-
-    return null;
+    final NodeVariable variable = getVariable(id);
+    return new NodeOperation(StandardOperation.SELECT, variable, indexExpr);
   }
 
   public Node newAttributeCall(CommonTree id, CommonTree attributeId) throws SemanticException {
