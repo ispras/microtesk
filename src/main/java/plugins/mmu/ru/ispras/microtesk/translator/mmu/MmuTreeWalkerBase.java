@@ -501,11 +501,26 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return new NodeOperation(fortressOp, reducedOperands);
   }
 
-  public Node newConcat(CommonTree where, Node left, Node right) {
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Concatenation and bitfield methods
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  protected final Node newConcat(
+      CommonTree where, Node left, Node right) throws SemanticException {
+
+    checkNotNull(where, left);
+    checkNotNull(where, right);
+
     return new NodeOperation(StandardOperation.BVCONCAT, left, right);
   }
 
-  public Node newBitfield(CommonTree where, Node variable, Node fromExpr, Node toExpr) {
+  protected final Node newBitfield(
+      CommonTree where, Node variable, Node fromExpr, Node toExpr) throws SemanticException {
+
+    checkNotNull(where, variable);
+    checkNotNull(where, fromExpr);
+    checkNotNull(where, toExpr);
+
     return new NodeOperation(
         StandardOperation.BVEXTRACT, fromExpr, toExpr, variable);
   }
@@ -514,18 +529,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   // Methods to create variable atoms
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  public Node newVariable(CommonTree id) throws SemanticException {
+  protected final Node newVariable(CommonTree id) throws SemanticException {
     return getVariable(id);
   }
 
-  public Node newIndexedVariable(CommonTree id, Node indexExpr) throws SemanticException {
+  protected final Node newIndexedVariable(CommonTree id, Node indexExpr) throws SemanticException {
     checkNotNull(id, indexExpr);
 
     final NodeVariable variable = getVariable(id);
     return new NodeOperation(StandardOperation.SELECT, variable, indexExpr);
   }
 
-  public Node newAttributeCall(CommonTree id, CommonTree attributeId) throws SemanticException {
+  protected final Node newAttributeCall(
+      CommonTree id, CommonTree attributeId) throws SemanticException {
+
     final NodeVariable variableNode = getVariable(id);
     if (!(variableNode.getUserData() instanceof Var)) {
       raiseError(where(id), String.format(
@@ -541,7 +558,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     return fieldNode;
   }
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Utility Methods
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -577,7 +594,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       Where w, Node expr, String exprDesc) throws SemanticException {
 
     if (expr.getKind() != Node.Kind.VALUE || !expr.isType(DataTypeId.LOGIC_INTEGER)) {
-      raiseError(w, String.format("%s is not a constant integer expression.", exprDesc)); 
+      raiseError(w, String.format("%s is not a constant integer expression.", exprDesc));
     }
 
     final NodeValue nodeValue = (NodeValue) expr;
