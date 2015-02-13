@@ -19,13 +19,13 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.Map;
 
 public final class Memory extends AbstractStorage {
-  private final Map<String, Var> variables;
+  private final Map<String, Variable> variables;
 
   public Memory(
       String id,
-      Var addressArg,
-      Var dataArg,
-      Map<String, Var> variables,
+      Variable addressArg,
+      Variable dataArg,
+      Map<String, Variable> variables,
       Map<String, Attribute> attributes) {
     
     super(id, addressArg, dataArg, attributes);

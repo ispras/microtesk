@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.microtesk.translator.mmu.ir.Var;
+import ru.ispras.microtesk.translator.mmu.ir.Variable;
 
 final class MmuTreeWalkerContext {
   public static enum Kind {
@@ -53,7 +53,7 @@ final class MmuTreeWalkerContext {
     return id;
   }
 
-  public void defineVariable(Var variable) {
+  public void defineVariable(Variable variable) {
     checkNotNull(variable);
     variables.put(variable.getId(), variable.getVariable());
   }
@@ -63,7 +63,7 @@ final class MmuTreeWalkerContext {
     variables.put(variable.getName(), variable);
   }
 
-  public void defineVariableAs(String variableId, Var variable) {
+  public void defineVariableAs(String variableId, Variable variable) {
     checkNotNull(variableId);
     checkNotNull(variable);
     variables.put(variableId, variable.getVariable());

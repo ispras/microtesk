@@ -17,10 +17,10 @@ package ru.ispras.microtesk.translator.mmu.ir;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 public final class FieldRef {
-  private final Var variable;
+  private final Variable variable;
   private final Field field;
 
-  FieldRef(Var variable, Field field) {
+  FieldRef(Variable variable, Field field) {
     checkNotNull(variable);
     checkNotNull(field);
 
@@ -28,7 +28,7 @@ public final class FieldRef {
     this.field = field;
   }
 
-  public Var getVariable() {
+  public Variable getVariable() {
     return variable;
   }
 

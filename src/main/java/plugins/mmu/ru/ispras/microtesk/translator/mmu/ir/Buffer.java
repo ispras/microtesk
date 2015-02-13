@@ -34,8 +34,8 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
 
   public Buffer(
       String id,
-      Var addressArg,
-      Var dataArg,
+      Variable addressArg,
+      Variable dataArg,
       int ways,
       int sets,
       Node index,
@@ -57,7 +57,7 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
     this.policy = policy;
   }
 
-  private static Map<String, Attribute> createAttributes(Var addressArg, Var dataArg) {
+  private static Map<String, Attribute> createAttributes(Variable addressArg, Variable dataArg) {
     checkNotNull(addressArg);
     checkNotNull(dataArg);
 

@@ -23,7 +23,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeVariable;
 
-public final class Var {
+public final class Variable {
   private final String id;
   private final Type type;
 
@@ -32,19 +32,19 @@ public final class Var {
 
   private final Map<String, NodeVariable> fieldVariables;
 
-  public Var(String id, int bitSize) {
+  public Variable(String id, int bitSize) {
     this(id, new Type(bitSize));
   }
 
-  public Var(String id, Type type) {
+  public Variable(String id, Type type) {
     this(id, type, null);
   }
 
-  public Var(String id, TypeProvider typeProvider) {
+  public Variable(String id, TypeProvider typeProvider) {
     this(id, null != typeProvider ? typeProvider.getType() : null, typeProvider);
   }
 
-  private Var(String id, Type type, TypeProvider typeProvider) {
+  private Variable(String id, Type type, TypeProvider typeProvider) {
     checkNotNull(id);
     checkNotNull(type);
 

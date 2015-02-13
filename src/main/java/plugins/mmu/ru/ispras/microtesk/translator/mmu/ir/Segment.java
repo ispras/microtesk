@@ -31,7 +31,7 @@ public final class Segment extends AbstractStorage {
   private final BitVector rangeEnd;
 
   public Segment(
-      String id, Var addressArg, BitVector rangeStart, BitVector rangeEnd) {
+      String id, Variable addressArg, BitVector rangeStart, BitVector rangeEnd) {
 
     super(id, addressArg, null, createAttributes(addressArg, rangeStart, rangeEnd));
 
@@ -40,7 +40,7 @@ public final class Segment extends AbstractStorage {
   }
 
   private static Map<String, Attribute> createAttributes(
-      Var addressArg, BitVector rangeStart, BitVector rangeEnd) {
+      Variable addressArg, BitVector rangeStart, BitVector rangeEnd) {
 
     checkNotNull(addressArg);
     checkNotNull(rangeStart);
