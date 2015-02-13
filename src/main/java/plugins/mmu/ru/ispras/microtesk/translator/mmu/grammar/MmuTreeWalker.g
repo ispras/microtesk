@@ -175,7 +175,7 @@ statement returns [Stmt res]
 attributeCallStmt returns [Stmt res]
     : ID
     | ^(DOT ID ID)
-    | ^(INSTANCE_CALL instance ID?)
+    | attributeRef
     ;
 
 assignmentStmt returns [Stmt res]
@@ -203,11 +203,11 @@ functionCallStmt returns [Stmt res]
     ;
     
 //==================================================================================================
-// Instance
+// Attribute Reference
 //==================================================================================================
 
-instance
-    : ^(INSTANCE ID expr[0]*)
+attributeRef returns [Node res]
+    : ^(INSTANCE_CALL ^(INSTANCE ID expr[0]*) ID?)	
     ;
 
 //==================================================================================================
@@ -321,7 +321,7 @@ variableAtom returns [Node res]
     : varId=ID {$res = newVariable($varId);}
     | ^(DOT objId=ID attrId=ID) {$res=newAttributeCall($objId, $attrId);}
     | ^(LOCATION_INDEX varId=ID index=expr[0]) {$res = newIndexedVariable($varId, $index.res);}
-    | ^(INSTANCE_CALL instance ID?)
+    | attributeRef
     ;
 
 //==================================================================================================
