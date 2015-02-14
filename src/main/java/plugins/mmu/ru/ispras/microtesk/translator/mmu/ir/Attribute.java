@@ -43,7 +43,7 @@ public final class Attribute {
     return id;
   }
 
-  public DataType getType() {
+  public DataType getDataType() {
     return type;
   }
 

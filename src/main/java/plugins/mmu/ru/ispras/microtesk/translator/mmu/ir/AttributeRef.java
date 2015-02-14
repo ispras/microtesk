@@ -22,20 +22,17 @@ public final class AttributeRef {
   private final AbstractStorage target;
   private final Attribute attribute;
   private final Node addressArgValue;
-  private final Node dataArgValue;
 
   public AttributeRef(
-      AbstractStorage target, Attribute attribute, Node addressArgValue, Node dataArgValue) {
+      AbstractStorage target, Attribute attribute, Node addressArgValue) {
 
     checkNotNull(target);
     checkNotNull(attribute);
     checkNotNull(addressArgValue);
-    checkNotNull(dataArgValue);
    
     this.target = target;
     this.attribute = attribute;
     this.addressArgValue = addressArgValue;
-    this.dataArgValue = dataArgValue;
   }
 
   public AbstractStorage getTarget() {
@@ -49,8 +46,14 @@ public final class AttributeRef {
   public Node getAddressArgValue() {
     return addressArgValue;
   }
+  
+  public String getText() {
+    return String.format("%s(%s).%s",
+        target.getId(), addressArgValue.toString(), attribute.getId());
+  }
 
-  public Node getDataArgValue() {
-    return dataArgValue;
+  @Override
+  public String toString() {
+    return getText();
   }
 }

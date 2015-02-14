@@ -175,11 +175,11 @@ statement returns [Stmt res]
 attributeCallStmt returns [Stmt res]
     : ID
     | ^(DOT ID ID)
-    | attributeRef
+    | attributeRef[false]
     ;
 
 assignmentStmt returns [Stmt res]
-    : ^(ASSIGN variable expr[0])
+    : ^(ASSIGN variable[true] expr[0])
     ;
 
 conditionalStmt returns [Stmt res]
@@ -206,10 +206,10 @@ functionCallStmt returns [Stmt res]
 // Attribute Reference
 //==================================================================================================
 
-attributeRef returns [Node res]
+attributeRef [boolean isLhs] returns [Node res]
 @init {final List<Node> args = new ArrayList<>();}
     : ^(INSTANCE_CALL ^(INSTANCE id=ID (arg=expr[0]{args.add($arg.res);})*) attrId=ID?)	
-      {$res = newAttributeRef($id, args, $attrId);}
+      {$res = newAttributeRef($id, isLhs, args, $attrId);}
     ;
 
 //==================================================================================================
@@ -280,7 +280,7 @@ atom returns [Node res]
 $res = n;
 }
     : n=constant 
-    | n=variable
+    | n=variable[false]
     ;
 
 //==================================================================================================
@@ -303,27 +303,27 @@ $res = NodeValue.newInteger($t.text, radix);
 // Variable
 //==================================================================================================
 
-variable returns [Node res]
-    : ^(LOCATION v=variableConcat[0]) {$res=$v.res;}
+variable [boolean isLhs] returns [Node res]
+    : ^(LOCATION v=variableConcat[isLhs, 0]) {$res=$v.res;}
     ;
 
-variableConcat [int depth] returns [Node res]
-    : ^(DOUBLE_COLON l=variableBitfield r=variableConcat[depth+1])
+variableConcat [boolean isLhs, int depth] returns [Node res]
+    : ^(DOUBLE_COLON l=variableBitfield[isLhs] r=variableConcat[isLhs, depth+1])
       {$res=newConcat($l.start, $l.res, $r.res);}
-    | vb=variableBitfield {$res=$vb.res;}
+    | vb=variableBitfield[isLhs] {$res=$vb.res;}
     ;
 
-variableBitfield returns [Node res]
-    : ^(LOCATION_BITFIELD va=variableAtom from=expr[0] to=expr[0]?)
+variableBitfield [boolean isLhs] returns [Node res]
+    : ^(LOCATION_BITFIELD va=variableAtom[isLhs] from=expr[0] to=expr[0]?)
       {$res = newBitfield($va.start, $va.res, $from.res, $to.res);}
-    | va=variableAtom {$res=$va.res;}
+    | va=variableAtom[isLhs] {$res=$va.res;}
     ;
 
-variableAtom returns [Node res]
+variableAtom [boolean isLhs] returns [Node res]
     : varId=ID {$res = newVariable($varId);}
     | ^(DOT objId=ID attrId=ID) {$res=newAttributeCall($objId, $attrId);}
     | ^(LOCATION_INDEX varId=ID index=expr[0]) {$res = newIndexedVariable($varId, $index.res);}
-    | attributeRef
+    | attributeRef[isLhs]
     ;
 
 //==================================================================================================

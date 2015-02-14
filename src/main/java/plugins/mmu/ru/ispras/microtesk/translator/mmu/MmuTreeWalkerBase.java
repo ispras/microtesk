@@ -48,6 +48,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Attribute;
+import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
@@ -415,7 +416,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public void addAttribute(CommonTree attrId, List<Stmt> stmts) {
-      final Attribute attr = new Attribute(attrId.getText(), attrId.getText().equals("read") ? dataArg.getDataType() : null, stmts);
+      final Attribute attr = new Attribute(attrId.getText(), dataArg.getDataType(), stmts);
       attributes.put(attr.getId(), attr);
     }
 
@@ -450,7 +451,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @throws RecognitionException
    */
 
-  public Node newExpression(CommonTree operatorId, Node ... operands) throws RecognitionException {
+  protected final Node newExpression(CommonTree operatorId, Node ... operands) throws RecognitionException {
     final String ERR_NO_OPERATOR = "The %s operator is not supported.";
     final String ERR_NO_OPERATOR_FOR_TYPE = "The %s operator is not supported for the %s type.";
 
@@ -524,22 +525,40 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   protected final Node newAttributeRef(
-      CommonTree id, List<Node> args, CommonTree attrId) throws SemanticException {
+      CommonTree id, boolean isLhs, List<Node> args, CommonTree attrId) throws SemanticException {
     checkNotNull(id, args);
 
     final AbstractStorage object = getGlobalObject(id);
-    System.out.println(object);
-    
+
     final String attrName;
     if (null != attrId) {
       attrName = attrId.getText();
     } else {
-      attrName = "";
+      attrName = isLhs ? AbstractStorage.WRITE_ATTR_NAME : AbstractStorage.READ_ATTR_NAME;
     }
 
-    System.out.println(attrName);
+    final Attribute attr = object.getAttribute(attrName);
+    if (null == attr) {
+      raiseError(where(id), String.format(
+          "The %s attribute is not defined for the %s object.", attrName, id.getText()));
+    }
 
-    return null;
+    if (args.size() != 1) {
+      raiseError(where(id), String.format(
+          "Wrong number of arguments. The %s object requires one argument.", id.getText()));
+    }
+
+    final Node addressArg = args.get(0);
+    if (!addressArg.getDataType().equals(object.getAddressArg().getDataType())) {
+      raiseError(where(id), String.format(
+          "Wrong argument type. The %s object expects %s as an argument.",
+          id.getText(), object.getAddressArg().getType()));
+    }
+
+    final AttributeRef attrRef = new AttributeRef(object, attr, addressArg);
+    final Node variable = new NodeVariable(attrRef.getText(), attr.getDataType());
+    variable.setUserData(attrRef);
+    return variable;
   }
 
   protected final Node newVariable(CommonTree id) throws SemanticException {
