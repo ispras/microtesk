@@ -39,4 +39,9 @@ public final class StmtAssign extends Stmt {
   public Node getRight() {
     return right;
   }
+
+  @Override
+  public String toString() {
+    return String.format("stmt assign[%s = %s]", left, right);
+  }
 }

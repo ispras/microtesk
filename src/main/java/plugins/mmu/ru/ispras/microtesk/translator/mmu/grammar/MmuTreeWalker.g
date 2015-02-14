@@ -179,7 +179,8 @@ attributeCallStmt returns [Stmt res]
     ;
 
 assignmentStmt returns [Stmt res]
-    : ^(ASSIGN variable[true] expr[0])
+    : ^(w=ASSIGN lhs=variable[true] rhs=expr[0])
+       {$res=newAssignment($w, $lhs.res, $rhs.res);}
     ;
 
 conditionalStmt returns [Stmt res]
@@ -323,7 +324,7 @@ variableAtom [boolean isLhs] returns [Node res]
     : varId=ID {$res = newVariable($varId);}
     | ^(DOT objId=ID attrId=ID) {$res=newAttributeCall($objId, $attrId);}
     | ^(LOCATION_INDEX varId=ID index=expr[0]) {$res = newIndexedVariable($varId, $index.res);}
-    | attributeRef[isLhs]
+    | atr=attributeRef[isLhs] {$res = $atr.res;}
     ;
 
 //==================================================================================================

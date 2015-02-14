@@ -54,6 +54,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
+import ru.ispras.microtesk.translator.mmu.ir.StmtAssign;
 import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
@@ -436,7 +437,22 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       return memory;
     }
   }
- 
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Methods for creating statements
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  protected final Stmt newAssignment(
+      CommonTree where, Node leftExpr, Node rightExpr) throws SemanticException  {
+    checkNotNull(where, leftExpr, "The left hand side expression is not recognized.");
+    checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
+    return new StmtAssign(leftExpr, rightExpr);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Expression Methods
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    * Creates a new operator-based expression. Works in the following steps:
    * 
