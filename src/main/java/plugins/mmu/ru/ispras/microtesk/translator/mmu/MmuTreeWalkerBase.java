@@ -523,12 +523,22 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   // Methods to create variable atoms
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  protected final Node newAttributeRef(CommonTree id, List<Node> args, CommonTree attrId) {
-    // TODO
-    final AbstractStorage storage = context.getGlobalObject(id.getText());
-    System.out.println(storage);
+  protected final Node newAttributeRef(
+      CommonTree id, List<Node> args, CommonTree attrId) throws SemanticException {
+    checkNotNull(id, args);
 
-    System.out.println("Call " + id.getText() + ((attrId != null) ? "." + attrId.getText() : ""));
+    final AbstractStorage object = getGlobalObject(id);
+    System.out.println(object);
+    
+    final String attrName;
+    if (null != attrId) {
+      attrName = attrId.getText();
+    } else {
+      attrName = "";
+    }
+
+    System.out.println(attrName);
+
     return null;
   }
 
@@ -565,6 +575,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Utility Methods
   //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  private AbstractStorage getGlobalObject(CommonTree objectId) throws SemanticException {
+    final AbstractStorage object = context.getGlobalObject(objectId.getText());
+    if (null == object) {
+      raiseError(where(objectId), String.format(
+          "%s is not defined in the current scope or is not a global object.", objectId.getText()));
+    }
+    return object;
+  }
 
   private NodeVariable getVariable(CommonTree variableId) throws SemanticException {
     final NodeVariable variable = context.getVariable(variableId.getText());
