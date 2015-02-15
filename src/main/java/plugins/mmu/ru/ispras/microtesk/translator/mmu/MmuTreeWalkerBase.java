@@ -55,6 +55,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
 import ru.ispras.microtesk.translator.mmu.ir.StmtAssign;
+import ru.ispras.microtesk.translator.mmu.ir.StmtException;
 import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
@@ -447,6 +448,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(where, leftExpr, "The left hand side expression is not recognized.");
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
     return new StmtAssign(leftExpr, rightExpr);
+  }
+  
+  protected final Stmt newException(CommonTree message) {
+    return new StmtException(message.getText());
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////

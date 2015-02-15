@@ -180,7 +180,7 @@ attributeCallStmt returns [Stmt res]
 
 assignmentStmt returns [Stmt res]
     : ^(w=ASSIGN lhs=variable[true] rhs=expr[0])
-       {$res=newAssignment($w, $lhs.res, $rhs.res);}
+       {$res = newAssignment($w, $lhs.res, $rhs.res);}
     ;
 
 conditionalStmt returns [Stmt res]
@@ -200,9 +200,9 @@ elseStmt
     ;
 
 functionCallStmt returns [Stmt res]
-    :  ^(EXCEPTION STRING_CONST)
+    :  ^(EXCEPTION s=STRING_CONST) {$res = newException($s);}
     ;
-    
+
 //==================================================================================================
 // Attribute Reference
 //==================================================================================================

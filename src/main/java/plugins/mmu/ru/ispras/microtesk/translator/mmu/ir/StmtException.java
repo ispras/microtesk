@@ -16,24 +16,22 @@ package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-public abstract class Stmt {
+public final class StmtException extends Stmt {
+  private final String message;
 
-  public static enum Kind {
-    EXPR,
-    CALL,
-    ASSIGN,
-    COND,
-    EXCEPT
+  public StmtException(String message) {
+    super(Kind.EXCEPT);
+
+    checkNotNull(message);
+    this.message = message;
   }
 
-  private final Kind kind;
-
-  Stmt(Kind kind) {
-    checkNotNull(kind);
-    this.kind = kind;
+  public String getMessage() {
+    return message;
   }
 
-  public final Kind getKind() {
-    return kind;
+  @Override
+  public String toString() {
+    return String.format("stmt exception[\"%s\"]", message);
   }
 }
