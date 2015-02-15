@@ -201,6 +201,7 @@ elseStmt
 
 functionCallStmt returns [Stmt res]
     :  ^(EXCEPTION s=STRING_CONST) {$res = newException($s);}
+    |  ^(TRACE fs=STRING_CONST (farg=expr[0])*)
     ;
 
 //==================================================================================================
