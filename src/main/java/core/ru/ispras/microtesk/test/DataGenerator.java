@@ -189,11 +189,13 @@ final class DataGenerator {
     // sequences based on addressing modes.
     for (Map.Entry<String, Node> e : testData.getBindings().entrySet()) {
       final String name = e.getKey();
-      final Primitive targetMode = modes.get(name);
+      final Primitive mode = modes.get(name);
 
-      if (null == targetMode) {
+      if (null == mode) {
         continue;
       }
+
+      final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
 
       final BitVector value = FortressUtils.extractBitVector(e.getValue());
       final List<Call> initializingCalls = makeInitializer(targetMode, value);
@@ -236,15 +238,15 @@ final class DataGenerator {
     return sb.toString();
   }
 
-  private List<Call> makeInitializer(Primitive targetMode, BitVector value) {
-    trace("Creating code to assign %s to %s...", value, targetMode.getSignature());
+  private List<Call> makeInitializer(AddressingModeWrapper targetMode, BitVector value) {
+    trace("Creating code to assign %s to %s...", value, targetMode);
 
-    final Preparator preparator = preparators.getPreparator(targetMode);
+    final Preparator preparator = preparators.getPreparator(targetMode.getModePrimitive());
     if (null != preparator) {
-      return preparator.makeInitializer(targetMode, value);
+      return preparator.makeInitializer(targetMode.getModePrimitive(), value);
     }
 
-    trace("No suitable preparator is found for %s.", targetMode.getSignature());
+    trace("No suitable preparator is found for %s.", targetMode.getModePrimitive().getSignature());
     return Collections.emptyList();
   }
 
@@ -555,5 +557,35 @@ final class TestBaseQueryCreator {
         }
       }
     }
+  }
+}
+
+final class AddressingModeWrapper {
+  private final Primitive mode;
+
+  public AddressingModeWrapper(Primitive mode) {
+    checkNotNull(mode);
+    if (mode.getKind() != Primitive.Kind.MODE) {
+      throw new IllegalArgumentException(mode.getSignature() + " is not an addresing mode.");
+    }
+    this.mode = mode;
+  }
+
+  public Primitive getModePrimitive() {
+    return mode;
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    for (Argument arg : mode.getArguments().values()) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(arg.getName() + ": " + arg.getTypeName());
+      sb.append(" = " + arg.getImmediateValue());
+    }
+
+    return String.format("%s %s(%s)", mode.getKind().getText(), mode.getName(), sb);
   }
 }
