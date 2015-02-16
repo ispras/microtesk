@@ -19,8 +19,11 @@ import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
@@ -72,6 +75,7 @@ final class DataGenerator {
   private final TestBase testBase;
   private final PreparatorStore preparators;
 
+  private Set<AddressingModeWrapper> initializedModes;
   private SequenceBuilder<ConcreteCall> sequenceBuilder;
 
   DataGenerator(IModel model, PreparatorStore preparators) {
@@ -92,6 +96,7 @@ final class DataGenerator {
       throws ConfigurationException {
     checkNotNull(abstractSequence);
 
+    initializedModes = new HashSet<>();
     sequenceBuilder = new SequenceBuilder<ConcreteCall>();
 
     try {
@@ -100,6 +105,7 @@ final class DataGenerator {
       }
       return sequenceBuilder.build();
     } finally {
+      initializedModes = null;
       sequenceBuilder = null;
     }
   }
@@ -189,18 +195,24 @@ final class DataGenerator {
     // sequences based on addressing modes.
     for (Map.Entry<String, Node> e : testData.getBindings().entrySet()) {
       final String name = e.getKey();
-      final Primitive mode = modes.get(name);
 
+      final Primitive mode = modes.get(name);
       if (null == mode) {
         continue;
       }
 
       final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
+      if (initializedModes.contains(targetMode)) {
+        trace("%s has already been used to set up the processor state. " +
+              "No initialization code will be created.", targetMode);
+        continue;
+      }
 
       final BitVector value = FortressUtils.extractBitVector(e.getValue());
       final List<Call> initializingCalls = makeInitializer(targetMode, value);
 
       addCallsToPrologue(initializingCalls);
+      initializedModes.add(targetMode);
     }
   }
 
@@ -587,5 +599,62 @@ final class AddressingModeWrapper {
     }
 
     return String.format("%s %s(%s)", mode.getKind().getText(), mode.getName(), sb);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+
+    int result = prime + mode.getName().hashCode();
+    for (Argument arg : mode.getArguments().values()) {
+      result = prime * result + arg.getName().hashCode();
+      result = prime * result + arg.getImmediateValue();
+    }
+
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
+    final AddressingModeWrapper other = (AddressingModeWrapper) obj;
+    final Primitive otherMode = other.mode;
+
+    if (!mode.getName().equals(otherMode.getName())) {
+      return false;
+    }
+
+    if (mode.getArguments().size() != otherMode.getArguments().size()) {
+      return false;
+    }
+
+    final Iterator<Argument> thisIt = mode.getArguments().values().iterator();
+    final Iterator<Argument> otherIt = otherMode.getArguments().values().iterator();
+
+    while (thisIt.hasNext() && otherIt.hasNext()) {
+      final Argument thisArg = thisIt.next();
+      final Argument otherArg = otherIt.next();
+
+      if (!thisArg.getName().equals(otherArg.getName())) {
+        return false;
+      }
+
+      if (thisArg.getImmediateValue() != otherArg.getImmediateValue()) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
