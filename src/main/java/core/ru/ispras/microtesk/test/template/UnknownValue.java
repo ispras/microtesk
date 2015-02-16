@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,7 +29,7 @@ package ru.ispras.microtesk.test.template;
  * @author Andrei Tatarnikov
  */
 
-public final class UnknownValue {
+public final class UnknownValue implements Value {
   private int value;
   private boolean isValueSet;
 
@@ -42,6 +42,7 @@ public final class UnknownValue {
     return isValueSet;
   }
 
+  @Override
   public int getValue() {
     if (!isValueSet) {
       throw new IllegalStateException("Value is not set.");

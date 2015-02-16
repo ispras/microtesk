@@ -33,6 +33,14 @@ public final class Argument {
     private final boolean isImmediate;
 
     private Kind(Class<?> valueClass, boolean isImmediate) {
+      if (isImmediate) {
+        if (!(Number.class.isAssignableFrom(valueClass) 
+           || Value.class.isAssignableFrom(valueClass))) {
+          throw new IllegalArgumentException(valueClass.getSimpleName() +
+              " must implement Value or Number to be used to store immediate values.");
+        }
+      }
+
       this.vc = valueClass;
       this.isImmediate = isImmediate;
     }
@@ -67,6 +75,19 @@ public final class Argument {
 
   public boolean isImmediate() {
     return kind.isImmediate();
+  }
+
+  public int getImmediateValue() {
+    if (!isImmediate()) {
+      throw new UnsupportedOperationException(String.format(
+          "%s(%s) is not an immediate argument.", name, value.getClass().getSimpleName()));
+    }
+
+    if (value instanceof Number) {
+      return ((Number) value).intValue();
+    }
+
+    return ((Value) value).getValue();
   }
 
   public String getName() {

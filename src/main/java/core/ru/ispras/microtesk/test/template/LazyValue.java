@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,17 +14,17 @@
 
 package ru.ispras.microtesk.test.template;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
-public final class LazyValue {
+public final class LazyValue implements Value {
   private final LazyData data;
   private final int start;
   private final int size;
 
   LazyValue(LazyData data) {
-    if (null == data) {
-      throw new NullPointerException();
-    }
+    checkNotNull(data);
 
     this.data = data;
     this.start = 0;
@@ -32,9 +32,7 @@ public final class LazyValue {
   }
 
   LazyValue(LazyData data, int start, int end) {
-    if (null == data) {
-      throw new NullPointerException();
-    }
+    checkNotNull(data);
 
     if ((start < 0) || (end < 0)) {
       throw new IllegalArgumentException();
@@ -45,6 +43,7 @@ public final class LazyValue {
     this.size = Math.abs(end - start) + 1;
   }
 
+  @Override
   public int getValue() {
     final BitVector value = data.getValue();
 

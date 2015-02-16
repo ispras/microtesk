@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,7 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 
-public final class RandomValue {
+public final class RandomValue implements Value {
   private final int min;
   private final int max;
 
@@ -42,6 +42,7 @@ public final class RandomValue {
     return max;
   }
 
+  @Override
   public int getValue() {
     if (!isValueGenerated) {
       value = Randomizer.get().nextIntRange(min, max);
