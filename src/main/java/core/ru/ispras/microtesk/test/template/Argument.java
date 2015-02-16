@@ -84,4 +84,47 @@ public final class Argument {
   public String getTypeName() {
     return isImmediate() ? AddressingModeImm.NAME : ((Primitive) value).getTypeName();
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+
+    result = prime * result + name.hashCode();
+    result = prime * result + kind.hashCode();
+    result = prime * result + value.hashCode();
+
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
+    final Argument other = (Argument) obj;
+
+    if (!name.equals(other.name)) {
+      return false;
+    }
+
+    if (kind != other.kind) {
+      return false;
+    }
+
+    if (!value.equals(other.value)) {
+      return false;
+    }
+
+    return true;
+  }
 }
