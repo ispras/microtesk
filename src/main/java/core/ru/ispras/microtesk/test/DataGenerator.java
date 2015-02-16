@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,9 @@
  */
 
 package ru.ispras.microtesk.test;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,15 +49,13 @@ import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownValue;
 import ru.ispras.microtesk.utils.FortressUtils;
-import ru.ispras.testbase.stub.TestBase;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
-
-import static ru.ispras.microtesk.utils.PrintingUtils.*;
+import ru.ispras.testbase.stub.TestBase;
 
 /**
  * The job of the DataGenerator class is to processes an abstract instruction call sequence (uses
@@ -353,12 +354,6 @@ final class DataGenerator {
     return builder.build();
   }
 
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
-  }
-
   private static void checkOp(Primitive op) {
     if (Primitive.Kind.OP != op.getKind()) {
       throw new IllegalArgumentException(String.format(
@@ -423,17 +418,9 @@ final class TestBaseQueryCreator {
   private Map<String, Primitive> modes;
 
   public TestBaseQueryCreator(String processor, Situation situation, Primitive primitive) {
-    if (null == processor) {
-      throw new NullPointerException();
-    }
-
-    if (null == situation) {
-      throw new NullPointerException();
-    }
-
-    if (null == primitive) {
-      throw new NullPointerException();
-    }
+    checkNotNull(processor);
+    checkNotNull(situation);
+    checkNotNull(primitive);
 
     this.processor = processor;
     this.situation = situation;
@@ -448,36 +435,28 @@ final class TestBaseQueryCreator {
   public TestBaseQuery getQuery() {
     createQuery();
 
-    if (null == query) {
-      throw new NullPointerException();
-    }
-
+    checkNotNull(query);
     return query;
   }
 
   public Map<String, UnknownValue> getUnknownValues() {
     createQuery();
 
-    if (null == unknownValues) {
-      throw new NullPointerException();
-    }
-
+    checkNotNull(unknownValues);
     return unknownValues;
   }
 
   public Map<String, Primitive> getModes() {
     createQuery();
 
-    if (null == modes) {
-      throw new NullPointerException();
-    }
-
+    checkNotNull(modes);
     return modes;
   }
 
   private void createQuery() {
-    if (isCreated)
+    if (isCreated) {
       return;
+    }
 
     final TestBaseQueryBuilder queryBuilder = new TestBaseQueryBuilder();
 
@@ -515,13 +494,8 @@ final class TestBaseQueryCreator {
     private final Map<String, Primitive> modes;
 
     private BindingBuilder(TestBaseQueryBuilder queryBuilder, Primitive primitive) {
-      if (null == queryBuilder) {
-        throw new NullPointerException();
-      }
-
-      if (null == primitive) {
-        throw new NullPointerException();
-      }
+      checkNotNull(queryBuilder);
+      checkNotNull(primitive);
 
       this.queryBuilder = queryBuilder;
       this.unknownValues = new HashMap<String, UnknownValue>();
