@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.test.template;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull; 
 
 import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 
@@ -52,17 +54,9 @@ public final class Argument {
   private final Object value;
 
   Argument(String name, Kind kind, Object value) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == kind) {
-      throw new NullPointerException();
-    }
-
-    if (null == value) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(kind);
+    checkNotNull(value);
 
     kind.checkClass(value.getClass());
 

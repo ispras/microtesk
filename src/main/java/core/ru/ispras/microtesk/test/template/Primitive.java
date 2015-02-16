@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.test.template;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Map;
 
@@ -126,12 +128,6 @@ final class ConcretePrimitive implements Primitive {
     return null == situation ?
        getSignature() : String.format("%s, situation=%s", getSignature(), situation);
   }
-
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
-  }
 }
 
 final class LazyPrimitive implements Primitive {
@@ -235,8 +231,9 @@ final class LazyPrimitive implements Primitive {
 
   @Override
   public String toString() {
-    if (null != source)
+    if (null != source) {
       return source.toString();
+    }
 
     return String.format(
       "lazy %s %s [type = %s]", kind.getText(), name, typeName); 
@@ -246,12 +243,6 @@ final class LazyPrimitive implements Primitive {
     if (null == source) {
       throw new IllegalStateException(String.format(
         "Source for %s is not assigned.", name));
-    }
-  }
-
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
     }
   }
 }
