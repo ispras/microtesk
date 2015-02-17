@@ -72,10 +72,11 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
       throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
+    
+    final Type type = decls.get(name);
+    final Data data = DataEngine.valueOf(type, value);
 
-    final Data data = DataEngine.valueOf(decls.get(name), value);
     args.put(name, data);
-
     return this;
   }
 

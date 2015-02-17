@@ -17,6 +17,7 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.ReassignmentException;
@@ -61,15 +62,15 @@ public final class OperationBuilder implements IOperationBuilder {
     checkReassignment(name);
 
     final Operation.Param decl = decls.get(name);
-
     if (decl.getKind() != Operation.Param.Kind.IMM) {
       throw new UndeclaredException(String.format(
         "The %s argument of the %s operation must be an immediate value.", name, opName));
     }
 
-    final Location arg = Location.newLocationForConst(DataEngine.valueOf(decl.getType(), value));
-    args.put(name, arg);
+    final Data data = DataEngine.valueOf(decl.getType(), value);
+    final Location arg = Location.newLocationForConst(data);
 
+    args.put(name, arg);
     return this;
   }
 
