@@ -23,7 +23,8 @@ public abstract class Stmt {
     CALL,
     ASSIGN,
     COND,
-    EXCEPT
+    EXCEPT,
+    TRACE
   }
 
   private final Kind kind;

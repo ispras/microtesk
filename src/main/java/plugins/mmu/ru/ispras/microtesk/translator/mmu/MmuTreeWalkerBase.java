@@ -56,9 +56,11 @@ import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
 import ru.ispras.microtesk.translator.mmu.ir.StmtAssign;
 import ru.ispras.microtesk.translator.mmu.ir.StmtException;
+import ru.ispras.microtesk.translator.mmu.ir.StmtTrace;
 import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
 import ru.ispras.microtesk.translator.mmu.ir.Segment;
+import ru.ispras.microtesk.utils.FormatMarker;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
@@ -449,9 +451,26 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
     return new StmtAssign(leftExpr, rightExpr);
   }
-  
+
   protected final Stmt newException(CommonTree message) {
     return new StmtException(message.getText());
+  }
+
+  protected final Stmt newTrace(CommonTree format, List<Node> fargs) throws SemanticException {
+    checkNotNull(format, fargs);
+
+    if (fargs.isEmpty()) {
+      return new StmtTrace(format.getText());
+    }
+
+    final List<FormatMarker> markers = FormatMarker.extractMarkers(format.getText());
+    if (markers.size() != fargs.size()) {
+      raiseError(where(format), String.format(
+          "Incorrect format: %d arguments are specified while %d are actually passed.",
+          markers.size(), fargs.size()));
+    }
+
+    return new StmtTrace(format.getText(), markers, fargs);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
