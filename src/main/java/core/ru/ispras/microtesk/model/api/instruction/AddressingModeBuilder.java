@@ -72,9 +72,15 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
       throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
-    
+
     final Type type = decls.get(name);
     final Data data = DataEngine.valueOf(type, value);
+
+    if (DataEngine.isLossOfSignificantBits(type, value)) {
+      System.out.printf("Warning: The value of the %s argument (= %d) of the %s addressing mode " +
+         "will be truncated to suit %s. This will cause loss of significant bits. Result: %d%n",
+         name, value, modeName, type, data.getRawData().intValue());
+    }
 
     args.put(name, data);
     return this;

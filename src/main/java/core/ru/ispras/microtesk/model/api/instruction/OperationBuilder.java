@@ -68,9 +68,15 @@ public final class OperationBuilder implements IOperationBuilder {
     }
 
     final Data data = DataEngine.valueOf(decl.getType(), value);
-    final Location arg = Location.newLocationForConst(data);
+    if (DataEngine.isLossOfSignificantBits(decl.getType(), value)) {
+      System.out.printf("Warning: The value of the %s argument (= %d) of the %s operation " +
+         "will be truncated to suit %s. This will cause loss of significant bits. Result: %d%n",
+         name, value, opName, decl.getType(), data.getRawData().intValue());
+    }
 
+    final Location arg = Location.newLocationForConst(data);
     args.put(name, arg);
+
     return this;
   }
 

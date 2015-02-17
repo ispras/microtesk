@@ -328,4 +328,37 @@ public final class DataEngine {
         "The %s operation cannot be performed for %s and %s operands.", oid.name(), left, right));
     }
   }
+
+  /**
+   * Checks whether the significant bits are lost when the specified integer is converted to
+   * the specified Model API type. This happens when the type is shorter than {@code int}
+   * and the truncated part goes beyond sign extension bits.
+   * 
+   * @param type Conversion target type.
+   * @param value Value to be converted.
+   * @return {@code true} if significant bits will be lost during the conversion
+   * or {@code false} otherwise.
+   */
+
+  public static boolean isLossOfSignificantBits(Type type, int value) {
+    if (type.getBitSize() >= Integer.SIZE) {
+      return false;
+    }
+
+    final BitVector whole = BitVector.valueOf(value, Integer.SIZE);
+    final BitVector truncated = BitVector.newMapping(
+        whole, type.getBitSize(), whole.getBitSize() - type.getBitSize());
+
+    final boolean isNegative = whole.getBit(type.getBitSize() - 1);
+    final byte patern = (byte)(isNegative ? -1 : 0);
+
+    for (int index = 0; index < truncated.getByteSize(); ++index) {
+      final byte v = truncated.getByte(index);
+      if (v != (byte)(patern & truncated.getByteBitMask(index))) { 
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
