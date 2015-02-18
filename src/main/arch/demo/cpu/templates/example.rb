@@ -84,7 +84,7 @@ class ExampleTemplate < CpuBaseTemplate
     mov reg(:i => 1), reg(:i => 0)
     newline
 
-    # Storter syntax. Addressing mode arguments as a variable-length array
+    # Shorter syntax. Addressing mode arguments as a variable-length array
     mov reg(2), imm(0xFF)
     mov reg(3), reg(2)
     newline
