@@ -1,5 +1,5 @@
 #
-# Copyright 2014 ISP RAS (http://www.ispras.ru)
+# Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ class ExampleTemplate < CpuBaseTemplate
     # Printing information on the state of the model (registers, memory)
     # NOTE: trace obtains information on the model state during simulation,
     # while text obtains it during test program generation when simulation
-    # is finished (concequently, it works with the most recent state).
+    # is finished (consequently, it works with the most recent state).
     trace 'GPR[0] = %s, M[0] = %s', location('GPR', 0), location('M', 0)
     text  'GPR[0] = %s, M[0] = %s', location('GPR', 0), location('M', 0)
 
@@ -77,7 +77,7 @@ class ExampleTemplate < CpuBaseTemplate
     end_comment
     
     ############################################################################
-    # Specifyting instruction calls
+    # Specifying instruction calls
 
     # Addressing mode arguments as a hash map
     mov reg(:i => 0), imm(:i => 0xFF)
@@ -127,7 +127,7 @@ class ExampleTemplate < CpuBaseTemplate
     ############################################################################
     # How branching works
 
-    # Incrementally descreases value stored in GPR[11] from 5 to 0.
+    # Incrementally decreases value stored in GPR[11] from 5 to 0.
     # Control transfer is performed using labels that are specified
     # in the following way: label :<label_name> 
 
