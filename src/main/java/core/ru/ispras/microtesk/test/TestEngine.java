@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 
 import java.io.IOException;
@@ -41,9 +42,7 @@ public final class TestEngine {
   private String commentToken = "// ";
 
   private TestEngine(IModel model) {
-    if (null == model) {
-      throw new NullPointerException();
-    }
+    checkNotNull(model);
     this.model = model;
   }
 
@@ -61,9 +60,7 @@ public final class TestEngine {
    */
 
   public void process(Template template) throws ConfigurationException, IOException {
-    if (null == template) {
-      throw new NullPointerException();
-    }
+    checkNotNull(template);
 
     final IIterator<Sequence<Call>> sequenceIt = template.getSequences();
     final DataGenerator dataGenerator = new DataGenerator(model, template.getPreparators());
@@ -71,7 +68,7 @@ public final class TestEngine {
     final IModelStateObserver observer = model.getStateObserver();
     final Executor executor = new Executor(observer, logExecution);
     final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
-    
+
     final String dataDeclText = template.getDataManager().getDataDeclText();
 
     try {
@@ -79,7 +76,7 @@ public final class TestEngine {
       sequenceIt.init();
       while (sequenceIt.hasValue()) {
         final Sequence<Call> abstractSequence = sequenceIt.value();
-        
+
         printHeader("Generating data for sequence %d", sequenceNumber);
         final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
 
