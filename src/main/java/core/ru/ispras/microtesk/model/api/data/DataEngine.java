@@ -349,16 +349,18 @@ public final class DataEngine {
     final BitVector truncated = BitVector.newMapping(
         whole, type.getBitSize(), whole.getBitSize() - type.getBitSize());
 
-    final boolean isNegative = whole.getBit(type.getBitSize() - 1);
-    final byte patern = (byte)(isNegative ? -1 : 0);
-
-    for (int index = 0; index < truncated.getByteSize(); ++index) {
-      final byte v = truncated.getByte(index);
-      if (v != (byte)(patern & truncated.getByteBitMask(index))) { 
-        return true;
-      }
+    final int truncatedValue = truncated.intValue();
+    if (truncatedValue == 0) {
+      return false;
     }
 
-    return false;
+    final boolean isNegative = whole.getBit(type.getBitSize() - 1);
+    final int allOnesPattern = (-1 >>> Integer.SIZE - truncated.getBitSize());
+
+    if (isNegative && (truncatedValue == allOnesPattern)) {
+      return false;
+    }
+
+    return true;
   }
 }
