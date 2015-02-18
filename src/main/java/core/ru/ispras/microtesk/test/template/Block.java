@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -26,17 +28,9 @@ public final class Block {
   private final Map<String, Object> attributes;
 
   Block(BlockId blockId, IIterator<Sequence<Call>> iterator, Map<String, Object> attributes) {
-    if (null == blockId) {
-      throw new NullPointerException();
-    }
-
-    if (null == iterator) {
-      throw new NullPointerException();
-    }
-
-    if (null == attributes) {
-      throw new NullPointerException();
-    }
+    checkNotNull(blockId);
+    checkNotNull(iterator);
+    checkNotNull(attributes);
 
     this.blockId = blockId;
     this.iterator = iterator;
