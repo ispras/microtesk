@@ -81,7 +81,7 @@ op add (rd: REG, rs: REG, rt: REG)
 
 op addi (rt: REG, rs: REG, imm: SHORT)
   syntax = format("addi %s, %s, %d", rt.syntax, rs.syntax, imm)
-  image = format("000000%s%s%d", rs.image, rt.image, imm)
+  image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
     temp = rs<31>::rs + coerce(int(33), imm); 
     if temp<32> != temp<31> then
@@ -100,14 +100,14 @@ op addu (rd: REG, rs: REG, rt: REG) //unchecked addition
 
 op addiu (rt: REG, rs: REG, imm: SHORT)
   syntax = format("addiu %s, %s, %d", rt.syntax, rs.syntax, imm)
-  image = format("000000%s%s%d", rs.image, rt.image, imm)
+  image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs + imm;
   }
 
 op andi (rt: REG, rs: REG, imm: SHORT)
   syntax = format("andi %s, %s, %d", rt.syntax, rs.syntax, imm)
-  image = format("000000%s%s%d", rs.image, rt.image, imm)
+  image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs & imm;
   }
@@ -182,14 +182,14 @@ op xor (rd: REG, rs: REG, rt: REG)
 
 op ori (rt: REG, rs: REG, imm: SHORT)
   syntax = format("ori %s, %s, %d", rt.syntax, rs.syntax, imm)
-  image = format("001101%s%s%d", rs.image, rt.image, imm)
+  image = format("001101%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs | imm;
   }
 
 op xori (rt: REG, rs: REG, imm: SHORT)
   syntax = format("xori %s, %s, %d", rt.syntax, rs.syntax, imm)
-  image = format("001110%s%s%d", rs.image, rt.image, imm)
+  image = format("001110%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs ^ imm;
   }
@@ -251,7 +251,7 @@ op lw (rt: REG, offset: SHORT, address: REG)
 
 op lui (rt: REG, imm:SHORT)
   syntax = format("lui %s, %d", rt.syntax, imm)
-  image = format("001111%s%d", rt.image, imm)
+  image = format("001111%s%s", rt.image, imm)
   action = {
     rt = coerce(WORD, imm) << 8;
   }
@@ -293,7 +293,7 @@ op mtlo (rs: REG)
 
 op swc0 (cs: COP0, offset: SHORT, address: REG)  
   syntax = format("swc0 %s, %d(%s)", cs.syntax, offset, address.syntax)
-  image = format("111000%s%s%d", address.image, cs.image, offset)
+  image = format("111000%s%s%s", address.image, cs.image, offset)
   action = {
     M[(address + offset) >> 2] = cs;
   }
@@ -301,7 +301,7 @@ op swc0 (cs: COP0, offset: SHORT, address: REG)
 //-----------------------initial implementation (to be reworked)
 op lwc0 (cs: COP0, offset: SHORT, address: REG)
   syntax = format("lwc0 %s, %d(%s)", cs.syntax, offset, address.syntax)
-  image = format("110000%s%s%d", address.image, cs.image, offset)
+  image = format("110000%s%s%s", address.image, cs.image, offset)
   action = {
     cs = M[(address + offset) >> 2];
   }
@@ -327,9 +327,9 @@ op mtc0 (rt: REG, cs: COP0) //move from coprocessor
 
 op beq (rs: REG, rt: REG, imm: SHORT)
   syntax = format("beq %s, %s, %<label>d", rs.syntax, rt.syntax, imm)
-  image = format("000100%s%s%d", rs.image, rt.image, imm)
+  image = format("000100%s%s%s", rs.image, rt.image, imm)
   action = {
-    if rt == rs then
+    if rs == rt then
       BRANCH = 1;
       JMPADDR = CIA + 4 * imm + 4;
     endif;
@@ -337,7 +337,7 @@ op beq (rs: REG, rt: REG, imm: SHORT)
 
 op bgez (rs: REG, imm: SHORT)
   syntax = format("bgez %s, %<label>d", rs.syntax, imm)
-  image = format("000001%s00001%d", rs.image, imm)
+  image = format("000001%s00001%s", rs.image, imm)
   action = {
     if rs >= 0 then
       BRANCH = 1;
@@ -347,7 +347,7 @@ op bgez (rs: REG, imm: SHORT)
 
 op bgezal (rs: REG, offset: SHORT)
   syntax = format("bgezal %s, %<label>d", rs.syntax, offset)
-  image = format("000001%s10001%d", rs.image, offset)
+  image = format("000001%s10001%s", rs.image, offset)
   action = {
     if rs >= 0 then
       GPR[31] = CIA + 4 + 4;
@@ -358,7 +358,7 @@ op bgezal (rs: REG, offset: SHORT)
 
 op bgtz (rs: REG, imm: SHORT)
   syntax = format("bgtz %s, %<label>d", rs.syntax, imm)
-  image = format("000111%s00000%d", rs.image, imm)
+  image = format("000111%s00000%s", rs.image, imm)
   action = {
     if rs > 0 then
       BRANCH = 1;
@@ -368,7 +368,7 @@ op bgtz (rs: REG, imm: SHORT)
 
 op blez (rs: REG, imm: SHORT)
   syntax = format("blez %s, %<label>d", rs.syntax, imm)
-  image = format("000110%s00000%d", rs.image, imm)
+  image = format("000110%s00000%s", rs.image, imm)
   action = {
     if rs <= 0 then
       BRANCH = 1;
@@ -378,7 +378,7 @@ op blez (rs: REG, imm: SHORT)
 
 op bltz (rs: REG, imm: SHORT)
   syntax = format("bltz %s, %<label>d", rs.syntax, imm)
-  image = format("000001%s00000%d", rs.image, imm)
+  image = format("000001%s00000%s", rs.image, imm)
   action = {
     if rs < 0 then
       BRANCH = 1;
@@ -388,7 +388,7 @@ op bltz (rs: REG, imm: SHORT)
 
 op bltzal (rs: REG, offset: SHORT)
   syntax = format("bltzal %s, %<label>d", rs.syntax, offset)
-  image = format("000001%s00000%d", rs.image, offset)
+  image = format("000001%s00000%s", rs.image, offset)
   action = {
     if rs < 0 then
       GPR[31] = CIA + 4 + 4;
@@ -398,10 +398,10 @@ op bltzal (rs: REG, offset: SHORT)
   }
 
 op bne (rs: REG, rt: REG, imm: SHORT)
-  syntax = format("bne %s, %s, %<label>d", rt.syntax, rs.syntax, imm)
-  image = format("000101%s%s%d", rt.image, rs.image, imm)
+  syntax = format("bne %s, %s, %<label>d", rs.syntax, rt.syntax, imm)
+  image = format("000101%s%s%s", rs.image, rt.image, imm)
   action = {
-    if rt != rs then
+    if rs != rt then
       BRANCH = 1;
       JMPADDR = CIA + 4 * imm + 4;
     endif;
@@ -420,7 +420,7 @@ op slt (rd: REG, rs: REG, rt: REG)
 
 op slti (rt: REG, rs: REG, imm: SHORT)
   syntax = format("slti %s, %s, %d", rt.syntax, rs.syntax, imm)
-  image = format("001010%s%s%d", rs.image, rt.image, imm)
+  image = format("001010%s%s%s", rs.image, rt.image, imm)
   action = {
     if rs < imm then
       rt = coerce(WORD, 1);
@@ -431,7 +431,7 @@ op slti (rt: REG, rs: REG, imm: SHORT)
 
 op sltiu (rt: REG, rs: REG, imm: SHORT)
   syntax = format("sltiu %s, %s, %d", rt.syntax, rs.syntax, imm)
-  image = format("001011%s%s%d", rs.image, rt.image, imm)
+  image = format("001011%s%s%s", rs.image, rt.image, imm)
   action = {
     if coerce(card(32), rs) < coerce(card(32), imm) then
       rt = coerce(WORD, 1);
