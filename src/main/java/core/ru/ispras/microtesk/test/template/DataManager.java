@@ -125,6 +125,7 @@ public final class DataManager {
   private final MemoryMap memoryMap;
   private final List<DataDeclItem> dataDecls;
 
+  private String sectionText;
   private MemoryAllocator allocator;
   private List<String> labels;
 
@@ -150,6 +151,7 @@ public final class DataManager {
     this.memoryMap = memoryMap;
     this.dataDecls = new ArrayList<>();
 
+    this.sectionText = null;
     this.allocator = null;
     this.labels = null;
 
@@ -169,22 +171,29 @@ public final class DataManager {
       throw new IllegalStateException("DataManager is already initialized!");
     }
 
+    sectionText = text;
     final Memory memory = Memory.getMemory(target);
     allocator = memory.newAllocator(addressableSize);
-
-    dataDecls.add(new DetaDeclText(text)); 
   }
 
   public boolean isInitialized() {
     return allocator != null;
   }
 
-  public String getDataDeclText() {
+  public boolean containsDecls() {
+    return !dataDecls.isEmpty();
+  }
+
+  public String getDeclText() {
     if (!isInitialized()) {
       return null;
     }
 
     final StringBuilder sb = new StringBuilder();
+
+    sb.append(sectionText);
+    sb.append("\r\n");
+
     for (DataDeclItem item : dataDecls) {
       sb.append(item.getText());
       sb.append("\r\n");

@@ -26,6 +26,7 @@ import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.Template;
 
 public final class TestEngine {
@@ -68,14 +69,19 @@ public final class TestEngine {
     final IModelStateObserver observer = model.getStateObserver();
     final Executor executor = new Executor(observer, logExecution);
     final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
-
-    final String dataDeclText = template.getDataManager().getDataDeclText();
+    final DataManager dataManager = template.getDataManager();
 
     try {
       printHeader("Printing Data Declarations");
-      executor.logText("Data declarations:\r\n\r\n");
-      executor.logText(dataDeclText);
-      printer.printText(dataDeclText);
+      if (dataManager.containsDecls()) {
+        final String declText = dataManager.getDeclText();
+        printer.printText(declText);
+        if (!printToScreen) {
+          executor.logText(declText);
+        }
+      } else {
+        executor.logText("<none>");
+      }
 
       int sequenceNumber = 1;
       sequenceIt.init();
