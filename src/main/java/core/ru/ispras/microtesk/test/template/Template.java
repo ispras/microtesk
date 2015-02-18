@@ -23,8 +23,6 @@ import java.util.LinkedList;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 public final class Template {
   private final MetaModel metaModel;
@@ -38,8 +36,6 @@ public final class Template {
   private Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
 
-  private IIterator<Sequence<Call>> sequences;
-  
   private final TemplateProduct.Builder productBuilder; 
 
   public Template(MetaModel metaModel) {
@@ -57,10 +53,7 @@ public final class Template {
     this.blockBuilders = null;
     this.callBuilder = null;
 
-    this.sequences = null;
     this.productBuilder = new TemplateProduct.Builder();
-
-    beginNewSection();
   }
   
   public MemoryMap getMemoryMap() {
@@ -75,55 +68,36 @@ public final class Template {
     return preparators;
   }
 
-  public IIterator<Sequence<Call>> build() {
-    if (null != sequences) {
-      throw new IllegalStateException("The template is already built.");
-    }
-
-    final Block rootBlock = endCurrentSection();
-    sequences = rootBlock.getIterator();
-
-    printHeader("Ended Processing Template");
-    return sequences;
-  }
-
-  public IIterator<Sequence<Call>> getSequences() {
-    if (null == sequences) {
-      build();
-    }
-    return sequences;
-  }
-
   public void beginPreSection() {
     printHeader("Started Processing Initialization Section");
-//    beginNewSection();
+    beginNewSection();
   }
 
   public void endPreSection() {
-//    final Block rootBlock = endCurrentSection();
-//    productBuilder.setPre(rootBlock);
+    final Block rootBlock = endCurrentSection();
+    productBuilder.setPre(rootBlock);
     printHeader("Ended Processing Initialization Section");
   }
 
   public void beginPostSection() {
     printHeader("Started Processing Finalization Section");
-//    beginNewSection();
+    beginNewSection();
   }
 
   public void endPostSection() {
-//    final Block rootBlock = endCurrentSection();
-//    productBuilder.setPost(rootBlock);
+    final Block rootBlock = endCurrentSection();
+    productBuilder.setPost(rootBlock);
     printHeader("Ended Processing Finalization Section");
   }
 
   public void beginMainSection() {
     printHeader("Started Processing Main Section");
-//    beginNewSection();
+    beginNewSection();
   }
 
   public void endMainSection() {
-//    final Block rootBlock = endCurrentSection();
-//    productBuilder.addToMain(rootBlock);
+    final Block rootBlock = endCurrentSection();
+    productBuilder.addToMain(rootBlock);
     printHeader("Ended Processing Main Section");
   }
 
@@ -146,9 +120,8 @@ public final class Template {
     final BlockBuilder rootBuilder = blockBuilders.getLast();
     final Block rootBlock = rootBuilder.build();
 
-    // TODO: enable after switching to the getProduct method
-    // blockBuilders = null;
-    // callBuilder = null;
+    blockBuilders = null;
+    callBuilder = null;
 
     return rootBlock;
   }

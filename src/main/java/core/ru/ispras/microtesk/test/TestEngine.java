@@ -24,10 +24,12 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.Template;
+import ru.ispras.microtesk.test.template.TemplateProduct;
 
 public final class TestEngine {
   public static TestEngine getInstance(IModel model) {
@@ -51,55 +53,22 @@ public final class TestEngine {
     return new Template(model.getMetaData());
   }
 
-  /**
-   * Processes sequence by sequence:
-   * <ol>
-   * <li>Generate data (create concrete calls).</li>
-   * <li>Execute (simulate).</li>
-   * <li>Print.</li>
-   * </ol>
-   */
-
   public void process(Template template) throws ConfigurationException, IOException {
     checkNotNull(template);
 
-    final IIterator<Sequence<Call>> sequenceIt = template.getSequences();
+    final IModelStateObserver observer = model.getStateObserver();
+
+    final Executor executor = new Executor(model.getStateObserver(), logExecution);
+    final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
+
+    final DataManager dataManager = template.getDataManager();
     final DataGenerator dataGenerator = new DataGenerator(model, template.getPreparators());
 
-    final IModelStateObserver observer = model.getStateObserver();
-    final Executor executor = new Executor(observer, logExecution);
-    final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
-    final DataManager dataManager = template.getDataManager();
+    final TemplateProcessor processor = new TemplateProcessor(
+        template.getProduct(), executor, printer, dataManager, dataGenerator);
 
     try {
-      printHeader("Printing Data Declarations");
-      if (dataManager.containsDecls()) {
-        final String declText = dataManager.getDeclText();
-        printer.printText(declText);
-        if (!printer.isPrintToScreenEnabled()) {
-          executor.logText(declText);
-        }
-      } else {
-        executor.logText("<none>");
-      }
-
-      int sequenceNumber = 1;
-      sequenceIt.init();
-      while (sequenceIt.hasValue()) {
-        final Sequence<Call> abstractSequence = sequenceIt.value();
-
-        printHeader("Generating data for sequence %d", sequenceNumber);
-        final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
-
-        printHeader("Executing sequence %d", sequenceNumber);
-        executor.executeSequence(concreteSequence);
-
-        printHeader("Printing sequence %d", sequenceNumber);
-        printer.printSequence(concreteSequence);
-
-        sequenceIt.next();
-        sequenceNumber++;
-      }
+      processor.process();
     } finally {
       printer.close();
     }
@@ -119,5 +88,74 @@ public final class TestEngine {
 
   public void setCommentToken(String commentToken) {
     this.commentToken = commentToken;
+  }
+  
+  private static class TemplateProcessor {
+    private final TemplateProduct sequences;
+    private final Executor executor;
+    private final Printer printer;
+    private final DataManager dataManager;
+    private final DataGenerator dataGenerator;
+
+    private TemplateProcessor(
+        TemplateProduct sequences, Executor executor, Printer printer,
+        DataManager dataManager, DataGenerator dataGenerator) {
+
+      this.sequences = sequences;
+      this.executor = executor;
+      this.printer = printer;
+      this.dataManager = dataManager;
+      this.dataGenerator = dataGenerator;
+    }
+
+    private void process() throws ConfigurationException {
+      printDataDeclarations();
+
+      printHeader("INITIALIZATION SECTION");
+      processSequences(sequences.getPre().getIterator());
+
+      printHeader("MAIN SECTION");
+      for (Block mainBlock : sequences.getMain()) {
+        processSequences(mainBlock.getIterator());
+      }
+
+      printHeader("FINALIZATION SECTION");
+      processSequences(sequences.getPost().getIterator());
+    }
+
+    private void printDataDeclarations() {
+      printHeader("DATA DECLARATIONS");
+      if (dataManager.containsDecls()) {
+        final String declText = dataManager.getDeclText();
+        printer.printText(declText);
+        if (!printer.isPrintToScreenEnabled()) {
+          executor.logText(declText);
+        }
+      } else {
+        executor.logText("<none>");
+      }
+    }
+    
+    private void processSequences(final IIterator<Sequence<Call>> sequenceIt)
+        throws ConfigurationException {
+
+      int sequenceNumber = 1;
+      sequenceIt.init();
+      while (sequenceIt.hasValue()) {
+        final Sequence<Call> abstractSequence = sequenceIt.value();
+
+        printHeader("Generating data for sequence %d", sequenceNumber);
+        final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
+
+        printHeader("Executing sequence %d", sequenceNumber);
+        executor.executeSequence(concreteSequence);
+
+        printHeader("Printing sequence %d", sequenceNumber);
+        printer.printSequence(concreteSequence);
+
+        sequenceIt.next();
+        sequenceNumber++;
+      }
+    }
   }
 }
