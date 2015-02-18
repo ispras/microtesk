@@ -354,10 +354,18 @@ class Template
     engine.setCommentToken  sl_comment_starts_with
 
     @template = engine.newTemplate
+
+    @template.beginPreSection
     pre
+    @template.endPreSection
+
+    @template.beginMainSection
     run
+    @template.endMainSection
+
+    @template.beginPostSection
     post
-    @template.build
+    @template.endPostSection
 
     engine.process @template
   end

@@ -72,6 +72,11 @@ public final class TestEngine {
     final String dataDeclText = template.getDataManager().getDataDeclText();
 
     try {
+      printHeader("Printing Data Declarations");
+      executor.logText("Data declarations:\r\n\r\n");
+      executor.logText(dataDeclText);
+      printer.printText(dataDeclText);
+
       int sequenceNumber = 1;
       sequenceIt.init();
       while (sequenceIt.hasValue()) {
@@ -81,12 +86,9 @@ public final class TestEngine {
         final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
 
         printHeader("Executing sequence %d", sequenceNumber);
-        executor.logText("Data declarations:\r\n\r\n");
-        executor.logText(dataDeclText);
         executor.executeSequence(concreteSequence);
 
         printHeader("Printing sequence %d", sequenceNumber);
-        printer.printText(dataDeclText);
         printer.printSequence(concreteSequence);
 
         sequenceIt.next();

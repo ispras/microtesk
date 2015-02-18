@@ -31,13 +31,16 @@ public final class Template {
 
   private final MemoryMap memoryMap;
   private final DataManager dataManager;
-
-  private final Deque<BlockBuilder> blockBuilders;
-  private CallBuilder callBuilder;
+  
   private PreparatorBuilder preparatorBuilder;
+  private final PreparatorStore preparators;
+
+  private Deque<BlockBuilder> blockBuilders;
+  private CallBuilder callBuilder;
 
   private IIterator<Sequence<Call>> sequences;
-  private final PreparatorStore preparators;
+  
+  private final TemplateProduct.Builder productBuilder; 
 
   public Template(MetaModel metaModel) {
     printHeader("Started Processing Template");
@@ -48,17 +51,16 @@ public final class Template {
     this.memoryMap = new MemoryMap();
     this.dataManager = new DataManager(this.memoryMap);
 
-    final BlockBuilder rootBlockBuilder = new BlockBuilder();
-    rootBlockBuilder.setAtomic(true);
-
-    this.blockBuilders = new LinkedList<BlockBuilder>();
-    this.blockBuilders.push(rootBlockBuilder);
-
-    this.callBuilder = new CallBuilder(getCurrentBlockId());
     this.preparatorBuilder = null;
+    this.preparators = new PreparatorStore();
+
+    this.blockBuilders = null;
+    this.callBuilder = null;
 
     this.sequences = null;
-    this.preparators = new PreparatorStore();
+    this.productBuilder = new TemplateProduct.Builder();
+
+    beginNewSection();
   }
   
   public MemoryMap getMemoryMap() {
@@ -69,19 +71,19 @@ public final class Template {
     return dataManager;
   }
 
+  public PreparatorStore getPreparators() {
+    return preparators;
+  }
+
   public IIterator<Sequence<Call>> build() {
-    endBuildingCall();
-
-    printHeader("Ended Processing Template");
-
     if (null != sequences) {
       throw new IllegalStateException("The template is already built.");
     }
 
-    final BlockBuilder rootBuilder = blockBuilders.getLast();
-    final Block rootBlock = rootBuilder.build();
-
+    final Block rootBlock = endCurrentSection();
     sequences = rootBlock.getIterator();
+
+    printHeader("Ended Processing Template");
     return sequences;
   }
 
@@ -92,11 +94,66 @@ public final class Template {
     return sequences;
   }
 
-  public PreparatorStore getPreparators() {
-    return preparators;
+  public void beginPreSection() {
+    printHeader("Started Processing Initialization Section");
+//    beginNewSection();
   }
 
-  public BlockId getCurrentBlockId() {
+  public void endPreSection() {
+//    final Block rootBlock = endCurrentSection();
+//    productBuilder.setPre(rootBlock);
+    printHeader("Ended Processing Initialization Section");
+  }
+
+  public void beginPostSection() {
+    printHeader("Started Processing Finalization Section");
+//    beginNewSection();
+  }
+
+  public void endPostSection() {
+//    final Block rootBlock = endCurrentSection();
+//    productBuilder.setPost(rootBlock);
+    printHeader("Ended Processing Finalization Section");
+  }
+
+  public void beginMainSection() {
+    printHeader("Started Processing Main Section");
+//    beginNewSection();
+  }
+
+  public void endMainSection() {
+//    final Block rootBlock = endCurrentSection();
+//    productBuilder.addToMain(rootBlock);
+    printHeader("Ended Processing Main Section");
+  }
+
+  public TemplateProduct getProduct() {
+    return productBuilder.build();
+  }
+
+  private void beginNewSection() {
+    final BlockBuilder rootBlockBuilder = new BlockBuilder();
+    rootBlockBuilder.setAtomic(true);
+
+    this.blockBuilders = new LinkedList<BlockBuilder>();
+    this.blockBuilders.push(rootBlockBuilder);
+    this.callBuilder = new CallBuilder(getCurrentBlockId());
+  }
+
+  private Block endCurrentSection() {
+    endBuildingCall();
+
+    final BlockBuilder rootBuilder = blockBuilders.getLast();
+    final Block rootBlock = rootBuilder.build();
+
+    // TODO: enable after switching to the getProduct method
+    // blockBuilders = null;
+    // callBuilder = null;
+
+    return rootBlock;
+  }
+
+  private BlockId getCurrentBlockId() {
     return blockBuilders.peek().getBlockId();
   }
 
