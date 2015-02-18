@@ -76,7 +76,7 @@ public final class TestEngine {
       if (dataManager.containsDecls()) {
         final String declText = dataManager.getDeclText();
         printer.printText(declText);
-        if (!printToScreen) {
+        if (!printer.isPrintToScreenEnabled()) {
           executor.logText(declText);
         }
       } else {

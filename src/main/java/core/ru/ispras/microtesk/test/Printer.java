@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.test;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,19 +66,25 @@ final class Printer {
 
   public Printer(String fileName, IModelStateObserver observer, String commentToken,
       boolean printToScreen) throws IOException {
-    if (null == observer) {
-      throw new NullPointerException();
-    }
 
-    if (null == commentToken) {
-      throw new NullPointerException();
-    }
+    checkNotNull(observer);
+    checkNotNull(commentToken);
 
     this.fileWritter = createFileWritter(fileName);
     this.observer = observer;
     this.commentToken = commentToken;
     this.printToScreen = printToScreen;
     this.isHeaderPrinted = false;
+  }
+
+  /**
+   * Check whether printing to screen is enabled.
+   * 
+   * @return {@code true} if printing to screen is enabled or {@code false} otherwise.
+   */
+
+  public boolean isPrintToScreenEnabled() {
+    return printToScreen;
   }
 
   /**
@@ -89,9 +97,7 @@ final class Printer {
    */
 
   public void printSequence(Sequence<ConcreteCall> sequence) throws ConfigurationException {
-    if (null == sequence) {
-      throw new NullPointerException();
-    }
+    checkNotNull(sequence);
 
     printHeader();
     for (ConcreteCall inst : sequence) {
@@ -134,9 +140,7 @@ final class Printer {
   }
 
   private void printOutputs(List<Output> outputs) throws ConfigurationException {
-    if (null == outputs) {
-      throw new NullPointerException();
-    }
+    checkNotNull(outputs);
 
     for (Output output : outputs) {
       if (!output.isRuntime()) {
@@ -146,9 +150,7 @@ final class Printer {
   }
 
   private void printLabels(List<Label> labels) {
-    if (null == labels) {
-      throw new NullPointerException();
-    }
+    checkNotNull(labels);
 
     for (Label label : labels) {
       printText(label.getUniqueName() + ":");
