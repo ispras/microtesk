@@ -63,9 +63,9 @@ public final class BlockBuilder {
   }
 
   public boolean isEmpty() {
-    // A block is empty if it contains no nested blocks or calls.
-    // Attributes affect only the block itself and are not important 
-    // from an external point of view.
+    // A block is considered empty if it contains no nested blocks or calls
+    // (that is it does not produce any instruction sequences). Attributes 
+    // affect only the block itself and are not useful outside the block.
 
     return nestedBlocks.isEmpty();  
   }
@@ -91,6 +91,11 @@ public final class BlockBuilder {
 
   public void addBlock(Block block) {
     checkNotNull(block);
+
+    if (block.isEmpty()) {
+      return;
+    }
+
     nestedBlocks.add(block);
   }
 

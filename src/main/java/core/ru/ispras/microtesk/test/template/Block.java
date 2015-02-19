@@ -26,6 +26,7 @@ public final class Block {
   private final BlockId blockId;
   private final IIterator<Sequence<Call>> iterator;
   private final Map<String, Object> attributes;
+  private final boolean isEmpty;
 
   Block(BlockId blockId, IIterator<Sequence<Call>> iterator, Map<String, Object> attributes) {
     checkNotNull(blockId);
@@ -35,10 +36,21 @@ public final class Block {
     this.blockId = blockId;
     this.iterator = iterator;
     this.attributes = attributes;
+
+    // A block is considered empty if it does not contain any instruction
+    // sequences). Attributes affect only the block itself and are not
+    // useful outside the block.
+
+    iterator.init();
+    this.isEmpty = !iterator.hasValue();
   }
 
   Block(BlockId blockId, IIterator<Sequence<Call>> iterator) {
     this(blockId, iterator, Collections.<String, Object>emptyMap());
+  }
+
+  public BlockId getBlockId() {
+    return blockId;
   }
 
   public IIterator<Sequence<Call>> getIterator() {
@@ -48,8 +60,8 @@ public final class Block {
   public Object getAttribute(String name) {
     return attributes.get(name);
   }
-
-  public BlockId getBlockId() {
-    return blockId;
+  
+  public boolean isEmpty() {
+    return isEmpty;
   }
 }

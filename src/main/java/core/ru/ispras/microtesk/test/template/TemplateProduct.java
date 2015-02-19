@@ -54,6 +54,11 @@ public final class TemplateProduct {
     
     public void addToMain(Block block) {
       checkNotNull(block);
+
+      if (block.isEmpty()) {
+        return;
+      }
+
       if (null == this.main) {
         this.main = new ArrayList<>();
       }
