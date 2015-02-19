@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 
 import java.io.IOException;
+import java.util.List;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -109,21 +110,12 @@ public final class TestEngine {
     }
 
     private void process() throws ConfigurationException {
-      printer.printHeaderToFile();
+      printer.printToolInfoToFile();
       printDataDeclarations();
-      
-      processBlock(sequences.getPre(), "INITIALIZATION SECTION");
 
-      printHeader("MAIN SECTION");
-      printer.printSeparatorToFile();
-      printer.printCommentToFile("MAIN SECTION (TEST CASES)");
-      printer.printSeparatorToFile();
-      printer.printNewLineToFile();
-      for (Block mainBlock : sequences.getMain()) {
-        processSequences(mainBlock.getIterator());
-      }
-
-      processBlock(sequences.getPost(), "FINALIZATION SECTION");
+      processOptionalSection("INITIALIZATION SECTION", sequences.getPre());
+      processMainSection("MAIN SECTION (TEST CASES)", sequences.getMain());
+      processOptionalSection("FINALIZATION SECTION", sequences.getPost());
 
       printHeader("GENERATION DONE");
     }
@@ -141,19 +133,31 @@ public final class TestEngine {
       }
     }
     
-    private void processBlock(Block block, String headerText) throws ConfigurationException {
+    private void processOptionalSection(
+        String title, Block block) throws ConfigurationException {
+
       final IIterator<Sequence<Call>> it = block.getIterator();
       it.init();
 
       if (it.hasValue()) {
-        printHeader(headerText);
-
-        printer.printSeparatorToFile();
-        printer.printCommentToFile(headerText);
-        printer.printSeparatorToFile();
-        printer.printNewLineToFile();
+        printHeader(title);
+        printer.printHeaderToFile(title);
 
         processSequences(it);
+      }
+    }
+
+    private void processMainSection(
+        String title, List<Block> blocks) throws ConfigurationException {
+
+      printHeader(title);
+      printer.printHeaderToFile(title);
+
+      int testCaseIndex = 0;
+      for (Block mainBlock : sequences.getMain()) {
+        printer.printSeparatorToFile(String.format("Test Case %s", testCaseIndex));
+        processSequences(mainBlock.getIterator());
+        ++testCaseIndex;
       }
     }
 

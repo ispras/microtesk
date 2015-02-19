@@ -78,12 +78,17 @@ final class Printer {
     this.commentToken = commentToken;
     this.printToScreen = printToScreen;
     this.isHeaderPrinted = false;
-    
-    final StringBuilder sb = new StringBuilder(commentToken);
-    while (sb.length() < LINE_WIDTH) {
+
+    this.separator = commentToken + 
+        newSeparatorString(LINE_WIDTH - commentToken.length());
+  }
+
+  private static String newSeparatorString(int length) {
+    final StringBuilder sb = new StringBuilder();
+    while (sb.length() < length) {
       sb.append('*');
     }
-    this.separator = sb.toString();
+    return sb.toString();
   }
 
   /**
@@ -151,6 +156,11 @@ final class Printer {
       printText(label.getUniqueName() + ":");
     }
   }
+  
+  /**
+   * Prints text both to the file and to the screen (if corresponding options are enabled).
+   * @param text Text to be printed.
+   */
 
   public void printText(String text) {
     if (text != null) {
@@ -158,8 +168,12 @@ final class Printer {
       printToFile(text);
     }
   }
-  
-  public void printHeaderToFile() {
+
+  /**
+   * Prints MicroTESK information to the file (as the top file header). 
+   */
+
+  public void printToolInfoToFile() {
     if (isHeaderPrinted) {
       return;
     }
@@ -167,8 +181,8 @@ final class Printer {
     printSeparatorToFile();
 
     final String slcs = commentToken;
-    final String header = 
-      String.format(HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
+    final String header = String.format(
+        HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
 
     printToFile(header);
     isHeaderPrinted = true;
@@ -177,15 +191,65 @@ final class Printer {
     printNewLineToFile();
   }
 
+  /**
+   * Prints a special header comment that specifies the start of a code section. 
+   * 
+   * @param text Text of the header.
+   */
+
+  public void printHeaderToFile(String text) {
+    printSeparatorToFile();
+    printCommentToFile(text);
+    printSeparatorToFile();
+    printNewLineToFile();
+  }
+
+  /**
+   * Prints a comment to the file.
+   * 
+   * @param text Text of the comment to be printed.
+   */
+
   public void printCommentToFile(String text) {
     if (text != null) {
       printToFile(commentToken + text);
     }
   }
 
+  /**
+   * Prints a special comment (a line of '*' characters) to the file to
+   * separate different parts of the code.
+   */
+
   public void printSeparatorToFile() {
     printToFile(separator);
   }
+
+  /**
+   * Prints a special comment (text wrapped in '*' characters) to the file to
+   * separate different parts of the code.
+   * 
+   * @param text Text of the separator.
+   */
+
+  public void printSeparatorToFile(String text) {
+    final int prefixLength = (LINE_WIDTH - text.length()) / 2;
+    final int postfixLength = LINE_WIDTH - prefixLength - text.length();
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append(commentToken);
+    sb.append(newSeparatorString(prefixLength - commentToken.length() - 1));
+    sb.append(' ');
+    sb.append(text);
+    sb.append(' ');
+    sb.append(newSeparatorString(postfixLength - 1));
+
+    printToFile(sb.toString());
+  }
+
+  /**
+   * Add a new line separator to the file.
+   */
 
   public void printNewLineToFile() {
     printToFile("");

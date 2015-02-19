@@ -62,6 +62,14 @@ public final class BlockBuilder {
     return blockId;
   }
 
+  public boolean isEmpty() {
+    // A block is empty if it contains no nested blocks or calls.
+    // Attributes affect only the block itself and are not important 
+    // from an external point of view.
+
+    return nestedBlocks.isEmpty();  
+  }
+
   public void setCompositor(String name) {
     assert null == compositorName;
     compositorName = name;

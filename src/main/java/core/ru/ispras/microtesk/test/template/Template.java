@@ -36,7 +36,10 @@ public final class Template {
   private Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
 
-  private final TemplateProduct.Builder productBuilder; 
+  private boolean isMainSection;
+  private int openBlockCount;
+
+  private final TemplateProduct.Builder productBuilder;
 
   public Template(MetaModel metaModel) {
     printHeader("Started Processing Template");
@@ -52,6 +55,9 @@ public final class Template {
 
     this.blockBuilders = null;
     this.callBuilder = null;
+
+    this.isMainSection = false;
+    this.openBlockCount = 0;
 
     this.productBuilder = new TemplateProduct.Builder();
   }
@@ -71,6 +77,9 @@ public final class Template {
   public void beginPreSection() {
     printHeader("Started Processing Initialization Section");
     beginNewSection();
+    
+    isMainSection = false;
+    openBlockCount = 0;
   }
 
   public void endPreSection() {
@@ -82,6 +91,9 @@ public final class Template {
   public void beginPostSection() {
     printHeader("Started Processing Finalization Section");
     beginNewSection();
+
+    isMainSection = false;
+    openBlockCount = 0;
   }
 
   public void endPostSection() {
@@ -93,12 +105,16 @@ public final class Template {
   public void beginMainSection() {
     printHeader("Started Processing Main Section");
     beginNewSection();
+
+    isMainSection = true;
+    openBlockCount = 0;
   }
 
   public void endMainSection() {
     final Block rootBlock = endCurrentSection();
     productBuilder.addToMain(rootBlock);
     printHeader("Ended Processing Main Section");
+    isMainSection = false;
   }
 
   public TemplateProduct getProduct() {
@@ -117,6 +133,10 @@ public final class Template {
   private Block endCurrentSection() {
     endBuildingCall();
 
+    if (blockBuilders.size() != 1) {
+      throw new IllegalStateException();
+    }
+
     final BlockBuilder rootBuilder = blockBuilders.getLast();
     final Block rootBlock = rootBuilder.build();
 
@@ -131,26 +151,65 @@ public final class Template {
   }
 
   public BlockBuilder beginBlock() {
+    if (blockBuilders.isEmpty()) {
+      throw new IllegalStateException();
+    }
+
+    if (openBlockCount < 0) {
+      throw new IllegalStateException();
+    }
+
     endBuildingCall();
 
+    final boolean isRoot = openBlockCount == 0;
     final BlockBuilder parent = blockBuilders.peek();
-    final BlockBuilder current = new BlockBuilder(parent);
+    final BlockBuilder current;
 
-    trace("Begin block: " + current.getBlockId());
+    if (isMainSection && isRoot) {
+      if (parent.isEmpty()) {
+        current = parent;
+      } else {
+        productBuilder.addToMain(parent.build());
+        blockBuilders.pop();
 
-    blockBuilders.push(current);
+        current = new BlockBuilder();
+        blockBuilders.push(current);
+      }
+    } else {
+      current = new BlockBuilder(parent);
+      blockBuilders.push(current);
+    }
+
+    trace("Begin block: " + getCurrentBlockId());
+    ++openBlockCount;
+
     return current;
   }
 
   public void endBlock() {
-    endBuildingCall();
+    if (blockBuilders.isEmpty()) {
+      throw new IllegalStateException();
+    }
 
+    endBuildingCall();
     trace("End block: " + getCurrentBlockId());
+
+    final boolean isRoot = openBlockCount == 1;
 
     final BlockBuilder builder = blockBuilders.pop();
     final Block block = builder.build();
 
-    blockBuilders.peek().addBlock(block);
+    if (isMainSection && isRoot) {
+      productBuilder.addToMain(block);
+
+      final BlockBuilder newBuilder = new BlockBuilder();
+      newBuilder.setAtomic(true);
+      blockBuilders.push(newBuilder);
+    } else {
+      blockBuilders.peek().addBlock(block);
+    }
+
+    --openBlockCount;
   }
 
   public void addLabel(String name) {
