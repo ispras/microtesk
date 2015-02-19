@@ -67,7 +67,6 @@ class CpuBaseTemplate < Template
   # of a test case.
   #
   def post
-    newline
     trace 'Finalization:'
     comment 'Finalization Section Starts'
     add mem(:i => 23), imm(23)

@@ -109,15 +109,22 @@ public final class TestEngine {
     }
 
     private void process() throws ConfigurationException {
+      printer.printHeaderToFile();
       printDataDeclarations();
+      
       processBlock(sequences.getPre(), "INITIALIZATION SECTION");
 
       printHeader("MAIN SECTION");
+      printer.printSeparatorToFile();
+      printer.printCommentToFile("MAIN SECTION (TEST CASES)");
+      printer.printSeparatorToFile();
+      printer.printNewLineToFile();
       for (Block mainBlock : sequences.getMain()) {
         processSequences(mainBlock.getIterator());
       }
 
-      processBlock(sequences.getPost(), "FINALIZATION SECTION"); 
+      processBlock(sequences.getPost(), "FINALIZATION SECTION");
+
       printHeader("GENERATION DONE");
     }
 
@@ -140,6 +147,12 @@ public final class TestEngine {
 
       if (it.hasValue()) {
         printHeader(headerText);
+
+        printer.printSeparatorToFile();
+        printer.printCommentToFile(headerText);
+        printer.printSeparatorToFile();
+        printer.printNewLineToFile();
+
         processSequences(it);
       }
     }

@@ -43,7 +43,7 @@ final class Printer {
     "%sGeneration started: %s\n%s\n" +
     "%sInstitute for System Programming of the Russian Academy of Sciences (ISPRAS)\n" +
     "%s25 Alexander Solzhenitsyn st., Moscow, 109004, Russia\n" +
-    "%shttp://forge.ispras.ru/projects/microtesk\n";
+    "%shttp://forge.ispras.ru/projects/microtesk";
 
   private final PrintWriter fileWritter;
   private final IModelStateObserver observer;
@@ -81,7 +81,7 @@ final class Printer {
     
     final StringBuilder sb = new StringBuilder(commentToken);
     while (sb.length() < LINE_WIDTH) {
-      sb.append('-');
+      sb.append('*');
     }
     this.separator = sb.toString();
   }
@@ -108,7 +108,6 @@ final class Printer {
   public void printSequence(Sequence<ConcreteCall> sequence) throws ConfigurationException {
     checkNotNull(sequence);
 
-    printHeader();
     for (ConcreteCall inst : sequence) {
       printOutputs(inst.getOutputs());
       printLabels(inst.getLabels());
@@ -135,19 +134,6 @@ final class Printer {
     return new PrintWriter(outFile);
   }
 
-  private void printHeader() {
-    if (isHeaderPrinted) {
-      return;
-    }
-
-    final String slcs = commentToken.trim() + " ";
-    final String header = 
-      String.format(HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
-
-    printToFile(header);
-    isHeaderPrinted = true;
-  }
-
   private void printOutputs(List<Output> outputs) throws ConfigurationException {
     checkNotNull(outputs);
 
@@ -172,19 +158,39 @@ final class Printer {
       printToFile(text);
     }
   }
+  
+  public void printHeaderToFile() {
+    if (isHeaderPrinted) {
+      return;
+    }
 
-  public void printComment(String text) {
+    printSeparatorToFile();
+
+    final String slcs = commentToken.trim() + " ";
+    final String header = 
+      String.format(HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
+
+    printToFile(header);
+    isHeaderPrinted = true;
+
+    printSeparatorToFile();
+    printNewLineToFile();
+  }
+
+  public void printCommentToFile(String text) {
     if (text != null) {
-      printText(commentToken + text);
+      final String fullText = String.format(
+          "%s%s%s", commentToken, commentToken.endsWith(" ") ? "" : " ", text);
+      printToFile(fullText);
     }
   }
 
-  public void printSeparator() {
-    printText(separator);
+  public void printSeparatorToFile() {
+    printToFile(separator);
   }
 
-  public void printNewLine() {
-    printText("");
+  public void printNewLineToFile() {
+    printToFile("");
   }
 
   private void printToScreen(String text) {
