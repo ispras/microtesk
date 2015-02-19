@@ -182,7 +182,7 @@ public final class TestEngine {
         final String sequenceId = String.format("Sequence %d", sequenceIndex);
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
-        printHeader("Generating data%s", (isSingleSequence ? "" : " for " + sequenceId));
+        printHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
         final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
 
         printHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
