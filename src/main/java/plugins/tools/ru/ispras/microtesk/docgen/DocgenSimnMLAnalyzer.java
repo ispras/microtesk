@@ -56,8 +56,7 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     }
   };
 
-  public DocgenSimnMLAnalyzer() {
-  }
+  public DocgenSimnMLAnalyzer() {}
 
   private String getModelName(String fileName) {
     final String shortFileName = getShortFileName(fileName);
@@ -178,39 +177,44 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     final IR ir = startParserAndWalker(source);
 
     final PrimitiveSyntesizer primitiveSyntesizer =
-      new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), LOG);
+        new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), LOG);
 
     if (!primitiveSyntesizer.syntesize()) {
-      System.err.println("FAILED TO SYNTHESIZE INFORMATION ON DESCRIBED OPERATIONS. " + 
-         "TRANSLATION WAS INTERRUPTED.");
+      System.err.println("FAILED TO SYNTHESIZE INFORMATION ON DESCRIBED OPERATIONS. "
+          + "TRANSLATION WAS INTERRUPTED.");
       return;
     }
     ir.setRoots(primitiveSyntesizer.getRoots());
 
     // TO PLATON >> TODO: YOUR CODE GOES HERE
     IrWalker walker = new IrWalker(ir, Direction.LINEAR);
-	XML xml = new XML(modelName, XmlElementType.INTERMEDIATE, null);
-    XmlDocumenter documenter = null;
-    
+    DocBook xml = null;
     try {
-		documenter = new XmlDocumenter(xml, modelName);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+      xml = new DocBook(modelName);
+    } catch (FormatterException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+
+    XmlDocumenter documenter = null;
+
+    try {
+      documenter = new XmlDocumenter(xml, modelName);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     walker.traverse(documenter);
     XmlWriter writer = null;
-    
+
     try {
-		writer = new XmlWriter(new FileWriter(new File("documentation.xml")));
-	    writer.write(xml);
-	    writer.close();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-    
-    System.out.println("HERE MUST BE PLATON'S CODE");
+      writer = new XmlWriter(new FileWriter(new File("documentation.xml")));
+      writer.write(xml);
+      writer.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   public static void main(String[] args) throws RecognitionException {
