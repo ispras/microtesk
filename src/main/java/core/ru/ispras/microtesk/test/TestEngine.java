@@ -121,8 +121,12 @@ public final class TestEngine {
     }
 
     private void printDataDeclarations() {
-      printHeader("DATA DECLARATIONS");
+      final String title = "DATA DECLARATIONS";
+
+      printHeader(title);
       if (dataManager.containsDecls()) {
+        printer.printHeaderToFile(title);
+
         final String declText = dataManager.getDeclText();
         printer.printText(declText);
         if (!printer.isPrintToScreenEnabled()) {
@@ -132,7 +136,7 @@ public final class TestEngine {
         executor.logText("<none>");
       }
     }
-    
+
     private void processOptionalSection(
         String title, Block block) throws ConfigurationException {
 

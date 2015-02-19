@@ -189,14 +189,9 @@ public final class DataManager {
       return null;
     }
 
-    final StringBuilder sb = new StringBuilder();
-
-    sb.append(sectionText);
-    sb.append("\r\n");
-
+    final StringBuilder sb = new StringBuilder(sectionText);
     for (DataDeclItem item : dataDecls) {
-      sb.append(item.getText());
-      sb.append("\r\n");
+      sb.append(String.format("%n%s", item.getText()));
     }
 
     return sb.toString();
