@@ -137,6 +137,7 @@ class Template
 
   def block(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
+    blockBuilder.setAtomic false
 
     if attributes.has_key? :compositor
       blockBuilder.setCompositor(attributes[:compositor])

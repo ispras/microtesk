@@ -27,7 +27,6 @@ class CombinationTemplate < VliwBaseTemplate
 
   def run
     # Randomized sequence
-    comment "Randomized sequence"
     block(:combinator => 'PRODUCT', :compositor => 'RANDOM') {
       block {
         vliw(
@@ -53,8 +52,6 @@ class CombinationTemplate < VliwBaseTemplate
         )
       }
     }
-    newline
-
   end
 
 end
