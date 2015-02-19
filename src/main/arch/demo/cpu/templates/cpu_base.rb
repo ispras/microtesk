@@ -59,7 +59,6 @@ class CpuBaseTemplate < Template
     comment 'Initialization Section Starts'
     add mem(:i => 12), mem(:i => 13)
     comment 'Initialization Section Ends'
-    newline
   end
 
   #

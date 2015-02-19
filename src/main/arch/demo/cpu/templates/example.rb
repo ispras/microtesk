@@ -150,8 +150,7 @@ class ExampleTemplate < CpuBaseTemplate
     # Supported compositors: CATENATION, ROTATION, OVERLAPPING, NESTING, RANDOM
     # Supported combinators: PRODUCT, DIAGONAL, RANDOM    
 
-    # Randomized sequence
-    comment 'Randomized sequence'
+    # Randomized sequences of 2 instuctions
     block(:compositor => "RANDOM", :combinator => "PRODUCT") {
       block {
         add reg(_), imm(_) do situation('imm_random', :min => 0, :max => 15) end
