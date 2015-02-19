@@ -166,7 +166,7 @@ final class Printer {
 
     printSeparatorToFile();
 
-    final String slcs = commentToken.trim() + " ";
+    final String slcs = commentToken;
     final String header = 
       String.format(HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
 
@@ -179,9 +179,7 @@ final class Printer {
 
   public void printCommentToFile(String text) {
     if (text != null) {
-      final String fullText = String.format(
-          "%s%s%s", commentToken, commentToken.endsWith(" ") ? "" : " ", text);
-      printToFile(fullText);
+      printToFile(commentToken + text);
     }
   }
 
