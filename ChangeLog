@@ -6,6 +6,14 @@
  2014/10/18 MicroTESK 2.1 beta
 --------------------------------------------------------------------------------
 
+ 2015/02/19 MicroTESK 2.1.4 beta
+ 
+ The new build contains the following changes:
+
+ - The logic of test sequence building and processing has been improved
+ - The format of generated test programs has been improved
+ - Several bug fixes and general improvements have been made
+
  2015/02/17 MicroTESK 2.1.3 beta
 
  The new build contains the following changes:
