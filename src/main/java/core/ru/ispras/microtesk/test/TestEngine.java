@@ -153,10 +153,14 @@ public final class TestEngine {
       printHeader(title);
       printer.printHeaderToFile(title);
 
-      int testCaseIndex = 0;
-      for (Block mainBlock : sequences.getMain()) {
-        printer.printSeparatorToFile(String.format("Test Case %s", testCaseIndex));
-        processSequences(mainBlock.getIterator());
+      int testCaseIndex = 1;
+      for (Block testCase : sequences.getMain()) {
+        final String testCaseTitle = String.format("Test Case %s", testCaseIndex);
+
+        printHeader(testCaseTitle);
+        printer.printSeparatorToFile(testCaseTitle);
+
+        processSequences(testCase.getIterator());
         ++testCaseIndex;
       }
     }

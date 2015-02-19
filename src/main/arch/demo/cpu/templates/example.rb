@@ -166,8 +166,6 @@ class ExampleTemplate < CpuBaseTemplate
       }
     }
 
-    newline
-    comment 'Main Section Ends'
   end
 
 end
