@@ -110,17 +110,15 @@ public final class TestEngine {
 
     private void process() throws ConfigurationException {
       printDataDeclarations();
-
-      printHeader("INITIALIZATION SECTION");
-      processSequences(sequences.getPre().getIterator());
+      processBlock(sequences.getPre(), "INITIALIZATION SECTION");
 
       printHeader("MAIN SECTION");
       for (Block mainBlock : sequences.getMain()) {
         processSequences(mainBlock.getIterator());
       }
 
-      printHeader("FINALIZATION SECTION");
-      processSequences(sequences.getPost().getIterator());
+      processBlock(sequences.getPost(), "FINALIZATION SECTION"); 
+      printHeader("GENERATION DONE");
     }
 
     private void printDataDeclarations() {
@@ -136,6 +134,16 @@ public final class TestEngine {
       }
     }
     
+    private void processBlock(Block block, String headerText) throws ConfigurationException {
+      final IIterator<Sequence<Call>> it = block.getIterator();
+      it.init();
+
+      if (it.hasValue()) {
+        printHeader(headerText);
+        processSequences(it);
+      }
+    }
+
     private void processSequences(final IIterator<Sequence<Call>> sequenceIt)
         throws ConfigurationException {
 

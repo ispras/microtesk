@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.test;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.List;
 
@@ -45,13 +47,11 @@ final class Executor {
    * @param observer Model state observer to evaluate simulation-time outputs.
    * @param logExecution Specifies whether printing to the simulator log is enabled.
    * 
-   * @throws NullPointerException if the <code>observer</code> parameter is <code>null</code>.
+   * @throws NullPointerException if the {@code observer} parameter is {@code null}.
    */
 
   public Executor(IModelStateObserver observer, boolean logExecution) {
-    if (null == observer) {
-      throw new NullPointerException();
-    }
+    checkNotNull(observer);
 
     this.observer = observer;
     this.logExecution = logExecution;
@@ -64,7 +64,7 @@ final class Executor {
    * 
    * @param sequence Sequence of executable (concrete) instruction calls.
    * 
-   * @throws NullPointerException if the parameter is <code>null</code>.
+   * @throws NullPointerException if the parameter is {@code null}.
    * @throws ConfigurationException if during the interaction with the microprocessor model an error
    *         caused by an invalid format of the request has occurred (typically, it happens when
    *         evaluating an {@link Output} object causes an invalid request to the model state
@@ -72,9 +72,7 @@ final class Executor {
    */
 
   public void executeSequence(Sequence<ConcreteCall> sequence) throws ConfigurationException {
-    if (null == sequence) {
-      throw new NullPointerException();
-    }
+    checkNotNull(sequence);
 
     // Remembers all labels defined by the sequence and its positions.
     final LabelManager labelManager = new LabelManager();
@@ -200,9 +198,7 @@ final class Executor {
    */
 
   private void logOutputs(List<Output> outputs) throws ConfigurationException {
-    if (null == outputs) {
-      throw new NullPointerException();
-    }
+    checkNotNull(outputs);
 
     for (Output output : outputs) {
       if (output.isRuntime()) {

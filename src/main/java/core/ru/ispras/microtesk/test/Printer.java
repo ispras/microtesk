@@ -52,6 +52,9 @@ final class Printer {
 
   private boolean isHeaderPrinted;
 
+  private static int LINE_WIDTH = 80;
+  private final String separator;
+
   /**
    * Constructs a printer object.
    * 
@@ -75,6 +78,12 @@ final class Printer {
     this.commentToken = commentToken;
     this.printToScreen = printToScreen;
     this.isHeaderPrinted = false;
+    
+    final StringBuilder sb = new StringBuilder(commentToken);
+    while (sb.length() < LINE_WIDTH) {
+      sb.append('-');
+    }
+    this.separator = sb.toString();
   }
 
   /**
@@ -162,6 +171,20 @@ final class Printer {
       printToScreen(text);
       printToFile(text);
     }
+  }
+
+  public void printComment(String text) {
+    if (text != null) {
+      printText(commentToken + text);
+    }
+  }
+
+  public void printSeparator() {
+    printText(separator);
+  }
+
+  public void printNewLine() {
+    printText("");
   }
 
   private void printToScreen(String text) {
