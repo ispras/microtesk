@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,12 @@
 
 package ru.ispras.microtesk.test.sequence;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
 public final class GeneratorSingle<T> implements Generator<T> {
@@ -23,15 +27,17 @@ public final class GeneratorSingle<T> implements Generator<T> {
   private boolean hasValue;
 
   public GeneratorSingle(List<IIterator<Sequence<T>>> iterators) {
-    if (null == iterators) {
-      throw new NullPointerException(); 
-    }
+    checkNotNull(iterators);
 
     this.sequence = createSingleSequence(iterators);
     this.hasValue = false;
   }
 
   private static <T> Sequence<T> createSingleSequence(List<IIterator<Sequence<T>>> iterators) {
+    if (iterators.isEmpty()) {
+      return null;
+    }
+
     final Sequence<T> result = new Sequence<T>();
     final Iterator<IIterator<Sequence<T>>> it = iterators.iterator();
 
@@ -49,7 +55,7 @@ public final class GeneratorSingle<T> implements Generator<T> {
 
   @Override
   public void init() {
-    hasValue = true;
+    hasValue = (sequence != null);
   }
 
   @Override
@@ -59,7 +65,10 @@ public final class GeneratorSingle<T> implements Generator<T> {
 
   @Override
   public Sequence<T> value() {
-    assert hasValue;
+    if (!hasValue) {
+      throw new NoSuchElementException();
+    }
+
     return sequence;
   }
 
