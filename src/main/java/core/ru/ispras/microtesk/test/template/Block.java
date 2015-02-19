@@ -19,6 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.Collections;
 import java.util.Map;
 
+import ru.ispras.microtesk.test.sequence.GeneratorSingle;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 
@@ -27,6 +28,7 @@ public final class Block {
   private final IIterator<Sequence<Call>> iterator;
   private final Map<String, Object> attributes;
   private final boolean isEmpty;
+  private final boolean isSingle;
 
   Block(BlockId blockId, IIterator<Sequence<Call>> iterator, Map<String, Object> attributes) {
     checkNotNull(blockId);
@@ -43,6 +45,9 @@ public final class Block {
 
     iterator.init();
     this.isEmpty = !iterator.hasValue();
+
+    // TODO: HACK! BE CAREFUL! PROBABLY, NEED A MORE RELIABLE WAY
+    this.isSingle = iterator instanceof GeneratorSingle;
   }
 
   Block(BlockId blockId, IIterator<Sequence<Call>> iterator) {
@@ -60,8 +65,12 @@ public final class Block {
   public Object getAttribute(String name) {
     return attributes.get(name);
   }
-  
+
   public boolean isEmpty() {
     return isEmpty;
+  }
+
+  public boolean isSingle() {
+    return isSingle;
   }
 }

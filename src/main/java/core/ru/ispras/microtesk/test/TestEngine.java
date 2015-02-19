@@ -139,15 +139,11 @@ public final class TestEngine {
 
     private void processOptionalSection(
         String title, Block block) throws ConfigurationException {
-
-      final IIterator<Sequence<Call>> it = block.getIterator();
-      it.init();
-
-      if (it.hasValue()) {
+      
+      if (!block.isEmpty()) {
         printHeader(title);
         printer.printHeaderToFile(title);
-
-        processSequences(it);
+        processSequences(block);
       }
     }
 
@@ -157,37 +153,52 @@ public final class TestEngine {
       printHeader(title);
       printer.printHeaderToFile(title);
 
+      final List<Block> testCases = sequences.getMain();
       int testCaseIndex = 1;
-      for (Block testCase : sequences.getMain()) {
+
+      for (Block testCase : testCases) {
         final String testCaseTitle = String.format("Test Case %s", testCaseIndex);
 
         printHeader(testCaseTitle);
         printer.printSeparatorToFile(testCaseTitle);
 
-        processSequences(testCase.getIterator());
+        processSequences(testCase);
         ++testCaseIndex;
       }
     }
 
-    private void processSequences(final IIterator<Sequence<Call>> sequenceIt)
-        throws ConfigurationException {
+    private void processSequences(Block sequences) throws ConfigurationException {
+      final boolean isSingleSequence = sequences.isSingle();
+      final IIterator<Sequence<Call>> sequenceIt = sequences.getIterator();
 
-      int sequenceNumber = 1;
+      int sequenceIndex = 1;
       sequenceIt.init();
+
       while (sequenceIt.hasValue()) {
+        if (isSingleSequence && sequenceIndex > 1) {
+          throw new IllegalStateException("Only a single sequence is allowed.");
+        }
+
+        final String sequenceId = String.format("Sequence %d", sequenceIndex);
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
-        printHeader("Generating data for sequence %d", sequenceNumber);
+        printHeader("Generating data%s", (isSingleSequence ? "" : " for " + sequenceId));
         final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
 
-        printHeader("Executing sequence %d", sequenceNumber);
+        printHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
         executor.executeSequence(concreteSequence);
 
-        printHeader("Printing sequence %d", sequenceNumber);
+        printHeader("Printing%s", (isSingleSequence ? "" : " " + sequenceId));
+        if (!isSingleSequence) {
+          printer.printNewLineToFile();
+          printer.printSeparatorToFile();
+          printer.printCommentToFile(String.format("%s:", sequenceId));
+          printer.printNewLineToFile();
+        }
         printer.printSequence(concreteSequence);
 
         sequenceIt.next();
-        sequenceNumber++;
+        ++sequenceIndex;
       }
     }
   }
