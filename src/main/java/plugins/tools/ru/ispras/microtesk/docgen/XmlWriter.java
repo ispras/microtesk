@@ -28,7 +28,7 @@ public class XmlWriter {
         }
       }
 
-      writer.write(">");
+      writer.write("> ");
 
       level++;
 
@@ -39,16 +39,16 @@ public class XmlWriter {
 
       setToCurrentLevel(--level);
 
-      writer.write("</" + xml.getTag() + ">");
+      writer.write(" </" + xml.getTag() + ">");
 
     } else {
       writer.write("<" + xml.getTag());
       if (xml.getAttributes() != null) {
         for (Map.Entry<String, String> entry : xml.getAttributes().entrySet()) {
-          writer.write(" " + entry.getKey() + "=\"" + entry.getValue() + "\" ");
+          writer.write(" " + entry.getKey() + "=\"" + entry.getValue() + "\"");
         }
       }
-      writer.write(">" + xml.getContent() + "</" + xml.getTag() + ">\n");
+      writer.write("> " + xml.getContent() + " </" + xml.getTag() + ">\n");
     }
   }
 
