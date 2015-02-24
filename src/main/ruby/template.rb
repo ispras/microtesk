@@ -413,6 +413,13 @@ class DataManager
     @manager.addLabel id
   end
 
+  def rand(from, to)
+    if !from.is_a?(Integer) or !to.is_a?(Integer)
+      raise MTRubyError, "from #{from} and to #{to} must be integers." 
+    end
+    @manager.newRandom from, to
+  end
+
   def define_type(attrs)
     id   = get_attribute attrs, :id
     text = get_attribute attrs, :text

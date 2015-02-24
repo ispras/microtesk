@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -320,6 +321,10 @@ public final class DataManager {
 
     setAllLabelsToAddress(address);
     dataDecls.add(new DetaDeclStrings((zeroTerm ? ztermStrText : nztermStrText), strings));
+  }
+
+  public int newRandom(int min, int max) {
+    return Randomizer.get().nextIntRange(min, max);
   }
 
   private void checkInitialized() {

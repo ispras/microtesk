@@ -31,7 +31,7 @@ class MinMaxTemplate < MiniMipsBaseTemplate
 
     data {
       label :data
-      word Random.rand(10), Random.rand(10), Random.rand(10), Random.rand(10), Random.rand(10)
+      word rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9)
       label :end
       space 1
     }
