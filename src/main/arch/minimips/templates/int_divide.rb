@@ -29,14 +29,12 @@ require_relative 'minimips_base'
 class IntDivideTemplate < MiniMipsBaseTemplate
 
   def run
-    trace "Division: Debug Output"
+    trace "Division: Debug Output\n"
 
-    x = Random.rand(1024)
-    y = Random.rand(63) + 1 # zero is excluded
+    addi s0, zero, rand(0, 1023)
+    addi s1, zero, rand(1, 63) # zero is excluded
 
-    trace "\nInput parameter values: dividend = #{x}, divisor = #{y}\n"
-    addi s0, zero, x 
-    addi s1, zero, y
+    trace "\nInput parameter values: dividend = %d, divisor = %d\n", gpr(16), gpr(17)
 
     add t0, zero, zero
     add t1, zero, s0
