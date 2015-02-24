@@ -1,75 +1,101 @@
+/*
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package ru.ispras.microtesk.docgen;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 public class XML {
 
-  // TODO: Encapsulate fields
   private Map<String, String> attributes;
+  private Stack<XML> nestingStack;
+  private String tag;
+  private String content = null;
+  private List<XML> subXmls;
+  private XmlScope scope;
 
-  public Map<String, String> getAttributes() {
-    return this.attributes;
+  public XML() {}
+
+  public XML(String tag, Map<String, String> attributes) {
+    this.attributes = attributes;
+    this.tag = tag;
+    this.subXmls = new ArrayList<XML>();
+    nestingStack = new Stack<XML>();
+    nestingStack.push(this);
+  }
+  
+  private XML(String tag, Map<String, String> attributes, Stack<XML> nestingStack)
+  {
+    this.attributes = attributes;
+    this.tag = tag;
+    this.subXmls = new ArrayList<XML>();
+    this.nestingStack = nestingStack;
   }
 
-  private String tag;
+  public XML beginEntry(String tag, Map<String, String> attributes){
+      XML xml = new XML(tag, attributes, this.nestingStack); 
+      nestingStack.peek().subXmls.add(xml);
+      nestingStack.push(xml);
+      return xml;
+  }
+  
+  public void closeEntry()
+  {
+    if (!nestingStack.isEmpty()){
+      nestingStack.pop();
+    }
+  }
 
+  public void assignContent(String content) {
+      nestingStack.peek().content = content;
+  }
+  
+  ///////////////////////////////////////////////////////////////////
+  //Tag of node
+  ///////////////////////////////////////////////////////////////////
   public String getTag() {
     return this.tag;
   }
-
-  private String content;
-
+  
+  ///////////////////////////////////////////////////////////////////
+  //Content of node
+  ///////////////////////////////////////////////////////////////////
   public String getContent() {
     return this.content;
-  }
-
-  private XmlElementType type;
-
-  public XmlElementType getType() {
-    return this.type;
-  }
-
-  private List<XML> subXmls;
-
+  } 
+  
+  ///////////////////////////////////////////////////////////////////
+  //Sub-XMLs
+  ///////////////////////////////////////////////////////////////////
   public List<XML> getSubXmls() {
     return this.subXmls;
   }
-
-  private XmlScope scope;
-
+  
+  ///////////////////////////////////////////////////////////////////
+  //Properties for attributes
+  ///////////////////////////////////////////////////////////////////
+  public Map<String, String> getAttributes() {
+    return this.attributes;
+  }
   public XmlScope getScope() {
     return this.scope;
   }
 
   public void setScope(XmlScope scope) {
     this.scope = scope;
-  }
-
-  public XML() {}
-
-  public XML(String tag, XmlElementType type, Map<String, String> attributes) {
-    this.type = type;
-    this.attributes = attributes;
-    this.tag = tag;
-    this.subXmls = new ArrayList<XML>();
-  }
-
-  public XML addSubEntry(XML xml) throws FormatterException {
-    if (type != XmlElementType.INTERMEDIATE) {
-      throw new FormatterException("Unable to add subentry");
-    } else {
-      subXmls.add(xml);
-      return xml;
-    }
-  }
-
-  public void assignContent(String content) throws FormatterException {
-    if (type != XmlElementType.LEAF) {
-      throw new FormatterException("Unable to add subentry");
-    } else {
-      this.content = content;
-    }
   }
 }

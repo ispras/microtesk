@@ -1,10 +1,20 @@
+/*
+ * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package ru.ispras.microtesk.docgen;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
-
 import ru.ispras.microtesk.translator.simnml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
@@ -18,125 +28,53 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
-/**
- * TODO: Eliminate code duplication in methods.
- * 
- * @author Platon
- *
- */
 public class XmlDocumenter implements IrVisitor {
 
 
-  private DocBook xml;
-  private Stack<XML> currentScope;
+  private DocBook docBook;
 
-  public XmlDocumenter(DocBook xml, String modelName) throws IOException {
-    this.xml = xml;
-    currentScope = new Stack<XML>();
+  public XmlDocumenter(DocBook dump) throws IOException {
+    this.docBook = dump;
   }
 
   @Override
   public void onResourcesBegin() {
-    try {
-      currentScope.push(xml.addChapter("Resources", "resources", XmlScope.RESOURCES));
-
-    } catch (FormatterException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    docBook.beginChapter("Resources", "resources", XmlScope.RESOURCES);
   }
 
   @Override
   public void onResourcesEnd() {
-    currentScope.pop();
+    docBook.closeChapter();
   }
 
   @Override
   public void onLetConstant(LetConstant let) {
-    Map<String, String> attr = new HashMap<>();
-    attr.put("entity", "let_constant");
-    XML letConstant = new XML("para", XmlElementType.LEAF, attr);
-    try {
-      letConstant.assignContent(let.getName());
-      currentScope.peek().addSubEntry(letConstant);
-    } catch (FormatterException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    docBook.addParagraph(let.getName());
   }
 
   @Override
   public void onLetString(LetString let) {
-    Map<String, String> attr = new HashMap<>();
-    attr.put("entity", "let_string");
-    XML letString = new XML("para", XmlElementType.LEAF, attr);
-    try {
-      letString.assignContent(let.getName());
-      currentScope.peek().addSubEntry(letString);
-    } catch (FormatterException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    docBook.addParagraph(let.getName());
   }
 
   @Override
   public void onLetLabel(LetLabel let) {
-    Map<String, String> attr = new HashMap<>();
-    attr.put("entity", "let_label");
-    XML letLabel = new XML("para", XmlElementType.LEAF, attr);
-    try {
-      letLabel.assignContent(let.getName());
-      currentScope.peek().addSubEntry(letLabel);
-    } catch (FormatterException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    docBook.addParagraph(let.getName());
   }
 
   @Override
   public void onType(String name, Type type) {
-    Map<String, String> attr = new HashMap<>();
-    attr.put("entity", "type_declaration");
-    XML pr_type = new XML("para", XmlElementType.LEAF, attr);
-    try {
-      pr_type.assignContent(name);
-      currentScope.peek().addSubEntry(pr_type);
-    } catch (FormatterException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    docBook.addParagraph(name);
   }
 
   @Override
   public void onMemory(String name, MemoryExpr memory) {
-    Map<String, String> attr = new HashMap<>();
-    attr.put("entity", "memory_description");
-    XML mem = new XML("para", XmlElementType.LEAF, attr);
-    try {
-      mem.assignContent(name);
-      currentScope.peek().addSubEntry(mem);
-    } catch (FormatterException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    docBook.addParagraph(name);
   }
 
   @Override
   public void onPrimitiveBegin(Primitive item) {
-    Map<String, String> attr = new HashMap<>();
-    attr.put("entity", "primitive");
-    XML primitive = new XML("para", XmlElementType.LEAF, attr);
-    try {
-      if (currentScope.isEmpty() || currentScope.peek().getScope() != XmlScope.PRIMITIVES) {
-        currentScope.push(xml.addChapter("Primitives", "primitives", XmlScope.PRIMITIVES));
-      }
-
-      primitive.assignContent(item.getName());
-      currentScope.peek().addSubEntry(primitive);
-    } catch (FormatterException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    docBook.addParagraph(item.getName());
   }
 
   @Override
@@ -196,22 +134,22 @@ public class XmlDocumenter implements IrVisitor {
 
   }
 
-  /**
-   * TODO: rewrite with XmlScopes.
-   * 
-   * @param scope: the scope that is intended to write.
-   */
-  @SuppressWarnings("unused")
-  @Deprecated
-  private void checkScope(String scope) {
-    if (currentScope.peek().getTag() != scope) {
-      try {
-        throw new Exception("Bad model structure");
-      } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
-  }
+//  /**
+//   * TODO: rewrite with XmlScopes.
+//   * 
+//   * @param scope: the scope that is intended to write.
+//   */
+//  @SuppressWarnings("unused")
+//  @Deprecated
+//  private void checkScope(String scope) {
+//    if (currentScope.peek().getTag() != scope) {
+//      try {
+//        throw new Exception("Bad model structure");
+//      } catch (Exception e) {
+//        // TODO Auto-generated catch block
+//        e.printStackTrace();
+//      }
+//    }
+//  }
 
 }

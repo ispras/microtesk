@@ -188,28 +188,21 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
 
     // TO PLATON >> TODO: YOUR CODE GOES HERE
     IrWalker walker = new IrWalker(ir, Direction.LINEAR);
-    DocBook xml = null;
+    DocBook dump = new DocBook(modelName);
+    XmlDocumenter documenter = null;
     try {
-      xml = new DocBook(modelName);
-    } catch (FormatterException e1) {
+      documenter = new XmlDocumenter(dump);
+    } catch (IOException e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
-
-    XmlDocumenter documenter = null;
-
-    try {
-      documenter = new XmlDocumenter(xml, modelName);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    
     walker.traverse(documenter);
     XmlWriter writer = null;
 
     try {
       writer = new XmlWriter(new FileWriter(new File("documentation.xml")));
-      writer.write(xml);
+      writer.write(dump.extractXML());
       writer.close();
     } catch (IOException e) {
       // TODO Auto-generated catch block
