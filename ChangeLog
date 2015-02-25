@@ -6,6 +6,12 @@
  2014/10/18 MicroTESK 2.1 beta
 --------------------------------------------------------------------------------
 
+ 2015/MM/DD MicroTESK 2.1.5 beta
+
+ The new build contains the following changes:
+
+ - The random_seed setting was added to test templates 
+
  2015/02/19 MicroTESK 2.1.4 beta
  
  The new build contains the following changes:

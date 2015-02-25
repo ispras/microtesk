@@ -1,5 +1,5 @@
 #
-# Copyright 2014 ISP RAS (http://www.ispras.ru)
+# Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,11 @@ require_relative 'minimips_base'
 #  
 
 class EuclidTemplate < MiniMipsBaseTemplate
+
+  def initialize
+    super
+    @random_seed = 16
+  end
 
   def run
     trace "Euclidean Algorithm (miniMIPS): Debug Output"

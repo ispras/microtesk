@@ -46,6 +46,9 @@ module Settings
   # Text that terminates multi-line comments.
   attr_reader :ml_comment_ends_with
 
+  # Seed for the randomizer
+  attr_reader :random_seed
+
   #
   # Assigns default values to the attributes.
   # 
@@ -56,6 +59,8 @@ module Settings
     @sl_comment_starts_with = "// "
     @ml_comment_starts_with = "/*"
     @ml_comment_ends_with   = "*/"
+
+    @random_seed = 0
   end
 
 end # Settings
@@ -353,6 +358,7 @@ class Template
     engine.setLogExecution  log_execution
     engine.setPrintToScreen use_stdout
     engine.setCommentToken  sl_comment_starts_with
+    engine.setRandomSeed    random_seed
 
     @template = engine.newTemplate
 

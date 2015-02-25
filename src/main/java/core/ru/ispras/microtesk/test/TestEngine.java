@@ -20,6 +20,7 @@ import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 import java.io.IOException;
 import java.util.List;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
@@ -90,7 +91,11 @@ public final class TestEngine {
   public void setCommentToken(String commentToken) {
     this.commentToken = commentToken;
   }
-  
+
+  public void setRandomSeed(int seed) {
+    Randomizer.get().setSeed(seed);
+  }
+
   private static class TemplateProcessor {
     private final TemplateProduct sequences;
     private final Executor executor;
