@@ -105,7 +105,7 @@ final class Printer {
    * 
    * @param sequence Instruction call sequence.
    * @throws NullPointerException if the parameter is null.
-   * @throws ConfigurationException if failed to evaluate one of the output object associated with
+   * @throws ConfigurationException if failed to evaluate one of the output objects associated with
    *         an instruction call in the sequence.
    */
 
@@ -115,20 +115,15 @@ final class Printer {
     final List<ConcreteCall> prologue = sequence.getPrologue();
     if (!prologue.isEmpty()) {
       printToScreen("Initialization:");
-      printToScreen("");
-
       printCommentToFile("Initialization:");
-      printNewLineToFile();
+      printText("");
 
       printCalls(prologue);
-      
-      printToScreen("");
-      printToScreen("Main Code:");
-      printToScreen("");
 
-      printNewLineToFile();
+      printText("");
+      printToScreen("Main Code:");
       printCommentToFile("Main Code:");
-      printNewLineToFile();
+      printText("");
     }
     
     printCalls(sequence.getBody());
