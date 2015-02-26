@@ -45,11 +45,11 @@ mem  M [2 ** 16, WORD] // Memory is word-addressable
 ////////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
 
-mode REG (i : INDEX) = GPR[i]
+mode REG (i: INDEX) = GPR[i]
   syntax = format("$%d", i)
   image  = format("%s", i)
 
-mode COP0 (i : INDEX) = COP0_R[i] 
+mode COP0 (i: INDEX) = COP0_R[i]
   syntax = format("$%d", i)
   image  = format("%s", i)
 
@@ -72,8 +72,8 @@ op add (rd: REG, rs: REG, rt: REG)
   syntax = format("add %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image)
   action = {
-    temp = rs<31>::rs + rt<31>::rt; 
-    if temp<32> != temp<31> then    
+    temp = rs<31>::rs + rt<31>::rt;
+    if temp<32> != temp<31> then
       exception("IntegerOverflow");
     else
       rd = temp<31..0>;
@@ -84,7 +84,7 @@ op addi (rt: REG, rs: REG, imm: SHORT)
   syntax = format("addi %s, %s, %d", rt.syntax, rs.syntax, imm)
   image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
-    temp = rs<31>::rs + coerce(int(33), imm); 
+    temp = rs<31>::rs + coerce(int(33), imm);
     if temp<32> != temp<31> then
       exception("IntegerOverflow");
     else
@@ -96,7 +96,7 @@ op addu (rd: REG, rs: REG, rt: REG) //unchecked addition
   syntax = format("addu %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100001", rs.image, rt.image, rd.image)
   action = {
-      rd = rs + rt;
+    rd = rs + rt;
   }
 
 op addiu (rt: REG, rs: REG, imm: SHORT)
@@ -250,11 +250,11 @@ op lw (rt: REG, offset: SHORT, address: REG)
     rt = M[(address + offset) >> 2];
   }
 
-op lui (rt: REG, imm:SHORT)
+op lui (rt: REG, imm: SHORT)
   syntax = format("lui %s, %d", rt.syntax, imm)
   image = format("001111%s%s", rt.image, imm)
   action = {
-    rt = coerce(WORD, imm) << 8;
+    rt = coerce(WORD, imm) << 16;
   }
 
 op sw (rd: REG, offset: SHORT, address: REG)
