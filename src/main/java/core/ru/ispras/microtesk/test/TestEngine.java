@@ -161,7 +161,7 @@ public final class TestEngine {
       int testCaseIndex = 1;
 
       for (Block testCase : testCases) {
-        final String testCaseTitle = String.format("Test Case %s", testCaseIndex);
+        final String testCaseTitle = String.format("Test %s", testCaseIndex);
 
         printHeader(testCaseTitle);
         printer.printSeparatorToFile(testCaseTitle);
@@ -183,7 +183,7 @@ public final class TestEngine {
           throw new IllegalStateException("Only a single sequence is allowed.");
         }
 
-        final String sequenceId = String.format("Sequence %d", sequenceIndex);
+        final String sequenceId = String.format("Test Case %d", sequenceIndex);
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
         printHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
