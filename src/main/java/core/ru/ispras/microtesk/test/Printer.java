@@ -111,23 +111,26 @@ final class Printer {
 
   public void printSequence(TestSequence sequence) throws ConfigurationException {
     checkNotNull(sequence);
-    
+
     final List<ConcreteCall> prologue = sequence.getPrologue();
     if (!prologue.isEmpty()) {
-      printToScreen("Initialization:");
-      printCommentToFile("Initialization:");
-      printText("");
-
+      printNote("Initialization:");
       printCalls(prologue);
 
       printText("");
-      printToScreen("Main Code:");
-      printCommentToFile("Main Code:");
-      printText("");
+      printNote("Main Code:");
     }
-    
+
     printCalls(sequence.getBody());
   }
+
+  /**
+   * Prints the specified list of calls (all attributes applicable at generation time).
+   * 
+   * @param calls List of calls.
+   * @throws ConfigurationException if failed to evaluate one of the output objects
+   *         associated with an instruction call.
+   */
 
   private void printCalls(List<ConcreteCall> calls) throws ConfigurationException {
     for (ConcreteCall call : calls) {
@@ -173,7 +176,21 @@ final class Printer {
       printText(label.getUniqueName() + ":");
     }
   }
-  
+
+  /**
+   * Prints the specified text to the screen (as is) and to the file (a comment).
+   * The text is followed by an empty line. Note specify parts of code that need
+   * a comment on their purpose. 
+   * 
+   * @param text Text to be printed.
+   */
+
+  private void printNote(String text) {
+    printToScreen(text);
+    printCommentToFile(text);
+    printText("");
+  }
+
   /**
    * Prints text both to the file and to the screen (if corresponding options are enabled).
    * @param text Text to be printed.
@@ -208,7 +225,8 @@ final class Printer {
   }
 
   /**
-   * Prints a special header comment that specifies the start of a code section. 
+   * Prints a special header comment that specifies the start of a code section
+   * (sections include: data definitions, initialization, finalization and main code). 
    * 
    * @param text Text of the header.
    */
@@ -218,6 +236,20 @@ final class Printer {
     printSeparatorToFile();
     printCommentToFile(text);
     printSeparatorToFile();
+    printNewLineToFile();
+  }
+
+  /**
+   * Prints a special header comment that specifies the start of a logically separate
+   * part of code. 
+   * 
+   * @param text Text of the header.
+   */
+
+  public void printSubheaderToFile(String text) {
+    printNewLineToFile();
+    printSeparatorToFile();
+    printCommentToFile(text);
     printNewLineToFile();
   }
 

@@ -194,10 +194,7 @@ public final class TestEngine {
 
         printHeader("Printing%s", (isSingleSequence ? "" : " " + sequenceId));
         if (!isSingleSequence) {
-          printer.printNewLineToFile();
-          printer.printSeparatorToFile();
-          printer.printCommentToFile(String.format("%s:", sequenceId));
-          printer.printNewLineToFile();
+          printer.printSubheaderToFile(String.format("%s:", sequenceId));
         }
         printer.printSequence(concreteSequence);
 
