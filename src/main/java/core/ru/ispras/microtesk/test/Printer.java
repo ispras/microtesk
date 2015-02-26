@@ -79,13 +79,13 @@ final class Printer {
     this.isHeaderPrinted = false;
 
     this.separator = commentToken + 
-        newSeparatorString(LINE_WIDTH - commentToken.length());
+        newSeparator(LINE_WIDTH - commentToken.length(), '*');
   }
 
-  private static String newSeparatorString(int length) {
+  private static String newSeparator(int length, char character) {
     final StringBuilder sb = new StringBuilder();
     while (sb.length() < length) {
-      sb.append('*');
+      sb.append(character);
     }
     return sb.toString();
   }
@@ -282,16 +282,20 @@ final class Printer {
    */
 
   public void printSeparatorToFile(String text) {
+    printSeparatorToFile(text, '*');
+  }
+
+  private void printSeparatorToFile(String text, char character) {
     final int prefixLength = (LINE_WIDTH - text.length()) / 2;
     final int postfixLength = LINE_WIDTH - prefixLength - text.length();
     final StringBuilder sb = new StringBuilder();
 
     sb.append(commentToken);
-    sb.append(newSeparatorString(prefixLength - commentToken.length() - 1));
+    sb.append(newSeparator(prefixLength - commentToken.length() - 1, character));
     sb.append(' ');
     sb.append(text);
     sb.append(' ');
-    sb.append(newSeparatorString(postfixLength - 1));
+    sb.append(newSeparator(postfixLength - 1, character));
 
     printToFile(sb.toString());
   }
