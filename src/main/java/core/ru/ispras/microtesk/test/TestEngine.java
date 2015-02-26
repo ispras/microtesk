@@ -28,7 +28,6 @@ import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
-import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.TemplateProduct;
@@ -188,7 +187,7 @@ public final class TestEngine {
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
         printHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
-        final Sequence<ConcreteCall> concreteSequence = dataGenerator.process(abstractSequence);
+        final TestSequence concreteSequence = dataGenerator.process(abstractSequence);
 
         printHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
         executor.executeSequence(concreteSequence);

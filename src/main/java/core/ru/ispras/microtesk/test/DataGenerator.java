@@ -40,7 +40,6 @@ import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.SequenceBuilder;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -67,7 +66,7 @@ import ru.ispras.testbase.stub.TestBase;
  * performs all necessary data generation and all initializing calls to the generated instruction
  * sequence.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 final class DataGenerator {
@@ -76,7 +75,7 @@ final class DataGenerator {
   private final PreparatorStore preparators;
 
   private Set<AddressingModeWrapper> initializedModes;
-  private SequenceBuilder<ConcreteCall> sequenceBuilder;
+  private TestSequence.Builder sequenceBuilder;
 
   DataGenerator(IModel model, PreparatorStore preparators) {
     checkNotNull(model);
@@ -92,12 +91,12 @@ final class DataGenerator {
     return model.getCallFactory();
   }
 
-  public Sequence<ConcreteCall> process(Sequence<Call> abstractSequence)
+  public TestSequence process(Sequence<Call> abstractSequence)
       throws ConfigurationException {
     checkNotNull(abstractSequence);
 
     initializedModes = new HashSet<>();
-    sequenceBuilder = new SequenceBuilder<ConcreteCall>();
+    sequenceBuilder = new TestSequence.Builder();
 
     try {
       for (Call abstractCall : abstractSequence) {
@@ -571,6 +570,14 @@ final class TestBaseQueryCreator {
     }
   }
 }
+
+/**
+ * Wrapper class for addressing mode primitives that allows checking equality and calculating
+ * hash code. This is needed to avoid initializations of the same resources that would overwrite
+ * each other. 
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 
 final class AddressingModeWrapper {
   private final Primitive mode;

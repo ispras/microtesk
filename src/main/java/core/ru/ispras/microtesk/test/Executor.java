@@ -20,7 +20,6 @@ import java.util.List;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
@@ -71,7 +70,18 @@ final class Executor {
    *         observer).
    */
 
-  public void executeSequence(Sequence<ConcreteCall> sequence) throws ConfigurationException {
+  public void executeSequence(TestSequence sequence) throws ConfigurationException {
+    final List<ConcreteCall> prologue = sequence.getPrologue();
+    if (!prologue.isEmpty()) {
+      logText("Initialization:\r\n");
+      executeSequence(sequence.getPrologue());
+      logText("\r\nMain Code:\r\n");
+    }
+
+    executeSequence(sequence.getBody());
+  }
+
+  private void executeSequence(List<ConcreteCall> sequence) throws ConfigurationException {
     checkNotNull(sequence);
 
     // Remembers all labels defined by the sequence and its positions.

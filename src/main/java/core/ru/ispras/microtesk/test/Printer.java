@@ -24,7 +24,6 @@ import java.util.List;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
@@ -110,13 +109,36 @@ final class Printer {
    *         an instruction call in the sequence.
    */
 
-  public void printSequence(Sequence<ConcreteCall> sequence) throws ConfigurationException {
+  public void printSequence(TestSequence sequence) throws ConfigurationException {
     checkNotNull(sequence);
+    
+    final List<ConcreteCall> prologue = sequence.getPrologue();
+    if (!prologue.isEmpty()) {
+      printToScreen("Initialization:");
+      printToScreen("");
 
-    for (ConcreteCall inst : sequence) {
-      printOutputs(inst.getOutputs());
-      printLabels(inst.getLabels());
-      printText(inst.getText());
+      printCommentToFile("Initialization:");
+      printNewLineToFile();
+
+      printCalls(prologue);
+      
+      printToScreen("");
+      printToScreen("Main Code:");
+      printToScreen("");
+
+      printNewLineToFile();
+      printCommentToFile("Main Code:");
+      printNewLineToFile();
+    }
+    
+    printCalls(sequence.getBody());
+  }
+
+  private void printCalls(List<ConcreteCall> calls) throws ConfigurationException {
+    for (ConcreteCall call : calls) {
+      printOutputs(call.getOutputs());
+      printLabels(call.getLabels());
+      printText(call.getText());
     }
   }
 
