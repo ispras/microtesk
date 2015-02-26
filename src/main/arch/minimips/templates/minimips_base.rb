@@ -1,5 +1,5 @@
 #
-# Copyright 2014 ISP RAS (http://www.ispras.ru)
+# Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,15 @@ class MiniMipsBaseTemplate < Template
       define_space :id => :space, :text => '.space', :fillWith => 0
       define_ascii_string :id => :ascii, :text => '.ascii', :zeroTerm => false
       define_ascii_string :id => :asciiz, :text => '.asciiz', :zeroTerm => true
+    }
+
+    #
+    # The code below specifies an instruction sequence that writes a value
+    # to the specified register (target) via the REG addressing mode.
+    #
+    preparator(:target => 'REG') {
+      lui  target, value(16, 31)
+      addi target, target, value(0, 15)
     }
   end
 
