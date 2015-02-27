@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.test.template;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -126,13 +128,8 @@ public final class Output {
    */
 
   Output(boolean isRuntime, String format, List<Argument> args) {
-    if (null == format) {
-      throw new NullPointerException();
-    }
-
-    if (null == args) {
-      throw new NullPointerException();
-    }
+    checkNotNull(format);
+    checkNotNull(args);
 
     this.isRuntime = isRuntime;
     this.format = format;
@@ -151,12 +148,12 @@ public final class Output {
   }
 
   /**
-   * Returns <code>true</code> if the stored information should be evaluated during the simulation
+   * Returns {@code true} if the stored information should be evaluated during the simulation
    * and the evaluation results should be printed to the MicroTESK simulator output or
-   * <code>false</code> if it should be evaluated after simulation and the results should be
+   * {@code false} if it should be evaluated after simulation and the results should be
    * inserted into the generated test program.
    * 
-   * @return <code>true</code> if it is to printed at runtime or <code>false</code> if it should be
+   * @return {@code true} if it is to printed at runtime or {@code false} if it should be
    *         printed into the test program.
    */
 
@@ -172,13 +169,11 @@ public final class Output {
    * @return Text to be printed.
    * @throws ConfigurationException if failed to evaluate the information due to an incorrect
    *         request to the model state observer.
-   * @throws NullPointerException if the parameter equals null.
+   * @throws NullPointerException if the parameter equals {@code null}.
    */
 
   public String evaluate(IModelStateObserver observer) throws ConfigurationException {
-    if (null == observer) {
-      throw new NullPointerException();
-    }
+    checkNotNull(observer);
 
     if (args.isEmpty()) {
       return format;
