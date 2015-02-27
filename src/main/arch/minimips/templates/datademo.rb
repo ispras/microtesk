@@ -20,7 +20,7 @@ require_relative 'minimips_base'
 # Description:
 #
 # This test template demonstrates how to work with data definition constucts
-# and load and store instructions. 
+# and load and store instructions.
 #
 class DataDemoTemplate < MiniMipsBaseTemplate
 
