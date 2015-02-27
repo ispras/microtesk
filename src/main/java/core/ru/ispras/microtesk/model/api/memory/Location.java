@@ -246,7 +246,13 @@ public final class Location implements LocationAccessor {
   @Override
   public BigInteger getValue() {
     final BitVector rawData = readDataDirecty(sources);
-    return rawData.bigIntegerValue();
+
+    // TODO: this is needed make the value unsigned because negative
+    // BigInteger values are printed with the '-' prefix. In the case of
+    // hexadecimal values this is very ugly. Need to think how to do this better.
+    // For now, this hack is used.
+
+    return new BigInteger(rawData.toHexString(), 16);
   }
 
   private static BitVector readDataDirecty(List<Source> sources) {
