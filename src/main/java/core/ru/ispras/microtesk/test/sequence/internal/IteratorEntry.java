@@ -23,20 +23,20 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class IteratorEntry<T> {
-  // / The default point position.
+  /** The default point position. */
   public final static float DEFAULT_POINT_POSITION = 50.0f;
 
-  // / The index of the current item.
+  /** The index of the current item. */
   public int index;
-  // / The point where the composition (nesting, overlapping, etc.) is applied.
+  /** The point where the composition (nesting, overlapping, etc.) is applied. */
   public int point;
-  // / The overall number of items being iterated.
+  /** The overall number of items being iterated. */
   public int count;
 
-  // / The flag indicating that the composition has been done.
+  /** The flag indicating that the composition has been done. */
   public boolean done;
 
-  // / The iterator itself.
+  /** The iterator itself. */
   public IIterator<T> iterator;
 
   /**

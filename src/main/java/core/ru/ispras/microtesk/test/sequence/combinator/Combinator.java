@@ -27,7 +27,7 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class Combinator<T> extends CompositeIterator<T> implements IIterator<List<T>> {
-  // / Availability of the value.
+  /** Availability of the value. */
   private boolean hasValue;
 
   /**

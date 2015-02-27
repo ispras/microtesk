@@ -27,13 +27,15 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class Compositor<T> extends CompositeIterator<T> implements IIterator<T> {
-  // / The currently chosen iterator.
+  /** The currently chosen iterator. */
   private IIterator<T> chosen;
 
   /**
    * Constructs a compositor with the empty list of iterators.
    */
-  public Compositor() {}
+  public Compositor() {
+    // Do nothing.
+  }
 
   /**
    * Constructs a compositor with the given list of iterators.
@@ -65,9 +67,9 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements IIte
    */
   protected abstract IIterator<T> choose();
 
-  // /////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
   // Callback-based implementation of the iterator method
-  // /////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   @Override
   public void init() {

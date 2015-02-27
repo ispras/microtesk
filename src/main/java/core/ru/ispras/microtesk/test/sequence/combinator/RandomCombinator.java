@@ -29,12 +29,12 @@ import ru.ispras.fortress.randomizer.Randomizer;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class RandomCombinator<T> extends Combinator<T> {
-  // / Maps an iterator to the list of previous values.
+  /** Maps an iterator to the list of previous values. */
   private Map<Integer, ArrayList<T>> caches = new HashMap<Integer, ArrayList<T>>();
-  // / Maps an iterator to the current value.
+  /** Maps an iterator to the current value. */
   private Map<Integer, T> values = new HashMap<Integer, T>();
 
-  // / Contains exhausted iterators.
+  /** Contains exhausted iterators. */
   private Set<Integer> exhausted = new HashSet<Integer>();
 
   @Override
@@ -89,7 +89,12 @@ public class RandomCombinator<T> extends Combinator<T> {
     return true;
   }
 
-  // / Adds the iterator value into the cache.
+  /**
+   * Adds the iterator value into the cache.
+   *
+   * @param i the iterator index.
+   * @param value the value to be added into the cache.
+   */
   private void addValue(int i, final T value) {
     final ArrayList<T> trace = caches.containsKey(i) ? caches.get(i) : new ArrayList<T>();
     trace.add(value);

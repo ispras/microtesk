@@ -25,7 +25,7 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class CompositeIterator<T> {
-  // / The sub-iterators (i.e., iterators to be combined or composed).
+  /** The sub-iterators (i.e., iterators to be combined or composed). */
   protected ArrayList<IIterator<T>> iterators = new ArrayList<IIterator<T>>();
 
   /**

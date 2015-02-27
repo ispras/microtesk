@@ -23,13 +23,13 @@ import java.util.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class CollectionIterator<T> implements IBoundedIterator<T> {
-  // The collection being iterator.
+  /** The collection being iterator. */
   private Collection<T> collection;
-  // The collection iterator.
+  /** The collection iterator. */
   private Iterator<T> iterator;
-  // The flag that refrects availability of the value.
+  /** The flag that refrects availability of the value. */
   private boolean hasValue;
-  // The current value.
+  /** The current value. */
   private T value;
 
   /**

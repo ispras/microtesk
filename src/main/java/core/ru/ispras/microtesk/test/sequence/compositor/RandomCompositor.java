@@ -27,7 +27,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class RandomCompositor<T> extends Compositor<T> {
-  // / Random distribution for choosing iterators.
+  /** Random distribution for choosing iterators. */
   private Distribution distribution;
 
   @Override
@@ -59,7 +59,7 @@ public class RandomCompositor<T> extends Compositor<T> {
 
   @Override
   protected void onNext() {
-    // Do nothing
+    // Do nothing.
   }
 
   @Override

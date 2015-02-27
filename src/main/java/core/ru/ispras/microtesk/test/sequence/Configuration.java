@@ -26,10 +26,10 @@ import ru.ispras.microtesk.test.sequence.compositor.*;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class Configuration<T> {
-  // / The map of available combinators.
+  /** The map of available combinators. */
   private Map<String, Class<?>> combinators = new HashMap<String, Class<?>>();
 
-  // / The map of available compositors.
+  /** The map of available compositors. */
   private Map<String, Class<?>> compositors = new HashMap<String, Class<?>>();
 
   /**

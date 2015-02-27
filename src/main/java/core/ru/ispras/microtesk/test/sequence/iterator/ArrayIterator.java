@@ -20,11 +20,11 @@ package ru.ispras.microtesk.test.sequence.iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class ArrayIterator<T> implements IBoundedIterator<T> {
-  // The iterated array.
+  /** The iterated array. */
   private T[] array;
-  // The current index.
+  /** The current index. */
   private int index;
-  // The flag that refrects availability of the value.
+  /** The flag that refrects availability of the value. */
   private boolean hasValue;
 
   /**

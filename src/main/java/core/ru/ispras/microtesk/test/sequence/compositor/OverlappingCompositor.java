@@ -25,14 +25,14 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class OverlappingCompositor<T> extends Compositor<T> {
-  // / The index of the recently used iterator from the compositor's list.
+  /** The index of the recently used iterator from the compositor's list. */
   private int n;
-  // / The index of the recently selected iterator from <code>overlap</code>.
+  /** The index of the recently selected iterator from <code>overlap</code>. */
   private int k;
-  // / The next selection.
+  /** The next selection. */
   private int i;
 
-  // / The list of the currently used iterators.
+  /** The list of the currently used iterators. */
   private ArrayList<IteratorEntry<T>> overlap = new ArrayList<IteratorEntry<T>>();
 
   @Override

@@ -22,7 +22,7 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class CatenationCompositor<T> extends Compositor<T> {
-  // The current iterator index.
+  /** The current iterator index. */
   private int i;
 
   @Override
@@ -32,7 +32,7 @@ public class CatenationCompositor<T> extends Compositor<T> {
 
   @Override
   protected void onNext() {
-    // Do nothing
+    // Do nothing.
   }
 
   @Override

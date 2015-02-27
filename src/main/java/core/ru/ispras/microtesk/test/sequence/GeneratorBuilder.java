@@ -22,21 +22,23 @@ import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>> {
-  // / The default combinator.
+  /** The default combinator. */
   public static final ECombinator DEFAULT_COMBINATOR = ECombinator.RANDOM;
-  // / The default compositor.
+  /** The default compositor. */
   public static final ECompositor DEFAULT_COMPOSITOR = ECompositor.RANDOM;
 
-  // / The configuration of the test sequence generator.
+  /** The configuration of the test sequence generator. */
   private Configuration<T> config = new Configuration<T>();
 
-  // / The combinator used in the generator.
+  /** The combinator used in the generator. */
   private String combinator = null;
-  // / The compositor used in the generator.
+  /** The compositor used in the generator. */
   private String compositor = null;
 
-  // / Specifies whether a single sequence must be generated 
-  // / (all sequences returned by all iterators are united into a single sequence).
+  /**
+   * Specifies whether a single sequence must be generated 
+   * (all sequences returned by all iterators are united into a single sequence).
+   */
   private boolean isSingle = false;
 
   /**
