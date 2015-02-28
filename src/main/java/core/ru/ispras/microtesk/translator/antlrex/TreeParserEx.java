@@ -25,7 +25,6 @@ import org.antlr.runtime.tree.TreeParser;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
-import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
@@ -115,7 +114,7 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
     super.reportError(re);
 
     final LogEntry logEntry = new LogEntry(
-      ELogEntryKind.ERROR,
+      LogEntry.Kind.ERROR,
       ESenderKind.TREEWALKER,
       new File(getSourceName()).getName(),
       re.line,
@@ -138,7 +137,7 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
     InvariantChecks.checkNotNull(log);
 
     final LogEntry logEntry = new LogEntry(
-      ELogEntryKind.ERROR,
+      LogEntry.Kind.ERROR,
       ESenderKind.SEMANTIC,
       new File(getSourceName()).getName(),
       se.line,

@@ -37,7 +37,7 @@ public class Logger {
     this.log = log;
   }
 
-  private void report(ELogEntryKind kind, String message) {
+  private void report(LogEntry.Kind kind, String message) {
     log.append(new LogEntry(kind, sender, fileName, 0, 0, message));
   }
 
@@ -48,7 +48,7 @@ public class Logger {
    */
 
   public final void reportError(String message) {
-    report(ELogEntryKind.ERROR, message);
+    report(LogEntry.Kind.ERROR, message);
   }
 
   /**
@@ -58,6 +58,6 @@ public class Logger {
    */
 
   public final void reportWarning(String message) {
-    report(ELogEntryKind.WARNING, message);
+    report(LogEntry.Kind.WARNING, message);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,20 +14,51 @@
 
 package ru.ispras.microtesk.translator.antlrex.log;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 /**
  * The LogEntry class stores information about a translation issue registered in the log.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public class LogEntry {
-  private ELogEntryKind kind;
-  private ESenderKind sender;
+public final class LogEntry {
 
-  private String source;
-  private int line;
-  private int position;
-  private String message;
+  /**
+   * The enumeration describes categories of events or exceptions (usually a record is added
+   * to the log due to a runtime exception) that can occur during translation.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+
+  public static enum Kind {
+    /**
+     * Signifies a severe translation error. Usually it means that some part of the 
+     * translated specification was incorrect, which cause translation to fail. In other
+     * words, the translator was unable to produce any meaningful output.
+     */
+    ERROR,
+
+    /**
+     * Signifies a minor translation error. This usually means a small issue in the 
+     * specification which can potentially cause incorrect results.
+     */
+    WARNING,
+
+    /**
+     * Signifies an informational message that highlights some issue in the specification (or in
+     * the tool) that requires the user's attention, but is not necessarily an error.
+     */
+    MESSAGE
+  }
+  
+  private final Kind kind;
+  private final ESenderKind sender;
+
+  private final String source;
+  private final int line;
+  private final int position;
+  private final String message;
 
   private static final String FORMAT = "%s %d:%d %s (%s): \"%s\"";
 
@@ -36,14 +67,20 @@ public class LogEntry {
    * 
    * @param kind The severity level of the issue.
    * @param sender The subsystem that detected the issue.
-   * @param source A source file (in ADL) that caused translation issues.
-   * @param line The number of the problematic line in the ADL file.
-   * @param position The position in the problematic line in the ADL file.
+   * @param source A source file that caused translation issues.
+   * @param line The number of the problematic line in the source file.
+   * @param position The position in the problematic line in the source file.
    * @param message The text message containing a description of the issue.
    */
 
-  public LogEntry(ELogEntryKind kind, ESenderKind sender, String source, int line, int position,
-      String message) {
+  public LogEntry(
+      Kind kind, ESenderKind sender, String source, int line, int position, String message) {
+
+    checkNotNull(kind);
+    checkNotNull(sender);
+    checkNotNull(source);
+    checkNotNull(message);
+
     this.kind = kind;
     this.sender = sender;
     this.source = source;
@@ -68,7 +105,7 @@ public class LogEntry {
    * @return The severity level of the issue.
    */
 
-  public ELogEntryKind getKind() {
+  public Kind getKind() {
     return kind;
   }
 

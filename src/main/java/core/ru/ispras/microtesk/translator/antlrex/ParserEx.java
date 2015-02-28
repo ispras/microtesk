@@ -25,7 +25,6 @@ import org.antlr.runtime.TokenStream;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
-import ru.ispras.microtesk.translator.antlrex.log.ELogEntryKind;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
@@ -65,7 +64,7 @@ public class ParserEx extends Parser implements IErrorReporter {
     super.reportError(re);
 
     final LogEntry logEntry = new LogEntry(
-      ELogEntryKind.ERROR,
+      LogEntry.Kind.ERROR,
       ESenderKind.PARSER,
       sourceName,
       re.line,
@@ -81,7 +80,7 @@ public class ParserEx extends Parser implements IErrorReporter {
     InvariantChecks.checkNotNull(log);
 
     final LogEntry logEntry = new LogEntry(
-      ELogEntryKind.ERROR,
+      LogEntry.Kind.ERROR,
       ESenderKind.SYNTACTIC,
       sourceName,
       se.line,
