@@ -16,6 +16,13 @@ package ru.ispras.microtesk.translator.antlrex;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+/**
+ * The {@code SemanticError} class describes a semantic error in the specification detected
+ * by a translator. This is the most trivial implementation that just encapsulates a string. 
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
 public class SemanticError implements ISemanticError {
   private final String message;
 
