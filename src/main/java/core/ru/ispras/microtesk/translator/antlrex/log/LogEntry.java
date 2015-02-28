@@ -53,7 +53,7 @@ public final class LogEntry {
   }
   
   private final Kind kind;
-  private final ESenderKind sender;
+  private final SenderKind sender;
 
   private final String source;
   private final int line;
@@ -74,7 +74,7 @@ public final class LogEntry {
    */
 
   public LogEntry(
-      Kind kind, ESenderKind sender, String source, int line, int position, String message) {
+      Kind kind, SenderKind sender, String source, int line, int position, String message) {
 
     checkNotNull(kind);
     checkNotNull(sender);
@@ -115,7 +115,7 @@ public final class LogEntry {
    * @return Identifier of the subsystem that detected an issue.
    */
 
-  public ESenderKind getSender() {
+  public SenderKind getSender() {
     return sender;
   }
 

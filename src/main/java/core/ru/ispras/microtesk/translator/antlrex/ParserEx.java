@@ -25,9 +25,9 @@ import org.antlr.runtime.TokenStream;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
-import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
+import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 
 /**
  * The ParserEx class is an extension of the ANTLR library class Parser that
@@ -65,7 +65,7 @@ public class ParserEx extends Parser implements IErrorReporter {
 
     final LogEntry logEntry = new LogEntry(
       LogEntry.Kind.ERROR,
-      ESenderKind.PARSER,
+      SenderKind.PARSER,
       sourceName,
       re.line,
       re.charPositionInLine,
@@ -81,7 +81,7 @@ public class ParserEx extends Parser implements IErrorReporter {
 
     final LogEntry logEntry = new LogEntry(
       LogEntry.Kind.ERROR,
-      ESenderKind.SYNTACTIC,
+      SenderKind.SYNTACTIC,
       sourceName,
       se.line,
       se.charPositionInLine,

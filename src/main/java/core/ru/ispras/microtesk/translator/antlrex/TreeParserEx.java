@@ -25,9 +25,9 @@ import org.antlr.runtime.tree.TreeParser;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
-import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
+import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 
 /**
  * The TreeParserEx class is an extension of the standard ANTLR TreeParser class. It provides
@@ -115,7 +115,7 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
 
     final LogEntry logEntry = new LogEntry(
       LogEntry.Kind.ERROR,
-      ESenderKind.TREEWALKER,
+      SenderKind.TREEWALKER,
       new File(getSourceName()).getName(),
       re.line,
       re.charPositionInLine,
@@ -138,7 +138,7 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
 
     final LogEntry logEntry = new LogEntry(
       LogEntry.Kind.ERROR,
-      ESenderKind.SEMANTIC,
+      SenderKind.SEMANTIC,
       new File(getSourceName()).getName(),
       se.line,
       se.charPositionInLine,
