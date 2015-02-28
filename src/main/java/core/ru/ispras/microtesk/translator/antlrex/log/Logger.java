@@ -25,9 +25,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 public class Logger {
   private final ESenderKind sender;
   private final String fileName;
-  private final ILogStore log;
+  private final LogStore log;
 
-  public Logger(ESenderKind sender, String fileName, ILogStore log) {
+  public Logger(ESenderKind sender, String fileName, LogStore log) {
     checkNotNull(sender);
     checkNotNull(fileName);
     checkNotNull(log);

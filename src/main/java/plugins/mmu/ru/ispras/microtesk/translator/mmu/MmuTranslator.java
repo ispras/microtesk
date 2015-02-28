@@ -26,7 +26,7 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
-import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
+import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuLexer;
@@ -35,7 +35,7 @@ import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 
 public class MmuTranslator {
-  private static final ILogStore LOG = new ILogStore() {
+  private static final LogStore LOG = new LogStore() {
     @Override
     public void append(LogEntry entry) {
       System.err.println(entry);

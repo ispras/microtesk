@@ -26,7 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
-import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
+import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 
 /**
@@ -38,7 +38,7 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
  */
 
 public class ParserEx extends Parser implements IErrorReporter {
-  private ILogStore log = null;
+  private LogStore log = null;
   private int errorCount = 0;
 
   private final String sourceName;
@@ -49,7 +49,7 @@ public class ParserEx extends Parser implements IErrorReporter {
     sourceName = new File(getSourceName()).getName();
   }
 
-  public void assignLog(ILogStore log) {
+  public void assignLog(LogStore log) {
     this.log = log;
   }
 

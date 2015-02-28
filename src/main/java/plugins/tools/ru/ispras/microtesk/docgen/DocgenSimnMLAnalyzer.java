@@ -34,7 +34,7 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
-import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
+import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
@@ -49,7 +49,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveSyntesizer;
 
 public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
 
-  private final ILogStore LOG = new ILogStore() {
+  private final LogStore LOG = new LogStore() {
     @Override
     public void append(LogEntry entry) {
       System.err.println(entry);

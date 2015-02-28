@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
-import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
+import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.Logger;
 
 import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.*;
@@ -80,7 +80,7 @@ public final class PrimitiveSyntesizer extends Logger {
    * @throws NullPointerException if any of the parameters equals null.
    */
 
-  public PrimitiveSyntesizer(Collection<Primitive> operations, String fileName, ILogStore log) {
+  public PrimitiveSyntesizer(Collection<Primitive> operations, String fileName, LogStore log) {
     super(ESenderKind.EMITTER, fileName, log);
 
     if (null == operations) {

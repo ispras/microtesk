@@ -26,7 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 import ru.ispras.microtesk.translator.antlrex.log.ESenderKind;
-import ru.ispras.microtesk.translator.antlrex.log.ILogStore;
+import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 
 /**
@@ -55,7 +55,7 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
  */
 
 public class TreeParserEx extends TreeParser implements IErrorReporter {
-  private ILogStore log = null;
+  private LogStore log = null;
   private int errorCount = 0;
 
   // Stores standard ANTLR exception messages thrown by generated
@@ -91,7 +91,7 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
    * @param log A log store object.
    */
 
-  public final void assignLog(ILogStore log) {
+  public final void assignLog(LogStore log) {
     this.log = log;
   }
 
