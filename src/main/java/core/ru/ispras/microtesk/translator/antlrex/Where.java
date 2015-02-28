@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,25 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
+/**
+ * The Where class is used in error reporting to describe the place in a source file
+ * where the reported issue occurred.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
 public final class Where {
   private final String unit;
   private final int line;
   private final int position;
+  
+  /**
+   * Constructs the object from unit name, line number and position.
+   * 
+   * @param unit Source file (unit) name.
+   * @param line Number of the line.
+   * @param position Position in the line.
+   */
 
   public Where(String unit, int line, int position) {
     this.unit = unit;
@@ -25,13 +40,28 @@ public final class Where {
     this.position = position;
   }
 
+  /**
+   * Returns the name of the source file (unit).
+   * @return Source file (unit) name.
+   */
+
   public String getUnit() {
     return unit;
   }
 
+  /**
+   * Returns the line number.
+   * @return Line number.
+   */
+
   public int getLine() {
     return line;
   }
+
+  /**
+   * Returns the position in the line.
+   * @return Position in the line.
+   */
 
   public int getPosition() {
     return position;
