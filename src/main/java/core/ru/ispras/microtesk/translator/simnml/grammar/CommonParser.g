@@ -91,6 +91,14 @@ typeExpr
 //  |  LEFT_HOOK constExpr DOUBLE_DOT constExpr RIGHT_HOOK -> ^(RANGE constExpr constExpr) // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
 //  |  ENUM^ LEFT_PARENTH! identifierList RIGHT_PARENTH! // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
     ;
+catch [SemanticException re] {
+    reportError(re);
+    recover(input,re);
+}
+catch [RecognitionException re] {
+    reportError(re);
+    recover(input,re);
+}
 
 //==================================================================================================
 // Expression
