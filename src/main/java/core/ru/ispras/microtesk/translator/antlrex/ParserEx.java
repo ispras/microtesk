@@ -57,7 +57,7 @@ public class ParserEx extends Parser implements IErrorReporter {
   public final void reportError(RecognitionException re) {
     InvariantChecks.checkNotNull(log);
     if (re instanceof SemanticException) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(re.toString());
     }
 
     tempErrorMessage = "";
@@ -133,13 +133,13 @@ public class ParserEx extends Parser implements IErrorReporter {
     return new Where(sourceName, node.getLine(), node.getCharPositionInLine());
   }
 
-  protected final void checkNotNull(Token t, Object obj) throws RecognitionException {
+  protected final void checkNotNull(Token t, Object obj) throws SemanticException {
     if (null == obj) {
       raiseError(where(t), new UnrecognizedStructure());
     }
   }
 
-  protected final void checkNotNull(Token t, Object obj, String text) throws RecognitionException {
+  protected final void checkNotNull(Token t, Object obj, String text) throws SemanticException {
     if (null == obj) {
       raiseError(where(t), new UnrecognizedStructure(text));
     }
