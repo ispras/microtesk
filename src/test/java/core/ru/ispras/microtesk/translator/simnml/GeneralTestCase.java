@@ -21,9 +21,11 @@ import java.util.Arrays;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 
+import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreListener;
+import ru.ispras.microtesk.translator.simnml.ir.IR;
 
 public class GeneralTestCase {
   
@@ -38,10 +40,19 @@ public class GeneralTestCase {
     }
   }
 
+  public static class IrChecker implements TranslatorHandler<IR> {
+    @Override
+    public void processIr(IR ir) {
+      System.out.println(ir);
+    }
+  }
+
   @Test
   public void test() {
     final SimnMLAnalyzer analyzer = new SimnMLAnalyzer();
-    analyzer.setLog(new LogChecker(analyzer.getLog())); 
+
+    analyzer.setLog(new LogChecker(analyzer.getLog()));
+    analyzer.addHandler(new IrChecker());
 
     try {
       analyzer.start(Arrays.asList("./src/test/nml/general.nml"));

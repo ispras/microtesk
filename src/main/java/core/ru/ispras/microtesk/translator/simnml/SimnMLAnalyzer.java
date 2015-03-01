@@ -31,6 +31,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
+import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
@@ -46,7 +47,7 @@ import ru.ispras.microtesk.translator.simnml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveSyntesizer;
 
-public final class SimnMLAnalyzer implements TokenSourceIncluder {
+public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceIncluder {
   private String outDir;
   private LogStore log;
 
@@ -199,6 +200,8 @@ public final class SimnMLAnalyzer implements TokenSourceIncluder {
 
     final TokenSource source = startLexer(filenames);
     final IR ir = startParserAndWalker(source);
+
+    processIr(ir);
 
     final PrimitiveSyntesizer primitiveSyntesizer =
       new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), log);
