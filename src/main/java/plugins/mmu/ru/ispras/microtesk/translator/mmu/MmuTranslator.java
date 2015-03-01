@@ -27,7 +27,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
-import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
+import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuLexer;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuParser;
@@ -35,19 +35,13 @@ import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 
 public class MmuTranslator {
-  private static final LogStore LOG = new LogStore() {
-    @Override
-    public void append(LogEntry entry) {
-      System.err.println(entry);
-    }
-  };
-
   public static String getModelName(String fileName) {
     final String shortFileName = getShortFileName(fileName);
     final int dotPos = shortFileName.lastIndexOf('.');
 
-    if (-1 == dotPos)
+    if (-1 == dotPos) {
       return shortFileName.toLowerCase();
+    }
 
     return shortFileName.substring(0, dotPos).toLowerCase();
   }
@@ -83,6 +77,8 @@ public class MmuTranslator {
       return;
     }
 
+    final LogStore LOG = LogStoreConsole.INSTANCE;
+
     final String fileName = args[0];
     final String modelName = getModelName(fileName);
 
@@ -91,7 +87,6 @@ public class MmuTranslator {
     System.out.println();
 
     final SymbolTable symbols = new SymbolTable();
-
     final Ir ir = new Ir();
 
     try {
