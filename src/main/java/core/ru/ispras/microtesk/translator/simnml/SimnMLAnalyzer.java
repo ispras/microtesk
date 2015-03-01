@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.simnml;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +35,7 @@ import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
-import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
+import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -46,16 +48,11 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveSyntesizer;
 
 public final class SimnMLAnalyzer implements TokenSourceIncluder {
   private String outDir;
-
-  private final LogStore LOG = new LogStore() {
-    @Override
-    public void append(LogEntry entry) {
-      System.err.println(entry);
-    }
-  };
+  private LogStore log;
 
   public SimnMLAnalyzer() {
     this.outDir = PackageInfo.DEFAULT_OUTDIR;
+    this.log = LogStoreConsole.INSTANCE;
   }
 
   public String getOutDir() {
@@ -63,7 +60,17 @@ public final class SimnMLAnalyzer implements TokenSourceIncluder {
   }
 
   public void setOutDir(String outDir) {
+    checkNotNull(outDir);
     this.outDir = outDir;
+  }
+
+  public LogStore getLog() {
+    return log;
+  }
+  
+  public void setLog(LogStore log) {
+    checkNotNull(log);
+    this.log = log;
   }
 
   private String getModelName(String fileName) {
@@ -97,7 +104,7 @@ public final class SimnMLAnalyzer implements TokenSourceIncluder {
 
   private TokenSourceStack source;
 
-  public TokenSource startLexer(final List<String> filenames) {
+  private TokenSource startLexer(final List<String> filenames) {
     ListIterator<String> iterator = filenames.listIterator(filenames.size());
 
     // Create a stack of lexers.
@@ -129,7 +136,7 @@ public final class SimnMLAnalyzer implements TokenSourceIncluder {
   // Parser
   // /////////////////////////////////////////////////////////////////////////
 
-  public IR startParserAndWalker(TokenSource source) throws RecognitionException {
+  private IR startParserAndWalker(TokenSource source) throws RecognitionException {
     final SymbolTable symbols = new SymbolTable();
 
     symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.JAVA);
@@ -139,9 +146,9 @@ public final class SimnMLAnalyzer implements TokenSourceIncluder {
     tokens.setTokenSource(source);
 
     final SimnMLParser parser = new SimnMLParser(tokens);
-    parser.assignLog(LOG);
+    parser.assignLog(log);
     parser.assignSymbols(symbols);
-    parser.commonParser.assignLog(LOG);
+    parser.commonParser.assignLog(log);
     parser.commonParser.assignSymbols(symbols);
     parser.setTreeAdaptor(new CommonTreeAdaptor());
 
@@ -157,7 +164,7 @@ public final class SimnMLAnalyzer implements TokenSourceIncluder {
     final IR ir = new IR();
     final SimnMLTreeWalker walker = new SimnMLTreeWalker(nodes);
 
-    walker.assignLog(LOG);
+    walker.assignLog(log);
     walker.assignSymbols(symbols);
     walker.assignIR(ir);
 
@@ -169,7 +176,7 @@ public final class SimnMLAnalyzer implements TokenSourceIncluder {
   // Generator
   // /////////////////////////////////////////////////////////////////////////
 
-  public void startGenerator(String modelName, String fileName, IR ir) {
+  private void startGenerator(String modelName, String fileName, IR ir) {
     final Generator generator = new Generator(outDir + "/java", modelName, fileName, ir);
     generator.generate();
   }
@@ -194,7 +201,7 @@ public final class SimnMLAnalyzer implements TokenSourceIncluder {
     final IR ir = startParserAndWalker(source);
 
     final PrimitiveSyntesizer primitiveSyntesizer =
-      new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), LOG);
+      new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), log);
 
     if (!primitiveSyntesizer.syntesize()) {
       System.err.println(FAILED_TO_SYNTH_PRIMITIVES);
