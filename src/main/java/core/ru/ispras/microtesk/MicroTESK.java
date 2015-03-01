@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,13 @@
 
 package ru.ispras.microtesk;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import ru.ispras.microtesk.translator.simnml.SimnMLAnalyzer;
 
 public final class MicroTESK {
@@ -26,7 +32,7 @@ public final class MicroTESK {
     public static final String OUTDIR = "d";
     public static final String TESTSIT = "s";
 
-    private static Options options = new Options();
+    private static final Options options = new Options();
 
     static {
       options.addOption(INCLUDE, "include", true, "Sets include files directories");
@@ -38,12 +44,12 @@ public final class MicroTESK {
     private Parameters() {}
 
     public static CommandLine parse(String[] args) throws ParseException {
-      CommandLineParser parser = new GnuParser();
+      final CommandLineParser parser = new GnuParser();
       return parser.parse(options, args);
     }
 
     public static void help() {
-      HelpFormatter formatter = new HelpFormatter();
+      final HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp(80, "[options] Sim-nML-files", "", options, "");
     }
   }
