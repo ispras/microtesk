@@ -19,10 +19,12 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.runtime.RecognitionException;
+
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 
-public class Translator<Ir> {
+public abstract class Translator<Ir> {
   private final List<TranslatorHandler<Ir>> handlers = new ArrayList<>();
   private LogStore log;
 
@@ -49,4 +51,6 @@ public class Translator<Ir> {
       handler.processIr(ir);
     }
   }
+  
+  public abstract void start(String ... fileNames) throws RecognitionException;
 }

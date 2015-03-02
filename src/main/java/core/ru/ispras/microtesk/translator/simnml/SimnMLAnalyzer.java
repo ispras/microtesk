@@ -204,7 +204,8 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     startGenerator(modelName, getShortFileName(fileName), ir);
   }
 
-  public void start(final String[] filenames) throws RecognitionException {
+  @Override
+  public void start(final String ... filenames) throws RecognitionException {
     start(Arrays.asList(filenames));
   }
 

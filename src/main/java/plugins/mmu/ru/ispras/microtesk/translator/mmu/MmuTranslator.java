@@ -57,8 +57,10 @@ public class MmuTranslator extends Translator<Ir> {
   private static String getShortFileName(String fileName) {
     return new File(fileName).getName();
   }
- 
-  private void start(String fileName) {
+
+  @Override
+  public void start(String ... fileNames) {
+    final String fileName = fileNames[0];
     final String modelName = getModelName(fileName);
 
     System.out.println("Translating: " + fileName);
