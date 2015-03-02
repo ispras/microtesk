@@ -1,0 +1,398 @@
+/*
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+//==================================================================================================
+// Virtual Address (VA)
+//==================================================================================================
+
+address VA(64)
+
+//--------------------------------------------------------------------------------------------------
+// User Mode Segments
+//--------------------------------------------------------------------------------------------------
+
+segment USEG (va: VA)
+  range = (0x0000000000000000, 0x000000007fffffff)
+
+segment XUSEG(va: VA)
+  range = (0x0000000080000000, 0x000000ffffffffff)
+
+//--------------------------------------------------------------------------------------------------
+// Supervisor Mode Segments
+//--------------------------------------------------------------------------------------------------
+
+segment SUSEG(va: VA)
+  range = (0x0000000000000000, 0x000000007fffffff)
+
+segment XSUSEG(va: VA)
+  range = (0x0000000080000000, 0x000000ffffffffff)
+
+segment XSSEG(va: VA)
+  range = (0x4000000000000000, 0x400000ffffffffff)
+  
+segment CSSEG(va: VA)
+  range = (0xffffffffc0000000, 0xffffffffdfffffff)
+
+//--------------------------------------------------------------------------------------------------
+// Kernel Mode Segments
+//--------------------------------------------------------------------------------------------------
+
+segment KUSEG (va: VA)
+  range = (0x0000000000000000, 0x000000007fffffff)
+
+segment XKUSEG (va: VA)
+  range = (0x0000000080000000, 0x000000ffffffffff)
+
+segment XKSSEG (va: VA)
+  range = (0x4000000000000000, 0x400000ffffffffff)
+
+segment XKSEG (va: VA)
+  range = (0xc000000000000000, 0xc00000ff7fffffff)
+
+segment CKSSEG (va: VA)
+  range = (0xffffffffc0000000, 0xffffffffdfffffff)
+
+segment CKSEG3(va: VA)
+  range = (0xffffffffe0000000, 0xffffffffffffffff)
+
+//==================================================================================================
+// Physical Address (PA)
+//==================================================================================================
+
+address PA(36)
+
+//==================================================================================================
+// Translation Lookaside Buffer (TLB)
+//==================================================================================================
+
+buffer DTLB (va: VA)
+  ways   = 4
+  sets   = 1
+  entry  = (ASID: 8, VPN2: 27, R: 2,               // EntryHi
+            G0: 1, V0: 1, D0: 1, C0: 3, PFN0: 24,  // EntryLo0
+            G1: 1, V1: 1, D1: 1, C1: 3, PFN1: 24)  // EntryLo1
+  index  = 0
+  match  = VPN2 == va<39..13> // ASID, G and non-4KB pages are unsupported
+  policy = PLRU
+
+buffer JTLB (va: VA)
+  ways   = 64
+  sets   = 1
+  entry  = (ASID: 8, VPN2: 27, R: 2,               // EntryHi
+            G0: 1, V0: 1, D0: 1, C0: 3, PFN0: 24,  // EntryLo0
+            G1: 1, V1: 1, D1: 1, C1: 3, PFN1: 24)  // EntryLo1
+  index  = 0
+  match  = VPN2 == va<39..13> // ASID, G and non-4KB pages are unsupported
+  policy = NONE
+
+//==================================================================================================
+// Cache Memory (L1 and L2)
+//==================================================================================================
+
+buffer L1 (pa: PA)
+  ways   = 4
+  sets   = 128
+  entry  = (V: 1 = 0, TAG: 24, DATA: 256)
+  index  = pa<11..5>
+  match  = V == 1 && TAG == pa<35..12>
+  policy = PLRU
+
+buffer L2 (pa: PA)
+  ways   = 4
+  sets   = 4096
+  entry  = (V: 1 = 0, TAG: 19, DATA: 256)
+  index  = pa<16..5>
+  match  = V == 1 && TAG == pa<35..17>
+  policy = PLRU
+
+//==================================================================================================
+// MMU Logic (Interaction between TLB, L1 and L2)
+//==================================================================================================
+
+mmu pmem(va: VA) = (data: 64) 
+  var tlbEntry: JTLB.entry;
+  var l1Entry: L1.entry;
+  var l2Entry: L2.entry;
+
+  var evenOddBit: 5;
+
+  var g: 1;
+  var v: 1;
+  var d: 1;
+  var c: 3;
+  var pfn: 24;
+
+  var pa: PA;
+
+  var cachePA: PA;
+  var cacheData: 256;
+
+  read = {
+  /*
+  
+    // The address is unaligned.
+    if va<2..0> != 0 then
+      exception("AddressError");
+    endif; // If the address is unaligned.
+
+    // The default cache policy.
+    c = 3;
+
+    // The address is from the USEG segment (only USEG and KSEG segments are supported).
+    if USEG(va).hit then
+      // The address hits the DTLB.
+      if DTLB(va).hit then
+        tlbEntry = DTLB(va);
+      // The address hits the JTLB.
+      elif JTLB(va).hit then
+        tlbEntry = JTLB(va);
+      // The address does not hit the TLB.
+      else
+        exception("TLBMiss");
+      endif; // If the address hits the DTLB.
+
+      // Only 4KB pages are supported.
+      evenOddBit = 12;
+
+      // The VPN is even.
+      if va<evenOddBit> == 0 then
+        g   = tlbEntry.G0;
+        v   = tlbEntry.V0;
+        d   = tlbEntry.D0;
+        c   = tlbEntry.C0;
+        pfn = tlbEntry.PFN0;
+      // The VPN is odd.
+      else
+        g   = tlbEntry.G1;
+        v   = tlbEntry.V1;
+        d   = tlbEntry.D1;
+        c   = tlbEntry.C1;
+        pfn = tlbEntry.PFN1;
+      endif; // If the VPN is even.
+
+      // The EntryLo is valid.
+      if v == 1 then
+        pa = pfn<24..(evenOddBit - 12)>::va<(evenOddBit - 1)..0>;
+      // The EntryLo is invalid.
+      else
+        exception("TLBInvalid");
+      endif; // If the EntryLo is valid.
+    // The address is from the KSEG0 or KSEG1 segment.
+    else
+      pa = va<28..0>;
+    endif; // If the address is from the USEG segment.
+
+    // The address is cacheable.
+    if c<1..0> != 2 then
+      cachePA = pa;
+      cachePA<4..0> = 0;
+
+      // The address hits the L1.
+      if L1(pa).hit then
+        l1Entry = L1(pa);
+        cacheData = l1Entry.DATA;
+        data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+      // The address does not hit the L1.
+      else
+        // The L2 cache is used.
+        if c<1..0> == 3 then
+          // The address hits the L2.
+          if L2(pa).hit then
+            l2Entry = L2(pa);
+            cacheData = l2Entry.DATA;
+            data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+
+            // Fill the L1.
+            l1Entry.V = 1;
+            l1Entry.TAG = pa<35..12>;
+            l1Entry.DATA = cacheData;
+            L1(pa) = l1Entry;
+          // The address does not hit the L2.
+          else
+            cacheData = pmem[cachePA + 24]::pmem[cachePA + 16]::pmem[cachePA + 8]::pmem[cachePA];
+            data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+
+            // Fill L2.
+            l2Entry.V = 1;
+            l2Entry.TAG = pa<35..17>;
+            l2Entry.DATA = cacheData;
+            L2(pa) = l2Entry;
+
+            // Fill L1.
+            l1Entry.V = 1;
+            l1Entry.TAG = pa<35..12>;
+            l1Entry.DATA = cacheData;
+            L1(pa) = l1Entry;
+          endif; // If the address hits the L2.
+        // The L2 cache is bypassed.
+        else
+          cacheData = pmem[cachePA + 24]::pmem[cachePA + 16]::pmem[cachePA + 8]::pmem[cachePA];
+          data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+
+          l1Entry.V = 1;
+          l1Entry.TAG = pa<35..12>;
+          l1Entry.DATA = cacheData;
+          L1(pa) = l1Entry;
+        endif; // If the L2 cache is used.
+      endif; // If the address hits the L1.
+    // The address is uncacheable.
+    else
+      data = pmem[pa];
+    endif; // If the address is cacheable.
+    
+    */
+  }
+
+  write = {
+     g   = tlbEntry.G0;
+     tlbEntry = JTLB(va);
+     L1(pa) = l1Entry;
+      pmem[pa] = data;
+  exception("TLBInvalid");
+  trace("%d=%d", 1, 2);
+  /*
+  
+    // The address is unaligned.
+    if va<2..0> != 0 then
+      exception("AddressError");
+    endif; // If the address is unaligned.
+
+    // The default cache policy.
+    c = 3;
+
+    // The address is from the USEG segment (only USEG and KSEG segments are supported).
+    if USEG(va).hit then
+      // The address hits the DTLB.
+      if DTLB(va).hit then
+        tlbEntry = DTLB(va);
+      // The address hits the JTLB.
+      elif JTLB(va).hit then
+        tlbEntry = JTLB(va);
+      // The address does not hit the TLB.
+      else
+        exception("TLBMiss");
+      endif; // If the address hits the DTLB.
+
+      // Only 4KB pages are supported.
+      evenOddBit = 12;
+
+      // The VPN is even.
+      if va<evenOddBit> == 0 then
+        g   = tlbEntry.G0;
+        v   = tlbEntry.V0;
+        d   = tlbEntry.D0;
+        c   = tlbEntry.C0;
+        pfn = tlbEntry.PFN0;
+      // The VPN is odd.
+      else
+        g   = tlbEntry.G1;
+        v   = tlbEntry.V1;
+        d   = tlbEntry.D1;
+        c   = tlbEntry.C1;
+        pfn = tlbEntry.PFN1;
+      endif; // If the VPN is even.
+
+      // The EntryLo is valid.
+      if v == 1 then
+        // The EntryLo is clean.
+        if d == 1 then
+          pa = pfn<24..(evenOddBit - 12)>::va<(evenOddBit - 1)..0>;
+        // The EntryLo is dirty.
+        else
+          exception("TLBModified");
+        endif; // If the EntryLo is clean.
+      // The EntryLo is invalid.
+      else
+        exception("TLBInvalid");
+      endif; // If the EntryLo is valid.
+    // The address is from the KSEG0 or KSEG1 segment.
+    else
+      pa = va<28..0>;
+    endif; // If the address is from the USEG segment.
+
+    // The address is cacheable.
+    if c<1..0> != 2 then
+      cachePA = pa;
+      cachePA<4..0> = 0;
+
+      // The address hits the L1.
+      if L1(pa).hit then
+        // Update the L1.
+        l1Entry = L1(pa);
+        l1Entry.DATA<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+        L1(pa) = l1Entry;
+
+        // Only the write-through policy is supported.
+        pmem[pa] = data;
+      // The address does not hit the L1.
+      else
+        // The L2 cache is used.
+        if c<1..0> == 3 then
+          // The address hits the L2.
+          if L2(pa).hit then
+            // Update the L2.
+            l2Entry = L2(pa);
+            l2Entry.DATA<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+            L2(pa) = l2Entry;
+
+            // Fill the L1.
+            l1Entry.V = 1;
+            l1Entry.TAG = pa<35..12>;
+            l1Entry.DATA = l2Entry.DATA;
+            L1(pa) = l1Entry;
+
+            // Only the write-through policy is supported.
+            pmem[pa] = data;
+          // The address does not hit the L2.
+          else
+            pmem[pa] = data;
+            cacheData = pmem[cachePA + 24]::pmem[cachePA + 16]::pmem[cachePA + 8]::pmem[cachePA];
+
+            // Fill the L2.
+            l2Entry.V = 1;
+            l2Entry.TAG = pa<35..17>;
+            l2Entry.DATA = cacheData;
+            L2(pa) = l2Entry;
+
+            // Fill the L1.
+            l1Entry.V = 1;
+            l1Entry.TAG = pa<35..12>;
+            l1Entry.DATA = cacheData;
+            L1(pa) = l1Entry;
+          endif; // If the address hits the L2.
+        // The L2 cache is bypassed.
+        else
+          pmem[pa] = data;
+          cacheData = pmem[cachePA + 24]::pmem[cachePA + 16]::pmem[cachePA + 8]::pmem[cachePA];
+
+          // Fill the L2
+          l1Entry.V = 1;
+          l1Entry.TAG = pa<35..12>;
+          l1Entry.DATA = cacheData;
+          L1(pa) = l1Entry;
+        endif; // If the L2 cache is used.
+      endif; // If the address hits the L1.
+    // The address is uncacheable.
+    else
+      pmem[pa] = data;
+    endif; // If the address is cacheable.
+    
+    */
+  }
+
+//==================================================================================================
+// The End
+//==================================================================================================
