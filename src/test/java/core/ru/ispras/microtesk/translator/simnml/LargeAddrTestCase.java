@@ -14,50 +14,15 @@
 
 package ru.ispras.microtesk.translator.simnml;
 
-import static org.junit.Assert.fail;
-
-import java.util.Arrays;
-
-import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 
-import ru.ispras.microtesk.translator.TranslatorHandler;
-import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
-import ru.ispras.microtesk.translator.antlrex.log.LogStore;
-import ru.ispras.microtesk.translator.antlrex.log.LogStoreListener;
+import ru.ispras.microtesk.translator.TranslatorTest;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 
-public class LargeAddrTestCase {
-  
-  public static class LogChecker extends LogStoreListener {
-    public LogChecker(LogStore log) {
-      super(log);
-    }
-
-    @Override
-    protected void processLogEntry(LogEntry entry) {
-      fail(entry.toString());
-    }
-  }
-
-  public static class IrChecker implements TranslatorHandler<IR> {
-    @Override
-    public void processIr(IR ir) {
-      System.out.println(ir);
-    }
-  }
-
+public class LargeAddrTestCase extends TranslatorTest<IR> {
   @Test
   public void test() {
     final SimnMLAnalyzer analyzer = new SimnMLAnalyzer();
-
-    analyzer.setLog(new LogChecker(analyzer.getLog()));
-    analyzer.addHandler(new IrChecker());
-
-    try {
-      analyzer.start(Arrays.asList("./src/test/nml/large_addr.nml"));
-    } catch (RecognitionException e) {
-      fail(e.toString());
-    }
+    translate(analyzer, "./src/test/nml/large_addr.nml");
   }
 }
