@@ -33,4 +33,4 @@ op instruction()
 action = {
   M48[0x800000000000] = minusOne48;
   M64[0x8000000000000000] = minusOne64;
-} 
+}
