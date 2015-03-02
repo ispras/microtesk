@@ -35,7 +35,7 @@ public class GeneralTestCase {
     }
 
     @Override
-    protected void check(LogEntry entry) {
+    protected void processLogEntry(LogEntry entry) {
       fail(entry.toString());
     }
   }

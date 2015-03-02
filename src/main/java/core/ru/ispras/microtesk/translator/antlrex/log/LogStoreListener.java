@@ -35,8 +35,8 @@ public abstract class LogStoreListener implements LogStore {
   @Override
   public final void append(LogEntry entry) {
     log.append(entry);
-    check(entry);
+    processLogEntry(entry);
   }
 
-  protected abstract void check(LogEntry entry);
+  protected abstract void processLogEntry(LogEntry entry);
 }
