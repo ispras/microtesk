@@ -36,7 +36,6 @@ import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
-import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -49,11 +48,9 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveSyntesizer;
 
 public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceIncluder {
   private String outDir;
-  private LogStore log;
 
   public SimnMLAnalyzer() {
     this.outDir = PackageInfo.DEFAULT_OUTDIR;
-    this.log = LogStoreConsole.INSTANCE;
   }
 
   public String getOutDir() {
@@ -63,15 +60,6 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   public void setOutDir(String outDir) {
     checkNotNull(outDir);
     this.outDir = outDir;
-  }
-
-  public LogStore getLog() {
-    return log;
-  }
-  
-  public void setLog(LogStore log) {
-    checkNotNull(log);
-    this.log = log;
   }
 
   private String getModelName(String fileName) {
@@ -138,6 +126,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   // /////////////////////////////////////////////////////////////////////////
 
   private IR startParserAndWalker(TokenSource source) throws RecognitionException {
+    final LogStore log = getLog();
     final SymbolTable symbols = new SymbolTable();
 
     symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.JAVA);
@@ -204,7 +193,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     processIr(ir);
 
     final PrimitiveSyntesizer primitiveSyntesizer =
-      new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), log);
+      new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), getLog());
 
     if (!primitiveSyntesizer.syntesize()) {
       System.err.println(FAILED_TO_SYNTH_PRIMITIVES);

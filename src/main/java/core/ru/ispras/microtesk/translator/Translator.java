@@ -19,8 +19,25 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.microtesk.translator.antlrex.log.LogStore;
+import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
+
 public class Translator<Ir> {
   private final List<TranslatorHandler<Ir>> handlers = new ArrayList<>();
+  private LogStore log;
+
+  public Translator() {
+    this.log = LogStoreConsole.INSTANCE;
+  }
+
+  public final LogStore getLog() {
+    return log;
+  }
+
+  public final void setLog(LogStore log) {
+    checkNotNull(log);
+    this.log = log;
+  }
 
   public final void addHandler(TranslatorHandler<Ir> handler) {
     checkNotNull(handler);
