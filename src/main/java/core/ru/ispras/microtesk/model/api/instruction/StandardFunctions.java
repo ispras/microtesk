@@ -32,6 +32,6 @@ public abstract class StandardFunctions {
   }
 
   public static void mark(String name) {
-    System.out.println(String.format("Mark \"%s\" was reached", name));
+    //System.out.println(String.format("Mark \"%s\" was reached", name));
   }
 }
