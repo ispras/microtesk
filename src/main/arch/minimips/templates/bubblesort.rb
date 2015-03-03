@@ -16,6 +16,19 @@
 
 require_relative 'minimips_base'
 
+#
+# Description:
+#
+# This test template demonstrates how MicroTESK can simulate the execution
+# of a test program to predict the resulting state of a microprocessor
+# design under test. The described test program is a simple implemention of 
+# the bubble sort algorithm. The algorithm in Java looks like this:   
+#
+# for(int i = 0; i < a.length - 1; i++)
+#   for(int j = 0; j < a.length - i - 1; j++)
+#     if(a[j] > a[j + 1])
+#       swap(a[j], a[j + 1]);
+#
 class BubbleSortTemplate < MiniMipsBaseTemplate
   def pre
     super
