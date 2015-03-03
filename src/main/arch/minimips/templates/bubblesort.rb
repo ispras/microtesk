@@ -30,76 +30,81 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
   end
   
   def run
-    #t0 array address
-    addi at, zero, :length
-    lw a0, 0, at
-  
-    la a1, :array
-  
+    print_data
+
+    la s0, :array
+    la s1, :length
+
+    lw s2, 0, s1
+
     add t0, zero, zero #counter of the top-level loop
-  
+
     addi at, zero, 1
-    sub t7, a0, at
-  
+    sub t7, s2, at
+
     label :loop
       trace "%x", gpr(8)
       trace "%x", gpr(4)
-      beq t0, a0, :exit
-      sll zero, zero, 0 #DELAY SLOT
-  
+      beq t0, s2, :exit
+      nop
+
       add t1, zero, zero
-  
-  
+
       label :loop1
          beq t7, t1, :exit1
-         sll zero, zero, 0 #DELAY SLOT
-  
+         nop
+
          addi at, zero, 4
          mult t1, at
          mflo t3
-  
-         add t3, t3, a1
+
+         add t3, t3, s0
          addi t4, t3, 4
-         
+
          lw t2, 0, t3
          lw t5, 0, t4
-         
+
          slt at, t2, t5
          bne at, zero, :cont
-         sll zero, zero, 0 #DELAY SLOT
+         nop
          
-         #SWAP
-         add t2, t2, t5
-         sub t5, t2, t5
-         sub t2, t2, t5
-         
+         swap t2, t5
+
          sw t2, 0, t3
          sw t5, 0, t4
-         
+
          label :cont
          addi t1, t1, 1
-         
+
          j :loop1
-         sll zero, zero, 0 #DELAY SLOT
-  
+         nop
+
       label :exit1
-      
+
       addi t0, t0, 1
       j :loop
-      sll zero, zero, 0 #DELAY SLOT
+      nop
     label :exit
-  
-    #OUTPUT
-    la a0, :array
-    i = 0
-    while i < 12 do
-    	lw v1, 0, a0    
-        #trace "%x", gpr(5)
-        trace "%x", gpr(3)
-        addi a0, a0, 4
-        
-        i +=1
-    end
+
+    print_data
+  end
+
+  def swap(reg1, reg2)
+    xor reg1, reg1, reg2
+    xor reg2, reg1, reg2
+    xor reg1, reg1, reg2
+  end
+
+  def print_data
+    count = (address(:length) - address(:array)) / 4 + 1
+
+    trace "\nData starts: %d", address(:array)
+    trace "Data ends:   %d", address(:length)
+    trace "Data count:  %d", count
+
+    trace "\nData values:"
+    (0..(count-1)).each { |i| trace "M[%d]: %d", i, mem(i) }
+    trace ""
   end
 
 end
