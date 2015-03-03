@@ -22,13 +22,15 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
 
     data {
       label :array
-      word 1, 6, 2, 7, 5, 6, 3, 8, 9, 5, 6, 3
+      word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9),
+           rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9),
+           rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
 
       label :length
       word 12
     }
   end
-  
+
   def run
     print_data
 
