@@ -39,20 +39,25 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
 
     lw s2, 0, s1
 
-    add t0, zero, zero #counter of the top-level loop
-
     addi at, zero, 1
     sub t7, s2, at
 
+    # Outer loop variable
+    add t0, zero, s0
+
+    ########################### Outer loop starts ##############################
     label :loop
-      trace "%x", gpr(8)
-      trace "%x", gpr(4)
-      beq t0, s2, :exit
-      nop
+    trace "%x, %x", gpr(8), gpr(4)
 
-      add t1, zero, zero
+    beq t0, s1, :exit
+    nop
 
-      label :loop1
+    # Inner loop variable
+    add t1, zero, zero
+
+    ########################### Inner loop starts ##############################
+    label :loop1
+
          beq t7, t1, :exit1
          nop
 
@@ -76,16 +81,18 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
          sw t5, 0, t4
 
          label :cont
-         addi t1, t1, 1
+         
 
-         j :loop1
-         nop
+    j :loop1
+    addi t1, t1, 1
+    ############################ Inner loop ends ###############################
 
-      label :exit1
+    label :exit1
 
-      addi t0, t0, 1
-      j :loop
-      nop
+    j :loop
+    addi t0, t0, 1
+    ########################### Outer loop ends ################################
+
     label :exit
 
     print_data
