@@ -38,9 +38,12 @@ reg GPR [32, WORD]
 reg COP0_R[32, WORD]
 reg HI [WORD]
 reg LO [WORD]
-reg CIA[WORD] // Program counter
 
-mem  M [2 ** 16, WORD] // Memory is word-addressable
+// Current instruction address (program counter)
+reg CIA[WORD]
+
+// Memory is word-addressable
+mem M [2 ** 16, WORD]
 
 ////////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
@@ -56,14 +59,32 @@ mode COP0 (i: INDEX) = COP0_R[i]
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
 
-mem JMPADDR[WORD]
+// Flag that specifies whether control transfer should be performed. It is set
+// by branch and jump instructions. It is saved across instruction calls as the
+// control transfer is performed during the execution of the next instruction
+// (delay slot)
 mem BRANCH[BIT]
 
+// Address to jump (future PC value) which is set by branch and jump
+// instructions. It is saved across instruction calls as the control transfer
+// is performed during the execution of the next instruction (delay slot).
+mem JMPADDR[WORD]
+
+// Flag that says whether the current instruction is in the delay slot
+var is_delay_slot[BIT]
+
+// Address to jump after executing instruction in delay slot (a copy of JMPADDR
+// needed in case its value is corrupted by the instruction in the delay slot)
+var jump_address[WORD]
+
+// Next instruction address
+var nia[WORD]
+
+// Variables to store intermediate calculation results
 var temp[int(33)]
 var temp_jump[card(28)]
 var mult_result[int(64)]
 var mult_result_unsigned[card(64)]
-var cia_copy[WORD]
 
 ////////////////////////////////////////////////////////////////////////////////
 // Arithmetical Instructions
@@ -74,8 +95,10 @@ op add (rd: REG, rs: REG, rt: REG)
   action = {
     temp = rs<31>::rs + rt<31>::rt;
     if temp<32> != temp<31> then
+      mark("overflow");
       exception("IntegerOverflow");
     else
+      mark("normal");
       rd = temp<31..0>;
     endif;
   }
@@ -86,8 +109,10 @@ op addi (rt: REG, rs: REG, imm: SHORT)
   action = {
     temp = rs<31>::rs + coerce(int(33), imm);
     if temp<32> != temp<31> then
+      mark("overflow");
       exception("IntegerOverflow");
     else
+      mark("normal");
       rt = temp<31..0>;
     endif;
   }
@@ -456,10 +481,10 @@ op j (addr: JUMP_IMM)
   syntax = format("j %<label>d", addr)
   image = format("000010%s", addr)
   action = {
-    cia_copy = CIA + 4; //is it correct?
+    nia = CIA + 4;
     temp_jump = coerce(card(28), addr) << 2;
     BRANCH = 1;
-    JMPADDR = CIA<31..28>::temp_jump;
+    JMPADDR = nia<31..28>::temp_jump;
   }
 
 op jr (addr: REG)
@@ -475,10 +500,10 @@ op jal (addr: JUMP_IMM)
   image = format("000011%s", addr)
   action = {
     GPR[31] = CIA + 4 + 4;
-    cia_copy = CIA + 4; //is it correct?
+    nia = CIA + 4;
     temp_jump = coerce(card(28), addr) << 2;
     BRANCH = 1;
-    JMPADDR = CIA<31..28>::temp_jump;
+    JMPADDR = nia<31..28>::temp_jump;
   }
 
 op jalr (rd: REG, rs: REG)
@@ -581,16 +606,40 @@ op instruction (command: Operations)
   action = {
     GPR[0] = coerce(WORD, 0);
 
-    // PC is set based on the result of the previous instruction execution.
-    // This is needed to simulate MIPS delay slot.
-    if BRANCH == 0 then
-      CIA = CIA + 4;
-    else
-      CIA = JMPADDR;
-    endif;
+    // This code is responsible for updating the value of the program counter.
+    // 
+    // Explanation based on the MIPS architecture manual:
+    //
+    // The Program Counter value. During the instruction time of an instruction,
+    // this is the address of the instruction word. The address of the
+    // instruction that occurs during the next instruction time is determined by
+    // assigning a value to PC (JMPADDR and BRANCH are used signal that PC is
+    // to be assigned a new value) during an instruction time. If no value is
+    // assigned to PC during an instruction time by any pseudocode statement,
+    // it is automatically incremented 4 before the next instruction time.
+    // A taken branch assigns the target address to the PC during the instruction
+    // time of the instruction in the branch delay slot.
+    //
+    // Restriction: Processor operation is UNPREDICTABLE if a branch or jump
+    // instruction is placed in the delay slot of a branch or jump.
+
+    is_delay_slot = BRANCH;
+    jump_address = JMPADDR;
 
     BRANCH = 0;
+    JMPADDR = coerce(WORD, 0);
+
     command.action;
+
+    if (is_delay_slot == 1 && BRANCH == 1) then
+      unpredicted;
+    endif;
+
+    if (is_delay_slot == 1) then
+      CIA = jump_address;
+    else
+      CIA = CIA + 4;
+    endif;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
