@@ -566,12 +566,25 @@ functionCallStatement returns [List<Statement> res]
     :  ^(id=EXCEPTION str=STRING_CONST)
 {
 $res = Collections.singletonList(
-  getStatementFactory().createExceptionCall(where($id), $str.text));
+    getStatementFactory().createExceptionCall(where($id), $str.text));
 }
     |  ^(id=TRACE fs=STRING_CONST (fargs=formatIdList)?)
 {
 $res = Collections.singletonList(
-  getStatementFactory().createTrace(where($id), $fs.text, $fargs.res));
+    getStatementFactory().createTrace(where($id), $fs.text, $fargs.res));
+}
+    |  ^(id=MARK str=STRING_CONST)
+{
+$res = Collections.singletonList(
+    getStatementFactory().createMark(where($id), $str.text));
+}
+    |  UNPREDICTED
+{
+$res = Collections.singletonList(getStatementFactory().createUnpredicted());
+}
+    |  UNDEFINED 
+{
+$res = Collections.singletonList(getStatementFactory().createUndefined());
 }
     ;
 

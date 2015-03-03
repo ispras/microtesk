@@ -99,8 +99,11 @@ ENDIF                   :    'endif';
 
 COERCE                  :    'coerce';
 FORMAT                  :    'format';
-EXCEPTION               :    'exception';
 TRACE                   :    'trace';
+EXCEPTION               :    'exception';
+MARK                    :    'mark';
+UNPREDICTED             :    'unpredicted';  
+UNDEFINED               :    'undefined';
 
 //==================================================================================================
 // Identifier

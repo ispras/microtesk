@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,5 +21,17 @@ public abstract class StandardFunctions {
 
   public static void trace(String format, Object ... args) {
     System.out.println(String.format(format, args));
+  }
+
+  public static void unpredicted() {
+    System.out.println("Unpredicted state was reached");
+  }
+
+  public static void undefined() {
+    System.out.println("Undefined state was reached");
+  }
+
+  public static void mark(String name) {
+    System.out.println(String.format("Mark \"%s\" was reached", name));
   }
 }
