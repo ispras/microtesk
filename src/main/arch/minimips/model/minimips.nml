@@ -227,42 +227,42 @@ op sll (rd: REG, rt: REG, sa: card(5))
   syntax = format("sll %s, %s, %d", rd.syntax, rt.syntax, sa)
   image = format("00000000000%s%s%s000000", rt.image, rd.image, sa)
   action = {
-   rd = rt << sa;
+    rd = rt << sa;
   }
 
 op sllv (rd: REG, rt: REG, rs: REG)
   syntax = format("sllv %s, %s, %s", rd.syntax, rt.syntax, rs.syntax)
   image = format("00000000000%s%s%s000100", rt.image, rd.image, rs.image)
   action = {
-   rd = rt << rs<4..0>;
+    rd = rt << rs<4..0>;
   }
 
 op sra (rd: REG, rt: REG, sa: card(5))
   syntax = format("sra %s, %s, %s", rd.syntax, rt.syntax, sa)
   image = format("00000000000%s%s%s000011", rt.image, rd.image, sa)
   action = {
-   rd = coerce(int(32), rt) >> sa;
+    rd = coerce(int(32), rt) >> sa;
   }
 
 op srav (rd: REG, rt: REG, rs: REG)
   syntax = format("srav %s, %s, %s", rd.syntax, rt.syntax, rs.syntax)
   image = format("00000000000%s%s%s000111", rt.image, rd.image, rs.image)
   action = {
-   rd = coerce(int(32), rt) >> rs<4..0>;
+    rd = coerce(int(32), rt) >> rs<4..0>;
   }
 
 op srl (rd: REG, rt: REG, sa: REG)
   syntax = format("srl %s, %s, %s", rd.syntax, rt.syntax, sa.syntax)
   image = format("00000000000%s%s%s000010", rt.image, rd.image, sa.image)
   action = {
-   rd = coerce(card(32), rt) >> sa;
+    rd = coerce(card(32), rt) >> sa;
   }
 
 op srlv (rd: REG, rt: REG, rs: REG)
   syntax = format("srlv %s, %s, %s", rd.syntax, rt.syntax, rs.syntax)
   image = format("00000000000%s%s%s000110", rs.image, rt.image, rd.image)
   action = {
-   rd = coerce(card(32), rt) >> rs<4..0>;
+    rd = coerce(card(32), rt) >> rs<4..0>;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
