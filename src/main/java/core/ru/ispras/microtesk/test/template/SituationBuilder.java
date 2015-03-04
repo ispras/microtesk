@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,6 +17,8 @@ package ru.ispras.microtesk.test.template;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.randomizer.Variate;
+
 public final class SituationBuilder {
   private final String name;
   private Map<String, Object> attributes;
@@ -32,6 +34,11 @@ public final class SituationBuilder {
   }
 
   public SituationBuilder setAttribute(String attrName, String value) {
+    setAttributeCommon(attrName, value);
+    return this;
+  }
+
+  public SituationBuilder setAttribute(String attrName, Variate<?> value) {
     setAttributeCommon(attrName, value);
     return this;
   }
