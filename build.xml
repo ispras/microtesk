@@ -285,7 +285,6 @@
     <copy todir="${dist}/arch/minimips">
        <fileset dir="src/main/arch/minimips" includes="**">
          <exclude name="templates/insertionsort.rb"/>
-         <exclude name="templates/bubblesort.rb"/>
        </fileset>
     </copy>
 
