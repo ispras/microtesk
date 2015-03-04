@@ -14,17 +14,18 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 
 public final class MemoryStorageTestCase {
   @Test
-  public void test()  {
+  public void test() {
     for (int regionCountExp = 0; regionCountExp < 32; regionCountExp++) {
-      final int regionCount = (int) Math.pow(2, regionCountExp);
+      final int regionCount = 1 << regionCountExp; // 2 ** regionCount
 
       test(regionCount, 3);
       test(regionCount, 5);
@@ -38,7 +39,7 @@ public final class MemoryStorageTestCase {
       test(regionCount, 28);
 
       for (int regionBitSizeExp = 0; regionBitSizeExp <= 8; regionBitSizeExp++) {
-        final int regionBitSize = (int) Math.pow(2, regionBitSizeExp);
+        final int regionBitSize = 1 << regionBitSizeExp; // 2 ** regionBitSizeExp, 
         test(regionCount, regionBitSize);
       }
     }
