@@ -179,7 +179,7 @@ class Template
 
   def situation(name, attrs = {})
     if !attrs.is_a?(Hash)
-      raise MTRubyError, "attrs (#{attrs}) must be a Hash."  
+      raise MTRubyError, "attrs (#{attrs}) must be a Hash."
     end
 
     builder = @template.newSituation name
@@ -196,7 +196,7 @@ class Template
   # 
   def rand(from, to)
     if !from.is_a?(Integer) or !to.is_a?(Integer)
-      raise MTRubyError, "from #{from} and to #{to} must be integers." 
+      raise MTRubyError, "from #{from} and to #{to} must be integers."
     end
     @template.newRandom from, to
   end
@@ -462,7 +462,7 @@ class DataManager
     @manager.defineAsciiString id, text, zeroTerm
 
     p = lambda do |*strings|
-      @manager.addAsciiStrings zeroTerm, strings 
+      @manager.addAsciiStrings zeroTerm, strings
     end
 
     define_method_for DataManager, id, 'string', p
