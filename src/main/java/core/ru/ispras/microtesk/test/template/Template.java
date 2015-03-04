@@ -21,6 +21,7 @@ import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 
@@ -262,6 +263,10 @@ public final class Template {
 
   public RandomValue newRandom(int from, int to) {
     return new RandomValue(from, to);
+  }
+
+  public VariateBuilder<?> newVariateBuilder() {
+    return new VariateBuilder<>();
   }
 
   public UnknownValue newUnknown() {
