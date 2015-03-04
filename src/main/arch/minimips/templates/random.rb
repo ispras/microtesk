@@ -88,7 +88,7 @@ class RandomTemplate < MiniMipsBaseTemplate
                    range(:value => 1..3,      :bias => 2),
                    range(:value => [1, 2, 3], :bias => 3))
 
-    add t0, t1, t2 do situation('random', :size => 32, :min_imm => 1, :max_imm => 31,
+    add t0, t1, t2 do situation('random_biased', :size => 32,
       :dist => dist(range(:value=> 1,         :bias => 1), # Single
                     range(:value=> 1..3,      :bias => 2), # Interval
                     range(:value=> [1, 2, 3], :bias => 3), # Collection
