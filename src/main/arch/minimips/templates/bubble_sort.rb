@@ -55,14 +55,14 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
 
   def run
     print_data
-    
+
     la s0, :data
     la s1, :end
 
     add t0, zero, zero
     ########################### Outer loop starts ##############################
     label :repeat
-    
+
     addi t1, s0, 1
     ########################### Inner loop starts ##############################
     label :for
@@ -87,12 +87,12 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
     label :next
     j :for
     addi t1, t1, 1
-    ########################### Inner loop ends ##############################
+    ############################ Inner loop ends ###############################
     label :exit_for
 
     bne t0, zero, :repeat
     add t0, zero, zero
-    ########################### Outer loop end ##############################
+    ############################ Outer loop ends ###############################
 
     print_data
   end
