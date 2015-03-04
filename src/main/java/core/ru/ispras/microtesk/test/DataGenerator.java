@@ -497,7 +497,7 @@ final class TestBaseQueryCreator {
 
   private void createParameters(TestBaseQueryBuilder queryBuilder) {
     for (Map.Entry<String, Object> attrEntry : situation.getAttributes().entrySet()) {
-      queryBuilder.setParameter(attrEntry.getKey(), attrEntry.getValue().toString());
+      queryBuilder.setParameter(attrEntry.getKey(), attrEntry.getValue());
     }
   }
 
