@@ -23,7 +23,7 @@ require_relative 'minimips_base'
 # simulate its behaviour.
 #
 # Algorithm:
-# for i = 1, 2, 3, ..., n:
+# for i = 1 ... n:
 #     for j = (i - 1) ... 1:
 #         if (A[i] < A[j]): 
 #             if (j == 1):
@@ -45,9 +45,9 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
 
     data {
       label :array
-      word rand(1..9), rand(1..9), rand(1..9), rand(1..9),
-           rand(1..9), rand(1..9), rand(1..9), rand(1..9),
-           rand(1..9), rand(1..9), rand(1..9), rand(1..9)
+      word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9),
+           rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9),
+           rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
       label :end
       space 1
     }

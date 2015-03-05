@@ -45,9 +45,9 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
 
     data {
       label :data
-      word rand(1..9), rand(1..9), rand(1..9), rand(1..9),
-           rand(1..9), rand(1..9), rand(1..9), rand(1..9),
-           rand(1..9), rand(1..9), rand(1..9), rand(1..9)
+      word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9),
+           rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9),
+           rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
       label :end
       space 1
     }
