@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,21 +20,21 @@ require_relative 'utils'
 include TemplateBuilder
 
 #
-# Description: 
+# Description:
 #
 # The Settings module describes settings used in test templates and
 # provides default values for these settings. It is includes in the
 # Template class as a mixin. The settings can be overridden for
 # specific test templates. To do this, instance variables must be
 # assigned new values in the initialize method of the corresponding
-# test template class. 
+# test template class.
 #
 module Settings
 
   # Print the generated code to the console.
   attr_reader :use_stdout
 
-  # Print instructions being simulated to the console.   
+  # Print instructions being simulated to the console.
   attr_reader :log_execution
 
   # Text that starts single-line comments.
@@ -184,12 +184,13 @@ class Template
 
     builder = @template.newSituation name
     attrs.each_pair do |name, value|
-      builder.setAttribute name.to_s, value
+      attr_value = if value.is_a?(Dist) then value.java_object else value end
+      builder.setAttribute name.to_s, attr_value
     end
 
     builder.build
   end
-  
+
   #
   # Creates an object for generating a random integer within
   # the specified range (to be used as an argument of a mode or op).
@@ -199,6 +200,93 @@ class Template
       raise MTRubyError, "from #{from} and to #{to} must be integers."
     end
     @template.newRandom from, to
+  end
+
+  #
+  # Describes the probability distribution for random generation.
+  # This is a wrapper around the corresponding java object.
+  #
+  class Dist
+    attr_reader :java_object
+    def initialize(java_object)
+      @java_object = java_object
+    end
+  end
+
+  #
+  # Creates an object describing the probability distribution for
+  # random generation (biased generation). Methods arguments
+  # specify ranges of values with corresponding biases.
+  #
+  def dist(*ranges)
+    if !ranges.is_a?(Array)
+      raise MTRubyError, "#{ranges} is not an Array."
+    end
+
+    builder = @template.newVariateBuilder
+    ranges.each do |range_item|
+      if !range_item.is_a?(ValueRange)
+        raise MTRubyError, "#{range_item} is not a ValueRange."
+      end
+
+      value = range_item.value
+      bias = range_item.bias
+
+      if value.is_a?(Integer)
+        builder.addValue value unless nil == bias
+        builder.addValue value, bias if nil == bias
+      elsif value.is_a?(Range)
+        builder.addInterval value.min, value.max unless nil == bias
+        builder.addInterval value.min, value.max, bias if nil == bias
+      elsif value.is_a?(Array)
+        builder.addCollection value unless nil == bias
+        builder.addCollection value, bias if nil == bias
+      elsif value.is_a?(Dist)
+        builder.addVariate value.java_object unless nil == bias
+        builder.addVariate value.java_object, bias if nil == bias
+      else
+        raise MTRubyError, "#{value} has an unsupported type."
+      end
+    end
+
+    Dist.new builder.build
+  end
+
+  #
+  # Describes a value range with corresponding biase used in random generation.
+  #
+  class ValueRange
+    attr_reader :value, :bias
+    def initialize(value, bias)
+      @value = value
+      @bias = bias
+    end
+  end
+
+  #
+  # Creates an object describing a value range (with corresponding bias)
+  # used in random generation. If the bias attribute is not specified,
+  # it will be set to nil, which means the default bias. 
+  #
+  def range(attrs = {})
+    if !attrs.is_a?(Hash)
+      raise MTRubyError, "#{attrs} is not a Hash."
+    end
+
+    if !attrs.has_key?(:value)
+      raise MTRubyError, "The :value attribute is not specified in #{attrs}."
+    end
+    value = attrs[:value]
+
+    bias = nil
+    if attrs.has_key?(:bias)
+      bias = attrs[:bias]
+      if !bias.is_a?(Integer)
+        raise MTRubyError, "#{bias} is not an Integer."
+      end
+    end
+
+    ValueRange.new value, bias
   end
 
   #
@@ -284,7 +372,7 @@ class Template
         builder.addArgument arg.name, arg.index 
       else
         raise MTRubyError, "Illegal format argument class #{arg.class}"
-      end  
+      end
     end
 
     @template.addOutput builder.build
@@ -313,7 +401,7 @@ class Template
     if args.count == 2
       @template.newLazy args.at(0), args.at(1)
     else
-      @template.newLazy      
+      @template.newLazy
     end
   end
 

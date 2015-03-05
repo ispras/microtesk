@@ -24,65 +24,6 @@ require_relative 'minimips_base'
 #
 class RandomTemplate < MiniMipsBaseTemplate
 
-  class RangeItem
-    attr_reader :value, :bias
-    def initialize(value, bias)
-      @value = value
-      @bias = bias
-    end
-  end 
-
-  def range(attrs = {})
-    if !attrs.is_a?(Hash)
-      raise MTRubyError, "#{attrs} is not a Hash."  
-    end
-
-    if !attrs.has_key?(:value)
-      raise MTRubyError, "The :value attribute is not specified in #{attrs}."
-    end
-    value = attrs[:value]
-
-    bias = nil
-    if attrs.has_key?(:bias)
-      bias = attrs[:bias]
-      if !bias.is_a?(Integer)
-        raise MTRubyError, "#{bias} is not an Integer."
-      end
-    end
-
-    RangeItem.new value, bias
-  end
-
-  def dist(*ranges)
-    if !ranges.is_a?(Array)
-      raise MTRubyError, "#{ranges} is not an Array."
-    end
-
-    builder = @template.newVariateBuilder
-    ranges.each do |range_item|
-      value = range_item.value
-      bias = range_item.bias
-
-      if value.is_a?(Integer)
-        builder.add value unless nil == bias
-        builder.add value, bias if nil == bias
-      elsif value.is_a?(Range)
-        builder.addInterval value.min, value.max unless nil == bias
-        builder.addInterval value.min, value.max, bias if nil == bias
-      elsif value.is_a?(Array)
-        builder.add value unless nil == bias
-        builder.add value, bias if nil == bias
-    # elsif value.is_a?(Dist)
-    #   puts "Distribution value: #{value}"
-      else
-        builder.add value unless nil == bias
-        builder.add value, bias if nil == bias
-      end
-    end
-
-    builder.build
-  end
-
   def run
     my_dist = dist(range(:value => 1,         :bias => 1),
                    range(:value => 1..3,      :bias => 2),
