@@ -19,23 +19,26 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template demonstrates how to generate test cases 
-# based on random values. 
+# This test template demonstrates how to generate randomized test cases 
+# by using biased values, intervals, arrays and distributions. 
 #
 class RandomTemplate < MiniMipsBaseTemplate
 
   def initialize
     super
+    # Random seed initialization.
     @random_seed = 0
   end
 
   def run
+    # Predefined probability distribution.
     int32_dist = dist(range(:value => 0,                      :bias => 25),  # Zero
                       range(:value => 1..2,                   :bias => 25),  # Small
                       range(:value => 0xffffFFFE..0xffffFFFF, :bias => 50))  # Large
 
     100.times {
       atomic {
+        # ADD instruction with biased operand values.
         add t0, t1, t2 do situation('random_biased', :size => 32,
           :dist => dist(range(:value=> int32_dist,              :bias => 80),  # Simple
                         range(:value=> [0xDEADBEEF, 0xBADF00D], :bias => 20))) # Magic
