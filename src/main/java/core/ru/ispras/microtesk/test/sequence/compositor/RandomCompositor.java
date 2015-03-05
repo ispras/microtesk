@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,12 +14,13 @@
 
 package ru.ispras.microtesk.test.sequence.compositor;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import ru.ispras.microtesk.test.sequence.iterator.IBoundedIterator;
 import ru.ispras.microtesk.test.sequence.iterator.IIterator;
-import ru.ispras.fortress.randomizer.Distribution;
-import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.randomizer.Variate;
+import ru.ispras.fortress.randomizer.VariateBiased;
 
 /**
  * This class implements the random composition (merging) of iterators.
@@ -28,33 +29,37 @@ import ru.ispras.fortress.randomizer.Randomizer;
  */
 public class RandomCompositor<T> extends Compositor<T> {
   /** Random distribution for choosing iterators. */
-  private Distribution distribution;
+  private Variate<Integer> distribution;
+
+  /** The iterator indices. */
+  private List<Integer> values = new ArrayList<>();
+  /** The iterator biases. */
+  private List<Integer> biases = new ArrayList<>();
 
   @Override
   protected void onInit() {
+    // Check whether there are unbounded iterators.
     boolean bounded = true;
 
-    int[] weights = new int[iterators.size()];
-
-    // if all of the iterators are bounded (i.e., their sequences' sizes are known),
-    // the iterator choice probability is proportional to the sequence size.
-    for (int i = 0; i < iterators.size(); i++) {
-      final IIterator<T> iterator = iterators.get(i);
+    for (final IIterator<T> iterator : iterators) {
       if (!(iterator instanceof IBoundedIterator)) {
         bounded = false;
         break;
       }
-
-      weights[i] = ((IBoundedIterator<T>) iterator).size();
     }
 
-    // If there are unbounded iterators (i.e., iterators with unknown size),
-    // the uniform probability distribution is used for choosing iterators.
-    if (!bounded) {
-      Arrays.fill(weights, 1);
+    for (int i = 0; i < iterators.size(); i++) {
+      final IIterator<T> iterator = iterators.get(i);
+
+      // If all of the iterators are bounded (i.e., their sequences' sizes are known),
+      // the iterator choice probability is proportional to the sequence size.
+      // If there are unbounded iterators (i.e., iterators with unknown size),
+      // the uniform probability distribution is used for choosing iterators.
+      values.add(i);
+      biases.add(bounded ? ((IBoundedIterator<T>) iterator).size() : 1);
     }
 
-    distribution = new Distribution(weights);
+    distribution = new VariateBiased<>(values, biases);
   }
 
   @Override
@@ -64,13 +69,23 @@ public class RandomCompositor<T> extends Compositor<T> {
 
   @Override
   protected IIterator<T> choose() {
-    while (distribution.getMaxWeight() != 0) {
-      final int i = Randomizer.get().choose(distribution);
+    // If there are non-exhausted iterators, choose one of them.
+    while (!values.isEmpty()) {
+      final int i = distribution.value();
+
       if (iterators.get(i).hasValue()) {
         return iterators.get(i);
       }
 
-      distribution.setWeight(i, 0);
+      // If the iterator has been exhausted, remove it from the set.
+      final int j = values.indexOf(i);
+
+      values.remove(j);
+      biases.remove(j);
+
+      if (!values.isEmpty()) {
+        distribution = new VariateBiased<Integer>(values, biases);
+      }
     }
 
     return null;
