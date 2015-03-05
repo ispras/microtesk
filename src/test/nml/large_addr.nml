@@ -29,8 +29,38 @@ reg GPR64[64, WORD64]
 mem M48[2**48, WORD48]
 mem M64[2**64, WORD64]
 
+mode r48(index: card(6)) = GPR48[index]
+  syntax = format("@r%d", index)
+
+mode r64(index: card(6)) = GPR64[index]
+  syntax = format("$r%d", index)
+
+op lw48(rd: r48, addr: WORD48)
+  syntax = format("lw48 %s, %x", rd.syntax, addr)
+  action = {
+    rd = M48[addr];
+  }
+
+op sw48(rd: r48, addr: WORD48)
+  syntax = format("sw48 %s, %x", rd.syntax, addr)
+  action = {
+    M48[addr] = rd;
+  }
+
+op lw64(rd: r64, addr: WORD64)
+  syntax = format("lw64 %s, %x", rd.syntax, addr)
+  action = {
+    rd = M64[addr];
+  }
+
+op sw64(rd: r64, addr: WORD64)
+  syntax = format("sw64 %s, %x", rd.syntax, addr)
+  action = {
+    M64[addr] = rd;
+  }
+
 op instruction()
-action = {
-  M48[0x800000000000] = minusOne48;
-  M64[0x8000000000000000] = minusOne64;
-}
+  action = {
+    M48[0x800000000000] = minusOne48;
+    M64[0x8000000000000000] = minusOne64;
+  }
