@@ -233,17 +233,29 @@ class Template
       bias = range_item.bias
 
       if value.is_a?(Integer)
-        builder.addValue value unless nil == bias
-        builder.addValue value, bias if nil == bias
+        if bias.nil? then
+          builder.addValue value
+        else
+          builder.addValue value, bias
+        end
       elsif value.is_a?(Range)
-        builder.addInterval value.min, value.max unless nil == bias
-        builder.addInterval value.min, value.max, bias if nil == bias
+        if bias.nil? then
+          builder.addInterval value.min, value.max
+        else
+          builder.addInterval value.min, value.max, bias
+        end
       elsif value.is_a?(Array)
-        builder.addCollection value unless nil == bias
-        builder.addCollection value, bias if nil == bias
+        if bias.nil? then
+          builder.addCollection value
+        else
+          builder.addCollection value, bias
+        end
       elsif value.is_a?(Dist)
-        builder.addVariate value.java_object unless nil == bias
-        builder.addVariate value.java_object, bias if nil == bias
+        if bias.nil? then
+          builder.addVariate value.java_object
+        else
+          builder.addVariate value.java_object, bias
+        end
       else
         raise MTRubyError, "#{value} has an unsupported type."
       end
