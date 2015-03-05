@@ -1,5 +1,5 @@
 #
-# Copyright 2014 ISP RAS (http://www.ispras.ru)
+# Copyright 2015 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,28 @@
 
 require_relative 'minimips_base'
 
+# Description
+# This is a test template with a program of insertion 
+# sorting algorithm written for mini-MIPS processor.
+# It can be applied to the mini-MIPS model to
+# simulate its behaviour.
+#
+# Algorithm:
+# for i = 1, 2, 3, ..., n:
+#     for j = (i - 1) ... 1:
+#         if (A[i] < A[j]): 
+#             if (j == 1):
+#                 copy = A[i]
+#                 for k = i ... 1:
+#                     A[k] = A[k - 1]
+#                 A[1] = copy 
+#         else:
+#             copy = A[i]
+#             for k = i ... (j + 1):
+#                 A[k] = A[k - 1]
+#             A[j] = copy 
+
+
 class InsertionSortTemplate < MiniMipsBaseTemplate
 
   def pre
@@ -23,95 +45,90 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
 
     data {
       label :array
-      word 1, 6, 2, 7, 5, 6, 3, 8, 9, 5, 6, 3
-      label :length
-      word 12
+      word rand(1..9), rand(1..9), rand(1..9), rand(1..9),
+           rand(1..9), rand(1..9), rand(1..9), rand(1..9),
+           rand(1..9), rand(1..9), rand(1..9), rand(1..9)
+      label :end
+      space 1
     }
   end
 
   def run
     print_data
 
-    #looks terrible, there sould be "lw" instruction for data
-    addi at, zero, :length
-    lw a0, 0, at
-
-    la a1, :array
-    add s4, zero, a1
+    la s0, :end
+    la s1, :array
     
-    addi t0, zero, 1 #counter of the top-level loop
-
+    addi t0, s1, 1 #counter of the top-level loop
+    ########################### Array iteration loop starts #################
     label :loop
-      beq t0, a0, :exit
-      sll zero, zero, 0 #DELAY SLOT
-    
-      addi s2, zero, 4
-      mult t0, s2 #computing the address of new element
-      mflo a2 #the fact that the result of multiplication is less than
-                  #32 bit long is not guaranteed!
-      add a2, a2, a1 #computing the address of new element
-  
-      lw t1, 0, a2 #load new elenent
-    
-      addi s1, zero, 4 #counter of an inner loop
-    
-      label :loop1
-        sub a3, a2, s1 #computing address of new element in search
-       
-        lw t2, 0, a3#loading the value of new elem in search
+    beq t0, s0, :exit
+    nop
 
-        slt at, t1, t2
-        bne at, zero, :cont 
-        sll zero, zero, 0 #DELAY SLOT
+    lw t1, 0, t0 #load new element to insert
 
-        addi a3, a3, 4 ##return to the greater number in search
-           
-       
-        add t4, zero, a2 #address of shifting (counter)       
-        add t5, zero, t1 #saving the value of element 
-                                    #that will be inserted
-       
-        label :loop2 #shift
-          beq a3, t4, :final #the shift is done, jump to 
-                                        #inserting and next iteration
-          sll zero, zero, 0 #DELAY SLOT
-          addi s2, zero, 4
-          sub t7, t4, s2
-         
-          #SHIFT
-          lw t6, 0, t7
-          sw t6, 0, t4
-          #SHIFT
-         
-          addi s2, zero, 4
-          sub t4, t4, s2 #decrement of the counter
-          j :loop2
-          sll zero, zero, 0 #DELAY SLOT
-       
-        label :cont
-        addi s1, s1, 4 #increment
-        j :loop1
-        sll zero, zero, 0 #DELAY SLOT
-       
-      label :final
-      sw t5, 0, a3 #inserting
-      label :exit1
+    addi t8, zero, 1
+    sub t3, t0, t8 #counter for searching loop
 
-      addi t0, t0, 1 #decrement for the counter
-      j :loop
+    add t4, zero, t0 #counter for the shift loop
+    ########################### Place search loop starts ####################
+    label :loop1
+        
+    lw t2, 0, t3 #loading the value of new compared element
 
-    sll zero, zero, 0 #DELAY SLOT
+    slt t5, t1, t2
+    bne t5, zero, :cont 
+    nop
+
+    addi t3, t3, 1 #return index to previously compared element
+    ########################### Shift loop starts ###########################
+    label :loop2 
+    beq t3, t4, :insertion #if the shift is done, jump to inserting and 
+                           #next iteration of loop "loop"
+    nop
+
+    addi t8, zero, 1
+    sub t7, t4, t8
     
+    lw t6, 0, t7
+    sw t6, 0, t4
+    
+    addi t8, zero, 1
+    sub t4, t4, t8 #decrement of the counter
+
+    j :loop2
+    nop
+    ########################### Shift loop ends ##############################
+    label :cont
+    add t4, zero, t0 #address of current shifting position #
+                     #(used if we do the branch in next instruction)
+    beq t3, s1, :loop2
+    nop
+
+    addi t8, zero, 1
+    sub t3, t3, t8 #decrement
+
+    j :loop1
+    nop
+    ########################### Place search loop ends ######################
+    label :insertion
+
+    sw t1, 0, t3 #inserting
+    addi t0, t0, 1 #increment for the counter
+
+    j :loop
+    nop
+    ########################### Array iteration loop  ends ##################
     label :exit
     
     print_data
   end
 
   def print_data
-    count = (address(:length) - address(:array)) / 4 + 1
+    count = (address(:end) - address(:array)) / 4
 
     trace "\nData starts: %d", address(:array)
-    trace "Data ends:   %d", address(:length)
+    trace "Data ends:   %d", address(:end)
     trace "Data count:  %d", count
 
     trace "\nData values:"
