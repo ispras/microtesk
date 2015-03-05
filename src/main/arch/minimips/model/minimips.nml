@@ -104,7 +104,7 @@ op add (rd: REG, rs: REG, rt: REG)
   }
 
 op addi (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("addi %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("addi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
     temp = rs<31>::rs + coerce(int(33), imm);
@@ -125,14 +125,14 @@ op addu (rd: REG, rs: REG, rt: REG) //unchecked addition
   }
 
 op addiu (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("addiu %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("addiu %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs + imm;
   }
 
 op andi (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("andi %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("andi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs & imm;
@@ -207,14 +207,14 @@ op xor (rd: REG, rs: REG, rt: REG)
   }
 
 op ori (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("ori %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("ori %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("001101%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs | imm;
   }
 
 op xori (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("xori %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("xori %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("001110%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs ^ imm;
@@ -276,7 +276,7 @@ op lw (rt: REG, offset: SHORT, address: REG)
   }
 
 op lui (rt: REG, imm: SHORT)
-  syntax = format("lui %s, %d", rt.syntax, imm)
+  syntax = format("lui %s, 0x%x", rt.syntax, imm)
   image = format("001111%s%s", rt.image, imm)
   action = {
     rt = coerce(WORD, imm) << 16;
@@ -442,7 +442,7 @@ op slt (rd: REG, rs: REG, rt: REG)
   }
 
 op slti (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("slti %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("slti %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("001010%s%s%s", rs.image, rt.image, imm)
   action = {
     if rs < imm then
@@ -453,7 +453,7 @@ op slti (rt: REG, rs: REG, imm: SHORT)
   }
 
 op sltiu (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("sltiu %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("sltiu %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("001011%s%s%s", rs.image, rt.image, imm)
   action = {
     if coerce(card(32), rs) < coerce(card(32), imm) then

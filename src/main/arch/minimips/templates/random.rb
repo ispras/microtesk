@@ -30,16 +30,17 @@ class RandomTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    my_dist = dist(range(:value => 1,         :bias => 1),
-                   range(:value => 1..3,      :bias => 2),
-                   range(:value => [1, 2, 3], :bias => 3))
+    int32_dist = dist(range(:value => 0,                      :bias => 25),  # Zero
+                      range(:value => 1..2,                   :bias => 25),  # Small
+                      range(:value => 0xffffFFFE..0xffffFFFF, :bias => 50))  # Large
 
-    add t0, t1, t2 do situation('random_biased', :size => 32,
-      :dist => dist(range(:value=> 1,         :bias => 1), # Single
-                    range(:value=> 1..3,      :bias => 2), # Interval
-                    range(:value=> [1, 2, 3], :bias => 3), # Collection
-                    range(:value=> my_dist,   :bias => 4)) # Distribution
-      ) end
+    100.times {
+      atomic {
+        add t0, t1, t2 do situation('random_biased', :size => 32,
+          :dist => dist(range(:value=> int32_dist,              :bias => 80),  # Simple
+                        range(:value=> [0xDEADBEEF, 0xBADF00D], :bias => 20))) # Magic
+        end
+      }
+    }
   end
-
 end
