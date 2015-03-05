@@ -24,6 +24,11 @@ require_relative 'minimips_base'
 #
 class RandomTemplate < MiniMipsBaseTemplate
 
+  def initialize
+    super
+    @random_seed = 0
+  end
+
   def run
     my_dist = dist(range(:value => 1,         :bias => 1),
                    range(:value => 1..3,      :bias => 2),
