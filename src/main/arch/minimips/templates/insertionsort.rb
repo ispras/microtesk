@@ -58,6 +58,7 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
 
     la s0, :end
     la s1, :array
+    addi s2, zero, 1
     
     addi t0, s1, 1 #counter of the top-level loop
     ########################### Array iteration loop starts #################
@@ -97,7 +98,7 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
     sub t4, t4, t8 #decrement of the counter
 
     j :loop2
-    nop
+    sub t4, t4, s2
     ########################### Shift loop ends ##############################
     label :cont
     add t4, zero, t0 #address of current shifting position #
@@ -105,19 +106,15 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
     beq t3, s1, :loop2
     nop
 
-    addi t8, zero, 1
-    sub t3, t3, t8 #decrement
-
     j :loop1
-    nop
+    sub t3, t3, s2
     ########################### Place search loop ends ######################
     label :insertion
 
-    sw t1, 0, t3 #inserting
-    addi t0, t0, 1 #increment for the counter
-
+    sw t1, 0, t3 #insertion
+    
     j :loop
-    nop
+    addi t0, t0, 1 #increment for the counter
     ########################### Array iteration loop  ends ##################
     label :exit
     
