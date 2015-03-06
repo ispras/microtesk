@@ -541,14 +541,14 @@ op mips_break ()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-op Operations =  add   
-                |addi  
-                |addiu 
-                |addu  
-                |and   
-                |andi  
-                |beq   
-                |bgez  
+op Operations =  add
+                |addi
+                |addiu
+                |addu
+                |and
+                |andi
+                |beq
+                |bgez
                 |bgezal
                 |bgtz
 
@@ -596,7 +596,7 @@ op Operations =  add
                 |syscall
                 |xor
                 |xori
-                
+
 ////////////////////////////////////////////////////////////////////////////////
 // Entry Point
 
