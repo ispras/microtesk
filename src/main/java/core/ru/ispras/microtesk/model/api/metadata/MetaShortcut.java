@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 /**
  * The MetaShortcut class describes a shortcut way to refer to an operation in some specific
  * context. A shortcut is composition of operations. Shortcuts can be used when there is a unique
@@ -35,13 +37,8 @@ public final class MetaShortcut implements MetaData {
    */
 
   public MetaShortcut(String contextName, MetaOperation operation) {
-    if (null == contextName) {
-      throw new NullPointerException();
-    }
-
-    if (null == operation) {
-      throw new NullPointerException();
-    }
+    checkNotNull(contextName);
+    checkNotNull(operation);
 
     this.contextName = contextName;
     this.operation = operation;

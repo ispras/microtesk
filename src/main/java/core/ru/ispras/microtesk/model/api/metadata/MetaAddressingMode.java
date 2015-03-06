@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.Set;
 
 /**
@@ -36,13 +38,8 @@ public final class MetaAddressingMode implements MetaData {
    */
 
   public MetaAddressingMode(String name, Set<String> argumentNames) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == argumentNames) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(argumentNames);
 
     this.name = name;
     this.argumentNames = argumentNames;

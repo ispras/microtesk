@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.Set;
 
 /**
@@ -27,13 +29,8 @@ public final class MetaArgument implements MetaData {
   private final Set<String> typeNames;
 
   public MetaArgument(String name, Set<String> typeNames) {
-    if (name == null) {
-      throw new NullPointerException();
-    }
-
-    if (null == typeNames) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(typeNames);
 
     this.name = name;
     this.typeNames = typeNames;

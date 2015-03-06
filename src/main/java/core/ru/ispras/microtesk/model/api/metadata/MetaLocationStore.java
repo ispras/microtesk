@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+
 /**
  * The MetaLocationStore class describes memory resources of the processor (as registers and memory
  * store locations).
@@ -26,13 +29,8 @@ public final class MetaLocationStore implements MetaData {
   private final int count;
 
   public MetaLocationStore(String name, int count) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (count <= 0) {
-      throw new IllegalArgumentException(String.format("%d <= 0", count));
-    }
+    checkNotNull(name);
+    checkGreaterThanZero(count);
 
     this.name = name;
     this.count = count;

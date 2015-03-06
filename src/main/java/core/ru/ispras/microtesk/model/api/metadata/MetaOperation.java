@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.Map;
 
 /**
@@ -36,21 +38,11 @@ public final class MetaOperation implements MetaData {
       boolean isRoot,
       Map<String, MetaArgument> args,
       Map<String, MetaShortcut> shortcuts) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
 
-    if (null == typeName) {
-      throw new NullPointerException();
-    }
-
-    if (null == args) {
-      throw new NullPointerException();
-    }
-
-    if (null == shortcuts) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
+    checkNotNull(typeName);
+    checkNotNull(args);
+    checkNotNull(shortcuts);
 
     this.name = name;
     this.typeName = typeName;
