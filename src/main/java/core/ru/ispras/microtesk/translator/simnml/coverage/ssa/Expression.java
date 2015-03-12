@@ -75,4 +75,8 @@ final class Expression {
   public static NodeOperation NOT(Node e) {
     return new NodeOperation(StandardOperation.NOT, e);
   }
+
+  public static NodeOperation newOperation(Enum<?> opId, Collection<? extends Node> args) {
+    return new NodeOperation(opId, args.toArray(new Node[args.size()]));
+  }
 }

@@ -65,15 +65,19 @@ final class Utility {
   }
 
   public static String prettyString(Node node) {
+    return prettyString(node, 0);
+  }
+
+  public static String prettyString(Node node, int indent) {
     final StringBuilder builder = new StringBuilder();
-    prettyString(node, 0, builder);
+    prettyString(node, indent, builder);
 
     return builder.toString();
   }
 
   private static void prettyString(Node node, int indent, StringBuilder builder) {
     if (node.getKind() != Node.Kind.OPERATION) {
-      builder.append(node.toString());
+      nonOperation(node, builder);
       return;
     }
     final NodeOperation op = (NodeOperation) node;
@@ -86,10 +90,19 @@ final class Utility {
     singleLineOperation(op, builder);
   }
 
+  private static void nonOperation(Node node, StringBuilder builder) {
+    builder.append(node.toString());
+    if (node.getKind() == Node.Kind.VARIABLE &&
+        node.getUserData() != null) {
+      builder.append('!').append(node.getUserData().toString());
+    }
+  }
+
   private static void singleLineOperation(NodeOperation op, StringBuilder builder) {
     builder.append('(').append(op.getOperationId().toString());
     for (Node operand : op.getOperands()) {
-      builder.append(' ').append(operand.toString());
+      builder.append(' ');
+      nonOperation(operand, builder);
     }
     builder.append(')');
   }

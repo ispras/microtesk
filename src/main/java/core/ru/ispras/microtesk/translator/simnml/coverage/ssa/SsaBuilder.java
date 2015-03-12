@@ -116,8 +116,10 @@ final class SsaBuilder {
   }
 
   private NodeVariable createTemporary(Data data) {
-    return scope.create(String.format("__tmp_%d", numTemps++),
-                        data);
+    final NodeVariable var = scope.create(String.format("__tmp_%d", numTemps++),
+                                          data);
+    var.setUserData(2);
+    return var;
   }
 
   private NodeVariable storeVariable(Variable var) {
@@ -128,10 +130,10 @@ final class SsaBuilder {
   }
 
   private NodeVariable updateVariable(Variable var) {
-    if (scope.contains(var.getName())) {
-      return scope.update(var.getName());
+    if (!scope.contains(var.getName())) {
+      scope.create(var.getName(), var.getData());
     }
-    return scope.create(var.getName(), var.getData());
+    return scope.update(var.getName());
   }
 
   private static Node macro(Enum<?> op, Variable v) {
@@ -348,11 +350,7 @@ final class SsaBuilder {
 
     for (int i = 0; i < s.getBlockCount(); ++i) {
       final StatementCondition.Block codeBlock = s.getBlock(i);
-
-      final SsaBuilder builder =
-        new SsaBuilder(tag, codeBlock.getStatements());
-      final SsaForm ssa = builder.build();
-
+      final SsaForm ssa = convertNested(codeBlock.getStatements());
       children.add(new GuardedBlock(branchPoint.names.get(i),
                                     branchPoint.guards.get(i),
                                     ssa.getEntryPoint()));
@@ -374,8 +372,17 @@ final class SsaBuilder {
     blocks.add(phi);
   }
 
+  private SsaForm convertNested(List<Statement> statements) {
+    final SsaBuilder builder = new SsaBuilder(this.tag, statements);
+    builder.numBlocks = this.numBlocks;
+    final SsaForm ssa = builder.build();
+    this.numBlocks = builder.numBlocks;
+
+    return ssa;
+  }
+
   private String generateBlockName() {
-    return String.format("__%s_block_%d", tag, numBlocks++);
+    return String.format("%s.block_%d", tag, numBlocks++);
   }
 
   private final class BranchPoint {
