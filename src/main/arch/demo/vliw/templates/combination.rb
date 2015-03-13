@@ -43,12 +43,12 @@ class CombinationTemplate < VliwBaseTemplate
       block {
         vliw(
           (add_s f(5), f(5), f(6) do situation('fp.add', :case => 'underflow', :exp => 8, :frac => 23) end),
-          (add_s f(7), f(7), f(8) do situation('fp.add', :case => 'inexact',   :exp => 8, :frac => 23) end) 
+          (add_s f(7), f(7), f(8) do situation('fp.add', :case => 'inexact',   :exp => 8, :frac => 23) end)
         )
 
         vliw(
           (sub_s  f(9),  f(9), f(10) do situation('fp.sub', :case => 'normal',   :exp => 8, :frac => 23) end),
-          (sub_s f(11), f(11), f(12) do situation('fp.sub', :case => 'overflow', :exp => 8, :frac => 23) end) 
+          (sub_s f(11), f(11), f(12) do situation('fp.sub', :case => 'overflow', :exp => 8, :frac => 23) end)
         )
       }
     }

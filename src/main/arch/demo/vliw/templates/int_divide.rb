@@ -31,10 +31,10 @@ class IntDivideTemplate < VliwBaseTemplate
   def run
     trace "Division: Debug Output"
 
-    i = Random.rand(1024)
-    j = Random.rand(63) + 1 #zero is excluded
+    i = rand(0, 1023)
+    j = rand(1, 63) #zero is excluded
 
-    trace "\nInput parameter values: dividend = #{i}, divisor = #{j}\n"
+    trace "\nInput parameter values: dividend = %d, divisor = %d\n", i, j
     vliw (addi r(4), r(0), i), (addi r(5), r(0), j)
     vliw (move r(1), r(0)),    (move r(2), r(4))
 
@@ -49,7 +49,7 @@ class IntDivideTemplate < VliwBaseTemplate
     vliw (b :cycle), nop
 
     label :done
-    trace "\nResult : quotient = %d, remainder = %d\n", gpr(1), gpr(2)
+    trace "\nResult: quotient = %d, remainder = %d\n", gpr(1), gpr(2)
   end
 
 end

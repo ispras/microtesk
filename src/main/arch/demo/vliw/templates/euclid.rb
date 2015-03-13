@@ -32,10 +32,10 @@ class EuclidTemplate < VliwBaseTemplate
     trace "Euclidean Algorithm: Debug Output"
 
     # Values from [1..63], zero is excluded because there is no solution
-    i = Random.rand(63) + 1
-    j = Random.rand(63) + 1
+    i = rand(1, 63)
+    j = rand(1, 63)
 
-    trace "\nInput parameter values: #{i}, #{j}\n"
+    trace "\nInput parameter values: %d, %d\n", i, j
     vliw (addi r(4), r(0), i), (addi r(5), r(0), j)
 
     label :cycle
