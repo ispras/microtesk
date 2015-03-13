@@ -78,7 +78,22 @@ public final class OutputBuilder {
 
   public OutputBuilder addArgument(String value) {
     checkNotNull(value);
+    addArgument(new ArgumentValue(value));
+    return this;
+  }
 
+  /**
+   * Adds a format argument that implements the {@link Value} interface
+   * (RandomValue, UnknownValue, etc).
+   * 
+   * @param value Value object (implements the {@link Value} interface).
+   * @return This builder object to continue operations.
+   * 
+   * @throws NullPointerException if the parameter equals null.
+   */
+
+  public OutputBuilder addArgument(Value value) {
+    checkNotNull(value);
     addArgument(new ArgumentValue(value));
     return this;
   }

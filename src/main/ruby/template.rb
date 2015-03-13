@@ -374,11 +374,13 @@ class Template
   # depending of the is_runtime flag.
   #
   def print_format(is_runtime, format, *args)
+    java_import Java::Ru.ispras.microtesk.test.template.Value
+    
     builder = @template.newOutput is_runtime, format
 
     args.each do |arg|
       if arg.is_a?(Integer) or arg.is_a?(String) or 
-         arg.is_a?(TrueClass) or arg.is_a?(FalseClass)
+         arg.is_a?(TrueClass) or arg.is_a?(FalseClass) or arg.is_a?(Value)
          builder.addArgument arg
       elsif arg.is_a?(Location)
         builder.addArgument arg.name, arg.index 

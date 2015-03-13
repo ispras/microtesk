@@ -76,12 +76,16 @@ public final class Output {
 
     @Override
     public Object evaluate(IModelStateObserver observer) {
+      if (value instanceof Value) {
+        return ((Value) value).getValue();
+      }
+
       return value;
     }
 
     @Override
     public String toString() {
-      return value.toString();
+      return evaluate(null).toString();
     }
   }
 
