@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.test.template;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +47,7 @@ public final class OutputBuilder {
    */
 
   OutputBuilder(boolean isRuntime, String format) {
-    if (null == format) {
-      throw new NullPointerException();
-    }
+    checkNotNull(format);
 
     this.isRuntime = isRuntime;
     this.format = format;
@@ -77,9 +77,7 @@ public final class OutputBuilder {
    */
 
   public OutputBuilder addArgument(String value) {
-    if (null == value) {
-      throw new NullPointerException();
-    }
+    checkNotNull(value);
 
     addArgument(new ArgumentValue(value));
     return this;
@@ -109,9 +107,7 @@ public final class OutputBuilder {
    */
 
   public OutputBuilder addArgument(String name, int index) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
+    checkNotNull(name);
 
     final FormatMarker marker = getMarker(getArgumentCount());
     final boolean isBinaryText = FormatMarker.STR == marker || FormatMarker.BIN == marker;
