@@ -29,7 +29,12 @@ def self.main
   puts "Home: " + HOME
   puts "Current directory: " + WD
 
-  model = create_model ARGV[0]
+  model_name = ARGV[0]
+  begin
+    model = create_model model_name
+  rescue
+    abort "Error: Failed to load the \"#{model_name}\" model."
+  end
 
   template_file = File.expand_path ARGV[1]
   puts "Template file: " + template_file
