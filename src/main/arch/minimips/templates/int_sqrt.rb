@@ -30,8 +30,10 @@ class IntSqrtTemplate < MiniMipsBaseTemplate
   def run
     trace "Integer square root: Debug Output\n"
 
-    addi s0, zero, rand(0, 1023)
-    trace "\nInput parameter value: x = %d\n", gpr(16)
+    x = rand(0, 1023)
+    trace "Input parameter value: x = %d\n", x
+
+    addi s0, zero, x
 
     add  t0, zero, s0
     addi t1, zero, 1
@@ -57,7 +59,7 @@ class IntSqrtTemplate < MiniMipsBaseTemplate
     nop
 
     label :done
-    trace "\nInteger square root of %d: %d", gpr(16), gpr(10)
+    trace "\nInteger square root of %d: %d", x, gpr(10)
   end
 
 end

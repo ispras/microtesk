@@ -30,10 +30,10 @@ class IntSqrtTemplate < VliwBaseTemplate
   def run
     trace "Integer square root: Debug Output"
 
-    i = rand(0, 1023)
+    x = rand(0, 1023)
 
-    trace "\nInput parameter value: x = %d\n", i
-    vliw (addi r(3), r(0), i), (addi r(1), r(0), 1)
+    trace "\nInput parameter value: x = %d\n", x
+    vliw (addi r(3), r(0), x), (addi r(1), r(0), 1)
     vliw (move r(2), r(0)),    (addi r(4), r(0), 1)
 
     label :cycle
@@ -52,7 +52,7 @@ class IntSqrtTemplate < VliwBaseTemplate
     vliw (b :cycle), nop
 
     label :done
-    trace "\nsqrt of %d: %d", i, gpr(2)
+    trace "\nsqrt of %d: %d", x, gpr(2)
   end
 
 end

@@ -30,8 +30,10 @@ class IntSqrt4Template < MiniMipsBaseTemplate
   def run
     trace "Integer square root: Debug Output\n"
 
-    addi s0, zero, rand(0, 1023)
-    trace "\nInput parameter value: x = %d\n", gpr(16)
+    x = rand(0, 1023)
+    trace "Input parameter value: x = %d\n", x
+
+    addi s0, zero, x
 
     addi s1, zero, 1
     addi s2, zero, 2
@@ -40,14 +42,14 @@ class IntSqrt4Template < MiniMipsBaseTemplate
     lui t0, 0x4000
     add t1, zero, zero
 
-    label :cycle    
+    label :cycle
     trace "\nCurrent register values: $8 = %d, $9 = %d, $10 = %d\n", gpr(8), gpr(9), gpr(10)
 
     beq t0, zero, :done
     OR  t2, t1, t0
 
     srl t1, t1, s1
-    slt t4, t3, t2   
+    slt t4, t3, t2
 
     bne t4, zero, :if_less
     nop
@@ -60,7 +62,7 @@ class IntSqrt4Template < MiniMipsBaseTemplate
     srl t0, t0, s2
 
     label :done
-    trace "\nInteger square root of %d : %d", gpr(16), gpr(9)
+    trace "\nInteger square root of %d : %d", x, gpr(9)
   end
 
 end

@@ -31,10 +31,13 @@ class IntDivideTemplate < MiniMipsBaseTemplate
   def run
     trace "Division: Debug Output\n"
 
-    addi s0, zero, rand(0, 1023)
-    addi s1, zero, rand(1, 63) # zero is excluded
+    dividend = rand(0, 1023)
+    divisor  = rand(1, 63) #zero is excluded
 
-    trace "\nInput parameter values: dividend = %d, divisor = %d\n", gpr(16), gpr(17)
+    trace "\nInput parameter values: dividend = %d, divisor = %d\n", dividend, divisor
+
+    addi s0, zero, dividend
+    addi s1, zero, divisor
 
     add t0, zero, zero
     add t1, zero, s0

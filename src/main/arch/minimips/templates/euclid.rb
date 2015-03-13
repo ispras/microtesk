@@ -37,9 +37,13 @@ class EuclidTemplate < MiniMipsBaseTemplate
     trace "Euclidean Algorithm (miniMIPS): Debug Output"
 
     # Values from [1..63], zero is excluded because there is no solution
+    val1 = rand(1, 63)
+    val2 = rand(1, 63)
 
-    addi t1, zero, rand(1, 63)
-    addi t2, zero, rand(1, 63)
+    trace "\nInput parameter values: %d, %d\n", val1, val2
+
+    addi t1, zero, val1
+    addi t2, zero, val2
 
     label :cycle
     trace "\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr(9), gpr(10)
