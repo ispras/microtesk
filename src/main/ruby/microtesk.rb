@@ -33,7 +33,7 @@ def self.main
   begin
     model = create_model model_name
   rescue
-    abort "Error: Failed to load the \"#{model_name}\" model."
+    abort "Error: Failed to load the #{model_name} model."
   end
 
   template_file = File.expand_path ARGV[1]
