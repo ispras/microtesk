@@ -14,6 +14,6 @@
 	<classpathentry exported="true" kind="lib" path="jars/junit-4.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/jruby.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/fortress.jar" sourcepath="jars/fortress-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/testbase.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/testbase.jar" sourcepath="jars/testbase-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
