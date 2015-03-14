@@ -64,10 +64,14 @@ public final class IrWalker {
     try {
       traverseResources();
       if (Direction.LINEAR == direction) {
+        visitor.onPrimitivesBegin();
         traversePrimitives(ir.getModes().values(), false);
         traversePrimitives(ir.getOps().values(), false);
+        visitor.onPrimitivesEnd();
       } else if (Direction.TREE == direction) {
+        visitor.onPrimitivesBegin();
         traversePrimitives(ir.getRoots(), true);
+        visitor.onPrimitivesEnd();
       } else {
         throw new IllegalStateException("Unknown direction: " + direction);
       }

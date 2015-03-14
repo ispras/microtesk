@@ -134,6 +134,18 @@ public class XmlDocumenter implements IrVisitor {
 
   }
 
+  @Override
+  public void onPrimitivesBegin() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void onPrimitivesEnd() {
+    // TODO Auto-generated method stub
+    
+  }
+
 //  /**
 //   * TODO: rewrite with XmlScopes.
 //   * 

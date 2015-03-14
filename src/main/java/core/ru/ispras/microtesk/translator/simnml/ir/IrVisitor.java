@@ -92,8 +92,19 @@ public interface IrVisitor {
   void onMemory(String name, MemoryExpr memory);
 
   /**
-   * Notifies that visiting of a primitive (object describing a MODE or OP)
-   * has been started.
+   * Notifies that visiting primitives (objects describing MODEs and OPs) has been started.
+   */
+
+  void onPrimitivesBegin();
+
+  /**
+   * Notifies that visiting primitives (objects describing MODEs and OPs) has been finished.
+   */
+
+  void onPrimitivesEnd();
+  
+  /**
+   * Notifies that visiting a primitive (object describing a MODE or OP) has been started.
    * 
    * @param item Primitive object describing a MODE or OP.
    */
@@ -101,7 +112,7 @@ public interface IrVisitor {
   void onPrimitiveBegin(Primitive item);
 
   /**
-   * Notifies that visiting of a primitive has been started.
+   * Notifies that visiting a primitive has been finished.
    * 
    * @param item Primitive object.
    */
