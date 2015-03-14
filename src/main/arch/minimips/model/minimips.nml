@@ -102,10 +102,10 @@ op add (rd: REG, rs: REG, rt: REG)
       rd = temp<31..0>;
     endif;
   }
-
+ 
 op addi (rt: REG, rs: REG, imm: SHORT)
   syntax = format("addi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
-  image = format("000000%s%s%s", rs.image, rt.image, imm)
+  image= format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
     temp = rs<31>::rs + coerce(int(33), imm);
     if temp<32> != temp<31> then
