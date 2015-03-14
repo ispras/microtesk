@@ -32,7 +32,7 @@ require_relative 'minimips_base'
 #     j = j - 1
 #   A[j] = x
 #
-class BubbleSortTemplate < MiniMipsBaseTemplate
+class InsertionSortTemplate < MiniMipsBaseTemplate
   def pre
     super
 
