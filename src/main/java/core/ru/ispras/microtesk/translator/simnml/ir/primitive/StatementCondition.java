@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,10 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
+import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
+
 import java.util.List;
 import ru.ispras.microtesk.translator.simnml.ir.expression.Expr;
 
@@ -23,19 +27,14 @@ public final class StatementCondition extends Statement {
     private final List<Statement> statements;
 
     private Block(Expr condition, List<Statement> statements) {
-      if (null == statements) {
-        throw new NullPointerException();
-      }
+      checkNotNull(statements);
 
       this.condition = condition;
       this.statements = statements;
     }
 
     public static Block newIfBlock(Expr condition, List<Statement> statements) {
-      if (null == condition) {
-        throw new NullPointerException();
-      }
-
+      checkNotNull(condition);
       return new Block(condition, statements);
     }
 
@@ -61,14 +60,7 @@ public final class StatementCondition extends Statement {
   StatementCondition(List<Block> blocks) {
     super(Kind.COND);
 
-    if (null == blocks) {
-      throw new NullPointerException();
-    }
-
-    if (blocks.isEmpty()) {
-      throw new IllegalArgumentException();
-    }
-
+    checkNotEmpty(blocks);
     this.blocks = blocks;
   }
 
@@ -77,10 +69,7 @@ public final class StatementCondition extends Statement {
   }
 
   public Block getBlock(int index) {
-    if (!((0 <= index) && (index < getBlockCount()))) {
-      throw new IndexOutOfBoundsException();
-    }
-
+    checkBounds(index, getBlockCount());
     return blocks.get(index);
   }
 }
