@@ -19,12 +19,12 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 public abstract class Stmt {
 
   public static enum Kind {
-    EXPR,
-    CALL,
     ASSIGN,
     COND,
     EXCEPT,
-    TRACE
+    EXPR,
+    TRACE,
+    CALL
   }
 
   private final Kind kind;
