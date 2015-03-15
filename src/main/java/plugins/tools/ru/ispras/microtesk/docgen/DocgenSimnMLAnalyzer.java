@@ -188,26 +188,18 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
 
     // TO PLATON >> TODO: YOUR CODE GOES HERE
     IrWalker walker = new IrWalker(ir, Direction.LINEAR);
-    DocBook dump = new DocBook(modelName);
-    XmlDocumenter documenter = null;
+    FileWriter writer = null;
+    TexVisitor visitor = null;
     try {
-      documenter = new XmlDocumenter(dump);
-    } catch (IOException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-    }
-    
-    walker.traverse(documenter);
-    XmlWriter writer = null;
-
-    try {
-      writer = new XmlWriter(new FileWriter(new File("documentation.xml")));
-      writer.write(dump.extractXML());
-      writer.close();
+      writer = new FileWriter(new File("documentation.tex"));
+      visitor = new TexVisitor(writer);
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    
+    walker.traverse(visitor);
+    visitor.finalize();
   }
 
   public static void main(String[] args) throws RecognitionException {

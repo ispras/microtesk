@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,9 @@
 
 package ru.ispras.microtesk.docgen;
 
+import java.io.FileWriter;
 import java.io.IOException;
+
 import ru.ispras.microtesk.translator.simnml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
@@ -28,53 +30,110 @@ import ru.ispras.microtesk.translator.simnml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
 
-public class XmlDocumenter implements IrVisitor {
+public class TexVisitor implements IrVisitor {
 
 
-  private DocBook docBook;
+  private FileWriter writer;
+  private int level = 0;
 
-  public XmlDocumenter(DocBook dump) throws IOException {
-    this.docBook = dump;
+  public TexVisitor(FileWriter writer) throws IOException {
+    this.writer = writer;
+    writer.write("\\documentclass{book}\n");
+    writer.write("\\begin{document}");
   }
 
   @Override
   public void onResourcesBegin() {
-    docBook.beginChapter("Resources", "resources", XmlScope.RESOURCES);
+    try {
+      level = 1;
+      setToLevel(level++);
+      writer.write("\\chapter{Resources}");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void onResourcesEnd() {
-    docBook.closeChapter();
+    //tex.closeChapter();
   }
 
   @Override
   public void onLetConstant(LetConstant let) {
-    docBook.addParagraph(let.getName());
+    try {
+      setToLevel(level);
+      writer.write("\\section{\\texttt{ " + let.getName().replace("_", "\\_") + " }}");
+      writer.write("\\newpage");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void onLetString(LetString let) {
-    docBook.addParagraph(let.getName());
+    try {
+      setToLevel(level);
+      writer.write("\\section{\\texttt{ " + let.getName().replace("_", "\\_") + " }}");
+      setToLevel(level);
+      writer.write("\\newpage");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void onLetLabel(LetLabel let) {
-    docBook.addParagraph(let.getName());
+    try {
+      setToLevel(level);
+      writer.write("\\section{\\texttt{ " + let.getName().replace("_", "\\_") + " }}");
+      setToLevel(level);
+      writer.write("\\newpage");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void onType(String name, Type type) {
-    docBook.addParagraph(name);
+    try {
+      setToLevel(level);
+      writer.write("\\section{\\texttt{ " + name.replace("_", "\\_") + " }}");
+      setToLevel(level);
+      writer.write("\\newpage");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void onMemory(String name, MemoryExpr memory) {
-    docBook.addParagraph(name);
+    try {
+      setToLevel(level);
+      writer.write("\\section{\\texttt{ " + name.replace("_", "\\_") + " }}");
+      setToLevel(level);
+      writer.write("\\newpage");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void onPrimitiveBegin(Primitive item) {
-    docBook.addParagraph(item.getName());
+    try {
+      setToLevel(level);
+      writer.write("\\section{\\texttt{ " + item.getName().replace("_", "\\_") + " }}");
+      setToLevel(level);
+      writer.write("\\newpage");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -136,14 +195,40 @@ public class XmlDocumenter implements IrVisitor {
 
   @Override
   public void onPrimitivesBegin() {
-    // TODO Auto-generated method stub
-    
+    try {
+      level = 1;
+      setToLevel(level++);
+      writer.write("\\chapter{Primitives}");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void onPrimitivesEnd() {
-    // TODO Auto-generated method stub
     
+  }
+  
+  private void setToLevel(int level) throws IOException {
+    writer.write('\r');
+    for (int i = 0; i < level; i++) {
+      writer.write('\t');
+    }
+  }
+  
+  public void finalize()
+  {
+    
+    try {
+      setToLevel(0);
+      writer.write("\\end{document}");
+      writer.flush();
+      writer.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
 //  /**
@@ -164,4 +249,5 @@ public class XmlDocumenter implements IrVisitor {
 //    }
 //  }
 
+  
 }
