@@ -50,6 +50,26 @@ public final class TestEngine {
     this.model = model;
   }
 
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
+
+  public void setLogExecution(boolean logExecution) {
+    this.logExecution = logExecution;
+  }
+
+  public void setPrintToScreen(boolean printToScreen) {
+    this.printToScreen = printToScreen;
+  }
+
+  public void setCommentToken(String commentToken) {
+    this.commentToken = commentToken;
+  }
+
+  public void setRandomSeed(int seed) {
+    Randomizer.get().setSeed(seed);
+  }
+  
   public Template newTemplate() {
     return new Template(model.getMetaData());
   }
@@ -73,26 +93,6 @@ public final class TestEngine {
     } finally {
       printer.close();
     }
-  }
-
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
-  public void setLogExecution(boolean logExecution) {
-    this.logExecution = logExecution;
-  }
-
-  public void setPrintToScreen(boolean printToScreen) {
-    this.printToScreen = printToScreen;
-  }
-
-  public void setCommentToken(String commentToken) {
-    this.commentToken = commentToken;
-  }
-
-  public void setRandomSeed(int seed) {
-    Randomizer.get().setSeed(seed);
   }
 
   private static class TemplateProcessor {
