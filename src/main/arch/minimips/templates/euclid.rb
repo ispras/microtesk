@@ -46,7 +46,7 @@ class EuclidTemplate < MiniMipsBaseTemplate
     addi t2, zero, val2
 
     label :cycle
-    trace "\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr(9), gpr(10)
+    trace "\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr_observer(9), gpr_observer(10)
     beq t1, t2, :done
 
     slt t0, t1, t2
@@ -64,7 +64,7 @@ class EuclidTemplate < MiniMipsBaseTemplate
     label :done
     add t3, t1, zero
 
-    trace "\nResult stored in $t3($11): %d", gpr(11)
+    trace "\nResult stored in $t3($11): %d", gpr_observer(11)
   end
 
 end

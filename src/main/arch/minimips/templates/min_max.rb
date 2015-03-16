@@ -41,7 +41,7 @@ class MinMaxTemplate < MiniMipsBaseTemplate
     text  '.text'
     trace '.text'
 
-    print_data
+    trace_data :data, :end
 
     la t0, :data
     la t1, :end
@@ -71,19 +71,7 @@ class MinMaxTemplate < MiniMipsBaseTemplate
     nop
 
     label :done
-    trace "\ns0(min)=%d, s1(max)=%d", gpr(16), gpr(17)
-  end
-
-  def print_data
-    count = (address(:end) - address(:data)) / 4
-
-    trace "\nData starts: %d", address(:data)
-    trace "Data ends:   %d", address(:end)
-    trace "Data count:  %d", count
-
-    trace "\nData values:"
-    (0..(count-1)).each { |i| trace "M[%d]: %d", i, mem(i) }
-    trace ""
+    trace "\ns0(min)=%d, s1(max)=%d", gpr_observer(16), gpr_observer(17)
   end
 
 end

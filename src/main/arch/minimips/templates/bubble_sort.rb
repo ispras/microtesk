@@ -57,7 +57,7 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
     text  '.text'
     trace '.text'
 
-    print_data
+    trace_data :data, :end
 
     la s0, :data
     la s1, :end
@@ -97,25 +97,13 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
     add t0, zero, zero
     ############################ Outer loop ends ###############################
 
-    print_data
+    trace_data :data, :end
   end
 
   def swap(reg1, reg2)
     xor reg1, reg1, reg2
     xor reg2, reg1, reg2
     xor reg1, reg1, reg2
-  end
-
-  def print_data
-    count = (address(:end) - address(:data)) / 4
-
-    trace "\nData starts: %d", address(:data)
-    trace "Data ends:   %d", address(:end)
-    trace "Data count:  %d", count
-
-    trace "\nData values:"
-    (0..(count-1)).each { |i| trace "M[%d]: %d", i, mem(i) }
-    trace ""
   end
 
 end

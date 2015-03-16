@@ -54,7 +54,7 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    print_data
+    trace_data :array, :end
 
     la s0, :end
     la s1, :array
@@ -118,19 +118,7 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
     ########################### Array iteration loop  ends ##################
     label :exit
     
-    print_data
-  end
-
-  def print_data
-    count = (address(:end) - address(:array)) / 4
-
-    trace "\nData starts: %d", address(:array)
-    trace "Data ends:   %d", address(:end)
-    trace "Data count:  %d", count
-
-    trace "\nData values:"
-    (0..(count-1)).each { |i| trace "M[%d]: %d", i, mem(i) }
-    trace ""
+    trace_data :array, :end
   end
 
 end

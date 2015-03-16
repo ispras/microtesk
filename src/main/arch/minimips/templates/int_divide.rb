@@ -29,7 +29,7 @@ require_relative 'minimips_base'
 class IntDivideTemplate < MiniMipsBaseTemplate
 
   def run
-    trace "Division: Debug Output\n"
+    trace "Division: Debug Output"
 
     dividend = rand(0, 1023)
     divisor  = rand(1, 63) #zero is excluded
@@ -43,7 +43,8 @@ class IntDivideTemplate < MiniMipsBaseTemplate
     add t1, zero, s0
 
     label :cycle
-    trace "\nCurrent register values: $8 = %d, $9 = %d, $10 = %d\n", gpr(8), gpr(9), gpr(10)
+    trace "\nCurrent register values: $8 = %d, $9 = %d, $10 = %d\n",
+      gpr_observer(8), gpr_observer(9), gpr_observer(10)
 
     sub t2, t1, s1
     slt t3, t2, zero
@@ -58,7 +59,8 @@ class IntDivideTemplate < MiniMipsBaseTemplate
     nop
 
     label :done
-    trace "\nResult: quotient ($8) = %d, remainder ($9) = %d\n", gpr(8), gpr(9)
+    trace "\nResult: quotient ($8) = %d, remainder ($9) = %d",
+      gpr_observer(8), gpr_observer(9)
   end
 
 end

@@ -56,19 +56,19 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
     trace_header 'Reading from memory:'
 
     la t0, :data1
-    trace "address in t0: %x", gpr(8)
+    trace "address in t0: %x", gpr_observer(8)
     lw t1, 0, t0
-    trace "value in t1: %x", gpr(9)
+    trace "value in t1: %x", gpr_observer(9)
 
     la t2, :data2
-    trace "address in t2: %x", gpr(10)
+    trace "address in t2: %x", gpr_observer(10)
     lw t3, 0, t2
-    trace "value in t3: %x", gpr(11)
+    trace "value in t3: %x", gpr_observer(11)
 
     la t4, :data3
-    trace "address in t4: %x", gpr(12)
+    trace "address in t4: %x", gpr_observer(12)
     lw t5, 0, t4
-    trace "value in t5: %x", gpr(13)
+    trace "value in t5: %x", gpr_observer(13)
 
     trace_header 'Writing to memory:'
 
@@ -80,7 +80,7 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
 
   def trace_memory
     trace_header 'Memory state:'
-    (0..6).each { |i| trace "%x: %x", i * 4, mem(i) }
+    (0..6).each { |i| trace "%x: %x", i * 4, mem_observer(i) }
   end
 
   def trace_labels

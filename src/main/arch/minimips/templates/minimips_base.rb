@@ -196,13 +196,33 @@ class MiniMipsBaseTemplate < Template
     reg(31)
   end
 
+  #
   # Shortcut methods to access memory resources in debug messages
+  #
 
-  def gpr(index)
+  def gpr_observer(index)
     location('GPR', index)
   end
 
-  def mem(index)
+  def mem_observer(index)
     location('M', index)
+  end
+
+  #
+  # Utility method for printing data stored in memory using labels.
+  #
+  def trace_data(begin_label, end_label)
+    begin_addr = address(begin_label)
+    end_addr = address(end_label)
+
+    count = (end_addr - begin_addr) / 4
+
+    trace "\nData starts: %d", begin_addr
+    trace "Data ends:   %d", end_addr
+    trace "Data count:  %d", count
+
+    trace "\nData values:"
+    (0..(count-1)).each { |i| trace "M[%d]: %d", i, mem_observer(i) }
+    trace ""
   end
 end

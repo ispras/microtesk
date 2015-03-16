@@ -43,7 +43,8 @@ class IntSqrt4Template < MiniMipsBaseTemplate
     add t1, zero, zero
 
     label :cycle
-    trace "\nCurrent register values: $8 = %d, $9 = %d, $10 = %d\n", gpr(8), gpr(9), gpr(10)
+    trace "\nCurrent register values: $8 = %d, $9 = %d, $10 = %d\n",
+      gpr_observer(8), gpr_observer(9), gpr_observer(10)
 
     beq t0, zero, :done
     OR  t2, t1, t0
@@ -62,7 +63,7 @@ class IntSqrt4Template < MiniMipsBaseTemplate
     srl t0, t0, s2
 
     label :done
-    trace "\nInteger square root of %d : %d", x, gpr(9)
+    trace "\nInteger square root of %d: %d", x, gpr_observer(9)
   end
 
 end
