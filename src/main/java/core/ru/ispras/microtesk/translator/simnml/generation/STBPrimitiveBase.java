@@ -208,7 +208,12 @@ final class StatementBuilder {
         sb.append(", ");
       }
 
-      sb.append(stmt.getArgument(index));
+      final Object arg = stmt.getArgument(index);
+      final boolean isString = arg instanceof String;
+
+      if (isString) sb.append('"');
+      sb.append(arg);
+      if (isString) sb.append('"');
     }
 
     addStatement(String.format("%s(%s);", stmt.getName(), sb.toString()));
