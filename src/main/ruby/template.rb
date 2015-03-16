@@ -488,12 +488,16 @@ end # Template
 # memory address) performed when printing data.
 #
 class Location
-  attr_reader :name, :index 
+  attr_reader :name, :index
 
   def initialize(name, index)
     @name  = name
     @index = index
   end
+
+ def to_s
+   "#{@name}[#{@index}]"
+ end
 end # Location
 
 class DataManager
