@@ -320,6 +320,10 @@ class Template
   #   NoValue.new(aug_value)
   # end
 
+  # -------------------------------------------------------------------------- #
+  # Printing Text Messages                                                     #
+  # -------------------------------------------------------------------------- #
+
   #
   # Creates a location-based format argument for format-like output methods. 
   #
@@ -392,9 +396,11 @@ class Template
     @template.addOutput builder.build
   end
 
-  # ------------------------------------------------------------------------- #
-  # Creating Preparators                                                      #
-  # ------------------------------------------------------------------------- #
+  
+  
+  # -------------------------------------------------------------------------- #
+  # Creating Preparators                                                       #
+  # -------------------------------------------------------------------------- #
 
   def preparator(attrs, &contents)
     target = get_attribute attrs, :target
