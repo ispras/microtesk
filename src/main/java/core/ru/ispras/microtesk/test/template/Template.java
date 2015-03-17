@@ -67,10 +67,9 @@ public final class Template {
 
   private final MetaModel metaModel;
   private final DataManager dataManager;
-  
-  private PreparatorBuilder preparatorBuilder;
   private final PreparatorStore preparators;
 
+  private PreparatorBuilder preparatorBuilder;
   private Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
 
@@ -87,10 +86,9 @@ public final class Template {
 
     this.metaModel = metaModel;
     this.dataManager = new DataManager();
-
-    this.preparatorBuilder = null;
     this.preparators = new PreparatorStore();
 
+    this.preparatorBuilder = null;
     this.blockBuilders = null;
     this.callBuilder = null;
 
