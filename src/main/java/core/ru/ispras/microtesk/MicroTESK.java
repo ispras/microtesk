@@ -117,6 +117,10 @@ public final class MicroTESK {
   }
 
   private static void generate(CommandLine params) {
-    // TODO
+    if (!params.hasOption(Parameters.MODEL)) {
+      System.out.printf("Wrong command line: -%s parameter is not specified%n", Parameters.MODEL);
+      Parameters.help();
+      return;
+    }
   }
 }
