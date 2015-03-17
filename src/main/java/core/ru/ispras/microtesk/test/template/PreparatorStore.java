@@ -22,7 +22,7 @@ import ru.ispras.microtesk.test.template.Primitive;
 public final class PreparatorStore {
   private final Map<String, Preparator> preparators;
 
-  PreparatorStore() {
+  public PreparatorStore() {
     this.preparators = new HashMap<String, Preparator>();
   }
 

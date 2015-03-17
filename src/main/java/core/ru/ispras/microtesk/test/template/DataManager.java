@@ -146,7 +146,7 @@ public final class DataManager {
     }
   }
 
-  DataManager() {
+  public DataManager() {
     this.memoryMap = new MemoryMap();
     this.dataDecls = new ArrayList<>();
 
