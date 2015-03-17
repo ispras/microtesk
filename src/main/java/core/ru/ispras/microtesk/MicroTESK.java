@@ -70,32 +70,48 @@ public final class MicroTESK {
   }
 
   public static void main(String[] args) {
-    final SimnMLAnalyzer analyzer = new SimnMLAnalyzer();
+    final CommandLine params;
 
     try {
-      final CommandLine params = Parameters.parse(args);
-
-      if (params.hasOption(Parameters.HELP)) {
-        Parameters.help();
-        return;
-      }
-
-      if (params.hasOption(Parameters.INCLUDE)) {
-        analyzer.addPath(params.getOptionValue(Parameters.INCLUDE));
-      }
-
-      if (params.hasOption(Parameters.OUTDIR)) {
-        analyzer.setOutDir(params.getOptionValue(Parameters.OUTDIR));
-      }
-
-      try {
-        analyzer.start(params.getArgs());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      params = Parameters.parse(args);
     } catch (ParseException e) {
       System.out.println("Wrong command line: " + e.getMessage());
       Parameters.help();
+      return;
     }
+
+    if (params.hasOption(Parameters.HELP)) {
+      Parameters.help();
+      return;
+    }
+
+    if (params.hasOption(Parameters.GENERATE)) {
+      generate(params);
+      return;
+    }
+
+    translate(params);
+  }
+
+  private static void translate(CommandLine params) {
+    final SimnMLAnalyzer analyzer = new SimnMLAnalyzer();
+
+    if (params.hasOption(Parameters.INCLUDE)) {
+      analyzer.addPath(params.getOptionValue(Parameters.INCLUDE));
+    }
+
+    if (params.hasOption(Parameters.OUTDIR)) {
+      analyzer.setOutDir(params.getOptionValue(Parameters.OUTDIR));
+    }
+
+    try {
+      analyzer.start(params.getArgs());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static void generate(CommandLine params) {
+    // TODO
   }
 }
