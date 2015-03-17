@@ -66,8 +66,6 @@ public final class Template {
   }
 
   private final MetaModel metaModel;
-
-  private final MemoryMap memoryMap;
   private final DataManager dataManager;
   
   private PreparatorBuilder preparatorBuilder;
@@ -86,10 +84,9 @@ public final class Template {
     printHeader("Started Processing Template");
 
     checkNotNull(metaModel);
-    this.metaModel = metaModel;
 
-    this.memoryMap = new MemoryMap();
-    this.dataManager = new DataManager(this.memoryMap);
+    this.metaModel = metaModel;
+    this.dataManager = new DataManager();
 
     this.preparatorBuilder = null;
     this.preparators = new PreparatorStore();
@@ -106,10 +103,6 @@ public final class Template {
 
   private void processBlock(Section section, Block block) {
     templateProcessor.process(section, block);
-  }
-
-  public MemoryMap getMemoryMap() {
-    return memoryMap;
   }
 
   public DataManager getDataManager() {
@@ -291,7 +284,7 @@ public final class Template {
     trace("Operation: " + name);
     checkNotNull(name);
 
-    return new PrimitiveBuilderOperation(name, metaModel, callBuilder, memoryMap);
+    return new PrimitiveBuilderOperation(name, metaModel, callBuilder, dataManager.getMemoryMap());
   }
 
   public PrimitiveBuilder newAddressingModeBuilder(String name) {
@@ -303,7 +296,7 @@ public final class Template {
       throw new IllegalArgumentException("No such addressing mode: " + name);
     }
 
-    return new PrimitiveBuilderCommon(callBuilder, memoryMap, metaData);
+    return new PrimitiveBuilderCommon(callBuilder, dataManager.getMemoryMap(), metaData);
   }
 
   public RandomValue newRandom(int from, int to) {

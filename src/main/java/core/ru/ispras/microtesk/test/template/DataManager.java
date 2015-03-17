@@ -146,10 +146,8 @@ public final class DataManager {
     }
   }
 
-  DataManager(MemoryMap memoryMap) {
-    checkNotNull(memoryMap);
-
-    this.memoryMap = memoryMap;
+  DataManager() {
+    this.memoryMap = new MemoryMap();
     this.dataDecls = new ArrayList<>();
 
     this.sectionText = null;
@@ -183,6 +181,10 @@ public final class DataManager {
 
   public boolean containsDecls() {
     return !dataDecls.isEmpty();
+  }
+
+  public MemoryMap getMemoryMap() {
+    return memoryMap;
   }
 
   public String getDeclText() {
