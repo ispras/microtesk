@@ -18,7 +18,6 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 
 import java.io.IOException;
-import java.util.List;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.model.api.IModel;
@@ -29,8 +28,9 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.DataManager;
+import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Template;
-import ru.ispras.microtesk.test.template.TemplateProduct;
+import ru.ispras.microtesk.test.template.Template.Section;
 
 public final class TestEngine {
   public static TestEngine getInstance(IModel model) {
@@ -70,110 +70,102 @@ public final class TestEngine {
     Randomizer.get().setSeed(seed);
   }
 
-  public Template newTemplate() {
-    return new Template(model.getMetaData());
-  }
-
-  public void process(Template template) throws ConfigurationException, IOException {
-    checkNotNull(template);
-
+  public Template newTemplate() throws IOException {
     final IModelStateObserver observer = model.getStateObserver();
-
     final Executor executor = new Executor(observer, logExecution);
     final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
 
-    final DataManager dataManager = template.getDataManager();
-    final DataGenerator dataGenerator = new DataGenerator(model, template.getPreparators());
+    final DataManager dataManager = new DataManager();
+    final PreparatorStore preparators = new PreparatorStore();
+    final DataGenerator dataGenerator = new DataGenerator(model, preparators);
 
-    final TemplateProcessor processor = new TemplateProcessor(
-        template.getProduct(), executor, printer, dataManager, dataGenerator);
+    final TemplateProcessor processor = 
+        new TemplateProcessor(executor, printer, dataManager, dataGenerator);
 
-    try {
-      processor.process();
-    } finally {
-      printer.close();
-    }
+    return new Template(
+        model.getMetaData(), dataManager, preparators, processor);
   }
 
-  private static class TemplateProcessor {
-    private final TemplateProduct sequences;
+  public void process(Template template) throws ConfigurationException, IOException {
+    template.getProcessor().finish();
+  }
+
+  private static class TemplateProcessor implements Template.Processor {
     private final Executor executor;
     private final Printer printer;
     private final DataManager dataManager;
     private final DataGenerator dataGenerator;
 
+    private boolean isDataPrinted = false;
+    private boolean isMainStarted = false;
+    private int testIndex = 0; 
+
     private TemplateProcessor(
-        TemplateProduct sequences, Executor executor, Printer printer,
+        Executor executor, Printer printer,
         DataManager dataManager, DataGenerator dataGenerator) {
 
-      this.sequences = sequences;
       this.executor = executor;
       this.printer = printer;
       this.dataManager = dataManager;
       this.dataGenerator = dataGenerator;
-    }
 
-    private void process() throws ConfigurationException {
       printer.printToolInfoToFile();
-      printDataDeclarations();
-
-      processOptionalSection("INITIALIZATION SECTION", sequences.getPre());
-      processMainSection("MAIN SECTION (TEST CASES)", sequences.getMain());
-      processOptionalSection("FINALIZATION SECTION", sequences.getPost());
-
-      printHeader("GENERATION DONE");
     }
 
-    private void printDataDeclarations() {
-      final String title = "DATA DECLARATIONS";
+    @Override
+    public void process(Section section, Block block) {
+      checkNotNull(section);
+      checkNotNull(block);
 
-      printHeader(title);
-      if (dataManager.containsDecls()) {
-        printer.printHeaderToFile(title);
+      if (!isDataPrinted && dataManager.containsDecls()) {
+        printSectionHeader("Data Declarations");
+        printer.printText(dataManager.getDeclText());
+        isDataPrinted = true;
+      }
 
-        final String declText = dataManager.getDeclText();
-        printer.printText(declText);
-        if (!printer.isPrintToScreenEnabled()) {
-          executor.logText(declText);
-        }
-      } else {
-        executor.logText("<none>");
+      if (block.isEmpty()) {
+        return;
+      }
+
+      switch(section) {
+        case PRE:
+          printer.printHeaderToFile("Initialization Section");
+          break;
+
+        case POST:
+          printer.printHeaderToFile("Finalization Section");
+          break;
+
+        case MAIN:
+          if (!isMainStarted) {
+            printer.printHeaderToFile("Main Section (Tests)");
+            isMainStarted = true;
+          } else {
+            printer.printNewLineToFile();
+          }
+          printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
+          break;
+
+        default:
+          throw new IllegalArgumentException("Unknon section: " + section);
+      }
+
+      try {
+        processBlock(block);
+      } catch (ConfigurationException e) {
+        e.printStackTrace();
       }
     }
 
-    private void processOptionalSection(
-        String title, Block block) throws ConfigurationException {
-      
-      if (!block.isEmpty()) {
-        printHeader(title);
-        printer.printHeaderToFile(title);
-        processSequences(block);
-      }
+    @Override
+    public void finish() {
+      printHeader("Ended Processing Template");
+      printer.close();
     }
 
-    private void processMainSection(
-        String title, List<Block> blocks) throws ConfigurationException {
-
-      printHeader(title);
-      printer.printHeaderToFile(title);
-
-      final List<Block> testCases = sequences.getMain();
-      int testCaseIndex = 1;
-
-      for (Block testCase : testCases) {
-        final String testCaseTitle = String.format("Test %s", testCaseIndex);
-
-        printHeader(testCaseTitle);
-        printer.printSeparatorToFile(testCaseTitle);
-
-        processSequences(testCase);
-        ++testCaseIndex;
-      }
-    }
-
-    private void processSequences(Block sequences) throws ConfigurationException {
-      final boolean isSingleSequence = sequences.isSingle();
-      final IIterator<Sequence<Call>> sequenceIt = sequences.getIterator();
+    private void processBlock(Block block) throws ConfigurationException {
+      final boolean isSingleSequence = block.isSingle();
+      final IIterator<Sequence<Call>> sequenceIt = block.getIterator();
 
       int sequenceIndex = 1;
       sequenceIt.init();
@@ -200,7 +192,14 @@ public final class TestEngine {
 
         sequenceIt.next();
         ++sequenceIndex;
+
+        printHeader("");
       }
+    }
+
+    private void printSectionHeader(String title) {
+      printHeader(title);
+      printer.printHeaderToFile(title);
     }
   }
 }

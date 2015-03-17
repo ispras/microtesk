@@ -35,39 +35,13 @@ public final class Template {
 
   public interface Processor {
     void process(Section section, Block block);
-  }
-
-  private static class ProcessorImpl implements Processor {
-    private final TemplateProduct.Builder productBuilder;
-
-    private ProcessorImpl(TemplateProduct.Builder productBuilder) {
-      this.productBuilder = productBuilder;
-    }
-
-    @Override
-    public void process(Section section, Block block) {
-      switch (section) {
-        case PRE:
-          productBuilder.setPre(block);
-          break;
-
-        case POST:
-          productBuilder.setPost(block);
-          break;
-
-        case MAIN:
-          productBuilder.addToMain(block);
-          break;
-
-        default:
-          throw new IllegalArgumentException("Uknown section type: " + section);
-      }
-    }
+    void finish();
   }
 
   private final MetaModel metaModel;
   private final DataManager dataManager;
   private final PreparatorStore preparators;
+  private final Processor processor;
 
   private PreparatorBuilder preparatorBuilder;
   private Deque<BlockBuilder> blockBuilders;
@@ -76,17 +50,23 @@ public final class Template {
   private boolean isMainSection;
   private int openBlockCount;
 
-  private final TemplateProduct.Builder productBuilder;
-  private final Processor templateProcessor;
+  public Template(
+      MetaModel metaModel,
+      DataManager dataManager,
+      PreparatorStore preparators,
+      Processor processor) {
 
-  public Template(MetaModel metaModel) {
     printHeader("Started Processing Template");
 
     checkNotNull(metaModel);
+    checkNotNull(dataManager);
+    checkNotNull(preparators);
+    checkNotNull(processor);
 
     this.metaModel = metaModel;
-    this.dataManager = new DataManager();
-    this.preparators = new PreparatorStore();
+    this.dataManager = dataManager;
+    this.preparators = preparators;
+    this.processor = processor;
 
     this.preparatorBuilder = null;
     this.blockBuilders = null;
@@ -94,21 +74,18 @@ public final class Template {
 
     this.isMainSection = false;
     this.openBlockCount = 0;
-
-    this.productBuilder = new TemplateProduct.Builder();
-    this.templateProcessor = new ProcessorImpl(this.productBuilder);
   }
 
   private void processBlock(Section section, Block block) {
-    templateProcessor.process(section, block);
+    processor.process(section, block);
   }
 
   public DataManager getDataManager() {
     return dataManager;
   }
 
-  public PreparatorStore getPreparators() {
-    return preparators;
+  public Processor getProcessor() {
+    return processor;
   }
 
   public int getAddressForLabel(String label) {
@@ -156,10 +133,6 @@ public final class Template {
     processBlock(Section.MAIN, rootBlock);
     printHeader("Ended Processing Main Section");
     isMainSection = false;
-  }
-
-  public TemplateProduct getProduct() {
-    return productBuilder.build();
   }
 
   private void beginNewSection() {
