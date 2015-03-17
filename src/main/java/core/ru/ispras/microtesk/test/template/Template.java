@@ -113,6 +113,10 @@ public final class Template {
     return preparators;
   }
 
+  public int getAddressForLabel(String label) {
+    return dataManager.getMemoryMap().resolve(label);
+  }
+
   public void beginPreSection() {
     printHeader("Started Processing Initialization Section");
     beginNewSection();

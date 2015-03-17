@@ -174,7 +174,7 @@ class Template
   end
 
   def address(label)
-    @template.getDataManager.getMemoryMap.resolve label.to_s 
+    @template.getAddressForLabel label.to_s
   end
 
   def situation(name, attrs = {})
