@@ -69,7 +69,7 @@ public final class TestEngine {
   public void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
   }
-  
+
   public Template newTemplate() {
     return new Template(model.getMetaData());
   }
@@ -79,7 +79,7 @@ public final class TestEngine {
 
     final IModelStateObserver observer = model.getStateObserver();
 
-    final Executor executor = new Executor(model.getStateObserver(), logExecution);
+    final Executor executor = new Executor(observer, logExecution);
     final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
 
     final DataManager dataManager = template.getDataManager();
