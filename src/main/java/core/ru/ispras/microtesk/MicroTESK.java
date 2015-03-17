@@ -35,10 +35,10 @@ public final class MicroTESK {
     private static final Options options = new Options();
 
     static {
+      options.addOption(HELP, "help", false, "Shows this message");
       options.addOption(INCLUDE, "include", true, "Sets include files directories");
       options.addOption(OUTDIR, "dir", true, "Sets where to place generated Java files");
       options.addOption(TESTSIT, "sit", true, "Sets the location of user-defined test situations");
-      options.addOption(HELP, "help", false, "Shows this message");
     };
 
     private Parameters() {}
@@ -50,7 +50,7 @@ public final class MicroTESK {
 
     public static void help() {
       final HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp(80, "[options] Sim-nML-files", "", options, "");
+      formatter.printHelp(80, "[options] nML-files", "", options, "");
     }
   }
 
@@ -79,6 +79,7 @@ public final class MicroTESK {
         e.printStackTrace();
       }
     } catch (ParseException e) {
+      System.out.println("Error: " + e.getMessage());
       Parameters.help();
     }
   }
