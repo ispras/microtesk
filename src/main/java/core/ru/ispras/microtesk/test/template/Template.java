@@ -26,6 +26,45 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 
 public final class Template {
+
+  public static enum Section {
+    PRE,
+    POST,
+    MAIN
+  }
+
+  public interface Processor {
+    void process(Section section, Block block);
+  }
+
+  private static class ProcessorImpl implements Processor {
+    private final TemplateProduct.Builder productBuilder;
+
+    private ProcessorImpl(TemplateProduct.Builder productBuilder) {
+      this.productBuilder = productBuilder;
+    }
+
+    @Override
+    public void process(Section section, Block block) {
+      switch (section) {
+        case PRE:
+          productBuilder.setPre(block);
+          break;
+
+        case POST:
+          productBuilder.setPost(block);
+          break;
+
+        case MAIN:
+          productBuilder.addToMain(block);
+          break;
+
+        default:
+          throw new IllegalArgumentException("Uknown section type: " + section);
+      }
+    }
+  }
+
   private final MetaModel metaModel;
 
   private final MemoryMap memoryMap;
@@ -41,6 +80,7 @@ public final class Template {
   private int openBlockCount;
 
   private final TemplateProduct.Builder productBuilder;
+  private final Processor templateProcessor;
 
   public Template(MetaModel metaModel) {
     printHeader("Started Processing Template");
@@ -61,8 +101,13 @@ public final class Template {
     this.openBlockCount = 0;
 
     this.productBuilder = new TemplateProduct.Builder();
+    this.templateProcessor = new ProcessorImpl(this.productBuilder);
   }
-  
+
+  private void processBlock(Section section, Block block) {
+    templateProcessor.process(section, block);
+  }
+
   public MemoryMap getMemoryMap() {
     return memoryMap;
   }
@@ -85,7 +130,7 @@ public final class Template {
 
   public void endPreSection() {
     final Block rootBlock = endCurrentSection();
-    productBuilder.setPre(rootBlock);
+    processBlock(Section.PRE, rootBlock);
     printHeader("Ended Processing Initialization Section");
   }
 
@@ -99,7 +144,7 @@ public final class Template {
 
   public void endPostSection() {
     final Block rootBlock = endCurrentSection();
-    productBuilder.setPost(rootBlock);
+    processBlock(Section.POST, rootBlock);
     printHeader("Ended Processing Finalization Section");
   }
 
@@ -113,7 +158,7 @@ public final class Template {
 
   public void endMainSection() {
     final Block rootBlock = endCurrentSection();
-    productBuilder.addToMain(rootBlock);
+    processBlock(Section.MAIN, rootBlock);
     printHeader("Ended Processing Main Section");
     isMainSection = false;
   }
@@ -170,7 +215,7 @@ public final class Template {
       if (parent.isEmpty()) {
         current = parent;
       } else {
-        productBuilder.addToMain(parent.build());
+        processBlock(Section.MAIN, parent.build());
         blockBuilders.pop();
 
         current = new BlockBuilder();
@@ -201,7 +246,7 @@ public final class Template {
     final Block block = builder.build();
 
     if (isMainSection && isRoot) {
-      productBuilder.addToMain(block);
+      processBlock(Section.MAIN, block);
 
       final BlockBuilder newBuilder = new BlockBuilder();
       newBuilder.setAtomic(true);
