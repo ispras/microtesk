@@ -32,6 +32,11 @@ public final class PrintingUtils {
   public static void printHeader(String text) {
     final int LINE_WIDTH = 80;
 
+    if (text.isEmpty()) {
+      trace("\r\n" + makeLine(LINE_WIDTH) + "\r\n");
+      return;
+    }
+
     final int prefixLength = (LINE_WIDTH - text.length()) / 2;
     final int postfixLength = LINE_WIDTH - prefixLength - text.length();
 
