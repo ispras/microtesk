@@ -35,6 +35,7 @@ public final class MicroTESK {
     public static final String MODEL = "m";
     public static final String GENERATE = "g";
     public static final String TRANSLATE = "t";
+    public static final String VERBOSE = "v";
 
     private static final Options options = newOptions();
 
@@ -51,6 +52,7 @@ public final class MicroTESK {
       result.addOption(OUTDIR, "dir", true, "Sets where to place generated files");
       result.addOption(MODEL, "model", true, "Sets model to be used to generate test programs");
 
+      result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
       return result;
     }
     
@@ -92,7 +94,7 @@ public final class MicroTESK {
         e.printStackTrace();
       }
     } catch (ParseException e) {
-      System.out.println("Error: " + e.getMessage());
+      System.out.println("Wrong command line: " + e.getMessage());
       Parameters.help();
     }
   }
