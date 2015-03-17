@@ -18,6 +18,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -30,15 +32,28 @@ public final class MicroTESK {
     public static final String INCLUDE = "i";
     public static final String HELP = "h";
     public static final String OUTDIR = "d";
+    public static final String MODEL = "m";
+    public static final String GENERATE = "g";
+    public static final String TRANSLATE = "t";
 
-    private static final Options options = new Options();
+    private static final Options options = newOptions();
 
-    static {
-      options.addOption(HELP, "help", false, "Shows this message");
-      options.addOption(INCLUDE, "include", true, "Sets include files directories");
-      options.addOption(OUTDIR, "dir", true, "Sets where to place generated files");
-    };
+    private static Options newOptions() {
+      final Options result = new Options();
+      result.addOption(HELP, "help", false, "Shows this message");
 
+      final OptionGroup actions = new OptionGroup(); 
+      actions.addOption(new Option(GENERATE, "generate", false, "Generates test programs"));
+      actions.addOption(new Option(TRANSLATE, "translate", false, "Translates formal specifications"));
+      result.addOptionGroup(actions);
+
+      result.addOption(INCLUDE, "include", true, "Sets include files directories");
+      result.addOption(OUTDIR, "dir", true, "Sets where to place generated files");
+      result.addOption(MODEL, "model", true, "Sets model to be used to generate test programs");
+
+      return result;
+    }
+    
     private Parameters() {}
 
     public static CommandLine parse(String[] args) throws ParseException {
@@ -48,7 +63,7 @@ public final class MicroTESK {
 
     public static void help() {
       final HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp(80, "[options] nML-files", "", options, "");
+      formatter.printHelp(80, "[options] Files to be processed", "", options, "");
     }
   }
 
