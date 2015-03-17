@@ -118,7 +118,7 @@ public final class Template {
   public void beginPreSection() {
     printHeader("Started Processing Initialization Section");
     beginNewSection();
-    
+
     isMainSection = false;
     openBlockCount = 0;
   }
@@ -286,7 +286,8 @@ public final class Template {
     trace("Operation: " + name);
     checkNotNull(name);
 
-    return new PrimitiveBuilderOperation(name, metaModel, callBuilder, dataManager.getMemoryMap());
+    return new PrimitiveBuilderOperation(
+        name, metaModel, callBuilder, dataManager.getMemoryMap());
   }
 
   public PrimitiveBuilder newAddressingModeBuilder(String name) {
@@ -298,7 +299,8 @@ public final class Template {
       throw new IllegalArgumentException("No such addressing mode: " + name);
     }
 
-    return new PrimitiveBuilderCommon(callBuilder, dataManager.getMemoryMap(), metaData);
+    return new PrimitiveBuilderCommon(
+        callBuilder, dataManager.getMemoryMap(), metaData);
   }
 
   public RandomValue newRandom(int from, int to) {
@@ -329,13 +331,13 @@ public final class Template {
 
     if (null == metaModel.getAddressingMode(targetName)) {
       throw new IllegalArgumentException(String.format(
-        "%s is not an addressing mode and cannot be a target for a preparator.", targetName));
+          "%s is not an addressing mode and cannot be a target for a preparator.", targetName));
     }
 
     if (null != preparatorBuilder) {
       throw new IllegalStateException(String.format(
-        "Nesting is not allowed: The %s preparator cannot be nested into the %s preparator.",
-        targetName, preparatorBuilder.getTargetName()));
+          "Nesting is not allowed: The %s preparator cannot be nested into the %s preparator.",
+          targetName, preparatorBuilder.getTargetName()));
     }
 
     preparatorBuilder = new PreparatorBuilder(targetName);
@@ -369,7 +371,7 @@ public final class Template {
   private void checkPreparatorBlock() {
     if (null == preparatorBuilder) {
       throw new IllegalStateException(
-        "The construct cannot be used outside a preparator block.");
+          "The construct cannot be used outside a preparator block.");
     }
   }
 }
