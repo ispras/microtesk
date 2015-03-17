@@ -36,10 +36,14 @@ public final class MicroTESK {
     public static final String GENERATE = "g";
     public static final String TRANSLATE = "t";
     public static final String VERBOSE = "v";
+    public static final String FILE = "f";
 
     private static final Options options = newOptions();
 
     private static Options newOptions() {
+      final String TOPT = " [works with -t]";
+      final String GOPT = " [works with -g]";
+
       final Options result = new Options();
       result.addOption(HELP, "help", false, "Shows this message");
 
@@ -48,14 +52,15 @@ public final class MicroTESK {
       actions.addOption(new Option(TRANSLATE, "translate", false, "Translates formal specifications"));
       result.addOptionGroup(actions);
 
-      result.addOption(INCLUDE, "include", true, "Sets include files directories");
-      result.addOption(OUTDIR, "dir", true, "Sets where to place generated files");
-      result.addOption(MODEL, "model", true, "Sets model to be used to generate test programs");
+      result.addOption(INCLUDE, "include", true, "Sets include files directories" + TOPT);
+      result.addOption(OUTDIR, "dir", true, "Sets where to place generated files" + TOPT);
+      result.addOption(MODEL, "model", true, "Sets model used to generate test programs" + GOPT);
+      result.addOption(FILE, "file", true, "Sets file name of generated test program" + GOPT);
 
       result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
       return result;
     }
-    
+
     private Parameters() {}
 
     public static CommandLine parse(String[] args) throws ParseException {
