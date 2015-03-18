@@ -192,7 +192,12 @@ conditionalStmt returns [Stmt res]
     ;
 
 ifStmt returns [Stmt res]
-    : ^(IF expr[0] sequence (^(ELSEIF expr[0] sequence))* (^(ELSE sequence))?)
+    : ^(wif=IF cif=expr[0] sif=sequence 
+       {final IfBuilder builder = new IfBuilder($wif, $cif.res, $sif.res);}
+       (^(welif=ELSEIF celif=expr[0] selif=sequence)
+       {builder.addElseIf($welif, $celif.res, $selif.res);})* 
+       (^(welse=ELSE selse=sequence))? {builder.setElse($welse, $selse.res);})
+       {$res=builder.build();}
     ;
 
 functionCallStmt returns [Stmt res]
