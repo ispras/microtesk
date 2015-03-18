@@ -37,6 +37,7 @@ public final class MicroTESK {
     public static final String TRANSLATE = "t";
     public static final String VERBOSE = "v";
     public static final String FILE = "f";
+    public static final String RANDOM = "r";
 
     private static final Options options = newOptions();
 
@@ -56,6 +57,7 @@ public final class MicroTESK {
       result.addOption(OUTDIR, "dir", true, "Sets where to place generated files" + TOPT);
       result.addOption(MODEL, "model", true, "Sets model used to generate test programs" + GOPT);
       result.addOption(FILE, "file", true, "Sets file name of generated test program" + GOPT);
+      result.addOption(RANDOM, "random", true, "Sets seed for randomizer" + GOPT);
 
       result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
       return result;
