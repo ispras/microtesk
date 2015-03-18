@@ -20,9 +20,9 @@ public abstract class Stmt {
 
   public static enum Kind {
     ASSIGN,
-    COND,
     EXCEPT,
     EXPR,
+    IF,
     TRACE,
     CALL
   }

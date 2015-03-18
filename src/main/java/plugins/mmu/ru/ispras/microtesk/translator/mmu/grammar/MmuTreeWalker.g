@@ -161,7 +161,10 @@ mmu
 sequence returns [List<Stmt> res]
 @init  {final List<Stmt> stmts = new ArrayList<>();}
 @after {$res = stmts;}
-    : ^(SEQUENCE (stmt=statement {stmts.add($stmt.res);})*)
+    : ^(SEQUENCE (stmt=statement {
+checkNotNull($stmt.start, $stmt.res); 
+stmts.add($stmt.res);
+})*)
     ;
 
 statement returns [Stmt res]
@@ -184,10 +187,11 @@ assignmentStmt returns [Stmt res]
     ;
 
 conditionalStmt returns [Stmt res]
-    : ifStmt
+@after {$res = $stmt.res;}
+    : stmt=ifStmt
     ;
 
-ifStmt
+ifStmt returns [Stmt res]
     : ^(IF expr[0] sequence elseIfStmt* elseStmt?)
     ;
 

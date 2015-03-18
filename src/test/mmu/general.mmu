@@ -257,12 +257,12 @@ mmu pmem(va: VA) = (data: 64)
   }
 
   write = {
-     g   = tlbEntry.G0;
-     tlbEntry = JTLB(va);
-     L1(pa) = l1Entry;
-      pmem[pa] = data;
-  exception("TLBInvalid");
-  trace("%d=%d", 1, 2);
+    g   = tlbEntry.G0;
+    tlbEntry = JTLB(va);
+    L1(pa) = l1Entry;
+    pmem[pa] = data;
+    exception("TLBInvalid");
+    trace("%d=%d", 1, 2);
   /*
   
     // The address is unaligned.
