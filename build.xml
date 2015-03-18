@@ -134,6 +134,37 @@
     </sequential>
   </macrodef>
 
+  <!-- Packs sources -->
+  <target name="pack.src.tgz" depends="init">
+    <echo message="${basedir}"/>
+    <echo message="${dist}"/>
+    
+    <fileset dir="${basedir}" id="src.src">
+      <exclude name="${libs.dir}/"/>
+      <exclude name="${tools.dir}/"/>
+      <exclude name="${output.dir}/"/>
+      <exclude name="${distr.root.dir}/"/>
+      <exclude name="dist/"/>
+      <exclude name="gen/"/>
+      <exclude name="bin/"/>
+      <exclude name="xdocs/"/>
+    </fileset>
+
+    <!-- if module has its own buildbase copy, 
+         include it in source distribution     -->
+    <fileset dir="${basedir}" id="src.buildbase">
+      <include name="${buildbase.dir}/"/>
+      <exclude name="${buildbase.dir}/*.jar"/>
+      <exclude name="${buildbase.dir}/*.zip"/>
+    </fileset>
+
+    <mkdir dir="${dist}/src"/>
+    <tar destfile="${dist}/src/${module.distr.src.tgz}" longfile="gnu" compression="gzip">
+      <fileset refid="src.src"/>
+      <fileset refid="src.buildbase"/>
+    </tar>
+  </target>
+  
   <!-- Init target, creates dirs -->
   <target name="create.dirs">
     <mkdir dir="${gen}/${simnml_grammar.path}"/>
@@ -314,7 +345,10 @@
     <copy file="src/main/text/README_TOOLS" tofile="${dist}/tools/README"/>
   </target>	
 
-  <target name="build.all" depends="init,clean,create.dirs,build.jar,copy.jars,copy.scripts,copy.docs,copy.text,models.jar,pack.all">
+  <target name="build.all" depends="
+    init,clean,create.dirs,build.jar,
+    copy.jars,copy.scripts,copy.docs,copy.text,models.jar,
+    pack.src.tgz,pack.all">
   </target>
 
   <target name="pack.all">
