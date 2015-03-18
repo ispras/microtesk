@@ -78,14 +78,6 @@ public final class BitRotateShift implements IBinaryOperator {
       return false;
     }
 
-    // The right operand is too big to be a distance. Distance
-    // will be converted to int. If it exceeds the size of int,
-    // it will be truncated and we will receive incorrect results.
-
-    if (rhs.getBitSize() > Integer.SIZE) {
-      return false;
-    }
-
     return true;
   }
 }
