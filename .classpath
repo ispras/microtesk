@@ -11,9 +11,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="jars/antlr-3.4-complete.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/commons-cli-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/junit-4.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/jruby.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/fortress.jar" sourcepath="jars/fortress-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/testbase.jar" sourcepath="jars/testbase-src.zip"/>
+	<classpathentry kind="lib" path="tools/hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="tools/junit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

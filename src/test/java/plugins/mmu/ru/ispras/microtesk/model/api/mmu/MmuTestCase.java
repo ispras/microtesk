@@ -24,8 +24,7 @@
 
 package ru.ispras.microtesk.model.api.mmu;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 public class MmuTestCase {

@@ -60,7 +60,6 @@
   <property name="main.package"  value="${root.package}/ispras/microtesk"/>
 
   <!-- External JARs -->
-  <property name="junit.jar"     value="junit-4.10.jar"/>
   <property name="antlr.jar"     value="antlr-3.4-complete.jar"/>
   <property name="antlr.ant.jar" value="ant-antlr3.jar"/>
   <property name="cli.jar"       value="commons-cli-1.2.jar"/>
@@ -74,7 +73,7 @@
 
   <!-- Classpath for external libraries -->
   <property name="jars.path" value="./jars"/>
-  <property name="classpath" value="${jars.path}/${junit.jar}:${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${fortress.jar}:${jars.path}/${testbase.jar}"/>
+  <property name="classpath" value="${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${fortress.jar}:${jars.path}/${testbase.jar}"/>
 	
   <!-- Options -->
   <property name="debug" value="false"/>
@@ -235,7 +234,7 @@
      <javac
        srcdir="${src.test.java.dir}:${src.test.java.plugins.mmu.dir}"
        destdir="${test.bin}"
-       classpath="${classpath}:${dist.jars}/${jar}"
+       classpath="${classpath}:${dist.jars}/${jar}:tools/junit.jar"
        includeantruntime="false"
        deprecation="true"
     />
@@ -392,7 +391,8 @@
   <target name="test" depends="javac.test">
     <!-- Compile and run JUnit tests -->
     <path id="classpath.test">
-      <pathelement location="jars/junit-4.10.jar"/>
+      <pathelement location="${tools.dir}/junit.jar"/>
+      <pathelement location="${tools.dir}/hamcrest-core.jar"/>
       <pathelement location="${test.bin}"/>
       <pathelement location="${dist.jars}/${jar}"/>
     </path>
