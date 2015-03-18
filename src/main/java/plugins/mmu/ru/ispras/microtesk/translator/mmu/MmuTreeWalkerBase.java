@@ -487,11 +487,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       this.ifBlocks = new ArrayList<>();
       this.elseBlock = Collections.emptyList();
+
+      checkIsBoolean(cond);
+      ifBlocks.add(new Pair<>(cond, stmts));
     }
 
     public void addElseIf(CommonTree where, Node cond, List<Stmt> stmts) throws SemanticException {
       checkNotNull(where, stmts);
       checkNotNull(where, cond);
+
+      checkIsBoolean(cond);
+      ifBlocks.add(new Pair<>(cond, stmts));
     }
 
     public void setElse(CommonTree where, List<Stmt> stmts) throws SemanticException {
@@ -503,6 +509,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     public Stmt build() {
       return new StmtIf(ifBlocks, elseBlock);
+    }
+
+    private void checkIsBoolean(Node cond) throws SemanticException {
+      // TODO
     }
   }
 
