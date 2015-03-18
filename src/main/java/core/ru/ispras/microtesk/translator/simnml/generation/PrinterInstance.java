@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.simnml.generation;
 
+import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.translator.simnml.ir.expression.NodeInfo;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
@@ -38,9 +40,14 @@ public final class PrinterInstance {
       isFirst = false;
 
       switch(arg.getKind()) {
-        case EXPR:
-          sb.append(new PrinterExpr(arg.getExpr(), true).toString());
+        case EXPR: {
+          String text = new PrinterExpr(arg.getExpr(), true).toString();
+          if (arg.getExpr().getNodeInfo().getKind() != NodeInfo.Kind.LOCATION) {
+            text = String.format("%s.newLocationForConst(%s)", Location.class.getSimpleName(), text);
+          }
+          sb.append(text);
           break;
+        }
 
         case INSTANCE:
           sb.append(toString(arg.getInstance()));
