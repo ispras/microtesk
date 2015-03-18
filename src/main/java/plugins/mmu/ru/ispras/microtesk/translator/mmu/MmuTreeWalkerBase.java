@@ -488,7 +488,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.ifBlocks = new ArrayList<>();
       this.elseBlock = Collections.emptyList();
 
-      checkIsBoolean(cond);
+      checkIsBoolean(where, cond);
       ifBlocks.add(new Pair<>(cond, stmts));
     }
 
@@ -496,7 +496,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkNotNull(where, stmts);
       checkNotNull(where, cond);
 
-      checkIsBoolean(cond);
+      checkIsBoolean(where, cond);
       ifBlocks.add(new Pair<>(cond, stmts));
     }
 
@@ -511,8 +511,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       return new StmtIf(ifBlocks, elseBlock);
     }
 
-    private void checkIsBoolean(Node cond) throws SemanticException {
-      // TODO
+    private void checkIsBoolean(CommonTree where, Node cond) throws SemanticException {
+      if (!cond.isType(DataTypeId.LOGIC_BOOLEAN)) {
+        raiseError(where(where),
+            "Incorrect conditional expression: only boolean expressions are accepted.");
+      }
     }
   }
 
