@@ -48,4 +48,9 @@ public final class StmtIf extends Stmt {
   public List<Stmt> getElseBlock() {
     return elseBlock;
   }
+
+  @Override
+  public String toString() {
+    return String.format("StmtIf [if=%s, else= %s]", ifBlocks, elseBlock);
+  }
 }
