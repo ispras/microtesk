@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.mmu;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
 import ru.ispras.microtesk.translator.mmu.ir.StmtAssign;
 import ru.ispras.microtesk.translator.mmu.ir.StmtException;
+import ru.ispras.microtesk.translator.mmu.ir.StmtIf;
 import ru.ispras.microtesk.translator.mmu.ir.StmtTrace;
 import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
@@ -484,7 +486,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkNotNull(where, cond);
 
       this.ifBlocks = new ArrayList<>();
-      this.elseBlock = null;
+      this.elseBlock = Collections.emptyList();
     }
 
     public void addElseIf(CommonTree where, Node cond, List<Stmt> stmts) throws SemanticException {
@@ -500,7 +502,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public Stmt build() {
-      return null;
+      return new StmtIf(ifBlocks, elseBlock);
     }
   }
 
