@@ -17,17 +17,17 @@ package ru.ispras.microtesk.translator.antlrex.log;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull; 
 
 /**
- * The Logger is a helper class that provides facilities to post messages to the log.
+ * The LogWriter is a helper class that provides facilities to post messages to the log.
  * 
  * @author Andrei Tatarnikov
  */
 
-public class Logger {
+public class LogWriter {
   private final SenderKind sender;
   private final String fileName;
   private final LogStore log;
 
-  public Logger(SenderKind sender, String fileName, LogStore log) {
+  public LogWriter(SenderKind sender, String fileName, LogStore log) {
     checkNotNull(sender);
     checkNotNull(fileName);
     checkNotNull(log);

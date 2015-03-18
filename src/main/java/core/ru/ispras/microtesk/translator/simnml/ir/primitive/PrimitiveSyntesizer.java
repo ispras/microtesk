@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
-import ru.ispras.microtesk.translator.antlrex.log.Logger;
+import ru.ispras.microtesk.translator.antlrex.log.LogWriter;
 import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 
 import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.*;
@@ -43,7 +43,7 @@ import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.
  * @author Andrei Tatarnikov
  */
 
-public final class PrimitiveSyntesizer extends Logger {
+public final class PrimitiveSyntesizer extends LogWriter {
   /**
    * Name for the fake operation (OR rule) that unites all root operations described in the
    * specification (AND rules that have no parents). This identifier is used a context name when a
