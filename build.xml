@@ -229,12 +229,12 @@
   </target>
 
   <!-- Compiles unit tests (${src.test.java.dir} + ${src.test.java.plugins.mmu.dir}) with Javac --> 	
-  <target name="javac.test">
+  <target name="javac.test" depends="init">
      <mkdir dir="${test.bin}"/>
      <javac
        srcdir="${src.test.java.dir}:${src.test.java.plugins.mmu.dir}"
        destdir="${test.bin}"
-       classpath="${classpath}:${dist.jars}/${jar}:tools/junit.jar"
+       classpath="${classpath}:${dist.jars}/${jar}:${tools.dir}/junit.jar"
        includeantruntime="false"
        deprecation="true"
     />
@@ -391,8 +391,8 @@
   <target name="test" depends="javac.test">
     <!-- Compile and run JUnit tests -->
     <path id="classpath.test">
-      <pathelement location="tools/junit.jar"/>
-      <pathelement location="tools/hamcrest-core.jar"/>
+      <pathelement location="${tools.dir}/junit.jar"/>
+      <pathelement location="${tools.dir}/hamcrest-core.jar"/>
       <pathelement location="${test.bin}"/>
       <pathelement location="${dist.jars}/${jar}"/>
     </path>
