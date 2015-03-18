@@ -128,8 +128,12 @@ public class TexVisitor implements IrVisitor {
     try {
       setToLevel(level);
       writer.write("\\section{\\texttt{ " + item.getName().replace("_", "\\_") + " }}");
-      setToLevel(level);
-      writer.write("\\newpage");
+      setToLevel(++level);
+      
+      if (item instanceof PrimitiveAND && ((PrimitiveAND)item).getArguments().size() > 0){
+          writer.write("\\begin{itemize}");
+          level++;
+      }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -137,7 +141,19 @@ public class TexVisitor implements IrVisitor {
   }
 
   @Override
-  public void onPrimitiveEnd(Primitive item) {}
+  public void onPrimitiveEnd(Primitive item) {
+    try {
+      if (item instanceof PrimitiveAND && ((PrimitiveAND)item).getArguments().size() > 0){
+        setToLevel(--level);
+        writer.write("\\end{itemize}");
+      }
+      setToLevel(--level);
+      writer.write("\\newpage");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
 
   @Override
   public void onAlternativeBegin(PrimitiveOR orRule, Primitive item) {
@@ -153,8 +169,16 @@ public class TexVisitor implements IrVisitor {
 
   @Override
   public void onArgumentBegin(PrimitiveAND andRule, String argName, Primitive argType) {
-    // TODO Auto-generated method stub
-
+    
+    try {
+      
+        setToLevel(level);
+        writer.write("\\item \\textbf{" + makeEscapeChars(argType.getName()) + "}: " + makeEscapeChars(argName));
+      
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -230,24 +254,11 @@ public class TexVisitor implements IrVisitor {
       e.printStackTrace();
     }
   }
-
-//  /**
-//   * TODO: rewrite with XmlScopes.
-//   * 
-//   * @param scope: the scope that is intended to write.
-//   */
-//  @SuppressWarnings("unused")
-//  @Deprecated
-//  private void checkScope(String scope) {
-//    if (currentScope.peek().getTag() != scope) {
-//      try {
-//        throw new Exception("Bad model structure");
-//      } catch (Exception e) {
-//        // TODO Auto-generated catch block
-//        e.printStackTrace();
-//      }
-//    }
-//  }
-
   
+  private String makeEscapeChars(String s)
+  {
+    return s.replace("\\", "\\\\").replace("_", "\\_").replace("$", "\\$")
+            .replace("%", "\\%").replace("#", "\\#").replace("{", "\\{")
+            .replace("}", "\\}").replace("~", "\\~").replace("^", "\\^");
+  }
 }
