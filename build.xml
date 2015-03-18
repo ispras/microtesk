@@ -391,8 +391,8 @@
   <target name="test" depends="javac.test">
     <!-- Compile and run JUnit tests -->
     <path id="classpath.test">
-      <pathelement location="${tools.dir}/junit.jar"/>
-      <pathelement location="${tools.dir}/hamcrest-core.jar"/>
+      <pathelement location="tools/junit.jar"/>
+      <pathelement location="tools/hamcrest-core.jar"/>
       <pathelement location="${test.bin}"/>
       <pathelement location="${dist.jars}/${jar}"/>
     </path>
