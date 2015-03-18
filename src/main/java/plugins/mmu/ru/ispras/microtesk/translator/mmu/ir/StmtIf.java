@@ -51,6 +51,6 @@ public final class StmtIf extends Stmt {
 
   @Override
   public String toString() {
-    return String.format("StmtIf [if=%s, else= %s]", ifBlocks, elseBlock);
+    return String.format("StmtIf [if=%s, else=%s]", ifBlocks, elseBlock);
   }
 }
