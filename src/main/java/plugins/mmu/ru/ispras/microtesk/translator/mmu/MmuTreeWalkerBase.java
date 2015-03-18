@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.mmu;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +37,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 
@@ -471,6 +473,35 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     return new StmtTrace(format.getText(), markers, fargs);
+  }
+
+  protected final class IfBuilder {
+    private final List<Pair<Node, List<Stmt>>> ifBlocks;
+    private List<Stmt> elseBlock;
+
+    public IfBuilder(CommonTree where, Node cond, List<Stmt> stmts) throws SemanticException {
+      checkNotNull(where, stmts);
+      checkNotNull(where, cond);
+
+      this.ifBlocks = new ArrayList<>();
+      this.elseBlock = null;
+    }
+
+    public void addElseIf(CommonTree where, Node cond, List<Stmt> stmts) throws SemanticException {
+      checkNotNull(where, stmts);
+      checkNotNull(where, cond);
+    }
+
+    public void setElse(CommonTree where, List<Stmt> stmts) throws SemanticException {
+      checkNotNull(where, stmts);
+      if (!stmts.isEmpty()) {
+        elseBlock = stmts;
+      }
+    }
+
+    public Stmt build() {
+      return null;
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////

@@ -192,15 +192,7 @@ conditionalStmt returns [Stmt res]
     ;
 
 ifStmt returns [Stmt res]
-    : ^(IF expr[0] sequence elseIfStmt* elseStmt?)
-    ;
-
-elseIfStmt
-    : ^(ELSEIF expr[0] sequence)
-    ;
-
-elseStmt
-    : ^(ELSE sequence)
+    : ^(IF expr[0] sequence (^(ELSEIF expr[0] sequence))* (^(ELSE sequence))?)
     ;
 
 functionCallStmt returns [Stmt res]

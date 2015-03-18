@@ -37,10 +37,6 @@ public final class StmtIf extends Stmt {
     this.elseBlock = Collections.unmodifiableList(elseBlock);
   }
 
-  public StmtIf(List<Pair<Node, List<Stmt>>> ifBlocks) {
-    this(ifBlocks, Collections.<Stmt>emptyList());
-  }
-
   public List<Pair<Node, List<Stmt>>> getIfBlocks() {
     return ifBlocks;
   }
