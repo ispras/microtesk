@@ -136,9 +136,6 @@
 
   <!-- Packs sources -->
   <target name="pack.src.tgz" depends="init">
-    <echo message="${basedir}"/>
-    <echo message="${dist}"/>
-    
     <fileset dir="${basedir}" id="src.src">
       <exclude name="${libs.dir}/"/>
       <exclude name="${tools.dir}/"/>
