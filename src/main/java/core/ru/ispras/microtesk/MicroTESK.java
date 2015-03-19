@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk;
 
+import org.antlr.runtime.RecognitionException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -92,15 +93,23 @@ public final class MicroTESK {
       return;
     }
 
-    if (params.hasOption(Parameters.GENERATE)) {
-      generate(params);
+    if (params.hasOption(Parameters.VERBOSE)) {
+      Logger.setDebug(true);
       return;
     }
 
-    translate(params);
+    try {
+      if (params.hasOption(Parameters.GENERATE)) {
+        generate(params);
+      } else {
+        translate(params);
+      }
+    } catch (Throwable e) {
+      Logger.exception(e);
+    }
   }
 
-  private static void translate(CommandLine params) {
+  private static void translate(CommandLine params) throws RecognitionException {
     final SimnMLAnalyzer analyzer = new SimnMLAnalyzer();
 
     if (params.hasOption(Parameters.INCLUDE)) {
@@ -111,11 +120,7 @@ public final class MicroTESK {
       analyzer.setOutDir(params.getOptionValue(Parameters.OUTDIR));
     }
 
-    try {
-      analyzer.start(params.getArgs());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    analyzer.start(params.getArgs());
   }
 
   private static void generate(CommandLine params) {
