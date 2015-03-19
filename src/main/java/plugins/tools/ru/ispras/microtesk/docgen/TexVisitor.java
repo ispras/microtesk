@@ -35,6 +35,7 @@ public class TexVisitor implements IrVisitor {
 
   private FileWriter writer;
   private int level = 0;
+  private boolean isShortcut = false;
 
   public TexVisitor(FileWriter writer) throws IOException {
     this.writer = writer;
@@ -56,14 +57,14 @@ public class TexVisitor implements IrVisitor {
 
   @Override
   public void onResourcesEnd() {
-    //tex.closeChapter();
+    // tex.closeChapter();
   }
 
   @Override
   public void onLetConstant(LetConstant let) {
     try {
       setToLevel(level);
-      writer.write("\\section{\\texttt{ " + let.getName().replace("_", "\\_") + " }}");
+      writer.write("\\section{\\texttt{ " + makeEscapeChars(let.getName()) + " }}");
       writer.write("\\newpage");
     } catch (IOException e) {
       // TODO Auto-generated catch block
@@ -75,7 +76,7 @@ public class TexVisitor implements IrVisitor {
   public void onLetString(LetString let) {
     try {
       setToLevel(level);
-      writer.write("\\section{\\texttt{ " + let.getName().replace("_", "\\_") + " }}");
+      writer.write("\\section{\\texttt{ " + makeEscapeChars(let.getName()) + " }}");
       setToLevel(level);
       writer.write("\\newpage");
     } catch (IOException e) {
@@ -88,7 +89,7 @@ public class TexVisitor implements IrVisitor {
   public void onLetLabel(LetLabel let) {
     try {
       setToLevel(level);
-      writer.write("\\section{\\texttt{ " + let.getName().replace("_", "\\_") + " }}");
+      writer.write("\\section{\\texttt{ " + makeEscapeChars(let.getName()) + " }}");
       setToLevel(level);
       writer.write("\\newpage");
     } catch (IOException e) {
@@ -101,7 +102,7 @@ public class TexVisitor implements IrVisitor {
   public void onType(String name, Type type) {
     try {
       setToLevel(level);
-      writer.write("\\section{\\texttt{ " + name.replace("_", "\\_") + " }}");
+      writer.write("\\section{\\texttt{ " + makeEscapeChars(name) + " }}");
       setToLevel(level);
       writer.write("\\newpage");
     } catch (IOException e) {
@@ -114,7 +115,7 @@ public class TexVisitor implements IrVisitor {
   public void onMemory(String name, MemoryExpr memory) {
     try {
       setToLevel(level);
-      writer.write("\\section{\\texttt{ " + name.replace("_", "\\_") + " }}");
+      writer.write("\\section{\\texttt{ " + makeEscapeChars(name) + " }}");
       setToLevel(level);
       writer.write("\\newpage");
     } catch (IOException e) {
@@ -127,13 +128,30 @@ public class TexVisitor implements IrVisitor {
   public void onPrimitiveBegin(Primitive item) {
     try {
       setToLevel(level);
-      writer.write("\\section{\\texttt{ " + item.getName().replace("_", "\\_") + " }}");
+      writer.write("\\section{\\texttt{ " + makeEscapeChars(item.getName()) + " }}");
       setToLevel(++level);
-      
-      if (item instanceof PrimitiveAND && ((PrimitiveAND)item).getArguments().size() > 0){
-          writer.write("\\begin{itemize}");
-          level++;
+
+      if ((item instanceof PrimitiveAND && ((PrimitiveAND) item).getArguments().size() > 0)
+          && !isShortcut) {
+        if (item.getName().contains("mips_break")) {
+          System.out.println();
+        }
+        writer.write("\\textbf{" + makeEscapeChars(item.getName()) + "} is an operation. ");
+        writer.write("It takes the following arguments:\n");
+        setToLevel(level);
+        writer.write("\\begin{itemize}");
+        level++;
       }
+
+      if (item instanceof PrimitiveOR && ((PrimitiveOR) item).getORs().size() > 0) {
+        writer.write("\\textbf{" + makeEscapeChars(item.getName())
+            + "} is an alternative between the following primitives:\n");
+        setToLevel(level);
+        writer.write("\\begin{itemize}");
+        level++;
+      }
+
+
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -143,7 +161,8 @@ public class TexVisitor implements IrVisitor {
   @Override
   public void onPrimitiveEnd(Primitive item) {
     try {
-      if (item instanceof PrimitiveAND && ((PrimitiveAND)item).getArguments().size() > 0){
+      if (((item instanceof PrimitiveAND && ((PrimitiveAND) item).getArguments().size() > 0) || (item instanceof PrimitiveOR && ((PrimitiveOR) item)
+          .getORs().size() > 0)) && !isShortcut) {
         setToLevel(--level);
         writer.write("\\end{itemize}");
       }
@@ -157,27 +176,35 @@ public class TexVisitor implements IrVisitor {
 
   @Override
   public void onAlternativeBegin(PrimitiveOR orRule, Primitive item) {
-    // TODO Auto-generated method stub
+    try {
+
+      writer.write("\n\\item \\textbf{" + makeEscapeChars(item.getName()) + "}: "
+          + makeEscapeChars(item.getName()));
+
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
   }
 
   @Override
   public void onAlternativeEnd(PrimitiveOR orRule, Primitive item) {
-    // TODO Auto-generated method stub
 
   }
 
   @Override
   public void onArgumentBegin(PrimitiveAND andRule, String argName, Primitive argType) {
-    
-    try {
-      
+    if (!isShortcut) {
+      try {
         setToLevel(level);
-        writer.write("\\item \\textbf{" + makeEscapeChars(argType.getName()) + "}: " + makeEscapeChars(argName));
-      
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+        writer.write("\\item \\textbf{" + makeEscapeChars(argType.getName()) + "}: "
+            + makeEscapeChars(argName));
+
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
     }
   }
 
@@ -207,13 +234,13 @@ public class TexVisitor implements IrVisitor {
 
   @Override
   public void onShortcutBegin(PrimitiveAND andRule, Shortcut shortcut) {
-    // TODO Auto-generated method stub
+    isShortcut = true;
 
   }
 
   @Override
   public void onShortcutEnd(PrimitiveAND andRule, Shortcut shortcut) {
-    // TODO Auto-generated method stub
+    isShortcut = false;
 
   }
 
@@ -231,19 +258,18 @@ public class TexVisitor implements IrVisitor {
 
   @Override
   public void onPrimitivesEnd() {
-    
+
   }
-  
+
   private void setToLevel(int level) throws IOException {
     writer.write('\r');
     for (int i = 0; i < level; i++) {
       writer.write('\t');
     }
   }
-  
-  public void finalize()
-  {
-    
+
+  public void finalize() {
+
     try {
       setToLevel(0);
       writer.write("\\end{document}");
@@ -254,11 +280,10 @@ public class TexVisitor implements IrVisitor {
       e.printStackTrace();
     }
   }
-  
-  private String makeEscapeChars(String s)
-  {
-    return s.replace("\\", "\\\\").replace("_", "\\_").replace("$", "\\$")
-            .replace("%", "\\%").replace("#", "\\#").replace("{", "\\{")
-            .replace("}", "\\}").replace("~", "\\~").replace("^", "\\^");
+
+  private String makeEscapeChars(String s) {
+    return s.replace("\\", "\\\\").replace("_", "\\_").replace("$", "\\$").replace("%", "\\%")
+        .replace("#", "\\#").replace("{", "\\{").replace("}", "\\}").replace("~", "\\~")
+        .replace("^", "\\^");
   }
 }
