@@ -24,7 +24,7 @@ public class TestProgramGenerator {
     // TODO
   }
 
-  public void setFileName(String optionValue) {
+  public void setFileName(String fileName) {
     // TODO Auto-generated method stub
   }
 
