@@ -83,7 +83,7 @@ public final class MicroTESK {
     try {
       params = Parameters.parse(args);
     } catch (ParseException e) {
-      System.out.println("Wrong command line: " + e.getMessage());
+      Logger.error("Wrong command line: " + e.getMessage());
       Parameters.help();
       return;
     }
@@ -125,7 +125,7 @@ public final class MicroTESK {
 
   private static void generate(CommandLine params) {
     if (!params.hasOption(Parameters.MODEL)) {
-      System.out.printf("Wrong command line: -%s parameter is not specified%n", Parameters.MODEL);
+      Logger.error("Wrong command line: -%s parameter is not specified%n", Parameters.MODEL);
       Parameters.help();
       return;
     }
