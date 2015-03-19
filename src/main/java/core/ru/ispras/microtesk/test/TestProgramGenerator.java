@@ -15,20 +15,35 @@
 package ru.ispras.microtesk.test;
 
 public class TestProgramGenerator {
+  private String modelName;
+  private String fileName;
+  private int randomSeed;
+  private boolean isRandomSeedSet;
 
-  public void setModelName(String name) {
-    // TODO
+  public TestProgramGenerator() {
+    this.modelName = "";
+    this.fileName = "";
+    this.randomSeed = 0;
+    this.isRandomSeedSet = false;;
   }
 
-  public void setRandomSeed(int seed) {
-    // TODO
+  public void setModelName(String value) {
+    modelName = value;
   }
 
-  public void setFileName(String fileName) {
-    // TODO Auto-generated method stub
+  public void setRandomSeed(int value) {
+    randomSeed = value;
+    isRandomSeedSet = true;
+  }
+
+  public void setFileName(String value) {
+    fileName = value;
   }
 
   public void generate(String... templateFiles) {
-    // TODO
+    System.out.println(modelName);
+    System.out.println(fileName);
+    System.out.println(isRandomSeedSet);
+    System.out.println(randomSeed);
   }
 }
