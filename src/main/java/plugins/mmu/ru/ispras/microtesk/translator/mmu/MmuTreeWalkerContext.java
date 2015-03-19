@@ -20,11 +20,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
 
 final class MmuTreeWalkerContext {
+
   public static enum Kind {
     GLOBAL,
     BUFFER,
@@ -40,6 +42,8 @@ final class MmuTreeWalkerContext {
   private final Map<String, NodeVariable> variables;
   private final Map<String, AbstractStorage> globalObjects;
 
+  private final Map<Node, Node> assignments;
+
   MmuTreeWalkerContext(Kind kind, String id) {
     checkNotNull(kind);
     checkNotNull(id);
@@ -48,6 +52,7 @@ final class MmuTreeWalkerContext {
     this.id = id;
     this.variables = new HashMap<>();
     this.globalObjects = new HashMap<>();
+    this.assignments = new HashMap<>(); 
   }
 
   public Kind getKind() {
@@ -98,5 +103,48 @@ final class MmuTreeWalkerContext {
 
   public AbstractStorage getGlobalObject(String objectId) {
     return globalObjects.get(objectId);
+  }
+
+  /**
+   * Remembers an assignment (caches the assigned value expression). This helps
+   * to remember constant values assigned to variables. We need these values rather
+   * than expressions in operations like indexing and bit field extraction.
+   * 
+   * @param lhs Left hand side expression.
+   * @param rhs Right hand side expression.
+   */
+
+  public void setAssignedValue(Node lhs, Node rhs) {
+    assignments.put(lhs, rhs);
+  }
+
+  /**
+   * Checks whether the specified expression can be substituted with a constant
+   * value (it is has been earlier assigned) and returns the corresponding value.
+   * If it cannot or if it is already a constant value, the expression returned as is.
+   * Such substitutions are needed for operations like indexing and bit field
+   * extraction that require constant values rather than expressions.
+   * 
+   * @param lhs Expression to be substituted with a constant value.
+   * @return A constant value or the initial expression if there is no constant
+   * value associated with (or assigned to) this expression or if it is already
+   * a constant value.
+   */
+
+  public Node getAssignedValue(Node lhs) {
+    if (lhs.getKind() == Node.Kind.VALUE) {
+      return lhs;
+    }
+
+    final Node rhs = assignments.get(lhs);
+    if (null == rhs) {
+      return lhs;
+    }
+
+    if (rhs.getKind() == Node.Kind.VALUE) {
+      return rhs;
+    }
+
+    return lhs;
   }
 }

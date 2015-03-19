@@ -141,10 +141,8 @@ mmu pmem(va: VA) = (data: 64)
   var cacheData: 256;
 
   read = {
-  /*
-  
     // The address is unaligned.
-    if va<2..0> != 0 then
+    if va<0..2> != 0 then
       exception("AddressError");
     endif; // If the address is unaligned.
 
@@ -252,21 +250,11 @@ mmu pmem(va: VA) = (data: 64)
     else
       data = pmem[pa];
     endif; // If the address is cacheable.
-    
-    */
   }
 
   write = {
-    g   = tlbEntry.G0;
-    tlbEntry = JTLB(va);
-    L1(pa) = l1Entry;
-    pmem[pa] = data;
-    exception("TLBInvalid");
-    trace("%d=%d", 1, 2);
-  /*
-  
     // The address is unaligned.
-    if va<2..0> != 0 then
+    if va<0..2> != 0 then
       exception("AddressError");
     endif; // If the address is unaligned.
 
@@ -389,8 +377,6 @@ mmu pmem(va: VA) = (data: 64)
     else
       pmem[pa] = data;
     endif; // If the address is cacheable.
-    
-    */
   }
 
 //==================================================================================================
