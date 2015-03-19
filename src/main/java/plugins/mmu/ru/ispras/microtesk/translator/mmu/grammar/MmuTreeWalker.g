@@ -196,7 +196,7 @@ ifStmt returns [Stmt res]
        {final IfBuilder builder = new IfBuilder($wif, $cif.res, $sif.res);}
        (^(welif=ELSEIF celif=expr[0] selif=sequence)
        {builder.addElseIf($welif, $celif.res, $selif.res);})* 
-       (^(welse=ELSE selse=sequence))? {builder.setElse($welse, $selse.res);})
+       (^(welse=ELSE selse=sequence) {builder.setElse($welse, $selse.res);})? )
        {$res=builder.build();}
     ;
 
