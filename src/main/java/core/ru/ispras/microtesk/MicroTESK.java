@@ -24,6 +24,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import ru.ispras.microtesk.test.TestProgramGenerator;
 import ru.ispras.microtesk.translator.simnml.SimnMLAnalyzer;
 
 public final class MicroTESK {
@@ -129,5 +130,24 @@ public final class MicroTESK {
       Parameters.help();
       return;
     }
+
+    final TestProgramGenerator generator = new TestProgramGenerator();
+    generator.setModelName(params.getOptionValue(Parameters.MODEL));
+
+    if (params.hasOption(Parameters.RANDOM)) {
+      final String random = params.getOptionValue(Parameters.RANDOM);
+      try {
+        final int seed = Integer.parseInt(random);
+        generator.setRandomSeed(seed);
+      } catch (NumberFormatException e) {
+        Logger.warning("Failed to parse the value of the -r parameter.");
+      }
+    }
+
+    if (params.hasOption(Parameters.FILE)) {
+      generator.setFileName(params.getOptionValue(Parameters.FILE));
+    }
+
+    generator.generate(params.getArgs());
   }
 }
