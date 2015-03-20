@@ -290,29 +290,27 @@
 
     <!-- Copies batch files -->
     <copy todir="${dist}/bin">
-      <fileset dir="src/main/scripts" includes="**"/>  
+      <fileset dir="src/main/scripts" includes="**"/>
     </copy>
 
     <!-- Copies Ruby scripts -->
-    <copy todir="${dist.ruby}" >  
-      <fileset dir="src/main/ruby" includes="**"/>  
+    <copy todir="${dist.ruby}" >
+      <fileset dir="src/main/ruby" includes="**"/>
     </copy>
 
     <!-- Copies CPU demo architecture specifications and test templates -->
     <copy todir="${dist}/arch/demo/cpu">
-      <fileset dir="src/main/arch/demo/cpu" includes="**"/>  
+      <fileset dir="src/main/arch/demo/cpu" includes="**"/>
     </copy>
 
     <!-- Copies VLIW demo architecture specifications and test templates -->
     <copy todir="${dist}/arch/demo/vliw">
-       <fileset dir="src/main/arch/demo/vliw" includes="**"/>  
+       <fileset dir="src/main/arch/demo/vliw" includes="**"/>
     </copy>
 
     <!-- Copies miniMIPS architecture specifications and test templates -->
     <copy todir="${dist}/arch/minimips">
-       <fileset dir="src/main/arch/minimips" includes="**">
-         <exclude name="templates/insertionsort.rb"/>
-       </fileset>
+       <fileset dir="src/main/arch/minimips" includes="**"/>
     </copy>
 
   </target>
