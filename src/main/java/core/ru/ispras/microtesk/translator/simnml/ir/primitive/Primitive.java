@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -124,12 +126,12 @@ public class Primitive {
     }
 
     /**
-     * Returns names of the references (parameter names) made from the parent primitive to the
-     * current primitive.
+     * Returns names of the references (parameter names) made from the parent primitive
+     * to the current primitive.
      */
 
-    public Iterable<String> getReferenceNames() {
-      return refNames;
+    public Set<String> getReferenceNames() {
+      return Collections.unmodifiableSet(refNames);
     }
 
     /**
@@ -249,8 +251,8 @@ public class Primitive {
    * @return Collection of parent primitives.
    */
 
-  public final Iterable<Reference> getParents() {
-    return parents.values();
+  public final Collection<Reference> getParents() {
+    return Collections.unmodifiableCollection(parents.values());
   }
 
   /**

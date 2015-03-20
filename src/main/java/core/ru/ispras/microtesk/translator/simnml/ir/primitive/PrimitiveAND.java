@@ -71,8 +71,8 @@ public final class PrimitiveAND extends Primitive {
     return attrs;
   }
 
-  public Iterable<Shortcut> getShortcuts() {
-    return shortcuts;
+  public List<Shortcut> getShortcuts() {
+    return Collections.unmodifiableList(shortcuts);
   }
 
   public Expr getReturnExpr() {
