@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -121,9 +123,9 @@ public final class Shortcut {
    */
 
   public Shortcut(PrimitiveAND entry, PrimitiveAND target, List<String> contextNames) {
-    notNullCheck(entry, "entry");
-    notNullCheck(target, "target");
-    notNullCheck(contextNames, "contextNames");
+    checkNotNull(entry, "entry");
+    checkNotNull(target, "target");
+    checkNotNull(contextNames, "contextNames");
 
     opCheck(entry);
     opCheck(target);
@@ -142,7 +144,7 @@ public final class Shortcut {
 
   public Shortcut(PrimitiveAND entry, PrimitiveAND target, String contextName) {
     this(entry, target, Collections.singletonList(contextName));
-    notNullCheck(contextName, "contextName");
+    checkNotNull(contextName, "contextName");
   }
 
   /**
@@ -270,12 +272,6 @@ public final class Shortcut {
 
     return String.format("%s: Entry = %s, Target = %s, Contexts = [%s], Args = [%s]", getName(),
         entry.getName(), target.getName(), cnsb, argsb);
-  }
-
-  private static void notNullCheck(Object o, String name) {
-    if (null == o) {
-      throw new NullPointerException(String.format("The %s parameter is null.", name));
-    }
   }
 
   private static void opCheck(Primitive p) {
