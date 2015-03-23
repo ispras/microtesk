@@ -48,12 +48,10 @@ public final class SsaAssembler {
     this.localPrefix = "";
     this.contextPrefix = prefix;
 
-    this.context = null;
     this.ruleset = null;
   }
 
   public Node assemble(String tag) {
-    this.context = new ArrayDeque<>();
     this.statements = new ArrayList<>();
     this.batchSize = new ArrayDeque<>();
     this.ruleset = createRuleset();
