@@ -57,7 +57,7 @@ import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
-import ru.ispras.testbase.stub.TestBase;
+import ru.ispras.microtesk.translator.simnml.coverage.ssa.TestBase;
 
 /**
  * The job of the DataGenerator class is to processes an abstract instruction call sequence (uses
@@ -490,8 +490,24 @@ final class TestBaseQueryCreator {
     queryBuilder.setContextAttribute(TestBaseContext.INSTRUCTION, primitive.getName());
     queryBuilder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
 
-    for (Argument arg : primitive.getArguments().values()) {
-      queryBuilder.setContextAttribute(arg.getName(), arg.getTypeName());
+    queryBuilder.setContextAttribute(primitive.getName(), primitive.getName());
+    acquireContext(queryBuilder, primitive.getName(), primitive);
+  }
+
+  private static void acquireContext(TestBaseQueryBuilder builder, String prefix, Primitive p) {
+    for (Argument arg : p.getArguments().values()) {
+      final String ctxArgName = (prefix.isEmpty())
+                                ? arg.getName()
+                                : prefix + "." + arg.getName();
+      builder.setContextAttribute(ctxArgName, arg.getTypeName());
+      switch (arg.getKind()) {
+      case OP:
+      case MODE:
+        acquireContext(builder, ctxArgName, (Primitive) arg.getValue());
+        break;
+
+      default:
+      }
     }
   }
 
@@ -514,7 +530,7 @@ final class TestBaseQueryCreator {
       this.unknownValues = new HashMap<String, UnknownValue>();
       this.modes = new HashMap<String, Primitive>();
 
-      visit("", primitive);
+      visit(primitive.getName(), primitive);
     }
 
     public Map<String, UnknownValue> getUnknownValues() {
