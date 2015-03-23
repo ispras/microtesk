@@ -53,9 +53,7 @@ public final class TestBase {
     if (rc.getStatus() == TestBaseQueryResult.Status.OK) {
       return rc;
     }
-    System.err.println("Running custom TestBase engine...");
     final PathConstraintBuilder builder = constraintBuilder(query);
-    System.err.println("PathConstraintBuilder has been built.");
 
     final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
     bindings.add(findPathSpec(query, builder.getVariables()));
@@ -65,8 +63,6 @@ public final class TestBase {
 
     final Constraint constraint = builder.build(bindings);
     final SolverResult result = ConstraintUtils.solve(constraint);
-    System.err.println(constraint);
-    System.err.println(result);
 
     return fromSolverResult(query, result);
   }
@@ -146,8 +142,6 @@ public final class TestBase {
         if (variables.containsKey(name)) {
           final Node binding = EQ(variables.get(name), entry.getValue());
           bindings.add(Utility.transform(binding, caster));
-        } else {
-          System.err.printf("Skipping unknown binding: %s, %s\n", entry.getKey(), entry.getValue());
         }
       }
     }
