@@ -121,13 +121,14 @@ public final class SsaAssembler {
   }
 
   private Block embedBranches(Block block) {
+    changes.commit();
+
     Block fence = null;
     final int size = block.getChildren().size();
     final List<NodeOperation> branches = new ArrayList(size);
     final Collection<Changes> containers = changes.fork(size);
     final Iterator<Changes> rebasers = containers.iterator();
 
-    changes.commit();
     changesStack.push(changes);
 
     final NodeTransformer xform = new NodeTransformer(this.ruleset);
