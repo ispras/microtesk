@@ -81,7 +81,7 @@ public final class PathConstraintBuilder {
       public Node apply(Node node) {
         final NodeVariable var = (NodeVariable) node;
         final String name =
-            String.format("%s!%d", var.getName(), (Integer) var.getUserData());
+            String.format("%s!%d", var.getName(), var.getUserData());
         if (variables.containsKey(name)) {
           return variables.get(name);
         }

@@ -1,9 +1,7 @@
 package ru.ispras.microtesk.translator.simnml.coverage;
 
-import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
 import ru.ispras.fortress.solver.constraint.ConstraintKind;
-import ru.ispras.fortress.solver.constraint.Formulas;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
@@ -197,6 +195,6 @@ final class SsaConverter {
   }
 
   private static String operandName(NodeOperation node, int i) {
-    return ((NodeVariable) ((NodeOperation) node).getOperand(i)).getName();
+    return ((NodeVariable) node.getOperand(i)).getName();
   }
 }

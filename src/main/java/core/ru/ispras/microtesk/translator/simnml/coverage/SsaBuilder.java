@@ -33,7 +33,6 @@ import ru.ispras.microtesk.translator.simnml.ir.expression.*;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -648,7 +647,7 @@ final class FlatScope implements SsaScope {
 
   private int numTemporaries;
   private final Map<String, NodeVariable> variables;
-  
+
   FlatScope() {
     this.numTemporaries = 0;
     this.variables = new LinkedHashMap<>();

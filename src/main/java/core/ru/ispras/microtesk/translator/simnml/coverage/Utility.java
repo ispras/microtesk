@@ -16,11 +16,9 @@ package ru.ispras.microtesk.translator.simnml.coverage;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.transformer.NodeTransformer;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public final class Utility {
@@ -29,7 +27,7 @@ public final class Utility {
       return lhs;
 
     if (lhs.isEmpty())
-      return new ArrayList<T>(rhs);
+      return new ArrayList<>(rhs);
 
     lhs.addAll(rhs);
 
@@ -38,7 +36,7 @@ public final class Utility {
 
   static <T> List<T> appendElement(List<T> lhs, T elem) {
     if (lhs.isEmpty())
-      lhs = new ArrayList<T>();
+      lhs = new ArrayList<>();
 
     lhs.add(elem);
 

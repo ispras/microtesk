@@ -1,16 +1,13 @@
 package ru.ispras.microtesk.translator.simnml.coverage;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 
-import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 
 import java.util.ArrayDeque;
@@ -126,7 +123,7 @@ public final class SsaAssembler {
 
     Block fence = null;
     final int size = block.getChildren().size();
-    final List<NodeOperation> branches = new ArrayList(size);
+    final List<NodeOperation> branches = new ArrayList<>(size);
     final Collection<Changes> containers = changes.fork(size);
     final Iterator<Changes> rebasers = containers.iterator();
 
@@ -247,8 +244,7 @@ public final class SsaAssembler {
 
       @Override
       public Node apply(Node node) {
-        final Pair<String, String> pair =
-            (Pair<String, String>) node.getUserData();
+        final Pair<String, String> pair = (Pair<String, String>) node.getUserData();
         stepArgument(pair.first, pair.second);
 
         return node;

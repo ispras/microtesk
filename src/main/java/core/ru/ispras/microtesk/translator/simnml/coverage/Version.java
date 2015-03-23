@@ -1,6 +1,5 @@
 package ru.ispras.microtesk.translator.simnml.coverage;
 
-import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;

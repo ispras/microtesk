@@ -20,11 +20,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.solver.constraint.Formulas;
 import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
-import ru.ispras.fortress.solver.constraint.ConstraintUtils;
 import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
 import ru.ispras.fortress.solver.xml.XMLNotSavedException;
 
@@ -36,7 +32,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -144,8 +139,8 @@ final class DependencyBuilder {
       return;
     }
 
-    observed = new TreeSet<String>();
-    ordered = new ArrayList<Primitive>(selected.size());
+    observed = new TreeSet<>();
+    ordered = new ArrayList<>(selected.size());
 
     for (Primitive p : selected.values()) {
       collectDependencies(p);

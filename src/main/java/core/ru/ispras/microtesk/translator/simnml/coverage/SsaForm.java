@@ -1,14 +1,7 @@
 package ru.ispras.microtesk.translator.simnml.coverage;
 
-import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementAssignment;
-
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeOperation;
-
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 public final class SsaForm {
   private final Block entry;
