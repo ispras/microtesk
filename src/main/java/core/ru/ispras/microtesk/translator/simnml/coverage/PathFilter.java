@@ -29,9 +29,9 @@ final class PathFilter {
   }
 
   private void processNode(Node node) {
-    if (nodeIsOperation(node, StandardOperation.AND)) {
+    if (Utility.nodeIsOperation(node, StandardOperation.AND)) {
       processConjunction(node);
-    } else if (nodeIsOperation(node, StandardOperation.OR)) {
+    } else if (Utility.nodeIsOperation(node, StandardOperation.OR)) {
       processDisjunction(node);
     }
   }
@@ -91,10 +91,5 @@ final class PathFilter {
       return Expression.TRUE;
     }
     return filter.operands.get(0);
-  }
-
-  private static boolean nodeIsOperation(Node node, Enum<?> opId) {
-    return node.getKind() == Node.Kind.OPERATION &&
-           ((NodeOperation) node).getOperationId() == opId;
   }
 }

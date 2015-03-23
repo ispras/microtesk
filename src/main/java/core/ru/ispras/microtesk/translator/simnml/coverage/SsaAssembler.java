@@ -26,6 +26,7 @@ import java.util.Map;
 import static ru.ispras.microtesk.translator.simnml.coverage.Expression.AND;
 import static ru.ispras.microtesk.translator.simnml.coverage.Expression.EQ;
 import static ru.ispras.microtesk.translator.simnml.coverage.Expression.OR;
+import static ru.ispras.microtesk.translator.simnml.coverage.Utility.nodeIsOperation;
 
 public final class SsaAssembler {
   final Map<String, SsaForm> buildingBlocks;
@@ -135,7 +136,7 @@ public final class SsaAssembler {
     for (GuardedBlock guard : block.getChildren()) {
       changes = rebasers.next();
 
-      newBatch(transformNode(guard.guard, xform));
+      newBatch(Utility.transform(guard.guard, xform));
       fence = sameNotNull(fence, embedBlock(guard.block));
       branches.add(endBatch());
     }
@@ -157,18 +158,11 @@ public final class SsaAssembler {
     return embedSequence(fence);
   }
 
-  private static Node transformNode(Node node, NodeTransformer xform) {
-    xform.walk(node);
-    final Node result = xform.getResult().iterator().next();
-    xform.reset();
-    return result;
-  }
-
   private static void join(Changes repo, Collection<GuardedBlock> blocks, Collection<Changes> containers, NodeTransformer xform) {
     final Map<String, Node> summary = repo.getSummary();
     final Iterator<GuardedBlock> block = blocks.iterator();
     for (Changes diff : containers) {
-      final Node guard = transformNode(block.next().guard, xform);
+      final Node guard = Utility.transform(block.next().guard, xform);
       for (Map.Entry<String, Node> entry : diff.getSummary().entrySet()) {
         final Node fallback = getJointFallback(entry.getKey(), repo, diff);
         if (!fallback.equals(entry.getValue()) ||
@@ -372,13 +366,6 @@ public final class SsaAssembler {
 
   private static NodeVariable variableOperand(int i, Node op) {
     return (NodeVariable) ((NodeOperation) op).getOperand(i);
-  }
-
-  private static boolean nodeIsOperation(Node node, Enum<?> opId) {
-    if (node.getKind() != Node.Kind.OPERATION) {
-      return false;
-    }
-    return ((NodeOperation) node).getOperationId() == opId;
   }
 
   private static String dotConc(String lhs, String rhs) {

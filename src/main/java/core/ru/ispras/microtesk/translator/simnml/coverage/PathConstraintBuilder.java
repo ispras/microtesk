@@ -28,11 +28,11 @@ public final class PathConstraintBuilder {
     this.builder = new ConstraintBuilder();
     this.ssa = new Formulas();
 
-    final Node instance = instantiate(ssa);
+    final Node instance = Utility.transform(ssa, setUpTransformer());
 
     this.conditionExpr = PathFilter.filter(instance);
 
-    if (nodeIsOperation(instance, StandardOperation.AND)) {
+    if (Utility.nodeIsOperation(instance, StandardOperation.AND)) {
       for (Node node : ((NodeOperation) instance).getOperands()) {
         this.ssa.add(node);
       }
@@ -70,13 +70,6 @@ public final class PathConstraintBuilder {
     return this.builder.build();
   }
 
-  private Node instantiate(Node ssa) {
-    final NodeTransformer xform = setUpTransformer();
-    xform.walk(ssa);
-
-    return xform.getResult().iterator().next();
-  }
-
   private NodeTransformer setUpTransformer() {
     final TransformerRule bake = new TransformerRule() {
       @Override
@@ -107,10 +100,5 @@ public final class PathConstraintBuilder {
       xform.addRule(entry.getKey(), entry.getValue());
     }
     return xform;
-  }
-
-  private static boolean nodeIsOperation(Node node, Enum<?> opId) {
-    return node.getKind() == Node.Kind.OPERATION &&
-           ((NodeOperation) node).getOperationId() == opId;
   }
 }

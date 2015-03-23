@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ru.ispras.microtesk.translator.simnml.coverage.Utility.nodeIsOperation;
+
 public final class BlockConverter {
   final Set<Block> visited;
   final List<Constraint> converted;
@@ -91,11 +93,6 @@ public final class BlockConverter {
     builder.addVariables(formulas.getVariables());
 
     return builder.build();
-  }
-
-  private static boolean nodeIsOperation(Node node, Enum<?> opId) {
-    return node.getKind() == Node.Kind.OPERATION &&
-           ((NodeOperation) node).getOperationId() == opId;
   }
 
   private static NodeVariable newNamed(String name) {
@@ -201,10 +198,5 @@ final class SsaConverter {
 
   private static String operandName(NodeOperation node, int i) {
     return ((NodeVariable) ((NodeOperation) node).getOperand(i)).getName();
-  }
-
-  private static boolean nodeIsOperation(Node node, Enum<?> opId) {
-    return node.getKind() == Node.Kind.OPERATION &&
-           ((NodeOperation) node).getOperationId() == opId;
   }
 }
