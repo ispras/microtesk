@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.simnml.coverage.ssa;
 
-import ru.ispras.microtesk.translator.simnml.coverage.ssa.spec.CodeSpec;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
