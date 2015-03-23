@@ -5,5 +5,6 @@ public enum SsaOperation {
   PHI,
   EXPAND,
   UPDATE,
-  SUBSTITUTE
+  SUBSTITUTE,
+  BLOCK
 }
