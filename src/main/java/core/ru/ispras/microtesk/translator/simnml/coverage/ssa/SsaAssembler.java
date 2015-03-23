@@ -226,12 +226,20 @@ public final class SsaAssembler {
 
     @Override
     public Node apply(Node node) {
-      final Pair<String, String> name =
+      final Pair<String, String> pair =
           Utility.splitOnLast(variableOperand(0, node).getName(), '.');
 
-      stepArgument(name.second, suffix);
+      stepArgument(pair.second, suffix);
 
-      return scope.fetch(String.format("__tmp_%d", numTemps - 1));
+      final NodeVariable tmp =
+          scope.fetch(String.format("__tmp_%d", numTemps - 1));
+
+      final String name = dotConc(localPrefix, pair.second);
+      final int version = (this.operation == SsaOperation.UPDATE) ? 2 : 1;
+      final NodeVariable var = changes.rebase(name, tmp.getData(), version);
+      addToBatch(EQ(var, tmp));
+
+      return tmp;
     }
   }
 
