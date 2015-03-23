@@ -18,7 +18,6 @@ import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
@@ -31,12 +30,9 @@ import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * Class for model code coverage extraction from internal representation.
@@ -115,70 +111,5 @@ public final class Analyzer {
                 SsaBuilder.macroUpdate(mode.getName(), mode.getReturnExpr()));
       }
     }
-  }
-}
-
-/**
- * Helper class to sort primitives accordingly to theirs dependencies.
- * Primitive X depends on Y if Y is found in signature of X.
- */
-final class DependencyBuilder {
-  private final Map<String, Primitive> selected;
-
-  private Set<String> observed;
-  private List<Primitive> ordered;
-
-  public DependencyBuilder(Map<String, Primitive> map) {
-    this.selected = Collections.unmodifiableMap(map);
-    this.observed = null;
-    this.ordered = null;
-  }
-
-  public void build() {
-    if (ordered != null) {
-      return;
-    }
-
-    observed = new TreeSet<>();
-    ordered = new ArrayList<>(selected.size());
-
-    for (Primitive p : selected.values()) {
-      collectDependencies(p);
-    }
-
-    observed = null;
-  }
-
-  private void collectDependencies(Primitive in) {
-    if (observed.contains(in.getName())) {
-      return;
-    }
-    // Avoiding infinite recursion in case of cycle dependency
-    observed.add(in.getName());
-
-    if (in.isOrRule()) {
-      for (Primitive p : ((PrimitiveOR) in).getORs()) {
-        collectDependencies(p);
-      }
-    } else {
-      for (Primitive p : ((PrimitiveAND) in).getArguments().values()) {
-        if (selected.get(p.getName()) != null) {
-          collectDependencies(p);
-        }
-      }
-    }
-    ordered.add(in);
-  }
-
-  /**
-   * Order primitives for sequential processing.
-   *
-   * @param map Map of named primitives to be ordered.
-   * @return Ordered list of input primitives.
-   */
-  public static List<Primitive> order(Map<String, Primitive> map) {
-    final DependencyBuilder deps = new DependencyBuilder(map);
-    deps.build();
-    return Collections.unmodifiableList(deps.ordered);
   }
 }

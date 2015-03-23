@@ -35,9 +35,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static ru.ispras.microtesk.translator.simnml.coverage.Expression.*;
 
@@ -633,61 +631,6 @@ final class SsaBuilder {
 
   private NodeOperation createOutput(Data data) {
     return new NodeOperation(SsaOperation.SUBSTITUTE, createTemporary(data));
-  }
-
-  private static void notnull(Object o) {
-    if (o == null) {
-      throw new NullPointerException();
-    }
-  }
-}
-
-final class FlatScope implements SsaScope {
-  private static final String TEMPORARY_NAME = "tmp";
-
-  private int numTemporaries;
-  private final Map<String, NodeVariable> variables;
-
-  FlatScope() {
-    this.numTemporaries = 0;
-    this.variables = new LinkedHashMap<>();
-  }
-
-  @Override
-  public boolean contains(String name) {
-    notnull(name);
-    return variables.containsKey(name);
-  }
-
-  @Override
-  public NodeVariable create(String name, Data data) {
-    notnull(name);
-    notnull(data);
-
-    if (this.contains(name)) {
-      throw new IllegalArgumentException("Attempt to override variable " + name);
-    }
-    final NodeVariable node = new NodeVariable(new Variable(name, data));
-    variables.put(name, node);
-    return node;
-  }
-
-  @Override
-  public NodeVariable fetch(String name) {
-    notnull(name);
-    if (variables.containsKey(name)) {
-      return variables.get(name);
-    }
-    throw new IllegalArgumentException("Attempt to access undeclared variable " + name);
-  }
-
-  @Override
-  public NodeVariable update(String name) {
-    return fetch(name);
-  }
-
-  public NodeVariable createTemporary(Data data) {
-    return create(String.format("%s!%d", TEMPORARY_NAME, numTemporaries++), data);
   }
 
   private static void notnull(Object o) {

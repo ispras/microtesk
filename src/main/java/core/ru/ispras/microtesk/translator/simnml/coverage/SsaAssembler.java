@@ -8,8 +8,6 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 
-import ru.ispras.microtesk.test.template.Primitive;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +29,6 @@ public final class SsaAssembler {
   SsaScope scope;
   int numTemps;
 
-  Deque<Primitive> context;
   String localPrefix;
   String contextPrefix;
   ArrayList<Node> statements;
@@ -156,7 +153,6 @@ public final class SsaAssembler {
   }
 
   private static void join(Changes repo, Collection<GuardedBlock> blocks, Collection<Changes> containers, NodeTransformer xform) {
-    final Map<String, Node> summary = repo.getSummary();
     final Iterator<GuardedBlock> block = blocks.iterator();
     for (Changes diff : containers) {
       final Node guard = Utility.transform(block.next().guard, xform);
