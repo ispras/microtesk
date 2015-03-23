@@ -1,4 +1,4 @@
-package ru.ispras.microtesk.translator.simnml.coverage.ssa;
+package ru.ispras.microtesk.translator.simnml.coverage;
 
 public enum SsaOperation {
   CALL,

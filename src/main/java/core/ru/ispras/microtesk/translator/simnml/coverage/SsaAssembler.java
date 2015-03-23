@@ -1,4 +1,4 @@
-package ru.ispras.microtesk.translator.simnml.coverage.ssa;
+package ru.ispras.microtesk.translator.simnml.coverage;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
@@ -23,9 +23,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static ru.ispras.microtesk.translator.simnml.coverage.ssa.Expression.AND;
-import static ru.ispras.microtesk.translator.simnml.coverage.ssa.Expression.EQ;
-import static ru.ispras.microtesk.translator.simnml.coverage.ssa.Expression.OR;
+import static ru.ispras.microtesk.translator.simnml.coverage.Expression.AND;
+import static ru.ispras.microtesk.translator.simnml.coverage.Expression.EQ;
+import static ru.ispras.microtesk.translator.simnml.coverage.Expression.OR;
 
 public final class SsaAssembler {
   final Map<String, SsaForm> buildingBlocks;

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.simnml.coverage.ssa;
+package ru.ispras.microtesk.translator.simnml.coverage;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
@@ -40,7 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.ispras.microtesk.translator.simnml.coverage.ssa.Expression.*;
+import static ru.ispras.microtesk.translator.simnml.coverage.Expression.*;
 
 final class SsaBuilder {
   private final String tag;

@@ -1,4 +1,4 @@
-package ru.ispras.microtesk.translator.simnml.coverage.ssa;
+package ru.ispras.microtesk.translator.simnml.coverage;
 
 final class Pair<T, U> {
   final T first;

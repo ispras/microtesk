@@ -1,4 +1,4 @@
-package ru.ispras.microtesk.translator.simnml.coverage.ssa;
+package ru.ispras.microtesk.translator.simnml.coverage;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.ispras.microtesk.translator.simnml.coverage.ssa.Expression.EQ;
+import static ru.ispras.microtesk.translator.simnml.coverage.Expression.EQ;
 
 public final class TestBase {
   final String path;
