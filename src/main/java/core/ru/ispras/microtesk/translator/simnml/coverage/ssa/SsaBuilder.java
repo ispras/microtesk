@@ -395,8 +395,7 @@ final class SsaBuilder {
     }
 
     public void addBranch(StatementCondition.Block block) {
-      // TODO get user-defined name whenever specified
-      final String name = generateBlockName();
+      final String name = getBlockName(block);
       final Node guard = scope.create(name, DataType.BOOLEAN.valueUninitialized());
 
       if (!block.isElseBlock()) {
@@ -416,6 +415,18 @@ final class SsaBuilder {
 
     public Node[] negateGuards() {
       return guards.toArray(new Node[guards.size()]);
+    }
+
+    private String getBlockName(StatementCondition.Block block) {
+      for (Statement s : block.getStatements()) {
+        if (s.getKind() == Statement.Kind.FUNCALL) {
+          final StatementFunctionCall funcall = (StatementFunctionCall) s;
+          if (funcall.getName().equals("mark")) {
+            return String.format("%s.%s", tag, funcall.getArgument(0));
+          }
+        }
+      }
+      return generateBlockName();
     }
   }
 
@@ -506,8 +517,8 @@ final class SsaBuilder {
 
     final Variable base = new Variable(name, baseType);
     if (atom.getBitfield() != null) {
-      final Node minor = convertExpression(atom.getBitfield().getFrom().getNode());
-      final Node major = convertExpression(atom.getBitfield().getTo().getNode());
+      final Node major = convertExpression(atom.getBitfield().getFrom().getNode());
+      final Node minor = convertExpression(atom.getBitfield().getTo().getNode());
       return new LValue(base, macro, index, minor, major, baseType, sourceType, targetType);
     }
     return new LValue(base, macro, index, null, null, baseType, sourceType, targetType);
