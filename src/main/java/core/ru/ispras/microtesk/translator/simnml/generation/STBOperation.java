@@ -157,6 +157,8 @@ final class STBOperation extends STBPrimitiveBase {
 
   private void buildShortcuts(STGroup group, ST t) {
     for (Shortcut shortcut : op.getShortcuts()) {
+      ContextBuilder.process(shortcut);
+ 
       final ST shortcutST = group.getInstanceOf("shortcut");
 
       shortcutST.add("name", op.getName());
@@ -196,6 +198,36 @@ final class STBOperation extends STBPrimitiveBase {
         shortcutDefST.add("contexts", context);
 
       t.add("shortcut_defs", shortcutDefST);
+    }
+  }
+  
+  static final class ContextBuilder {
+    private final Shortcut shortcut;
+
+    public static void process(Shortcut shortcut) {
+      new ContextBuilder(shortcut).dump();
+    }
+
+    private ContextBuilder(Shortcut shortcut) {
+      this.shortcut = shortcut;
+    }
+    
+    public void dump() {
+      System.out.println(shortcut);
+      dump("", shortcut.getEntry());
+    }
+
+    private void dump(String prefix, PrimitiveAND primitive) {
+      if (!prefix.isEmpty())
+        prefix = prefix + ".";
+
+      for (Map.Entry<String, Primitive> e : primitive.getArguments().entrySet()) {
+        System.out.printf("%s%s.%s: %s%n", prefix, primitive.getName(), e.getKey(), e.getValue().getName());
+
+        if (e.getValue() instanceof PrimitiveAND) {
+          dump(String.format(prefix + primitive.getName()), (PrimitiveAND) e.getValue());
+        }
+      }
     }
   }
 
