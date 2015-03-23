@@ -17,12 +17,13 @@ package ru.ispras.microtesk.translator.simnml.coverage.ssa;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.transformer.NodeTransformer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-final class Utility {
+public final class Utility {
   static <T> List<T> appendList(List<T> lhs, List<T> rhs) {
     if (rhs.isEmpty())
       return lhs;
@@ -128,5 +129,19 @@ final class Utility {
     for (int i = 0; i < n; ++i) {
       builder.append(c);
     }
+  }
+
+  static Node transform(Node node, NodeTransformer xform) {
+    xform.walk(node);
+
+    final Node result = xform.getResult().iterator().next();
+    xform.reset();
+
+    return result;
+  }
+
+  static boolean nodeIsOperation(Node node, Enum<?> opId) {
+    return node.getKind() == Node.Kind.OPERATION &&
+           ((NodeOperation) node).getOperationId() == opId;
   }
 }
