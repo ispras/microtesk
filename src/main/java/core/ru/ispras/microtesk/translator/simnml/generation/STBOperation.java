@@ -211,23 +211,39 @@ final class STBOperation extends STBPrimitiveBase {
     private ContextBuilder(Shortcut shortcut) {
       this.shortcut = shortcut;
     }
-    
+
     public void dump() {
       System.out.println(shortcut);
-      dump("", shortcut.getEntry());
+      dump(shortcut.getEntry().getName(), shortcut.getEntry());
     }
 
     private void dump(String prefix, PrimitiveAND primitive) {
-      if (!prefix.isEmpty())
-        prefix = prefix + ".";
-
       for (Map.Entry<String, Primitive> e : primitive.getArguments().entrySet()) {
-        System.out.printf("%s%s.%s: %s%n", prefix, primitive.getName(), e.getKey(), e.getValue().getName());
+        final String argName = e.getKey();
+        final Primitive argValue = e.getValue();
 
-        if (e.getValue() instanceof PrimitiveAND) {
-          dump(String.format(prefix + primitive.getName()), (PrimitiveAND) e.getValue());
+        final String variableName = String.format("%s.%s", prefix, argName);
+        final Shortcut.Argument sa = findShortcutArgument(argName, primitive);
+        if (null != sa) {
+          System.out.printf("prefix for %s -> %s%n", sa.getUniqueName(), prefix);
+        } else {
+          System.out.printf("link to %s -> %s%n", variableName, argValue.getName());
+
+        if (argValue instanceof PrimitiveAND) {
+          dump(variableName, (PrimitiveAND) argValue);
+        }
         }
       }
+    }
+
+    private Shortcut.Argument findShortcutArgument(String name, PrimitiveAND source) {
+      for(Shortcut.Argument sa : shortcut.getArguments()) {
+        if (name.equals(sa.getName()) && source.getName().equals(sa.getSource().getName())) {
+          return sa;
+        }
+      }
+
+      return null;
     }
   }
 
