@@ -29,12 +29,13 @@ import static ru.ispras.microtesk.translator.simnml.coverage.ssa.Expression.OR;
 
 public final class SsaAssembler {
   final Map<String, SsaForm> buildingBlocks;
-  final Primitive spec;
+  final Map<String, String> buildingContext;
   SsaScope scope;
   int numTemps;
 
   Deque<Primitive> context;
-  String prefix;
+  String localPrefix;
+  String contextPrefix;
   ArrayList<Node> statements;
   Deque<Integer> batchSize;
   Map<Enum<?>, TransformerRule> ruleset;
@@ -42,13 +43,16 @@ public final class SsaAssembler {
   Deque<Changes> changesStack;
   Changes changes;
 
-  public SsaAssembler(Map<String, SsaForm> buildingBlocks, Primitive spec) {
+  public SsaAssembler(Map<String, SsaForm> buildingBlocks, Map<String, String> buildingContext, String prefix) {
     this.buildingBlocks = buildingBlocks;
-    this.spec = spec;
+    this.buildingContext = buildingContext;
+
     this.scope = SsaScopeFactory.createScope();
     this.numTemps = 0;
 
-    this.prefix = "";
+    this.localPrefix = "";
+    this.contextPrefix = prefix;
+
     this.context = null;
     this.ruleset = null;
   }
@@ -65,65 +69,58 @@ public final class SsaAssembler {
     this.changes = new Changes(changesStore, changesStore);
 
     newBatch();
-    step(spec, tag, "action");
+    step(buildingContext.get(this.contextPrefix), tag, "action");
     return endBatch();
   }
 
-  private void step(Primitive spec, String alias, String method) {
-    context.push(spec);
-    pushPrefix(alias);
+  private void step(String name, String alias, String method) {
+    localPrefix = dotConc(localPrefix, alias);
 
     final SsaForm ssa =
-        buildingBlocks.get(dotConc(spec.getName(), method));
-    embedBlock(ssa.getEntryPoint(), spec);
+        buildingBlocks.get(dotConc(name, method));
+    embedBlock(ssa.getEntryPoint());
 
-    popPrefix();
-    context.pop();
+    localPrefix = popPrefix(localPrefix);
   }
 
   private void stepArgument(String name, String method) {
-    step((Primitive) context.peek().getArguments().get(name).getValue(),
+    contextPrefix = dotConc(contextPrefix, name);
+    step(buildingContext.get(contextPrefix),
          name,
          method);
+    contextPrefix = popPrefix(contextPrefix);
   }
 
-  private void pushPrefix(String section) {
-    if (this.prefix.isEmpty()) {
-      this.prefix = section;
-    } else {
-      this.prefix = dotConc(this.prefix, section);
-    }
-  }
-
-  private void popPrefix() {
-    final Pair<String, String> splitted = Utility.splitOnLast(this.prefix, '.');
+  private static String popPrefix(String prefix) {
+    final Pair<String, String> splitted = Utility.splitOnLast(prefix, '.');
     if (splitted.second.isEmpty()) {
-      this.prefix = "";
+      prefix = "";
     } else {
-      this.prefix = splitted.first;
+      prefix = splitted.first;
     }
+    return prefix;
   }
 
-  private Block embedBlock(Block block, Primitive spec) {
-    walkStatements(block, spec);
+  private Block embedBlock(Block block) {
+    walkStatements(block);
     if (blockIsOp(block, SsaOperation.PHI)) {
       return block;
     }
     if (block.getChildren().size() > 1) {
-      return embedBranches(block, spec);
+      return embedBranches(block);
     }
-    return embedSequence(block, spec);
+    return embedSequence(block);
   }
 
-  private Block embedSequence(Block block, Primitive spec) {
+  private Block embedSequence(Block block) {
     if (block.getChildren().size() > 0) {
       changes.commit();
-      return embedBlock(block.getChildren().get(0).block, spec);
+      return embedBlock(block.getChildren().get(0).block);
     }
     return null;
   }
 
-  private Block embedBranches(Block block, Primitive spec) {
+  private Block embedBranches(Block block) {
     Block fence = null;
     final int size = block.getChildren().size();
     final List<NodeOperation> branches = new ArrayList(size);
@@ -138,7 +135,7 @@ public final class SsaAssembler {
       changes = rebasers.next();
 
       newBatch(transformNode(guard.guard, xform));
-      fence = sameNotNull(fence, embedBlock(guard.block, spec));
+      fence = sameNotNull(fence, embedBlock(guard.block));
       branches.add(endBatch());
     }
     changes = changesStack.pop();
@@ -156,7 +153,7 @@ public final class SsaAssembler {
     addToBatch(endBatch());
     changes.getSummary().clear();
 
-    return embedSequence(fence, spec);
+    return embedSequence(fence);
   }
 
   private static Node transformNode(Node node, NodeTransformer xform) {
@@ -293,7 +290,7 @@ public final class SsaAssembler {
         final Pair<String, String> pair =
             Utility.splitOnFirst(node.getName(), '.');
 
-        return changes.rebase(dotConc(prefix, pair.second),
+        return changes.rebase(dotConc(localPrefix, pair.second),
                               node.getData(),
                               (Integer) node.getUserData());
       }
@@ -303,7 +300,7 @@ public final class SsaAssembler {
     return rules;
   }
 
-  private void walkStatements(final Block block, final Primitive spec) {
+  private void walkStatements(final Block block) {
     final NodeTransformer transformer = new NodeTransformer(this.ruleset);
     transformer.walk(block.getStatements());
 
@@ -376,6 +373,9 @@ public final class SsaAssembler {
   }
 
   private static String dotConc(String lhs, String rhs) {
+    if (lhs.isEmpty()) {
+      return rhs;
+    }
     return lhs + "." + rhs;
   }
 }
