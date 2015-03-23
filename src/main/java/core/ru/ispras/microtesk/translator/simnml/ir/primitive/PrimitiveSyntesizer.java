@@ -14,6 +14,11 @@
 
 package ru.ispras.microtesk.translator.simnml.ir.primitive;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
+import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.isJunction;
+import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.isLeaf;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,8 +28,7 @@ import java.util.Set;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogWriter;
 import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
-
-import static ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.*;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveUtils.PathCounter;
 
 /**
  * The PrimitiveSyntesizer class provides facilities to analyze information on relations between
@@ -82,10 +86,7 @@ public final class PrimitiveSyntesizer extends LogWriter {
 
   public PrimitiveSyntesizer(Collection<Primitive> operations, String fileName, LogStore log) {
     super(SenderKind.EMITTER, fileName, log);
-
-    if (null == operations) {
-      throw new NullPointerException();
-    }
+    checkNotNull(operations);
 
     this.operations = operations;
     this.roots = new ArrayList<Primitive>();
@@ -264,17 +265,9 @@ final class ShortcutBuilder {
    */
 
   public ShortcutBuilder(PrimitiveOR root, PrimitiveAND target, PathCounter pathCounter) {
-    if (null == root) {
-      throw new NullPointerException();
-    }
-
-    if (null == target) {
-      throw new NullPointerException();
-    }
-
-    if (null == pathCounter) {
-      throw new NullPointerException();
-    }
+    checkNotNull(root);
+    checkNotNull(target);
+    checkNotNull(pathCounter);
 
     this.root = root;
     this.target = target;
