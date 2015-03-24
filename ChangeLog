@@ -3,6 +3,22 @@
 ================================================================================
 
 --------------------------------------------------------------------------------
+ 2015/03/24 MicroTESK 2.2 alpha
+--------------------------------------------------------------------------------
+
+ 2015/03/24 MicroTESK 2.2.0 alpha
+
+ The new build contains the following changes:
+
+ - Support for automated extraction of coverage information that allows building
+   constraints for named instruction execution paths
+ - Possibility to process test templates in a stream manner (block by block) 
+   was implemented, which allows processing larger test templates
+ - The "trace" method (test templates) now accepts objects created
+   by the "rand" method
+ - Several bug fixes and general improvements were made
+ 
+--------------------------------------------------------------------------------
  2014/10/18 MicroTESK 2.1 beta
 --------------------------------------------------------------------------------
 
