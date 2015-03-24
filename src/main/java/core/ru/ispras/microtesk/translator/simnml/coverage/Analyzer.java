@@ -38,6 +38,8 @@ import java.util.TreeMap;
  * Class for model code coverage extraction from internal representation.
  */
 public final class Analyzer {
+  public static final String OUTPUT_DIR = "dist/gen";
+
   private final IR ir;
   private final Map<String, SsaForm> ssa;
   private final String modelName;
@@ -61,14 +63,14 @@ public final class Analyzer {
 
     final List<Constraint> constraints = new ArrayList<>();
     try {
-    final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(String.format("gen/%s.list", modelName))));
+    final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(String.format("%s/%s.list", OUTPUT_DIR, modelName))));
     for (Map.Entry<String, SsaForm> entry : ssa.entrySet()) {
         out.println(entry.getKey());
       for (Constraint c : BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint())) {
         constraints.add(c);
         final XMLConstraintSaver saver = new XMLConstraintSaver(c);
         try {
-        final File path = new File("gen/" + modelName);
+        final File path = new File(OUTPUT_DIR + "/" + modelName);
         path.mkdir();
         saver.saveToFile(String.format("%s/%s.xml", path.getPath(), c.getName()));
         } catch (XMLNotSavedException e) {
