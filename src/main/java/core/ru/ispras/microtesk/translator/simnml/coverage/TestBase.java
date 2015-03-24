@@ -59,7 +59,7 @@ public final class TestBase {
   }
 
   public TestBase() {
-    this(".");
+    this(System.getenv("MICROTESK_HOME"));
   }
 
   public TestBaseQueryResult executeQuery(TestBaseQuery query) {
@@ -182,7 +182,8 @@ public final class TestBase {
   }
 
   private Map<String, SsaForm> loadStorage(String model) {
-    final File dir = new File("gen/" + model);
+    final String dirName = this.path + "/gen";
+    final File dir = new File(dirName + "/" + model);
     final Collection<Constraint> constraints = new ArrayList<>();
     for (File file : dir.listFiles()) {
       try {
@@ -195,7 +196,7 @@ public final class TestBase {
     final Map<String, SsaForm> ssa = new HashMap<>();
 
     try {
-      final BufferedReader reader = new BufferedReader(new FileReader(String.format("gen/%s.list", model)));
+      final BufferedReader reader = new BufferedReader(new FileReader(String.format("%s/%s.list", dirName, model)));
       String line = reader.readLine();
       while (line != null) {
         ssa.put(line, converter.convert(line));
