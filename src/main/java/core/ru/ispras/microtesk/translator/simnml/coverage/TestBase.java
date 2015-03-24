@@ -67,16 +67,21 @@ public final class TestBase {
     if (rc.getStatus() == TestBaseQueryResult.Status.OK) {
       return rc;
     }
-    final PathConstraintBuilder builder = constraintBuilder(query);
+    SolverResult result;
+    try {
+      final PathConstraintBuilder builder = constraintBuilder(query);
 
-    final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
-    bindings.add(findPathSpec(query, builder.getVariables()));
+      final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
+      bindings.add(findPathSpec(query, builder.getVariables()));
 
-    final String name = query.getContext().get(TestBaseContext.TESTCASE);
-    bindings.add(EQ(new NodeVariable(name + "!1", DataType.BOOLEAN), Expression.TRUE));
+      final String name = query.getContext().get(TestBaseContext.TESTCASE);
+      bindings.add(EQ(new NodeVariable(name + "!1", DataType.BOOLEAN), Expression.TRUE));
 
-    final Constraint constraint = builder.build(bindings);
-    final SolverResult result = ConstraintUtils.solve(constraint);
+      final Constraint constraint = builder.build(bindings);
+      result = ConstraintUtils.solve(constraint);
+    } catch (Throwable e) {
+      return TestBaseQueryResult.reportErrors(Collections.singletonList(e.getMessage()));
+    }
 
     return fromSolverResult(query, result);
   }
