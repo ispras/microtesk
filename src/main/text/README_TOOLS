@@ -10,11 +10,11 @@ downloaded and placed to the <installation dir>/tools directory.
 1. Windows users should download Z3 (32 or 64-bit version) from the following
    page: http://z3.codeplex.com/releases and unpack the archive to the
    <installation dir>/tools/z3/windows directory.
-   Note: the executable file location is <windows>/z3/bin/z3.exe.
+   Note: the executable file path is <windows>/z3/bin/z3.exe.
 
 2. UNIX and Linux users should use one of the links below and and unpack the
    archive to the <installation dir>/tools/z3/unix directory.
-   Note: the executable file location is <unix>/z3/bin/z3.exe.
+   Note: the executable file path is <unix>/z3/bin/z3.
 
    -------------------------------------------------------------
    | Debian  x64 | http://z3.codeplex.com/releases/view/101916 |
@@ -26,4 +26,4 @@ downloaded and placed to the <installation dir>/tools directory.
 3. OS X users should download Z3 from
    http://z3.codeplex.com/releases/view/101918 and unpack the archive to the
    <installation dir>/z3/osx directory.
-   Note: the executable file location is <osx>/z3/bin/z3.exe.
+   Note: the executable file path is <osx>/z3/bin/z3.
