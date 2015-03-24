@@ -77,7 +77,7 @@ needs to run the compile.sh script (Unix, Linux, OS X) or the compile.bat
 script (Windows). For example, the following command generates a model for
 the miniMIPS specification:
 
-sh bin/compile.sh arch/minimips/model/minimips.nml 
+sh bin/compile.sh arch/minimips/model/minimips.nml
 
 NOTE: Models for all demo specifications are already built and included in the
 MicroTESK distribution package. So a user can start working with MicroTESK from
