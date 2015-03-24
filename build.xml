@@ -416,8 +416,39 @@
     </jar>
   </target>
 
+  <target name="unpack.z3.windows" depends="init" if="platform.windows">
+    <mkdir dir="${tools.dir}/z3"/>
+    <unzip src="${tools.dir}/z3-windows.zip" dest="${tools.dir}/z3-tmp"/>
+    <mkdir dir="${dist}/tools/z3/windows"/>
+    <move todir="${dist}/tools/z3/windows/z3">
+      <fileset dir="${tools.dir}/z3-tmp"/>
+      <cutdirsmapper dirs="1"/> 
+    </move>
+    <delete dir="${tools.dir}/z3-tmp"/>
+  </target>
+
+  <target name="unpack.z3.unix" depends="init" if="platform.unix">
+    <mkdir dir="${dist}/tools/z3/unix"/>
+    <untar src="${tools.dir}/z3-unix.tar.gz" dest="${dist}/tools/z3/unix" compression="gzip"/>
+    <chmod file="${dist}/tools/z3/unix/z3/bin/z3" perm="+x"/>
+  </target>
+
+  <target name="unpack.z3.mac" depends="init" if="platform.mac">
+    <mkdir dir="${tools.dir}/z3"/>
+    <unzip src="${tools.dir}/z3-mac.zip" dest="${tools.dir}/z3-tmp"/>
+    <mkdir dir="${dist}/tools/z3/osx"/>
+    <move todir="${dist}/tools/z3/osx/z3">
+      <fileset dir="${tools.dir}/z3-tmp"/>
+      <cutdirsmapper dirs="1"/> 
+    </move>
+    <delete dir="${tools.dir}/z3-tmp"/>
+    <chmod file="${dist}/tools/z3/osx/z3/bin/z3" perm="+x"/>
+  </target>
+
+  <target name="unpack.z3" depends="init.properties,unpack.z3.windows,unpack.z3.unix,unpack.z3.mac"/>
+
   <!-- Test target -->
-  <target name="test" depends="javac.test">
+  <target name="test" depends="javac.test,unpack.z3">
     <!-- Compile and run JUnit tests -->
     <path id="classpath.test">
       <pathelement location="${tools.dir}/junit.jar"/>

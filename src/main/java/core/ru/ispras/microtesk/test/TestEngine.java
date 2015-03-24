@@ -20,6 +20,7 @@ import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 import java.io.IOException;
 
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
@@ -48,6 +49,20 @@ public final class TestEngine {
   private TestEngine(IModel model) {
     checkNotNull(model);
     this.model = model;
+
+    final String HOME = System.getenv("MICROTESK_HOME");
+    final String PATH = (HOME != null ? HOME : ".") + "/tools/z3/";
+
+    if (Environment.isUnix()) {
+      Environment.setSolverPath(PATH + "unix/z3/bin/z3");
+    } else if (Environment.isWindows()) {
+      Environment.setSolverPath(PATH + "windows/z3/bin/z3.exe");
+    } else if (Environment.isOSX()) {
+      Environment.setSolverPath(PATH + "osx/z3/bin/z3");
+    } else {
+      throw new UnsupportedOperationException(String.format(
+        "Unsupported platform: %s.", Environment.getOSName()));
+    }
   }
 
   public void setFileName(String fileName) {
