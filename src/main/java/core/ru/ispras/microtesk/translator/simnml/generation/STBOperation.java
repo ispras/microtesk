@@ -157,7 +157,7 @@ final class STBOperation extends STBPrimitiveBase {
 
   private void buildShortcuts(STGroup group, ST t) {
     for (Shortcut shortcut : op.getShortcuts()) {
-      ContextBuilder.process(shortcut);
+      //ContextBuilder.process(shortcut);
  
       final ST shortcutST = group.getInstanceOf("shortcut");
 

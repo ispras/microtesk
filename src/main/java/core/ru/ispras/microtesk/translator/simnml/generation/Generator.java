@@ -38,7 +38,7 @@ public final class Generator {
       generateOps();
       generateModel();
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
