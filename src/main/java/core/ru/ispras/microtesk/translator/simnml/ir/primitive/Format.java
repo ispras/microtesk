@@ -98,12 +98,17 @@ public final class Format {
 
       if (FormatMarker.BIN == marker) {
         methodName = "toBinString";
-      }
-      else if (FormatMarker.STR == marker) {
+      } else if (FormatMarker.STR == marker) {
         methodName = "toString";
-      }
-      else {
-        methodName = "intValue";
+      } else {
+        final int bitSize = expr.getValueInfo().getModelType().getBitSize();
+        if (bitSize <= 32) {
+          methodName = "intValue";
+        } else if (bitSize <= 64) {
+          methodName = "longValue";
+        } else {
+          methodName = "bigIntegerValue";
+        }
       }
 
       return String.format("%s.getRawData().%s()", new PrinterExpr(expr), methodName);
