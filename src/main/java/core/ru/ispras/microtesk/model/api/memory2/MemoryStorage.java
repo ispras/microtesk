@@ -222,6 +222,14 @@ public final class MemoryStorage {
     block.write(addr.unit, data);
   }
 
+  public void reset() {
+    for(Map<Integer, Block> area : addressSpace.values()) {
+      for (Block block : area.values()) {
+        block.reset();
+      }
+    }
+  }
+
   @Override
   public String toString() {
     return String.format(
