@@ -237,4 +237,12 @@ public final class MemoryStorage {
         id, addressableUnitSizeInBits, storageSizeInUnits, addressSizeInBits);
   }
 
+  public int getRegionCount() {
+    return getStorageSizeInUnits().intValue();
+  }
+  
+  public int getRegionBitSize() {
+    return getAddressableUnitSizeInBits();
+  }
+
 }
