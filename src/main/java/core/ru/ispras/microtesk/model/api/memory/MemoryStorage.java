@@ -24,13 +24,18 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
+/**
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
 public final class MemoryStorage {
   private String id;
   private boolean isReadOnly;
 
-  private final int addressableUnitSizeInBits;
   private final BigInteger storageSizeInUnits;
-  private final int addressSizeInBits;
+  private final int addressableUnitBitSize;
+  private final int addressBitSize;
 
   private static final int BLOCK_SIZE_IN_UNITS = 1024 * 4;
   private final int blockSizeInBits;
@@ -94,17 +99,17 @@ public final class MemoryStorage {
 
     private BitVector getUnitMapping(int index) {
       checkBounds(index, BLOCK_SIZE_IN_UNITS);
-      final int bitPos = index * addressableUnitSizeInBits;
-      return BitVector.newMapping(storage, bitPos, addressableUnitSizeInBits);
+      final int bitPos = index * addressableUnitBitSize;
+      return BitVector.newMapping(storage, bitPos, addressableUnitBitSize);
     }
   }
 
-  public MemoryStorage(long storageSizeInUnits, int addressableUnitSizeInBits) {
-    this(BigInteger.valueOf(storageSizeInUnits), addressableUnitSizeInBits);
+  public MemoryStorage(long storageSizeInUnits, int addressableUnitBitSize) {
+    this(BigInteger.valueOf(storageSizeInUnits), addressableUnitBitSize);
   }
 
-  public MemoryStorage(BigInteger storageSizeInUnits, int addressableUnitSizeInBits) {
-    checkGreaterThanZero(addressableUnitSizeInBits);
+  public MemoryStorage(BigInteger storageSizeInUnits, int addressableUnitBitSize) {
+    checkGreaterThanZero(addressableUnitBitSize);
     checkNotNull(storageSizeInUnits);
 
     if (storageSizeInUnits.compareTo(BigInteger.ZERO) <= 0) {
@@ -114,16 +119,18 @@ public final class MemoryStorage {
     this.id = "";
     this.isReadOnly = false;
 
-    this.addressableUnitSizeInBits = addressableUnitSizeInBits;
     this.storageSizeInUnits = storageSizeInUnits;
-    this.addressSizeInBits = calculateAddressSize(addressableUnitSizeInBits, storageSizeInUnits);
-    this.blockSizeInBits = addressableUnitSizeInBits * BLOCK_SIZE_IN_UNITS;
+    this.addressableUnitBitSize = addressableUnitBitSize;
+    this.addressBitSize = calculateAddressSize(addressableUnitBitSize, storageSizeInUnits);
+    this.blockSizeInBits = addressableUnitBitSize * BLOCK_SIZE_IN_UNITS;
 
-    this.defaultUnitData = BitVector.unmodifiable(BitVector.newEmpty(addressableUnitSizeInBits));
+    this.defaultUnitData = BitVector.unmodifiable(BitVector.newEmpty(addressableUnitBitSize));
     this.addressSpace = new HashMap<>();
   }
 
-  private static int calculateAddressSize(int addressableUnitSize, final BigInteger storageSize) {
+  private static int calculateAddressSize(
+      final int addressableUnitSize, final BigInteger storageSize) {
+
     int result = 0;
 
     BigInteger value = storageSize.subtract(BigInteger.ONE);
@@ -158,24 +165,24 @@ public final class MemoryStorage {
     return this;
   }
 
-  public int getAddressableUnitSizeInBits() {
-    return addressableUnitSizeInBits;
-  }
-
   public BigInteger getStorageSizeInUnits() {
     return storageSizeInUnits;
   }
 
-  public int getAddressSizeInBits() {
-    return addressSizeInBits;
+  public int getAddressableUnitBitSize() {
+    return addressableUnitBitSize;
   }
-  
+
+  public int getAddressBitSize() {
+    return addressBitSize;
+  }
+
   public BitVector read(int address) {
-    return read(BitVector.valueOf(address, addressSizeInBits));
+    return read(BitVector.valueOf(address, addressBitSize));
   }
 
   public void write(int address, BitVector data) {
-    write(BitVector.valueOf(address, addressSizeInBits), data);
+    write(BitVector.valueOf(address, addressBitSize), data);
   }
 
   public BitVector read(BitVector address) {
@@ -236,7 +243,7 @@ public final class MemoryStorage {
   public String toString() {
     return String.format(
         "MemoryStorage %s[addressableUnitSize=%s bits, storageSize=%s units, addressSize=%s bits]",
-        id, addressableUnitSizeInBits, storageSizeInUnits, addressSizeInBits);
+        id, addressableUnitBitSize, storageSizeInUnits, addressBitSize);
   }
 
   public int getRegionCount() {
@@ -244,6 +251,6 @@ public final class MemoryStorage {
   }
   
   public int getRegionBitSize() {
-    return getAddressableUnitSizeInBits();
+    return getAddressableUnitBitSize();
   }
 }

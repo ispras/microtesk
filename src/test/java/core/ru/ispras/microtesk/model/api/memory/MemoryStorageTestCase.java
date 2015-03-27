@@ -54,13 +54,13 @@ public final class MemoryStorageTestCase {
 
     System.out.printf("Test: units = %d (%x), unit size = %d, address size = %d%n",
         storageSizeInUnits, storageSizeInUnits,
-        addressableUnitSizeInBits, ms.getAddressSizeInBits());
+        addressableUnitSizeInBits, ms.getAddressBitSize());
 
     for (int i = 0; i < 1000; i++) {
-      final BitVector address = BitVector.newEmpty(ms.getAddressSizeInBits());
+      final BitVector address = BitVector.newEmpty(ms.getAddressBitSize());
       Randomizer.get().fill(address);
 
-      final BitVector data = BitVector.newEmpty(ms.getAddressableUnitSizeInBits());
+      final BitVector data = BitVector.newEmpty(ms.getAddressableUnitBitSize());
       Randomizer.get().fill(data);
 
       // System.out.printf("Accessing address 0x%s, data: %s%n", address.toHexString(), data);
