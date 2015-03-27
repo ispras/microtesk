@@ -50,21 +50,21 @@ public final class MemoryStorage {
     static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
 
     final BitVector address;
-    final int unit;
+    final int region;
     final int block;
     final BitVector area;
 
     Address(BitVector address) {
       this.address = address;
-      this.unit  = getField(address, 0, 11).intValue();
+      this.region  = getField(address, 0, 11).intValue();
       this.block = getField(address, 12, 43).intValue();
       this.area  = getField(address, 44, address.getBitSize());
     }
 
     @Override
     public String toString() {
-      return String.format("address 0x%s[area=0x%X, block=0x%X, unit=0x%X]",
-          address.toHexString(), area.bigIntegerValue(), block, unit);
+      return String.format("address 0x%s[area=0x%X, block=0x%X, region=0x%X]",
+          address.toHexString(), area.bigIntegerValue(), block, region);
     }
 
     static BitVector getField(BitVector bv, int min, int max) {
@@ -185,7 +185,6 @@ public final class MemoryStorage {
 
   public BitVector read(BitVector address) {
     checkNotNull(address);
-
     final Address addr = new Address(address);
 
     final Map<Integer, Block> area = addressMap.get(addr.area);
@@ -198,7 +197,7 @@ public final class MemoryStorage {
       return defaultRegion;
     }
 
-    return block.read(addr.unit);
+    return block.read(addr.region);
   }
 
   public void write(BitVector address, BitVector data) {
@@ -226,7 +225,7 @@ public final class MemoryStorage {
       area.put(addr.block, block);
     }
 
-    block.write(addr.unit, data);
+    block.write(addr.region, data);
   }
 
   public void reset() {
