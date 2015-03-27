@@ -33,8 +33,8 @@ public final class MemoryStorage {
   private String id;
   private boolean isReadOnly;
 
-  private final BigInteger storageSizeInUnits;
-  private final int addressableUnitBitSize;
+  private final BigInteger regionCount;
+  private final int regionBitSize;
   private final int addressBitSize;
 
   private static final int BLOCK_SIZE_IN_UNITS = 1024 * 4;
@@ -99,8 +99,8 @@ public final class MemoryStorage {
 
     private BitVector getUnitMapping(int index) {
       checkBounds(index, BLOCK_SIZE_IN_UNITS);
-      final int bitPos = index * addressableUnitBitSize;
-      return BitVector.newMapping(storage, bitPos, addressableUnitBitSize);
+      final int bitPos = index * regionBitSize;
+      return BitVector.newMapping(storage, bitPos, regionBitSize);
     }
   }
 
@@ -119,8 +119,8 @@ public final class MemoryStorage {
     this.id = "";
     this.isReadOnly = false;
 
-    this.storageSizeInUnits = storageSizeInUnits;
-    this.addressableUnitBitSize = addressableUnitBitSize;
+    this.regionCount = storageSizeInUnits;
+    this.regionBitSize = addressableUnitBitSize;
     this.addressBitSize = calculateAddressSize(addressableUnitBitSize, storageSizeInUnits);
     this.blockSizeInBits = addressableUnitBitSize * BLOCK_SIZE_IN_UNITS;
 
@@ -166,11 +166,11 @@ public final class MemoryStorage {
   }
 
   public BigInteger getStorageSizeInUnits() {
-    return storageSizeInUnits;
+    return regionCount;
   }
 
-  public int getAddressableUnitBitSize() {
-    return addressableUnitBitSize;
+  public int getRegionBitSize() {
+    return regionBitSize;
   }
 
   public int getAddressBitSize() {
@@ -243,14 +243,10 @@ public final class MemoryStorage {
   public String toString() {
     return String.format(
         "MemoryStorage %s[addressableUnitSize=%s bits, storageSize=%s units, addressSize=%s bits]",
-        id, addressableUnitBitSize, storageSizeInUnits, addressBitSize);
+        id, regionBitSize, regionCount, addressBitSize);
   }
 
   public int getRegionCount() {
     return getStorageSizeInUnits().intValue();
-  }
-  
-  public int getRegionBitSize() {
-    return getAddressableUnitBitSize();
   }
 }

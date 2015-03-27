@@ -60,7 +60,7 @@ public final class MemoryStorageTestCase {
       final BitVector address = BitVector.newEmpty(ms.getAddressBitSize());
       Randomizer.get().fill(address);
 
-      final BitVector data = BitVector.newEmpty(ms.getAddressableUnitBitSize());
+      final BitVector data = BitVector.newEmpty(ms.getRegionBitSize());
       Randomizer.get().fill(data);
 
       // System.out.printf("Accessing address 0x%s, data: %s%n", address.toHexString(), data);
