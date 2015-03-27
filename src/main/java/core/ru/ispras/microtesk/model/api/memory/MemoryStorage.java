@@ -38,7 +38,7 @@ public final class MemoryStorage {
   private final int regionBitSize;
   private final int addressBitSize;
 
-  private static final int BLOCK_SIZE_IN_UNITS = 1024 * 4;
+  private static final int REGIONS_IN_BLOCK = 1024 * 4;
   private final int blockBitSize;
 
   // Default value to be returned when reading an unallocated address.
@@ -46,7 +46,7 @@ public final class MemoryStorage {
 
   private final Map<BitVector, Map<Integer, Block>> addressMap;
 
-  private final static class Address {
+  private final static class Index {
     static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
 
     final BitVector address;
@@ -54,20 +54,14 @@ public final class MemoryStorage {
     final int block;
     final BitVector area;
 
-    Address(BitVector address) {
+    Index(BitVector address) {
       this.address = address;
       this.region  = getField(address, 0, 11).intValue();
       this.block = getField(address, 12, 43).intValue();
       this.area  = getField(address, 44, address.getBitSize());
     }
 
-    @Override
-    public String toString() {
-      return String.format("address 0x%s[area=0x%X, block=0x%X, region=0x%X]",
-          address.toHexString(), area.bigIntegerValue(), block, region);
-    }
-
-    static BitVector getField(BitVector bv, int min, int max) {
+    private static BitVector getField(BitVector bv, int min, int max) {
       if (min >= bv.getBitSize()) {
         return ZERO_FIELD;
       }
@@ -75,9 +69,15 @@ public final class MemoryStorage {
       final int bitSize = Math.min(max + 1, bv.getBitSize()) - min;
       return BitVector.newMapping(bv, min, bitSize);
     }
+
+    @Override
+    public String toString() {
+      return String.format("0x%s[area=0x%s, block=0x%X, region=0x%X]",
+          address.toHexString(), area.toHexString(), block, region);
+    }
   }
 
-  final class Block {
+  private final class Block {
     private final BitVector storage;
 
     public Block() {
@@ -99,14 +99,14 @@ public final class MemoryStorage {
     }
 
     private BitVector getRegionMapping(int index) {
-      checkBounds(index, BLOCK_SIZE_IN_UNITS);
-      final int bitPos = index * regionBitSize;
-      return BitVector.newMapping(storage, bitPos, regionBitSize);
+      checkBounds(index, REGIONS_IN_BLOCK);
+      final int regionBitPos = index * regionBitSize;
+      return BitVector.newMapping(storage, regionBitPos, regionBitSize);
     }
   }
 
-  public MemoryStorage(long storageSizeInUnits, int addressableUnitBitSize) {
-    this(BigInteger.valueOf(storageSizeInUnits), addressableUnitBitSize);
+  public MemoryStorage(long regionCount, int regionBitSize) {
+    this(BigInteger.valueOf(regionCount), regionBitSize);
   }
 
   public MemoryStorage(BigInteger regionCount, int regionBitSize) {
@@ -122,7 +122,7 @@ public final class MemoryStorage {
     this.regionCount = regionCount;
     this.regionBitSize = regionBitSize;
     this.addressBitSize = calculateAddressSize(regionBitSize, regionCount);
-    this.blockBitSize = regionBitSize * BLOCK_SIZE_IN_UNITS;
+    this.blockBitSize = regionBitSize * REGIONS_IN_BLOCK;
 
     this.defaultRegion = BitVector.unmodifiable(BitVector.newEmpty(regionBitSize));
     this.addressMap = new HashMap<>();
@@ -183,21 +183,29 @@ public final class MemoryStorage {
     write(BitVector.valueOf(address, addressBitSize), data);
   }
 
+  public BitVector read(long address) {
+    return read(BitVector.valueOf(address, addressBitSize));
+  }
+
+  public void write(long address, BitVector data) {
+    write(BitVector.valueOf(address, addressBitSize), data);
+  }
+
   public BitVector read(BitVector address) {
     checkNotNull(address);
-    final Address addr = new Address(address);
+    final Index index = new Index(address);
 
-    final Map<Integer, Block> area = addressMap.get(addr.area);
+    final Map<Integer, Block> area = addressMap.get(index.area);
     if (null == area) {
       return defaultRegion;
     }
 
-    final Block block = area.get(addr.block);
+    final Block block = area.get(index.block);
     if (null == block) {
       return defaultRegion;
     }
 
-    return block.read(addr.region);
+    return block.read(index.region);
   }
 
   public void write(BitVector address, BitVector data) {
@@ -208,24 +216,24 @@ public final class MemoryStorage {
       return;
     }
 
-    final Address addr = new Address(address);
+    final Index index = new Index(address);
 
-    Map<Integer, Block> area = addressMap.get(addr.area);
+    Map<Integer, Block> area = addressMap.get(index.area);
     Block block = null;
 
     if (null == area) {
       area = new TreeMap<>();
-      addressMap.put(addr.area, area);
+      addressMap.put(index.area, area);
     } else {
-      block = area.get(addr.block);
+      block = area.get(index.block);
     }
 
     if (null == block) {
       block = new Block();
-      area.put(addr.block, block);
+      area.put(index.block, block);
     }
 
-    block.write(addr.region, data);
+    block.write(index.region, data);
   }
 
   public void reset() {

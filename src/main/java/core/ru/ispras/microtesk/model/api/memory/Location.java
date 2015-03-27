@@ -61,9 +61,7 @@ public final class Location implements LocationAccessor {
   private final Type type;
   private final List<Source> sources;
 
-  static Location newLocationForRegion(
-      Type type, MemoryStorage storage, int regionIndex) {
-
+  static Location newLocationForRegion(Type type, MemoryStorage storage, int regionIndex) {
     checkNotNull(type);
     checkNotNull(storage);
     //checkBounds(regionIndex, storage.getRegionCount());
@@ -80,7 +78,6 @@ public final class Location implements LocationAccessor {
 
   public static Location newLocationForConst(Data data) {
     checkNotNull(data);
-
     final String STORAGE_ID = "#constant";
 
     final Type type = data.getType();
