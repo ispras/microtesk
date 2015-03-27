@@ -103,7 +103,7 @@ public class MemoryAllocatorTestCase {
 
   private static void dumpMemory(MemoryStorage memory) {
     System.out.print("-------------------------------------------------------");
-    for (int index = 0; index < memory.getRegionCount(); ++index) {
+    for (int index = 0; index < memory.getRegionCount().intValue(); ++index) {
       if (index % 4 == 0) {
         System.out.println();
       }

@@ -66,7 +66,7 @@ public final class Location implements LocationAccessor {
 
     checkNotNull(type);
     checkNotNull(storage);
-    checkBounds(regionIndex, storage.getRegionCount());
+    //checkBounds(regionIndex, storage.getRegionCount());
 
     if (type.getBitSize() != storage.getRegionBitSize()) {
       throw new IllegalArgumentException();

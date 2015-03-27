@@ -21,6 +21,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
@@ -38,12 +39,12 @@ public final class MemoryStorage {
   private final int addressBitSize;
 
   private static final int BLOCK_SIZE_IN_UNITS = 1024 * 4;
-  private final int blockSizeInBits;
+  private final int blockBitSize;
 
   // Default value to be returned when reading an unallocated address.
-  private final BitVector defaultUnitData;
+  private final BitVector defaultRegion;
 
-  private final Map<BitVector, Map<Integer, Block>> addressSpace;
+  private final Map<BitVector, Map<Integer, Block>> addressMap;
 
   private final static class Address {
     static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
@@ -57,7 +58,7 @@ public final class MemoryStorage {
       this.address = address;
       this.unit  = getField(address, 0, 11).intValue();
       this.block = getField(address, 12, 43).intValue();
-      this.area  = getField(address, 34, address.getBitSize());
+      this.area  = getField(address, 44, address.getBitSize());
     }
 
     @Override
@@ -80,24 +81,24 @@ public final class MemoryStorage {
     private final BitVector storage;
 
     public Block() {
-      storage = BitVector.newEmpty(blockSizeInBits);
+      storage = BitVector.newEmpty(blockBitSize);
     }
 
     public void reset() {
       storage.reset();
     }
 
-    public BitVector read(int unitIndex) {
-      final BitVector mapping = getUnitMapping(unitIndex); 
+    public BitVector read(int index) {
+      final BitVector mapping = getRegionMapping(index); 
       return BitVector.unmodifiable(mapping);
     }
 
-    public void write(int unitIndex, BitVector data) {
-      final BitVector mapping = getUnitMapping(unitIndex);
+    public void write(int index, BitVector data) {
+      final BitVector mapping = getRegionMapping(index);
       mapping.assign(data);
     }
 
-    private BitVector getUnitMapping(int index) {
+    private BitVector getRegionMapping(int index) {
       checkBounds(index, BLOCK_SIZE_IN_UNITS);
       final int bitPos = index * regionBitSize;
       return BitVector.newMapping(storage, bitPos, regionBitSize);
@@ -108,32 +109,29 @@ public final class MemoryStorage {
     this(BigInteger.valueOf(storageSizeInUnits), addressableUnitBitSize);
   }
 
-  public MemoryStorage(BigInteger storageSizeInUnits, int addressableUnitBitSize) {
-    checkGreaterThanZero(addressableUnitBitSize);
-    checkNotNull(storageSizeInUnits);
-
-    if (storageSizeInUnits.compareTo(BigInteger.ZERO) <= 0) {
-      throw new IllegalArgumentException("Illegal storage size: " + storageSizeInUnits);
+  public MemoryStorage(BigInteger regionCount, int regionBitSize) {
+    checkNotNull(regionCount);
+    if (regionCount.compareTo(BigInteger.ZERO) <= 0) {
+      throw new IllegalArgumentException("Illegal storage size: " + regionCount);
     }
+    checkGreaterThanZero(regionBitSize);
 
     this.id = "";
     this.isReadOnly = false;
 
-    this.regionCount = storageSizeInUnits;
-    this.regionBitSize = addressableUnitBitSize;
-    this.addressBitSize = calculateAddressSize(addressableUnitBitSize, storageSizeInUnits);
-    this.blockSizeInBits = addressableUnitBitSize * BLOCK_SIZE_IN_UNITS;
+    this.regionCount = regionCount;
+    this.regionBitSize = regionBitSize;
+    this.addressBitSize = calculateAddressSize(regionBitSize, regionCount);
+    this.blockBitSize = regionBitSize * BLOCK_SIZE_IN_UNITS;
 
-    this.defaultUnitData = BitVector.unmodifiable(BitVector.newEmpty(addressableUnitBitSize));
-    this.addressSpace = new HashMap<>();
+    this.defaultRegion = BitVector.unmodifiable(BitVector.newEmpty(regionBitSize));
+    this.addressMap = new HashMap<>();
   }
 
-  private static int calculateAddressSize(
-      final int addressableUnitSize, final BigInteger storageSize) {
-
+  private static int calculateAddressSize(int regionBitSize, BigInteger regionCount) {
     int result = 0;
 
-    BigInteger value = storageSize.subtract(BigInteger.ONE);
+    BigInteger value = regionCount.subtract(BigInteger.ONE);
     while (!value.equals(BigInteger.ZERO)) {
       value = value.shiftRight(1);
       ++result;
@@ -165,7 +163,7 @@ public final class MemoryStorage {
     return this;
   }
 
-  public BigInteger getStorageSizeInUnits() {
+  public BigInteger getRegionCount() {
     return regionCount;
   }
 
@@ -190,14 +188,14 @@ public final class MemoryStorage {
 
     final Address addr = new Address(address);
 
-    final Map<Integer, Block> area = addressSpace.get(addr.area);
+    final Map<Integer, Block> area = addressMap.get(addr.area);
     if (null == area) {
-      return defaultUnitData;
+      return defaultRegion;
     }
 
     final Block block = area.get(addr.block);
     if (null == block) {
-      return defaultUnitData;
+      return defaultRegion;
     }
 
     return block.read(addr.unit);
@@ -213,12 +211,12 @@ public final class MemoryStorage {
 
     final Address addr = new Address(address);
 
-    Map<Integer, Block> area = addressSpace.get(addr.area);
+    Map<Integer, Block> area = addressMap.get(addr.area);
     Block block = null;
 
     if (null == area) {
-      area = new HashMap<>();
-      addressSpace.put(addr.area, area);
+      area = new TreeMap<>();
+      addressMap.put(addr.area, area);
     } else {
       block = area.get(addr.block);
     }
@@ -232,7 +230,7 @@ public final class MemoryStorage {
   }
 
   public void reset() {
-    for(Map<Integer, Block> area : addressSpace.values()) {
+    for(Map<Integer, Block> area : addressMap.values()) {
       for (Block block : area.values()) {
         block.reset();
       }
@@ -244,9 +242,5 @@ public final class MemoryStorage {
     return String.format(
         "MemoryStorage %s[addressableUnitSize=%s bits, storageSize=%s units, addressSize=%s bits]",
         id, regionBitSize, regionCount, addressBitSize);
-  }
-
-  public int getRegionCount() {
-    return getStorageSizeInUnits().intValue();
   }
 }
