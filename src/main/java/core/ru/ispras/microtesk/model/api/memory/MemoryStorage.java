@@ -14,214 +14,236 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
-/**
- * Serves as a memory storage organized as a sequence of fixed-size regions grouped into blocks.
- * Blocks are allocated when data is being written to them for the first time. When a region
- * in an unallocated block is read, a bit vector filled with zeros is returned.
- * 
- * @author Andrei Tatarnikov
- */
-
 public final class MemoryStorage {
-  /** Maximal size of memory block in bits */
-  public static final int MAX_BLOCK_BIT_SIZE = 4096 * 8;
-
-  private final String id;
+  private String id;
   private boolean isReadOnly;
 
-  private final int regionCount;
-  private final int regionBitSize;
+  private final int addressableUnitSizeInBits;
+  private final BigInteger storageSizeInUnits;
+  private final int addressSizeInBits;
 
-  private final int maxBlockBitSize;
-  private final int maxRegionsInBlock;
+  private static final int BLOCK_SIZE_IN_UNITS = 1024 * 4;
+  private final int blockSizeInBits;
 
-  private final BitVector zeroRegion;
-  private final List<Block> blocks;
+  // Default value to be returned when reading an unallocated address.
+  private final BitVector defaultUnitData;
+
+  private final Map<BitVector, Map<Integer, Block>> addressSpace;
+
+  private final static class Address {
+    static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
+
+    final BitVector address;
+    final int unit;
+    final int block;
+    final BitVector area;
+
+    Address(BitVector address) {
+      this.address = address;
+      this.unit  = getField(address, 0, 11).intValue();
+      this.block = getField(address, 12, 43).intValue();
+      this.area  = getField(address, 34, address.getBitSize());
+    }
+
+    @Override
+    public String toString() {
+      return String.format("address 0x%s[area=0x%X, block=0x%X, unit=0x%X]",
+          address.toHexString(), area.bigIntegerValue(), block, unit);
+    }
+
+    static BitVector getField(BitVector bv, int min, int max) {
+      if (min >= bv.getBitSize()) {
+        return ZERO_FIELD;
+      }
+
+      final int bitSize = Math.min(max + 1, bv.getBitSize()) - min;
+      return BitVector.newMapping(bv, min, bitSize);
+    }
+  }
 
   final class Block {
-    private final int regionsInBlock;
-    private BitVector storage;
+    private final BitVector storage;
 
-    public Block(int regionsInBlock) {
-      checkGreaterThanZero(regionsInBlock);
-
-      this.regionsInBlock = regionsInBlock;
-      this.storage = null;
+    public Block() {
+      storage = BitVector.newEmpty(blockSizeInBits);
     }
 
     public void reset() {
-      if (null != storage) {
-        storage.reset();
-      }
+      storage.reset();
     }
 
-    public BitVector readRegion(int index) {
-      checkRange(index);
-
-      if (null == storage) {
-        return zeroRegion;
-      }
-
-      final BitVector target = getRegionMapping(index);
-      return BitVector.unmodifiable(target);
+    public BitVector read(int unitIndex) {
+      final BitVector mapping = getUnitMapping(unitIndex); 
+      return BitVector.unmodifiable(mapping);
     }
 
-    public void writeRegion(int index, BitVector data) {
-      checkRange(index);
-      checkNotNull(data);
-
-      if (data.getBitSize() != regionBitSize) {
-        throw new IllegalArgumentException();
-      }
-
-      if (null == storage) {
-        storage = allocateBlock(); 
-      }
-
-      final BitVector target = getRegionMapping(index);
-      target.assign(data);
+    public void write(int unitIndex, BitVector data) {
+      final BitVector mapping = getUnitMapping(unitIndex);
+      mapping.assign(data);
     }
 
-    private BitVector allocateBlock() {
-      final int blockBitSize = regionsInBlock * regionBitSize;
-      return BitVector.newEmpty(blockBitSize);
-    }
-
-    private BitVector getRegionMapping(int index) {
-      final int regionBitPos = index * regionBitSize;
-      return BitVector.newMapping(storage, regionBitPos, regionBitSize);
-    }
-
-    private void checkRange(int index) {
-      if (! (0 <= index && index < regionsInBlock)) {
-        throw new IndexOutOfBoundsException(String.format(
-            "%s is out of bounds [%d..%d)", index, 0, regionsInBlock));
-      }
+    private BitVector getUnitMapping(int index) {
+      checkBounds(index, BLOCK_SIZE_IN_UNITS);
+      final int bitPos = index * addressableUnitSizeInBits;
+      return BitVector.newMapping(storage, bitPos, addressableUnitSizeInBits);
     }
   }
 
-  int getBlockCount() {
-    return blocks.size();
+  public MemoryStorage(long storageSizeInUnits, int addressableUnitSizeInBits) {
+    this(BigInteger.valueOf(storageSizeInUnits), addressableUnitSizeInBits);
   }
 
-  Block getBlock(int blockIndex) {
-    return blocks.get(blockIndex);
-  }
+  public MemoryStorage(BigInteger storageSizeInUnits, int addressableUnitSizeInBits) {
+    checkGreaterThanZero(addressableUnitSizeInBits);
+    checkNotNull(storageSizeInUnits);
 
-  public MemoryStorage(int regionCount, int regionBitSize) {
-    this (null, regionCount, regionBitSize);
-  }
+    if (storageSizeInUnits.compareTo(BigInteger.ZERO) <= 0) {
+      throw new IllegalArgumentException("Illegal storage size: " + storageSizeInUnits);
+    }
 
-  public MemoryStorage(String id, int regionCount, int regionBitSize) {
-    checkGreaterThanZero(regionCount);
-    checkGreaterThanZero(regionBitSize);
-
-    this.id = id;
+    this.id = "";
     this.isReadOnly = false;
 
-    this.regionCount = regionCount;
-    this.regionBitSize = regionBitSize;
+    this.addressableUnitSizeInBits = addressableUnitSizeInBits;
+    this.storageSizeInUnits = storageSizeInUnits;
+    this.addressSizeInBits = calculateAddressSize(addressableUnitSizeInBits, storageSizeInUnits);
+    this.blockSizeInBits = addressableUnitSizeInBits * BLOCK_SIZE_IN_UNITS;
 
-    this.maxBlockBitSize = MAX_BLOCK_BIT_SIZE - (MAX_BLOCK_BIT_SIZE % regionBitSize);
-    this.maxRegionsInBlock = maxBlockBitSize / regionBitSize;
-
-    this.zeroRegion = BitVector.unmodifiable(BitVector.newEmpty(regionBitSize));
-    this.blocks = reserveBlocks(regionCount, regionBitSize);
+    this.defaultUnitData = BitVector.unmodifiable(BitVector.newEmpty(addressableUnitSizeInBits));
+    this.addressSpace = new HashMap<>();
   }
 
-  private List<Block> reserveBlocks(final int regionCount, final int regionBitSize) {
-    final int remainder = regionCount % maxRegionsInBlock;
+  private static int calculateAddressSize(int addressableUnitSize, final BigInteger storageSize) {
+    int result = 0;
 
-    final int blockCount = 
-        regionCount / maxRegionsInBlock + (0 == remainder ? 0 : 1);
-
-    final int regionsInLastBlock = 
-        0 == remainder ? maxRegionsInBlock : remainder;
-
-    final List<Block> blocks = new ArrayList<Block>(blockCount); 
-    for (int index = 0; index < blockCount - 1; index++) {
-      blocks.add(new Block(maxRegionsInBlock));  
+    BigInteger value = storageSize.subtract(BigInteger.ONE);
+    while (!value.equals(BigInteger.ZERO)) {
+      value = value.shiftRight(1);
+      ++result;
     }
 
-    blocks.add(new Block(regionsInLastBlock));
-    return blocks;
+    if (result == 0) {
+      return 1;
+    }
+
+    return result;
   }
 
   public String getId() {
     return id;
   }
 
+  MemoryStorage setId(String id) {
+    checkNotNull(id);
+    this.id = id;
+    return this;
+  }
+
   public boolean isReadOnly() {
     return isReadOnly;
   }
 
-  public void setReadOnly(boolean isReadOnly) {
+  MemoryStorage setReadOnly(boolean isReadOnly) {
     this.isReadOnly = isReadOnly;
+    return this;
   }
 
-  public int getRegionCount() {
-    return regionCount;
+  public int getAddressableUnitSizeInBits() {
+    return addressableUnitSizeInBits;
   }
 
-  public int getRegionBitSize() {
-    return regionBitSize;
+  public BigInteger getStorageSizeInUnits() {
+    return storageSizeInUnits;
   }
 
-  public BitVector read(int regionIndex) {
-    checkBounds(regionIndex, regionCount);
-
-    final Block block = getBlockForRegion(regionIndex);
-    final int regionInBlockIndex = getRegionInBlockIndex(regionIndex);
-
-    return block.readRegion(regionInBlockIndex);
+  public int getAddressSizeInBits() {
+    return addressSizeInBits;
+  }
+  
+  public BitVector read(int address) {
+    return read(BitVector.valueOf(address, addressSizeInBits));
   }
 
-  public void write(int regionIndex, BitVector data) {
-    if (isReadOnly) {
+  public void write(int address, BitVector data) {
+    write(BitVector.valueOf(address, addressSizeInBits), data);
+  }
+
+  public BitVector read(BitVector address) {
+    checkNotNull(address);
+
+    final Address addr = new Address(address);
+
+    final Map<Integer, Block> area = addressSpace.get(addr.area);
+    if (null == area) {
+      return defaultUnitData;
+    }
+
+    final Block block = area.get(addr.block);
+    if (null == block) {
+      return defaultUnitData;
+    }
+
+    return block.read(addr.unit);
+  }
+
+  public void write(BitVector address, BitVector data) {
+    checkNotNull(address);
+    checkNotNull(data);
+
+    if (isReadOnly()) {
       return;
     }
 
-    checkBounds(regionIndex, regionCount);
-    checkNotNull(data);
+    final Address addr = new Address(address);
 
-    if (data.getBitSize() != regionBitSize) {
-      throw new IllegalArgumentException();
+    Map<Integer, Block> area = addressSpace.get(addr.area);
+    Block block = null;
+
+    if (null == area) {
+      area = new HashMap<>();
+      addressSpace.put(addr.area, area);
+    } else {
+      block = area.get(addr.block);
     }
 
-    final Block block = getBlockForRegion(regionIndex);
-    final int regionInBlockIndex = getRegionInBlockIndex(regionIndex);
+    if (null == block) {
+      block = new Block();
+      area.put(addr.block, block);
+    }
 
-    block.writeRegion(regionInBlockIndex, data);
+    block.write(addr.unit, data);
   }
 
   public void reset() {
-    for (Block block : blocks) {
-      block.reset();
+    for(Map<Integer, Block> area : addressSpace.values()) {
+      for (Block block : area.values()) {
+        block.reset();
+      }
     }
   }
 
   @Override
   public String toString() {
     return String.format(
-        "MemoryStorage [id=%s, regions=%s, region bit size=%s, blocks=%s]",
-        id, getRegionCount(), getRegionBitSize(), getBlockCount());
+        "MemoryStorage %s[addressableUnitSize=%s bits, storageSize=%s units, addressSize=%s bits]",
+        id, addressableUnitSizeInBits, storageSizeInUnits, addressSizeInBits);
   }
 
-  private Block getBlockForRegion(int regionIndex) {
-    final int blockIndex = regionIndex / maxRegionsInBlock;
-    return blocks.get(blockIndex);
+  public int getRegionCount() {
+    return getStorageSizeInUnits().intValue();
   }
-
-  private int getRegionInBlockIndex(int regionIndex) {
-    return regionIndex % maxRegionsInBlock;
+  
+  public int getRegionBitSize() {
+    return getAddressableUnitSizeInBits();
   }
 }

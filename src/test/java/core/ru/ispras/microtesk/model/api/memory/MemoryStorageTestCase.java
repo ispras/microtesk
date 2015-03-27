@@ -25,7 +25,7 @@ public final class MemoryStorageTestCase {
   @Test
   public void test() {
     for (int regionCountExp = 0; regionCountExp < 32; regionCountExp++) {
-      final int regionCount = 1 << regionCountExp; // 2 ** regionCount
+      final long regionCount = 1L << regionCountExp; // 2 ** regionCount
 
       test(regionCount, 3);
       test(regionCount, 5);
@@ -45,11 +45,12 @@ public final class MemoryStorageTestCase {
     }
   }
 
-  private void test(int regionCount, int regionBitSize) {
-    System.out.printf("%nTest: region count = %d, region bit size = %d%n", regionCount, regionBitSize);
+  private void test(long regionCount, int regionBitSize) {
+    System.out.printf("%nTest: region count = %x, region bit size = %d%n", regionCount, regionBitSize);
 
     final MemoryStorage ms = new MemoryStorage(regionCount, regionBitSize);
     
+    /*
     final int maxBlockBitSize = 
         MemoryStorage.MAX_BLOCK_BIT_SIZE - (MemoryStorage.MAX_BLOCK_BIT_SIZE % regionBitSize);
 
@@ -69,6 +70,7 @@ public final class MemoryStorageTestCase {
     assertEquals(regionCount, ms.getRegionCount());
     assertEquals(regionBitSize, ms.getRegionBitSize());
     assertEquals(blockCount, ms.getBlockCount());
+    */
     
     for (int i = 0; i < 1000; i++) {
       randomAccessTest(ms, Randomizer.get().nextIntRange(0, ms.getRegionCount()-1));

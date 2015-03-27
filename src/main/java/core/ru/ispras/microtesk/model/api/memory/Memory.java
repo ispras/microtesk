@@ -165,7 +165,7 @@ public abstract class Memory {
 
     MemoryDirect(Kind kind, String name, Type type, int length) {
       super(kind, name, type, length, false);
-      this.storage = new MemoryStorage(name, length, type.getBitSize());
+      this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
     }
 
     @Override
