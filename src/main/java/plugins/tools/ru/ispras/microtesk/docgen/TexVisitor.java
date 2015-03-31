@@ -16,6 +16,10 @@ package ru.ispras.microtesk.docgen;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
@@ -24,6 +28,7 @@ import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetString;
@@ -124,32 +129,20 @@ public class TexVisitor implements IrVisitor {
     }
   }
 
+  Primitive currentPrimitive;
+  Map<String, String> arguments;
+  List<Attribute> attributes;
+
   @Override
   public void onPrimitiveBegin(Primitive item) {
+    arguments = new HashMap<>();
+    attributes = new ArrayList<>();
+    this.currentPrimitive = item;
     try {
       setToLevel(level);
       writer.write("\\section{\\texttt{ " + makeEscapeChars(item.getName()) + " }}");
       setToLevel(++level);
 
-      if ((item instanceof PrimitiveAND && ((PrimitiveAND) item).getArguments().size() > 0)
-          && !isShortcut) {
-        if (item.getName().contains("mips_break")) {
-          System.out.println();
-        }
-        writer.write("\\textbf{" + makeEscapeChars(item.getName()) + "} is an operation. ");
-        writer.write("It takes the following arguments:\n");
-        setToLevel(level);
-        writer.write("\\begin{itemize}");
-        level++;
-      }
-
-      if (item instanceof PrimitiveOR && ((PrimitiveOR) item).getORs().size() > 0) {
-        writer.write("\\textbf{" + makeEscapeChars(item.getName())
-            + "} is an alternative between the following primitives:\n");
-        setToLevel(level);
-        writer.write("\\begin{itemize}");
-        level++;
-      }
 
 
     } catch (IOException e) {
@@ -161,10 +154,47 @@ public class TexVisitor implements IrVisitor {
   @Override
   public void onPrimitiveEnd(Primitive item) {
     try {
-      if (((item instanceof PrimitiveAND && ((PrimitiveAND) item).getArguments().size() > 0) || (item instanceof PrimitiveOR && ((PrimitiveOR) item)
-          .getORs().size() > 0)) && !isShortcut) {
-        setToLevel(--level);
-        writer.write("\\end{itemize}");
+
+      if (item.getKind() == Primitive.Kind.OP && !item.isRoot()) {
+        writer.write("\\textbf{" + makeEscapeChars(item.getName()) + "} is an instruction. ");
+        if (!(item instanceof PrimitiveOR) && ((PrimitiveAND) item).getArguments().size() > 0) {
+
+          writer.write("It takes the following arguments:\n");
+          setToLevel(level);
+          writer.write("\\begin{itemize}");
+          level++;
+
+          for (Map.Entry<String, String> entry : arguments.entrySet()) {
+            setToLevel(level);
+            writer.write("\\item \\textbf{" + makeEscapeChars(entry.getKey()) + "}: "
+                + makeEscapeChars(entry.getValue()));
+          }
+
+          setToLevel(--level);
+          writer.write("\\end{itemize}\n");
+
+          for (Attribute attr : attributes) {
+            setToLevel(level);
+            writer.write("\\subsection*{" + attr.getName() + "}");
+            level++;
+            List<Statement> statements = attr.getStatements();
+
+            if (attr.getKind() == Attribute.Kind.EXPRESSION) {
+              setToLevel(level);
+              writer.write(makeEscapeChars(((StatementFormat) statements.get(0)).getFormat()));
+            } else if (attr.getKind() == Attribute.Kind.ACTION) {
+              // TODO: ACTION PRINTING
+            }
+            level--;
+          }
+
+        } else {
+          writer.write("It takes no arguments.\n");
+        }
+      }
+
+      if (!isShortcut) {
+
       }
       setToLevel(--level);
       writer.write("\\newpage");
@@ -176,15 +206,7 @@ public class TexVisitor implements IrVisitor {
 
   @Override
   public void onAlternativeBegin(PrimitiveOR orRule, Primitive item) {
-    try {
 
-      writer.write("\n\\item \\textbf{" + makeEscapeChars(item.getName()) + "}: "
-          + makeEscapeChars(item.getName()));
-
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
 
   }
 
@@ -195,16 +217,9 @@ public class TexVisitor implements IrVisitor {
 
   @Override
   public void onArgumentBegin(PrimitiveAND andRule, String argName, Primitive argType) {
-    if (!isShortcut) {
-      try {
-        setToLevel(level);
-        writer.write("\\item \\textbf{" + makeEscapeChars(argType.getName()) + "}: "
-            + makeEscapeChars(argName));
+    if ((currentPrimitive.getKind() == Primitive.Kind.OP) && !isShortcut) {
 
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      arguments.put(argType.getName(), argName);
     }
   }
 
@@ -216,7 +231,9 @@ public class TexVisitor implements IrVisitor {
 
   @Override
   public void onAttributeBegin(PrimitiveAND andRule, Attribute attr) {
-    // TODO Auto-generated method stub
+    if (currentPrimitive.getKind() == Primitive.Kind.OP) {
+      attributes.add(attr);
+    }
 
   }
 
