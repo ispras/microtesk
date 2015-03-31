@@ -422,6 +422,7 @@ $res = Format.createArgument((StatementAttributeCall)
 }
     |  ^(INSTANCE_CALL i=instance name=(SYNTAX | IMAGE))
 {
+checkNotNull($i.start, $i.res, $i.text);
 $res = Format.createArgument((StatementAttributeCall)
     getStatementFactory().createAttributeCall(where($i.start), $i.res, $name.text));
 }
@@ -477,6 +478,7 @@ $res = Collections.singletonList(
 }
     |  ^(INSTANCE_CALL i=instance name=(ACTION | ID))
 {
+checkNotNull($i.start, $i.res, $i.text);
 $res = Collections.singletonList(
    getStatementFactory().createAttributeCall(where($i.start), $i.res, $name.text)); 
 }
