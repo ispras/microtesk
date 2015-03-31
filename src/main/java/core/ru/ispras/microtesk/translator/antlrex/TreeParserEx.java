@@ -106,8 +106,10 @@ public class TreeParserEx extends TreeParser implements IErrorReporter {
   @Override
   public final void reportError(RecognitionException re) {
     InvariantChecks.checkNotNull(log);
+
     if (re instanceof SemanticException) {
-      throw new IllegalArgumentException();
+      reportError((SemanticException) re);
+      return;
     }
 
     tempErrorMessage = "";
