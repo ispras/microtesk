@@ -71,4 +71,45 @@ public final class Where {
   public String toString() {
     return String.format("%s %d:%d", unit, line, position);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+
+    result = prime * result + ((unit == null) ? 0 : unit.hashCode());
+    result = prime * result + line;
+    result = prime * result + position;
+
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
+    final Where other = (Where) obj;
+
+    if (unit == null) {
+      if (other.unit != null) {
+        return false;
+      }
+    } else { 
+      if (!unit.equals(other.unit)) {
+        return false;
+      }
+    }
+
+    return (line == other.line) && (position == other.position);
+  }
 }
