@@ -112,16 +112,6 @@ public class ParserEx extends Parser implements ErrorReporter {
   }
 
   @Override
-  public void raiseError(ISemanticError error) throws SemanticException {
-    throw new SemanticException(input, error);
-  }
-
-  @Override
-  public final void raiseError(String what) throws SemanticException {
-    raiseError(new SemanticError(what));
-  }
-
-  @Override
   public void raiseError(Where where, ISemanticError error) throws SemanticException {
     throw new SemanticException(where, error);
   }

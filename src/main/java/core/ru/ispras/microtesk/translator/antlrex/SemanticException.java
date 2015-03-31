@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import org.antlr.runtime.IntStream;
 import org.antlr.runtime.RecognitionException;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
@@ -36,15 +35,13 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 public final class SemanticException extends RecognitionException {
   private static final long serialVersionUID = 209516770104977723L;
 
+  private final Where where;
   private final ISemanticError error;
 
-  protected SemanticException(IntStream input, ISemanticError error) {
-    super(input);
-    this.error = error;
-  }
-
-  protected SemanticException(Where location, ISemanticError error) {
+  SemanticException(Where location, ISemanticError error) {
     super();
+
+    this.where = location; 
     this.error = error;
 
     this.line = location.getLine();
@@ -55,5 +52,13 @@ public final class SemanticException extends RecognitionException {
   @Override
   public String getMessage() {
     return error.getMessage();
+  }
+
+  public ISemanticError getError() {
+    return error;
+  }
+
+  public Where getWhere() {
+    return where;
   }
 }
