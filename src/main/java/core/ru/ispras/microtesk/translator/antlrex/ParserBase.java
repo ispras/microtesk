@@ -94,11 +94,11 @@ public class ParserBase extends ParserEx {
 
     final ISymbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
-      raiseError(new UndeclaredSymbol(t.getText()));
+      raiseError(where(t), new UndeclaredSymbol(t.getText()));
     }
 
     if (expectedKind != symbol.getKind()) {
-      raiseError(new SymbolTypeMismatch(t.getText(), symbol.getKind(), expectedKind));
+      raiseError(where(t), new SymbolTypeMismatch(t.getText(), symbol.getKind(), expectedKind));
     }
   }
 
