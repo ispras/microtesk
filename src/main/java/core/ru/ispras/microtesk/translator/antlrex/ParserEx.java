@@ -37,7 +37,7 @@ import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
  * @author Andrei Tatarnikov
  */
 
-public class ParserEx extends Parser implements IErrorReporter {
+public class ParserEx extends Parser implements ErrorReporter {
   private LogStore log = null;
   private int errorCount = 0;
 

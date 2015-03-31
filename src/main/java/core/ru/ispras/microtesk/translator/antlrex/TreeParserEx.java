@@ -54,7 +54,7 @@ import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
  * @author Andrei Tatarnikov
  */
 
-public class TreeParserEx extends TreeParser implements IErrorReporter {
+public class TreeParserEx extends TreeParser implements ErrorReporter {
   private LogStore log = null;
   private int errorCount = 0;
 

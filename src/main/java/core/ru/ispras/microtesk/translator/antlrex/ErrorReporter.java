@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-public interface IErrorReporter {
+public interface ErrorReporter {
   public void raiseError(ISemanticError error) throws SemanticException;
   public void raiseError(String what) throws SemanticException;
   public void raiseError(Where where, ISemanticError error) throws SemanticException;

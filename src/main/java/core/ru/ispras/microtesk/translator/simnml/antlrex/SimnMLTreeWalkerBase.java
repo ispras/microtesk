@@ -19,7 +19,7 @@ import java.util.Map;
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.TreeNodeStream;
 
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
+import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 
 import ru.ispras.microtesk.translator.simnml.ir.IR;
@@ -47,7 +47,7 @@ public class SimnMLTreeWalkerBase extends TreeParserBase implements WalkerContex
   }
 
   @Override
-  public final IErrorReporter getReporter() {
+  public final ErrorReporter getReporter() {
     return this;
   }
 

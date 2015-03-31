@@ -16,13 +16,13 @@ package ru.ispras.microtesk.translator.simnml.antlrex;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
+import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.simnml.ir.IR;
 import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
 
 public interface WalkerContext {
-  public IErrorReporter getReporter();
+  public ErrorReporter getReporter();
   public SymbolTable getSymbols();
   public IR getIR();
   public Map<String, Primitive> getThisArgs();

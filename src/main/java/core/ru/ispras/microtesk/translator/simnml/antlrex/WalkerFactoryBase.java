@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.simnml.antlrex;
 
 import java.util.Map;
-import ru.ispras.microtesk.translator.antlrex.IErrorReporter;
+import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
@@ -34,7 +34,7 @@ public class WalkerFactoryBase implements WalkerContext {
   }
 
   @Override
-  public IErrorReporter getReporter() {
+  public ErrorReporter getReporter() {
     return context.getReporter();
   }
 
