@@ -26,10 +26,6 @@ options {
 }
 
 @rulecatch {
-catch (SemanticException se) {
-    reportError(se);
-    recover(input,se);
-}
 catch (RecognitionException re) {
     reportError(re);
     recover(input,re);
@@ -65,7 +61,6 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.mmu.MmuTreeWalkerBase;
 import ru.ispras.microtesk.translator.mmu.MmuSymbolKind;

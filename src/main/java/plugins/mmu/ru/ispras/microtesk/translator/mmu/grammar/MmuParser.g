@@ -51,7 +51,6 @@ import commonParser=CommonParser;
 
 package ru.ispras.microtesk.translator.mmu.grammar;
 
-import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.ParserBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
 }

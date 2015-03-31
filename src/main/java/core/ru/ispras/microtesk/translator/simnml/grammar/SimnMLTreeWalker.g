@@ -35,10 +35,6 @@ options {
 }
 
 @rulecatch {
-catch (SemanticException se) {
-    reportError(se);
-    recover(input,se);
-}
 catch (RecognitionException re) { // Default behavior
     reportError(re);
     recover(input,re);
@@ -75,7 +71,6 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.antlrex.SemanticException;
 
 import ru.ispras.microtesk.translator.simnml.antlrex.SimnMLTreeWalkerBase;
 import ru.ispras.microtesk.translator.simnml.ESymbolKind;
