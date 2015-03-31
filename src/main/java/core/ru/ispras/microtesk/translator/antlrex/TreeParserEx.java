@@ -138,14 +138,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
   public final void reportError(SemanticException se) {
     InvariantChecks.checkNotNull(log);
 
-    final boolean isRepeated =
-        lastSE != null && lastSE.getWhere().equals(se.getWhere());
-
-    lastSE = se;
-    if (isRepeated) { 
-      return;
-    }
-
     final LogEntry logEntry = new LogEntry(
         LogEntry.Kind.ERROR,
         SenderKind.SEMANTIC, 
@@ -158,8 +150,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
     log.append(logEntry);
     ++errorCount;
   }
-
-  private SemanticException lastSE = null;
 
   /**
    * An overridden method of the BaseRecognizer class. Allows collecting text printed by the
