@@ -22,13 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.simnml.ir.IrVisitor;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.PrimitiveOR;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Shortcut;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.Statement;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementFormat;
+import ru.ispras.microtesk.translator.simnml.ir.location.LocationAtom;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.*;
+import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition.Block;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.simnml.ir.shared.LetString;
@@ -41,6 +37,7 @@ public class TexVisitor implements IrVisitor {
   private FileWriter writer;
   private int level = 0;
   private boolean isShortcut = false;
+  int texLevel = 0;
 
   public TexVisitor(FileWriter writer) throws IOException {
     this.writer = writer;
@@ -151,10 +148,10 @@ public class TexVisitor implements IrVisitor {
     }
   }
 
+
   @Override
   public void onPrimitiveEnd(Primitive item) {
     try {
-
       if (item.getKind() == Primitive.Kind.OP && !item.isRoot()) {
         writer.write("\\textbf{" + makeEscapeChars(item.getName()) + "} is an instruction. ");
         if (!(item instanceof PrimitiveOR) && ((PrimitiveAND) item).getArguments().size() > 0) {
@@ -183,7 +180,10 @@ public class TexVisitor implements IrVisitor {
               setToLevel(level);
               writer.write(makeEscapeChars(((StatementFormat) statements.get(0)).getFormat()));
             } else if (attr.getKind() == Attribute.Kind.ACTION) {
-              // TODO: ACTION PRINTING
+              for (Statement stmt : statements) {
+                texLevel = 0;
+                writeActionStatement(stmt);
+              }
             }
             level--;
           }
@@ -219,7 +219,7 @@ public class TexVisitor implements IrVisitor {
   public void onArgumentBegin(PrimitiveAND andRule, String argName, Primitive argType) {
     if ((currentPrimitive.getKind() == Primitive.Kind.OP) && !isShortcut) {
 
-      arguments.put(argType.getName(), argName);
+      arguments.put(argName, argType.getName());
     }
   }
 
@@ -292,6 +292,60 @@ public class TexVisitor implements IrVisitor {
       writer.write("\\end{document}");
       writer.flush();
       writer.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  private void writeActionStatement(Statement stmt) {
+    try {
+      setToLevel(level);
+
+      String tabbing = "";
+      for (int j = 0; j < texLevel; j++)
+      {
+        tabbing += "\\indent " ;
+      }
+      
+      writer.write(tabbing);
+      
+      switch (stmt.getKind()) {
+        case ASSIGN:
+          StatementAssignment assignment = (StatementAssignment) stmt;
+          String left = ((LocationAtom) assignment.getLeft()).getName();
+          // TODO: printing of right part
+          writer.write(makeEscapeChars(left) + " = ...\\newline");
+
+          break;
+        case CALL:
+          StatementAttributeCall attrCall = (StatementAttributeCall) stmt;
+
+          writer.write(attrCall.getAttributeName() + "\\newline");
+          
+          break;
+        case COND:
+          StatementCondition condition = (StatementCondition) stmt;
+          for (int i = 0; i < condition.getBlockCount(); i++)
+          {
+            texLevel++;
+            Block block = condition.getBlock(i);
+            writer.write("...condition...\\newline");
+            for (Statement s: block.getStatements())
+            {
+              writeActionStatement(s);
+            }
+            texLevel--;
+          }
+
+          break;
+        case FUNCALL:
+          StatementFunctionCall call = (StatementFunctionCall) stmt;
+          writer.write(call.getName() + "( ... )\\newline");
+
+          break;
+        default:
+      }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
