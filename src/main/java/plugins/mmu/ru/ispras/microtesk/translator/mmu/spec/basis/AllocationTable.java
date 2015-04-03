@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -41,14 +42,14 @@ public final class AllocationTable<T, V> {
     /** Always returns a free object (throws an exception if all the objects are in use). */
     GET_FREE_OBJECT {
       @Override public <T> T next(final Set<T> free, final Set<T> used) {
-        return RandomUtils.choose(free);
+        return Randomizer.get().choose(free);
       }
     },
 
     /** Returns a free object (if it exists) or a used one (otherwise). */
     TRY_FREE_OBJECT() {
       @Override public <T> T next(final Set<T> free, final Set<T> used) {
-        return !free.isEmpty() ? RandomUtils.choose(free) : RandomUtils.choose(used);
+        return !free.isEmpty() ? Randomizer.get().choose(free) : Randomizer.get().choose(used);
       }
     };
 
