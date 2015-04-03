@@ -32,7 +32,7 @@ final class Pair<T, U> {
       return true;
     }
     if (object instanceof Pair) {
-      final Pair rhs = (Pair) object;
+      final Pair<?, ?> rhs = (Pair<?, ?>) object;
       return this.first != null &&
              rhs.first != null &&
              this.first.equals(rhs.first) &&
