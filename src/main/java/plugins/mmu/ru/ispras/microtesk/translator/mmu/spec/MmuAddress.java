@@ -25,7 +25,7 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class MmuAddress {
+public final class MmuAddress {
   /** The address. */
   private final IntegerVariable address;
 
@@ -37,7 +37,6 @@ public class MmuAddress {
    */
   public MmuAddress(final IntegerVariable address) {
     InvariantChecks.checkNotNull(address);
-
     this.address = address;
   }
 
@@ -56,7 +55,7 @@ public class MmuAddress {
    * @return the conflicts list.
    */
   public List<MmuConflict> getConflicts() {
-    final List<MmuConflict> conflictList = new ArrayList<>();
+    final List<MmuConflict> conflicts = new ArrayList<>();
 
     // Address1 != Address2.
     final MmuEquality equalityNoEqual =
@@ -65,7 +64,7 @@ public class MmuAddress {
 
     final MmuConflict conflictNoEqual =
         new MmuConflict(MmuConflict.Type.ADDR_NOT_EQUAL, this, conditionNoEqual);
-    conflictList.add(conflictNoEqual);
+    conflicts.add(conflictNoEqual);
 
     // Address1 == Address2.
     final MmuEquality equalityEqual =
@@ -74,17 +73,13 @@ public class MmuAddress {
 
     final MmuConflict conflictEqual =
         new MmuConflict(MmuConflict.Type.ADDR_EQUAL, this, conditionEqual);
-    conflictList.add(conflictEqual);
+    conflicts.add(conflictEqual);
 
-    return conflictList;
+    return conflicts;
   }
 
   @Override
   public String toString() {
-    final StringBuilder string = new StringBuilder(address.getName());
-    string.append("[");
-    string.append(address.getWidth());
-    string.append("]");
-    return string.toString();
+    return String.format("%s[%s]", address.getName(), address.getWidth());
   }
 }
