@@ -25,6 +25,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
+import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
@@ -38,6 +39,8 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
  */
 
 public class MmuSpecBuilder implements TranslatorHandler<Ir> {
+  public static final MmuAction START = new MmuAction("START");
+
   private MmuSpecification spec; 
   private Map<String, MmuAddress> addresses;
 
@@ -55,6 +58,9 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
       final MmuAddress address = addresses.get(memory.getAddress().getId());
       spec.setStartAddress(address);
     }
+
+    spec.registerAction(START);
+    spec.setStartAction(START);
 
     System.out.println(spec);
   }
