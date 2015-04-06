@@ -23,12 +23,13 @@ public final class Memory extends AbstractStorage {
 
   public Memory(
       String id,
+      Address address,
       Variable addressArg,
       Variable dataArg,
       Map<String, Variable> variables,
       Map<String, Attribute> attributes) {
-    
-    super(id, addressArg, dataArg, attributes);
+
+    super(id, address, addressArg, dataArg, attributes);
 
     checkNotNull(variables);
     this.variables = variables;
