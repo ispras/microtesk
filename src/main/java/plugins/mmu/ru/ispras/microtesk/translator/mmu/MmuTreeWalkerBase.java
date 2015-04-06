@@ -150,6 +150,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     final Segment segment = new Segment(
         segmentId.getText(),
+        address,
         new Variable(addressArgId.getText(), address),
         BitVector.valueOf(rangeStart, address.getBitSize()),
         BitVector.valueOf(rangeEnd, address.getBitSize())
@@ -227,8 +228,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   protected final class BufferBuilder {
     private final CommonTree id;
+    private final Address address;
     private final Variable addressArg;
-    
+
     private Variable dataArg; // stores entries
     private int ways;
     private int sets;
@@ -250,9 +252,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         CommonTree addressArgId,
         CommonTree addressArgType) throws SemanticException {
 
-      final Address address = getAddress(addressArgType);
-
       this.id = id;
+      this.address = getAddress(addressArgType);
       this.addressArg = new Variable(addressArgId.getText(), address);
 
       this.dataArg = null;
@@ -336,7 +337,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Buffer buffer = new Buffer(
-          id.getText(), addressArg, dataArg, ways, sets, index, match, policy);
+          id.getText(), address, addressArg, dataArg, ways, sets, index, match, policy);
 
       ir.addBuffer(buffer);
       return buffer;
@@ -363,6 +364,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final Where where;
 
     private final String id;
+    private final Address address;
     private final Variable addressArg;
     private final Variable dataArg;
 
@@ -374,6 +376,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       this.where = where;
       this.id = id;
+      this.address = addressArgType;
       this.addressArg = new Variable(addressArgId, addressArgType);
       this.dataArg = new Variable(dataArgId, dataArgBitSize);
       this.variables = new LinkedHashMap<>();
@@ -438,13 +441,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Memory memory = new Memory(
-          id, addressArg, dataArg, variables, attributes);
+          id, address, addressArg, dataArg, variables, attributes);
 
       ir.addMemory(memory);
       return memory;
     }
   }
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Methods for creating statements
   //////////////////////////////////////////////////////////////////////////////////////////////////
