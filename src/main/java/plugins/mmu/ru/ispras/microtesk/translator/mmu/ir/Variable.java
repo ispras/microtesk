@@ -80,6 +80,10 @@ public final class Variable {
     return type;
   }
 
+  public String getTypeId() {
+    return (typeProvider != null) ? typeProvider.getTypeAlias() : null;
+  }
+
   public DataType getDataType() {
     return type.getDataType();
   }
@@ -98,7 +102,7 @@ public final class Variable {
 
   @Override
   public String toString() {
-    final String typeAlias = (typeProvider == null) ? "" : typeProvider.getTypeAlias() + "="; 
-    return String.format("%s: %s%s", id, typeAlias, type);
+    final String typeId = getTypeId();
+    return String.format("%s: %s%s", id, typeId != null ? typeId + "=" : "", type);
   }
 }
