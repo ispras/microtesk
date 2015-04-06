@@ -18,13 +18,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
+import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
@@ -50,6 +50,11 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     registerAddresses(ir.getAddresses().values());
     registerDevices(ir.getBuffers().values());
+
+    for (Memory memory : ir.getMemories().values()) {
+      final MmuAddress address = addresses.get(memory.getAddress().getId());
+      spec.setStartAddress(address);
+    }
 
     System.out.println(spec);
   }
