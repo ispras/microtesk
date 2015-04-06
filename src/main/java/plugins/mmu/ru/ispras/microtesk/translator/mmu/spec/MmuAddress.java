@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.translator.mmu.spec;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
@@ -47,35 +44,6 @@ public final class MmuAddress {
    */
   public IntegerVariable getAddress() {
     return address;
-  }
-
-  /**
-   * Returns the list of the address conflicts.
-   * 
-   * @return the conflicts list.
-   */
-  public List<MmuConflict> getConflicts() {
-    final List<MmuConflict> conflicts = new ArrayList<>();
-
-    // Address1 != Address2.
-    final MmuEquality equalityNoEqual =
-        new MmuEquality(MmuEquality.Type.NOT_EQUAL, MmuExpression.VAR(address));
-    final MmuCondition conditionNoEqual = new MmuCondition(equalityNoEqual);
-
-    final MmuConflict conflictNoEqual =
-        new MmuConflict(MmuConflict.Type.ADDR_NOT_EQUAL, this, conditionNoEqual);
-    conflicts.add(conflictNoEqual);
-
-    // Address1 == Address2.
-    final MmuEquality equalityEqual =
-        new MmuEquality(MmuEquality.Type.EQUAL, MmuExpression.VAR(address));
-    final MmuCondition conditionEqual = new MmuCondition(equalityEqual);
-
-    final MmuConflict conflictEqual =
-        new MmuConflict(MmuConflict.Type.ADDR_EQUAL, this, conditionEqual);
-    conflicts.add(conflictEqual);
-
-    return conflicts;
   }
 
   @Override

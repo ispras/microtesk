@@ -29,6 +29,7 @@ import ru.ispras.microtesk.translator.mmu.grammar.MmuLexer;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuParser;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
+import ru.ispras.microtesk.translator.mmu.spec.builder.MmuSpecBuilder;
 
 public class MmuTranslator extends Translator<Ir> {
 
@@ -37,9 +38,11 @@ public class MmuTranslator extends Translator<Ir> {
       System.err.println("Number of cmd arguments is " + args.length);
       return;
     }
-    
+
     final String fileName = args[0]; 
     final MmuTranslator translator = new MmuTranslator();
+    translator.addHandler(new MmuSpecBuilder());
+
     translator.start(fileName);
   }
 
