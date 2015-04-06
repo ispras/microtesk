@@ -26,18 +26,25 @@ public abstract class AbstractStorage {
   public static final String ENTRY_NAME = "entry";
 
   private final String id;
+  private final Address address;
   private final Variable addressArg;
   private final Variable dataArg;
   private final Map<String, Attribute> attributes;
 
   protected AbstractStorage(
-      String id, Variable addressArg, Variable dataArg, Map<String, Attribute> attributes) {
+      String id,
+      Address address,
+      Variable addressArg,
+      Variable dataArg,
+      Map<String, Attribute> attributes) {
 
     checkNotNull(id);
+    checkNotNull(address);
     checkNotNull(addressArg);
     checkNotNull(attributes);
 
     this.id = id;
+    this.address = address;
     this.addressArg = addressArg;
     this.dataArg = dataArg;
     this.attributes = attributes;
@@ -45,6 +52,10 @@ public abstract class AbstractStorage {
 
   public final String getId() {
     return id;
+  }
+
+  public final Address getAddress() {
+    return address;
   }
 
   public final Variable getAddressArg() {
