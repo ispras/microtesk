@@ -31,10 +31,8 @@ public final class Segment extends AbstractStorage {
   private final BitVector rangeEnd;
 
   public Segment(
-      String id, Variable addressArg, BitVector rangeStart, BitVector rangeEnd) {
-
-    super(id, addressArg, null, createAttributes(addressArg, rangeStart, rangeEnd));
-
+      String id, Address address, Variable addressArg, BitVector rangeStart, BitVector rangeEnd) {
+    super(id, address, addressArg, null, createAttributes(addressArg, rangeStart, rangeEnd));
     this.rangeStart = rangeStart;
     this.rangeEnd = rangeEnd;
   }
