@@ -102,6 +102,10 @@ public class IntegerField {
 
   @Override
   public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+
     if (o == null || !(o instanceof IntegerField)) {
       return false;
     }
@@ -117,10 +121,8 @@ public class IntegerField {
 
   @Override
   public String toString() {
-    if (lo == hi) {
-      return String.format("%s[%d]", var.getName(), lo);
-    }
-
-    return String.format("%s[%d:%d]", var.getName(), lo, hi);
+    return  (lo == hi) ?
+        String.format("%s[%d]", var.getName(), lo) :
+        String.format("%s[%d:%d]", var.getName(), lo, hi);
   }
 }
