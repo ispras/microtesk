@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
 
 /**
  * This class describes a memory management unit (MMU). The description includes a set of devices
