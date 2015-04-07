@@ -98,14 +98,13 @@ public class MmuExpression {
     return RCAT(Arrays.asList(terms));
   }
 
-  /*
+  /**
   * Creates an expression from the specified collections terms (UPPER bits come first).
   * RCAT stands for Reversed Concatenation.
   * 
   * @param terms the collection of expression terms
   * @return the concatenated expression.
   */
-
   public static MmuExpression RCAT(final Collection<IntegerField> terms) {
     final MmuExpression expression = new MmuExpression();
 
