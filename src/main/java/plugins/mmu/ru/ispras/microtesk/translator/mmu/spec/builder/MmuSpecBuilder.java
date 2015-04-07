@@ -15,11 +15,18 @@
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.ExprTreeVisitor;
+import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
+import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
@@ -36,6 +43,7 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.MmuTransition;
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
 
@@ -89,8 +97,8 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final MmuAddress address = addresses.get(buffer.getAddress().getId());
     final boolean isReplaceable = PolicyId.NONE != buffer.getPolicy();
 
-    final AddressFormatExtractor addressFormat =
-        new AddressFormatExtractor(buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch()); 
+    final AddressFormatExtractor addressFormat = new AddressFormatExtractor(
+        address, buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());
 
     final MmuDevice device = new MmuDevice(
         buffer.getId(),
@@ -132,24 +140,29 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 }
 
 final class AddressFormatExtractor {
+  private final MmuAddress address;
   private final Variable addressArg;
-  private final int addressWidth;
-  private final Node index;
-  private final Node match;
+  private final FieldTracker addressFieldTracker;
 
-  private final MmuExpression indexExpr = MmuExpression.ZERO();
-  private final MmuExpression tagExpr = MmuExpression.ZERO();
-  private MmuExpression offsetExpr = MmuExpression.ZERO();
+  private final MmuExpression indexExpr;
+  private final MmuExpression tagExpr;
+  private final MmuExpression offsetExpr;
 
-  AddressFormatExtractor(Variable addressArg, Node index, Node match) {
+  class Visitor extends ExprTreeVisitorDefault {
+    
+  }
+
+  AddressFormatExtractor(MmuAddress address, Variable addressArg, Node index, Node match) {
+    this.address = address;
     this.addressArg = addressArg;
-    this.addressWidth = addressArg.getBitSize();
-    this.index = index;
-    this.match = match;
+    this.addressFieldTracker = new FieldTracker(addressArg.getBitSize());
+
+    this.indexExpr = extractIndexExpr(index);
+    this.tagExpr = extractTagExpr(index);
+    this.offsetExpr = MmuExpression.ZERO();
 
     /*
-    indexExpr = isZero(index) ? MmuExpression.ZERO() : null;
-    tagExpr = isZero(match) ? MmuExpression.ZERO() : null;
+    this.tagExpr = isZero(match) ? MmuExpression.ZERO() : null;
 
     System.out.println(index);
     System.out.println(isZero(index));
@@ -157,6 +170,35 @@ final class AddressFormatExtractor {
     System.out.println(match);
     System.out.println(isZero(match));
     */
+  }
+
+  private MmuExpression exressionForFields(List<Field> fields) {
+    final MmuExpression expression = new MmuExpression();
+
+    for (Field field : fields) {
+      expression.addLoTerm(new IntegerField(address.getAddress(), field.lo, hi));
+    }
+
+    return expression;
+    
+  }
+
+  List<Field> extractFields(Node expr) {
+    final ExprTreeVisitor visitor = new Visitor();
+    final ExprTreeWalker walker = new ExprTreeWalker(visitor);
+    walker.visit(expr);
+
+    return Collections.emptyList();
+  }
+
+  MmuExpression extractTagExpr(Node index) {
+    return MmuExpression.ZERO();
+  }
+
+  MmuExpression extractIndexExpr(Node index) {
+    
+    System.out.println("!!! " + index);
+    return MmuExpression.ZERO();
   }
 
   MmuExpression getIndexExpr() {
@@ -170,9 +212,13 @@ final class AddressFormatExtractor {
   MmuExpression getOffsetExpr() {
     return offsetExpr;
   }
-  
-  static boolean isZero(Node expr) {
+
+  boolean isZero(Node expr) {
     if (expr.getKind() != Node.Kind.VALUE) {
+      return false;
+    }
+
+    if (!expr.isType(DataTypeId.LOGIC_INTEGER)) {
       return false;
     }
 
