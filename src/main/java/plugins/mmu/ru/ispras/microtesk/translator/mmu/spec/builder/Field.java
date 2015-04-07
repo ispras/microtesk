@@ -25,30 +25,30 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
  */
 
 public final class Field implements Comparable<Field>{
-  public final int min;
-  public final int max;
+  public final int lo;
+  public final int hi;
 
-  public Field(int min, int max) {
-    this.min = Math.min(min, max);
-    this.max = Math.max(min, max);
+  public Field(int lo, int hi) {
+    this.lo = Math.min(lo, hi);
+    this.hi = Math.max(lo, hi);
   }
 
   public int getWidth() {
-    return max - min + 1;
+    return hi - lo + 1;
   }
 
   public boolean inField(int index) {
-    return min <= index && index <= max;
+    return lo <= index && index <= hi;
   }
 
   @Override
   public String toString() {
-    return String.format("<%d..%d>", min, max);
+    return String.format("<%d..%d>", lo, hi);
   }
 
   @Override
   public int hashCode() {
-    return 31 * min + max;
+    return 31 * lo + hi;
   }
 
   @Override
@@ -62,19 +62,19 @@ public final class Field implements Comparable<Field>{
     }
 
     final Field other = (Field) obj;
-    return min == other.min && max == other.max;
+    return lo == other.lo && hi == other.hi;
   }
 
   @Override
   public int compareTo(Field other) {
     checkNotNull(other);
 
-    final int deltaMin = this.min - other.min;
+    final int deltaMin = this.lo - other.lo;
     if (deltaMin != 0) {
       return deltaMin;
     }
 
-    final int deltaMax = this.max - other.max;
+    final int deltaMax = this.hi - other.hi;
     if (deltaMax != 0) {
       return deltaMax;
     }
