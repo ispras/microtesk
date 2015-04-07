@@ -143,7 +143,6 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 final class AddressFormatExtractor {
   private final MmuAddress address;
   private final Variable addressArg;
-  private final IntegerFieldTracker addressFieldTracker;
 
   private final MmuExpression indexExpr;
   private final MmuExpression tagExpr;
@@ -154,23 +153,14 @@ final class AddressFormatExtractor {
   }
 
   AddressFormatExtractor(MmuAddress address, Variable addressArg, Node index, Node match) {
+    final IntegerFieldTracker addressFieldTracker = new IntegerFieldTracker(address.getAddress());
+
     this.address = address;
     this.addressArg = addressArg;
-    this.addressFieldTracker = new IntegerFieldTracker(address.getAddress());
 
     this.indexExpr = extractIndexExpr(index);
     this.tagExpr = extractTagExpr(index);
     this.offsetExpr = MmuExpression.RCAT(addressFieldTracker.getFields());
-
-    /*
-    this.tagExpr = isZero(match) ? MmuExpression.ZERO() : null;
-
-    System.out.println(index);
-    System.out.println(isZero(index));
-
-    System.out.println(match);
-    System.out.println(isZero(match));
-    */
   }
 
   List<Field> extractFields(Node expr) {
@@ -181,13 +171,13 @@ final class AddressFormatExtractor {
     return Collections.emptyList();
   }
 
-  MmuExpression extractTagExpr(Node index) {
+  private MmuExpression extractTagExpr(Node index) {
+    // TODO
     return MmuExpression.ZERO();
   }
 
-  MmuExpression extractIndexExpr(Node index) {
-    
-    System.out.println("!!! " + index);
+  private  MmuExpression extractIndexExpr(Node index) {
+    // TODO
     return MmuExpression.ZERO();
   }
 
