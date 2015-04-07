@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
@@ -47,65 +47,87 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
   @Override
   public void processIr(Ir ir) {
     System.out.println(ir);
-    
+
     this.spec = new MmuSpecification();
     this.addresses = new HashMap<>();
 
-    registerAddresses(ir.getAddresses().values());
-    registerDevices(ir.getBuffers().values());
-
-    for (Memory memory : ir.getMemories().values()) {
-      final MmuAddress address = addresses.get(memory.getAddress().getId());
-      spec.setStartAddress(address);
+    for (Address address : ir.getAddresses().values()) {
+      registerAddress(address);
     }
 
-    spec.registerAction(START);
-    spec.setStartAction(START);
+    for (Buffer buffer : ir.getBuffers().values()) {
+      registerDevice(buffer);
+    }
+
+    final Map<String, Memory> memories = ir.getMemories();
+    if (memories.size() > 1) {
+      throw new IllegalStateException("Only one load/store specification is allowed.");
+    }
+
+    final Memory memory = memories.values().iterator().next();
+    registerControlFlow(memory);
 
     System.out.println(spec);
   }
 
-  private void registerAddresses(Collection<Address> values) {
-    for (Address a : values) {
-      final IntegerVariable variable = new IntegerVariable(a.getId(), a.getBitSize());
-      final MmuAddress address = new MmuAddress(variable);
+  private void registerAddress(Address address) {
+    final IntegerVariable variable = new IntegerVariable(address.getId(), address.getBitSize());
+    final MmuAddress mmuAddress = new MmuAddress(variable);
 
-      spec.registerAddress(address);
-      addresses.put(a.getId(), address);
-    }
+    spec.registerAddress(mmuAddress);
+    addresses.put(address.getId(), mmuAddress);
   }
 
-  private void registerDevices(Collection<Buffer> buffers) {
-    for (Buffer buffer : buffers) {
-      final MmuAddress address = addresses.get(buffer.getAddress().getId());
+  private void registerDevice(Buffer buffer) {
+    final MmuAddress address = addresses.get(buffer.getAddress().getId());
+    final boolean isReplaceable = PolicyId.NONE != buffer.getPolicy();
 
-      final MmuDevice device = new MmuDevice(
-          buffer.getId(),
-          buffer.getWays(),
-          buffer.getSets(),
-          address,
-          getTagExpr(buffer.getMatch()),
-          getIndexExpr(buffer.getIndex()),
-          MmuExpression.ZERO(), // TODO offsetExpression,
-          true /*TODO: replaceable - ??? */);
+    final AddressFormatExtractor addressFormat =
+        new AddressFormatExtractor(buffer.getIndex(), buffer.getMatch()); 
 
-      for(Field field : buffer.getEntry().getFields()) {
-        device.addField(new IntegerVariable(field.getId(), field.getBitSize()));
-      }
+    final MmuDevice device = new MmuDevice(
+        buffer.getId(),
+        buffer.getWays(),
+        buffer.getSets(),
+        address,
+        addressFormat.getTagExpr(),
+        addressFormat.getIndexExpr(),
+        addressFormat.getOffsetExpr(),
+        isReplaceable
+        );
 
-      spec.registerDevice(device);
+    for(Field field : buffer.getEntry().getFields()) {
+      device.addField(new IntegerVariable(field.getId(), field.getBitSize()));
     }
+
+    spec.registerDevice(device);
   }
 
-  private MmuExpression getIndexExpr(Node index) {
-    // System.out.println(index);
-    // TODO Auto-generated method stub
+  private void registerControlFlow(Memory memory) {
+    final MmuAddress address = addresses.get(memory.getAddress().getId());
+    spec.setStartAddress(address);
+
+    spec.registerAction(START);
+    spec.setStartAction(START);
+
+  }
+}
+
+final class AddressFormatExtractor {
+  AddressFormatExtractor(Node index, Node match) {
+    
+  }
+
+  MmuExpression getIndexExpr() {
     return MmuExpression.ZERO();
   }
 
-  private MmuExpression getTagExpr(Node match) {
-    // System.out.println(match);
-    // TODO Auto-generated method stub
+  MmuExpression getTagExpr() {
+    return MmuExpression.ZERO();
+  }
+  
+  MmuExpression getOffsetExpr() {
     return MmuExpression.ZERO();
   }
 }
+
