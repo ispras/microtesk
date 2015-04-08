@@ -89,11 +89,6 @@ final class AddressFormatExtractor {
     this.indexExpr = MmuExpression.RCAT(extractFields(index));
     this.tagExpr = MmuExpression.RCAT(extractFields(match));
     this.offsetExpr = MmuExpression.RCAT(addressFieldTracker.getFields());
-
-    System.out.println("---------------------");
-    System.out.println("Index:  " + indexExpr);
-    System.out.println("Tag:    " + tagExpr);
-    System.out.println("Offset: " + offsetExpr);
   }
 
   private List<IntegerField> extractFields(Node expr) {
