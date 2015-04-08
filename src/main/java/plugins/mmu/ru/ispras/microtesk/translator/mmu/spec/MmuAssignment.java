@@ -75,10 +75,8 @@ public class MmuAssignment {
 
   @Override
   public String toString() {
-    final StringBuilder string = new StringBuilder(variable.getName());
-    string.append("[");
-    string.append(variable.getWidth());
-    string.append("]: ");
+    final StringBuilder string = new StringBuilder(
+        String.format("%s[%d]:", variable.getName(), variable.getWidth()));
 
     if (expression == null) {
       string.append("{null}");
