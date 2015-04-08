@@ -41,8 +41,8 @@ public class IntegerField {
     InvariantChecks.checkNotNull(var);
 
     this.var = var;
-    this.lo = lo;
-    this.hi = hi;
+    this.lo = Math.min(lo, hi);
+    this.hi = Math.max(lo, hi);
   }
 
   /**
