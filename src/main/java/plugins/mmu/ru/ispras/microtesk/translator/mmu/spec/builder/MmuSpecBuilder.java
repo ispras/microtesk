@@ -26,6 +26,8 @@ import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
+import ru.ispras.microtesk.translator.mmu.ir.Stmt;
+import ru.ispras.microtesk.translator.mmu.ir.StmtException;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAssignment;
@@ -37,7 +39,7 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
 
 /**
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  *
  */
@@ -46,7 +48,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
   public static final MmuAction START = new MmuAction("START");
   public static final MmuAction STOP = new MmuAction("STOP");
 
-  private MmuSpecification spec; 
+  private MmuSpecification spec;
   private Map<String, MmuAddress> addresses;
 
   @Override
@@ -129,13 +131,57 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerTransition(IF_WRITE);
 
     final Attribute readAttr = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
-    registerControlFlowForAttribute(readAttr);
+    registerControlFlowForAttribute(readAttr, START);
 
     final Attribute writeAttr = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
-    registerControlFlowForAttribute(writeAttr);
+    registerControlFlowForAttribute(writeAttr, START);
   }
 
-  private void registerControlFlowForAttribute(Attribute attribute) {
-    System.out.println(attribute);
+  private void registerControlFlowForAttribute(Attribute attribute, MmuAction start) {
+    MmuAction current = start;
+
+    for (Stmt stmt : attribute.getStmts()) {
+      System.out.println(stmt);
+      
+      switch(stmt.getKind()) {
+        case ASSIGN: {
+          break;
+        }
+
+        case EXCEPT: {
+          final MmuAction action = new MmuAction(((StmtException) stmt).getMessage());
+          spec.registerAction(action);
+
+          final MmuTransition transition = new MmuTransition(current, action);
+          spec.registerTransition(transition);
+
+          // Control flow cannot be continued after exception.
+          return;
+        }
+
+        case EXPR: {
+          break;
+        }
+
+        case IF: {
+          break;
+        }
+
+        case TRACE: {
+          // Ignore
+          break;
+        }
+
+        default: {
+          break;
+        }
+      }
+
+      System.out.println(stmt);
+    }
+
+    //
+    //
+    //
   }
 }
