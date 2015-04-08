@@ -19,7 +19,9 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
+import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
+import ru.ispras.microtesk.translator.mmu.ir.Attribute;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
@@ -42,6 +44,7 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
 
 public class MmuSpecBuilder implements TranslatorHandler<Ir> {
   public static final MmuAction START = new MmuAction("START");
+  public static final MmuAction STOP = new MmuAction("STOP");
 
   private MmuSpecification spec; 
   private Map<String, MmuAddress> addresses;
@@ -114,6 +117,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     spec.registerAction(START);
     spec.setStartAction(START);
+    spec.registerAction(STOP);
 
     final MmuTransition IF_READ = new MmuTransition(
         ROOT, START, new MmuGuard(MemoryOperation.LOAD));
@@ -123,5 +127,15 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     spec.registerTransition(IF_READ);
     spec.registerTransition(IF_WRITE);
+
+    final Attribute readAttr = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
+    registerControlFlowForAttribute(readAttr);
+
+    final Attribute writeAttr = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
+    registerControlFlowForAttribute(writeAttr);
+  }
+
+  private void registerControlFlowForAttribute(Attribute attribute) {
+    System.out.println(attribute);
   }
 }

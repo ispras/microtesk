@@ -86,8 +86,11 @@ final class AddressFormatExtractor {
     this.addressArg = addressArg;
     this.addressFieldTracker = new IntegerFieldTracker(address.getAddress());
 
+    // TODO: check the format of the "index" expression. Throw exception if needed.
     this.indexExpr = MmuExpression.RCAT(extractFields(index));
+    // TODO: check the format of the "match" expression. Throw exception if needed.
     this.tagExpr = MmuExpression.RCAT(extractFields(match));
+
     this.offsetExpr = MmuExpression.RCAT(addressFieldTracker.getFields());
   }
 
