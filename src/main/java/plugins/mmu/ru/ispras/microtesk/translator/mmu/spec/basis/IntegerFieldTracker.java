@@ -45,12 +45,17 @@ public final class IntegerFieldTracker {
       return;
     }
 
+    if (hi < lo) {
+      exclude(hi, lo);
+      return;
+    }
+
     final List<IntegerField> newFields = new ArrayList<>();
     for (IntegerField field : fields) {
       final boolean isLoInField = inField(field, lo);
       final boolean isHiInField = inField(field, hi);
 
-      if (isLoInField && lo > 0) {
+      if (isLoInField && lo > field.getLoIndex()) {
         newFields.add(new IntegerField(variable, field.getLoIndex(), lo - 1));
       }
 

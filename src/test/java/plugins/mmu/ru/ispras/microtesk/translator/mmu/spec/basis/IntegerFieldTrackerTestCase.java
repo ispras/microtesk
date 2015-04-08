@@ -49,4 +49,28 @@ public class IntegerFieldTrackerTestCase {
     tracker.excludeAll();
     assertEquals(Collections.emptyList(), tracker.getFields());
   }
+
+  @Test
+  public void test2() {
+    final IntegerVariable var = new IntegerVariable("PA", 36); 
+    final IntegerFieldTracker tracker = new IntegerFieldTracker(var);
+
+    tracker.exclude(5, 11);
+    tracker.exclude(12, 35);
+
+    assertEquals(Collections.singletonList(
+        new IntegerField(var, 0, 4)), tracker.getFields());
+  }
+
+  @Test
+  public void test3() {
+    final IntegerVariable var = new IntegerVariable("PA", 36); 
+    final IntegerFieldTracker tracker = new IntegerFieldTracker(var);
+  
+    tracker.exclude(11, 5);
+    tracker.exclude(35, 12);
+
+    assertEquals(Collections.singletonList(
+        new IntegerField(var, 0, 4)), tracker.getFields());
+  }
 }
