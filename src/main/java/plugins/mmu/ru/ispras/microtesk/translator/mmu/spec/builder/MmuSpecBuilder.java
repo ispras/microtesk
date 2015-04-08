@@ -14,19 +14,9 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
-import java.math.BigInteger;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import ru.ispras.fortress.data.DataTypeId;
-import ru.ispras.fortress.expression.ExprTreeVisitor;
-import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
-import ru.ispras.fortress.expression.ExprTreeWalker;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
@@ -34,17 +24,13 @@ import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
-import ru.ispras.microtesk.translator.mmu.ir.Variable;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAssignment;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
-import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.MmuTransition;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerFieldTracker;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
 
@@ -137,71 +123,5 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     spec.registerTransition(IF_READ);
     spec.registerTransition(IF_WRITE);
-  }
-}
-
-final class AddressFormatExtractor {
-  private final MmuAddress address;
-  private final Variable addressArg;
-  private final IntegerFieldTracker addressFieldTracker;
-
-  private final MmuExpression indexExpr;
-  private final MmuExpression tagExpr;
-  private final MmuExpression offsetExpr;
-
-  class Visitor extends ExprTreeVisitorDefault {
-    
-  }
-
-  AddressFormatExtractor(MmuAddress address, Variable addressArg, Node index, Node match) {
-    this.address = address;
-    this.addressArg = addressArg;
-    this.addressFieldTracker = new IntegerFieldTracker(address.getAddress());
-
-    this.indexExpr = extractIndexExpr(index);
-    this.tagExpr = extractTagExpr(index);
-    this.offsetExpr = MmuExpression.RCAT(addressFieldTracker.getFields());
-  }
-
-  List<Field> extractFields(Node expr) {
-    final ExprTreeVisitor visitor = new Visitor();
-    final ExprTreeWalker walker = new ExprTreeWalker(visitor);
-    walker.visit(expr);
-
-    return Collections.emptyList();
-  }
-
-  private MmuExpression extractTagExpr(Node index) {
-    // TODO
-    return MmuExpression.ZERO();
-  }
-
-  private  MmuExpression extractIndexExpr(Node index) {
-    // TODO
-    return MmuExpression.ZERO();
-  }
-
-  MmuExpression getIndexExpr() {
-    return indexExpr;
-  }
-
-  MmuExpression getTagExpr() {
-    return tagExpr;
-  }
-  
-  MmuExpression getOffsetExpr() {
-    return offsetExpr;
-  }
-
-  boolean isZero(Node expr) {
-    if (expr.getKind() != Node.Kind.VALUE) {
-      return false;
-    }
-
-    if (!expr.isType(DataTypeId.LOGIC_INTEGER)) {
-      return false;
-    }
-
-    return ((NodeValue) expr).getInteger().equals(BigInteger.ZERO);
   }
 }
