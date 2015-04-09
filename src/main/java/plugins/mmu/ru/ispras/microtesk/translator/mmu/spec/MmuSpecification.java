@@ -41,9 +41,8 @@ public class MmuSpecification {
   private Map<String, MmuAddress> addresses = new LinkedHashMap<>();
 
   /**
-   * Refers to the primary address type of the memory management unit.
-   * 
-   * <p>Type of addresses used to access the memory (typically, Virtual Address).</p>
+   * Refers to the primary address type of the MMU.
+   * <p>Address type used to access the memory (typically, Virtual Address).</p>
    */
   private MmuAddress startAddress;
 
@@ -88,24 +87,23 @@ public class MmuSpecification {
   }
 
   /**
+   * Sets the primary address type.
+   * 
+   * @param address the address type to be set.
+   * @throws NullPointerException if {@code address} is {@code null}.
+   */
+  public void setStartAddress(final MmuAddress address) {
+    InvariantChecks.checkNotNull(address);
+    startAddress = address;
+  }
+
+  /**
    * Returns the primary address type.
    * 
    * @return the start address.
    */
   public MmuAddress getStartAddress() {
     return startAddress;
-  }
-  
-  /**
-   * Sets the primary address type.
-   * 
-   * @param address the address type to be set.
-   * @throws NullPointerException if {@code address} is null.
-   */
-  public void setStartAddress(final MmuAddress address) {
-    InvariantChecks.checkNotNull(address);
-
-    startAddress = address;
   }
 
   /**

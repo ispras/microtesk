@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
