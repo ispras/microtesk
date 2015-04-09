@@ -189,6 +189,27 @@ public class MmuExpression {
 
   @Override
   public String toString() {
-    return terms.toString();
+    if (terms.isEmpty()) {
+      return "0";
+    }
+
+    if (terms.size() == 1) {
+      return terms.get(0).toString();
+    }
+
+    final String separator = ", ";
+    final StringBuilder builder = new StringBuilder();
+
+    boolean comma = false;
+
+    builder.append("{");
+    for (final IntegerField field : terms) {
+      builder.append(comma ? separator : "");
+      builder.append(field);
+      comma = true;
+    }
+    builder.append("}");
+
+    return builder.toString();
   }
 }
