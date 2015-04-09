@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.mmu.ir;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 public abstract class AbstractStorage {
@@ -47,7 +48,7 @@ public abstract class AbstractStorage {
     this.address = address;
     this.addressArg = addressArg;
     this.dataArg = dataArg;
-    this.attributes = attributes;
+    this.attributes = Collections.unmodifiableMap(attributes);
   }
 
   public final String getId() {
@@ -64,10 +65,6 @@ public abstract class AbstractStorage {
 
   public final Variable getDataArg() {
     return dataArg;
-  }
-
-  public final int getAttributeCount() {
-    return attributes.size();
   }
 
   public final Collection<Attribute> getAttributes() {

@@ -16,6 +16,8 @@ package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 public final class Memory extends AbstractStorage {
@@ -32,7 +34,15 @@ public final class Memory extends AbstractStorage {
     super(id, address, addressArg, dataArg, attributes);
 
     checkNotNull(variables);
-    this.variables = variables;
+    this.variables = Collections.unmodifiableMap(variables);
+  }
+
+  public Collection<Variable> getVaraibles() {
+    return variables.values();
+  }
+
+  public Variable getVariable(String id) {
+    return variables.get(id);
   }
 
   @Override
