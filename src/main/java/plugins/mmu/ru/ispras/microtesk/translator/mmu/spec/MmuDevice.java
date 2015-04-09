@@ -119,9 +119,15 @@ public class MmuDevice {
     this.offsetVariable = new IntegerVariable(String.format("%s$OFFSET", name), addressWidth);
 
     // Derive the address reconstruction expression.
-    addressExpression =
-        createAddressExpression(address.getAddress(), tagVariable, tagExpression, indexVariable,
-            indexExpression, offsetVariable, offsetExpression);
+    addressExpression = createAddressExpression(
+        address.getAddress(),
+        tagVariable,
+        tagExpression,
+        indexVariable,
+        indexExpression,
+        offsetVariable,
+        offsetExpression
+        );
 
     addressView = new AddressView<Long>(new Function<Long, List<Long>>() {
       @Override
@@ -176,7 +182,7 @@ public class MmuDevice {
    * 
    * @throws IllegalArgumentException if the function cannot be reconstructed.
    */
-  private MmuExpression createAddressExpression(
+  private static MmuExpression createAddressExpression(
       final IntegerVariable addressVariable,
       final IntegerVariable tagVariable,
       final MmuExpression tagExpression,
@@ -199,9 +205,9 @@ public class MmuDevice {
       final IntegerField field = entry.getValue();
 
       if (index != expectedIndex) {
-        throw new IllegalArgumentException(
-            String.format("Address function cannot be reconstructed: %d != %d (%s)", index,
-                expectedIndex, fields));
+        throw new IllegalArgumentException(String.format(
+            "Address function cannot be reconstructed: %d != %d (%s)",
+            index, expectedIndex, fields));
       }
 
       expression.addHiTerm(field);
@@ -218,7 +224,7 @@ public class MmuDevice {
    * @param expression the right-hand-side expression.
    * @param variable the left-hand-side variable.
    */
-  private void reverseAssignment(
+  private static void reverseAssignment(
       final SortedMap<Integer, IntegerField> fields,
       final IntegerVariable variable,
       final MmuExpression expression) {
