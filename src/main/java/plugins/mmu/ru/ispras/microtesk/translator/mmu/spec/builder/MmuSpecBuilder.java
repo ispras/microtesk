@@ -47,13 +47,15 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
   public static final MmuAction START = new MmuAction("START");
   public static final MmuAction STOP = new MmuAction("STOP");
 
-  private MmuSpecification spec;
+  private MmuSpecification spec = null;
+  private MmuAction sourceAction = null;
 
   @Override
   public void processIr(Ir ir) {
     System.out.println(ir);
 
     this.spec = new MmuSpecification();
+    this.sourceAction = START;
 
     for (Address address : ir.getAddresses().values()) {
       registerAddress(address);
@@ -76,9 +78,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
   private void registerAddress(Address address) {
     final IntegerVariable variable = new IntegerVariable(address.getId(), address.getBitSize());
-    final MmuAddress mmuAddress = new MmuAddress(variable);
-
-    spec.registerAddress(mmuAddress);
+    spec.registerAddress(new MmuAddress(variable));
   }
 
   private void registerDevice(Buffer buffer) {
@@ -134,23 +134,18 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private void registerControlFlowForAttribute(Attribute attribute, MmuAction start) {
-    MmuAction current = start;
+    sourceAction = start;
 
     for (Stmt stmt : attribute.getStmts()) {
       System.out.println(stmt);
-      
+
       switch(stmt.getKind()) {
         case ASSIGN: {
           break;
         }
 
         case EXCEPT: {
-          final MmuAction action = new MmuAction(((StmtException) stmt).getMessage());
-          spec.registerAction(action);
-
-          final MmuTransition transition = new MmuTransition(current, action);
-          spec.registerTransition(transition);
-
+          registerException((StmtException) stmt);
           // Control flow cannot be continued after exception.
           return;
         }
@@ -179,5 +174,13 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     //
     //
     //
+  }
+
+  private void registerException(StmtException exception) {
+    final MmuAction targetAction = new MmuAction(exception.getMessage());
+    spec.registerAction(targetAction);
+
+    final MmuTransition transition = new MmuTransition(sourceAction, targetAction);
+    spec.registerTransition(transition);
   }
 }

@@ -230,7 +230,7 @@ public class MmuSpecification {
     builder.append(newline);
     builder.append("Devices: ");
     builder.append(devices.size());
-    for (final MmuDevice device : devices) {
+    for (final MmuDevice device : getDevices()) {
       builder.append(newline);
       builder.append("    ");
       builder.append(device);
