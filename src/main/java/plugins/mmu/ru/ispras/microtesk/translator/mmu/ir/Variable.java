@@ -61,7 +61,8 @@ public final class Variable {
     this.variable.setUserData(this);
 
     this.fieldVariables = (0 == type.getFieldCount()) ?
-        Collections.<String, NodeVariable>emptyMap() : new HashMap<String, NodeVariable>();
+        Collections.<String, NodeVariable>emptyMap() :
+        new HashMap<String, NodeVariable>();
 
     for (Field field : type.getFields()) {
       final String fieldVarId = String.format("%s.%s", id, field.getId());
