@@ -49,14 +49,12 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
   public static final MmuAction STOP = new MmuAction("STOP");
 
   private MmuSpecification spec;
-  private Map<String, MmuAddress> addresses;
 
   @Override
   public void processIr(Ir ir) {
     System.out.println(ir);
 
     this.spec = new MmuSpecification();
-    this.addresses = new HashMap<>();
 
     for (Address address : ir.getAddresses().values()) {
       registerAddress(address);
@@ -82,11 +80,10 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final MmuAddress mmuAddress = new MmuAddress(variable);
 
     spec.registerAddress(mmuAddress);
-    addresses.put(address.getId(), mmuAddress);
   }
 
   private void registerDevice(Buffer buffer) {
-    final MmuAddress address = addresses.get(buffer.getAddress().getId());
+    final MmuAddress address = spec.getAddress(buffer.getAddress().getId());
     final boolean isReplaceable = PolicyId.NONE != buffer.getPolicy();
 
     final AddressFormatExtractor addressFormat = new AddressFormatExtractor(
@@ -111,7 +108,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private void registerControlFlow(Memory memory) {
-    final MmuAddress address = addresses.get(memory.getAddress().getId());
+    final MmuAddress address = spec.getAddress(memory.getAddress().getId());
     spec.setStartAddress(address);
 
     final MmuAction ROOT = new MmuAction("ROOT", new MmuAssignment(address.getAddress()));

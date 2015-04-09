@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.translator.mmu.spec;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,14 +30,15 @@ import ru.ispras.fortress.util.InvariantChecks;
  * and a network (directed acyclic graph with one source and one sink nodes) of actions.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
+
 public class MmuSpecification {
   /**
-   * Contains available address types.
-   * 
-   * <p>Typically, this set includes two types: Virtual Address and Physical Address.</p>
+   * Stores available address types.
+   * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
    */
-  private Set<MmuAddress> addresses = new LinkedHashSet<>();
+  private Map<String, MmuAddress> addresses = new LinkedHashMap<>();
 
   /**
    * Refers to the primary address type of the memory management unit.
@@ -54,24 +57,34 @@ public class MmuSpecification {
   private MmuAction startAction;
 
   /**
-   * Returns the set of addresses registered in the memory management unit.
-   * 
-   * @return the set of addresses.
-   */
-  public Set<MmuAddress> getAddresses() {
-    return addresses;
-  }
-
-  /**
-   * Registers the address type in the memory management unit.
+   * Registers the address type in the MMU. Address that have the same 
+   * name are considered as duplicates and ignored.
    * 
    * @param address the address to be registered.
-   * @throws NullPointerException if {@code address} is null.
+   * @throws NullPointerException if {@code address} is {@code null}.
    */
   public void registerAddress(final MmuAddress address) {
     InvariantChecks.checkNotNull(address);
+    addresses.put(address.getName(), address);
+  }
 
-    addresses.add(address);
+  /**
+   * Returns the collection of addresses registered in the MMU.
+   * 
+   * @return the collection of addresses.
+   */
+  public Collection<MmuAddress> getAddresses() {
+    return Collections.unmodifiableCollection(addresses.values());
+  }
+
+  /**
+   * Returns an address registered in the MMU by its name.
+   * 
+   * @param name the name of the address.
+   * @return address or {@code null} it is undefined.
+   */
+  public MmuAddress getAddress(String name) {
+    return addresses.get(name);
   }
 
   /**
@@ -197,7 +210,7 @@ public class MmuSpecification {
     builder.append(newline);
     builder.append("Addresses: ");
     builder.append(addresses.size());
-    for (final MmuAddress address : addresses) {
+    for (final MmuAddress address : getAddresses()) {
       builder.append(newline);
       builder.append(address);
     }
