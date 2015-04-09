@@ -46,8 +46,8 @@ public class MmuSpecification {
    */
   private MmuAddress startAddress;
 
-  /** Contains of devices (buffers) of the memory management unit. */
-  private Set<MmuDevice> devices = new LinkedHashSet<>();
+  /** Stores devices (buffers) of the MMU. */
+  private Map<String, MmuDevice> devices = new LinkedHashMap<>();
 
   /** Maps actions to out-going transitions. */
   private Map<MmuAction, List<MmuTransition>> actions = new LinkedHashMap<>();
@@ -107,24 +107,34 @@ public class MmuSpecification {
   }
 
   /**
-   * Returns the set of devices registered in the memory management unit.
+   * Registers a device in the MMU. Devices are identified by their name.
+   * Devices with equal names are considered duplicates and ignored.
    * 
-   * @return the set of devices.
+   * @param device the device to be registered.
+   * @throws NullPointerException if {@code device} is {@code null}.
    */
-  public Set<MmuDevice> getDevices() {
-    return devices;
+  public void registerDevice(MmuDevice device) {
+    InvariantChecks.checkNotNull(device);
+    devices.put(device.getName(), device);
   }
 
   /**
-   * Registers the device in the memory management unit.
+   * Returns the collection of devices registered in the MMU.
    * 
-   * @param device the device to be registered.
-   * @throws NullPointerException if {@code device} is null.
+   * @return the collection of devices.
    */
-  public void registerDevice(final MmuDevice device) {
-    InvariantChecks.checkNotNull(device);
+  public Collection<MmuDevice> getDevices() {
+    return devices.values();
+  }
 
-    devices.add(device);
+  /**
+   * Returns a device registered in the MMU by its name.
+   * 
+   * @param name the name of the device.
+   * @return device or {@code null} it is undefined.
+   */
+  public MmuDevice getDevice(String name) {
+    return devices.get(name);
   }
 
   /**
