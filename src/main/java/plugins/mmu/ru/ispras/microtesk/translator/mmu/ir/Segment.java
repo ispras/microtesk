@@ -31,22 +31,27 @@ public final class Segment extends AbstractStorage {
   private final BitVector rangeEnd;
 
   public Segment(
-      String id, Address address, Variable addressArg, BitVector rangeStart, BitVector rangeEnd) {
+      final String id,
+      final Address address,
+      final Variable addressArg,
+      final BitVector rangeStart,
+      final BitVector rangeEnd) {
     super(id, address, addressArg, null, createAttributes(addressArg, rangeStart, rangeEnd));
     this.rangeStart = rangeStart;
     this.rangeEnd = rangeEnd;
   }
 
   private static Map<String, Attribute> createAttributes(
-      Variable addressArg, BitVector rangeStart, BitVector rangeEnd) {
-
+      final Variable addressArg,
+      final BitVector rangeStart,
+      final BitVector rangeEnd) {
     checkNotNull(addressArg);
     checkNotNull(rangeStart);
     checkNotNull(rangeEnd);
 
     if (addressArg.getBitSize() != rangeStart.getBitSize() ||
         addressArg.getBitSize() != rangeEnd.getBitSize()) {
-      throw new IllegalArgumentException();      
+      throw new IllegalArgumentException();
     }
 
     final Node hitExpr = new NodeOperation(
@@ -57,9 +62,7 @@ public final class Segment extends AbstractStorage {
             addressArg.getVariable(), NodeValue.newBitVector(rangeEnd))
         );
 
-    final Attribute hitAttr = new Attribute(HIT_ATTR_NAME,
-        DataType.BOOLEAN, Collections.<Stmt>singletonList(new StmtExpr(hitExpr)));
-
+    final Attribute hitAttr = new Attribute(HIT_ATTR_NAME, DataType.BOOLEAN, hitExpr);
     return Collections.singletonMap(hitAttr.getId(), hitAttr);
   }
 

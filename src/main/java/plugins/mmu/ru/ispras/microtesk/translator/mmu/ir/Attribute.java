@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.Node;
 
 public final class Attribute {
   private final String id;
@@ -28,6 +29,10 @@ public final class Attribute {
 
   public Attribute(String id, DataType type) {
     this(id, type, Collections.<Stmt>emptyList());
+  }
+
+  public Attribute(String id, DataType type, Node expr) {
+    this(id, type, Collections.<Stmt>singletonList(new StmtExpr(expr)));
   }
 
   public Attribute(String id, DataType type, List<Stmt> stmts) {
