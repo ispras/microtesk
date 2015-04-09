@@ -121,8 +121,14 @@ public class IntegerField {
 
   @Override
   public String toString() {
-    return  (lo == hi) ?
-        String.format("%s[%d]", var.getName(), lo) :
-        String.format("%s[%d:%d]", var.getName(), lo, hi);
+    if (lo == 0 && hi == var.getWidth() - 1) {
+      return var.getName();
+    }
+
+    if (lo == hi) {
+      return String.format("%s[%d]", var.getName(), lo);
+    }
+
+    return String.format("%s[%d:%d]", var.getName(), lo, hi);
   }
 }

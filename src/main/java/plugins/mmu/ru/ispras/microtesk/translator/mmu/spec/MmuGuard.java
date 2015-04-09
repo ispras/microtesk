@@ -136,31 +136,38 @@ public class MmuGuard {
 
   @Override
   public String toString() {
-    final StringBuilder string = new StringBuilder();
+    final String separator = ", ";
+    final StringBuilder builder = new StringBuilder();
 
-    if (operation == null) {
-      string.append(MemoryOperation.LOAD.toString());
-      string.append("/");
-      string.append(MemoryOperation.STORE.toString());
-    } else {
-      string.append(operation.toString());
-    }
-    string.append(": ");
+    boolean comma = false;
 
-    if (device == null) {
-      string.append("no device");
-    } else {
-      string.append(device.toString());
+    final MemoryOperation operation = getOperation();
+
+    if (operation != null) {
+      builder.append(comma ? separator : "");
+      builder.append(operation);
+      comma = true;
     }
 
-    string.append("(");
-    if (event == null) {
-      string.append("no event");
-    } else {
-      string.append(event.toString());
-    }
-    string.append(")");
+    final MmuDevice device = getDevice();
+    final BufferAccessEvent event = getEvent();
 
-    return string.toString();
+    if (device != null) {
+      builder.append(comma ? separator : "");
+      builder.append(String.format("%s.Event=%s", device, event));
+      comma = true;
+    }
+
+    final MmuCondition condition = getCondition();
+
+    if (condition != null) {
+      for (final MmuEquality equality : condition.getEqualities()) {
+        builder.append(comma ? separator : "");
+        builder.append(equality);
+        comma = true;
+      }
+    }
+
+    return builder.toString();
   }
 }
