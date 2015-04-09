@@ -26,6 +26,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
+import ru.ispras.microtesk.translator.mmu.ir.StmtAssign;
 import ru.ispras.microtesk.translator.mmu.ir.StmtException;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
@@ -141,6 +142,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
       switch(stmt.getKind()) {
         case ASSIGN: {
+          registerAssignment((StmtAssign) stmt);
           break;
         }
 
@@ -174,6 +176,11 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     //
     //
     //
+  }
+
+  private void registerAssignment(StmtAssign stmt) {
+    // TODO Auto-generated method stub
+    System.out.println(stmt);
   }
 
   private void registerException(StmtException exception) {

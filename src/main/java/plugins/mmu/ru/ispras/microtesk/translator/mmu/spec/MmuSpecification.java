@@ -214,21 +214,15 @@ public class MmuSpecification {
 
     final StringBuilder builder = new StringBuilder("MMU:");
 
-    builder.append(newline);
-    builder.append("Addresses: ");
-    builder.append(addresses.size());
+    builder.append(String.format("%nAddresses: %d", addresses.size()));
     for (final MmuAddress address : getAddresses()) {
       builder.append(newline);
       builder.append(address);
     }
-    builder.append(newline);
-    builder.append("Start address: ");
-    builder.append(startAddress);
-    builder.append(newline);
 
-    builder.append(newline);
-    builder.append("Devices: ");
-    builder.append(devices.size());
+    builder.append(String.format("%nStart address: %s%n", startAddress));
+
+    builder.append(String.format("%nDevices: %d", devices.size()));
     for (final MmuDevice device : getDevices()) {
       builder.append(newline);
       builder.append("    ");
