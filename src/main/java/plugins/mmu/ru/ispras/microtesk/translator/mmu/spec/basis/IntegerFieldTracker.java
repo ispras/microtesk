@@ -28,7 +28,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class IntegerFieldTracker {
   private final IntegerVariable variable;
   private List<IntegerField> fields;
-  
+
   private static boolean inField(IntegerField field, int index) {
     return field.getLoIndex() <= index && index <= field.getHiIndex();
   }
