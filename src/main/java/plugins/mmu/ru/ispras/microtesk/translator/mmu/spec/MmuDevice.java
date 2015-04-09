@@ -82,12 +82,19 @@ public class MmuDevice {
    * @param indexExpression the index calculation function.
    * @param offsetExpression the offset calculation function.
    * @param replaceable the flag indicating that data stored in the device are replaceable.
+   * 
    * @throws NullPointerException if some parameters are null.
    * @throws IllegalArgumentException of the address calculation function cannot be reconstructed.
    */
-  public MmuDevice(final String name, final long ways, final long sets, final MmuAddress address,
-      final MmuExpression tagExpression, final MmuExpression indexExpression,
-      final MmuExpression offsetExpression, boolean replaceable) {
+  public MmuDevice(
+      final String name,
+      final long ways,
+      final long sets,
+      final MmuAddress address,
+      final MmuExpression tagExpression,
+      final MmuExpression indexExpression,
+      final MmuExpression offsetExpression,
+      final boolean replaceable) {
 
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(address);
@@ -107,9 +114,9 @@ public class MmuDevice {
     final int addressWidth = address.getAddress().getWidth();
 
     // Create the auxiliary variables to represent the address calculation function.
-    tagVariable = new IntegerVariable(String.format("%s$TAG", name), addressWidth);
-    indexVariable = new IntegerVariable(String.format("%s$INDEX", name), addressWidth);
-    offsetVariable = new IntegerVariable(String.format("%s$OFFSET", name), addressWidth);
+    this.tagVariable = new IntegerVariable(String.format("%s$TAG", name), addressWidth);
+    this.indexVariable = new IntegerVariable(String.format("%s$INDEX", name), addressWidth);
+    this.offsetVariable = new IntegerVariable(String.format("%s$OFFSET", name), addressWidth);
 
     // Derive the address reconstruction expression.
     addressExpression =
@@ -166,12 +173,18 @@ public class MmuDevice {
    * @param offsetVariable the offset variable.
    * @param offsetExpression the offset calculation function.
    * @return the address calculation function.
+   * 
    * @throws IllegalArgumentException if the function cannot be reconstructed.
    */
-  private MmuExpression createAddressExpression(final IntegerVariable addressVariable,
-      final IntegerVariable tagVariable, final MmuExpression tagExpression,
-      final IntegerVariable indexVariable, final MmuExpression indexExpression,
-      final IntegerVariable offsetVariable, final MmuExpression offsetExpression) {
+  private MmuExpression createAddressExpression(
+      final IntegerVariable addressVariable,
+      final IntegerVariable tagVariable,
+      final MmuExpression tagExpression,
+      final IntegerVariable indexVariable,
+      final MmuExpression indexExpression,
+      final IntegerVariable offsetVariable,
+      final MmuExpression offsetExpression) {
+
     final SortedMap<Integer, IntegerField> fields = new TreeMap<>();
 
     reverseAssignment(fields, tagVariable, tagExpression);
@@ -205,8 +218,11 @@ public class MmuDevice {
    * @param expression the right-hand-side expression.
    * @param variable the left-hand-side variable.
    */
-  private void reverseAssignment(final SortedMap<Integer, IntegerField> fields,
-      final IntegerVariable variable, final MmuExpression expression) {
+  private void reverseAssignment(
+      final SortedMap<Integer, IntegerField> fields,
+      final IntegerVariable variable,
+      final MmuExpression expression) {
+
     int offset = 0;
 
     for (final IntegerField addressField : expression.getTerms()) {
@@ -270,7 +286,6 @@ public class MmuDevice {
    */
   public void addField(final IntegerVariable field) {
     InvariantChecks.checkNotNull(field);
-
     fields.add(field);
   }
 
@@ -316,7 +331,7 @@ public class MmuDevice {
    * @param address the address.
    * @return the value of the tag.
    */
-  public long getTag(final long address) {
+  public long getTag(long address) {
     return addressView.getTag(address);
   }
 
@@ -326,7 +341,7 @@ public class MmuDevice {
    * @param address the address.
    * @return the value of the index.
    */
-  public long getIndex(final long address) {
+  public long getIndex(long address) {
     return addressView.getIndex(address);
   }
 
@@ -336,7 +351,7 @@ public class MmuDevice {
    * @param address the address.
    * @return the value of the offset.
    */
-  public long getOffset(final long address) {
+  public long getOffset(long address) {
     return addressView.getOffset(address);
   }
 
@@ -348,7 +363,7 @@ public class MmuDevice {
    * @param offset the offset.
    * @return the value of the address.
    */
-  public long getAddress(final long tag, final long index, final long offset) {
+  public long getAddress(long tag, long index, long offset) {
     return addressView.getAddress(tag, index, offset);
   }
 
