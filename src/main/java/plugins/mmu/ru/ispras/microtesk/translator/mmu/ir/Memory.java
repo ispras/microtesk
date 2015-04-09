@@ -37,7 +37,7 @@ public final class Memory extends AbstractStorage {
     this.variables = Collections.unmodifiableMap(variables);
   }
 
-  public Collection<Variable> getVaraibles() {
+  public Collection<Variable> getVariables() {
     return variables.values();
   }
 
