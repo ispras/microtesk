@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.mmu.spec;
 
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
@@ -78,18 +76,16 @@ public class MmuAssignment {
     final StringBuilder string = new StringBuilder(
         String.format("%s[%d]:", variable.getName(), variable.getWidth()));
 
+    string.append("{");
     if (expression == null) {
-      string.append("{null}");
+      string.append("null");
     } else {
-      final List<IntegerField> terms = expression.getTerms();
-      for (final IntegerField term : terms) {
-        string.append("{");
+      for (final IntegerField term : expression.getTerms()) {
         string.append(term);
-        string.append("}");
       }
     }
+    string.append("}");
 
     return string.toString();
   }
-
 }

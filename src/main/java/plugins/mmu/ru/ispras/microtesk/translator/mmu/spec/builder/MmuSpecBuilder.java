@@ -178,9 +178,12 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     //
   }
 
-  private void registerAssignment(StmtAssign stmt) {
+  private void registerAssignment(StmtAssign assignment) {
+    assignment.getLeft();
+    assignment.getRight();
+    
     // TODO Auto-generated method stub
-    System.out.println(stmt);
+    //System.out.println(stmt);
   }
 
   private void registerException(StmtException exception) {
