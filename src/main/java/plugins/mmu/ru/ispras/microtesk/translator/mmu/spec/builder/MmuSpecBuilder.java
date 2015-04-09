@@ -14,8 +14,10 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
@@ -28,10 +30,13 @@ import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
 import ru.ispras.microtesk.translator.mmu.ir.StmtAssign;
 import ru.ispras.microtesk.translator.mmu.ir.StmtException;
+import ru.ispras.microtesk.translator.mmu.ir.StmtIf;
+import ru.ispras.microtesk.translator.mmu.ir.Variable;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAssignment;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
+import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.MmuTransition;
@@ -50,6 +55,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
   private MmuSpecification spec = null;
   private MmuAction sourceAction = null;
+  private Map<String, IntegerVariable> variables = null;
 
   @Override
   public void processIr(Ir ir) {
@@ -57,6 +63,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     this.spec = new MmuSpecification();
     this.sourceAction = START;
+    this.variables = new LinkedHashMap<>();
 
     for (Address address : ir.getAddresses().values()) {
       registerAddress(address);
@@ -74,6 +81,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final Memory memory = memories.values().iterator().next();
     registerControlFlow(memory);
 
+    System.out.println("---------------------------------");
     System.out.println(spec);
   }
 
@@ -108,6 +116,17 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private void registerControlFlow(Memory memory) {
+    // Variables:
+    
+    // 1. address
+    // 2. data
+    // 3. local variables
+    
+    for(Variable variable : memory.getVariables()) {
+      System.out.println(variable);
+      
+    }
+
     final MmuAddress address = spec.getAddress(memory.getAddress().getId());
     spec.setStartAddress(address);
 
@@ -127,9 +146,11 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerTransition(IF_READ);
     spec.registerTransition(IF_WRITE);
 
+    System.out.println("-------------- READ -----------------------");
     final Attribute readAttr = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
     registerControlFlowForAttribute(readAttr, START);
 
+    System.out.println("-------------- WRITE-----------------------");
     final Attribute writeAttr = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
     registerControlFlowForAttribute(writeAttr, START);
   }
@@ -138,7 +159,6 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     sourceAction = start;
 
     for (Stmt stmt : attribute.getStmts()) {
-      System.out.println(stmt);
 
       switch(stmt.getKind()) {
         case ASSIGN: {
@@ -157,6 +177,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
         }
 
         case IF: {
+          registerIf((StmtIf) stmt);
           break;
         }
 
@@ -170,7 +191,6 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
         }
       }
 
-      System.out.println(stmt);
     }
 
     //
@@ -178,19 +198,40 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     //
   }
 
-  private void registerAssignment(StmtAssign assignment) {
-    assignment.getLeft();
-    assignment.getRight();
-    
-    // TODO Auto-generated method stub
-    //System.out.println(stmt);
+  private void registerAssignment(StmtAssign stmt) {
+    final String name = String.format("%s = %s", stmt.getLeft(), stmt.getRight());
+    System.out.println(name);
+
+    /*final IntegerVariable variable = getVariable(stmt.getLeft());
+    final MmuExpression expression = getExpression(stmt.getRight());
+
+    final MmuAssignment assignment = new MmuAssignment(variable, expression);
+    final MmuAction targetAction = new MmuAction(name, assignment);
+    spec.registerAction(targetAction);
+
+    final MmuTransition transition = new MmuTransition(sourceAction, targetAction);
+    spec.registerTransition(transition);*/
   }
 
-  private void registerException(StmtException exception) {
-    final MmuAction targetAction = new MmuAction(exception.getMessage());
+  private void registerIf(StmtIf stmt) {
+    System.out.println(stmt);
+    
+    // TODO Auto-generated method stub
+  }
+
+  private void registerException(StmtException stmt) {
+    final MmuAction targetAction = new MmuAction(stmt.getMessage());
     spec.registerAction(targetAction);
 
     final MmuTransition transition = new MmuTransition(sourceAction, targetAction);
     spec.registerTransition(transition);
+  }
+
+  private IntegerVariable getVariable(Node expr) {
+    return null;
+  }
+
+  private MmuExpression getExpression(Node expr) {
+    return MmuExpression.ZERO();
   }
 }
