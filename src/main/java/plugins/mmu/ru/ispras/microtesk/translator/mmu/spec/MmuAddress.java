@@ -21,16 +21,18 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
  * This class describes an address, i.e. a parameter used to access some MMU device.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
+
 public final class MmuAddress {
-  /** The address. */
+  /** The variable that describes the address. */
   private final IntegerVariable address;
 
   /**
    * Constructs an address.
    * 
-   * @param address the address variable.
-   * @throws NullPointerException if {@code address} is null.
+   * @param address variable describing the address.
+   * @throws NullPointerException if {@code address} is {@code null}.
    */
   public MmuAddress(final IntegerVariable address) {
     InvariantChecks.checkNotNull(address);
@@ -38,16 +40,53 @@ public final class MmuAddress {
   }
 
   /**
-   * Returns the address variable.
+   * Returns the variable that describes the address.
    * 
-   * @return the address variable.
+   * @return variable that describes the address.
    */
   public IntegerVariable getAddress() {
     return address;
   }
 
+  /**
+   * Returns the address name.
+   * 
+   * @return address name.
+   */
+  public String getName() {
+    return address.getName();
+  }
+
+  /**
+   * Returns the address width (in bits).
+   * 
+   * @return address width (in bits).
+   */
+  public int getWidth() {
+    return address.getWidth();
+  }
+
   @Override
   public String toString() {
-    return String.format("%s[%s]", address.getName(), address.getWidth());
+    return String.format("%s[%d]", getName(), getWidth());
+  }
+
+  @Override
+  public int hashCode() {
+    return getName().hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if ((obj == null) || !(obj instanceof MmuAddress)) {
+      return false;
+    }
+
+    final MmuAddress other = (MmuAddress) obj;
+    return getName().equals(other.getName());
   }
 }
