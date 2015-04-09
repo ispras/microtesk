@@ -40,8 +40,11 @@ public class MmuGuard {
    * @param event the event.
    * @param condition the condition.
    */
-  public MmuGuard(final MemoryOperation operation, final MmuDevice device,
-      final BufferAccessEvent event, final MmuCondition condition) {
+  public MmuGuard(
+      final MemoryOperation operation,
+      final MmuDevice device,
+      final BufferAccessEvent event,
+      final MmuCondition condition) {
     this.operation = operation;
     this.device = device;
     this.event = event;
@@ -55,7 +58,9 @@ public class MmuGuard {
    * @param event the event.
    * @param condition the condition.
    */
-  public MmuGuard(final MmuDevice device, final BufferAccessEvent event,
+  public MmuGuard(
+      final MmuDevice device,
+      final BufferAccessEvent event,
       final MmuCondition condition) {
     this(null, device, event, condition);
   }
