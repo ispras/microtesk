@@ -21,10 +21,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.StandardOperation;
 
 public final class Segment extends AbstractStorage {
   private final BitVector rangeStart;
@@ -36,33 +32,17 @@ public final class Segment extends AbstractStorage {
       final Variable addressArg,
       final BitVector rangeStart,
       final BitVector rangeEnd) {
-    super(id, address, addressArg, null, createAttributes(addressArg, rangeStart, rangeEnd));
+    super(id, address, addressArg, null, createAttributes());
+
+    checkNotNull(rangeStart);
+    checkNotNull(rangeEnd);
+
     this.rangeStart = rangeStart;
     this.rangeEnd = rangeEnd;
   }
 
-  private static Map<String, Attribute> createAttributes(
-      final Variable addressArg,
-      final BitVector rangeStart,
-      final BitVector rangeEnd) {
-    checkNotNull(addressArg);
-    checkNotNull(rangeStart);
-    checkNotNull(rangeEnd);
-
-    if (addressArg.getBitSize() != rangeStart.getBitSize() ||
-        addressArg.getBitSize() != rangeEnd.getBitSize()) {
-      throw new IllegalArgumentException();
-    }
-
-    final Node hitExpr = new NodeOperation(
-        StandardOperation.AND,
-        new NodeOperation(StandardOperation.BVUGE,
-            addressArg.getVariable(), NodeValue.newBitVector(rangeStart)),
-        new NodeOperation(StandardOperation.BVULE,
-            addressArg.getVariable(), NodeValue.newBitVector(rangeEnd))
-        );
-
-    final Attribute hitAttr = new Attribute(HIT_ATTR_NAME, DataType.BOOLEAN, hitExpr);
+  private static Map<String, Attribute> createAttributes() {
+    final Attribute hitAttr = new Attribute(HIT_ATTR_NAME, DataType.BOOLEAN);
     return Collections.singletonMap(hitAttr.getId(), hitAttr);
   }
 
@@ -76,7 +56,7 @@ public final class Segment extends AbstractStorage {
 
   @Override
   public String toString() {
-    return String.format("segment %s(%s) range = (%s, %s)",
+    return String.format("segment %s(%s) range = (0x%s, 0x%s)",
         getId(), getAddressArg(), rangeStart.toHexString(), rangeEnd.toHexString());
   }
 }
