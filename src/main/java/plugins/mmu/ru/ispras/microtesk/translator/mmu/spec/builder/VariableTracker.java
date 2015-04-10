@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
