@@ -23,16 +23,16 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.microtesk.translator.mmu.ir.Variable;
-import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerFieldTracker;
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 final class AddressFormatExtractor {
-  private final MmuAddress address;
-  private final Variable addressArg;
+  private final VariableTracker variables;
+
+  private final IntegerVariable address;
   private final IntegerFieldTracker addressFieldTracker;
 
   private final MmuExpression indexExpr;
@@ -47,7 +47,7 @@ final class AddressFormatExtractor {
     }
 
     @Override
-    public void onOperationBegin(NodeOperation node) {
+    public void onOperationBegin(final NodeOperation node) {
       if (node.getOperationId() != StandardOperation.BVEXTRACT) {
         return;
       }
@@ -57,34 +57,47 @@ final class AddressFormatExtractor {
       }
 
       final Node variable = node.getOperand(2);
-      if (!variable.equals(addressArg.getVariable())) {
+      if (variable.getKind() != Node.Kind.VARIABLE) {
+        return;
+      }
+
+      final IntegerVariable integerVariable = 
+          variables.getVariable(((NodeVariable)variable).getName());
+
+      if (!address.equals(integerVariable)) {
         return;
       }
 
       final int lo = FortressUtils.extractInt(node.getOperand(1));
       final int hi = FortressUtils.extractInt(node.getOperand(0));
 
-      fields.add(new IntegerField(address.getAddress(), lo, hi));
+      fields.add(new IntegerField(address, lo, hi));
       addressFieldTracker.exclude(lo, hi);
 
       setStatus(Status.SKIP);
     }
 
     @Override
-    public void onVariable(NodeVariable variable) {
-      if (!variable.equals(addressArg.getVariable())) {
+    public void onVariable(final NodeVariable variable) {
+      final IntegerVariable integerVariable = variables.getVariable(variable.getName());
+      if (!address.equals(integerVariable)) {
         return;
       }
 
       addressFieldTracker.excludeAll();
-      fields.add(new IntegerField(address.getAddress()));
+      fields.add(new IntegerField(address));
     }
   }
 
-  public AddressFormatExtractor(MmuAddress address, Variable addressArg, Node index, Node match) {
+  public AddressFormatExtractor(
+      final VariableTracker variables,
+      final IntegerVariable address,
+      final Node index,
+      final Node match) {
+    this.variables = variables;
+
     this.address = address;
-    this.addressArg = addressArg;
-    this.addressFieldTracker = new IntegerFieldTracker(address.getAddress());
+    this.addressFieldTracker = new IntegerFieldTracker(address);
 
     // TODO: check the format of the "index" expression. Throw exception if needed.
     this.indexExpr = MmuExpression.RCAT(extractFields(index));
@@ -94,7 +107,7 @@ final class AddressFormatExtractor {
     this.offsetExpr = MmuExpression.RCAT(addressFieldTracker.getFields());
   }
 
-  private List<IntegerField> extractFields(Node expr) {
+  private List<IntegerField> extractFields(final Node expr) {
     final Visitor visitor = new Visitor();
     final ExprTreeWalker walker = new ExprTreeWalker(visitor);
 
