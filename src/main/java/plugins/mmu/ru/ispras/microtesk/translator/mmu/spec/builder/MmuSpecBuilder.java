@@ -138,18 +138,18 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     registerMemoryVariables(address.getAddress(), memory);
     System.out.println(variables);
 
-    final MmuAction ROOT = new MmuAction("ROOT", new MmuAssignment(address.getAddress()));
-    spec.registerAction(ROOT);
+    final MmuAction root = new MmuAction("ROOT", new MmuAssignment(address.getAddress()));
+    spec.registerAction(root);
+    spec.setStartAction(root);
 
     spec.registerAction(START);
-    spec.setStartAction(START);
     spec.registerAction(STOP);
 
     final MmuTransition IF_READ = new MmuTransition(
-        ROOT, START, new MmuGuard(MemoryOperation.LOAD));
+        root, START, new MmuGuard(MemoryOperation.LOAD));
 
     final MmuTransition IF_WRITE = new MmuTransition(
-        ROOT, START, new MmuGuard(MemoryOperation.STORE));
+        root, START, new MmuGuard(MemoryOperation.STORE));
 
     spec.registerTransition(IF_READ);
     spec.registerTransition(IF_WRITE);
