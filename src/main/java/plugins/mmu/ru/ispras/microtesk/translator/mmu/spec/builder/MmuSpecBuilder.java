@@ -14,10 +14,12 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
@@ -55,20 +57,17 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
   private MmuSpecification spec = null;
   private VariableTracker variables = null;
-  private MmuAction sourceAction = null;
-
 
   public MmuSpecification getSpecification() {
     return spec;
   }
 
   @Override
-  public void processIr(Ir ir) {
+  public void processIr(final Ir ir) {
     System.out.println(ir);
 
     this.spec = new MmuSpecification();
     this.variables = new VariableTracker();
-    this.sourceAction = START;
 
     for (Address address : ir.getAddresses().values()) {
       registerAddress(address);
@@ -90,7 +89,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     System.out.println(spec);
   }
 
-  private void registerAddress(Address address) {
+  private void registerAddress(final Address address) {
     final IntegerVariable addressVariable = 
         new IntegerVariable(address.getId(), address.getBitSize());
 
@@ -98,7 +97,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerAddress(new MmuAddress(addressVariable));
   }
 
-  private void registerDevice(Buffer buffer) {
+  private void registerDevice(final Buffer buffer) {
     final MmuAddress address = spec.getAddress(buffer.getAddress().getId());
     final boolean isReplaceable = PolicyId.NONE != buffer.getPolicy();
 
@@ -119,7 +118,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           addressFormat.getOffsetExpr(),
           isReplaceable
           );
-    
+
       for(Field field : buffer.getEntry().getFields()) {
         final IntegerVariable fieldVar = new IntegerVariable(field.getId(), field.getBitSize());
         device.addField(fieldVar);
@@ -155,11 +154,13 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerTransition(IF_READ);
     spec.registerTransition(IF_WRITE);
 
+    System.out.println("-----------------READ----------------");
     final Attribute readAttr = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
-    registerControlFlowForAttribute(readAttr, START);
+    registerControlFlow(START, readAttr.getStmts());
 
+    System.out.println("----------------WRITE----------------");
     final Attribute writeAttr = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
-    registerControlFlowForAttribute(writeAttr, START);
+    registerControlFlow(START, writeAttr.getStmts());
   }
 
   private void registerMemoryVariables(IntegerVariable address, Memory memory) {
@@ -174,43 +175,34 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
   }
 
-  private void registerControlFlowForAttribute(Attribute attribute, MmuAction start) {
-    System.out.println("-------------- " + attribute.getId() + " -----------------------");
+  private void registerControlFlow(final MmuAction source, final List<Stmt> stmts) {
+    MmuAction current = source;
 
-    sourceAction = start;
-
-    for (Stmt stmt : attribute.getStmts()) {
+    for (Stmt stmt : stmts) {
       switch(stmt.getKind()) {
-        case ASSIGN: {
-          registerAssignment((StmtAssign) stmt);
+        case ASSIGN:
+          current = registerAssignment(current, (StmtAssign) stmt);
           break;
-        }
 
-        case EXCEPT: {
-          registerException((StmtException) stmt);
+        case EXCEPT:
+          registerException(current, (StmtException) stmt);
           // Control flow cannot be continued after exception.
           return;
-        }
 
-        case IF: {
-          registerIf((StmtIf) stmt);
+        case IF:
+          current = registerIf(current, (StmtIf) stmt);
           break;
-        }
 
-        case TRACE: {
-          // Ignore
+        case TRACE: // Ignored
           break;
-        }
 
-        default: {
-          throw new IllegalStateException(
-              "Unknown statement: " + stmt.getKind());
-        }
+        default:
+          throw new IllegalStateException("Unknown statement: " + stmt.getKind());
       }
     }
   }
 
-  private void registerAssignment(StmtAssign stmt) {
+  private MmuAction registerAssignment(final MmuAction source, final StmtAssign stmt) {
     final Node lhs = stmt.getLeft();
     final Node rhs = stmt.getRight();
 
@@ -221,30 +213,44 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       throw new IllegalStateException("Left-hand side must be a variable expression: " + lhs);
     }
 
+    System.out.println("!!! " + lhs.getUserData());
+    System.out.println("!!! " + lhs.getUserData().getClass());
+
     System.out.println(variables.checkDefined(((NodeVariable) lhs).getName()));
 
     /*final IntegerVariable variable = getVariable(stmt.getLeft());
     final MmuExpression expression = getExpression(stmt.getRight());
 
     final MmuAssignment assignment = new MmuAssignment(variable, expression);
+    
     final MmuAction targetAction = new MmuAction(name, assignment);
     spec.registerAction(targetAction);
 
     final MmuTransition transition = new MmuTransition(sourceAction, targetAction);
     spec.registerTransition(transition);*/
+    
+    // TODO
+    return source;
   }
 
-  private void registerIf(StmtIf stmt) {
+  private MmuAction registerIf(final MmuAction source, final StmtIf stmt) {
     System.out.println(stmt);
     
+    for (Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
+      
+    }
+    
     // TODO Auto-generated method stub
+    return source;
   }
 
-  private void registerException(StmtException stmt) {
-    final MmuAction targetAction = new MmuAction(stmt.getMessage());
-    spec.registerAction(targetAction);
+  private void registerException(final MmuAction source, final StmtException stmt) {
+    final String name = stmt.getMessage();
 
-    final MmuTransition transition = new MmuTransition(sourceAction, targetAction);
+    final MmuAction target = new MmuAction(name);
+    spec.registerAction(target);
+
+    final MmuTransition transition = new MmuTransition(source, target);
     spec.registerTransition(transition);
   }
 
