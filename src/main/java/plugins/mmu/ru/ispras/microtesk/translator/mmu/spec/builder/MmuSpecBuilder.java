@@ -126,6 +126,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       }
 
       spec.registerDevice(device);
+      variables.defineGroup(device.getName(), device.getFields());
     } finally {
       variables.undefineVariable(addressArgName);
     }
@@ -136,6 +137,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.setStartAddress(address);
 
     registerMemoryVariables(address.getAddress(), memory);
+    System.out.println(variables);
 
     final MmuAction ROOT = new MmuAction("ROOT", new MmuAssignment(address.getAddress()));
     spec.registerAction(ROOT);
