@@ -144,32 +144,19 @@ public class MmuGuard {
     final String separator = ", ";
     final StringBuilder builder = new StringBuilder();
 
-    boolean comma = false;
-
-    final MemoryOperation operation = getOperation();
-
     if (operation != null) {
-      builder.append(comma ? separator : "");
       builder.append(operation);
-      comma = true;
     }
-
-    final MmuDevice device = getDevice();
-    final BufferAccessEvent event = getEvent();
 
     if (device != null) {
-      builder.append(comma ? separator : "");
+      builder.append(builder.length() > 0 ? separator : "");
       builder.append(String.format("%s.Event=%s", device, event));
-      comma = true;
     }
-
-    final MmuCondition condition = getCondition();
 
     if (condition != null) {
       for (final MmuEquality equality : condition.getEqualities()) {
-        builder.append(comma ? separator : "");
+        builder.append(builder.length() > 0 ? separator : "");
         builder.append(equality);
-        comma = true;
       }
     }
 
