@@ -20,22 +20,17 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.expression.Node;
 
 public final class Attribute {
   private final String id;
   private final List<Stmt> stmts;
   private final DataType type;
 
-  public Attribute(String id, DataType type) {
+  public Attribute(final String id, final DataType type) {
     this(id, type, Collections.<Stmt>emptyList());
   }
 
-  public Attribute(String id, DataType type, Node expr) {
-    this(id, type, Collections.<Stmt>singletonList(new StmtExpr(expr)));
-  }
-
-  public Attribute(String id, DataType type, List<Stmt> stmts) {
+  public Attribute(final String id, final DataType type, final List<Stmt> stmts) {
     checkNotNull(id);
     checkNotNull(stmts);
 
