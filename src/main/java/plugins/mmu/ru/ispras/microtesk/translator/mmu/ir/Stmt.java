@@ -21,7 +21,6 @@ public abstract class Stmt {
   public static enum Kind {
     ASSIGN,
     EXCEPT,
-    EXPR,
     IF,
     TRACE
   }
