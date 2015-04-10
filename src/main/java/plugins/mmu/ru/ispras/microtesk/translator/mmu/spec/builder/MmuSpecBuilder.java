@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
-import java.util.Collection;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
@@ -49,23 +49,30 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
  *
  */
 
-public class MmuSpecBuilder implements TranslatorHandler<Ir> {
+public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   public static final MmuAction START = new MmuAction("START");
   public static final MmuAction STOP = new MmuAction("STOP");
 
   private MmuSpecification spec = null;
-  private MmuAction sourceAction = null;
   private VariableTracker variables = null;
+  private MmuAction sourceAction = null;
+
+
+  public MmuSpecification getSpecification() {
+    return spec;
+  }
 
   @Override
   public void processIr(Ir ir) {
     System.out.println(ir);
 
     this.spec = new MmuSpecification();
-    this.sourceAction = START;
     this.variables = new VariableTracker();
+    this.sourceAction = START;
 
-    registerAddresses(ir.getAddresses().values());
+    for (Address address : ir.getAddresses().values()) {
+      registerAddress(address);
+    }
 
     for (Buffer buffer : ir.getBuffers().values()) {
       registerDevice(buffer);
@@ -77,20 +84,18 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
 
     final Memory memory = memories.values().iterator().next();
-    registerControlFlow(memory);
+    registerControlFlowForMemory(memory);
 
     System.out.println("---------------------------------");
     System.out.println(spec);
   }
 
-  private void registerAddresses(Collection<Address> addresses) {
-    for (Address address : addresses) {
-      final IntegerVariable addressVariable = 
-          new IntegerVariable(address.getId(), address.getBitSize());
+  private void registerAddress(Address address) {
+    final IntegerVariable addressVariable = 
+        new IntegerVariable(address.getId(), address.getBitSize());
 
-      variables.defineVariable(addressVariable);
-      spec.registerAddress(new MmuAddress(addressVariable));
-    }
+    variables.defineVariable(addressVariable);
+    spec.registerAddress(new MmuAddress(addressVariable));
   }
 
   private void registerDevice(Buffer buffer) {
@@ -126,20 +131,11 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
   }
 
-  private void registerControlFlow(Memory memory) {
-    // Variables:
-
-    // 1. address
-    // 2. data
-    // 3. local variables
-
-    for(Variable variable : memory.getVariables()) {
-      System.out.println(variable);
-      
-    }
-
+  private void registerControlFlowForMemory(Memory memory) {
     final MmuAddress address = spec.getAddress(memory.getAddress().getId());
     spec.setStartAddress(address);
+
+    registerMemoryVariables(address.getAddress(), memory);
 
     final MmuAction ROOT = new MmuAction("ROOT", new MmuAssignment(address.getAddress()));
     spec.registerAction(ROOT);
@@ -157,20 +153,31 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerTransition(IF_READ);
     spec.registerTransition(IF_WRITE);
 
-    System.out.println("-------------- READ -----------------------");
     final Attribute readAttr = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
     registerControlFlowForAttribute(readAttr, START);
 
-    System.out.println("-------------- WRITE-----------------------");
     final Attribute writeAttr = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
     registerControlFlowForAttribute(writeAttr, START);
   }
 
+  private void registerMemoryVariables(IntegerVariable address, Memory memory) {
+    final Variable addressArg = memory.getAddressArg();
+    final Variable dataArg = memory.getDataArg();
+
+    variables.defineVariableAs(address, addressArg.getId());
+    variables.defineVariable(new IntegerVariable(dataArg.getId(), dataArg.getBitSize()));
+
+    for(Variable variable : memory.getVariables()) {
+      variables.defineVariable(variable);
+    }
+  }
+
   private void registerControlFlowForAttribute(Attribute attribute, MmuAction start) {
+    System.out.println("-------------- " + attribute.getId() + " -----------------------");
+
     sourceAction = start;
 
     for (Stmt stmt : attribute.getStmts()) {
-
       switch(stmt.getKind()) {
         case ASSIGN: {
           registerAssignment((StmtAssign) stmt);
@@ -194,15 +201,25 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
         }
 
         default: {
-          break;
+          throw new IllegalStateException(
+              "Unknown statement: " + stmt.getKind());
         }
       }
     }
   }
 
   private void registerAssignment(StmtAssign stmt) {
-    final String name = String.format("%s = %s", stmt.getLeft(), stmt.getRight());
+    final Node lhs = stmt.getLeft();
+    final Node rhs = stmt.getRight();
+
+    final String name = String.format("%s = %s", lhs, rhs);
     System.out.println(name);
+
+    if (lhs.getKind() != Node.Kind.VARIABLE) {
+      throw new IllegalStateException("Left-hand side must be a variable expression: " + lhs);
+    }
+
+    System.out.println(variables.checkDefined(((NodeVariable) lhs).getName()));
 
     /*final IntegerVariable variable = getVariable(stmt.getLeft());
     final MmuExpression expression = getExpression(stmt.getRight());

@@ -19,6 +19,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.translator.mmu.ir.Type;
+import ru.ispras.microtesk.translator.mmu.ir.Variable;
+
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 public final class VariableTracker {
@@ -57,6 +60,10 @@ public final class VariableTracker {
     return variableGroups.get(name);
   }
 
+  public void undefineVariable(String name) {
+    variables.remove(name);
+  }
+
   public void defineVariable(IntegerVariable variable) {
     checkNotNull(variable);
     variables.put(variable.getName(), variable);
@@ -68,7 +75,17 @@ public final class VariableTracker {
     variables.put(name, variable);
   }
 
-  public void undefineVariable(String name) {
-    variables.remove(name);
+  public void defineVariable(Variable variable) {
+    checkNotNull(variable);
+
+    final Type type = variable.getType();
+    if (type.getFieldCount() == 0) {
+      final IntegerVariable var = new IntegerVariable(variable.getId(), variable.getBitSize());
+      variables.put(var.getName(), var);
+      return;
+    }
+
+    System.out.println(variable);
+    //variables.put(variable.getName(), variable);
   }
 }
