@@ -29,11 +29,10 @@ import ru.ispras.unitesk.processor.test.basis.IntegerVariable;
 public class MmuConditionTestCase {
   private static final IntegerVariable VAR = new IntegerVariable("VAR", 64);
 
-  public void runTest(long min, long max) {
+  public void runTest(final BigInteger min, final BigInteger max) {
     System.out.format("Range: min=%x, max=%x\n", min, max);
 
-    final MmuCondition condition = MmuCondition.RANGE(VAR,
-        BigInteger.valueOf(min), BigInteger.valueOf(max));
+    final MmuCondition condition = MmuCondition.RANGE(VAR, min, max);
 
     System.out.println(condition);
     Assert.assertNotNull(condition);
@@ -41,10 +40,11 @@ public class MmuConditionTestCase {
 
   @Test
   public void runTest() {
-    runTest(0x000L, 0xfffL);
-    runTest(0x0000000000000000L, 0x000000007FFFffffL);
-    runTest(0x08L, 0xffL);
-    runTest(0x0000000080000000L, 0x000000ffFFFFffffL);
-    runTest(0x4000000000000000L, 0x400000ffFFFFffffL);
+    runTest(new BigInteger("0000000000000000", 16), new BigInteger("000000007FFFffff", 16));
+    runTest(new BigInteger("0000000080000000", 16), new BigInteger("000000ffFFFFffff", 16));
+    runTest(new BigInteger("4000000000000000", 16), new BigInteger("400000ffFFFFffff", 16));
+    runTest(new BigInteger("FFFFffffc0000000", 16), new BigInteger("FFFFffffdFFFffff", 16));
+    runTest(new BigInteger("FFFFffffe0000000", 16), new BigInteger("FFFFffffFFFFffff", 16));
+    runTest(new BigInteger("c000000000000000", 16), new BigInteger("c00000ff7FFFffff", 16));
   }
 }

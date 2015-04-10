@@ -141,50 +141,51 @@ public class MmuCondition {
       return EQ(var, min);
     }
 
-    int lo1;
-    int hi1;
+    int lo, hi;
 
-    for (hi1 = var.getWidth() - 1; hi1 >= 0; hi1--) {
-      if (min.testBit(hi1) != max.testBit(hi1)) {
+    // MIN = DEAD BEEF XXXX XXXX
+    // MAX = DEAD BEEF YYYY YYYY
+    for (hi = var.getWidth() - 1; hi >= 0; hi--) {
+      if (min.testBit(hi) != max.testBit(hi)) {
         break;
       }
     }
 
     final List<MmuEquality> equalities = new ArrayList<>();
 
-    if (hi1 + 1 != var.getWidth()) {
-      equalities.add(MmuEquality.EQ(var, hi1 + 1, var.getWidth() - 1, min.shiftRight(hi1)));
+    if (hi + 1 != var.getWidth()) {
+      // Equality: VAR[HI:32] = DEAD BEEF
+      equalities.add(MmuEquality.EQ(var, hi + 1, var.getWidth() - 1, min.shiftRight(hi)));
     }
 
-    for (lo1 = 0; lo1 < var.getWidth(); lo1++) {
-      if (min.testBit(lo1) || !max.testBit(lo1)) {
+    // MIN = DEAD BEEF XXXX 0000
+    // MAX = DEAD BEEF YYYY FFFF
+    for (lo = 0; lo < var.getWidth(); lo++) {
+      if (min.testBit(lo) || !max.testBit(lo)) {
         break;
       }
     }
 
-    if (lo1 <= hi1 && lo1 < var.getWidth()) {
-      int lo2;
-      int hi2;
+    if (lo <= hi && lo < var.getWidth()) {
+      // XXXX
+      final BigInteger min1 = min.mod(BigInteger.ONE.shiftLeft(hi + 1)).shiftRight(lo);
+      // YYYY
+      final BigInteger max1 = max.mod(BigInteger.ONE.shiftLeft(hi + 1)).shiftRight(lo);
 
-      for (hi2 = hi1; hi2 >= lo1; hi2--) {
-        if (min.testBit(hi2) || !max.testBit(hi2)) {
-          break;
-        }
-      }
-
-      for (lo2 = lo1; lo2 < hi1; lo2++) {
-        if (min.testBit(lo2) != max.testBit(lo2)) {
-          break;
-        }
-      }
-
-      if (lo2 != hi2 + 1 || lo2 == lo1) {
-        // Cannot approximate the range constraint.
+      // YYYY != FFFF
+      if (max1.compareTo(BigInteger.ONE.shiftLeft((hi - lo) + 1).subtract(BigInteger.ONE)) != 0) {
         return null;
       }
 
-      equalities.add(MmuEquality.EQ(var, lo1, lo2 - 1,
-          min.mod(BigInteger.ONE.shiftLeft(lo2)).shiftRight(lo1)));
+      // XXXX > 10 (rather big)
+      if (min1.compareTo(BigInteger.TEN) > 0) {
+        return null;
+      }
+
+      for (int i = 0; i < min1.longValue(); i++) {
+        // Inequality: XXXX != i
+        equalities.add(MmuEquality.NEQ(var, lo, hi, BigInteger.valueOf(i)));
+      }
     }
 
     return AND(equalities.toArray(new MmuEquality[] {}));
