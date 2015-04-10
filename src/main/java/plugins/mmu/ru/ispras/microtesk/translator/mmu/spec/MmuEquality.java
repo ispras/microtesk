@@ -189,9 +189,9 @@ public class MmuEquality {
       case NOT_EQUAL:
         return String.format("%s!=%s", expression, expression);
       case EQUAL_CONST:
-        return String.format("%s=%s", expression, constant);
+        return String.format("%s=%s", expression, constant.toString(16));
       case NOT_EQUAL_CONST:
-        return String.format("%s!=%s", expression, constant);
+        return String.format("%s!=%s", expression, constant.toString(16));
       case EQUAL_REPLACED:
         return String.format("%s=REPLACED", expression);
       default:

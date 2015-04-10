@@ -127,6 +127,70 @@ public class MmuCondition {
   }
 
   /**
+   * Tries to create a condition expressing the constraint {@code var is in [min, max]}.
+   * 
+   * @param var the variable.
+   * @param min the lower bound of the range.
+   * @param max the upper bound of the range.
+   * @return the condition or {@code null}.
+   */
+  public static MmuCondition RANGE(final IntegerVariable var,
+      final BigInteger min, final BigInteger max) {
+
+    if (min.compareTo(max) == 0) {
+      return EQ(var, min);
+    }
+
+    int lo1;
+    int hi1;
+
+    for (hi1 = var.getWidth() - 1; hi1 >= 0; hi1--) {
+      if (min.testBit(hi1) != max.testBit(hi1)) {
+        break;
+      }
+    }
+
+    final List<MmuEquality> equalities = new ArrayList<>();
+
+    if (hi1 + 1 != var.getWidth()) {
+      equalities.add(MmuEquality.EQ(var, hi1 + 1, var.getWidth() - 1, min.shiftRight(hi1)));
+    }
+
+    for (lo1 = 0; lo1 < var.getWidth(); lo1++) {
+      if (min.testBit(lo1) || !max.testBit(lo1)) {
+        break;
+      }
+    }
+
+    if (lo1 <= hi1 && lo1 < var.getWidth()) {
+      int lo2;
+      int hi2;
+
+      for (hi2 = hi1; hi2 >= lo1; hi2--) {
+        if (min.testBit(hi2) || !max.testBit(hi2)) {
+          break;
+        }
+      }
+
+      for (lo2 = lo1; lo2 < hi1; lo2++) {
+        if (min.testBit(lo2) != max.testBit(lo2)) {
+          break;
+        }
+      }
+
+      if (lo2 != hi2 + 1 || lo2 == lo1) {
+        // Cannot approximate the range constraint.
+        return null;
+      }
+
+      equalities.add(MmuEquality.EQ(var, lo1, lo2 - 1,
+          min.mod(BigInteger.ONE.shiftLeft(lo2)).shiftRight(lo1)));
+    }
+
+    return AND(equalities.toArray(new MmuEquality[] {}));
+  }
+
+  /**
    * Constructs a condition.
    */
   public MmuCondition() {}
