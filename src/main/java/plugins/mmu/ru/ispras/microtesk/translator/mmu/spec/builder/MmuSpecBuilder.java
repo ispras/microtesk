@@ -154,13 +154,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerTransition(IF_READ);
     spec.registerTransition(IF_WRITE);
 
-    System.out.println("-----------------READ----------------");
-    final Attribute readAttr = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
-    registerControlFlow(START, readAttr.getStmts());
-
-    System.out.println("----------------WRITE----------------");
-    final Attribute writeAttr = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
-    registerControlFlow(START, writeAttr.getStmts());
+    registerControlFlowForAttribute(memory, AbstractStorage.READ_ATTR_NAME);
+    registerControlFlowForAttribute(memory, AbstractStorage.WRITE_ATTR_NAME);
   }
 
   private void registerMemoryVariables(IntegerVariable address, Memory memory) {
@@ -175,7 +170,24 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
   }
 
-  private void registerControlFlow(final MmuAction source, final List<Stmt> stmts) {
+  private void registerControlFlowForAttribute(
+      final Memory memory,
+      final String attributeName) {
+    System.out.println("---------------- " + attributeName + " ----------------");
+
+    final Attribute attribute = memory.getAttribute(attributeName);
+    if (null == attribute) {
+      throw new IllegalStateException(String.format(
+          "Undefined attribute: %s.%s", memory.getId(), attributeName));
+    }
+
+    final MmuAction stop = registerControlFlow(START, attribute.getStmts());
+    if (null != stop) {
+      spec.registerTransition(new MmuTransition(stop, STOP));
+    }
+  }
+
+  private MmuAction registerControlFlow(final MmuAction source, final List<Stmt> stmts) {
     MmuAction current = source;
 
     for (Stmt stmt : stmts) {
@@ -186,8 +198,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
         case EXCEPT:
           registerException(current, (StmtException) stmt);
-          // Control flow cannot be continued after exception.
-          return;
+          return null; // Control flow cannot be continued after exception.
 
         case IF:
           current = registerIf(current, (StmtIf) stmt);
@@ -200,6 +211,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           throw new IllegalStateException("Unknown statement: " + stmt.getKind());
       }
     }
+
+    return current;
   }
 
   private MmuAction registerAssignment(final MmuAction source, final StmtAssign stmt) {
