@@ -58,6 +58,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   private MmuSpecification spec = null;
   private VariableTracker variables = null;
 
+  /** Stores index used in automatically generated action names to ensure their uniqueness. */
+  private int actionIndex = 0;
+
   public MmuSpecification getSpecification() {
     return spec;
   }
@@ -68,6 +71,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     this.spec = new MmuSpecification();
     this.variables = new VariableTracker();
+    this.actionIndex = 0;
 
     for (Address address : ir.getAddresses().values()) {
       registerAddress(address);
@@ -87,6 +91,16 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     System.out.println("---------------------------------");
     System.out.println(spec);
+  }
+
+  private MmuAction newBranch(String text) {
+    return new MmuAction(String.format(
+        "Branch_%d[%s]", actionIndex++, text));
+  }
+
+  private MmuAction newJoin() {
+    return new MmuAction(String.format("Join_%d", actionIndex++));
+    
   }
 
   private void registerAddress(final Address address) {
@@ -248,13 +262,42 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
   private MmuAction registerIf(final MmuAction source, final StmtIf stmt) {
     System.out.println(stmt);
-    
+
+    final MmuAction join = newJoin();
+    spec.registerAction(join);
+
+    MmuAction current = source;
+
     for (Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
-      
+      final Node condition = block.first;
+      final List<Stmt> stmts = block.second;
+
+      final MmuAction ifTrueStart = newBranch(condition.toString());
+      spec.registerAction(ifTrueStart);
+
+      final MmuGuard guardIfTrue = null; // TODO !!!
+      spec.registerTransition(new MmuTransition(current, ifTrueStart, guardIfTrue));
+
+      final MmuAction ifTrueStop = registerControlFlow(ifTrueStart, stmts);
+      if (null != ifTrueStop) {
+        spec.registerTransition(new MmuTransition(ifTrueStop, join));
+      }
+
+      final MmuAction ifFalseStart = newBranch("not " + condition.toString());
+      spec.registerAction(ifFalseStart);
+
+      final MmuGuard guardIfFalse = null; // TODO !!!
+      spec.registerTransition(new MmuTransition(current, ifFalseStart, guardIfFalse));
+
+      current = ifFalseStart;
     }
-    
-    // TODO Auto-generated method stub
-    return source;
+
+    current = registerControlFlow(current, stmt.getElseBlock());
+    if (null != current) {
+      spec.registerTransition(new MmuTransition(current, join));
+    }
+
+    return join;
   }
 
   private void registerException(final MmuAction source, final StmtException stmt) {
