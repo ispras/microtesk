@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
-import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
@@ -55,7 +55,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
   private MmuSpecification spec = null;
   private MmuAction sourceAction = null;
-  private Map<String, IntegerVariable> variables = null;
+  private VariableTracker variables = null;
 
   @Override
   public void processIr(Ir ir) {
@@ -63,11 +63,9 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     this.spec = new MmuSpecification();
     this.sourceAction = START;
-    this.variables = new LinkedHashMap<>();
+    this.variables = new VariableTracker();
 
-    for (Address address : ir.getAddresses().values()) {
-      registerAddress(address);
-    }
+    registerAddresses(ir.getAddresses().values());
 
     for (Buffer buffer : ir.getBuffers().values()) {
       registerDevice(buffer);
@@ -85,43 +83,56 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
     System.out.println(spec);
   }
 
-  private void registerAddress(Address address) {
-    final IntegerVariable variable = new IntegerVariable(address.getId(), address.getBitSize());
-    spec.registerAddress(new MmuAddress(variable));
+  private void registerAddresses(Collection<Address> addresses) {
+    for (Address address : addresses) {
+      final IntegerVariable addressVariable = 
+          new IntegerVariable(address.getId(), address.getBitSize());
+
+      variables.defineVariable(addressVariable);
+      spec.registerAddress(new MmuAddress(addressVariable));
+    }
   }
 
   private void registerDevice(Buffer buffer) {
     final MmuAddress address = spec.getAddress(buffer.getAddress().getId());
     final boolean isReplaceable = PolicyId.NONE != buffer.getPolicy();
 
-    final AddressFormatExtractor addressFormat = new AddressFormatExtractor(
-        address, buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());
+    final String addressArgName = buffer.getAddressArg().getId();
+    variables.defineVariableAs(address.getAddress(), addressArgName);
 
-    final MmuDevice device = new MmuDevice(
-        buffer.getId(),
-        buffer.getWays(),
-        buffer.getSets(),
-        address,
-        addressFormat.getTagExpr(),
-        addressFormat.getIndexExpr(),
-        addressFormat.getOffsetExpr(),
-        isReplaceable
-        );
+    try {
+      final AddressFormatExtractor addressFormat = new AddressFormatExtractor(
+          variables, address.getAddress(), buffer.getIndex(), buffer.getMatch());
 
-    for(Field field : buffer.getEntry().getFields()) {
-      device.addField(new IntegerVariable(field.getId(), field.getBitSize()));
+      final MmuDevice device = new MmuDevice(
+          buffer.getId(),
+          buffer.getWays(),
+          buffer.getSets(),
+          address,
+          addressFormat.getTagExpr(),
+          addressFormat.getIndexExpr(),
+          addressFormat.getOffsetExpr(),
+          isReplaceable
+          );
+    
+      for(Field field : buffer.getEntry().getFields()) {
+        final IntegerVariable fieldVar = new IntegerVariable(field.getId(), field.getBitSize());
+        device.addField(fieldVar);
+      }
+
+      spec.registerDevice(device);
+    } finally {
+      variables.undefineVariable(addressArgName);
     }
-
-    spec.registerDevice(device);
   }
 
   private void registerControlFlow(Memory memory) {
     // Variables:
-    
+
     // 1. address
     // 2. data
     // 3. local variables
-    
+
     for(Variable variable : memory.getVariables()) {
       System.out.println(variable);
       
@@ -172,10 +183,6 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
           return;
         }
 
-        case EXPR: {
-          break;
-        }
-
         case IF: {
           registerIf((StmtIf) stmt);
           break;
@@ -190,12 +197,7 @@ public class MmuSpecBuilder implements TranslatorHandler<Ir> {
           break;
         }
       }
-
     }
-
-    //
-    //
-    //
   }
 
   private void registerAssignment(StmtAssign stmt) {
