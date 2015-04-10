@@ -52,13 +52,13 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
  */
 
 public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
-  public static final MmuAction START = new MmuAction("START");
+  /** Action node where the control flow graph terminates if no exceptions are raised. */
   public static final MmuAction STOP = new MmuAction("STOP");
 
   private MmuSpecification spec = null;
   private VariableTracker variables = null;
 
-  /** Stores index used in automatically generated action names to ensure their uniqueness. */
+  /** Index used in automatically generated action names to ensure their uniqueness. */
   private int actionIndex = 0;
 
   public MmuSpecification getSpecification() {
@@ -94,13 +94,11 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private MmuAction newBranch(String text) {
-    return new MmuAction(String.format(
-        "Branch_%d[%s]", actionIndex++, text));
+    return new MmuAction(String.format("Branch_%d[%s]", actionIndex++, text));
   }
 
   private MmuAction newJoin() {
     return new MmuAction(String.format("Join_%d", actionIndex++));
-    
   }
 
   private void registerAddress(final Address address) {
@@ -156,20 +154,19 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerAction(root);
     spec.setStartAction(root);
 
-    spec.registerAction(START);
+    final MmuAction start = new MmuAction("START");
+    spec.registerAction(start);
+
+    // The control flow graph terminates in the STOP node if no exceptions are raised.
     spec.registerAction(STOP);
 
-    final MmuTransition IF_READ = new MmuTransition(
-        root, START, new MmuGuard(MemoryOperation.LOAD));
+    // The load part of the control flow graph
+    spec.registerTransition(new MmuTransition(root, start, new MmuGuard(MemoryOperation.LOAD)));
+    registerControlFlowForAttribute(start, memory, AbstractStorage.READ_ATTR_NAME);
 
-    final MmuTransition IF_WRITE = new MmuTransition(
-        root, START, new MmuGuard(MemoryOperation.STORE));
-
-    spec.registerTransition(IF_READ);
-    spec.registerTransition(IF_WRITE);
-
-    registerControlFlowForAttribute(memory, AbstractStorage.READ_ATTR_NAME);
-    registerControlFlowForAttribute(memory, AbstractStorage.WRITE_ATTR_NAME);
+    // The store part of the control flow graph
+    spec.registerTransition(new MmuTransition(root, start, new MmuGuard(MemoryOperation.STORE)));
+    registerControlFlowForAttribute(start, memory, AbstractStorage.WRITE_ATTR_NAME);
   }
 
   private void registerMemoryVariables(IntegerVariable address, Memory memory) {
@@ -185,6 +182,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private void registerControlFlowForAttribute(
+      final MmuAction source, 
       final Memory memory,
       final String attributeName) {
     System.out.println("---------------- " + attributeName + " ----------------");
@@ -195,7 +193,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           "Undefined attribute: %s.%s", memory.getId(), attributeName));
     }
 
-    final MmuAction stop = registerControlFlow(START, attribute.getStmts());
+    final MmuAction stop = registerControlFlow(source, attribute.getStmts());
     if (null != stop) {
       spec.registerTransition(new MmuTransition(stop, STOP));
     }
