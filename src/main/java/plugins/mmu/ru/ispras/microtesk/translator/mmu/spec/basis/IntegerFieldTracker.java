@@ -29,18 +29,18 @@ public final class IntegerFieldTracker {
   private final IntegerVariable variable;
   private List<IntegerField> fields;
 
-  private static boolean inField(IntegerField field, int index) {
+  private static boolean inField(final IntegerField field, final int index) {
     return field.getLoIndex() <= index && index <= field.getHiIndex();
   }
 
-  public IntegerFieldTracker(IntegerVariable variable) {
+  public IntegerFieldTracker(final IntegerVariable variable) {
     InvariantChecks.checkNotNull(variable);
 
     this.variable = variable;
     this.fields = Collections.singletonList(new IntegerField(variable));
   }
 
-  public void exclude(int lo, int hi) {
+  public void exclude(final int lo, final int hi) {
     if (fields.isEmpty()) {
       return;
     }
