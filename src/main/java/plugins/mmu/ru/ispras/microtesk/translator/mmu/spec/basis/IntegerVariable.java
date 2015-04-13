@@ -23,9 +23,9 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class IntegerVariable {
   /** The variable name. */
-  private String name;
+  private final String name;
   /** The variable width (in bits). */
-  private int width;
+  private final int width;
 
   /**
    * Constructs a variable.
