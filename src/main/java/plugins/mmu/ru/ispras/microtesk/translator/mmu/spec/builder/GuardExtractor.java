@@ -16,6 +16,8 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -119,13 +121,25 @@ final class GuardExtractor {
   }
 
   private MmuGuard[] getEqualityBasedGuards(final NodeOperation expr) {
-    if (StandardOperation.EQ != expr.getOperationId() &&
-        StandardOperation.NOTEQ != expr.getOperationId()) {
+    final Enum<?> opId = expr.getOperationId();
+    if (StandardOperation.EQ != opId && StandardOperation.NOTEQ != opId) {
       throw new IllegalStateException("Not an equality based condition: " + expr);
     }
-    
-    // TODO Auto-generated method stub
-    return new MmuGuard[] {null, null};
-  }
 
+    final Node lhs = expr.getOperand(0);
+    final Node rhs = expr.getOperand(1);
+
+    final IntegerVariable variable = null;
+    final BigInteger value = null;
+
+    System.out.println();
+    System.out.println("<> " + lhs);
+    System.out.println("<> " + rhs);
+
+    final MmuGuard eq = new MmuGuard(MmuCondition.EQ(variable, value));
+    final MmuGuard noteq = new MmuGuard(MmuCondition.EQ(variable, value));
+
+    return (StandardOperation.EQ == opId) ?
+        new MmuGuard[] {eq, noteq} : new MmuGuard[] {noteq, eq};
+  }
 }
