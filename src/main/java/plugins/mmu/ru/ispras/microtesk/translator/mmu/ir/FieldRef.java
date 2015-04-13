@@ -20,7 +20,7 @@ public final class FieldRef {
   private final Variable variable;
   private final Field field;
 
-  FieldRef(Variable variable, Field field) {
+  FieldRef(final Variable variable, final Field field) {
     checkNotNull(variable);
     checkNotNull(field);
 
