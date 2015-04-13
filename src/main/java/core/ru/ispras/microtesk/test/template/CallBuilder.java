@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +27,8 @@ public final class CallBuilder {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
-  CallBuilder(BlockId blockId) {
-    if (null == blockId) {
-      throw new NullPointerException();
-    }
+  CallBuilder(final BlockId blockId) {
+    checkNotNull(blockId);
 
     this.blockId = blockId;
     this.rootOperation = null;
@@ -37,10 +37,8 @@ public final class CallBuilder {
     this.outputs = new ArrayList<Output>();
   }
 
-  public void setRootOperation(Primitive rootOperation) {
-    if (null == rootOperation) {
-      throw new NullPointerException();
-    }
+  public void setRootOperation(final Primitive rootOperation) {
+    checkNotNull(rootOperation);
 
     if (rootOperation.getKind() != Primitive.Kind.OP) {
       throw new IllegalArgumentException("Illegal kind: " + rootOperation.getKind());
@@ -49,40 +47,29 @@ public final class CallBuilder {
     this.rootOperation = rootOperation;
   }
 
-  public void addLabel(Label label) {
-    if (null == label) {
-      throw new NullPointerException();
-    }
-
+  public void addLabel(final Label label) {
+    checkNotNull(label);
     labels.add(label);
   }
 
-  public void addLabelReference(String labelName, Primitive primitive, String argumentName,
-      int argumentValue) {
-    if (null == labelName) {
-      throw new NullPointerException();
-    }
+  public void addLabelReference(
+      final String labelName,
+      final Primitive primitive,
+      final String argumentName,
+      final int argumentValue) {
 
-    if (null == primitive) {
-      throw new NullPointerException();
-    }
-
-    if (null == argumentName) {
-      throw new NullPointerException();
-    }
+    checkNotNull(labelName);
+    checkNotNull(primitive);
+    checkNotNull(argumentName);
 
     final LabelReference labelRef = new LabelReference(
-      labelName, blockId, primitive, argumentName, argumentValue);
+        labelName, blockId, primitive, argumentName, argumentValue);
 
-    System.out.println(labelRef.toString());
     labelRefs.add(labelRef);
   }
 
-  public void addOutput(Output output) {
-    if (null == output) {
-      throw new NullPointerException();
-    }
-
+  public void addOutput(final Output output) {
+    checkNotNull(output);
     outputs.add(output);
   }
 
