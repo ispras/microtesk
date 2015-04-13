@@ -16,29 +16,29 @@ package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class Segment extends AbstractStorage {
-  private final BitVector rangeStart;
-  private final BitVector rangeEnd;
+  private final BigInteger min;
+  private final BigInteger max;
 
   public Segment(
       final String id,
       final Address address,
       final Variable addressArg,
-      final BitVector rangeStart,
-      final BitVector rangeEnd) {
+      final BigInteger min,
+      final BigInteger max) {
     super(id, address, addressArg, null, createAttributes());
 
-    checkNotNull(rangeStart);
-    checkNotNull(rangeEnd);
+    checkNotNull(min);
+    checkNotNull(max);
 
-    this.rangeStart = rangeStart;
-    this.rangeEnd = rangeEnd;
+    this.min = min;
+    this.max = max;
   }
 
   private static Map<String, Attribute> createAttributes() {
@@ -46,17 +46,19 @@ public final class Segment extends AbstractStorage {
     return Collections.singletonMap(hitAttr.getId(), hitAttr);
   }
 
-  public BitVector getRangeStart() {
-    return rangeStart;
+  public BigInteger getMin() {
+    return min;
   }
 
-  public BitVector getRangeEnd() {
-    return rangeEnd;
+  public BigInteger getMax() {
+    return max;
   }
 
   @Override
   public String toString() {
-    return String.format("segment %s(%s) range = (0x%s, 0x%s)",
-        getId(), getAddressArg(), rangeStart.toHexString(), rangeEnd.toHexString());
+    final int addressSize = getAddress().getBitSize();
+    final int width = addressSize / 4 + addressSize % 4 != 0 ? 1 : 0;
+    return String.format("segment %s(%s) range = (0x%0" + width + "X, 0x%0" + width + "X)",
+        getId(), getAddressArg(), min, max);
   }
 }
