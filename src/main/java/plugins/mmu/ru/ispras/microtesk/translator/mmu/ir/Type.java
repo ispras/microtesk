@@ -30,18 +30,18 @@ public final class Type {
   private final Map<String, Field> fields;
   private final DataType dataType;
 
-  public Type(int bitSize) {
+  public Type(final int bitSize) {
     checkGreaterThanZero(bitSize);
     this.bitSize = bitSize;
     this.fields = Collections.emptyMap();
     this.dataType = DataType.BIT_VECTOR(bitSize);
   }
 
-  public Type(Map<String, Field> fields) {
+  public Type(final Map<String, Field> fields) {
     checkNotNull(fields);
 
     int totalBitSize = 0;
-    for (Field field : fields.values()) {
+    for (final Field field : fields.values()) {
       totalBitSize = field.getBitSize();
     }
 
