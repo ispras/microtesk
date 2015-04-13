@@ -24,12 +24,14 @@ public final class AttributeRef {
   private final Node addressArgValue;
 
   public AttributeRef(
-      AbstractStorage target, Attribute attribute, Node addressArgValue) {
+      final AbstractStorage target,
+      final Attribute attribute,
+      final Node addressArgValue) {
 
     checkNotNull(target);
     checkNotNull(attribute);
     checkNotNull(addressArgValue);
-   
+
     this.target = target;
     this.attribute = attribute;
     this.addressArgValue = addressArgValue;
