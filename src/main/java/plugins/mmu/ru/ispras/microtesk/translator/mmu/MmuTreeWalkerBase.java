@@ -69,12 +69,12 @@ import ru.ispras.microtesk.utils.FormatMarker;
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
 
-  public MmuTreeWalkerBase(TreeNodeStream input, RecognizerSharedState state) {
+  public MmuTreeWalkerBase(final TreeNodeStream input, final RecognizerSharedState state) {
     super(input, state);
     this.ir = null;
   }
 
-  public final void assignIR(Ir ir) {
+  public final void assignIR(final Ir ir) {
     this.ir = ir;
   }
 
@@ -100,7 +100,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final Address newAddress(
-      CommonTree addressId, Node widthExpr) throws SemanticException {
+      final CommonTree addressId, final Node widthExpr) throws SemanticException {
 
     checkNotNull(addressId, widthExpr);
 
@@ -128,12 +128,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final Segment newSegment(
-      CommonTree segmentId,
-      CommonTree addressArgId,
-      CommonTree addressArgType,
-      Node rangeStartExpr,
-      Node rangeEndExpr) throws SemanticException {
-
+      final CommonTree segmentId,
+      final CommonTree addressArgId,
+      final CommonTree addressArgType,
+      final Node rangeStartExpr,
+      final Node rangeEndExpr) throws SemanticException {
     checkNotNull(segmentId, rangeStartExpr);
     checkNotNull(segmentId, rangeEndExpr);
 
@@ -152,8 +151,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         segmentId.getText(),
         address,
         new Variable(addressArgId.getText(), address),
-        BitVector.valueOf(rangeStart, address.getBitSize()),
-        BitVector.valueOf(rangeEnd, address.getBitSize())
+        rangeStart,
+        rangeEnd
         );
 
     ir.addSegment(segment);
@@ -188,10 +187,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      */
 
     public void addField(
-        CommonTree fieldId, Node sizeExpr, Node valueExpr) throws SemanticException {
-
+        final CommonTree fieldId,
+        final Node sizeExpr,
+        final Node valueExpr) throws SemanticException {
       checkNotNull(fieldId, sizeExpr);
-      
+
       final Where w = where(fieldId);
       final String id = fieldId.getText();
  
@@ -248,10 +248,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      */
 
     public BufferBuilder(
-        CommonTree id,
-        CommonTree addressArgId,
-        CommonTree addressArgType) throws SemanticException {
-
+        final CommonTree id,
+        final CommonTree addressArgId,
+        final CommonTree addressArgType) throws SemanticException {
       this.id = id;
       this.address = getAddress(addressArgType);
       this.addressArg = new Variable(addressArgId.getText(), address);
@@ -267,55 +266,58 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       context.defineVariable(addressArg);
     }
 
-    private void checkRedefined(CommonTree attrId, boolean isRedefined) throws SemanticException {
+    private void checkRedefined(
+        final CommonTree attrId, final boolean isRedefined) throws SemanticException {
       if (isRedefined) {
         raiseError(where(attrId),
             String.format("The %s attribute is redefined.", attrId.getText()));
       }
     }
 
-    private void checkUndefined(String attrId, boolean isUndefined) throws SemanticException {
+    private void checkUndefined(
+        final String attrId, final boolean isUndefined) throws SemanticException {
       if (isUndefined) {
         raiseError(where(id), String.format("The %s attribute is undefined.", attrId));
       }
     }
 
-    public void setWays(CommonTree attrId, Node attr) throws SemanticException {
+    public void setWays(final CommonTree attrId, final Node attr) throws SemanticException {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, ways != 0);
       ways = extractPositiveInt(where(attrId), attr, attrId.getText());
     }
 
-    public void setSets(CommonTree attrId, Node attr) throws SemanticException {
+    public void setSets(final CommonTree attrId, final Node attr) throws SemanticException {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, sets != 0);
       sets = extractPositiveInt(where(attrId), attr, attrId.getText());
     }
 
-    public void setEntry(CommonTree attrId, Type attr) throws SemanticException {
+    public void setEntry(final CommonTree attrId, final Type attr) throws SemanticException {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, dataArg != null);
       dataArg = new Variable(attrId.getText(), attr);
 
-      for (Field field : attr.getFields()) {
+      for (final Field field : attr.getFields()) {
         final NodeVariable valiable = dataArg.getVariableForField(field.getId());
         context.defineVariableAs(field.getId(), valiable);
       }
     }
 
-    public void setIndex(CommonTree attrId, Node attr) throws SemanticException {
+    public void setIndex(final CommonTree attrId, final Node attr) throws SemanticException {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, index != null);
       index = attr;
     }
 
-    public void setMatch(CommonTree attrId, Node attr) throws SemanticException {
+    public void setMatch(final CommonTree attrId, final Node attr) throws SemanticException {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, match != null);
       match = attr;
     }
 
-    public void setPolicyId(CommonTree attrId, CommonTree attr) throws SemanticException {
+    public void setPolicyId(
+        final CommonTree attrId, final CommonTree attr) throws SemanticException {
       checkRedefined(attrId, policy != null);
       try {
         final PolicyId value = PolicyId.valueOf(attr.getText());
@@ -345,11 +347,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   protected final MemoryBuilder newMemoryBuilder(
-      CommonTree memoryId,
-      CommonTree addressArgId,
-      CommonTree addressArgType,
-      CommonTree dataArgId,
-      Node dataArgSizeExpr) throws SemanticException {
+      final CommonTree memoryId,
+      final CommonTree addressArgId,
+      final CommonTree addressArgType,
+      final CommonTree dataArgId,
+      final Node dataArgSizeExpr) throws SemanticException {
 
     final Address address = getAddress(addressArgType);
 
@@ -371,9 +373,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final Map<String, Variable> variables;
     private final Map<String, Attribute> attributes;
 
-    private MemoryBuilder(Where where, String id,
-        String addressArgId, Address addressArgType, String dataArgId, int dataArgBitSize) {
-
+    private MemoryBuilder(
+        final Where where,
+        final String id,
+        final String addressArgId,
+        final Address addressArgType,
+        final String dataArgId,
+        final int dataArgBitSize) {
       this.where = where;
       this.id = id;
       this.address = addressArgType;
@@ -395,7 +401,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       context.defineGlobalObjects(ir.getBuffers().values());
     }
 
-    public void addVariable(CommonTree varId, Node sizeExpr) throws SemanticException {
+    public void addVariable(final CommonTree varId, final Node sizeExpr) throws SemanticException {
       checkNotNull(varId, sizeExpr);
 
       final int bitSize = extractPositiveInt(
@@ -407,7 +413,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       context.defineVariable(variable);
     }
 
-    public void addVariable(CommonTree varId, CommonTree typeId) throws SemanticException {
+    public void addVariable(
+        final CommonTree varId, final CommonTree typeId) throws SemanticException {
       final ISymbol symbol = getSymbol(typeId);
 
       Variable variable = null;
@@ -426,7 +433,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       context.defineVariable(variable);
     }
 
-    public void addAttribute(CommonTree attrId, List<Stmt> stmts) {
+    public void addAttribute(final CommonTree attrId, final List<Stmt> stmts) {
       final Attribute attr = new Attribute(attrId.getText(), dataArg.getDataType(), stmts);
       attributes.put(attr.getId(), attr);
     }
@@ -453,7 +460,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   protected final Stmt newAssignment(
-      CommonTree where, Node leftExpr, Node rightExpr) throws SemanticException  {
+      final CommonTree where,
+      final Node leftExpr,
+      final Node rightExpr) throws SemanticException  {
     checkNotNull(where, leftExpr, "The left hand side expression is not recognized.");
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
 
@@ -461,11 +470,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return new StmtAssign(leftExpr, rightExpr);
   }
 
-  protected final Stmt newException(CommonTree message) {
+  protected final Stmt newException(final CommonTree message) {
     return new StmtException(message.getText());
   }
 
-  protected final Stmt newTrace(CommonTree format, List<Node> fargs) throws SemanticException {
+  protected final Stmt newTrace(
+      final CommonTree format,
+      final List<Node> fargs) throws SemanticException {
     checkNotNull(format, fargs);
 
     if (fargs.isEmpty()) {
@@ -486,7 +497,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final List<Pair<Node, List<Stmt>>> ifBlocks;
     private List<Stmt> elseBlock;
 
-    public IfBuilder(CommonTree where, Node cond, List<Stmt> stmts) throws SemanticException {
+    public IfBuilder(
+        final CommonTree where,
+        final Node cond,
+        final List<Stmt> stmts) throws SemanticException {
       checkNotNull(where, stmts);
       checkNotNull(where, cond);
 
@@ -497,7 +511,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       ifBlocks.add(new Pair<>(cond, stmts));
     }
 
-    public void addElseIf(CommonTree where, Node cond, List<Stmt> stmts) throws SemanticException {
+    public void addElseIf(
+        final CommonTree where, final Node cond, final List<Stmt> stmts) throws SemanticException {
       checkNotNull(where, stmts);
       checkNotNull(where, cond);
 
@@ -505,7 +520,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       ifBlocks.add(new Pair<>(cond, stmts));
     }
 
-    public void setElse(CommonTree where, List<Stmt> stmts) throws SemanticException {
+    public void setElse(final CommonTree where, final List<Stmt> stmts) throws SemanticException {
       checkNotNull(where, stmts);
       if (!stmts.isEmpty()) {
         elseBlock = stmts;
@@ -516,7 +531,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       return new StmtIf(ifBlocks, elseBlock);
     }
 
-    private void checkIsBoolean(CommonTree where, Node cond) throws SemanticException {
+    private void checkIsBoolean(final CommonTree where, final Node cond) throws SemanticException {
       if (!cond.isType(DataTypeId.LOGIC_BOOLEAN)) {
         raiseError(where(where),
             "Incorrect conditional expression: only boolean expressions are accepted.");
@@ -542,7 +557,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @throws RecognitionException
    */
 
-  protected final Node newExpression(CommonTree operatorId, Node ... operands) throws RecognitionException {
+  protected final Node newExpression(
+      final CommonTree operatorId, final Node ... operands) throws RecognitionException {
     final String ERR_NO_OPERATOR = "The %s operator is not supported.";
     final String ERR_NO_OPERATOR_FOR_TYPE = "The %s operator is not supported for the %s type.";
 
@@ -592,7 +608,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   protected final Node newConcat(
-      CommonTree where, Node left, Node right) throws SemanticException {
+      final CommonTree where, final Node left, final Node right) throws SemanticException {
 
     checkNotNull(where, left);
     checkNotNull(where, right);
@@ -601,7 +617,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   protected final Node newBitfield(
-      CommonTree where, Node variable, Node fromExpr, Node toExpr) throws SemanticException {
+      final CommonTree where,
+      final Node variable,
+      final Node fromExpr,
+      final Node toExpr) throws SemanticException {
 
     checkNotNull(where, variable);
     checkNotNull(where, fromExpr);
@@ -617,7 +636,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   protected final Node newAttributeRef(
-      CommonTree id, boolean isLhs, List<Node> args, CommonTree attrId) throws SemanticException {
+      final CommonTree id,
+      final boolean isLhs,
+      final List<Node> args,
+      final CommonTree attrId) throws SemanticException {
     checkNotNull(id, args);
 
     final AbstractStorage object = getGlobalObject(id);
@@ -653,11 +675,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return variable;
   }
 
-  protected final Node newVariable(CommonTree id) throws SemanticException {
+  protected final Node newVariable(final CommonTree id) throws SemanticException {
     return getVariable(id);
   }
 
-  protected final Node newIndexedVariable(CommonTree id, Node indexExpr) throws SemanticException {
+  protected final Node newIndexedVariable(
+      final CommonTree id, final Node indexExpr) throws SemanticException {
     checkNotNull(id, indexExpr);
 
     final NodeVariable variable = getVariable(id);
@@ -665,7 +688,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   protected final Node newAttributeCall(
-      CommonTree id, CommonTree attributeId) throws SemanticException {
+      final CommonTree id, final CommonTree attributeId) throws SemanticException {
 
     final NodeVariable variableNode = getVariable(id);
     if (!(variableNode.getUserData() instanceof Variable)) {
@@ -687,7 +710,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   // Utility Methods
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private AbstractStorage getGlobalObject(CommonTree objectId) throws SemanticException {
+  private AbstractStorage getGlobalObject(final CommonTree objectId) throws SemanticException {
     final AbstractStorage object = context.getGlobalObject(objectId.getText());
     if (null == object) {
       raiseError(where(objectId), String.format(
@@ -696,7 +719,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return object;
   }
 
-  private NodeVariable getVariable(CommonTree variableId) throws SemanticException {
+  private NodeVariable getVariable(final CommonTree variableId) throws SemanticException {
     final NodeVariable variable = context.getVariable(variableId.getText());
     if (null == variable) {
       raiseError(where(variableId), String.format(
@@ -705,7 +728,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return variable;
   }
 
-  private Address getAddress(CommonTree addressId) throws SemanticException {
+  private Address getAddress(final CommonTree addressId) throws SemanticException {
     final Address address = ir.getAddresses().get(addressId.getText());
     if (null == address) {
       raiseError(where(addressId), String.format(
@@ -714,7 +737,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return address;
   }
 
-  private Buffer getBuffer(CommonTree bufferId) throws SemanticException {
+  private Buffer getBuffer(final CommonTree bufferId) throws SemanticException {
     final Buffer buffer = ir.getBuffers().get(bufferId.getText());
     if (null == buffer) {
       raiseError(where(bufferId), String.format(
@@ -724,7 +747,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   private BigInteger extractBigInteger(
-      Where w, Node expr, String exprDesc) throws SemanticException {
+      final Where w, final Node expr, final String exprDesc) throws SemanticException {
 
     if (expr.getKind() != Node.Kind.VALUE || !expr.isType(DataTypeId.LOGIC_INTEGER)) {
       raiseError(w, String.format("%s is not a constant integer expression.", exprDesc));
@@ -735,7 +758,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   private int extractInt(
-      Where w, Node expr, String exprDesc) throws SemanticException {
+      final Where w, final Node expr, final String exprDesc) throws SemanticException {
 
     final BigInteger value = extractBigInteger(w, expr, exprDesc);
     if (value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) < 0 ||
@@ -748,7 +771,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   private int extractPositiveInt(
-      Where w, Node expr, String nodeName) throws SemanticException {
+      final Where w, final Node expr, final String nodeName) throws SemanticException {
 
     final int value = extractInt(w, expr, nodeName);
     if (value <= 0) {
