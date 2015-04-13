@@ -33,11 +33,11 @@ public abstract class AbstractStorage {
   private final Map<String, Attribute> attributes;
 
   protected AbstractStorage(
-      String id,
-      Address address,
-      Variable addressArg,
-      Variable dataArg,
-      Map<String, Attribute> attributes) {
+      final String id,
+      final Address address,
+      final Variable addressArg,
+      final Variable dataArg,
+      final Map<String, Attribute> attributes) {
 
     checkNotNull(id);
     checkNotNull(address);
@@ -71,7 +71,7 @@ public abstract class AbstractStorage {
     return attributes.values();
   }
 
-  public final Attribute getAttribute(String attrId) {
+  public final Attribute getAttribute(final String attrId) {
     return attributes.get(attrId);
   }
 }
