@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -73,11 +72,11 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     this.variables = new VariableTracker();
     this.actionIndex = 0;
 
-    for (Address address : ir.getAddresses().values()) {
+    for (final Address address : ir.getAddresses().values()) {
       registerAddress(address);
     }
 
-    for (Buffer buffer : ir.getBuffers().values()) {
+    for (final Buffer buffer : ir.getBuffers().values()) {
       registerDevice(buffer);
     }
 
@@ -131,7 +130,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           isReplaceable
           );
 
-      for(Field field : buffer.getEntry().getFields()) {
+      for(final Field field : buffer.getEntry().getFields()) {
         final IntegerVariable fieldVar = new IntegerVariable(field.getId(), field.getBitSize());
         device.addField(fieldVar);
       }
@@ -176,7 +175,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     variables.defineVariableAs(address, addressArg.getId());
     variables.defineVariable(new IntegerVariable(dataArg.getId(), dataArg.getBitSize()));
 
-    for(Variable variable : memory.getVariables()) {
+    for(final Variable variable : memory.getVariables()) {
       variables.defineVariable(variable);
     }
   }
@@ -202,7 +201,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   private MmuAction registerControlFlow(final MmuAction source, final List<Stmt> stmts) {
     MmuAction current = source;
 
-    for (Stmt stmt : stmts) {
+    for (final Stmt stmt : stmts) {
       switch(stmt.getKind()) {
         case ASSIGN:
           current = registerAssignment(current, (StmtAssign) stmt);
@@ -232,16 +231,18 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final Node rhs = stmt.getRight();
 
     final String name = String.format("%s = %s", lhs, rhs);
-    System.out.println(name);
+    //System.out.println(name);
 
     if (lhs.getKind() != Node.Kind.VARIABLE) {
       throw new IllegalStateException("Left-hand side must be a variable expression: " + lhs);
     }
 
+    /*
     System.out.println("!!! " + lhs.getUserData());
     System.out.println("!!! " + lhs.getUserData().getClass());
 
     System.out.println(variables.checkDefined(((NodeVariable) lhs).getName()));
+    */
 
     /*final IntegerVariable variable = getVariable(stmt.getLeft());
     final MmuExpression expression = getExpression(stmt.getRight());
@@ -259,21 +260,21 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private MmuAction registerIf(final MmuAction source, final StmtIf stmt) {
-    System.out.println(stmt);
-
     final MmuAction join = newJoin();
     spec.registerAction(join);
 
     MmuAction current = source;
 
-    for (Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
+    for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
+
+      final GuardExtractor guardExtractor = new GuardExtractor(spec, variables, condition);
 
       final MmuAction ifTrueStart = newBranch(condition.toString());
       spec.registerAction(ifTrueStart);
 
-      final MmuGuard guardIfTrue = null; // TODO !!!
+      final MmuGuard guardIfTrue = guardExtractor.getGuard();
       spec.registerTransition(new MmuTransition(current, ifTrueStart, guardIfTrue));
 
       final MmuAction ifTrueStop = registerControlFlow(ifTrueStart, stmts);
@@ -284,7 +285,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       final MmuAction ifFalseStart = newBranch("not " + condition.toString());
       spec.registerAction(ifFalseStart);
 
-      final MmuGuard guardIfFalse = null; // TODO !!!
+      final MmuGuard guardIfFalse = guardExtractor.getNegatedGuard();
       spec.registerTransition(new MmuTransition(current, ifFalseStart, guardIfFalse));
 
       current = ifFalseStart;
@@ -308,11 +309,12 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerTransition(transition);
   }
 
+  /*
   private IntegerVariable getVariable(Node expr) {
     return null;
   }
 
   private MmuExpression getExpression(Node expr) {
     return MmuExpression.ZERO();
-  }
+  }*/
 }
