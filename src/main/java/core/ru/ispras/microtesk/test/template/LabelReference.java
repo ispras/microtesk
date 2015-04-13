@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.test.template;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
+
 /**
  * The LabelReference class describes a reference to a label. This means a label specified as an
  * argument of a control-transfer instruction. The important point is that a reference is not linked
@@ -50,7 +53,7 @@ public final class LabelReference {
     }
   }
 
-  private Target target = null;
+  private Target target;
 
   /**
    * Constructs a label reference object.
@@ -68,28 +71,22 @@ public final class LabelReference {
    *         blockId or argumentName.
    */
 
-  LabelReference(String labelName, BlockId blockId, Primitive primitive, String argumentName,
-      int argumentValue) {
-    if (null == labelName) {
-      throw new NullPointerException();
-    }
-
-    if (null == blockId) {
-      throw new NullPointerException();
-    }
-
-    if (null == primitive) {
-      throw new NullPointerException();
-    }
-
-    if (null == argumentName) {
-      throw new NullPointerException();
-    }
+  LabelReference(
+      final String labelName,
+      final BlockId blockId,
+      final Primitive primitive,
+      final String argumentName,
+      final int argumentValue) {
+    checkNotNull(labelName);
+    checkNotNull(blockId);
+    checkNotNull(primitive);
+    checkNotNull(argumentName);
 
     this.reference = new Label(labelName, blockId);
     this.primitive = primitive;
     this.argumentName = argumentName;
     this.argumentValue = argumentValue;
+    this.target = null;
   }
 
   /**
@@ -142,14 +139,8 @@ public final class LabelReference {
   }
 
   public void setTarget(Label label, int position) {
-    if (null == label) {
-      throw new NullPointerException();
-    }
-
-    if (position < 0) {
-      throw new IllegalArgumentException();
-    }
-
+    checkNotNull(label);
+    checkGreaterOrEqZero(position);
     target = new Target(label, position);
   }
 
@@ -160,6 +151,6 @@ public final class LabelReference {
   @Override
   public String toString() {
     return String.format("Reference: %s (passed to %s via the %s paramever with value %d)",
-      reference, primitive.getName(), argumentName, argumentValue);
+        reference, primitive.getName(), argumentName, argumentValue);
   }
 }
