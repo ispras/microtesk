@@ -49,22 +49,22 @@ public final class Ir {
     return Collections.unmodifiableMap(memories);
   }
 
-  public void addAddress(Address address) {
+  public void addAddress(final Address address) {
     checkNotNull(address);
     addresses.put(address.getId(), address);
   }
 
-  public void addSegment(Segment segment) {
+  public void addSegment(final Segment segment) {
     checkNotNull(segment);
     segments.put(segment.getId(), segment);
   }
 
-  public void addBuffer(Buffer buffer) {
+  public void addBuffer(final Buffer buffer) {
     checkNotNull(buffer);
     buffers.put(buffer.getId(), buffer);
   }
 
-  public void addMemory(Memory memory) {
+  public void addMemory(final Memory memory) {
     checkNotNull(memory);
     memories.put(memory.getId(), memory);
   }
