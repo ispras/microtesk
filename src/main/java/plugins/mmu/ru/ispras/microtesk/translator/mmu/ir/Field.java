@@ -28,7 +28,11 @@ public final class Field {
   private final Type type;
   private final BitVector defValue;
 
-  public Field(String id, int bitPos, int bitSize, BitVector defValue) {
+  public Field(
+      final String id,
+      final int bitPos,
+      final int bitSize,
+      final BitVector defValue) {
     checkNotNull(id);
     checkGreaterOrEqZero(bitPos);
     checkGreaterThanZero(bitSize);
