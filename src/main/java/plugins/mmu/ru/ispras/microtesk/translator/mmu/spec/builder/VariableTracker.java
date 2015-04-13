@@ -42,7 +42,7 @@ public final class VariableTracker {
     this.variableGroups = new LinkedHashMap<>();
   }
 
-  public Status checkDefined(String name) {
+  public Status checkDefined(final String name) {
     if (variableGroups.containsKey(name)) {
       return Status.GROUP;
     }
@@ -54,35 +54,35 @@ public final class VariableTracker {
     return Status.UNDEFINED;
   }
 
-  public IntegerVariable getVariable(String name) {
+  public IntegerVariable getVariable(final String name) {
     return variables.get(name);
   }
 
-  public IntegerVariable getVariable(String groupName, String name) {
+  public IntegerVariable getVariable(final String groupName, final String name) {
     final Map<String, IntegerVariable> group = getGroup(groupName);
     return (null != group) ? group.get(name) : null;
   }
 
-  public Map<String, IntegerVariable> getGroup(String name) {
+  public Map<String, IntegerVariable> getGroup(final String name) {
     return variableGroups.get(name);
   }
 
-  public void undefineVariable(String name) {
+  public void undefineVariable(final String name) {
     variables.remove(name);
   }
 
-  public void defineVariable(IntegerVariable variable) {
+  public void defineVariable(final IntegerVariable variable) {
     checkNotNull(variable);
     variables.put(variable.getName(), variable);
   }
 
-  public void defineVariableAs(IntegerVariable variable, String name) {
+  public void defineVariableAs(final IntegerVariable variable, final String name) {
     checkNotNull(variable);
     checkNotNull(name);
     variables.put(name, variable);
   }
 
-  public void defineVariable(Variable variable) {
+  public void defineVariable(final Variable variable) {
     checkNotNull(variable);
 
     final Type type = variable.getType();
@@ -100,7 +100,7 @@ public final class VariableTracker {
     }
   }
 
-  public void defineGroup(String name, List<IntegerVariable> variables) {
+  public void defineGroup(final String name, final List<IntegerVariable> variables) {
     checkNotNull(name);
     checkNotNull(variables);
 
