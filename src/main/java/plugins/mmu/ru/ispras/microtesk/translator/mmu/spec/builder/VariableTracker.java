@@ -34,8 +34,8 @@ public final class VariableTracker {
     UNDEFINED
   }
 
-  private Map<String, IntegerVariable> variables;
-  private Map<String, Map<String, IntegerVariable>> variableGroups;
+  private final Map<String, IntegerVariable> variables;
+  private final Map<String, Map<String, IntegerVariable>> variableGroups;
 
   public VariableTracker() {
     this.variables = new LinkedHashMap<>();
