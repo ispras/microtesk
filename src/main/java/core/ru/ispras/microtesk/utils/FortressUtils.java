@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.utils;
 
-import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.DataTypeId;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
@@ -23,48 +23,31 @@ import ru.ispras.fortress.expression.NodeValue;
 public final class FortressUtils {
   private FortressUtils() {}
 
-  public static int extractInt(Node value) {
-    if (null == value) {
-      throw new NullPointerException();
-    }
+  public static int extractInt(final Node expr) {
+    checkConstantValue(expr);
+    final NodeValue value = (NodeValue) expr;
 
-    if (value.getKind() != Node.Kind.VALUE) {
-      throw new IllegalStateException(String.format("%s is not a constant value.", value));
-    }
-
-    final Data data = ((NodeValue) value).getData();
-    final int intValue;
-
-    switch (data.getType().getTypeId()) {
+    switch (value.getDataTypeId()) {
       case LOGIC_INTEGER:
-        intValue = ((Number) data.getValue()).intValue();
-        break;
+        return value.getInteger().intValue();
 
       case BIT_VECTOR:
-        intValue = ((BitVector) data.getValue()).intValue();
-        break;
+        return value.getBitVector().intValue();
 
       default:
-        throw new IllegalStateException(String.format("%s cannot be converted to int", data));
+        throw new IllegalStateException(String.format("%s cannot be converted to int", value));
     }
-
-    return intValue;
   }
 
-  public static BitVector extractBitVector(Node value) {
-    if (null == value) {
-      throw new NullPointerException();
-    }
+  public static BitVector extractBitVector(final Node expr) {
+    checkConstantValue(expr);
+    return ((NodeValue) expr).getBitVector();
+  }
 
-    if (value.getKind() != Node.Kind.VALUE) {
-      throw new IllegalStateException(String.format("%s is not a constant value.", value));
+  private static void checkConstantValue(final Node expr) {
+    checkNotNull(expr);
+    if (expr.getKind() != Node.Kind.VALUE) {
+      throw new IllegalStateException(String.format("%s is not a constant value.", expr));
     }
-
-    final Data data = ((NodeValue) value).getData();
-    if (data.getType().getTypeId() != DataTypeId.BIT_VECTOR) {
-      throw new IllegalStateException(String.format("%s is not a bit vector.", value));
-    }
-
-    return (BitVector) data.getValue();
   }
 }
