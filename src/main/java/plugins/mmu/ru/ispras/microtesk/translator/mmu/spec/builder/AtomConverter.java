@@ -16,7 +16,6 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.math.BigInteger;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
@@ -24,42 +23,12 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
+
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 public final class AtomConverter {
-  public static class Atom {
-    public final AtomKind kind;
-    public final Object object;
-
-    private Atom(AtomKind kind, Object object) {
-      this.kind = kind;
-      this.object = object;
-    }
-
-    @Override
-    public String toString() {
-      return String.format("%s: %s", kind, object);
-    }
-  }
-
-  public static enum AtomKind {
-    VALUE    (BigInteger.class),
-    VARIABLE (IntegerVariable.class),
-    FIELD    (IntegerField.class),
-    CONCAT   (MmuExpression.class);
-
-    private final Class<?> objectClass;
-    private AtomKind(Class<?> objectClass) {
-      this.objectClass = objectClass;
-    }
-
-    public Class<?> getObjectClass() {
-      return objectClass;
-    }
-  }
-
   private final VariableTracker variables;
 
   AtomConverter(VariableTracker variables) {
@@ -72,7 +41,7 @@ public final class AtomConverter {
 
     switch(expr.getKind()) {
       case VALUE:
-        return processValue((NodeValue) expr);
+        return Atom.newValue(((NodeValue) expr).getInteger());
 
       case VARIABLE:
         return processVariable((NodeVariable) expr);
@@ -92,15 +61,21 @@ public final class AtomConverter {
     }
 
     if (operator == StandardOperation.BVEXTRACT) {
-      
+      final int lo = ((NodeValue) expr.getOperand(0)).getInteger().intValue();
+      final int hi = ((NodeValue) expr.getOperand(1)).getInteger().intValue();
+      final NodeVariable nodeVar = (NodeVariable) expr.getOperand(2);
+
+      final IntegerVariable intVar = variables.getVariable(nodeVar.getName());
+      if (null == intVar) {
+        throw new IllegalArgumentException("Undefined variable: " + nodeVar);
+      }
+
+      final IntegerField field = new IntegerField(intVar, lo, hi);
+      return Atom.newField(field);
     }
 
-    // TODO Auto-generated method stub
+    // TODO: operator == StandardOperation.BVCONCAT
     return null;
-  }
-
-  private Atom processValue(NodeValue value) {
-    return new Atom(AtomKind.VALUE, value.getInteger());
   }
 
   private Atom processVariable(NodeVariable expr) {
@@ -111,12 +86,12 @@ public final class AtomConverter {
 
     if (VariableTracker.Status.VARIABLE == status) {
       final IntegerVariable variable = variables.getVariable(expr.getName());
-      return new Atom(AtomKind.VARIABLE, variable);
+      return Atom.newVariable(variable);
     }
 
     final Map<String, IntegerVariable> group = variables.getGroup(expr.getName());
     final MmuExpression concat = MmuExpression.RCATX(group.values());
 
-    return new Atom(AtomKind.CONCAT, concat);
+    return Atom.newConcat(concat);
   }
  }
