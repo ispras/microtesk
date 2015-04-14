@@ -29,7 +29,6 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public class MmuExpression {
-
   /** The terms. */
   private final List<IntegerField> terms = new ArrayList<>();
 
@@ -71,19 +70,29 @@ public class MmuExpression {
   }
 
   /**
-   * Creates an expression from the variables (UPPER bits come first). RCAT stands for Reversed
-   * Concatenation.
+   * Creates an expression from the variables (UPPER bits come first).
+   * RCAT stands for Reversed Concatenation.
    * 
    * @param variables the expression variables
    * @return the expression.
    */
   public static MmuExpression RCAT(final IntegerVariable... variables) {
-    final IntegerField[] fields = new IntegerField[variables.length];
+    return RCATX(Arrays.<IntegerVariable>asList(variables));
+  }
 
-    for (int i = 0; i < variables.length; i++) {
-      fields[i] = new IntegerField(variables[i]);
+  /**
+   * Makes Reversed Concatenation of variables the specified collection
+   * (higher bits come first).
+   * 
+   * @param terms the collection of variables.
+   * @return the concatenated expression.
+   */
+
+  public static MmuExpression RCATX(final Collection<IntegerVariable> variables) {
+    final List<IntegerField> fields = new ArrayList<>(variables.size());
+    for (final IntegerVariable variable : variables) {
+      fields.add(new IntegerField(variable));
     }
-
     return RCAT(fields);
   }
 
@@ -95,7 +104,7 @@ public class MmuExpression {
    * @return the expression.
    */
   public static MmuExpression RCAT(final IntegerField... terms) {
-    return RCAT(Arrays.asList(terms));
+    return RCAT(Arrays.<IntegerField>asList(terms));
   }
 
   /**
@@ -108,7 +117,7 @@ public class MmuExpression {
   public static MmuExpression RCAT(final Collection<IntegerField> terms) {
     final MmuExpression expression = new MmuExpression();
 
-    for (IntegerField term : terms) {
+    for (final IntegerField term : terms) {
       expression.addLoTerm(term);
     }
 

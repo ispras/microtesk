@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
+import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -113,7 +114,9 @@ public final class AtomConverter {
       return new Atom(AtomKind.VARIABLE, variable);
     }
 
-    // TODO Auto-generated method stub
-    return null;
+    final Map<String, IntegerVariable> group = variables.getGroup(expr.getName());
+    final MmuExpression concat = MmuExpression.RCATX(group.values());
+
+    return new Atom(AtomKind.CONCAT, concat);
   }
  }
