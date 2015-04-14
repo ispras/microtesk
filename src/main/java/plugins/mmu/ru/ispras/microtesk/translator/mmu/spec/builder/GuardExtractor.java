@@ -30,11 +30,13 @@ import ru.ispras.microtesk.translator.mmu.ir.Segment;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
 import ru.ispras.microtesk.translator.mmu.spec.MmuCondition;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
+import ru.ispras.microtesk.translator.mmu.spec.MmuEquality;
+import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
-import ru.ispras.microtesk.translator.mmu.spec.builder.AtomConverter.AtomKind;
 
 final class GuardExtractor {
   private final MmuSpecification specification;
@@ -127,27 +129,56 @@ final class GuardExtractor {
       throw new IllegalStateException("Not an equality based condition: " + expr);
     }
 
-    final AtomConverter.Atom lhs = atomConverter.convert(expr.getOperand(0));
-    final AtomConverter.Atom rhs = atomConverter.convert(expr.getOperand(1));
+    final Atom lhs = atomConverter.convert(expr.getOperand(0));
+    final Atom rhs = atomConverter.convert(expr.getOperand(1));
 
     final BigInteger value;
-    if (AtomKind.VALUE == lhs.kind) {
-      value = (BigInteger) lhs.object;
-    } else if (AtomKind.VALUE == rhs.kind) {
-      value = (BigInteger) rhs.object;
+    final Atom variableAtom;
+
+    if (Atom.Kind.VALUE == lhs.getKind()) {
+      value = (BigInteger) lhs.getObject();
+      variableAtom = rhs;
+    } else if (Atom.Kind.VALUE == rhs.getKind()) {
+      value = (BigInteger) rhs.getObject();
+      variableAtom = lhs;
     } else {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(
+          "Both sides of an equality expression are constants.");
     }
 
-    final IntegerVariable variable = null;
+    final MmuGuard eq;
+    final MmuGuard noteq;
+    switch (variableAtom.getKind()) {
+      case VARIABLE: {
+        final IntegerVariable intVar = (IntegerVariable) variableAtom.getObject();
+        eq = new MmuGuard(MmuCondition.EQ(intVar, value));
+        noteq = new MmuGuard(MmuCondition.NEQ(intVar, value));
+        break;
+      }
 
-    System.out.println();
-    System.out.println("<> " + lhs);
-    System.out.println("<> " + rhs);
+      case FIELD: {
+        final IntegerField intField = (IntegerField) variableAtom.getObject();
+        final IntegerVariable intVar = intField.getVariable();
+        final int lo = intField.getLoIndex();
+        final int hi = intField.getHiIndex();
+        eq = new MmuGuard(MmuCondition.EQ(intVar, lo, hi, value));
+        noteq = new MmuGuard(MmuCondition.NEQ(intVar, lo, hi, value));
+        break;
+      }
 
-    final MmuGuard eq = new MmuGuard(MmuCondition.EQ(variable, value));
-    final MmuGuard noteq = new MmuGuard(MmuCondition.EQ(variable, value));
+      case CONCAT: {
+        final MmuExpression mmuExpr = (MmuExpression) variableAtom.getObject();
+        eq = new MmuGuard(new MmuCondition(new MmuEquality(MmuEquality.Type.EQUAL, mmuExpr)));
+        noteq = new MmuGuard(new MmuCondition(new MmuEquality(MmuEquality.Type.NOT_EQUAL,mmuExpr)));
+        break;
+      }
 
+      default:
+        throw new IllegalArgumentException("Variable is expected.");
+    }
+
+    
+    
     return (StandardOperation.EQ == operator) ?
         new MmuGuard[] {eq, noteq} : new MmuGuard[] {noteq, eq};
   }
