@@ -18,12 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Attribute;
+import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
@@ -227,22 +229,54 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     return current;
   }
 
+  private static class AssigmentBuilder {
+    
+    
+    public MmuAction build() {
+      // new MmuAction(name, device, assignments)
+      return null;
+    }
+    
+  }
+  
   private MmuAction registerAssignment(final MmuAction source, final StmtAssign stmt) {
-    final Node lhs = stmt.getLeft();
-    final Node rhs = stmt.getRight();
-
-    if (lhs.getKind() != Node.Kind.VARIABLE || rhs.getKind() != Node.Kind.VARIABLE) {
-      // TODO: Currently, rhs and lhs can be a variable expressions only
+    if (Node.Kind.VARIABLE != stmt.getLeft().getKind() ||
+        Node.Kind.VARIABLE != stmt.getRight().getKind()) {
+      // TODO: Currently, rhs and lhs can be variable expressions only
       return source;
     }
 
+    final NodeVariable lhs = (NodeVariable) stmt.getLeft();
+    final NodeVariable rhs = (NodeVariable) stmt.getRight();
+
     final String name = String.format("%s = %s", lhs, rhs);
     System.out.println("!!!! " + name);
+
+    if (lhs.getUserData() instanceof AttributeRef) {
+      final AttributeRef attrRef = (AttributeRef) lhs.getUserData();
+      final MmuDevice device = spec.getDevice(attrRef.getTarget().getId());
+      device.getFields();
+      
+      System.out.println(device);
+    }
+
+    if (rhs.getUserData() instanceof AttributeRef) {
+      final AttributeRef attrRef = (AttributeRef) rhs.getUserData();
+      final MmuDevice device = spec.getDevice(attrRef.getTarget().getId());
+      
+      System.out.println(device);
+    }
     
     /*
-    System.out.println("!!! " + lhs.getUserData());
-    System.out.println("!!! " + lhs.getUserData().getClass());
 
+    final Atom atomLhs = atomExtractor.convert(lhs);
+    final Atom atomRhs = atomExtractor.convert(rhs);
+    
+    System.out.println("!!! " + atomLhs);
+    System.out.println("!!! " + atomRhs);
+*/
+
+    /*
     System.out.println(variables.checkDefined(((NodeVariable) lhs).getName()));
     */
 
