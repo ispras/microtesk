@@ -40,21 +40,21 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 final class GuardExtractor {
   private final MmuSpecification specification;
-  private final AtomConverter atomConverter;
+  private final AtomExtractor atomExtractor;
 
   private final MmuGuard guard;
   private final MmuGuard negatedGuard;
 
   public GuardExtractor(
       final MmuSpecification specification,
-      final AtomConverter atomConverter,
+      final AtomExtractor atomExtractor,
       final Node condition) {
     checkNotNull(specification);
-    checkNotNull(atomConverter);
+    checkNotNull(atomExtractor);
     checkNotNull(condition);
 
     this.specification = specification;
-    this.atomConverter = atomConverter;
+    this.atomExtractor = atomExtractor;
 
     final MmuGuard[] guards = getGuards(condition, false);
 
@@ -129,8 +129,8 @@ final class GuardExtractor {
       throw new IllegalStateException("Not an equality based condition: " + expr);
     }
 
-    final Atom lhs = atomConverter.convert(expr.getOperand(0));
-    final Atom rhs = atomConverter.convert(expr.getOperand(1));
+    final Atom lhs = atomExtractor.convert(expr.getOperand(0));
+    final Atom rhs = atomExtractor.convert(expr.getOperand(1));
 
     final BigInteger value;
     final Atom variableAtom;

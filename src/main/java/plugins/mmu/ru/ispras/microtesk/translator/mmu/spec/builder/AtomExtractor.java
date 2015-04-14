@@ -28,10 +28,10 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
-public final class AtomConverter {
+public final class AtomExtractor {
   private final VariableTracker variables;
 
-  AtomConverter(VariableTracker variables) {
+  AtomExtractor(VariableTracker variables) {
     checkNotNull(variables);
     this.variables = variables;
   }

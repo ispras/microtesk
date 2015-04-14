@@ -37,7 +37,6 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAssignment;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
-import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.MmuTransition;
@@ -56,6 +55,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
   private MmuSpecification spec = null;
   private VariableTracker variables = null;
+  private AtomExtractor atomExtractor = null;
 
   /** Index used in automatically generated action names to ensure their uniqueness. */
   private int actionIndex = 0;
@@ -70,6 +70,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     this.spec = new MmuSpecification();
     this.variables = new VariableTracker();
+    this.atomExtractor = new AtomExtractor(variables);
     this.actionIndex = 0;
 
     for (final Address address : ir.getAddresses().values()) {
@@ -271,7 +272,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       final List<Stmt> stmts = block.second;
 
       final GuardExtractor guardExtractor = 
-          new GuardExtractor(spec, new AtomConverter(variables), condition);
+          new GuardExtractor(spec, atomExtractor, condition);
 
       final MmuAction ifTrueStart = newBranch(condition.toString());
       spec.registerAction(ifTrueStart);
