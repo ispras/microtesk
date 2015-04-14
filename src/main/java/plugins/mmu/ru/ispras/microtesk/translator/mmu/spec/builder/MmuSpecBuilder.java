@@ -230,13 +230,14 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final Node lhs = stmt.getLeft();
     final Node rhs = stmt.getRight();
 
-    final String name = String.format("%s = %s", lhs, rhs);
-    //System.out.println(name);
-
-    if (lhs.getKind() != Node.Kind.VARIABLE) {
-      throw new IllegalStateException("Left-hand side must be a variable expression: " + lhs);
+    if (lhs.getKind() != Node.Kind.VARIABLE || rhs.getKind() != Node.Kind.VARIABLE) {
+      // TODO: Currently, rhs and lhs can be a variable expressions only
+      return source;
     }
 
+    final String name = String.format("%s = %s", lhs, rhs);
+    System.out.println("!!!! " + name);
+    
     /*
     System.out.println("!!! " + lhs.getUserData());
     System.out.println("!!! " + lhs.getUserData().getClass());
@@ -246,17 +247,17 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     /*final IntegerVariable variable = getVariable(stmt.getLeft());
     final MmuExpression expression = getExpression(stmt.getRight());
+    */
 
-    final MmuAssignment assignment = new MmuAssignment(variable, expression);
-    
-    final MmuAction targetAction = new MmuAction(name, assignment);
-    spec.registerAction(targetAction);
+    //final MmuAssignment assignment = new MmuAssignment(variable, expression);
 
-    final MmuTransition transition = new MmuTransition(sourceAction, targetAction);
-    spec.registerTransition(transition);*/
-    
-    // TODO
-    return source;
+    final MmuAction target = new MmuAction(name/*, assignment*/);
+    spec.registerAction(target);
+
+    final MmuTransition transition = new MmuTransition(source, target);
+    spec.registerTransition(transition);
+
+    return target;
   }
 
   private MmuAction registerIf(final MmuAction source, final StmtIf stmt) {
@@ -309,13 +310,4 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final MmuTransition transition = new MmuTransition(source, target);
     spec.registerTransition(transition);
   }
-
-  /*
-  private IntegerVariable getVariable(Node expr) {
-    return null;
-  }
-
-  private MmuExpression getExpression(Node expr) {
-    return MmuExpression.ZERO();
-  }*/
 }
