@@ -30,7 +30,7 @@ public final class Atom {
     CONCAT   (MmuExpression.class);
 
     private final Class<?> objectClass;
-    private Kind(Class<?> objectClass) {
+    private Kind(final Class<?> objectClass) {
       this.objectClass = objectClass;
     }
 
@@ -39,26 +39,26 @@ public final class Atom {
     }
   }
 
-  public static Atom newValue(BigInteger value) {
+  public static Atom newValue(final BigInteger value) {
     return new Atom(Kind.VALUE, value);
   }
 
-  public static Atom newVariable(IntegerVariable variable) {
+  public static Atom newVariable(final IntegerVariable variable) {
     return new Atom(Kind.VARIABLE, variable);
   }
 
-  public static Atom newField(IntegerField field) {
+  public static Atom newField(final IntegerField field) {
     return new Atom(Kind.FIELD, field);
   }
 
-  public static Atom newConcat(MmuExpression concat) {
+  public static Atom newConcat(final MmuExpression concat) {
     return new Atom(Kind.CONCAT, concat);
   }
 
   private final Kind kind;
   private final Object object;
 
-  public Atom(Kind kind, Object object) {
+  public Atom(final Kind kind, final Object object) {
     checkNotNull(kind);
     checkNotNull(object);
 
