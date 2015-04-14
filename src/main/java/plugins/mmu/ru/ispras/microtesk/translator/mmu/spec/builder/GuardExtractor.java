@@ -173,12 +173,11 @@ final class GuardExtractor {
         break;
       }
 
-      default:
+      default: {
         throw new IllegalArgumentException("Variable is expected.");
+      }
     }
 
-    
-    
     return (StandardOperation.EQ == operator) ?
         new MmuGuard[] {eq, noteq} : new MmuGuard[] {noteq, eq};
   }
