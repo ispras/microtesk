@@ -23,14 +23,14 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 public final class Atom {
-  public static enum AtomKind {
+  public static enum Kind {
     VALUE    (BigInteger.class),
     VARIABLE (IntegerVariable.class),
     FIELD    (IntegerField.class),
     CONCAT   (MmuExpression.class);
 
     private final Class<?> objectClass;
-    private AtomKind(Class<?> objectClass) {
+    private Kind(Class<?> objectClass) {
       this.objectClass = objectClass;
     }
 
@@ -39,10 +39,26 @@ public final class Atom {
     }
   }
 
-  private final AtomKind kind;
+  public static Atom newValue(BigInteger value) {
+    return new Atom(Kind.VALUE, value);
+  }
+
+  public static Atom newVariable(IntegerVariable variable) {
+    return new Atom(Kind.VARIABLE, variable);
+  }
+
+  public static Atom newField(IntegerField field) {
+    return new Atom(Kind.FIELD, field);
+  }
+
+  public static Atom newConcat(MmuExpression concat) {
+    return new Atom(Kind.CONCAT, concat);
+  }
+
+  private final Kind kind;
   private final Object object;
 
-  public Atom(AtomKind kind, Object object) {
+  public Atom(Kind kind, Object object) {
     checkNotNull(kind);
     checkNotNull(object);
 
@@ -55,7 +71,7 @@ public final class Atom {
     this.object = object;
   }
 
-  public AtomKind getKind() {
+  public Kind getKind() {
     return kind;
   }
 
