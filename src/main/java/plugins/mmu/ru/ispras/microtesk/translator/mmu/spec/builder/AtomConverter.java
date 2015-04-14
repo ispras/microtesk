@@ -19,6 +19,10 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
@@ -31,6 +35,11 @@ public final class AtomConverter {
     private Atom(AtomKind kind, Object object) {
       this.kind = kind;
       this.object = object;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s: %s", kind, object);
     }
   }
 
@@ -52,13 +61,50 @@ public final class AtomConverter {
 
   private final VariableTracker variables;
 
-  private AtomConverter(VariableTracker variables) {
+  AtomConverter(VariableTracker variables) {
     checkNotNull(variables);
     this.variables = variables;
   }
 
   public Atom convert(Node expr) {
     checkNotNull(expr);
+
+    switch(expr.getKind()) {
+      case VALUE:
+        return processValue((NodeValue) expr);
+
+      case VARIABLE:
+        return processVariable((NodeVariable) expr);
+
+      case OPERATION:
+        return processOperation((NodeOperation) expr);
+
+      default:
+        throw new IllegalArgumentException("Unsupported node kind: " + expr.getKind());
+    }
+  }
+
+  private Atom processOperation(NodeOperation expr) {
+    final Enum<?> operator = expr.getOperationId();
+    if (StandardOperation.BVEXTRACT != operator && StandardOperation.BVCONCAT != operator) {
+      throw new IllegalArgumentException("Unsupported operator: " + operator);
+    }
+
+    if (operator == StandardOperation.BVEXTRACT) {
+      
+    }
+
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private Atom processValue(NodeValue value) {
+    return new Atom(AtomKind.VALUE, value.getInteger());
+  }
+
+  private Atom processVariable(NodeVariable expr) {
+    //variables.checkDefined(expr.getName());
+    // TODO Auto-generated method stub
     return null;
   }
  }

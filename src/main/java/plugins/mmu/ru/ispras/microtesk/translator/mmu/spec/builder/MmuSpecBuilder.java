@@ -269,7 +269,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
 
-      final GuardExtractor guardExtractor = new GuardExtractor(spec, variables, condition);
+      final GuardExtractor guardExtractor = 
+          new GuardExtractor(spec, new AtomConverter(variables), condition);
 
       final MmuAction ifTrueStart = newBranch(condition.toString());
       spec.registerAction(ifTrueStart);

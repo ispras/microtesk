@@ -36,22 +36,22 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 final class GuardExtractor {
-  private final MmuSpecification spec;
-  private final VariableTracker vars;
+  private final MmuSpecification specification;
+  private final AtomConverter atomConverter;
 
   private final MmuGuard guard;
   private final MmuGuard negatedGuard;
 
   public GuardExtractor(
       final MmuSpecification specification,
-      final VariableTracker variables,
+      final AtomConverter atomConverter,
       final Node condition) {
     checkNotNull(specification);
-    checkNotNull(variables);
+    checkNotNull(atomConverter);
     checkNotNull(condition);
 
-    this.spec = specification;
-    this.vars = variables;
+    this.specification = specification;
+    this.atomConverter = atomConverter;
 
     final MmuGuard[] guards = getGuards(condition, false);
 
@@ -106,13 +106,13 @@ final class GuardExtractor {
     final AbstractStorage target = attrRef.getTarget();
     if (target instanceof Segment) {
       final Segment segment = (Segment) target;
-      final MmuAddress address = spec.getAddress(segment.getAddress().getId());
+      final MmuAddress address = specification.getAddress(segment.getAddress().getId());
       final IntegerVariable addressVar = address.getAddress(); 
 
       hit = new MmuGuard(MmuCondition.RANGE(addressVar, segment.getMin(), segment.getMax()));
       miss = null; // TODO
     } else {
-      final MmuDevice device = spec.getDevice(attrRef.getTarget().getId());
+      final MmuDevice device = specification.getDevice(attrRef.getTarget().getId());
       hit = new MmuGuard(device, BufferAccessEvent.HIT);
       miss = new MmuGuard(device, BufferAccessEvent.MISS);
     }
@@ -121,13 +121,13 @@ final class GuardExtractor {
   }
 
   private MmuGuard[] getEqualityBasedGuards(final NodeOperation expr) {
-    final Enum<?> opId = expr.getOperationId();
-    if (StandardOperation.EQ != opId && StandardOperation.NOTEQ != opId) {
+    final Enum<?> operator = expr.getOperationId();
+    if (StandardOperation.EQ != operator && StandardOperation.NOTEQ != operator) {
       throw new IllegalStateException("Not an equality based condition: " + expr);
     }
 
-    final Node lhs = expr.getOperand(0);
-    final Node rhs = expr.getOperand(1);
+    final AtomConverter.Atom lhs = atomConverter.convert(expr.getOperand(0));
+    final AtomConverter.Atom rhs = atomConverter.convert(expr.getOperand(1));
 
     final IntegerVariable variable = null;
     final BigInteger value = null;
@@ -139,7 +139,7 @@ final class GuardExtractor {
     final MmuGuard eq = new MmuGuard(MmuCondition.EQ(variable, value));
     final MmuGuard noteq = new MmuGuard(MmuCondition.EQ(variable, value));
 
-    return (StandardOperation.EQ == opId) ?
+    return (StandardOperation.EQ == operator) ?
         new MmuGuard[] {eq, noteq} : new MmuGuard[] {noteq, eq};
   }
 }
