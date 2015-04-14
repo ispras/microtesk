@@ -103,7 +103,16 @@ public final class AtomConverter {
   }
 
   private Atom processVariable(NodeVariable expr) {
-    //variables.checkDefined(expr.getName());
+    final VariableTracker.Status status = variables.checkDefined(expr.getName());
+    if (VariableTracker.Status.UNDEFINED == status) {
+      throw new IllegalArgumentException("Undefined variable: " + expr);
+    }
+
+    if (VariableTracker.Status.VARIABLE == status) {
+      final IntegerVariable variable = variables.getVariable(expr.getName());
+      return new Atom(AtomKind.VARIABLE, variable);
+    }
+
     // TODO Auto-generated method stub
     return null;
   }

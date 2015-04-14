@@ -34,6 +34,7 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
+import ru.ispras.microtesk.translator.mmu.spec.builder.AtomConverter.AtomKind;
 
 final class GuardExtractor {
   private final MmuSpecification specification;
@@ -129,8 +130,16 @@ final class GuardExtractor {
     final AtomConverter.Atom lhs = atomConverter.convert(expr.getOperand(0));
     final AtomConverter.Atom rhs = atomConverter.convert(expr.getOperand(1));
 
+    final BigInteger value;
+    if (AtomKind.VALUE == lhs.kind) {
+      value = (BigInteger) lhs.object;
+    } else if (AtomKind.VALUE == rhs.kind) {
+      value = (BigInteger) rhs.object;
+    } else {
+      throw new IllegalArgumentException();
+    }
+
     final IntegerVariable variable = null;
-    final BigInteger value = null;
 
     System.out.println();
     System.out.println("<> " + lhs);
