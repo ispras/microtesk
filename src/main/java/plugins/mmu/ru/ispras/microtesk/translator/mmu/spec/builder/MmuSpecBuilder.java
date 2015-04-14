@@ -231,8 +231,10 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
   private static class AssigmentBuilder {
     
+    private MmuDevice device;
     
     public MmuAction build() {
+      // new MMuAss
       // new MmuAction(name, device, assignments)
       return null;
     }
