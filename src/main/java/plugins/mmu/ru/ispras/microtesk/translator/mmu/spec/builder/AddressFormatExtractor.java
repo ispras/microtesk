@@ -25,7 +25,6 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerFieldTracker;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.utils.FortressUtils;
 

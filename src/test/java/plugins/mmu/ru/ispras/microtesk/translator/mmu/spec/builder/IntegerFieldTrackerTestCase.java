@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.mmu.spec.basis;
+package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,6 +20,9 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Test;
+
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 public class IntegerFieldTrackerTestCase {
   @Test

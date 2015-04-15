@@ -12,12 +12,14 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.mmu.spec.basis;
+package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 /**
  * This class is to track fields in a variable by exclusion.
@@ -25,7 +27,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class IntegerFieldTracker {
+final class IntegerFieldTracker {
   private final IntegerVariable variable;
   private List<IntegerField> fields;
 
