@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
@@ -24,6 +25,9 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 
+import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
+import ru.ispras.microtesk.translator.mmu.ir.FieldRef;
+import ru.ispras.microtesk.translator.mmu.ir.Variable;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
@@ -54,9 +58,40 @@ public final class AtomExtractor {
     }
   }
 
+  private Atom processVariable(NodeVariable expr) {
+    final Object userData = expr.getUserData();
+    if (userData instanceof Variable) {
+      final Variable variable = (Variable) userData;
+
+      
+    } else if (userData instanceof FieldRef) {
+      
+    } else if (userData instanceof AttributeRef) {
+      
+    } else {
+      // Unexpected! Error!
+    }
+
+    final VariableTracker.Status status = variables.checkDefined(expr.getName());
+    if (VariableTracker.Status.UNDEFINED == status) {
+      throw new IllegalArgumentException("Undefined variable: " + expr);
+    }
+
+    if (VariableTracker.Status.VARIABLE == status) {
+      final IntegerVariable variable = variables.getVariable(expr.getName());
+      return Atom.newVariable(variable);
+    }
+
+    final Map<String, IntegerVariable> group = variables.getGroup(expr.getName());
+    final MmuExpression concat = MmuExpression.RCATX(group.values());
+
+    return Atom.newConcat(concat);
+  }
+
   private Atom processOperation(NodeOperation expr) {
     final Enum<?> operator = expr.getOperationId();
-    if (StandardOperation.BVEXTRACT != operator && StandardOperation.BVCONCAT != operator) {
+    if (StandardOperation.BVEXTRACT != operator && 
+        StandardOperation.BVCONCAT  != operator) {
       throw new IllegalArgumentException("Unsupported operator: " + operator);
     }
 
@@ -78,20 +113,5 @@ public final class AtomExtractor {
     return null;
   }
 
-  private Atom processVariable(NodeVariable expr) {
-    final VariableTracker.Status status = variables.checkDefined(expr.getName());
-    if (VariableTracker.Status.UNDEFINED == status) {
-      throw new IllegalArgumentException("Undefined variable: " + expr);
-    }
 
-    if (VariableTracker.Status.VARIABLE == status) {
-      final IntegerVariable variable = variables.getVariable(expr.getName());
-      return Atom.newVariable(variable);
-    }
-
-    final Map<String, IntegerVariable> group = variables.getGroup(expr.getName());
-    final MmuExpression concat = MmuExpression.RCATX(group.values());
-
-    return Atom.newConcat(concat);
-  }
  }

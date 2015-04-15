@@ -315,6 +315,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private MmuAction registerAssignment(final MmuAction source, final StmtAssign stmt) {
+    // System.out.println("### " + stmt.getLeft() + " -> " + atomExtractor.extract(stmt.getLeft()));
+    //System.out.println("### " + stmt.getRight() + " -> " + atomExtractor.extract(stmt.getRight()));
+
     if (Node.Kind.VARIABLE != stmt.getLeft().getKind() ||
         Node.Kind.VARIABLE != stmt.getRight().getKind()) {
       // TODO: Currently, rhs and lhs can be variable expressions only
