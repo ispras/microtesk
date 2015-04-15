@@ -36,7 +36,7 @@ public final class AtomExtractor {
     this.variables = variables;
   }
 
-  public Atom convert(Node expr) {
+  public Atom extract(Node expr) {
     checkNotNull(expr);
 
     switch(expr.getKind()) {

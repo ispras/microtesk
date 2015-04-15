@@ -129,8 +129,8 @@ final class GuardExtractor {
       throw new IllegalStateException("Not an equality based condition: " + expr);
     }
 
-    final Atom lhs = atomExtractor.convert(expr.getOperand(0));
-    final Atom rhs = atomExtractor.convert(expr.getOperand(1));
+    final Atom lhs = atomExtractor.extract(expr.getOperand(0));
+    final Atom rhs = atomExtractor.extract(expr.getOperand(1));
 
     final BigInteger value;
     final Atom variableAtom;
