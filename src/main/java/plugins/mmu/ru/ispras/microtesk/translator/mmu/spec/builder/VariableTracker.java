@@ -92,12 +92,12 @@ public final class VariableTracker {
     }
 
     final Map<String, IntegerVariable> group = new LinkedHashMap<>();
-    variableGroups.put(variable.getId(), group);
-
     for (Field field : type.getFields()) {
       final String name = String.format("%s.%s", variable.getId(), field.getId());
       group.put(field.getId(), new IntegerVariable(name, field.getBitSize()));
     }
+
+    variableGroups.put(variable.getId(), group);
   }
 
   public void defineGroup(final String name, final List<IntegerVariable> variables) {
@@ -105,11 +105,11 @@ public final class VariableTracker {
     checkNotNull(variables);
 
     final Map<String, IntegerVariable> group = new LinkedHashMap<>();
-    variableGroups.put(name, group);
-
     for (IntegerVariable variable : variables) {
       group.put(variable.getName(), variable);
     }
+
+    variableGroups.put(name, group);
   }
 
   @Override
