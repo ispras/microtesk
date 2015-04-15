@@ -16,17 +16,16 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
 
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 public final class IntegerVariableTracker {
+
   public static enum Status {
     VARIABLE,
     GROUP,
@@ -34,7 +33,7 @@ public final class IntegerVariableTracker {
   }
 
   private final Map<String, IntegerVariable> variables;
-  private final Map<String, Map<String, IntegerVariable>> variableGroups;
+  private final Map<String, IntegerVariableGroup> variableGroups;
 
   public IntegerVariableTracker() {
     this.variables = new LinkedHashMap<>();
@@ -53,26 +52,32 @@ public final class IntegerVariableTracker {
     return Status.UNDEFINED;
   }
 
+  public void undefine(final String name) {
+    variables.remove(name);
+    variableGroups.remove(name);
+  }
+
   public IntegerVariable getVariable(final String name) {
     return variables.get(name);
   }
 
   public IntegerVariable getVariable(final String groupName, final String name) {
-    final Map<String, IntegerVariable> group = getGroup(groupName);
-    return (null != group) ? group.get(name) : null;
+    final IntegerVariableGroup group = getGroup(groupName);
+    return (null != group) ? group.getVariable(name) : null;
   }
 
-  public Map<String, IntegerVariable> getGroup(final String name) {
+  public IntegerVariableGroup getGroup(final String name) {
     return variableGroups.get(name);
-  }
-
-  public void undefineVariable(final String name) {
-    variables.remove(name);
   }
 
   public void defineVariable(final IntegerVariable variable) {
     checkNotNull(variable);
     variables.put(variable.getName(), variable);
+  }
+
+  public void defineGroup(final IntegerVariableGroup group) {
+    checkNotNull(group);
+    variableGroups.put(group.getName(), group);
   }
 
   public void defineVariableAs(final IntegerVariable variable, final String name) {
@@ -86,29 +91,10 @@ public final class IntegerVariableTracker {
 
     final Type type = variable.getType();
     if (type.getFieldCount() == 0) {
-      variables.put(variable.getId(), new IntegerVariable(variable.getId(), variable.getBitSize()));
-      return;
+      defineVariable(new IntegerVariable(variable.getId(), variable.getBitSize()));
+    } else {
+      defineGroup(new IntegerVariableGroup(variable));
     }
-
-    final Map<String, IntegerVariable> group = new LinkedHashMap<>();
-    for (Field field : type.getFields()) {
-      final String name = String.format("%s.%s", variable.getId(), field.getId());
-      group.put(field.getId(), new IntegerVariable(name, field.getBitSize()));
-    }
-
-    variableGroups.put(variable.getId(), group);
-  }
-
-  public void defineGroup(final String name, final List<IntegerVariable> variables) {
-    checkNotNull(name);
-    checkNotNull(variables);
-
-    final Map<String, IntegerVariable> group = new LinkedHashMap<>();
-    for (IntegerVariable variable : variables) {
-      group.put(variable.getName(), variable);
-    }
-
-    variableGroups.put(name, group);
   }
 
   @Override
