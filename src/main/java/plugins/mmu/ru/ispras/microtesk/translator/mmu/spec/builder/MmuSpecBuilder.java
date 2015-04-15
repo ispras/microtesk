@@ -60,7 +60,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   public static final MmuAction STOP = new MmuAction("STOP");
 
   private MmuSpecification spec = null;
-  private VariableTracker variables = null;
+  private IntegerVariableTracker variables = null;
   private AtomExtractor atomExtractor = null;
 
   /** Index used in automatically generated action names to ensure their uniqueness. */
@@ -75,7 +75,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     System.out.println(ir);
 
     this.spec = new MmuSpecification();
-    this.variables = new VariableTracker();
+    this.variables = new IntegerVariableTracker();
     this.atomExtractor = new AtomExtractor(variables);
     this.actionIndex = 0;
 
@@ -342,7 +342,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           variables.getGroup(fieldRef.getVariable().getId()).get(fieldRef.getField().getId());
       assigmentBuilder.setLeftSide(intVar);
     } else {
-      final VariableTracker.Status status = variables.checkDefined(lhs.getName());
+      final IntegerVariableTracker.Status status = variables.checkDefined(lhs.getName());
       switch (status) {
         case VARIABLE:
           assigmentBuilder.setLeftSide(variables.getVariable(lhs.getName()));
@@ -366,7 +366,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           variables.getGroup(fieldRef.getVariable().getId()).get(fieldRef.getField().getId());
       assigmentBuilder.setRightSide(intVar);
     } else {
-      final VariableTracker.Status status = variables.checkDefined(rhs.getName());
+      final IntegerVariableTracker.Status status = variables.checkDefined(rhs.getName());
       switch (status) {
         case VARIABLE:
           assigmentBuilder.setRightSide(variables.getVariable(rhs.getName()));

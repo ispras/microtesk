@@ -32,9 +32,9 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 final class AtomExtractor {
-  private final VariableTracker variables;
+  private final IntegerVariableTracker variables;
 
-  AtomExtractor(VariableTracker variables) {
+  AtomExtractor(IntegerVariableTracker variables) {
     checkNotNull(variables);
     this.variables = variables;
   }
@@ -71,12 +71,12 @@ final class AtomExtractor {
       // Unexpected! Error!
     }
 
-    final VariableTracker.Status status = variables.checkDefined(expr.getName());
-    if (VariableTracker.Status.UNDEFINED == status) {
+    final IntegerVariableTracker.Status status = variables.checkDefined(expr.getName());
+    if (IntegerVariableTracker.Status.UNDEFINED == status) {
       throw new IllegalArgumentException("Undefined variable: " + expr);
     }
 
-    if (VariableTracker.Status.VARIABLE == status) {
+    if (IntegerVariableTracker.Status.VARIABLE == status) {
       final IntegerVariable variable = variables.getVariable(expr.getName());
       return Atom.newVariable(variable);
     }

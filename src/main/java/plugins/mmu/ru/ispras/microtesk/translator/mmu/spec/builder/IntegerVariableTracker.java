@@ -26,8 +26,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Variable;
 
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
-public final class VariableTracker {
-
+public final class IntegerVariableTracker {
   public static enum Status {
     VARIABLE,
     GROUP,
@@ -37,7 +36,7 @@ public final class VariableTracker {
   private final Map<String, IntegerVariable> variables;
   private final Map<String, Map<String, IntegerVariable>> variableGroups;
 
-  public VariableTracker() {
+  public IntegerVariableTracker() {
     this.variables = new LinkedHashMap<>();
     this.variableGroups = new LinkedHashMap<>();
   }

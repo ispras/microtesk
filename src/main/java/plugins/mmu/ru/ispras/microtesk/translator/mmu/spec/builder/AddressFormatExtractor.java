@@ -30,7 +30,7 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 final class AddressFormatExtractor {
-  private final VariableTracker variables;
+  private final IntegerVariableTracker variables;
 
   private final IntegerVariable address;
   private final IntegerFieldTracker addressFieldTracker;
@@ -90,7 +90,7 @@ final class AddressFormatExtractor {
   }
 
   public AddressFormatExtractor(
-      final VariableTracker variables,
+      final IntegerVariableTracker variables,
       final IntegerVariable address,
       final Node index,
       final Node match) {
