@@ -22,10 +22,11 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
-public final class Atom {
+final class Atom {
   public static enum Kind {
     VALUE    (BigInteger.class),
     VARIABLE (IntegerVariable.class),
+    GROUP    (IntegerVariableGroup.class), 
     FIELD    (IntegerField.class),
     CONCAT   (MmuExpression.class);
 

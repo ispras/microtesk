@@ -16,7 +16,6 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.EnumSet;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
@@ -32,7 +31,7 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
-public final class AtomExtractor {
+final class AtomExtractor {
   private final VariableTracker variables;
 
   AtomExtractor(VariableTracker variables) {
