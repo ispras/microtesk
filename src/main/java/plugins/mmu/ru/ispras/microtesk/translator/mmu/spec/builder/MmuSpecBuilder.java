@@ -305,7 +305,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final NodeVariable lhs = (NodeVariable) stmt.getLeft();
     final NodeVariable rhs = (NodeVariable) stmt.getRight();
 
-    final String name = String.format("%s = %s", lhs, rhs);
+    final String name = String.format("Assignment (%s = %s)", lhs, rhs);
     final AssigmentActionBuilder assigmentBuilder = new AssigmentActionBuilder(name);
 
     if (lhs.getUserData() instanceof AttributeRef) {
