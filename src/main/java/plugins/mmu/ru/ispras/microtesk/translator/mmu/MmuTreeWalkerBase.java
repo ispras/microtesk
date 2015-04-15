@@ -564,26 +564,31 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     final Operator op = Operator.fromText(operatorId.getText());
     final Where w = where(operatorId);
-    
+
     if (null == op) {
       raiseError(w, String.format(ERR_NO_OPERATOR, operatorId.getText()));
     }
 
-    final DataType firstOpType = operands[0].getDataType();
-    DataType type = firstOpType;
-
+    // Trying to reduce all operands
     final Node[] reducedOperands = new Node[operands.length];
     for (int i = 0; i < operands.length; i++) {
       final Node operand = context.getAssignedValue(operands[i]);
       final Node reducedOperand = Transformer.reduce(ReduceOptions.NEW_INSTANCE, operand);
-      final DataType currentType = reducedOperand.getDataType(); 
+      reducedOperands[i] = reducedOperand;
+    }
+
+    // Calculating the type all argument are to be cast to
+    final DataType firstOpType = reducedOperands[0].getDataType();
+    DataType type = firstOpType;
+
+    for (int i = 1; i < reducedOperands.length; i++) {
+      final Node operand = reducedOperands[i];
+      final DataType currentType = operand.getDataType(); 
 
       // Size is always greater for bit vectors.
       if (currentType.getSize() > type.getSize()) { 
         type = currentType;
       }
-
-      reducedOperands[i] = reducedOperand;
     }
 
     if (type != firstOpType && type.getTypeId() == DataTypeId.BIT_VECTOR) {
