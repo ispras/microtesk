@@ -462,7 +462,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   protected final Stmt newAssignment(
       final CommonTree where,
       final Node leftExpr,
-      final Node rightExpr) throws SemanticException  {
+      final Node rightExpr) throws SemanticException {
     checkNotNull(where, leftExpr, "The left hand side expression is not recognized.");
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
 
@@ -622,14 +622,16 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Node variable,
       final Node fromExpr,
       final Node toExpr) throws SemanticException {
-
     checkNotNull(where, variable);
     checkNotNull(where, fromExpr);
 
     final Node from = context.getAssignedValue(fromExpr);
     final Node to = (null != toExpr) ? context.getAssignedValue(toExpr) : from;
 
-    return new NodeOperation(StandardOperation.BVEXTRACT, from, to, variable);
+    final Node reducedFrom = Transformer.reduce(ReduceOptions.NEW_INSTANCE, from);
+    final Node reducedTo = Transformer.reduce(ReduceOptions.NEW_INSTANCE, to);
+
+    return new NodeOperation(StandardOperation.BVEXTRACT, reducedFrom, reducedTo, variable);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
