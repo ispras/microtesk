@@ -16,8 +16,6 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.Map;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -27,7 +25,6 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
 import ru.ispras.microtesk.translator.mmu.ir.FieldRef;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
-import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
@@ -60,13 +57,11 @@ final class AtomExtractor {
   private Atom processVariable(NodeVariable expr) {
     final Object userData = expr.getUserData();
     if (userData instanceof Variable) {
-      final Variable variable = (Variable) userData;
-
-      
+      // TODO
     } else if (userData instanceof FieldRef) {
-      
+      // TODO
     } else if (userData instanceof AttributeRef) {
-      
+      // TODO
     } else {
       // Unexpected! Error!
     }
@@ -81,10 +76,8 @@ final class AtomExtractor {
       return Atom.newVariable(variable);
     }
 
-    final Map<String, IntegerVariable> group = variables.getGroup(expr.getName());
-    final MmuExpression concat = MmuExpression.RCATX(group.values());
-
-    return Atom.newConcat(concat);
+    final IntegerVariableGroup group = variables.getGroup(expr.getName());
+    return Atom.newGroup(group);
   }
 
   private Atom processOperation(NodeOperation expr) {

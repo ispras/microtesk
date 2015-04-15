@@ -24,8 +24,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Variable;
 
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
-public final class IntegerVariableTracker {
-
+final class IntegerVariableTracker {
   public static enum Status {
     VARIABLE,
     GROUP,

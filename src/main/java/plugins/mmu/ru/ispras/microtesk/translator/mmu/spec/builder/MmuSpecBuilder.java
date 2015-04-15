@@ -15,7 +15,9 @@
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -145,9 +147,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       }
 
       spec.registerDevice(device);
-      variables.defineGroup(device.getName(), device.getFields());
+      variables.defineGroup(new IntegerVariableGroup(device.getName(), device.getFields()));
     } finally {
-      variables.undefineVariable(addressArgName);
+      variables.undefine(addressArgName);
     }
   }
 
@@ -257,8 +259,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     private final String name;
 
     private MmuDevice device = null;
-    private List<IntegerVariable> left = null;
-    private List<IntegerVariable> right = null;
+    private Collection<IntegerVariable> left = null;
+    private Collection<IntegerVariable> right = null;
 
     AssigmentActionBuilder(String name) {
       this.name = name;
@@ -276,20 +278,16 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       left = variables;
     }
 
-    public void setLeftSide(Map<String, IntegerVariable> variables) {
-      left = new ArrayList<>(variables.values());
+    public void setLeftSide(Collection<IntegerVariable> variables) {
+      left = variables;
     }
 
     public void setRightSide(IntegerVariable variable) {
       right = Collections.singletonList(variable);
     }
 
-    public void setRightSide(List<IntegerVariable> variables) {
+    public void setRightSide(Collection<IntegerVariable> variables) {
       right = variables;
-    }
-
-    public void setRightSide(Map<String, IntegerVariable> variables) {
-      right = new ArrayList<>(variables.values());
     }
 
     public MmuAction build() {
@@ -306,8 +304,11 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       }
 
       final MmuAssignment[] assignments = new MmuAssignment[left.size()];
+      final Iterator<IntegerVariable> leftIt = left.iterator();
+      final Iterator<IntegerVariable> rightIt = right.iterator();
+
       for (int index = 0; index < left.size(); ++index) {
-        assignments[index] = new MmuAssignment(left.get(index), MmuExpression.VAR(right.get(index)));
+        assignments[index] = new MmuAssignment(leftIt.next(), MmuExpression.VAR(rightIt.next()));
       }
 
       return new MmuAction(name, device, assignments);
@@ -339,7 +340,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     } else if (lhs.getUserData() instanceof FieldRef) {
       final FieldRef fieldRef = (FieldRef) lhs.getUserData();
       final IntegerVariable intVar = 
-          variables.getGroup(fieldRef.getVariable().getId()).get(fieldRef.getField().getId());
+          variables.getGroup(fieldRef.getVariable().getId()).getVariable(fieldRef.getField().getId());
       assigmentBuilder.setLeftSide(intVar);
     } else {
       final IntegerVariableTracker.Status status = variables.checkDefined(lhs.getName());
@@ -348,7 +349,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           assigmentBuilder.setLeftSide(variables.getVariable(lhs.getName()));
           break;
         case GROUP:
-          assigmentBuilder.setLeftSide(variables.getGroup(lhs.getName()));
+          assigmentBuilder.setLeftSide(variables.getGroup(lhs.getName()).getVariables());
           break;
         default:
           throw new IllegalStateException("Undeclared variable: " + lhs.getName());
@@ -363,7 +364,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     } else if (rhs.getUserData() instanceof FieldRef) {
       final FieldRef fieldRef = (FieldRef) rhs.getUserData();
       final IntegerVariable intVar = 
-          variables.getGroup(fieldRef.getVariable().getId()).get(fieldRef.getField().getId());
+          variables.getGroup(fieldRef.getVariable().getId()).getVariable(fieldRef.getField().getId());
       assigmentBuilder.setRightSide(intVar);
     } else {
       final IntegerVariableTracker.Status status = variables.checkDefined(rhs.getName());
@@ -372,7 +373,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           assigmentBuilder.setRightSide(variables.getVariable(rhs.getName()));
           break;
         case GROUP:
-          assigmentBuilder.setRightSide(variables.getGroup(rhs.getName()));
+          assigmentBuilder.setRightSide(variables.getGroup(rhs.getName()).getVariables());
           break;
         default:
           throw new IllegalStateException("Undeclared variable: " + rhs.getName());

@@ -48,6 +48,10 @@ final class Atom {
     return new Atom(Kind.VARIABLE, variable);
   }
 
+  public static Atom newGroup(final IntegerVariableGroup group) {
+    return new Atom(Kind.GROUP, group);
+  }
+
   public static Atom newField(final IntegerField field) {
     return new Atom(Kind.FIELD, field);
   }
