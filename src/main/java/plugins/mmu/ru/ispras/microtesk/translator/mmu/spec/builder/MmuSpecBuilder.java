@@ -93,6 +93,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
 
     final Memory memory = memories.values().iterator().next();
+    registerDevice(memory);
+
     registerControlFlowForMemory(memory);
 
     System.out.println("---------------------------------");
@@ -147,6 +149,24 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     } finally {
       variables.undefineVariable(addressArgName);
     }
+  }
+
+  private void registerDevice(final Memory memory) {
+    final MmuAddress address = spec.getAddress(memory.getAddress().getId());
+
+    // Main memory is fully associative
+    final long ways = 1;
+    final MmuExpression tag = MmuExpression.ZERO();
+
+    // Temporary stubs
+    final long sets = 0;
+    final MmuExpression index = MmuExpression.ZERO();
+    final MmuExpression offset = MmuExpression.ZERO();
+
+    final MmuDevice device = new MmuDevice(
+        memory.getId(), ways, sets, address, tag, index, offset, false);
+
+    spec.registerDevice(device);
   }
 
   private void registerControlFlowForMemory(Memory memory) {
