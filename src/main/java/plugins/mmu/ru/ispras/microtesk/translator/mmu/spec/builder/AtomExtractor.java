@@ -16,8 +16,6 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.Collections;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -28,7 +26,6 @@ import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
 import ru.ispras.microtesk.translator.mmu.ir.FieldRef;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
-import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 

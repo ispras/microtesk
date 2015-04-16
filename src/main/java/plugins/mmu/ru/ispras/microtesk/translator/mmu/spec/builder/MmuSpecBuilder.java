@@ -265,7 +265,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
 
     final String name = String.format("Assignment (%s = %s)", left, right);
-    final AssignmentBuilder  assignmentBuilder = new AssignmentBuilder(name, lhs, rhs);
+    final AssignmentBuilder assignmentBuilder = new AssignmentBuilder(name, lhs, rhs);
 
     final MmuAction target = assignmentBuilder.build();
     spec.registerAction(target);
