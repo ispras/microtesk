@@ -19,26 +19,27 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
+import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 final class IntegerVariableGroup {
   private final String name;
   private final Map<String, IntegerVariable> variables;
+  private final MmuDevice device;
 
-  public IntegerVariableGroup(final String name, final List<IntegerVariable> variables) {
-    checkNotNull(name);
-    checkNotNull(variables);
+  public IntegerVariableGroup(final MmuDevice device) {
+    checkNotNull(device);
 
-    this.name = name;
+    this.name = device.getName();
     this.variables =  new LinkedHashMap<>();
+    this.device = device;
 
-    for (final IntegerVariable variable : variables) {
+    for (final IntegerVariable variable : device.getFields()) {
       this.variables.put(variable.getName(), variable);
     }
   }
@@ -53,6 +54,7 @@ final class IntegerVariableGroup {
 
     this.name = variable.getId();
     this.variables =  new LinkedHashMap<>();
+    this.device = null;
 
     for (final Field field : type.getFields()) {
       final String variableName = String.format("%s.%s", variable.getId(), field.getId());
@@ -70,6 +72,10 @@ final class IntegerVariableGroup {
 
   public IntegerVariable getVariable(final String variableName) {
     return variables.get(variableName);
+  }
+
+  public MmuDevice getDevice() {
+    return device;
   }
 
   public int size() {

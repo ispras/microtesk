@@ -22,6 +22,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 
+import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
 import ru.ispras.microtesk.translator.mmu.ir.FieldRef;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
@@ -61,8 +62,7 @@ final class AtomExtractor {
     } else if (userData instanceof FieldRef) {
       return extractFromFieldRef((FieldRef) userData);
     } else if (userData instanceof AttributeRef) {
-      // TODO
-      throw new UnsupportedOperationException();
+      return extractFromAttributeRef((AttributeRef) userData);
     } else {
       throw new IllegalArgumentException("Illegal user data attribute: " + userData);
     }
@@ -108,6 +108,20 @@ final class AtomExtractor {
     final String fieldName = fieldRef.getField().getId();
 
     final IntegerVariable intVar = variables.getVariable(groupName, fieldName);
-    return Atom.newVariable(intVar); 
+    return Atom.newVariable(intVar);
+  }
+
+  private Atom extractFromAttributeRef(AttributeRef attrRef) {
+    final String groupName = attrRef.getTarget().getId();
+    final IntegerVariableGroup intVarGroup = variables.getGroup(groupName);
+
+    final String attrName = attrRef.getAttribute().getId();
+    if (attrName.equals(AbstractStorage.READ_ATTR_NAME) || 
+        attrName.equals(AbstractStorage.WRITE_ATTR_NAME)) {
+      return Atom.newGroup(intVarGroup);
+    }
+
+    // TODO: Handle hit
+    throw new UnsupportedOperationException();
   }
  }
