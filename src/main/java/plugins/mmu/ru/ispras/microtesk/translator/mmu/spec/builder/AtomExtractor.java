@@ -44,43 +44,31 @@ final class AtomExtractor {
         return Atom.newValue(((NodeValue) expr).getInteger());
 
       case VARIABLE:
-        return processVariable((NodeVariable) expr);
+        return extract((NodeVariable) expr);
 
       case OPERATION:
-        return processOperation((NodeOperation) expr);
+        return extract((NodeOperation) expr);
 
       default:
         throw new IllegalArgumentException("Unsupported node kind: " + expr.getKind());
     }
   }
 
-  private Atom processVariable(NodeVariable expr) {
+  private Atom extract(NodeVariable expr) {
     final Object userData = expr.getUserData();
     if (userData instanceof Variable) {
-      // TODO
+      return extractFromVariable((Variable) userData);
     } else if (userData instanceof FieldRef) {
-      // TODO
+      return extractFromFieldRef((FieldRef) userData);
     } else if (userData instanceof AttributeRef) {
       // TODO
+      throw new UnsupportedOperationException();
     } else {
-      // Unexpected! Error!
+      throw new IllegalArgumentException("Illegal user data attribute: " + userData);
     }
-
-    final IntegerVariableTracker.Status status = variables.checkDefined(expr.getName());
-    if (IntegerVariableTracker.Status.UNDEFINED == status) {
-      throw new IllegalArgumentException("Undefined variable: " + expr);
-    }
-
-    if (IntegerVariableTracker.Status.VARIABLE == status) {
-      final IntegerVariable variable = variables.getVariable(expr.getName());
-      return Atom.newVariable(variable);
-    }
-
-    final IntegerVariableGroup group = variables.getGroup(expr.getName());
-    return Atom.newGroup(group);
   }
 
-  private Atom processOperation(NodeOperation expr) {
+  private Atom extract(NodeOperation expr) {
     final Enum<?> operator = expr.getOperationId();
     if (StandardOperation.BVEXTRACT != operator && 
         StandardOperation.BVCONCAT  != operator) {
@@ -105,5 +93,21 @@ final class AtomExtractor {
     return null;
   }
 
+  private Atom extractFromVariable(Variable var) {
+    if (0 == var.getType().getFieldCount()) {
+      final IntegerVariable intVar = variables.getVariable(var.getId());
+      return Atom.newVariable(intVar);
+    }
 
+    final IntegerVariableGroup intVarGroup = variables.getGroup(var.getId());
+    return Atom.newGroup(intVarGroup);
+  }
+
+  private Atom extractFromFieldRef(FieldRef fieldRef) {
+    final String groupName = fieldRef.getVariable().getId();
+    final String fieldName = fieldRef.getField().getId();
+
+    final IntegerVariable intVar = variables.getVariable(groupName, fieldName);
+    return Atom.newVariable(intVar); 
+  }
  }
