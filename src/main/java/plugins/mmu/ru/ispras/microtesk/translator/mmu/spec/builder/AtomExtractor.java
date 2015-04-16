@@ -17,9 +17,6 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
-import java.util.List;
-
-import com.sun.org.apache.xml.internal.utils.IntVector;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
