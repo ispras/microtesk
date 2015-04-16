@@ -14,25 +14,18 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Attribute;
-import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
 import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
-import ru.ispras.microtesk.translator.mmu.ir.FieldRef;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
@@ -255,132 +248,26 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     return current;
   }
 
-  private static class AssigmentActionBuilder {
-    private final String name;
-
-    private MmuDevice device = null;
-    private Collection<IntegerVariable> left = null;
-    private Collection<IntegerVariable> right = null;
-
-    AssigmentActionBuilder(String name) {
-      this.name = name;
-    }
-
-    public void setDevice(MmuDevice device) {
-      this.device = device;
-    }
-
-    public void setLeftSide(IntegerVariable variable) {
-      left = Collections.singletonList(variable);
-    }
-
-    public void setLeftSide(List<IntegerVariable> variables) {
-      left = variables;
-    }
-
-    public void setLeftSide(Collection<IntegerVariable> variables) {
-      left = variables;
-    }
-
-    public void setRightSide(IntegerVariable variable) {
-      right = Collections.singletonList(variable);
-    }
-
-    public void setRightSide(Collection<IntegerVariable> variables) {
-      right = variables;
-    }
-
-    public MmuAction build() {
-      if (null == left) {
-        throw new IllegalStateException("Left hand side is not defined.");
-      }
-
-      if (null == right) {
-        throw new IllegalStateException("Right hand side is not defined.");
-      }
-
-      if (left.size() != right.size()) {
-        throw new IllegalStateException("Assignment mismatch");
-      }
-
-      final MmuAssignment[] assignments = new MmuAssignment[left.size()];
-      final Iterator<IntegerVariable> leftIt = left.iterator();
-      final Iterator<IntegerVariable> rightIt = right.iterator();
-
-      for (int index = 0; index < left.size(); ++index) {
-        assignments[index] = new MmuAssignment(leftIt.next(), MmuExpression.VAR(rightIt.next()));
-      }
-
-      return new MmuAction(name, device, assignments);
-    }
-  }
-
   private MmuAction registerAssignment(final MmuAction source, final StmtAssign stmt) {
-    System.out.println("### " + stmt.getLeft() + " -> " + atomExtractor.extract(stmt.getLeft()));
-    System.out.println("### " + stmt.getRight() + " -> " + atomExtractor.extract(stmt.getRight()));
+    final Node left = stmt.getLeft();
+    final Node right = stmt.getRight();
 
-    if (Node.Kind.VARIABLE != stmt.getLeft().getKind() ||
-        Node.Kind.VARIABLE != stmt.getRight().getKind()) {
-      // TODO: Currently, rhs and lhs can be variable expressions only
-      System.out.println("!!! IGNORED " + stmt);
+    final Atom lhs = atomExtractor.extract(left);
+    final Atom rhs = atomExtractor.extract(right);
+
+    if (Atom.Kind.VARIABLE != lhs.getKind() && Atom.Kind.GROUP != lhs.getKind()) {
+      throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
+    }
+
+    if (Atom.Kind.VALUE == rhs.getKind()) {
+      // Constant assignments are ignored.
       return source;
     }
 
-    final NodeVariable lhs = (NodeVariable) stmt.getLeft();
-    final NodeVariable rhs = (NodeVariable) stmt.getRight();
+    final String name = String.format("Assignment (%s = %s)", left, right);
+    final AssignmentBuilder  assignmentBuilder = new AssignmentBuilder(name, lhs, rhs);
 
-    final String name = String.format("Assignment (%s = %s)", lhs, rhs);
-    final AssigmentActionBuilder assigmentBuilder = new AssigmentActionBuilder(name);
-
-    if (lhs.getUserData() instanceof AttributeRef) {
-      final AttributeRef attrRef = (AttributeRef) lhs.getUserData();
-      final MmuDevice device = spec.getDevice(attrRef.getTarget().getId());
-      assigmentBuilder.setDevice(device);
-      assigmentBuilder.setLeftSide(device.getFields());
-    } else if (lhs.getUserData() instanceof FieldRef) {
-      final FieldRef fieldRef = (FieldRef) lhs.getUserData();
-      final IntegerVariable intVar = 
-          variables.getGroup(fieldRef.getVariable().getId()).getVariable(fieldRef.getField().getId());
-      assigmentBuilder.setLeftSide(intVar);
-    } else {
-      final IntegerVariableTracker.Status status = variables.checkDefined(lhs.getName());
-      switch (status) {
-        case VARIABLE:
-          assigmentBuilder.setLeftSide(variables.getVariable(lhs.getName()));
-          break;
-        case GROUP:
-          assigmentBuilder.setLeftSide(variables.getGroup(lhs.getName()).getVariables());
-          break;
-        default:
-          throw new IllegalStateException("Undeclared variable: " + lhs.getName());
-      }
-    }
-
-    if (rhs.getUserData() instanceof AttributeRef) {
-      final AttributeRef attrRef = (AttributeRef) rhs.getUserData();
-      final MmuDevice device = spec.getDevice(attrRef.getTarget().getId());
-      assigmentBuilder.setDevice(device);
-      assigmentBuilder.setRightSide(device.getFields());
-    } else if (rhs.getUserData() instanceof FieldRef) {
-      final FieldRef fieldRef = (FieldRef) rhs.getUserData();
-      final IntegerVariable intVar = 
-          variables.getGroup(fieldRef.getVariable().getId()).getVariable(fieldRef.getField().getId());
-      assigmentBuilder.setRightSide(intVar);
-    } else {
-      final IntegerVariableTracker.Status status = variables.checkDefined(rhs.getName());
-      switch (status) {
-        case VARIABLE:
-          assigmentBuilder.setRightSide(variables.getVariable(rhs.getName()));
-          break;
-        case GROUP:
-          assigmentBuilder.setRightSide(variables.getGroup(rhs.getName()).getVariables());
-          break;
-        default:
-          throw new IllegalStateException("Undeclared variable: " + rhs.getName());
-      }
-    }
-
-    final MmuAction target = assigmentBuilder.build();
+    final MmuAction target = assignmentBuilder.build();
     spec.registerAction(target);
 
     final MmuTransition transition = new MmuTransition(source, target);

@@ -16,6 +16,8 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collections;
+
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -26,6 +28,7 @@ import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
 import ru.ispras.microtesk.translator.mmu.ir.FieldRef;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
+import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
@@ -39,7 +42,6 @@ final class AtomExtractor {
 
   public Atom extract(Node expr) {
     checkNotNull(expr);
-
     switch(expr.getKind()) {
       case VALUE:
         return Atom.newValue(((NodeValue) expr).getInteger());
@@ -90,7 +92,7 @@ final class AtomExtractor {
     }
 
     // TODO: operator == StandardOperation.BVCONCAT
-    return null;
+    throw new UnsupportedOperationException("Cannot parse: " + expr);
   }
 
   private Atom extractFromVariable(Variable var) {
@@ -113,15 +115,15 @@ final class AtomExtractor {
 
   private Atom extractFromAttributeRef(AttributeRef attrRef) {
     final String groupName = attrRef.getTarget().getId();
-    final IntegerVariableGroup intVarGroup = variables.getGroup(groupName);
-
     final String attrName = attrRef.getAttribute().getId();
+
+    final IntegerVariableGroup intVarGroup = variables.getGroup(groupName);
     if (attrName.equals(AbstractStorage.READ_ATTR_NAME) || 
         attrName.equals(AbstractStorage.WRITE_ATTR_NAME)) {
       return Atom.newGroup(intVarGroup);
     }
 
     // TODO: Handle hit
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Cannot parse: " + attrRef);
   }
- }
+}
