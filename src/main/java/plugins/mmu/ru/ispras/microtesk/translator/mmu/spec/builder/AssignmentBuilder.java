@@ -70,56 +70,6 @@ public class AssignmentBuilder {
     return new MmuAction(name, device, array);
   }
 
-/*
-if (lhs.getUserData() instanceof AttributeRef) {
-    final AttributeRef attrRef = (AttributeRef) lhs.getUserData();
-    final MmuDevice device = spec.getDevice(attrRef.getTarget().getId());
-    assigmentBuilder.setDevice(device);
-    assigmentBuilder.setLeftSide(device.getFields());
-  } else if (lhs.getUserData() instanceof FieldRef) {
-    final FieldRef fieldRef = (FieldRef) lhs.getUserData();
-    final IntegerVariable intVar = 
-        variables.getGroup(fieldRef.getVariable().getId()).getVariable(fieldRef.getField().getId());
-    assigmentBuilder.setLeftSide(intVar);
-  } else {
-    final IntegerVariableTracker.Status status = variables.checkDefined(lhs.getName());
-    switch (status) {
-      case VARIABLE:
-        assigmentBuilder.setLeftSide(variables.getVariable(lhs.getName()));
-        break;
-      case GROUP:
-        assigmentBuilder.setLeftSide(variables.getGroup(lhs.getName()).getVariables());
-        break;
-      default:
-        throw new IllegalStateException("Undeclared variable: " + lhs.getName());
-    }
-  }
-
-  if (rhs.getUserData() instanceof AttributeRef) {
-    final AttributeRef attrRef = (AttributeRef) rhs.getUserData();
-    final MmuDevice device = spec.getDevice(attrRef.getTarget().getId());
-    assigmentBuilder.setDevice(device);
-    assigmentBuilder.setRightSide(device.getFields());
-  } else if (rhs.getUserData() instanceof FieldRef) {
-    final FieldRef fieldRef = (FieldRef) rhs.getUserData();
-    final IntegerVariable intVar = 
-        variables.getGroup(fieldRef.getVariable().getId()).getVariable(fieldRef.getField().getId());
-    assigmentBuilder.setRightSide(intVar);
-  } else {
-    final IntegerVariableTracker.Status status = variables.checkDefined(rhs.getName());
-    switch (status) {
-      case VARIABLE:
-        assigmentBuilder.setRightSide(variables.getVariable(rhs.getName()));
-        break;
-      case GROUP:
-        assigmentBuilder.setRightSide(variables.getGroup(rhs.getName()).getVariables());
-        break;
-      default:
-        throw new IllegalStateException("Undeclared variable: " + rhs.getName());
-    }
-  }
-   */
-  
   private static MmuDevice getDevice(Atom lhs, Atom rhs) {
     final MmuDevice left = extractDevice(lhs);
     final MmuDevice right = extractDevice(rhs);
