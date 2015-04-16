@@ -26,6 +26,7 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAssignment;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 public class AssignmentBuilder {
@@ -150,26 +151,42 @@ if (lhs.getUserData() instanceof AttributeRef) {
   private static Iterator<IntegerVariable> newVariableIterator(Atom atom) {
     final Collection<IntegerVariable> variables;
 
-    if (Atom.Kind.VARIABLE == atom.getKind()) {
-      variables = Collections.singletonList((IntegerVariable) atom.getObject());
-    } else if (Atom.Kind.GROUP == atom.getKind()) {
-      variables = ((IntegerVariableGroup) atom.getObject()).getVariables();
-    } else {
-      throw new IllegalStateException(
-          atom.getKind() + " cannot be used as a variable in assigment.");
+    switch (atom.getKind()) {
+      case VARIABLE: 
+        variables = Collections.singletonList((IntegerVariable) atom.getObject());
+        break;
+
+      case GROUP:
+        variables = ((IntegerVariableGroup) atom.getObject()).getVariables();
+        break;
+
+      default:
+        throw new IllegalStateException(
+            atom.getKind() + " cannot be used as a variable in assigment.");
     }
 
     return variables.iterator();
   }
 
   private static Iterator<MmuExpression> newExpressionIterator(Atom atom) {
-    if (Atom.Kind.VARIABLE == atom.getKind() || Atom.Kind.GROUP == atom.getKind()) {
-      return new VarToExprIteratorAdapter(newVariableIterator(atom));
-    } else if (Atom.Kind.CONCAT == atom.getKind()) {
-      return Collections.singletonList((MmuExpression) atom.getObject()).iterator();
-    } else {
-      throw new IllegalStateException(
-          atom.getKind() + " cannot be used as an expresion in assigment.");
+    switch (atom.getKind()) {
+      case VARIABLE:
+      case GROUP:
+        return new VarToExprIteratorAdapter(newVariableIterator(atom));
+
+      case FIELD: {
+        final IntegerField intField = (IntegerField) atom.getObject();
+        final MmuExpression mmuExpr = MmuExpression.VAR(
+            intField.getVariable(), intField.getLoIndex(), intField.getHiIndex());
+        return Collections.singletonList(mmuExpr).iterator();
+      }
+
+      case CONCAT:
+        return Collections.singletonList((MmuExpression) atom.getObject()).iterator();
+
+      default:
+        throw new IllegalStateException(
+            atom.getKind() + " cannot be used as an expresion in assigment.");
     }
   }
 
