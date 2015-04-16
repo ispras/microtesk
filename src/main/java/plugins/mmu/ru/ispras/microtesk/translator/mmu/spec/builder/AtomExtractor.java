@@ -80,7 +80,7 @@ final class AtomExtractor {
     } else if (StandardOperation.BVCONCAT == op) {
       return extractFromBitConcat(expr);
     } else {
-      throw new IllegalArgumentException("Unsupported operator: " + op);
+      throw new IllegalArgumentException(String.format("Unsupported operator %s in %s", op, expr));
     }
   }
 
