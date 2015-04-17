@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -59,6 +60,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   private IntegerVariableTracker variables = null;
   private AtomExtractor atomExtractor = null;
 
+  // Data variable for MMU (assignments to it must be ignored when building the control flow)
+  private IntegerVariable data = null;
+
   /** Index used in automatically generated action names to ensure their uniqueness. */
   private int actionIndex = 0;
 
@@ -89,7 +93,17 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
 
     final Memory memory = memories.values().iterator().next();
-    registerDevice(memory);
+
+    final MmuAddress address = spec.getAddress(memory.getAddress().getId());
+    spec.setStartAddress(address);
+    variables.defineVariableAs(address.getAddress(), memory.getAddressArg().getId());
+
+    data = new IntegerVariable(memory.getDataArg().getId(), memory.getDataArg().getBitSize());
+    variables.defineVariable(data);
+
+    for(final Variable variable : memory.getVariables()) {
+      variables.defineVariable(variable);
+    }
 
     registerControlFlowForMemory(memory);
 
@@ -147,30 +161,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
   }
 
-  private void registerDevice(final Memory memory) {
-    final MmuAddress address = spec.getAddress(memory.getAddress().getId());
-
-    // Main memory is fully associative
-    final long ways = 1;
-    final MmuExpression tag = MmuExpression.ZERO();
-
-    // Temporary stubs
-    final long sets = 0;
-    final MmuExpression index = MmuExpression.ZERO();
-    final MmuExpression offset = MmuExpression.ZERO();
-
-    final MmuDevice device = new MmuDevice(
-        memory.getId(), ways, sets, address, tag, index, offset, false);
-
-    spec.registerDevice(device);
-  }
-
   private void registerControlFlowForMemory(Memory memory) {
     final MmuAddress address = spec.getAddress(memory.getAddress().getId());
-    spec.setStartAddress(address);
-
-    registerMemoryVariables(address.getAddress(), memory);
-    System.out.println(variables);
 
     final MmuAction root = new MmuAction("ROOT", new MmuAssignment(address.getAddress()));
     spec.registerAction(root);
@@ -191,24 +183,10 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     registerControlFlowForAttribute(start, memory, AbstractStorage.WRITE_ATTR_NAME);
   }
 
-  private void registerMemoryVariables(IntegerVariable address, Memory memory) {
-    final Variable addressArg = memory.getAddressArg();
-    final Variable dataArg = memory.getDataArg();
-
-    variables.defineVariableAs(address, addressArg.getId());
-    variables.defineVariable(new IntegerVariable(dataArg.getId(), dataArg.getBitSize()));
-
-    for(final Variable variable : memory.getVariables()) {
-      variables.defineVariable(variable);
-    }
-  }
-
   private void registerControlFlowForAttribute(
       final MmuAction source, 
       final Memory memory,
       final String attributeName) {
-    System.out.println("---------------- " + attributeName + " ----------------");
-
     final Attribute attribute = memory.getAttribute(attributeName);
     if (null == attribute) {
       throw new IllegalStateException(String.format(
@@ -253,6 +231,11 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final Node left = stmt.getLeft();
     final Node right = stmt.getRight();
 
+    // Assignments that use the "data" MMU variable are ignored.
+    if (isDataVariable(left) || isDataVariable(right)) {
+      return source;
+    }
+
     final Atom lhs = atomExtractor.extract(left);
     if (Atom.Kind.VARIABLE != lhs.getKind() && Atom.Kind.GROUP != lhs.getKind()) {
       throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
@@ -278,6 +261,17 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     spec.registerTransition(transition);
 
     return target;
+  }
+
+  private boolean isDataVariable(Node expr) {
+    if (expr.getKind() != Node.Kind.VARIABLE) {
+      return false;
+    }
+
+    final String name = ((NodeVariable) expr).getName();
+    final IntegerVariable variable = variables.getVariable(name);
+
+    return data.equals(variable);
   }
 
   private MmuAction registerIf(final MmuAction source, final StmtIf stmt) {

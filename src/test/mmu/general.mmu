@@ -129,7 +129,7 @@ buffer Memory (pa: PA)
 // MMU Logic (Interaction between TLB, L1 and L2)
 //==================================================================================================
 
-mmu pmem(va: VA) = (data: 64) 
+mmu pmem (va: VA) = (data: 64)
   var tlbEntry: JTLB.entry;
   var l1Entry: L1.entry;
   var l2Entry: L2.entry;
@@ -143,9 +143,6 @@ mmu pmem(va: VA) = (data: 64)
   var pfn: 24;
 
   var pa: PA;
-
-  var zero: 5;
-  var cachePA: PA;
   var cacheData: 256;
 
   read = {
@@ -203,9 +200,6 @@ mmu pmem(va: VA) = (data: 64)
 
     // The address is cacheable.
     if c<1..0> != 2 then
-      zero = 0;
-      cachePA = pa<63..5>::zero;
-
       // The address hits the L1.
       if L1(pa).hit then
         l1Entry = L1(pa);
@@ -228,7 +222,7 @@ mmu pmem(va: VA) = (data: 64)
             L1(pa) = l1Entry;
           // The address does not hit the L2.
           else
-            cacheData = pmem[cachePA + 24]::pmem[cachePA + 16]::pmem[cachePA + 8]::pmem[cachePA];
+            cacheData = Memory(pa);
             data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
 
             // Fill L2.
@@ -245,7 +239,7 @@ mmu pmem(va: VA) = (data: 64)
           endif; // If the address hits the L2.
         // The L2 cache is bypassed.
         else
-          cacheData = pmem[cachePA + 24]::pmem[cachePA + 16]::pmem[cachePA + 8]::pmem[cachePA];
+          cacheData = Memory(pa);
           data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
 
           l1Entry.V = 1;
@@ -256,7 +250,8 @@ mmu pmem(va: VA) = (data: 64)
       endif; // If the address hits the L1.
     // The address is uncacheable.
     else
-      data = pmem[pa];
+      cacheData = Memory(pa);
+      data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
     endif; // If the address is cacheable.
   }
 
@@ -321,9 +316,6 @@ mmu pmem(va: VA) = (data: 64)
 
     // The address is cacheable.
     if c<1..0> != 2 then
-      zero = 0;
-      cachePA = pa<63..5>::zero;
-
       // The address hits the L1.
       if L1(pa).hit then
         // Update the L1.
@@ -332,7 +324,7 @@ mmu pmem(va: VA) = (data: 64)
         L1(pa) = l1Entry;
 
         // Only the write-through policy is supported.
-        pmem[pa] = data;
+        Memory(pa) = l1Entry.DATA;
       // The address does not hit the L1.
       else
         // The L2 cache is used.
@@ -351,11 +343,12 @@ mmu pmem(va: VA) = (data: 64)
             L1(pa) = l1Entry;
 
             // Only the write-through policy is supported.
-            pmem[pa] = data;
+            Memory(pa) = l1Entry.DATA;
           // The address does not hit the L2.
           else
-            pmem[pa] = data;
-            cacheData = pmem[cachePA + 24]::pmem[cachePA + 16]::pmem[cachePA + 8]::pmem[cachePA];
+            cacheData = Memory(pa);
+            cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+            Memory(pa) = cacheData;
 
             // Fill the L2.
             l2Entry.V = 1;
@@ -371,8 +364,9 @@ mmu pmem(va: VA) = (data: 64)
           endif; // If the address hits the L2.
         // The L2 cache is bypassed.
         else
-          pmem[pa] = data;
-          cacheData = pmem[cachePA + 24]::pmem[cachePA + 16]::pmem[cachePA + 8]::pmem[cachePA];
+          cacheData = Memory(pa);
+          cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+          Memory(pa) = cacheData;
 
           // Fill the L2
           l1Entry.V = 1;
@@ -383,7 +377,9 @@ mmu pmem(va: VA) = (data: 64)
       endif; // If the address hits the L1.
     // The address is uncacheable.
     else
-      pmem[pa] = data;
+      cacheData = Memory(pa);
+      cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+      Memory(pa) = cacheData;
     endif; // If the address is cacheable.
   }
 
