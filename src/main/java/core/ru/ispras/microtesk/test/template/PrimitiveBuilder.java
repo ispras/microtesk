@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -227,12 +229,6 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     checkNotNull(name);
     checkNotNull(value);
     registerArgument(new ArgumentLazyVal(name, value));
-  }
-
-  private static void checkNotNull(Object o) {
-    if (o == null) {
-      throw new NullPointerException();
-    }
   }
 
   private interface Argument {
@@ -631,12 +627,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     strategy.checkAllArgumentsAssigned(argNames);
   }
 
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
-  }
-
   private static final String ERR_UNASSIGNED_ARGUMENT = "The %s argument of %s is not assigned.";
 
   private static final String ERR_NO_MORE_ARGUMENTS =
@@ -655,9 +645,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     private final Iterator<MetaArgument> argumentIterator;
 
     StrategyOperation(MetaOperation metaData, String contextName) {
-      if (null == metaData) {
-        throw new NullPointerException();
-      }
+      checkNotNull(metaData);
 
       this.metaData = metaData;
       this.contextName = contextName;
@@ -742,9 +730,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     private final Iterator<String> argumentNameIterator;
 
     StrategyAddressingMode(MetaAddressingMode metaData) {
-      if (null == metaData) {
-        throw new NullPointerException();
-      }
+      checkNotNull(metaData);
 
       this.metaData = metaData;
       this.argumentCount = 0;
