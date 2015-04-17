@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.builder;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -253,18 +254,18 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final Node right = stmt.getRight();
 
     final Atom lhs = atomExtractor.extract(left);
-    final Atom rhs = atomExtractor.extract(right);
-
     if (Atom.Kind.VARIABLE != lhs.getKind() && Atom.Kind.GROUP != lhs.getKind()) {
-      //throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
-      System.out.printf(
-          "IGNORED: %s, reason: %s cannot be used as left side of assignment.%n", stmt, left);
-      return source;
+      throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
     }
 
+    Atom rhs = atomExtractor.extract(right);
     if (Atom.Kind.VALUE == rhs.getKind()) {
-      // Constant assignments are ignored.
-      return source;
+      if (BigInteger.ZERO.equals((BigInteger) rhs.getObject())) {
+        rhs = Atom.newConcat(MmuExpression.ZERO());
+      } else {
+        // Non-zero constant assignments are ignored.
+        return source;
+      }
     }
 
     final String name = String.format("Assignment (%s = %s)", left, right);

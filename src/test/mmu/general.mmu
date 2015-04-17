@@ -120,7 +120,7 @@ buffer L2 (pa: PA)
 
 buffer Memory (pa: PA)
   ways   = 1
-  sets   = 1
+  sets   = 1 /*1 << (64 - 5)*/
   entry  = (DATA: 256)
   index  = pa<63..5>
   match  = 0
@@ -144,6 +144,7 @@ mmu pmem(va: VA) = (data: 64)
 
   var pa: PA;
 
+  var zero: 5;
   var cachePA: PA;
   var cacheData: 256;
 
@@ -202,8 +203,8 @@ mmu pmem(va: VA) = (data: 64)
 
     // The address is cacheable.
     if c<1..0> != 2 then
-      cachePA = pa;
-      cachePA<4..0> = 0;
+      zero = 0;
+      cachePA = pa<63..5>::zero;
 
       // The address hits the L1.
       if L1(pa).hit then
@@ -320,8 +321,8 @@ mmu pmem(va: VA) = (data: 64)
 
     // The address is cacheable.
     if c<1..0> != 2 then
-      cachePA = pa;
-      cachePA<4..0> = 0;
+      zero = 0;
+      cachePA = pa<63..5>::zero;
 
       // The address hits the L1.
       if L1(pa).hit then
