@@ -27,7 +27,7 @@ public final class Argument {
     MODE (Primitive.class, false),
     OP (Primitive.class, false);
 
-    private static String ILLEGAL_CLASS = "%s is illegal value class, %s is expected.";
+    private static final String ILLEGAL_CLASS = "%s is illegal value class, %s is expected.";
 
     private final Class<?> vc;
     private final boolean isImmediate;

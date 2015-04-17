@@ -17,14 +17,14 @@ package ru.ispras.microtesk.test.template;
 import java.util.Collections;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class Situation {
   private final String name;
   private final Map<String, Object> attributes;
 
-  Situation(String name, Map<String, Object> attributes) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
+  Situation(final String name, final Map<String, Object> attributes) {
+    InvariantChecks.checkNotNull(name);
 
     this.name = name;
     this.attributes = (null != attributes) ?
@@ -36,7 +36,7 @@ public final class Situation {
     return name;
   }
 
-  public Object getAttribute(String attrName) {
+  public Object getAttribute(final String attrName) {
     return attributes.get(attrName);
   }
 

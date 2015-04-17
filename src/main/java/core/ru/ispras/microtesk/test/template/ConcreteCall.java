@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.template;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public final class ConcreteCall {
@@ -28,13 +29,8 @@ public final class ConcreteCall {
   private String text = null;
 
   public ConcreteCall(Call abstractCall, InstructionCall executable) {
-    if (null == abstractCall) {
-      throw new NullPointerException();
-    }
-
-    if (null == executable) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(executable);
 
     this.labels = abstractCall.getLabels();
     this.labelRefs = abstractCall.getLabelReferences();
@@ -45,22 +41,18 @@ public final class ConcreteCall {
   }
 
   public ConcreteCall(Call abstractCall) {
-    if (null == abstractCall) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(abstractCall);
 
     this.labels = abstractCall.getLabels();
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = null;
-    
+
     resetText();
   }
 
   public ConcreteCall(InstructionCall executable) {
-    if (null == executable) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(executable);
 
     this.labels = Collections.<Label>emptyList();
     this.labelRefs = Collections.<LabelReference>emptyList();
@@ -85,10 +77,7 @@ public final class ConcreteCall {
   }
 
   public void setText(String text) {
-    if (null == text) {
-      throw new NullPointerException();
-    }
-
+    InvariantChecks.checkNotNull(text);
     this.text = text;
   }
 

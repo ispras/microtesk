@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.template;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Primitive;
 
 public final class PreparatorStore {
@@ -27,18 +28,12 @@ public final class PreparatorStore {
   }
 
   public void addPreparator(Preparator preparator) {
-    if (null == preparator) {
-      throw new NullPointerException();
-    }
-
+    InvariantChecks.checkNotNull(preparator);
     preparators.put(preparator.getTargetName(), preparator);
   }
 
   public Preparator getPreparator(Primitive targetMode) {
-    if (null == targetMode) {
-      throw new NullPointerException();
-    }
-
+    InvariantChecks.checkNotNull(targetMode);
     return preparators.get(targetMode.getName());
   }
 }

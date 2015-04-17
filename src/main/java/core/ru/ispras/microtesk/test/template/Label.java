@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * The Label class describes a label set in test templates and symbolic test programs.
  * 
@@ -34,13 +36,8 @@ public final class Label {
    */
 
   public Label(String name, BlockId blockId) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == blockId) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(blockId);
 
     this.name = name;
     this.blockId = blockId;

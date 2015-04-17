@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.test.template;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,13 +43,8 @@ public final class BlockId {
     private final int down;
 
     public Distance(int up, int down) {
-      if (up < 0) {
-        throw new IllegalArgumentException();
-      }
-
-      if (down < 0) {
-        throw new IllegalArgumentException();
-      }
+      checkGreaterOrEqZero(up);
+      checkGreaterOrEqZero(down);
 
       this.up = up;
       this.down = down;
@@ -157,9 +155,7 @@ public final class BlockId {
    */
 
   public boolean isParent(BlockId parentId) {
-    if (null == parentId) {
-      throw new NullPointerException();
-    }
+    checkNotNull(parentId);
 
     if (parentId.indexes.size() >= indexes.size()) {
       return false;
@@ -181,9 +177,7 @@ public final class BlockId {
    */
 
   public boolean isChild(BlockId childId) {
-    if (null == childId) {
-      throw new NullPointerException();
-    }
+    checkNotNull(childId);
 
     if (childId.indexes.size() <= indexes.size()) {
       return false;
@@ -213,9 +207,7 @@ public final class BlockId {
    */
 
   public Distance getDistance(BlockId target) {
-    if (null == target) {
-      throw new NullPointerException();
-    }
+    checkNotNull(target);
 
     final int forkDepth = getEqualSize(indexes, target.indexes) - 1;
 
