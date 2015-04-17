@@ -49,4 +49,24 @@ public enum DataType {
   public int size() {
     return size;
   }
+
+  /**
+   * Checks whether the address is aligned (contains a sufficient number of zero bits at the end).
+   * 
+   * @param address the address to be checked.
+   * @return {@code true} if the address is aligned; {@code false} otherwise.
+   */
+  public boolean isAligned(final long address) {
+    return (address & (size - 1)) == 0;
+  }
+
+  /**
+   * Returns the aligned address (zero a required number of bits at the end).
+   * 
+   * @param address the address to be aligned.
+   * @return the aligned address.
+   */
+  public long align(final long address) {
+    return address & ~(size - 1);
+  }
 }
