@@ -50,6 +50,7 @@ MMU_SEGMENT : 'segment';
 MMU_RANGE   : 'range';
 
 MMU_BUFFER  : 'buffer';
+MMU_VIEWOF  : 'viewof';
 MMU_WAYS    : 'ways';
 MMU_SETS    : 'sets';
 MMU_ENTRY   : 'entry';

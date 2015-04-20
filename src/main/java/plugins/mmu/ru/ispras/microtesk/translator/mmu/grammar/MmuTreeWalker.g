@@ -110,6 +110,7 @@ segment
 buffer
     : ^(MMU_BUFFER bufferId=ID {declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER);}
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
+        (parendBufferId=ID)?
         {final BufferBuilder builder = new BufferBuilder($bufferId, $addressArgId, $addressArgType);}
         (
             ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}

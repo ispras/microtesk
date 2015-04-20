@@ -78,16 +78,6 @@ address PA(36)
 // Translation Lookaside Buffer (TLB)
 //==================================================================================================
 
-buffer DTLB (va: VA)
-  ways   = 4
-  sets   = 1
-  entry  = (ASID: 8, VPN2: 27, R: 2,               // EntryHi
-            G0: 1, V0: 1, D0: 1, C0: 3, PFN0: 24,  // EntryLo0
-            G1: 1, V1: 1, D1: 1, C1: 3, PFN1: 24)  // EntryLo1
-  index  = 0
-  match  = VPN2 == va<39..13> // ASID, G and non-4KB pages are unsupported
-  policy = PLRU
-
 buffer JTLB (va: VA)
   ways   = 64
   sets   = 1
@@ -97,6 +87,16 @@ buffer JTLB (va: VA)
   index  = 0
   match  = VPN2 == va<39..13> // ASID, G and non-4KB pages are unsupported
   policy = NONE
+
+buffer DTLB (va: VA) viewof JTLB
+  ways   = 4
+  sets   = 1
+  entry  = (ASID: 8, VPN2: 27, R: 2,               // EntryHi
+            G0: 1, V0: 1, D0: 1, C0: 3, PFN0: 24,  // EntryLo0
+            G1: 1, V1: 1, D1: 1, C1: 3, PFN1: 24)  // EntryLo1
+  index  = 0
+  match  = VPN2 == va<39..13> // ASID, G and non-4KB pages are unsupported
+  policy = PLRU
 
 //==================================================================================================
 // Cache Memory (L1 and L2)

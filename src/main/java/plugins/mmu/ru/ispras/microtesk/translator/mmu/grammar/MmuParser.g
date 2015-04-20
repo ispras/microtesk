@@ -98,7 +98,7 @@ range
 //==================================================================================================
 
 buffer
-    : MMU_BUFFER^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
+    : MMU_BUFFER^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH! (MMU_VIEWOF! ID)?
         (bufferParameter)*
     ;
 
