@@ -58,6 +58,11 @@ public class MmuDevice {
   /** The flag indicating whether the device supports data replacement. */
   private final boolean replaceable;
 
+  // TODO: E.g., JTLB for DTLB.
+  private final MmuDevice parent;
+  // TODO: E.g., DTLB for JTLB.
+  private final List<MmuDevice> children = new ArrayList<>();
+
   /** The auxiliary tag variable (used in the address calculation function). */
   private final IntegerVariable tagVariable;
   /** The auxiliary index variable (used in the address calculation function). */
@@ -82,6 +87,7 @@ public class MmuDevice {
    * @param indexExpression the index calculation function.
    * @param offsetExpression the offset calculation function.
    * @param replaceable the flag indicating that data stored in the device are replaceable.
+   * @param parent TODO
    * 
    * @throws NullPointerException if some parameters are null.
    * @throws IllegalArgumentException of the address calculation function cannot be reconstructed.
@@ -94,7 +100,8 @@ public class MmuDevice {
       final MmuExpression tagExpression,
       final MmuExpression indexExpression,
       final MmuExpression offsetExpression,
-      final boolean replaceable) {
+      final boolean replaceable,
+      final MmuDevice parent) {
 
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(address);
@@ -110,6 +117,12 @@ public class MmuDevice {
     this.indexExpression = indexExpression;
     this.offsetExpression = offsetExpression;
     this.replaceable = replaceable;
+
+    // TODO:
+    this.parent = parent;
+    if (parent != null) {
+      parent.children.add(this);
+    }
 
     final int addressWidth = address.getAddress().getWidth();
 
@@ -380,6 +393,26 @@ public class MmuDevice {
    */
   public boolean isReplaceable() {
     return replaceable;
+  }
+
+  // TODO:
+  public boolean isView() {
+    return parent != null;
+  }
+
+  // TODO:
+  public MmuDevice getParent() {
+    return parent;
+  }
+
+  // TODO:
+  public boolean isParent() {
+    return !children.isEmpty();
+  }
+
+  // TODO:
+  public List<MmuDevice> getChildren() {
+    return children;
   }
 
   @Override

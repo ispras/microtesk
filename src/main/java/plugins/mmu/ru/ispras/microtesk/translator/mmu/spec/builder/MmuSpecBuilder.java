@@ -146,7 +146,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           addressFormat.getTagExpr(),
           addressFormat.getIndexExpr(),
           addressFormat.getOffsetExpr(),
-          isReplaceable
+          isReplaceable,
+          null // TODO
           );
 
       for(final Field field : buffer.getEntry().getFields()) {

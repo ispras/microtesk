@@ -55,11 +55,33 @@ public class MmuDeviceTestCase {
   public static final MmuAddress VA_ADDR = new MmuAddress(VA);
   public static final MmuAddress PA_ADDR = new MmuAddress(PA);
 
+  public static final MmuDevice JTLB = new MmuDevice("JTLB", 64, 1, VA_ADDR,
+      MmuExpression.VAR(VA, 13, 39), // Tag
+      MmuExpression.ZERO(), // Index
+      MmuExpression.VAR(VA, 0, 12), // Offset
+      false, null);
+
+  static {
+    JTLB.addField(new IntegerVariable("VPN2", 27));
+
+    JTLB.addField(new IntegerVariable("V0", 1));
+    JTLB.addField(new IntegerVariable("D0", 1));
+    JTLB.addField(new IntegerVariable("G0", 1));
+    JTLB.addField(new IntegerVariable("C0", 1));
+    JTLB.addField(new IntegerVariable("PFN0", 24));
+
+    JTLB.addField(new IntegerVariable("V1", 1));
+    JTLB.addField(new IntegerVariable("D1", 1));
+    JTLB.addField(new IntegerVariable("G1", 1));
+    JTLB.addField(new IntegerVariable("C1", 1));
+    JTLB.addField(new IntegerVariable("PFN1", 24));
+  }
+
   public static final MmuDevice DTLB = new MmuDevice("DTLB", 4, 1, VA_ADDR,
       MmuExpression.VAR(VA, 13, 39), // Tag
       MmuExpression.ZERO(), // Index
       MmuExpression.VAR(VA, 0, 12), // Offset
-      true);
+      true, JTLB);
 
   static {
     DTLB.addField(new IntegerVariable("VPN2", 27));
@@ -100,33 +122,11 @@ public class MmuDeviceTestCase {
         }
       });
 
-  public static final MmuDevice JTLB = new MmuDevice("JTLB", 64, 1, VA_ADDR,
-      MmuExpression.VAR(VA, 13, 39), // Tag
-      MmuExpression.ZERO(), // Index
-      MmuExpression.VAR(VA, 0, 12), // Offset
-      false);
-
-  static {
-    JTLB.addField(new IntegerVariable("VPN2", 27));
-
-    JTLB.addField(new IntegerVariable("V0", 1));
-    JTLB.addField(new IntegerVariable("D0", 1));
-    JTLB.addField(new IntegerVariable("G0", 1));
-    JTLB.addField(new IntegerVariable("C0", 1));
-    JTLB.addField(new IntegerVariable("PFN0", 24));
-
-    JTLB.addField(new IntegerVariable("V1", 1));
-    JTLB.addField(new IntegerVariable("D1", 1));
-    JTLB.addField(new IntegerVariable("G1", 1));
-    JTLB.addField(new IntegerVariable("C1", 1));
-    JTLB.addField(new IntegerVariable("PFN1", 24));
-  }
-
   public static final MmuDevice L1 = new MmuDevice("L1", 4, 128, PA_ADDR,
       MmuExpression.VAR(PA, 12, 35), // Tag
       MmuExpression.VAR(PA, 5, 11), // Index
       MmuExpression.VAR(PA, 0, 4), // Offset
-      true);
+      true, null);
 
   static {
     L1.addField(new IntegerVariable("TAG", 24));
@@ -159,7 +159,7 @@ public class MmuDeviceTestCase {
       MmuExpression.VAR(PA, 17, 35), // Tag
       MmuExpression.VAR(PA, 5, 16), // Index
       MmuExpression.VAR(PA, 0, 4), // Offset
-      true);
+      true, null);
 
   static {
     L1.addField(new IntegerVariable("TAG", 19));
@@ -191,7 +191,7 @@ public class MmuDeviceTestCase {
       MmuExpression.ZERO(), // Tag
       MmuExpression.VAR(PA, 5, 35), // Index
       MmuExpression.VAR(PA, 0, 4), // Offset
-      false);
+      false, null);
 
   static {
     MEM.addField(new IntegerVariable("DATA", 8 * 32));
@@ -232,4 +232,3 @@ public class MmuDeviceTestCase {
     }
   }
 }
-
