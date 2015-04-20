@@ -31,6 +31,7 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
   private final Node index;
   private final Node match;
   private final PolicyId policy;
+  private final Buffer parent;
 
   public Buffer(
       String id,
@@ -41,7 +42,8 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
       int sets,
       Node index,
       Node match,
-      PolicyId policy) {
+      PolicyId policy,
+      Buffer parent) {
 
     super(id, address, addressArg, dataArg, createAttributes(addressArg, dataArg));
 
@@ -56,6 +58,7 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
     this.index = index;
     this.match = match;
     this.policy = policy;
+    this.parent = parent;
   }
 
   private static Map<String, Attribute> createAttributes(Variable addressArg, Variable dataArg) {
@@ -108,6 +111,10 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
 
   public PolicyId getPolicy() {
     return policy;
+  }
+
+  public Buffer getParent() {
+    return parent;
   }
 
   @Override

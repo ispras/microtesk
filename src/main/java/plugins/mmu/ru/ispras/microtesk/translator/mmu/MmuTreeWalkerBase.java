@@ -230,6 +230,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final CommonTree id;
     private final Address address;
     private final Variable addressArg;
+    private final Buffer parent;
 
     private Variable dataArg; // stores entries
     private int ways;
@@ -255,6 +256,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.id = id;
       this.address = getAddress(addressArgType);
       this.addressArg = new Variable(addressArgId.getText(), address);
+      this.parent = null != parentBufferId ? getBuffer(parentBufferId) : null;
 
       this.dataArg = null;
       this.ways = 0;
@@ -340,7 +342,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Buffer buffer = new Buffer(
-          id.getText(), address, addressArg, dataArg, ways, sets, index, match, policy);
+          id.getText(), address, addressArg, dataArg, ways, sets, index, match, policy, parent);
 
       ir.addBuffer(buffer);
       return buffer;

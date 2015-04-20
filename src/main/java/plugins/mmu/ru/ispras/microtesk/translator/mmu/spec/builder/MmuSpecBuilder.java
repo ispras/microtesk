@@ -138,6 +138,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       final AddressFormatExtractor addressFormat = new AddressFormatExtractor(
           variables, address.getAddress(), buffer.getIndex(), buffer.getMatch());
 
+      final MmuDevice parentDevice = (null != buffer.getParent()) ?
+          spec.getDevice(buffer.getParent().getId()) : null;
+
       final MmuDevice device = new MmuDevice(
           buffer.getId(),
           buffer.getWays(),
@@ -147,7 +150,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           addressFormat.getIndexExpr(),
           addressFormat.getOffsetExpr(),
           isReplaceable,
-          null // TODO
+          parentDevice
           );
 
       for(final Field field : buffer.getEntry().getFields()) {
