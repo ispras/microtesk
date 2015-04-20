@@ -377,6 +377,7 @@ mmu pmem (va: VA) = (data: 64)
       endif; // If the address hits the L1.
     // The address is uncacheable.
     else
+      pa<4..0> = 0;
       cacheData = Memory(pa);
       cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
       Memory(pa) = cacheData;
