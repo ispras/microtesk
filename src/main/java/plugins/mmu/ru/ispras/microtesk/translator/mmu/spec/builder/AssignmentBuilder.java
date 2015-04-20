@@ -46,15 +46,22 @@ public class AssignmentBuilder {
 
   public MmuAction build() {
     final MmuDevice device = getDevice(lhs, rhs);
-    final Iterator<IntegerVariable> leftIt = newVariableIterator(lhs);
+
+    final Iterator<?> leftIt = newVariableIterator(lhs);
     final Iterator<MmuExpression> rightIt = newExpressionIterator(rhs);
 
     final List<MmuAssignment> assignments = new ArrayList<>();
     while (leftIt.hasNext() && rightIt.hasNext()) {
-      final IntegerVariable leftVar = leftIt.next();
+      final Object leftVar = leftIt.next();
       final MmuExpression rightExpr = rightIt.next();
 
-      final MmuAssignment assignment = new MmuAssignment(leftVar, rightExpr);
+      final MmuAssignment assignment;
+      if (leftVar instanceof IntegerVariable) {
+        assignment = new MmuAssignment((IntegerVariable) leftVar, rightExpr);
+      } else {
+        assignment= new MmuAssignment((IntegerField) leftVar, rightExpr);
+      }
+
       assignments.add(assignment);
     }
 
@@ -98,31 +105,32 @@ public class AssignmentBuilder {
     return null;
   }
 
-  private static Iterator<IntegerVariable> newVariableIterator(Atom atom) {
-    final Collection<IntegerVariable> variables;
-
+  private static Iterator<?> newVariableIterator(final Atom atom) {
     switch (atom.getKind()) {
       case VARIABLE: 
-        variables = Collections.singletonList((IntegerVariable) atom.getObject());
-        break;
+        return Collections.singletonList((IntegerVariable) atom.getObject()).iterator();
+
+      case FIELD: 
+        return Collections.singletonList((IntegerField) atom.getObject()).iterator();
 
       case GROUP:
-        variables = ((IntegerVariableGroup) atom.getObject()).getVariables();
-        break;
+        return ((IntegerVariableGroup) atom.getObject()).getVariables().iterator();
 
       default:
         throw new IllegalStateException(
             atom.getKind() + " cannot be used as a variable in assigment.");
     }
-
-    return variables.iterator();
   }
 
-  private static Iterator<MmuExpression> newExpressionIterator(Atom atom) {
+  private static Iterator<MmuExpression> newExpressionIterator(final Atom atom) {
     switch (atom.getKind()) {
       case VARIABLE:
+        return Collections.singletonList(MmuExpression.VAR(
+            (IntegerVariable) atom.getObject())).iterator();
+
       case GROUP:
-        return new VarToExprIteratorAdapter(newVariableIterator(atom));
+        return new VarToExprIteratorAdapter(
+            ((IntegerVariableGroup) atom.getObject()).getVariables().iterator());
 
       case FIELD: {
         final IntegerField intField = (IntegerField) atom.getObject();
