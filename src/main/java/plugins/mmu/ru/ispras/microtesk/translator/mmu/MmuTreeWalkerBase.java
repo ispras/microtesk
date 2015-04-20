@@ -250,7 +250,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     public BufferBuilder(
         final CommonTree id,
         final CommonTree addressArgId,
-        final CommonTree addressArgType) throws SemanticException {
+        final CommonTree addressArgType,
+        final CommonTree parentBufferId) throws SemanticException {
       this.id = id;
       this.address = getAddress(addressArgType);
       this.addressArg = new Variable(addressArgId.getText(), address);
