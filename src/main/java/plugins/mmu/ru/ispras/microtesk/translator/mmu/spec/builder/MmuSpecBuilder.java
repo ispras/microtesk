@@ -241,7 +241,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
 
     final Atom lhs = atomExtractor.extract(left);
-    if (Atom.Kind.VARIABLE != lhs.getKind() && Atom.Kind.GROUP != lhs.getKind()) {
+    if (Atom.Kind.VARIABLE != lhs.getKind() && 
+        Atom.Kind.GROUP != lhs.getKind() &&
+        Atom.Kind.FIELD != lhs.getKind()) {
       throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
     }
 

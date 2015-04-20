@@ -34,7 +34,7 @@ public class AssignmentBuilder {
   private final Atom lhs;
   private final Atom rhs;
 
-  AssignmentBuilder(String name, Atom lhs, Atom rhs) {
+  AssignmentBuilder(final String name, final Atom lhs, final Atom rhs) {
     checkNotNull(name);
     checkNotNull(lhs);
     checkNotNull(rhs);

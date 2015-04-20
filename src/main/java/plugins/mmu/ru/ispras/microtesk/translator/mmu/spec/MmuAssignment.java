@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.mmu.spec;
 
+import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
@@ -24,10 +26,24 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class MmuAssignment {
-  /** The variable. */
-  private final IntegerVariable variable;
+  /** The field. */
+  private final IntegerField field;
   /** The expression. */
   private final MmuExpression expression;
+
+  /**
+   * Constructs an assignment.
+   * 
+   * @param field the field.
+   * @param expression the expression.
+   * @throws NullPointerException if {@code field} is null.
+   */
+  public MmuAssignment(final IntegerField field, final MmuExpression expression) {
+    InvariantChecks.checkNotNull(field);
+
+    this.field = field;
+    this.expression = expression;
+  }
 
   /**
    * Constructs an assignment.
@@ -37,10 +53,17 @@ public class MmuAssignment {
    * @throws NullPointerException if {@code variable} is null.
    */
   public MmuAssignment(final IntegerVariable variable, final MmuExpression expression) {
-    InvariantChecks.checkNotNull(variable);
+    this(new IntegerField(variable), expression);
+  }
 
-    this.variable = variable;
-    this.expression = expression;
+  /**
+   * Constructs an assignment with no right-hand side (RHS). It is assumed that RHS can be derived
+   * from context.
+   * 
+   * @param field the field.
+   */
+  public MmuAssignment(final IntegerField field) {
+    this(field, null);
   }
 
   /**
@@ -50,16 +73,16 @@ public class MmuAssignment {
    * @param variable the variable.
    */
   public MmuAssignment(final IntegerVariable variable) {
-    this(variable, null);
+    this(new IntegerField(variable), null);
   }
 
   /**
-   * Returns the variable of the assignment.
+   * Returns the field of the assignment.
    * 
-   * @return the variable.
+   * @return the field.
    */
-  public IntegerVariable getVariable() {
-    return variable;
+  public IntegerField getField() {
+    return field;
   }
 
   /**
@@ -73,18 +96,24 @@ public class MmuAssignment {
 
   @Override
   public String toString() {
-    final StringBuilder string = new StringBuilder(
-        String.format("%s[%d]:", variable.getName(), variable.getWidth()));
+    final StringBuilder string = new StringBuilder(field.getVariable().getName());
 
-    string.append("{");
+    string.append("[");
+    string.append(field.getLoIndex());
+    string.append(":");
+    string.append(field.getHiIndex());
+    string.append("]: ");
+
     if (expression == null) {
-      string.append("null");
+      string.append("{null}");
     } else {
-      for (final IntegerField term : expression.getTerms()) {
+      final List<IntegerField> terms = expression.getTerms();
+      for (final IntegerField term : terms) {
+        string.append("{");
         string.append(term);
+        string.append("}");
       }
     }
-    string.append("}");
 
     return string.toString();
   }

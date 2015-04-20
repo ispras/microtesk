@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
+import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 
 /**
  * This class describes an action. The description includes a device and an output (result
@@ -32,7 +32,7 @@ public class MmuAction {
   /** The action device. */
   private final MmuDevice device;
   /** The action. */
-  private final Map<IntegerVariable, MmuAssignment> action = new HashMap<>();
+  private final Map<IntegerField, MmuAssignment> action = new HashMap<>();
 
   /**
    * Constructs an action.
@@ -49,7 +49,7 @@ public class MmuAction {
     this.device = device;
 
     for (final MmuAssignment assignment : assignments) {
-      action.put(assignment.getVariable(), assignment);
+      action.put(assignment.getField(), assignment);
     }
   }
 
@@ -86,7 +86,7 @@ public class MmuAction {
    * 
    * @return the set of assignments.
    */
-  public Map<IntegerVariable, MmuAssignment> getAction() {
+  public Map<IntegerField, MmuAssignment> getAction() {
     return action;
   }
 
