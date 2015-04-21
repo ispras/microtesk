@@ -240,13 +240,13 @@ public final class IntegerEquationSolver {
           }
         }
 
-        // Choose some variable that is equal to the current one. 
-        for (final IntegerVariable rhs : equalVars) {
+        // Choose some variable that is equal to the current one.
+        if (!equalVars.isEmpty()) {
+          final IntegerVariable rhs = equalVars.iterator().next();
+
           if (!handleEquality(lhs, rhs)) {
             return false;
           }
-          // The current variable is eliminated and the equal-to map has been modified.
-          break;
         }
       }
     }

@@ -176,20 +176,16 @@ public final class IntegerDomain {
       final IntegerRange range1 = ranges.get(i);
       final IntegerRange range2 = rhs.ranges.get(j);
 
-      // The situation {[range1], [range2]}.
       if (range2.getMin().compareTo(range1.getMax()) > 0) {
+        // The situation {[range1], [range2]}.
         i++;
-        continue;
-      }
-
-      // The situation {[range2], [range1]}.
-      if (range1.getMin().compareTo(range2.getMax()) > 0) {
+      } else if (range1.getMin().compareTo(range2.getMax()) > 0) {
+        // The situation {[range2], [range1]}.
         j++;
-        continue;
+      } else {
+        // The ranges overlap.
+        return true;
       }
-
-      // The ranges overlap.
-      return true;
     }
 
     return false;
