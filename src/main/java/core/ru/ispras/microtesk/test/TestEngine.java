@@ -21,6 +21,8 @@ import java.io.IOException;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.solver.Environment;
+import ru.ispras.fortress.solver.Solver;
+import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
@@ -52,13 +54,14 @@ public final class TestEngine {
 
     final String HOME = System.getenv("MICROTESK_HOME");
     final String PATH = (HOME != null ? HOME : ".") + "/tools/z3/";
+    final Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
 
     if (Environment.isUnix()) {
-      Environment.setSolverPath(PATH + "unix/z3/bin/z3");
+      z3Solver.setSolverPath(PATH + "unix/z3/bin/z3");
     } else if (Environment.isWindows()) {
-      Environment.setSolverPath(PATH + "windows/z3/bin/z3.exe");
+      z3Solver.setSolverPath(PATH + "windows/z3/bin/z3.exe");
     } else if (Environment.isOSX()) {
-      Environment.setSolverPath(PATH + "osx/z3/bin/z3");
+      z3Solver.setSolverPath(PATH + "osx/z3/bin/z3");
     } else {
       throw new UnsupportedOperationException(String.format(
         "Unsupported platform: %s.", Environment.getOSName()));
