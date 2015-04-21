@@ -36,21 +36,21 @@ public abstract class Translator<Ir> {
     return log;
   }
 
-  public final void setLog(LogStore log) {
+  public final void setLog(final LogStore log) {
     checkNotNull(log);
     this.log = log;
   }
 
-  public final void addHandler(TranslatorHandler<Ir> handler) {
+  public final void addHandler(final TranslatorHandler<Ir> handler) {
     checkNotNull(handler);
     handlers.add(handler);
   }
 
-  public final void processIr(Ir ir) {
-    for (TranslatorHandler<Ir> handler : handlers) {
+  public final void processIr(final Ir ir) {
+    for (final TranslatorHandler<Ir> handler : handlers) {
       handler.processIr(ir);
     }
   }
-  
-  public abstract void start(String ... fileNames) throws RecognitionException;
+
+  public abstract void start(String... fileNames) throws RecognitionException;
 }
