@@ -14,7 +14,16 @@
 
 package ru.ispras.microtesk.test;
 
-public class TestProgramGenerator {
+import org.jruby.embed.PathType;
+import org.jruby.embed.ScriptingContainer;
+
+/**
+ * TODO: Temporary intermediate implementation.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
+public final class TestProgramGenerator {
   private String modelName;
   private String fileName;
   private int randomSeed;
@@ -24,26 +33,43 @@ public class TestProgramGenerator {
     this.modelName = "";
     this.fileName = "";
     this.randomSeed = 0;
-    this.isRandomSeedSet = false;;
+    this.isRandomSeedSet = false;
   }
 
-  public void setModelName(String value) {
+  public void setModelName(final String value) {
     modelName = value;
   }
 
-  public void setRandomSeed(int value) {
+  public void setRandomSeed(final int value) {
     randomSeed = value;
     isRandomSeedSet = true;
   }
 
-  public void setFileName(String value) {
+  public void setFileName(final String value) {
     fileName = value;
   }
 
-  public void generate(String... templateFiles) {
-    System.out.println(modelName);
-    System.out.println(fileName);
-    System.out.println(isRandomSeedSet);
-    System.out.println(randomSeed);
+  public boolean isRandomSeedSet() {
+    return isRandomSeedSet;
+  }
+
+  public int getRandomSeed() {
+    return randomSeed;
+  }
+
+  public void generate(final String... templateFiles) {
+    for (String template : templateFiles) {
+      runTemplate(modelName, template, fileName);
+    }
+  }
+
+  private static void runTemplate(final String... argv) {
+    final ScriptingContainer container = new ScriptingContainer();
+
+    final String scriptsPath = String.format(
+        "%s/lib/ruby/microtesk.rb", System.getenv("MICROTESK_HOME"));
+
+    container.setArgv(argv);
+    container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
   }
 }
