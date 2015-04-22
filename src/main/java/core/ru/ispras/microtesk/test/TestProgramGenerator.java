@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test;
 
+import java.util.List;
+
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
 
@@ -57,7 +59,7 @@ public final class TestProgramGenerator {
     return randomSeed;
   }
 
-  public void generate(final String... templateFiles) {
+  public void generate(final List<String> templateFiles) {
     for (String template : templateFiles) {
       runTemplate(modelName, template, fileName);
     }

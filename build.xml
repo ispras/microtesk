@@ -121,8 +121,8 @@
         <env key="MICROTESK_HOME" value="${dist}"/>
         <arg value="-ea"/>
         <arg value="-jar"/>
-        <arg value="${dist.jars}/${jruby.jar}"/>
-        <arg value="${dist.ruby}/microtesk.rb"/>
+        <arg value="${dist.jars}/${jar}"/>
+        <arg value="-g"/>
         <arg value="@{arch.name}"/>
         <srcfile/>
         <arg value="@{file.name}"/>

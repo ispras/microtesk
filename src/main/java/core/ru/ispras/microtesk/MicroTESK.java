@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.antlr.runtime.RecognitionException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -34,11 +37,9 @@ public final class MicroTESK {
     public static final String INCLUDE = "i";
     public static final String HELP = "h";
     public static final String OUTDIR = "d";
-    public static final String MODEL = "m";
     public static final String GENERATE = "g";
     public static final String TRANSLATE = "t";
     public static final String VERBOSE = "v";
-    public static final String FILE = "f";
     public static final String RANDOM = "r";
 
     private static final Options options = newOptions();
@@ -57,8 +58,6 @@ public final class MicroTESK {
 
       result.addOption(INCLUDE, "include", true, "Sets include files directories" + TOPT);
       result.addOption(OUTDIR, "dir", true, "Sets where to place generated files" + TOPT);
-      result.addOption(MODEL, "model", true, "Sets model used to generate test programs" + GOPT);
-      result.addOption(FILE, "file", true, "Sets file name of generated test program" + GOPT);
       result.addOption(RANDOM, "random", true, "Sets seed for randomizer" + GOPT);
 
       result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
@@ -125,14 +124,7 @@ public final class MicroTESK {
   }
 
   private static void generate(CommandLine params) {
-    if (!params.hasOption(Parameters.MODEL)) {
-      Logger.error("Wrong command line: -%s parameter is not specified%n", Parameters.MODEL);
-      Parameters.help();
-      return;
-    }
-
     final TestProgramGenerator generator = new TestProgramGenerator();
-    generator.setModelName(params.getOptionValue(Parameters.MODEL));
 
     if (params.hasOption(Parameters.RANDOM)) {
       final String random = params.getOptionValue(Parameters.RANDOM);
@@ -144,10 +136,31 @@ public final class MicroTESK {
       }
     }
 
-    if (params.hasOption(Parameters.FILE)) {
-      generator.setFileName(params.getOptionValue(Parameters.FILE));
+    final String[] args = params.getArgs();
+    if (args.length < 2) {
+      Logger.error("Wrong number of generator arguments. At least two are required.");
+      Logger.message("Argument format: <model name>, <template files>[, <output file>]");
+      return;
     }
 
-    generator.generate(params.getArgs());
+    final String modelName = args[0];
+    generator.setModelName(modelName);
+
+    final List<String> templateFiles = new ArrayList<>();
+    for (int index = 1; index < args.length; ++index) {
+      final String fileName = args[index];
+      if (".rb".equals(getFileExtension(fileName))) {
+        templateFiles.add(fileName);
+      } else if (index == args.length - 1){
+        generator.setFileName(fileName);
+      }
+    }
+
+    generator.generate(templateFiles);
+  }
+
+  private static String getFileExtension(String fileName) {
+    final int lastIndexOf = fileName.lastIndexOf(".");
+    return lastIndexOf != -1 ? fileName.substring(lastIndexOf) : "";
   }
 }
