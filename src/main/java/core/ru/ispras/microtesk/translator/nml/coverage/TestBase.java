@@ -58,6 +58,7 @@ public final class TestBase {
   public static void setSolverId(final SolverId value) {
     InvariantChecks.checkNotNull(value);
     solverId = value;
+    ru.ispras.testbase.stub.TestBase.setSolverId(value);
   }
 
   public TestBase(String path) {

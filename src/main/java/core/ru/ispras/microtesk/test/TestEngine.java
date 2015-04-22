@@ -53,15 +53,30 @@ public final class TestEngine {
     this.model = model;
 
     final String HOME = System.getenv("MICROTESK_HOME");
-    final String PATH = (HOME != null ? HOME : ".") + "/tools/z3/";
+
+    final String z3Path = (HOME != null ? HOME : ".") + "/tools/z3/";
     final Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
 
     if (Environment.isUnix()) {
-      z3Solver.setSolverPath(PATH + "unix/z3/bin/z3");
+      z3Solver.setSolverPath(z3Path + "unix/z3/bin/z3");
     } else if (Environment.isWindows()) {
-      z3Solver.setSolverPath(PATH + "windows/z3/bin/z3.exe");
+      z3Solver.setSolverPath(z3Path + "windows/z3/bin/z3.exe");
     } else if (Environment.isOSX()) {
-      z3Solver.setSolverPath(PATH + "osx/z3/bin/z3");
+      z3Solver.setSolverPath(z3Path + "osx/z3/bin/z3");
+    } else {
+      throw new UnsupportedOperationException(String.format(
+        "Unsupported platform: %s.", Environment.getOSName()));
+    }
+
+    final String cvc4Path = (HOME != null ? HOME : ".") + "/tools/cvc4/";
+    final Solver cvc4Solver = SolverId.CVC4_TEXT.getSolver();
+
+    if (Environment.isUnix()) {
+      cvc4Solver.setSolverPath(cvc4Path + "unix/cvc4");
+    } else if (Environment.isWindows()) {
+      cvc4Solver.setSolverPath(cvc4Path + "windows/cvc4.exe");
+    } else if (Environment.isOSX()) {
+      cvc4Solver.setSolverPath(cvc4Path + "osx/cvc4");
     } else {
       throw new UnsupportedOperationException(String.format(
         "Unsupported platform: %s.", Environment.getOSName()));
