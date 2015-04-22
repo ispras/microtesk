@@ -25,7 +25,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import ru.ispras.microtesk.test.TestProgramGenerator;
-import ru.ispras.microtesk.translator.simnml.SimnMLAnalyzer;
+import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
 
 public final class MicroTESK {
   private MicroTESK() {}

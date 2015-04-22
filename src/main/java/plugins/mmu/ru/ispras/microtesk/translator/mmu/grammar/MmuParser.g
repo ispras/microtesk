@@ -52,7 +52,7 @@ import commonParser=CommonParser;
 package ru.ispras.microtesk.translator.mmu.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.ParserBase;
-import ru.ispras.microtesk.translator.simnml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.ESymbolKind;
 }
 
 //==================================================================================================

@@ -21,15 +21,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.simnml.ir.IrVisitor;
-import ru.ispras.microtesk.translator.simnml.ir.location.LocationAtom;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.*;
-import ru.ispras.microtesk.translator.simnml.ir.primitive.StatementCondition.Block;
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetConstant;
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.simnml.ir.shared.LetString;
-import ru.ispras.microtesk.translator.simnml.ir.shared.MemoryExpr;
-import ru.ispras.microtesk.translator.simnml.ir.shared.Type;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitor;
+import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.primitive.*;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition.Block;
+import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
+import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
+import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public class TexVisitor implements IrVisitor {
 

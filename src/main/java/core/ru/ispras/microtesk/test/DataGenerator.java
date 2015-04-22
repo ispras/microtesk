@@ -57,7 +57,7 @@ import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
-import ru.ispras.microtesk.translator.simnml.coverage.TestBase;
+import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 /**
  * The job of the DataGenerator class is to processes an abstract instruction call sequence (uses

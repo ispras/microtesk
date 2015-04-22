@@ -12,11 +12,11 @@
  * the License.
  */
 
-package ru.ispras.microtesk.docgen;
+package ru.ispras.microtesk.translator.nml;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
@@ -31,32 +31,36 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
+import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
-import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.nml.generation.Generator;
 import ru.ispras.microtesk.translator.nml.grammar.SimnMLLexer;
 import ru.ispras.microtesk.translator.nml.grammar.SimnMLParser;
 import ru.ispras.microtesk.translator.nml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.nml.ir.IR;
-import ru.ispras.microtesk.translator.nml.ir.IrWalker;
-import ru.ispras.microtesk.translator.nml.ir.IrWalker.Direction;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 
-public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
+public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceIncluder {
+  private String outDir;
 
-  private final LogStore LOG = new LogStore() {
-    @Override
-    public void append(LogEntry entry) {
-      System.err.println(entry);
-    }
-  };
+  public SimnMLAnalyzer() {
+    this.outDir = PackageInfo.DEFAULT_OUTDIR;
+  }
 
-  public DocgenSimnMLAnalyzer() {}
+  public String getOutDir() {
+    return outDir;
+  }
+
+  public void setOutDir(String outDir) {
+    checkNotNull(outDir);
+    this.outDir = outDir;
+  }
 
   private String getModelName(String fileName) {
     final String shortFileName = getShortFileName(fileName);
@@ -89,7 +93,7 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
 
   private TokenSourceStack source;
 
-  public TokenSource startLexer(final List<String> filenames) {
+  private TokenSource startLexer(final List<String> filenames) {
     ListIterator<String> iterator = filenames.listIterator(filenames.size());
 
     // Create a stack of lexers.
@@ -121,7 +125,8 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
   // Parser
   // /////////////////////////////////////////////////////////////////////////
 
-  public IR startParserAndWalker(TokenSource source) throws RecognitionException {
+  private IR startParserAndWalker(TokenSource source) throws RecognitionException {
+    final LogStore log = getLog();
     final SymbolTable symbols = new SymbolTable();
 
     symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.JAVA);
@@ -131,9 +136,9 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     tokens.setTokenSource(source);
 
     final SimnMLParser parser = new SimnMLParser(tokens);
-    parser.assignLog(LOG);
+    parser.assignLog(log);
     parser.assignSymbols(symbols);
-    parser.commonParser.assignLog(LOG);
+    parser.commonParser.assignLog(log);
     parser.commonParser.assignSymbols(symbols);
     parser.setTreeAdaptor(new CommonTreeAdaptor());
 
@@ -149,12 +154,21 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     final IR ir = new IR();
     final SimnMLTreeWalker walker = new SimnMLTreeWalker(nodes);
 
-    walker.assignLog(LOG);
+    walker.assignLog(log);
     walker.assignSymbols(symbols);
     walker.assignIR(ir);
 
     walker.startRule();
     return ir;
+  }
+
+  // /////////////////////////////////////////////////////////////////////////
+  // Generator
+  // /////////////////////////////////////////////////////////////////////////
+
+  private void startGenerator(String modelName, String fileName, IR ir) {
+    final Generator generator = new Generator(outDir + "/java", modelName, fileName, ir);
+    generator.generate();
   }
 
   // /////////////////////////////////////////////////////////////////////////
@@ -176,38 +190,50 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     final TokenSource source = startLexer(filenames);
     final IR ir = startParserAndWalker(source);
 
+    processIr(ir);
+
+    final ru.ispras.microtesk.translator.nml.coverage.Analyzer analyzer =
+        new ru.ispras.microtesk.translator.nml.coverage.Analyzer(ir, modelName);
+    analyzer.run();
+
     final PrimitiveSyntesizer primitiveSyntesizer =
-        new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), LOG);
+      new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), getLog());
 
     if (!primitiveSyntesizer.syntesize()) {
-      System.err.println("FAILED TO SYNTHESIZE INFORMATION ON DESCRIBED OPERATIONS. "
-          + "TRANSLATION WAS INTERRUPTED.");
+      System.err.println(FAILED_TO_SYNTH_PRIMITIVES);
       return;
     }
     ir.setRoots(primitiveSyntesizer.getRoots());
 
-    // TO PLATON >> TODO: YOUR CODE GOES HERE
-    IrWalker walker = new IrWalker(ir, Direction.LINEAR);
-    FileWriter writer = null;
-    TexVisitor visitor = null;
-    try {
-      writer = new FileWriter(new File("documentation.tex"));
-      visitor = new TexVisitor(writer);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    
-    walker.traverse(visitor);
-    visitor.finalize();
+    startGenerator(modelName, getShortFileName(fileName), ir);
   }
 
-  public static void main(String[] args) throws RecognitionException {
-    final DocgenSimnMLAnalyzer analyzer = new DocgenSimnMLAnalyzer();
-    try {
-      analyzer.start(Arrays.asList(args));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  @Override
+  public void start(final String ... filenames) throws RecognitionException {
+    start(Arrays.asList(filenames));
   }
+
+  // /////////////////////////////////////////////////////////////////////////
+  // Debug
+  // /////////////////////////////////////////////////////////////////////////
+  /*
+   * private static void print(final CommonTree tree) { print(tree, 0); }
+   * 
+   * private static void print(Object obj, int indent) { if(obj == null) { return; }
+   * 
+   * CommonTree ast = (CommonTree)obj; StringBuffer sb = new StringBuffer(indent);
+   * 
+   * for(int i = 0; i < indent; i++) { sb.append("   "); }
+   * 
+   * System.out.println(sb.toString() + ast.getText());
+   * 
+   * for(int i = 0; i < ast.getChildCount(); i++) { print(ast.getChild(i), indent + 1); } }
+   */
+  /*
+   * private static final String FAILED_TO_SYNTH_INSTRUCTIONS =
+   * "FAILED TO SYNTHESIZE INSTRUCTIONS. " + "TRANSLATION WAS INTERRUPTED.";
+   */
+
+  private static final String FAILED_TO_SYNTH_PRIMITIVES =
+    "FAILED TO SYNTHESIZE INFORMATION ON DESCRIBED OPERATIONS. " + "TRANSLATION WAS INTERRUPTED.";
 }
