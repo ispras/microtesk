@@ -37,9 +37,10 @@ Installing CVC4
    http://cvc4.cs.nyu.edu/builds/win32-opt/ and save it to the
    <installation dir>/tools/cvc4/windows directory as cvc4.exe.
 
-2. UNIX and Linux users should download the latest version of CVC4 binary from
-   http://cvc4.cs.nyu.edu/builds/x86_64-linux-opt/unstable/ and save it to
-   the <installation dir>/tools/cvc4/unix directory as cvc4.
+2. Linux users download the latest version of CVC4 binary from
+   http://cvc4.cs.nyu.edu/builds/i386-linux-opt/unstable/ (32-bit version) or
+   http://cvc4.cs.nyu.edu/builds/x86_64-linux-opt/unstable/ (64-bit version) and
+   save it to the <installation dir>/tools/cvc4/unix directory as cvc4.
 
 3. OS X users should download the latest version of CVC4 distribution package
    from http://cvc4.cs.nyu.edu/builds/macos/ and install it. The CVC4 binary
