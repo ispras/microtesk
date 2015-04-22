@@ -20,12 +20,13 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.constraint.ConstraintUtils;
 import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
 import ru.ispras.fortress.solver.xml.XMLNotLoadedException;
 import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
@@ -51,6 +52,13 @@ public final class TestBase {
   final String path;
   final Map<String, Map<String, SsaForm>> storage;
   final ru.ispras.testbase.stub.TestBase testBase;
+
+  private static SolverId solverId = SolverId.Z3_TEXT;
+
+  public static void setSolverId(final SolverId value) {
+    InvariantChecks.checkNotNull(value);
+    solverId = value;
+  }
 
   public TestBase(String path) {
     this.path = path;
@@ -78,7 +86,7 @@ public final class TestBase {
       bindings.add(EQ(new NodeVariable(name + "!1", DataType.BOOLEAN), Expression.TRUE));
 
       final Constraint constraint = builder.build(bindings);
-      result = ConstraintUtils.solve(constraint);
+      result = solverId.getSolver().solve(constraint);
     } catch (Throwable e) {
       return TestBaseQueryResult.reportErrors(Collections.singletonList(e.getMessage()));
     }

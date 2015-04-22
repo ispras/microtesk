@@ -41,6 +41,7 @@ public final class MicroTESK {
     public static final String TRANSLATE = "t";
     public static final String VERBOSE = "v";
     public static final String RANDOM = "r";
+    public static final String SOLVER = "s";
 
     private static final Options options = newOptions();
 
@@ -59,6 +60,7 @@ public final class MicroTESK {
       result.addOption(INCLUDE, "include", true, "Sets include files directories" + TOPT);
       result.addOption(OUTDIR, "dir", true, "Sets where to place generated files" + TOPT);
       result.addOption(RANDOM, "random", true, "Sets seed for randomizer" + GOPT);
+      result.addOption(SOLVER, "solver", true, "Sets constraint solver engine to be used" + GOPT);
 
       result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
       return result;
@@ -134,6 +136,10 @@ public final class MicroTESK {
       } catch (NumberFormatException e) {
         Logger.warning("Failed to parse the value of the -r parameter.");
       }
+    }
+
+    if (params.hasOption(Parameters.SOLVER)) {
+      generator.setSolver(params.getOptionValue(Parameters.SOLVER));
     }
 
     final String[] args = params.getArgs();

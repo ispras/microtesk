@@ -19,6 +19,10 @@ import java.util.List;
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
 
+import ru.ispras.fortress.solver.SolverId;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+
 /**
  * TODO: Temporary intermediate implementation.
  * 
@@ -59,8 +63,18 @@ public final class TestProgramGenerator {
     return randomSeed;
   }
 
+  public void setSolver(final String solverName) {
+    if ("z3".equalsIgnoreCase(solverName)) {
+      TestBase.setSolverId(SolverId.Z3_TEXT);
+    } else if ("cvc4".equalsIgnoreCase(solverName)) {
+      TestBase.setSolverId(SolverId.CVC4_TEXT);
+    } else {
+      Logger.warning("Unknown solver: %s. Default solver will be used.", solverName);
+    }
+  }
+
   public void generate(final List<String> templateFiles) {
-    for (String template : templateFiles) {
+    for (final String template : templateFiles) {
       runTemplate(modelName, template, fileName);
     }
   }
