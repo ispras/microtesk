@@ -155,6 +155,10 @@ public final class MicroTESK {
     final List<String> templateFiles = new ArrayList<>();
     for (int index = 1; index < args.length; ++index) {
       final String fileName = args[index];
+      if (fileName.isEmpty()) {
+        continue;
+      }
+
       if (".rb".equals(getFileExtension(fileName))) {
         templateFiles.add(fileName);
       } else if (index == args.length - 1){
