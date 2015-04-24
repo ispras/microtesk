@@ -75,7 +75,7 @@ public final class TestProgramGenerator {
 
   public void generate(final List<String> templateFiles) {
     for (final String template : templateFiles) {
-      if (null == fileName && fileName.isEmpty()) {
+      if (null != fileName && !fileName.isEmpty()) {
         runTemplate(modelName, template, fileName);
       } else {
         runTemplate(modelName, template);
