@@ -123,9 +123,9 @@ public final class Shortcut {
    */
 
   public Shortcut(PrimitiveAND entry, PrimitiveAND target, List<String> contextNames) {
-    checkNotNull(entry, "entry");
-    checkNotNull(target, "target");
-    checkNotNull(contextNames, "contextNames");
+    checkNotNull(entry);
+    checkNotNull(target);
+    checkNotNull(contextNames);
 
     opCheck(entry);
     opCheck(target);
@@ -144,7 +144,7 @@ public final class Shortcut {
 
   public Shortcut(PrimitiveAND entry, PrimitiveAND target, String contextName) {
     this(entry, target, Collections.singletonList(contextName));
-    checkNotNull(contextName, "contextName");
+    checkNotNull(contextName);
   }
 
   /**
