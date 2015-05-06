@@ -16,7 +16,6 @@ package ru.ispras.microtesk.translator.nml;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
@@ -45,6 +44,7 @@ import ru.ispras.microtesk.translator.nml.grammar.SimnMLParser;
 import ru.ispras.microtesk.translator.nml.grammar.SimnMLTreeWalker;
 import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
+import ru.ispras.microtesk.utils.FileUtils;
 
 public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceIncluder {
   private String outDir;
@@ -60,21 +60,6 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   public void setOutDir(String outDir) {
     checkNotNull(outDir);
     this.outDir = outDir;
-  }
-
-  private String getModelName(String fileName) {
-    final String shortFileName = getShortFileName(fileName);
-    final int dotPos = shortFileName.lastIndexOf('.');
-
-    if (-1 == dotPos) {
-      return shortFileName.toLowerCase();
-    }
-
-    return shortFileName.substring(0, dotPos).toLowerCase();
-  }
-
-  private String getShortFileName(String fileName) {
-    return new File(fileName).getName();
   }
 
   // /////////////////////////////////////////////////////////////////////////
@@ -182,7 +167,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     }
 
     final String fileName = filenames.get(filenames.size() - 1);
-    final String modelName = getModelName(fileName);
+    final String modelName = FileUtils.getShortFileNameNoExt(fileName);
 
     System.out.println("Translating: " + fileName);
     System.out.println("Model name: " + modelName);
@@ -196,8 +181,8 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
         new ru.ispras.microtesk.translator.nml.coverage.Analyzer(ir, modelName);
     analyzer.run();
 
-    final PrimitiveSyntesizer primitiveSyntesizer =
-      new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), getLog());
+    final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
+        ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());
 
     if (!primitiveSyntesizer.syntesize()) {
       System.err.println(FAILED_TO_SYNTH_PRIMITIVES);
@@ -205,7 +190,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     }
     ir.setRoots(primitiveSyntesizer.getRoots());
 
-    startGenerator(modelName, getShortFileName(fileName), ir);
+    startGenerator(modelName, FileUtils.getShortFileName(fileName), ir);
   }
 
   @Override

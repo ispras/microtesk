@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.mmu;
 
-import java.io.File;
 import java.io.FileReader;
 
 import org.antlr.runtime.ANTLRReaderStream;
@@ -30,6 +29,7 @@ import ru.ispras.microtesk.translator.mmu.grammar.MmuParser;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.spec.builder.MmuSpecBuilder;
+import ru.ispras.microtesk.utils.FileUtils;
 
 public class MmuTranslator extends Translator<Ir> {
 
@@ -46,25 +46,10 @@ public class MmuTranslator extends Translator<Ir> {
     translator.start(fileName);
   }
 
-  private static String getModelName(String fileName) {
-    final String shortFileName = getShortFileName(fileName);
-    final int dotPos = shortFileName.lastIndexOf('.');
-
-    if (-1 == dotPos) {
-      return shortFileName.toLowerCase();
-    }
-
-    return shortFileName.substring(0, dotPos).toLowerCase();
-  }
-
-  private static String getShortFileName(String fileName) {
-    return new File(fileName).getName();
-  }
-
   @Override
   public void start(String ... fileNames) {
     final String fileName = fileNames[0];
-    final String modelName = getModelName(fileName);
+    final String modelName = FileUtils.getShortFileNameNoExt(fileName);
 
     System.out.println("Translating: " + fileName);
     System.out.println("Model name: " + modelName);

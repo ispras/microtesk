@@ -29,6 +29,7 @@ import org.apache.commons.cli.ParseException;
 
 import ru.ispras.microtesk.test.TestProgramGenerator;
 import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
+import ru.ispras.microtesk.utils.FileUtils;
 
 public final class MicroTESK {
   private MicroTESK() {}
@@ -155,7 +156,7 @@ public final class MicroTESK {
     final List<String> templateFiles = new ArrayList<>();
     for (int index = 1; index < args.length; ++index) {
       final String fileName = args[index];
-      if (".rb".equals(getFileExtension(fileName))) {
+      if (".rb".equals(FileUtils.getFileExtension(fileName))) {
         templateFiles.add(fileName);
       } else if (index == args.length - 1){
         generator.setFileName(fileName);
@@ -163,10 +164,5 @@ public final class MicroTESK {
     }
 
     generator.generate(templateFiles);
-  }
-
-  private static String getFileExtension(String fileName) {
-    final int lastIndexOf = fileName.lastIndexOf(".");
-    return lastIndexOf != -1 ? fileName.substring(lastIndexOf) : "";
   }
 }
