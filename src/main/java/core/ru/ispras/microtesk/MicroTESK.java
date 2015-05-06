@@ -29,7 +29,6 @@ import org.apache.commons.cli.ParseException;
 
 import ru.ispras.microtesk.test.TestProgramGenerator;
 import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class MicroTESK {
@@ -114,20 +113,18 @@ public final class MicroTESK {
   }
 
   private static void translate(CommandLine params) throws RecognitionException {
-    // System.out.println(load("ru.ispras.microtesk.translator.nml.SimnMLAnalyzer"));
-    // System.out.println(load("ru.ispras.microtesk.translator.mmu.MmuTranslator"));
+    final List<Translator<?>> translators = Config.loadTranslators();
+    for (Translator<?> translator : translators) {
+      if (params.hasOption(Parameters.INCLUDE)) {
+        translator.addPath(params.getOptionValue(Parameters.INCLUDE));
+      }
 
-    final Translator<?> translator = new SimnMLAnalyzer();
+      if (params.hasOption(Parameters.OUTDIR)) {
+        translator.setOutDir(params.getOptionValue(Parameters.OUTDIR));
+      }
 
-    if (params.hasOption(Parameters.INCLUDE)) {
-      translator.addPath(params.getOptionValue(Parameters.INCLUDE));
+      translator.start(params.getArgs());
     }
-
-    if (params.hasOption(Parameters.OUTDIR)) {
-      translator.setOutDir(params.getOptionValue(Parameters.OUTDIR));
-    }
-
-    translator.start(params.getArgs());
   }
 
   private static void generate(CommandLine params) {

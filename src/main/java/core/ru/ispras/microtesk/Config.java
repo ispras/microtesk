@@ -1,0 +1,104 @@
+/*
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package ru.ispras.microtesk;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
+
+public final class Config {
+  private Config() {}
+
+  private static final String CONFIG_URL = "config.xml";
+  private static final String     CONFIG = "config";
+  private static final String     PLUGIN = "plugin";
+  private static final String      CLASS = "class";
+
+  public static List<Translator<?>> loadTranslators() {
+    final URL configUrl = getResource(CONFIG_URL);
+    if (null == configUrl) {
+      throw new IllegalStateException(String.format("Document %s is not found.", CONFIG_URL));
+    }
+
+    final Document configDocument = parseDocument(configUrl);
+    if (null == configDocument) {
+      throw new IllegalStateException(String.format("Failed to parse %s.", CONFIG_URL));
+    }
+
+    final Node config = configDocument.getFirstChild();
+    if (!"config".equalsIgnoreCase((config.getNodeName()))) {
+      throw new IllegalStateException(String.format( 
+          "Document %s contains no root node called %s.", CONFIG_URL, CONFIG));
+    }
+
+    final List<Translator<?>> result = new ArrayList<>();
+    result.add(new SimnMLAnalyzer());
+
+    final NodeList plugins = config.getChildNodes();
+    for (int index = 0; index < plugins.getLength(); ++index) {
+      final Node plugin = plugins.item(index);
+      if (!PLUGIN.equalsIgnoreCase((plugin.getNodeName()))) {
+        continue;
+      }
+
+      final NamedNodeMap attributes = plugin.getAttributes();
+      final Node className = attributes.getNamedItem(CLASS);
+      if (null == className) {
+        throw new IllegalStateException(String.format(
+            "The %s attribute is not defined for a plugin in %s.", CLASS, CONFIG_URL));
+      }
+
+      final Translator<?> translator = Translator.load(className.getNodeValue());
+      result.add(translator);
+    }
+
+    return result;
+  }
+
+  private static URL getResource(final String name) {
+    final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    return classLoader.getResource(name);
+  }
+  
+  private static Document parseDocument(final URL url) {
+    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+    factory.setIgnoringComments(true);
+    factory.setIgnoringElementContentWhitespace(true);
+    factory.setValidating(false);
+
+    try {
+      final DocumentBuilder builder = factory.newDocumentBuilder();
+      return builder.parse(new InputSource(url.openStream()));
+    } catch (ParserConfigurationException | SAXException | IOException e) {
+      return null;
+    }
+  }
+}

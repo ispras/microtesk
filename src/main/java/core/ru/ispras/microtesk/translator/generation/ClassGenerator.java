@@ -73,8 +73,10 @@ public final class ClassGenerator implements IClassGenerator {
    * @param templateBuilder Builder that is responsible for initialization of the template.
    */
 
-  public ClassGenerator(String outputFile, String[] templateGroupFiles,
-      ITemplateBuilder templateBuilder) {
+  public ClassGenerator(
+      final String outputFile,
+      final String[] templateGroupFiles,
+      final ITemplateBuilder templateBuilder) {
     this.outputFile = outputFile;
     this.templateGroupFiles = templateGroupFiles;
     this.templateBuilder = templateBuilder;

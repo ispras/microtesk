@@ -89,7 +89,9 @@ public abstract class Translator<Ir> {
       }
     }
 
-    start(filteredFileNames);
+    if (!filteredFileNames.isEmpty()) {
+      start(filteredFileNames);
+    }
   }
 
   protected abstract void start(final List<String> fileNames);

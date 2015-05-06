@@ -39,6 +39,8 @@ public class MmuTranslator extends Translator<Ir> {
 
   public MmuTranslator() {
     super(FILTER);
+
+    addHandler(new MmuSpecBuilder());
   }
 
   @Override
@@ -55,7 +57,6 @@ public class MmuTranslator extends Translator<Ir> {
 
     final String fileName = args[0]; 
     final MmuTranslator translator = new MmuTranslator();
-    translator.addHandler(new MmuSpecBuilder());
 
     translator.start(fileName);
   }
