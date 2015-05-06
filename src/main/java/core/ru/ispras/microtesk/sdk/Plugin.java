@@ -19,7 +19,7 @@ public interface Plugin {
   static enum Kind {
     FRONTEND,
     BACKEND,
-    TOOL
+    ENGINE
   }
 
   String getId();
