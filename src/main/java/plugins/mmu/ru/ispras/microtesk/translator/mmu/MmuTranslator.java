@@ -39,7 +39,6 @@ public class MmuTranslator extends Translator<Ir> {
 
   public MmuTranslator() {
     super(FILTER);
-
     addHandler(new MmuSpecBuilder());
   }
 
@@ -47,18 +46,6 @@ public class MmuTranslator extends Translator<Ir> {
   public void addPath(String path) {
     // TODO Auto-generated method stub
     
-  }
-
-  public static void main(String[] args) {
-    if (args.length != 1) {
-      System.err.println("Number of cmd arguments is " + args.length);
-      return;
-    }
-
-    final String fileName = args[0]; 
-    final MmuTranslator translator = new MmuTranslator();
-
-    translator.start(fileName);
   }
 
   @Override
