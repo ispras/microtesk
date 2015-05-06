@@ -14,9 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -44,8 +45,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceIncluder {
+  private static final Set<String> FILTER = Collections.singleton(".nml");
 
-  public SimnMLAnalyzer() {}
+  public SimnMLAnalyzer() {
+    super(FILTER);
+  }
 
   // /////////////////////////////////////////////////////////////////////////
   // Include file finder
@@ -149,7 +153,8 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   // Translator
   // /////////////////////////////////////////////////////////////////////////
 
-  public void start(final List<String> filenames) {
+  @Override
+  protected void start(final List<String> filenames) {
     if (filenames.isEmpty()) {
       System.err.println("FILES ARE NOT SPECIFIED.");
       return;
@@ -180,11 +185,6 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     ir.setRoots(primitiveSyntesizer.getRoots());
 
     startGenerator(modelName, FileUtils.getShortFileName(fileName), ir);
-  }
-
-  @Override
-  public void start(final String ... filenames) {
-    start(Arrays.asList(filenames));
   }
 
   // /////////////////////////////////////////////////////////////////////////

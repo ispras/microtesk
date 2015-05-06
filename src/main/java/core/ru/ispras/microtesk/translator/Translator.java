@@ -24,12 +24,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.utils.FileUtils;
 
 public abstract class Translator<Ir> {
 
   public static Translator<?> load(String className) {
     InvariantChecks.checkNotNull(className);
-
     final ClassLoader loader = Translator.class.getClassLoader();
     try {
       final Class<?> translatorClass = loader.loadClass(className);
@@ -39,12 +39,16 @@ public abstract class Translator<Ir> {
     }
   }
 
+  private final Set<String> fileExtFilter;
   private String outDir;
 
   private LogStore log;
   private final List<TranslatorHandler<Ir>> handlers;
 
-  public Translator() {
+  public Translator(final Set<String> fileExtFilter) {
+    InvariantChecks.checkNotNull(fileExtFilter);
+
+    this.fileExtFilter = fileExtFilter;
     this.outDir = PackageInfo.DEFAULT_OUTDIR;
     this.log = LogStoreConsole.INSTANCE;
     this.handlers = new ArrayList<>();
@@ -58,6 +62,8 @@ public abstract class Translator<Ir> {
     checkNotNull(outDir);
     this.outDir = outDir;
   }
+
+  public abstract void addPath(String path);
 
   public final LogStore getLog() {
     return log;
@@ -73,12 +79,24 @@ public abstract class Translator<Ir> {
     handlers.add(handler);
   }
 
-  public abstract void addPath(String path);
-  public abstract void start(String... fileNames);
+  public final void start(final String... fileNames) {
+    final List<String> filteredFileNames = new ArrayList<>();
+
+    for (final String fileName : fileNames) {
+      final String fileExt = FileUtils.getFileExtension(fileName).toLowerCase();
+      if (fileExtFilter.contains(fileExt)) {
+        filteredFileNames.add(fileName);
+      }
+    }
+
+    start(filteredFileNames);
+  }
+
+  protected abstract void start(final List<String> fileNames);
 
   protected final void processIr(final Ir ir) {
     checkNotNull(ir);
-    for (final TranslatorHandler<Ir> handler: handlers) {
+    for (final TranslatorHandler<Ir> handler : handlers) {
       handler.processIr(ir);
     }
   }

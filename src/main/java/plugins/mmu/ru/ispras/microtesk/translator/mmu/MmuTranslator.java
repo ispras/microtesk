@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.translator.mmu;
 
 import java.io.FileReader;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -32,6 +35,11 @@ import ru.ispras.microtesk.translator.mmu.spec.builder.MmuSpecBuilder;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public class MmuTranslator extends Translator<Ir> {
+  private static final Set<String> FILTER = Collections.singleton(".mmu");
+
+  public MmuTranslator() {
+    super(FILTER);
+  }
 
   @Override
   public void addPath(String path) {
@@ -53,8 +61,8 @@ public class MmuTranslator extends Translator<Ir> {
   }
 
   @Override
-  public void start(String ... fileNames) {
-    final String fileName = fileNames[0];
+  public void start(final List<String> fileNames) {
+    final String fileName = fileNames.get(0);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
 
     System.out.println("Translating: " + fileName);
