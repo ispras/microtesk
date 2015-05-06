@@ -16,8 +16,6 @@ package ru.ispras.microtesk.translator;
 
 import static org.junit.Assert.fail;
 
-import org.antlr.runtime.RecognitionException;
-
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
@@ -62,14 +60,11 @@ public abstract class TranslatorTest<Ir> {
     System.out.println(ir);
   }
 
-  protected void translate(Translator<Ir> translator, String ... fileNames) {
+  protected void translate(
+      final Translator<Ir> translator,
+      final String ... fileNames) {
     translator.setLog(new LogChecker(translator.getLog()));
     translator.addHandler(irChecker);
-
-    try {
-      translator.start(fileNames);
-    } catch (RecognitionException e) {
-      fail(e.toString());
-    }
+    translator.start(fileNames);
   }
 }

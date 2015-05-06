@@ -33,6 +33,12 @@ import ru.ispras.microtesk.utils.FileUtils;
 
 public class MmuTranslator extends Translator<Ir> {
 
+  @Override
+  public void addPath(String path) {
+    // TODO Auto-generated method stub
+    
+  }
+
   public static void main(String[] args) {
     if (args.length != 1) {
       System.err.println("Number of cmd arguments is " + args.length);

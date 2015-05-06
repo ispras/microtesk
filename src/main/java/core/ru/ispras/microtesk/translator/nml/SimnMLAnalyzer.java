@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
@@ -37,7 +35,6 @@ import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.generation.Generator;
 import ru.ispras.microtesk.translator.nml.grammar.SimnMLLexer;
 import ru.ispras.microtesk.translator.nml.grammar.SimnMLParser;
@@ -47,20 +44,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceIncluder {
-  private String outDir;
 
-  public SimnMLAnalyzer() {
-    this.outDir = PackageInfo.DEFAULT_OUTDIR;
-  }
-
-  public String getOutDir() {
-    return outDir;
-  }
-
-  public void setOutDir(String outDir) {
-    checkNotNull(outDir);
-    this.outDir = outDir;
-  }
+  public SimnMLAnalyzer() {}
 
   // /////////////////////////////////////////////////////////////////////////
   // Include file finder
@@ -110,7 +95,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   // Parser
   // /////////////////////////////////////////////////////////////////////////
 
-  private IR startParserAndWalker(TokenSource source) throws RecognitionException {
+  private IR startParserAndWalker(TokenSource source) {// throws RecognitionException {
     final LogStore log = getLog();
     final SymbolTable symbols = new SymbolTable();
 
@@ -127,24 +112,28 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     parser.commonParser.assignSymbols(symbols);
     parser.setTreeAdaptor(new CommonTreeAdaptor());
 
-    final RuleReturnScope result = parser.startRule();
-    final CommonTree tree = (CommonTree) result.getTree();
+    try {
+      final RuleReturnScope result = parser.startRule();
+      final CommonTree tree = (CommonTree) result.getTree();
 
-    // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs.
-    // print(tree);
+      // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs.
+      // print(tree);
 
-    final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
-    nodes.setTokenStream(tokens);
+      final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+      nodes.setTokenStream(tokens);
 
-    final IR ir = new IR();
-    final SimnMLTreeWalker walker = new SimnMLTreeWalker(nodes);
+      final IR ir = new IR();
+      final SimnMLTreeWalker walker = new SimnMLTreeWalker(nodes);
 
-    walker.assignLog(log);
-    walker.assignSymbols(symbols);
-    walker.assignIR(ir);
+      walker.assignLog(log);
+      walker.assignSymbols(symbols);
+      walker.assignIR(ir);
 
-    walker.startRule();
-    return ir;
+      walker.startRule();
+      return ir;
+    } catch (RecognitionException re) {
+      return null;
+    }
   }
 
   // /////////////////////////////////////////////////////////////////////////
@@ -152,7 +141,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   // /////////////////////////////////////////////////////////////////////////
 
   private void startGenerator(String modelName, String fileName, IR ir) {
-    final Generator generator = new Generator(outDir + "/java", modelName, fileName, ir);
+    final Generator generator = new Generator(getOutDir() + "/java", modelName, fileName, ir);
     generator.generate();
   }
 
@@ -160,7 +149,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   // Translator
   // /////////////////////////////////////////////////////////////////////////
 
-  public void start(final List<String> filenames) throws RecognitionException {
+  public void start(final List<String> filenames) {
     if (filenames.isEmpty()) {
       System.err.println("FILES ARE NOT SPECIFIED.");
       return;
@@ -194,7 +183,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   }
 
   @Override
-  public void start(final String ... filenames) throws RecognitionException {
+  public void start(final String ... filenames) {
     start(Arrays.asList(filenames));
   }
 

@@ -19,17 +19,42 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.runtime.RecognitionException;
-
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
 
 public abstract class Translator<Ir> {
-  private final List<TranslatorHandler<Ir>> handlers = new ArrayList<>();
+
+  public static Translator<?> load(String className) {
+    InvariantChecks.checkNotNull(className);
+
+    final ClassLoader loader = Translator.class.getClassLoader();
+    try {
+      final Class<?> translatorClass = loader.loadClass(className);
+      return (Translator<?>) translatorClass.newInstance();
+    } catch(ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+      return null;
+    }
+  }
+
+  private String outDir;
   private LogStore log;
+  private final List<TranslatorHandler<Ir>> handlers;
 
   public Translator() {
+    this.outDir = PackageInfo.DEFAULT_OUTDIR;
     this.log = LogStoreConsole.INSTANCE;
+    this.handlers = new ArrayList<>();
+  }
+
+  public final String getOutDir() {
+    return outDir;
+  }
+
+  public final void setOutDir(String outDir) {
+    checkNotNull(outDir);
+    this.outDir = outDir;
   }
 
   public final LogStore getLog() {
@@ -40,17 +65,24 @@ public abstract class Translator<Ir> {
     checkNotNull(log);
     this.log = log;
   }
-
+  
   public final void addHandler(final TranslatorHandler<Ir> handler) {
     checkNotNull(handler);
     handlers.add(handler);
   }
 
-  public final void processIr(final Ir ir) {
-    for (final TranslatorHandler<Ir> handler : handlers) {
+  protected final void processIr(final Ir ir) {
+    checkNotNull(ir);
+    for (final TranslatorHandler<Ir> handler: handlers) {
       handler.processIr(ir);
     }
   }
 
-  public abstract void start(String... fileNames) throws RecognitionException;
+  public abstract void addPath(String path);
+  public abstract void start(String... fileNames);
+
+  public static void main(String[] args) {
+    System.out.println(load("ru.ispras.microtesk.translator.nml.SimnMLAnalyzer"));
+    System.out.println(load("ru.ispras.microtesk.translator.mmu.MmuTranslator"));
+  }
 }
