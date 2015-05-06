@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+  <plugins>
+    <plugin 
+       name="mmu"
+       class="ru.ispras.microtesk.translator.mmu.MmuTranslator"
+    />
+  </plugins>
+</config>
