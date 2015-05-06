@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
@@ -39,6 +40,7 @@ public abstract class Translator<Ir> {
   }
 
   private String outDir;
+
   private LogStore log;
   private final List<TranslatorHandler<Ir>> handlers;
 
@@ -52,7 +54,7 @@ public abstract class Translator<Ir> {
     return outDir;
   }
 
-  public final void setOutDir(String outDir) {
+  public final void setOutDir(final String outDir) {
     checkNotNull(outDir);
     this.outDir = outDir;
   }
@@ -71,18 +73,13 @@ public abstract class Translator<Ir> {
     handlers.add(handler);
   }
 
+  public abstract void addPath(String path);
+  public abstract void start(String... fileNames);
+
   protected final void processIr(final Ir ir) {
     checkNotNull(ir);
     for (final TranslatorHandler<Ir> handler: handlers) {
       handler.processIr(ir);
     }
-  }
-
-  public abstract void addPath(String path);
-  public abstract void start(String... fileNames);
-
-  public static void main(String[] args) {
-    System.out.println(load("ru.ispras.microtesk.translator.nml.SimnMLAnalyzer"));
-    System.out.println(load("ru.ispras.microtesk.translator.mmu.MmuTranslator"));
   }
 }

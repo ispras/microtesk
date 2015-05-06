@@ -113,6 +113,9 @@ public final class MicroTESK {
   }
 
   private static void translate(CommandLine params) throws RecognitionException {
+    // System.out.println(load("ru.ispras.microtesk.translator.nml.SimnMLAnalyzer"));
+    // System.out.println(load("ru.ispras.microtesk.translator.mmu.MmuTranslator"));
+
     final SimnMLAnalyzer analyzer = new SimnMLAnalyzer();
 
     if (params.hasOption(Parameters.INCLUDE)) {
