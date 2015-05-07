@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.data;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -61,12 +63,6 @@ public final class Data {
     return String.format("Data [type=%s, value=%s]", type, rawData);
   }
 
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -79,7 +75,7 @@ public final class Data {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
