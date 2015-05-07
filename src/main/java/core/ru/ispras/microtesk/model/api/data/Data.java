@@ -36,14 +36,14 @@ public final class Data {
     this.type = type;
   }
 
-  public Data(Data data) {
+  public Data(final Data data) {
     checkNotNull(data);
 
     this.rawData = data.getRawData().copy();
     this.type = data.getType();
   }
 
-  public Data(Type type) {
+  public Data(final Type type) {
     checkNotNull(type);
 
     this.rawData = BitVector.newEmpty(type.getBitSize());
