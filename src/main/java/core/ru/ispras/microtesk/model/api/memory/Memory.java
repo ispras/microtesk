@@ -114,7 +114,12 @@ public abstract class Memory {
   private final int length;
   private final boolean isAlias;
 
-  private Memory(Kind kind, String name, Type type, int length, boolean isAlias) {
+  private Memory(
+      final Kind kind,
+      final String name,
+      final Type type,
+      final int length,
+      final boolean isAlias) {
 
     checkNotNull(kind);
     checkNotNull(name);
@@ -171,13 +176,17 @@ public abstract class Memory {
   private static final class MemoryDirect extends Memory {
     private final MemoryStorage storage;
 
-    MemoryDirect(Kind kind, String name, Type type, int length) {
+    MemoryDirect(
+        final Kind kind,
+        final String name,
+        final Type type,
+        final int length) {
       super(kind, name, type, length, false);
       this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
     }
 
     @Override
-    public Location access(int index) {
+    public Location access(final int index) {
       checkBounds(index, getLength());
       return Location.newLocationForRegion(getType(), storage, index);
     }
@@ -188,7 +197,7 @@ public abstract class Memory {
     }
 
     @Override
-    public MemoryAllocator newAllocator(int addressableUnitBitSize) {
+    public MemoryAllocator newAllocator(final int addressableUnitBitSize) {
       return new MemoryAllocator(storage, addressableUnitBitSize);
     }
   }
@@ -196,7 +205,12 @@ public abstract class Memory {
   private static final class MemoryAlias extends Memory {
     private final Location source;
 
-    MemoryAlias(Kind kind, String name, Type type, int length, Location source) {
+    MemoryAlias(
+        final Kind kind,
+        final String name,
+        final Type type,
+        final int length,
+        final Location source) {
       super(kind, name, type, length, true);
       checkNotNull(source);
 
@@ -209,7 +223,7 @@ public abstract class Memory {
     }
 
     @Override
-    public Location access(int index) {
+    public Location access(final int index) {
       checkBounds(index, getLength());
 
       final int locationBitSize = getType().getBitSize();
@@ -226,7 +240,7 @@ public abstract class Memory {
     }
 
     @Override
-    public MemoryAllocator newAllocator(int addressableUnitBitSize) {
+    public MemoryAllocator newAllocator(final int addressableUnitBitSize) {
       throw new UnsupportedOperationException(
           "Memory allocators are not supported for aliases.");
     }
