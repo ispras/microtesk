@@ -83,8 +83,6 @@ public abstract class Memory {
     return result;
   }
 
-
-
   private final Kind kind;
   private final String name;
   private final Type type;
