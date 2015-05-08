@@ -76,7 +76,7 @@ public final class Type {
     return creator.createWithParams(params);
   }
 
-  public static Type typeDef(String name, Type type) {
+  public static Type def(String name, Type type) {
     checkNotNull(name);
     checkNotNull(type);
 

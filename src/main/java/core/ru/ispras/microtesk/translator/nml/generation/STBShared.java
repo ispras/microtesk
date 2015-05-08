@@ -130,7 +130,7 @@ final class STBShared implements ITemplateBuilder {
       final String javaText = type.getValue().getJavaText();
 
       tType.add("name", name);
-      tType.add("alias", String.format("Type.typeDef(\"%s\", %s)", name, javaText));
+      tType.add("alias", String.format("Type.def(\"%s\", %s)", name, javaText));
 
       t.add("members", tType);
     }
