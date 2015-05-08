@@ -47,14 +47,14 @@ public final class MemoryStorage {
   private final Map<BitVector, Map<Integer, Block>> addressMap;
 
   private final static class Index {
-    static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
+    private static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
 
-    final BitVector address;
-    final int region;
-    final int block;
-    final BitVector area;
+    public final BitVector address;
+    public final int region;
+    public final int block;
+    public final BitVector area;
 
-    Index(BitVector address) {
+    public Index(BitVector address) {
       this.address = address;
       this.region  = getField(address, 0, 11).intValue();
       this.block = getField(address, 12, 43).intValue();
