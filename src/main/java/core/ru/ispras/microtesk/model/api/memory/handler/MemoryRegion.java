@@ -12,10 +12,11 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.memory;
+package ru.ispras.microtesk.model.api.memory.handler;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.microtesk.model.api.memory.MemoryStorage;
 
 public final class MemoryRegion {
   private final MemoryStorage target;

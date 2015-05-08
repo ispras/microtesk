@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.memory;
+package ru.ispras.microtesk.model.api.memory.handler;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
@@ -20,7 +20,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class MemoryAccessHandlerEngine implements MemoryAccessHandler {
+import ru.ispras.microtesk.model.api.memory.MemoryStorage;
+
+public final class MemoryAccessHandlerEngine implements MemoryAccessHandler {
+  
+  private static final MemoryAccessHandlerEngine handlerEngine = new MemoryAccessHandlerEngine();
+  private static boolean isHandlingEnabled = false;
+
+  public static MemoryAccessHandler getGlobalHandler() {
+    return isHandlingEnabled ? getHandlerEngine() : null;
+  }
+
+  private static MemoryAccessHandlerEngine getHandlerEngine() {
+    return handlerEngine;
+  }
+
+  public static void setHandlingEnabled(boolean value) {
+    isHandlingEnabled = value;
+  }
+  
   private final Map<MemoryStorage, MemoryAccessHandler> handlers;
 
   MemoryAccessHandlerEngine() {

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.memory;
+package ru.ispras.microtesk.model.api.memory.handler;
 
 import java.util.List;
 

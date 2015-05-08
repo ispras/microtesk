@@ -24,6 +24,8 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.memory.handler.MemoryAccessHandler;
+import ru.ispras.microtesk.model.api.memory.handler.MemoryAccessHandlerEngine;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
@@ -123,7 +125,7 @@ public final class Location implements LocationAccessor {
   }
 
   public Data load() {
-    final MemoryAccessHandler handler = Memory.getGlobalHandler();
+    final MemoryAccessHandler handler = MemoryAccessHandlerEngine.getGlobalHandler();
 
     final BitVector rawData;
     if (null == handler) {
@@ -146,7 +148,7 @@ public final class Location implements LocationAccessor {
     final BitVector rawData = data.getRawData();
     checkNotNull(rawData);
 
-    final MemoryAccessHandler handler = Memory.getGlobalHandler();
+    final MemoryAccessHandler handler = MemoryAccessHandlerEngine.getGlobalHandler();
     if (null == handler) {
       writeDataDirecty(rawData, sources);
     } else {

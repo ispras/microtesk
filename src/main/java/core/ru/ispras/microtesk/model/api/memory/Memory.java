@@ -83,20 +83,7 @@ public abstract class Memory {
     return result;
   }
 
-  private static final MemoryAccessHandlerEngine handlerEngine = new MemoryAccessHandlerEngine();
-  private static boolean isHandlingEnabled = false;
 
-  static MemoryAccessHandler getGlobalHandler() {
-    return isHandlingEnabled ? getHandlerEngine() : null;
-  }
-
-  private static MemoryAccessHandlerEngine getHandlerEngine() {
-    return handlerEngine;
-  }
-
-  public static void setHandlingEnabled(boolean value) {
-    isHandlingEnabled = value;
-  }
 
   private final Kind kind;
   private final String name;
@@ -150,8 +137,6 @@ public abstract class Memory {
 
   public abstract void reset();
 
-  public abstract void setHandler(MemoryAccessHandler handler);
-  
   public abstract MemoryAllocator newAllocator(int addressableUnitBitSize);
 
   @Override
@@ -177,12 +162,6 @@ public abstract class Memory {
     @Override
     public void reset() {
       storage.reset();
-    }
-
-    @Override
-    public void setHandler(MemoryAccessHandler handler) {
-      checkNotNull(handler);
-      getHandlerEngine().registerHandler(storage, handler);
     }
 
     @Override
@@ -220,11 +199,6 @@ public abstract class Memory {
 
     @Override
     public void reset() {
-      // Does not work for aliases (and should not be called)
-    }
-
-    @Override
-    public void setHandler(MemoryAccessHandler handler) {
       // Does not work for aliases (and should not be called)
     }
 
