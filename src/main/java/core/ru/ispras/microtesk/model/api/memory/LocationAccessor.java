@@ -24,30 +24,30 @@ import java.math.BigInteger;
  */
 
 public interface LocationAccessor {
-  
+
   /**
    * Returns the size of the location in bits.
    * 
    * @return Size in bits.
    */
-  
-  public int getBitSize();
-  
+
+  int getBitSize();
+
   /**
    * Returns textual representation of stored data (a string of 0 and 1 characters).
    * 
    * @return Binary string.
    */
 
-  public String toBinString();
-  
+  String toBinString();
+
   /**
    * Returns the value stored in the location packed in a BigInteger object.
    * 
    * @return Binary data packed in a BigInteger object.
    */
 
-  public BigInteger getValue();
+  BigInteger getValue();
 
   /**
    * Sets the value of the specified location.
@@ -55,10 +55,5 @@ public interface LocationAccessor {
    * @param value Binary data packed in a BigInteger object.
    */
 
-  // public void setValue(BigInteger value); // TODO: NOT IMPLEMENTED YET.
+   // void setValue(BigInteger value); // TODO: NOT IMPLEMENTED YET.
 }
-
-
-
-
-
