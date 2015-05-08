@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
@@ -30,40 +31,77 @@ import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
 public final class Location implements LocationAccessor {
+  private final Type type;
+  private final List<Source> sources;
 
   private static final class Source {
-    final MemoryStorage storage;
-    final int regionIndex;
-    final int bitSize;
-    final int startBitPos;
+    public final MemoryStorage storage;
+    public final BitVector address;
+    public final int bitSize;
+    public final int startBitPos;
 
-    Source(
-        MemoryStorage storage,
-        int regionIndex,
-        int bitSize,
-        int startBitPos) {
-
+    public Source(
+        final MemoryStorage storage,
+        final BitVector address,
+        final int bitSize,
+        final int startBitPos) {
       this.storage = storage;
-      this.regionIndex = regionIndex;
+      this.address = address;
       this.bitSize = bitSize;
       this.startBitPos = startBitPos;
     }
 
-    Source resize(int newBitSize, int newStartBitPos) {
-      return new Source(storage, regionIndex, newBitSize, newStartBitPos);
+    public Source resize(
+        final int newBitSize,
+        final int newStartBitPos) {
+      return new Source(storage, address, newBitSize, newStartBitPos);
     }
 
     @Override
     public String toString() {
       return String.format("%s[%d]<%d..%d>",
-          storage.getId(), regionIndex, startBitPos, startBitPos + bitSize - 1);
+          storage.getId(),
+          address.bigIntegerValue(false),
+          startBitPos,
+          startBitPos + bitSize - 1);
     }
   }
 
-  private final Type type;
-  private final List<Source> sources;
+  private Location(final Type type, final Source source) {
+    this(type, Collections.singletonList(source));
+  }
 
-  static Location newLocationForRegion(Type type, MemoryStorage storage, int regionIndex) {
+  private Location(final Type type, final List<Source> sources) {
+    checkNotNull(type);
+    checkNotEmpty(sources);
+
+    this.type = type;
+    this.sources = sources;
+  }
+
+  public static Location newLocationForConst(final Data data) {
+    checkNotNull(data);
+
+    final String STORAGE_ID = "#constant";
+    final BitVector ZERO_ADDR = BitVector.valueOf(0, 1);
+
+    final Type type = data.getType();
+    final int bitSize = type.getBitSize();
+
+    final MemoryStorage storage =
+        new MemoryStorage(BigInteger.ONE, bitSize).setId(STORAGE_ID);
+
+    storage.write(ZERO_ADDR, data.getRawData());
+    storage.setReadOnly(true);
+
+    final Source source = new Source(storage, ZERO_ADDR, bitSize, 0);
+    return new Location(type, source);
+  }
+
+  public static Location newLocationForRegion(
+      final Type type,
+      final MemoryStorage storage,
+      final int regionIndex) {
     checkNotNull(type);
     checkNotNull(storage);
     //checkBounds(regionIndex, storage.getRegionCount());
@@ -72,37 +110,13 @@ public final class Location implements LocationAccessor {
       throw new IllegalArgumentException();
     }
 
-    final List<Source> sources = Collections.singletonList(
-        new Source(storage, regionIndex, type.getBitSize(), 0));
+    final BitVector address = 
+        BitVector.valueOf(regionIndex, storage.getAddressBitSize()); 
 
-    return new Location(type, sources);
-  }
+    final Source source = new Source(
+        storage, address, type.getBitSize(), 0);
 
-  public static Location newLocationForConst(Data data) {
-    checkNotNull(data);
-    final String STORAGE_ID = "#constant";
-
-    final Type type = data.getType();
-    final int bitSize = type.getBitSize();
-
-    final MemoryStorage storage = new MemoryStorage(1, bitSize).setId(STORAGE_ID);
-    storage.write(0, data.getRawData());
-    storage.setReadOnly(true);
-
-    final Source source = new Source(storage, 0, bitSize, 0);
-    return new Location(type, Collections.singletonList(source));
-  }
-
-  private Location(Type type, List<Source> sources) {
-    checkNotNull(type);
-    checkNotNull(sources);
-
-    if (sources.isEmpty()) {
-      throw new IllegalArgumentException();
-    }
-
-    this.type = type;
-    this.sources = sources;
+    return new Location(type, source);
   }
 
   public Location castTo(TypeId typeId) {
@@ -258,7 +272,7 @@ public final class Location implements LocationAccessor {
     final BitVector[] dataItems = new BitVector[sources.size()]; 
     for (int index = 0; index < sources.size(); ++index) {
       final Source source = sources.get(index);
-      final BitVector region = source.storage.read(source.regionIndex);
+      final BitVector region = source.storage.read(source.address);
 
       if (region.getBitSize() == source.bitSize) {
         dataItems[index] = region;
@@ -292,7 +306,7 @@ public final class Location implements LocationAccessor {
       if (source.bitSize == storage.getRegionBitSize()) {
         regionData = dataItem;
       } else {
-        regionData = storage.read(source.regionIndex).copy();
+        regionData = storage.read(source.address).copy();
 
         final BitVector mapping = 
             BitVector.newMapping(regionData, source.startBitPos, source.bitSize);
@@ -300,7 +314,7 @@ public final class Location implements LocationAccessor {
         mapping.assign(dataItem);
       }
 
-      storage.write(source.regionIndex, regionData);
+      storage.write(source.address, regionData);
       position += source.bitSize;
     }
   }
