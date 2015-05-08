@@ -173,13 +173,21 @@ public final class Location implements LocationAccessor {
     return this;
   }
 
+  public Location bitField(Data index) {
+    return bitField(index.getRawData().intValue()); 
+  }
+
+  public Location bitField(Data start, Data end) {
+    return bitField(start.getRawData().intValue(), end.getRawData().intValue());
+  }
+
   public Location bitField(int index) {
     return bitField(index, index);
   }
 
   public Location bitField(int start, int end) {
     // System.out.printf("Bit field: %d %d %n", start, end);
-    
+
     checkBounds(start, getBitSize());
     checkBounds(end, getBitSize());
 

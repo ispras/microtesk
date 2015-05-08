@@ -429,15 +429,10 @@ public final class ExprFactory extends WalkerFactoryBase {
     checkNotNull(src);
 
     final ValueInfo srcValueInfo = src.getValueInfo();
-    if (srcValueInfo.isNativeOf(Integer.class)) {
-      return src;
-    }
-
-    if (srcValueInfo.isModel()) {
-      final ValueInfo newValueInfo = srcValueInfo.toNativeType(Integer.class);
-      final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
-
-      src.setNodeInfo(newNodeInfo);
+    if (srcValueInfo.isNativeOf(Integer.class) ||
+        srcValueInfo.isNativeOf(Long.class)    ||
+        srcValueInfo.isModelOf(TypeId.CARD)    ||
+        srcValueInfo.isModelOf(TypeId.INT)) {
       return src;
     }
 
@@ -552,7 +547,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       "The expression cannot be used to specify size since it cannot be evaluated to an integer constant (int).";
 
   private static final String ERR_NOT_INDEX =
-      "The expression cannot be used as an index since it cannot be evaluated to a Java integer (int) value.";
+      "The expression cannot be used as an index since it is not an integer value.";
 
   private static final String ERR_NOT_BOOLEAN =
       "The expression cannot be evaluated to a boolean value (Java boolean).";
