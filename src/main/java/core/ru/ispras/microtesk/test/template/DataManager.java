@@ -171,7 +171,7 @@ public final class DataManager {
     }
 
     sectionText = text;
-    final Memory memory = Memory.getMemory(target);
+    final Memory memory = Memory.get(target);
     allocator = memory.newAllocator(addressableSize);
   }
 

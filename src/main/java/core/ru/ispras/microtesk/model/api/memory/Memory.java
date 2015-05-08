@@ -25,67 +25,34 @@ import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public abstract class Memory {
+  private static final Map<String, Memory> INSTANCES = new HashMap<>();
+
+  private final Kind kind;
+  private final String name;
+  private final Type type;
+  private final int length;
+  private final boolean isAlias;
 
   public static enum Kind {
     REG, MEM, VAR
   }
 
-  public static Memory REG(
+  public static Memory def(
+      final Kind kind,
       final String name,
       final Type type,
       final int length) {
-    return REG(name, type, length, null);
+    return def(kind, name, type, length, null);
   }
 
-  public static Memory REG(
-      final String name,
-      final Type type,
-      final int length,
-      final Location alias) {
-    return newMemory(Kind.REG, name, type, length, alias);
-  }
-
-  public static Memory MEM(
-      final String name,
-      final Type type,
-      final int length) {
-    return MEM(name, type, length, null);
-  }
-
-  public static Memory MEM(
-      final String name,
-      final Type type,
-      final int length,
-      final Location alias) {
-    return newMemory(Kind.MEM, name, type, length, alias);
-  }
-
-  public static Memory VAR(
-      final String name,
-      final Type type,
-      final int length) {
-    return VAR(name, type, length, null);
-  }
-
-  public static Memory VAR(
-      final String name,
-      final Type type,
-      final int length,
-      final Location alias) {
-    return newMemory(Kind.VAR, name, type, length, alias);
-  }
-
-  private static final Map<String, Memory> memoryTable = new HashMap<>();
-
-  private static Memory newMemory(
+  public static Memory def(
       final Kind kind,
       final String name,
       final Type type,
       final int length,
       final Location alias) {
 
-    checkNotNull(name);
-    if (memoryTable.containsKey(name)) {
+    if (INSTANCES.containsKey(name)) {
       throw new IllegalArgumentException(name + " is already defined!");
     }
 
@@ -93,26 +60,19 @@ public abstract class Memory {
         new MemoryDirect(kind, name, type, length) :
         new MemoryAlias(kind, name, type, length, alias);
 
-    memoryTable.put(name, result);
+    INSTANCES.put(name, result);
     return result;
   }
 
-  public static Memory getMemory(String name) {
-    checkNotNull(name);
+  public static Memory get(final String name) {
 
-    final Memory result = memoryTable.get(name);
+    final Memory result = INSTANCES.get(name);
     if (null == result) {
       throw new IllegalArgumentException(name + " is not defined!");
     }
 
     return result;
   }
-
-  private final Kind kind;
-  private final String name;
-  private final Type type;
-  private final int length;
-  private final boolean isAlias;
 
   private Memory(
       final Kind kind,

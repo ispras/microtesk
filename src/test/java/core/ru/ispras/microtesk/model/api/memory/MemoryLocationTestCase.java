@@ -44,7 +44,7 @@ public final class MemoryLocationTestCase {
     MemoryAccessHandlerEngine.setHandlingEnabled(false);
 
     // Allocates memory
-    final Memory mem = Memory.MEM("MEM", WORD, COUNT);
+    final Memory mem = Memory.def(Memory.Kind.MEM, "MEM", WORD, COUNT);
 
     // Creates random data
     final List<Location> etalonData = new ArrayList<Location>(COUNT);

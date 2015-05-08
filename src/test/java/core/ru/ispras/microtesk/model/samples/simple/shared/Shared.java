@@ -48,17 +48,17 @@ public final class Shared
     reg PC[1, byte]
     */
 
-    public static final Memory  M = Memory.MEM("M",  byte_t, MSIZE); 
-    public static final Memory  R = Memory.REG("R",  byte_t, REGS);
-    public static final Memory PC = Memory.REG("PC", byte_t, 1);
+    public static final Memory  M = Memory.def(Memory.Kind.MEM, "M",  byte_t, MSIZE); 
+    public static final Memory  R = Memory.def(Memory.Kind.REG, "R",  byte_t, REGS);
+    public static final Memory PC = Memory.def(Memory.Kind.REG, "PC", byte_t, 1);
 
     /*
     var SRC1[1, byte], SRC2[1, byte], DEST[1, byte]
     */
 
-    public static final Memory SRC1 = Memory.VAR("SRC1", byte_t, 1);
-    public static final Memory SRC2 = Memory.VAR("SRC2", byte_t, 1);
-    public static final Memory DEST = Memory.VAR("DEST", byte_t, 1);
+    public static final Memory SRC1 = Memory.def(Memory.Kind.VAR, "SRC1", byte_t, 1);
+    public static final Memory SRC2 = Memory.def(Memory.Kind.VAR, "SRC2", byte_t, 1);
+    public static final Memory DEST = Memory.def(Memory.Kind.VAR, "DEST", byte_t, 1);
 
     /*
     MetaData Source (collections for memory and registers).  

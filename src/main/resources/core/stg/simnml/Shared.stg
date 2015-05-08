@@ -48,7 +48,7 @@ memory(name, kind, type, size, alias) ::= <<
 >>
 
 new_memory(kind, name, type, size, alias) ::= <<
-Memory.<kind>("<name>", <type>, <size><if(alias)>, <alias><endif>)
+Memory.def(Memory.Kind.<kind>, "<name>", <type>, <size><if(alias)>, <alias><endif>)
 >>
 
 memory_array(type, name, items) ::= <<
