@@ -21,6 +21,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -117,11 +118,8 @@ public abstract class Memory {
     return access(0);
   }
 
-  public abstract Location access(int index);
-
-  public Location access(Data address) {
-    return null;
-  }
+  public abstract Location access(int address);
+  public abstract Location access(Data address);
 
   public abstract void reset();
   public abstract MemoryAllocator newAllocator(int addressableUnitBitSize);
@@ -147,7 +145,14 @@ public abstract class Memory {
     @Override
     public Location access(final int index) {
       checkBounds(index, getLength());
-      return Location.newLocationForRegion(getType(), storage, index);
+      final BitVector address = BitVector.valueOf(index, storage.getAddressBitSize());
+      return Location.newLocationForRegion(getType(), storage, address);
+    }
+
+    @Override
+    public Location access(final Data address) {
+      checkNotNull(address);
+      return Location.newLocationForRegion(getType(), storage, address.getRawData());
     }
 
     @Override
@@ -164,12 +169,13 @@ public abstract class Memory {
   private static final class MemoryAlias extends Memory {
     private final Location source;
 
-    MemoryAlias(
+    public MemoryAlias(
         final Kind kind,
         final String name,
         final Type type,
         final int length,
         final Location source) {
+
       super(kind, name, type, length, true);
       checkNotNull(source);
 
@@ -191,6 +197,11 @@ public abstract class Memory {
 
       final Location bitField = source.bitField(start, end);
       return bitField.castTo(getType().getTypeId());
+    }
+
+    @Override
+    public Location access(final Data address) {
+      return access(address.getRawData().intValue());
     }
 
     @Override

@@ -101,7 +101,7 @@ public final class Location implements LocationAccessor {
   public static Location newLocationForRegion(
       final Type type,
       final MemoryStorage storage,
-      final int regionIndex) {
+      final BitVector address) {
     checkNotNull(type);
     checkNotNull(storage);
     //checkBounds(regionIndex, storage.getRegionCount());
@@ -109,9 +109,6 @@ public final class Location implements LocationAccessor {
     if (type.getBitSize() != storage.getRegionBitSize()) {
       throw new IllegalArgumentException();
     }
-
-    final BitVector address = 
-        BitVector.valueOf(regionIndex, storage.getAddressBitSize()); 
 
     final Source source = new Source(
         storage, address, type.getBitSize(), 0);
