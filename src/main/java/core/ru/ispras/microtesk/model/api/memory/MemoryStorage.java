@@ -237,8 +237,8 @@ public final class MemoryStorage {
   }
 
   public void reset() {
-    for(Map<Integer, Block> area : addressMap.values()) {
-      for (Block block : area.values()) {
+    for (final Map<Integer, Block> area : addressMap.values()) {
+      for (final Block block : area.values()) {
         block.reset();
       }
     }
@@ -247,7 +247,7 @@ public final class MemoryStorage {
   @Override
   public String toString() {
     return String.format(
-        "MemoryStorage %s[addressableUnitSize=%s bits, storageSize=%s units, addressSize=%s bits]",
+        "MemoryStorage %s[regionBitSize=%s, regionCount=%s, addressBitSize=%s]",
         id, regionBitSize, regionCount, addressBitSize);
   }
 }

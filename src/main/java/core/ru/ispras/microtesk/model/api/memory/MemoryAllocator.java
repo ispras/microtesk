@@ -60,8 +60,8 @@ public final class MemoryAllocator {
 
     final int regionBitSize = memory.getRegionBitSize();
     if (regionBitSize % addressableUnitBitSize != 0) {
-      throw new IllegalArgumentException(String.format(ERROR_INVALID_SIZE, regionBitSize,
-          addressableUnitBitSize));
+      throw new IllegalArgumentException(String.format(
+          ERROR_INVALID_SIZE, regionBitSize, addressableUnitBitSize));
     }
 
     this.memory = memory;
