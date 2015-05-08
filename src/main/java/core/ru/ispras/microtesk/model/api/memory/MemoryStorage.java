@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.memory;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
 import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
 
 import java.math.BigInteger;
@@ -111,11 +112,7 @@ public final class MemoryStorage {
 
   public MemoryStorage(final BigInteger regionCount, final int regionBitSize) {
     checkNotNull(regionCount);
-
-    if (regionCount.compareTo(BigInteger.ZERO) <= 0) {
-      throw new IllegalArgumentException("Illegal storage size: " + regionCount);
-    }
-
+    checkGreaterThan(regionCount, BigInteger.ZERO);
     checkGreaterThanZero(regionBitSize);
 
     this.id = "";
