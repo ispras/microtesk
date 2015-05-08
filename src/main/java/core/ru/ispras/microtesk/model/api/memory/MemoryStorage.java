@@ -61,7 +61,7 @@ public final class MemoryStorage {
       this.area  = getField(address, 44, address.getBitSize());
     }
 
-    private static BitVector getField(BitVector bv, int min, int max) {
+    private static BitVector getField(final BitVector bv, final int min, final int max) {
       if (min >= bv.getBitSize()) {
         return ZERO_FIELD;
       }
@@ -88,32 +88,34 @@ public final class MemoryStorage {
       storage.reset();
     }
 
-    public BitVector read(int index) {
+    public BitVector read(final int index) {
       final BitVector mapping = getRegionMapping(index); 
       return BitVector.unmodifiable(mapping);
     }
 
-    public void write(int index, BitVector data) {
+    public void write(final int index, final BitVector data) {
       final BitVector mapping = getRegionMapping(index);
       mapping.assign(data);
     }
 
-    private BitVector getRegionMapping(int index) {
+    private BitVector getRegionMapping(final int index) {
       checkBounds(index, REGIONS_IN_BLOCK);
       final int regionBitPos = index * regionBitSize;
       return BitVector.newMapping(storage, regionBitPos, regionBitSize);
     }
   }
 
-  public MemoryStorage(long regionCount, int regionBitSize) {
+  public MemoryStorage(final long regionCount, final int regionBitSize) {
     this(BigInteger.valueOf(regionCount), regionBitSize);
   }
 
-  public MemoryStorage(BigInteger regionCount, int regionBitSize) {
+  public MemoryStorage(final BigInteger regionCount, final int regionBitSize) {
     checkNotNull(regionCount);
+
     if (regionCount.compareTo(BigInteger.ZERO) <= 0) {
       throw new IllegalArgumentException("Illegal storage size: " + regionCount);
     }
+
     checkGreaterThanZero(regionBitSize);
 
     this.id = "";
@@ -128,7 +130,9 @@ public final class MemoryStorage {
     this.addressMap = new HashMap<>();
   }
 
-  private static int calculateAddressSize(int regionBitSize, BigInteger regionCount) {
+  private static int calculateAddressSize(
+      final int regionBitSize,
+      final BigInteger regionCount) {
     int result = 0;
 
     BigInteger value = regionCount.subtract(BigInteger.ONE);
@@ -148,7 +152,7 @@ public final class MemoryStorage {
     return id;
   }
 
-  MemoryStorage setId(String id) {
+  MemoryStorage setId(final String id) {
     checkNotNull(id);
     this.id = id;
     return this;
@@ -158,7 +162,7 @@ public final class MemoryStorage {
     return isReadOnly;
   }
 
-  MemoryStorage setReadOnly(boolean isReadOnly) {
+  MemoryStorage setReadOnly(final boolean isReadOnly) {
     this.isReadOnly = isReadOnly;
     return this;
   }
@@ -175,23 +179,23 @@ public final class MemoryStorage {
     return addressBitSize;
   }
 
-  public BitVector read(int address) {
+  public BitVector read(final int address) {
     return read(BitVector.valueOf(address, addressBitSize));
   }
 
-  public void write(int address, BitVector data) {
+  public void write(final int address, final BitVector data) {
     write(BitVector.valueOf(address, addressBitSize), data);
   }
 
-  public BitVector read(long address) {
+  public BitVector read(final long address) {
     return read(BitVector.valueOf(address, addressBitSize));
   }
 
-  public void write(long address, BitVector data) {
+  public void write(final long address, final BitVector data) {
     write(BitVector.valueOf(address, addressBitSize), data);
   }
 
-  public BitVector read(BitVector address) {
+  public BitVector read(final BitVector address) {
     checkNotNull(address);
     final Index index = new Index(address);
 
@@ -208,7 +212,7 @@ public final class MemoryStorage {
     return block.read(index.region);
   }
 
-  public void write(BitVector address, BitVector data) {
+  public void write(final BitVector address, final BitVector data) {
     checkNotNull(address);
     checkNotNull(data);
 
