@@ -21,7 +21,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public abstract class Memory {
@@ -133,10 +133,6 @@ public abstract class Memory {
     this.isAlias = isAlias;
   }
 
-  public final MetaLocationStore getMetaData() {
-    return new MetaLocationStore(name, getLength());
-  }
-
   public final Kind getKind() {
     return kind;
   }
@@ -163,6 +159,10 @@ public abstract class Memory {
 
   public abstract Location access(int index);
 
+  public Location access(Data address) {
+    return null;
+  }
+  
   public abstract void reset();
 
   public abstract MemoryAllocator newAllocator(int addressableUnitBitSize);
@@ -190,7 +190,7 @@ public abstract class Memory {
       checkBounds(index, getLength());
       return Location.newLocationForRegion(getType(), storage, index);
     }
-
+  
     @Override
     public void reset() {
       storage.reset();
