@@ -30,34 +30,59 @@ public abstract class Memory {
     REG, MEM, VAR
   }
 
-  public static Memory REG(String name, Type type, int length) {
+  public static Memory REG(
+      final String name,
+      final Type type,
+      final int length) {
     return REG(name, type, length, null);
   }
 
-  public static Memory REG(String name, Type type, int length, Location alias) {
+  public static Memory REG(
+      final String name,
+      final Type type,
+      final int length,
+      final Location alias) {
     return newMemory(Kind.REG, name, type, length, alias);
   }
 
-  public static Memory MEM(String name, Type type, int length) {
+  public static Memory MEM(
+      final String name,
+      final Type type,
+      final int length) {
     return MEM(name, type, length, null);
   }
 
-  public static Memory MEM(String name, Type type, int length, Location alias) {
+  public static Memory MEM(
+      final String name,
+      final Type type,
+      final int length,
+      final Location alias) {
     return newMemory(Kind.MEM, name, type, length, alias);
   }
 
-  public static Memory VAR(String name, Type type, int length) {
+  public static Memory VAR(
+      final String name,
+      final Type type,
+      final int length) {
     return VAR(name, type, length, null);
   }
 
-  public static Memory VAR(String name, Type type, int length, Location alias) {
+  public static Memory VAR(
+      final String name,
+      final Type type,
+      final int length,
+      final Location alias) {
     return newMemory(Kind.VAR, name, type, length, alias);
   }
 
-  private static final Map<String, Memory> memoryTable = new HashMap<String, Memory>();
+  private static final Map<String, Memory> memoryTable = new HashMap<>();
 
   private static Memory newMemory(
-      Kind kind, String name, Type type, int length, Location alias) {
+      final Kind kind,
+      final String name,
+      final Type type,
+      final int length,
+      final Location alias) {
 
     checkNotNull(name);
     if (memoryTable.containsKey(name)) {
@@ -143,7 +168,7 @@ public abstract class Memory {
         kind.name().toLowerCase(), name, length, type, isAlias);
   }
 
-  static final class MemoryDirect extends Memory {
+  private static final class MemoryDirect extends Memory {
     private final MemoryStorage storage;
 
     MemoryDirect(Kind kind, String name, Type type, int length) {
@@ -168,7 +193,7 @@ public abstract class Memory {
     }
   }
 
-  static final class MemoryAlias extends Memory {
+  private static final class MemoryAlias extends Memory {
     private final Location source;
 
     MemoryAlias(Kind kind, String name, Type type, int length, Location source) {
