@@ -82,19 +82,19 @@ public final class Location implements LocationAccessor {
   public static Location newLocationForConst(final Data data) {
     checkNotNull(data);
 
-    final String STORAGE_ID = "#constant";
-    final BitVector ZERO_ADDR = BitVector.valueOf(0, 1);
+    final String storageId = "#constant";
+    final BitVector zeroAddress = BitVector.valueOf(0, 1);
 
     final Type type = data.getType();
     final int bitSize = type.getBitSize();
 
     final MemoryStorage storage =
-        new MemoryStorage(BigInteger.ONE, bitSize).setId(STORAGE_ID);
+        new MemoryStorage(BigInteger.ONE, bitSize).setId(storageId);
 
-    storage.write(ZERO_ADDR, data.getRawData());
+    storage.write(zeroAddress, data.getRawData());
     storage.setReadOnly(true);
 
-    final Source source = new Source(storage, ZERO_ADDR, bitSize, 0);
+    final Source source = new Source(storage, zeroAddress, bitSize, 0);
     return new Location(type, source);
   }
 
