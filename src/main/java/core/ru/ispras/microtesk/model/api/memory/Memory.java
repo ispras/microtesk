@@ -122,10 +122,14 @@ public abstract class Memory {
   public Location access(Data address) {
     return null;
   }
-  
+
   public abstract void reset();
 
-  public abstract MemoryAllocator newAllocator(int addressableUnitBitSize);
+  public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
+    return new MemoryAllocator(getStorage(), addressableUnitBitSize);
+  }
+
+  protected abstract MemoryStorage getStorage();
 
   @Override
   public String toString() {
@@ -136,7 +140,7 @@ public abstract class Memory {
   private static final class MemoryDirect extends Memory {
     private final MemoryStorage storage;
 
-    MemoryDirect(
+    public MemoryDirect(
         final Kind kind,
         final String name,
         final Type type,
@@ -150,15 +154,15 @@ public abstract class Memory {
       checkBounds(index, getLength());
       return Location.newLocationForRegion(getType(), storage, index);
     }
-  
+
     @Override
     public void reset() {
       storage.reset();
     }
 
     @Override
-    public MemoryAllocator newAllocator(final int addressableUnitBitSize) {
-      return new MemoryAllocator(storage, addressableUnitBitSize);
+    protected MemoryStorage getStorage() {
+      return storage;
     }
   }
 
@@ -200,9 +204,8 @@ public abstract class Memory {
     }
 
     @Override
-    public MemoryAllocator newAllocator(final int addressableUnitBitSize) {
-      throw new UnsupportedOperationException(
-          "Memory allocators are not supported for aliases.");
+    protected MemoryStorage getStorage() {
+      throw new UnsupportedOperationException("Not supported for aliases.");
     }
   }
 }
