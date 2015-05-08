@@ -124,12 +124,7 @@ public abstract class Memory {
   }
 
   public abstract void reset();
-
-  public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
-    return new MemoryAllocator(getStorage(), addressableUnitBitSize);
-  }
-
-  protected abstract MemoryStorage getStorage();
+  public abstract MemoryAllocator newAllocator(int addressableUnitBitSize);
 
   @Override
   public String toString() {
@@ -161,8 +156,8 @@ public abstract class Memory {
     }
 
     @Override
-    protected MemoryStorage getStorage() {
-      return storage;
+    public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
+      return new MemoryAllocator(storage, addressableUnitBitSize);
     }
   }
 
@@ -204,8 +199,8 @@ public abstract class Memory {
     }
 
     @Override
-    protected MemoryStorage getStorage() {
-      throw new UnsupportedOperationException("Not supported for aliases.");
+    public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
+      throw new UnsupportedOperationException("Allocators are not supported for aliases.");
     }
   }
 }
