@@ -199,14 +199,14 @@ getIR().add($id.text, expr);
     ;
 
 sizeType returns [Type type, Expr size]
-    :   ^(st=SIZE_TYPE s=sizeExpr t=typeExpr)
+    :  ^(st=SIZE_TYPE s=sizeExpr t=typeExpr)
 { 
 checkNotNull($st, $s.res, $s.text);
 checkNotNull($st, $t.res, $t.text);
 $type = $t.res;
 $size = $s.res;
 }
-    |   ^(st=SIZE_TYPE t=typeExpr)
+    |  ^(st=SIZE_TYPE t=typeExpr)
 {
 checkNotNull($st, $t.res, $t.text);
 $type = $t.res;
@@ -219,6 +219,10 @@ alias returns [Location res]
 {
 checkNotNull($le.start, $le.res, $le.text);
 $res = $le.res;
+}
+    | ^(ALIAS ^(DOUBLE_DOT ID indexExpr indexExpr))
+{
+System.out.println("New unimplemented alias rule is fired!");
 }
     ;
 

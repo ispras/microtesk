@@ -185,7 +185,13 @@ sizeType
     ;
 
 alias
-    :  ALIAS^ ASSIGN! location
+    :  ALIAS^ ASSIGN! aliasExpr
+    ;
+
+aliasExpr
+    :  ID LEFT_HOOK expr DOUBLE_DOT expr RIGHT_HOOK 
+         -> ^(DOUBLE_DOT ID expr expr)
+    |  location
     ;
 
 /*======================================================================================*/

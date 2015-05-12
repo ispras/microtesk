@@ -181,7 +181,6 @@ public abstract class Memory {
         final Type type,
         final int length,
         final Location source) {
-
       super(kind, name, type, length, true);
       checkNotNull(source);
 
@@ -223,6 +222,115 @@ public abstract class Memory {
     @Override
     public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
       throw new UnsupportedOperationException("Allocators are not supported for aliases.");
+    }
+  }
+
+  private static final class MemoryAliasMapping extends Memory {
+    private final int itemBitSize;
+    private final int sourceItemBitSize;
+    private final Memory source;
+    private final int base; 
+
+    public MemoryAliasMapping(
+        final Kind kind,
+        final String name,
+        final Type type,
+        final int length,
+        final Memory source,
+        final int min, 
+        final int max
+        ) {
+      super(kind, name, type, length, true);
+      checkNotNull(source);
+
+      checkBounds(min, source.getLength());
+      checkBounds(max, source.getLength());
+
+      this.itemBitSize = type.getBitSize();
+      this.sourceItemBitSize = source.getType().getBitSize();
+
+      if (itemBitSize > sourceItemBitSize) {
+        throw new IllegalArgumentException(String.format(
+            "Alias data size (%d) must be greater or equal to %s data size (%d).",
+            sourceItemBitSize, name, itemBitSize));
+      }
+
+      final int bitSize = itemBitSize * length;
+      final int sourceLength = Math.abs(max - min) + 1;
+      final int sourceBitSize = sourceItemBitSize * sourceLength;
+
+      if (bitSize != sourceBitSize) {
+        throw new IllegalArgumentException(String.format(
+            "Alias size mismatch. Expected alias size: %d.", bitSize));
+      }
+
+      this.source = source;
+      this.base = Math.min(min, max);
+    }
+
+    @Override
+    public Location access(final int address) {
+      // TODO
+
+      /*
+      
+      if (itemBitSize == sourceItemBitSize) {
+        return source.access(base + address);
+      }
+
+      final int sourceAddress = 
+          base  + (address * itemBitSize) / sourceItemBitSize;
+
+      final Location sourceLocation = source.access(sourceAddress);
+      final int start = address * itemBitSize - sourceAddress * sourceItemBitSize;
+
+      return sourceLocation.bitField(start, start + itemBitSize - 1);
+      */
+
+      return null;
+    }
+
+    @Override
+    public Location access(final long address) {
+      // TODO
+
+      /*
+      if (itemBitSize == sourceItemBitSize) {
+        return source.access(base + address);
+      }
+      */
+
+      return null;
+
+      /*
+      final long sourceAddress = 
+          min  + (address * itemBitSize) / sourceItemBitSize;
+      */
+      
+      //return source.access(min + address);
+    }
+
+    @Override
+    public Location access(final Data address) {
+      /*
+      if (itemBitSize == sourceItemBitSize) {
+        
+      }
+      */
+
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public void reset() {
+      // Does not work for aliases (and should not be called)
+    }
+
+    @Override
+    public MemoryAllocator newAllocator(final int addressableUnitBitSize) {
+      throw new UnsupportedOperationException(
+          "Allocators are not supported for aliases.");
     }
   }
 }
