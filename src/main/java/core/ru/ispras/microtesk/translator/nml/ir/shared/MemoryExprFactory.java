@@ -33,7 +33,11 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
   }
 
   public MemoryExpr createMemory(
-      Where where, Memory.Kind kind, Type type, Expr size, Location alias) throws SemanticException {
+      Where where,
+      Memory.Kind kind,
+      Type type,
+      Expr size,
+      Location alias) throws SemanticException {
 
     if (null == size) {
       size = DEFAULT_SIZE;
