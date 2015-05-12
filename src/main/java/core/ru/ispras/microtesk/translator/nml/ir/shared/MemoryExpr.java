@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
@@ -24,14 +25,13 @@ public final class MemoryExpr {
   private final Expr size;
   private final Location alias;
 
-  MemoryExpr(Memory.Kind kind, Type type, Expr size, Location alias) {
-    if (null == type) {
-      throw new NullPointerException();
-    }
-
-    if (null == size) {
-      throw new NullPointerException();
-    }
+  MemoryExpr(
+      final Memory.Kind kind,
+      final Type type,
+      final Expr size,
+      final Location alias) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(size);
 
     this.size = size;
     this.type = type;
@@ -61,6 +61,7 @@ public final class MemoryExpr {
 
   @Override
   public String toString() {
-    return String.format("MemoryExp [kind=%s, type=%s, size=%s]", kind, type, size);
+    return String.format("MemoryExpr [kind=%s, type=%s, size=%s]",
+        kind, type, size);
   }
 }
