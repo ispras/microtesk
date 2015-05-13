@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.api.type.Type;
 public class MemoryAliasTestCase {
 
   public static final Type WORD = Type.def("WORD", Type.INT(32));
-  public static final Type HALF = Type.def("SHORT", Type.INT(16));
+  public static final Type HALF = Type.def("HALF", Type.INT(16));
 
   public static final Data DEAD = new Data(BitVector.valueOf(0xDEAD, HALF.getBitSize()), HALF);
   public static final Data BEEF = new Data(BitVector.valueOf(0xBEEF, HALF.getBitSize()), HALF);
