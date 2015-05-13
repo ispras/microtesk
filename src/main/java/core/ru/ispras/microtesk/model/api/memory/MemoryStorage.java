@@ -127,7 +127,7 @@ public final class MemoryStorage {
     this.addressMap = new HashMap<>();
   }
 
-  private static int calculateAddressSize(
+  public static int calculateAddressSize(
       final int regionBitSize,
       final BigInteger regionCount) {
     int result = 0;

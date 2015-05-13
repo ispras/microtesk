@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public abstract class Memory {
   private final Type type;
   private final int length;
   private final boolean isAlias;
+  private int addressBitSize;
 
   public static enum Kind {
     REG, MEM, VAR
@@ -114,6 +116,8 @@ public abstract class Memory {
     this.type = type;
     this.length = length;
     this.isAlias = isAlias;
+    this.addressBitSize = MemoryStorage.calculateAddressSize(
+        type.getBitSize(), BigInteger.valueOf(length));
   }
 
   public final Kind getKind() {
@@ -134,6 +138,10 @@ public abstract class Memory {
 
   public final boolean isAlias() {
     return isAlias;
+  }
+
+  public final int getAddressBitSize() {
+    return addressBitSize;
   }
 
   public final Location access() {
@@ -292,18 +300,16 @@ public abstract class Memory {
 
     @Override
     public Location access(final int address) {
-      if (itemBitSize == sourceItemBitSize) {
-        return source.access(base + address);
-      }
-
-      final int relativeBitOffset = address * itemBitSize;
-      final int sourceAddress = base  + relativeBitOffset / sourceItemBitSize;
-
-      final Location sourceLocation = source.access(sourceAddress);
-      final int start = relativeBitOffset % sourceItemBitSize;
-
-      return sourceLocation.bitField(start, start + itemBitSize - 1);
+      return access((long) address);
     }
+
+    /*
+     * TODO:
+     * NOTE: the implementation based on longs has limitations.
+     * But we usually dont use aliases for registers. So it implies 
+     * that the index value is small enough to fit a Java long value
+     * without causing any troubles. 
+     */
 
     @Override
     public Location access(final long address) {
@@ -322,29 +328,7 @@ public abstract class Memory {
 
     @Override
     public Location access(final Data address) {
-      final BitVector bvAddress = address.getRawData();
-      final int addressBitSize = bvAddress.getBitSize();
-      final BitVector bvBase = BitVector.valueOf(base, addressBitSize);
-
-      if (itemBitSize == sourceItemBitSize) {
-        final BitVector newBvAddress = BitVectorMath.add(bvBase, bvAddress);
-        final Data newAddress = new Data(newBvAddress, address.getType());
-        return source.access(newAddress);
-      }
-
-      final BitVector bvSourceItemBitSize = 
-          BitVector.valueOf(sourceItemBitSize, addressBitSize);
-
-      final BitVector bvRelativeOffset = 
-          BitVectorMath.mul(bvAddress, BitVector.valueOf(itemBitSize, addressBitSize));
-
-      final BitVector bvSourceAddress = 
-          BitVectorMath.add(bvBase, BitVectorMath.udiv(bvRelativeOffset, bvSourceItemBitSize));
-
-      final Location sourceLocation = source.access(new Data(bvSourceAddress, address.getType()));
-      final int start = BitVectorMath.smod(bvRelativeOffset, bvSourceItemBitSize).intValue();
-
-      return sourceLocation.bitField(start, start + itemBitSize - 1);
+      return access(address.getRawData().longValue());
     }
 
     @Override
