@@ -43,7 +43,11 @@ public abstract class Memory {
       final String name,
       final Type type,
       final int length) {
-    return def(kind, name, type, length, null);
+    checkDefined(name);
+    final Memory result =  new MemoryDirect(kind, name, type, length);
+
+    INSTANCES.put(name, result);
+    return result;
   }
 
   public static Memory def(
@@ -52,21 +56,39 @@ public abstract class Memory {
       final Type type,
       final int length,
       final Location alias) {
-
-    if (INSTANCES.containsKey(name)) {
-      throw new IllegalArgumentException(name + " is already defined!");
+    if (null == alias) {
+      return def(kind, name, type, length);
     }
 
-    final Memory result = (null == alias) ?
-        new MemoryDirect(kind, name, type, length) :
-        new MemoryAlias(kind, name, type, length, alias);
+    checkDefined(name);
+    final Memory result = new MemoryAlias(kind, name, type, length, alias);
+
+    INSTANCES.put(name, result);
+    return result;
+  }
+  
+  public static Memory def(
+      final Kind kind,
+      final String name,
+      final Type type,
+      final int length,
+      final Memory memory,
+      final int min,
+      final int max) {
+    checkDefined(name);
+    final Memory result = new MemoryAliasMapping(kind, name, type, length, memory, min, max);
 
     INSTANCES.put(name, result);
     return result;
   }
 
-  public static Memory get(final String name) {
+  private static void checkDefined(final String name) {
+    if (INSTANCES.containsKey(name)) {
+      throw new IllegalArgumentException(name + " is already defined!");
+    }
+  }
 
+  public static Memory get(final String name) {
     final Memory result = INSTANCES.get(name);
     if (null == result) {
       throw new IllegalArgumentException(name + " is not defined!");
@@ -81,7 +103,6 @@ public abstract class Memory {
       final Type type,
       final int length,
       final boolean isAlias) {
-
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(type);

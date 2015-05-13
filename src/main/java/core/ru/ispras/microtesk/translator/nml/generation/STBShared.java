@@ -200,7 +200,8 @@ final class STBShared implements ITemplateBuilder {
       if (Alias.Kind.LOCATION == alias.getKind()) {
         tMemory.add("alias", PrinterLocation.toString(alias.getLocation()));
       } else {
-        throw new UnsupportedOperationException("Not supported yet: " + alias.getKind());
+        tMemory.add("alias", String.format("%s, %d, %d",
+            alias.getName(), alias.getMin(), alias.getMax()));
       }
     }
 

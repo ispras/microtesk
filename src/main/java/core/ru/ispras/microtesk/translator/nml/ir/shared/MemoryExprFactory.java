@@ -86,6 +86,6 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
           maxIndex, memory.getSize()));
     }
 
-    return Alias.forMemory(memory, minIndex, maxIndex);
+    return Alias.forMemory(memoryId, memory, minIndex, maxIndex);
   }
 }

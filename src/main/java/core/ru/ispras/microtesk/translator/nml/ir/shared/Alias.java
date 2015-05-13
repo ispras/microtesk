@@ -25,30 +25,37 @@ public final class Alias {
 
   private final Kind kind;
   private final Location location;
+  private final String name;
   private final MemoryExpr memory;
   private final int min;
   private final int max;
 
   public static Alias forLocation(final Location location) {
     InvariantChecks.checkNotNull(location);
-    return new Alias(Kind.LOCATION, location, null, 0, 0);
+    return new Alias(Kind.LOCATION, location, null, null, 0, 0);
   }
 
-  public static Alias forMemory(final MemoryExpr memory, final int min, final int max) {
+  public static Alias forMemory(
+      final String name,
+      final MemoryExpr memory,
+      final int min,
+      final int max) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkBounds(min, memory.getSize());
     InvariantChecks.checkBounds(max, memory.getSize());
-    return new Alias(Kind.MEMORY, null, memory, min, max);
+    return new Alias(Kind.MEMORY, null, name, memory, min, max);
   }
 
   private Alias(
       final Kind kind,
       final Location location,
+      final String name,
       final MemoryExpr memory,
       final int min,
       final int max) {
     this.kind = kind;
     this.location = location;
+    this.name = name;
     this.memory = memory;
     this.min = Math.min(min, max);
     this.max = Math.max(min, max);
@@ -61,6 +68,11 @@ public final class Alias {
   public Location getLocation() {
     checkKind(Kind.LOCATION);
     return location;
+  }
+
+  public String getName() {
+    checkKind(Kind.MEMORY);
+    return name;
   }
 
   public MemoryExpr getMemory() {
