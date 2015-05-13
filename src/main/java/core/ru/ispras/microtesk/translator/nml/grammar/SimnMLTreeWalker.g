@@ -215,14 +215,16 @@ $size = null;
     ;
 
 alias returns [Alias res]
+@init {final MemoryExprFactory factory = getMemoryExprFactory();}
     :  ^(ALIAS le=location)
 {
 checkNotNull($le.start, $le.res, $le.text);
 $res = Alias.forLocation($le.res);
 }
-    | ^(ALIAS ^(DOUBLE_DOT ID indexExpr indexExpr))
+    |  ^(ALIAS ^(DOUBLE_DOT id=ID min=indexExpr max=indexExpr))
 {
 System.out.println("New unimplemented alias rule is fired!");
+$res = null;
 }
     ;
 

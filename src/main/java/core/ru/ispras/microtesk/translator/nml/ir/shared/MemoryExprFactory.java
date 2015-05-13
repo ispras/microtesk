@@ -47,17 +47,18 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
       return new MemoryExpr(kind, type, size, null);
     }
 
+    final int bitSize = type.getBitSize() * size.integerValue();
+    final int aliasBitSize;
+
     if (Alias.Kind.LOCATION == alias.getKind()) {
-      final Location location = alias.getLocation();
+      aliasBitSize = alias.getLocation().getType().getBitSize();
+    } else { // Alias.Kind.MEMORY == alias.getKind()
+      aliasBitSize = (alias.getMax() - alias.getMin() + 1) * 
+          alias.getMemory().getSizeExpr().integerValue();
+    }
 
-      final int memoryBitSize = type.getBitSize() * size.integerValue();
-      final int aliasBitSize = location.getType().getBitSize();
-
-      if (memoryBitSize != aliasBitSize) {
-        raiseError(where, String.format(ERROR_INVALID_SIZE, aliasBitSize, memoryBitSize));
-      }
-    } else {
-      
+    if (bitSize != aliasBitSize) {
+      raiseError(where, String.format(ERROR_INVALID_SIZE, aliasBitSize, bitSize));
     }
 
     return new MemoryExpr(kind, type, size, alias);
