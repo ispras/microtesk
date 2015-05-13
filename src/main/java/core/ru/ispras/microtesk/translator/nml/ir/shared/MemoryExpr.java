@@ -17,19 +17,18 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.nml.ir.location.Location;
 
 public final class MemoryExpr {
   private final Memory.Kind kind;
   private final Type type;
   private final Expr size;
-  private final Location alias;
+  private final Alias alias;
 
   MemoryExpr(
       final Memory.Kind kind,
       final Type type,
       final Expr size,
-      final Location alias) {
+      final Alias alias) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(size);
 
@@ -55,7 +54,7 @@ public final class MemoryExpr {
     return size.integerValue();
   }
 
-  public Location getAlias() {
+  public Alias getAlias() {
     return alias;
   }
 

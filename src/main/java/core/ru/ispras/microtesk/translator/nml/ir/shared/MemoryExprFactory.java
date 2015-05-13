@@ -52,6 +52,7 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
       }
     }
 
-    return new MemoryExpr(kind, type, size, alias);
+    return new MemoryExpr(
+        kind, type, size, null != alias ? Alias.forLocation(alias) : null);
   }
 }

@@ -15,8 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.translator.nml.ir.location.Location;
 
 public final class Alias {
   public enum Kind {
@@ -26,7 +25,7 @@ public final class Alias {
 
   private final Kind kind;
   private final Location location;
-  private final Memory memory;
+  private final MemoryExpr memory;
   private final int min;
   private final int max;
 
@@ -37,17 +36,17 @@ public final class Alias {
   }
 
   public static Alias forMemory(
-      final Memory memory, final int min, final int max) {
+      final MemoryExpr memory, final int min, final int max) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkBounds(min, memory.getLength());
-    InvariantChecks.checkBounds(max, memory.getLength());
+    InvariantChecks.checkBounds(min, memory.getSize());
+    InvariantChecks.checkBounds(max, memory.getSize());
     return new Alias(Kind.MEMORY, null, memory, min, max);
   }
 
   private Alias(
       final Kind kind,
       final Location location,
-      final Memory memory,
+      final MemoryExpr memory,
       final int min,
       final int max) {
     this.kind = kind;
@@ -66,7 +65,7 @@ public final class Alias {
     return location;
   }
 
-  public Memory getMemory() {
+  public MemoryExpr getMemory() {
     checkKind(Kind.MEMORY);
     return memory;
   }

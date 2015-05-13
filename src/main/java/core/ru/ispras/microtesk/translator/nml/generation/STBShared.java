@@ -31,6 +31,7 @@ import ru.ispras.microtesk.model.api.state.Status;
 
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
@@ -192,8 +193,16 @@ final class STBShared implements ITemplateBuilder {
 
     tMemory.add("size", new PrinterExpr(memory.getSizeExpr()));
 
-    tMemory.add("alias", memory.getAlias() == null ? 
-        false : PrinterLocation.toString(memory.getAlias())); 
+    final Alias alias = memory.getAlias();
+    if (null == alias) {
+      tMemory.add("alias", false);
+    } else {
+      if (Alias.Kind.LOCATION == alias.getKind()) {
+        tMemory.add("alias", PrinterLocation.toString(alias.getLocation()));
+      } else {
+        throw new UnsupportedOperationException("Not supported yet: " + alias.getKind());
+      }
+    }
 
     t.add("members", tMemory);
   }
