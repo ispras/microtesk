@@ -14,13 +14,77 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
-public class Alias {
-  // TODO
-  
-  
-  // 1. Location
-  
-  // 2. Memory
-  //    min
-  //    max
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.api.memory.Location;
+
+public final class Alias {
+  public enum Kind {
+    LOCATION,
+    MEMORY
+  }
+
+  private final Kind kind;
+  private final Location location;
+  private final Memory memory;
+  private final int min;
+  private final int max;
+
+  public static Alias forLocation(
+      final Location location) {
+    InvariantChecks.checkNotNull(location);
+    return new Alias(Kind.LOCATION, location, null, 0, 0);
+  }
+
+  public static Alias forMemory(
+      final Memory memory, final int min, final int max) {
+    InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkBounds(min, memory.getLength());
+    InvariantChecks.checkBounds(max, memory.getLength());
+    return new Alias(Kind.MEMORY, null, memory, min, max);
+  }
+
+  private Alias(
+      final Kind kind,
+      final Location location,
+      final Memory memory,
+      final int min,
+      final int max) {
+    this.kind = kind;
+    this.location = location;
+    this.memory = memory;
+    this.min = min;
+    this.max = max;
+  }
+
+  public Kind getKind() {
+    return kind;
+  }
+
+  public Location getLocation() {
+    checkKind(Kind.LOCATION);
+    return location;
+  }
+
+  public Memory getMemory() {
+    checkKind(Kind.MEMORY);
+    return memory;
+  }
+
+  public int getMin() {
+    checkKind(Kind.MEMORY);
+    return min;
+  }
+
+  public int getMax() {
+    checkKind(Kind.MEMORY);
+    return max;
+  }
+
+  private void checkKind(final Kind expectedKind) {
+    if (expectedKind != kind) {
+      throw new UnsupportedOperationException(
+          "Operation is not support for kind " + kind);
+    }
+  }
 }
