@@ -53,7 +53,7 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
       aliasBitSize = alias.getLocation().getType().getBitSize();
     } else { // Alias.Kind.MEMORY == alias.getKind()
       aliasBitSize = (alias.getMax() - alias.getMin() + 1) * 
-          alias.getMemory().getSizeExpr().integerValue();
+          alias.getMemory().getType().getBitSize();
     }
 
     if (bitSize != aliasBitSize) {
