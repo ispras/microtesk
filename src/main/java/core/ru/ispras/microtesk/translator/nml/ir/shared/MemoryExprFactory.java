@@ -28,7 +28,7 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
 
   private static final Expr DEFAULT_SIZE = Expr.newConstant(1);
 
-  public MemoryExprFactory(WalkerContext context) {
+  public MemoryExprFactory(final WalkerContext context) {
     super(context);
   }
 
@@ -37,22 +37,29 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
       Memory.Kind kind,
       Type type,
       Expr size,
-      Location alias) throws SemanticException {
+      Alias alias) throws SemanticException {
 
     if (null == size) {
       size = DEFAULT_SIZE;
     }
 
-    if (null != alias) {
+    if (null == alias) {
+      return new MemoryExpr(kind, type, size, null);
+    }
+
+    if (Alias.Kind.LOCATION == alias.getKind()) {
+      final Location location = alias.getLocation();
+
       final int memoryBitSize = type.getBitSize() * size.integerValue();
-      final int aliasBitSize = alias.getType().getBitSize();
+      final int aliasBitSize = location.getType().getBitSize();
 
       if (memoryBitSize != aliasBitSize) {
         raiseError(where, String.format(ERROR_INVALID_SIZE, aliasBitSize, memoryBitSize));
       }
+    } else {
+      
     }
 
-    return new MemoryExpr(
-        kind, type, size, null != alias ? Alias.forLocation(alias) : null);
+    return new MemoryExpr(kind, type, size, alias);
   }
 }

@@ -214,11 +214,11 @@ $size = null;
 }
     ;
 
-alias returns [Location res]
+alias returns [Alias res]
     :  ^(ALIAS le=location)
 {
 checkNotNull($le.start, $le.res, $le.text);
-$res = $le.res;
+$res = Alias.forLocation($le.res);
 }
     | ^(ALIAS ^(DOUBLE_DOT ID indexExpr indexExpr))
 {
