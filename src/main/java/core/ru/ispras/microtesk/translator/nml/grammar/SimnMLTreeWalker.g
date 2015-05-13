@@ -223,8 +223,9 @@ $res = Alias.forLocation($le.res);
 }
     |  ^(ALIAS ^(DOUBLE_DOT id=ID min=indexExpr max=indexExpr))
 {
-System.out.println("New unimplemented alias rule is fired!");
-$res = null;
+checkNotNull($min.start, $min.res, $min.text);
+checkNotNull($max.start, $max.res, $max.text);
+$res = factory.createAlias(where($id), $id.text, $min.res, $max.res);
 }
     ;
 

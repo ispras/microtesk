@@ -20,7 +20,6 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.nml.ir.location.Location;
 
 public final class MemoryExprFactory extends WalkerFactoryBase {
   private static final String ERROR_INVALID_SIZE = 
@@ -62,5 +61,31 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
     }
 
     return new MemoryExpr(kind, type, size, alias);
+  }
+
+  public Alias createAlias(
+      Where where,
+      String memoryId, 
+      Expr min,
+      Expr max) throws SemanticException {
+    final MemoryExpr memory = getIR().getMemory().get(memoryId);
+    if (null == memory) {
+      raiseError(where, memoryId + " is not defined or is not a memory storage.");
+    }
+
+    final int minIndex = min.integerValue();
+    final int maxIndex = max.integerValue();
+
+    if (!(0 <= minIndex) && (minIndex < memory.getSize())) {
+      raiseError(where, String.format("min (%d) is out of bounds: [0, %d)",
+          minIndex, memory.getSize())); 
+    }
+
+    if (!(0 <= maxIndex) && (maxIndex < memory.getSize())) {
+      raiseError(where, String.format("max (%d) is out of bounds: [0, %d)",
+          maxIndex, memory.getSize()));
+    }
+
+    return Alias.forMemory(memory, minIndex, maxIndex);
   }
 }
