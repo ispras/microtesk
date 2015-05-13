@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -44,7 +45,7 @@ public abstract class Memory {
       final Type type,
       final int length) {
     checkDefined(name);
-    final Memory result =  new MemoryDirect(kind, name, type, length);
+    final Memory result = new MemoryDirect(kind, name, type, length);
 
     INSTANCES.put(name, result);
     return result;
@@ -291,56 +292,59 @@ public abstract class Memory {
 
     @Override
     public Location access(final int address) {
-      // TODO
-
-      /*
-      
       if (itemBitSize == sourceItemBitSize) {
         return source.access(base + address);
       }
 
-      final int sourceAddress = 
-          base  + (address * itemBitSize) / sourceItemBitSize;
+      final int relativeBitOffset = address * itemBitSize;
+      final int sourceAddress = base  + relativeBitOffset / sourceItemBitSize;
 
       final Location sourceLocation = source.access(sourceAddress);
-      final int start = address * itemBitSize - sourceAddress * sourceItemBitSize;
+      final int start = relativeBitOffset % sourceItemBitSize;
 
       return sourceLocation.bitField(start, start + itemBitSize - 1);
-      */
-
-      return null;
     }
 
     @Override
     public Location access(final long address) {
-      // TODO
-
-      /*
       if (itemBitSize == sourceItemBitSize) {
         return source.access(base + address);
       }
-      */
 
-      return null;
+      final long relativeBitOffset = address * itemBitSize;
+      final long sourceAddress = base  + relativeBitOffset / sourceItemBitSize;
 
-      /*
-      final long sourceAddress = 
-          min  + (address * itemBitSize) / sourceItemBitSize;
-      */
-      
-      //return source.access(min + address);
+      final Location sourceLocation = source.access(sourceAddress);
+      final int start = (int) (relativeBitOffset % sourceItemBitSize);
+
+      return sourceLocation.bitField(start, start + itemBitSize - 1);
     }
 
     @Override
     public Location access(final Data address) {
-      /*
-      if (itemBitSize == sourceItemBitSize) {
-        
-      }
-      */
+      final BitVector bvAddress = address.getRawData();
+      final int addressBitSize = bvAddress.getBitSize();
+      final BitVector bvBase = BitVector.valueOf(base, addressBitSize);
 
-      // TODO Auto-generated method stub
-      return null;
+      if (itemBitSize == sourceItemBitSize) {
+        final BitVector newBvAddress = BitVectorMath.add(bvBase, bvAddress);
+        final Data newAddress = new Data(newBvAddress, address.getType());
+        return source.access(newAddress);
+      }
+
+      final BitVector bvSourceItemBitSize = 
+          BitVector.valueOf(sourceItemBitSize, addressBitSize);
+
+      final BitVector bvRelativeOffset = 
+          BitVectorMath.mul(bvAddress, BitVector.valueOf(itemBitSize, addressBitSize));
+
+      final BitVector bvSourceAddress = 
+          BitVectorMath.add(bvBase, BitVectorMath.udiv(bvRelativeOffset, bvSourceItemBitSize));
+
+      final Location sourceLocation = source.access(new Data(bvSourceAddress, address.getType()));
+      final int start = BitVectorMath.smod(bvRelativeOffset, bvSourceItemBitSize).intValue();
+
+      return sourceLocation.bitField(start, start + itemBitSize - 1);
     }
 
     @Override
