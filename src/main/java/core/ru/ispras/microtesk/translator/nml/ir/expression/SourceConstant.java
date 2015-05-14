@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expression;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class SourceConstant {
   private final Object value;
   private final int radix;
 
-  SourceConstant(Object value, int radix) {
-    if (null == value) {
-      throw new NullPointerException();
-    }
+  SourceConstant(final Object value, final int radix) {
+    InvariantChecks.checkNotNull(value);
 
     this.value = value;
     this.radix = radix;
