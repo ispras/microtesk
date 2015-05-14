@@ -75,7 +75,7 @@ public abstract class CallSimulator {
   public final void print() {
     System.out.println("************************************************");
     for (InstructionCall call : calls) {
-      call.print();
+      System.out.println(call.getText());
     }
   }
 }
