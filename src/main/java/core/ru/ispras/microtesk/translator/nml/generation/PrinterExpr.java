@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -111,19 +112,25 @@ public final class PrinterExpr {
 
   private String constToString(SourceConstant source) {
     final Object value = source.getValue();
-    final String result;
 
-    if (Integer.class == value.getClass()) {
-      result = (source.getRadix() == 10) ? 
-        Integer.toString(((Number) value).intValue()) :
-        "0x" + Integer.toHexString((Integer) value);
-    } else if (Long.class == value.getClass()) {
+    if (BigInteger.class != value.getClass()) {
+      throw new IllegalArgumentException(
+          "Unsuported constant value type: " + value.getClass().getSimpleName());
+    }
+
+    final BigInteger bi = (BigInteger) value;
+    final String result;
+    
+    if (bi.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0 && 
+        bi.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
       result = (source.getRadix() == 10) ?
-        Long.toString(((Number) value).longValue()) + "L" :
-        "0x"+ Long.toHexString(((Number) value).longValue()) + "L";
+          bi.toString(10) : "0x" + bi.toString(16);
+    } else if (bi.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) >= 0 && 
+        bi.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0) {
+      result = ((source.getRadix() == 10) ? 
+          bi.toString(10) : "0x" + bi.toString(16)) + "L";
     } else {
-      assert false : "Unsuported constant value type: " + value.getClass().getSimpleName();
-      result = value.toString();
+      throw new IllegalArgumentException("To large number " + bi);
     }
 
     return result;
@@ -312,6 +319,7 @@ final class CoercionFormatter {
   private static Map<Class<?>, String> createModelToNative() {
     final Map<Class<?>, String> result = new HashMap<Class<?>, String>();
 
+    result.put(BigInteger.class, "intValue");
     result.put(Integer.class, "intValue");
     result.put(Long.class, "longValue");
     result.put(Boolean.class, "booleanValue");

@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.api.data;
 
+import java.math.BigInteger;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -203,6 +204,10 @@ public final class DataEngine {
   public static int intValue(Data data) {
     checkConversionSupported(data.getType(), data.getType().getTypeId().name(), "int");
     return VALUE_CONVERTERS.get(data.getType().getTypeId()).toInt(data);
+  }
+  
+  public static BigInteger bigIntegerValue(Data data) {
+    return data.getRawData().bigIntegerValue(false);
   }
 
   public static boolean booleanValue(Data data) {

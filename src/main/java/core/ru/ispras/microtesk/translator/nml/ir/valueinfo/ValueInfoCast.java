@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.valueinfo;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.type.TypeId;
@@ -189,10 +190,9 @@ class NativeTypeCastRules {
   };
 
   private static final Class<?> CAST_TYPE_MAP[][] = {
-    {null,          int.class,  long.class, boolean.class},
-    {int.class,     int.class,  long.class, null},
-    {long.class,    long.class, long.class, null},
-    {boolean.class, null,       null,       boolean.class}
+    {null,             BigInteger.class, boolean.class},
+    {BigInteger.class, BigInteger.class, null},
+    {boolean.class,    null,             boolean.class}
   };
 
   public static Class<?> getCastType(Class<?> left, Class<?> right) {

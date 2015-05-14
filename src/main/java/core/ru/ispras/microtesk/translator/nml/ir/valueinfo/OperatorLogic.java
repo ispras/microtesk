@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.valueinfo;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -47,16 +48,10 @@ enum OperatorLogic {
     }),
 
   BIT_OR(Operator.BIT_OR, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left | (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left | (Long) right;
+        return ((BigInteger) left).or((BigInteger) right);
       }
     },
     new BinaryAction(Boolean.class) {
@@ -67,16 +62,10 @@ enum OperatorLogic {
     }),
 
   BIT_XOR(Operator.BIT_XOR, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left ^ (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left ^ (Long) right;
+        return ((BigInteger) left).xor((BigInteger) right);
       }
     },
     new BinaryAction(Boolean.class) {
@@ -87,16 +76,10 @@ enum OperatorLogic {
     }),
 
   BIT_AND(Operator.BIT_AND, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left & (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left & (Long) right;
+        return ((BigInteger) left).and((BigInteger) right);
       }
     },
     new BinaryAction(Boolean.class) {
@@ -108,16 +91,10 @@ enum OperatorLogic {
 
   EQ(Operator.EQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT, TypeId.BOOL),
     Boolean.class,
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left == (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left == (Long) right;
+        return left.equals(right);
       }
     },
     new BinaryAction(Boolean.class) {
@@ -129,16 +106,10 @@ enum OperatorLogic {
 
   NOT_EQ(Operator.NOT_EQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL),
     Boolean.class,
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left != (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left != (Long) right;
+        return !left.equals(right);
       }
     },
     new BinaryAction(Boolean.class) {
@@ -150,234 +121,146 @@ enum OperatorLogic {
 
   LEQ(Operator.LEQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
     Boolean.class,
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left <= (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left <= (Long) right;
+        return ((BigInteger) left).compareTo((BigInteger) right) <= 0;
       }
     }),
 
   GEQ(Operator.GEQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left >= (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left >= (Long) right;
+        return ((BigInteger) left).compareTo((BigInteger) right) >= 0;
       }
     }),
 
   LESS(Operator.LESS, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
     Boolean.class,
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left < (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left < (Long) right;
+        return ((BigInteger) left).compareTo((BigInteger) right) < 0;
       }
     }),
 
   GREATER(Operator.GREATER, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left > (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left > (Long) right;
+        return ((BigInteger) left).compareTo((BigInteger) right) > 0;
       }
     }),
 
   L_SHIFT(Operator.L_SHIFT, Arrays.asList(TypeId.CARD, TypeId.INT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left << (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left << (Long) right;
+        return ((BigInteger) left).shiftLeft(((BigInteger) right).intValue());
       }
     }),
 
   R_SHIFT(Operator.R_SHIFT, Arrays.asList(TypeId.CARD, TypeId.INT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left >> (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left >> (Long) right;
+        return ((BigInteger) left).shiftRight(((BigInteger) right).intValue());
       }
     }),
 
   L_ROTATE(Operator.L_ROTATE, Arrays.asList(TypeId.CARD, TypeId.INT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return Integer.rotateLeft((Integer) left, (Integer) right);
+        return Integer.rotateLeft(
+            ((BigInteger) left).intValue(), ((BigInteger) right).intValue());
       }
     }),
 
   R_ROTATE(Operator.R_ROTATE, Arrays.asList(TypeId.CARD, TypeId.INT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return Integer.rotateRight((Integer) left, (Integer) right);
+        return Integer.rotateRight(
+            ((BigInteger) left).intValue(), ((BigInteger) right).intValue());
       }
     }),
 
   PLUS(Operator.PLUS, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left + (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left + (Long) right;
+        return ((BigInteger) left).add((BigInteger) right);
       }
     }),
 
   MINUS(Operator.MINUS, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left - (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left - (Long) right;
+        return ((BigInteger) left).subtract((BigInteger) right);
       }
     }),
 
   MUL(Operator.MUL, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left * (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left * (Long) right;
+        return ((BigInteger) left).multiply(((BigInteger) right));
       }
     }),
 
   DIV(Operator.DIV, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left / (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left / (Long) right;
+        return ((BigInteger) left).divide((BigInteger) right);
       }
     }),
 
   MOD(Operator.MOD, Arrays.asList(TypeId.CARD, TypeId.INT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (Integer) left % (Integer) right;
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (Long) left % (Long) right;
+        return ((BigInteger) left).mod((BigInteger) right);
       }
     }),
 
   POW(Operator.POW, Arrays.asList(TypeId.CARD, TypeId.INT),
-    new BinaryAction(Integer.class) {
+    new BinaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object left, Object right) {
-        return (int) Math.pow((Integer) left, (Integer) right);
-      }
-    },
-    new BinaryAction(Long.class) {
-      @Override
-      public Object calculate(Object left, Object right) {
-        return (int) Math.pow((Long) left, (Long) right);
+        return ((BigInteger) left).pow(((BigInteger) right).intValue());
       }
     }),
 
   UPLUS(Operator.UPLUS, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
-    new UnaryAction(Integer.class) {
+    new UnaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object value) {
-        return (Integer) value;
-      }
-    },
-    new UnaryAction(Long.class) {
-      @Override
-      public Object calculate(Object value) {
-        return (Long) value;
+        return (BigInteger) value;
       }
     }),
 
   UMINUS(Operator.UMINUS, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
-    new UnaryAction(Integer.class) {
+    new UnaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object value) {
-        return -((Integer) value);
-      }
-    },
-    new UnaryAction(Long.class) {
-      @Override
-      public Object calculate(Object value) {
-        return -((Long) value);
+        return ((BigInteger) value).negate();
       }
     }),
 
   BIT_NOT(Operator.BIT_NOT, Arrays.asList(TypeId.CARD, TypeId.INT),
-    new UnaryAction(Integer.class) {
+    new UnaryAction(BigInteger.class) {
       @Override
       public Object calculate(Object value) {
-        return ~((Integer) value);
-      }
-    },
-    new UnaryAction(Long.class) {
-      @Override
-      public Object calculate(Object value) {
-        return ~((Long) value);
+        return ((BigInteger) value).not();
       }
     }),
 
   NOT(Operator.NOT, Arrays.asList(TypeId.BOOL),
-    new UnaryAction(Integer.class) {
+    new UnaryAction(Boolean.class) {
       @Override
       public Object calculate(Object value) {
         return !((Boolean) value);

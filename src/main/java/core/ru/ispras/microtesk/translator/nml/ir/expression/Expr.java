@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expression;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -91,10 +93,10 @@ public final class Expr {
    */
 
   public static Expr newConstant(int value) {
-    final SourceConstant source = new SourceConstant(value, 10);
+    final SourceConstant source = new SourceConstant(BigInteger.valueOf(value), 10);
     final NodeInfo nodeInfo = NodeInfo.newConst(source);
 
-    final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
+    final Data data = Data.newInteger(value);
     final Node node = new NodeValue(data);
 
     node.setUserData(nodeInfo);
@@ -161,7 +163,7 @@ public final class Expr {
   public int integerValue() {
     final ValueInfo vi = getValueInfo();
 
-    if (vi.isConstant() && vi.isNativeOf(Integer.class)) {
+    if (vi.isConstant() && vi.isNativeOf(BigInteger.class)) {
       return ((Number) vi.getNativeValue()).intValue();
     }
 

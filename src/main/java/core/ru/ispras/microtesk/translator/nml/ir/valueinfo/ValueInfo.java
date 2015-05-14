@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.ir.valueinfo;
 
+import java.math.BigInteger;
+
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -392,7 +394,7 @@ final class ValueInfoNative extends ValueInfo {
   }
 
   private static boolean isSupportedType(Class<?> type) {
-    return (type == Integer.class) || (type == Long.class) || (type == Boolean.class);
+    return (type == BigInteger.class) || (type == Boolean.class);
   }
 
   @Override

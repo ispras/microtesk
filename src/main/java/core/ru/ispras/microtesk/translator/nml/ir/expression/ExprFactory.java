@@ -36,7 +36,6 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedConstant;
-import ru.ispras.microtesk.translator.nml.errors.ValueParsingFailure;
 
 import ru.ispras.microtesk.translator.nml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
@@ -85,13 +84,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final LetConstant source = getIR().getConstants().get(name);
-    final NodeInfo nodeInfo = NodeInfo.newNamedConst(source);
-
-    final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
-    final Node node = new NodeValue(data);
-
-    node.setUserData(nodeInfo);
-    return new Expr(node);
+    return source.getExpr();
   }
 
 
@@ -113,20 +106,9 @@ public final class ExprFactory extends WalkerFactoryBase {
     checkNotNull(text);
 
     final BigInteger bi = new BigInteger(text, radix);
+    final NodeInfo nodeInfo = NodeInfo.newConst(new SourceConstant(bi, radix));
 
-    final SourceConstant source;
-    if (bi.bitLength() <= Integer.SIZE) {
-      source = new SourceConstant(bi.intValue(), radix);
-    } else if (bi.bitLength() <= Long.SIZE) {
-      source = new SourceConstant(bi.longValue(), radix);
-    } else {
-      raiseError(w, new ValueParsingFailure(text, "Java integer"));
-      source = null; // Will never be reached
-    }
-
-    final NodeInfo nodeInfo = NodeInfo.newConst(source);
-
-    final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
+    final Data data = Data.newInteger(bi);
     final Node node = new NodeValue(data);
 
     node.setUserData(nodeInfo);
@@ -403,7 +385,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, ERR_NOT_STATIC);
     }
 
-    if (!srcValueInfo.isNativeOf(Integer.class)) {
+    if (!srcValueInfo.isNativeOf(BigInteger.class)) {
       raiseError(w, ERR_NOT_CONST_INTEGER);
     }
 
@@ -429,8 +411,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     checkNotNull(src);
 
     final ValueInfo srcValueInfo = src.getValueInfo();
-    if (srcValueInfo.isNativeOf(Integer.class) ||
-        srcValueInfo.isNativeOf(Long.class)    ||
+    if (srcValueInfo.isNativeOf(BigInteger.class) ||
         srcValueInfo.isModelOf(TypeId.CARD)    ||
         srcValueInfo.isModelOf(TypeId.INT)) {
       return src;
@@ -498,17 +479,14 @@ public final class ExprFactory extends WalkerFactoryBase {
       return src;
     }
 
-    if (!srcValueInfo.isNativeOf(Integer.class) && !srcValueInfo.isNativeOf(Long.class)) {
+    if (!srcValueInfo.isNativeOf(BigInteger.class)) {
       raiseError(w, String.format(ERR_NOT_LOCATION_COMPATIBLE, srcValueInfo.getTypeName()));
     }
 
     final int size;
     if (srcValueInfo.isConstant()) {
-      final Number value = (Number) srcValueInfo.getNativeValue();
-
-      final int usedSize = (Integer.class == value.getClass()) ?
-        Integer.SIZE - Integer.numberOfLeadingZeros(value.intValue()) :
-        Long.SIZE - Long.numberOfLeadingZeros(value.longValue());
+      final BigInteger value = (BigInteger) srcValueInfo.getNativeValue();
+      final int usedSize =  value.bitLength();
 
       int adjustedSize = 1;
       while (adjustedSize < usedSize) {
@@ -516,7 +494,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       }
       size = adjustedSize;
     } else {
-      size = (Integer.class == srcValueInfo.getNativeType()) ? Integer.SIZE : Long.SIZE;
+      size = Integer.SIZE;
     }
 
     final Type type = Type.INT(size);
@@ -544,7 +522,7 @@ public final class ExprFactory extends WalkerFactoryBase {
   private static final String ERR_NOT_STATIC = "The expression cannot be statically calculated.";
 
   private static final String ERR_NOT_CONST_INTEGER =
-      "The expression cannot be used to specify size since it cannot be evaluated to an integer constant (int).";
+      "The expression cannot be used to specify size since it cannot be evaluated to an integer constant.";
 
   private static final String ERR_NOT_INDEX =
       "The expression cannot be used as an index since it is not an integer value.";

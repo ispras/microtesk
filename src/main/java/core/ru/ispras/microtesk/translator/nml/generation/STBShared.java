@@ -278,7 +278,7 @@ final class STBShared implements ITemplateBuilder {
 
     buildHeader(t);
     buildLetStrings(group, t);
-    buildLetConstants(group, t);
+    //buildLetConstants(group, t);
     buildTypes(group, t);
     buildMemory(group, t);
     buildLabels(group, t);
