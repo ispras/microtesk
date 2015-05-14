@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.valueinfo;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.expression.Operands;
 
 abstract class Action {
@@ -21,13 +22,8 @@ abstract class Action {
   private final int operands;
 
   public Action(Class<?> type, Operands operands) {
-    if (null == type) {
-      throw new NullPointerException();
-    }
-
-    if (null == operands) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(operands);
 
     this.type = type;
     this.operands = operands.count();
