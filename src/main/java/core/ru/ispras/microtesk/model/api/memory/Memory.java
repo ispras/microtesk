@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
