@@ -135,6 +135,20 @@ public final class PrinterExpr {
 
     return result;
   }
+  
+  public static String bigIntegerToHexString(final BigInteger bi) {
+    if (bi.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0 && 
+        bi.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
+      return "0x" + bi.toString(16);
+    }
+
+    if (bi.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) >= 0 && 
+        bi.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0) {
+      return "0x" + bi.toString(16) + "L";
+    }
+
+    return String.format("new BigInteger(\"%s\", 16)", bi.toString(16));
+  }
 
   private String namedConstToString(LetConstant source) {
     return source.getName();
