@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.state;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -115,11 +117,5 @@ public final class ModelStateObserver implements IModelStateObserver {
   @Override
   public int getControlTransferStatus() {
     return controlTransfer.get();
-  }
-
-  private static void checkNotNull(Object o) {
-    if (o == null) {
-      throw new NullPointerException();
-    }
   }
 }
