@@ -134,6 +134,11 @@
     </sequential>
   </macrodef>
 
+  <!-- Initialize project-specific properties -->
+  <target name="init.project">
+    <property name="distr.exe.file.mask" value="**/*.sh"/>
+  </target>
+
   <!-- Packs sources -->
   <target name="pack.src.tgz" depends="init">
     <fileset dir="${basedir}" id="src.src">
