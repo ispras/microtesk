@@ -48,6 +48,11 @@ public final class TestEngine {
   private boolean printToScreen = true;
   private String commentToken = "// ";
 
+  private static int executionLimit = 200;
+  public static void setExecutionLimit(int value) {
+    executionLimit = value;
+  }
+
   private TestEngine(IModel model) {
     checkNotNull(model);
     this.model = model;
@@ -105,7 +110,7 @@ public final class TestEngine {
 
   public Template newTemplate() throws IOException {
     final IModelStateObserver observer = model.getStateObserver();
-    final Executor executor = new Executor(observer, logExecution);
+    final Executor executor = new Executor(observer, logExecution, executionLimit);
     final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
 
     final DataManager dataManager = new DataManager();

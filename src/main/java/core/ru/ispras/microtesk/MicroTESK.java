@@ -43,6 +43,7 @@ public final class MicroTESK {
     public static final String VERBOSE = "v";
     public static final String RANDOM = "r";
     public static final String SOLVER = "s";
+    public static final String LIMIT = "l";
 
     private static final Options options = newOptions();
 
@@ -62,6 +63,7 @@ public final class MicroTESK {
       result.addOption(OUTDIR, "dir", true, "Sets where to place generated files" + TOPT);
       result.addOption(RANDOM, "random", true, "Sets seed for randomizer" + GOPT);
       result.addOption(SOLVER, "solver", true, "Sets constraint solver engine to be used" + GOPT);
+      result.addOption(LIMIT, "execution limit", true, "Sets the limit on control transfers to detect endless loops" + GOPT);
 
       result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
       return result;
@@ -127,7 +129,7 @@ public final class MicroTESK {
     }
   }
 
-  private static void generate(CommandLine params) {
+  private static void generate(CommandLine params) throws Throwable {
     final TestProgramGenerator generator = new TestProgramGenerator();
 
     if (params.hasOption(Parameters.RANDOM)) {
@@ -142,6 +144,16 @@ public final class MicroTESK {
 
     if (params.hasOption(Parameters.SOLVER)) {
       generator.setSolver(params.getOptionValue(Parameters.SOLVER));
+    }
+
+    if (params.hasOption(Parameters.LIMIT)) {
+      final String limitStr = params.getOptionValue(Parameters.LIMIT);
+      try {
+        final int limitVal = Integer.parseInt(limitStr);
+        generator.setExecutionLimit(limitVal);
+      } catch (NumberFormatException e) {
+        Logger.warning("Failed to parse the value of the -l parameter: " + limitStr);
+      }
     }
 
     final String[] args = params.getArgs();

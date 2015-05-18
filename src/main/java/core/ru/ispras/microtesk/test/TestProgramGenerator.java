@@ -63,6 +63,10 @@ public final class TestProgramGenerator {
     return randomSeed;
   }
 
+  public void setExecutionLimit(int executionLimit) {
+    TestEngine.setExecutionLimit(executionLimit);
+  }
+
   public void setSolver(final String solverName) {
     if ("z3".equalsIgnoreCase(solverName)) {
       TestBase.setSolverId(SolverId.Z3_TEXT);
@@ -73,23 +77,34 @@ public final class TestProgramGenerator {
     }
   }
 
-  public void generate(final List<String> templateFiles) {
-    for (final String template : templateFiles) {
-      if (null != fileName && !fileName.isEmpty()) {
-        runTemplate(modelName, template, fileName);
-      } else {
-        runTemplate(modelName, template);
+  public void generate(final List<String> templateFiles) throws Throwable {
+    try {
+      for (final String template : templateFiles) {
+        if (null != fileName && !fileName.isEmpty()) {
+          runTemplate(modelName, template, fileName);
+        } else {
+          runTemplate(modelName, template);
+        }
       }
+    } catch (GenerationAbortedException e) {
+      Logger.error(e.getMessage());
     }
   }
 
-  private static void runTemplate(final String... argv) {
+  private static void runTemplate(final String... argv) throws Throwable {
     final ScriptingContainer container = new ScriptingContainer();
 
     final String scriptsPath = String.format(
         "%s/lib/ruby/microtesk.rb", System.getenv("MICROTESK_HOME"));
 
     container.setArgv(argv);
-    container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
+
+    try {
+      container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
+    } catch(org.jruby.embed.EvalFailedException e) {
+      // JRuby wraps exceptions that occur in Java libraries it calls into
+      // EvalFailedException. To handle them correctly, we need to unwrap them.
+      throw e.getCause();
+    }
   }
 }

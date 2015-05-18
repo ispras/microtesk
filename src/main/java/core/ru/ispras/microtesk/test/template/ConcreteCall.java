@@ -27,8 +27,11 @@ public final class ConcreteCall {
   private final InstructionCall executable;
 
   private String text = null;
+  private int executionCount = 0;
 
-  public ConcreteCall(Call abstractCall, InstructionCall executable) {
+  public ConcreteCall(
+      final Call abstractCall,
+      final InstructionCall executable) {
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(executable);
 
@@ -40,7 +43,7 @@ public final class ConcreteCall {
     resetText();
   }
 
-  public ConcreteCall(Call abstractCall) {
+  public ConcreteCall(final Call abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
     this.labels = abstractCall.getLabels();
@@ -51,7 +54,7 @@ public final class ConcreteCall {
     resetText();
   }
 
-  public ConcreteCall(InstructionCall executable) {
+  public ConcreteCall(final InstructionCall executable) {
     InvariantChecks.checkNotNull(executable);
 
     this.labels = Collections.<Label>emptyList();
@@ -69,14 +72,19 @@ public final class ConcreteCall {
   public void execute() {
     if (isExecutable()) {
       executable.execute();
+      ++executionCount;
     }
+  }
+
+  public int getExecutionCount() {
+    return executionCount;
   }
 
   public String getText() {
     return text;
   }
 
-  public void setText(String text) {
+  public void setText(final String text) {
     InvariantChecks.checkNotNull(text);
     this.text = text;
   }

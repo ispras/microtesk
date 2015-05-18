@@ -37,6 +37,7 @@ import ru.ispras.microtesk.utils.PrintingUtils;
 final class Executor {
   private final IModelStateObserver observer;
   private final boolean logExecution;
+  private final int executionLimit;
 
   private List<LabelReference> labelRefs;
 
@@ -46,14 +47,18 @@ final class Executor {
    * @param observer Model state observer to evaluate simulation-time outputs.
    * @param logExecution Specifies whether printing to the simulator log is enabled.
    * 
-   * @throws NullPointerException if the {@code observer} parameter is {@code null}.
+   * @throws IllegalArgumentException if the {@code observer} parameter is {@code null}.
    */
 
-  public Executor(IModelStateObserver observer, boolean logExecution) {
+  public Executor(
+      final IModelStateObserver observer,
+      final boolean logExecution,
+      final int executionLimit) {
     checkNotNull(observer);
 
     this.observer = observer;
     this.logExecution = logExecution;
+    this.executionLimit = executionLimit;
     this.labelRefs = null;
   }
 
@@ -63,14 +68,15 @@ final class Executor {
    * 
    * @param sequence Sequence of executable (concrete) instruction calls.
    * 
-   * @throws NullPointerException if the parameter is {@code null}.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    * @throws ConfigurationException if during the interaction with the microprocessor model an error
    *         caused by an invalid format of the request has occurred (typically, it happens when
    *         evaluating an {@link Output} object causes an invalid request to the model state
    *         observer).
    */
 
-  public void executeSequence(TestSequence sequence) throws ConfigurationException {
+  public void executeSequence(
+      final TestSequence sequence) throws ConfigurationException {
     final List<ConcreteCall> prologue = sequence.getPrologue();
     if (!prologue.isEmpty()) {
       logText("Initialization:\r\n");
@@ -81,7 +87,8 @@ final class Executor {
     executeSequence(sequence.getBody());
   }
 
-  private void executeSequence(List<ConcreteCall> sequence) throws ConfigurationException {
+  private void executeSequence(
+      final List<ConcreteCall> sequence) throws ConfigurationException {
     checkNotNull(sequence);
 
     // Remembers all labels defined by the sequence and its positions.
@@ -132,6 +139,14 @@ final class Executor {
 
     while (currentPos < endPos) {
       final ConcreteCall call = sequence.get(currentPos);
+
+      if (executionLimit > 0 && call.getExecutionCount() >= executionLimit) {
+        throw new GenerationAbortedException(String.format(
+            "Instruction %s reached its limit on execution count (%d). " +
+            "Probably, the program entered an endless loop. Generation was aborted.",
+            call.getText(), executionLimit));
+      }
+
       currentPos = executeCall(call, currentPos);
     }
   }
@@ -151,7 +166,7 @@ final class Executor {
    *         instruction call.
    */
 
-  private int executeCall(ConcreteCall call, int currentPos)
+  private int executeCall(final ConcreteCall call, final int currentPos)
       throws ConfigurationException {
     logOutputs(call.getOutputs());
 
@@ -202,15 +217,16 @@ final class Executor {
    * 
    * @param o List of {@link Output} objects.
    * 
-   * @throws NullPointerException if the parameter is {@code null}.
-   * @throws ConfigurationException if failed to evaluate the information in an Output object due to
-   *         an incorrect request to the model state observer.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
+   * @throws ConfigurationException if failed to evaluate the information in an Output
+   *         object due to an incorrect request to the model state observer.
    */
 
-  private void logOutputs(List<Output> outputs) throws ConfigurationException {
+  private void logOutputs(
+      final List<Output> outputs) throws ConfigurationException {
     checkNotNull(outputs);
 
-    for (Output output : outputs) {
+    for (final Output output : outputs) {
       if (output.isRuntime()) {
         logText(output.evaluate(observer));
       }
@@ -223,7 +239,7 @@ final class Executor {
    * @param text Text to be printed.
    */
 
-  public void logText(String text) {
+  public void logText(final String text) {
     if (logExecution && text != null) {
       PrintingUtils.trace(text);
     }
