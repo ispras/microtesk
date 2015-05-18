@@ -40,7 +40,7 @@ public final class Format {
   }
 
   public static Argument createArgument(Expr expr, Argument left, Argument right) {
-    return new StringBasedTermaryArgument(expr, left, right);
+    return new TermaryConditionalArgument(expr, left, right);
   }
 
   private static final class ExprBasedArgument implements Argument {
@@ -195,12 +195,12 @@ public final class Format {
     }
   }
 
-  private static final class StringBasedTermaryArgument implements Argument {
+  private static final class TermaryConditionalArgument implements Argument {
     private final Expr expr;
     private final Argument left;
     private final Argument right;
 
-    private StringBasedTermaryArgument(Expr expr, Argument left, Argument right) {
+    private TermaryConditionalArgument(Expr expr, Argument left, Argument right) {
       this.expr = expr;
       this.left = left;
       this.right = right;
