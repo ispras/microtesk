@@ -249,8 +249,7 @@ formatIdList
 
 formatId
     :  STRING_CONST
-    |  IF expr THEN STRING_CONST ELSE STRING_CONST ENDIF ->
-           ^(SIF expr STRING_CONST ELSE STRING_CONST)
+    |  IF expr THEN formatId ELSE formatId ENDIF -> ^(SIF expr formatId ELSE formatId)
     |  expr
     |  ID DOT^ attributeFormatCall
     |  instance DOT attributeFormatCall -> ^(INSTANCE_CALL instance attributeFormatCall)

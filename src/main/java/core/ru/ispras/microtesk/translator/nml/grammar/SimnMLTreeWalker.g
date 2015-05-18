@@ -423,9 +423,9 @@ formatId returns [Format.Argument res]
 {
 $res = Format.createArgument($str.text);
 }
-    | ^(SIF cond=logicExpr str1=STRING_CONST ELSE str2=STRING_CONST)
+    | ^(SIF cond=logicExpr left=formatId ELSE right=formatId)
 {
-$res = Format.createArgument($cond.res, $str1.text, $str2.text);
+$res = Format.createArgument($cond.res, $left.res, $right.res);
 }
     | e=dataExpr
 {
