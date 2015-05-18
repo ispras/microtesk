@@ -245,7 +245,8 @@ formatIdList
     ;
 
 formatId
-    :  expr
+    :  STRING_CONST
+    |  expr
     |  ID DOT^ attributeFormatCall
     |  instance DOT attributeFormatCall -> ^(INSTANCE_CALL instance attributeFormatCall)
     ;

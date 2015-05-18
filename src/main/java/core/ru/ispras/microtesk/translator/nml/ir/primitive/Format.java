@@ -27,6 +27,10 @@ public final class Format {
     public String convertTo(FormatMarker kind);
   }
 
+  public static Argument createArgument(String str) {
+    return new StringBasedArgument(str);
+  }
+
   public static Argument createArgument(Expr expr) {
     return new ExprBasedArgument(expr);
   }
@@ -165,6 +169,25 @@ public final class Format {
       }
 
       return String.format("Integer.valueOf(%s, 2)", getCallText());
+    }
+  }
+
+  private static final class StringBasedArgument implements Argument {
+    private final String string;
+
+    private StringBasedArgument(String string) {
+      this.string = string;
+    }
+
+    @Override
+    public boolean isConvertibleTo(FormatMarker kind) {
+      return FormatMarker.STR == kind;
+    }
+
+    @Override
+    public String convertTo(FormatMarker marker) {
+      assert isConvertibleTo(marker);
+      return String.format("\"%s\"", string);
     }
   }
 }

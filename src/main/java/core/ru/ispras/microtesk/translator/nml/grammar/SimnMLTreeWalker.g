@@ -419,7 +419,11 @@ formatIdList returns [List<Format.Argument> res]
     ;
 
 formatId returns [Format.Argument res]
-    :  e=dataExpr
+    : str=STRING_CONST
+{
+$res = Format.createArgument($str.text);
+}
+    | e=dataExpr
 {
 $res = Format.createArgument($e.res);
 }
