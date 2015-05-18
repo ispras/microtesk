@@ -64,6 +64,7 @@ catch (RecognitionException re) { // Default behavior
 
 package ru.ispras.microtesk.translator.nml.grammar;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
@@ -569,8 +570,10 @@ $res = StatementCondition.Block.newElseBlock($stmts.res);
 functionCallStatement returns [List<Statement> res]
     :  ^(id=EXCEPTION str=STRING_CONST)
 {
-$res = Collections.singletonList(
-    getStatementFactory().createExceptionCall(where($id), $str.text));
+$res = Arrays.asList(
+    getStatementFactory().createMark(where($id), String.format("exception.\%s", $str.text)),
+    getStatementFactory().createExceptionCall(where($id), $str.text)
+    );
 }
     |  ^(id=TRACE fs=STRING_CONST (fargs=formatIdList)?)
 {
