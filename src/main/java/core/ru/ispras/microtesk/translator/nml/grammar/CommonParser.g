@@ -44,9 +44,12 @@ tokens {
   INSTANCE;
   // Call to the 'action' attribute of a statically instantiated MODE or OP 
   INSTANCE_CALL;
-  
+
   // Argument of a MODE or OP.
   ARGUMENT;
+
+  // Ternary 'if' expression for string format expressions
+  SIF;
 }
 
 //==================================================================================================
@@ -246,6 +249,8 @@ formatIdList
 
 formatId
     :  STRING_CONST
+    |  IF expr THEN STRING_CONST ELSE STRING_CONST ENDIF ->
+           ^(SIF expr STRING_CONST ELSE STRING_CONST)
     |  expr
     |  ID DOT^ attributeFormatCall
     |  instance DOT attributeFormatCall -> ^(INSTANCE_CALL instance attributeFormatCall)

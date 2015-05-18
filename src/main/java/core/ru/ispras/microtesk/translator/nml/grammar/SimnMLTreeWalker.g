@@ -423,6 +423,10 @@ formatId returns [Format.Argument res]
 {
 $res = Format.createArgument($str.text);
 }
+    | ^(SIF cond=logicExpr str1=STRING_CONST ELSE str2=STRING_CONST)
+{
+$res = Format.createArgument($cond.res, $str1.text, $str2.text);
+}
     | e=dataExpr
 {
 $res = Format.createArgument($e.res);
@@ -682,7 +686,7 @@ expr [ValueInfo.Kind target, int depth] returns [Expr res]
 
 nonNumExpr [ValueInfo.Kind target, int depth] returns [Expr res]
 @after {$res = $e.res;}
-    : e=ifExpr[target, depth]	
+    : e=ifExpr[target, depth]
     ;
 
 ifExpr [ValueInfo.Kind target, int depth] returns [Expr res]

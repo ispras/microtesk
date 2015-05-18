@@ -39,6 +39,10 @@ public final class Format {
     return new AttributeCallBasedArgument(call);
   }
 
+  public static Argument createArgument(Expr expr, String left, String right) {
+    return new StringBasedTermaryArgument(expr, left, right);
+  }
+
   private static final class ExprBasedArgument implements Argument {
     private final Expr expr;
 
@@ -190,4 +194,28 @@ public final class Format {
       return String.format("\"%s\"", string);
     }
   }
+
+  private static final class StringBasedTermaryArgument implements Argument {
+    private final Expr expr;
+    private final String left;
+    private final String right;
+
+    private StringBasedTermaryArgument(Expr expr, String left, String right) {
+      this.expr = expr;
+      this.left = left;
+      this.right = right;
+    }
+
+    @Override
+    public boolean isConvertibleTo(FormatMarker kind) {
+      return FormatMarker.STR == kind;
+    }
+
+    @Override
+    public String convertTo(FormatMarker kind) {
+      assert isConvertibleTo(kind);
+      return String.format("%s ? \"%s\" : \"%s\"", new PrinterExpr(expr), left, right);
+    }
+  }
 }
+
