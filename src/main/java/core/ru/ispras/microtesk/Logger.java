@@ -100,9 +100,7 @@ public class Logger {
     print("\r\nWe are sorry for the inconvenience.");
     if (null != e) {
       print("\r\nException stack:\r\n");
-      for (StackTraceElement ste : e.getStackTrace()) {
-        print(ste.toString());
-      }
+      e.printStackTrace(System.out);
     }
     print(makeBar('*', LINE_WIDTH));
   }

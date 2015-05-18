@@ -46,25 +46,12 @@ def self.main
 
   template_classes = prepare_template_classes(model, template_file)
   template_classes.each do |template_class, template_class_file|
-    begin
-      if template_class_file.eql?(template_file)
-        puts "Processing template #{template_class} defined in #{template_class_file}..." 
-        template = template_class.new
-        template.generate output_file
-      end
-    rescue Exception => e
-      if e.is_a?(MTRubyError)
-        puts "#{e.class}:\n#{e.message}"
-      end
-      if e.respond_to?(:printStackTrace)
-        e.printStackTrace
-      end
-      if !(e.is_a?(MTRubyError))
-        raise e
-      end
+    if template_class_file.eql?(template_file)
+      puts "Processing template #{template_class} defined in #{template_class_file}..." 
+      template = template_class.new
+      template.generate output_file
     end
   end
-
 end
 
 def self.check_arguments
