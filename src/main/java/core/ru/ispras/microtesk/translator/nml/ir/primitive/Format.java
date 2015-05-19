@@ -14,6 +14,11 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import java.util.Deque;
+import java.util.EmptyStackException;
+import java.util.LinkedList;
+
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.nml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.nml.generation.PrinterInstance;
@@ -37,10 +42,6 @@ public final class Format {
 
   public static Argument createArgument(StatementAttributeCall call) {
     return new AttributeCallBasedArgument(call);
-  }
-
-  public static Argument createArgument(Expr expr, Argument left, Argument right) {
-    return new TermaryConditionalArgument(expr, left, right);
   }
 
   private static final class ExprBasedArgument implements Argument {
@@ -195,12 +196,12 @@ public final class Format {
     }
   }
 
-  private static final class TermaryConditionalArgument implements Argument {
+  private static final class TernaryConditionalArgument implements Argument {
     private final Expr expr;
     private final Argument left;
     private final Argument right;
 
-    private TermaryConditionalArgument(Expr expr, Argument left, Argument right) {
+    private TernaryConditionalArgument(Expr expr, Argument left, Argument right) {
       this.expr = expr;
       this.left = left;
       this.right = right;
@@ -218,5 +219,33 @@ public final class Format {
           new PrinterExpr(expr), left.convertTo(kind), right.convertTo(kind));
     }
   }
-}
 
+  public static final class ConditionBuilder {
+    private final Deque<Pair<Expr, Argument>> conditions;
+
+    public ConditionBuilder() {
+      this.conditions = new LinkedList<>();
+    }
+
+    public void addCondition(Expr expr, Argument argument) {
+      if (null == expr) {
+        expr = Expr.CONST_ONE; // Fake value to be ignored.
+      }
+      conditions.push(new Pair<>(expr, argument));
+    }
+
+    public Argument build() {
+      if (conditions.isEmpty()) {
+        throw new EmptyStackException();
+      }
+
+      Argument result = conditions.pop().second;
+      while (!conditions.isEmpty()) {
+        final Pair<Expr, Argument> cond = conditions.pop();
+        result = new TernaryConditionalArgument(cond.first, cond.second, result);
+      }
+
+      return result;
+    }
+  }
+}

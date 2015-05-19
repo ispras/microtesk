@@ -423,9 +423,12 @@ formatId returns [Format.Argument res]
 {
 $res = Format.createArgument($str.text);
 }
-    | ^(SIF cond=logicExpr left=formatId ELSE right=formatId)
+    | ^(SIF  {final Format.ConditionBuilder builder = new Format.ConditionBuilder();}
+       c1=logicExpr e1=formatId            {builder.addCondition($c1.res, $e1.res);}
+       (^(ELSEIF c2=logicExpr e2=formatId) {builder.addCondition($c2.res, $e2.res);})*
+       ELSE e3=formatId)                   {builder.addCondition(null,    $e3.res);}
 {
-$res = Format.createArgument($cond.res, $left.res, $right.res);
+$res = builder.build();
 }
     | e=dataExpr
 {
