@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
-  <commands>
-  </commands>
+  <options>
+    <option
+       id="9AD518D3-2F97-4BF7-B270-98B2B8BC0B99"
+       name="include"
+       info="Sets include files directories"
+       value=""
+       />
+    <option
+       id="A0202C32-53CA-4736-82D4-8820E37336C2"
+       name="dir"
+       info="Sets where to place generated files"
+       value=""
+       />
+    <option
+       id="414C51B6-328E-42CA-B525-39B3DF65C2F8"
+       name="random-seed"
+       info="Sets seed for random generator"
+       value="0"
+       />
+    <option
+       id="1E7A1676-E13D-4AFA-9789-E1B9CC877931"
+       name="execution-limit"
+       info="Sets limit on execution count for instructions to detect endless loops"
+       value="200"
+       />
+    <option
+       id="1E2551D3-165A-4F1B-A6D3-3FA8144D4236"
+       name="solver"
+       info="Sets constraint solver engine to be used"
+       value="CVC4"
+       />
+  </options>
 </settings>
