@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.ir.location;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import ru.ispras.microtesk.translator.nml.ESymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -256,11 +258,5 @@ public final class LocationAtom implements Location {
     }
 
     return true;
-  }
-  
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
   }
 }
