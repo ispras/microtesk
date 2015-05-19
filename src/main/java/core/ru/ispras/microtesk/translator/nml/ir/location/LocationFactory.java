@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.ir.location;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -196,12 +198,6 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     return symbol;
-  }
-
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
   }
 }
 
