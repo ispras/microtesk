@@ -834,6 +834,10 @@ else
 {
 $res = $la.res;
 }
+    |  ^(LOCATION_REPEAT count=constExpr value=locationVal)
+{
+$res = getLocationFactory().repeat(where($count.start), $count.res, $value.res);
+}
     ;
 
 locationAtom returns [LocationAtom res]

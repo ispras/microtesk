@@ -50,6 +50,10 @@ public final class PrinterLocation {
       );
     }
 
+    if (location.getRepeatCount() > 1) {
+      sb.append(String.format(".repeat(%d)", location.getRepeatCount()));
+    }
+
     return sb.toString();
   }
 

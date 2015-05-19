@@ -190,6 +190,10 @@ public final class LocationFactory extends WalkerFactoryBase {
     return new LocationConcat(concatType, concatenated);
   }
 
+  public LocationAtom repeat(Where w, Expr count, LocationAtom value) {
+    return value.repeat(count.integerValue());
+  }
+
   private ISymbol findSymbol(Where where, String name) throws SemanticException {
     final ISymbol symbol = getSymbols().resolve(name);
 

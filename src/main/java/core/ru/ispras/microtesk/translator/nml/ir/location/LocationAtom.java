@@ -162,10 +162,25 @@ public final class LocationAtom implements Location {
 
   private final String name;
   private final Source source;
+  private final Type type;
   private final Expr index;
   private final Bitfield bitfield;
+  private final int repeatCount;
 
-  private LocationAtom(String name, Source source, Expr index, Bitfield bitfield) {
+  private LocationAtom(
+      final String name,
+      final Source source,
+      final Expr index,
+      final Bitfield bitfield) {
+    this(name, source, index, bitfield, 1);
+  }
+
+  private LocationAtom(
+      final String name,
+      final Source source,
+      final Expr index,
+      final Bitfield bitfield,
+      final int repeatCount) {
     checkNotNull(name);
     checkNotNull(source);
 
@@ -173,6 +188,10 @@ public final class LocationAtom implements Location {
     this.source = source;
     this.index = index;
     this.bitfield = bitfield;
+    this.repeatCount = repeatCount;
+
+    final Type sourceType = null != bitfield ? bitfield.getType() : source.getType();
+    this.type = sourceType.resize(sourceType.getBitSize() * repeatCount);
   }
 
   static LocationAtom createMemoryBased(String name, MemoryExpr memory, Expr index) {
@@ -202,6 +221,16 @@ public final class LocationAtom implements Location {
     );
   }
 
+  LocationAtom repeat(final int count) {
+    return new LocationAtom(
+        name,
+        source,
+        index,
+        bitfield,
+        repeatCount * count
+        );
+  }
+
   public String getName() {
     return name;
   }
@@ -212,10 +241,7 @@ public final class LocationAtom implements Location {
 
   @Override
   public Type getType() {
-    if (null != bitfield) {
-      return bitfield.getType();
-    }
-    return source.getType();
+    return type;
   }
 
   public Expr getIndex() {
@@ -224,6 +250,10 @@ public final class LocationAtom implements Location {
 
   public Bitfield getBitfield() {
     return bitfield;
+  }
+
+  public int getRepeatCount() {
+    return repeatCount;
   }
 
   @Override
@@ -254,6 +284,10 @@ public final class LocationAtom implements Location {
     }
 
     if (null != bitfield && !bitfield.equals(other.bitfield)) {
+      return false;
+    }
+
+    if (repeatCount != other.repeatCount) {
       return false;
     }
 

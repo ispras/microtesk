@@ -33,6 +33,8 @@ tokens {
   LOCATION_INDEX;
   // Access to a location's bit field (e.g. GPR[0]<0..8>).
   LOCATION_BITFIELD;
+  // Repeat a location N times (e.g. {4}X<0..8>). 
+  LOCATION_REPEAT;
 
   // Reference to a LET constant (used as an expression atom).
   CONST;
@@ -219,6 +221,7 @@ locationExpr
     otherwise we leave it as it is. */
 locationVal
     :  locationAtom (bitFieldExpr -> ^(LOCATION_BITFIELD locationAtom bitFieldExpr) | -> locationAtom)
+    |  LEFT_BRACE expr RIGHT_BRACE locationVal -> ^(LOCATION_REPEAT expr locationVal)
     ;
 
 locationAtom
