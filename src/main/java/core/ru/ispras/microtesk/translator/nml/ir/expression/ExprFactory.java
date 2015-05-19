@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expression;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull; 
+
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -504,12 +506,6 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     src.setNodeInfo(newNodeInfo);
     return src;
-  }
-
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
   }
 
   private static final String ERR_UNSUPPORTED_OPERATOR = "The %s operator is not supported.";
