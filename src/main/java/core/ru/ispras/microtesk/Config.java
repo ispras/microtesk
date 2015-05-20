@@ -18,8 +18,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,7 +33,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
 
@@ -45,6 +45,21 @@ public final class Config {
   private static final String         PLUGIN = "plugin";
   private static final String          CLASS = "class";
   private static final String  SETTINGS_PATH = "/etc/settings.xml";
+  private static final String       SETTINGS = "settings";
+  private static final String        SETTING = "setting";
+  private static final String      ATTR_NAME = "name";
+  private static final String     ATTR_VALUE = "value";
+
+  private static final String ERR_ATTRIBUTE_NOT_DEFINED =
+      "The %s attribute is not defined for a plugin in %s.";
+
+  private static final String ERR_SETTINGS_FILE_NOT_EXIST =
+      "The configuration file %s does not exist or is not a file.";
+
+  private static final String ERR_NO_ROOT_NODE =
+      "Document %s contains no root node called %s.";
+
+  private static final String ERR_FAILED_TO_PARSE = "Failed to parse %s.";
 
   public static String getHomePath() {
     return System.getenv().get(MICROTESK_HOME);
@@ -58,13 +73,13 @@ public final class Config {
 
     final Document configDocument = parseDocument(configUrl);
     if (null == configDocument) {
-      throw new IllegalStateException(String.format("Failed to parse %s.", CONFIG_URL));
+      throw new IllegalStateException(String.format(ERR_FAILED_TO_PARSE, CONFIG_URL));
     }
 
     final Node config = configDocument.getFirstChild();
-    if (!"config".equalsIgnoreCase((config.getNodeName()))) {
+    if (!CONFIG.equalsIgnoreCase((config.getNodeName()))) {
       throw new IllegalStateException(String.format( 
-          "Document %s contains no root node called %s.", CONFIG_URL, CONFIG));
+          ERR_NO_ROOT_NODE, CONFIG_URL, CONFIG));
     }
 
     final List<Translator<?>> result = new ArrayList<>();
@@ -81,7 +96,7 @@ public final class Config {
       final Node className = attributes.getNamedItem(CLASS);
       if (null == className) {
         throw new IllegalStateException(String.format(
-            "The %s attribute is not defined for a plugin in %s.", CLASS, CONFIG_URL));
+            ERR_ATTRIBUTE_NOT_DEFINED, CLASS, CONFIG_URL));
       }
 
       final Translator<?> translator = Translator.load(className.getNodeValue());
@@ -95,7 +110,7 @@ public final class Config {
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     return classLoader.getResource(name);
   }
-  
+
   private static Document parseDocument(final URL url) {
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
@@ -111,19 +126,67 @@ public final class Config {
     }
   }
 
-  public static List<Pair<String, String>> loadSettins() {
+  private static Document parseDocument(final File file) {
+    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+    factory.setIgnoringComments(true);
+    factory.setIgnoringElementContentWhitespace(true);
+    factory.setValidating(false);
+
+    try {
+      final DocumentBuilder builder = factory.newDocumentBuilder();
+      return builder.parse(file);
+    } catch (ParserConfigurationException | SAXException | IOException e) {
+      return null;
+    }
+  }
+
+  public static Map<String, String> loadSettins() {
     final String fileName = getHomePath() + SETTINGS_PATH;
     final File file = new File(fileName);
 
     if (!file.exists() || !file.isFile()) {
       throw new IllegalStateException(String.format(
-          "The configuration file %s does not exist or is not a file.", file.getPath()));
+          ERR_SETTINGS_FILE_NOT_EXIST, file.getPath()));
     }
 
-    return Collections.emptyList();
-  }
+    final Document document = parseDocument(file);
+    if (null == document) {
+      throw new IllegalStateException(String.format(ERR_FAILED_TO_PARSE, CONFIG_URL));
+    }
 
-  public static void main(String[] arg) {
-    System.out.println(loadSettins());
+    final Node root = document.getFirstChild();
+    if (!SETTINGS.equalsIgnoreCase((root.getNodeName()))) {
+      throw new IllegalStateException(String.format( 
+          ERR_NO_ROOT_NODE, file.getPath(), SETTINGS));
+    }
+
+    final Map<String, String> result = new LinkedHashMap<>();
+
+    final NodeList settings = root.getChildNodes();
+    for (int index = 0; index < settings.getLength(); ++index) {
+      final Node setting = settings.item(index);
+      if (!SETTING.equalsIgnoreCase((setting.getNodeName()))) {
+        continue;
+      }
+
+      final NamedNodeMap attributes = setting.getAttributes();
+
+      final Node name = attributes.getNamedItem(ATTR_NAME);
+      if (null == name) {
+        throw new IllegalStateException(String.format(
+            ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, file.getName()));
+      }
+
+      final Node value = attributes.getNamedItem(ATTR_VALUE);
+      if (null == value) {
+        throw new IllegalStateException(String.format(
+            ERR_ATTRIBUTE_NOT_DEFINED, ATTR_VALUE, file.getName()));
+      }
+
+      result.put(name.getNodeValue(), value.getNodeValue());
+    }
+
+    return result;
   }
 }
