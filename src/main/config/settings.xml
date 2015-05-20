@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
-  <option name="random" value="0"/>
-  <option name="execution-limit" value="200"/>
+  <setting name="random" value="0"/>
+  <setting name="execution-limit" value="200"/>
 </settings>
