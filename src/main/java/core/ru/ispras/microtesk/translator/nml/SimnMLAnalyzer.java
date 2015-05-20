@@ -145,7 +145,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   // /////////////////////////////////////////////////////////////////////////
 
   private void startGenerator(String modelName, String fileName, IR ir) {
-    final Generator generator = new Generator(getOutDir() + "/java", modelName, fileName, ir);
+    final Generator generator = new Generator(getOutDir() + "/src/java", modelName, fileName, ir);
     generator.generate();
   }
 
