@@ -63,7 +63,7 @@ public final class MicroTESK {
       result.addOption(OUTDIR, "dir", true, "Sets where to place generated files" + TOPT);
       result.addOption(RANDOM, "random", true, "Sets seed for randomizer" + GOPT);
       result.addOption(SOLVER, "solver", true, "Sets constraint solver engine to be used" + GOPT);
-      result.addOption(LIMIT, "execution limit", true, "Sets the limit on control transfers to detect endless loops" + GOPT);
+      result.addOption(LIMIT, "execution-limit", true, "Sets the limit on control transfers to detect endless loops" + GOPT);
 
       result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
       return result;
