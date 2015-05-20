@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
 
@@ -100,5 +101,10 @@ public final class Config {
     } catch (ParserConfigurationException | SAXException | IOException e) {
       return null;
     }
+  }
+
+  public static List<Pair<String, String>> loadSettins() {
+    return null;
+    
   }
 }

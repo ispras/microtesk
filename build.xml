@@ -293,6 +293,11 @@
   <!-- Copies required text files (Ruby and Bash scripts, nML files to the distributive folder) -->
   <target name="copy.scripts">
 
+    <!-- Copies configuration files -->
+    <copy todir="${dist}/etc">
+      <fileset dir="src/main/config" includes="**"/>
+    </copy>
+
     <!-- Copies batch files -->
     <copy todir="${dist}/bin">
       <fileset dir="src/main/scripts" includes="**"/>
