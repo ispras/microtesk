@@ -14,9 +14,11 @@
 
 package ru.ispras.microtesk;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -37,10 +39,16 @@ import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
 public final class Config {
   private Config() {}
 
-  private static final String CONFIG_URL = "config.xml";
-  private static final String     CONFIG = "config";
-  private static final String     PLUGIN = "plugin";
-  private static final String      CLASS = "class";
+  private static final String MICROTESK_HOME = "MICROTESK_HOME";
+  private static final String     CONFIG_URL = "config.xml";
+  private static final String         CONFIG = "config";
+  private static final String         PLUGIN = "plugin";
+  private static final String          CLASS = "class";
+  private static final String  SETTINGS_PATH = "/etc/settings.xml";
+
+  public static String getHomePath() {
+    return System.getenv().get(MICROTESK_HOME);
+  }
 
   public static List<Translator<?>> loadTranslators() {
     final URL configUrl = getResource(CONFIG_URL);
@@ -104,7 +112,18 @@ public final class Config {
   }
 
   public static List<Pair<String, String>> loadSettins() {
-    return null;
-    
+    final String fileName = getHomePath() + SETTINGS_PATH;
+    final File file = new File(fileName);
+
+    if (!file.exists() || !file.isFile()) {
+      throw new IllegalStateException(String.format(
+          "The configuration file %s does not exist or is not a file.", file.getPath()));
+    }
+
+    return Collections.emptyList();
+  }
+
+  public static void main(String[] arg) {
+    System.out.println(loadSettins());
   }
 }
