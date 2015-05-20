@@ -16,6 +16,7 @@ package ru.ispras.microtesk;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
 import org.apache.commons.cli.CommandLine;
@@ -27,6 +28,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.TestProgramGenerator;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -104,17 +106,22 @@ public final class MicroTESK {
     }
 
     try {
+      final Map<String, String> settings = Config.loadSettings();
+      InvariantChecks.checkNotNull(settings);
+
       if (params.hasOption(Parameters.GENERATE)) {
-        generate(params);
+        generate(params, settings);
       } else {
-        translate(params);
+        translate(params, settings);
       }
     } catch (Throwable e) {
       Logger.exception(e);
     }
   }
 
-  private static void translate(CommandLine params) throws RecognitionException {
+  private static void translate(
+      final CommandLine params,
+      final Map<String, String> settings) throws RecognitionException {
     final List<Translator<?>> translators = Config.loadTranslators();
     for (Translator<?> translator : translators) {
       if (params.hasOption(Parameters.INCLUDE)) {
@@ -129,31 +136,30 @@ public final class MicroTESK {
     }
   }
 
-  private static void generate(CommandLine params) throws Throwable {
+  private static void generate(
+      final CommandLine params,
+      final Map<String, String> settings) throws Throwable {
+
     final TestProgramGenerator generator = new TestProgramGenerator();
 
-    if (params.hasOption(Parameters.RANDOM)) {
-      final String random = params.getOptionValue(Parameters.RANDOM);
-      try {
-        final int seed = Integer.parseInt(random);
-        generator.setRandomSeed(seed);
-      } catch (NumberFormatException e) {
-        Logger.warning("Failed to parse the value of the -r parameter.");
-      }
+    final String random = getSetting(Parameters.RANDOM, params, settings);
+    try {
+      final int seed = Integer.parseInt(random);
+      generator.setRandomSeed(seed);
+    } catch (NumberFormatException e) {
+      Logger.warning("Failed to parse the value of the -r parameter.");
+    }
+
+    final String limitStr = getSetting(Parameters.LIMIT, params, settings);
+    try {
+      final int limitVal = Integer.parseInt(limitStr);
+      generator.setExecutionLimit(limitVal);
+    } catch (NumberFormatException e) {
+      Logger.warning("Failed to parse the value of the -l parameter: " + limitStr);
     }
 
     if (params.hasOption(Parameters.SOLVER)) {
       generator.setSolver(params.getOptionValue(Parameters.SOLVER));
-    }
-
-    if (params.hasOption(Parameters.LIMIT)) {
-      final String limitStr = params.getOptionValue(Parameters.LIMIT);
-      try {
-        final int limitVal = Integer.parseInt(limitStr);
-        generator.setExecutionLimit(limitVal);
-      } catch (NumberFormatException e) {
-        Logger.warning("Failed to parse the value of the -l parameter: " + limitStr);
-      }
     }
 
     final String[] args = params.getArgs();
@@ -177,5 +183,20 @@ public final class MicroTESK {
     }
 
     generator.generate(templateFiles);
+  }
+
+  private static String getSetting(
+      final String id,
+      final CommandLine params,
+      final Map<String, String> settings) {
+
+    if (params.hasOption(id)) {
+      return params.getOptionValue(id);
+    }
+
+    final Option option = Parameters.options.getOption(id);
+    final String opetionName = option.getLongOpt();
+
+    return settings.get(opetionName);
   }
 }

@@ -141,7 +141,7 @@ public final class Config {
     }
   }
 
-  public static Map<String, String> loadSettins() {
+  public static Map<String, String> loadSettings() {
     final String fileName = getHomePath() + SETTINGS_PATH;
     final File file = new File(fileName);
 
