@@ -368,6 +368,7 @@
 
     <!-- Generate code for the DEMO model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+      <env key="MICROTESK_HOME" value="${dist}"/>
       <jvmarg value="-ea"/>
       <arg value="-d"/>
       <arg value="${dist.gen}"/>
@@ -379,6 +380,7 @@
 
     <!-- Generate code for the simple VLIW model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+      <env key="MICROTESK_HOME" value="${dist}"/>
       <jvmarg value="-ea"/>
       <arg value="-d"/>
       <arg value="${dist.gen}"/>
@@ -390,6 +392,7 @@
 
     <!-- Generate code for the miniMIPS model -->
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
+      <env key="MICROTESK_HOME" value="${dist}"/>
       <jvmarg value="-ea"/>
       <arg value="-d"/>
       <arg value="${dist.gen}"/>

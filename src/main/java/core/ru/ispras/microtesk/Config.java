@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,14 +63,7 @@ public final class Config {
   private static final String ERR_FAILED_TO_PARSE = "Failed to parse %s.";
 
   public static String getHomePath() {
-    final String result = System.getenv().get(MICROTESK_HOME);
-
-    if (null == result) {
-      throw new IllegalStateException(String.format(
-          "The %s environment variable is not defined.", MICROTESK_HOME));
-    }
-
-    return result;
+    return System.getenv().get(MICROTESK_HOME);
   }
 
   public static List<Translator<?>> loadTranslators() {
@@ -149,12 +143,18 @@ public final class Config {
   }
 
   public static Map<String, String> loadSettings() {
-    final String fileName = getHomePath() + SETTINGS_PATH;
+    final String homePath = getHomePath();
+    if (null == homePath) {
+      Logger.warning("The %s environment variable is not defined.", MICROTESK_HOME);
+      return Collections.emptyMap();
+    }
+
+    final String fileName = homePath + SETTINGS_PATH;
     final File file = new File(fileName);
 
     if (!file.exists() || !file.isFile()) {
-      throw new IllegalStateException(String.format(
-          ERR_SETTINGS_FILE_NOT_EXIST, file.getPath()));
+      Logger.warning(ERR_SETTINGS_FILE_NOT_EXIST, file.getPath());
+      return Collections.emptyMap();
     }
 
     final Document document = parseDocument(file);
