@@ -62,7 +62,14 @@ public final class Config {
   private static final String ERR_FAILED_TO_PARSE = "Failed to parse %s.";
 
   public static String getHomePath() {
-    return System.getenv().get(MICROTESK_HOME);
+    final String result = System.getenv().get(MICROTESK_HOME);
+
+    if (null == result) {
+      throw new IllegalStateException(String.format(
+          "The %s envronment valiable is not defined.", MICROTESK_HOME));
+    }
+
+    return result;
   }
 
   public static List<Translator<?>> loadTranslators() {
