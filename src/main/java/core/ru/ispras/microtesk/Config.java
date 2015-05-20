@@ -66,7 +66,7 @@ public final class Config {
 
     if (null == result) {
       throw new IllegalStateException(String.format(
-          "The %s envronment valiable is not defined.", MICROTESK_HOME));
+          "The %s environment variable is not defined.", MICROTESK_HOME));
     }
 
     return result;
