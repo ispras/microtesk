@@ -173,7 +173,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
 
     final ru.ispras.microtesk.translator.nml.coverage.Analyzer analyzer =
         new ru.ispras.microtesk.translator.nml.coverage.Analyzer(ir, modelName);
-    analyzer.run();
+    analyzer.generateOutput(this.getOutDir());
 
     final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
         ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());
