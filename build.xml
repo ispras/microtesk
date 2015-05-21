@@ -51,7 +51,7 @@
   <property name="doc"       location="${dist}/doc"/>
 
   <property name="microtesk.bin" value="${bin}/microtesk"/>
-  <property name="test.bin"      value="${bin}/tests"/>	
+  <property name="test.bin"      value="${bin}/tests"/>
 
   <!-- Output JAR-file -->
   <property name="jar"           value="microtesk.jar"/>
@@ -68,20 +68,20 @@
   <property name="testbase.jar"  value="testbase.jar"/>
 
   <!-- Information for the JAR manifest -->
-  <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>	
+  <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>
   <property name="jar.classpath" value="${antlr.jar} ${cli.jar} ${jruby.jar} ${fortress.jar} ${testbase.jar}"/>
 
   <!-- Classpath for external libraries -->
   <property name="jars.path" value="./jars"/>
   <property name="classpath" value="${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${fortress.jar}:${jars.path}/${testbase.jar}"/>
-	
+
   <!-- Options -->
   <property name="debug" value="false"/>
 
   <!-- Task definition for ANTLR -->
   <taskdef name="ant-antlr3"
-	classname="org.apache.tools.ant.antlr.ANTLR3"
-  	classpath="${jars.path}/${antlr.ant.jar}"
+    classname="org.apache.tools.ant.antlr.ANTLR3"
+    classpath="${jars.path}/${antlr.ant.jar}"
   />
 
   <!-- Macro for ANTRL targets -->
@@ -129,7 +129,7 @@
         <fileset dir="@{src.path}">
           <include name="**/*.rb"/>
           <exclude name="**/*_base.rb"/>
-        </fileset>	
+        </fileset>
       </apply>
     </sequential>
   </macrodef>
@@ -213,7 +213,7 @@
             grammar.root="${src.java.plugins.mmu.dir}" grammar.lib="${src.java.dir}/${nml_grammar.path}"/>
     <antlr3 grammar.name="${mmu_walker.name}"          grammar.path="${mmu_grammar.path}"
             grammar.root="${src.java.plugins.mmu.dir}" grammar.lib="${src.java.dir}/${nml_grammar.path}"/>
-  </target>	
+  </target>
 
   <!-- JavaDoc target, generates documentation for source code in ${src.java.dir} and places it into ${doc}/javadoc -->
   <target name="javadoc" depends="init,antlr_nml">
@@ -237,7 +237,7 @@
     />
   </target>
 
-  <!-- Compiles MicroTESK core (folder ${src.java.dir}) with Javac --> 	
+  <!-- Compiles MicroTESK core (folder ${src.java.dir}) with Javac -->
   <target name="javac.core" depends="antlr_nml">
      <mkdir dir="${microtesk.bin}"/>
      <javac
@@ -249,7 +249,7 @@
     />
   </target>
 
-  <!-- Compiles MicroTESK plugins (folder ${src.java.plugins.mmu.dir} + ${src.java.dir}) with Javac --> 	
+  <!-- Compiles MicroTESK plugins (folder ${src.java.plugins.mmu.dir} + ${src.java.dir}) with Javac -->
   <target name="javac.plugins.mmu" depends="antlr_mmu">
      <mkdir dir="${microtesk.bin}"/>
      <javac
@@ -261,7 +261,7 @@
     />
   </target>
 
-  <!-- Compiles unit tests (${src.test.java.dir} + ${src.test.java.plugins.mmu.dir}) with Javac --> 	
+  <!-- Compiles unit tests (${src.test.java.dir} + ${src.test.java.plugins.mmu.dir}) with Javac -->
   <target name="javac.test" depends="init">
      <mkdir dir="${test.bin}"/>
      <javac
@@ -348,7 +348,7 @@
     <copy file="LICENSE" tofile="${dist}/LICENSE"/>
     <mkdir dir="${dist}/tools"/>
     <copy file="src/main/text/README_TOOLS" tofile="${dist}/tools/README"/>
-  </target>	
+  </target>
 
   <target name="build.all" depends="
     init,clean,create.dirs,build.jar,
@@ -470,7 +470,7 @@
       <pathelement location="${dist.jars}/${jar}"/>
     </path>
 
-  	<mkdir dir="target/tests/reports"/>
+    <mkdir dir="target/tests/reports"/>
     <junit fork="no" printsummary="yes" showoutput="yes">
       <classpath refid="classpath.test"/>
       <formatter type="plain" usefile="false"/>
