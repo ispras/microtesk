@@ -138,7 +138,7 @@ final class STBOperation extends STBPrimitiveBase {
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
 
-      if (isInitNeeded && !attr.getName().equals("init")) {
+      if (isInitNeeded && isStandardAttribute(attr.getName())) {
         addStatement(attrST, new StatementFunctionCall("init"), false);
       }
 
