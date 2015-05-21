@@ -101,7 +101,6 @@ final class Executor {
     // Resolves all label references and patches the instruction call text accordingly.
     for (int index = 0; index < sequence.size(); ++index) {
       final ConcreteCall call = sequence.get(index);
-      call.resetText();
 
       for (LabelReference labelRef : call.getLabelReferences()) {
         labelRef.resetTarget();

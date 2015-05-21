@@ -32,6 +32,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut.Argument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
@@ -130,11 +131,16 @@ final class STBOperation extends STBPrimitiveBase {
   }
 
   private void buildAttributes(STGroup group, ST t) {
+    final boolean isInitNeeded = op.getAttributes().containsKey("init");
     for (Attribute attr : op.getAttributes().values()) {
       final ST attrST = group.getInstanceOf("op_attribute");
 
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
+
+      if (isInitNeeded && !attr.getName().equals("init")) {
+        addStatement(attrST, new StatementFunctionCall("init"), false);
+      }
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
         for (Statement stmt : attr.getStatements())

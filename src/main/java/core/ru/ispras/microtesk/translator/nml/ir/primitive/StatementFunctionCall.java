@@ -18,7 +18,7 @@ public final class StatementFunctionCall extends Statement {
   private final String name;
   private final Object[] args;
 
-  StatementFunctionCall(String name, Object ... args) {
+  public StatementFunctionCall(String name, Object ... args) {
     super(Kind.FUNCALL);
 
     if (null == name) {

@@ -35,7 +35,7 @@ body(name, param_names, param_types, attrs, ret) ::= <<
 <class_const("IInfo", "INFO", "new Info()")><\n>
 <mode_constructor(name, param_names)><\n>
 <attrs; separator="\n\n">
-<if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>;})><endif>
+<if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>;}, true)><endif>
 >>
 
 info_body(name, param_names, param_types) ::= <<
@@ -73,9 +73,9 @@ mode_param_def(param_name) ::= <<
 private final Location <param_name>;
 >>
 
-mode_attribute(name, rettype, stmts) ::= <<
-@Override
-public <rettype> <name>()
+mode_attribute(name, rettype, stmts, override) ::= <<
+<if(override)>@Override
+<endif>public <rettype> <name>()
 {
     <stmts; separator="\n">
 }
