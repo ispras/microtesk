@@ -21,18 +21,17 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerVariable {
-  /** The variable name. */
-  private final String name;
-  /** The variable width (in bits). */
-  private final int width;
+public class IntegerVariable {
+  /** The address name. */
+  private String name;
+  /** The address width. */
+  private int width;
 
   /**
    * Constructs a variable.
    * 
    * @param name the variable name.
    * @param width the variable width.
-   * 
    * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if {@code width} is not positive.
    */
@@ -56,7 +55,7 @@ public final class IntegerVariable {
   /**
    * Returns the variable width.
    * 
-   * @return the variable width (in bits).
+   * @return the variable width.
    */
   public int getWidth() {
     return width;
@@ -64,16 +63,12 @@ public final class IntegerVariable {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) {
-      return true;
-    }
-
     if (o == null || !(o instanceof IntegerVariable)) {
       return false;
     }
 
-    final IntegerVariable other = (IntegerVariable) o;
-    return name.equals(other.name);
+    final IntegerVariable r = (IntegerVariable) o;
+    return name.equals(r.name);
   }
 
   @Override

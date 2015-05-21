@@ -21,13 +21,13 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class IntegerField {
+public final class IntegerField {
   /** The variable. */
-  private IntegerVariable var;
+  private final IntegerVariable var;
   /** The lower bit index. */
-  private int lo;
+  private final int lo;
   /** The upper bit index. */
-  private int hi;
+  private final int hi;
 
   /**
    * Constructs an integer field.
@@ -37,12 +37,12 @@ public class IntegerField {
    * @param hi the upper bit index.
    * @throws NullPointerException if {@code var} is null.
    */
-  public IntegerField(final IntegerVariable var, final int lo, final int hi) {
+  public IntegerField(final IntegerVariable var, int lo, int hi) {
     InvariantChecks.checkNotNull(var);
 
     this.var = var;
-    this.lo = Math.min(lo, hi);
-    this.hi = Math.max(lo, hi);
+    this.lo = lo;
+    this.hi = hi;
   }
 
   /**
@@ -51,7 +51,7 @@ public class IntegerField {
    * @param var the variable whose bits to be selected.
    * @param bit the bit index.
    */
-  public IntegerField(final IntegerVariable var, final int bit) {
+  public IntegerField(final IntegerVariable var, int bit) {
     this(var, bit, bit);
   }
 
@@ -102,7 +102,7 @@ public class IntegerField {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) {
+    if (o == this) {
       return true;
     }
 

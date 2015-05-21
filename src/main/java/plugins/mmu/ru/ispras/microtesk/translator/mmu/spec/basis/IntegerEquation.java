@@ -15,14 +15,16 @@
 package ru.ispras.microtesk.translator.mmu.spec.basis;
 
 import java.math.BigInteger;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * This class represents an equality or inequality of two integer variables {@link IntegerVariable}.
+ * {@link IntegerEquation} represents an equality or inequality of two integer variables
+ * (objects of {@link IntegerVariable}).
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class IntegerEquation {
+public final class IntegerEquation {
   /** The equality/inequality flag. */
   public boolean equal;
   /** The variable-value/variable-variable flag. */
@@ -71,7 +73,7 @@ final class IntegerEquation {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (o == this) {
       return true;
     }
