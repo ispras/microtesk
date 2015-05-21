@@ -28,7 +28,7 @@ public interface IPrimitive {
    * @return Text value.
    */
 
-  public String syntax();
+  String syntax();
 
   /**
    * Returns binary representation of the specified primitive.
@@ -36,11 +36,11 @@ public interface IPrimitive {
    * @return Binary text.
    */
 
-  public String image();
+  String image();
 
   /**
    * Runs the action code associated with the primitive.
    */
 
-  public void action();
+  void action();
 }
