@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.translator.nml.generation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +31,6 @@ import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
-import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
@@ -41,22 +39,6 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 final class STBShared implements ITemplateBuilder {
-  private static Map<Class<?>, Class<?>> CLASS_MAP = new HashMap<Class<?>, Class<?>>();
-  static {
-    CLASS_MAP.put(Integer.class, int.class);
-    CLASS_MAP.put(Long.class, long.class);
-    CLASS_MAP.put(Boolean.class, boolean.class);
-  }
-
-  private static Class<?> toValueClass(Class<?> cl) {
-    final Class<?> result = CLASS_MAP.get(cl);
-    if (null == result) {
-      return cl;
-    }
-
-    return result;
-  }
-
   public final String specFileName;
   public final String modelName;
   public final IR ir;
@@ -97,23 +79,6 @@ final class STBShared implements ITemplateBuilder {
       tLet.add("name", string.getName());
       tLet.add("type", String.class.getSimpleName());
       tLet.add("value", String.format("\"%s\"", string.getText()));
-
-      t.add("members", tLet);
-    }
-  }
-
-  private void buildLetConstants(STGroup group, ST t) {
-    if (!ir.getConstants().isEmpty()) {
-      insertEmptyLine(t);
-    }
-
-    for (LetConstant constant : ir.getConstants().values()) {
-      final ST tLet = group.getInstanceOf("let");
-
-      tLet.add("name", constant.getName());
-      tLet.add("type", toValueClass(constant.getExpr().getValueInfo().getNativeType())
-          .getSimpleName());
-      tLet.add("value", new PrinterExpr(constant.getExpr()));
 
       t.add("members", tLet);
     }
