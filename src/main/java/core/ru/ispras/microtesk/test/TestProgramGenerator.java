@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test;
 
+import java.io.File;
 import java.util.List;
 
 import org.jruby.embed.PathType;
@@ -88,6 +89,7 @@ public final class TestProgramGenerator {
       }
     } catch (GenerationAbortedException e) {
       Logger.error(e.getMessage());
+      new File(fileName).delete();
     }
   }
 
