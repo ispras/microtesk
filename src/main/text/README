@@ -64,6 +64,7 @@ The MicroTESK installation directory contains the following subdirectories:
 |      | described designs                                                     |
 | bin  | Scripts to run features of MicroTESK (modeling and test generation)   |
 | doc  | Documentation on MicroTESK                                            |
+| etc  | MicroTESK configuration files                                         |
 | gen  | Generated Java models of the specified microprocessor designs         |
 | lib  | JAR files and Ruby scripts to perform modeling and test generation    |
 |      | tasks                                                                 |
