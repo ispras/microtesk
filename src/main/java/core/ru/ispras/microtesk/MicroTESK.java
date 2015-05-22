@@ -56,16 +56,18 @@ public final class MicroTESK {
       final Options result = new Options();
       result.addOption(HELP, "help", false, "Shows this message");
 
-      final OptionGroup actions = new OptionGroup(); 
+      final OptionGroup actions = new OptionGroup();
       actions.addOption(new Option(GENERATE, "generate", false, "Generates test programs"));
-      actions.addOption(new Option(TRANSLATE, "translate", false, "Translates formal specifications"));
+      actions.addOption(new Option(TRANSLATE, "translate", false,
+          "Translates formal specifications"));
       result.addOptionGroup(actions);
 
       result.addOption(INCLUDE, "include", true, "Sets include files directories" + TOPT);
-      result.addOption(OUTDIR, "dir", true, "Sets where to place generated files" + TOPT);
-      result.addOption(RANDOM, "random", true, "Sets seed for randomizer" + GOPT);
+      result.addOption(OUTDIR, "output-dir", true, "Sets where to place generated files" + TOPT);
+      result.addOption(RANDOM, "random-seed", true, "Sets seed for randomizer" + GOPT);
       result.addOption(SOLVER, "solver", true, "Sets constraint solver engine to be used" + GOPT);
-      result.addOption(LIMIT, "execution-limit", true, "Sets the limit on control transfers to detect endless loops" + GOPT);
+      result.addOption(LIMIT, "branch-exec-limit", true,
+          "Sets the limit on control transfers to detect endless loops" + GOPT);
 
       result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
       return result;
@@ -119,9 +121,8 @@ public final class MicroTESK {
     }
   }
 
-  private static void translate(
-      final CommandLine params,
-      final Map<String, String> settings) throws RecognitionException {
+  private static void translate(final CommandLine params, final Map<String, String> settings)
+      throws RecognitionException {
     final List<Translator<?>> translators = Config.loadTranslators();
     for (Translator<?> translator : translators) {
       if (params.hasOption(Parameters.INCLUDE)) {
@@ -136,9 +137,8 @@ public final class MicroTESK {
     }
   }
 
-  private static void generate(
-      final CommandLine params,
-      final Map<String, String> settings) throws Throwable {
+  private static void generate(final CommandLine params, final Map<String, String> settings)
+      throws Throwable {
 
     final TestProgramGenerator generator = new TestProgramGenerator();
 
@@ -177,7 +177,7 @@ public final class MicroTESK {
       final String fileName = args[index];
       if (".rb".equals(FileUtils.getFileExtension(fileName))) {
         templateFiles.add(fileName);
-      } else if (index == args.length - 1){
+      } else if (index == args.length - 1) {
         generator.setFileName(fileName);
       }
     }
@@ -185,9 +185,7 @@ public final class MicroTESK {
     generator.generate(templateFiles);
   }
 
-  private static String getSetting(
-      final String id,
-      final CommandLine params,
+  private static String getSetting(final String id, final CommandLine params,
       final Map<String, String> settings) {
 
     if (params.hasOption(id)) {
