@@ -212,7 +212,7 @@ class Template
       @java_object = java_object
     end
 
-    def value
+    def next_value
       @java_object.value
     end
   end
