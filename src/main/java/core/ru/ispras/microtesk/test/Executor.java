@@ -238,7 +238,7 @@ final class Executor {
    * @param text Text to be printed.
    */
 
-  public void logText(final String text) {
+  private void logText(final String text) {
     if (logExecution && text != null) {
       PrintingUtils.trace(text);
     }
