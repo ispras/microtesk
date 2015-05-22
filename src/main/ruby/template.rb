@@ -211,6 +211,10 @@ class Template
     def initialize(java_object)
       @java_object = java_object
     end
+
+    def value
+      @java_object.value
+    end
   end
 
   #
