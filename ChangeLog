@@ -6,6 +6,28 @@
  2015/03/24 MicroTESK 2.2 alpha
 --------------------------------------------------------------------------------
 
+ 2015/05/22 MicroTESK 2.2.2 alpha
+
+ The new build contains the following changes:
+
+ - Simple mechanism for detecting loops in test templates was implemented. If
+   the number of branch executions exceeds the specified limit, test generation
+   is halted.
+ - New attribute 'init' was supported for 'mode' and 'op' nML primitives. It
+   specifies initialization actions to be performed each time before code
+   of other standard attributes like 'syntax' and 'image' is executed.
+ - The repetition operator was implemented in nML. Syntax is the following:
+   {N}X - concatenates the specified location X with itself N times.
+ - Branches of logic in nML specifications which raise exceptions are
+   automatically marked as named test situations.
+ - Syntax of the 'reg', 'mem' and 'var' nML constructs was extended to support
+   array-based aliases.
+ - Functionality of 'format' and 'trace' nML functions was improved. Now they
+   support conditional string-based expressions as arguments.
+ - Default values for some command-line options are now stored in
+   a configuration file.
+ - Several bug fixes and general improvements were made.
+
  2015/04/23 MicroTESK 2.2.1 alpha
 
  The new build contains the following changes:
