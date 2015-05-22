@@ -193,7 +193,18 @@ public final class ExprFactory extends WalkerFactoryBase {
       operandNodes[index] = operand.getNode();
     }
 
-    final ValueInfo castValueInfo = calculator.cast(w, target, values);
+    // In the case type for shift and rotation expressions 
+    // must correspond to the type of the first argument (for MODEL types).
+
+    final ValueInfo castValueInfo;
+    if (target == ValueInfo.Kind.MODEL && values.get(0).isModel() &&
+        (op == Operator.L_SHIFT  || op == Operator.R_SHIFT ||
+         op == Operator.L_ROTATE || op == Operator.R_ROTATE)) {
+      castValueInfo = values.get(0); 
+    } else {
+      castValueInfo = calculator.cast(w, target, values);
+    }
+
     final ValueInfo resultValueInfo = calculator.calculate(w, op, castValueInfo, values);
 
     final SourceOperator source = new SourceOperator(op, castValueInfo, resultValueInfo);
