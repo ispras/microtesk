@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
