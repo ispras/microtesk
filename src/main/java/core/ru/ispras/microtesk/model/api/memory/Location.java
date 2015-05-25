@@ -53,6 +53,10 @@ public final class Location implements LocationAccessor {
       this.startBitPos = startBitPos;
     }
 
+    public boolean isInitialized() {
+      return storage.isInitialized(address);
+    }
+
     public Source resize(
         final int newBitSize,
         final int newStartBitPos) {
@@ -135,6 +139,15 @@ public final class Location implements LocationAccessor {
   @Override
   public int getBitSize() {
     return type.getBitSize();
+  }
+
+  public boolean isInitialized() {
+    for (final Source source : sources) {
+      if (!source.isInitialized()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public Data load() {
