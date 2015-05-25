@@ -176,6 +176,18 @@ public final class MemoryStorage {
     return addressBitSize;
   }
 
+  public boolean isInitialized(final int address) {
+    return read(address) == defaultRegion;
+  }
+
+  public boolean isInitialized(final long address) {
+    return read(address) == defaultRegion;
+  }
+
+  public boolean isInitialized(final BitVector address) {
+    return read(address) == defaultRegion;
+  }
+
   public BitVector read(final int address) {
     return read(BitVector.valueOf(address, addressBitSize));
   }
