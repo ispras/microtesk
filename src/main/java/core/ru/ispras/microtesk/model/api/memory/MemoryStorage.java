@@ -180,16 +180,8 @@ public final class MemoryStorage {
     return read(BitVector.valueOf(address, addressBitSize));
   }
 
-  public void write(final int address, final BitVector data) {
-    write(BitVector.valueOf(address, addressBitSize), data);
-  }
-
   public BitVector read(final long address) {
     return read(BitVector.valueOf(address, addressBitSize));
-  }
-
-  public void write(final long address, final BitVector data) {
-    write(BitVector.valueOf(address, addressBitSize), data);
   }
 
   public BitVector read(final BitVector address) {
@@ -207,6 +199,14 @@ public final class MemoryStorage {
     }
 
     return block.read(index.region);
+  }
+
+  public void write(final int address, final BitVector data) {
+    write(BitVector.valueOf(address, addressBitSize), data);
+  }
+
+  public void write(final long address, final BitVector data) {
+    write(BitVector.valueOf(address, addressBitSize), data);
   }
 
   public void write(final BitVector address, final BitVector data) {
