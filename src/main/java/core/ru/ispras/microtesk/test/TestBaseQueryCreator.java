@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.test.template.Argument;
@@ -208,8 +207,7 @@ final class TestBaseQueryCreator {
 
           case IMM_UNKNOWN:
             if (!((UnknownValue) arg.getValue()).isValueSet()) {
-              queryBuilder.setBinding(argName,
-                new NodeVariable(new Variable(argName, DataType.INTEGER)));
+              queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
               unknownValues.put(argName, (UnknownValue) arg.getValue());
             } else {
               queryBuilder.setBinding(argName,
@@ -218,8 +216,7 @@ final class TestBaseQueryCreator {
             break;
 
           case MODE:
-            queryBuilder.setBinding(argName,
-              new NodeVariable(new Variable(argName, DataType.UNKNOWN)));
+            queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.UNKNOWN));
             modes.put(argName, (Primitive) arg.getValue());
             visit(argName, (Primitive) arg.getValue());
             break;
