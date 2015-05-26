@@ -14,12 +14,14 @@
 
 package ru.ispras.microtesk.settings;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 /**
  * {@link MemorySettings} represents memory regions being accessed by test programs.
@@ -46,6 +48,31 @@ public final class MemorySettings extends AbstractSettings {
   public boolean isEnabled(final String name) {
     final RegionSettings region = getRegion(name);
     return region.isEnabled();
+  }
+
+  public boolean checkTextAddress(final long address) {
+    return checkAddress(RegionSettings.Type.TEXT, address);
+  }
+
+  public boolean checkDataAddress(final long address) {
+    return checkAddress(RegionSettings.Type.DATA, address);
+  }
+
+  private boolean checkAddress(final RegionSettings.Type type, final long address) {
+    final BigInteger addr = BigIntegerUtils.valueOfUnsignedLong(address);
+
+    for (final RegionSettings region : getRegions()) {
+      if (region.getType() == type) {
+        final BigInteger startAddr = BigIntegerUtils.valueOfUnsignedLong(region.getStartAddress());
+        final BigInteger endAddr = BigIntegerUtils.valueOfUnsignedLong(region.getEndAddress());
+
+        if (startAddr.compareTo(addr) <= 0 && endAddr.compareTo(addr) >= 0) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   @Override
