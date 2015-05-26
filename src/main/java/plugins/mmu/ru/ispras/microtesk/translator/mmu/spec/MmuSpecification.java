@@ -39,6 +39,9 @@ public class MmuSpecification {
    */
   private Map<String, MmuAddress> addresses = new LinkedHashMap<>();
 
+  // TODO:
+  private List<MmuAddress> sortedAddresses = new ArrayList<>();
+
   /**
    * Refers to the primary address type of the MMU.
    * <p>Address type used to access the memory (typically, Virtual Address).</p>
@@ -47,6 +50,9 @@ public class MmuSpecification {
 
   /** Stores devices (buffers) of the MMU. */
   private Map<String, MmuDevice> devices = new LinkedHashMap<>();
+
+  // TODO:
+  private List<MmuDevice> sortedDevices = new ArrayList<>();
 
   /** Maps actions to out-going transitions. */
   private Map<MmuAction, List<MmuTransition>> actions = new LinkedHashMap<>();
@@ -64,6 +70,7 @@ public class MmuSpecification {
   public void registerAddress(final MmuAddress address) {
     InvariantChecks.checkNotNull(address);
     addresses.put(address.getName(), address);
+    sortedAddresses.add(address);
   }
 
   /**
@@ -73,6 +80,11 @@ public class MmuSpecification {
    */
   public Collection<MmuAddress> getAddresses() {
     return Collections.unmodifiableCollection(addresses.values());
+  }
+
+  // TODO:
+  public List<MmuAddress> getSortedListOfAddresses() {
+    return sortedAddresses;
   }
 
   /**
@@ -115,6 +127,7 @@ public class MmuSpecification {
   public void registerDevice(MmuDevice device) {
     InvariantChecks.checkNotNull(device);
     devices.put(device.getName(), device);
+    sortedDevices.add(device);
   }
 
   /**
@@ -124,6 +137,11 @@ public class MmuSpecification {
    */
   public Collection<MmuDevice> getDevices() {
     return devices.values();
+  }
+
+  // TODO:
+  public List<MmuDevice> getSortedListOfDevices() {
+    return sortedDevices;
   }
 
   /**
