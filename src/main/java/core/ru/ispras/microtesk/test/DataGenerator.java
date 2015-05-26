@@ -18,14 +18,18 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -34,6 +38,8 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
@@ -46,7 +52,9 @@ import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownValue;
 import ru.ispras.microtesk.utils.FortressUtils;
+import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
+import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
@@ -88,6 +96,8 @@ final class DataGenerator {
       throws ConfigurationException {
     checkNotNull(abstractSequence);
 
+    Memory.setUseTempCopies(true);
+
     initializedModes = new HashSet<>();
     sequenceBuilder = new TestSequence.Builder();
 
@@ -102,11 +112,21 @@ final class DataGenerator {
     }
   }
 
+  private void registerCall(ConcreteCall call) {
+    call.execute();
+    sequenceBuilder.add(call);
+  }
+
+  private void registerPrologueCall(ConcreteCall call) {
+    call.execute();
+    sequenceBuilder.addToPrologue(call);
+  }
+
   private void processAbstractCall(Call abstractCall) throws ConfigurationException {
     checkNotNull(abstractCall);
 
     if (!abstractCall.isExecutable()) {
-      sequenceBuilder.add(new ConcreteCall(abstractCall));
+      registerCall(new ConcreteCall(abstractCall));
       return;
     }
 
@@ -120,7 +140,7 @@ final class DataGenerator {
     final IOperation op = makeOp(rootOp);
     final InstructionCall executable = getCallFactory().newCall(op);
 
-    sequenceBuilder.add(new ConcreteCall(abstractCall, executable));
+    registerCall(new ConcreteCall(abstractCall, executable));
   }
 
   private void processSituations(Primitive primitive) throws ConfigurationException {
@@ -219,10 +239,10 @@ final class DataGenerator {
         final IOperation op = makeOp(rootOp);
         final InstructionCall executable = getCallFactory().newCall(op);
 
-        sequenceBuilder.addToPrologue(new ConcreteCall(abstractCall, executable));
+        registerPrologueCall(new ConcreteCall(abstractCall, executable));
       }
       else {
-        sequenceBuilder.addToPrologue(new ConcreteCall(abstractCall));
+        registerPrologueCall(new ConcreteCall(abstractCall));
       }
     }
   }
@@ -381,8 +401,231 @@ final class DataGenerator {
         "Argument %s has kind %s while %s is expected.", arg.getName(), arg.getKind(), expected));
     }
   }
-}
 
+  private static void acquireContext(
+      final TestBaseQueryBuilder builder,
+      final String prefix,
+      final Primitive p) {
+    for (final Argument arg : p.getArguments().values()) {
+      final String ctxArgName = (prefix.isEmpty())
+                                ? arg.getName()
+                                : prefix + "." + arg.getName();
+      builder.setContextAttribute(ctxArgName, arg.getTypeName());
+      switch (arg.getKind()) {
+      case OP:
+      case MODE:
+        acquireContext(builder, ctxArgName, (Primitive) arg.getValue());
+        break;
+
+      default:
+      }
+    }
+  }
+
+  /**
+   * The TestBaseQueryCreator class forms a query for test data that will be sent to TestBase. It
+   * dumps the following information:
+   * <ol>
+   * <li>Name of the microprocessor being tested.</li>
+   * <li>Information about the test situation (its name and attributes).</li>
+   * <li>Name of the operation the situation is linked to.</li>
+   * <li>All arguments of the operation including immediate values, addressing modes with their
+   * arguments and all arguments of nested operations.</li>
+   * </ol>
+   * Arguments are treated in the following way:
+   * <ul>
+   * <li>All immediate arguments that have values are constants (see {@link NodeValue}) of type
+   * {@link DataType#INTEGER}.</li>
+   * <li>All unknown immediate arguments (see {@link UnknownValue}) that have not been assigned values
+   * are unknown variables (see {@link NodeVariable}) of type {@link DataType#INTEGER}.</li>
+   * <li>All addressing modes are unknown variables (see {@link NodeVariable}) of type
+   * {@link DataType#UNKNOWN}.</li>
+   * </ul>
+   * <p>
+   * N.B. If nested operations have linked test situations, these situations are ignored and no
+   * information about them is included in the query. These situations are processed separately. If
+   * they have been previously processed, unknown immediate arguments that received values are treated
+   * as known immediate values.
+   * <p>
+   * N.B. The above text describes the current behavior that may be changed in the future.
+   * 
+   * @author Andrei Tatarnikov
+   */
+
+  private final class TestBaseQueryCreator {
+    private final String processor;
+    private final Situation situation;
+    private final Primitive primitive;
+
+    private boolean isCreated;
+    private TestBaseQuery query;
+    private Map<String, UnknownValue> unknownValues;
+    private Map<String, Primitive> modes;
+
+    public TestBaseQueryCreator(
+        final String processor,
+        final Situation situation,
+        final Primitive primitive) {
+      checkNotNull(processor);
+      checkNotNull(situation);
+      checkNotNull(primitive);
+
+      this.processor = processor;
+      this.situation = situation;
+      this.primitive = primitive;
+
+      this.isCreated = false;
+      this.query = null;
+      this.unknownValues = null;
+      this.modes = null;
+    }
+
+    public TestBaseQuery getQuery() {
+      createQuery();
+
+      checkNotNull(query);
+      return query;
+    }
+
+    public Map<String, UnknownValue> getUnknownValues() {
+      createQuery();
+
+      checkNotNull(unknownValues);
+      return unknownValues;
+    }
+
+    public Map<String, Primitive> getModes() {
+      createQuery();
+
+      checkNotNull(modes);
+      return modes;
+    }
+
+    private void createQuery() {
+      if (isCreated) {
+        return;
+      }
+
+      final TestBaseQueryBuilder queryBuilder = new TestBaseQueryBuilder();
+
+      createContext(queryBuilder);
+      createParameters(queryBuilder);
+
+      final BindingBuilder bindingBuilder = new BindingBuilder(queryBuilder, primitive);
+
+      unknownValues = bindingBuilder.getUnknownValues();
+      modes = bindingBuilder.getModes();
+      query = queryBuilder.build();
+
+      isCreated = true;
+    }
+
+    private void createContext(TestBaseQueryBuilder queryBuilder) {
+      queryBuilder.setContextAttribute(TestBaseContext.PROCESSOR, processor);
+      queryBuilder.setContextAttribute(TestBaseContext.INSTRUCTION, primitive.getName());
+      queryBuilder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
+
+      queryBuilder.setContextAttribute(primitive.getName(), primitive.getName());
+      acquireContext(queryBuilder, primitive.getName(), primitive);
+    }
+
+    private void createParameters(final TestBaseQueryBuilder queryBuilder) {
+      for (Map.Entry<String, Object> attrEntry : situation.getAttributes().entrySet()) {
+        queryBuilder.setParameter(attrEntry.getKey(), attrEntry.getValue());
+      }
+    }
+  }
+  
+  private final class BindingBuilder {
+    private final TestBaseQueryBuilder queryBuilder;
+    private final Map<String, UnknownValue> unknownValues;
+    private final Map<String, Primitive> modes;
+
+    private BindingBuilder(
+        final TestBaseQueryBuilder queryBuilder,
+        final Primitive primitive) {
+      checkNotNull(queryBuilder);
+      checkNotNull(primitive);
+
+      this.queryBuilder = queryBuilder;
+      this.unknownValues = new HashMap<String, UnknownValue>();
+      this.modes = new HashMap<String, Primitive>();
+
+      visit(primitive.getName(), primitive);
+    }
+
+    public Map<String, UnknownValue> getUnknownValues() {
+      return unknownValues;
+    }
+
+    public Map<String, Primitive> getModes() {
+      return modes;
+    }
+
+    private void visit(final String prefix, final Primitive p) {
+      for (Argument arg : p.getArguments().values()) {
+        final String argName = prefix.isEmpty() ?
+          arg.getName() : String.format("%s.%s", prefix, arg.getName());
+
+        switch (arg.getKind()) {
+          case IMM:
+            queryBuilder.setBinding(argName, NodeValue.newInteger((Integer) arg.getValue()));
+            break;
+
+          case IMM_RANDOM:
+            queryBuilder.setBinding(argName,
+              NodeValue.newInteger(((RandomValue) arg.getValue()).getValue()));
+            break;
+
+          case IMM_UNKNOWN:
+            if (!((UnknownValue) arg.getValue()).isValueSet()) {
+              queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
+              unknownValues.put(argName, (UnknownValue) arg.getValue());
+            } else {
+              queryBuilder.setBinding(argName,
+                NodeValue.newInteger(((UnknownValue) arg.getValue()).getValue()));
+            }
+            break;
+
+          case MODE: {
+            Node bindingValue = null;
+
+            try {
+              final IAddressingMode mode = makeMode(arg);
+              final Location location = mode.access();
+
+              if (location.isInitialized()) {
+                System.out.println("!!!! " + mode.syntax() + " : " + location.load());
+                bindingValue = NodeValue.newBitVector(
+                    BitVector.valueOf(location.getValue(), location.getBitSize()));
+                
+              } else {
+                bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
+              }
+            } catch (ConfigurationException e) {
+              trace("Failed to read data from " + arg.getTypeName() +
+                  " Reason : " + e.getMessage());
+              bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
+            }
+
+            queryBuilder.setBinding(argName, bindingValue);
+            modes.put(argName, (Primitive) arg.getValue());
+            visit(argName, (Primitive) arg.getValue());
+            break;
+          }
+
+          case OP:
+            visit(argName, (Primitive) arg.getValue());
+            break;
+
+          default:
+            throw new IllegalArgumentException(String.format(
+              "Illegal kind of argument %s: %s.", argName, arg.getKind()));
+        }
+      }
+    }
+  }
+}
 
 /**
  * Wrapper class for addressing mode primitives that allows checking equality and calculating
