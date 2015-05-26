@@ -81,9 +81,11 @@ public final class MemoryStorage {
 
   private final class Block {
     private final BitVector storage;
+    private final BitVector flags;
 
     public Block() {
       storage = BitVector.newEmpty(blockBitSize);
+      flags = BitVector.newEmpty(REGIONS_IN_BLOCK);
     }
 
     public void reset() {
@@ -98,6 +100,12 @@ public final class MemoryStorage {
     public void write(final int index, final BitVector data) {
       final BitVector mapping = getRegionMapping(index);
       mapping.assign(data);
+
+      flags.setBit(index, true);
+    }
+
+    public boolean isInitialized(final int index) {
+      return flags.getBit(index);
     }
 
     private BitVector getRegionMapping(final int index) {
@@ -128,7 +136,11 @@ public final class MemoryStorage {
     this.addressMap = new HashMap<>();
   }
 
-  public void setUseTempCopy(boolean value) {
+  public void setUseTempCopy(final boolean value) {
+    if (isReadOnly()) {
+      return; // Makes not sense for read-only stores
+    }
+
     if (value) {
       tempAddressMap = new HashMap<>();
     } else {
@@ -190,15 +202,28 @@ public final class MemoryStorage {
   }
 
   public boolean isInitialized(final int address) {
-    return read(address) == defaultRegion;
+    return isInitialized(BitVector.valueOf(address, addressBitSize));
   }
 
   public boolean isInitialized(final long address) {
-    return read(address) == defaultRegion;
+    return isInitialized(BitVector.valueOf(address, addressBitSize));
   }
 
   public boolean isInitialized(final BitVector address) {
-    return read(address) == defaultRegion;
+    checkNotNull(address);
+    final Index index = new Index(address);
+
+    final Map<Integer, Block> area = getAddressMap().get(index.area);
+    if (null == area) {
+      return false;
+    }
+
+    final Block block = area.get(index.block);
+    if (null == block) {
+      return false;
+    }
+
+    return block.isInitialized(index.region);
   }
 
   public BitVector read(final int address) {
