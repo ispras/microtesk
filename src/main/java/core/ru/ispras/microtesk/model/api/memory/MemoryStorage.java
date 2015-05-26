@@ -20,6 +20,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
 import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
 
 import java.math.BigInteger;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -81,11 +82,11 @@ public final class MemoryStorage {
 
   private final class Block {
     private final BitVector storage;
-    private final BitVector flags;
+    private final BitSet initFlags;
 
     public Block() {
       storage = BitVector.newEmpty(blockBitSize);
-      flags = BitVector.newEmpty(REGIONS_IN_BLOCK);
+      initFlags = new BitSet();
     }
 
     public void reset() {
@@ -101,11 +102,11 @@ public final class MemoryStorage {
       final BitVector mapping = getRegionMapping(index);
       mapping.assign(data);
 
-      flags.setBit(index, true);
+      initFlags.set(index, true);
     }
 
     public boolean isInitialized(final int index) {
-      return flags.getBit(index);
+      return initFlags.get(index);
     }
 
     private BitVector getRegionMapping(final int index) {
