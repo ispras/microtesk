@@ -42,6 +42,7 @@ public final class AllocationTable<T, V> {
     /** Always returns a free object (throws an exception if all the objects are in use). */
     GET_FREE_OBJECT {
       @Override public <T> T next(final Set<T> free, final Set<T> used) {
+        InvariantChecks.checkNotEmpty(free);
         return Randomizer.get().choose(free);
       }
     },
@@ -49,6 +50,7 @@ public final class AllocationTable<T, V> {
     /** Returns a free object (if it exists) or a used one (otherwise). */
     TRY_FREE_OBJECT() {
       @Override public <T> T next(final Set<T> free, final Set<T> used) {
+        InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty());
         return !free.isEmpty() ? Randomizer.get().choose(free) : Randomizer.get().choose(used);
       }
     };
