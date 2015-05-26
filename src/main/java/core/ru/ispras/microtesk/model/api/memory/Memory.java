@@ -119,6 +119,14 @@ public abstract class Memory {
         type.getBitSize(), BigInteger.valueOf(length));
   }
 
+  public static void setUseTempCopies(boolean value) {
+    for (final Memory memory : INSTANCES.values()) {
+      memory.setUseTempCopy(value);
+    }
+  }
+
+  public abstract void setUseTempCopy(boolean value);
+
   public final Kind getKind() {
     return kind;
   }
@@ -199,6 +207,11 @@ public abstract class Memory {
     public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
       return new MemoryAllocator(storage, addressableUnitBitSize);
     }
+
+    @Override
+    public void setUseTempCopy(boolean value) {
+      storage.setUseTempCopy(value);
+    }
   }
 
   private static final class MemoryAlias extends Memory {
@@ -251,6 +264,11 @@ public abstract class Memory {
     @Override
     public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
       throw new UnsupportedOperationException("Allocators are not supported for aliases.");
+    }
+
+    @Override
+    public void setUseTempCopy(boolean value) {
+      // Do nothing.
     }
   }
 
@@ -339,6 +357,11 @@ public abstract class Memory {
     public MemoryAllocator newAllocator(final int addressableUnitBitSize) {
       throw new UnsupportedOperationException(
           "Allocators are not supported for aliases.");
+    }
+
+    @Override
+    public void setUseTempCopy(boolean value) {
+      // Do nothing
     }
   }
 }
