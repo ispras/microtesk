@@ -46,6 +46,7 @@ public final class MemoryStorage {
   private final BitVector defaultRegion;
 
   private final Map<BitVector, Map<Integer, Block>> addressMap;
+  private Map<BitVector, Map<Integer, Block>> tempAddressMap = null;
 
   private final static class Index {
     private static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
@@ -127,6 +128,18 @@ public final class MemoryStorage {
     this.addressMap = new HashMap<>();
   }
 
+  public void setUseTempCopy(boolean value) {
+    if (value) {
+      tempAddressMap = new HashMap<>();
+    } else {
+      tempAddressMap = null;
+    }
+  }
+
+  private Map<BitVector, Map<Integer, Block>> getAddressMap() {
+    return null != tempAddressMap ? tempAddressMap : addressMap;
+  }
+
   public static int calculateAddressSize(
       final int regionBitSize,
       final BigInteger regionCount) {
@@ -200,7 +213,7 @@ public final class MemoryStorage {
     checkNotNull(address);
     final Index index = new Index(address);
 
-    final Map<Integer, Block> area = addressMap.get(index.area);
+    final Map<Integer, Block> area = getAddressMap().get(index.area);
     if (null == area) {
       return defaultRegion;
     }
@@ -231,12 +244,12 @@ public final class MemoryStorage {
 
     final Index index = new Index(address);
 
-    Map<Integer, Block> area = addressMap.get(index.area);
+    Map<Integer, Block> area = getAddressMap().get(index.area);
     Block block = null;
 
     if (null == area) {
       area = new TreeMap<>();
-      addressMap.put(index.area, area);
+      getAddressMap().put(index.area, area);
     } else {
       block = area.get(index.block);
     }
@@ -250,7 +263,7 @@ public final class MemoryStorage {
   }
 
   public void reset() {
-    for (final Map<Integer, Block> area : addressMap.values()) {
+    for (final Map<Integer, Block> area : getAddressMap().values()) {
       for (final Block block : area.values()) {
         block.reset();
       }
