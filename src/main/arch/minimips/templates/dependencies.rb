@@ -25,25 +25,13 @@ require_relative 'minimips_base'
 # generated for an instruction accessing the same resource (e.g. register).
 #
 class DependenciesTemplate < MiniMipsBaseTemplate
-
-  def initialize
-    super
-    # Random seed initialization.
-    @random_seed = 0
-  end
-
   def run
-    int32_dist = dist(range(:value=> [0xDEADBEEF, 0xBADF00D], :bias => 10),
-                      range(:value => 0..31,                  :bias => 50),
-                      range(:value => 0xffffFF00..0xffffFFFF, :bias => 40))
-
     5.times {
       atomic {
-        add t0, t1,   t2 do situation('add.overflow') end
-        add t0, t1,   t3 do situation('add.normal') end
-        add t0, t1,   t4 do situation('add.overflow') end
-        add t0, zero, t5 do situation('random_biased', :size => 32, :dist => int32_dist) end
-        add t0, t5,   t6 do situation('add.normal') end
+        add t0, t0, t1 do situation('add.overflow') end
+        add t0, t0, t2 do situation('add.normal')   end
+        add t0, t0, t3 do situation('add.overflow') end
+        add t0, t0, t4 do situation('add.normal')   end
       }
     }
   end
