@@ -153,7 +153,7 @@ public final class MicroTESK {
     final String limitStr = getSetting(Parameters.LIMIT, params, settings);
     try {
       final int limitVal = Integer.parseInt(limitStr);
-      generator.setExecutionLimit(limitVal);
+      generator.setBranchExecutionLimit(limitVal);
     } catch (NumberFormatException e) {
       Logger.warning("Failed to parse the value of the -l parameter: " + limitStr);
     }

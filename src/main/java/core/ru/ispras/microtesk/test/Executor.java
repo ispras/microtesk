@@ -38,7 +38,7 @@ import ru.ispras.microtesk.utils.PrintingUtils;
 final class Executor {
   private final IModelStateObserver observer;
   private final boolean logExecution;
-  private final int executionLimit;
+  private final int branchExecutionLimit;
 
   private List<LabelReference> labelRefs;
 
@@ -54,12 +54,12 @@ final class Executor {
   public Executor(
       final IModelStateObserver observer,
       final boolean logExecution,
-      final int executionLimit) {
+      final int branchExecutionLimit) {
     checkNotNull(observer);
 
     this.observer = observer;
     this.logExecution = logExecution;
-    this.executionLimit = executionLimit;
+    this.branchExecutionLimit = branchExecutionLimit;
     this.labelRefs = null;
   }
 
@@ -142,11 +142,11 @@ final class Executor {
     while (currentPos < endPos) {
       final ConcreteCall call = sequence.get(currentPos);
 
-      if (executionLimit > 0 && call.getExecutionCount() >= executionLimit) {
+      if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
         throw new GenerationAbortedException(String.format(
             "Instruction %s reached its limit on execution count (%d). " +
             "Probably, the program entered an endless loop. Generation was aborted.",
-            call.getText(), executionLimit));
+            call.getText(), branchExecutionLimit));
       }
 
       currentPos = executeCall(call, currentPos);

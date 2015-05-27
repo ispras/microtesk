@@ -48,9 +48,9 @@ public final class TestEngine {
   private boolean printToScreen = true;
   private String commentToken = "// ";
 
-  private static int executionLimit = 200;
-  public static void setExecutionLimit(int value) {
-    executionLimit = value;
+  private static int branchExecutionLimit = 200;
+  public static void setBranchExecutionLimit(int value) {
+    branchExecutionLimit = value;
   }
 
   private TestEngine(IModel model) {
@@ -110,7 +110,7 @@ public final class TestEngine {
 
   public Template newTemplate() throws IOException {
     final IModelStateObserver observer = model.getStateObserver();
-    final Executor executor = new Executor(observer, logExecution, executionLimit);
+    final Executor executor = new Executor(observer, logExecution, branchExecutionLimit);
     final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
 
     final DataManager dataManager = new DataManager();

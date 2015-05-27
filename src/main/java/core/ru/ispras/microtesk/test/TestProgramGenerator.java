@@ -64,8 +64,8 @@ public final class TestProgramGenerator {
     return randomSeed;
   }
 
-  public void setExecutionLimit(int executionLimit) {
-    TestEngine.setExecutionLimit(executionLimit);
+  public void setBranchExecutionLimit(int branchExecutionLimit) {
+    TestEngine.setBranchExecutionLimit(branchExecutionLimit);
   }
 
   public void setSolver(final String solverName) {
