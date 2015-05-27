@@ -2,4 +2,23 @@
 <settings>
   <setting name="random-seed" value="0"/>
   <setting name="branch-exec-limit" value="200"/>
+
+  <!-- The output file extension -->
+  <setting name="code-file-extension" value=""/>
+
+  <!-- The output file prefix (file names are as follows
+       prefix_xxxx.ext, where xxxx is a 4-digit decimal number) -->
+  <setting name="code-file-prefix" value=""/>
+
+  <!-- The output file extension -->
+  <setting name="data-file-extension" value=""/>
+
+  <!-- The data file prefix -->
+  <setting name="data-file-prefix" value=""/>
+
+  <!-- The maximum number of instructions in output programs -->
+  <setting name="program-length-limit" value=""/>
+
+  <!-- The maximum length of execution traces of output programs -->
+  <setting name="trace-length-limit" value=""/>
 </settings>
