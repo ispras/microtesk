@@ -47,6 +47,13 @@ public final class MicroTESK {
     public static final String SOLVER = "s";
     public static final String LIMIT = "l";
 
+    public static final String CODE_EXT = "cfe";
+    public static final String CODE_PRE = "cpr";
+    public static final String DATA_EXT = "dfe";
+    public static final String DATA_PRE = "dpr";
+    public static final String CODE_LIMIT = "pll";
+    public static final String TRACE_LIMIT = "ptl";
+
     private static final Options options = newOptions();
 
     private static Options newOptions() {
@@ -55,6 +62,7 @@ public final class MicroTESK {
 
       final Options result = new Options();
       result.addOption(HELP, "help", false, "Shows this message");
+      result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
 
       final OptionGroup actions = new OptionGroup();
       actions.addOption(new Option(GENERATE, "generate", false, "Generates test programs"));
@@ -69,7 +77,13 @@ public final class MicroTESK {
       result.addOption(LIMIT, "branch-exec-limit", true,
           "Sets the limit on control transfers to detect endless loops" + GOPT);
 
-      result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
+      result.addOption(CODE_EXT, "code-file-extension", true, "The output file extension" + GOPT);
+      result.addOption(CODE_PRE, "code-file-prefix", true, "The output file prefix (file names are as follows prefix_xxxx.ext, where xxxx is a 4-digit decimal number)" + GOPT);
+      result.addOption(DATA_EXT, "data-file-extension", true, "The data file extension" + GOPT);
+      result.addOption(DATA_PRE, "data-file-prefix", true, "The data file prefix" + GOPT);
+      result.addOption(CODE_LIMIT, "program-length-limit", true, "The maximum number of instructions in output programs" + GOPT);
+      result.addOption(TRACE_LIMIT, "trace-length-limit", true, "The maximum length of execution traces of output programs" + GOPT);
+ 
       return result;
     }
 
