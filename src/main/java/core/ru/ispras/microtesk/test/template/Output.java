@@ -25,12 +25,12 @@ import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 
 /**
- * The Output class is holds information to be printed to the simulation output to inserted into the
+ * The Output class holds information to be printed to the simulation output to inserted into the
  * generated test program. The important attributes are:
  * 
  * <ol>
- * <li>Runtime. Specified whether the information is evaluated at the simulation time and goes to the
- * simulator log or evaluated after simulation and inserted to the generated test program.</li>
+ * <li>Runtime. Specified whether the information is evaluated at the simulation time and goes to
+ * the simulator log or evaluated after simulation and inserted to the generated test program.</li>
  * <li>Format string. Used to describe the format of the text to be printed.</li>
  * <li>Format arguments. Pieces of information to be inserted into the printed text.</li>
  * </ol>
