@@ -143,19 +143,23 @@ public final class MicroTESK {
     final TestProgramGenerator generator = new TestProgramGenerator();
 
     final String random = getSetting(Parameters.RANDOM, params, settings);
-    try {
-      final int seed = Integer.parseInt(random);
-      generator.setRandomSeed(seed);
-    } catch (NumberFormatException e) {
-      Logger.warning("Failed to parse the value of the -r parameter.");
+    if (null != random) {
+      try {
+        final int seed = Integer.parseInt(random);
+        generator.setRandomSeed(seed);
+      } catch (NumberFormatException e) {
+        Logger.warning("Failed to parse the value of the -r parameter: " + random);
+      }
     }
 
     final String limitStr = getSetting(Parameters.LIMIT, params, settings);
-    try {
-      final int limitVal = Integer.parseInt(limitStr);
-      generator.setBranchExecutionLimit(limitVal);
-    } catch (NumberFormatException e) {
-      Logger.warning("Failed to parse the value of the -l parameter: " + limitStr);
+    if (null != limitStr) {
+      try {
+        final int limitVal = Integer.parseInt(limitStr);
+        generator.setBranchExecutionLimit(limitVal);
+      } catch (NumberFormatException e) {
+        Logger.warning("Failed to parse the value of the -l parameter: " + limitStr);
+      }
     }
 
     if (params.hasOption(Parameters.SOLVER)) {
