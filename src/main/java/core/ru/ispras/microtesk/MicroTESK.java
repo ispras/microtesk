@@ -135,8 +135,11 @@ public final class MicroTESK {
     }
   }
 
-  private static void translate(final CommandLine params, final Map<String, String> settings)
+  private static void translate(
+      final CommandLine params,
+      final Map<String, String> settings)
       throws RecognitionException {
+
     final List<Translator<?>> translators = Config.loadTranslators();
     for (Translator<?> translator : translators) {
       if (params.hasOption(Parameters.INCLUDE)) {
@@ -151,7 +154,9 @@ public final class MicroTESK {
     }
   }
 
-  private static void generate(final CommandLine params, final Map<String, String> settings)
+  private static void generate(
+      final CommandLine params,
+      final Map<String, String> settings)
       throws Throwable {
 
     final TestProgramGenerator generator = new TestProgramGenerator();
@@ -203,7 +208,9 @@ public final class MicroTESK {
     generator.generate(templateFiles);
   }
 
-  private static String getSetting(final String id, final CommandLine params,
+  private static String getSetting(
+      final String id,
+      final CommandLine params,
       final Map<String, String> settings) {
 
     if (params.hasOption(id)) {
