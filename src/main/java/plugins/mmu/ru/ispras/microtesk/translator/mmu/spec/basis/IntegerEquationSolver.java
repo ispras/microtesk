@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements a simple constraint solver. The solver supports equalities and inequalities

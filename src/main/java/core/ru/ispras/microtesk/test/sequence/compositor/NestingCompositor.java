@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.sequence.compositor;
 import java.util.Stack;
 
 import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the nesting composition of iterators.
@@ -43,7 +43,7 @@ public class NestingCompositor<T> extends Compositor<T> {
   }
 
   @Override
-  protected IIterator<T> choose() {
+  protected Iterator<T> choose() {
     while (!stack.isEmpty()) {
       IteratorEntry<T> entry = stack.peek();
 

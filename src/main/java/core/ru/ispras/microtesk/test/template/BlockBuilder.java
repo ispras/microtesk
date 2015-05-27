@@ -24,7 +24,7 @@ import java.util.HashMap;
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 
 public final class BlockBuilder {
@@ -109,7 +109,7 @@ public final class BlockBuilder {
     final Sequence<Call> sequence = new Sequence<Call>();
     sequence.add(call);
 
-    final IIterator<Sequence<Call>> iterator = new SingleValueIterator<Sequence<Call>>(sequence);
+    final Iterator<Sequence<Call>> iterator = new SingleValueIterator<Sequence<Call>>(sequence);
     nestedBlocks.add(new Block(blockId, iterator));
   }
 

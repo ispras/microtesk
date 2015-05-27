@@ -16,33 +16,30 @@ package ru.ispras.microtesk.test.sequence;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 public final class GeneratorSingle<T> implements Generator<T> {
   private final Sequence<T> sequence;
   private boolean hasValue;
 
-  public GeneratorSingle(List<IIterator<Sequence<T>>> iterators) {
+  public GeneratorSingle(List<Iterator<Sequence<T>>> iterators) {
     checkNotNull(iterators);
 
     this.sequence = createSingleSequence(iterators);
     this.hasValue = false;
   }
 
-  private static <T> Sequence<T> createSingleSequence(List<IIterator<Sequence<T>>> iterators) {
+  private static <T> Sequence<T> createSingleSequence(List<Iterator<Sequence<T>>> iterators) {
     if (iterators.isEmpty()) {
       return null;
     }
 
     final Sequence<T> result = new Sequence<T>();
-    final Iterator<IIterator<Sequence<T>>> it = iterators.iterator();
 
-    while (it.hasNext()) {
-      final IIterator<Sequence<T>> sequenceIterator = it.next();
+    for (final Iterator<Sequence<T>> sequenceIterator : iterators) {
       sequenceIterator.init();
       while (sequenceIterator.hasValue()) {
         result.addAll(sequenceIterator.value());

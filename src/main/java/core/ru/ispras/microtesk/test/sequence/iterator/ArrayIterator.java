@@ -19,7 +19,7 @@ package ru.ispras.microtesk.test.sequence.iterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class ArrayIterator<T> implements IBoundedIterator<T> {
+public class ArrayIterator<T> implements BoundedIterator<T> {
   /** The iterated array. */
   private T[] array;
   /** The current index. */

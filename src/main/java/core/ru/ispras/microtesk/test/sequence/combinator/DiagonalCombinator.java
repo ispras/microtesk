@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.sequence.combinator;
 import java.util.HashSet;
 import java.util.Set;
 
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the diagonal combinator of iterators.
@@ -35,7 +35,7 @@ public class DiagonalCombinator<T> extends Combinator<T> {
 
   @Override
   public T getValue(int i) {
-    IIterator<T> iterator = iterators.get(i);
+    Iterator<T> iterator = iterators.get(i);
 
     return iterator.hasValue() ? iterator.value() : null;
   }
@@ -43,7 +43,7 @@ public class DiagonalCombinator<T> extends Combinator<T> {
   @Override
   public boolean doNext() {
     for (int i = 0; i < iterators.size(); i++) {
-      IIterator<T> iterator = iterators.get(i);
+      Iterator<T> iterator = iterators.get(i);
 
       iterator.next();
 

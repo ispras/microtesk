@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.test.sequence.internal;
 
-import ru.ispras.microtesk.test.sequence.iterator.IBoundedIterator;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.BoundedIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class represents an iterator entry that is used in some compositors.
@@ -37,7 +37,7 @@ public class IteratorEntry<T> {
   public boolean done;
 
   /** The iterator itself. */
-  public IIterator<T> iterator;
+  public Iterator<T> iterator;
 
   /**
    * Constructs an iterator entry.
@@ -45,10 +45,10 @@ public class IteratorEntry<T> {
    * @param iterator the iterator.
    * @param position the relative position of the composition point.
    */
-  public IteratorEntry(final IIterator<T> iterator, float position) {
+  public IteratorEntry(final Iterator<T> iterator, float position) {
     assert 0.0 <= position && position <= 100.0;
 
-    if (!(iterator instanceof IBoundedIterator)) {
+    if (!(iterator instanceof BoundedIterator)) {
       throw new IllegalArgumentException();
     }
 
@@ -56,7 +56,7 @@ public class IteratorEntry<T> {
 
     this.done = false;
 
-    this.count = ((IBoundedIterator<T>) iterator).size();
+    this.count = ((BoundedIterator<T>) iterator).size();
     this.point = (int) ((position * count) / 100.0f);
     this.index = 0;
   }
@@ -66,7 +66,7 @@ public class IteratorEntry<T> {
    * 
    * @param iterator the iterator.
    */
-  public IteratorEntry(final IIterator<T> iterator) {
+  public IteratorEntry(final Iterator<T> iterator) {
     this(iterator, DEFAULT_POINT_POSITION);
   }
 }

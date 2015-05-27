@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * {@link IntegerClauseSolver} implements an equation clause solver.

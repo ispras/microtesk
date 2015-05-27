@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class is a basic combinator of iterators. It takes several iterators and produces different
@@ -26,7 +26,7 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Combinator<T> extends CompositeIterator<T> implements IIterator<List<T>> {
+public abstract class Combinator<T> extends CompositeIterator<T> implements Iterator<List<T>> {
   /** Availability of the value. */
   private boolean hasValue;
 
@@ -40,7 +40,7 @@ public abstract class Combinator<T> extends CompositeIterator<T> implements IIte
    * 
    * @param iterators the list of iterators to be composed.
    */
-  public Combinator(final List<IIterator<T>> iterators) {
+  public Combinator(final List<Iterator<T>> iterators) {
     addIterators(iterators);
   }
 
@@ -75,7 +75,7 @@ public abstract class Combinator<T> extends CompositeIterator<T> implements IIte
 
   @Override
   public void init() {
-    for (IIterator<T> iterator : iterators) {
+    for (Iterator<T> iterator : iterators) {
       iterator.init();
     }
 

@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
@@ -45,7 +45,7 @@ public class RandomCombinator<T> extends Combinator<T> {
     exhausted.clear();
 
     for (int i = 0; i < iterators.size(); i++) {
-      IIterator<T> iterator = iterators.get(i);
+      Iterator<T> iterator = iterators.get(i);
 
       if (iterator.hasValue()) {
         addValue(i, iterator.value());
@@ -70,7 +70,7 @@ public class RandomCombinator<T> extends Combinator<T> {
     }
 
     for (int i = 0; i < iterators.size(); i++) {
-      final IIterator<T> iterator = iterators.get(i);
+      final Iterator<T> iterator = iterators.get(i);
 
       // If the iterator is not exhausted, with probability 0.5 use new value
       if (iterator.hasValue() && Randomizer.get().nextBoolean()) {

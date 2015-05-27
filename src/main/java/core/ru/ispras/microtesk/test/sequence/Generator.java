@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.test.sequence;
 
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
-public interface Generator<T> extends IIterator<Sequence<T>> {
+public interface Generator<T> extends Iterator<Sequence<T>> {
 
 }

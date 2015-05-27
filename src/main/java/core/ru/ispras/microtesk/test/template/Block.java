@@ -21,16 +21,16 @@ import java.util.Map;
 
 import ru.ispras.microtesk.test.sequence.GeneratorSingle;
 import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 public final class Block {
   private final BlockId blockId;
-  private final IIterator<Sequence<Call>> iterator;
+  private final Iterator<Sequence<Call>> iterator;
   private final Map<String, Object> attributes;
   private final boolean isEmpty;
   private final boolean isSingle;
 
-  Block(BlockId blockId, IIterator<Sequence<Call>> iterator, Map<String, Object> attributes) {
+  Block(BlockId blockId, Iterator<Sequence<Call>> iterator, Map<String, Object> attributes) {
     checkNotNull(blockId);
     checkNotNull(iterator);
     checkNotNull(attributes);
@@ -50,7 +50,7 @@ public final class Block {
     this.isSingle = iterator instanceof GeneratorSingle;
   }
 
-  Block(BlockId blockId, IIterator<Sequence<Call>> iterator) {
+  Block(BlockId blockId, Iterator<Sequence<Call>> iterator) {
     this(blockId, iterator, Collections.<String, Object>emptyMap());
   }
 
@@ -58,7 +58,7 @@ public final class Block {
     return blockId;
   }
 
-  public IIterator<Sequence<Call>> getIterator() {
+  public Iterator<Sequence<Call>> getIterator() {
     return iterator;
   }
 

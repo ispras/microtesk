@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class represents a finite integer domain (a finite set of integer values). The domain is

@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.sequence.compositor;
 import java.util.ArrayList;
 
 import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the overlapping (shift) composition of iterators.
@@ -52,7 +52,7 @@ public class OverlappingCompositor<T> extends Compositor<T> {
   }
 
   @Override
-  protected IIterator<T> choose() {
+  protected Iterator<T> choose() {
     while (!overlap.isEmpty() || (n + 1) < iterators.size()) {
       if (overlap.isEmpty()) {
         overlap.add(new IteratorEntry<T>(iterators.get(++n)));

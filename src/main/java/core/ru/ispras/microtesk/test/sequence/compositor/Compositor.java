@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.sequence.compositor;
 import java.util.List;
 
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class is a basic compositor of iterators. It takes several iterators and merges them into a
@@ -26,9 +26,9 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Compositor<T> extends CompositeIterator<T> implements IIterator<T> {
+public abstract class Compositor<T> extends CompositeIterator<T> implements Iterator<T> {
   /** The currently chosen iterator. */
-  private IIterator<T> chosen;
+  private Iterator<T> chosen;
 
   /**
    * Constructs a compositor with the empty list of iterators.
@@ -42,7 +42,7 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements IIte
    * 
    * @param iterators the list of iterators to be composed.
    */
-  public Compositor(final List<IIterator<T>> iterators) {
+  public Compositor(final List<Iterator<T>> iterators) {
     addIterators(iterators);
   }
 
@@ -65,7 +65,7 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements IIte
    * 
    * @return one of the iterators from the compositor's list.
    */
-  protected abstract IIterator<T> choose();
+  protected abstract Iterator<T> choose();
 
   ///////////////////////////////////////////////////////////////////////////
   // Callback-based implementation of the iterator method
@@ -73,7 +73,7 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements IIte
 
   @Override
   public void init() {
-    for (IIterator<T> iterator : iterators) {
+    for (Iterator<T> iterator : iterators) {
       iterator.init();
     }
 

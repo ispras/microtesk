@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.compositor;
 
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the rotation (interleaving) composition of iterators.
@@ -36,7 +36,7 @@ public class RotationCompositor<T> extends Compositor<T> {
   }
 
   @Override
-  protected IIterator<T> choose() {
+  protected Iterator<T> choose() {
     for (int j = 0; j < iterators.size(); j++) {
       final int k = (i + j) % iterators.size();
 

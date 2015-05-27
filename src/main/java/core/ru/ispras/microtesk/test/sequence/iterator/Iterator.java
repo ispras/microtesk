@@ -15,47 +15,28 @@
 package ru.ispras.microtesk.test.sequence.iterator;
 
 /**
- * This class implements a single-value iterator.
+ * This is a generic iterator interface.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class SingleValueIterator<T> implements BoundedIterator<T> {
-  /** The flag that refrects availability of the value. */
-  private boolean hasValue;
-  /** The value itself. */
-  private T value;
+public interface Iterator<T> {
+  /** Initializes the iterator. */
+  public void init();
 
   /**
-   * Constructs a single-value iterator.
+   * Checks whether the iterator is not exhausted (value is available).
    * 
-   * @param value the value to be returned by the iterator.
+   * @return <code>true</code> if the iterator is not exhausted; <code>false</code> otherwise.
    */
-  public SingleValueIterator(T value) {
-    this.value = value;
-  }
+  public boolean hasValue();
 
-  @Override
-  public void init() {
-    hasValue = true;
-  }
+  /**
+   * Returns the current value of the iterator.
+   * 
+   * @return the current value of the iterator.
+   */
+  public T value();
 
-  @Override
-  public boolean hasValue() {
-    return hasValue;
-  }
-
-  @Override
-  public T value() {
-    return value;
-  }
-
-  @Override
-  public void next() {
-    hasValue = false;
-  }
-
-  @Override
-  public int size() {
-    return 1;
-  }
+  /** Makes the iteration. */
+  public void next();
 }

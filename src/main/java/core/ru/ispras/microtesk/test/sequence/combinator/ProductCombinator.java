@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.combinator;
 
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the product combinator of iterators.
@@ -27,14 +27,14 @@ public class ProductCombinator<T> extends Combinator<T> {
 
   @Override
   public T getValue(int i) {
-    final IIterator<T> iterator = iterators.get(i);
+    final Iterator<T> iterator = iterators.get(i);
     return iterator.hasValue() ? iterator.value() : null;
   }
 
   @Override
   public boolean doNext() {
     for (int j = iterators.size() - 1; j >= 0; j--) {
-      final IIterator<T> iterator = iterators.get(j);
+      final Iterator<T> iterator = iterators.get(j);
 
       if (iterator.hasValue()) {
         iterator.next();

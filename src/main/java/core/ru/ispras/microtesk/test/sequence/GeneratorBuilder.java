@@ -23,9 +23,9 @@ import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
  */
 public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>> {
   /** The default combinator. */
-  public static final ECombinator DEFAULT_COMBINATOR = ECombinator.RANDOM;
+  public static final CombinatorId DEFAULT_COMBINATOR = CombinatorId.RANDOM;
   /** The default compositor. */
-  public static final ECompositor DEFAULT_COMPOSITOR = ECompositor.RANDOM;
+  public static final CompositorId DEFAULT_COMPOSITOR = CompositorId.RANDOM;
 
   /** The configuration of the test sequence generator. */
   private Configuration<T> config = new Configuration<T>();

@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.sequence.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class is a basic class for composite iterators (e.g., combinators or compositors).
@@ -26,14 +26,14 @@ import ru.ispras.microtesk.test.sequence.iterator.IIterator;
  */
 public abstract class CompositeIterator<T> {
   /** The sub-iterators (i.e., iterators to be combined or composed). */
-  protected ArrayList<IIterator<T>> iterators = new ArrayList<IIterator<T>>();
+  protected ArrayList<Iterator<T>> iterators = new ArrayList<Iterator<T>>();
 
   /**
    * Returns the list of sub-iterators.
    * 
    * @return the list of sub-iterators.
    */
-  public List<IIterator<T>> getIterators() {
+  public List<Iterator<T>> getIterators() {
     return iterators;
   }
 
@@ -42,7 +42,7 @@ public abstract class CompositeIterator<T> {
    * 
    * @param iterator the sub-iterator to be added to the list.
    */
-  public void addIterator(final IIterator<T> iterator) {
+  public void addIterator(final Iterator<T> iterator) {
     iterators.add(iterator);
   }
 
@@ -51,7 +51,7 @@ public abstract class CompositeIterator<T> {
    * 
    * @param iterators the sub-iterators to be added to the list.
    */
-  public void addIterators(final List<IIterator<T>> iterators) {
+  public void addIterators(final List<Iterator<T>> iterators) {
     this.iterators.addAll(iterators);
   }
 

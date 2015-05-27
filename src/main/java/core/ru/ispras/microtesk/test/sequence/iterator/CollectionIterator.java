@@ -22,7 +22,7 @@ import java.util.Iterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class CollectionIterator<T> implements IBoundedIterator<T> {
+public class CollectionIterator<T> implements BoundedIterator<T> {
   /** The collection being iterator. */
   private Collection<T> collection;
   /** The collection iterator. */

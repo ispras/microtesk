@@ -27,7 +27,7 @@ import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.DataManager;
@@ -203,7 +203,7 @@ public final class TestEngine {
 
     private void processBlock(Block block) throws ConfigurationException {
       final boolean isSingleSequence = block.isSingle();
-      final IIterator<Sequence<Call>> sequenceIt = block.getIterator();
+      final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
 
       int sequenceIndex = 1;
       sequenceIt.init();

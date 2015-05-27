@@ -12,18 +12,13 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.iterator;
+package ru.ispras.microtesk.test.sequence;
 
 /**
- * This is a generic bounded iterator interface.
+ * {@link CombinatorId} contains the standard combinator identifiers.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface IBoundedIterator<T> extends IIterator<T> {
-  /**
-   * Returns the size of the collection of the iterated items.
-   * 
-   * @return the number of items being iterated.
-   */
-  public int size();
+public enum CombinatorId {
+  PRODUCT, DIAGONAL, RANDOM
 }

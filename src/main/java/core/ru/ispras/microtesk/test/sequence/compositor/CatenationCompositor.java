@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.compositor;
 
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the concatenation (catenation) of iterators.
@@ -36,7 +36,7 @@ public class CatenationCompositor<T> extends Compositor<T> {
   }
 
   @Override
-  protected IIterator<T> choose() {
+  protected Iterator<T> choose() {
     for (; i < iterators.size(); i++) {
       if (iterators.get(i).hasValue()) {
         return iterators.get(i);

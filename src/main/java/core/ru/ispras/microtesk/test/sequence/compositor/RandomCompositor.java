@@ -17,8 +17,8 @@ package ru.ispras.microtesk.test.sequence.compositor;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.test.sequence.iterator.IBoundedIterator;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.BoundedIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBiased;
 
@@ -41,22 +41,22 @@ public class RandomCompositor<T> extends Compositor<T> {
     // Check whether there are unbounded iterators.
     boolean bounded = true;
 
-    for (final IIterator<T> iterator : iterators) {
-      if (!(iterator instanceof IBoundedIterator)) {
+    for (final Iterator<T> iterator : iterators) {
+      if (!(iterator instanceof BoundedIterator)) {
         bounded = false;
         break;
       }
     }
 
     for (int i = 0; i < iterators.size(); i++) {
-      final IIterator<T> iterator = iterators.get(i);
+      final Iterator<T> iterator = iterators.get(i);
 
       // If all of the iterators are bounded (i.e., their sequences' sizes are known),
       // the iterator choice probability is proportional to the sequence size.
       // If there are unbounded iterators (i.e., iterators with unknown size),
       // the uniform probability distribution is used for choosing iterators.
       values.add(i);
-      biases.add(bounded ? ((IBoundedIterator<T>) iterator).size() : 1);
+      biases.add(bounded ? ((BoundedIterator<T>) iterator).size() : 1);
     }
 
     distribution = new VariateBiased<>(values, biases);
@@ -68,7 +68,7 @@ public class RandomCompositor<T> extends Compositor<T> {
   }
 
   @Override
-  protected IIterator<T> choose() {
+  protected Iterator<T> choose() {
     // If there are non-exhausted iterators, choose one of them.
     while (!values.isEmpty()) {
       final int i = distribution.value();

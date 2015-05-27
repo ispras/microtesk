@@ -18,19 +18,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.microtesk.test.sequence.iterator.CollectionIterator;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 public final class GeneratorSequence<T> implements Generator<T> {
 
   private final CollectionIterator<Sequence<T>> collectionIterator; 
 
-  public GeneratorSequence(List<IIterator<Sequence<T>>> iterators) {
+  public GeneratorSequence(List<Iterator<Sequence<T>>> iterators) {
     if (null == iterators) {
       throw new NullPointerException(); 
     }
 
     final List<Sequence<T>> sequences = new ArrayList<Sequence<T>>();
-    for (IIterator<Sequence<T>> sequenceIterator : iterators) {
+    for (Iterator<Sequence<T>> sequenceIterator : iterators) {
       final Sequence<T> sequence = createSingleSequence(sequenceIterator);
       sequences.add(sequence);
     }
@@ -38,7 +38,7 @@ public final class GeneratorSequence<T> implements Generator<T> {
     this.collectionIterator = new CollectionIterator<Sequence<T>>(sequences);
   }
 
-  private static <T> Sequence<T> createSingleSequence(IIterator<Sequence<T>> sequenceIterator)
+  private static <T> Sequence<T> createSingleSequence(Iterator<Sequence<T>> sequenceIterator)
   {
     final Sequence<T> result = new Sequence<T>();
 

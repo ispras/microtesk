@@ -15,10 +15,10 @@
 package ru.ispras.microtesk.test.sequence;
 
 /**
- * This enumeration contains the standard combinators.
+ * {@link CompositorId} contains the standard compositor identifiers.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum ECombinator {
-  PRODUCT, DIAGONAL, RANDOM
+public enum CompositorId {
+  CATENATION, ROTATION, OVERLAPPING, NESTING, RANDOM
 }

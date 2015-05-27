@@ -19,7 +19,7 @@ import java.util.List;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
 import ru.ispras.microtesk.test.sequence.iterator.CollectionIterator;
-import ru.ispras.microtesk.test.sequence.iterator.IIterator;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the test sequence generator.
@@ -36,7 +36,7 @@ public class GeneratorMerge<T> implements Generator<T> {
   private Compositor<T> compositor;
 
   /** The list of iterators. */
-  private List<IIterator<Sequence<T>>> iterators;
+  private List<Iterator<Sequence<T>>> iterators;
 
   /**
    * Constructs a test sequence generator.
@@ -46,7 +46,7 @@ public class GeneratorMerge<T> implements Generator<T> {
    */
 
   public GeneratorMerge(final Combinator<Sequence<T>> combinator, final Compositor<T> compositor,
-      final List<IIterator<Sequence<T>>> iterators) {
+      final List<Iterator<Sequence<T>>> iterators) {
     this.combinator = combinator;
     this.compositor = compositor;
     this.iterators = iterators;

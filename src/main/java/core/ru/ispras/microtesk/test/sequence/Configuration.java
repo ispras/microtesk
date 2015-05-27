@@ -37,16 +37,16 @@ public class Configuration<T> {
    */
   public Configuration() {
     // Available combinators
-    combinators.put(ECombinator.PRODUCT.name(), ProductCombinator.class);
-    combinators.put(ECombinator.DIAGONAL.name(), DiagonalCombinator.class);
-    combinators.put(ECombinator.RANDOM.name(), RandomCombinator.class);
+    combinators.put(CombinatorId.PRODUCT.name(), ProductCombinator.class);
+    combinators.put(CombinatorId.DIAGONAL.name(), DiagonalCombinator.class);
+    combinators.put(CombinatorId.RANDOM.name(), RandomCombinator.class);
 
     // Available compositors
-    compositors.put(ECompositor.CATENATION.name(), CatenationCompositor.class);
-    compositors.put(ECompositor.ROTATION.name(), RotationCompositor.class);
-    compositors.put(ECompositor.OVERLAPPING.name(), OverlappingCompositor.class);
-    compositors.put(ECompositor.NESTING.name(), NestingCompositor.class);
-    compositors.put(ECompositor.RANDOM.name(), RandomCompositor.class);
+    compositors.put(CompositorId.CATENATION.name(), CatenationCompositor.class);
+    compositors.put(CompositorId.ROTATION.name(), RotationCompositor.class);
+    compositors.put(CompositorId.OVERLAPPING.name(), OverlappingCompositor.class);
+    compositors.put(CompositorId.NESTING.name(), NestingCompositor.class);
+    compositors.put(CompositorId.RANDOM.name(), RandomCompositor.class);
   }
 
   /**
@@ -67,7 +67,7 @@ public class Configuration<T> {
    * @return a combinator instance.
    * @param id the combinator's id.
    */
-  public Combinator<Sequence<T>> getCombinator(final ECombinator id) {
+  public Combinator<Sequence<T>> getCombinator(final CombinatorId id) {
     return getCombinator(id.name());
   }
 
@@ -88,7 +88,7 @@ public class Configuration<T> {
    * @return a compositor instance.
    * @param id the compositor's id.
    */
-  public Compositor<T> getCompositor(final ECompositor id) {
+  public Compositor<T> getCompositor(final CompositorId id) {
     return getCompositor(id.name());
   }
 
