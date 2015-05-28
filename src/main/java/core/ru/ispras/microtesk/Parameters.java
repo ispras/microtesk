@@ -126,7 +126,7 @@ public final class Parameters {
       return true;
     }
 
-    if (settings.containsKey(option.getOpt())) {
+    if (settings.containsKey(option.getLongOpt())) {
       return true;
     }
 
@@ -140,8 +140,8 @@ public final class Parameters {
       return commandLine.getOptionValue(option.getOpt());
     }
 
-    if (settings.containsKey(option.getOpt())) {
-      return settings.get(option.getOpt());
+    if (settings.containsKey(option.getLongOpt())) {
+      return settings.get(option.getLongOpt());
     }
 
     throw new IllegalStateException(String.format(

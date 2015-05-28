@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.runtime.RecognitionException;
@@ -22,7 +21,6 @@ import org.apache.commons.cli.ParseException;
 
 import ru.ispras.microtesk.test.TestProgramGenerator;
 import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.utils.FileUtils;
 
 public final class MicroTESK {
   private MicroTESK() {}
@@ -98,25 +96,16 @@ public final class MicroTESK {
     }
 
     final String[] args = params.getArgs();
-    if (args.length < 2) {
-      Logger.error("Wrong number of generator arguments. At least two are required.");
-      Logger.message("Argument format: <model name>, <template files>[, <output file>]");
+    if (args.length != 2) {
+      Logger.error("Wrong number of generator arguments. Two arguments are required.");
+      Logger.message("Argument format: <model name>, <template file>");
       return;
     }
 
     final String modelName = args[0];
     generator.setModelName(modelName);
 
-    final List<String> templateFiles = new ArrayList<>();
-    for (int index = 1; index < args.length; ++index) {
-      final String fileName = args[index];
-      if (".rb".equals(FileUtils.getFileExtension(fileName))) {
-        templateFiles.add(fileName);
-      } else if (index == args.length - 1) {
-        generator.setFileName(fileName);
-      }
-    }
-
-    generator.generate(templateFiles);
+    final String templateFile = args[1];
+    generator.generate(templateFile);
   }
 }

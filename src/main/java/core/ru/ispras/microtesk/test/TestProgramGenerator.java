@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import java.io.File;
-import java.util.List;
 
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
@@ -78,14 +77,12 @@ public final class TestProgramGenerator {
     }
   }
 
-  public void generate(final List<String> templateFiles) throws Throwable {
+  public void generate(final String templateFile) throws Throwable {
     try {
-      for (final String template : templateFiles) {
-        if (null != fileName && !fileName.isEmpty()) {
-          runTemplate(modelName, template, fileName);
-        } else {
-          runTemplate(modelName, template);
-        }
+      if (null != fileName && !fileName.isEmpty()) {
+        runTemplate(modelName, templateFile, fileName);
+      } else {
+        runTemplate(modelName, templateFile);
       }
     } catch (GenerationAbortedException e) {
       Logger.error(e.getMessage());
