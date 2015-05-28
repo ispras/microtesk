@@ -15,8 +15,10 @@
 package ru.ispras.microtesk;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.runtime.RecognitionException;
 import org.apache.commons.cli.CommandLine;
@@ -37,59 +39,173 @@ public final class MicroTESK {
   private MicroTESK() {}
 
   private static class Parameters {
-    public static final String INCLUDE = "i";
-    public static final String HELP = "h";
-    public static final String OUTDIR = "d";
-    public static final String GENERATE = "g";
-    public static final String TRANSLATE = "t";
-    public static final String VERBOSE = "v";
-    public static final String RANDOM = "r";
-    public static final String SOLVER = "s";
-    public static final String LIMIT = "l";
+    private static final Set<String> NAMES = new HashSet<>();
+    private static final Set<String> SHORT_NAMES = new HashSet<>();
 
-    public static final String CODE_EXT = "cfe";
-    public static final String CODE_PRE = "cpr";
-    public static final String DATA_EXT = "dfe";
-    public static final String DATA_PRE = "dpr";
-    public static final String CODE_LIMIT = "pll";
-    public static final String TRACE_LIMIT = "ptl";
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Flags
+
+    public static final Option HELP = 
+        newOption("help", false, "Shows help message");
+
+    public static final Option VERBOSE =
+        newOption("verbose", false, "Enables printing diagnostic messages");
+
+    public static final Option TRANSLATE = 
+        newOption("translate", false, "Translates formal specifications");
+
+    public static final Option GENERATE = 
+        newOption("generate", false, "Generates test programs");
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Translator Options
+
+    public static final Option INCLUDE =
+        newOption("include", true, "Sets include files directories", TRANSLATE);
+
+    public static final Option OUTDIR =
+        newOption("output-dir", true, "Sets where to place generated files", TRANSLATE);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Test Program Generation Options (File Creation)
+
+    public static final Option RANDOM = 
+        newOption("random-seed", true, "Sets seed for randomizer", GENERATE);
+
+    public static final Option SOLVER = 
+        newOption("solver", true, "Sets constraint solver engine to be used", GENERATE);
+
+    public static final Option LIMIT =
+        newOption("branch-exec-limit", true,
+            "Sets the limit on control transfers to detect endless loops", GENERATE);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Test Program Generation Options (File Creation)
+
+    public static final Option CODE_EXT = 
+        newOption("code-file-extension", true, "The output file extension", GENERATE);
+
+    public static final Option CODE_PRE =
+        newOption("code-file-prefix", true,
+            "The output file prefix (file names are as follows prefix_xxxx.ext, " + 
+            "where xxxx is a 4-digit decimal number)", GENERATE);
+     
+    public static final Option DATA_EXT =
+        newOption("data-file-extension", true, "The data file extension", GENERATE);
+
+    public static final Option DATA_PRE = 
+        newOption("data-file-prefix", true, "The data file prefix", GENERATE);
+
+    public static final Option CODE_LIMIT = 
+        newOption("program-length-limit", true,
+            "The maximum number of instructions in output programs", GENERATE);
+    
+    public static final Option TRACE_LIMIT =
+        newOption("trace-length-limit", true,
+            "The maximum length of execution traces of output programs", GENERATE);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Options
 
     private static final Options options = newOptions();
 
-    private static Options newOptions() {
-      final String TOPT = " [works with -t]";
-      final String GOPT = " [works with -g]";
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Parsed Command Line
 
+    final CommandLine commandLine;
+
+    public Parameters(String[] args) throws ParseException {
+      commandLine = parse(args);
+    }
+
+    public boolean hasOption(Option option) {
+      InvariantChecks.checkNotNull(option);
+      return commandLine.hasOption(option.getOpt());
+    }
+
+    public String getOptionValue(Option option) {
+      InvariantChecks.checkNotNull(option);
+      return commandLine.getOptionValue(option.getOpt());
+    }
+
+    public String[] getArgs() {
+      return commandLine.getArgs();
+    }
+
+    private static Option newOption(
+        final String name,
+        final boolean hasArg,
+        final String description) {
+      return newOption(name, hasArg, description, null);
+    }
+
+    private static Option newOption(
+        final String name,
+        final boolean hasArg,
+        final String description,
+        final Option dependency) {
+      InvariantChecks.checkNotNull(name);
+      InvariantChecks.checkNotNull(description);
+
+      if (NAMES.contains(name)) {
+        throw new IllegalArgumentException(name + " is already used!");
+      }
+
+      final String shortName = makeUniqueShortName(name);
+      final String fullDescription = null == dependency ? description :
+          String.format("%s [works with %s]", description, dependency.getLongOpt());
+
+      SHORT_NAMES.add(shortName);
+      NAMES.add(name);
+
+      return new Option(shortName, name, hasArg, fullDescription);
+    }
+
+    private static String makeUniqueShortName(final String name) {
+      final String[] nameTokens = name.split("-");
+
+      final StringBuilder sb = new StringBuilder();
+      for (final String token : nameTokens) {
+        sb.append(token.charAt(0));
+      }
+
+      while (SHORT_NAMES.contains(sb.toString())) {
+        final String lastToken = nameTokens[nameTokens.length - 1];
+        sb.append(lastToken.charAt(0));
+      }
+
+      return sb.toString();
+    }
+
+    private static Options newOptions() {
       final Options result = new Options();
-      result.addOption(HELP, "help", false, "Shows this message");
-      result.addOption(VERBOSE, "verbose", false, "Enables printing diagnostic messages");
+
+      result.addOption(HELP);
+      result.addOption(VERBOSE);
 
       final OptionGroup actions = new OptionGroup();
-      actions.addOption(new Option(GENERATE, "generate", false, "Generates test programs"));
-      actions.addOption(new Option(TRANSLATE, "translate", false,
-          "Translates formal specifications"));
+      actions.addOption(TRANSLATE);
+      actions.addOption(GENERATE);
       result.addOptionGroup(actions);
 
-      result.addOption(INCLUDE, "include", true, "Sets include files directories" + TOPT);
-      result.addOption(OUTDIR, "output-dir", true, "Sets where to place generated files" + TOPT);
-      result.addOption(RANDOM, "random-seed", true, "Sets seed for randomizer" + GOPT);
-      result.addOption(SOLVER, "solver", true, "Sets constraint solver engine to be used" + GOPT);
-      result.addOption(LIMIT, "branch-exec-limit", true,
-          "Sets the limit on control transfers to detect endless loops" + GOPT);
+      result.addOption(INCLUDE);
+      result.addOption(OUTDIR);
 
-      result.addOption(CODE_EXT, "code-file-extension", true, "The output file extension" + GOPT);
-      result.addOption(CODE_PRE, "code-file-prefix", true, "The output file prefix (file names are as follows prefix_xxxx.ext, where xxxx is a 4-digit decimal number)" + GOPT);
-      result.addOption(DATA_EXT, "data-file-extension", true, "The data file extension" + GOPT);
-      result.addOption(DATA_PRE, "data-file-prefix", true, "The data file prefix" + GOPT);
-      result.addOption(CODE_LIMIT, "program-length-limit", true, "The maximum number of instructions in output programs" + GOPT);
-      result.addOption(TRACE_LIMIT, "trace-length-limit", true, "The maximum length of execution traces of output programs" + GOPT);
- 
+      result.addOption(RANDOM);
+      result.addOption(SOLVER);
+      result.addOption(LIMIT);
+
+      result.addOption(CODE_EXT);
+      result.addOption(CODE_PRE);
+      result.addOption(DATA_EXT);
+      result.addOption(DATA_PRE);
+      result.addOption(CODE_LIMIT);
+      result.addOption(TRACE_LIMIT);
+
       return result;
     }
 
-    private Parameters() {}
-
-    public static CommandLine parse(String[] args) throws ParseException {
+    private static CommandLine parse(String[] args) throws ParseException {
       final CommandLineParser parser = new GnuParser();
       return parser.parse(options, args);
     }
@@ -101,10 +217,10 @@ public final class MicroTESK {
   }
 
   public static void main(String[] args) {
-    final CommandLine params;
+    final Parameters params;
 
     try {
-      params = Parameters.parse(args);
+      params = new Parameters(args);
     } catch (ParseException e) {
       Logger.error("Wrong command line: " + e.getMessage());
       Parameters.help();
@@ -136,7 +252,7 @@ public final class MicroTESK {
   }
 
   private static void translate(
-      final CommandLine params,
+      final Parameters params,
       final Map<String, String> settings)
       throws RecognitionException {
 
@@ -155,7 +271,7 @@ public final class MicroTESK {
   }
 
   private static void generate(
-      final CommandLine params,
+      final Parameters params,
       final Map<String, String> settings)
       throws Throwable {
 
@@ -209,17 +325,15 @@ public final class MicroTESK {
   }
 
   private static String getSetting(
-      final String id,
-      final CommandLine params,
+      final Option option,
+      final Parameters params,
       final Map<String, String> settings) {
 
-    if (params.hasOption(id)) {
-      return params.getOptionValue(id);
+    if (params.hasOption(option)) {
+      return params.getOptionValue(option);
     }
 
-    final Option option = Parameters.options.getOption(id);
-    final String opetionName = option.getLongOpt();
-
-    return settings.get(opetionName);
+    final String optionName = option.getLongOpt();
+    return settings.get(optionName);
   }
 }

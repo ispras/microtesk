@@ -370,7 +370,7 @@
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
       <env key="MICROTESK_HOME" value="${dist}"/>
       <jvmarg value="-ea"/>
-      <arg value="-d"/>
+      <arg value="-od"/>
       <arg value="${dist.gen}"/>
       <arg value="${dist}/arch/demo/cpu/model/cpu.nml"/>
       <classpath>
@@ -382,7 +382,7 @@
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
       <env key="MICROTESK_HOME" value="${dist}"/>
       <jvmarg value="-ea"/>
-      <arg value="-d"/>
+      <arg value="-od"/>
       <arg value="${dist.gen}"/>
       <arg value="${dist}/arch/demo/vliw/model/vliw.nml"/>
       <classpath>
@@ -394,7 +394,7 @@
     <java jar="${dist.jars}/${jar}" fork="true" failonerror="true">
       <env key="MICROTESK_HOME" value="${dist}"/>
       <jvmarg value="-ea"/>
-      <arg value="-d"/>
+      <arg value="-od"/>
       <arg value="${dist.gen}"/>
       <arg value="${dist}/arch/minimips/model/minimips.nml"/>
       <classpath>
