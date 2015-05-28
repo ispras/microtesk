@@ -156,7 +156,7 @@ public final class Parameters {
       value = Integer.parseInt(valueText);
     } catch (NumberFormatException e) {
       throw new ParseException(String.format(
-          "Failed to parse the value of the %s option as integer: %s",
+          "Failed to parse the value of the --%s option as integer: %s",
           option.getLongOpt(), e.getMessage()));
     }
 
@@ -183,12 +183,12 @@ public final class Parameters {
     InvariantChecks.checkNotNull(description);
 
     if (NAMES.contains(name)) {
-      throw new IllegalArgumentException(name + " is already used!");
+      throw new IllegalArgumentException(String.format("--%s is already used!", name));
     }
 
     final String shortName = makeUniqueShortName(name);
     final String fullDescription = null == dependency ? description :
-        String.format("%s [works with %s]", description, dependency.getLongOpt());
+        String.format("%s [works with the --%s key]", description, dependency.getLongOpt());
 
     SHORT_NAMES.add(shortName);
     NAMES.add(name);

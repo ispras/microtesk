@@ -83,14 +83,14 @@ public final class MicroTESK {
       final int randomSeed = params.getOptionValueAsInt(Parameters.RANDOM);
       generator.setRandomSeed(randomSeed);
     } else {
-      Logger.warning("The %s option is undefined.", Parameters.RANDOM.getLongOpt());
+      Logger.warning("The --%s option is undefined.", Parameters.RANDOM.getLongOpt());
     }
  
     if (params.hasOption(Parameters.LIMIT)) {
       final int branchExecutionLimit = params.getOptionValueAsInt(Parameters.LIMIT);
       generator.setBranchExecutionLimit(branchExecutionLimit);
     } else {
-      Logger.warning("The %s option is undefined.", Parameters.LIMIT.getLongOpt());
+      Logger.warning("The --%s option is undefined.", Parameters.LIMIT.getLongOpt());
     }
 
     if (params.hasOption(Parameters.SOLVER)) {
