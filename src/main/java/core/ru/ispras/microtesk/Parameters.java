@@ -188,7 +188,7 @@ public final class Parameters {
 
     final String shortName = makeUniqueShortName(name);
     final String fullDescription = null == dependency ? description :
-        String.format("%s [works with the --%s key]", description, dependency.getLongOpt());
+        String.format("%s [works with --%s]", description, dependency.getLongOpt());
 
     SHORT_NAMES.add(shortName);
     NAMES.add(name);
