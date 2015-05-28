@@ -16,13 +16,10 @@ package ru.ispras.microtesk;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.TestProgramGenerator;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -36,7 +33,7 @@ public final class MicroTESK {
     try {
       params = new Parameters(args);
     } catch (ParseException e) {
-      Logger.error("Wrong command line: " + e.getMessage());
+      Logger.error("Incorrect command line: " + e.getMessage());
       Parameters.help();
       return;
     }
@@ -48,28 +45,23 @@ public final class MicroTESK {
 
     if (params.hasOption(Parameters.VERBOSE)) {
       Logger.setDebug(true);
-      return;
     }
 
     try {
-      final Map<String, String> settings = Config.loadSettings();
-      InvariantChecks.checkNotNull(settings);
-
       if (params.hasOption(Parameters.GENERATE)) {
-        generate(params, settings);
+        generate(params);
       } else {
-        translate(params, settings);
+        translate(params);
       }
+    } catch (ParseException e) {
+      Logger.error("Incorrect command line or configuration file: " + e.getMessage());
+      Parameters.help();
     } catch (Throwable e) {
       Logger.exception(e);
     }
   }
 
-  private static void translate(
-      final Parameters params,
-      final Map<String, String> settings)
-      throws RecognitionException {
-
+  private static void translate(final Parameters params) throws RecognitionException {
     final List<Translator<?>> translators = Config.loadTranslators();
     for (Translator<?> translator : translators) {
       if (params.hasOption(Parameters.INCLUDE)) {
@@ -84,31 +76,21 @@ public final class MicroTESK {
     }
   }
 
-  private static void generate(
-      final Parameters params,
-      final Map<String, String> settings)
-      throws Throwable {
-
+  private static void generate(final Parameters params) throws ParseException, Throwable {
     final TestProgramGenerator generator = new TestProgramGenerator();
 
-    final String random = getSetting(Parameters.RANDOM, params, settings);
-    if (null != random) {
-      try {
-        final int seed = Integer.parseInt(random);
-        generator.setRandomSeed(seed);
-      } catch (NumberFormatException e) {
-        Logger.warning("Failed to parse the value of the -r parameter: " + random);
-      }
+    if (params.hasOption(Parameters.RANDOM)) {
+      final int randomSeed = params.getOptionValueAsInt(Parameters.RANDOM);
+      generator.setRandomSeed(randomSeed);
+    } else {
+      Logger.warning("The %s option is undefined.", Parameters.RANDOM.getLongOpt());
     }
-
-    final String limitStr = getSetting(Parameters.LIMIT, params, settings);
-    if (null != limitStr) {
-      try {
-        final int limitVal = Integer.parseInt(limitStr);
-        generator.setBranchExecutionLimit(limitVal);
-      } catch (NumberFormatException e) {
-        Logger.warning("Failed to parse the value of the -l parameter: " + limitStr);
-      }
+ 
+    if (params.hasOption(Parameters.LIMIT)) {
+      final int branchExecutionLimit = params.getOptionValueAsInt(Parameters.LIMIT);
+      generator.setBranchExecutionLimit(branchExecutionLimit);
+    } else {
+      Logger.warning("The %s option is undefined.", Parameters.LIMIT.getLongOpt());
     }
 
     if (params.hasOption(Parameters.SOLVER)) {
@@ -136,18 +118,5 @@ public final class MicroTESK {
     }
 
     generator.generate(templateFiles);
-  }
-
-  private static String getSetting(
-      final Option option,
-      final Parameters params,
-      final Map<String, String> settings) {
-
-    if (params.hasOption(option)) {
-      return params.getOptionValue(option);
-    }
-
-    final String optionName = option.getLongOpt();
-    return settings.get(optionName);
   }
 }

@@ -15,6 +15,7 @@
 package ru.ispras.microtesk;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -108,22 +109,58 @@ public final class Parameters {
   private static final Options options = newOptions();
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
-  // Parsed Command Line
+  // Parsed Command Line and Settings from Configuration Files
 
-  final CommandLine commandLine;
+  private final CommandLine commandLine;
+  private final Map<String, String> settings;
 
   public Parameters(String[] args) throws ParseException {
     commandLine = parse(args);
+    settings = Config.loadSettings();
   }
 
-  public boolean hasOption(Option option) {
+  public boolean hasOption(final Option option) {
     InvariantChecks.checkNotNull(option);
-    return commandLine.hasOption(option.getOpt());
+
+    if (commandLine.hasOption(option.getOpt())) {
+      return true;
+    }
+
+    if (settings.containsKey(option.getOpt())) {
+      return true;
+    }
+
+    return false;
   }
 
-  public String getOptionValue(Option option) {
+  public String getOptionValue(final Option option) {
     InvariantChecks.checkNotNull(option);
-    return commandLine.getOptionValue(option.getOpt());
+
+    if (commandLine.hasOption(option.getOpt())) {
+      return commandLine.getOptionValue(option.getOpt());
+    }
+
+    if (settings.containsKey(option.getOpt())) {
+      return settings.get(option.getOpt());
+    }
+
+    throw new IllegalStateException(String.format(
+        "Failed to read the value of the %s option.", option.getLongOpt()));
+  }
+  
+  public int getOptionValueAsInt(final Option option) throws ParseException {
+    final String valueText = getOptionValue(option);
+    final int value;
+
+    try {
+      value = Integer.parseInt(valueText);
+    } catch (NumberFormatException e) {
+      throw new ParseException(String.format(
+          "Failed to parse the value of the %s option as integer: %s",
+          option.getLongOpt(), e.getMessage()));
+    }
+
+    return value;
   }
 
   public String[] getArgs() {
@@ -203,7 +240,7 @@ public final class Parameters {
     return result;
   }
 
-  private static CommandLine parse(String[] args) throws ParseException {
+  private static CommandLine parse(final String[] args) throws ParseException {
     final CommandLineParser parser = new GnuParser();
     return parser.parse(options, args);
   }
