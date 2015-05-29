@@ -17,6 +17,7 @@ package ru.ispras.microtesk;
 import java.util.List;
 
 import org.antlr.runtime.RecognitionException;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import ru.ispras.microtesk.test.TestProgramGenerator;
@@ -81,14 +82,14 @@ public final class MicroTESK {
       final int randomSeed = params.getOptionValueAsInt(Parameters.RANDOM);
       generator.setRandomSeed(randomSeed);
     } else {
-      Logger.warning("The --%s option is undefined.", Parameters.RANDOM.getLongOpt());
+      reportUndefinedOption(Parameters.RANDOM);
     }
  
     if (params.hasOption(Parameters.LIMIT)) {
       final int branchExecutionLimit = params.getOptionValueAsInt(Parameters.LIMIT);
       generator.setBranchExecutionLimit(branchExecutionLimit);
     } else {
-      Logger.warning("The --%s option is undefined.", Parameters.LIMIT.getLongOpt());
+      reportUndefinedOption(Parameters.LIMIT);
     }
 
     if (params.hasOption(Parameters.SOLVER)) {
@@ -107,5 +108,9 @@ public final class MicroTESK {
 
     final String templateFile = args[1];
     generator.generate(templateFile);
+  }
+
+  private static void reportUndefinedOption(final Option option) {
+    Logger.warning("The --%s option is undefined.", option.getLongOpt());
   }
 }
