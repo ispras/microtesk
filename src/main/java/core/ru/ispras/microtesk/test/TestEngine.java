@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.jruby.embed.PathType;
@@ -43,6 +44,7 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 public final class TestEngine {
   public static final class Statistics {
     public long instructionCount;
+    public long instructionExecutedCount;
     public int testProgramNumber;
     public int initialTestProgramNumber;
     public int initialTestCaseNumber;
@@ -52,12 +54,39 @@ public final class TestEngine {
       reset();
     }
 
+    private Statistics(
+        long instructionCount,
+        long instructionExecutedCount,
+        int testProgramNumber,
+        int initialTestProgramNumber,
+        int initialTestCaseNumber,
+        int testCaseNumber) {
+      this.instructionCount = instructionCount;
+      this.instructionExecutedCount = instructionExecutedCount;
+      this.testProgramNumber = testProgramNumber;
+      this.initialTestProgramNumber = initialTestProgramNumber;
+      this.initialTestCaseNumber = initialTestCaseNumber;
+      this.testCaseNumber = testCaseNumber;
+    }
+
     public void reset() {
       instructionCount = 0;
+      instructionExecutedCount = 0;
       testProgramNumber = 0;
       initialTestProgramNumber = 0;
       initialTestCaseNumber = 0;
       testCaseNumber = 0;
+    }
+
+    public Statistics copy() {
+      return new Statistics(
+          instructionCount, 
+          instructionExecutedCount,
+          testProgramNumber,
+          initialTestProgramNumber,
+          initialTestCaseNumber,
+          initialTestCaseNumber
+          );
     }
   }
 
@@ -216,7 +245,6 @@ public final class TestEngine {
     private final int traceLengthLimit;
 
     private boolean isDataPrinted = false;
-    private boolean isMainStarted = false;
     private int testIndex = 0; 
 
     private boolean needCreateNewFile;
@@ -240,11 +268,20 @@ public final class TestEngine {
       this.needCreateNewFile = true;
     }
 
+    private Block preBlock = null;
+    private Block postBlock = null;
+    private Statistics before;
+    private String fileName;
+
     @Override
-    public void process(Section section, Block block) {
+    public void process(final Section section, final Block block) {
+      final boolean isNewFile = needCreateNewFile;
       if (needCreateNewFile) {
         try {
-          printer.createNewFile();
+          before = STATISTICS.copy();
+          printer.close();
+          fileName = printer.createNewFile();
+          STATISTICS.testProgramNumber++;
         } catch (IOException e) {
           Logger.error(e.getMessage());
         }
@@ -254,51 +291,99 @@ public final class TestEngine {
       checkNotNull(section);
       checkNotNull(block);
 
+      if (section == Section.PRE) {
+        preBlock = block;
+        return;
+      }
+
+      if (section == Section.POST) {
+        postBlock = block;
+        return;
+      }
+
+      if (isNewFile) {
+        if (!preBlock.isEmpty()) {
+          try {
+            printer.printHeaderToFile("Initialization Section");
+            processBlock(preBlock);
+          } catch (ConfigurationException e) {
+            Logger.error(e.getMessage());
+          }
+        }
+      }
+
       if (!isDataPrinted && dataManager.containsDecls()) {
         printSectionHeader("Data Declarations");
         printer.printText(dataManager.getDeclText());
         isDataPrinted = true;
       }
 
-      if (block.isEmpty()) {
-        return;
+      if (isNewFile) {
+        printer.printHeaderToFile("Main Section (Tests)");
       }
 
-      switch(section) {
-        case PRE:
-          printer.printHeaderToFile("Initialization Section");
-          break;
-
-        case POST:
-          printer.printHeaderToFile("Finalization Section");
-          break;
-
-        case MAIN:
-          if (!isMainStarted) {
-            printer.printHeaderToFile("Main Section (Tests)");
-            isMainStarted = true;
-          } else {
-            printer.printNewLineToFile();
-          }
-          printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
-          STATISTICS.testCaseNumber++;
-          break;
-
-        default:
-          throw new IllegalArgumentException("Unknown section: " + section);
-      }
+      printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
+      STATISTICS.testCaseNumber++;
 
       try {
         processBlock(block);
       } catch (ConfigurationException e) {
-        e.printStackTrace();
+        Logger.error(e.getMessage());
+      }
+      final Statistics after = STATISTICS.copy();
+
+      final boolean isProgramLengthLimitExceeded =
+          (after.instructionCount - before.instructionCount) >= programLengthLimit;
+      final boolean isTraceLengthLimitExceeded =
+          (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
+
+       /*
+       System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
+              before.instructionCount, after.instructionCount,
+              (after.instructionCount - before.instructionCount),
+              (after.instructionCount - before.instructionCount) >= programLengthLimit,
+              
+              before.instructionExecutedCount,
+              after.instructionExecutedCount,
+              (after.instructionCount - before.instructionCount),
+              (after.instructionCount - before.instructionCount) >= programLengthLimit
+              ));
+       */
+
+      needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
+      if (needCreateNewFile) {
+        if (!postBlock.isEmpty()) {
+          try {
+            printer.printHeaderToFile("Finalization Section");
+            processBlock(postBlock);
+          } catch (ConfigurationException e) {
+            Logger.error(e.getMessage());
+          }
+        }
+        printer.close();
       }
     }
 
     @Override
     public void finish() {
+      if (!needCreateNewFile) {
+        if (!postBlock.isEmpty()) {
+          try {
+            printer.printHeaderToFile("Finalization Section");
+            processBlock(postBlock);
+          } catch (ConfigurationException e) {
+            Logger.error(e.getMessage());
+          }
+        }
+        printer.close();
+
+        // No instruction was added to the newly created file, it must be deleted
+        if (STATISTICS.instructionCount == before.instructionCount) {
+          new File(fileName).delete();
+        }
+      }
+
       printHeader("Ended Processing Template");
-      printer.close();
     }
 
     private void processBlock(Block block) throws ConfigurationException {

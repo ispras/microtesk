@@ -91,9 +91,8 @@ final class Printer {
     this.codeFileCount = 0;
   }
 
-  public void createNewFile() throws IOException {
+  public String createNewFile() throws IOException {
     final String fileName = String.format("%s%d.%s", codeFilePrefix, codeFileCount, codeFileExtension);
-    Logger.message("Output file: %s", fileName);
 
     fileWritter = new PrintWriter(new FileWriter(fileName));
     ++codeFileCount;
@@ -106,6 +105,8 @@ final class Printer {
     printSeparatorToFile();
     printToFile(header);
     printSeparatorToFile();
+
+    return fileName;
   }
 
   private static String newSeparator(final int length, final char character) {

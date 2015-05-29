@@ -180,6 +180,7 @@ final class Executor {
 
     logText(call.getText());
     call.execute();
+    TestEngine.STATISTICS.instructionExecutedCount++;
 
     // Saves labels to jump in case there is a branch delay slot.
     if (!call.getLabelReferences().isEmpty()) {

@@ -469,13 +469,13 @@ class Template
     pre
     @template.endPreSection
 
-    @template.beginMainSection
-    run
-    @template.endMainSection
-
     @template.beginPostSection
     post
     @template.endPostSection
+
+    @template.beginMainSection
+    run
+    @template.endMainSection
 
     engine.process @template
   end
