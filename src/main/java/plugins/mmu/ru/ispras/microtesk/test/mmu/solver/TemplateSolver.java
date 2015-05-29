@@ -715,6 +715,16 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
 
     // Correct the solution.
     testDataCorrector.accept(execution, testData);
+
+    // Paranoid check.
+    for (final MmuAddress addrType : testData.getAddresses().keySet()) {
+      final long addr = testData.getAddress(addrType);
+
+      if (!testData.getType().isAligned(addr)) {
+        throw new IllegalStateException(String.format("Unaligned address: %x", addr));
+      }
+    }
+
     return new SolverResult<TemplateSolution>(solution);
   }
 
