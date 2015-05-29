@@ -96,6 +96,32 @@ public final class MicroTESK {
       generator.setSolver(params.getOptionValue(Parameters.SOLVER));
     }
 
+    if (params.hasOption(Parameters.CODE_EXT)) {
+      generator.setCodeFileExtension(params.getOptionValue(Parameters.CODE_EXT));
+    } else {
+      reportUndefinedOption(Parameters.CODE_EXT);
+    }
+ 
+    if (params.hasOption(Parameters.CODE_PRE)) {
+      generator.setCodeFilePrefix(params.getOptionValue(Parameters.CODE_PRE));
+    } else {
+      reportUndefinedOption(Parameters.CODE_PRE);
+    }
+
+    if (params.hasOption(Parameters.CODE_LIMIT)) {
+      final int programLengthLimit = params.getOptionValueAsInt(Parameters.CODE_LIMIT);
+      generator.setProgramLengthLimit(programLengthLimit);
+    } else {
+      reportUndefinedOption(Parameters.CODE_LIMIT);
+    }
+
+    if (params.hasOption(Parameters.TRACE_LIMIT)) {
+      final int traceLengthLimit = params.getOptionValueAsInt(Parameters.TRACE_LIMIT);
+      generator.setTraceLengthLimit(traceLengthLimit);
+    } else {
+      reportUndefinedOption(Parameters.TRACE_LIMIT);
+    }
+
     final String[] args = params.getArgs();
     if (args.length != 2) {
       Logger.error("Wrong number of generator arguments. Two arguments are required.");

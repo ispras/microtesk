@@ -77,6 +77,26 @@ public final class TestProgramGenerator {
     }
   }
 
+  public void setCodeFileExtension(final String value) {
+    // TODO Auto-generated method stub
+    //System.out.println("Code File Extension: " + value);
+  }
+
+  public void setCodeFilePrefix(final String value) {
+    // TODO Auto-generated method stub
+    //System.out.println("Code File Prefix: " + value);
+  }
+
+  public void setProgramLengthLimit(final int value) {
+    // TODO Auto-generated method stub
+    //System.out.println("Program Length Limit: " + value);
+  }
+
+  public void setTraceLengthLimit(final int value) {
+    // TODO Auto-generated method stub
+    //System.out.println("Trace Length Limit: " + value);
+  }
+
   public void generate(final String templateFile) throws Throwable {
     try {
       if (null != fileName && !fileName.isEmpty()) {
