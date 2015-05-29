@@ -66,8 +66,11 @@ final class Printer {
    * @throws IOException if failed to open the specified file for writing.
    */
 
-  public Printer(String fileName, IModelStateObserver observer, String commentToken,
-      boolean printToScreen) throws IOException {
+  public Printer(
+      final String fileName,
+      final IModelStateObserver observer,
+      final String commentToken,
+      final boolean printToScreen) throws IOException {
 
     checkNotNull(observer);
     checkNotNull(commentToken);
@@ -82,7 +85,7 @@ final class Printer {
         newSeparator(LINE_WIDTH - commentToken.length(), '*');
   }
 
-  private static String newSeparator(int length, char character) {
+  private static String newSeparator(final int length, final char character) {
     final StringBuilder sb = new StringBuilder();
     while (sb.length() < length) {
       sb.append(character);
@@ -109,7 +112,7 @@ final class Printer {
    *         an instruction call in the sequence.
    */
 
-  public void printSequence(TestSequence sequence) throws ConfigurationException {
+  public void printSequence(final TestSequence sequence) throws ConfigurationException {
     checkNotNull(sequence);
 
     final List<ConcreteCall> prologue = sequence.getPrologue();
@@ -132,8 +135,8 @@ final class Printer {
    *         associated with an instruction call.
    */
 
-  private void printCalls(List<ConcreteCall> calls) throws ConfigurationException {
-    for (ConcreteCall call : calls) {
+  private void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
+    for (final ConcreteCall call : calls) {
       printOutputs(call.getOutputs());
       printLabels(call.getLabels());
       printText(call.getText());
