@@ -234,8 +234,6 @@ public final class TestEngine {
 
       this.programLengthLimit = programLengthLimit;
       this.traceLengthLimit = traceLengthLimit;
-
-      printer.printToolInfoToFile();
     }
 
     @Override

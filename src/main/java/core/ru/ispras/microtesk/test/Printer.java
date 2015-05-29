@@ -56,7 +56,6 @@ final class Printer {
   private int codeFileCount;
 
   private PrintWriter fileWritter;
-  private boolean isHeaderPrinted;
 
   /**
    * Constructs a printer object.
@@ -91,7 +90,6 @@ final class Printer {
     this.codeFileExtension = codeFileExtension;
     this.codeFileCount = 0;
 
-    this.isHeaderPrinted = false;
     startNewFile();
   }
 
@@ -101,6 +99,15 @@ final class Printer {
 
     fileWritter = new PrintWriter(new FileWriter(fileName));
     ++codeFileCount;
+
+    // Prints MicroTESK information to the file (as the top file header). 
+    final String slcs = commentToken;
+    final String header =
+        String.format(HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
+
+    printSeparatorToFile();
+    printToFile(header);
+    printSeparatorToFile();
   }
 
   private static String newSeparator(final int length, final char character) {
@@ -213,27 +220,6 @@ final class Printer {
       printToScreen(text);
       printToFile(text);
     }
-  }
-
-  /**
-   * Prints MicroTESK information to the file (as the top file header). 
-   */
-
-  public void printToolInfoToFile() {
-    if (isHeaderPrinted) {
-      return;
-    }
-
-    printSeparatorToFile();
-
-    final String slcs = commentToken;
-    final String header = String.format(
-        HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
-
-    printToFile(header);
-    isHeaderPrinted = true;
-
-    printSeparatorToFile();
   }
 
   /**
