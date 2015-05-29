@@ -24,12 +24,6 @@ require_relative 'minimips_base'
 #
 class RandomTemplate < MiniMipsBaseTemplate
 
-  def initialize
-    super
-    # Random seed initialization.
-    @random_seed = 0
-  end
-
   def run
     # Predefined probability distribution.
     int32_dist = dist(range(:value => 0,                      :bias => 25),  # Zero

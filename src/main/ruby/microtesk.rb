@@ -39,9 +39,6 @@ def self.main
   template_file = File.expand_path ARGV[1]
   puts "Template file: " + template_file
 
-  output_file = if ARGV.count > 2 then File.expand_path ARGV[2] else nil end
-  if output_file then puts "Output file: " + output_file end
-
   Template.set_model model
 
   template_classes = prepare_template_classes(model, template_file)
@@ -49,15 +46,15 @@ def self.main
     if template_class_file.eql?(template_file)
       puts "Processing template #{template_class} defined in #{template_class_file}..." 
       template = template_class.new
-      template.generate output_file
+      template.generate
     end
   end
 end
 
 def self.check_arguments
-  if ARGV.count < 2
-    abort "Wrong number of arguments. At least two are required.\r\n" + 
-          "Argument format: <model name>, <template file>[, <output file>]"
+  if ARGV.count != 2
+    abort "Wrong number of arguments. Two are required.\r\n" + 
+          "Argument format: <model name>, <template file>"
   end
 end
 

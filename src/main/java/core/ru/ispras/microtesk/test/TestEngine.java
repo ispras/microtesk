@@ -19,10 +19,14 @@ import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 
 import java.io.IOException;
 
+import org.jruby.embed.PathType;
+import org.jruby.embed.ScriptingContainer;
+
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.Solver;
 import ru.ispras.fortress.solver.SolverId;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
@@ -34,6 +38,7 @@ import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
+import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 public final class TestEngine {
   public static TestEngine getInstance(IModel model) {
@@ -42,15 +47,70 @@ public final class TestEngine {
 
   private final IModel model;
 
-  // Settings
-  private String fileName = null;
+  // Settings passed from a template
   private boolean logExecution = true;
   private boolean printToScreen = true;
   private String commentToken = "// ";
 
-  private static int branchExecutionLimit = 200;
-  public static void setBranchExecutionLimit(int value) {
+  // Settings from command line and configuration file
+  private static int branchExecutionLimit = 100;
+  private static String codeFileExtension = ".asm";
+  private static String codeFilePrefix = "test";
+  private static int programLengthLimit = 1000;
+  private static int traceLengthLimit = 1000;
+
+  public static void setRandomSeed(int seed) {
+    Randomizer.get().setSeed(seed);
+  }
+
+  public static void setSolver(final String solverName) {
+    if ("z3".equalsIgnoreCase(solverName)) {
+      TestBase.setSolverId(SolverId.Z3_TEXT);
+    } else if ("cvc4".equalsIgnoreCase(solverName)) {
+      TestBase.setSolverId(SolverId.CVC4_TEXT);
+    } else {
+      Logger.warning("Unknown solver: %s. Default solver will be used.", solverName);
+    }
+  }
+
+  public static void setBranchExecutionLimit(final int value) {
     branchExecutionLimit = value;
+  }
+
+  public static void setCodeFileExtension(final String value) {
+    codeFileExtension = value;
+  }
+
+  public static void setCodeFilePrefix(final String value) {
+    codeFilePrefix = value;
+  }
+
+  public static void setProgramLengthLimit(final int value) {
+    programLengthLimit = value;
+  }
+
+  public static void setTraceLengthLimit(final int value) {
+    traceLengthLimit = value;
+  }
+
+  public static void generate(final String modelName, final String templateFile) throws Throwable {
+    final ScriptingContainer container = new ScriptingContainer();
+    container.setArgv(new String[] {modelName, templateFile});
+
+    final String scriptsPath = String.format(
+        "%s/lib/ruby/microtesk.rb", System.getenv("MICROTESK_HOME"));
+
+    try {
+        try {
+          container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
+        } catch(org.jruby.embed.EvalFailedException e) {
+          // JRuby wraps exceptions that occur in Java libraries it calls into
+          // EvalFailedException. To handle them correctly, we need to unwrap them.
+          throw e.getCause();
+        }
+    } catch (GenerationAbortedException e) {
+      Logger.error(e.getMessage());
+    }
   }
 
   private TestEngine(IModel model) {
@@ -88,10 +148,6 @@ public final class TestEngine {
     }
   }
 
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
   public void setLogExecution(boolean logExecution) {
     this.logExecution = logExecution;
   }
@@ -104,11 +160,10 @@ public final class TestEngine {
     this.commentToken = commentToken;
   }
 
-  public void setRandomSeed(int seed) {
-    Randomizer.get().setSeed(seed);
-  }
-
   public Template newTemplate() throws IOException {
+    final String fileName = codeFilePrefix + codeFileExtension;
+    Logger.message("Output file: %s", fileName);
+
     final IModelStateObserver observer = model.getStateObserver();
     final Executor executor = new Executor(observer, logExecution, branchExecutionLimit);
     final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);

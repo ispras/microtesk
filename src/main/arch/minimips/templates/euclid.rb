@@ -28,11 +28,6 @@ require_relative 'minimips_base'
 
 class EuclidTemplate < MiniMipsBaseTemplate
 
-  def initialize
-    super
-    @random_seed = 16
-  end
-
   def run
     trace "Euclidean Algorithm (miniMIPS): Debug Output"
 
