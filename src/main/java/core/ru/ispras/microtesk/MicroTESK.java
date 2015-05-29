@@ -153,13 +153,13 @@ public final class MicroTESK {
     }
     sb.append(String.format("%d.%03d seconds ", seconds, useconds));
 
-    Logger.message("");
-    Logger.message("Generation time: %s%n", sb.toString());
-    Logger.message("Generation speed: %d instructions/second%n",
+    Logger.header("Generation Statistics");
+    Logger.message("Generation time: %s", sb.toString());
+    Logger.message("Generation speed: %d instructions/second",
         (1000 * statistics.instructionCount) / (endTime.getTime() - startTime.getTime())
         );
 
-    Logger.message("Programs/stimuli/instructions: %d/%d/%d%n",
+    Logger.message("Programs/stimuli/instructions: %d/%d/%d",
         (statistics.testProgramNumber - statistics.initialTestProgramNumber) + 1,
         (statistics.testCaseNumber - statistics.initialTestCaseNumber) + 1,
         statistics.instructionCount
