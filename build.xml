@@ -114,9 +114,8 @@
   <macrodef name="templates">
     <attribute name="src.path"/>
     <attribute name="arch.name"/>
-    <attribute name="file.name"/>
     <sequential>
-      <echo message="templates for @{arch.name} from @{src.path} to file @{file.name}"/>
+      <echo message="templates for @{arch.name} from @{src.path}"/>
       <apply executable="java" failonerror="true">
         <env key="MICROTESK_HOME" value="${dist}"/>
         <arg value="-ea"/>
@@ -125,7 +124,6 @@
         <arg value="-g"/>
         <arg value="@{arch.name}"/>
         <srcfile/>
-        <arg value="@{file.name}"/>
         <fileset dir="@{src.path}">
           <include name="**/*.rb"/>
           <exclude name="**/*_base.rb"/>
@@ -486,19 +484,16 @@
     <templates
       src.path="${dist}/arch/demo/vliw"
       arch.name="vliw"
-      file.name="${dist}/test.s"
     />
     <templates
       src.path="${dist}/arch/demo/cpu"
       arch.name="cpu"
-      file.name="${dist}/test.s"
     />
     <templates
       src.path="${dist}/arch/minimips"
       arch.name="minimips"
-      file.name="${dist}/test.s"
     />
-    <delete file="${dist}/test.s"/>
+    <delete file="${dist}/test.asm"/>
   </target>
 
 </project>
