@@ -161,9 +161,6 @@ public final class TestEngine {
   }
 
   public Template newTemplate() throws IOException {
-    // private static int programLengthLimit = 1000;
-    // private static int traceLengthLimit = 1000;
-
     final IModelStateObserver observer = model.getStateObserver();
 
     final Executor executor = new Executor(
@@ -176,8 +173,8 @@ public final class TestEngine {
     final PreparatorStore preparators = new PreparatorStore();
     final DataGenerator dataGenerator = new DataGenerator(model, preparators);
 
-    final TemplateProcessor processor = 
-        new TemplateProcessor(executor, printer, dataManager, dataGenerator);
+    final TemplateProcessor processor = new TemplateProcessor(
+        executor, printer, dataManager, dataGenerator, programLengthLimit, traceLengthLimit);
 
     return new Template(
         model.getMetaData(), dataManager, preparators, processor);
@@ -193,6 +190,9 @@ public final class TestEngine {
     private final DataManager dataManager;
     private final DataGenerator dataGenerator;
 
+    private final int programLengthLimit;
+    private final int traceLengthLimit;
+
     private boolean isDataPrinted = false;
     private boolean isMainStarted = false;
     private int testIndex = 0; 
@@ -201,12 +201,17 @@ public final class TestEngine {
         final Executor executor,
         final Printer printer,
         final DataManager dataManager,
-        final DataGenerator dataGenerator) {
+        final DataGenerator dataGenerator,
+        final int programLengthLimit,
+        final int traceLengthLimit) {
 
       this.executor = executor;
       this.printer = printer;
       this.dataManager = dataManager;
       this.dataGenerator = dataGenerator;
+
+      this.programLengthLimit = programLengthLimit;
+      this.traceLengthLimit = traceLengthLimit;
 
       printer.printToolInfoToFile();
     }
