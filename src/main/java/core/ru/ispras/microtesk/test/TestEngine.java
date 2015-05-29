@@ -182,7 +182,7 @@ public final class TestEngine {
     this.commentToken = commentToken;
   }
 
-  public Template newTemplate() throws IOException {
+  public Template newTemplate() {
     final IModelStateObserver observer = model.getStateObserver();
 
     final Executor executor = new Executor(
@@ -219,6 +219,8 @@ public final class TestEngine {
     private boolean isMainStarted = false;
     private int testIndex = 0; 
 
+    private boolean needCreateNewFile;
+
     private TemplateProcessor(
         final Executor executor,
         final Printer printer,
@@ -234,10 +236,21 @@ public final class TestEngine {
 
       this.programLengthLimit = programLengthLimit;
       this.traceLengthLimit = traceLengthLimit;
+      
+      this.needCreateNewFile = true;
     }
 
     @Override
     public void process(Section section, Block block) {
+      if (needCreateNewFile) {
+        try {
+          printer.createNewFile();
+        } catch (IOException e) {
+          Logger.error(e.getMessage());
+        }
+        needCreateNewFile = false;
+      }
+
       checkNotNull(section);
       checkNotNull(block);
 
@@ -268,6 +281,7 @@ public final class TestEngine {
             printer.printNewLineToFile();
           }
           printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
+          STATISTICS.testCaseNumber++;
           break;
 
         default:
@@ -276,10 +290,6 @@ public final class TestEngine {
 
       try {
         processBlock(block);
-
-        if (section == Section.MAIN) {
-          STATISTICS.testCaseNumber++;
-        }
       } catch (ConfigurationException e) {
         e.printStackTrace();
       }

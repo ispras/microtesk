@@ -74,7 +74,7 @@ final class Printer {
       final String codeFileExtension,
       final IModelStateObserver observer,
       final String commentToken,
-      final boolean printToScreen) throws IOException {
+      final boolean printToScreen) {
 
     checkNotNull(codeFilePrefix);
     checkNotNull(codeFileExtension);
@@ -89,11 +89,9 @@ final class Printer {
     this.codeFilePrefix = codeFilePrefix;
     this.codeFileExtension = codeFileExtension;
     this.codeFileCount = 0;
-
-    startNewFile();
   }
 
-  public void startNewFile() throws IOException {
+  public void createNewFile() throws IOException {
     final String fileName = String.format("%s%d.%s", codeFilePrefix, codeFileCount, codeFileExtension);
     Logger.message("Output file: %s", fileName);
 
