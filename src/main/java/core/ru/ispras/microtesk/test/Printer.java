@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -67,13 +68,17 @@ final class Printer {
    */
 
   public Printer(
-      final String fileName,
+      final String codeFilePrefix,
+      final String codeFileExtension,
       final IModelStateObserver observer,
       final String commentToken,
       final boolean printToScreen) throws IOException {
 
     checkNotNull(observer);
     checkNotNull(commentToken);
+
+    final String fileName = String.format("%s.%s", codeFilePrefix, codeFileExtension);
+    Logger.message("Output file: %s", fileName);
 
     this.fileWritter = createFileWritter(fileName);
     this.observer = observer;

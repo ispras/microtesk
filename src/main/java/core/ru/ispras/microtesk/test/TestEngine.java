@@ -161,12 +161,16 @@ public final class TestEngine {
   }
 
   public Template newTemplate() throws IOException {
-    final String fileName = codeFilePrefix + codeFileExtension;
-    Logger.message("Output file: %s", fileName);
+    // private static int programLengthLimit = 1000;
+    // private static int traceLengthLimit = 1000;
 
     final IModelStateObserver observer = model.getStateObserver();
-    final Executor executor = new Executor(observer, logExecution, branchExecutionLimit);
-    final Printer printer = new Printer(fileName, observer, commentToken, printToScreen);
+
+    final Executor executor = new Executor(
+        observer, logExecution, branchExecutionLimit);
+
+    final Printer printer = new Printer(
+        codeFilePrefix, codeFileExtension, observer, commentToken, printToScreen);
 
     final DataManager dataManager = new DataManager();
     final PreparatorStore preparators = new PreparatorStore();
@@ -194,8 +198,10 @@ public final class TestEngine {
     private int testIndex = 0; 
 
     private TemplateProcessor(
-        Executor executor, Printer printer,
-        DataManager dataManager, DataGenerator dataGenerator) {
+        final Executor executor,
+        final Printer printer,
+        final DataManager dataManager,
+        final DataGenerator dataGenerator) {
 
       this.executor = executor;
       this.printer = printer;
@@ -240,7 +246,7 @@ public final class TestEngine {
           break;
 
         default:
-          throw new IllegalArgumentException("Unknon section: " + section);
+          throw new IllegalArgumentException("Unknown section: " + section);
       }
 
       try {
