@@ -6,6 +6,16 @@
  2015/03/24 MicroTESK 2.2 alpha
 --------------------------------------------------------------------------------
 
+ 2015/05/29 MicroTESK 2.2.3 beta
+
+ The new build contains the following changes:
+
+ - Test data is generated taking into account data generated for other\
+   instructions.
+ - Statistics on test program size and test generator performance is collected.
+ - Test programs are split into parts if they exceed the specified limits
+   on instruction number.
+
  2015/05/22 MicroTESK 2.2.2 alpha
 
  The new build contains the following changes:
