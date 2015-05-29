@@ -481,19 +481,9 @@
     </junit>
 
     <!-- Process all test templates included in the distribution package -->
-    <templates
-      src.path="${dist}/arch/demo/vliw"
-      arch.name="vliw"
-    />
-    <templates
-      src.path="${dist}/arch/demo/cpu"
-      arch.name="cpu"
-    />
-    <templates
-      src.path="${dist}/arch/minimips"
-      arch.name="minimips"
-    />
-    <delete file="${dist}/test.asm"/>
+    <templates src.path="${dist}/arch/demo/vliw" arch.name="vliw"/>
+    <templates src.path="${dist}/arch/demo/cpu"  arch.name="cpu"/>
+    <templates src.path="${dist}/arch/minimips"  arch.name="minimips"/>
   </target>
 
 </project>
