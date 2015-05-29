@@ -301,6 +301,12 @@ public final class TestEngine {
         return;
       }
 
+      if (!isDataPrinted && dataManager.containsDecls()) {
+        printSectionHeader("Data Declarations");
+        printer.printText(dataManager.getDeclText());
+        isDataPrinted = true;
+      }
+      
       if (isNewFile) {
         if (!preBlock.isEmpty()) {
           try {
@@ -310,15 +316,6 @@ public final class TestEngine {
             Logger.error(e.getMessage());
           }
         }
-      }
-
-      if (!isDataPrinted && dataManager.containsDecls()) {
-        printSectionHeader("Data Declarations");
-        printer.printText(dataManager.getDeclText());
-        isDataPrinted = true;
-      }
-
-      if (isNewFile) {
         printer.printHeaderToFile("Main Section (Tests)");
       }
 
