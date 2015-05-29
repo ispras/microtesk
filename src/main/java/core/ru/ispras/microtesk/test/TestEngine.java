@@ -41,6 +41,28 @@ import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 public final class TestEngine {
+  public static final class Statistics {
+    public long instructionCount;
+    public int testProgramNumber;
+    public int initialTestProgramNumber;
+    public int initialTestCaseNumber;
+    public int testCaseNumber;
+
+    private Statistics() {
+      reset();
+    }
+
+    public void reset() {
+      instructionCount = 0;
+      testProgramNumber = 0;
+      initialTestProgramNumber = 0;
+      initialTestCaseNumber = 0;
+      testCaseNumber = 0;
+    }
+  }
+
+  public static final Statistics STATISTICS = new Statistics();
+
   public static TestEngine getInstance(IModel model) {
     return new TestEngine(model);
   }
@@ -256,6 +278,10 @@ public final class TestEngine {
 
       try {
         processBlock(block);
+
+        if (section == Section.MAIN) {
+          STATISTICS.testCaseNumber++;
+        }
       } catch (ConfigurationException e) {
         e.printStackTrace();
       }
@@ -293,6 +319,9 @@ public final class TestEngine {
           printer.printSubheaderToFile(String.format("%s:", sequenceId));
         }
         printer.printSequence(concreteSequence);
+
+        STATISTICS.instructionCount += concreteSequence.getPrologue().size();
+        STATISTICS.instructionCount += concreteSequence.getBody().size();
 
         sequenceIt.next();
         ++sequenceIndex;

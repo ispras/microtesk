@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk;
 
+import java.util.Date;
 import java.util.List;
 
 import org.antlr.runtime.RecognitionException;
@@ -130,7 +131,39 @@ public final class MicroTESK {
     final String modelName = args[0];
     final String templateFile = args[1];
 
+    final TestEngine.Statistics statistics = TestEngine.STATISTICS;
+    statistics.reset();
+
+    final Date startTime = new Date();
     TestEngine.generate(modelName, templateFile);
+    final Date endTime = new Date();
+
+    long time = endTime.getTime() - startTime.getTime();
+    final long useconds = time % 1000;
+    final long seconds = (time /= 1000) % 60; 
+    final long minutes = (time /= 60) % 60;
+    final long hours = time / 60;
+
+    final StringBuilder sb = new StringBuilder();
+    if (hours != 0) {
+      sb.append(String.format("%d hours ", hours));
+    }
+    if (hours != 0 || minutes != 0) {
+      sb.append(String.format("%d minutes ", minutes));
+    }
+    sb.append(String.format("%d.%03d seconds ", seconds, useconds));
+
+    Logger.message("");
+    Logger.message("Generation time: %s%n", sb.toString());
+    Logger.message("Generation speed: %d instructions/second%n",
+        (1000 * statistics.instructionCount) / (endTime.getTime() - startTime.getTime())
+        );
+
+    Logger.message("Programs/stimuli/instructions: %d/%d/%d%n",
+        (statistics.testProgramNumber - statistics.initialTestProgramNumber) + 1,
+        (statistics.testCaseNumber - statistics.initialTestCaseNumber) + 1,
+        statistics.instructionCount
+        );
   }
 
   private static void reportUndefinedOption(final Option option) {
