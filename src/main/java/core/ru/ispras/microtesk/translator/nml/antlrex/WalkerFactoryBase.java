@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.translator.nml.antlrex;
 
 import java.util.Map;
+
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -26,10 +28,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 public class WalkerFactoryBase implements WalkerContext {
   private final WalkerContext context;
 
-  public WalkerFactoryBase(WalkerContext context) {
-    if (null == context) {
-      throw new NullPointerException();
-    }
+  public WalkerFactoryBase(final WalkerContext context) {
+    InvariantChecks.checkNotNull(context);
     this.context = context;
   }
 
@@ -58,11 +58,13 @@ public class WalkerFactoryBase implements WalkerContext {
     return context.getThis();
   }
 
-  protected final void raiseError(final Where where, String what) throws SemanticException {
+  protected final void raiseError(
+      final Where where, final String what) throws SemanticException {
     getReporter().raiseError(where, what);
   }
 
-  protected final void raiseError(Where where, ISemanticError what) throws SemanticException {
+  protected final void raiseError(
+      final Where where, final ISemanticError what) throws SemanticException {
     getReporter().raiseError(where, what);
   }
 }
