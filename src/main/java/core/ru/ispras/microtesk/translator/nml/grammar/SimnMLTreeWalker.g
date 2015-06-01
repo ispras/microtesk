@@ -312,7 +312,7 @@ $res = getPrimitiveFactory().createOpOR($w, $name, $orRes.res);
 /*======================================================================================*/
 
 orRule returns [List<String> res]
-@init  {$res = new ArrayList<String>();}
+@init  {$res = new ArrayList<>();}
     :  ^(ALTERNATIVES (a=ID {$res.add($a.text);})+)
     ;
 
@@ -321,7 +321,7 @@ orRule returns [List<String> res]
 /*======================================================================================*/
 
 andRule returns [Map<String,Primitive> res]
-@init  {final Map<String,Primitive> args = new LinkedHashMap<String,Primitive>();}
+@init  {final Map<String,Primitive> args = new LinkedHashMap<>();}
 @after {$res = args;}
     :  ^(ARGS (^(id=ID at=argType)
 {
@@ -342,7 +342,7 @@ argType returns [Primitive res]
 /*======================================================================================*/
 
 attrDefList returns [Map<String, Attribute> res]
-@init  {final Map<String,Attribute> attrs = new LinkedHashMap<String,Attribute>();}
+@init  {final Map<String,Attribute> attrs = new LinkedHashMap<>();}
 @after {$res = attrs;}
     :  ^(ATTRS (attr=attrDef
 {
@@ -413,7 +413,7 @@ $res = getStatementFactory().createFormat(where($fs), $fs.text, $fargs.res);
     ;
 
 formatIdList returns [List<Format.Argument> res]
-@init  {final List<Format.Argument> args = new ArrayList<Format.Argument>();}
+@init  {final List<Format.Argument> args = new ArrayList<>();}
 @after {$res = args;}
     :  (fa=formatId {args.add($fa.res);})+
     ;
@@ -452,7 +452,7 @@ $res = Format.createArgument((StatementAttributeCall)
 /*======================================================================================*/
 
 sequence returns [List<Statement> res]
-@init  {final List<Statement> stmts = new ArrayList<Statement>();}
+@init  {final List<Statement> stmts = new ArrayList<>();}
 @after {$res = stmts;}
     :  ^(sq=SEQUENCE (st=statement
 {
@@ -537,7 +537,7 @@ analyzer.startTrackingSource();
     me=dataExpr)
 {
 checkNotNull($me.start, $me.res, $me.text);
-final List<Statement> result = new ArrayList<Statement>();
+final List<Statement> result = new ArrayList<>();
 result.add(getStatementFactory().createAssignment($le.res, $me.res));
 
 final int ctIndex = analyzer.getControlTransferIndex();
@@ -554,7 +554,7 @@ conditionalStatement returns [List<Statement> res]
     ;
 
 ifStmt returns [List<Statement> res]
-@init  {final List<StatementCondition.Block> blocks = new ArrayList<StatementCondition.Block>();}
+@init  {final List<StatementCondition.Block> blocks = new ArrayList<>();}
     :  ^(IF cond=logicExpr stmts=sequence {blocks.add(StatementCondition.Block.newIfBlock($cond.res, $stmts.res));}
         (elifb=elseIfStmt                 {blocks.add($elifb.res);})*
         (eb=elseStmt                      {blocks.add($eb.res);})?)
@@ -693,7 +693,7 @@ nonNumExpr [ValueInfo.Kind target, int depth] returns [Expr res]
     ;
 
 ifExpr [ValueInfo.Kind target, int depth] returns [Expr res]
-@init  {final List<Condition> conds = new ArrayList<Condition>();}
+@init  {final List<Condition> conds = new ArrayList<>();}
     :  ^(op=IF cond=logicExpr e=expr[target, depth]
 {
 checkNotNull($cond.start, $cond.res, $cond.text);
