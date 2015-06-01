@@ -84,7 +84,13 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
     @Override
     public MetaArgument getMetaData() {
-      return new MetaArgument(name, Collections.singleton(AddressingModeImm.NAME));
+      return new MetaArgument(
+          MetaArgument.Kind.IMM,
+          MetaArgument.UsageKind.NA,
+          name,
+          Collections.singleton(AddressingModeImm.NAME),
+          getType()
+          );
     }
   }
 
@@ -119,13 +125,19 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
     @Override
     public MetaArgument getMetaData() {
-      final Set<String> modeNames = new LinkedHashSet<String>(info.getMetaData().size());
+      final Set<String> modeNames = new LinkedHashSet<>(info.getMetaData().size());
 
       for (MetaAddressingMode mode : info.getMetaData()) {
         modeNames.add(mode.getName());
       }
 
-      return new MetaArgument(name, modeNames);
+      return new MetaArgument(
+          MetaArgument.Kind.MODE,
+          MetaArgument.UsageKind.NA,
+          name,
+          modeNames,
+          getType()
+          );
     }
   }
 
@@ -166,7 +178,13 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         opNames.add(op.getName());
       }
 
-      return new MetaArgument(name, opNames);
+      return new MetaArgument(
+          MetaArgument.Kind.OP,
+          MetaArgument.UsageKind.NA,
+          name,
+          opNames,
+          getType()
+          );
     }
   }
 
