@@ -40,9 +40,13 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     super(context);
   }
 
-  public Primitive createMode(Where where, String name, Map<String, Primitive> args,
-      Map<String, Attribute> attrs, Expr retExpr) throws SemanticException {
-    for (Map.Entry<String, Primitive> e : args.entrySet()) {
+  public Primitive createMode(
+      final Where where,
+      final String name,
+      final Map<String, Primitive> args,
+      final Map<String, Attribute> attrs,
+      final Expr retExpr) throws SemanticException {
+    for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       if (Primitive.Kind.IMM != e.getValue().getKind()) {
         raiseError(where, new UnsupportedParameterType(e.getKey(), e.getValue().getKind().name(),
             Primitive.Kind.IMM.name()));
@@ -52,13 +56,18 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return new PrimitiveAND(name, Primitive.Kind.MODE, retExpr, args, attrs);
   }
 
-  public Primitive createOp(Where where, String name, Map<String, Primitive> args,
-      Map<String, Attribute> attrs) throws SemanticException {
+  public Primitive createOp(
+      final Where where,
+      final String name,
+      final Map<String, Primitive> args,
+      final Map<String, Attribute> attrs) throws SemanticException {
     return new PrimitiveAND(name, Primitive.Kind.OP, null, args, attrs);
   }
 
-  public Primitive createModeOR(Where where, String name, List<String> orNames)
-      throws SemanticException {
+  public Primitive createModeOR(
+      final Where where,
+      final String name,
+      final List<String> orNames)throws SemanticException {
     final List<Primitive> orModes = new ArrayList<Primitive>();
 
     for (String orName : orNames) {
@@ -77,8 +86,10 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return new PrimitiveOR(name, Primitive.Kind.MODE, orModes);
   }
 
-  public Primitive createOpOR(Where where, String name, List<String> orNames)
-      throws SemanticException {
+  public Primitive createOpOR(
+      final Where where,
+      final String name,
+      final List<String> orNames) throws SemanticException {
     final List<Primitive> orOps = new ArrayList<Primitive>();
 
     for (String orName : orNames) {
@@ -92,11 +103,13 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return new PrimitiveOR(name, Primitive.Kind.OP, orOps);
   }
 
-  public Primitive createImm(Type type) {
+  public Primitive createImm(final Type type) {
     return new Primitive(type.getAlias(), Primitive.Kind.IMM, false, type, null);
   }
 
-  public Primitive getMode(Where where, String modeName) throws SemanticException {
+  public Primitive getMode(
+      final Where where,
+      final String modeName) throws SemanticException {
     if (!getIR().getModes().containsKey(modeName)) {
       raiseError(where, new UndefinedPrimitive(modeName, ESymbolKind.MODE));
     }
@@ -104,7 +117,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return getIR().getModes().get(modeName);
   }
 
-  public Primitive getOp(Where where, String opName) throws SemanticException {
+  public Primitive getOp(
+      final Where where,
+      final String opName) throws SemanticException {
     if (!getIR().getOps().containsKey(opName)) {
       raiseError(where, new UndefinedPrimitive(opName, ESymbolKind.OP));
     }
@@ -112,7 +127,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return getIR().getOps().get(opName);
   }
 
-  public Primitive getArgument(Where where, String name) throws SemanticException {
+  public Primitive getArgument(
+      final Where where,
+      final String name) throws SemanticException {
     if (!getThisArgs().containsKey(name)) {
       raiseError(where, new UndefinedPrimitive(name, ESymbolKind.ARGUMENT));
     }
@@ -121,7 +138,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   }
 
   public Instance newInstance(
-      Where where, String name, List<InstanceArgument> args) throws SemanticException {
+      final Where where,
+      final String name,
+      final List<InstanceArgument> args) throws SemanticException {
 
     final ISymbol symbol = getSymbols().resolve(name);
     if (null == symbol) {
