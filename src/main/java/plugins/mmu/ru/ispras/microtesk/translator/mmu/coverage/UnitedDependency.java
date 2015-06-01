@@ -30,120 +30,125 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class UnitedDependency {
-  /** The address conflicts. */
+  /** The address hazards. */
   private Map<MmuAddress, UnitedHazard> addrUnitedHazards = new LinkedHashMap<>();
-  /** The device conflicts. */
+  /** The device hazards. */
   private Map<MmuDevice, UnitedHazard> deviceUnitedHazards = new LinkedHashMap<>();
 
   /**
    * Constructs a united dependency.
    * 
    * @param dependencies the non-empty set of dependencies to be united, which is represented as a
-   *        map with conflicts as keys and execution indices as values.
+   *        map with hazards as keys and execution indices as values.
    */
   public UnitedDependency(final Map<Dependency, Integer> dependencies) {
     InvariantChecks.checkNotNull(dependencies);
 
-    final Map<MmuAddress, Map<Hazard, Integer>> addressConflicts = new LinkedHashMap<>();
-    final Map<MmuDevice, Map<Hazard, Integer>> deviceConflicts = new LinkedHashMap<>();
+    final Map<MmuAddress, Map<Hazard, Set<Integer>>> addressHazards = new LinkedHashMap<>();
+    final Map<MmuDevice, Map<Hazard, Set<Integer>>> deviceHazards = new LinkedHashMap<>();
 
-    // Gather information on conflicts.
+    // Gather information on hazards.
     for (final Map.Entry<Dependency, Integer> entry : dependencies.entrySet()) {
       final Dependency dependency = entry.getKey();
       final int dependsOn = entry.getValue();
 
-      for (final Hazard conflict : dependency.getHazards()) {
-        final MmuAddress address = conflict.getAddress();
-        final MmuDevice device = conflict.getDevice();
+      for (final Hazard hazard : dependency.getHazards()) {
+        final MmuAddress address = hazard.getAddress();
+        final MmuDevice device = hazard.getDevice();
 
-        Map<Hazard, Integer> conflicts;
+        Map<Hazard, Set<Integer>> hazards;
 
         if (address != null) {
-          if ((conflicts = addressConflicts.get(address)) == null) {
-            addressConflicts.put(address, conflicts = new LinkedHashMap<>());
+          if ((hazards = addressHazards.get(address)) == null) {
+            addressHazards.put(address, hazards = new LinkedHashMap<>());
           }
         } else if (device != null) {
-          if ((conflicts = deviceConflicts.get(device)) == null) {
-            deviceConflicts.put(device, conflicts = new LinkedHashMap<>());
+          if ((hazards = deviceHazards.get(device)) == null) {
+            deviceHazards.put(device, hazards = new LinkedHashMap<>());
           }
         } else {
           throw new IllegalArgumentException("The dependency type is unknown");
         }
 
-        conflicts.put(conflict, dependsOn);
+        Set<Integer> relation = hazards.get(hazard);
+        if (relation == null) {
+          hazards.put(hazard, relation = new LinkedHashSet<>());
+        }
+
+        relation.add(dependsOn);
       }
     }
 
-    // Extend device conflicts with the address conflicts.
-    for (final Map.Entry<MmuDevice, Map<Hazard, Integer>> entry : deviceConflicts.entrySet()) {
+    // Extend device hazards with the address hazards.
+    for (final Map.Entry<MmuDevice, Map<Hazard, Set<Integer>>> entry : deviceHazards.entrySet()) {
       final MmuDevice device = entry.getKey();
-      final Map<Hazard, Integer> conflicts = entry.getValue();
-      final Map<Hazard, Integer> moreConflicts = addressConflicts.get(device.getAddress());
+      final Map<Hazard, Set<Integer>> hazards = entry.getValue();
+      final Map<Hazard, Set<Integer>> moreHazards = addressHazards.get(device.getAddress());
 
-      if (moreConflicts != null) {
-        conflicts.putAll(moreConflicts);
+      if (moreHazards != null) {
+        hazards.putAll(moreHazards);
       }
     }
 
-    // Construct the united conflicts for address spaces.
-    for (final Map.Entry<MmuAddress, Map<Hazard, Integer>> entry : addressConflicts.entrySet()) {
+    // Construct the united hazards for address spaces.
+    for (final Map.Entry<MmuAddress, Map<Hazard, Set<Integer>>> entry : addressHazards.entrySet()) {
       final MmuAddress address = entry.getKey();
-      final Map<Hazard, Integer> conflicts = entry.getValue();
+      final Map<Hazard, Set<Integer>> hazards = entry.getValue();
 
-      addrUnitedHazards.put(address, new UnitedHazard(conflicts));
+      addrUnitedHazards.put(address, new UnitedHazard(hazards));
     }
 
-    // Construct the united conflicts for devices.
-    for (final Map.Entry<MmuDevice, Map<Hazard, Integer>> entry : deviceConflicts.entrySet()) {
+    // Construct the united hazards for devices.
+    for (final Map.Entry<MmuDevice, Map<Hazard, Set<Integer>>> entry : deviceHazards.entrySet()) {
       final MmuDevice device = entry.getKey();
-      final Map<Hazard, Integer> conflicts = entry.getValue();
+      final Map<Hazard, Set<Integer>> hazards = entry.getValue();
 
-      deviceUnitedHazards.put(device, new UnitedHazard(conflicts));
+      deviceUnitedHazards.put(device, new UnitedHazard(hazards));
     }
   }
 
   /**
-   * Returns the united conflict for the given address.
+   * Returns the united hazard for the given address.
    * 
    * @param address the address.
-   * @return the united conflict.
+   * @return the united hazard.
    */
   public UnitedHazard getHazard(final MmuAddress address) {
     return addrUnitedHazards.get(address);
   }
 
   /**
-   * Returns all united conflicts over addresses.
+   * Returns all united hazards over addresses.
    * 
-   * @return the collection of the united conflicts.
+   * @return the collection of the united hazards.
    */
   public Map<MmuAddress, UnitedHazard> getAddrHazards() {
     return addrUnitedHazards;
   }
 
   /**
-   * Returns the united conflict for the given device.
+   * Returns the united hazard for the given device.
    * 
    * @param device the device.
-   * @return the united conflict.
+   * @return the united hazard.
    */
   public UnitedHazard getHazard(final MmuDevice device) {
     return deviceUnitedHazards.get(device);
   }
 
   /**
-   * Returns all united conflicts over devices.
+   * Returns all united hazards over devices.
    * 
-   * @return the collection of the united conflicts.
+   * @return the collection of the united hazards.
    */
   public Map<MmuDevice, UnitedHazard> getDeviceHazards() {
     return deviceUnitedHazards;
   }
 
   /**
-   * Returns all united conflicts over devices with the given address type.
+   * Returns all united hazards over devices with the given address type.
    * 
-   * @return the collection of the united conflicts.
+   * @return the collection of the united hazards.
    */
   public Map<MmuDevice, UnitedHazard> getDeviceHazards(final MmuAddress address) {
     // TODO: Optimization is required.
@@ -151,10 +156,10 @@ public final class UnitedDependency {
 
     for (final Map.Entry<MmuDevice, UnitedHazard> entry : deviceUnitedHazards.entrySet()) {
       final MmuDevice device = entry.getKey();
-      final UnitedHazard conflict = entry.getValue();
+      final UnitedHazard hazard = entry.getValue();
 
       if (device.getAddress() == address) {
-        result.put(device, conflict);
+        result.put(device, hazard);
       }
     }
 
@@ -162,27 +167,27 @@ public final class UnitedDependency {
   }
 
   /**
-   * Returns the set of execution indices for the given conflict type of the given address.
+   * Returns the set of execution indices for the given hazard type of the given address.
    * 
-   * @param conflictType the conflict type.
+   * @param hazardType the hazard type.
    * @return the set of execution indices.
    */
-  public Set<Integer> getRelation(final MmuAddress address, final Hazard.Type conflictType) {
-    final UnitedHazard conflict = getHazard(address);
+  public Set<Integer> getRelation(final MmuAddress address, final Hazard.Type hazardType) {
+    final UnitedHazard hazard = getHazard(address);
 
-    return conflict != null ? conflict.getRelation(conflictType) : new LinkedHashSet<Integer>();
+    return hazard != null ? hazard.getRelation(hazardType) : new LinkedHashSet<Integer>();
   }
 
   /**
-   * Returns the set of execution indices for the given conflict type of the given device.
+   * Returns the set of execution indices for the given hazard type of the given device.
    * 
-   * @param conflictType the conflict type.
+   * @param hazardType the hazard type.
    * @return the set of execution indices.
    */
-  public Set<Integer> getRelation(final MmuDevice device, final Hazard.Type conflictType) {
-    final UnitedHazard conflict = getHazard(device);
+  public Set<Integer> getRelation(final MmuDevice device, final Hazard.Type hazardType) {
+    final UnitedHazard hazard = getHazard(device);
 
-    return conflict != null ? conflict.getRelation(conflictType) : new LinkedHashSet<Integer>();
+    return hazard != null ? hazard.getRelation(hazardType) : new LinkedHashSet<Integer>();
   }
 
   @Override

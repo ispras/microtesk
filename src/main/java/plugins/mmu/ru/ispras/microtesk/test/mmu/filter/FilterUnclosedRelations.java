@@ -40,7 +40,7 @@ public final class FilterUnclosedRelations implements Predicate<Template> {
   public boolean test(final Template template) {
     final Map<String, Map<Integer, Set<Integer>>> relations = new LinkedHashMap<>();
 
-    for (int i = 0; i < template.size(); i++) {
+    for (int i = 0; i < template.size() - 1; i++) {
       for (int j = i + 1; j < template.size(); j++) {
         final Dependency dependency = template.getDependency(i, j);
 
@@ -66,6 +66,8 @@ public final class FilterUnclosedRelations implements Predicate<Template> {
       switch (hazard.getType()) {
         case ADDR_EQUAL:
           hazardNames.add(String.format("%s.%s", hazard.getAddress(), "ADDR_EQUAL"));
+          hazardNames.add(String.format("%s.%s", hazard.getDevice(), "TAG_EQUAL"));
+          hazardNames.add(String.format("%s.%s", hazard.getDevice(), "INDEX_EQUAL"));
           break;
         case TAG_EQUAL:
           hazardNames.add(String.format("%s.%s", hazard.getDevice(), "TAG_EQUAL"));

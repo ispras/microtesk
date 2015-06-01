@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test.mmu.filter;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,14 +50,11 @@ public final class FilterVaEqualPaNotEqual implements BiPredicate<ExecutionPath,
       final UnitedHazard paHazard = addrEntry.getValue();
 
       if (pa != va) {
-        final Set<Integer> paNotEqualRelation = paHazard.getRelation(Hazard.Type.ADDR_NOT_EQUAL);
+        final Set<Integer> paEqualRelation = paHazard.getRelation(Hazard.Type.ADDR_EQUAL);
 
         // VA.ADDR_EQUAL => PA.ADDR_EQUAL.
-        if (paNotEqualRelation != null) {
-          final Set<Integer> paNotEqualRelationCopy = new HashSet<>(paNotEqualRelation);
-          paNotEqualRelationCopy.retainAll(vaEqualRelation);
-
-          if (!paNotEqualRelationCopy.isEmpty()) {
+        if (paEqualRelation != null) {
+          if (!paEqualRelation.containsAll(vaEqualRelation)) {
             // Filter off.
             return false;
           }

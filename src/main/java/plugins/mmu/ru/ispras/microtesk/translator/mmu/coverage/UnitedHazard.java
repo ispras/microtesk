@@ -44,42 +44,39 @@ public final class UnitedHazard {
    * @param hazards the non-empty set of hazards to be united, which is represented as a map
    *        with hazards as keys and execution indices as values.
    */
-  public UnitedHazard(final Map<Hazard, Integer> hazards) {
+  public UnitedHazard(final Map<Hazard, Set<Integer>> hazards) {
     InvariantChecks.checkNotNull(hazards);
-
-    if (hazards.isEmpty()) {
-      throw new IllegalArgumentException("The empty set of hazards");
-    }
+    InvariantChecks.checkNotEmpty(hazards.keySet());
 
     // Initialize the relation map with empty sets of indices.
     for (final Hazard.Type hazardType : Hazard.Type.values()) {
       relation.put(hazardType, new LinkedHashSet<Integer>());
     }
 
-    for (final Map.Entry<Hazard, Integer> entry : hazards.entrySet()) {
+    for (final Map.Entry<Hazard, Set<Integer>> entry : hazards.entrySet()) {
       final Hazard hazard = entry.getKey();
-      final int dependsOn = entry.getValue();
+      final Set<Integer> dependsOn = entry.getValue();
 
       // Check the consistency of the hazards.
       if (address == null) {
         address = hazard.getAddress();
       } else if (hazard.getAddress() != null && !address.equals(hazard.getAddress())) {
-        throw new IllegalArgumentException(String.format(
-            "The use of different address spaces in a hazard: %s != %s", address,
-            hazard.getAddress()));
+        throw new IllegalArgumentException(
+            String.format("The use of different address spaces in a hazard: %s != %s", address,
+                hazard.getAddress()));
       }
 
       if (device == null) {
         device = hazard.getDevice();
       } else if (hazard.getDevice() != null && !device.equals(hazard.getDevice())) {
-        throw new IllegalArgumentException(String.format(
-            "The use of different devices in a hazard: %s != %s", device,
-            hazard.getDevice()));
+        throw new IllegalArgumentException(
+            String.format("The use of different devices in a hazard: %s != %s", device,
+                hazard.getDevice()));
       }
 
       // Update the relation map.
       final Set<Integer> indices = relation.get(hazard.getType());
-      indices.add(dependsOn);
+      indices.addAll(dependsOn);
     }
 
     if (address == null) {

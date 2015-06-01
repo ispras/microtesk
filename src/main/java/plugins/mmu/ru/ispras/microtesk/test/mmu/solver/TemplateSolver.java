@@ -177,7 +177,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
 
   /**
    * Returns the object that stores a solution.
-   *  
+   * 
    * @return the solution.
    */
   public TemplateSolution getSolution() {
@@ -186,6 +186,8 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
 
   /**
    * Solves the address alignment constraint (aligns the address according to the data type).
+   * 
+   * <p>The approach works only if the address equality relation is transitively closed.</p>
    * 
    * @param j the execution index.
    * @param addrType the address type to be aligned.
@@ -212,7 +214,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
       }
     }
 
-    // Checks whether the new address is not aligned.
+    // Checks whether the address is unaligned.
     final long oldAddress = testData.getAddress(addrType);
 
     if (!maxType.isAligned(oldAddress)) {
@@ -685,6 +687,14 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
 
       if (!addrEqualRelation.isEmpty()) {
         solveAddrEqualConstraint(j, addrType);
+
+        // Paranoid check.
+        final long addr = testData.getAddress(addrType);
+
+        if (!testData.getType().isAligned(addr)) {
+          throw new IllegalStateException(
+              String.format("Unaligned address after solving AddrEqual constraints: %x", addr));
+        }
       } else {
         final Map<MmuDevice, UnitedHazard> deviceHazards = dependency.getDeviceHazards(addrType);
 
@@ -715,15 +725,6 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
 
     // Correct the solution.
     testDataCorrector.accept(execution, testData);
-
-    // Paranoid check.
-    for (final MmuAddress addrType : testData.getAddresses().keySet()) {
-      final long addr = testData.getAddress(addrType);
-
-      if (!testData.getType().isAligned(addr)) {
-        throw new IllegalStateException(String.format("Unaligned address: %x", addr));
-      }
-    }
 
     return new SolverResult<TemplateSolution>(solution);
   }
