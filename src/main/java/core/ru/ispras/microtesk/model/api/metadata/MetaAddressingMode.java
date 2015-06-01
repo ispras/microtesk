@@ -87,6 +87,6 @@ public final class MetaAddressingMode implements MetaData {
       sb.append(argName);
     }
 
-    return String.format("MetaAddressingMode %s (%s)", name, sb.toString());
+    return String.format("%s (%s)", name, sb.toString());
   }
 }

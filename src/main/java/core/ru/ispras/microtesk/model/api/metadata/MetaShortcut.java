@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
  * way to build a composite object. The context is the name of the operation to be parameterized
  * with a shortcut object.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class MetaShortcut implements MetaData {
@@ -34,9 +34,13 @@ public final class MetaShortcut implements MetaData {
    * 
    * @param contextName Context identifier.
    * @param operation Description of the shortcut operation signature.
+   * 
+   * @throws IllegalArgumentException if any of the arguments is {@code null}.
    */
 
-  public MetaShortcut(String contextName, MetaOperation operation) {
+  public MetaShortcut(
+      final String contextName,
+      final MetaOperation operation) {
     checkNotNull(contextName);
     checkNotNull(operation);
 

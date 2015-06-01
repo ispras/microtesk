@@ -21,14 +21,14 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
  * The MetaLocationStore class describes memory resources of the processor (as registers and memory
  * store locations).
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class MetaLocationStore implements MetaData {
   private final String name;
   private final int count;
 
-  public MetaLocationStore(String name, int count) {
+  public MetaLocationStore(final String name, final int count) {
     checkNotNull(name);
     checkGreaterThanZero(count);
 

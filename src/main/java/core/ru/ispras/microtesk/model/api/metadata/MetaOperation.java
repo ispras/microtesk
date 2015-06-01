@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * The MetaOperation class stores information on the given operation.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class MetaOperation implements MetaData {
@@ -33,12 +33,11 @@ public final class MetaOperation implements MetaData {
   private final boolean hasRootShortcuts;
 
   public MetaOperation(
-      String name,
-      String typeName,
-      boolean isRoot,
-      Map<String, MetaArgument> args,
-      Map<String, MetaShortcut> shortcuts) {
-
+      final String name,
+      final String typeName,
+      final boolean isRoot,
+      final Map<String, MetaArgument> args,
+      final Map<String, MetaShortcut> shortcuts) {
     checkNotNull(name);
     checkNotNull(typeName);
     checkNotNull(args);
@@ -51,7 +50,7 @@ public final class MetaOperation implements MetaData {
     this.shortcuts = shortcuts;
 
     boolean rootShortcuts = false;
-    for (MetaShortcut ms : shortcuts.values()) {
+    for (final MetaShortcut ms : shortcuts.values()) {
       if (ms.getOperation().isRoot()) {
         rootShortcuts = true;
         break;
@@ -112,7 +111,7 @@ public final class MetaOperation implements MetaData {
    * @return Argument with the specified name or {@code null} if no such argument is defined.
    */
 
-  public MetaArgument getArgument(String name) {
+  public MetaArgument getArgument(final String name) {
     return args.get(name);
   }
 
@@ -133,7 +132,7 @@ public final class MetaOperation implements MetaData {
    * @return Shortcut for the given context or {@code null} if no such shortcut exists.
    */
 
-  public MetaShortcut getShortcut(String contextName) {
+  public MetaShortcut getShortcut(final String contextName) {
     return shortcuts.get(contextName);
   }
 
