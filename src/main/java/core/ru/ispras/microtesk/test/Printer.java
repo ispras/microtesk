@@ -22,7 +22,6 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.test.template.ConcreteCall;

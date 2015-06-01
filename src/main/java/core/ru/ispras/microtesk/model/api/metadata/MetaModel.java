@@ -23,7 +23,7 @@ import java.util.Map;
  * information includes the list of instructions, the list of memory resources (registers, memory)
  * and the list of test situations (behavioral properties of the instructions).
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class MetaModel {
@@ -33,20 +33,20 @@ public final class MetaModel {
   private final Map<String, MetaLocationStore> memory;
 
   public MetaModel(
-      Collection<MetaAddressingMode> modes,
-      Collection<MetaOperation> operations,
-      Collection<MetaLocationStore> registers,
-      Collection<MetaLocationStore> memory) {
+      final Collection<MetaAddressingMode> modes,
+      final Collection<MetaOperation> operations,
+      final Collection<MetaLocationStore> registers,
+      final Collection<MetaLocationStore> memory) {
     this.modes = toMap(modes);
     this.operations = toMap(operations);
     this.registers = toMap(registers);
     this.memory = toMap(memory);
   }
 
-  private static <T extends MetaData> Map<String, T> toMap(Collection<T> c) {
-    final Map<String, T> map = new LinkedHashMap<String, T>();
+  private static <T extends MetaData> Map<String, T> toMap(final Collection<T> c) {
+    final Map<String, T> map = new LinkedHashMap<>();
 
-    for (T t : c) {
+    for (final T t : c) {
       map.put(t.getName(), t);
     }
 
@@ -71,7 +71,7 @@ public final class MetaModel {
    * @return Addressing mode metadata.
    */
 
-  public MetaAddressingMode getAddressingMode(String name) {
+  public MetaAddressingMode getAddressingMode(final String name) {
     return modes.get(name);
   }
 
@@ -93,7 +93,7 @@ public final class MetaModel {
    * @return Operation metadata.
    */
 
-  public MetaOperation getOperation(String name) {
+  public MetaOperation getOperation(final String name) {
     return operations.get(name);
   }
 
@@ -114,7 +114,7 @@ public final class MetaModel {
    * @return Register file metadata.
    */
 
-  public MetaLocationStore getRegister(String name) {
+  public MetaLocationStore getRegister(final String name) {
     return registers.get(name);
   }
 
@@ -135,7 +135,7 @@ public final class MetaModel {
    * @return Memory store location metadata.
    */
 
-  public MetaLocationStore getMemoryStore(String name) {
+  public MetaLocationStore getMemoryStore(final String name) {
     return memory.get(name);
   }
 }

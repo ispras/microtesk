@@ -34,7 +34,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * and extracting command-line parameter values. All properties of the MicroTESK
  * command line are defined here.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class Parameters {
@@ -98,10 +98,19 @@ public final class Parameters {
   public static final Option CODE_LIMIT = 
       newOption("program-length-limit", true,
           "The maximum number of instructions in output programs", GENERATE);
-  
+
   public static final Option TRACE_LIMIT =
       newOption("trace-length-limit", true,
           "The maximum length of execution traces of output programs", GENERATE);
+  
+  public static final Option COMMENTS_ENABLED =
+      newOption("comments-enabled", false,
+          "Enables printing comments; if not specified no comments are printed", GENERATE);
+
+  public static final Option COMMENTS_DEBUG =
+      newOption("comments-debug", false,
+          "Enables printing detailed comments, must be used together with --" +
+          COMMENTS_ENABLED.getLongOpt(), GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
@@ -236,6 +245,9 @@ public final class Parameters {
     result.addOption(DATA_PRE);
     result.addOption(CODE_LIMIT);
     result.addOption(TRACE_LIMIT);
+
+    result.addOption(COMMENTS_ENABLED);
+    result.addOption(COMMENTS_DEBUG);
 
     return result;
   }

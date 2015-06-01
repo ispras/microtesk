@@ -8,4 +8,6 @@
   <setting name="data-file-prefix" value="test"/>
   <setting name="program-length-limit" value="1000"/>
   <setting name="trace-length-limit" value="1000"/>
+  <setting name="comments-enabled" value=""/>
+  <setting name="comments-debug" value=""/>
 </settings>
