@@ -29,8 +29,12 @@ public final class PrimitiveAND extends Primitive {
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
 
-  PrimitiveAND(String name, Kind kind, Expr retExpr, Map<String, Primitive> args,
-      Map<String, Attribute> attrs) {
+  PrimitiveAND(
+      final String name,
+      final Kind kind,
+      final Expr retExpr,
+      final Map<String, Primitive> args,
+      final Map<String, Attribute> attrs) {
     super(name, kind, false, getReturnType(retExpr), null == attrs ? null : attrs.keySet());
 
     this.retExpr = retExpr;

@@ -79,7 +79,10 @@ public class Primitive {
      * Additional constructor for making modified copies.
      */
 
-    private Reference(PrimitiveAND source, Primitive target, Set<String> refNames) {
+    private Reference(
+        final PrimitiveAND source,
+        final Primitive target,
+        final Set<String> refNames) {
       this.source = source;
       this.target = target;
       this.refNames = refNames;
@@ -161,7 +164,12 @@ public class Primitive {
   private final Set<String> attrNames;
   private final Map<String, Reference> parents;
 
-  Primitive(String name, Kind kind, boolean isOrRule, Type returnType, Set<String> attrNames) {
+  Primitive(
+      final String name,
+      final Kind kind,
+      final boolean isOrRule,
+      final Type returnType,
+      final Set<String> attrNames) {
     this.name = name;
     this.kind = kind;
     this.isOrRule = isOrRule;
