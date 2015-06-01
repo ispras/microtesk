@@ -86,7 +86,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     public MetaArgument getMetaData() {
       return new MetaArgument(
           MetaArgument.Kind.IMM,
-          MetaArgument.UsageKind.NA,
+          MetaArgument.UsageKind.IN,
           name,
           Collections.singleton(AddressingModeImm.NAME),
           getType()

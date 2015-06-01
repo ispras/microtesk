@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,17 +16,18 @@ package ru.ispras.microtesk.model.api.metadata;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.Set;
+import java.util.Map;
 
 /**
- * The MetaAddressingMode class holds information on the specified addressing mode.
+ * The {@code MetaAddressingMode} class holds information on the specified
+ * addressing mode.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class MetaAddressingMode implements MetaData {
   private final String name;
-  private final Set<String> argumentNames;
+  private final Map<String, MetaArgument> args;
 
   /**
    * Constructs a metadata object for an addressing mode.
@@ -34,15 +35,17 @@ public final class MetaAddressingMode implements MetaData {
    * @param name Addressing mode name.
    * @param argumentNames Argument names.
    * 
-   * @throws NullPointerException if any of the parameters is {@code null}.
+   * @throws IllegalArgumentException if any of the parameters is {@code null}.
    */
 
-  public MetaAddressingMode(String name, Set<String> argumentNames) {
+  public MetaAddressingMode(
+      final String name,
+      final Map<String, MetaArgument> args) {
     checkNotNull(name);
-    checkNotNull(argumentNames);
+    checkNotNull(args);
 
     this.name = name;
-    this.argumentNames = argumentNames;
+    this.args = args;
   }
 
   /**
@@ -57,13 +60,35 @@ public final class MetaAddressingMode implements MetaData {
   }
 
   /**
+   * Returns a collection of addressing mode arguments.
+   * 
+   * @return Collection of addressing mode arguments.
+   */
+
+  public Iterable<MetaArgument> getArguments() {
+    return args.values();
+  }
+
+  /**
+   * Return an argument of the given addressing mode  that has the specified name.
+   * 
+   * @param name Argument name.
+   * @return Argument with the specified name or {@code null} if no such
+   *         argument is defined.
+   */
+
+  public MetaArgument getArgument(final String name) {
+    return args.get(name);
+  }
+
+  /**
    * Returns the list of addressing mode argument.
    * 
    * @return Collection of argument names.
    */
 
   public Iterable<String> getArgumentNames() {
-    return argumentNames;
+    return args.keySet();
   }
 
   /**
@@ -73,14 +98,14 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the argument is defined of {@code false} otherwise.
    */
 
-  public boolean isArgumentDefined(String name) {
-    return argumentNames.contains(name);
+  public boolean isArgumentDefined(final String name) {
+    return args.containsKey(name);
   }
 
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    for (String argName : argumentNames) {
+    for (final String argName : getArgumentNames()) {
       if (sb.length() > 0) {
         sb.append(", ");
       }

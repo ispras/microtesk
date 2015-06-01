@@ -25,6 +25,7 @@ import java.util.Set;
 
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -108,15 +109,32 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     @Override
     public final Collection<MetaAddressingMode> getMetaData() {
       if (null == metaData) {
-        metaData = createMetaData(name, decls.keySet());
+        metaData = createMetaData(name, decls);
       }
       return metaData;
     }
 
     private static Collection<MetaAddressingMode> createMetaData(
-        String name, Set<String> argumentNames) {
-      final MetaAddressingMode result = new MetaAddressingMode(name, argumentNames);
-      return Collections.singletonList(result);
+        final String name,
+        final Map<String, Type> decls) {
+      final Map<String, MetaArgument> args = new LinkedHashMap<>(decls.size());
+
+      for (Map.Entry<String, Type> e : decls.entrySet()) {
+        final String argName = e.getKey();
+        final Type argType = e.getValue();
+
+        final MetaArgument arg = new MetaArgument(
+            MetaArgument.Kind.IMM,
+            MetaArgument.UsageKind.IN,
+            argName,
+            Collections.singleton(AddressingModeImm.NAME),
+            argType
+            );
+
+        args.put(argName, arg);
+      }
+
+      return Collections.singletonList(new MetaAddressingMode(name, args));
     }
 
     @Override
