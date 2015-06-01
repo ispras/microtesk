@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -109,13 +108,14 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     @Override
     public final Collection<MetaAddressingMode> getMetaData() {
       if (null == metaData) {
-        metaData = createMetaData(name, decls);
+        metaData = createMetaData(name, type, decls);
       }
       return metaData;
     }
 
     private static Collection<MetaAddressingMode> createMetaData(
         final String name,
+        final Type dataType,
         final Map<String, Type> decls) {
       final Map<String, MetaArgument> args = new LinkedHashMap<>(decls.size());
 
@@ -134,7 +134,8 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         args.put(argName, arg);
       }
 
-      return Collections.singletonList(new MetaAddressingMode(name, args));
+      return Collections.singletonList(
+          new MetaAddressingMode(name, dataType, args));
     }
 
     @Override

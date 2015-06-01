@@ -18,6 +18,8 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.type.Type;
+
 /**
  * The {@code MetaAddressingMode} class holds information on the specified
  * addressing mode.
@@ -27,12 +29,14 @@ import java.util.Map;
 
 public final class MetaAddressingMode implements MetaData {
   private final String name;
+  private final Type dataType;
   private final Map<String, MetaArgument> args;
 
   /**
    * Constructs a metadata object for an addressing mode.
    * 
    * @param name Addressing mode name.
+   * @param dataType the type of data accessed via the addressing mode.
    * @param argumentNames Argument names.
    * 
    * @throws IllegalArgumentException if any of the parameters is {@code null}.
@@ -40,11 +44,14 @@ public final class MetaAddressingMode implements MetaData {
 
   public MetaAddressingMode(
       final String name,
+      final Type dataType,
       final Map<String, MetaArgument> args) {
     checkNotNull(name);
+    checkNotNull(dataType);
     checkNotNull(args);
 
     this.name = name;
+    this.dataType = dataType;
     this.args = args;
   }
 
@@ -57,6 +64,16 @@ public final class MetaAddressingMode implements MetaData {
   @Override
   public String getName() {
     return name;
+  }
+
+  /**
+   * Returns the type of data accessed via the addressing mode.
+   * 
+   * @return Data type.
+   */
+
+  public Type getDataType() {
+    return dataType;
   }
 
   /**
