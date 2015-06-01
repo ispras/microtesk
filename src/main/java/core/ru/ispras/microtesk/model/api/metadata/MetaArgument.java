@@ -47,13 +47,17 @@ public final class MetaArgument implements MetaData {
 
   public enum UsageKind {
     /** {@code IN} argument. Used for immediate values and addressing modes. */
-    IN,
+    IN("in"),
     /** {@code OUT} argument. Used for addressing modes.*/
-    OUT,
+    OUT("out"),
     /** {@code IN/OUT} argument. Used for addressing modes. */
-    INOUT,
+    INOUT("in/out"),
     /** Not applicable. Used for operations. */
-    NA
+    NA("na");
+
+    private final String text;
+    private UsageKind(final String text) { this.text = text; }
+    public String getText() { return text; }
   }
 
   private final Kind kind;
@@ -158,5 +162,29 @@ public final class MetaArgument implements MetaData {
 
   public Type getDataType() {
     return dataType;
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append(String.format("MetaArgument [%s] %s: %s ",
+        usageKind.getText(), getName(), kind.name().toLowerCase()));
+
+    boolean isFirst = false;
+    for (final String typeName: typeNames) {
+      if (isFirst) {
+        isFirst = false; 
+      } else {
+        sb.append('|');
+      }
+      sb.append(typeName);
+    }
+
+    if (dataType != null) {
+      sb.append(String.format("(%s)", dataType.toString()));
+    }
+
+    return sb.toString();
   }
 }
