@@ -178,7 +178,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
     public MemoryStore(Memory[] memory) {
       this.metaData = new ArrayList<MetaLocationStore>(memory.length);
       for (final Memory m : memory) {
-        this.metaData.add(new MetaLocationStore(m.getName(), m.getLength()));
+        this.metaData.add(new MetaLocationStore(m.getName(), m.getType(), m.getLength()));
       }
     }
 

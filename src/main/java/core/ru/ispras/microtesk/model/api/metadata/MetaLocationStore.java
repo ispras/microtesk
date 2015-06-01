@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.metadata;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The MetaLocationStore class describes memory resources of the processor (as registers and memory
@@ -26,13 +27,18 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
 public final class MetaLocationStore implements MetaData {
   private final String name;
+  private final Type dataType;
   private final int count;
 
-  public MetaLocationStore(final String name, final int count) {
+  public MetaLocationStore(
+      final String name,
+      final Type dataType, 
+      final int count) {
     checkNotNull(name);
     checkGreaterThanZero(count);
 
     this.name = name;
+    this.dataType = dataType;
     this.count = count;
   }
 
@@ -45,6 +51,16 @@ public final class MetaLocationStore implements MetaData {
   @Override
   public String getName() {
     return name;
+  }
+  
+  /**
+   * Returns the type of items stored in the memory store.
+   * 
+   * @return Item data type.
+   */
+
+  public Type getDataType() {
+    return dataType;
   }
 
   /**
