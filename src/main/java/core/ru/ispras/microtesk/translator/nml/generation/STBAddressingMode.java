@@ -49,6 +49,7 @@ final class STBAddressingMode extends STBPrimitiveBase {
 
   private void buildHeader(STGroup group, ST t) {
     t.add("name", mode.getName());
+    t.add("type", mode.getReturnType().getJavaText());
     t.add("file", specFileName);
     t.add("pack", String.format(MODE_PACKAGE_FORMAT, modelName));
 

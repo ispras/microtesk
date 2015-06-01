@@ -19,6 +19,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.Data;
 
 /**
@@ -87,6 +88,14 @@ public interface IAddressingMode extends IPrimitive {
      */
 
     public String getName();
+
+    /**
+     * Returns the type of data accessed via the addressing mode.
+     * 
+     * @return Data type.
+     */
+
+    public Type getType();
 
     /**
      * Returns a table of builder for the addressing mode (or the group of addressing modes)

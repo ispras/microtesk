@@ -48,8 +48,8 @@ public class IREG extends AddressingMode
             super(
                IREG.class,
                "IREG",
-               new ParamDecls()
-                   .declareParam("i", nibble)
+               byte_t,
+               new ParamDecls().declareParam("i", nibble)
             );
         }
         

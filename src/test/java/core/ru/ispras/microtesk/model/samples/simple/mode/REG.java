@@ -48,6 +48,7 @@ public final class REG extends AddressingMode
             super(
                 REG.class,
                 "REG",
+                byte_t,
                 new ParamDecls()
                     .declareParam("i", nibble)
             );

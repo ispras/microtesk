@@ -48,11 +48,11 @@ public class MEM extends AddressingMode
             super(
                 MEM.class,
                 "MEM",
-                new ParamDecls()
-                    .declareParam("i", index)
+                byte_t,
+                new ParamDecls().declareParam("i", index)
             );
         }
-        
+
         @Override
         public IAddressingMode create(Map<String, Data> args)
         {

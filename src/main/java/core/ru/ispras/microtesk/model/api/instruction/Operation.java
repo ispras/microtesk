@@ -120,14 +120,14 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
     @Override
     public Type getType() {
-      return null;
+      return info.getType();
     }
 
     @Override
     public MetaArgument getMetaData() {
       final Set<String> modeNames = new LinkedHashSet<>(info.getMetaData().size());
 
-      for (MetaAddressingMode mode : info.getMetaData()) {
+      for (final MetaAddressingMode mode : info.getMetaData()) {
         modeNames.add(mode.getName());
       }
 
@@ -174,7 +174,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     public MetaArgument getMetaData() {
       final Set<String> opNames = new LinkedHashSet<String>(info.getMetaData().size());
 
-      for (MetaOperation op : info.getMetaData()) {
+      for (final MetaOperation op : info.getMetaData()) {
         opNames.add(op.getName());
       }
 

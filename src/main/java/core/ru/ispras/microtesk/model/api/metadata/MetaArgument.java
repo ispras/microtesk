@@ -21,7 +21,7 @@ import java.util.Set;
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
- * The MetaArgument class describes instruction arguments.
+ * The {@code MetaArgument} class describes arguments or addressing modes and operations.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -168,7 +168,7 @@ public final class MetaArgument implements MetaData {
   public String toString() {
     final StringBuilder sb = new StringBuilder();
 
-    sb.append(String.format("MetaArgument [%s] %s: %s ",
+    sb.append(String.format("[%s] %s: %s ",
         usageKind.getText(), getName(), kind.name().toLowerCase()));
 
     boolean isFirst = false;

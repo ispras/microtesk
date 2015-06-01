@@ -72,13 +72,19 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
   protected static abstract class InfoAndRule implements IInfo, IFactory {
     private final Class<?> modeClass;
     private final String name;
+    private final Type type;
     private final Map<String, Type> decls;
 
     private Collection<MetaAddressingMode> metaData;
 
-    public InfoAndRule(Class<?> modeClass, String name, ParamDecls decls) {
+    public InfoAndRule(
+        final Class<?> modeClass,
+        final String name,
+        final Type type,
+        final ParamDecls decls) {
       this.modeClass = modeClass;
       this.name = name;
+      this.type = type; 
       this.decls = decls.getDecls();
       this.metaData = null;
     }
@@ -86,6 +92,11 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     @Override
     public final String getName() {
       return name;
+    }
+
+    @Override
+    public final Type getType() {
+      return type;
     }
 
     @Override
@@ -152,6 +163,11 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     @Override
     public String getName() {
       return name;
+    }
+
+    @Override
+    public Type getType() {
+      return childs[0].getType();
     }
 
     @Override

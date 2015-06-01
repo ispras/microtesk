@@ -35,7 +35,12 @@ public final class AddressingModeImm extends AddressingMode {
 
   private static final class Info extends InfoAndRule {
     Info(Type type) {
-      super(AddressingModeImm.class, NAME, new ParamDecls().declareParam(PARAM_NAME, type));
+      super(
+          AddressingModeImm.class,
+          NAME,
+          type,
+          new ParamDecls().declareParam(PARAM_NAME, type)
+          );
     }
 
     @Override

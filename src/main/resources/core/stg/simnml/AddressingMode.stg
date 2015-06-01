@@ -12,7 +12,7 @@
 
 group AddressingMode;
 
-mode(name, file, pack, imps, simps, base, param_names, param_types, attrs, ret) ::= <<
+mode(name, type, file, pack, imps, simps, base, param_names, param_types, attrs, ret) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -21,16 +21,16 @@ mode(name, file, pack, imps, simps, base, param_names, param_types, attrs, ret) 
        name,
        base,
        false,
-       body(name, param_names, param_types, attrs, ret))> 
+       body(name, type, param_names, param_types, attrs, ret))> 
 >>
 
-body(name, param_names, param_types, attrs, ret) ::= <<
+body(name, type, param_names, param_types, attrs, ret) ::= <<
 <class_string_const("String", "NAME", name)><\n>
 <class(["private", "static", "final"],
        "Info",
        "InfoAndRule",
        false,
-       info_body(name, param_names, param_types))
+       info_body(name, type, param_names, param_types))
 >
 <class_const("IInfo", "INFO", "new Info()")><\n>
 <mode_constructor(name, param_names)><\n>
@@ -38,12 +38,13 @@ body(name, param_names, param_types, attrs, ret) ::= <<
 <if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>;}, true)><endif>
 >>
 
-info_body(name, param_names, param_types) ::= <<
+info_body(name, type, param_names, param_types) ::= <<
 Info()
 {
     super(
        <name>.class,
        "<name>",
+       <type>,
        <param_decls(param_names, param_types)>
     );
 }<\n>
