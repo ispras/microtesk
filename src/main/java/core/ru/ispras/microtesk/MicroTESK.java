@@ -65,7 +65,7 @@ public final class MicroTESK {
 
   private static void translate(final Parameters params) throws RecognitionException {
     final List<Translator<?>> translators = Config.loadTranslators();
-    for (Translator<?> translator : translators) {
+    for (final Translator<?> translator : translators) {
       if (params.hasOption(Parameters.INCLUDE)) {
         translator.addPath(params.getOptionValue(Parameters.INCLUDE));
       }
@@ -75,7 +75,10 @@ public final class MicroTESK {
       }
 
       for (final String fileName : params.getArgs()) {
-        translator.addPath(FileUtils.getFileDir(fileName));
+        final String fileDir = FileUtils.getFileDir(fileName);
+        if (null != fileDir) {
+          translator.addPath(fileDir);
+        }
       }
 
       translator.start(params.getArgs());
