@@ -91,7 +91,7 @@ final class Printer {
   }
 
   public String createNewFile() throws IOException {
-    final String fileName = String.format("%s%d.%s", codeFilePrefix, codeFileCount, codeFileExtension);
+    final String fileName = String.format("%s_%04d.%s", codeFilePrefix, codeFileCount, codeFileExtension);
 
     fileWritter = new PrintWriter(new FileWriter(fileName));
     ++codeFileCount;
