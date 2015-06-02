@@ -52,7 +52,7 @@ public final class Analyzer {
   }
 
   public void generateOutput(final String targetDir) {
-    if (!ssa.isEmpty()) {
+    if (ssa.isEmpty()) {
       return;
     }
     processModes(ir.getModes().values());
