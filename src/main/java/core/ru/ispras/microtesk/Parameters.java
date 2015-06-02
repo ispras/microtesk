@@ -113,7 +113,7 @@ public final class Parameters {
           COMMENTS_ENABLED.getLongOpt(), GENERATE);
   
   public static final Option SOLVER_DEBUG =
-      newOption("solver-debug", false, "Enables debug mode for SMT solvers");
+      newOption("solver-debug", false, "Enables debug mode for SMT solvers", GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
