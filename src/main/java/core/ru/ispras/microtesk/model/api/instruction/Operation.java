@@ -133,7 +133,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
       return new MetaArgument(
           MetaArgument.Kind.MODE,
-          MetaArgument.UsageKind.NA,
+          MetaArgument.UsageKind.NA, // TODO IN/OUT/INOUT/NA (if no return type)
           name,
           modeNames,
           getType()
