@@ -14,13 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.fortress.transformer.NodeTransformer;
-import ru.ispras.fortress.transformer.TransformerRule;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.AND;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.OR;
+import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -32,10 +29,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.AND;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.OR;
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.TransformerRule;
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class SsaAssembler {
   final Map<String, SsaForm> buildingBlocks;
@@ -109,6 +110,8 @@ public final class SsaAssembler {
   }
 
   private Block embedBlock(Block block) {
+    InvariantChecks.checkNotNull(block);
+
     walkStatements(block);
     if (blockIsOp(block, SsaOperation.PHI)) {
       return block;
@@ -120,6 +123,8 @@ public final class SsaAssembler {
   }
 
   private Block embedSequence(Block block) {
+    InvariantChecks.checkNotNull(block);
+
     if (block.getChildren().size() > 0) {
       changes.commit();
       return embedBlock(block.getChildren().get(0).block);
@@ -128,6 +133,8 @@ public final class SsaAssembler {
   }
 
   private Block embedBranches(Block block) {
+    InvariantChecks.checkNotNull(block);
+
     changes.commit();
 
     Block fence = null;
@@ -143,7 +150,14 @@ public final class SsaAssembler {
       changes = rebasers.next();
 
       newBatch(Utility.transform(guard.guard, xform));
-      fence = sameNotNull(fence, embedBlock(guard.block));
+
+      // TODO: embedBlock can return null.
+      final Block result = embedBlock(guard.block);
+
+      if (result != null) {
+        fence = sameNotNull(fence, result);
+      }
+
       branches.add(endBatch());
     }
     changes = changesStack.pop();
@@ -161,7 +175,8 @@ public final class SsaAssembler {
     addToBatch(endBatch());
     changes.getSummary().clear();
 
-    return embedSequence(fence);
+    // TODO: fence can be null.
+    return fence != null ? embedSequence(fence) : null;
   }
 
   private static void join(Changes repo, Collection<GuardedBlock> blocks, Collection<Changes> containers, NodeTransformer xform) {
@@ -195,12 +210,9 @@ public final class SsaAssembler {
   }
 
   private static <T> T sameNotNull(T stored, T input) {
-    if (input == null) {
-      throw new NullPointerException();
-    }
-    if (stored != null && stored != input) {
-      throw new IllegalArgumentException();
-    }
+    InvariantChecks.checkNotNull(input);
+    InvariantChecks.checkTrue(stored == null || stored == input);
+
     return input;
   }
 

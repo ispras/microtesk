@@ -14,8 +14,23 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
@@ -27,26 +42,11 @@ import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
 import ru.ispras.fortress.solver.xml.XMLNotLoadedException;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.util.InvariantChecks;
-
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.File;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
 
 public final class TestBase {
   final String path;
@@ -135,15 +135,27 @@ public final class TestBase {
       values.put(var.getName(), var.getData());
     }
 
+    System.out.println("Values: " + values);
+
     final Map<String, Node> valueNodes = new HashMap<>();
     for (Map.Entry<String, Node> entry : query.getBindings().entrySet()) {
       if (entry.getValue().getKind() == Node.Kind.VARIABLE) {
         final String name = entry.getKey() + "!1";
         if (values.containsKey(name)) {
           valueNodes.put(entry.getKey(), new NodeValue(values.get(name)));
+        } else {
+          if (entry.getValue().isType(DataTypeId.LOGIC_INTEGER)) {
+            // TODO: Bit width required.
+            // TODO: Randomization.
+            valueNodes.put(entry.getKey(), NodeValue.newInteger(0));
+          } else {
+            // TODO: Bit width required.
+            // TODO: Randomization.
+          }
         }
       }
     }
+
     final TestData data = new TestData(valueNodes);
     final Iterator<TestData> iterator = Collections.singletonList(data).iterator();
 
@@ -196,27 +208,33 @@ public final class TestBase {
   }
 
   private Map<String, SsaForm> loadStorage(String model) {
-    final String dirName = this.path + "/gen";
-    final File dir = new File(dirName + "/" + model);
+    final String dirName = String.format("%s%sgen", this.path, File.separator);
+    final File dir = new File(String.format("%s%s%s", dirName, File.separator, model));
     final Collection<Constraint> constraints = new ArrayList<>();
-    for (File file : dir.listFiles()) {
+
+    for (final File file : dir.listFiles()) {
       try {
         constraints.add(XMLConstraintLoader.loadFromFile(file.getPath()));
-      } catch (XMLNotLoadedException e) {
+      } catch (final XMLNotLoadedException e) {
         System.err.println(e.getMessage());
       }
     }
+
     final SsaConverter converter = new SsaConverter(constraints);
     final Map<String, SsaForm> ssa = new HashMap<>();
 
     try {
-      final BufferedReader reader = new BufferedReader(new FileReader(String.format("%s/%s.list", dirName, model)));
+      final BufferedReader reader = new BufferedReader(
+          new FileReader(String.format("%s%s%s.list", dirName, File.separator, model)));
+
       String line = reader.readLine();
       while (line != null) {
         ssa.put(line, converter.convert(line));
         line = reader.readLine();
       }
-    } catch (java.io.IOException e) {
+
+      reader.close();
+    } catch (final IOException e) {
       System.err.println(e.getMessage());
     }
     return ssa;

@@ -306,7 +306,7 @@ class Template
   # produced as a result of test data generation for some test situation.
   #
   def _
-    @template.newUnknown
+    @template.newUnknownImmediate
   end
 
   # --- Special "no value" method ---

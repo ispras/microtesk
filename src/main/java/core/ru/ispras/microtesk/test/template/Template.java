@@ -284,8 +284,8 @@ public final class Template {
     return new VariateBuilder<>();
   }
 
-  public UnknownValue newUnknown() {
-    return new UnknownValue();
+  public UnknownImmediateValue newUnknownImmediate() {
+    return new UnknownImmediateValue();
   }
 
   public OutputBuilder newOutput(boolean isRuntime, String format) {

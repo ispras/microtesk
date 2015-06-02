@@ -18,6 +18,7 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +35,8 @@ final class Batch {
   public NodeVariable store;
 
   public Batch(String key) {
+    InvariantChecks.checkNotNull(key);
+
     this.key = key;
     this.batch = new ArrayList<>();
     this.load = null;

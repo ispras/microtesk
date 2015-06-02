@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.util.Collections;
@@ -50,7 +51,8 @@ import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
-import ru.ispras.microtesk.test.template.UnknownValue;
+import ru.ispras.microtesk.test.template.UnknownImmediateValue;
+import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
@@ -58,7 +60,6 @@ import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
-import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 /**
  * The job of the DataGenerator class is to processes an abstract instruction call sequence (uses
@@ -158,9 +159,7 @@ final class DataGenerator {
   }
 
   private void generateData(Primitive primitive) throws ConfigurationException {
-    if (!primitive.hasSituation()) {
-      throw new IllegalArgumentException();
-    }
+    checkTrue(primitive.hasSituation());
 
     final Situation situation = primitive.getSituation();
     trace("Processing situation %s for %s...", situation, primitive.getSignature());
@@ -171,8 +170,9 @@ final class DataGenerator {
     final TestBaseQuery query = queryCreator.getQuery();
     trace("Query to TestBase: " + query);
 
-    final Map<String, UnknownValue> unknownValues = queryCreator.getUnknownValues();
-    trace("Unknown values: " + unknownValues.keySet());
+    final Map<String, UnknownImmediateValue> unknownImmediateValues =
+        queryCreator.getUnknownImmediateValues();
+    trace("Unknown immediate values: " + unknownImmediateValues.keySet());
 
     final Map<String, Primitive> modes = queryCreator.getModes();
     trace("Modes used as arguments: " + modes);
@@ -193,9 +193,9 @@ final class DataGenerator {
     trace(testData.toString());
 
     // Set unknown immediate values
-    for (Map.Entry<String, UnknownValue> e : unknownValues.entrySet()) {
+    for (final Map.Entry<String, UnknownImmediateValue> e : unknownImmediateValues.entrySet()) {
       final String name = e.getKey();
-      final UnknownValue target = e.getValue();
+      final UnknownImmediateValue target = e.getValue();
 
       final Node value = testData.getBindings().get(name);
       final int intValue = FortressUtils.extractInt(value);
@@ -205,7 +205,7 @@ final class DataGenerator {
 
     // Set model state using preparators that create initializing
     // sequences based on addressing modes.
-    for (Map.Entry<String, Node> e : testData.getBindings().entrySet()) {
+    for (final Map.Entry<String, Node> e : testData.getBindings().entrySet()) {
       final String name = e.getKey();
 
       final Primitive mode = modes.get(name);
@@ -286,7 +286,7 @@ final class DataGenerator {
 
   private int makeImmUnknown(Argument argument) {
     checkArgKind(argument, Argument.Kind.IMM_UNKNOWN);
-    return ((UnknownValue) argument.getValue()).getValue();
+    return ((UnknownImmediateValue) argument.getValue()).getValue();
   }
 
   private int makeImmLazy(Argument argument) {
@@ -436,7 +436,7 @@ final class DataGenerator {
    * <ul>
    * <li>All immediate arguments that have values are constants (see {@link NodeValue}) of type
    * {@link DataType#INTEGER}.</li>
-   * <li>All unknown immediate arguments (see {@link UnknownValue}) that have not been assigned values
+   * <li>All unknown immediate arguments (see {@link UnknownImmediateValue}) that have not been assigned values
    * are unknown variables (see {@link NodeVariable}) of type {@link DataType#INTEGER}.</li>
    * <li>All addressing modes are unknown variables (see {@link NodeVariable}) of type
    * {@link DataType#UNKNOWN}.</li>
@@ -459,7 +459,7 @@ final class DataGenerator {
 
     private boolean isCreated;
     private TestBaseQuery query;
-    private Map<String, UnknownValue> unknownValues;
+    private Map<String, UnknownImmediateValue> unknownImmediateValues;
     private Map<String, Primitive> modes;
 
     public TestBaseQueryCreator(
@@ -476,7 +476,7 @@ final class DataGenerator {
 
       this.isCreated = false;
       this.query = null;
-      this.unknownValues = null;
+      this.unknownImmediateValues = null;
       this.modes = null;
     }
 
@@ -487,11 +487,11 @@ final class DataGenerator {
       return query;
     }
 
-    public Map<String, UnknownValue> getUnknownValues() {
+    public Map<String, UnknownImmediateValue> getUnknownImmediateValues() {
       createQuery();
 
-      checkNotNull(unknownValues);
-      return unknownValues;
+      checkNotNull(unknownImmediateValues);
+      return unknownImmediateValues;
     }
 
     public Map<String, Primitive> getModes() {
@@ -513,7 +513,7 @@ final class DataGenerator {
 
       final BindingBuilder bindingBuilder = new BindingBuilder(queryBuilder, primitive);
 
-      unknownValues = bindingBuilder.getUnknownValues();
+      unknownImmediateValues = bindingBuilder.getUnknownValues();
       modes = bindingBuilder.getModes();
       query = queryBuilder.build();
 
@@ -538,7 +538,7 @@ final class DataGenerator {
   
   private final class BindingBuilder {
     private final TestBaseQueryBuilder queryBuilder;
-    private final Map<String, UnknownValue> unknownValues;
+    private final Map<String, UnknownImmediateValue> unknownValues;
     private final Map<String, Primitive> modes;
 
     private BindingBuilder(
@@ -548,13 +548,13 @@ final class DataGenerator {
       checkNotNull(primitive);
 
       this.queryBuilder = queryBuilder;
-      this.unknownValues = new HashMap<String, UnknownValue>();
+      this.unknownValues = new HashMap<String, UnknownImmediateValue>();
       this.modes = new HashMap<String, Primitive>();
 
       visit(primitive.getName(), primitive);
     }
 
-    public Map<String, UnknownValue> getUnknownValues() {
+    public Map<String, UnknownImmediateValue> getUnknownValues() {
       return unknownValues;
     }
 
@@ -578,12 +578,12 @@ final class DataGenerator {
             break;
 
           case IMM_UNKNOWN:
-            if (!((UnknownValue) arg.getValue()).isValueSet()) {
+            if (!((UnknownImmediateValue) arg.getValue()).isValueSet()) {
               queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
-              unknownValues.put(argName, (UnknownValue) arg.getValue());
+              unknownValues.put(argName, (UnknownImmediateValue) arg.getValue());
             } else {
               queryBuilder.setBinding(argName,
-                NodeValue.newInteger(((UnknownValue) arg.getValue()).getValue()));
+                NodeValue.newInteger(((UnknownImmediateValue) arg.getValue()).getValue()));
             }
             break;
 

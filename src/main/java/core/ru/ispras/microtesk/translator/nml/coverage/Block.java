@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.nml.coverage;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +32,10 @@ final class GuardedBlock {
   public final Block block;
 
   GuardedBlock(String name, Node guard, Block block) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(guard);
+    InvariantChecks.checkNotNull(block);
+
     this.name = name;
     this.guard = guard;
     this.block = block;
@@ -50,6 +55,11 @@ public final class Block {
       Map<String, NodeVariable> inputs,
       Map<String, NodeVariable> outputs,
       List<NodeVariable> intermediates) {
+    InvariantChecks.checkNotNull(statements);
+    InvariantChecks.checkNotNull(inputs);
+    InvariantChecks.checkNotNull(outputs);
+    InvariantChecks.checkNotNull(intermediates);
+
     this.statements = statements;
     this.inputs = inputs;
     this.outputs = outputs;

@@ -25,7 +25,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
-
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ESymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.location.*;
 import ru.ispras.microtesk.translator.nml.ir.primitive.*;

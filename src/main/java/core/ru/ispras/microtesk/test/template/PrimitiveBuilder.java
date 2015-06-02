@@ -42,14 +42,14 @@ public interface PrimitiveBuilder {
   void addArgument(RandomValue value);
   void addArgument(Primitive value);
   void addArgument(PrimitiveBuilder value);
-  void addArgument(UnknownValue value);
+  void addArgument(UnknownImmediateValue value);
   void addArgument(LazyValue value);
   void setArgument(String name, int value);
   void setArgument(String name, String value);
   void setArgument(String name, RandomValue value);
   void setArgument(String name, Primitive value);
   void setArgument(String name, PrimitiveBuilder value);
-  void setArgument(String name, UnknownValue value);
+  void setArgument(String name, UnknownImmediateValue value);
   void setArgument(String name, LazyValue value);
 }
 
@@ -173,7 +173,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   }
 
   @Override
-  public void addArgument(UnknownValue value) {
+  public void addArgument(UnknownImmediateValue value) {
     checkNotNull(value);
     registerArgument(new ArgumentUnkVal(value));
   }
@@ -218,7 +218,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   }
 
   @Override
-  public void setArgument(String name, UnknownValue value) {
+  public void setArgument(String name, UnknownImmediateValue value) {
     checkNotNull(name);
     checkNotNull(value);
     registerArgument(new ArgumentUnkVal(name, value));
@@ -365,12 +365,12 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     }
   }
 
-  private static class ArgumentUnkVal extends AbstractArgument<UnknownValue> {
-    public ArgumentUnkVal(String name, UnknownValue value) {
+  private static class ArgumentUnkVal extends AbstractArgument<UnknownImmediateValue> {
+    public ArgumentUnkVal(String name, UnknownImmediateValue value) {
       super(name, value);
     }
 
-    public ArgumentUnkVal(UnknownValue value) {
+    public ArgumentUnkVal(UnknownImmediateValue value) {
       super(value);
     }
 
@@ -521,7 +521,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   @Override
-  public void addArgument(UnknownValue value) {
+  public void addArgument(UnknownImmediateValue value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
@@ -590,7 +590,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   @Override
-  public void setArgument(String name, UnknownValue value) {
+  public void setArgument(String name, UnknownImmediateValue value) {
     checkNotNull(name);
     checkNotNull(value);
 

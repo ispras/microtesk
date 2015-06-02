@@ -17,12 +17,18 @@ package ru.ispras.microtesk.translator.nml.coverage;
 import java.util.Collection;
 import java.util.Collections;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class SsaForm {
   private final Block entry;
   private final Block exit;
   private final Collection<Block> blocks;
 
   SsaForm(Block entry, Block exit, Collection<Block> blocks) {
+    InvariantChecks.checkNotNull(entry);
+    InvariantChecks.checkNotNull(exit);
+    InvariantChecks.checkNotNull(blocks);
+
     this.entry = entry;
     this.exit = exit;
     this.blocks = blocks;

@@ -29,11 +29,11 @@ package ru.ispras.microtesk.test.template;
  * @author Andrei Tatarnikov
  */
 
-public final class UnknownValue implements Value {
+public final class UnknownImmediateValue implements Value {
   private int value;
   private boolean isValueSet;
 
-  UnknownValue() {
+  UnknownImmediateValue() {
     this.value = 0;
     this.isValueSet = false;
   }
