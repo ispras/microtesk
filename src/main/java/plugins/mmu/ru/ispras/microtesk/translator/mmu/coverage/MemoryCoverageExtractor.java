@@ -46,23 +46,18 @@ final class MemoryCoverageExtractor {
 
     if (transitions != null && !transitions.isEmpty()) {
       for (final MmuTransition transition : transitions) {
-        final ExecutionPath execution =
-            new ExecutionPath(transition.getGuard().getOperation(), memory.getStartAddress());
+        if (transition.isEnabled()) {
+          final ExecutionPath execution =
+              new ExecutionPath(transition.getGuard().getOperation(), memory.getStartAddress());
 
-        execution.addTransition(transition);
-        executions.add(execution);
+          execution.addTransition(transition);
+          executions.add(execution);
+        }
       }
 
-      // Add all possible execution paths.
       int i = 0;
-
       while (i < executions.size()) {
         final List<ExecutionPath> executionPrefixList = elongateExecutionPaths(executions.get(i));
-
-        if (executionPrefixList != null && executionPrefixList.isEmpty()) {
-          executions.remove(i);
-          continue;
-        }
 
         if (executionPrefixList != null) {
           executions.remove(i);
@@ -96,6 +91,10 @@ final class MemoryCoverageExtractor {
       final List<ExecutionPath> elongatedExecutionList = new ArrayList<>();
 
       for (final MmuTransition transition : targetTransitions) {
+        if (!transition.isEnabled()) {
+          continue;
+        }
+
         final MemoryOperation executionOperation = execution.getOperation();
 
         final MmuGuard mmuGuard = transition.getGuard();

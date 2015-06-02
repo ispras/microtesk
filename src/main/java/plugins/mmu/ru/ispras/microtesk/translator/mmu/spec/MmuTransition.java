@@ -17,18 +17,23 @@ package ru.ispras.microtesk.translator.mmu.spec;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * This class describes a transition, a link between two actions. The description includes the
- * source and target actions as well as the guard condition that activates the transition.
+ * {@link MmuTransition} describes a transition, which is a link between two actions.
+ * 
+ * <p>The description includes the source and the target actions as well as the guard condition that
+ * activates the transition.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuTransition {
-  /** The source action. */
-  private MmuAction source;
-  /** The target action. */
-  private MmuAction target;
-  /** The guard condition or {@code null} if the transition is interpreted as {@code goto}. */
-  private MmuGuard guard;
+public final class MmuTransition {
+  /** Flag indicating whether the transition is enabled, i.e. included into the specification. */
+  private boolean enabled = true;
+
+  /** Source action. */
+  private final MmuAction source;
+  /** Target action. */
+  private final MmuAction target;
+  /** Guard condition or {@code null} if the transition is interpreted as {@code goto}. */
+  private final MmuGuard guard;
 
   /**
    * Constructs a guarded transition.
@@ -54,6 +59,24 @@ public class MmuTransition {
    */
   public MmuTransition(final MmuAction source, final MmuAction target) {
     this(source, target, null);
+  }
+
+  /**
+   * Checks whether the transition is enabled.
+   * 
+   * @return {@code true} if the transition is enabled; {@code false} otherwise.
+   */
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  /**
+   * Sets the enabling flag.
+   * 
+   * @param enabled the flag indicating whether the transition is enabled.
+   */
+  public void setEnabled(final boolean enabled) {
+    this.enabled = enabled;
   }
 
   /**
