@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.mmu.Template;
 import ru.ispras.microtesk.test.mmu.filter.FilterAccessThenMiss;
@@ -31,7 +32,7 @@ import ru.ispras.microtesk.test.mmu.filter.FilterMultipleTagReplacedEx;
 import ru.ispras.microtesk.test.mmu.filter.FilterNonReplaceableTagEqual;
 import ru.ispras.microtesk.test.mmu.filter.FilterParentMissChildHitOrReplace;
 import ru.ispras.microtesk.test.mmu.filter.FilterTagEqualTagReplaced;
-import ru.ispras.microtesk.test.mmu.filter.FilterUnclosedRelations;
+import ru.ispras.microtesk.test.mmu.filter.FilterUnclosedEqualRelations;
 import ru.ispras.microtesk.test.mmu.filter.FilterVaEqualPaNotEqual;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.translator.mmu.coverage.CoverageExtractor;
@@ -70,7 +71,7 @@ public final class TemplateIterator implements Iterator<Template> {
     BASIC_FILTERS.addUnitedDependencyFilter(new FilterHitAndTagReplacedEx());
     BASIC_FILTERS.addUnitedDependencyFilter(new FilterMultipleTagReplacedEx());
     BASIC_FILTERS.addUnitedDependencyFilter(new FilterVaEqualPaNotEqual());
-    BASIC_FILTERS.addTemplateFilter(new FilterUnclosedRelations());
+    BASIC_FILTERS.addTemplateFilter(new FilterUnclosedEqualRelations());
   }
 
   /** Checks the consistency of templates (such filters cannot be applied to template parts). */
@@ -86,6 +87,8 @@ public final class TemplateIterator implements Iterator<Template> {
   private final MmuSpecification memory;
   /** Supported data types, i.e. sizes of data blocks accessed by load/store instructions. */
   private final DataType[] dataTypes;
+  /** Data type randomization option. */
+  private final boolean randomDataType;
 
   /** Number of execution paths in a test template. */
   private final int numberOfExecutions;
@@ -119,21 +122,24 @@ public final class TemplateIterator implements Iterator<Template> {
   /**
    * Constructs a MMU iterator.
    * 
-   * @param memory the memory.
+   * @param memory the memory specification.
    * @param numberOfExecutions the number of execution paths in a template.
    * @param dataTypes the array of supported data types.
+   * @param randomDataType the data type randomization option.
    * @param executionPathClassifier the policy of unification executions.
    * @throws IllegalArgumentException if some parameters are null.
    */
   public TemplateIterator(final MmuSpecification memory, final DataType[] dataTypes,
-      final int numberOfExecutions, final ExecutionPathClassifier executionPathClassifier) {
+      final boolean randomDataType, final int numberOfExecutions,
+      final ExecutionPathClassifier executionPathClassifier) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(dataTypes);
     InvariantChecks.checkNotNull(executionPathClassifier);
  
     this.memory = memory;
-    this.numberOfExecutions = numberOfExecutions;
     this.dataTypes = dataTypes;
+    this.randomDataType = randomDataType;
+    this.numberOfExecutions = numberOfExecutions;
     this.executionPathClassifier = executionPathClassifier;
 
     this.dataTypeIndices = new int[numberOfExecutions];
@@ -243,8 +249,8 @@ public final class TemplateIterator implements Iterator<Template> {
           dependency.addHazard(hazard);
 
           // Check consistency
-          final TemplateChecker checker =
-              new TemplateChecker(execution1, execution2, dependency, executionPairFilter);
+          final TemplateChecker checker = new TemplateChecker(memory, execution1, execution2,
+              dependency, executionPairFilter);
 
           if (checker.check()) {
             dependencies.add(dependency);
@@ -262,8 +268,8 @@ public final class TemplateIterator implements Iterator<Template> {
 
             newDependency.addHazard(hazard);
 
-            final TemplateChecker newChecker =
-                new TemplateChecker(execution1, execution2, newDependency, executionPairFilter);
+            final TemplateChecker newChecker = new TemplateChecker(memory, execution1, execution2,
+                newDependency, executionPairFilter);
 
             if (newChecker.check()) {
               dependencies.add(newDependency);
@@ -306,7 +312,7 @@ public final class TemplateIterator implements Iterator<Template> {
 
     // TODO:
     setDataTypes();
-    this.template = new Template(templateExecutions, templateDependencies);
+    this.template = new Template(memory, templateExecutions, templateDependencies);
 
     // Check template.
     final TemplateChecker checker = new TemplateChecker(template, wholeTemplateFilter);
@@ -338,16 +344,19 @@ public final class TemplateIterator implements Iterator<Template> {
   public void next() {
     // TODO:
     for (int i = dataTypeIndices.length - 1; i >= 0 ; i--) {
-      if (dataTypeIndices[i] < dataTypes.length - 1) {
-        dataTypeIndices[i]++;
+      if (!randomDataType) {
+        if (dataTypeIndices[i] < dataTypes.length - 1) {
+          dataTypeIndices[i]++;
+          setDataTypes();
+          this.template = new Template(memory, templateExecutions, templateDependencies);
 
-        setDataTypes();
-        this.template = new Template(templateExecutions, templateDependencies);
+          return;
+        }
 
-        return;
+        dataTypeIndices[i] = 0;
+      } else {
+        dataTypeIndices[i] = Randomizer.get().nextIntRange(0, dataTypes.length - 1);
       }
-
-      dataTypeIndices[i] = 0;
     }
 
     step();
@@ -364,7 +373,7 @@ public final class TemplateIterator implements Iterator<Template> {
 
     // TODO:
     setDataTypes();
-    this.template = new Template(templateExecutions, templateDependencies);
+    this.template = new Template(memory, templateExecutions, templateDependencies);
 
     TemplateChecker checker = new TemplateChecker(template, wholeTemplateFilter);
 
@@ -377,7 +386,7 @@ public final class TemplateIterator implements Iterator<Template> {
 
       // TODO:
       setDataTypes();
-      this.template = new Template(templateExecutions, templateDependencies);
+      this.template = new Template(memory, templateExecutions, templateDependencies);
       checker = new TemplateChecker(template, wholeTemplateFilter);
     }
   }
@@ -408,7 +417,7 @@ public final class TemplateIterator implements Iterator<Template> {
       if (!assignDependency()) {
         return false;
       }
-      this.template = new Template(templateExecutions, templateDependencies);
+      this.template = new Template(memory, templateExecutions, templateDependencies);
     }
     return true;
   }

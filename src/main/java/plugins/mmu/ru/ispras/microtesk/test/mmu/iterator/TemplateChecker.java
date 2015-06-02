@@ -34,6 +34,7 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.MmuEquality;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
 import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
+import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.MmuTransition;
 import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerClause;
@@ -100,14 +101,15 @@ public final class TemplateChecker {
   /**
    * Constructs a checker for the given pair of executions.
    *
+   * @param memory the memory specification.
    * @param execution1 the first execution.
    * @param execution2 the second execution.
    * @param dependency the dependency between the first and second executions.
    * @param filter the template filter.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public TemplateChecker(final ExecutionPath execution1, final ExecutionPath execution2,
-      final Dependency dependency, final Predicate<Template> filter) {
+  public TemplateChecker(final MmuSpecification memory, final ExecutionPath execution1,
+      final ExecutionPath execution2, final Dependency dependency, final Predicate<Template> filter) {
     InvariantChecks.checkNotNull(execution1);
     InvariantChecks.checkNotNull(execution2);
     InvariantChecks.checkNotNull(filter);
@@ -122,7 +124,7 @@ public final class TemplateChecker {
     dependencies[0][1] = null;
     dependencies[1][1] = null;
 
-    this.template = new Template(executions, dependencies);
+    this.template = new Template(memory, executions, dependencies);
     this.filter = filter;
   }
 

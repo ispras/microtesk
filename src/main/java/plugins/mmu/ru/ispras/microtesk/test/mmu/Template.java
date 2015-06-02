@@ -23,6 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.coverage.Dependency;
 import ru.ispras.microtesk.translator.mmu.coverage.ExecutionPath;
 import ru.ispras.microtesk.translator.mmu.coverage.UnitedDependency;
+import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 
 /**
  * This class describes a test template. The description includes a set of MMU execution paths and a
@@ -31,6 +32,8 @@ import ru.ispras.microtesk.translator.mmu.coverage.UnitedDependency;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public class Template {
+  /** The memory specification. */
+  private MmuSpecification memory;
   /** The list of executions. */
   private List<ExecutionPath> executions = new ArrayList<>();
   /** The dependencies between the executions. */
@@ -43,12 +46,24 @@ public class Template {
    * @param dependencies the dependencies.
    * @throws IllegalArgumentException if {@code executions} or {@code dependencies} is null.
    */
-  public Template(final List<ExecutionPath> executions, final Dependency[][] dependencies) {
+  public Template(final MmuSpecification memory, final List<ExecutionPath> executions,
+      final Dependency[][] dependencies) {
+    InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(executions);
     InvariantChecks.checkNotNull(dependencies);
 
+    this.memory = memory;
     this.executions = executions;
     this.dependencies = dependencies;
+  }
+
+  /**
+   * Returns the memory specification.
+   * 
+   * @return the memory specification.
+   */
+  public MmuSpecification getMemory() {
+    return memory;
   }
 
   /**
@@ -82,8 +97,8 @@ public class Template {
   /**
    * Returns the template dependency.
    * 
-   * @param i the index of primary execution.
-   * @param j the index of secondary execution.
+   * @param i the index of the primary execution.
+   * @param j the index of the secondary execution.
    * @return the dependency.
    */
   public Dependency getDependency(final int i, final int j) {
