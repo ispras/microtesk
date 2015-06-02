@@ -14,15 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.microtesk.translator.nml.ir.IR;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
-import ru.ispras.fortress.solver.xml.XMLNotSavedException;
-import ru.ispras.fortress.util.InvariantChecks;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -33,6 +24,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
+import ru.ispras.fortress.solver.xml.XMLNotSavedException;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.utils.FileUtils;
+
 /**
  * Class for model code coverage extraction from internal representation.
  */
@@ -41,7 +43,7 @@ public final class Analyzer {
   private final Map<String, SsaForm> ssa;
   private final String modelName;
 
-  public Analyzer(IR ir, String modelName) {
+  public Analyzer(final IR ir, final String modelName) {
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(modelName);
 
@@ -59,26 +61,43 @@ public final class Analyzer {
     processPrimitives(ir.getOps().values());
 
     final List<Constraint> constraints = new ArrayList<>();
+
     try {
-    final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(String.format("%s/%s.list", targetDir, modelName))));
-    for (Map.Entry<String, SsaForm> entry : ssa.entrySet()) {
+      final File genDir = new File(FileUtils.getNormalizedPath(targetDir));
+
+      if (!genDir.exists()) {
+        genDir.mkdir();
+      }
+
+      final PrintWriter out = new PrintWriter(
+          new BufferedWriter(new FileWriter(
+              String.format("%s%s%s.list", genDir.getCanonicalPath(), File.separator, modelName))));
+
+      for (final Map.Entry<String, SsaForm> entry : ssa.entrySet()) {
         out.println(entry.getKey());
-      for (Constraint c : BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint())) {
-        constraints.add(c);
-        final XMLConstraintSaver saver = new XMLConstraintSaver(c);
-        try {
-        final File path = new File(targetDir + "/" + modelName);
-        path.mkdir();
-        saver.saveToFile(String.format("%s/%s.xml", path.getPath(), c.getName()));
-        } catch (XMLNotSavedException e) {
-          System.err.println(e.getMessage());
+        for (final Constraint c :
+          BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint())) {
+          constraints.add(c);
+
+          final XMLConstraintSaver saver = new XMLConstraintSaver(c);
+
+          try {
+            final File path = new File(
+                String.format("%s%s%s", genDir.getCanonicalPath(), File.separator, modelName));
+
+            path.mkdir();
+            saver.saveToFile(
+                String.format("%s%s%s.xml", path.getPath(), File.separator, c.getName()));
+          } catch (final XMLNotSavedException e) {
+            Logger.error("Failed to save coverage model to the XML file: %s", e.getMessage());
+          }
         }
       }
-    }
-    out.flush();
-    out.close();
-    } catch (java.io.IOException e) {
-      System.err.println(e.getMessage());
+
+      out.flush();
+      out.close();
+    } catch (final java.io.IOException e) {
+      Logger.error("Failed to save coverage model to the file system: %s", e.getMessage());
     }
   }
 

@@ -21,6 +21,19 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class FileUtils {
   private FileUtils() {}
 
+  public static String getNormalizedPath(final String filePath) {
+    InvariantChecks.checkNotNull(filePath);
+
+    if ('/' != File.separatorChar) {
+      return filePath.replace('/', File.separatorChar);
+    }
+    if ('\\' != File.separatorChar) {
+      return filePath.replace('\\', File.separatorChar);
+    }
+
+    return filePath;
+  }
+
   public static String getFileExtension(final String fileName) {
     InvariantChecks.checkNotNull(fileName);
 
