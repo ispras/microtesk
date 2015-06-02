@@ -40,7 +40,7 @@ public final class PrimitiveAND extends Primitive {
     this.retExpr = retExpr;
     this.args = args;
     this.attrs = Collections.unmodifiableMap(attrs);
-    this.shortcuts = new ArrayList<Shortcut>();
+    this.shortcuts = new ArrayList<>();
 
     for (Map.Entry<String, Primitive> e : args.entrySet()) {
       final Primitive target = e.getValue();
@@ -54,7 +54,7 @@ public final class PrimitiveAND extends Primitive {
     super(source);
 
     this.retExpr = source.retExpr;
-    this.args = new LinkedHashMap<String, Primitive>(source.args);
+    this.args = new LinkedHashMap<>(source.args);
     this.attrs = source.attrs;
     this.shortcuts = source.shortcuts;
   }
