@@ -23,6 +23,7 @@ import org.apache.commons.cli.ParseException;
 
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.utils.FileUtils;
 
 public final class MicroTESK {
   private MicroTESK() {}
@@ -70,6 +71,10 @@ public final class MicroTESK {
 
       if (params.hasOption(Parameters.OUTDIR)) {
         translator.setOutDir(params.getOptionValue(Parameters.OUTDIR));
+      }
+
+      for (final String fileName : params.getArgs()) {
+        translator.addPath(FileUtils.getFileDir(fileName));
       }
 
       translator.start(params.getArgs());

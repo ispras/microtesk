@@ -58,4 +58,11 @@ public final class FileUtils {
 
     return shortFileName.substring(0, dotPos).toLowerCase();
   }
+
+  public static String getFileDir(final String fileName) {
+    InvariantChecks.checkNotNull(fileName);
+
+    final File file = new File(fileName);
+    return file.getParent();
+  }
 }
