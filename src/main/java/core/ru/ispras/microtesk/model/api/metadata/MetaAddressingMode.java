@@ -47,7 +47,6 @@ public final class MetaAddressingMode implements MetaData {
       final Type dataType,
       final Map<String, MetaArgument> args) {
     checkNotNull(name);
-    checkNotNull(dataType);
     checkNotNull(args);
 
     this.name = name;
