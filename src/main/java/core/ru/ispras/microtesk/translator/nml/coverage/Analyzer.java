@@ -18,16 +18,15 @@ import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
 import ru.ispras.fortress.solver.xml.XMLNotSavedException;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,18 +42,18 @@ public final class Analyzer {
   private final String modelName;
 
   public Analyzer(IR ir, String modelName) {
-    if (ir == null) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(modelName);
+
     this.ir = ir;
     this.ssa = new TreeMap<>();
     this.modelName = modelName;
   }
 
   public void generateOutput(final String targetDir) {
-    if (ssa.isEmpty()) {
-      return;
-    }
+    InvariantChecks.checkTrue(ssa.isEmpty());
+    InvariantChecks.checkNotNull(targetDir);
+
     processModes(ir.getModes().values());
     processPrimitives(ir.getModes().values());
     processPrimitives(ir.getOps().values());
