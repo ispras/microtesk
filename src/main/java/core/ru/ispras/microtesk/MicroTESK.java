@@ -21,6 +21,7 @@ import org.antlr.runtime.RecognitionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -124,6 +125,10 @@ public final class MicroTESK {
       TestEngine.setTraceLengthLimit(traceLengthLimit);
     } else {
       reportUndefinedOption(Parameters.TRACE_LIMIT);
+    }
+
+    if (params.hasOption(Parameters.SOLVER_DEBUG)) {
+      Environment.setDebugMode(true);
     }
 
     final String[] args = params.getArgs();
