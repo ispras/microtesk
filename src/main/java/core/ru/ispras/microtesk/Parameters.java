@@ -252,6 +252,7 @@ public final class Parameters {
     result.addOption(COMMENTS_ENABLED);
     result.addOption(COMMENTS_DEBUG);
 
+    result.addOption(SOLVER_DEBUG);
     return result;
   }
 
