@@ -309,10 +309,10 @@ public final class Location implements LocationAccessor {
     }
 
     if (1 == dataItems.length) {
-      return dataItems[0];
+      return dataItems[0].copy();
     }
 
-    return BitVector.newMapping(dataItems);
+    return BitVector.newMapping(dataItems).copy();
   }
 
   private static BitVector readDataViaHandler(MemoryAccessHandler handler, List<Source> sources) {
