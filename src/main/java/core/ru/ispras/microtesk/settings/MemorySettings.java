@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.settings;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -64,16 +63,6 @@ public final class MemorySettings extends AbstractSettings {
     }
 
     return false;
-  }
-
-  @Override
-  public Collection<AbstractSettings> get(final String tag) {
-    InvariantChecks.checkTrue(RegionSettings.TAG.equals(tag));
-
-    final Collection<AbstractSettings> result = new ArrayList<>(regions.size());
-    result.addAll(getRegions());
-
-    return result;
   }
 
   @Override
