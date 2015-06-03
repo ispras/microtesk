@@ -26,6 +26,7 @@ package ru.ispras.microtesk.model.samples.simple.op;
 
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -67,7 +68,7 @@ public class Sub extends Operation
             return new Sub();
         }
     }
-    
+
     // A short way to instantiate the operation with together with parent operations.
     private static class Info_Instruction extends InfoAndRule
     {
@@ -78,8 +79,8 @@ public class Sub extends Operation
                "Sub",
                true,
                new ParamDecls()
-                   .declareParam("op1", OPRNDL.INFO)
-                   .declareParam("op2", OPRNDR.INFO)
+                   .declareParam("op1", ArgumentMode.NA, OPRNDL.INFO)
+                   .declareParam("op2", ArgumentMode.NA, OPRNDR.INFO)
             );
         }
 

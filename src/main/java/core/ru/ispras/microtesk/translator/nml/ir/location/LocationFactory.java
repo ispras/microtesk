@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
@@ -43,6 +44,9 @@ public final class LocationFactory extends WalkerFactoryBase {
 
   private List<LocationAtom> log;
 
+  private boolean isLhs;
+  private boolean isRhs;
+
   public void setLog(List<LocationAtom> locations) {
     log = locations;
   }
@@ -59,11 +63,30 @@ public final class LocationFactory extends WalkerFactoryBase {
     if (null != log) {
       log.add(location);
     }
+
+    if (location.getSource().getSymbolKind() != ESymbolKind.ARGUMENT) {
+      return;
+    }
+
+    final String name = location.getName();
+
+    if (isLhs) {
+      // System.out.println("LHS: " + location.getName());
+      getThis().setArgsUsage(name, ArgumentMode.OUT);
+    }
+
+    if (isRhs) {
+      // System.out.println("RHS: " + location.getName());
+      getThis().setArgsUsage(name, ArgumentMode.IN);
+    }
   }
 
   public LocationFactory(WalkerContext context) {
     super(context);
     resetLog();
+
+    isLhs = false;
+    isRhs = false;
   }
 
   public LocationAtom location(Where where, String name) throws SemanticException {
@@ -202,6 +225,19 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     return symbol;
+  }
+
+  public void beginLhs() {
+    isLhs = true;
+  }
+
+  public void beginRhs() {
+    isRhs = true;
+  }
+  
+  public void endAssignment() {
+    isLhs = false;
+    isRhs = false;
   }
 }
 

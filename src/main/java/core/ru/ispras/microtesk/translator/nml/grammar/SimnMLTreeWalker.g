@@ -528,11 +528,16 @@ $res = InstanceArgument.newPrimitive(
     ;
 
 assignmentStatement returns [List<Statement> res]
-@init {final PCAnalyzer analyzer = new PCAnalyzer(getLocationFactory(), getIR());}
+@init
+{
+final PCAnalyzer analyzer = new PCAnalyzer(getLocationFactory(), getIR());
+getLocationFactory().beginLhs();
+}
     :  ^(ASSIGN le=location
 {
 checkNotNull($le.start, $le.res, $le.text);
 analyzer.startTrackingSource();
+getLocationFactory().beginRhs();
 }
     me=dataExpr)
 {
@@ -547,7 +552,11 @@ if (ctIndex > 0)
 $res = result;
 }
     ;
-finally {analyzer.finalize();}
+finally
+{
+analyzer.finalize();
+getLocationFactory().endAssignment();
+}
 
 conditionalStatement returns [List<Statement> res]
     :  ifs = ifStmt { $res = $ifs.res; }

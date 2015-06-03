@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
@@ -125,7 +126,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
         final MetaArgument arg = new MetaArgument(
             MetaArgument.Kind.IMM,
-            MetaArgument.UsageKind.IN,
+            ArgumentMode.IN,
             argName,
             Collections.singleton(AddressingModeImm.NAME),
             argType

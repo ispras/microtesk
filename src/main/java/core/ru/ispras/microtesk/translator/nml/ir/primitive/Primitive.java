@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import ru.ispras.microtesk.model.api.ArgumentMode;
+import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public class Primitive {
@@ -34,23 +37,42 @@ public class Primitive {
 
   public static final class Holder {
     private Primitive value;
+    private final Map<String, ArgumentMode> argsUsage;
 
     public Holder() {
       this.value = null;
+      this.argsUsage = new HashMap<>();
     }
 
     public Holder(Primitive value) {
       assert value != null;
       this.value = value;
+      this.argsUsage = new HashMap<>(); 
     }
 
     public void setValue(Primitive value) {
       assert null == this.value : "Aready assigned.";
+
+      if (value instanceof PrimitiveAND) {
+        ((PrimitiveAND) value).setArgsUsage(argsUsage);
+      }
+
       this.value = value;
     }
 
     public Primitive getValue() {
       return value;
+    }
+
+    public void setArgsUsage(final String name, final ArgumentMode usage) {
+      final ArgumentMode prevUsage = argsUsage.get(name);
+      if (usage == ArgumentMode.IN && prevUsage == ArgumentMode.OUT) {
+        argsUsage.put(name, ArgumentMode.INOUT);
+      } else if (usage == ArgumentMode.OUT && prevUsage == ArgumentMode.IN) {
+        argsUsage.put(name, ArgumentMode.INOUT);
+      } else {
+        argsUsage.put(name, usage);
+      }
     }
   }
 

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
@@ -86,7 +87,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     public MetaArgument getMetaData() {
       return new MetaArgument(
           MetaArgument.Kind.IMM,
-          MetaArgument.UsageKind.IN,
+          ArgumentMode.IN,
           name,
           Collections.singleton(AddressingModeImm.NAME),
           getType()
@@ -96,10 +97,15 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
   private static class ParamMode implements Param {
     private final String name;
+    private final ArgumentMode usageMode;
     private final IAddressingMode.IInfo info;
 
-    private ParamMode(String name, IAddressingMode.IInfo info) {
+    private ParamMode(
+        final String name,
+        final ArgumentMode usageMode,
+        final IAddressingMode.IInfo info) {
       this.name = name;
+      this.usageMode = usageMode;
       this.info = info;
     }
 
@@ -133,7 +139,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
       return new MetaArgument(
           MetaArgument.Kind.MODE,
-          MetaArgument.UsageKind.NA, // TODO IN/OUT/INOUT/NA (if no return type)
+          usageMode, // IN/OUT/INOUT/NA (if no return type)
           name,
           modeNames,
           getType()
@@ -180,7 +186,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
       return new MetaArgument(
           MetaArgument.Kind.OP,
-          MetaArgument.UsageKind.NA,
+          ArgumentMode.NA,
           name,
           opNames,
           getType()
@@ -206,8 +212,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
       return this;
     }
 
-    public ParamDecls declareParam(String name, IAddressingMode.IInfo info) {
-      decls.put(name, new ParamMode(name, info));
+    public ParamDecls declareParam(String name, ArgumentMode mode, AddressingMode.IInfo info) {
+      decls.put(name, new ParamMode(name, mode, info));
       return this;
     }
 

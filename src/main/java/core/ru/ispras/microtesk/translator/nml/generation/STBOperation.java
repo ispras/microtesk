@@ -20,6 +20,7 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
@@ -84,6 +85,7 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("imps", Map.class.getName());
     t.add("imps", IOperation.class.getName());
     t.add("imps", Operation.class.getName());
+    t.add("imps", ArgumentMode.class.getName());
     t.add("imps", String.format("%s.*", Type.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", Location.class.getPackage().getName()));
@@ -99,10 +101,27 @@ final class STBOperation extends STBPrimitiveBase {
       final Primitive argType = e.getValue();
 
       t.add("arg_names", argName);
-      t.add(
+
+      switch (argType.getKind()) {
+        case IMM:
+          t.add("arg_tnames", argType.getName());
+          break;
+
+        case MODE:
+          final ArgumentMode usageKind = op.getArgUsage(argName); 
+          t.add("arg_tnames", String.format("%s.%s, %s.INFO", 
+              ArgumentMode.class.getSimpleName(), usageKind.name(), argType.getName()));
+          break;
+
+        case OP:
+          t.add("arg_tnames", String.format("%s.INFO", argType.getName()));
+          break;
+      }
+
+      /*t.add(
           "arg_tnames",
           Primitive.Kind.IMM == argType.getKind() ? argType.getName() : String.format("%s.INFO",
-              argType.getName()));
+              argType.getName()));*/
 
       final ST argCheckST;
       if (Primitive.Kind.MODE == argType.getKind()) {
@@ -176,8 +195,27 @@ final class STBOperation extends STBPrimitiveBase {
         final Primitive argType = arg.getType();
 
         shortcutST.add("arg_names", arg.getUniqueName());
+
+        switch (argType.getKind()) {
+          case IMM:
+            shortcutST.add("arg_tnames", argType.getName());
+            break;
+
+          case MODE:
+            final ArgumentMode usageKind = arg.getSource().getArgUsage(arg.getName());
+            shortcutST.add("arg_tnames", String.format("%s.%s, %s.INFO", 
+                ArgumentMode.class.getSimpleName(), usageKind.name(), argType.getName()));
+            break;
+
+          case OP:
+            shortcutST.add("arg_tnames", String.format("%s.INFO", argType.getName()));
+            break;
+        }
+
+        /*
         shortcutST.add("arg_tnames", Primitive.Kind.IMM == argType.getKind() ? argType.getName()
             : String.format("%s.INFO", argType.getName()));
+        */
 
         if (Primitive.Kind.MODE == argType.getKind()) {
           importModeDependencies(t);

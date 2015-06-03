@@ -20,12 +20,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class PrimitiveAND extends Primitive {
   private final Expr retExpr;
   private final Map<String, Primitive> args;
+  private Map<String, ArgumentMode> argsUsage;
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
 
@@ -39,6 +41,7 @@ public final class PrimitiveAND extends Primitive {
 
     this.retExpr = retExpr;
     this.args = args;
+    this.argsUsage = Collections.emptyMap();
     this.attrs = Collections.unmodifiableMap(attrs);
     this.shortcuts = new ArrayList<>();
 
@@ -55,6 +58,7 @@ public final class PrimitiveAND extends Primitive {
 
     this.retExpr = source.retExpr;
     this.args = new LinkedHashMap<>(source.args);
+    this.argsUsage = source.argsUsage;
     this.attrs = source.attrs;
     this.shortcuts = source.shortcuts;
   }
@@ -85,5 +89,14 @@ public final class PrimitiveAND extends Primitive {
 
   private static Type getReturnType(Expr retExpr) {
     return (null != retExpr) ? retExpr.getValueInfo().getModelType() : null;
+  }
+
+  public ArgumentMode getArgUsage(final String name) {
+    final ArgumentMode result = argsUsage.get(name);
+    return result != null ? result : ArgumentMode.NA;
+  }
+
+  void setArgsUsage(Map<String, ArgumentMode> argsUsage) {
+    this.argsUsage = argsUsage;
   }
 }
