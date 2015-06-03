@@ -252,7 +252,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
   @Override
   public String syntax() {
     // This code should never be called!
-    assert false : "Default implementation. Should never be called!";
+    assert false : "AddressingMode.syntax - default implementation. Should never be called!";
     return null;
   }
 
@@ -265,7 +265,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
   @Override
   public String image() {
     // This code should never be called!
-    assert false : "Default implementation. Should never be called!";
+    assert false : "AddressingMode.image - default implementation. Should never be called!";
     return null;
   }
 
@@ -277,7 +277,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
   public void action() {
     // This code should never be called!
-    assert false : "Default implementation. Should never be called!";
+    assert false : "AddressingMode.action - default implementation. Should never be called!";
   }
 
   /**
@@ -288,7 +288,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
   @Override
   public Location access() {
     // This code should never be called!
-    assert false : "Default implementation. Should never be called!";
+    assert false : "AddressingMode.access - default implementation. Should never be called!";
     return null;
   }
 }

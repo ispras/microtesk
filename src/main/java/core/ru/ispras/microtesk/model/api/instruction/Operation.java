@@ -450,7 +450,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
   @Override
   public String syntax() {
     // This code should never be called!
-    assert false : "Default implementation. Should never be called!";
+    assert false : "Operation.syntax - default implementation. Should never be called!";
     return null;
   }
 
@@ -463,7 +463,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
   @Override
   public String image() {
     // This code should never be called!
-    assert false : "Default implementation. Should never be called!";
+    assert false : "Operation.image - default implementation. Should never be called!";
     return null;
   }
 
@@ -475,6 +475,6 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
   public void action() {
     // This code should never be called!
-    assert false : "Default implementation. Should never be called!";
+    assert false : "Operation.action - default implementation. Should never be called!";
   }
 }
