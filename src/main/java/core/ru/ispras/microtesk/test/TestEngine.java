@@ -31,6 +31,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
@@ -110,6 +111,9 @@ public final class TestEngine {
   private static int programLengthLimit = 1000;
   private static int traceLengthLimit = 1000;
 
+  // Architecture-specific settings
+  private static GeneratorSettings settings;
+
   public static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
   }
@@ -142,6 +146,14 @@ public final class TestEngine {
 
   public static void setTraceLengthLimit(final int value) {
     traceLengthLimit = value;
+  }
+
+  public static GeneratorSettings getGeneratorSettings() {
+    return settings;
+  }
+
+  public static void setGeneratorSettings(final GeneratorSettings value) {
+    settings = value;
   }
 
   public static void generate(final String modelName, final String templateFile) throws Throwable {

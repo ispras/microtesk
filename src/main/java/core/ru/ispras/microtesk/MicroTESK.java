@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +23,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import ru.ispras.fortress.solver.Environment;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -86,6 +89,16 @@ public final class MicroTESK {
   }
 
   private static void generate(final Parameters params) throws ParseException, Throwable {
+    final String[] args = params.getArgs();
+    if (args.length != 2) {
+      Logger.error("Wrong number of generator arguments. Two arguments are required.");
+      Logger.message("Argument format: <model name>, <template file>");
+      return;
+    }
+
+    final String modelName = args[0];
+    final String templateFile = args[1];
+
     if (params.hasOption(Parameters.RANDOM)) {
       final int randomSeed = params.getOptionValueAsInt(Parameters.RANDOM);
       TestEngine.setRandomSeed(randomSeed);
@@ -134,15 +147,24 @@ public final class MicroTESK {
       Environment.setDebugMode(true);
     }
 
-    final String[] args = params.getArgs();
-    if (args.length != 2) {
-      Logger.error("Wrong number of generator arguments. Two arguments are required.");
-      Logger.message("Argument format: <model name>, <template file>");
-      return;
-    }
+    if (params.hasOption(Parameters.ARCH_DIRS)) {
+      final String archDirs = params.getOptionValue(Parameters.ARCH_DIRS);
+      final String[] archDirsArray = archDirs.split(":");
 
-    final String modelName = args[0];
-    final String templateFile = args[1];
+      for (final String archDir : archDirsArray) {
+        final String[] archDirArray = archDir.split("=");
+
+        if (archDirArray != null && archDirArray.length > 1 && modelName.equals(archDirArray[0])) {
+          final File archFile = new File(archDirArray[1]);
+
+          final String archPath = archFile.isAbsolute() ? archDirArray[1] : String.format("%s%s%s",
+              System.getenv("MICROTESK_HOME"), File.separator, archDirArray[1]); 
+
+          final GeneratorSettings settings = SettingsParser.parse(archPath);
+          TestEngine.setGeneratorSettings(settings);
+        }
+      }
+    }
 
     final TestEngine.Statistics statistics = TestEngine.STATISTICS;
     statistics.reset();

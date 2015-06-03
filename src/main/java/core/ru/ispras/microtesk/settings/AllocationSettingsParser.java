@@ -25,7 +25,7 @@ public final class AllocationSettingsParser extends AbstractSettingsParser {
   public AllocationSettingsParser() {
     super(AllocationSettings.TAG);
 
-    addParser(new AllocationSettingsParser());
+    addParser(new ModeSettingsParser());
   }
 
   @Override

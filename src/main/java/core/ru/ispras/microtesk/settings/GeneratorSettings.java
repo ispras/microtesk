@@ -32,4 +32,8 @@ public class GeneratorSettings extends AbstractSettings {
   public MemorySettings getMemory() {
     return getSingle(MemorySettings.TAG);
   }
+
+  public AllocationSettings getAllocation() {
+    return getSingle(AllocationSettings.TAG);
+  }
 }

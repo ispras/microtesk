@@ -38,7 +38,7 @@ public final class AllocationSettings extends AbstractSettings {
     return modes.values();
   }
 
-  public ModeSettings getRegion(final String name) {
+  public ModeSettings getMode(final String name) {
     return modes.get(name);
   }
 
