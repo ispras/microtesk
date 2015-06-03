@@ -74,6 +74,10 @@ public final class FilterTemplate implements Predicate<Template> {
         final ExecutionPath execution2 = template.getExecution(j);
         final Dependency dependency = template.getDependency(i, j);
 
+        if (dependency == null) {
+          continue;
+        }
+
         // Apply the dependency-level filters.
         for (final TriPredicate<ExecutionPath, ExecutionPath, Dependency> filter : dependencyFilters) {
           if (!filter.test(execution1, execution2, dependency)) {
