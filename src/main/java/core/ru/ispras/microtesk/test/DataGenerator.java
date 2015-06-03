@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.util.Collections;
@@ -31,6 +30,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -153,14 +153,10 @@ final class DataGenerator {
       }
     }
 
-    if (primitive.hasSituation()) {
-      generateData(primitive);
-    }
+    generateData(primitive);
   }
 
   private void generateData(Primitive primitive) throws ConfigurationException {
-    checkTrue(primitive.hasSituation());
-
     final Situation situation = primitive.getSituation();
     trace("Processing situation %s for %s...", situation, primitive.getSignature());
 
@@ -174,8 +170,17 @@ final class DataGenerator {
         queryCreator.getUnknownImmediateValues();
     trace("Unknown immediate values: " + unknownImmediateValues.keySet());
 
+    final Map<String, Primitive> unknownModeArguments =
+        queryCreator.getUnknownModeArguments();
+    trace("Unknown mode arguments: " + unknownModeArguments.keySet());
+
     final Map<String, Primitive> modes = queryCreator.getModes();
     trace("Modes used as arguments: " + modes);
+
+    if (query == null) {
+      trace("Query processing has finished (no situation has been set)");
+      return;
+    }
 
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
     if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
@@ -460,6 +465,7 @@ final class DataGenerator {
     private boolean isCreated;
     private TestBaseQuery query;
     private Map<String, UnknownImmediateValue> unknownImmediateValues;
+    private Map<String, Primitive> unknownModeArguments;
     private Map<String, Primitive> modes;
 
     public TestBaseQueryCreator(
@@ -467,7 +473,6 @@ final class DataGenerator {
         final Situation situation,
         final Primitive primitive) {
       checkNotNull(processor);
-      checkNotNull(situation);
       checkNotNull(primitive);
 
       this.processor = processor;
@@ -480,10 +485,9 @@ final class DataGenerator {
       this.modes = null;
     }
 
+    // TODO: can return null.
     public TestBaseQuery getQuery() {
       createQuery();
-
-      checkNotNull(query);
       return query;
     }
 
@@ -492,6 +496,13 @@ final class DataGenerator {
 
       checkNotNull(unknownImmediateValues);
       return unknownImmediateValues;
+    }
+
+    public Map<String, Primitive> getUnknownModeArguments() {
+      createQuery();
+
+      checkNotNull(unknownModeArguments);
+      return unknownModeArguments;
     }
 
     public Map<String, Primitive> getModes() {
@@ -508,14 +519,18 @@ final class DataGenerator {
 
       final TestBaseQueryBuilder queryBuilder = new TestBaseQueryBuilder();
 
-      createContext(queryBuilder);
-      createParameters(queryBuilder);
+      if (situation != null) {
+        createContext(queryBuilder);
+        createParameters(queryBuilder);
+      }
 
       final BindingBuilder bindingBuilder = new BindingBuilder(queryBuilder, primitive);
 
       unknownImmediateValues = bindingBuilder.getUnknownValues();
+      unknownModeArguments = bindingBuilder.getUnknownModeArguments();
       modes = bindingBuilder.getModes();
-      query = queryBuilder.build();
+
+      query = situation != null ? queryBuilder.build() : null;
 
       isCreated = true;
     }
@@ -535,10 +550,11 @@ final class DataGenerator {
       }
     }
   }
-  
+
   private final class BindingBuilder {
     private final TestBaseQueryBuilder queryBuilder;
     private final Map<String, UnknownImmediateValue> unknownValues;
+    private Map<String, Primitive> unknownModeArguments;
     private final Map<String, Primitive> modes;
 
     private BindingBuilder(
@@ -549,6 +565,7 @@ final class DataGenerator {
 
       this.queryBuilder = queryBuilder;
       this.unknownValues = new HashMap<String, UnknownImmediateValue>();
+      this.unknownModeArguments = new HashMap<String, Primitive>();
       this.modes = new HashMap<String, Primitive>();
 
       visit(primitive.getName(), primitive);
@@ -556,6 +573,10 @@ final class DataGenerator {
 
     public Map<String, UnknownImmediateValue> getUnknownValues() {
       return unknownValues;
+    }
+
+    public Map<String, Primitive> getUnknownModeArguments() {
+      return unknownModeArguments;
     }
 
     public Map<String, Primitive> getModes() {
@@ -578,16 +599,28 @@ final class DataGenerator {
             break;
 
           case IMM_UNKNOWN:
-            if (!((UnknownImmediateValue) arg.getValue()).isValueSet()) {
-              queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
-              unknownValues.put(argName, (UnknownImmediateValue) arg.getValue());
+            final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
+
+            if (!unknownValue.isValueSet()) {
+              if (p.getKind() != Primitive.Kind.MODE) {
+                queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
+                unknownValues.put(argName, unknownValue);
+              } else {
+                // Allocate the registers (assign values to the unknown mode arguments).
+                unknownModeArguments.put(argName, p);
+
+                // TODO: Use allocation table from the settings.
+                unknownValue.setValue(Randomizer.get().nextIntRange(0, 31));
+                queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
+              }
             } else {
-              queryBuilder.setBinding(argName,
-                NodeValue.newInteger(((UnknownImmediateValue) arg.getValue()).getValue()));
+              queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
             }
             break;
 
           case MODE: {
+            visit(argName, (Primitive) arg.getValue());
+
             Node bindingValue = null;
 
             try {
@@ -609,7 +642,6 @@ final class DataGenerator {
 
             queryBuilder.setBinding(argName, bindingValue);
             modes.put(argName, (Primitive) arg.getValue());
-            visit(argName, (Primitive) arg.getValue());
             break;
           }
 
