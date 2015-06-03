@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public class Primitive {
