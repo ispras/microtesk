@@ -512,13 +512,17 @@ $res = getPrimitiveFactory().newInstance(where($id), $id.text, args);
     ;
 
 instance_arg returns [InstanceArgument res]
+@init
+{
+getLocationFactory().beginCollectingArgs();
+}
     :  i=instance
 {
 $res = InstanceArgument.newInstance($i.res);
 }
     |  e=dataExpr
 {
-$res = InstanceArgument.newExpr($e.res);
+$res = InstanceArgument.newExpr($e.res, getLocationFactory().getInvolvedArgs());
 }
     |  ^(ARGUMENT id=ID)
 {
@@ -526,6 +530,10 @@ $res = InstanceArgument.newPrimitive(
     $id.text, getPrimitiveFactory().getArgument(where($id), $id.text));
 }
     ;
+finally
+{
+getLocationFactory().endCollectingArgs();
+}
 
 assignmentStatement returns [List<Statement> res]
 @init
@@ -564,7 +572,7 @@ conditionalStatement returns [List<Statement> res]
 
 ifStmt returns [List<Statement> res]
 @init  {final List<StatementCondition.Block> blocks = new ArrayList<>();}
-    :  ^(IF cond=logicExpr stmts=sequence {blocks.add(StatementCondition.Block.newIfBlock($cond.res, $stmts.res));}
+    :  ^(IF {getLocationFactory().beginRhs();} cond=logicExpr {getLocationFactory().endAssignment();} stmts=sequence {blocks.add(StatementCondition.Block.newIfBlock($cond.res, $stmts.res));}
         (elifb=elseIfStmt                 {blocks.add($elifb.res);})*
         (eb=elseStmt                      {blocks.add($eb.res);})?)
 {
@@ -573,7 +581,7 @@ $res = Collections.singletonList(getStatementFactory().createCondition(blocks));
     ;
 
 elseIfStmt returns [StatementCondition.Block res]
-    :  ^(ELSEIF cond=logicExpr stmts=sequence)
+    :  ^(ELSEIF {getLocationFactory().beginRhs();}cond=logicExpr{getLocationFactory().endAssignment();} stmts=sequence)
 {
 $res = StatementCondition.Block.newIfBlock($cond.res, $stmts.res);
 }

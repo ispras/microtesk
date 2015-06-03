@@ -16,6 +16,9 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collections;
+import java.util.Set;
+
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 
 public final class InstanceArgument {
@@ -32,22 +35,23 @@ public final class InstanceArgument {
   }
 
   public static InstanceArgument newInstance(Instance instance) {
-    return new InstanceArgument(Kind.INSTANCE, instance, null);
+    return new InstanceArgument(Kind.INSTANCE, instance, null, Collections.<String>emptySet());
   }
 
-  public static InstanceArgument newExpr(Expr expr) {
-    return new InstanceArgument(Kind.EXPR, expr, null);
+  public static InstanceArgument newExpr(Expr expr, Set<String> involvedArgs) {
+    return new InstanceArgument(Kind.EXPR, expr, null, involvedArgs);
   }
 
   public static InstanceArgument newPrimitive(String name, Primitive type) {
-    return new InstanceArgument(Kind.PRIMITIVE, type, name);
+    return new InstanceArgument(Kind.PRIMITIVE, type, name, Collections.singleton(name));
   }
 
   private final Kind kind;
   private final Object value;
   private final String name;
+  private final Set<String> involvedArgs;
 
-  private InstanceArgument(Kind kind, Object value, String name) {
+  private InstanceArgument(Kind kind, Object value, String name, Set<String> involvedArgs) {
     checkNotNull(kind);
     checkNotNull(value);
 
@@ -58,6 +62,7 @@ public final class InstanceArgument {
     this.kind = kind;
     this.value = value;
     this.name = name;
+    this.involvedArgs = involvedArgs;
   }
 
   public Kind getKind() {
@@ -86,5 +91,9 @@ public final class InstanceArgument {
     }
 
     return value;
+  }
+
+  public Set<String> getInvolvedArgs() {
+    return involvedArgs;
   }
 }

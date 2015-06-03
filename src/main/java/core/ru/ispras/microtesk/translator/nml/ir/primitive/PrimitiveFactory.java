@@ -141,7 +141,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Where where,
       final String name,
       final List<InstanceArgument> args) throws SemanticException {
-
     final ISymbol symbol = getSymbols().resolve(name);
     if (null == symbol) {
       raiseError(where, new UndeclaredSymbol(name));
@@ -164,7 +163,29 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     final PrimitiveAND primitiveAND = (PrimitiveAND) primitive;
-    return new Instance(primitiveAND, args);
+    final Instance result = new Instance(primitiveAND, args);
+
+    final String[] argNames = 
+        primitiveAND.getArguments().keySet().toArray(new String[primitiveAND.getArguments().size()]);
+
+    int index = 0;
+    for (final InstanceArgument ie : args) {
+      for(final String involvedArgName : ie.getInvolvedArgs()) {
+        /*System.out.println(String.format("%s <- %s.%s [%s]",
+            involvedArgName,
+            primitiveAND.getName(),
+            argNames[index],
+            primitiveAND.getArgUsage(argNames[index]))
+            );*/
+
+        getThis().setArgsUsage(
+            involvedArgName,
+            primitiveAND.getArgUsage(argNames[index]));
+      }
+      index++;
+    }
+
+    return result;
   }
 }
 

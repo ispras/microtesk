@@ -18,7 +18,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -78,6 +80,10 @@ public final class LocationFactory extends WalkerFactoryBase {
     if (isRhs) {
       // System.out.println("RHS: " + location.getName());
       getThis().setArgsUsage(name, ArgumentMode.IN);
+    }
+
+    if (null != involvedArgs) {
+      involvedArgs.add(name);
     }
   }
 
@@ -229,15 +235,31 @@ public final class LocationFactory extends WalkerFactoryBase {
 
   public void beginLhs() {
     isLhs = true;
+    isRhs = false;
   }
 
   public void beginRhs() {
+    isLhs = false;
     isRhs = true;
   }
   
   public void endAssignment() {
     isLhs = false;
     isRhs = false;
+  }
+
+  private Set<String> involvedArgs = null; 
+
+  public void beginCollectingArgs() {
+    involvedArgs = new LinkedHashSet<>();
+  }
+
+  public void endCollectingArgs() {
+    involvedArgs = null;
+  }
+
+  public Set<String> getInvolvedArgs() {
+    return involvedArgs;
   }
 }
 
