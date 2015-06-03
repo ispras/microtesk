@@ -31,6 +31,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -639,13 +640,16 @@ final class DataGenerator {
             Node bindingValue = null;
 
             try {
-              final IAddressingMode mode = makeMode(arg);
-              final Location location = mode.access();
+              if (arg.getMode() != ArgumentMode.NA) {
+                final IAddressingMode mode = makeMode(arg);
+                final Location location = mode.access();
 
-              if (location.isInitialized()) {
-                bindingValue = NodeValue.newBitVector(
-                    BitVector.valueOf(location.getValue(), location.getBitSize()));
-                
+                if (location.isInitialized()) {
+                  bindingValue = NodeValue.newBitVector(
+                      BitVector.valueOf(location.getValue(), location.getBitSize()));
+                } else {
+                  bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
+                }
               } else {
                 bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
               }
