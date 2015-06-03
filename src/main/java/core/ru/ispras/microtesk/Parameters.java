@@ -115,6 +115,9 @@ public final class Parameters {
   public static final Option SOLVER_DEBUG =
       newOption("solver-debug", false, "Enables debug mode for SMT solvers", GENERATE);
 
+  public static final Option ARCH_DIRS =
+      newOption("arch-dirs", false, "Home directories for tested architectures", GENERATE);
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
 
@@ -253,6 +256,8 @@ public final class Parameters {
     result.addOption(COMMENTS_DEBUG);
 
     result.addOption(SOLVER_DEBUG);
+
+    result.addOption(ARCH_DIRS);
     return result;
   }
 
