@@ -116,7 +116,7 @@ public final class Parameters {
       newOption("solver-debug", false, "Enables debug mode for SMT solvers", GENERATE);
 
   public static final Option ARCH_DIRS =
-      newOption("arch-dirs", false, "Home directories for tested architectures", GENERATE);
+      newOption("arch-dirs", true, "Home directories for tested architectures", GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
