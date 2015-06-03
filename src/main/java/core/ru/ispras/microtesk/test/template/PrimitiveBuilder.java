@@ -100,11 +100,11 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     final PrimitiveBuilder builder;
     if (null != metaShortcut) {
       builder = new PrimitiveBuilderCommon(
-          callBuilder, memoryMap, metaShortcut.getOperation(), contextName);
+          metaModel, callBuilder, memoryMap, metaShortcut.getOperation(), contextName);
     } else {
       // If there is no shortcut for the given context, the operation is used as it is.
       builder = new PrimitiveBuilderCommon(
-          callBuilder, memoryMap, metaData, null);
+          metaModel, callBuilder, memoryMap, metaData, null);
     }
 
     builder.setSituation(situation);
@@ -417,6 +417,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     void checkAllArgumentsAssigned(Set<String> argNames);
   }
  
+  private final MetaModel metaModel; 
   private final CallBuilder callBuilder;
   private final MemoryMap memoryMap;
  
@@ -429,20 +430,48 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   private final LazyPrimitive lazyPrimitive; // Needed for label references.
 
   PrimitiveBuilderCommon(
-      CallBuilder callBuilder, MemoryMap memoryMap, MetaOperation metaData, String contextName) {
-    this(callBuilder, memoryMap, new StrategyOperation(metaData, contextName), Kind.OP, contextName);
+      final MetaModel metaModel,
+      final CallBuilder callBuilder,
+      final MemoryMap memoryMap,
+      final MetaOperation metaData,
+      final String contextName) {
+    this(
+        metaModel,
+        callBuilder,
+        memoryMap,
+        new StrategyOperation(metaData, contextName),
+        Kind.OP,
+        contextName
+        );
   }
 
   PrimitiveBuilderCommon(
-      CallBuilder callBuilder, MemoryMap memoryMap, MetaAddressingMode metaData) {
-    this(callBuilder, memoryMap, new StrategyAddressingMode(metaData), Kind.MODE, null);
+      final MetaModel metaModel,
+      final CallBuilder callBuilder,
+      final MemoryMap memoryMap,
+      final MetaAddressingMode metaData) {
+    this(
+        metaModel,
+        callBuilder,
+        memoryMap,
+        new StrategyAddressingMode(metaData),
+        Kind.MODE,
+        null
+        );
   }
 
   private PrimitiveBuilderCommon(
-      CallBuilder callBuilder, MemoryMap memoryMap, Strategy strategy, Kind kind, String contextName) {
+      final MetaModel metaModel,
+      final CallBuilder callBuilder,
+      final MemoryMap memoryMap,
+      final Strategy strategy,
+      final Kind kind,
+      final String contextName) {
+    checkNotNull(metaModel);
     checkNotNull(callBuilder);
     checkNotNull(memoryMap);
 
+    this.metaModel = metaModel;
     this.callBuilder = callBuilder;
     this.memoryMap = memoryMap;
 
@@ -538,7 +567,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   public void setArgument(String name, int value) {
     checkNotNull(name);
 
-    final Argument arg = new Argument(name, Argument.Kind.IMM, value);
+    final MetaArgument metaArg = getMetaArgument(name);
+
+    final Argument arg = new Argument(
+        name, Argument.Kind.IMM, value, metaArg.getMode(), metaArg.getDataType());
+
     checkValidArgument(arg);
     putArgument(arg);
   }
@@ -561,7 +594,10 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     checkNotNull(name);
     checkNotNull(value);
 
-    final Argument arg = new Argument(name, Argument.Kind.IMM_RANDOM, value);
+    final MetaArgument metaArg = getMetaArgument(name);
+
+    final Argument arg = new Argument(
+        name, Argument.Kind.IMM_RANDOM, value, metaArg.getMode(), metaArg.getDataType());
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -578,7 +614,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument.Kind kind =
       value.getKind() == Primitive.Kind.MODE ? Argument.Kind.MODE : Argument.Kind.OP;
 
-    final Argument arg = new Argument(name, kind, value);
+    final MetaArgument metaArg = getMetaArgument(name);
+
+    final Argument arg = new Argument(
+        name, kind, value, metaArg.getMode(), metaArg.getDataType());
+
     checkValidArgument(arg);
     putArgument(arg);
   }
@@ -594,7 +634,10 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     checkNotNull(name);
     checkNotNull(value);
 
-    final Argument arg = new Argument(name, Argument.Kind.IMM_UNKNOWN, value);
+    final MetaArgument metaArg = getMetaArgument(name);
+
+    final Argument arg = new Argument(
+        name, Argument.Kind.IMM_UNKNOWN, value, metaArg.getMode(), metaArg.getDataType());
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -605,7 +648,10 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     checkNotNull(name);
     checkNotNull(value);
 
-    final Argument arg = new Argument(name, Argument.Kind.IMM_LAZY, value);
+    final MetaArgument metaArg = getMetaArgument(name);
+
+    final Argument arg = new Argument(
+        name, Argument.Kind.IMM_LAZY, value, metaArg.getMode(), metaArg.getDataType());
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -625,6 +671,28 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   private void checkAllArgumentsSet(Set<String> argNames) {
     strategy.checkAllArgumentsAssigned(argNames);
+  }
+
+  private MetaArgument getMetaArgument(final String name) {
+    if (kind == Kind.MODE) {
+      return metaModel.getAddressingMode(getName()).getArgument(name);
+    }
+
+    if (kind == Kind.OP) {
+      final MetaOperation metaOp = metaModel.getOperation(getName());
+      final MetaShortcut metaShortcut = metaOp.getShortcut(contextName);
+
+      final MetaArgument result;
+      if (null != metaShortcut) {
+        result = metaShortcut.getOperation().getArgument(name);
+      } else {
+        result = metaOp.getArgument(name);
+      }
+
+      return result;
+    }
+
+    throw new IllegalStateException("Illegal kind: " + kind);
   }
 
   private static final String ERR_UNASSIGNED_ARGUMENT = "The %s argument of %s is not assigned.";

@@ -30,7 +30,6 @@ import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;

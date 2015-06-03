@@ -16,7 +16,9 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull; 
 
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
+import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Argument {
   public static enum Kind {
@@ -60,17 +62,27 @@ public final class Argument {
   private final String name;
   private final Kind kind;
   private final Object value;
+  private final ArgumentMode mode;
+  private final Type type;
 
-  Argument(String name, Kind kind, Object value) {
+  Argument(
+      final String name,
+      final Kind kind,
+      final Object value,
+      final ArgumentMode mode,
+      final Type type) {
     checkNotNull(name);
     checkNotNull(kind);
     checkNotNull(value);
+    checkNotNull(mode);
 
     kind.checkClass(value.getClass());
 
     this.name = name;
     this.kind = kind;
     this.value = value;
+    this.mode = mode;
+    this.type = type;
   }
 
   public boolean isImmediate() {
@@ -104,5 +116,13 @@ public final class Argument {
 
   public String getTypeName() {
     return isImmediate() ? AddressingModeImm.NAME : ((Primitive) value).getTypeName();
+  }
+
+  public ArgumentMode getMode() {
+    return mode;
+  }
+
+  public Type getType() {
+    return type;
   }
 }

@@ -273,7 +273,7 @@ public final class Template {
     }
 
     return new PrimitiveBuilderCommon(
-        callBuilder, dataManager.getMemoryMap(), metaData);
+        metaModel, callBuilder, dataManager.getMemoryMap(), metaData);
   }
 
   public RandomValue newRandom(int from, int to) {
