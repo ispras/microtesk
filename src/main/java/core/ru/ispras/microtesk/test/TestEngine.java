@@ -122,8 +122,6 @@ public final class TestEngine {
   private static int traceLengthLimit = 1000;
 
   // Architecture-specific settings
-  private static GeneratorSettings settings;
-
   private static Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
 
   public static void setRandomSeed(int seed) {
@@ -162,8 +160,6 @@ public final class TestEngine {
 
   public static void setGeneratorSettings(final GeneratorSettings value) {
     InvariantChecks.checkNotNull(value);
-
-    settings = value;
 
     final AllocationSettings allocation = value.getAllocation();
     if (allocation != null) {
