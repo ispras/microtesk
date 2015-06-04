@@ -160,10 +160,6 @@ public final class TestEngine {
     traceLengthLimit = value;
   }
 
-  public static GeneratorSettings getGeneratorSettings() {
-    return settings;
-  }
-
   public static void setGeneratorSettings(final GeneratorSettings value) {
     InvariantChecks.checkNotNull(value);
 
