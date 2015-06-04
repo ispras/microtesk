@@ -379,7 +379,6 @@ public final class TestEngine {
       }
 
       printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
-      STATISTICS.testCaseNumber++;
 
       try {
         processBlock(block);
@@ -476,6 +475,8 @@ public final class TestEngine {
         ++sequenceIndex;
 
         printHeader("");
+
+        STATISTICS.testCaseNumber++;
       }
     }
 
