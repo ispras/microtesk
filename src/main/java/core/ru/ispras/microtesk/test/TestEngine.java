@@ -203,7 +203,10 @@ public final class TestEngine {
           throw e.getCause();
         }
     } catch (GenerationAbortedException e) {
+      Logger.header("Generation Aborted");
       Logger.error(e.getMessage());
+      new File(Printer.getLastFileName()).delete();
+      STATISTICS.testProgramNumber--;
     }
 
     return TemplateProcessor.start;

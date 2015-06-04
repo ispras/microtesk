@@ -56,6 +56,7 @@ final class Printer {
   private final String codeFileExtension;
   private int codeFileCount;
 
+  private static String lastFileName = null;
   private PrintWriter fileWritter;
 
   /**
@@ -113,6 +114,7 @@ final class Printer {
       printSeparatorToFile();
     }
 
+    lastFileName = fileName;
     return fileName;
   }
 
@@ -344,5 +346,9 @@ final class Printer {
     if (null != fileWritter) {
       fileWritter.println(text);
     }
+  }
+
+  public static String getLastFileName() {
+    return lastFileName;
   }
 }

@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -303,8 +302,9 @@ final class DataGenerator {
       return preparator.makeInitializer(targetMode.getModePrimitive(), value);
     }
 
-    trace("No suitable preparator is found for %s.", targetMode.getModePrimitive().getSignature());
-    return Collections.emptyList();
+    throw new GenerationAbortedException(
+        String.format("No suitable preparator is found for %s.",
+        targetMode.getModePrimitive().getSignature()));
   }
 
   private int makeImm(Argument argument) {
