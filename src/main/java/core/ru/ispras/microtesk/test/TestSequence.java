@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
@@ -63,17 +64,23 @@ final class TestSequence {
     }
 
     public TestSequence build() {
-      return new TestSequence(prologue, body);
+      return new TestSequence(null, prologue, body);
     }
   }
 
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
+  private final BitVector address;
 
-  private TestSequence(List<ConcreteCall> prologue, List<ConcreteCall> body) {
+  private TestSequence(
+      final BitVector address,
+      final List<ConcreteCall> prologue,
+      final List<ConcreteCall> body) {
+    checkNotNull(address);
     checkNotNull(prologue);
     checkNotNull(body);
 
+    this.address = address;
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
   }
@@ -84,5 +91,9 @@ final class TestSequence {
 
   public List<ConcreteCall> getBody() {
     return body;
+  }
+
+  public BitVector getAddress() {
+    return address;
   }
 }
