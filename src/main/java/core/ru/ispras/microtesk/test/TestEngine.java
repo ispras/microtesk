@@ -124,6 +124,9 @@ public final class TestEngine {
   // Architecture-specific settings
   private static Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
 
+  private static boolean commentsDebug = false;
+  private static boolean commentsEnabled = false;
+
   public static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
   }
@@ -268,7 +271,13 @@ public final class TestEngine {
         observer, logExecution, branchExecutionLimit);
 
     final Printer printer = new Printer(
-        codeFilePrefix, codeFileExtension, observer, commentToken, printToScreen);
+        codeFilePrefix,
+        codeFileExtension,
+        observer,
+        commentToken,
+        printToScreen,
+        commentsEnabled,
+        commentsDebug);
 
     final DataManager dataManager = new DataManager();
     final PreparatorStore preparators = new PreparatorStore();
@@ -474,5 +483,13 @@ public final class TestEngine {
       printHeader(title);
       printer.printHeaderToFile(title);
     }
+  }
+
+  public static void setCommentsDebug(boolean value) {
+    commentsDebug = value;
+  }
+
+  public static void setCommentsEnabled(boolean value) {
+    commentsEnabled = value;
   }
 }

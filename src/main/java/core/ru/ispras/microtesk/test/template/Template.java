@@ -288,8 +288,8 @@ public final class Template {
     return new UnknownImmediateValue();
   }
 
-  public OutputBuilder newOutput(boolean isRuntime, String format) {
-    return new OutputBuilder(isRuntime, format);
+  public OutputBuilder newOutput(boolean isRuntime, boolean isComment, String format) {
+    return new OutputBuilder(isRuntime, isComment, format);
   }
 
   public SituationBuilder newSituation(String name) {

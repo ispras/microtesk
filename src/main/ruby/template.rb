@@ -334,7 +334,7 @@ class Template
   # Prints text into the simulator execution log.
   #
   def trace(format, *args)
-    print_format true, format, *args
+    print_format true, false, format, *args
   end
 
   # 
@@ -348,38 +348,40 @@ class Template
   # Adds text into the test program.
   #
   def text(format, *args)
-    print_format false, format, *args
+    print_format false, @is_multiline_comment, format, *args
   end
   
   # 
   # Adds a comment into the test program (uses sl_comment_starts_with).
   #
   def comment(format, *args)
-    text sl_comment_starts_with + format
+    print_format false, true, sl_comment_starts_with + format, *args
   end
 
   #
   # Starts a multi-line comment (uses sl_comment_starts_with)
   #
   def start_comment
-    text ml_comment_starts_with
+    @is_multiline_comment = true
+    print_format false, true, ml_comment_starts_with
   end
 
   #
   # Ends a multi-line comment (uses ml_comment_ends_with)
   #
   def end_comment
-    text ml_comment_ends_with 
+    print_format false, true, ml_comment_ends_with
+    @is_multiline_comment = false
   end
 
   #
   # Prints a format-based output to the simulator log or to the test program
   # depending of the is_runtime flag.
   #
-  def print_format(is_runtime, format, *args)
+  def print_format(is_runtime, is_comment, format, *args)
     java_import Java::Ru.ispras.microtesk.test.template.Value
     
-    builder = @template.newOutput is_runtime, format
+    builder = @template.newOutput is_runtime, is_comment, format
 
     args.each do |arg|
       if arg.is_a?(Integer) or arg.is_a?(String) or 

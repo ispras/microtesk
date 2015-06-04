@@ -120,6 +120,7 @@ public final class Output {
   }
 
   private final boolean isRuntime;
+  private final boolean isComment;
   private final String format;
   private final List<Argument> args;
 
@@ -131,11 +132,12 @@ public final class Output {
    * @param args Format arguments.
    */
 
-  Output(boolean isRuntime, String format, List<Argument> args) {
+  Output(boolean isRuntime, boolean isComment, String format, List<Argument> args) {
     checkNotNull(format);
     checkNotNull(args);
 
     this.isRuntime = isRuntime;
+    this.isComment = isComment;
     this.format = format;
     this.args = args;
   }
@@ -147,8 +149,8 @@ public final class Output {
    * @param format Format string.
    */
 
-  Output(boolean isRuntime, String format) {
-    this(isRuntime, format, Collections.<Argument>emptyList());
+  Output(boolean isRuntime, boolean isComment, String format) {
+    this(isRuntime, isComment, format, Collections.<Argument>emptyList());
   }
 
   /**
@@ -163,6 +165,10 @@ public final class Output {
 
   public boolean isRuntime() {
     return isRuntime;
+  }
+
+  public boolean isComment() {
+    return isComment;
   }
 
   /**

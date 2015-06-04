@@ -100,7 +100,7 @@ class ExampleTemplate < CpuBaseTemplate
 
     # Random values via a test situation.
     # Values to be generated are specified as '_'. 
-    mov reg(ri = _), imm(_) do situation('imm_random', :min => 0, :max => 15) end
+    #mov reg(ri = 7), imm(_) do situation('imm_random', :min => 0, :max => 15) end
     add reg(5), reg(ri)
     newline
     
@@ -111,8 +111,8 @@ class ExampleTemplate < CpuBaseTemplate
     add reg(1), reg(2) do situation('zero', :size => 8) end
 
     # Random registers are filled with random values.
-    add reg(_), reg(_) do situation('random', :size => 8, :min_imm => 0, :max_imm => 15) end
-    newline
+    # add reg(_), reg(_) do situation('random', :size => 8, :min_imm => 0, :max_imm => 15) end
+    # newline
 
     # 'Normal' and 'Overflow' situations for integer addition.
     add reg(3), reg(4) do situation('add', :case => 'normal', :size => 8) end
@@ -153,9 +153,9 @@ class ExampleTemplate < CpuBaseTemplate
     # Randomized sequences of 2 instuctions
     block(:compositor => "RANDOM", :combinator => "PRODUCT") {
       block {
-        add reg(_), imm(_) do situation('imm_random', :min => 0, :max => 15) end
-        sub reg(_), reg(_) do situation('imm_random', :min => 0, :max => 15) end
-        mov reg(_), reg(_) do situation('imm_random', :min => 0, :max => 15) end
+        # add reg(5), imm(_) do situation('imm_random', :min => 0, :max => 15) end
+        sub reg(6), reg(5)
+        mov reg(7), reg(6)
       }
 
       block {

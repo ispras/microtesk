@@ -32,6 +32,7 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class OutputBuilder {
   private final boolean isRuntime;
+  private final boolean isComment;
   private final String format;
 
   private List<Argument> args;
@@ -46,10 +47,11 @@ public final class OutputBuilder {
    * @throws NullPointerException if the format parameter equals null.
    */
 
-  OutputBuilder(boolean isRuntime, String format) {
+  OutputBuilder(boolean isRuntime, boolean isComment, String format) {
     checkNotNull(format);
 
     this.isRuntime = isRuntime;
+    this.isComment = isComment;
     this.format = format;
     this.args = null;
     this.markers = null;
@@ -139,10 +141,10 @@ public final class OutputBuilder {
 
   public Output build() {
     if (null == args) {
-      return new Output(isRuntime, format);
+      return new Output(isRuntime, isComment, format);
     }
 
-    return new Output(isRuntime, format, args);
+    return new Output(isRuntime, isComment, format, args);
   }
 
   private void addArgument(Argument arg) {

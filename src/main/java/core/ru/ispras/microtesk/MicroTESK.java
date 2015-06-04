@@ -143,6 +143,9 @@ public final class MicroTESK {
       reportUndefinedOption(Parameters.TRACE_LIMIT);
     }
 
+    TestEngine.setCommentsEnabled(params.hasOption(Parameters.COMMENTS_ENABLED));
+    TestEngine.setCommentsDebug(params.hasOption(Parameters.COMMENTS_DEBUG));
+
     if (params.hasOption(Parameters.SOLVER_DEBUG)) {
       Environment.setDebugMode(true);
     }

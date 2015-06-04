@@ -49,6 +49,8 @@ final class Printer {
   private final String commentToken;
   private final boolean printToScreen;
   private final String separator;
+  private final boolean commentsEnabled;
+  private final boolean commentsDebug;
 
   private final String codeFilePrefix;
   private final String codeFileExtension;
@@ -73,7 +75,9 @@ final class Printer {
       final String codeFileExtension,
       final IModelStateObserver observer,
       final String commentToken,
-      final boolean printToScreen) {
+      final boolean printToScreen,
+      final boolean commentsEnabled,
+      final boolean commentsDebug) {
 
     checkNotNull(codeFilePrefix);
     checkNotNull(codeFileExtension);
@@ -84,6 +88,8 @@ final class Printer {
     this.commentToken = commentToken;
     this.printToScreen = printToScreen;
     this.separator = commentToken + newSeparator(LINE_WIDTH - commentToken.length(), '*');
+    this.commentsEnabled = commentsEnabled;
+    this.commentsDebug = commentsDebug;
 
     this.codeFilePrefix = codeFilePrefix;
     this.codeFileExtension = codeFileExtension;
@@ -96,14 +102,16 @@ final class Printer {
     fileWritter = new PrintWriter(new FileWriter(fileName));
     ++codeFileCount;
 
-    // Prints MicroTESK information to the file (as the top file header). 
-    final String slcs = commentToken;
-    final String header =
-        String.format(HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
+    if (commentsEnabled) {
+      // Prints MicroTESK information to the file (as the top file header). 
+      final String slcs = commentToken;
+      final String header =
+          String.format(HEADER_FRMT, slcs, slcs, new Date(), slcs, slcs, slcs, slcs);
 
-    printSeparatorToFile();
-    printToFile(header);
-    printSeparatorToFile();
+      printSeparatorToFile();
+      printToFile(header);
+      printSeparatorToFile();
+    }
 
     return fileName;
   }
@@ -180,8 +188,16 @@ final class Printer {
     checkNotNull(outputs);
 
     for (final Output output : outputs) {
-      if (!output.isRuntime()) {
-        printText(output.evaluate(observer));
+      if (output.isRuntime()) continue;
+
+      final boolean printComment = commentsEnabled && commentsDebug;
+      final String text = output.evaluate(observer);
+
+      if (output.isComment() && !printComment) {
+        printToScreen(text);
+      } else {
+        printToScreen(text);
+        printToFile(text);
       }
     }
   }
@@ -204,7 +220,9 @@ final class Printer {
 
   private void printNote(final String text) {
     printToScreen(text);
-    printCommentToFile(text);
+    if (commentsEnabled) {
+      printCommentToFile(text);
+    }
     printText("");
   }
 
@@ -228,11 +246,13 @@ final class Printer {
    */
 
   public void printHeaderToFile(String text) {
-    printNewLineToFile();
-    printSeparatorToFile();
-    printCommentToFile(text);
-    printSeparatorToFile();
-    printNewLineToFile();
+    if (commentsEnabled) {
+      printNewLineToFile();
+      printSeparatorToFile();
+      printCommentToFile(text);
+      printSeparatorToFile();
+      printNewLineToFile();
+    }
   }
 
   /**
@@ -243,10 +263,12 @@ final class Printer {
    */
 
   public void printSubheaderToFile(String text) {
-    printNewLineToFile();
-    printSeparatorToFile();
-    printCommentToFile(text);
-    printNewLineToFile();
+    if (commentsEnabled) {
+      printNewLineToFile();
+      printSeparatorToFile();
+      printCommentToFile(text);
+      printNewLineToFile();
+    }
   }
 
   /**
@@ -255,7 +277,7 @@ final class Printer {
    * @param text Text of the comment to be printed.
    */
 
-  public void printCommentToFile(String text) {
+  private void printCommentToFile(String text) {
     if (text != null) {
       printToFile(commentToken + text);
     }
@@ -266,8 +288,10 @@ final class Printer {
    * separate different parts of the code.
    */
 
-  public void printSeparatorToFile() {
-    printToFile(separator);
+  private void printSeparatorToFile() {
+    if (commentsEnabled) {
+      printToFile(separator);
+    }
   }
 
   /**
@@ -278,10 +302,16 @@ final class Printer {
    */
 
   public void printSeparatorToFile(String text) {
-    printSeparatorToFile(text, '*');
+    if (commentsEnabled) {
+      printSeparatorToFile(text, '*');
+    }
   }
 
   private void printSeparatorToFile(String text, char character) {
+    if (!commentsEnabled) {
+      return;
+    }
+
     final int prefixLength = (LINE_WIDTH - text.length()) / 2;
     final int postfixLength = LINE_WIDTH - prefixLength - text.length();
     final StringBuilder sb = new StringBuilder();
@@ -300,7 +330,7 @@ final class Printer {
    * Add a new line separator to the file.
    */
 
-  public void printNewLineToFile() {
+  private void printNewLineToFile() {
     printToFile("");
   }
 
