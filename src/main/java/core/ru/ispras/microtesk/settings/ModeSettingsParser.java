@@ -27,6 +27,7 @@ public final class ModeSettingsParser extends AbstractSettingsParser {
   public ModeSettingsParser() {
     super(ModeSettings.TAG);
 
+    addParser(new StrategySettingsParser());
     addParser(new RangeSettingsParser());
   }
 

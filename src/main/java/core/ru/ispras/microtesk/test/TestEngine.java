@@ -38,7 +38,9 @@ import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.ModeSettings;
 import ru.ispras.microtesk.settings.RangeSettings;
+import ru.ispras.microtesk.settings.StrategySettings;
 import ru.ispras.microtesk.test.data.AllocationStrategy;
+import ru.ispras.microtesk.test.data.AllocationStrategyId;
 import ru.ispras.microtesk.test.data.AllocationTable;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
@@ -170,10 +172,17 @@ public final class TestEngine {
     final AllocationSettings allocation = value.getAllocation();
     if (allocation != null) {
       for (final ModeSettings mode : allocation.getModes()) {
+        final StrategySettings strategy = mode.getStrategy();
+
+        final AllocationStrategy allocationStrategy =
+            strategy != null ? strategy.getStrategy() : AllocationStrategyId.RANDOM;
+        final Map<String, String> allocationAttributes =
+            strategy != null ? strategy.getAttributes() : null;
+
         final RangeSettings range = mode.getRange();
         if (range != null) {
           final AllocationTable<Integer, ?> allocationTable =
-              new AllocationTable<>(AllocationStrategy.TRY_FREE_OBJECT, range.getValues());
+              new AllocationTable<>(allocationStrategy, allocationAttributes, range.getValues());
           allocationTables.put(mode.getName(), allocationTable);
         }
       }

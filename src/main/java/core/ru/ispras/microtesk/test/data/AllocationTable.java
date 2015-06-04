@@ -34,18 +34,39 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class AllocationTable<T, V> {
   /** The strategy for object allocation. */
-  private AllocationStrategy strategy;
+  private final AllocationStrategy strategy;
+
+  /** The strategy parameters. */
+  private final Map<String, String> attributes;
 
   /** The set of all available objects. */
-  private Set<T> objects;
+  private final Set<T> objects;
 
   /** The set of free objects. */
-  private Set<T> free;
+  private final Set<T> free = new LinkedHashSet<>();
 
   /** The set of used objects. */
-  private Set<T> used = new LinkedHashSet<>();
+  private final Set<T> used = new LinkedHashSet<>();
   /** The set of values for some of the objects in use. */
-  private Map<T, V> init = new LinkedHashMap<>();
+  private final Map<T, V> init = new LinkedHashMap<>();
+
+  /**
+   * Constructs a resource allocation table.
+   * 
+   * @param strategy the allocation strategy.
+   * @param attributes the strategy parameters or {@code null}.
+   * @param objects the collection of available objects.
+   */
+  public AllocationTable(final AllocationStrategy strategy, final Map<String, String> attributes,
+      final Collection<T> objects) {
+    InvariantChecks.checkNotNull(strategy);
+    InvariantChecks.checkNotNull(objects);
+
+    this.strategy = strategy;
+    this.attributes = attributes;
+    this.objects = new LinkedHashSet<>(objects);
+    reset();
+  }
 
   /**
    * Constructs a resource allocation table.
@@ -54,9 +75,7 @@ public final class AllocationTable<T, V> {
    * @param objects the collection of available objects.
    */
   public AllocationTable(final AllocationStrategy strategy, final Collection<T> objects) {
-    this.strategy = strategy;
-    this.objects = new LinkedHashSet<>(objects);
-    reset();
+    this(strategy, null, objects);
   }
 
   /**
@@ -66,17 +85,18 @@ public final class AllocationTable<T, V> {
    * @param objects the collection of available objects.
    */
   public AllocationTable(final Collection<T> objects) {
-    this(AllocationStrategy.GET_FREE_OBJECT, objects);
+    this(AllocationStrategyId.FREE, objects);
   }
 
   /**
    * Resets the resource allocation table.
    */
   public void reset() {
-    free = new HashSet<>(objects);
-
+    free.clear();
     used.clear();
     init.clear();
+
+    free.addAll(objects);
   }
 
   /**
@@ -120,7 +140,7 @@ public final class AllocationTable<T, V> {
    *  
    * @param object the object to be checked.
    * @return {@code true} if the object is free; {@code false} otherwise.
-   * @throws NullPointerException if {@code object} is null.
+   * @throws IllegalArgumentException if {@code object} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public boolean isFree(final T object) {
@@ -134,7 +154,7 @@ public final class AllocationTable<T, V> {
    * 
    * @param object the object to be checked.
    * @return {@code true} if the object is in use; {@code false} otherwise.
-   * @throws NullPointerException if {@code object} is null.
+   * @throws IllegalArgumentException if {@code object} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public boolean isUsed(final T object) {
@@ -148,7 +168,7 @@ public final class AllocationTable<T, V> {
    * 
    * @param object the object to be checked.
    * @return {@code true} if the object is defined; {@code false} otherwise.
-   * @throws NullPointerException if {@code object} is null.
+   * @throws IllegalArgumentException if {@code object} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public boolean isDefined(final T object) {
@@ -162,7 +182,7 @@ public final class AllocationTable<T, V> {
    * 
    * @param object the object whose value to be returned.
    * @return the object value if is defined; {@code null} otherwise.
-   * @throws NullPointerException if {@code object} is null.
+   * @throws IllegalArgumentException if {@code object} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public V getValue(final T object) {
@@ -175,7 +195,7 @@ public final class AllocationTable<T, V> {
    * Frees (deallocates) the object.
    * 
    * @param object the object to be freed.
-   * @throws NullPointerException if {@code object} is null.
+   * @throws IllegalArgumentException if {@code object} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public void free(final T object) {
@@ -190,7 +210,7 @@ public final class AllocationTable<T, V> {
    * Marks the object as being in use.
    * 
    * @param object the object to be used.
-   * @throws NullPointerException if {@code object} is null.
+   * @throws IllegalArgumentException if {@code object} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public void use(final T object) {
@@ -205,7 +225,7 @@ public final class AllocationTable<T, V> {
    * 
    * @param object the object to defined.
    * @param value the object value.
-   * @throws NullPointerException if {@code object} is null or {@code value} is null.
+   * @throws IllegalArgumentException if {@code object} is null or {@code value} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public void define(final T object, final V value) {
@@ -218,52 +238,13 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Peeks a free object using the given strategy.
-   * 
-   * @param strategy the object allocation strategy.
-   * @return the peeked object.
-   * @throws NullPointerException if {@code strategy} is null.
-   * @throws IllegalStateException if an object cannot be peeked.
-   */
-  public T peek(final AllocationStrategy strategy) {
-    InvariantChecks.checkNotNull(strategy);
-
-    final T object = strategy.next(free, used);
-
-    if (object == null) {
-      throw new IllegalStateException("Cannot peek an object");
-    }
-
-    return object;
-  }
-
-  /**
    * Peeks a free object.
    * 
    * @return the peeked object.
    * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek() {
-    return peek(strategy);
-  }
-
-  /**
-   * Peeks a free object.
-   *
-   * @param strategy the object allocation strategy.
-   * @param exclude the objects that should not be peeked.
-   * @return the peeked object.
-   * @throws NullPointerException if {@code strategy} or {@code exclude} is null.
-   * @throws IllegalStateException if an object cannot be peeked.
-   */
-  public T peek(final AllocationStrategy strategy, final Set<T> exclude) {
-    InvariantChecks.checkNotNull(strategy);
-    InvariantChecks.checkNotNull(exclude);
-
-    final Set<T> domain = new HashSet<>(free);
-    domain.removeAll(exclude);
-
-    final T object = strategy.next(domain, used);
+    final T object = strategy.next(free, used, attributes);
 
     if (object == null) {
       throw new IllegalStateException("Cannot peek an object");
@@ -277,25 +258,21 @@ public final class AllocationTable<T, V> {
    *
    * @param exclude the objects that should not be peeked.
    * @return the peeked object.
-   * @throws NullPointerException if {@code exclude} is null.
+   * @throws IllegalArgumentException if {@code exclude} is null.
    * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek(final Set<T> exclude) {
-    return peek(strategy, exclude);
-  }
+    InvariantChecks.checkNotNull(exclude);
 
-  /**
-   * Allocates an object (peeks an object and marks it as being in use) using the given strategy.
-   * 
-   * @param strategy the object allocation strategy.
-   * @return the allocated object.
-   * @throws NullPointerException if {@code strategy} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
-   */
-  public T allocate(final AllocationStrategy strategy) {
-    final T object = peek(strategy);
+    final Set<T> domain = new HashSet<>(free);
+    domain.removeAll(exclude);
 
-    use(object);
+    final T object = strategy.next(domain, used, attributes);
+
+    if (object == null) {
+      throw new IllegalStateException("Cannot peek an object");
+    }
+
     return object;
   }
 
@@ -306,20 +283,7 @@ public final class AllocationTable<T, V> {
    * @throws IllegalStateException if an object cannot be allocated.
    */
   public T allocate() {
-    return allocate(strategy);
-  }
-
-  /**
-   * Allocates an object (peeks an object and marks it as being in use) using the given strategy.
-   *
-   * @param strategy the object allocation strategy.
-   * @param exclude the objects that should not be allocated.
-   * @return the allocated object.
-   * @throws NullPointerException if {@code exclude} or {@code strategy} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
-   */
-  public T allocate(final AllocationStrategy strategy, final Set<T> exclude) {
-    final T object = peek(strategy, exclude);
+    final T object = peek();
 
     use(object);
     return object;
@@ -330,28 +294,13 @@ public final class AllocationTable<T, V> {
    *
    * @param exclude the objects that should not be allocated.
    * @return the allocated object.
-   * @throws NullPointerException if {@code exclude} is null.
+   * @throws IllegalArgumentException if {@code exclude} is null.
    * @throws IllegalStateException if an object cannot be allocated.
    */
   public T allocate(final Set<T> exclude) {
-    return allocate(strategy, exclude);
-  }
+    final T object = peek(exclude);
 
-  /**
-   * Allocates an object using the given strategy and defines it.
-   * 
-   * @param strategy the object allocation strategy.
-   * @param value the object value.
-   * @return the allocated object.
-   * @throws NullPointerException if {@code strategy} or {@code value} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
-   */
-  public T allocateAndDefine(final AllocationStrategy strategy, final V value) {
-    InvariantChecks.checkNotNull(value);
-
-    final T object = allocate(strategy);
-    define(object, value);
-
+    use(object);
     return object;
   }
 
@@ -360,27 +309,13 @@ public final class AllocationTable<T, V> {
    * 
    * @param value the object value.
    * @return the allocated object.
-   * @throws NullPointerException if {@code value} is null.
+   * @throws IllegalArgumentException if {@code value} is null.
    * @throws IllegalStateException if an object cannot be allocated.
    */
   public T allocateAndDefine(final V value) {
-    return allocateAndDefine(strategy, value);
-  }
-
-  /**
-   * Allocates an object using the given strategy and defines it.
-   * 
-   * @param strategy the object allocation strategy.
-   * @param exclude the objects that should not be allocated.
-   * @param value the object value.
-   * @return the allocated object.
-   * @throws NullPointerException if {@code strategy}, {@code exclude} or {@code value} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
-   */
-  public T allocateAndDefine(final AllocationStrategy strategy, final Set<T> exclude, final V value) {
     InvariantChecks.checkNotNull(value);
 
-    final T object = allocate(strategy, exclude);
+    final T object = allocate();
     define(object, value);
 
     return object;
@@ -392,11 +327,16 @@ public final class AllocationTable<T, V> {
    * @param exclude the objects that should not be allocated.
    * @param value the object value.
    * @return the allocated object.
-   * @throws NullPointerException if {@code exclude} or {@code value} is null.
+   * @throws IllegalArgumentException if {@code exclude} or {@code value} is null.
    * @throws IllegalStateException if an object cannot be allocated.
    */
   public T allocateAndDefine(final Set<T> exclude, final V value) {
-    return allocateAndDefine(strategy, exclude, value);
+    InvariantChecks.checkNotNull(value);
+
+    final T object = allocate(exclude);
+    define(object, value);
+
+    return object;
   }
 
   /**

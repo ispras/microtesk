@@ -14,36 +14,28 @@
 
 package ru.ispras.microtesk.settings;
 
+import java.util.Map;
+
+import ru.ispras.microtesk.test.data.AllocationStrategy;
+import ru.ispras.microtesk.test.data.AllocationStrategyId;
+
 /**
- * {@link ModeSettings} describes an addressing mode's allocation table.
+ * {@link StrategySettingsParser} implements a parser of {@link StrategySettings}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ModeSettings extends AbstractSettings {
-  public static final String TAG = "mode";
+public final class StrategySettingsParser extends AbstractSettingsParser {
+  public static final String ATTR_NAME = "name";
 
-  private final String name;
-
-  public ModeSettings(final String name) {
-    super(TAG);
-
-    this.name = name;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public StrategySettings getStrategy() {
-    return getSingle(StrategySettings.TAG);
-  }
-
-  public RangeSettings getRange() {
-    return getSingle(RangeSettings.TAG);
+  public StrategySettingsParser() {
+    super(StrategySettings.TAG);
   }
 
   @Override
-  public String toString() {
-    return String.format("%s=%s", TAG, getRange().getValues());
+  protected AbstractSettings createSettings(final Map<String, String> attributes) {
+    final AllocationStrategy strategy =
+        AbstractSettingsParser.getEnum(AllocationStrategyId.class, attributes.get(ATTR_NAME));
+
+    return new StrategySettings(strategy, attributes);
   }
 }
