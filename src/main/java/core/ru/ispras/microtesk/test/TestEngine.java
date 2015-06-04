@@ -110,12 +110,11 @@ public final class TestEngine {
   private static String codeFilePrefix = "test";
   private static int programLengthLimit = 1000;
   private static int traceLengthLimit = 1000;
+  private static boolean commentsDebug = false;
+  private static boolean commentsEnabled = false;
 
   // Architecture-specific settings
   private static Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
-
-  private static boolean commentsDebug = false;
-  private static boolean commentsEnabled = false;
 
   public static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
