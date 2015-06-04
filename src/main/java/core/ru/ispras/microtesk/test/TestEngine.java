@@ -424,6 +424,7 @@ public final class TestEngine {
         // No instruction was added to the newly created file, it must be deleted
         if (STATISTICS.instructionCount == before.instructionCount) {
           new File(fileName).delete();
+          STATISTICS.testProgramNumber--;
         }
       }
 
