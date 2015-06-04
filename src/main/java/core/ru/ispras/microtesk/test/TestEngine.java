@@ -19,6 +19,7 @@ import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -186,7 +187,7 @@ public final class TestEngine {
     return allocationTable.allocate();
   }
 
-  public static void generate(final String modelName, final String templateFile) throws Throwable {
+  public static Date generate(final String modelName, final String templateFile) throws Throwable {
     final ScriptingContainer container = new ScriptingContainer();
     container.setArgv(new String[] {modelName, templateFile});
 
@@ -204,6 +205,8 @@ public final class TestEngine {
     } catch (GenerationAbortedException e) {
       Logger.error(e.getMessage());
     }
+
+    return TemplateProcessor.start;
   }
 
   private TestEngine(IModel model) {
@@ -320,9 +323,13 @@ public final class TestEngine {
     private Block postBlock = null;
     private Statistics before;
     private String fileName;
+    public static Date start = null;
 
     @Override
     public void process(final Section section, final Block block) {
+      if (null == start)
+        start = new Date();
+
       checkNotNull(section);
       checkNotNull(block);
 

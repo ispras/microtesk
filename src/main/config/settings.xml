@@ -10,4 +10,5 @@
   <setting name="trace-length-limit" value="1000"/>
   <setting name="comments-enabled" value=""/>
   <setting name="comments-debug" value=""/>
+  <setting name="arch-dirs" value="armv8=arch/armv8/settings.xml"/>
 </settings>
