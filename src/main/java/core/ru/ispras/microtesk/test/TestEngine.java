@@ -343,75 +343,10 @@ public final class TestEngine {
         return;
       }
 
-      final boolean isNewFile = needCreateNewFile;
-      if (needCreateNewFile) {
-        try {
-          before = STATISTICS.copy();
-          printer.close();
-          fileName = printer.createNewFile();
-          STATISTICS.testProgramNumber++;
-        } catch (IOException e) {
-          Logger.error(e.getMessage());
-        }
-        needCreateNewFile = false;
-      }
-
-      if (!isDataPrinted && dataManager.containsDecls()) {
-        printSectionHeader("Data Declarations");
-        printer.printText(dataManager.getDeclText());
-        isDataPrinted = true;
-      }
-
-      if (isNewFile) {
-        if (!preBlock.isEmpty()) {
-          try {
-            printer.printHeaderToFile("Initialization Section");
-            processBlock(preBlock);
-          } catch (ConfigurationException e) {
-            Logger.error(e.getMessage());
-          }
-        }
-        printer.printHeaderToFile("Main Section (Tests)");
-      }
-
-      printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
-
       try {
         processBlock(block);
       } catch (ConfigurationException e) {
         Logger.error(e.getMessage());
-      }
-      final Statistics after = STATISTICS.copy();
-
-      final boolean isProgramLengthLimitExceeded =
-          (after.instructionCount - before.instructionCount) >= programLengthLimit;
-      final boolean isTraceLengthLimitExceeded =
-          (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
-
-       /*
-       System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
-              before.instructionCount, after.instructionCount,
-              (after.instructionCount - before.instructionCount),
-              (after.instructionCount - before.instructionCount) >= programLengthLimit,
-              
-              before.instructionExecutedCount,
-              after.instructionExecutedCount,
-              (after.instructionCount - before.instructionCount),
-              (after.instructionCount - before.instructionCount) >= programLengthLimit
-              ));
-       */
-
-      needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
-      if (needCreateNewFile) {
-        if (!postBlock.isEmpty()) {
-          try {
-            printer.printHeaderToFile("Finalization Section");
-            processBlock(postBlock);
-          } catch (ConfigurationException e) {
-            Logger.error(e.getMessage());
-          }
-        }
-        printer.close();
       }
     }
 
@@ -449,6 +384,39 @@ public final class TestEngine {
         if (isSingleSequence && sequenceIndex > 1) {
           throw new IllegalStateException("Only a single sequence is allowed.");
         }
+        
+        if (needCreateNewFile) {
+          try {
+            before = STATISTICS.copy();
+            printer.close();
+            fileName = printer.createNewFile();
+            STATISTICS.testProgramNumber++;
+          } catch (IOException e) {
+            Logger.error(e.getMessage());
+          }
+
+          if (!isDataPrinted && dataManager.containsDecls()) {
+            printSectionHeader("Data Declarations");
+            printer.printText(dataManager.getDeclText());
+            isDataPrinted = true;
+          }
+
+          if (!preBlock.isEmpty()) {
+            try {
+              printer.printHeaderToFile("Initialization Section");
+              processBlock(preBlock);
+            } catch (ConfigurationException e) {
+              Logger.error(e.getMessage());
+            }
+          }
+          printer.printHeaderToFile("Main Section (Tests)");
+
+          needCreateNewFile = false;
+        }
+
+        if (sequenceIndex == 1) {
+          printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
+        }
 
         final String sequenceId = String.format("Test Case %d", sequenceIndex);
         final Sequence<Call> abstractSequence = sequenceIt.value();
@@ -474,6 +442,42 @@ public final class TestEngine {
         printHeader("");
 
         STATISTICS.testCaseNumber++;
+        
+        
+        
+        
+        final Statistics after = STATISTICS.copy();
+
+        final boolean isProgramLengthLimitExceeded =
+            (after.instructionCount - before.instructionCount) >= programLengthLimit;
+        final boolean isTraceLengthLimitExceeded =
+            (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
+
+         /*
+         System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
+                before.instructionCount, after.instructionCount,
+                (after.instructionCount - before.instructionCount),
+                (after.instructionCount - before.instructionCount) >= programLengthLimit,
+                
+                before.instructionExecutedCount,
+                after.instructionExecutedCount,
+                (after.instructionCount - before.instructionCount),
+                (after.instructionCount - before.instructionCount) >= programLengthLimit
+                ));
+         */
+
+        needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
+        if (needCreateNewFile) {
+          if (!postBlock.isEmpty()) {
+            try {
+              printer.printHeaderToFile("Finalization Section");
+              processBlock(postBlock);
+            } catch (ConfigurationException e) {
+              Logger.error(e.getMessage());
+            }
+          }
+          printer.close();
+        }
       }
     }
 
