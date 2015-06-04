@@ -186,6 +186,10 @@ class Template
     builder.build
   end
 
+  def random_situation(dist)
+    dist.next_value
+  end
+
   #
   # Creates an object for generating a random integer within
   # the specified range (to be used as an argument of a mode or op).
@@ -231,13 +235,7 @@ class Template
       value = range_item.value
       bias = range_item.bias
 
-      if value.is_a?(Integer)
-        if bias.nil? then
-          builder.addValue value
-        else
-          builder.addValue value, bias
-        end
-      elsif value.is_a?(Range)
+      if value.is_a?(Range)
         if bias.nil? then
           builder.addInterval value.min, value.max
         else
@@ -256,7 +254,11 @@ class Template
           builder.addVariate value.java_object, bias
         end
       else
-        raise MTRubyError, "#{value} has an unsupported type."
+        if bias.nil? then
+          builder.addValue value
+        else
+          builder.addValue value, bias
+        end
       end
     end
 
