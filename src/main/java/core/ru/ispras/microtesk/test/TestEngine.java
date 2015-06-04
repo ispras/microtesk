@@ -57,8 +57,6 @@ public final class TestEngine {
     public long instructionCount;
     public long instructionExecutedCount;
     public int testProgramNumber;
-    public int initialTestProgramNumber;
-    public int initialTestCaseNumber;
     public int testCaseNumber;
 
     private Statistics() {
@@ -69,14 +67,10 @@ public final class TestEngine {
         long instructionCount,
         long instructionExecutedCount,
         int testProgramNumber,
-        int initialTestProgramNumber,
-        int initialTestCaseNumber,
         int testCaseNumber) {
       this.instructionCount = instructionCount;
       this.instructionExecutedCount = instructionExecutedCount;
       this.testProgramNumber = testProgramNumber;
-      this.initialTestProgramNumber = initialTestProgramNumber;
-      this.initialTestCaseNumber = initialTestCaseNumber;
       this.testCaseNumber = testCaseNumber;
     }
 
@@ -84,8 +78,6 @@ public final class TestEngine {
       instructionCount = 0;
       instructionExecutedCount = 0;
       testProgramNumber = 0;
-      initialTestProgramNumber = 0;
-      initialTestCaseNumber = 0;
       testCaseNumber = 0;
     }
 
@@ -94,9 +86,7 @@ public final class TestEngine {
           instructionCount, 
           instructionExecutedCount,
           testProgramNumber,
-          initialTestProgramNumber,
-          initialTestCaseNumber,
-          initialTestCaseNumber
+          testCaseNumber
           );
     }
   }
@@ -334,19 +324,6 @@ public final class TestEngine {
 
     @Override
     public void process(final Section section, final Block block) {
-      final boolean isNewFile = needCreateNewFile;
-      if (needCreateNewFile) {
-        try {
-          before = STATISTICS.copy();
-          printer.close();
-          fileName = printer.createNewFile();
-          STATISTICS.testProgramNumber++;
-        } catch (IOException e) {
-          Logger.error(e.getMessage());
-        }
-        needCreateNewFile = false;
-      }
-
       checkNotNull(section);
       checkNotNull(block);
 
@@ -360,12 +337,25 @@ public final class TestEngine {
         return;
       }
 
+      final boolean isNewFile = needCreateNewFile;
+      if (needCreateNewFile) {
+        try {
+          before = STATISTICS.copy();
+          printer.close();
+          fileName = printer.createNewFile();
+          STATISTICS.testProgramNumber++;
+        } catch (IOException e) {
+          Logger.error(e.getMessage());
+        }
+        needCreateNewFile = false;
+      }
+
       if (!isDataPrinted && dataManager.containsDecls()) {
         printSectionHeader("Data Declarations");
         printer.printText(dataManager.getDeclText());
         isDataPrinted = true;
       }
-      
+
       if (isNewFile) {
         if (!preBlock.isEmpty()) {
           try {
