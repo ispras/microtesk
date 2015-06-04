@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.mmu.spec.basis;
+package ru.ispras.microtesk.test.data;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,12 +21,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * This class implements a resource allocation table, which is a finite set of objects (registers,
- * pages, etc.) in couple with allocation / deallocation methods.
+ * {@link AllocationTable} implements a resource allocation table, which is a finite set of objects
+ * (registers, pages, etc.) in couple with allocation / deallocation methods.
  * 
  * @param <T> type of objects.
  * @param <V> type of object values.
@@ -34,40 +33,8 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AllocationTable<T, V> {
-
-  /**
-   * This enumeration contains resource allocation strategies.
-   */
-  public enum Strategy {
-    /** Always returns a free object (throws an exception if all the objects are in use). */
-    GET_FREE_OBJECT {
-      @Override public <T> T next(final Set<T> free, final Set<T> used) {
-        InvariantChecks.checkNotEmpty(free);
-        return Randomizer.get().choose(free);
-      }
-    },
-
-    /** Returns a free object (if it exists) or a used one (otherwise). */
-    TRY_FREE_OBJECT() {
-      @Override public <T> T next(final Set<T> free, final Set<T> used) {
-        InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty());
-        return !free.isEmpty() ? Randomizer.get().choose(free) : Randomizer.get().choose(used);
-      }
-    };
-
-    /**
-     * Chooses an object.
-     * 
-     * @param <T> type of objects.
-     * @param free the set of free objects.
-     * @param used the set of used objects.
-     * @return the chosen object or {@code null}.
-     */
-    public abstract <T> T next(final Set<T> free, final Set<T> used);
-  }
-
   /** The strategy for object allocation. */
-  private Strategy strategy;
+  private AllocationStrategy strategy;
 
   /** The set of all available objects. */
   private Set<T> objects;
@@ -86,7 +53,7 @@ public final class AllocationTable<T, V> {
    * @param strategy the allocation strategy.
    * @param objects the collection of available objects.
    */
-  public AllocationTable(final Strategy strategy, final Collection<T> objects) {
+  public AllocationTable(final AllocationStrategy strategy, final Collection<T> objects) {
     this.strategy = strategy;
     this.objects = new LinkedHashSet<>(objects);
     reset();
@@ -99,7 +66,7 @@ public final class AllocationTable<T, V> {
    * @param objects the collection of available objects.
    */
   public AllocationTable(final Collection<T> objects) {
-    this(Strategy.GET_FREE_OBJECT, objects);
+    this(AllocationStrategy.GET_FREE_OBJECT, objects);
   }
 
   /**
@@ -258,7 +225,7 @@ public final class AllocationTable<T, V> {
    * @throws NullPointerException if {@code strategy} is null.
    * @throws IllegalStateException if an object cannot be peeked.
    */
-  public T peek(final Strategy strategy) {
+  public T peek(final AllocationStrategy strategy) {
     InvariantChecks.checkNotNull(strategy);
 
     final T object = strategy.next(free, used);
@@ -289,7 +256,7 @@ public final class AllocationTable<T, V> {
    * @throws NullPointerException if {@code strategy} or {@code exclude} is null.
    * @throws IllegalStateException if an object cannot be peeked.
    */
-  public T peek(final Strategy strategy, final Set<T> exclude) {
+  public T peek(final AllocationStrategy strategy, final Set<T> exclude) {
     InvariantChecks.checkNotNull(strategy);
     InvariantChecks.checkNotNull(exclude);
 
@@ -325,7 +292,7 @@ public final class AllocationTable<T, V> {
    * @throws NullPointerException if {@code strategy} is null.
    * @throws IllegalStateException if an object cannot be allocated.
    */
-  public T allocate(final Strategy strategy) {
+  public T allocate(final AllocationStrategy strategy) {
     final T object = peek(strategy);
 
     use(object);
@@ -351,7 +318,7 @@ public final class AllocationTable<T, V> {
    * @throws NullPointerException if {@code exclude} or {@code strategy} is null.
    * @throws IllegalStateException if an object cannot be allocated.
    */
-  public T allocate(final Strategy strategy, final Set<T> exclude) {
+  public T allocate(final AllocationStrategy strategy, final Set<T> exclude) {
     final T object = peek(strategy, exclude);
 
     use(object);
@@ -379,7 +346,7 @@ public final class AllocationTable<T, V> {
    * @throws NullPointerException if {@code strategy} or {@code value} is null.
    * @throws IllegalStateException if an object cannot be allocated.
    */
-  public T allocateAndDefine(final Strategy strategy, final V value) {
+  public T allocateAndDefine(final AllocationStrategy strategy, final V value) {
     InvariantChecks.checkNotNull(value);
 
     final T object = allocate(strategy);
@@ -410,7 +377,7 @@ public final class AllocationTable<T, V> {
    * @throws NullPointerException if {@code strategy}, {@code exclude} or {@code value} is null.
    * @throws IllegalStateException if an object cannot be allocated.
    */
-  public T allocateAndDefine(final Strategy strategy, final Set<T> exclude, final V value) {
+  public T allocateAndDefine(final AllocationStrategy strategy, final Set<T> exclude, final V value) {
     InvariantChecks.checkNotNull(value);
 
     final T object = allocate(strategy, exclude);

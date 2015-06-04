@@ -30,7 +30,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
@@ -42,9 +41,6 @@ import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.settings.AllocationSettings;
-import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.settings.ModeSettings;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
@@ -107,6 +103,7 @@ final class DataGenerator {
     sequenceBuilder = new TestSequence.Builder();
 
     try {
+      TestEngine.resetAllocationTables();
       for (Call abstractCall : abstractSequence) {
         processAbstractCall(abstractCall);
       }
@@ -613,19 +610,8 @@ final class DataGenerator {
                 // Allocate the registers (assign values to the unknown mode arguments).
                 unknownModeArguments.put(argName, p);
 
-                final GeneratorSettings settings = TestEngine.getGeneratorSettings();
-                if (settings != null) {
-                  final AllocationSettings allocation = settings.getAllocation();
-                  if (allocation != null) {
-                    final ModeSettings mode = allocation.getMode(p.getName());
-                    if (mode != null) {
-                      final int argValue = Randomizer.get().choose(mode.getRange().getValues());
-
-                      unknownValue.setValue(argValue);
-                      queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
-                    }
-                  }
-                }
+                unknownValue.setValue(TestEngine.allocateMode(p.getName()));
+                queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
               }
             } else {
               queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
