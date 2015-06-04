@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +49,7 @@ public final class LocationFactory extends WalkerFactoryBase {
 
   private boolean isLhs;
   private boolean isRhs;
+  private Set<String> lhsArgs;
 
   public void setLog(List<LocationAtom> locations) {
     log = locations;
@@ -75,11 +77,13 @@ public final class LocationFactory extends WalkerFactoryBase {
     if (isLhs) {
       // System.out.println("LHS: " + location.getName());
       getThis().setArgsUsage(name, ArgumentMode.OUT);
+      lhsArgs.add(name);
     }
 
     if (isRhs) {
       // System.out.println("RHS: " + location.getName());
-      getThis().setArgsUsage(name, ArgumentMode.IN);
+      getThis().setArgsUsage(name, 
+          (null != lhsArgs && lhsArgs.contains(name)) ? ArgumentMode.INOUT : ArgumentMode.IN);
     }
 
     if (null != involvedArgs) {
@@ -236,6 +240,7 @@ public final class LocationFactory extends WalkerFactoryBase {
   public void beginLhs() {
     isLhs = true;
     isRhs = false;
+    lhsArgs = new HashSet<>();
   }
 
   public void beginRhs() {
@@ -246,6 +251,7 @@ public final class LocationFactory extends WalkerFactoryBase {
   public void endAssignment() {
     isLhs = false;
     isRhs = false;
+    lhsArgs = null;
   }
 
   private Set<String> involvedArgs = null; 

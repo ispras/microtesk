@@ -66,7 +66,7 @@ public class Primitive {
     public void setArgsUsage(final String name, final ArgumentMode usage) {
       final ArgumentMode prevUsage = argsUsage.get(name);
       if (usage == ArgumentMode.IN && prevUsage == ArgumentMode.OUT) {
-        argsUsage.put(name, ArgumentMode.INOUT);
+        // Do nothing
       } else if (usage == ArgumentMode.OUT && prevUsage == ArgumentMode.IN) {
         argsUsage.put(name, ArgumentMode.INOUT);
       } else {
