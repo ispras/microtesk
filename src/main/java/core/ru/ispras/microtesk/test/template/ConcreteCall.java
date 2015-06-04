@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.template;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
@@ -26,6 +27,7 @@ public final class ConcreteCall {
   private final List<Output> outputs;
   private final InstructionCall executable;
 
+  private BitVector address = null;
   private String text = null;
   private int executionCount = 0;
 
@@ -105,5 +107,14 @@ public final class ConcreteCall {
     }
 
     return executable.getByteSize();
+  }
+
+  public BitVector getAddress() {
+    return address;
+  }
+
+  public void setAddress(final BitVector address) {
+    InvariantChecks.checkNotNull(address);
+    this.address = address;
   }
 }
