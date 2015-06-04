@@ -27,6 +27,7 @@ import ru.ispras.microtesk.model.api.state.IStateResetter;
 public final class InstructionCall {
   private final IStateResetter resetter;
   private final IOperation instruction;
+  private final int byteSize;
 
   /**
    * Creates an instruction call object based on an nML operation. The operation usually
@@ -38,12 +39,17 @@ public final class InstructionCall {
    * @throws IllegalArgumentException if any of the parameters equals {@code null}.
    */
 
-  public InstructionCall(final IStateResetter resetter, final IOperation instruction) {
+  public InstructionCall(
+      final IStateResetter resetter,
+      final IOperation instruction) {
     InvariantChecks.checkNotNull(resetter);
     InvariantChecks.checkNotNull(instruction);
 
     this.resetter = resetter;
     this.instruction = instruction;
+
+    final int bitSize = instruction.image().length();
+    this.byteSize = bitSize % 8 == 0 ? bitSize / 8 : bitSize / 8 + 1;
   }
 
   /**
@@ -64,5 +70,15 @@ public final class InstructionCall {
 
   public String getText() {
     return instruction.syntax();
+  }
+
+  /**
+   * Returns the size of the instruction in bytes.
+   * 
+   * @return Size of the instruction in bytes.
+   */
+
+  public int getByteSize() {
+    return byteSize;
   }
 }

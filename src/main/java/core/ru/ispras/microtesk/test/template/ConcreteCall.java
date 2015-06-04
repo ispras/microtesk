@@ -98,4 +98,12 @@ public final class ConcreteCall {
   public List<Output> getOutputs() {
     return outputs;
   }
+
+  public int getByteSize() {
+    if (!isExecutable()) {
+      return 0;
+    }
+
+    return executable.getByteSize();
+  }
 }
