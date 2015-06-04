@@ -198,8 +198,8 @@ public final class MicroTESK {
         );
 
     Logger.message("Programs/stimuli/instructions: %d/%d/%d",
-        (statistics.testProgramNumber - statistics.initialTestProgramNumber) + 1,
-        (statistics.testCaseNumber - statistics.initialTestCaseNumber) + 1,
+        statistics.testProgramNumber,
+        statistics.testCaseNumber,
         statistics.instructionCount
         );
   }
