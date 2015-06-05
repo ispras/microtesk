@@ -30,6 +30,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
@@ -174,6 +175,17 @@ final class DataGenerator {
       final Argument arg = entry.getValue();
 
       if (arg.getMode() == ArgumentMode.IN || arg.getMode() == ArgumentMode.INOUT) {
+        if (arg.getKind() == Argument.Kind.MODE) {
+          try {
+            final IAddressingMode concreteMode = makeMode(arg);
+            if (concreteMode.access().isInitialized()) {
+              continue;
+            }
+          } catch (ConfigurationException e) {
+            Logger.error(e.getMessage());
+          }
+        }
+
         final BitVector value = BitVector.newEmpty(arg.getType().getBitSize());
         Randomizer.get().fill(value);
 
