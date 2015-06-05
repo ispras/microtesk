@@ -104,7 +104,10 @@ final class DataGenerator {
 
     try {
       // Allocate addressing modes.
-      ModeAllocator.get().allocate(abstractSequence);
+      final ModeAllocator modeAllocator = ModeAllocator.get();
+      if (null != modeAllocator) {
+        modeAllocator.allocate(abstractSequence);
+      }
 
       for (Call abstractCall : abstractSequence) {
         processAbstractCall(abstractCall);
