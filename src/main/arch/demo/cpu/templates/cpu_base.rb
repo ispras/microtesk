@@ -55,9 +55,12 @@ class CpuBaseTemplate < Template
       mov target, imm(value)  
     }
 
+    preparator(:target => 'IMM') {
+    }
+
     trace 'Initialization:'
     comment 'Initialization Section Starts'
-    add mem(:i => 12), mem(:i => 13)
+    mov mem(:i => 12), imm(0xFF)
     comment 'Initialization Section Ends'
   end
 
@@ -68,7 +71,7 @@ class CpuBaseTemplate < Template
   def post
     trace 'Finalization:'
     comment 'Finalization Section Starts'
-    add mem(:i => 23), imm(23)
+    mov mem(:i => 23), imm(23)
     comment 'Finalization Section Ends'
   end
 

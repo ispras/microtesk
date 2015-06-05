@@ -337,7 +337,7 @@ public final class TestEngine {
 
         if (!postBlock.isEmpty()) {
           try {
-            processBlock(postBlock);
+            processPreOrPostBlock(postBlock);
           } catch (ConfigurationException e) {
             Logger.error(e.getMessage());
           }
@@ -391,7 +391,7 @@ public final class TestEngine {
 
           if (!preBlock.isEmpty()) {
             try {
-              processBlock(preBlock);
+              processPreOrPostBlock(preBlock);
             } catch (ConfigurationException e) {
               Logger.error(e.getMessage());
             }
@@ -462,7 +462,7 @@ public final class TestEngine {
 
           if (!postBlock.isEmpty()) {
             try {
-              processBlock(postBlock);
+              processPreOrPostBlock(postBlock);
             } catch (ConfigurationException e) {
               Logger.error(e.getMessage());
             }
@@ -473,6 +473,30 @@ public final class TestEngine {
 
           printer.close();
         }
+      }
+    }
+
+    private void processPreOrPostBlock(Block block) throws ConfigurationException {
+      InvariantChecks.checkTrue(block.isSingle());
+      final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
+
+      sequenceIt.init();
+      while (sequenceIt.hasValue()) {
+        final Sequence<Call> abstractSequence = sequenceIt.value();
+
+        printHeader("Generating Data");
+        final TestSequence concreteSequence = dataGenerator.process(abstractSequence);
+
+        printHeader("Executing");
+        executor.executeSequence(concreteSequence);
+
+        printHeader("Printing");
+        printer.printSequence(concreteSequence);
+
+        STATISTICS.instructionCount += concreteSequence.getPrologue().size();
+        STATISTICS.instructionCount += concreteSequence.getBody().size();
+
+        sequenceIt.next();
       }
     }
 

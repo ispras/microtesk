@@ -5,5 +5,14 @@
       <strategy name="random" free-bias="50" used-bias="50"/>
       <range min="0" max="15"/>
     </mode>
+    <mode name="MEM">
+      <strategy name="free"/>
+      <range min="0" max="255"/>
+    </mode>
+    <mode name="IMM">
+      <strategy name="random"/>
+      <range min="0" max="255"/>
+    </mode>
   </allocation>
+  
 </settings>
