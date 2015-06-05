@@ -10,7 +10,21 @@
 
  The new build contains the following changes:
 
-
+ - Possibility to select test situations applied to instruction on random manner
+   was implemented.
+ - Randomization of operands of instructions with unspecified situations
+   was supported.
+ - Architecture-specific settings (set up with '--arch-dirs' option)
+   were established.
+ - Support for random register allocation was implemented.
+ - Options '--comments-enabled' and '--comments-enabled' for enabling/disabling
+   printing comments to test programs were added.
+ - Option '--solver-debug' for enabling debug output of SMT solvers was added.
+ - Functionality of the 'include' directive was improved.
+ - Format of generated test programs was enhanced.
+ - If a preparator for an addressing mode is not specified, test generation
+   is aborted.
+ - Several bug fixes and general improvements were made.
 
  2015/05/29 MicroTESK 2.2.3 beta
 
