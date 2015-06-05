@@ -61,8 +61,10 @@ public final class MicroTESK {
     } catch (ParseException e) {
       Logger.error("Incorrect command line or configuration file: " + e.getMessage());
       Parameters.help();
+      System.exit(-1);
     } catch (Throwable e) {
       Logger.exception(e);
+      System.exit(-1);
     }
   }
 
