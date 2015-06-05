@@ -366,7 +366,11 @@ class Template
   # Adds a comment into the test program (uses sl_comment_starts_with).
   #
   def comment(format, *args)
-    print_format false, true, sl_comment_starts_with + format, *args
+    if sl_comment_starts_with.end_with?(' ')
+      print_format false, true, sl_comment_starts_with + format, *args
+    else
+      print_format false, true, sl_comment_starts_with + ' ' + format, *args
+    end
   end
 
   #
