@@ -43,7 +43,7 @@ reg LO [WORD]
 reg CIA[WORD]
 
 // Memory is word-addressable
-mem M [2 ** 16, WORD]
+mem M [2 ** 30, WORD] // or 2**32 bytes
 
 ////////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
