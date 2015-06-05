@@ -147,7 +147,9 @@ public final class ModeAllocator {
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
-    allocationTable.use(value);
+    if (allocationTable.exists(value)) {
+      allocationTable.use(value);
+    }
   }
 
   private int allocate(final String mode) {

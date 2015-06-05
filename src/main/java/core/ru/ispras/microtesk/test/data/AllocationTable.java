@@ -136,6 +136,18 @@ public final class AllocationTable<T, V> {
   }
 
   /**
+   * Checks whether the object exists in the allocation table.
+   * 
+   * @param object the object to be checked.
+   * @return {@code true} if the object exists; {@code false} otherwise.
+   * @throws IllegalArgumentException if {@object} does not exist (i.e. it is unknown).
+   */
+  public boolean exists(final T object) {
+    InvariantChecks.checkNotNull(object);
+    return objects.contains(object);
+  }
+
+  /**
    * Checks whether the object is free (belongs to the initial set of objects and not in use).
    *  
    * @param object the object to be checked.
