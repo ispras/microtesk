@@ -81,4 +81,10 @@ public final class InstructionCall {
   public int getByteSize() {
     return byteSize;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%s : %s : %d bytes",
+        getText(), instruction.image(), byteSize);
+  }
 }
