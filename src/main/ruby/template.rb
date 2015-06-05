@@ -53,7 +53,7 @@ module Settings
     @use_stdout    = true
     @log_execution = true
 
-    @sl_comment_starts_with = "// "
+    @sl_comment_starts_with = "//"
     @ml_comment_starts_with = "/*"
     @ml_comment_ends_with   = "*/"
   end
