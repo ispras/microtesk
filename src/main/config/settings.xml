@@ -10,4 +10,8 @@
   <setting name="trace-length-limit" value="1000"/>
   <setting name="comments-enabled" value=""/>
   <setting name="comments-debug" value=""/>
+  <setting
+    name="arch-dirs" 
+    value="vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml"
+  />
 </settings>
