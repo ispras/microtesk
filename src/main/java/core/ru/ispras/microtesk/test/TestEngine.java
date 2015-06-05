@@ -362,11 +362,11 @@ public final class TestEngine {
       final boolean isSingleSequence = block.isSingle();
       final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
 
-      int sequenceIndex = 1;
+      int sequenceIndex = 0;
       sequenceIt.init();
 
       while (sequenceIt.hasValue()) {
-        if (isSingleSequence && sequenceIndex > 1) {
+        if (isSingleSequence && sequenceIndex > 0) {
           throw new IllegalStateException("Only a single sequence is allowed.");
         }
         
@@ -403,9 +403,9 @@ public final class TestEngine {
           needCreateNewFile = false;
         }
 
-        if (sequenceIndex == 1) {
+        if (sequenceIndex == 0) {
           printer.printText("");
-          printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
+          printer.printSeparatorToFile(String.format("Test %d", testIndex++));
         }
 
         final String sequenceId = String.format("Test Case %d", sequenceIndex);
@@ -418,8 +418,10 @@ public final class TestEngine {
         executor.executeSequence(concreteSequence);
 
         printHeader("Printing%s", (isSingleSequence ? "" : " " + sequenceId));
+
         if (!isSingleSequence) {
-          printer.printSubheaderToFile(String.format("%s:", sequenceId));
+          printer.printToFile("");
+          printer.printSubheaderToFile(sequenceId);
         }
         printer.printSequence(concreteSequence);
 
