@@ -45,6 +45,9 @@ module Settings
 
   # Text that terminates multi-line comments.
   attr_reader :ml_comment_ends_with
+  
+  attr_reader :indent_token
+  attr_reader :separator_token
 
   #
   # Assigns default values to the attributes.
@@ -56,6 +59,9 @@ module Settings
     @sl_comment_starts_with = "//"
     @ml_comment_starts_with = "/*"
     @ml_comment_ends_with   = "*/"
+
+    @indent_token    = "\t"
+    @separator_token = "="
   end
 
 end # Settings
@@ -466,6 +472,8 @@ class Template
     engine.setLogExecution  log_execution
     engine.setPrintToScreen use_stdout
     engine.setCommentToken  sl_comment_starts_with
+    engine.setIndentToken indent_token
+    engine.setSeparatorToken separator_token
 
     @template = engine.newTemplate
 
