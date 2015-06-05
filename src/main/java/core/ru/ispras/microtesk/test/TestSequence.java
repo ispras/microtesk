@@ -64,7 +64,7 @@ final class TestSequence {
     }
 
     public TestSequence build() {
-      return new TestSequence(null, prologue, body);
+      return new TestSequence(/* TODO: */ BitVector.newEmpty(64), prologue, body);
     }
   }
 

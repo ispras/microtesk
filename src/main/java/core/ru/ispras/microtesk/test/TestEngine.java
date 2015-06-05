@@ -20,8 +20,6 @@ import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
@@ -37,12 +35,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.settings.ModeSettings;
-import ru.ispras.microtesk.settings.RangeSettings;
-import ru.ispras.microtesk.settings.StrategySettings;
-import ru.ispras.microtesk.test.data.AllocationStrategy;
-import ru.ispras.microtesk.test.data.AllocationStrategyId;
-import ru.ispras.microtesk.test.data.AllocationTable;
+import ru.ispras.microtesk.test.data.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
@@ -115,8 +108,6 @@ public final class TestEngine {
   private static boolean commentsEnabled = false;
 
   // Architecture-specific settings
-  private static Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
-
   public static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
   }
@@ -156,35 +147,8 @@ public final class TestEngine {
 
     final AllocationSettings allocation = value.getAllocation();
     if (allocation != null) {
-      for (final ModeSettings mode : allocation.getModes()) {
-        final StrategySettings strategy = mode.getStrategy();
-
-        final AllocationStrategy allocationStrategy =
-            strategy != null ? strategy.getStrategy() : AllocationStrategyId.RANDOM;
-        final Map<String, String> allocationAttributes =
-            strategy != null ? strategy.getAttributes() : null;
-
-        final RangeSettings range = mode.getRange();
-        if (range != null) {
-          final AllocationTable<Integer, ?> allocationTable =
-              new AllocationTable<>(allocationStrategy, allocationAttributes, range.getValues());
-          allocationTables.put(mode.getName(), allocationTable);
-        }
-      }
+      ModeAllocator.init(allocation);
     }
-  }
-
-  public static void resetAllocationTables() {
-    for (final AllocationTable<Integer, ?> allocationTable : allocationTables.values()) {
-      allocationTable.reset();
-    }
-  }
-
-  public static int allocateMode(final String modeName) {
-    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(modeName);
-    InvariantChecks.checkNotNull(allocationTable);
-
-    return allocationTable.allocate();
   }
 
   public static Date generate(final String modelName, final String templateFile) throws Throwable {

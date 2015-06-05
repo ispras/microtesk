@@ -41,6 +41,7 @@ import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.test.data.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
@@ -102,7 +103,9 @@ final class DataGenerator {
     sequenceBuilder = new TestSequence.Builder();
 
     try {
-      TestEngine.resetAllocationTables();
+      // Allocate addressing modes.
+      ModeAllocator.get().allocate(abstractSequence);
+
       for (Call abstractCall : abstractSequence) {
         processAbstractCall(abstractCall);
       }
@@ -615,14 +618,14 @@ final class DataGenerator {
             final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
 
             if (!unknownValue.isValueSet()) {
-              if (p.getKind() != Primitive.Kind.MODE) {
+              //if (p.getKind() != Primitive.Kind.MODE) {
                 queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
                 unknownValues.put(argName, arg);
-              } else {
+              //} else {
                 // Allocate the registers (assign values to the unknown mode arguments).
-                unknownValue.setValue(TestEngine.allocateMode(p.getName()));
-                queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
-              }
+                //unknownValue.setValue(TestEngine.allocateMode(p.getName()));
+                //queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
+              //}
             } else {
               queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
             }
