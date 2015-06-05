@@ -26,11 +26,10 @@ class FpExampleTemplate < VliwBaseTemplate
 
   def run
     # Adding and subtracting data in random floating-point registers.
-    #comment 'imm_random (:min => 1, :max => 31)' 
-    #vliw(
-    #  (add_s f(_), f(_), f(_)),
-    #  (sub_s f(_), f(_), f(_))
-    #) do situation('imm_random', :min => 1, :max => 31) end
+    vliw(
+      (add_s f(_), f(_), f(_)),
+      (sub_s f(_), f(_), f(_))
+    )
 
     # All registers are filled with zeros.
     comment 'zero (:size => 32)'
@@ -40,11 +39,9 @@ class FpExampleTemplate < VliwBaseTemplate
     ) do situation('zero', :size => 32) end
 
     # Random registers are filled with random values.
-    #comment 'random (:size => 32, :min_imm => 1, :max_imm => 31)'
-    #vliw(
-    #  (add_s f(_), f(_), f(_)),
-    #  (add_s f(_), f(_), f(_))
-    #) do situation('random', :size => 32, :min_imm => 1, :max_imm => 31) end
+    vliw(
+      (add_s f(_), f(_), f(_)),
+      (add_s f(_), f(_), f(_))
+    )
   end
-
 end
