@@ -45,8 +45,11 @@ module Settings
 
   # Text that terminates multi-line comments.
   attr_reader :ml_comment_ends_with
-  
+
+  # Indentation token.
   attr_reader :indent_token
+
+  # Token used in separator lines.
   attr_reader :separator_token
 
   #

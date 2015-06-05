@@ -39,7 +39,13 @@ class ExampleTemplate < CpuBaseTemplate
     @ml_comment_starts_with = "/="
 
     # Sets terminating token for a multi-line comment
-    @ml_comment_ends_with = "=/" 
+    @ml_comment_ends_with = "=/"
+
+    # Sets the indentation token used in test programs
+    @indent_token = "  "
+
+    # Sets the token used in separator lines printed into test programs
+    @separator_token = "-"
   end
 
   #

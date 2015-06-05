@@ -26,6 +26,17 @@ require ENV['TEMPLATE']
 #
 class VliwBaseTemplate < Template
 
+  def initialize
+    super
+    # Initialize settings here 
+
+    # Sets the indentation token used in test programs
+    @indent_token = "\t"
+
+    # Sets the token used in separator lines printed into test programs
+    @separator_token = "="
+  end
+
   #
   # Possible syntax styles to address the VLIW ISA:
   #
