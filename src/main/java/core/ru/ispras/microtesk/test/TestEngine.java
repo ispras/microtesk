@@ -332,14 +332,20 @@ public final class TestEngine {
     @Override
     public void finish() {
       if (!needCreateNewFile) {
+        printer.printToFile("");
+        printer.printHeaderToFile("Epilogue");
+
         if (!postBlock.isEmpty()) {
           try {
-            printer.printHeaderToFile("Finalization Section");
             processBlock(postBlock);
           } catch (ConfigurationException e) {
             Logger.error(e.getMessage());
           }
+        } else {
+          printer.printToFile("");
+          printer.printCommentToFile("Empty");
         }
+
         printer.close();
 
         // No instruction was added to the newly created file, it must be deleted
