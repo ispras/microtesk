@@ -250,7 +250,7 @@ public final class TestEngine {
         commentsEnabled,
         commentsDebug);
 
-    final DataManager dataManager = new DataManager();
+    final DataManager dataManager = new DataManager(indentToken);
     final PreparatorStore preparators = new PreparatorStore();
     final DataGenerator dataGenerator = new DataGenerator(model, preparators);
 

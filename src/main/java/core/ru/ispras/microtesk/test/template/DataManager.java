@@ -135,6 +135,8 @@ public final class DataManager {
   private String ztermStrText;
   private String nztermStrText;
 
+  private final String indentToken;
+
   private final Map<String, TypeInfo> typeMap;
   final static class TypeInfo {
     final Type type;
@@ -146,7 +148,9 @@ public final class DataManager {
     }
   }
 
-  public DataManager() {
+  public DataManager(String indentToken) {
+    this.indentToken = indentToken;
+    
     this.memoryMap = new MemoryMap();
     this.dataDecls = new ArrayList<>();
 
@@ -194,7 +198,11 @@ public final class DataManager {
 
     final StringBuilder sb = new StringBuilder(sectionText);
     for (DataDeclItem item : dataDecls) {
-      sb.append(String.format("%n%s", item.getText()));
+      if (item instanceof DetaDeclLabel) {
+        sb.append(String.format("%n%s", item.getText()));
+      } else {
+        sb.append(String.format("%n%s%s", indentToken, item.getText()));
+      }
     }
 
     return sb.toString();
