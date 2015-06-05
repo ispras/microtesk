@@ -334,6 +334,7 @@ public final class TestEngine {
       if (!needCreateNewFile) {
         printer.printToFile("");
         printer.printHeaderToFile("Epilogue");
+        printer.printToFile("");
 
         if (!postBlock.isEmpty()) {
           try {
@@ -342,7 +343,6 @@ public final class TestEngine {
             Logger.error(e.getMessage());
           }
         } else {
-          printer.printToFile("");
           printer.printCommentToFile("Empty");
         }
 
@@ -388,6 +388,7 @@ public final class TestEngine {
 
           printer.printToFile("");
           printer.printHeaderToFile("Prologue");
+          printer.printToFile("");
 
           if (!preBlock.isEmpty()) {
             try {
@@ -396,7 +397,6 @@ public final class TestEngine {
               Logger.error(e.getMessage());
             }
           } else {
-            printer.printToFile("");
             printer.printCommentToFile("Empty");
           }
 
@@ -459,6 +459,7 @@ public final class TestEngine {
         if (needCreateNewFile) {
           printer.printToFile("");
           printer.printHeaderToFile("Epilogue");
+          printer.printToFile("");
 
           if (!postBlock.isEmpty()) {
             try {
@@ -467,7 +468,6 @@ public final class TestEngine {
               Logger.error(e.getMessage());
             }
           } else {
-            printer.printToFile("");
             printer.printCommentToFile("Empty");
           }
 
