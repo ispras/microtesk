@@ -96,7 +96,9 @@ public final class TestEngine {
   // Settings passed from a template
   private boolean logExecution = true;
   private boolean printToScreen = true;
-  private String commentToken = "// ";
+  private String indentToken = "\t";
+  private String commentToken = "//";
+  private String separatorToken = "=";
 
   // Settings from command line and configuration file
   private static int branchExecutionLimit = 100;
@@ -219,8 +221,16 @@ public final class TestEngine {
     this.printToScreen = printToScreen;
   }
 
+  public void setIndentToken(String indentToken) {
+    this.indentToken = indentToken;
+  }
+
   public void setCommentToken(String commentToken) {
     this.commentToken = commentToken;
+  }
+
+  public void setSeparatorToken(String separatorToken) {
+    this.separatorToken = separatorToken;
   }
 
   public Template newTemplate() {
@@ -233,7 +243,9 @@ public final class TestEngine {
         codeFilePrefix,
         codeFileExtension,
         observer,
+        indentToken,
         commentToken,
+        separatorToken,
         printToScreen,
         commentsEnabled,
         commentsDebug);
@@ -368,20 +380,25 @@ public final class TestEngine {
             isDataPrinted = true;
           }
 
+          printer.printToFile("");
+          printer.printHeaderToFile("Prologue");
+
           if (!preBlock.isEmpty()) {
             try {
-              printer.printHeaderToFile("Initialization Section");
               processBlock(preBlock);
             } catch (ConfigurationException e) {
               Logger.error(e.getMessage());
             }
+          } else {
+            printer.printToFile("");
+            printer.printCommentToFile("Empty");
           }
-          printer.printHeaderToFile("Main Section (Tests)");
 
           needCreateNewFile = false;
         }
 
         if (sequenceIndex == 1) {
+          printer.printText("");
           printer.printSeparatorToFile(String.format("Test %s", ++testIndex));
         }
 
@@ -409,10 +426,7 @@ public final class TestEngine {
         printHeader("");
 
         STATISTICS.testCaseNumber++;
-        
-        
-        
-        
+
         final Statistics after = STATISTICS.copy();
 
         final boolean isProgramLengthLimitExceeded =
@@ -435,14 +449,20 @@ public final class TestEngine {
 
         needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
         if (needCreateNewFile) {
+          printer.printToFile("");
+          printer.printHeaderToFile("Epilogue");
+
           if (!postBlock.isEmpty()) {
             try {
-              printer.printHeaderToFile("Finalization Section");
               processBlock(postBlock);
             } catch (ConfigurationException e) {
               Logger.error(e.getMessage());
             }
+          } else {
+            printer.printToFile("");
+            printer.printCommentToFile("Empty");
           }
+
           printer.close();
         }
       }
