@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
@@ -37,50 +36,46 @@ final class TestSequence {
   public static final class Builder {
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
+    private int byteSize;
 
     public Builder() {
       this.prologue = new ArrayList<ConcreteCall>();
       this.body = new ArrayList<ConcreteCall>();
+      this.byteSize = 0;
     }
 
-    public void addToPrologue(ConcreteCall call) {
+    public void addToPrologue(final ConcreteCall call) {
       checkNotNull(call);
       prologue.add(call);
+      byteSize += call.getByteSize();
     }
 
-    public void addToPrologue(List<ConcreteCall> calls) {
-      checkNotNull(calls);
-      prologue.addAll(calls);
-    }
-
-    public void add(ConcreteCall call) {
+    public void add(final ConcreteCall call) {
       checkNotNull(call);
       body.add(call);
-    }
-
-    public void add(List<ConcreteCall> calls) {
-      checkNotNull(calls);
-      calls.addAll(calls);
+      byteSize += call.getByteSize();
     }
 
     public TestSequence build() {
-      return new TestSequence(/* TODO: */ BitVector.newEmpty(64), prologue, body);
+      return new TestSequence(byteSize, prologue, body);
     }
   }
 
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
-  private final BitVector address;
+  private final int byteSize;
+
+  private long address = 0;
+  private boolean isAddressSet = false;
 
   private TestSequence(
-      final BitVector address,
+      final int byteSize,
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body) {
-    checkNotNull(address);
     checkNotNull(prologue);
     checkNotNull(body);
 
-    this.address = address;
+    this.byteSize = byteSize;
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
   }
@@ -93,7 +88,31 @@ final class TestSequence {
     return body;
   }
 
-  public BitVector getAddress() {
+  public int getByteSize() {
+    return byteSize;
+  }
+
+  public long getAddress() {
+    if (!isAddressSet) {
+      throw new IllegalStateException("Address is not assigned");
+    }
+
     return address;
+  }
+
+  public void setAddress(final long address) {
+    this.address = address;
+    this.isAddressSet = true;
+
+    long currentCallAddress = address;
+    for (final ConcreteCall call : prologue) {
+      call.setAddress(currentCallAddress);
+      currentCallAddress += call.getByteSize();
+    }
+
+    for (final ConcreteCall call : body) {
+      call.setAddress(currentCallAddress);
+      currentCallAddress += call.getByteSize();
+    }
   }
 }
