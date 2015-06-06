@@ -194,7 +194,7 @@ public final class LocationAtom implements Location {
     this.type = sourceType.resize(sourceType.getBitSize() * repeatCount);
   }
 
-  static LocationAtom createMemoryBased(String name, MemoryExpr memory, Expr index) {
+  public static LocationAtom createMemoryBased(String name, MemoryExpr memory, Expr index) {
     return new LocationAtom(
       name,
       new MemorySource(memory),
@@ -203,7 +203,7 @@ public final class LocationAtom implements Location {
     );
   }
 
-  static LocationAtom createPrimitiveBased(String name, Primitive primitive) {
+  public static LocationAtom createPrimitiveBased(String name, Primitive primitive) {
     return new LocationAtom(
       name,
       new PrimitiveSource(primitive),
@@ -212,7 +212,7 @@ public final class LocationAtom implements Location {
     );
   }
 
-  static LocationAtom createBitfield(LocationAtom location, Expr from, Expr to, Type type) {
+  public static LocationAtom createBitfield(LocationAtom location, Expr from, Expr to, Type type) {
     return new LocationAtom(
       location.getName(),
       location.getSource(),
