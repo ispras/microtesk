@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.coverage;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.transformer.NodeTransformer;
 
 import java.util.ArrayList;
@@ -141,5 +142,20 @@ public final class Utility {
   static boolean nodeIsOperation(Node node, Enum<?> opId) {
     return node.getKind() == Node.Kind.OPERATION &&
            ((NodeOperation) node).getOperationId() == opId;
+  }
+
+  static String dotConc(final String lhs, final String rhs) {
+    if (lhs.isEmpty()) {
+      return rhs;
+    }
+    return lhs + "." + rhs;
+  }
+
+  static NodeVariable variableOperand(final int i, final Node node) {
+    return (NodeVariable) ((NodeOperation) node).getOperand(i);
+  }
+
+  static String literalOperand(final int i, final Node node) {
+    return variableOperand(i, node).getName();
   }
 }
