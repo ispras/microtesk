@@ -104,6 +104,7 @@ public final class Analyzer {
   private void processPrimitives(Collection<Primitive> primitives) {
     for (Primitive p : primitives) {
       if (!p.isOrRule()) {
+        processParameters((PrimitiveAND) p);
         processAttributes((PrimitiveAND) p);
       }
     }
@@ -117,6 +118,10 @@ public final class Analyzer {
         ssa.put(name, builder.build());
       }
     }
+  }
+
+  private void processParameters(PrimitiveAND op) {
+    ssa.put(op.getName() + ".parameters", SsaBuilder.parametersList(op));
   }
 
   private void processModes(Collection<Primitive> modes) {

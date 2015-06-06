@@ -147,10 +147,8 @@ final class BlockBuilder {
     /* TODO populate input/output maps and intermediates list */
   }
 
-  public static Block createCall(String callee, String attribute) {
-    final NodeOperation call = new NodeOperation(SsaOperation.CALL);
-    call.setUserData(new Pair<>(callee, attribute));
-    return new Block(Collections.singletonList(call));
+  public static Block createSingleton(final NodeOperation node) {
+    return new Block(Collections.singletonList(node));
   }
 
   public static Block createPhi() {

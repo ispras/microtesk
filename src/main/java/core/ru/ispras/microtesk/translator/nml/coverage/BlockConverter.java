@@ -85,13 +85,10 @@ public final class BlockConverter {
         new ConstraintBuilder(ConstraintKind.FORMULA_BASED);
     final Formulas formulas = new Formulas();
     for (NodeOperation node : block.getStatements()) {
-      if (nodeIsOperation(node, SsaOperation.CALL)) {
-        @SuppressWarnings("unchecked")
-        final Pair<String, String> pair = (Pair<String, String>) node.getUserData();
-        final Node call = new NodeOperation(SsaOperation.CALL,
-                                            newNamed(pair.first),
-                                            newNamed(pair.second));
-        formulas.add(call);
+      if (nodeIsOperation(node, SsaOperation.THIS_CALL)) {
+        formulas.add(node);
+      } else if (nodeIsOperation(node, SsaOperation.CALL)) {
+        formulas.add(convertCall(node, xform));
       } else {
         formulas.add(Utility.transform(node, xform));
       }
@@ -106,6 +103,36 @@ public final class BlockConverter {
     builder.addVariables(formulas.getVariables());
 
     return builder.build();
+  }
+
+  static NodeOperation convertCall(final Node node, final NodeTransformer xform) {
+    final NodeOperation call = (NodeOperation) node;
+    final Node callee = call.getOperand(0);
+    if (nodeIsOperation(callee, SsaOperation.CLOSURE)) {
+      final Node closure = convertClosure(callee, xform);
+      return new NodeOperation(SsaOperation.CALL,
+                               closure,
+                               call.getOperand(1));
+    }
+    return call;
+  }
+
+  static Node convertClosure(final Node node, final NodeTransformer xform) {
+    final Closure closure = new Closure(node);
+    final List<Node> arguments =
+        new ArrayList<>(closure.getArguments().size() + 1);
+
+    arguments.add(closure.getOriginRef());
+    for (final Node arg : closure.getArguments()) {
+      if (nodeIsOperation(arg, SsaOperation.CLOSURE)) {
+        arguments.add(convertClosure(arg, xform));
+      } else if (nodeIsOperation(arg, SsaOperation.ARGUMENT_LINK)) {
+        arguments.add(arg);
+      } else {
+        arguments.add(Utility.transform(arg, xform));
+      }
+    }
+    return new NodeOperation(SsaOperation.CLOSURE, arguments);
   }
 
   private static NodeVariable newNamed(String name) {
@@ -172,8 +199,11 @@ final class SsaConverter {
 
     for (Node node : formulas.exprs()) {
       final NodeOperation op = (NodeOperation) node;
-      if (nodeIsOperation(op, SsaOperation.CALL)) {
-        block = BlockBuilder.createCall(operandName(op, 0), operandName(op, 1));
+      if (nodeIsOperation(op, SsaOperation.THIS_CALL)) {
+        block = BlockBuilder.createSingleton(op);
+      } else if (nodeIsOperation(op, SsaOperation.CALL)) {
+        final NodeOperation call = BlockConverter.convertCall(op, this.xform);
+        block = BlockBuilder.createSingleton(call);
       } else if (nodeIsOperation(op, SsaOperation.PHI)) {
         block = BlockBuilder.createPhi();
       } else if (!nodeIsOperation(op, SsaOperation.BLOCK)) {

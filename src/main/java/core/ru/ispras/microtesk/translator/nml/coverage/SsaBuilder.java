@@ -26,17 +26,23 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.ir.expression.*;
 import ru.ispras.microtesk.translator.nml.ir.location.*;
 import ru.ispras.microtesk.translator.nml.ir.primitive.*;
-import ru.ispras.microtesk.translator.nml.ir.expression.*;
+import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.*;
+import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
 
 final class SsaBuilder {
   private final String tag;
@@ -161,7 +167,7 @@ final class SsaBuilder {
     }
 
     if (lvalue.hasBitfield()) {
-      return EXTRACT(NodeValue.newInteger(0),
+      return EXTRACT(0,
                      lvalue.targetType.getSize(),
                      new NodeOperation(StandardOperation.BVLSHR, root, lvalue.minorBit));
     }
@@ -273,9 +279,16 @@ final class SsaBuilder {
     final NodeValue minor = (NodeValue) lvalue.minorBit;
     final NodeValue major = (NodeValue) lvalue.majorBit;
 
-    addToContext(EQ(EXTRACT(0, minor, newer), EXTRACT(0, minor, older)));
-    addToContext(EQ(EXTRACT(major, hibit, newer), EXTRACT(major, hibit, older)));
 
+    final int lower = minor.getInteger().intValue() - 1;
+    if (lower >= 0) {
+      addToContext(EQ(EXTRACT(0, lower, newer), EXTRACT(0, lower, older)));
+    }
+
+    final int upper = major.getInteger().intValue() + 1;
+    if (upper <= hibit) {
+      addToContext(EQ(EXTRACT(upper, hibit, newer), EXTRACT(upper, hibit, older)));
+    }
     return EXTRACT(minor, major, newer);
   }
 
@@ -310,10 +323,9 @@ final class SsaBuilder {
     final NodeVariable subvector = createTemporary(subtype);
 
     addToContext(EQ(
-        EXTRACT(
-            NodeValue.newInteger(0),
-            NodeValue.newInteger(subtype.getSize()),
-            new NodeOperation(StandardOperation.BVLSHR, newer, lvalue.minorBit)),
+        EXTRACT(0,
+                subtype.getSize(),
+                new NodeOperation(StandardOperation.BVLSHR, newer, lvalue.minorBit)),
         subvector));
 
     return subvector;
@@ -435,9 +447,70 @@ final class SsaBuilder {
   }
 
   private void convertCall(StatementAttributeCall s) {
+    final NodeOperation node;
+    if (isInstanceCall(s)) {
+      acquireBlockBuilder();
+      node = new NodeOperation(SsaOperation.CALL,
+                               instanceReference(s.getCalleeInstance()),
+                               newNamed(s.getAttributeName()));
+    } else if (isThisCall(s)) {
+      node = new NodeOperation(SsaOperation.THIS_CALL, newNamed(s.getAttributeName()));
+    } else {
+      node = new NodeOperation(SsaOperation.CALL,
+                               newNamed(s.getCalleeName()),
+                               newNamed(s.getAttributeName()));
+    }
     finalizeBlock();
-    pushConsecutiveBlock(
-        BlockBuilder.createCall(s.getCalleeName(), s.getAttributeName()));
+    pushConsecutiveBlock(BlockBuilder.createSingleton(node));
+  }
+
+  private Node instanceReference(final Instance instance) {
+    final List<Node> operands = new ArrayList<>(instance.getArguments().size() + 1);
+    final PrimitiveAND origin = (PrimitiveAND) instance.getPrimitive();
+    operands.add(newNamed(origin.getName()));
+
+    final Iterator<Primitive> parameters =
+        origin.getArguments().values().iterator();
+
+    for (final InstanceArgument arg : instance.getArguments()) {
+      final Primitive parameter = parameters.next();
+
+      switch (arg.getKind()) {
+      case INSTANCE:
+        operands.add(instanceReference(arg.getInstance()));
+        break;
+
+      case PRIMITIVE:
+        if (parameter.getKind() == Primitive.Kind.IMM) {
+          final LocationAtom atom =
+              LocationAtom.createPrimitiveBased(arg.getName(), arg.getPrimitive());
+          final Node value = createRValue(createLValue(atom));
+          operands.add(value);
+        } else {
+          final Node link = new NodeOperation(SsaOperation.ARGUMENT_LINK,
+                                              newNamed(arg.getName()));
+          operands.add(link);
+        }
+        break;
+
+      case EXPR:
+        operands.add(convertExpression(arg.getExpr().getNode()));
+        break;
+      }
+    }
+    return new NodeOperation(SsaOperation.CLOSURE, operands);
+  }
+
+  private static NodeVariable newNamed(final String name) {
+    return new NodeVariable(name, DataType.BOOLEAN);
+  }
+
+  private static boolean isThisCall(final StatementAttributeCall s) {
+    return s.getCalleeName() == null && s.getCalleeInstance() == null;
+  }
+
+  private static boolean isInstanceCall(final StatementAttributeCall s) {
+    return s.getCalleeName() == null && s.getCalleeInstance() != null;
   }
 
   private void acquireBlockBuilder() {
@@ -492,8 +565,23 @@ final class SsaBuilder {
 
   private LValue createLValue(LocationAtom atom) {
     String name = atom.getName();
-    if (atom.getSource().getSymbolKind() == ESymbolKind.ARGUMENT)
-      name = tag + "." + atom.getName();
+    switch (atom.getSource().getSymbolKind()) {
+    case ARGUMENT:
+      name = Utility.dotConc(tag, atom.getName());
+      break;
+
+    case MEMORY: // FIXME recursive processing required
+      final MemoryExpr memory =
+          ((LocationAtom.MemorySource) atom.getSource()).getMemory();
+      final Alias alias = memory.getAlias();
+      if (alias != null) {
+        return createLValue((LocationAtom) alias.getLocation());
+      }
+      break;
+
+    default:
+    }
+
     final boolean macro = isModeArgument(atom);
 
     final DataType sourceType = Converter.getDataTypeForModel(atom.getSource().getType());
@@ -577,7 +665,7 @@ final class SsaBuilder {
     return null;
   }
 
-  public SsaBuilder(String tag, List<Statement> code) {
+  public SsaBuilder(final String tag, final List<Statement> code) {
     notnull(tag);
     notnull(code);
 
@@ -607,7 +695,7 @@ final class SsaBuilder {
                        blocks);
   }
 
-  public static SsaForm macroExpansion(String tag, Expr expr) {
+  public static SsaForm macroExpansion(final String tag, final Expr expr) {
     final SsaBuilder builder =
         new SsaBuilder(tag, Collections.<Statement>emptyList());
     builder.acquireBlockBuilder();
@@ -616,7 +704,7 @@ final class SsaBuilder {
     return builder.build();
   }
 
-  public static SsaForm macroUpdate(String tag, Expr expr) {
+  public static SsaForm macroUpdate(final String tag, final Expr expr) {
     final SsaBuilder builder =
         new SsaBuilder(tag, Collections.<Statement>emptyList());
     builder.acquireBlockBuilder();
@@ -626,6 +714,27 @@ final class SsaBuilder {
                      builder.createOutput(Converter.toFortressData(expr.getValueInfo())));
     }
     return builder.build();
+  }
+
+  public static SsaForm parametersList(final PrimitiveAND p) {
+    final SsaBuilder builder =
+        new SsaBuilder(p.getName(), Collections.<Statement>emptyList());
+    builder.acquireBlockBuilder();
+    final List<Node> parameters = new ArrayList<>(p.getArguments().size());
+    for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
+      final DataType type = convertType(entry.getValue().getReturnType());
+      parameters.add(new NodeVariable(entry.getKey(), type));
+    }
+    builder.addToContext(new NodeOperation(SsaOperation.PARAMETERS, parameters));
+
+    return builder.build();
+  }
+
+  private static DataType convertType(final Type type) {
+    if (type == null) {
+      return DataType.BOOLEAN;
+    }
+    return Converter.getDataTypeForModel(type);
   }
 
   private NodeOperation createOutput(Data data) {

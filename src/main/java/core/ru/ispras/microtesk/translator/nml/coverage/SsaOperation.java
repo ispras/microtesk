@@ -16,6 +16,10 @@ package ru.ispras.microtesk.translator.nml.coverage;
 
 public enum SsaOperation {
   CALL,
+  THIS_CALL,
+  CLOSURE,
+  ARGUMENT_LINK,
+  PARAMETERS,
   PHI,
   EXPAND,
   UPDATE,
