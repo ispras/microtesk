@@ -25,33 +25,16 @@ import ru.ispras.fortress.transformer.TransformerRule;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
+
 public final class IntegerCast {
   public static Map<Enum<?>, TransformerRule> rules() {
-    final TransformerRule singleOperandType = new TransformerRule() {
-      @Override
-      public boolean isApplicable(Node node) {
-        return getIntegerOperandIndex(node, 0) >= 0 &&
-               getBitVectorOperandIndex(node, 0) >= 0;
-      }
-
-      @Override
-      public Node apply(Node node) {
-        final NodeOperation op = (NodeOperation) node;
-        final DataType type =
-            op.getOperand(getBitVectorOperandIndex(op, 0)).getDataType();
-
-        int index = -1;
-        final List<Node> operands = new ArrayList<>(op.getOperands());
-        while ((index = getIntegerOperandIndex(op, index + 1)) >= 0) {
-          operands.set(index, cast(operands.get(index), type));
-        }
-        return Expression.newOperation(op.getOperationId(), operands);
-      }
-    };
+    final TransformerRule singleOperandType = new CommonBitVectorTypeRule();
 
     final TransformerRule arrayKeyRule =
         new DependentOperandRule(0, new AttributeTypeGetter(0), 1);
@@ -90,6 +73,16 @@ public final class IntegerCast {
 
     rules.put(StandardOperation.SELECT, arrayKeyRule);
     rules.put(StandardOperation.STORE, arrayKeyRule);
+
+    final Map<Enum<?>, Enum<?>> operationsToCast = new IdentityHashMap<>();
+    operationsToCast.put(StandardOperation.ADD, StandardOperation.BVADD);
+    operationsToCast.put(StandardOperation.SUB, StandardOperation.BVSUB);
+
+    final TransformerRule castOperations =
+        new CastOperationRule(operationsToCast, singleOperandType);
+    for (final Enum<?> id : operationsToCast.keySet()) {
+      rules.put(id, castOperations);
+    }
 
     return rules;
   }
@@ -136,7 +129,7 @@ public final class IntegerCast {
     if (node.getKind() == Node.Kind.OPERATION) {
       final NodeOperation op = (NodeOperation) node;
       for (int i = start; i < op.getOperandCount(); ++i) {
-        if (nodeIsBitVector(op.getOperand(i))) {
+        if (op.getOperand(i).getDataTypeId().equals(DataTypeId.BIT_VECTOR)) {
           return i;
         }
       }
@@ -169,6 +162,81 @@ final class AttributeTypeGetter implements TypeGetter {
   @Override
   public DataType getType(Node node) {
     return (DataType) node.getDataType().getParameters()[this.attrIndex];
+  }
+}
+
+final class CastOperationRule implements TransformerRule {
+  private final Map<Enum<?>, Enum<?>> operations;
+  private final TransformerRule castRule;
+
+  CastOperationRule(final Map<Enum<?>, Enum<?>> operations,
+                    final TransformerRule castRule) {
+    this.operations = operations;
+    this.castRule = castRule;
+  }
+
+  @Override
+  public boolean isApplicable(final Node node) {
+    for (final Enum<?> id : operations.keySet()) {
+      if (nodeIsOperation(node, id)) {
+        return castRule.isApplicable(node);
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Node apply(final Node node) {
+    final NodeOperation op = (NodeOperation) castRule.apply(node);
+    return new NodeOperation(operations.get(op.getOperationId()), op.getOperands());
+  }
+}
+
+class CommonBitVectorTypeRule implements TransformerRule {
+  @Override
+  public boolean isApplicable(Node node) {
+    return IntegerCast.getBitVectorOperandIndex(node, 0) >= 0 &&
+           nodeHasTypeMismatch(node);
+  }
+
+  @Override
+  public Node apply(Node node) {
+    final NodeOperation op = (NodeOperation) node;
+    final DataType type = findCommonType(op.getOperands());
+
+    final List<Node> operands = new ArrayList<>(op.getOperandCount());
+    for (final Node operand : op.getOperands()) {
+      operands.add(IntegerCast.cast(operand, type));
+    }
+    return new NodeOperation(op.getOperationId(), operands);
+  }
+
+  private static boolean nodeHasTypeMismatch(final Node input) {
+    if (input.getKind() != Node.Kind.OPERATION) {
+      return false;
+    }
+    final NodeOperation op = (NodeOperation) input;
+    if (op.getOperands().isEmpty()) {
+      return false;
+    }
+    final DataType type = op.getOperand(0).getDataType();
+    for (final Node node : op.getOperands()) {
+      if (!node.getDataType().equals(type)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static DataType findCommonType(final Collection<? extends Node> nodes) {
+    DataType common = DataType.BOOLEAN;
+    for (final Node node : nodes) {
+      final DataType current = node.getDataType();
+      if (!current.equals(common) && current.getSize() > common.getSize()) {
+        common = current;
+      }
+    }
+    return common;
   }
 }
 
