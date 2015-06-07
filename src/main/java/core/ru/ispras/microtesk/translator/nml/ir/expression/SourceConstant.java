@@ -14,24 +14,31 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expression;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class SourceConstant {
-  private final Object value;
+  private final BigInteger value;
   private final int radix;
 
-  SourceConstant(final Object value, final int radix) {
+  SourceConstant(final BigInteger value, final int radix) {
     InvariantChecks.checkNotNull(value);
 
     this.value = value;
     this.radix = radix;
   }
 
-  public Object getValue() {
+  public BigInteger getValue() {
     return value;
   }
 
   public int getRadix() {
     return radix;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s (radix %d)", value.toString(radix), radix);
   }
 }
