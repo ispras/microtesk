@@ -157,6 +157,7 @@ public abstract class Memory {
 
   public abstract Location access(int address);
   public abstract Location access(long address);
+  public abstract Location access(BigInteger address);
   public abstract Location access(Data address);
 
   public abstract void reset();
@@ -188,6 +189,12 @@ public abstract class Memory {
 
     @Override
     public Location access(final long index) {
+      final BitVector address = BitVector.valueOf(index, storage.getAddressBitSize());
+      return Location.newLocationForRegion(getType(), storage, address);
+    }
+
+    @Override
+    public Location access(final BigInteger index) {
       final BitVector address = BitVector.valueOf(index, storage.getAddressBitSize());
       return Location.newLocationForRegion(getType(), storage, address);
     }
@@ -237,6 +244,11 @@ public abstract class Memory {
     @Override
     public Location access(final long address) {
       return access((int) address);
+    }
+
+    @Override
+    public Location access(final BigInteger address) {
+      return access(address.intValue());
     }
 
     @Override
@@ -341,6 +353,11 @@ public abstract class Memory {
       final int start = (int) (relativeBitOffset % sourceItemBitSize);
 
       return sourceLocation.bitField(start, start + itemBitSize - 1);
+    }
+
+    @Override
+    public Location access(final BigInteger address) {
+      return access(address.longValue());
     }
 
     @Override
