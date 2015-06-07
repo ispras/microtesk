@@ -17,13 +17,14 @@ package ru.ispras.microtesk.model.api.instruction;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public interface IOperationBuilder {
-  public IOperationBuilder setArgument(String name, String value) throws ConfigurationException;
-  public IOperationBuilder setArgument(String name, int value) throws ConfigurationException;
+  IOperationBuilder setArgument(String name, String value) throws ConfigurationException;
+  IOperationBuilder setArgument(String name, int value) throws ConfigurationException;
 
-  public IOperationBuilder setArgument(String name, IAddressingMode value)
-    throws ConfigurationException;
+  IOperationBuilder setArgument(String name, IAddressingMode value)
+      throws ConfigurationException;
 
-  public IOperationBuilder setArgument(String name, IOperation value) throws ConfigurationException;
+  IOperationBuilder setArgument(String name, IOperation value)
+      throws ConfigurationException;
 
-  public IOperation build() throws ConfigurationException;
+  IOperation build() throws ConfigurationException;
 }

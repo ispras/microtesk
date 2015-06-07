@@ -32,8 +32,8 @@ public interface IAddressingModeBuilder {
    * @param value Mode argument value text.
    */
 
-  public IAddressingModeBuilder setArgumentValue(String name, String value)
-    throws ConfigurationException;
+  IAddressingModeBuilder setArgumentValue(String name, String value)
+      throws ConfigurationException;
 
   /**
    * Initializes the specified addressing mode argument with an integer value.
@@ -42,8 +42,8 @@ public interface IAddressingModeBuilder {
    * @param value Mode argument integer value.
    */
 
-  public IAddressingModeBuilder setArgumentValue(String name, Integer value)
-    throws ConfigurationException;
+  IAddressingModeBuilder setArgumentValue(String name, Integer value)
+      throws ConfigurationException;
 
   /**
    * Returns an addressing mode object created by the builder.
@@ -53,5 +53,5 @@ public interface IAddressingModeBuilder {
    *         build an addressing mode object due to incorrect configuration.
    */
 
-  public IAddressingMode getProduct() throws ConfigurationException;
+  IAddressingMode getProduct() throws ConfigurationException;
 }
