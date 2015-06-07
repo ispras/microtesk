@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java/core"/>
+	<classpathentry kind="src" path="output/src/java"/>
 	<classpathentry kind="src" path="src/main/resources/core"/>
 	<classpathentry kind="src" path="src/test/java/core"/>
 	<classpathentry kind="src" path="src/main/java/plugins/mmu"/>

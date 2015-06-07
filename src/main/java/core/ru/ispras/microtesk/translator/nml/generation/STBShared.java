@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,8 @@ final class STBShared implements ITemplateBuilder {
   private void buildHeader(ST t) {
     t.add("file", specFileName);
     t.add("pack", String.format(SHARED_PACKAGE_FORMAT, modelName));
+
+    t.add("imps", BigInteger.class.getName());
 
     if (!ir.getTypes().isEmpty() || !ir.getMemory().isEmpty()) {
       t.add("imps", TypeId.class.getName());

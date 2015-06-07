@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
@@ -83,6 +84,7 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
 
     t.add("imps", Map.class.getName());
+    t.add("imps", BigInteger.class.getName());
     t.add("imps", IOperation.class.getName());
     t.add("imps", Operation.class.getName());
     t.add("imps", ArgumentMode.class.getName());
