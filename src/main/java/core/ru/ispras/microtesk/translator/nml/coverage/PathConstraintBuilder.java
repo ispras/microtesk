@@ -26,15 +26,18 @@ import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class PathConstraintBuilder {
   final Map<String, NodeVariable> variables;
   final ConstraintBuilder builder;
   final Formulas ssa;
+  final List<NodeVariable> specialMarks;
   final Node conditionExpr;
 
   public PathConstraintBuilder(Node ssa) {
@@ -43,6 +46,7 @@ public final class PathConstraintBuilder {
     this.variables = new HashMap<>();
     this.builder = new ConstraintBuilder();
     this.ssa = new Formulas();
+    this.specialMarks = new ArrayList<>();
 
     final Node instance = Utility.transform(ssa, setUpTransformer());
 
@@ -72,6 +76,10 @@ public final class PathConstraintBuilder {
     return new Paths(this, Collections.singletonList(conditionExpr));
   }
 
+  public Collection<NodeVariable> getSpecialMarks() {
+    return Collections.unmodifiableList(specialMarks);
+  }
+
   public Constraint build(Node condition) {
     return build(Collections.singleton(condition));
   }
@@ -87,6 +95,8 @@ public final class PathConstraintBuilder {
   }
 
   private NodeTransformer setUpTransformer() {
+    final Map<Enum<?>, TransformerRule> rules = IntegerCast.rules();
+
     final TransformerRule bake = new TransformerRule() {
       @Override
       public boolean isApplicable(Node node) {
@@ -109,12 +119,24 @@ public final class PathConstraintBuilder {
       }
     };
 
-    final NodeTransformer xform = new NodeTransformer();
-    xform.addRule(Node.Kind.VARIABLE, bake);
+    final TransformerRule collectMarks = new TransformerRule() {
+      @Override
+      public boolean isApplicable(final Node node) {
+        return Utility.nodeIsOperation(node, SsaOperation.MARK);
+      }
 
-    for (Map.Entry<Enum<?>, TransformerRule> entry : IntegerCast.rules().entrySet()) {
-      xform.addRule(entry.getKey(), entry.getValue());
-    }
-    return xform;
+      @Override
+      public Node apply(final Node node) {
+        for (final Node mark : ((NodeOperation) node).getOperands()) {
+          specialMarks.add((NodeVariable) mark);
+        }
+        return Expression.TRUE;
+      }
+    };
+
+    rules.put(Node.Kind.VARIABLE, bake);
+    rules.put(SsaOperation.MARK, collectMarks);
+
+    return new NodeTransformer(rules);
   }
 }

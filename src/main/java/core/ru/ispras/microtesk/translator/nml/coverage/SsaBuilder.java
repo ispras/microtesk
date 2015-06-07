@@ -403,8 +403,7 @@ final class SsaBuilder {
     }
 
     public void addBranch(StatementCondition.Block block) {
-      final String name = getBlockName(block);
-      final Node guard = scope.create(name, DataType.BOOLEAN.valueUninitialized());
+      final NodeVariable guard = createMarks(block);
 
       if (!block.isElseBlock()) {
         final Node condition =
@@ -417,7 +416,7 @@ final class SsaBuilder {
       } else {
         addToContext(EQ(guard, NOT(OR(negateGuards()))));
       }
-      names.add(name);
+      names.add(guard.getName());
       guards.add(guard);
     }
 
@@ -425,16 +424,42 @@ final class SsaBuilder {
       return guards.toArray(new Node[guards.size()]);
     }
 
-    private String getBlockName(StatementCondition.Block block) {
-      for (Statement s : block.getStatements()) {
+    private NodeVariable createMarks(final StatementCondition.Block block) {
+      final String blockId = generateBlockName();
+      final NodeVariable guard = createGuard(blockId);
+      final List<Node> special = new ArrayList<>();
+
+      for (final Statement s : block.getStatements()) {
         if (s.getKind() == Statement.Kind.FUNCALL) {
           final StatementFunctionCall funcall = (StatementFunctionCall) s;
-          if (funcall.getName().equals("mark")) {
-            return String.format("%s.%s", tag, funcall.getArgument(0));
+          final String callee = funcall.getName();
+
+          final String markName;
+          if (callee.equals("mark")) {
+            markName = String.format("%s.%s", tag, funcall.getArgument(0));
+          } else if (callee.equals("undefined") || callee.equals("unpredicted")) {
+            markName = String.format("%s.%s", blockId, callee);
+          } else if (callee.equals("exception")) {
+            markName = String.format("%s.exception.%s", tag, funcall.getArgument(0));
+          } else {
+            continue;
           }
+
+          final Node mark = createGuard(markName);
+          if (!callee.equals("mark")) {
+            special.add(mark);
+          }
+          addToContext(EQ(guard, mark));
         }
       }
-      return generateBlockName();
+      if (!special.isEmpty()) {
+        addToContext(new NodeOperation(SsaOperation.MARK, special));
+      }
+      return guard;
+    }
+
+    private NodeVariable createGuard(final String name) {
+      return scope.create(name, DataType.BOOLEAN.valueUninitialized());
     }
   }
 

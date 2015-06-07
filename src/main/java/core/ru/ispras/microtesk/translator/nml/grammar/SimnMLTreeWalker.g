@@ -599,7 +599,6 @@ functionCallStatement returns [List<Statement> res]
     :  ^(id=EXCEPTION str=STRING_CONST)
 {
 $res = Arrays.asList(
-    getStatementFactory().createMark(where($id), String.format("exception.\%s", $str.text)),
     getStatementFactory().createExceptionCall(where($id), $str.text)
     );
 }

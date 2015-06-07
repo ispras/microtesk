@@ -15,18 +15,22 @@
 package ru.ispras.microtesk.translator.nml.coverage;
 
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.NOT;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.OR;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
@@ -83,8 +87,12 @@ public final class TestBase {
       final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
       bindings.add(findPathSpec(query, builder.getVariables()));
 
-      final String name = query.getContext().get(TestBaseContext.TESTCASE);
-      bindings.add(EQ(new NodeVariable(name + "!1", DataType.BOOLEAN), Expression.TRUE));
+      final String testCase = query.getContext().get(TestBaseContext.TESTCASE);
+      if (testCase.equals("normal")) {
+        bindings.add(NOT(OR(builder.getSpecialMarks())));
+      } else {
+        bindings.add(EQ(findGuard(testCase, builder.getVariables()), Expression.TRUE));
+      }
 
       final Constraint constraint = builder.build(bindings);
       result = solverId.getSolver().solve(constraint);
@@ -93,6 +101,56 @@ public final class TestBase {
     }
 
     return fromSolverResult(query, result);
+  }
+
+  private static Node findGuard(final String testCase,
+                                final Map<String, NodeVariable> variables) {
+    final Map<String, List<String>> components = new TreeMap<>();
+    for (final NodeVariable var : variables.values()) {
+      if (var.isType(DataType.BOOLEAN)) {
+        final int pos = var.getName().indexOf('!');
+        if (pos > 0) {
+          final String key = var.getName().substring(0, pos);
+          components.put(key, splitInverse(key));
+        }
+      }
+    }
+    final List<String> subset = splitInverse(testCase);
+    for (final Map.Entry<String, List<String>> entry : components.entrySet()) {
+      if (isOrderedSubset(subset, entry.getValue())) {
+        final NodeVariable node = variables.get(entry.getKey() + "!1");
+        if (node != null) {
+          return node;
+        }
+      }
+    }
+    throw new IllegalArgumentException(testCase);
+  }
+
+  private static boolean isOrderedSubset(final List<String> parts,
+                                         final List<String> path) {
+    final Iterator<String> pathIt = path.iterator();
+    final Iterator<String> partsIt = parts.iterator();
+
+    String part = partsIt.next();
+    while (pathIt.hasNext()) {
+      final String component = pathIt.next();
+      if (component.equals(part)) {
+        if (partsIt.hasNext()) {
+          part = partsIt.next();
+        } else {
+          return true;
+        }
+      }
+    }
+    return !partsIt.hasNext();
+  }
+
+  private static List<String> splitInverse(final String s) {
+    final List<String> tokens = Arrays.asList(s.split("\\."));
+    Collections.reverse(tokens);
+
+    return tokens;
   }
 
   private Node findPathSpec(TestBaseQuery query, Map<String, NodeVariable> variables) {

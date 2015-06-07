@@ -134,7 +134,8 @@ public final class SsaAssembler {
   SsaScope scope;
   int numTemps;
 
-  ArrayList<Node> statements;
+  Map<String, Integer> contextEnum;
+  List<Node> statements;
   Deque<Integer> batchSize;
 
   Deque<Changes> changesStack;
@@ -150,7 +151,8 @@ public final class SsaAssembler {
     this.contextEntry = prefix;
   }
 
-  public Node assemble(String tag) {
+  public Node assemble(final String tag) {
+    this.contextEnum = new HashMap<>();
     this.statements = new ArrayList<>();
     this.batchSize = new ArrayDeque<>();
 
@@ -413,7 +415,18 @@ public final class SsaAssembler {
         } else {
           final NodeOperation call = (NodeOperation) node;
           final NodeOperation instance = (NodeOperation) call.getOperand(0);
-          final Prefix inner = prefix.pushAll(literalOperand(0, instance));
+
+          final String callee = literalOperand(0, instance);
+          final String ctxKey = dotConc(prefix.context, callee);
+          Integer num = contextEnum.get(ctxKey);
+          if (num == null ) {
+            contextEnum.put(ctxKey, 1);
+            num = 0;
+          } else {
+            contextEnum.put(ctxKey, num + 1);
+          }
+          final Prefix inner =
+              prefix.pushAll(String.format("%s_%d", callee, num));
 
           linkClosure(prefix, inner, new Closure(instance));
           step(inner, literalOperand(1, call));
