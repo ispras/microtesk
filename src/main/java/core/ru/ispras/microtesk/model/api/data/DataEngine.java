@@ -182,6 +182,11 @@ public final class DataEngine {
     });
   }
 
+  public static Data valueOf(Type type, BigInteger value) {
+    checkConversionSupported(type, "BigInteger", type.getTypeId().name());
+    return VALUE_CONVERTERS.get(type.getTypeId()).fromBigInteger(type, value);
+  }
+
   public static Data valueOf(Type type, long value) {
     checkConversionSupported(type, "long", type.getTypeId().name());
     return VALUE_CONVERTERS.get(type.getTypeId()).fromLong(type, value);

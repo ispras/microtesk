@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.data.operations;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
@@ -50,5 +52,11 @@ public class IntCardConverter implements IValueConverter {
   public Data fromString(Type type, String value, Radix radix) {
     assert false : "NOT IMPLEMENTED";
     return null;
+  }
+
+  @Override
+  public Data fromBigInteger(Type type, BigInteger value) {
+    final BitVector rawData = BitVector.valueOf(value, type.getBitSize());
+    return new Data(rawData, type);
   }
 }

@@ -15,7 +15,10 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
+
+import java.math.BigInteger;
+
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
@@ -28,14 +31,15 @@ import ru.ispras.microtesk.model.api.type.Type;
 public final class MetaLocationStore implements MetaData {
   private final String name;
   private final Type dataType;
-  private final int count;
+  private final BigInteger count;
 
   public MetaLocationStore(
       final String name,
       final Type dataType, 
-      final int count) {
+      final BigInteger count) {
     checkNotNull(name);
-    checkGreaterThanZero(count);
+    checkNotNull(count);
+    checkGreaterThan(count, BigInteger.ZERO);
 
     this.name = name;
     this.dataType = dataType;
@@ -69,7 +73,7 @@ public final class MetaLocationStore implements MetaData {
    * @return Memory store item count.
    */
 
-  public int getCount() {
+  public BigInteger getCount() {
     return count;
   }
 }

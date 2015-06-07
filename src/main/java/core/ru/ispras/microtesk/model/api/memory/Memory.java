@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
@@ -32,9 +32,9 @@ public abstract class Memory {
   private final Kind kind;
   private final String name;
   private final Type type;
-  private final int length;
+  private final BigInteger length;
   private final boolean isAlias;
-  private int addressBitSize;
+  private final int addressBitSize;
 
   public static enum Kind {
     REG, MEM, VAR
@@ -45,6 +45,22 @@ public abstract class Memory {
       final String name,
       final Type type,
       final int length) {
+    return def(kind, name, type, (long) length);
+  }
+
+  public static Memory def(
+      final Kind kind,
+      final String name,
+      final Type type,
+      final long length) {
+    return def(kind, name, type, BigInteger.valueOf(length));
+  }
+
+  public static Memory def(
+      final Kind kind,
+      final String name,
+      final Type type,
+      final BigInteger length) {
     checkDefined(name);
     final Memory result = new MemoryDirect(kind, name, type, length);
 
@@ -58,6 +74,24 @@ public abstract class Memory {
       final Type type,
       final int length,
       final Location alias) {
+    return def(kind, name, type, (long) length, alias);
+  }
+
+  public static Memory def(
+      final Kind kind,
+      final String name,
+      final Type type,
+      final long length,
+      final Location alias) {
+    return def(kind, name, type, BigInteger.valueOf(length), alias);
+  }
+
+  public static Memory def(
+      final Kind kind,
+      final String name,
+      final Type type,
+      final BigInteger length,
+      final Location alias) {
     if (null == alias) {
       return def(kind, name, type, length);
     }
@@ -68,12 +102,34 @@ public abstract class Memory {
     INSTANCES.put(name, result);
     return result;
   }
-  
+
   public static Memory def(
       final Kind kind,
       final String name,
       final Type type,
       final int length,
+      final Memory memory,
+      final int min,
+      final int max) {
+    return def(kind, name, type, (long) length, memory, min, max);
+  }
+
+  public static Memory def(
+      final Kind kind,
+      final String name,
+      final Type type,
+      final long length,
+      final Memory memory,
+      final int min,
+      final int max) {
+    return def(kind, name, type, BigInteger.valueOf(length), memory, min, max);
+  }
+
+  public static Memory def(
+      final Kind kind,
+      final String name,
+      final Type type,
+      final BigInteger length,
       final Memory memory,
       final int min,
       final int max) {
@@ -103,20 +159,19 @@ public abstract class Memory {
       final Kind kind,
       final String name,
       final Type type,
-      final int length,
+      final BigInteger length,
       final boolean isAlias) {
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(type);
-    checkGreaterThanZero(length);
+    checkGreaterThan(length, BigInteger.ZERO);
 
     this.kind = kind;
     this.name = name;
     this.type = type;
     this.length = length;
     this.isAlias = isAlias;
-    this.addressBitSize = MemoryStorage.calculateAddressSize(
-        type.getBitSize(), BigInteger.valueOf(length));
+    this.addressBitSize = MemoryStorage.calculateAddressSize(type.getBitSize(), length);
   }
 
   public static void setUseTempCopies(boolean value) {
@@ -139,7 +194,7 @@ public abstract class Memory {
     return type;
   }
 
-  public final int getLength() {
+  public final BigInteger getLength() {
     return length;
   }
 
@@ -176,14 +231,13 @@ public abstract class Memory {
         final Kind kind,
         final String name,
         final Type type,
-        final int length) {
+        final BigInteger length) {
       super(kind, name, type, length, false);
       this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
     }
 
     @Override
     public Location access(final int index) {
-      checkBounds(index, getLength());
       return access((long) index);
     }
 
@@ -228,12 +282,12 @@ public abstract class Memory {
         final Kind kind,
         final String name,
         final Type type,
-        final int length,
+        final BigInteger length,
         final Location source) {
       super(kind, name, type, length, true);
       checkNotNull(source);
 
-      final int totalBitSize = type.getBitSize() * length;
+      final int totalBitSize = type.getBitSize() * length.intValue();
       if (source.getBitSize() != totalBitSize) {
         throw new IllegalArgumentException();
       }
@@ -253,7 +307,7 @@ public abstract class Memory {
 
     @Override
     public Location access(final int index) {
-      checkBounds(index, getLength());
+      checkBounds(index, getLength().intValue());
 
       final int locationBitSize = getType().getBitSize();
       final int start = locationBitSize * index;
@@ -294,7 +348,7 @@ public abstract class Memory {
         final Kind kind,
         final String name,
         final Type type,
-        final int length,
+        final BigInteger length,
         final Memory source,
         final int min, 
         final int max
@@ -302,8 +356,8 @@ public abstract class Memory {
       super(kind, name, type, length, true);
       checkNotNull(source);
 
-      checkBounds(min, source.getLength());
-      checkBounds(max, source.getLength());
+      checkBounds(min, source.getLength().intValue());
+      checkBounds(max, source.getLength().intValue());
 
       this.itemBitSize = type.getBitSize();
       this.sourceItemBitSize = source.getType().getBitSize();
@@ -314,7 +368,7 @@ public abstract class Memory {
             sourceItemBitSize, name, itemBitSize));
       }
 
-      final int bitSize = itemBitSize * length;
+      final int bitSize = itemBitSize * length.intValue();
       final int sourceLength = Math.abs(max - min) + 1;
       final int sourceBitSize = sourceItemBitSize * sourceLength;
 

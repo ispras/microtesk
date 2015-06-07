@@ -14,15 +14,19 @@
 
 package ru.ispras.microtesk.model.api.data;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public interface IValueConverter {
-  public Data fromLong(Type type, long value);
-  public long toLong(Data data);
-  
-  public Data fromInt(Type type, int value);
-  public int toInt(Data data);
-  
-  public Data fromString(Type type, String value, Radix radix);
+  Data fromLong(Type type, long value);
+  long toLong(Data data);
+
+  Data fromInt(Type type, int value);
+  int toInt(Data data);
+
+  Data fromBigInteger(Type type, BigInteger value);
+
+  Data fromString(Type type, String value, Radix radix);
 }

@@ -53,11 +53,11 @@ public final class ModelStatePrinter {
 
     final IModelStateObserver observer = model.getStateObserver();
     for (MetaLocationStore r : model.getMetaData().getRegisters()) {
-      for (int index = 0; index < r.getCount(); ++index) {
+      for (int index = 0; index < r.getCount().intValue(); ++index) {
         try {
           final LocationAccessor location = observer.accessLocation(r.getName(), index);
 
-          if (1 == r.getCount()) {
+          if (1 == r.getCount().intValue()) {
             System.out.printf("%s = %s %n", r.getName(), location.toBinString());
           } else {
             System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
@@ -78,7 +78,7 @@ public final class ModelStatePrinter {
 
     final IModelStateObserver observer = model.getStateObserver();
     for (MetaLocationStore r : model.getMetaData().getMemoryStores()) {
-      for (int index = 0; index < r.getCount(); ++index) {
+      for (int index = 0; index < r.getCount().intValue(); ++index) {
         try {
           final LocationAccessor location = observer.accessLocation(r.getName(), index);
           System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());

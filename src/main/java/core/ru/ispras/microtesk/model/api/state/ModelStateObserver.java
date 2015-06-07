@@ -107,7 +107,7 @@ public final class ModelStateObserver implements IModelStateObserver {
     }
 
     final Memory current = memoryMap.get(name);
-    if ((index < 0) || (index >= current.getLength())) {
+    if ((index < 0) || (index >= current.getLength().intValue())) {
       throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
     }
 

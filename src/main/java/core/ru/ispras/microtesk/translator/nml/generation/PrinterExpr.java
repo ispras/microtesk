@@ -82,6 +82,10 @@ public final class PrinterExpr {
   }
 
   private String printExpression() {
+    if (nodeInfo.getValueInfo().isConstant() && nodeInfo.getValueInfo().getNativeValue() instanceof BigInteger) {
+      return bigIntegerToHexString((BigInteger) nodeInfo.getValueInfo().getNativeValue());
+    }
+
     switch (nodeInfo.getKind()) {
       case CONST: {
         final SourceConstant source = (SourceConstant) nodeInfo.getSource();
