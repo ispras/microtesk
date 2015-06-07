@@ -110,32 +110,26 @@ public final class PrinterExpr {
     }
   }
 
-  private String constToString(SourceConstant source) {
-    final Object value = source.getValue();
+  private String constToString(final SourceConstant source) {
+    final BigInteger value = source.getValue();
 
-    if (BigInteger.class != value.getClass()) {
-      throw new IllegalArgumentException(
-          "Unsuported constant value type: " + value.getClass().getSimpleName());
-    }
-
-    final BigInteger bi = (BigInteger) value;
     final String result;
-    
-    if (bi.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0 && 
-        bi.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
+    if (value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0 && 
+        value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
       result = (source.getRadix() == 10) ?
-          bi.toString(10) : "0x" + bi.toString(16);
-    } else if (bi.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) >= 0 && 
-        bi.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0) {
+          value.toString(10) : "0x" + value.toString(16);
+    } else if (value.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) >= 0 && 
+        value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0) {
       result = ((source.getRadix() == 10) ? 
-          bi.toString(10) : "0x" + bi.toString(16)) + "L";
+          value.toString(10) : "0x" + value.toString(16)) + "L";
     } else {
-      throw new IllegalArgumentException("To large number " + bi);
+      // throw new IllegalArgumentException("To large number " + value);
+      result = String.format("new BigInteger(\"%s\", %d)", value.toString(source.getRadix()), source.getRadix());
     }
 
     return result;
   }
-  
+
   public static String bigIntegerToHexString(final BigInteger bi) {
     if (bi.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0 && 
         bi.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
