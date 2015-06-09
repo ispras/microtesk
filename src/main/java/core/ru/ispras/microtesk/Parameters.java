@@ -78,6 +78,15 @@ public final class Parameters {
       newOption("branch-exec-limit", true,
           "Sets the limit on control transfers to detect endless loops", GENERATE);
 
+  public static final Option SOLVER_DEBUG =
+      newOption("solver-debug", false, "Enables debug mode for SMT solvers", GENERATE);
+
+  public static final Option TARMAC_LOG =
+      newOption("tarmac-log", false, "Saves simulator log in Tarmac format", GENERATE);
+
+  public static final Option ARCH_DIRS =
+      newOption("arch-dirs", true, "Home directories for tested architectures", GENERATE);
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options (File Creation)
 
@@ -112,12 +121,6 @@ public final class Parameters {
           "Enables printing detailed comments, must be used together with --" +
           COMMENTS_ENABLED.getLongOpt(), GENERATE);
   
-  public static final Option SOLVER_DEBUG =
-      newOption("solver-debug", false, "Enables debug mode for SMT solvers", GENERATE);
-
-  public static final Option ARCH_DIRS =
-      newOption("arch-dirs", true, "Home directories for tested architectures", GENERATE);
-
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
 
@@ -245,6 +248,10 @@ public final class Parameters {
     result.addOption(SOLVER);
     result.addOption(LIMIT);
 
+    result.addOption(SOLVER_DEBUG);
+    result.addOption(TARMAC_LOG);
+    result.addOption(ARCH_DIRS);
+
     result.addOption(CODE_EXT);
     result.addOption(CODE_PRE);
     result.addOption(DATA_EXT);
@@ -255,9 +262,6 @@ public final class Parameters {
     result.addOption(COMMENTS_ENABLED);
     result.addOption(COMMENTS_DEBUG);
 
-    result.addOption(SOLVER_DEBUG);
-
-    result.addOption(ARCH_DIRS);
     return result;
   }
 
