@@ -96,7 +96,7 @@ public final class ModelStateObserver implements IModelStateObserver {
   @Override
   public LocationAccessor accessLocation(String name, BigInteger index) throws ConfigurationException {
     if (labelMap.containsKey(name)) {
-      if (null != index) {
+      if (null != index && !index.equals(BigInteger.ZERO)) {
         throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
       }
 
