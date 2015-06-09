@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.state;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,13 +28,13 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 
 public final class ModelStateObserver implements IModelStateObserver {
   private final static String ALREADY_ADDED_ERR_FRMT =
-    "The %s item has already been added to the table.";
+      "The %s item has already been added to the table.";
 
   private final static String UNDEFINED_ERR_FRMT =
-    "The %s resource is not defined in the current model.";
+      "The %s resource is not defined in the current model.";
 
   private final static String BOUNDS_ERR_FRMT =
-    "The %d index is invalid for the %s resource.";
+      "The %d index is invalid for the %s resource.";
 
   private final Map<String, Memory> memoryMap;
   private final Map<String, Label> labelMap;
@@ -89,13 +90,13 @@ public final class ModelStateObserver implements IModelStateObserver {
 
   @Override
   public LocationAccessor accessLocation(String name) throws ConfigurationException {
-    return accessLocation(name, 0);
+    return accessLocation(name, null);
   }
 
   @Override
-  public LocationAccessor accessLocation(String name, int index) throws ConfigurationException {
+  public LocationAccessor accessLocation(String name, BigInteger index) throws ConfigurationException {
     if (labelMap.containsKey(name)) {
-      if (0 != index) {
+      if (null != index) {
         throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
       }
 
@@ -107,10 +108,6 @@ public final class ModelStateObserver implements IModelStateObserver {
     }
 
     final Memory current = memoryMap.get(name);
-    if ((index < 0) || (index >= current.getLength().intValue())) {
-      throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
-    }
-
     return current.access(index);
   }
 

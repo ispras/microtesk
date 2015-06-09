@@ -42,7 +42,7 @@ public enum RecordKind {
   REGISTER,
 
   /**
-   * Event trace:
+   * Event trace:<p>
    * {@code <time> <scale> E <value> <number> <desc>}
    */
   EVENT,

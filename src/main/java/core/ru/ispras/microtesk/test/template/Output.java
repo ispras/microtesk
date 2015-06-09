@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +30,9 @@ import ru.ispras.microtesk.model.api.state.IModelStateObserver;
  * generated test program. The important attributes are:
  * 
  * <ol>
- * <li>Runtime. Specified whether the information is evaluated at the simulation time and goes to
+ * <li>Runtime. Specifies whether the information is evaluated at the simulation time and goes to
  * the simulator log or evaluated after simulation and inserted to the generated test program.</li>
+ * <li>Comment. Specifies whether the printed text is a comment.</li>
  * <li>Format string. Used to describe the format of the text to be printed.</li>
  * <li>Format arguments. Pieces of information to be inserted into the printed text.</li>
  * </ol>
@@ -70,12 +72,12 @@ public final class Output {
   final static class ArgumentValue implements Argument {
     private final Object value;
 
-    ArgumentValue(Object value) {
+    ArgumentValue(final Object value) {
       this.value = value;
     }
 
     @Override
-    public Object evaluate(IModelStateObserver observer) {
+    public Object evaluate(final IModelStateObserver observer) {
       if (value instanceof Value) {
         return ((Value) value).getValue();
       }
@@ -98,17 +100,17 @@ public final class Output {
 
   final static class ArgumentLocation implements Argument {
     private final String name;
-    private final int index;
+    private final BigInteger index;
     private final boolean isBinaryText;
 
-    ArgumentLocation(String name, int index, boolean isBinaryText) {
+    ArgumentLocation(final String name, final BigInteger index, final boolean isBinaryText) {
       this.name = name;
       this.index = index;
       this.isBinaryText = isBinaryText;
     }
 
     @Override
-    public Object evaluate(IModelStateObserver observer) throws ConfigurationException {
+    public Object evaluate(final IModelStateObserver observer) throws ConfigurationException {
       final LocationAccessor accessor = observer.accessLocation(name, index);
       return isBinaryText ? accessor.toBinString() : accessor.getValue();
     }
@@ -132,7 +134,11 @@ public final class Output {
    * @param args Format arguments.
    */
 
-  Output(boolean isRuntime, boolean isComment, String format, List<Argument> args) {
+  Output(
+      final boolean isRuntime,
+      final boolean isComment,
+      final String format,
+      final List<Argument> args) {
     checkNotNull(format);
     checkNotNull(args);
 
@@ -149,7 +155,7 @@ public final class Output {
    * @param format Format string.
    */
 
-  Output(boolean isRuntime, boolean isComment, String format) {
+  Output(final boolean isRuntime, final boolean isComment, final String format) {
     this(isRuntime, isComment, format, Collections.<Argument>emptyList());
   }
 
@@ -179,10 +185,10 @@ public final class Output {
    * @return Text to be printed.
    * @throws ConfigurationException if failed to evaluate the information due to an incorrect
    *         request to the model state observer.
-   * @throws NullPointerException if the parameter equals {@code null}.
+   * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
 
-  public String evaluate(IModelStateObserver observer) throws ConfigurationException {
+  public String evaluate(final IModelStateObserver observer) throws ConfigurationException {
     checkNotNull(observer);
 
     if (args.isEmpty()) {

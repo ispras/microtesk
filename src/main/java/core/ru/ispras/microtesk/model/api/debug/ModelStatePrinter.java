@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.debug;
 
+import java.math.BigInteger;
+
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
@@ -53,7 +55,7 @@ public final class ModelStatePrinter {
 
     final IModelStateObserver observer = model.getStateObserver();
     for (MetaLocationStore r : model.getMetaData().getRegisters()) {
-      for (int index = 0; index < r.getCount().intValue(); ++index) {
+      for (BigInteger index = BigInteger.ZERO; index.compareTo(r.getCount()) < 0; index = index.add(BigInteger.ONE)) {
         try {
           final LocationAccessor location = observer.accessLocation(r.getName(), index);
 
@@ -78,7 +80,7 @@ public final class ModelStatePrinter {
 
     final IModelStateObserver observer = model.getStateObserver();
     for (MetaLocationStore r : model.getMetaData().getMemoryStores()) {
-      for (int index = 0; index < r.getCount().intValue(); ++index) {
+      for (BigInteger index = BigInteger.ZERO; index.compareTo(r.getCount()) < 0; index = index.add(BigInteger.ONE)) {
         try {
           final LocationAccessor location = observer.accessLocation(r.getName(), index);
           System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());

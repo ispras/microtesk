@@ -14,11 +14,13 @@
 
 package ru.ispras.microtesk.model.api.state;
 
+import java.math.BigInteger;
+
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public interface IModelStateObserver {
-  public LocationAccessor accessLocation(String name) throws ConfigurationException;
-  public LocationAccessor accessLocation(String name, int index) throws ConfigurationException;
-  public int getControlTransferStatus();
+  LocationAccessor accessLocation(String name) throws ConfigurationException;
+  LocationAccessor accessLocation(String name, BigInteger index) throws ConfigurationException;
+  int getControlTransferStatus();
 }

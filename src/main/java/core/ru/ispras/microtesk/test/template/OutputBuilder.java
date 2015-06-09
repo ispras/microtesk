@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,12 +43,16 @@ public final class OutputBuilder {
    * Constructs an OutputBuilder object.
    * 
    * @param isRuntime Runtime status.
+   * @param isComment Specifies whether the given output is a comment.
    * @param format Format string.
    * 
-   * @throws NullPointerException if the format parameter equals null.
+   * @throws IllegalArgumentException if the format parameter equals {@code null}.
    */
 
-  OutputBuilder(boolean isRuntime, boolean isComment, String format) {
+  OutputBuilder(
+      final boolean isRuntime,
+      final boolean isComment,
+      final String format) {
     checkNotNull(format);
 
     this.isRuntime = isRuntime;
@@ -64,7 +69,7 @@ public final class OutputBuilder {
    * @return This builder object to continue operations.
    */
 
-  public OutputBuilder addArgument(int value) {
+  public OutputBuilder addArgument(final int value) {
     addArgument(new ArgumentValue(value));
     return this;
   }
@@ -75,10 +80,10 @@ public final class OutputBuilder {
    * @param value String value.
    * @return This builder object to continue operations.
    * 
-   * @throws NullPointerException if the parameter equals null.
+   * @throws IllegalAccessError if the parameter equals {@code null}.
    */
 
-  public OutputBuilder addArgument(String value) {
+  public OutputBuilder addArgument(final String value) {
     checkNotNull(value);
     addArgument(new ArgumentValue(value));
     return this;
@@ -91,10 +96,10 @@ public final class OutputBuilder {
    * @param value Value object (implements the {@link Value} interface).
    * @return This builder object to continue operations.
    * 
-   * @throws NullPointerException if the parameter equals null.
+   * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
 
-  public OutputBuilder addArgument(Value value) {
+  public OutputBuilder addArgument(final Value value) {
     checkNotNull(value);
     addArgument(new ArgumentValue(value));
     return this;
@@ -107,7 +112,7 @@ public final class OutputBuilder {
    * @return This builder object to continue operations.
    */
 
-  public OutputBuilder addArgument(boolean value) {
+  public OutputBuilder addArgument(final boolean value) {
     addArgument(new ArgumentValue(value));
     return this;
   }
@@ -120,10 +125,10 @@ public final class OutputBuilder {
    * @param index Location index.
    * @return This builder object to continue operations.
    * 
-   * @throws NullPointerException if the name parameter equals null.
+   * @throws IllegalArgumentException if the name parameter equals {@code null}.
    */
 
-  public OutputBuilder addArgument(String name, int index) {
+  public OutputBuilder addArgument(final String name, final BigInteger index) {
     checkNotNull(name);
 
     final FormatMarker marker = getMarker(getArgumentCount());
@@ -147,7 +152,7 @@ public final class OutputBuilder {
     return new Output(isRuntime, isComment, format, args);
   }
 
-  private void addArgument(Argument arg) {
+  private void addArgument(final Argument arg) {
     if (null == args) {
       args = new ArrayList<Output.Argument>();
     }
@@ -163,7 +168,7 @@ public final class OutputBuilder {
     return args.size();
   }
 
-  private FormatMarker getMarker(int index) {
+  private FormatMarker getMarker(final int index) {
     if (null == markers) {
       markers = FormatMarker.extractMarkers(format);
     }
