@@ -80,7 +80,11 @@ final class DataGenerator {
   private Set<AddressingModeWrapper> initializedModes;
   private TestSequence.Builder sequenceBuilder;
 
-  DataGenerator(IModel model, PreparatorStore preparators) {
+  private long codeAddress = 0;
+
+  DataGenerator(
+      final IModel model,
+      final PreparatorStore preparators) {
     checkNotNull(model);
     checkNotNull(preparators);
 
@@ -94,7 +98,8 @@ final class DataGenerator {
     return model.getCallFactory();
   }
 
-  public TestSequence process(Sequence<Call> abstractSequence)
+  public TestSequence process(
+      final Sequence<Call> abstractSequence)
       throws ConfigurationException {
     checkNotNull(abstractSequence);
 
@@ -110,27 +115,33 @@ final class DataGenerator {
         modeAllocator.allocate(abstractSequence);
       }
 
-      for (Call abstractCall : abstractSequence) {
+      for (final Call abstractCall : abstractSequence) {
         processAbstractCall(abstractCall);
       }
-      return sequenceBuilder.build();
+
+      final TestSequence sequence = sequenceBuilder.build();
+
+      sequence.setAddress(codeAddress);
+      codeAddress += sequence.getByteSize();
+
+      return sequence;
     } finally {
       initializedModes = null;
       sequenceBuilder = null;
     }
   }
 
-  private void registerCall(ConcreteCall call) {
+  private void registerCall(final ConcreteCall call) {
     call.execute();
     sequenceBuilder.add(call);
   }
 
-  private void registerPrologueCall(ConcreteCall call) {
+  private void registerPrologueCall(final ConcreteCall call) {
     call.execute();
     sequenceBuilder.addToPrologue(call);
   }
 
-  private void processAbstractCall(Call abstractCall) throws ConfigurationException {
+  private void processAbstractCall(final Call abstractCall) throws ConfigurationException {
     checkNotNull(abstractCall);
 
     if (!abstractCall.isExecutable()) {
@@ -151,7 +162,7 @@ final class DataGenerator {
     registerCall(new ConcreteCall(abstractCall, executable));
   }
 
-  private void processSituations(Primitive primitive) throws ConfigurationException {
+  private void processSituations(final Primitive primitive) throws ConfigurationException {
     checkNotNull(primitive);
 
     for (Argument arg : primitive.getArguments().values()) {
