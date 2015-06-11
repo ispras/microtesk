@@ -38,6 +38,7 @@ public final class LogPrinter {
   }
 
   public String createNewFile() throws IOException {
+    close();
     final String fileName = String.format(
         "%s_%04d.%s", filePrefix, fileCount++, fileExtension);
 
@@ -52,6 +53,6 @@ public final class LogPrinter {
   }
 
   public void addRecord(final Record record) {
-    // TODO
+    fileWritter.println(record.toString());
   }
 }

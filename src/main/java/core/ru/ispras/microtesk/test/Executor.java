@@ -21,6 +21,8 @@ import java.util.List;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
+import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
@@ -39,6 +41,7 @@ final class Executor {
   private final IModelStateObserver observer;
   private final boolean logExecution;
   private final int branchExecutionLimit;
+  private final LogPrinter logPrinter;
 
   private List<LabelReference> labelRefs;
 
@@ -54,13 +57,15 @@ final class Executor {
   public Executor(
       final IModelStateObserver observer,
       final boolean logExecution,
-      final int branchExecutionLimit) {
+      final int branchExecutionLimit,
+      final LogPrinter logPrinter) {
     checkNotNull(observer);
 
     this.observer = observer;
     this.logExecution = logExecution;
     this.branchExecutionLimit = branchExecutionLimit;
     this.labelRefs = null;
+    this.logPrinter = logPrinter;
   }
 
   /**
@@ -181,6 +186,10 @@ final class Executor {
     logText(call.getText());
     call.execute();
     TestEngine.STATISTICS.instructionExecutedCount++;
+    
+    if (logPrinter != null) {
+      logPrinter.addRecord(Record.newInstruction(call));
+    }
 
     // Saves labels to jump in case there is a branch delay slot.
     if (!call.getLabelReferences().isEmpty()) {

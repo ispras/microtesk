@@ -14,6 +14,57 @@
 
 package ru.ispras.microtesk.model.api.tarmac;
 
-public class Record {
+import java.math.BigInteger;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 
+public abstract class Record {
+  private static long instructionId = -1;
+
+  private final RecordKind kind;
+  private final long time;
+
+  public Record(final RecordKind kind, final long time) {
+    this.kind = kind;
+    this.time = time;
+  }
+
+  public RecordKind getKind() {
+    return kind;
+  }
+
+  public long getTime() {
+    return time;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%d clk", time);
+  }
+
+  public static Record newInstruction(final ConcreteCall call) {
+    InvariantChecks.checkNotNull(call);
+    return new Instruction(call);
+  }
+
+  private static class Instruction extends Record {
+    private long instrId;
+    private long addr;
+    private String disasm;
+
+    private Instruction(final ConcreteCall call) {
+      super(RecordKind.INSTRUCT, ++instructionId);
+
+      final BigInteger image = new BigInteger(call.getImage(), 2);
+      this.instrId = image.longValue();
+      this.addr = call.getAddress();
+      this.disasm = call.getText();
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s IT (%d) %08x %08x A svc_ns : %s",
+          super.toString(), getTime(), instrId, addr, disasm);
+    }
+  }
 }

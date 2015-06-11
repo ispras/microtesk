@@ -33,6 +33,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.data.ModeAllocator;
@@ -108,6 +109,7 @@ public final class TestEngine {
   private static int traceLengthLimit = 1000;
   private static boolean commentsDebug = false;
   private static boolean commentsEnabled = false;
+  private static boolean tarmacLog = false;
 
   // Architecture-specific settings
   public static void setRandomSeed(int seed) {
@@ -151,6 +153,18 @@ public final class TestEngine {
     if (allocation != null) {
       ModeAllocator.init(allocation);
     }
+  }
+
+  public static void setCommentsDebug(boolean value) {
+    commentsDebug = value;
+  }
+
+  public static void setCommentsEnabled(boolean value) {
+    commentsEnabled = value;
+  }
+
+  public static void setTarmacLog(boolean value) {
+    tarmacLog  = value;
   }
 
   public static Date generate(final String modelName, final String templateFile) throws Throwable {
@@ -236,8 +250,11 @@ public final class TestEngine {
   public Template newTemplate() {
     final IModelStateObserver observer = model.getStateObserver();
 
+    final LogPrinter logPrinter = tarmacLog ?
+        new LogPrinter(codeFilePrefix) : null;
+
     final Executor executor = new Executor(
-        observer, logExecution, branchExecutionLimit);
+        observer, logExecution, branchExecutionLimit, logPrinter);
 
     final Printer printer = new Printer(
         codeFilePrefix,
@@ -248,14 +265,22 @@ public final class TestEngine {
         separatorToken,
         printToScreen,
         commentsEnabled,
-        commentsDebug);
-
+        commentsDebug
+        );
+    
     final DataManager dataManager = new DataManager(indentToken);
     final PreparatorStore preparators = new PreparatorStore();
     final DataGenerator dataGenerator = new DataGenerator(model, preparators);
 
     final TemplateProcessor processor = new TemplateProcessor(
-        executor, printer, dataManager, dataGenerator, programLengthLimit, traceLengthLimit);
+        executor,
+        printer, 
+        logPrinter,
+        dataManager,
+        dataGenerator,
+        programLengthLimit,
+        traceLengthLimit
+        );
 
     return new Template(
         model.getMetaData(), dataManager, preparators, processor);
@@ -268,6 +293,7 @@ public final class TestEngine {
   private static class TemplateProcessor implements Template.Processor {
     private final Executor executor;
     private final Printer printer;
+    private final LogPrinter logPrinter;
     private final DataManager dataManager;
     private final DataGenerator dataGenerator;
 
@@ -282,6 +308,7 @@ public final class TestEngine {
     private TemplateProcessor(
         final Executor executor,
         final Printer printer,
+        final LogPrinter logPrinter,
         final DataManager dataManager,
         final DataGenerator dataGenerator,
         final int programLengthLimit,
@@ -289,6 +316,7 @@ public final class TestEngine {
 
       this.executor = executor;
       this.printer = printer;
+      this.logPrinter = logPrinter;
       this.dataManager = dataManager;
       this.dataGenerator = dataGenerator;
 
@@ -347,6 +375,10 @@ public final class TestEngine {
         }
 
         printer.close();
+        
+        if (null != logPrinter) {
+          logPrinter.close();
+        }
 
         // No instruction was added to the newly created file, it must be deleted
         if (STATISTICS.instructionCount == before.instructionCount) {
@@ -373,9 +405,12 @@ public final class TestEngine {
         if (needCreateNewFile) {
           try {
             before = STATISTICS.copy();
-            printer.close();
             fileName = printer.createNewFile();
             STATISTICS.testProgramNumber++;
+            
+            if (logPrinter != null) {
+              logPrinter.createNewFile();
+            }
           } catch (IOException e) {
             Logger.error(e.getMessage());
           }
@@ -504,13 +539,5 @@ public final class TestEngine {
       printHeader(title);
       printer.printHeaderToFile(title);
     }
-  }
-
-  public static void setCommentsDebug(boolean value) {
-    commentsDebug = value;
-  }
-
-  public static void setCommentsEnabled(boolean value) {
-    commentsEnabled = value;
   }
 }
