@@ -88,6 +88,10 @@ public final class ConcreteCall {
     this.text = text;
   }
 
+  public String getImage() {
+    return null != executable ? executable.getImage() : "";
+  }
+
   public List<Label> getLabels() {
     return labels;
   }
