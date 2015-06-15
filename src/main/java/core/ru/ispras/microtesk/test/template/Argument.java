@@ -16,13 +16,15 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull; 
 
+import java.math.BigInteger;
+
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Argument {
   public static enum Kind {
-    IMM (Integer.class, true),
+    IMM (BigInteger.class, true),
     IMM_RANDOM (RandomValue.class, true),
     IMM_UNKNOWN (UnknownImmediateValue.class, true),
     IMM_LAZY (LazyValue.class, true),
@@ -89,14 +91,14 @@ public final class Argument {
     return kind.isImmediate();
   }
 
-  public int getImmediateValue() {
+  public BigInteger getImmediateValue() {
     if (!isImmediate()) {
       throw new UnsupportedOperationException(String.format(
           "%s(%s) is not an immediate argument.", name, value.getClass().getSimpleName()));
     }
 
-    if (value instanceof Number) {
-      return ((Number) value).intValue();
+    if (value instanceof BigInteger) {
+      return (BigInteger) value;
     }
 
     return ((Value) value).getValue();
@@ -124,5 +126,11 @@ public final class Argument {
 
   public Type getType() {
     return type;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Argument [name=%s, kind=%s, value=%s, mode=%s, type=%s]",
+        name, kind, value, mode, type);
   }
 }

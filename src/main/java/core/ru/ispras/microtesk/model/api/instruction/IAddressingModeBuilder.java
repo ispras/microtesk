@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import java.math.BigInteger;
+
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 /**
@@ -42,7 +44,7 @@ public interface IAddressingModeBuilder {
    * @param value Mode argument integer value.
    */
 
-  IAddressingModeBuilder setArgumentValue(String name, Integer value)
+  IAddressingModeBuilder setArgumentValue(String name, BigInteger value)
       throws ConfigurationException;
 
   /**

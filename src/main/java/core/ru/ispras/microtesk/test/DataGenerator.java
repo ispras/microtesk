@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,7 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
@@ -256,9 +259,19 @@ final class DataGenerator {
       final UnknownImmediateValue target = (UnknownImmediateValue) arg.getValue();
 
       final Node value = testData.getBindings().get(name);
-      final int intValue = FortressUtils.extractInt(value);
+      if (value.getKind() != Node.Kind.VALUE) {
+        throw new IllegalStateException(String.format("%s is not a constant value.", value));
+      }
 
-      target.setValue(intValue);
+      final Data data = ((NodeValue) value).getData();
+      if (data.isType(DataTypeId.LOGIC_INTEGER)) {
+        target.setValue(data.getInteger());
+      } else if (data.isType(DataTypeId.BIT_VECTOR)) {
+        target.setValue(data.getBitVector().bigIntegerValue());
+      } else {
+        throw new IllegalStateException(String.format(
+            "%s cannot be converted to integer", value));
+      }
     }
 
     // Set model state using preparators that create initializing
@@ -336,22 +349,22 @@ final class DataGenerator {
         targetMode.getModePrimitive().getSignature()));
   }
 
-  private int makeImm(Argument argument) {
+  private BigInteger makeImm(Argument argument) {
     checkArgKind(argument, Argument.Kind.IMM);
-    return (Integer) argument.getValue();
+    return (BigInteger) argument.getValue();
   }
 
-  private int makeImmRandom(Argument argument) {
+  private BigInteger makeImmRandom(Argument argument) {
     checkArgKind(argument, Argument.Kind.IMM_RANDOM);
     return ((RandomValue) argument.getValue()).getValue();
   }
 
-  private int makeImmUnknown(Argument argument) {
+  private BigInteger makeImmUnknown(Argument argument) {
     checkArgKind(argument, Argument.Kind.IMM_UNKNOWN);
     return ((UnknownImmediateValue) argument.getValue()).getValue();
   }
 
-  private int makeImmLazy(Argument argument) {
+  private BigInteger makeImmLazy(Argument argument) {
     checkArgKind(argument, Argument.Kind.IMM_LAZY);
     return ((LazyValue) argument.getValue()).getValue();
   }
@@ -632,12 +645,12 @@ final class DataGenerator {
 
         switch (arg.getKind()) {
           case IMM:
-            queryBuilder.setBinding(argName, NodeValue.newInteger((Integer) arg.getValue()));
+            queryBuilder.setBinding(argName, new NodeValue(Data.newInteger((BigInteger) arg.getValue())));
             break;
 
           case IMM_RANDOM:
-            queryBuilder.setBinding(argName,
-              NodeValue.newInteger(((RandomValue) arg.getValue()).getValue()));
+            queryBuilder.setBinding(argName, 
+                new NodeValue(Data.newInteger(((RandomValue) arg.getValue()).getValue())));
             break;
 
           case IMM_UNKNOWN:
@@ -653,7 +666,8 @@ final class DataGenerator {
                 //queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
               //}
             } else {
-              queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
+              queryBuilder.setBinding(argName,
+                  new NodeValue(Data.newInteger(unknownValue.getValue())));
             }
             break;
 
@@ -744,9 +758,9 @@ final class AddressingModeWrapper {
     final int prime = 31;
 
     int result = prime + mode.getName().hashCode();
-    for (Argument arg : mode.getArguments().values()) {
+    for (final Argument arg : mode.getArguments().values()) {
       result = prime * result + arg.getName().hashCode();
-      result = prime * result + arg.getImmediateValue();
+      result = prime * result + arg.getImmediateValue().hashCode();
     }
 
     return result;

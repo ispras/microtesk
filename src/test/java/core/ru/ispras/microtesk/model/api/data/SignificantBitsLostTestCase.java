@@ -17,6 +17,8 @@ package ru.ispras.microtesk.model.api.data;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigInteger;
+
 import org.junit.Test;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -37,7 +39,7 @@ public class SignificantBitsLostTestCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Size is Equal
-    
+
     assertFalse(check(Type.CARD(32), 0xFFFFFFFF));
     assertFalse(check(Type.CARD(32), 0x00000000));
     assertFalse(check(Type.CARD(32), Integer.MAX_VALUE));
@@ -71,7 +73,7 @@ public class SignificantBitsLostTestCase {
     assertTrue(check(Type.CARD(11),  0xFFFFECFF));
   }
 
-  private static boolean check(Type type, int value) {
-    return DataEngine.isLossOfSignificantBits(type, value);
+  private static boolean check(Type type, long value) {
+    return DataEngine.isLossOfSignificantBits(type, BigInteger.valueOf(value));
   }
 }

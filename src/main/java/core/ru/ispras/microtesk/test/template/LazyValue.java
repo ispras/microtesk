@@ -16,6 +16,8 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class LazyValue implements Value {
@@ -23,7 +25,7 @@ public final class LazyValue implements Value {
   private final int start;
   private final int size;
 
-  LazyValue(LazyData data) {
+  LazyValue(final LazyData data) {
     checkNotNull(data);
 
     this.data = data;
@@ -31,7 +33,7 @@ public final class LazyValue implements Value {
     this.size = 0; // This means that we will use all data.
   }
 
-  LazyValue(LazyData data, int start, int end) {
+  LazyValue(final LazyData data, final int start, final int end) {
     checkNotNull(data);
 
     if ((start < 0) || (end < 0)) {
@@ -44,7 +46,7 @@ public final class LazyValue implements Value {
   }
 
   @Override
-  public int getValue() {
+  public BigInteger getValue() {
     final BitVector value = data.getValue();
 
     if (null == value) {
@@ -52,10 +54,10 @@ public final class LazyValue implements Value {
     }
 
     if (0 == start && (0 == size || value.getBitSize() == size)) {
-      return value.intValue(); // Use all data.
+      return value.bigIntegerValue(); // Use all data.
     }
 
     final BitVector mapping = BitVector.newMapping(value, start, size);
-    return mapping.intValue();
+    return mapping.bigIntegerValue();
   }
 }

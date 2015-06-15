@@ -130,7 +130,7 @@ public final class MemoryStorage {
 
     this.regionCount = regionCount;
     this.regionBitSize = regionBitSize;
-    this.addressBitSize = calculateAddressSize(regionBitSize, regionCount);
+    this.addressBitSize = calculateAddressSize(regionCount);
     this.blockBitSize = regionBitSize * REGIONS_IN_BLOCK;
 
     this.defaultRegion = BitVector.unmodifiable(BitVector.newEmpty(regionBitSize));
@@ -153,9 +153,7 @@ public final class MemoryStorage {
     return null != tempAddressMap ? tempAddressMap : addressMap;
   }
 
-  public static int calculateAddressSize(
-      final int regionBitSize,
-      final BigInteger regionCount) {
+  public static int calculateAddressSize(final BigInteger regionCount) {
     int result = 0;
 
     BigInteger value = regionCount.subtract(BigInteger.ONE);

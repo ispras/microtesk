@@ -14,11 +14,13 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import java.math.BigInteger;
+
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public interface IOperationBuilder {
   IOperationBuilder setArgument(String name, String value) throws ConfigurationException;
-  IOperationBuilder setArgument(String name, int value) throws ConfigurationException;
+  IOperationBuilder setArgument(String name, BigInteger value) throws ConfigurationException;
 
   IOperationBuilder setArgument(String name, IAddressingMode value)
       throws ConfigurationException;

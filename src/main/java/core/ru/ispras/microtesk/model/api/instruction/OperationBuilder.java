@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public final class OperationBuilder implements IOperationBuilder {
   }
 
   @Override
-  public IOperationBuilder setArgument(String name, int value) throws ConfigurationException {
+  public IOperationBuilder setArgument(String name, BigInteger value) throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 

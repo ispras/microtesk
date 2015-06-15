@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
+
 /**
  * The UnknownValue class describes an unknown immediate value to be specified as an argument of an
  * addressing mode or operation. A corresponding concrete value must be produced as a result of test
@@ -30,31 +32,28 @@ package ru.ispras.microtesk.test.template;
  */
 
 public final class UnknownImmediateValue implements Value {
-  private int value;
-  private boolean isValueSet;
+  private BigInteger value;
 
   UnknownImmediateValue() {
-    this.value = 0;
-    this.isValueSet = false;
+    this.value = null;
   }
 
   public boolean isValueSet() {
-    return isValueSet;
+    return value != null;
   }
 
   @Override
-  public int getValue() {
-    if (!isValueSet) {
+  public BigInteger getValue() {
+    if (!isValueSet()) {
       throw new IllegalStateException("Value is not set.");
     }
     return value;
   }
 
-  public void setValue(int value) {
-    if (isValueSet) {
+  public void setValue(final BigInteger value) {
+    if (isValueSet()) {
       throw new IllegalStateException("Value is already set.");
     }
     this.value = value;
-    this.isValueSet = true;
   }
 }

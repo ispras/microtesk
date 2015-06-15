@@ -14,39 +14,38 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class RandomValue implements Value {
-  private final int min;
-  private final int max;
+  private final BigInteger min;
+  private final BigInteger max;
+  private BigInteger value;
 
-  private int value;
-  private boolean isValueGenerated;
-
-  RandomValue(int min, int max) {
-    if (min > max) {
-      throw new IllegalArgumentException(String.format("min (%d) must be <= max (%d)!", min, max));
-    }
+  RandomValue(final BigInteger min, final BigInteger max) {
+    InvariantChecks.checkNotNull(min);
+    InvariantChecks.checkNotNull(max);
+    InvariantChecks.checkGreaterOrEq(max, min);
 
     this.min = min;
     this.max = max;
-    this.value = 0;
-    this.isValueGenerated = false;
+    this.value = null;
   }
 
-  public int getMin() {
+  public BigInteger getMin() {
     return min;
   }
 
-  public int getMax() {
+  public BigInteger getMax() {
     return max;
   }
 
   @Override
-  public int getValue() {
-    if (!isValueGenerated) {
-      value = Randomizer.get().nextIntRange(min, max);
-      isValueGenerated = true;
+  public BigInteger getValue() {
+    if (null == value) {
+      value = Randomizer.get().nextBigIntegerRange(min, max);
     }
     return value;
   }

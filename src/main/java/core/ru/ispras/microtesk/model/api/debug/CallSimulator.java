@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.api.debug;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +33,11 @@ public abstract class CallSimulator {
     calls.add(call);
   }
 
-  protected final IAddressingMode newMode(String name, Map<String, Integer> args)
+  protected final IAddressingMode newMode(String name, Map<String, BigInteger> args)
       throws ConfigurationException {
     final IAddressingModeBuilder modeBuilder = model.getCallFactory().newMode(name);
 
-    for (Map.Entry<String, Integer> arg : args.entrySet()) {
+    for (Map.Entry<String, BigInteger> arg : args.entrySet()) {
       modeBuilder.setArgumentValue(arg.getKey(), arg.getValue());
     }
 

@@ -341,7 +341,7 @@ public final class DataEngine {
 
   /**
    * Checks whether the significant bits are lost when the specified integer is converted to
-   * the specified Model API type. This happens when the type is shorter than {@code int}
+   * the specified Model API type. This happens when the type is shorter than the value
    * and the truncated part goes beyond sign extension bits.
    * 
    * @param type Conversion target type.
@@ -350,22 +350,25 @@ public final class DataEngine {
    * or {@code false} otherwise.
    */
 
-  public static boolean isLossOfSignificantBits(Type type, int value) {
-    if (type.getBitSize() >= Integer.SIZE) {
+  public static boolean isLossOfSignificantBits(
+      final Type type, final BigInteger value) {
+
+    final int valueBitSize = value.bitLength() + 1; // Minimal two's complement + sign bit
+    if (type.getBitSize() >= valueBitSize) {
       return false;
     }
 
-    final BitVector whole = BitVector.valueOf(value, Integer.SIZE);
+    final BitVector whole = BitVector.valueOf(value, valueBitSize);
     final BitVector truncated = BitVector.newMapping(
         whole, type.getBitSize(), whole.getBitSize() - type.getBitSize());
 
-    final int truncatedValue = truncated.intValue();
+    final long truncatedValue = truncated.longValue();
     if (truncatedValue == 0) {
       return false;
     }
 
     final boolean isNegative = whole.getBit(type.getBitSize() - 1);
-    final int allOnesPattern = (-1 >>> Integer.SIZE - truncated.getBitSize());
+    final long allOnesPattern = (-1L >>> valueBitSize - truncated.getBitSize());
 
     if (isNegative && (truncatedValue == allOnesPattern)) {
       return false;

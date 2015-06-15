@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
+import java.math.BigInteger;
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -276,7 +277,7 @@ public final class Template {
         metaModel, callBuilder, dataManager.getMemoryMap(), metaData);
   }
 
-  public RandomValue newRandom(int from, int to) {
+  public RandomValue newRandom(BigInteger from, BigInteger to) {
     return new RandomValue(from, to);
   }
 

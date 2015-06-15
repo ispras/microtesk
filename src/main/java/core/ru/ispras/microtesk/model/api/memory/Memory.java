@@ -171,7 +171,7 @@ public abstract class Memory {
     this.type = type;
     this.length = length;
     this.isAlias = isAlias;
-    this.addressBitSize = MemoryStorage.calculateAddressSize(type.getBitSize(), length);
+    this.addressBitSize = MemoryStorage.calculateAddressSize(length);
   }
 
   public static void setUseTempCopies(boolean value) {

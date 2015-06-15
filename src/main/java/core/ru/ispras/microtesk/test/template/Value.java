@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
+
 /**
  * The Value interface is to be implemented by all classes that hold immediate values (arguments
  * of addressing modes and operations). This provides a uniform way to extract the stored
@@ -23,5 +25,5 @@ package ru.ispras.microtesk.test.template;
  */
 
 public interface Value {
-  int getValue();
+  BigInteger getValue();
 }

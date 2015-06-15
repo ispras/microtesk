@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,14 +38,14 @@ public interface PrimitiveBuilder {
   void setContext(String contextName);
   void setSituation(Situation situation);
 
-  void addArgument(int value);
+  void addArgument(BigInteger value);
   void addArgument(String value);
   void addArgument(RandomValue value);
   void addArgument(Primitive value);
   void addArgument(PrimitiveBuilder value);
   void addArgument(UnknownImmediateValue value);
   void addArgument(LazyValue value);
-  void setArgument(String name, int value);
+  void setArgument(String name, BigInteger value);
   void setArgument(String name, String value);
   void setArgument(String name, RandomValue value);
   void setArgument(String name, Primitive value);
@@ -147,7 +148,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   // /////////////////////////////////////////////////////////////////////////
   // For Array-based syntax
 
-  public void addArgument(int value) {
+  public void addArgument(BigInteger value) {
     registerArgument(new ArgumentInt(value));
   }
 
@@ -187,7 +188,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   // /////////////////////////////////////////////////////////////////////////
   // For Hash-based syntax
 
-  public void setArgument(String name, int value) {
+  public void setArgument(String name, BigInteger value) {
     checkNotNull(name);
     registerArgument(new ArgumentInt(name, value));
   }
@@ -265,12 +266,12 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     }
   }
 
-  private static class ArgumentInt extends AbstractArgument<Integer> {
-    public ArgumentInt(String name, int value) {
+  private static class ArgumentInt extends AbstractArgument<BigInteger> {
+    public ArgumentInt(String name, BigInteger value) {
       super(name, value);
     }
 
-    public ArgumentInt(int value) {
+    public ArgumentInt(BigInteger value) {
       super(value);
     }
 
@@ -522,7 +523,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   // /////////////////////////////////////////////////////////////////////////
   // For Array-based syntax
 
-  public void addArgument(int value) {
+  public void addArgument(BigInteger value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
@@ -564,7 +565,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   // /////////////////////////////////////////////////////////////////////////
   // For Hash-based syntax
 
-  public void setArgument(String name, int value) {
+  public void setArgument(String name, BigInteger value) {
     checkNotNull(name);
 
     final MetaArgument metaArg = getMetaArgument(name);
@@ -586,7 +587,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final int fakeValue = 0;
     final int address = memoryMap.resolveWithDefault(value, fakeValue);
 
-    setArgument(name, address);
+    // TODO
+    setArgument(name, BigInteger.valueOf(address));
     callBuilder.addLabelReference(value, lazyPrimitive, name, address);
   }
 

@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.data;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -100,7 +101,7 @@ public final class ModeAllocator {
     for (final Argument arg : primitive.getArguments().values()) {
       switch (arg.getKind()) {
         case IMM:
-          final Integer integer = (Integer) arg.getValue();
+          final BigInteger integer = (BigInteger) arg.getValue();
           if (primitive.getKind() == Primitive.Kind.MODE) {
             use(primitive.getName(), integer);
           }
@@ -133,7 +134,7 @@ public final class ModeAllocator {
         case IMM_UNKNOWN:
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
           if (primitive.getKind() == Primitive.Kind.MODE && !unknownValue.isValueSet()) {
-            unknownValue.setValue(allocate(primitive.getName()));
+            unknownValue.setValue(BigInteger.valueOf(allocate(primitive.getName())));
           }
           break;
         default:
@@ -143,12 +144,12 @@ public final class ModeAllocator {
     }
   }
 
-  private void use(final String mode, final int value) {
+  private void use(final String mode, final BigInteger value) {
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
-    if (allocationTable.exists(value)) {
-      allocationTable.use(value);
+    if (allocationTable.exists(value.intValue())) {
+      allocationTable.use(value.intValue());
     }
   }
 

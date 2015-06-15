@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
   }
 
   @Override
-  public IAddressingModeBuilder setArgumentValue(String name, Integer value)
+  public IAddressingModeBuilder setArgumentValue(String name, BigInteger value)
       throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
