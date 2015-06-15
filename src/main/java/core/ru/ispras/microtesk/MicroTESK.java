@@ -198,15 +198,25 @@ public final class MicroTESK {
 
     Logger.header("Generation Statistics");
     Logger.message("Generation time: %s", sb.toString());
-    Logger.message("Generation speed: %d instructions/second",
-        (1000 * statistics.instructionCount) / (endTime.getTime() - startTime.getTime())
-        );
+
+    final long rate = (1000 * statistics.instructionCount) /
+                       (endTime.getTime() - startTime.getTime());
+    Logger.message("Generation rate: %d instructions/second", rate);
 
     Logger.message("Programs/stimuli/instructions: %d/%d/%d",
         statistics.testProgramNumber,
         statistics.testCaseNumber,
         statistics.instructionCount
         );
+
+    if (params.hasOption(Parameters.RATE_LIMIT)) {
+      final long rateLimit = params.getOptionValueAsInt(Parameters.RATE_LIMIT);
+      if (rate < rateLimit && statistics.instructionCount >= 1000) { 
+        // Makes sense only for sequences of significant length (>= 1000)
+        Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
+        System.exit(-1);
+      }
+    }
   }
 
   private static void reportUndefinedOption(final Option option) {

@@ -66,7 +66,7 @@ public final class Parameters {
       newOption("output-dir", true, "Sets where to place generated files", TRANSLATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
-  // Test Program Generation Options (File Creation)
+  // Test Program Generation Options
 
   public static final Option RANDOM = 
       newOption("random-seed", true, "Sets seed for randomizer", GENERATE);
@@ -86,6 +86,9 @@ public final class Parameters {
 
   public static final Option ARCH_DIRS =
       newOption("arch-dirs", true, "Home directories for tested architectures", GENERATE);
+
+  public static final Option RATE_LIMIT =
+      newOption("rate-limit", true, "Generation rate limit, causes error when broken", GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options (File Creation)
@@ -251,6 +254,7 @@ public final class Parameters {
     result.addOption(SOLVER_DEBUG);
     result.addOption(TARMAC_LOG);
     result.addOption(ARCH_DIRS);
+    result.addOption(RATE_LIMIT);
 
     result.addOption(CODE_EXT);
     result.addOption(CODE_PRE);
