@@ -28,7 +28,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
 public interface IOperation extends IPrimitive {
   public interface IFactory {
-    public IOperation create(Map<String, Object> args);
+    IOperation create(Map<String, Object> args);
   }
 
   /**
@@ -46,7 +46,7 @@ public interface IOperation extends IPrimitive {
      * @return The mode name.
      */
 
-    public String getName();
+    String getName();
 
     /**
      * Checks whether the current operation is a root. An operation is a root if it does not have
@@ -55,11 +55,11 @@ public interface IOperation extends IPrimitive {
      * @return {@code true} if it is a root operation or {@code false} otherwise.
      */
 
-    public boolean isRoot();
+    boolean isRoot();
 
-    public Map<String, IOperationBuilder> createBuilders();
+    Map<String, IOperationBuilder> createBuilders();
 
-    public Map<String, IOperationBuilder> createBuildersForShortcut(String contextName);
+    Map<String, IOperationBuilder> createBuildersForShortcut(String contextName);
 
     /**
      * Checks if the current operation (or group of operations) implements (or contains) the
@@ -70,7 +70,7 @@ public interface IOperation extends IPrimitive {
      * @return true if the operation is supported or false otherwise.
      */
 
-    public boolean isSupported(IOperation op);
+    boolean isSupported(IOperation op);
 
     /**
      * Returns a collection of meta data objects describing the operation (or the group of
@@ -80,6 +80,6 @@ public interface IOperation extends IPrimitive {
      * @return A collection of meta data objects for an operation or a group of operations.
      */
 
-    public Collection<MetaOperation> getMetaData();
+    Collection<MetaOperation> getMetaData();
   }
 }
