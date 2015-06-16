@@ -51,7 +51,7 @@ private static final IOperation.IInfo[] __OPS = new IOperation.IInfo[] {
   <ops:{op |<op>.INFO}; separator=",\n">
 };
 
-private static final Operation.InfoOrRule[] __OP_GROUPS = new Operation.InfoOrRule[] {
+private static final IOperation.IInfo[] __OP_GROUPS = new IOperation.IInfo[] {
   <ogs:{op |<op>.INFO}; separator=",\n">
 };
 
