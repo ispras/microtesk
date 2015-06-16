@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.debug;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
+import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
@@ -65,7 +66,18 @@ public final class MetaModelPrinter {
     }
   }
 
-  public void printAddressingModeMetaData() {
+  private void printAddressingModeMetaData() {
+    System.out.println("ADDRESSING MODE GROUPS:");
+    boolean isEmpty = true;
+    for (MetaGroup mg : metaModel.getAddressingModeGroups()) {
+      System.out.println("   " + mg.getName());
+      isEmpty = false;
+    }
+    if (isEmpty) {
+      System.out.println("   <NO>");
+    }
+    System.out.println();
+
     System.out.println("ADDRESSING MODES:");
 
     for (MetaAddressingMode am : metaModel.getAddressingModes()) {
@@ -89,6 +101,17 @@ public final class MetaModelPrinter {
   }
 
   private void printOperationMetaData() {
+    System.out.println("OPERATION GROUPS:");
+    boolean isEmpty = true;
+    for (MetaGroup og : metaModel.getOperationGroups()) {
+      System.out.println("   " + og.getName());
+      isEmpty = false;
+    }
+    if (isEmpty) {
+      System.out.println("   <NO>");
+    }
+    System.out.println();
+
     System.out.println("OPERATIONS:");
     for (MetaOperation o : metaModel.getOperations()) {
       System.out.println(String.format("Name: %s", o.getName()));
