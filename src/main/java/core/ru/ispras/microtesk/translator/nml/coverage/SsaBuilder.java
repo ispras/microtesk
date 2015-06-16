@@ -26,7 +26,9 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.microtesk.translator.nml.ESymbolKind;
-import ru.ispras.microtesk.translator.nml.ir.expression.*;
+import ru.ispras.microtesk.translator.nml.ir.expression.Converter;
+import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.location.*;
 import ru.ispras.microtesk.translator.nml.ir.primitive.*;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
@@ -668,8 +670,27 @@ final class SsaBuilder {
       }
     };
 
+    final TransformerRule int2bv = new TransformerRule() {
+      @Override
+      public boolean isApplicable(final Node node) {
+        final NodeInfo info = getNodeInfo(node);
+        return node.getKind() == Node.Kind.VALUE &&
+               node.isType(DataType.INTEGER) &&
+               info != null &&
+               info.isCoersionApplied();
+      }
+
+      @Override
+      public Node apply(final Node node) {
+        final Data data =
+            Converter.toFortressData(getNodeInfo(node).getValueInfo());
+        return IntegerCast.cast(node, data.getType());
+      }
+    };
+
     final NodeTransformer transformer = new NodeTransformer();
     transformer.addRule(Node.Kind.VARIABLE, rule);
+    transformer.addRule(Node.Kind.VALUE, int2bv);
     transformer.walk(expression);
 
     return transformer.getResult().iterator().next();
@@ -682,10 +703,17 @@ final class SsaBuilder {
    * null otherwise.
    */
   private static Location locationFromNodeVariable(Node node) {
-    if (node.getKind() == Node.Kind.VARIABLE && node.getUserData() instanceof NodeInfo) {
-      final NodeInfo info = (NodeInfo) node.getUserData();
+    final NodeInfo info = getNodeInfo(node);
+    if (node.getKind() == Node.Kind.VARIABLE && info != null) {
       if (info.getSource() instanceof Location)
         return (Location) info.getSource();
+    }
+    return null;
+  }
+
+  private static NodeInfo getNodeInfo(final Node node) {
+    if (node.getUserData() instanceof NodeInfo) {
+      return (NodeInfo) node.getUserData();
     }
     return null;
   }
