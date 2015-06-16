@@ -88,6 +88,7 @@ public final class DataEngine {
     UNARY_OPERATORS.put(EOperatorID.UNARY_MINUS, new ArithmUnary(Operations.NEG));
 
     BINARY_OPERATORS.put(EOperatorID.MUL, new ArithmMul());
+    BINARY_OPERATORS.put(EOperatorID.DIV, new ArithmDiv());
 
     // /////////////////////////////////////////////////////////////////////////////////
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public class ArithmMul implements IBinaryOperator {
+public class ArithmDiv implements IBinaryOperator {
   private final static Set<TypeId> SUPPORTED_TYPES = Collections.unmodifiableSet(EnumSet.of(
     TypeId.INT, TypeId.CARD
 // , ETypeID.FLOAT // NOT SUPPORTED IN THIS VERSION
@@ -37,7 +37,7 @@ public class ArithmMul implements IBinaryOperator {
     assert left.getType().equals(right.getType()) : "Restriction: types (and sizes) should match.";
 
     final BigInteger result = 
-        left.getRawData().bigIntegerValue().multiply(right.getRawData().bigIntegerValue());
+        left.getRawData().bigIntegerValue().divide(right.getRawData().bigIntegerValue());
     final Type resultType = left.getType();
 
     return new Data(BitVector.valueOf(result, resultType.getBitSize()), resultType);
