@@ -37,14 +37,17 @@ final class STBModel implements ITemplateBuilder {
   private final String modelName;
   private final IR ir;
 
-  public STBModel(String specFileName, String modelName, IR ir) {
+  public STBModel(
+      final String specFileName,
+      final String modelName,
+      final IR ir) {
     this.specFileName = specFileName;
     this.modelName = modelName;
     this.ir = ir;
   }
 
   @Override
-  public ST build(STGroup group) {
+  public ST build(final STGroup group) {
     final ST t = group.getInstanceOf("model");
 
     t.add("file", specFileName);
@@ -79,26 +82,42 @@ final class STBModel implements ITemplateBuilder {
   }
 
   private void addOperations(final ST t, final ST tc) {
-    final List<String> opNames = new ArrayList<String>();
-    for (Primitive op : ir.getOps().values()) {
-      if (!op.isOrRule())
-        opNames.add(op.getName());
-    }
-    tc.add("ops", opNames);
+    final List<String> opNames = new ArrayList<>();
+    final List<String> opGroupNames = new ArrayList<>();
 
-    if (!opNames.isEmpty())
+    for (final Primitive op : ir.getOps().values()) {
+      if (op.isOrRule()) {
+        opGroupNames.add(op.getName());
+      } else {
+        opNames.add(op.getName());
+      }
+    }
+
+    tc.add("ops", opNames);
+    tc.add("ogs", opGroupNames);
+
+    if (!opNames.isEmpty() || !opGroupNames.isEmpty()) {
       t.add("imps", String.format(OP_CLASS_FORMAT, modelName, "*"));
+    }
   }
 
   private void addAddressingModes(final ST t, final ST tc) {
-    final List<String> modeNames = new ArrayList<String>();
-    for (Primitive m : ir.getModes().values()) {
-      if (!m.isOrRule())
-        modeNames.add(m.getName());
-    }
-    tc.add("modes", modeNames);
+    final List<String> modeNames = new ArrayList<>();
+    final List<String> modeGroupNames = new ArrayList<>();
 
-    if (!modeNames.isEmpty())
+    for (final Primitive m : ir.getModes().values()) {
+      if (m.isOrRule()) {
+        modeGroupNames.add(m.getName());
+      } else {
+        modeNames.add(m.getName());
+      }
+    }
+
+    tc.add("modes", modeNames);
+    tc.add("mgs", modeGroupNames);
+
+    if (!modeNames.isEmpty() || !modeGroupNames.isEmpty()) {
       t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
+    }
   }
 }

@@ -61,14 +61,16 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
   private final MetaModel metaModel;
 
   public ProcessorModel(
-      String name,
-      IAddressingMode.IInfo[] modes,
-      IOperation.IInfo[] ops,
-      Memory[] registers,
-      Memory[] memory,
-      Label[] labels,
-      Status[] statuses,
-      Resetter resetter) {
+      final String name,
+      final IAddressingMode.IInfo[] modes,
+      final IAddressingMode.IInfo[] modeGroups,
+      final IOperation.IInfo[] ops,
+      final IOperation.IInfo[] opGroups,
+      final Memory[] registers,
+      final Memory[] memory,
+      final Label[] labels,
+      final Status[] statuses,
+      final Resetter resetter) {
 
     this.name = name;
 
@@ -80,7 +82,9 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
 
     this.metaModel = new MetaModel(
       this.modes.getMetaData(),
+      null,
       this.ops.getMetaData(),
+      null,
       new MemoryStore(registers).getMetaData(),
       new MemoryStore(memory).getMetaData()
     );

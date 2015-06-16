@@ -34,7 +34,9 @@ public final class MetaModel {
 
   public MetaModel(
       final Collection<MetaAddressingMode> modes,
+      final Collection<MetaGroup> modeGroups,
       final Collection<MetaOperation> operations,
+      final Collection<MetaGroup> operationGroups,
       final Collection<MetaLocationStore> registers,
       final Collection<MetaLocationStore> memory) {
     this.modes = toMap(modes);

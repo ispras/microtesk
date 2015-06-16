@@ -74,9 +74,8 @@ import static <names; separator=".*;\nimport static ">.*;<\n>
  */
 
 class(modifs, name, ext, impls, members) ::= <<
-<modif_list(modifs)>class <name><base_class(ext)><intf_list(impls)>
-{
-    <members; separator="\n">
+<modif_list(modifs)>class <name><base_class(ext)><intf_list(impls)> {
+  <members; separator="\n">
 }<\n>
 >>
 

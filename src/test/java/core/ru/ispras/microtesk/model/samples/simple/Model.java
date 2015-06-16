@@ -39,11 +39,17 @@ public final class Model extends ProcessorModel
     public static final String NAME = "simple";
 
     private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[]
-    { 
+    {
         IMM.INFO,
         IREG.INFO,
         MEM.INFO,
         REG.INFO
+    };
+
+    private static final IAddressingMode.IInfo[] __MODE_GROUPS = new IAddressingMode.IInfo[]
+    {
+      OPRNDL.INFO,
+      OPRNDR.INFO
     };
 
     private static final IOperation.IInfo[] __OPS = new IOperation.IInfo[]
@@ -55,12 +61,18 @@ public final class Model extends ProcessorModel
         Instruction.INFO
     };
 
+    private static final IOperation.IInfo[] __OP_GROUPS = new IOperation.IInfo[] {
+      Add_sub_mov.INFO
+    };
+
     public Model()
     {
         super(
             NAME,
             __MODES,
+            __MODE_GROUPS,
             __OPS,
+            __OP_GROUPS,
             __REGISTERS,
             __MEMORY,
             __LABELS,

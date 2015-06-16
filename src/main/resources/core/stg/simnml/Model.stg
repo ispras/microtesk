@@ -36,48 +36,53 @@ model(file, pack, imps, simps, base, members) ::= <<
        members)> 
 >>
 
-constructor(name, reg, mem, lab, stat, modes, ops, reset) ::= <<
+constructor(name, reg, mem, lab, stat, modes, mgs, ops, ogs, reset) ::= <<
 <class_string_const("String", "NAME", name)>
 
-private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[]
-{
-    <modes:{m |<m>.INFO}; separator=",\n">
+private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[] {
+  <modes:{m |<m>.INFO}; separator=",\n">
 };
 
-private static final IOperation.IInfo[] __OPS = new IOperation.IInfo[]
-{
-    <ops:{op |<op>.INFO}; separator=",\n">
+private static final IAddressingMode.IInfo[] __MODE_GROUPS = new IAddressingMode.IInfo[] {
+  <mgs:{m |<m>.INFO}; separator=",\n">
 };
 
-public Model()
-{
-    super(
-        NAME,
-        __MODES,
-        __OPS,
-        <reg>,
-        <mem>,
-        <lab>,
-        <stat>,
-        <reset>
-        );
+private static final IOperation.IInfo[] __OPS = new IOperation.IInfo[] {
+  <ops:{op |<op>.INFO}; separator=",\n">
+};
+
+private static final Operation.InfoOrRule[] __OP_GROUPS = new Operation.InfoOrRule[] {
+  <ogs:{op |<op>.INFO}; separator=",\n">
+};
+
+public Model() {
+  super(
+      NAME,
+      __MODES,
+      __MODE_GROUPS,
+      __OPS,
+      __OP_GROUPS,
+      <reg>,
+      <mem>,
+      <lab>,
+      <stat>,
+      <reset>
+      );
 }
 >>
 
 debug_block() ::= <<
-<\n>public static void printInformation()
-{
-    final Model model = new Model();
+<\n>public static void printInformation() {
+  final Model model = new Model();
 
-    final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(model.getMetaData());
-    metaModelPrinter.printAll();
+  final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(model.getMetaData());
+  metaModelPrinter.printAll();
 
-    final ModelStatePrinter modelStatePrinter = new ModelStatePrinter(model);
-    modelStatePrinter.printRegisters();
+  final ModelStatePrinter modelStatePrinter = new ModelStatePrinter(model);
+  modelStatePrinter.printRegisters();
 }
 
-public static void main(String[] args)
-{
-    printInformation();
+public static void main(String[] args) {
+  printInformation();
 }
 >>
