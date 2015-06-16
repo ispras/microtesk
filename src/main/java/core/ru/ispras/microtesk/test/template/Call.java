@@ -23,8 +23,11 @@ public final class Call {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
-  Call(Primitive rootOperation, List<Label> labels, List<LabelReference> labelRefs,
-      List<Output> outputs) {
+  Call(
+      final Primitive rootOperation,
+      final List<Label> labels,
+      final List<LabelReference> labelRefs,
+      final List<Output> outputs) {
     this.rootOperation = rootOperation;
     this.labels = Collections.unmodifiableList(labels);
     this.labelRefs = Collections.unmodifiableList(labelRefs);
@@ -70,6 +73,15 @@ public final class Call {
   }
 
   public boolean isConditionalBranch() {
+    if (!isExecutable()) {
+      return false;
+    }
+
+    // TODO
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean canThrowException() {
     if (!isExecutable()) {
       return false;
     }
