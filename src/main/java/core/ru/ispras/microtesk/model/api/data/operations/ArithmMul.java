@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.model.api.data.operations;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -22,6 +21,7 @@ import java.util.Set;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -36,11 +36,10 @@ public class ArithmMul implements IBinaryOperator {
   public Data execute(Data left, Data right) {
     assert left.getType().equals(right.getType()) : "Restriction: types (and sizes) should match.";
 
-    final BigInteger result = 
-        left.getRawData().bigIntegerValue().multiply(right.getRawData().bigIntegerValue());
+    final BitVector result = BitVectorMath.mul(left.getRawData(), right.getRawData());
     final Type resultType = left.getType();
 
-    return new Data(BitVector.valueOf(result, resultType.getBitSize()), resultType);
+    return new Data(result, resultType);
   }
 
   @Override
