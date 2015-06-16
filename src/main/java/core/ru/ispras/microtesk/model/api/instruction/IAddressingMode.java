@@ -37,13 +37,13 @@ public interface IAddressingMode extends IPrimitive {
    * Sends a notification to trace an attempt to load data from memory storage.
    */
 
-  public void onBeforeLoad();
+  void onBeforeLoad();
 
   /**
    * Sends a notification to trace an attempt to write data to memory storage.
    */
 
-  public void onBeforeStore();
+  void onBeforeStore();
 
   /**
    * Returns the location the addressing mode object points to (when initialized with specific
@@ -52,7 +52,7 @@ public interface IAddressingMode extends IPrimitive {
    * @return The memory location.
    */
 
-  public Location access();
+  Location access();
 
   /**
    * The IAddressingMode.IFactory interfaces is a base interface for factories that create concrete
@@ -69,7 +69,7 @@ public interface IAddressingMode extends IPrimitive {
      * @return The addressing mode object.
      */
 
-    public IAddressingMode create(Map<String, Data> args);
+    IAddressingMode create(Map<String, Data> args);
   }
 
   /**
@@ -87,7 +87,7 @@ public interface IAddressingMode extends IPrimitive {
      * @return The mode name.
      */
 
-    public String getName();
+    String getName();
 
     /**
      * Returns the type of data accessed via the addressing mode.
@@ -95,7 +95,7 @@ public interface IAddressingMode extends IPrimitive {
      * @return Data type.
      */
 
-    public Type getType();
+    Type getType();
 
     /**
      * Returns a table of builder for the addressing mode (or the group of addressing modes)
@@ -104,7 +104,7 @@ public interface IAddressingMode extends IPrimitive {
      * @return A table of addressing mode builders (key is the mode name, value is the builder).
      */
 
-    public Map<String, IAddressingModeBuilder> createBuilders();
+    Map<String, IAddressingModeBuilder> createBuilders();
 
     /**
      * Returns a collection of meta data objects describing the addressing mode (or the group of
@@ -115,7 +115,7 @@ public interface IAddressingMode extends IPrimitive {
      *         modes.
      */
 
-    public Collection<MetaAddressingMode> getMetaData();
+    Collection<MetaAddressingMode> getMetaData();
 
     /**
      * Checks if the current addressing mode (or group of addressing modes) implements (or contains)
@@ -126,6 +126,6 @@ public interface IAddressingMode extends IPrimitive {
      * @return true if the mode is supported or false otherwise.
      */
 
-    public boolean isSupported(IAddressingMode mode);
+    boolean isSupported(IAddressingMode mode);
   }
 }
