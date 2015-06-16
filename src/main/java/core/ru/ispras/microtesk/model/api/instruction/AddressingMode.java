@@ -26,6 +26,8 @@ import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
+import ru.ispras.microtesk.model.api.metadata.MetaData;
+import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -76,7 +78,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     private final Type type;
     private final Map<String, Type> decls;
 
-    private Collection<MetaAddressingMode> metaData;
+    private MetaAddressingMode metaData;
 
     public InfoAndRule(
         final Class<?> modeClass,
@@ -108,13 +110,17 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
     @Override
     public final Collection<MetaAddressingMode> getMetaData() {
+      return Collections.singletonList(getMetaDataItem());
+    }
+
+    public MetaAddressingMode getMetaDataItem() {
       if (null == metaData) {
         metaData = createMetaData(name, type, decls);
       }
       return metaData;
     }
 
-    private static Collection<MetaAddressingMode> createMetaData(
+    private static MetaAddressingMode createMetaData(
         final String name,
         final Type dataType,
         final Map<String, Type> decls) {
@@ -135,8 +141,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         args.put(argName, arg);
       }
 
-      return Collections.singletonList(
-          new MetaAddressingMode(name, dataType, args));
+      return new MetaAddressingMode(name, dataType, args);
     }
 
     @Override
@@ -171,7 +176,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
    * @author Andrei Tatarnikov
    */
 
-  protected static final class InfoOrRule implements IInfo {
+  public static final class InfoOrRule implements IInfo {
     private final String name;
     private final IInfo[] childs;
 
@@ -222,6 +227,20 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
       }
 
       return false;
+    }
+
+    public MetaGroup getMetaDataGroup() {
+      final List<MetaData> items = new ArrayList<>();
+
+      for (final IInfo i : childs) {
+        if (i instanceof AddressingMode.InfoAndRule) {
+          items.add(((AddressingMode.InfoAndRule) i).getMetaDataItem());
+        } else {
+          items.add(((AddressingMode.InfoOrRule) i).getMetaDataGroup());
+        }
+      }
+
+      return new MetaGroup(MetaGroup.Kind.MODE, name, items);
     }
   }
 

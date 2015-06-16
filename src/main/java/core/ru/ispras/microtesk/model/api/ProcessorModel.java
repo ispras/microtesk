@@ -17,13 +17,16 @@ package ru.ispras.microtesk.model.api;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.*;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
+import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
@@ -80,15 +83,39 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
     this.observer = new ModelStateObserver(registers, memory, labels, statuses);
     this.resetter = resetter;
 
+    final List<MetaGroup> modeGroupList = modeGroupsToList(modeGroups);
+    final List<MetaGroup> opGroupList = opGroupsToList(opGroups);
+
     this.metaModel = new MetaModel(
       this.modes.getMetaData(),
-      null,
+      modeGroupList,
       this.ops.getMetaData(),
-      null,
+      opGroupList,
       new MemoryStore(registers).getMetaData(),
       new MemoryStore(memory).getMetaData()
     );
   }
+
+  private static List<MetaGroup> modeGroupsToList(final IAddressingMode.IInfo[] modeGroups) {
+    final List<MetaGroup> result = new ArrayList<>();
+
+    for (final IAddressingMode.IInfo i : modeGroups) {
+      result.add(((AddressingMode.InfoOrRule) i).getMetaDataGroup());
+    }
+
+    return result;
+  }
+  
+  private static List<MetaGroup> opGroupsToList(final IOperation.IInfo[] opGroups) {
+    final List<MetaGroup> result = new ArrayList<>();
+
+    for (final IOperation.IInfo i : opGroups) {
+      result.add(((Operation.InfoOrRule) i).getMetaDataGroup());
+    }
+
+    return result;
+  }
+
 
   public final String getName() {
     return name;

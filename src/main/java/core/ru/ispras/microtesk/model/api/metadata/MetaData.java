@@ -21,7 +21,7 @@ package ru.ispras.microtesk.model.api.metadata;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-interface MetaData {
+public interface MetaData {
   /**
    * Returns the name of the current metadata element.
    * 

@@ -28,6 +28,8 @@ import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
+import ru.ispras.microtesk.model.api.metadata.MetaData;
+import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
 
@@ -341,6 +343,10 @@ public abstract class Operation extends StandardFunctions implements IOperation 
       return Collections.singletonList(metaData);
     }
 
+    public final MetaOperation getMetaDataItem() {
+      return metaData;
+    }
+
     @Override
     public final Map<String, IOperationBuilder> createBuilders() {
       final IOperationBuilder builder = new OperationBuilder(name, this, decls);
@@ -383,7 +389,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     private static Collection<MetaOperation> createMetaData(String name, IInfo[] childs) {
-      final List<MetaOperation> result = new ArrayList<MetaOperation>();
+      final List<MetaOperation> result = new ArrayList<>();
 
       for (IInfo i : childs) {
         result.addAll(i.getMetaData());
@@ -426,7 +432,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
     @Override
     public Map<String, IOperationBuilder> createBuilders() {
-      final Map<String, IOperationBuilder> result = new HashMap<String, IOperationBuilder>();
+      final Map<String, IOperationBuilder> result = new HashMap<>();
 
       for (IInfo i : childs) {
         result.putAll(i.createBuilders());
@@ -438,6 +444,20 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     @Override
     public Map<String, IOperationBuilder> createBuildersForShortcut(String contextName) {
       return null;
+    }
+
+    public MetaGroup getMetaDataGroup() {
+      final List<MetaData> items = new ArrayList<>();
+
+      for (final IInfo i : childs) {
+        if (i instanceof Operation.InfoAndRule) {
+          items.add(((Operation.InfoAndRule) i).getMetaDataItem());
+        } else {
+          items.add(((Operation.InfoOrRule) i).getMetaDataGroup());
+        }
+      }
+
+      return new MetaGroup(MetaGroup.Kind.OP, name, items);
     }
   }
 

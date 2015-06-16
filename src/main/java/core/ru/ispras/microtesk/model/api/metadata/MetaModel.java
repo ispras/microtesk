@@ -28,7 +28,9 @@ import java.util.Map;
 
 public final class MetaModel {
   private final Map<String, MetaAddressingMode> modes;
+  private final Map<String, MetaGroup> modeGroups;
   private final Map<String, MetaOperation> operations;
+  private final Map<String, MetaGroup> operationGroups;
   private final Map<String, MetaLocationStore> registers;
   private final Map<String, MetaLocationStore> memory;
 
@@ -40,7 +42,9 @@ public final class MetaModel {
       final Collection<MetaLocationStore> registers,
       final Collection<MetaLocationStore> memory) {
     this.modes = toMap(modes);
+    this.modeGroups = toMap(modeGroups); 
     this.operations = toMap(operations);
+    this.operationGroups = toMap(operationGroups);
     this.registers = toMap(registers);
     this.memory = toMap(memory);
   }
@@ -56,8 +60,8 @@ public final class MetaModel {
   }
 
   /**
-   * Returns an iterator for the collection of addressing modes (excluding modes defined as OR
-   * rules).
+   * Returns an iterator for the collection of addressing modes 
+   * (excluding modes defined as OR rules).
    * 
    * @return An Iterable object.
    */
@@ -78,8 +82,29 @@ public final class MetaModel {
   }
 
   /**
-   * Returns an iterator for the collection of operations (excluding operations defined as OR
-   * rules).
+   * Returns addressing mode groups (modes defined as OR rules).
+   * 
+   * @return An Iterable object.
+   */
+
+  public Iterable<MetaGroup> getAddressingModeGroups() {
+    return modeGroups.values();
+  }
+
+  /**
+   * Returns metadata for the specified addressing mode group (defined as OR rules).
+   * 
+   * @param name Name of addressing mode group.
+   * @return Addressing mode group metadata.
+   */
+
+  public MetaGroup getAddressingModeGroup(final String name) {
+    return modeGroups.get(name);
+  }
+
+  /**
+   * Returns an iterator for the collection of operations
+   * (excluding operations defined as OR rules).
    * 
    * @return An Iterable object.
    */
@@ -97,6 +122,27 @@ public final class MetaModel {
 
   public MetaOperation getOperation(final String name) {
     return operations.get(name);
+  }
+
+  /**
+   * Returns operations groups (operations defined as OR rules).
+   * 
+   * @return An Iterable object.
+   */
+
+  public Iterable<MetaGroup> getOperationGroups() {
+    return operationGroups.values();
+  }
+
+  /**
+   * Returns metadata for the specified operation group.
+   * 
+   * @param name Name of operation group.
+   * @return Operation group metadata.
+   */
+
+  public MetaGroup getOperationGroup(final String name) {
+    return operationGroups.get(name);
   }
 
   /**
