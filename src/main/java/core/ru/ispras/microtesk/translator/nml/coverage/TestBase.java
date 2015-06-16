@@ -133,9 +133,11 @@ public final class TestBase {
     final Iterator<String> partsIt = parts.iterator();
 
     String part = partsIt.next();
+    int matches = 0;
     while (pathIt.hasNext()) {
       final String component = pathIt.next();
       if (component.equals(part)) {
+        ++matches;
         if (partsIt.hasNext()) {
           part = partsIt.next();
         } else {
@@ -143,7 +145,7 @@ public final class TestBase {
         }
       }
     }
-    return !partsIt.hasNext();
+    return !partsIt.hasNext() && matches > 0;
   }
 
   private static List<String> splitInverse(final String s) {
