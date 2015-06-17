@@ -657,14 +657,8 @@ final class DataGenerator {
             final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
 
             if (!unknownValue.isValueSet()) {
-              //if (p.getKind() != Primitive.Kind.MODE) {
-                queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
-                unknownValues.put(argName, arg);
-              //} else {
-                // Allocate the registers (assign values to the unknown mode arguments).
-                //unknownValue.setValue(TestEngine.allocateMode(p.getName()));
-                //queryBuilder.setBinding(argName, NodeValue.newInteger(unknownValue.getValue()));
-              //}
+              queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
+              unknownValues.put(argName, arg);
             } else {
               queryBuilder.setBinding(argName,
                   new NodeValue(Data.newInteger(unknownValue.getValue())));
