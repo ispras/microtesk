@@ -49,8 +49,8 @@ class IntSqrt4Template < MiniMipsBaseTemplate
     beq t0, zero, :done
     OR  t2, t1, t0
 
-    srl t1, t1, s1
-    slt t4, t3, t2
+    srlv t1, t1, s1
+    slt  t4, t3, t2
 
     bne t4, zero, :if_less
     nop
