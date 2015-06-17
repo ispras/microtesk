@@ -60,7 +60,7 @@ class IntSqrt4Template < MiniMipsBaseTemplate
 
     label :if_less
     j :cycle
-    srl t0, t0, s2
+    srlv t0, t0, s2
 
     label :done
     trace "\nInteger square root of %d: %d", x, gpr_observer(9)
