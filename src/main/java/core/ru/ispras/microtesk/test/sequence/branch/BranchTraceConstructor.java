@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.sequence.branch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -264,7 +265,7 @@ public final class BranchTraceConstructor {
 
     // Unreachable or fictitious branching.
     if (segments.isEmpty()) {
-      entry.setBlockCoverage(new LinkedHashSet<>());
+      entry.setBlockCoverage(Collections.<Integer>emptySet());
       return true;
     }
 

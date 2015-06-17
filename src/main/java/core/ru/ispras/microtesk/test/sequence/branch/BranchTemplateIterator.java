@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.sequence.branch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -31,6 +32,8 @@ import ru.ispras.microtesk.test.sequence.branch.internal.IntSampleIterator;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.LabelReference;
+import ru.ispras.microtesk.test.template.Output;
 import ru.ispras.testbase.knowledge.iterator.IntRangeIterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
@@ -427,7 +430,7 @@ public final class BranchTemplateIterator implements Generator<Call> {
 
         if (labelSequence == null) {
           labelSequence = new Sequence<Call>();
-          labelSequence.add(new Call(null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+          labelSequence.add(new Call(null, Collections.<Label>emptyList(), Collections.<LabelReference>emptyList(), Collections.<Output>emptyList()));
           steps.put(situation.getBranchLabel(), labelSequence);
         } else {
           final Call labelCall = labelSequence.get(0);
