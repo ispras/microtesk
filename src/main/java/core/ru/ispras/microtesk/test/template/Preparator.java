@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.test.template.Call;
@@ -29,21 +30,40 @@ public final class Preparator {
   private final LazyData dataHolder;
   private final List<Call> calls;
 
-  Preparator(LazyPrimitive targetHolder, LazyData dataHolder, List<Call> calls) {
+  private final BitVector mask;
+  private final BitVector value;
+  private final Map<String, BitVector> arguments;
+
+  Preparator(
+      final LazyPrimitive targetHolder,
+      final LazyData dataHolder,
+      final List<Call> calls,
+      final BitVector mask,
+      final BitVector value,
+      final Map<String, BitVector> arguments) {
     checkNotNull(targetHolder);
     checkNotNull(dataHolder);
     checkNotNull(calls);
+    checkNotNull(arguments);
 
     this.targetHolder = targetHolder;
     this.dataHolder = dataHolder;
     this.calls = Collections.unmodifiableList(calls);
+
+    this.mask = mask;
+    this.value = value;
+    this.arguments = arguments;
   }
 
   public String getTargetName() {
     return targetHolder.getName();
   }
 
-  public List<Call> makeInitializer(Primitive target, BitVector data) {
+  public boolean isDefault() {
+    return null == mask && null == value && arguments.isEmpty();
+  }
+
+  public List<Call> makeInitializer(final Primitive target, final BitVector data) {
     checkNotNull(target);
     checkNotNull(data);
 

@@ -308,13 +308,14 @@ public final class Template {
     return new SituationBuilder(name);
   }
 
-  public void beginPreparator(String targetName) {
+  public void beginPreparator(final String targetName) {
     endBuildingCall();
 
     trace("Begin preparator: %s", targetName);
     checkNotNull(targetName);
 
-    if (null == metaModel.getAddressingMode(targetName)) {
+    final MetaAddressingMode targetMode = metaModel.getAddressingMode(targetName);
+    if (null == targetMode) {
       throw new IllegalArgumentException(String.format(
           "%s is not an addressing mode and cannot be a target for a preparator.", targetName));
     }
@@ -325,7 +326,7 @@ public final class Template {
           targetName, preparatorBuilder.getTargetName()));
     }
 
-    preparatorBuilder = new PreparatorBuilder(targetName);
+    preparatorBuilder = new PreparatorBuilder(targetMode);
   }
 
   public void endPreparator() {
