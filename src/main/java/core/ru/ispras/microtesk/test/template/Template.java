@@ -20,11 +20,18 @@ import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.math.BigInteger;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
+import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaData;
+import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
 public final class Template {
 
@@ -43,6 +50,9 @@ public final class Template {
   private final DataManager dataManager;
   private final PreparatorStore preparators;
   private final Processor processor;
+
+  // Variates for mode and operation groups 
+  private final Map<String, Variate<String>> groupVariates;
 
   private PreparatorBuilder preparatorBuilder;
   private Deque<BlockBuilder> blockBuilders;
@@ -75,6 +85,8 @@ public final class Template {
 
     this.isMainSection = false;
     this.openBlockCount = 0;
+
+    this.groupVariates = newVariateForGroups(metaModel);
   }
 
   private void processBlock(Section section, Block block) {
@@ -347,5 +359,63 @@ public final class Template {
       throw new IllegalStateException(
           "The construct cannot be used outside a preparator block.");
     }
+  }
+
+  public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {
+    final Variate<String> variate = getGroupVariate(name);
+    return newAddressingModeBuilder(variate.value());
+  }
+
+  public MetaOperation chooseMetaOperationFromGroup(final String name) {
+    final Variate<String> variate = getGroupVariate(name);
+    final String opName = variate.value();
+
+    final MetaOperation metaOperation = metaModel.getOperation(opName);
+    if (null == metaOperation) {
+      throw new IllegalStateException("No such operation defined: " + opName);
+    }
+
+    return metaOperation;
+  }
+
+  private static Map<String, Variate<String>> newVariateForGroups(final MetaModel model) {
+    InvariantChecks.checkNotNull(model);
+
+    final Map<String, Variate<String>> result = new HashMap<>();
+    for (final MetaGroup group : model.getAddressingModeGroups()) {
+      result.put(group.getName(), newVariateForGroup(group));
+    }
+
+    for (final MetaGroup group : model.getOperationGroups()) {
+      result.put(group.getName(), newVariateForGroup(group));
+    }
+
+    return result;
+  }
+
+  private static Variate<String> newVariateForGroup(final MetaGroup group) {
+    InvariantChecks.checkNotNull(group);
+
+    final VariateBuilder<String> builder = new VariateBuilder<>();
+    for (final MetaData item : group.getItems()) {
+      if (item instanceof MetaGroup) {
+        builder.addVariate(newVariateForGroup((MetaGroup) item));
+      } else {
+        builder.addValue(item.getName());
+      }
+    }
+
+    return builder.build();
+  }
+
+  private Variate<String> getGroupVariate(final String name) {
+    checkNotNull(name);
+
+    final Variate<String> variate = groupVariates.get(name);
+    if (null == variate) {
+      throw new IllegalArgumentException(String.format("The %s group is not defined.", name));
+    }
+
+    return variate;
   }
 }

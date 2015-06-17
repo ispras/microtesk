@@ -29,8 +29,14 @@ def self.define_runtime_methods(metamodel)
   modes = metamodel.getAddressingModes
   modes.each { |mode| define_addressing_mode mode }
 
+  mode_groups = metamodel.getAddressingModeGroups
+  mode_groups.each { |mode_group| define_addressing_mode_group mode_group }
+
   ops = metamodel.getOperations
   ops.each { |op| define_operation op }
+
+  op_groups = metamodel.getOperationGroups
+  op_groups.each { |op_group| define_operation_group op_group }
 end
 
 #
@@ -50,17 +56,32 @@ def define_addressing_mode(mode)
 end
 
 #
+# Defines methods for addressing mode groups (added to the Template class)
+# 
+def define_addressing_mode_group(mode_group)
+  name = mode_group.getName().to_s
+  #puts "Defining mode group #{name}..."
+
+  p = lambda do |*arguments|
+    builder = @template.newAddressingModeBuilderForGroup name
+    set_arguments builder, arguments
+    builder.build
+  end
+
+  define_method_for Template, name, "mode", p
+end
+
+#
 # Defines methods for operations (added to the Template class)
 # 
 def define_operation(op)
   name = op.getName().to_s
+  #puts "Defining operation #{name}..."
+
   is_root = op.isRoot
   root_shortcuts = op.hasRootShortcuts
 
-  #puts "Defining operation #{name}..."
-
   p = lambda do |*arguments, &situations|
-
     builder = @template.newOperationBuilder name
     set_arguments builder, arguments
 
@@ -73,6 +94,43 @@ def define_operation(op)
       @template.endBuildingCall
     elsif root_shortcuts
       # TODO: Dirty hack! Assumes that if a root shortcut exists, we always use it. 
+      builder.setContext "#root"
+      @template.setRootOperation builder.build
+      @template.endBuildingCall
+    else
+      builder
+    end
+  end
+
+  define_method_for Template, name, "op", p
+end
+
+#
+# Defines methods for operation groups (added to the Template class)
+# 
+def define_operation_group(op_group)
+  group_name = op_group.getName().to_s
+  #puts "Defining operation group #{group_name}..."
+
+  p = lambda do |*arguments, &situations|
+    op = @template.chooseMetaOperationFromGroup group_name
+    name = op.getName().to_s
+
+    is_root = op.isRoot
+    root_shortcuts = op.hasRootShortcuts
+
+    builder = @template.newOperationBuilder name
+    set_arguments builder, arguments
+
+    if situations != nil
+      builder.setSituation self.instance_eval &situations
+    end
+
+    if is_root
+      @template.setRootOperation builder.build
+      @template.endBuildingCall
+    elsif root_shortcuts
+      # TODO: Dirty hack! Assumes that if a root shortcut exists, we always use it.
       builder.setContext "#root"
       @template.setRootOperation builder.build
       @template.endBuildingCall
