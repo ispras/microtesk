@@ -661,9 +661,10 @@ final class SsaBuilder {
       @Override
       public Node apply(Node in) {
         final Location loc = locationFromNodeVariable(in);
-        if (loc instanceof LocationAtom)
-          return createRValue(createLValue((LocationAtom) loc));
-        else if (loc instanceof LocationConcat)
+        if (loc instanceof LocationAtom) {
+          final Node rval = createRValue(createLValue((LocationAtom) loc));
+          return IntegerCast.cast(rval, getCastType(in));
+        } else if (loc instanceof LocationConcat)
           return CONCAT(createRValues(fetchConcatLValues((LocationConcat) loc)));
         else
           throw new UnsupportedOperationException();
@@ -694,6 +695,14 @@ final class SsaBuilder {
     transformer.walk(expression);
 
     return transformer.getResult().iterator().next();
+  }
+
+  private static DataType getCastType(final Node node) {
+    final NodeInfo info = getNodeInfo(node);
+    if (info == null) {
+      return node.getDataType();
+    }
+    return Converter.toFortressData(info.getValueInfo()).getType();
   }
 
   /**
