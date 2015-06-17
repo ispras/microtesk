@@ -23,7 +23,7 @@ public final class Call {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
-  Call(
+  public Call(
       final Primitive rootOperation,
       final List<Label> labels,
       final List<LabelReference> labelRefs,
