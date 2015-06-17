@@ -331,6 +331,28 @@ class Template
   # end
 
   # -------------------------------------------------------------------------- #
+  # Defining Groups                                                            #
+  # -------------------------------------------------------------------------- #
+
+  def define_mode_group(name, distribution)
+    if !distribution.is_a?(Dist)
+      raise MTRubyError, "#{distribution} is not a distribution."
+    end
+
+    @template.defineGroup name, distribution.java_object
+    TemplateBuilder.define_addressing_mode_group name
+  end
+
+  def define_op_group(name, distribution)
+    if !distribution.is_a?(Dist)
+      raise MTRubyError, "#{distribution} is not a distribution."
+    end
+
+    @template.defineGroup name, distribution.java_object
+    TemplateBuilder.define_operation_group name
+  end
+
+  # -------------------------------------------------------------------------- #
   # Printing Text Messages                                                     #
   # -------------------------------------------------------------------------- #
 

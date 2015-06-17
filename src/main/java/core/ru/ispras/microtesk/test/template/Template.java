@@ -26,7 +26,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
@@ -86,7 +85,7 @@ public final class Template {
     this.isMainSection = false;
     this.openBlockCount = 0;
 
-    this.groupVariates = newVariateForGroups(metaModel);
+    this.groupVariates = newVariatesForGroups(metaModel);
   }
 
   private void processBlock(Section section, Block block) {
@@ -378,8 +377,8 @@ public final class Template {
     return metaOperation;
   }
 
-  private static Map<String, Variate<String>> newVariateForGroups(final MetaModel model) {
-    InvariantChecks.checkNotNull(model);
+  private static Map<String, Variate<String>> newVariatesForGroups(final MetaModel model) {
+    checkNotNull(model);
 
     final Map<String, Variate<String>> result = new HashMap<>();
     for (final MetaGroup group : model.getAddressingModeGroups()) {
@@ -394,7 +393,7 @@ public final class Template {
   }
 
   private static Variate<String> newVariateForGroup(final MetaGroup group) {
-    InvariantChecks.checkNotNull(group);
+    checkNotNull(group);
 
     final VariateBuilder<String> builder = new VariateBuilder<>();
     for (final MetaData item : group.getItems()) {
@@ -417,5 +416,16 @@ public final class Template {
     }
 
     return variate;
+  }
+
+  public void defineGroup(final String name, final Variate<String> variate) {
+    checkNotNull(name);
+    checkNotNull(variate);
+
+    if (groupVariates.containsKey(name)) {
+      throw new IllegalStateException(String.format("%s group is already defined", name));
+    }
+
+    groupVariates.put(name, variate);
   }
 }

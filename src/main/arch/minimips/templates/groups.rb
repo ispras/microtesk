@@ -25,6 +25,7 @@ class GroupsTemplate < MiniMipsBaseTemplate
 
   def run
     # Using groups defined in the specification
+
     10.times {
       atomic {
         # Selects from {add, addu, sub, subu}
@@ -35,6 +36,23 @@ class GroupsTemplate < MiniMipsBaseTemplate
 
         # Selects from {{add, addu, sub, subu}, {and, or, nor, xor}, {sllv, srav, srlv}}
         alu t6, t7, t8
+      }
+    }
+
+    # Using user-defined groups
+
+    # Probability distribution for instruction names (NOTE: group names are not allowed here)
+    xxx_dist = dist(range(:value => 'add',                       :bias => 40),
+                    range(:value => 'sub',                       :bias => 30),
+                    range(:value => ['and', 'or', 'nor', 'xor'], :bias => 30))
+
+    define_op_group('xxx', xxx_dist)
+    10.times {
+      atomic {
+        # Selects an instruction according to the 'xxx_dist' distribution
+        xxx t0, t1, t2
+        xxx t3, t4, t5
+        xxx t6, t7, t8
       }
     }
   end

@@ -30,13 +30,13 @@ def self.define_runtime_methods(metamodel)
   modes.each { |mode| define_addressing_mode mode }
 
   mode_groups = metamodel.getAddressingModeGroups
-  mode_groups.each { |mode_group| define_addressing_mode_group mode_group }
+  mode_groups.each { |mode_group| define_addressing_mode_group mode_group.getName().to_s }
 
   ops = metamodel.getOperations
   ops.each { |op| define_operation op }
 
   op_groups = metamodel.getOperationGroups
-  op_groups.each { |op_group| define_operation_group op_group }
+  op_groups.each { |op_group| define_operation_group op_group.getName().to_s }
 end
 
 #
@@ -58,8 +58,7 @@ end
 #
 # Defines methods for addressing mode groups (added to the Template class)
 # 
-def define_addressing_mode_group(mode_group)
-  name = mode_group.getName().to_s
+def define_addressing_mode_group(name)
   #puts "Defining mode group #{name}..."
 
   p = lambda do |*arguments|
@@ -108,8 +107,7 @@ end
 #
 # Defines methods for operation groups (added to the Template class)
 # 
-def define_operation_group(op_group)
-  group_name = op_group.getName().to_s
+def define_operation_group(group_name)
   #puts "Defining operation group #{group_name}..."
 
   p = lambda do |*arguments, &situations|
