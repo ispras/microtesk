@@ -102,7 +102,7 @@ op add (rd: REG, rs: REG, rt: REG)
       rd = temp<31..0>;
     endif;
   }
- 
+
 op addi (rt: REG, rs: REG, imm: SHORT)
   syntax = format("addi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image= format("000000%s%s%s", rs.image, rt.image, imm)
@@ -129,13 +129,6 @@ op addiu (rt: REG, rs: REG, imm: SHORT)
   image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs + imm;
-  }
-
-op andi (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("andi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
-  image = format("000000%s%s%s", rs.image, rt.image, imm)
-  action = {
-    rt = rs & imm;
   }
 
 op sub (rd: REG, rs: REG, rt: REG)
@@ -176,7 +169,7 @@ op multu (rs: REG, rt: REG)
   }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Logical Instructions
+// Bitwise Instructions
 
 op and (rd: REG, rs: REG, rt: REG)
   syntax = format("and %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
@@ -185,11 +178,25 @@ op and (rd: REG, rs: REG, rt: REG)
     rd = rs & rt;
   }
 
+op andi (rt: REG, rs: REG, imm: SHORT)
+  syntax = format("andi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
+  image = format("000000%s%s%s", rs.image, rt.image, imm)
+  action = {
+    rt = rs & imm;
+  }
+
 op or (rd: REG, rs: REG, rt: REG)
   syntax = format("or %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image)
   action = {
     rd = rs | rt;
+  }
+
+op ori (rt: REG, rs: REG, imm: SHORT)
+  syntax = format("ori %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
+  image = format("001101%s%s%s", rs.image, rt.image, imm)
+  action = {
+    rt = rs | imm;
   }
 
 op nor (rd: REG, rs: REG, rt: REG)
@@ -204,13 +211,6 @@ op xor (rd: REG, rs: REG, rt: REG)
   image = format("000000%s%s%s00000100110", rs.image, rt.image, rd.image)
   action = {
     rd = rs ^ rt;
-  }
-
-op ori (rt: REG, rs: REG, imm: SHORT)
-  syntax = format("ori %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
-  image = format("001101%s%s%s", rs.image, rt.image, imm)
-  action = {
-    rt = rs | imm;
   }
 
 op xori (rt: REG, rs: REG, imm: SHORT)
@@ -238,7 +238,7 @@ op sllv (rd: REG, rt: REG, rs: REG)
   }
 
 op sra (rd: REG, rt: REG, sa: card(5))
-  syntax = format("sra %s, %s, %s", rd.syntax, rt.syntax, sa)
+  syntax = format("sra %s, %s, %d", rd.syntax, rt.syntax, sa)
   image = format("00000000000%s%s%s000011", rt.image, rd.image, sa)
   action = {
     rd = coerce(int(32), rt) >> sa;
@@ -251,9 +251,9 @@ op srav (rd: REG, rt: REG, rs: REG)
     rd = coerce(int(32), rt) >> rs<4..0>;
   }
 
-op srl (rd: REG, rt: REG, sa: REG)
-  syntax = format("srl %s, %s, %s", rd.syntax, rt.syntax, sa.syntax)
-  image = format("00000000000%s%s%s000010", rt.image, rd.image, sa.image)
+op srl (rd: REG, rt: REG, sa: card(5))
+  syntax = format("srl %s, %s, %d", rd.syntax, rt.syntax, sa)
+  image = format("00000000000%s%s%s000010", rt.image, rd.image, sa)
   action = {
     rd = coerce(card(32), rt) >> sa;
   }
@@ -538,6 +538,22 @@ op mips_break ()
   action = {
     exception("Breakpoint");
   }
+
+////////////////////////////////////////////////////////////////////////////////
+// Instruction Groups (must have compatible parameter sets)
+
+op arithm   = add  | addu | sub | subu
+op arithmi  = addi | addiu
+op multiply = mult | multu
+
+op bitwise  = and  | or  | nor  | xor
+op bitwisei = andi | ori | xori
+
+op shift  = sllv | srav | srlv
+op shifti = sll  | sra  | srl
+
+op alu  = arithm  | bitwise  | shift
+op alui = arithmi | bitwisei
 
 ////////////////////////////////////////////////////////////////////////////////
 
