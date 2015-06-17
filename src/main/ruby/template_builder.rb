@@ -139,7 +139,7 @@ def define_operation_group(op_group)
     end
   end
 
-  define_method_for Template, name, "op", p
+  define_method_for Template, group_name, "op", p
 end
 
 def set_arguments(builder, args)
