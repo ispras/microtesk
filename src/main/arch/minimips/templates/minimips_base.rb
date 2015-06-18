@@ -44,8 +44,8 @@ class MiniMipsBaseTemplate < Template
     # The code below specifies an instruction sequence that writes a value
     # to the specified register (target) via the REG addressing mode.
     #
-    # This is the default preparator. It is used when no special case
-    # previded below is applicable.
+    # Default preparator: It is used when no special case previded below
+    # is applicable.
     #
     preparator(:target => 'REG') {
       lui  target, value(16, 31)
@@ -61,11 +61,27 @@ class MiniMipsBaseTemplate < Template
     }
 
     #
-    # Special case:  Value equals 0x00000000. In the case, it is
+    # Special case: Value equals 0x00000000. In the case, it is
     # more convenient to use $zero register to reset the target.
     #
     preparator(:target => 'REG', :mask => "00000000") {
       OR target, zero, zero
+    }
+
+    #
+    # Special case: Higher half of value is filled with zeros. In this case,
+    # only one initializing instruction is enough.
+    #
+    preparator(:target => 'REG', :mask => "0000XXXX") {
+      addi target, zero, value(0, 15)
+    }
+
+    #
+    # Special case: Lower half of value is filled with zeros. In this case,
+    # only one initializing instruction is enough.
+    #
+    preparator(:target => 'REG', :mask => "XXXX0000") {
+      lui target, value(16, 31)
     }
   end
 
