@@ -18,11 +18,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.test.template.Call;
@@ -36,9 +34,8 @@ public final class PreparatorBuilder {
   private final LazyData data;
   private final List<Call> calls;
 
-  private BitVector mask;
-  private BitVector value;
-  private final Map<String, BitVector> arguments;
+  private Preparator.Mask mask;
+  private final List<Preparator.Argument> arguments;
 
   PreparatorBuilder(final MetaAddressingMode targetMetaData) {
     checkNotNull(targetMetaData);
@@ -48,36 +45,41 @@ public final class PreparatorBuilder {
 
     this.target = new LazyPrimitive(Primitive.Kind.MODE, targetName, targetName);
     this.data = new LazyData();
-    this.calls = new ArrayList<Call>();
+    this.calls = new ArrayList<>();
 
     this.mask = null;
-    this.value = null;
-    this.arguments = new LinkedHashMap<>();
+    this.arguments = new ArrayList<>();
   }
 
-  public void setMask(final BigInteger maskValue) {
-    checkNotNull(maskValue);
-    mask = BitVector.valueOf(maskValue, targetMetaData.getDataType().getBitSize());
+  public void setMask(final String mask) {
+    this.mask = new Preparator.Mask(mask);
   }
 
-  public void setValue(final BigInteger valueValue) {
-    checkNotNull(valueValue);
-    value = BitVector.valueOf(valueValue, targetMetaData.getDataType().getBitSize());
+  public void setMask(final Collection<String> masks) {
+    this.mask = new Preparator.Mask(masks);
   }
 
-  public void addArgument(final String argumentName, final BigInteger argumentValue) {
-    checkNotNull(argumentName);
-    checkNotNull(argumentValue);
+  public void addArgument(final String name, final BigInteger value) {
+    checkArgumentDefined(name);
+    this.arguments.add(Preparator.Argument.newValue(name, value));
+  }
 
-    final MetaArgument metaArgument = targetMetaData.getArgument(argumentName);
+  public void addArgument(final String name, final BigInteger from, final BigInteger to) {
+    checkArgumentDefined(name);
+    this.arguments.add(Preparator.Argument.newRange(name, from, to));
+  }
+
+  public void addArgument(final String name, final Collection<BigInteger> values) {
+    checkArgumentDefined(name);
+    this.arguments.add(Preparator.Argument.newCollection(name, values));
+  }
+
+  private void checkArgumentDefined(final String name) {
+    final MetaArgument metaArgument = targetMetaData.getArgument(name);
     if (null == metaArgument) {
       throw new IllegalArgumentException(String.format(
-          "The %s argument is not defined for the %s addressing mode.",
-          argumentName, getTargetName()));
+          "The %s argument is not defined for the %s addressing mode.", name, getTargetName()));
     }
-
-    final int argumentValueBitSize = metaArgument.getDataType().getBitSize();
-    arguments.put(argumentName, BitVector.valueOf(argumentValue, argumentValueBitSize));
   }
 
   public String getTargetName() {
@@ -102,6 +104,6 @@ public final class PreparatorBuilder {
   }
 
   public Preparator build() {
-    return new Preparator(target, data, calls, mask, value, arguments);
+    return new Preparator(target, data, calls, mask, arguments);
   }
 }
