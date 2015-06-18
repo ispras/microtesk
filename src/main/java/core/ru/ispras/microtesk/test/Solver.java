@@ -4,5 +4,6 @@ import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Call;
 
 public interface Solver<T> {
+  Class<T> getSolutionClass();
   T solve(Sequence<Call> abstractSequence);
 }
