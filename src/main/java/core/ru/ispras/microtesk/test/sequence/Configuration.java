@@ -92,8 +92,13 @@ public class Configuration<T> {
     return getCompositor(id.name());
   }
 
-  // / Creates an instance of the given type.
-  private static <I> I createInstance(Class<I> type) {
+  /**
+   * Creates an instance of the given type.
+   * 
+   * @param type the instance type.
+   * @return the instance.
+   */
+  private static <I> I createInstance(final Class<I> type) {
     try {
       return type.newInstance();
     } catch (final Exception e) {
