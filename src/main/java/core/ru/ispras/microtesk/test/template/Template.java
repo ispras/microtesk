@@ -15,8 +15,6 @@
 package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
-import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.math.BigInteger;
 import java.util.Deque;
@@ -26,6 +24,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
@@ -66,7 +65,7 @@ public final class Template {
       PreparatorStore preparators,
       Processor processor) {
 
-    printHeader("Started Processing Template");
+    Logger.debugHeader("Started Processing Template");
 
     checkNotNull(metaModel);
     checkNotNull(dataManager);
@@ -105,7 +104,7 @@ public final class Template {
   }
 
   public void beginPreSection() {
-    printHeader("Started Processing Initialization Section");
+    Logger.debugHeader("Started Processing Initialization Section");
     beginNewSection();
 
     isMainSection = false;
@@ -115,11 +114,11 @@ public final class Template {
   public void endPreSection() {
     final Block rootBlock = endCurrentSection();
     processBlock(Section.PRE, rootBlock);
-    printHeader("Ended Processing Initialization Section");
+    Logger.debugHeader("Ended Processing Initialization Section");
   }
 
   public void beginPostSection() {
-    printHeader("Started Processing Finalization Section");
+    Logger.debugHeader("Started Processing Finalization Section");
     beginNewSection();
 
     isMainSection = false;
@@ -129,11 +128,11 @@ public final class Template {
   public void endPostSection() {
     final Block rootBlock = endCurrentSection();
     processBlock(Section.POST, rootBlock);
-    printHeader("Ended Processing Finalization Section");
+    Logger.debugHeader("Ended Processing Finalization Section");
   }
 
   public void beginMainSection() {
-    printHeader("Started Processing Main Section");
+    Logger.debugHeader("Started Processing Main Section");
     beginNewSection();
 
     isMainSection = true;
@@ -143,7 +142,7 @@ public final class Template {
   public void endMainSection() {
     final Block rootBlock = endCurrentSection();
     processBlock(Section.MAIN, rootBlock);
-    printHeader("Ended Processing Main Section");
+    Logger.debugHeader("Ended Processing Main Section");
     isMainSection = false;
   }
 
@@ -206,7 +205,7 @@ public final class Template {
       blockBuilders.push(current);
     }
 
-    trace("Begin block: " + getCurrentBlockId());
+    Logger.debug("Begin block: " + getCurrentBlockId());
     ++openBlockCount;
 
     return current;
@@ -218,7 +217,7 @@ public final class Template {
     }
 
     endBuildingCall();
-    trace("End block: " + getCurrentBlockId());
+    Logger.debug("End block: " + getCurrentBlockId());
 
     final boolean isRoot = openBlockCount == 1;
 
@@ -240,12 +239,12 @@ public final class Template {
 
   public void addLabel(String name) {
     final Label label = new Label(name, getCurrentBlockId());
-    trace("Label: " + label.toString());
+    Logger.debug("Label: " + label.toString());
     callBuilder.addLabel(label);
   }
 
   public void addOutput(Output output) {
-    trace(output.toString());
+    Logger.debug(output.toString());
     callBuilder.addOutput(output);
   }
 
@@ -255,7 +254,7 @@ public final class Template {
 
   public void endBuildingCall() {
     final Call call = callBuilder.build();
-    trace("Ended building a call (empty = %b, executable = %b)",
+    Logger.debug("Ended building a call (empty = %b, executable = %b)",
         call.isEmpty(), call.isExecutable());
 
     if (null == preparatorBuilder) {
@@ -268,7 +267,7 @@ public final class Template {
   }
 
   public PrimitiveBuilder newOperationBuilder(String name) {
-    trace("Operation: " + name);
+    Logger.debug("Operation: " + name);
     checkNotNull(name);
 
     return new PrimitiveBuilderOperation(
@@ -276,7 +275,7 @@ public final class Template {
   }
 
   public PrimitiveBuilder newAddressingModeBuilder(String name) {
-    trace("Addressing mode: " + name);
+    Logger.debug("Addressing mode: " + name);
     checkNotNull(name);
 
     final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
@@ -311,7 +310,7 @@ public final class Template {
   public PreparatorBuilder beginPreparator(final String targetName) {
     endBuildingCall();
 
-    trace("Begin preparator: %s", targetName);
+    Logger.debug("Begin preparator: %s", targetName);
     checkNotNull(targetName);
 
     final MetaAddressingMode targetMode = metaModel.getAddressingMode(targetName);
@@ -332,7 +331,7 @@ public final class Template {
 
   public void endPreparator() {
     endBuildingCall();
-    trace("End preparator: %s", preparatorBuilder.getTargetName());
+    Logger.debug("End preparator: %s", preparatorBuilder.getTargetName());
 
     final Preparator preparator = preparatorBuilder.build();
     preparators.addPreparator(preparator);

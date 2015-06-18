@@ -55,8 +55,6 @@ catch (RecognitionException re) {
 
 package ru.ispras.microtesk.translator.mmu.grammar;
 
-import static ru.ispras.microtesk.utils.PrintingUtils.trace;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 

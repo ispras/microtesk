@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
-import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -26,6 +25,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -217,7 +217,7 @@ public final class DataManager {
     checkInitialized();
 
     final Type type = Type.typeOf(typeName, typeArgs);
-    trace("Defining %s as %s ('%s')...", type, id, text);
+    Logger.debug("Defining %s as %s ('%s')...", type, id, text);
 
     typeMap.put(id, new TypeInfo(type, text));
   }
@@ -228,7 +228,7 @@ public final class DataManager {
     checkNotNull(fillWith);
 
     checkInitialized();
-    trace("Defining space as %s ('%s') filled with %x...", id, text, fillWith);
+    Logger.debug("Defining space as %s ('%s') filled with %x...", id, text, fillWith);
 
     spaceText = text;
     spaceData = BitVector.valueOf(fillWith, allocator.getAddressableUnitBitSize());
@@ -239,7 +239,7 @@ public final class DataManager {
     checkNotNull(text);
     checkInitialized();
 
-    trace("Defining %snull-terminated ASCII string as %s ('%s')...", zeroTerm ? "" : "not ", id, text);
+    Logger.debug("Defining %snull-terminated ASCII string as %s ('%s')...", zeroTerm ? "" : "not ", id, text);
     
     if (zeroTerm) {
       ztermStrText = text;
@@ -252,7 +252,7 @@ public final class DataManager {
     checkNotNull(id);
     checkInitialized();
 
-    trace("Label %s", id);
+    Logger.debug("Label %s", id);
 
     if (null == labels) {
       labels = new ArrayList<>();

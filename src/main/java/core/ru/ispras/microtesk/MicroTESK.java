@@ -196,7 +196,7 @@ public final class MicroTESK {
     }
     sb.append(String.format("%d.%03d seconds ", seconds, useconds));
 
-    Logger.header("Generation Statistics");
+    Logger.message("Generation Statistics");
     Logger.message("Generation time: %s", sb.toString());
 
     final long rate = (1000 * statistics.instructionCount) /

@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.utils.PrintingUtils.printHeader;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,6 +167,10 @@ public final class TestEngine {
   }
 
   public static Date generate(final String modelName, final String templateFile) throws Throwable {
+    Logger.debug("Home: " + System.getenv("MICROTESK_HOME"));
+    Logger.debug("Current directory: " + System.getProperty("user.dir"));
+    Logger.debug("Template file: " + templateFile);
+
     final ScriptingContainer container = new ScriptingContainer();
     container.setArgv(new String[] {modelName, templateFile});
 
@@ -183,7 +186,7 @@ public final class TestEngine {
           throw e.getCause();
         }
     } catch (GenerationAbortedException e) {
-      Logger.header("Generation Aborted");
+      Logger.message("Generation Aborted");
       Logger.error(e.getMessage());
       new File(Printer.getLastFileName()).delete();
       STATISTICS.testProgramNumber--;
@@ -254,7 +257,7 @@ public final class TestEngine {
         new LogPrinter(codeFilePrefix) : null;
 
     final Executor executor = new Executor(
-        observer, logExecution, branchExecutionLimit, logPrinter);
+        observer, branchExecutionLimit, logPrinter);
 
     final Printer printer = new Printer(
         codeFilePrefix,
@@ -387,7 +390,7 @@ public final class TestEngine {
         }
       }
 
-      printHeader("Ended Processing Template");
+      Logger.debugHeader("Ended Processing Template");
     }
 
     private void processBlock(Block block) throws ConfigurationException {
@@ -446,13 +449,13 @@ public final class TestEngine {
         final String sequenceId = String.format("Test Case %d", sequenceIndex);
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
-        printHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
+        Logger.debugHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
         final TestSequence concreteSequence = dataGenerator.process(abstractSequence);
 
-        printHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
+        Logger.debugHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
         executor.executeSequence(concreteSequence);
 
-        printHeader("Printing%s", (isSingleSequence ? "" : " " + sequenceId));
+        Logger.debugHeader("Printing%s", (isSingleSequence ? "" : " " + sequenceId));
 
         if (!isSingleSequence) {
           printer.printToFile("");
@@ -466,7 +469,7 @@ public final class TestEngine {
         sequenceIt.next();
         ++sequenceIndex;
 
-        printHeader("");
+        Logger.debugHeader("");
 
         STATISTICS.testCaseNumber++;
 
@@ -519,13 +522,13 @@ public final class TestEngine {
       while (sequenceIt.hasValue()) {
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
-        printHeader("Generating Data");
+        Logger.debugHeader("Generating Data");
         final TestSequence concreteSequence = dataGenerator.process(abstractSequence);
 
-        printHeader("Executing");
+        Logger.debugHeader("Executing");
         executor.executeSequence(concreteSequence);
 
-        printHeader("Printing");
+        Logger.debugHeader("Printing");
         printer.printSequence(concreteSequence);
 
         STATISTICS.instructionCount += concreteSequence.getPrologue().size();
@@ -536,7 +539,7 @@ public final class TestEngine {
     }
 
     private void printSectionHeader(String title) {
-      printHeader(title);
+      Logger.debugHeader(title);
       printer.printHeaderToFile(title);
     }
   }

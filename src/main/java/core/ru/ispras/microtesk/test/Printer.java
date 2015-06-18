@@ -22,12 +22,12 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
-import ru.ispras.microtesk.utils.PrintingUtils;
 
 /**
  * The Printer class is responsible for printing generated symbolic test programs (sequences of
@@ -340,9 +340,7 @@ final class Printer {
   }
 
   public void printToScreen(String text) {
-    if (printToScreen) {
-      PrintingUtils.trace(text);
-    }
+    Logger.debug(text);
   }
 
   public void printToFile(String text) {

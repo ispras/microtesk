@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.BlockId.Distance;
-import ru.ispras.microtesk.utils.PrintingUtils;
 
 /**
  * The role of the LabelManager class is resolving references to labels that have the same names,
@@ -328,9 +328,9 @@ final class LabelManager {
       return;
     }
 
-    final String MESSAGE_FRMT =
-      "Warning: Label %s was chosen, while there are other equally possible choices: %s.";
-
-    PrintingUtils.trace(MESSAGE_FRMT, chosenItem.target, sb);
+    Logger.warning(
+        "Label %s was chosen, while there are other equally possible choices: %s.",
+        chosenItem.target, sb
+        );
   }
 }

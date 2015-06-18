@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.utils.PrintingUtils.trace;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -153,7 +152,7 @@ final class DataGenerator {
     }
 
     // Only executable calls are worth printing.
-    trace("%nProcessing %s...", abstractCall.getText());
+    Logger.debug("%nProcessing %s...", abstractCall.getText());
     final Primitive rootOp = abstractCall.getRootOperation();
     checkRootOp(rootOp);
 
@@ -213,30 +212,30 @@ final class DataGenerator {
   private TestData getTestData(
     final Primitive primitive, final TestBaseQueryCreator queryCreator) {
     final Situation situation = primitive.getSituation();
-    trace("Processing situation %s for %s...", situation, primitive.getSignature());
+    Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
 
     if (situation == null) {
       return getDefaultTestData(primitive, queryCreator);
     }
 
     final TestBaseQuery query = queryCreator.getQuery();
-    trace("Query to TestBase: " + query);
+    Logger.debug("Query to TestBase: " + query);
 
     final Map<String, Argument> unknownImmediateValues = queryCreator.getUnknownImmediateValues();
-    trace("Unknown immediate values: " + unknownImmediateValues.keySet());
+    Logger.debug("Unknown immediate values: " + unknownImmediateValues.keySet());
 
     final Map<String, Argument> modes = queryCreator.getModes();
-    trace("Modes used as arguments: " + modes);
+    Logger.debug("Modes used as arguments: " + modes);
 
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
     if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
-      trace(makeErrorMessage(queryResult) + ": default test data will be used");
+      Logger.warning(makeErrorMessage(queryResult) + ": default test data will be used");
       return getDefaultTestData(primitive, queryCreator);
     }
 
     final Iterator<TestData> dataProvider = queryResult.getDataProvider();
     if (!dataProvider.hasNext()) {
-      trace("No data was generated for the query: default test data will be used");
+      Logger.warning("No data was generated for the query: default test data will be used");
       return getDefaultTestData(primitive, queryCreator);
     }
 
@@ -250,7 +249,7 @@ final class DataGenerator {
         new TestBaseQueryCreator(model.getName(), situation, primitive);
 
     final TestData testData = getTestData(primitive, queryCreator);
-    trace(testData.toString());
+    Logger.debug(testData.toString());
 
     // Set unknown immediate values
     for (final Map.Entry<String, Argument> e : queryCreator.getUnknownImmediateValues().entrySet()) {
@@ -289,7 +288,7 @@ final class DataGenerator {
 
       final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
       if (initializedModes.contains(targetMode)) {
-        trace("%s has already been used to set up the processor state. " +
+        Logger.debug("%s has already been used to set up the processor state. " +
               "No initialization code will be created.", targetMode);
         continue;
       }
@@ -330,14 +329,14 @@ final class DataGenerator {
     }
     sb.append(" Errors: ");
     for (String error : queryResult.getErrors()) {
-      sb.append("\r\n  " + error);
+      sb.append(System.lineSeparator() + "  " + error);
     }
 
     return sb.toString();
   }
 
   private List<Call> makeInitializer(AddressingModeWrapper targetMode, BitVector value) {
-    trace("Creating code to assign %s to %s...", value, targetMode);
+    Logger.debug("Creating code to assign %s to %s...", value, targetMode);
 
     final Preparator preparator = 
         preparators.getPreparator(targetMode.getModePrimitive(), value);
@@ -689,7 +688,7 @@ final class DataGenerator {
                 bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
               }
             } catch (ConfigurationException e) {
-              trace("Failed to read data from " + arg.getTypeName() +
+              Logger.error("Failed to read data from " + arg.getTypeName() +
                   " Reason : " + e.getMessage());
               bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
             }

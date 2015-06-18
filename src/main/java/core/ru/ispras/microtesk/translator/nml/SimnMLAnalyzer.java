@@ -29,6 +29,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
@@ -85,10 +86,10 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   public void includeTokensFrom(String filename) {
     final ANTLRFileStream stream = finder.openFile(filename);
 
-    System.out.println("Included: " + filename);
+    Logger.message("Included: " + filename);
 
     if (null == stream) {
-      System.err.println("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND.");
+      Logger.error("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND.");
       return;
     }
 
@@ -156,15 +157,15 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
   @Override
   protected void start(final List<String> filenames) {
     if (filenames.isEmpty()) {
-      System.err.println("FILES ARE NOT SPECIFIED.");
+      Logger.error("FILES ARE NOT SPECIFIED.");
       return;
     }
 
     final String fileName = filenames.get(filenames.size() - 1);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
 
-    System.out.println("Translating: " + fileName);
-    System.out.println("Model name: " + modelName);
+    Logger.message("Translating: " + fileName);
+    Logger.message("Model name: " + modelName);
 
     final TokenSource source = startLexer(filenames);
     final IR ir = startParserAndWalker(source);
@@ -179,7 +180,7 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
         ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());
 
     if (!primitiveSyntesizer.syntesize()) {
-      System.err.println(FAILED_TO_SYNTH_PRIMITIVES);
+      Logger.error(FAILED_TO_SYNTH_PRIMITIVES);
       return;
     }
     ir.setRoots(primitiveSyntesizer.getRoots());

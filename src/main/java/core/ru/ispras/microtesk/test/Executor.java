@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.List;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
@@ -27,7 +28,6 @@ import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.utils.PrintingUtils;
 
 /**
  * The role of the Executor class is to execute (simulate) sequences of instruction calls (concrete
@@ -39,7 +39,6 @@ import ru.ispras.microtesk.utils.PrintingUtils;
 
 final class Executor {
   private final IModelStateObserver observer;
-  private final boolean logExecution;
   private final int branchExecutionLimit;
   private final LogPrinter logPrinter;
 
@@ -56,13 +55,11 @@ final class Executor {
 
   public Executor(
       final IModelStateObserver observer,
-      final boolean logExecution,
       final int branchExecutionLimit,
       final LogPrinter logPrinter) {
     checkNotNull(observer);
 
     this.observer = observer;
-    this.logExecution = logExecution;
     this.branchExecutionLimit = branchExecutionLimit;
     this.labelRefs = null;
     this.logPrinter = logPrinter;
@@ -252,8 +249,8 @@ final class Executor {
    */
 
   private void logText(final String text) {
-    if (logExecution && text != null) {
-      PrintingUtils.trace(text);
+    if (text != null) {
+      Logger.debug(text);
     }
   }
 

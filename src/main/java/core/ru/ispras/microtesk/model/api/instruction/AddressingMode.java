@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -250,7 +251,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
   @Override
   public void onBeforeLoad() {
-    System.out.println(getClass().getSimpleName() + ": onBeforeLoad");
+    Logger.debug(getClass().getSimpleName() + ": onBeforeLoad");
   }
 
   /**
@@ -259,7 +260,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
   @Override
   public void onBeforeStore() {
-    System.out.println(getClass().getSimpleName() + ": onBeforeStore");
+    Logger.debug(getClass().getSimpleName() + ": onBeforeStore");
   }
 
   /**

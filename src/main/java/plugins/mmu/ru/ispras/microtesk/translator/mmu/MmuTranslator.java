@@ -24,6 +24,7 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
@@ -53,9 +54,9 @@ public class MmuTranslator extends Translator<Ir> {
     final String fileName = fileNames.get(0);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
 
-    System.out.println("Translating: " + fileName);
-    System.out.println("Model name: " + modelName);
-    System.out.println();
+    Logger.message("Translating: " + fileName);
+    Logger.message("Model name: " + modelName);
+    Logger.message("");
 
     final LogStore LOG = getLog();
     final SymbolTable symbols = new SymbolTable();
@@ -77,10 +78,10 @@ public class MmuTranslator extends Translator<Ir> {
       final MmuParser.startRule_return r = parser.startRule();
       final CommonTree t = (CommonTree) r.getTree();
 
-      System.out.println("AST: " + t.toStringTree());
+      Logger.debug("AST: " + t.toStringTree());
 
       if (!parser.isCorrect()) {
-        System.err.println("TRANSLATION WAS INTERRUPTED DUE TO SYNTACTIC ERRORS.");
+        Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SYNTACTIC ERRORS.");
         return;
       }
 
@@ -95,7 +96,7 @@ public class MmuTranslator extends Translator<Ir> {
       walker.startRule();
 
       if (!walker.isCorrect()) {
-        System.err.println("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
+        Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
         return;
       }
 

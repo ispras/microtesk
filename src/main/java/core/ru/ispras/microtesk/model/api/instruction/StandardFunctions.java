@@ -14,21 +14,23 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import ru.ispras.microtesk.Logger;
+
 public abstract class StandardFunctions {
-  public static void exception(String text) {
-    System.out.println("Exception was raised: " + text);
+  public static void exception(final String text) {
+    Logger.debug("Exception was raised: " + text);
   }
 
-  public static void trace(String format, Object ... args) {
-    System.out.println(String.format(format, args));
+  public static void trace(final String format, Object ... args) {
+    Logger.debug(format, args);
   }
 
   public static void unpredicted() {
-    System.out.println("Unpredicted state was reached");
+    Logger.debug("Unpredicted state was reached");
   }
 
   public static void undefined() {
-    System.out.println("Undefined state was reached");
+    Logger.debug("Undefined state was reached");
   }
 
   public static void mark(String name) {

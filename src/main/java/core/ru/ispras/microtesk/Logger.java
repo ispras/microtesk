@@ -40,10 +40,6 @@ public final class Logger {
     isDebug = value;
   }
 
-  public static void debug(final String format, final Object... args) {
-    print(EventType.DEBUG, format, args);
-  }
-
   public static void message(final String format, final Object... args) {
     print(EventType.MESSAGE, format, args);
   }
@@ -56,15 +52,27 @@ public final class Logger {
     print(EventType.ERROR, format, args);
   }
 
-  public static void bar() {
-    print(BAR);
+  public static void debug(final String format, final Object... args) {
+    print(EventType.DEBUG, format, args);
   }
 
-  public static void header(final String format, final Object... args) {
-    header(null != format ? String.format(format, args) : null);
+  public static void debugBar() {
+    if (isDebug) {
+      print(BAR);
+    }
   }
 
-  public static void header(final String text) {
+  public static void debugHeader(final String format, final Object... args) {
+    if (isDebug) {
+      debugHeader(null != format ? String.format(format, args) : null);
+    }
+  }
+
+  public static void debugHeader(final String text) {
+    if (!isDebug) {
+      return;
+    }
+
     if (null == text || text.isEmpty()) {
       print(System.lineSeparator() + BAR + System.lineSeparator());
       return;

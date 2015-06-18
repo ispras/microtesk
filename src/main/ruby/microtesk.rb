@@ -26,8 +26,8 @@ def self.main
   check_arguments
   check_tools
 
-  puts "Home: " + HOME
-  puts "Current directory: " + WD
+  #puts "Home: " + HOME
+  #puts "Current directory: " + WD
 
   model_name = ARGV[0]
   begin
@@ -37,7 +37,7 @@ def self.main
   end
 
   template_file = File.expand_path ARGV[1]
-  puts "Template file: " + template_file
+  #puts "Template file: " + template_file
 
   Template.set_model model
 

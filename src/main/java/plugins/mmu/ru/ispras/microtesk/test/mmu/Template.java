@@ -136,7 +136,7 @@ public class Template {
 
   @Override
   public String toString() {
-    final String newLine = System.getProperty("line.separator");
+    final String newLine = System.lineSeparator();
 
     final StringBuilder string = new StringBuilder("Mmu template:");
     string.append(newLine);
