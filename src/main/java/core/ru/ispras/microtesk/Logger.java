@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk;
 
-public class Logger {
+public final class Logger {
   private static enum EventType {
-    DEBUG    (true,  "Debug: "),
+    DEBUG    (true,  ""),
     MESSAGE  (false, ""),
     WARNING  (false, "Warning: "),
     ERROR    (false, "Error: ");
@@ -24,36 +24,35 @@ public class Logger {
     private final boolean isDebugOnly;
     private final String textPrefix;
 
-    private EventType(boolean isDebugOnly, String textPrefix) {
+    private EventType(final boolean isDebugOnly, final String textPrefix) {
       this.isDebugOnly = isDebugOnly;
       this.textPrefix = textPrefix;
     }
   }
 
-  private static final int LINE_WIDTH = 80;
-  private static final String BAR = makeBar('-', LINE_WIDTH);
-
-  private static final String SUPPORT_EMAIL = "microtesk-support@ispras.ru";
+  public static final int LINE_WIDTH = 80;
+  public static final String BAR = makeBar('-', LINE_WIDTH);
+  public static final String SUPPORT_EMAIL = "microtesk-support@ispras.ru";
 
   private static boolean isDebug = false;
 
-  public static void setDebug(boolean value) {
+  public static void setDebug(final boolean value) {
     isDebug = value;
   }
 
-  public static void debug(String format, Object... args) {
+  public static void debug(final String format, final Object... args) {
     print(EventType.DEBUG, format, args);
   }
 
-  public static void message(String format, Object... args) {
+  public static void message(final String format, final Object... args) {
     print(EventType.MESSAGE, format, args);
   }
 
-  public static void warning(String format, Object... args) {
+  public static void warning(final String format, final Object... args) {
     print(EventType.WARNING, format, args);
   }
 
-  public static void error(String format, Object... args) {
+  public static void error(final String format, final Object... args) {
     print(EventType.ERROR, format, args);
   }
 
@@ -61,13 +60,13 @@ public class Logger {
     print(BAR);
   }
 
-  public static void header(String format, Object... args) {
+  public static void header(final String format, final Object... args) {
     header(null != format ? String.format(format, args) : null);
   }
 
-  public static void header(String text) {
+  public static void header(final String text) {
     if (null == text || text.isEmpty()) {
-      print("\r\n" + BAR + "\r\n");
+      print(System.lineSeparator() + BAR + System.lineSeparator());
       return;
     }
 
@@ -76,28 +75,40 @@ public class Logger {
 
     final StringBuilder sb = new StringBuilder();
 
-    sb.append("\r\n");
+    sb.append(System.lineSeparator());
     sb.append(makeBar('-', prefixLength - 1));
     sb.append(' ');
     sb.append(text);
     sb.append(' ');
     sb.append(makeBar('-',  postfixLength - 1));
-    sb.append("\r\n");
+    sb.append(System.lineSeparator());
 
     print(sb.toString());
   }
 
-  public static void exception(Throwable e) {
-    print(makeBar('*', LINE_WIDTH));
-    print("ATTENTION! An unexpected error has occurred:");
+  public static void exception(final Throwable e) {
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append(makeBar('*', LINE_WIDTH));
+    sb.append(System.lineSeparator());
+    sb.append("ATTENTION! An unexpected error has occurred:");
+    sb.append(System.lineSeparator());
+
     if (e != null) {
-      print(String.format("%s: %s", e.getClass().getName(), e.getMessage()));
-    } else {
-      print(null);
+      sb.append(String.format("%s: %s", e.getClass().getName(), e.getMessage()));
     }
-    print("\r\nThe program will be terminated. Please contact us at:");
-    print(SUPPORT_EMAIL);
-    print("\r\nWe are sorry for the inconvenience.");
+    sb.append(System.lineSeparator());
+
+    sb.append(System.lineSeparator());
+    sb.append("The program will be terminated. Please contact us at: ");
+    sb.append(System.lineSeparator());
+    sb.append(SUPPORT_EMAIL);
+
+    sb.append(System.lineSeparator());
+    sb.append("We are sorry for the inconvenience.");
+
+    print(sb.toString());
+
     if (null != e) {
       print("\r\nException stack:\r\n");
       e.printStackTrace(System.out);
@@ -105,7 +116,9 @@ public class Logger {
     print(makeBar('*', LINE_WIDTH));
   }
 
-  private static void print(EventType type, String format, Object... args) {
+  private static void print(
+      final EventType type, final String format, final Object... args) {
+
     if (type.isDebugOnly && !isDebug) {
       return;
     }
@@ -118,11 +131,11 @@ public class Logger {
     print(type.textPrefix + (null != format ? String.format(format, args) : null)); 
   }
 
-  private static void print(String text) {
+  private static void print(final String text) {
     System.out.println(text);
   }
 
-  private static String makeBar(char ch, int length) {
+  private static String makeBar(final char ch, final int length) {
     final StringBuilder sb = new StringBuilder(length);
     for (int i = 0; i < length; ++i) {
       sb.append(ch);
