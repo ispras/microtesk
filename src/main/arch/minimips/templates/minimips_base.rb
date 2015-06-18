@@ -48,6 +48,14 @@ class MiniMipsBaseTemplate < Template
       lui  target, value(16, 31)
       addi target, target, value(0, 15)
     }
+
+    #
+    # The $zero register is read only and always holds zero. It makes no
+    # sence to initialize it.
+    #
+    preparator(:target => 'REG', :arguments => {:i => 0}) {
+      # Empty
+    }
   end
 
   def post

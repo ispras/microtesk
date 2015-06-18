@@ -339,7 +339,9 @@ final class DataGenerator {
   private List<Call> makeInitializer(AddressingModeWrapper targetMode, BitVector value) {
     trace("Creating code to assign %s to %s...", value, targetMode);
 
-    final Preparator preparator = preparators.getPreparator(targetMode.getModePrimitive());
+    final Preparator preparator = 
+        preparators.getPreparator(targetMode.getModePrimitive(), value);
+
     if (null != preparator) {
       return preparator.makeInitializer(targetMode.getModePrimitive(), value);
     }

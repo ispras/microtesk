@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,26 +14,83 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Primitive;
 
 public final class PreparatorStore {
-  private final Map<String, Preparator> preparators;
+  private static class PreparatorGroup {
+    private Preparator defaultPreparator;
+    private final List<Preparator> preparators;
+
+    private PreparatorGroup() {
+      this.defaultPreparator = null;
+      this.preparators = new ArrayList<>();
+    }
+
+    public Preparator getDefault() {
+      return defaultPreparator;
+    }
+
+    public void setDefault(final Preparator preparator) {
+      this.defaultPreparator = preparator;
+    }
+
+    public void addPreparator(final Preparator preparator) {
+      this.preparators.add(preparator);
+    }
+
+    public List<Preparator> getPreparators() {
+      return preparators;
+    }
+  }
+
+  private final Map<String, PreparatorGroup> preparatorGroups;
 
   public PreparatorStore() {
-    this.preparators = new HashMap<String, Preparator>();
+    this.preparatorGroups = new HashMap<>();
   }
 
-  public void addPreparator(Preparator preparator) {
+  public void addPreparator(final Preparator preparator) {
     InvariantChecks.checkNotNull(preparator);
-    preparators.put(preparator.getTargetName(), preparator);
+
+    final String name = preparator.getTargetName();
+    PreparatorGroup group = preparatorGroups.get(name);
+
+    if (null == group) {
+      group = new PreparatorGroup();
+      preparatorGroups.put(name, group);
+    }
+
+    if (preparator.isDefault()) {
+      group.setDefault(preparator);
+    } else {
+      group.addPreparator(preparator);
+    }
   }
 
-  public Preparator getPreparator(Primitive targetMode) {
+  public Preparator getPreparator(final Primitive targetMode, final BitVector data) {
     InvariantChecks.checkNotNull(targetMode);
-    return preparators.get(targetMode.getName());
+    InvariantChecks.checkNotNull(data);
+
+    final String name = targetMode.getName();
+    final PreparatorGroup group = preparatorGroups.get(name);
+
+    if (null == group) {
+      return null;
+    }
+
+    for (final Preparator preparator : group.getPreparators()) {
+      if (preparator.isMatch(targetMode, data)) {
+        return preparator; 
+      }
+    }
+
+    return group.getDefault();
   }
 }
