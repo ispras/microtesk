@@ -51,25 +51,32 @@ public final class PreparatorBuilder {
     this.arguments = new ArrayList<>();
   }
 
-  public void setMask(final String mask) {
+  public void setMaskValue(final String mask) {
     this.mask = new Preparator.Mask(mask);
   }
 
-  public void setMask(final Collection<String> masks) {
+  public void setMaskCollection(final Collection<String> masks) {
     this.mask = new Preparator.Mask(masks);
   }
 
-  public void addArgument(final String name, final BigInteger value) {
+  public void addArgumentValue(
+      final String name,
+      final BigInteger value) {
     checkArgumentDefined(name);
     this.arguments.add(Preparator.Argument.newValue(name, value));
   }
 
-  public void addArgument(final String name, final BigInteger from, final BigInteger to) {
+  public void addArgumentRange(
+      final String name,
+      final BigInteger from,
+      final BigInteger to) {
     checkArgumentDefined(name);
     this.arguments.add(Preparator.Argument.newRange(name, from, to));
   }
 
-  public void addArgument(final String name, final Collection<BigInteger> values) {
+  public void addArgumentCollection(
+      final String name,
+      final Collection<BigInteger> values) {
     checkArgumentDefined(name);
     this.arguments.add(Preparator.Argument.newCollection(name, values));
   }

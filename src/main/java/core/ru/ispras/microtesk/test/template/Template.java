@@ -308,7 +308,7 @@ public final class Template {
     return new SituationBuilder(name);
   }
 
-  public void beginPreparator(final String targetName) {
+  public PreparatorBuilder beginPreparator(final String targetName) {
     endBuildingCall();
 
     trace("Begin preparator: %s", targetName);
@@ -327,6 +327,7 @@ public final class Template {
     }
 
     preparatorBuilder = new PreparatorBuilder(targetMode);
+    return preparatorBuilder; 
   }
 
   public void endPreparator() {
