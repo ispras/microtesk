@@ -440,7 +440,38 @@ class Template
 
   def preparator(attrs, &contents)
     target = get_attribute attrs, :target
-    @template.beginPreparator target.to_s
+    builder = @template.beginPreparator target.to_s
+
+    mask = attrs[:mask]
+    if !mask.nil?
+      if mask.is_a?(String)
+        builder.setMaskValue mask
+      elsif mask.is_a?(Array)
+        builder.setMaskCollection mask
+      else
+        raise MTRubyError, "Illegal mask type: #{mask}"
+      end
+    end
+
+    arguments = attrs[:arguments]
+    if !arguments.nil?
+      if !arguments.is_a?(Hash)
+        raise MTRubyError, "#{arguments} is not a Hash."
+      end
+
+      arguments.each_pair do |name, value|
+        if value.is_a?(Integer)
+          builder.addArgumentValue name, value
+        elsif value.is_a?(Range)
+          builder.addArgumentRange name, value.min, value.max
+        elsif value.is_a?(Array)
+          builder.addArgumentCollection name, value
+        else
+          raise MTRubyError, "Illegal value of #{name} argument: #{value}"
+        end
+      end
+    end
+
     self.instance_eval &contents
     @template.endPreparator
   end
