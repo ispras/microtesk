@@ -87,7 +87,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return the branch number.
    */
-  public int getBranchNumber() {
+  public final int getBranchNumber() {
     return branchNumber;
   }
 
@@ -96,7 +96,7 @@ public abstract class BranchTraceSituation {
    * 
    * @param branchNumber the branch number.
    */
-  public void setBranchNumber(int branchNumber) {
+  public final void setBranchNumber(int branchNumber) {
     this.branchNumber = branchNumber;
   }
 
@@ -105,7 +105,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return the branch index.
    */
-  public int getBranchIndex() {
+  public final int getBranchIndex() {
     return branchIndex;
   }
 
@@ -114,7 +114,7 @@ public abstract class BranchTraceSituation {
    * 
    * @param branchIndex> the branch index.
    */
-  public void setBranchIndex(int branchIndex) {
+  public final void setBranchIndex(int branchIndex) {
     this.branchIndex = branchIndex;
   }
 
@@ -123,7 +123,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return the branch label.
    */
-  public int getBranchLabel() {
+  public final int getBranchLabel() {
     return branchLabel;
   }
 
@@ -132,7 +132,7 @@ public abstract class BranchTraceSituation {
    * 
    * @param branchLabel the branch label
    */
-  public void setBranchLabel(int branchLabel) {
+  public final void setBranchLabel(int branchLabel) {
     this.branchLabel = branchLabel;
   }
 
@@ -141,7 +141,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return {@code true} if branch is forward; {@code false} otherwise.
    */
-  public boolean isForwardBranch() {
+  public final boolean isForwardBranch() {
     return getBranchIndex() < getBranchLabel();
   }
 
@@ -150,7 +150,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return {@code true} of branch is backward; {@code false} otherwise.
    */
-  public boolean isBackwardBranch() {
+  public final boolean isBackwardBranch() {
     return getBranchIndex() >= getBranchLabel();
   }
 
@@ -159,7 +159,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return branch execution trace.
    */
-  public BranchTrace getBranchTrace() {
+  public final BranchTrace getBranchTrace() {
     return branchTrace;
   }
 
@@ -168,7 +168,7 @@ public abstract class BranchTraceSituation {
    * 
    * @param <code>branchTrace</code> branch execution trace.
    */
-  public void setBranchTrace(BranchTrace branchTrace) {
+  public final void setBranchTrace(BranchTrace branchTrace) {
     this.branchTrace = branchTrace;
   }
 
@@ -177,7 +177,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return block coverage.
    */
-  public Set<Integer> getBlockCoverage() {
+  public final Set<Integer> getBlockCoverage() {
     return blockCoverage;
   }
 
@@ -186,7 +186,7 @@ public abstract class BranchTraceSituation {
    * 
    * @param <code>blockCoverage</code> block coverage.
    */
-  public void setBlockCoverage(Set<Integer> blockCoverage) {
+  public final void setBlockCoverage(Set<Integer> blockCoverage) {
     this.blockCoverage = blockCoverage;
   }
 
@@ -195,7 +195,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return slot coverage.
    */
-  public Set<Integer> getSlotCoverage() {
+  public final Set<Integer> getSlotCoverage() {
     return slotCoverage;
   }
 
@@ -204,7 +204,7 @@ public abstract class BranchTraceSituation {
    * 
    * @param <code>slotCoverage</code> slot coverage.
    */
-  public void setSlotCoverage(Set<Integer> slotCoverage) {
+  public final void setSlotCoverage(Set<Integer> slotCoverage) {
     this.slotCoverage = slotCoverage;
   }
 
@@ -213,7 +213,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return {@code true} if block coverage is not null; {@code false} otherwise.
    */
-  public boolean canInsertStepIntoBlock() {
+  public final boolean canInsertStepIntoBlock() {
     return blockCoverage != null;
   }
 
@@ -222,7 +222,7 @@ public abstract class BranchTraceSituation {
    * 
    * @return {@code true} if slot coverage is not null; {@code false} otherwise.
    */
-  public boolean canInsertStepIntoSlot() {
+  public final boolean canInsertStepIntoSlot() {
     return slotCoverage != null;
   }
 
@@ -241,7 +241,7 @@ public abstract class BranchTraceSituation {
    * 
    * @param condition the truth value of the condition.
    */
-  public void satisfyCondition(boolean condition) {
+  public final void satisfyCondition(boolean condition) {
     if (condition) {
       satisfyCondition();
     } else {

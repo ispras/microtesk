@@ -40,13 +40,13 @@ public abstract class JumpTraceSituation extends BranchTraceSituation {
   }
 
   @Override
-  public void satisfyCondition() {}
+  public final void satisfyCondition() {}
 
   @Override
-  public void violateCondition() {}
+  public final void violateCondition() {}
 
   @Override
-  public Sequence<Call> step() {
+  public final Sequence<Call> step() {
     return new Sequence<Call>();
   }
 

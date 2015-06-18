@@ -41,7 +41,7 @@ public abstract class SimpleTraceSituation extends BranchTraceSituation {
   public abstract Sequence<Call> generalStep();
 
   @Override
-  public Sequence<Call> step() {
+  public final Sequence<Call> step() {
     if (branchTrace.getChangeNumber() == 0) {
       return new Sequence<Call>();
     }
@@ -75,7 +75,7 @@ public abstract class SimpleTraceSituation extends BranchTraceSituation {
   public abstract Sequence<Call> generalPrepare();
 
   @Override
-  public Sequence<Call> prepare() {
+  public final Sequence<Call> prepare() {
     if (branchTrace.isEmpty()) {
       return new Sequence<Call>();
     }
