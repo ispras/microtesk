@@ -26,11 +26,16 @@ import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.TestEngine;
+import ru.ispras.microtesk.test.testbase.PredefinedGenerators;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class MicroTESK {
   private MicroTESK() {}
+
+  static {
+    PredefinedGenerators.register();
+  }
 
   public static void main(String[] args) {
     final Parameters params;

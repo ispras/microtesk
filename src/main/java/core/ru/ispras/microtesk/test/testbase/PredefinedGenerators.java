@@ -22,9 +22,11 @@ import ru.ispras.testbase.stub.TestBase;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class PredefinedGenerators {
-  static {
+public final class PredefinedGenerators {
+  public static void register() {
     final TestBaseRegistry registry = TestBase.get().getRegistry();
     registry.registerGenerator("address", new AddressGenerator());
   }
+
+  private PredefinedGenerators() {}
 }

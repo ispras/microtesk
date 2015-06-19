@@ -46,36 +46,42 @@ final class AddressGenerator implements DataGenerator {
   /** Memory region to choose an address from. */
   private static final String PARAM_MEMORY_REGION = "region";
 
-  private final MemorySettings memorySettings;
-
-  public AddressGenerator() {
-    final GeneratorSettings settings = TestEngine.getGeneratorSettings();
-    memorySettings = settings != null ? settings.getMemory() : null;
-  }
-  
   @Override
   public boolean isSuitable(final TestBaseQuery query) {
-    if (memorySettings == null) {
-      return false;
-    }
-
-    final String addressBase   = Utils.getParameter(query, PARAM_ADDRESS_BASE).toString();
-    final String memoryRegion  = Utils.getParameter(query, PARAM_MEMORY_REGION).toString();
+    final String addressBase = Utils.getParameter(query, PARAM_ADDRESS_BASE).toString();
+    final String memoryRegion = Utils.getParameter(query, PARAM_MEMORY_REGION).toString();
 
     if (addressBase == null || memoryRegion == null) {
       return false;
     }
 
-    return memorySettings.isEnabled(memoryRegion);
+    final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
+    if (generatorSettings == null) {
+      return false;
+    }
+
+    final MemorySettings memorySettings = generatorSettings.getMemory();
+    if (memorySettings == null) {
+      return false;
+    }
+
+    final RegionSettings regionSettings = memorySettings.getRegion(memoryRegion);
+    if (regionSettings == null) {
+      return false;
+    }
+
+    return regionSettings.isEnabled();
   }
 
   @Override
   public TestDataProvider generate(final TestBaseQuery query) {
-    final String addressBase = Utils.getParameter(query, PARAM_ADDRESS_BASE).toString();
-    final String addressOffset = Utils.getParameter(query, PARAM_ADDRESS_OFFSET).toString();
-    final String memoryRegion = Utils.getParameter(query, PARAM_MEMORY_REGION).toString();
+    final Object addressBase = Utils.getParameter(query, PARAM_ADDRESS_BASE);
+    final Object addressOffset = Utils.getParameter(query, PARAM_ADDRESS_OFFSET);
+    final Object memoryRegion = Utils.getParameter(query, PARAM_MEMORY_REGION);
 
-    final RegionSettings regionSettings = memorySettings.getRegion(memoryRegion);
+    final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
+    final MemorySettings memorySettings = generatorSettings.getMemory();
+    final RegionSettings regionSettings = memorySettings.getRegion(memoryRegion.toString());
 
     final long min = regionSettings.getStartAddress();
     final long max = regionSettings.getEndAddress();
@@ -98,7 +104,7 @@ final class AddressGenerator implements DataGenerator {
       if (name.equals(addressBase)) {
         final BitVector data = BitVector.valueOf(address, type.getSize());
         bindings.put(name, NodeValue.newBitVector(data));
-      } else if (name.equals(addressOffset)) {
+      } else if (addressOffset != null && name.equals(addressOffset)) {
         final BitVector data = BitVector.valueOf(0, type.getSize());
         bindings.put(name, NodeValue.newBitVector(data));
       }
