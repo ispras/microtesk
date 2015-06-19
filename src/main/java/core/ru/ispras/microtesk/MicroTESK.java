@@ -23,8 +23,6 @@ import org.antlr.runtime.RecognitionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-import com.headius.invokebinder.transform.Fold;
-
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;

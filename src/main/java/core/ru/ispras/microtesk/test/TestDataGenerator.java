@@ -740,7 +740,9 @@ final class TestDataGenerator implements Solver<TestSequence> {
             // Otherwise, if there are unknown values, the mode cannot be instantiated.
             visit(argName, (Primitive) arg.getValue());
 
-            final DataType dataType = DataType.BIT_VECTOR(arg.getType().getBitSize());
+            final DataType dataType = arg.getType() != null ?
+                DataType.BIT_VECTOR(arg.getType().getBitSize()) : DataType.UNKNOWN;
+
             Node bindingValue = null;
 
             try {
