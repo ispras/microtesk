@@ -49,6 +49,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
+import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
 
@@ -197,8 +198,6 @@ System.out.println("error");
       values.put(var.getName(), var.getData());
     }
 
-    System.out.println("Values: " + values);
-
     final Map<String, Node> valueNodes = new HashMap<>();
     for (Map.Entry<String, Node> entry : query.getBindings().entrySet()) {
       if (entry.getValue().getKind() == Node.Kind.VARIABLE) {
@@ -300,5 +299,9 @@ System.out.println("error");
       System.err.println(e.getMessage());
     }
     return ssa;
+  }
+
+  public TestBaseRegistry getRegistry() {
+    return testBase.getRegistry();
   }
 }
