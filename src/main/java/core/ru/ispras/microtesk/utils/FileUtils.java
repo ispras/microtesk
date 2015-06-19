@@ -15,6 +15,11 @@
 package ru.ispras.microtesk.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -64,5 +69,34 @@ public final class FileUtils {
 
     final File file = new File(fileName);
     return file.getParent();
+  }
+
+  public static void copy(final File sourceLocation, final File targetLocation) throws IOException {
+    if (sourceLocation.isDirectory()) {
+      copyDirectory(sourceLocation, targetLocation);
+    } else {
+      copyFile(sourceLocation, targetLocation);
+    }
+  }
+
+  public static void copyDirectory(File source, File target) throws IOException {
+    if (!target.exists()) {
+      target.mkdir();
+    }
+
+    for (final String f : source.list()) {
+      copy(new File(source, f), new File(target, f));
+    }
+  }
+
+  public static void copyFile(final File source, final File target) throws IOException {
+    try (final InputStream in = new FileInputStream(source);
+        final OutputStream out = new FileOutputStream(target)) {
+      byte[] buf = new byte[1024];
+      int length;
+      while ((length = in.read(buf)) > 0) {
+        out.write(buf, 0, length);
+      }
+    }
   }
 }

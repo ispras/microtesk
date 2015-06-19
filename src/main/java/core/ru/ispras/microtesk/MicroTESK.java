@@ -15,6 +15,7 @@
 package ru.ispras.microtesk;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -22,12 +23,15 @@ import org.antlr.runtime.RecognitionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.headius.invokebinder.transform.Fold;
+
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.testbase.PredefinedGenerators;
 import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class MicroTESK {
@@ -92,6 +96,29 @@ public final class MicroTESK {
       }
 
       translator.start(params.getArgs());
+    }
+
+    // Copy user-defined Java code is copied to the output folder.
+    if (params.hasOption(Parameters.EXTDIR)) {
+      final String extensionDir = params.getOptionValue(Parameters.EXTDIR);
+      final File extensionDirFile = new File(extensionDir);
+
+      if (!extensionDirFile.exists() || !extensionDirFile.isDirectory()) {
+        Logger.error("The extension folder %s does not exists or is not a folder.", extensionDir);
+        return;
+      }
+
+      final String outDir = (params.hasOption(Parameters.OUTDIR) ?
+          params.getOptionValue(Parameters.OUTDIR) : PackageInfo.DEFAULT_OUTDIR) + "/src/java";
+
+      final File outDirFile = new File(outDir);
+
+      try {
+        FileUtils.copyDirectory(extensionDirFile, outDirFile);
+        Logger.message("Copied %s to %s", extensionDir, outDir);
+      } catch (IOException e) {
+        Logger.error("Failed to copy %s to %s", extensionDir, outDir);
+      }
     }
   }
 
