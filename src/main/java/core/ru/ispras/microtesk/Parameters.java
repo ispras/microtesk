@@ -65,6 +65,10 @@ public final class Parameters {
   public static final Option OUTDIR =
       newOption("output-dir", true, "Sets where to place generated files", TRANSLATE);
 
+  public static final Option EXTDIR =
+      newOption("extension-dir", true,
+          "Sets directory that stores user-defined Java code", TRANSLATE);
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options
 
@@ -246,6 +250,7 @@ public final class Parameters {
 
     result.addOption(INCLUDE);
     result.addOption(OUTDIR);
+    result.addOption(EXTDIR);
 
     result.addOption(RANDOM);
     result.addOption(SOLVER);
