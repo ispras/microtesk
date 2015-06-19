@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.settings;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -29,6 +30,12 @@ public final class ExtensionsSettings extends AbstractSettings {
   }
 
   public Collection<ExtensionSettings> getExtensions() {
-    return getSingle(ExtensionSettings.TAG);
+    final Collection<ExtensionSettings> result = new ArrayList<>();
+
+    for (final AbstractSettings extension : get(ExtensionSettings.TAG)) {
+      result.add((ExtensionSettings) extension);
+    }
+
+    return result;
   }
 }
