@@ -44,6 +44,8 @@ import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.settings.ExtensionSettings;
+import ru.ispras.microtesk.settings.ExtensionsSettings;
 import ru.ispras.microtesk.test.data.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
@@ -62,7 +64,9 @@ import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
+import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.TestData;
+import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * The job of the {@link TestDataGenerator} class is to processes an abstract instruction call sequence
@@ -74,7 +78,19 @@ import ru.ispras.testbase.TestData;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-final class TestDataGenerator {
+final class TestSequenceAdapter implements Adapter<TestSequence> {
+  @Override
+  public Class<TestSequence> getSolutionClass() {
+    return TestSequence.class;
+  }
+
+  @Override
+  public TestSequence adapt(final Sequence<Call> abstractSequence, final TestSequence solution) {
+    return solution;
+  }
+}
+
+final class TestDataGenerator implements Solver<TestSequence> {
   private final IModel model;
   private final TestBase testBase;
   private final PreparatorStore preparators;
@@ -86,18 +102,52 @@ final class TestDataGenerator {
 
   TestDataGenerator(
       final IModel model,
-      final PreparatorStore preparators) {
+      final PreparatorStore preparators,
+      final ExtensionsSettings settings) {
     checkNotNull(model);
     checkNotNull(preparators);
 
     this.model = model;
-    this.testBase = new TestBase();
+    this.testBase = newTestBase(settings);
     this.preparators = preparators;
     this.sequenceBuilder = null;
   }
 
+  private static TestBase newTestBase(final ExtensionsSettings settings) {
+    final TestBase testBase = new TestBase();
+    final TestBaseRegistry registry = testBase.getRegistry();
+
+    final ClassLoader loader =
+        TestDataGenerator.class.getClass().getClassLoader();
+    for (final ExtensionSettings ext : settings.getExtensions()) {
+      try {
+        final Class<?> cls = loader.loadClass(ext.getPath());
+        final DataGenerator generator = DataGenerator.class.cast(cls.newInstance());
+        registry.registerGenerator(ext.getName(), generator);
+      } catch (final Exception e) {
+        Logger.error(e.getMessage());
+      }
+    }
+    return testBase;
+  }
+
   private ICallFactory getCallFactory() {
     return model.getCallFactory();
+  }
+
+  @Override
+  public Class<TestSequence> getSolutionClass() {
+    return TestSequence.class;
+  }
+
+  @Override
+  public TestSequence solve(final Sequence<Call> abstractSequence) {
+    try {
+      return process(abstractSequence);
+    } catch (final ConfigurationException e) {
+      Logger.error(e.getMessage());
+    }
+    return null;
   }
 
   public TestSequence process(

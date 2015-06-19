@@ -25,7 +25,6 @@ import org.jruby.embed.ScriptingContainer;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.solver.Environment;
-import ru.ispras.fortress.solver.Solver;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -36,6 +35,7 @@ import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.data.ModeAllocator;
+import ru.ispras.microtesk.test.sequence.Configuration;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
@@ -210,7 +210,7 @@ public final class TestEngine {
     final String HOME = System.getenv("MICROTESK_HOME");
 
     final String z3Path = (HOME != null ? HOME : ".") + "/tools/z3/";
-    final Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
+    final ru.ispras.fortress.solver.Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
 
     if (Environment.isUnix()) {
       z3Solver.setSolverPath(z3Path + "unix/z3/bin/z3");
@@ -224,7 +224,7 @@ public final class TestEngine {
     }
 
     final String cvc4Path = (HOME != null ? HOME : ".") + "/tools/cvc4/";
-    final Solver cvc4Solver = SolverId.CVC4_TEXT.getSolver();
+    final ru.ispras.fortress.solver.Solver cvc4Solver = SolverId.CVC4_TEXT.getSolver();
 
     if (Environment.isUnix()) {
       cvc4Solver.setSolverPath(cvc4Path + "unix/cvc4");
@@ -281,14 +281,19 @@ public final class TestEngine {
     
     final DataManager dataManager = new DataManager(indentToken);
     final PreparatorStore preparators = new PreparatorStore();
-    final TestDataGenerator dataGenerator = new TestDataGenerator(model, preparators);
+
+    final Configuration<Call> config = new Configuration<>();
+    final TestDataGenerator generator =
+        new TestDataGenerator(model, preparators, settings.getExtensions());
+    config.registerSolver("default", generator);
+    config.registerAdapter("default", new TestSequenceAdapter());
 
     final TemplateProcessor processor = new TemplateProcessor(
         executor,
         printer, 
         logPrinter,
         dataManager,
-        dataGenerator,
+        config,
         programLengthLimit,
         traceLengthLimit
         );
@@ -306,7 +311,7 @@ public final class TestEngine {
     private final Printer printer;
     private final LogPrinter logPrinter;
     private final DataManager dataManager;
-    private final TestDataGenerator dataGenerator;
+    private final Configuration<Call> config;
 
     private final int programLengthLimit;
     private final int traceLengthLimit;
@@ -321,7 +326,7 @@ public final class TestEngine {
         final Printer printer,
         final LogPrinter logPrinter,
         final DataManager dataManager,
-        final TestDataGenerator dataGenerator,
+        final Configuration<Call> config,
         final int programLengthLimit,
         final int traceLengthLimit) {
 
@@ -329,7 +334,7 @@ public final class TestEngine {
       this.printer = printer;
       this.logPrinter = logPrinter;
       this.dataManager = dataManager;
-      this.dataGenerator = dataGenerator;
+      this.config = config;
 
       this.programLengthLimit = programLengthLimit;
       this.traceLengthLimit = traceLengthLimit;
@@ -404,6 +409,7 @@ public final class TestEngine {
     private void processBlock(Block block) throws ConfigurationException {
       final boolean isSingleSequence = block.isSingle();
       final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
+      final DataGenerationEngine engine = getEngine(block);
 
       int sequenceIndex = 0;
       sequenceIt.init();
@@ -458,7 +464,7 @@ public final class TestEngine {
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
         Logger.debugHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
-        final TestSequence concreteSequence = dataGenerator.process(abstractSequence);
+        final TestSequence concreteSequence = engine.process(abstractSequence);
 
         Logger.debugHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
         executor.executeSequence(concreteSequence);
@@ -525,13 +531,14 @@ public final class TestEngine {
     private void processPreOrPostBlock(Block block) throws ConfigurationException {
       InvariantChecks.checkTrue(block.isSingle());
       final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
+      final DataGenerationEngine engine = getEngine(block);
 
       sequenceIt.init();
       while (sequenceIt.hasValue()) {
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
         Logger.debugHeader("Generating Data");
-        final TestSequence concreteSequence = dataGenerator.process(abstractSequence);
+        final TestSequence concreteSequence = engine.process(abstractSequence);
 
         Logger.debugHeader("Executing");
         executor.executeSequence(concreteSequence);
@@ -544,6 +551,51 @@ public final class TestEngine {
 
         sequenceIt.next();
       }
+    }
+
+   private DataGenerationEngine getEngine(final Block block) throws ConfigurationException {
+      final String solverName = blockAttribute(block, "solver", "default");
+      final String adapterName = blockAttribute(block, "adapter", "default");
+
+      final Solver<?> solver = config.getSolver(solverName);
+      final Adapter<?> adapter = config.getAdapter(adapterName);
+
+      if (!adapter.getSolutionClass().isAssignableFrom(solver.getSolutionClass())) {
+        throw new IllegalStateException("Mismatched solver/adapter pair");
+      }
+      return new DataGenerationEngine(solver, adapter);
+    }
+
+    private static final class DataGenerationEngine {
+      private final Solver<?> solver;
+      private final Adapter<?> adapter;
+
+      public DataGenerationEngine(final Solver<?> solver, final Adapter<?> adapter) {
+        this.solver = solver;
+        this.adapter = adapter;
+      }
+
+      public TestSequence process(final Sequence<Call> abstractSequence) {
+        final Object solution = solver.solve(abstractSequence);
+        return adapt(adapter, abstractSequence, solution);
+      }
+
+      private static <T> TestSequence adapt(final Adapter<T> adapter,
+                                            final Sequence<Call> sequence,
+                                            final Object solution) {
+        final Class<T> cls = adapter.getSolutionClass();
+        return adapter.adapt(sequence, cls.cast(solution));
+      }
+    }
+
+    private static String blockAttribute(final Block block,
+                                         final String name,
+                                         final String fallback) {
+      final Object value = block.getAttribute(name);
+      if (value == null) {
+        return fallback;
+      }
+      return value.toString();
     }
 
     private void printSectionHeader(String title) {
