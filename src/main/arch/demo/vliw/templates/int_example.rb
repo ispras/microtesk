@@ -26,49 +26,29 @@ class IntExampleTemplate < VliwBaseTemplate
 
   def run
     # Random immediate values: rand(min, max)
-    comment 'rand(0, 31)'
     vliw(
       (addi r(rand(1, 31)), r(0), rand(0, 31)),
       (addi r(rand(1, 31)), r(0), rand(0, 31))
     )
 
-    # Another way to generate random immediate values:
-    # situation imm_random(min, max).
-    comment 'imm_random (:min => 1, :max => 31)'
-    vliw(
-      (addi r(_), r(_), _ do situation('imm_random', :min => 1, :max => 31) end),
-      (addi r(_), r(_), _ do situation('imm_random', :min => 1, :max => 31) end)
-    )
-
-    # Or this way:
-    comment 'imm_random (:min => 1, :max => 31) - all together'
-    vliw(
-      (addi r(_), r(_), _),
-      (addi r(_), r(_), _)
-    ) do situation('imm_random', :min => 1, :max => 31) end
-
-    # Immediate values are produced as an incremental sequence in
-    # the specified range with the specified step {1, 3, 5, 7, ... }
-    comment 'imm_range (:from => 1, :to => 31, :step => 2)'
-    vliw(
-      (add r(_), r(_), r(_)),
-      (add r(_), r(_), r(_))
-    ) do situation('imm_range', :from => 1, :to => 31, :step => 2) end
-
     # All registers are filled with zeros.
-    comment 'zero (:size => 32)'
     vliw(
       (add r(1), r(3), r(5)),
       (add r(2), r(4), r(6))
-    ) do situation('zero', :size => 32) end
+    ) do situation('zero') end
 
     # Random registers are filled with random values.
-    comment 'random (:size => 32, :min_imm => 1, :max_imm => 31)'
     vliw(
       (add r(_), r(_), r(_)),
       (add r(_), r(_), r(_))
-    ) do situation('random', :size => 32, :min_imm => 1, :max_imm => 31) end
+    ) do situation('random') end
 
+    # Random registers are assigned radom values from the specified range.
+    # The immediate values are also radom values from the specified range.
+    vliw(
+      (addi r(_), r(_), _ do situation('random', :min => 1, :max => 31) end),
+      (addi r(_), r(_), _ do situation('random', :min => 1, :max => 31) end)
+    )
   end
 
 end
