@@ -16,7 +16,11 @@ package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.io.File;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -121,8 +125,23 @@ final class TestDataGenerator implements Solver<TestSequence> {
 
     final TestBaseRegistry registry = testBase.getRegistry();
 
-    final ClassLoader loader =
-        TestDataGenerator.class.getClassLoader();
+    final String home = System.getenv("MICROTESK_HOME");
+    final File file = new File(new File(new File(new File(home), "lib"), "jars"), "models.jar");
+
+    final URL url;
+    try {
+      url = file.toURL();
+    } catch (MalformedURLException e1) {
+      Logger.error(e1.getMessage());
+      return testBase;
+    }
+
+    final URL[] urls = new URL[]{url};
+    final ClassLoader loader = new URLClassLoader(urls);
+
+    //final ClassLoader loader =
+    //    TestDataGenerator.class.getClassLoader();
+
     for (final ExtensionSettings ext : settings.getExtensions().getExtensions()) {
       try {
         final Class<?> cls = loader.loadClass(ext.getPath());
@@ -130,6 +149,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
         registry.registerGenerator(ext.getName(), generator);
       } catch (final Exception e) {
         Logger.error(e.getMessage());
+        e.printStackTrace();
       }
     }
     return testBase;
