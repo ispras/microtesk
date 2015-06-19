@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +84,7 @@ public final class IntegerCast {
     for (final Enum<?> id : operationsToCast.keySet()) {
       rules.put(id, castOperations);
     }
+    rules.put(StandardOperation.ITE, new IteRule());
 
     return rules;
   }
@@ -146,6 +148,31 @@ public final class IntegerCast {
     return (node.getKind() == Node.Kind.VALUE || node.getKind() == Node.Kind.VARIABLE) &&
            node.getDataType().getTypeId() == DataTypeId.BIT_VECTOR;
   }
+
+  public static DataType findCommonType(final Collection<? extends Node> nodes) {
+    DataType common = DataType.BOOLEAN;
+    for (final Node node : nodes) {
+      final DataType current = node.getDataType();
+      if (!current.equals(common) && current.getSize() > common.getSize()) {
+        common = current;
+      }
+    }
+    return common;
+  }
+
+  public static boolean hasTypeMismatch(final Collection<? extends Node> nodes) {
+    if (nodes.isEmpty()) {
+      return false;
+    }
+    final Iterator<? extends Node> it = nodes.iterator();
+    final DataType type = it.next().getDataType();
+    while (it.hasNext()) {
+      if (!it.next().getDataType().equals(type)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 interface TypeGetter {
@@ -202,7 +229,7 @@ class CommonBitVectorTypeRule implements TransformerRule {
   @Override
   public Node apply(Node node) {
     final NodeOperation op = (NodeOperation) node;
-    final DataType type = findCommonType(op.getOperands());
+    final DataType type = IntegerCast.findCommonType(op.getOperands());
 
     final List<Node> operands = new ArrayList<>(op.getOperandCount());
     for (final Node operand : op.getOperands()) {
@@ -215,29 +242,9 @@ class CommonBitVectorTypeRule implements TransformerRule {
     if (input.getKind() != Node.Kind.OPERATION) {
       return false;
     }
-    final NodeOperation op = (NodeOperation) input;
-    if (op.getOperands().isEmpty()) {
-      return false;
-    }
-    final DataType type = op.getOperand(0).getDataType();
-    for (final Node node : op.getOperands()) {
-      if (!node.getDataType().equals(type)) {
-        return true;
-      }
-    }
-    return false;
+    return IntegerCast.hasTypeMismatch(((NodeOperation) input).getOperands());
   }
 
-  private static DataType findCommonType(final Collection<? extends Node> nodes) {
-    DataType common = DataType.BOOLEAN;
-    for (final Node node : nodes) {
-      final DataType current = node.getDataType();
-      if (!current.equals(common) && current.getSize() > common.getSize()) {
-        common = current;
-      }
-    }
-    return common;
-  }
 }
 
 final class DependentOperandRule implements TransformerRule {
@@ -272,5 +279,30 @@ final class DependentOperandRule implements TransformerRule {
       operands.set(index, IntegerCast.cast(operands.get(index), type));
     }
     return Expression.newOperation(op.getOperationId(), operands);
+  }
+}
+
+final class IteRule implements TransformerRule {
+  @Override
+  public boolean isApplicable(final Node node) {
+    if (nodeIsOperation(node, StandardOperation.ITE) &&
+           IntegerCast.getBitVectorOperandIndex(node, 1) >= 1) {
+      final List<Node> operands = ((NodeOperation) node).getOperands();
+      return IntegerCast.hasTypeMismatch(operands.subList(1, operands.size()));
+    }
+    return false;
+  }
+
+  @Override
+  public Node apply(final Node node) {
+    final NodeOperation ite = (NodeOperation) node;
+    final List<Node> source = ite.getOperands().subList(1, ite.getOperandCount());
+    final DataType type = IntegerCast.findCommonType(source);
+    final List<Node> operands = new ArrayList<>(ite.getOperandCount());
+    operands.add(ite.getOperand(0));
+    for (final Node operand : source) {
+      operands.add(IntegerCast.cast(operand, type));
+    }
+    return new NodeOperation(StandardOperation.ITE, operands);
   }
 }
