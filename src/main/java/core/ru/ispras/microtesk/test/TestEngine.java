@@ -111,6 +111,8 @@ public final class TestEngine {
   private static boolean tarmacLog = false;
 
   // Architecture-specific settings
+  private static GeneratorSettings settings;
+
   public static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
   }
@@ -145,8 +147,14 @@ public final class TestEngine {
     traceLengthLimit = value;
   }
 
+  public static GeneratorSettings getGeneratorSettings() {
+    return settings;
+  }
+
   public static void setGeneratorSettings(final GeneratorSettings value) {
     InvariantChecks.checkNotNull(value);
+
+    settings = value;
 
     final AllocationSettings allocation = value.getAllocation();
     if (allocation != null) {
@@ -273,7 +281,7 @@ public final class TestEngine {
     
     final DataManager dataManager = new DataManager(indentToken);
     final PreparatorStore preparators = new PreparatorStore();
-    final DataGenerator dataGenerator = new DataGenerator(model, preparators);
+    final TestDataGenerator dataGenerator = new TestDataGenerator(model, preparators);
 
     final TemplateProcessor processor = new TemplateProcessor(
         executor,
@@ -298,7 +306,7 @@ public final class TestEngine {
     private final Printer printer;
     private final LogPrinter logPrinter;
     private final DataManager dataManager;
-    private final DataGenerator dataGenerator;
+    private final TestDataGenerator dataGenerator;
 
     private final int programLengthLimit;
     private final int traceLengthLimit;
@@ -313,7 +321,7 @@ public final class TestEngine {
         final Printer printer,
         final LogPrinter logPrinter,
         final DataManager dataManager,
-        final DataGenerator dataGenerator,
+        final TestDataGenerator dataGenerator,
         final int programLengthLimit,
         final int traceLengthLimit) {
 

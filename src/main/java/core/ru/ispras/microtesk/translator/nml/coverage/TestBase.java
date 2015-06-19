@@ -68,7 +68,7 @@ public final class TestBase {
   public TestBase(String path) {
     this.path = path;
     this.storage = new HashMap<>();
-    this.testBase = new ru.ispras.testbase.stub.TestBase();
+    this.testBase = ru.ispras.testbase.stub.TestBase.get();
   }
 
   public TestBase() {

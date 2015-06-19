@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,26 +12,19 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.data;
+package ru.ispras.microtesk.test.testbase;
 
-import java.util.Map;
-import java.util.Set;
+import ru.ispras.testbase.TestBaseRegistry;
+import ru.ispras.testbase.stub.TestBase;
 
 /**
- * {@link AllocationStrategy} defines an interface of resource allocation strategies.
- * 
+ * {@link PredefinedSituations} registers predefined test situation in TestBase.
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface AllocationStrategy {
-
-  /**
-   * Chooses an object.
-   * 
-   * @param <T> type of objects.
-   * @param free the set of free objects.
-   * @param used the set of used objects.
-   * @param attributes the parameters.
-   * @return the chosen object or {@code null}.
-   */
-  <T> T next(final Set<T> free, final Set<T> used, final Map<String, String> attributes);
+final class PredefinedGenerators {
+  static {
+    final TestBaseRegistry registry = TestBase.get().getRegistry();
+    registry.registerGenerator("address", new AddressGenerator());
+  }
 }
