@@ -23,19 +23,25 @@ public final class ExtensionSettings extends AbstractSettings {
   public static final String TAG = "extension";
 
   private final String name;
+  private final String path;
 
-  public ExtensionSettings(final String name) {
+  public ExtensionSettings(final String name, final String path) {
     super(TAG);
 
     this.name = name;
+    this.path = path;
   }
 
   public String getName() {
     return name;
   }
 
+  public String getPath() {
+    return path;
+  }
+
   @Override
   public String toString() {
-    return String.format("%s=%s", TAG, name);
+    return String.format("%s=%s:%s", TAG, name, path);
   }
 }

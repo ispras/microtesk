@@ -22,7 +22,8 @@ import java.util.Map;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class ExtensionSettingsParser extends AbstractSettingsParser {
-  public static final String ATTR_CLASS = "class";
+  public static final String ATTR_NAME = "name";
+  public static final String ATTR_PATH = "path";
 
   public ExtensionSettingsParser() {
     super(ExtensionSettings.TAG);
@@ -30,9 +31,10 @@ public final class ExtensionSettingsParser extends AbstractSettingsParser {
 
   @Override
   public AbstractSettings createSettings(final Map<String, String> attributes) {
-    final String name = AbstractSettingsParser.getString(attributes.get(ATTR_CLASS));
+    final String name = AbstractSettingsParser.getString(attributes.get(ATTR_NAME));
+    final String path = AbstractSettingsParser.getString(attributes.get(ATTR_PATH));
 
-    return new ExtensionSettings(name);
+    return new ExtensionSettings(name, path);
   }
 }
 

@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.settings;
 
+import java.util.Collection;
 
 /**
  * {@link ExtensionsSettings} represents memory regions being accessed by test programs.
@@ -25,5 +26,9 @@ public final class ExtensionsSettings extends AbstractSettings {
 
   public ExtensionsSettings() {
     super(TAG);
+  }
+
+  public Collection<ExtensionSettings> getExtensions() {
+    return getSingle(ExtensionSettings.TAG);
   }
 }
