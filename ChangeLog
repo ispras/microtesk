@@ -6,6 +6,16 @@
  2015/03/24 MicroTESK 2.2 alpha
 --------------------------------------------------------------------------------
 
+ 2015/06/19 MicroTESK 2.2.6 beta
+ 
+ The new build contains the following changes:
+ 
+ - Support for large memory addresses (e.g 48 and 64 bits) was improved.
+ - Support for overloaded preparators was implemented.
+ - Support for operation and addressing mode groups in test templates was implemented.
+ - Improved console output format (use the --verbose option).
+ - Several bug fixes and general improvements were made.
+
  2015/06/11 MicroTESK 2.2.5 beta
 
  The new build contains the following changes:
