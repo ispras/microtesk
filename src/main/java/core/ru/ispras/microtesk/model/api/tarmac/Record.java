@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.tarmac;
 
 import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 public abstract class Record {
@@ -55,10 +56,17 @@ public abstract class Record {
     private Instruction(final ConcreteCall call) {
       super(RecordKind.INSTRUCT, ++instructionId);
 
-      final BigInteger image = new BigInteger(call.getImage(), 2);
-      this.instrId = image.longValue();
       this.addr = call.getAddress();
       this.disasm = call.getText();
+
+      try {
+        final BigInteger image = new BigInteger(call.getImage(), 2);
+        this.instrId = image.longValue();
+      } catch (final NumberFormatException e) {
+        Logger.error("Failed to parse image for instruction call %s: '%s'. Reason: %s.",
+            disasm, call.getImage(), e.getMessage());
+        this.addr = 0;
+      }
     }
 
     @Override
