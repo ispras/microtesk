@@ -122,6 +122,7 @@
         <arg value="-jar"/>
         <arg value="${dist.jars}/${jar}"/>
         <arg value="-g"/>
+        <arg value="-v"/>
         <arg value="--rate-limit"/>
         <arg value="500"/>
         <arg value="@{arch.name}"/>
