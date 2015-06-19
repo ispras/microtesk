@@ -122,7 +122,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
     final TestBaseRegistry registry = testBase.getRegistry();
 
     final ClassLoader loader =
-        TestDataGenerator.class.getClass().getClassLoader();
+        TestDataGenerator.class.getClassLoader();
     for (final ExtensionSettings ext : settings.getExtensions().getExtensions()) {
       try {
         final Class<?> cls = loader.loadClass(ext.getPath());
