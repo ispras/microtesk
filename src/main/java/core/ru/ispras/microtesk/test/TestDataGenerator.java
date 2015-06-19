@@ -511,11 +511,12 @@ final class TestDataGenerator {
    * Arguments are treated in the following way:
    * <ul>
    * <li>All immediate arguments that have values are constants (see {@link NodeValue}) of type
-   * {@link DataType#INTEGER}.</li>
-   * <li>All unknown immediate arguments (see {@link UnknownImmediateValue}) that have not been assigned values
-   * are unknown variables (see {@link NodeVariable}) of type {@link DataType#INTEGER}.</li>
+   * {@link DataType#BIT_VECTOR}.</li>
+   * <li>All unknown immediate arguments (see {@link UnknownImmediateValue}) that have not been 
+   * assigned values are unknown variables (see {@link NodeVariable}) of type
+   * {@link DataType#BIT_VECTOR}.</li>
    * <li>All addressing modes are unknown variables (see {@link NodeVariable}) of type
-   * {@link DataType#UNKNOWN}.</li>
+   * {@link DataType#BIT_VECTOR}.</li>
    * </ul>
    * <p>
    * N.B. If nested operations have linked test situations, these situations are ignored and no
@@ -525,7 +526,7 @@ final class TestDataGenerator {
    * <p>
    * N.B. The above text describes the current behavior that may be changed in the future.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   private final class TestBaseQueryCreator {
@@ -640,29 +641,43 @@ final class TestDataGenerator {
     }
 
     private void visit(final String prefix, final Primitive p) {
-      for (Argument arg : p.getArguments().values()) {
+      for (final Argument arg : p.getArguments().values()) {
         final String argName = prefix.isEmpty() ?
-          arg.getName() : String.format("%s.%s", prefix, arg.getName());
+            arg.getName() : String.format("%s.%s", prefix, arg.getName());
 
         switch (arg.getKind()) {
           case IMM:
-            queryBuilder.setBinding(argName, new NodeValue(Data.newInteger((BigInteger) arg.getValue())));
+            queryBuilder.setBinding(
+                argName,
+                new NodeValue(Data.newBitVector(BitVector.valueOf(
+                    (BigInteger) arg.getValue(), arg.getType().getBitSize())))
+                );
             break;
 
           case IMM_RANDOM:
-            queryBuilder.setBinding(argName, 
-                new NodeValue(Data.newInteger(((RandomValue) arg.getValue()).getValue())));
+            queryBuilder.setBinding(
+                argName, 
+                new NodeValue(Data.newBitVector(BitVector.valueOf(
+                    ((RandomValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
+                );
             break;
 
           case IMM_UNKNOWN:
             final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
 
             if (!unknownValue.isValueSet()) {
-              queryBuilder.setBinding(argName, new NodeVariable(argName, DataType.INTEGER));
+              queryBuilder.setBinding(
+                  argName,
+                  new NodeVariable(argName, DataType.BIT_VECTOR(arg.getType().getBitSize()))
+                  );
+
               unknownValues.put(argName, arg);
             } else {
-              queryBuilder.setBinding(argName,
-                  new NodeValue(Data.newInteger(unknownValue.getValue())));
+              queryBuilder.setBinding(
+                  argName,
+                  new NodeValue(Data.newBitVector(BitVector.valueOf(
+                      unknownValue.getValue(), arg.getType().getBitSize())))
+                  );
             }
             break;
 
