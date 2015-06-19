@@ -77,12 +77,10 @@ public final class TestBase {
   }
 
   public TestBaseQueryResult executeQuery(TestBaseQuery query) {
-System.out.println("exec " + query.getContext().get(TestBaseContext.TESTCASE));
     final TestBaseQueryResult rc = testBase.executeQuery(query);
     if (rc.getStatus() == TestBaseQueryResult.Status.OK) {
       return rc;
     }
-System.out.println("error");
     SolverResult result;
     try {
       final PathConstraintBuilder builder = constraintBuilder(query);
