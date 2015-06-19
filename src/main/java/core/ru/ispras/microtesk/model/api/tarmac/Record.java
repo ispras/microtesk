@@ -22,6 +22,10 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 public abstract class Record {
   private static long instructionId = -1;
 
+  public static void resetInstructionCount() {
+    instructionId = -1;
+  }
+
   private final RecordKind kind;
   private final long time;
 

@@ -39,6 +39,8 @@ public final class LogPrinter {
 
   public String createNewFile() throws IOException {
     close();
+    Record.resetInstructionCount();
+
     final String fileName = String.format(
         "%s_%04d.%s", filePrefix, fileCount++, fileExtension);
 
