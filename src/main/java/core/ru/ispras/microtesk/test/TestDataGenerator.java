@@ -671,6 +671,7 @@ final class TestDataGenerator {
             // Otherwise, if there are unknown values, the mode cannot be instantiated.
             visit(argName, (Primitive) arg.getValue());
 
+            final DataType dataType = DataType.BIT_VECTOR(arg.getType().getBitSize());
             Node bindingValue = null;
 
             try {
@@ -682,15 +683,16 @@ final class TestDataGenerator {
                   bindingValue = NodeValue.newBitVector(
                       BitVector.valueOf(location.getValue(), location.getBitSize()));
                 } else {
-                  bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
+                  bindingValue = new NodeVariable(argName, dataType);
                 }
               } else {
-                bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
+                bindingValue = new NodeVariable(argName, dataType);
               }
             } catch (ConfigurationException e) {
-              Logger.error("Failed to read data from " + arg.getTypeName() +
-                  " Reason : " + e.getMessage());
-              bindingValue = new NodeVariable(argName, DataType.UNKNOWN);
+              Logger.error("Failed to read data from %s. Reason: %s",
+                  arg.getTypeName(), e.getMessage());
+
+              bindingValue = new NodeVariable(argName, dataType);
             }
 
             queryBuilder.setBinding(argName, bindingValue);
