@@ -740,34 +740,37 @@ final class TestDataGenerator implements Solver<TestSequence> {
             // Otherwise, if there are unknown values, the mode cannot be instantiated.
             visit(argName, (Primitive) arg.getValue());
 
-            final DataType dataType = arg.getType() != null ?
-                DataType.BIT_VECTOR(arg.getType().getBitSize()) : DataType.UNKNOWN;
+            // If a MODE has no return expression it is treated as OP and
+            // it is NOT added to bindings and mode list
+            if (arg.getMode() != ArgumentMode.NA) {
+              final DataType dataType = DataType.BIT_VECTOR(arg.getType().getBitSize());
+              Node bindingValue = null;
 
-            Node bindingValue = null;
+              try {
+                if (arg.getMode() != ArgumentMode.NA) {
+                  final IAddressingMode mode = makeMode(arg);
+                  final Location location = mode.access();
 
-            try {
-              if (arg.getMode() != ArgumentMode.NA) {
-                final IAddressingMode mode = makeMode(arg);
-                final Location location = mode.access();
-
-                if (location.isInitialized()) {
-                  bindingValue = NodeValue.newBitVector(
-                      BitVector.valueOf(location.getValue(), location.getBitSize()));
+                  if (location.isInitialized()) {
+                    bindingValue = NodeValue.newBitVector(
+                        BitVector.valueOf(location.getValue(), location.getBitSize()));
+                  } else {
+                    bindingValue = new NodeVariable(argName, dataType);
+                  }
                 } else {
                   bindingValue = new NodeVariable(argName, dataType);
                 }
-              } else {
+              } catch (ConfigurationException e) {
+                Logger.error("Failed to read data from %s. Reason: %s",
+                    arg.getTypeName(), e.getMessage());
+
                 bindingValue = new NodeVariable(argName, dataType);
               }
-            } catch (ConfigurationException e) {
-              Logger.error("Failed to read data from %s. Reason: %s",
-                  arg.getTypeName(), e.getMessage());
 
-              bindingValue = new NodeVariable(argName, dataType);
+              queryBuilder.setBinding(argName, bindingValue);
+              modes.put(argName, arg);
             }
 
-            queryBuilder.setBinding(argName, bindingValue);
-            modes.put(argName, arg);
             break;
           }
 
