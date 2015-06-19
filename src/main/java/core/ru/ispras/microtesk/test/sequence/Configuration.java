@@ -17,6 +17,8 @@ package ru.ispras.microtesk.test.sequence;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.test.Adapter;
+import ru.ispras.microtesk.test.Solver;
 import ru.ispras.microtesk.test.sequence.combinator.*;
 import ru.ispras.microtesk.test.sequence.compositor.*;
 
@@ -31,6 +33,9 @@ public class Configuration<T> {
 
   /** The map of available compositors. */
   private Map<String, Class<?>> compositors = new HashMap<String, Class<?>>();
+
+  private final Map<String, Solver<?>> solvers = new HashMap<>();
+  private final Map<String, Adapter<?>> adapters = new HashMap<>();
 
   /**
    * Constructs a configuration object.
@@ -90,6 +95,22 @@ public class Configuration<T> {
    */
   public Compositor<T> getCompositor(final CompositorId id) {
     return getCompositor(id.name());
+  }
+
+  public Solver<?> registerSolver(final String name, final Solver<?> solver) {
+    return solvers.put(name, solver);
+  }
+
+  public Solver<?> getSolver(final String name) {
+    return solvers.get(name);
+  }
+
+  public Adapter<?> registerAdapter(final String name, final Adapter<?> adapter) {
+    return adapters.put(name, adapter);
+  }
+
+  public Adapter<?> getAdapter(final String name) {
+    return adapters.get(name);
   }
 
   /**
