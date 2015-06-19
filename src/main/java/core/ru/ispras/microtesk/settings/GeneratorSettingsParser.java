@@ -28,6 +28,7 @@ public class GeneratorSettingsParser extends AbstractSettingsParser {
     // Parsers for the standard sections.
     addParser(new MemorySettingsParser());
     addParser(new AllocationSettingsParser());
+    addParser(new ExtensionsSettingsParser());
   }
 
   @Override

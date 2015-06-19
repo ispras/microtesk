@@ -15,29 +15,27 @@
 package ru.ispras.microtesk.settings;
 
 /**
- * {@link GeneratorSettings} represents generator settings.
- * 
- * <p>The settings contain standard and user-defined sections. Each standard section has a special
- * getter. User-defined section are accessed via the standard {@code get}.</p>
+ * {@link ExtensionSettings} describes a generator extension.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class GeneratorSettings extends AbstractSettings {
-  public static final String TAG = "settings";
+public final class ExtensionSettings extends AbstractSettings {
+  public static final String TAG = "extension";
 
-  public GeneratorSettings() {
+  private final String name;
+
+  public ExtensionSettings(final String name) {
     super(TAG);
+
+    this.name = name;
   }
 
-  public MemorySettings getMemory() {
-    return getSingle(MemorySettings.TAG);
+  public String getName() {
+    return name;
   }
 
-  public AllocationSettings getAllocation() {
-    return getSingle(AllocationSettings.TAG);
-  }
-  
-  public ExtensionsSettings getExtensions() {
-    return getSingle(ExtensionsSettings.TAG);
+  @Override
+  public String toString() {
+    return String.format("%s=%s", TAG, name);
   }
 }

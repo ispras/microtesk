@@ -14,30 +14,23 @@
 
 package ru.ispras.microtesk.settings;
 
+import java.util.Map;
+
 /**
- * {@link GeneratorSettings} represents generator settings.
- * 
- * <p>The settings contain standard and user-defined sections. Each standard section has a special
- * getter. User-defined section are accessed via the standard {@code get}.</p>
+ * {@link ExtensionsSettingsParser} implements a parser of {@link ExtensionSettings}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class GeneratorSettings extends AbstractSettings {
-  public static final String TAG = "settings";
+public final class ExtensionsSettingsParser extends AbstractSettingsParser {
+  public ExtensionsSettingsParser() {
+    super(ExtensionsSettings.TAG);
 
-  public GeneratorSettings() {
-    super(TAG);
+    addParser(new ExtensionSettingsParser());
   }
 
-  public MemorySettings getMemory() {
-    return getSingle(MemorySettings.TAG);
-  }
-
-  public AllocationSettings getAllocation() {
-    return getSingle(AllocationSettings.TAG);
-  }
-  
-  public ExtensionsSettings getExtensions() {
-    return getSingle(ExtensionsSettings.TAG);
+  @Override
+  public AbstractSettings createSettings(final Map<String, String> attributes) {
+    return new ExtensionsSettings();
   }
 }
+
