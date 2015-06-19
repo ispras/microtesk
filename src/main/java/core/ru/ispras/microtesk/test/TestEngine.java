@@ -284,7 +284,8 @@ public final class TestEngine {
 
     final Configuration<Call> config = new Configuration<>();
     final TestDataGenerator generator =
-        new TestDataGenerator(model, preparators, settings.getExtensions());
+        new TestDataGenerator(model, preparators, settings);
+
     config.registerSolver("default", generator);
     config.registerAdapter("default", new TestSequenceAdapter());
 

@@ -45,7 +45,7 @@ import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.settings.ExtensionSettings;
-import ru.ispras.microtesk.settings.ExtensionsSettings;
+import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.data.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
@@ -103,7 +103,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
   TestDataGenerator(
       final IModel model,
       final PreparatorStore preparators,
-      final ExtensionsSettings settings) {
+      final GeneratorSettings settings) {
     checkNotNull(model);
     checkNotNull(preparators);
 
@@ -113,9 +113,9 @@ final class TestDataGenerator implements Solver<TestSequence> {
     this.sequenceBuilder = null;
   }
 
-  private static TestBase newTestBase(final ExtensionsSettings settings) {
+  private static TestBase newTestBase(final GeneratorSettings settings) {
     final TestBase testBase = new TestBase();
-    if (null == settings) {
+    if (null == settings || null == settings.getExtensions()) {
       return testBase;
     }
 
@@ -123,7 +123,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
 
     final ClassLoader loader =
         TestDataGenerator.class.getClass().getClassLoader();
-    for (final ExtensionSettings ext : settings.getExtensions()) {
+    for (final ExtensionSettings ext : settings.getExtensions().getExtensions()) {
       try {
         final Class<?> cls = loader.loadClass(ext.getPath());
         final DataGenerator generator = DataGenerator.class.cast(cls.newInstance());
