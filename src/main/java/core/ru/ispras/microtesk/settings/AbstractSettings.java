@@ -47,6 +47,10 @@ public abstract class AbstractSettings {
   @SuppressWarnings("unchecked")
   public final <T extends AbstractSettings> T getSingle(final String tag) {
     final Collection<AbstractSettings> sections = get(tag);
+    if (null == sections) {
+      return null;
+    }
+
     for (final AbstractSettings section : sections) {
       return (T) section;
     }

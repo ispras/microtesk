@@ -115,6 +115,10 @@ final class TestDataGenerator implements Solver<TestSequence> {
 
   private static TestBase newTestBase(final ExtensionsSettings settings) {
     final TestBase testBase = new TestBase();
+    if (null == settings) {
+      return testBase;
+    }
+
     final TestBaseRegistry registry = testBase.getRegistry();
 
     final ClassLoader loader =
