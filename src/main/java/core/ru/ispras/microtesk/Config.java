@@ -40,7 +40,6 @@ import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
 public final class Config {
   private Config() {}
 
-  private static final String MICROTESK_HOME = "MICROTESK_HOME";
   private static final String     CONFIG_URL = "config.xml";
   private static final String         CONFIG = "config";
   private static final String         PLUGIN = "plugin";
@@ -61,10 +60,6 @@ public final class Config {
       "Document %s contains no root node called %s.";
 
   private static final String ERR_FAILED_TO_PARSE = "Failed to parse %s.";
-
-  public static String getHomePath() {
-    return System.getenv().get(MICROTESK_HOME);
-  }
 
   public static List<Translator<?>> loadTranslators() {
     final URL configUrl = getResource(CONFIG_URL);
@@ -143,9 +138,9 @@ public final class Config {
   }
 
   public static Map<String, String> loadSettings() {
-    final String homePath = getHomePath();
+    final String homePath = Environment.getHomePath();
     if (null == homePath) {
-      Logger.warning("The %s environment variable is not defined.", MICROTESK_HOME);
+      Logger.warning("The %s environment variable is not defined.", Environment.MICROTESK_HOME);
       return Collections.emptyMap();
     }
 
