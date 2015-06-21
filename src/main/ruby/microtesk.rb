@@ -16,12 +16,14 @@
 
 require 'java'
 
-require_relative 'config'
 require_relative 'template'
 require_relative 'utils'
 
 module MicroTESK 
-  
+
+HOME     = ENV["MICROTESK_HOME"]
+TEMPLATE = File.join(HOME, "lib/ruby/template")
+
 def self.main
   template_file = File.expand_path ARGV[0]
 

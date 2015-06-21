@@ -486,7 +486,7 @@ class Template
   # ------------------------------------------------------------------------- #
 
   def data_config(attrs, &contents)
-    puts "Defining data configuration..."
+    #puts "Defining data configuration..."
 
     if nil != @data_manager
       raise MTRubyError, "Data configuration is already defined"
