@@ -43,7 +43,6 @@ final class Printer {
   private final String indentToken;
   private final String commentToken;
   private final String separatorToken; 
-  private final boolean printToScreen;
   private final String separator;
   private final boolean commentsEnabled;
   private final boolean commentsDebug;
@@ -76,7 +75,6 @@ final class Printer {
       final String indentToken,
       final String commentToken,
       final String separatorToken,
-      final boolean printToScreen,
       final boolean commentsEnabled,
       final boolean commentsDebug) {
 
@@ -90,7 +88,6 @@ final class Printer {
     this.indentToken = indentToken;
     this.commentToken = commentToken;
     this.separatorToken = separatorToken;
-    this.printToScreen = printToScreen;
     this.separator = commentToken + newSeparator(LINE_WIDTH - commentToken.length(), separatorToken);
     this.commentsEnabled = commentsEnabled;
     this.commentsDebug = commentsDebug;
@@ -131,16 +128,6 @@ final class Printer {
       sb.append(token);
     }
     return sb.toString();
-  }
-
-  /**
-   * Check whether printing to screen is enabled.
-   * 
-   * @return {@code true} if printing to screen is enabled or {@code false} otherwise.
-   */
-
-  public boolean isPrintToScreenEnabled() {
-    return printToScreen;
   }
 
   /**

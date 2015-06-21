@@ -197,7 +197,7 @@ public final class MicroTESK {
           final File archFile = new File(archDirArray[1]);
 
           final String archPath = archFile.isAbsolute() ? archDirArray[1] : String.format("%s%s%s",
-              System.getenv("MICROTESK_HOME"), File.separator, archDirArray[1]); 
+              SysUtils.getHomeDir(), File.separator, archDirArray[1]); 
 
           final GeneratorSettings settings = SettingsParser.parse(archPath);
           TestEngine.setGeneratorSettings(settings);

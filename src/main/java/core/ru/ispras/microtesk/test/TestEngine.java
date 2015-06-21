@@ -28,8 +28,10 @@ import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.settings.AllocationSettings;
@@ -87,15 +89,14 @@ public final class TestEngine {
 
   public static final Statistics STATISTICS = new Statistics();
 
-  public static TestEngine getInstance(IModel model) {
-    return new TestEngine(model);
+  private static TestEngine instance = null;
+  public static TestEngine getInstance() {
+    return instance;
   }
 
   private final IModel model;
 
   // Settings passed from a template
-  private boolean logExecution = true;
-  private boolean printToScreen = true;
   private String indentToken = "\t";
   private String commentToken = "//";
   private String separatorToken = "=";
@@ -112,6 +113,14 @@ public final class TestEngine {
 
   // Architecture-specific settings
   private static GeneratorSettings settings;
+
+  public IModel getModel() {
+    return model;
+  }
+
+  public MetaModel getMetaModel() {
+    return model.getMetaData();
+  }
 
   public static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
@@ -175,17 +184,26 @@ public final class TestEngine {
   }
 
   public static Date generate(final String modelName, final String templateFile) throws Throwable {
-    Logger.debug("Home: " + System.getenv("MICROTESK_HOME"));
-    Logger.debug("Current directory: " + System.getProperty("user.dir"));
+    Logger.debug("Home: " + SysUtils.getHomeDir());
+    Logger.debug("Current directory: " + SysUtils.getCurrentDir());
+    Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
 
-    final ScriptingContainer container = new ScriptingContainer();
-    container.setArgv(new String[] {modelName, templateFile});
-
-    final String scriptsPath = String.format(
-        "%s/lib/ruby/microtesk.rb", System.getenv("MICROTESK_HOME"));
-
     try {
+      final IModel model = SysUtils.loadModel(modelName);
+      if (null == model) {
+        throw new GenerationAbortedException(
+            String.format("Failed to load the %s model.", modelName));
+      }
+
+      instance = new TestEngine(model);
+
+      final ScriptingContainer container = new ScriptingContainer();
+      container.setArgv(new String[] {templateFile});
+
+      final String scriptsPath = String.format(
+          "%s/lib/ruby/microtesk.rb", SysUtils.getHomeDir());
+
         try {
           container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
         } catch(org.jruby.embed.EvalFailedException e) {
@@ -193,7 +211,7 @@ public final class TestEngine {
           // EvalFailedException. To handle them correctly, we need to unwrap them.
           throw e.getCause();
         }
-    } catch (GenerationAbortedException e) {
+    } catch (final GenerationAbortedException e) {
       Logger.message("Generation Aborted");
       Logger.error(e.getMessage());
       new File(Printer.getLastFileName()).delete();
@@ -207,9 +225,9 @@ public final class TestEngine {
     checkNotNull(model);
     this.model = model;
 
-    final String HOME = System.getenv("MICROTESK_HOME");
+    final String home = SysUtils.getHomeDir();
 
-    final String z3Path = (HOME != null ? HOME : ".") + "/tools/z3/";
+    final String z3Path = (home != null ? home : ".") + "/tools/z3/";
     final ru.ispras.fortress.solver.Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
 
     if (Environment.isUnix()) {
@@ -223,7 +241,7 @@ public final class TestEngine {
         "Unsupported platform: %s.", Environment.getOSName()));
     }
 
-    final String cvc4Path = (HOME != null ? HOME : ".") + "/tools/cvc4/";
+    final String cvc4Path = (home != null ? home : ".") + "/tools/cvc4/";
     final ru.ispras.fortress.solver.Solver cvc4Solver = SolverId.CVC4_TEXT.getSolver();
 
     if (Environment.isUnix()) {
@@ -236,14 +254,6 @@ public final class TestEngine {
       throw new UnsupportedOperationException(String.format(
         "Unsupported platform: %s.", Environment.getOSName()));
     }
-  }
-
-  public void setLogExecution(boolean logExecution) {
-    this.logExecution = logExecution;
-  }
-
-  public void setPrintToScreen(boolean printToScreen) {
-    this.printToScreen = printToScreen;
   }
 
   public void setIndentToken(String indentToken) {
@@ -274,7 +284,6 @@ public final class TestEngine {
         indentToken,
         commentToken,
         separatorToken,
-        printToScreen,
         commentsEnabled,
         commentsDebug
         );

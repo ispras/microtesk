@@ -72,7 +72,6 @@ end # Settings
 class Template
   include Settings
 
-  @@model = nil
   @@template_classes = Hash.new
 
   def initialize
@@ -81,16 +80,6 @@ class Template
 
   def self.template_classes
     @@template_classes
-  end
-
-  def self.set_model(model)
-    if nil != @@model
-      puts "Model is already assigned."
-      return
-    end
-
-    TemplateBuilder.define_runtime_methods model.getMetaData
-    @@model = model
   end
 
   # This method adds every subclass of Template to the list of templates to parse
@@ -527,10 +516,10 @@ class Template
 
   def generate
     java_import Java::Ru.ispras.microtesk.test.TestEngine
-    engine = TestEngine.getInstance(@@model)
+    engine = TestEngine.getInstance()
 
-    engine.setLogExecution  log_execution
-    engine.setPrintToScreen use_stdout
+    TemplateBuilder.define_runtime_methods engine.getMetaModel
+
     engine.setCommentToken  sl_comment_starts_with
     engine.setIndentToken indent_token
     engine.setSeparatorToken separator_token

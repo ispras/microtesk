@@ -24,25 +24,29 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 
-public final class Environment {
+public final class SysUtils {
   public static final String MICROTESK_HOME = "MICROTESK_HOME";
 
-  private Environment() {}
+  private SysUtils() {}
 
-  public static String getHomePath() {
+  public static String getHomeDir() {
     return System.getenv(MICROTESK_HOME);
+  }
+
+  public static String getCurrentDir() {
+    return System.getProperty("user.dir");
   }
 
   public static IModel loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
 
-    final String homePath = getHomePath();
+    final String homePath = getHomeDir();
     if (null == homePath) {
-      Logger.error("The %s environment variable is not defined.", Environment.MICROTESK_HOME);
+      Logger.error("The %s environment variable is not defined.", MICROTESK_HOME);
       return null;
     }
  
-    final String modelsJarPath = Paths.get(getHomePath(), "lib", "jars", "models.jar").toString();
+    final String modelsJarPath = Paths.get(getHomeDir(), "lib", "jars", "models.jar").toString();
     final File file = new File(modelsJarPath);
 
     if (!file.exists()) {

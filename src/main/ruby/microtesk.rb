@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,25 +23,9 @@ require_relative 'utils'
 module MicroTESK 
   
 def self.main
-  check_arguments
-  check_tools
+  template_file = File.expand_path ARGV[0]
 
-  #puts "Home: " + HOME
-  #puts "Current directory: " + WD
-
-  model_name = ARGV[0]
-  begin
-    model = create_model model_name
-  rescue
-    abort "Error: Failed to load the #{model_name} model."
-  end
-
-  template_file = File.expand_path ARGV[1]
-  #puts "Template file: " + template_file
-
-  Template.set_model model
-
-  template_classes = prepare_template_classes(model, template_file)
+  template_classes = prepare_template_classes(template_file)
   template_classes.each do |template_class, template_class_file|
     if template_class_file.eql?(template_file)
       puts "Processing template #{template_class} defined in #{template_class_file}..." 
@@ -51,39 +35,7 @@ def self.main
   end
 end
 
-def self.check_arguments
-  if ARGV.count != 2
-    abort "Wrong number of arguments. Two are required.\r\n" + 
-          "Argument format: <model name>, <template file>"
-  end
-end
-
-def self.check_tools
-
-  if !File.exists?(TOOLS) || !File.directory?(TOOLS)
-    abort "The '" + TOOLS + "' folder does not exist.\r\n" +
-          "It stores external constraint solver engines and is required to generate constraint-based test data."
-  end
-
-end
-
-def self.create_model(model_name)
-  require MODELS_JAR
-  require FORTRESS_JAR
-  require TESTBASE_JAR
-  require MICROTESK_JAR
-
-  model_class_name = sprintf(MODEL_CLASS_FRMT, model_name)
-
-  printf("Creating the %s model object (%s)...\r\n", model_name, model_class_name) 
-  java_import model_class_name
-
-  model = Model.new
-  puts "Model object created"
-  model
-end
-
-def self.prepare_template_classes(model, template_file)
+def self.prepare_template_classes(template_file)
 
   if File.file?(template_file)
     ENV['TEMPLATE'] = TEMPLATE

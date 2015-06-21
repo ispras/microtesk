@@ -138,9 +138,9 @@ public final class Config {
   }
 
   public static Map<String, String> loadSettings() {
-    final String homePath = Environment.getHomePath();
+    final String homePath = SysUtils.getHomeDir();
     if (null == homePath) {
-      Logger.warning("The %s environment variable is not defined.", Environment.MICROTESK_HOME);
+      Logger.warning("The %s environment variable is not defined.", SysUtils.MICROTESK_HOME);
       return Collections.emptyMap();
     }
 
