@@ -12,7 +12,9 @@
  
  - Support for large memory addresses (e.g 48 and 64 bits) was improved.
  - Support for overloaded preparators was implemented.
- - Support for operation and addressing mode groups in test templates was implemented.
+ - Support for operation and addressing mode groups in test templates was
+   implemented.
+ - Support for user-defined test data generator extensions (in Java). 
  - Improved console output format (use the --verbose option).
  - Several bug fixes and general improvements were made.
 
