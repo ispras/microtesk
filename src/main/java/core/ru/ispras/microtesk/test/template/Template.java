@@ -339,6 +339,30 @@ public final class Template {
     preparatorBuilder = null;
   }
 
+  public void beginDataStream(final String dataModeName, final String indexModeName) {
+    Logger.debug("Begin data stream (data: %s, index: %s)",
+        dataModeName, indexModeName);
+
+    final MetaAddressingMode dataMode = metaModel.getAddressingMode(dataModeName);
+    if (null == dataMode) {
+      throw new IllegalArgumentException(String.format(
+          "%s is not an addressing mode.", dataModeName));
+    }
+
+    final MetaAddressingMode indexMode = metaModel.getAddressingMode(indexModeName);
+    if (null == indexMode) {
+      throw new IllegalArgumentException(String.format(
+          "%s is not an addressing mode.", indexModeName));
+    }
+
+    // TODO
+    new DataStreamBuilder(dataManager.getMemoryMap(), dataMode, indexMode);
+  }
+
+  public void endDataStream() {
+    Logger.debug("End data stream");
+  }
+
   public LazyValue newLazy() {
     checkPreparatorBlock();
     return preparatorBuilder.newValue();

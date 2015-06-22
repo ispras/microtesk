@@ -481,9 +481,24 @@ class Template
     end
   end
 
-  # ------------------------------------------------------------------------- #
-  # Data Definition Facilities                                                #
-  # ------------------------------------------------------------------------- #
+  # -------------------------------------------------------------------------- #
+  # Creating Data Streams                                                      #
+  # -------------------------------------------------------------------------- #
+
+  def data_stream(attrs, &contents)
+    data  = get_attribute attrs, :data
+    index = get_attribute attrs, :index
+
+    @template.beginDataStream data.to_s, index.to_s
+
+    # TODO
+
+    @template.endDataStream
+  end
+
+  # -------------------------------------------------------------------------- #
+  # Data Definition Facilities                                                 #
+  # -------------------------------------------------------------------------- #
 
   def data_config(attrs, &contents)
     #puts "Defining data configuration..."
@@ -510,9 +525,9 @@ class Template
     @data_manager.instance_eval &contents
   end
 
-  # ------------------------------------------------------------------------- #
-  # Generation (Execution and Printing)                                       #
-  # ------------------------------------------------------------------------- #
+  # -------------------------------------------------------------------------- #
+  # Generation (Execution and Printing)                                        #
+  # -------------------------------------------------------------------------- #
 
   def generate
     java_import Java::Ru.ispras.microtesk.test.TestEngine
