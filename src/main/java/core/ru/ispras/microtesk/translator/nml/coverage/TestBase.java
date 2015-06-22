@@ -22,6 +22,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -98,7 +100,19 @@ public final class TestBase {
       final Constraint constraint = builder.build(bindings);
       result = solverId.getSolver().solve(constraint);
     } catch (Throwable e) {
-      return TestBaseQueryResult.reportErrors(Collections.singletonList(e.getMessage()));
+      final String msg = e.getMessage();
+
+      if (null == msg || msg.isEmpty()) {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+
+        e.printStackTrace(pw);
+        return TestBaseQueryResult.reportErrors(
+            Collections.singletonList(sw.getBuffer().toString()));
+      } else {
+        return TestBaseQueryResult.reportErrors(
+            Collections.singletonList(e.toString()));
+      }
     }
 
     return fromSolverResult(query, result);
