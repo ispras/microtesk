@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Constraint version="1.0">
+    <Name>instruction.action</Name>
+    <Kind>FORMULA_BASED</Kind>
+    <Description/>
+    <Signature>
+        <Variable name="__tmp_0!2" type="(BIT_VECTOR 48)" value=""/>
+        <Variable name="M48!1" type="(MAP (BIT_VECTOR 32) (BIT_VECTOR 48))" value=""/>
+        <Variable name="M64!1" type="(MAP (BIT_VECTOR 32) (BIT_VECTOR 64))" value=""/>
+        <Variable name="M48!2" type="(MAP (BIT_VECTOR 32) (BIT_VECTOR 48))" value=""/>
+        <Variable name="__tmp_1!2" type="(BIT_VECTOR 64)" value=""/>
+        <Variable name="M64!2" type="(MAP (BIT_VECTOR 32) (BIT_VECTOR 64))" value=""/>
+    </Signature>
+    <InnerRep>
+        <Formula>
+            <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ">
+                <VariableRef name="M48!2"/>
+                <Operation family="ru.ispras.fortress.expression.StandardOperation" id="STORE">
+                    <VariableRef name="M48!1"/>
+                    <Value type="LOGIC_INTEGER" value="140737488355328"/>
+                    <VariableRef name="__tmp_0!2"/>
+                </Operation>
+            </Operation>
+        </Formula>
+        <Formula>
+            <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ">
+                <VariableRef name="__tmp_0!2"/>
+                <Value type="(BIT_VECTOR 64)" value="0000000000000000111111111111111111111111111111111111111111111111"/>
+            </Operation>
+        </Formula>
+        <Formula>
+            <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ">
+                <VariableRef name="M64!2"/>
+                <Operation family="ru.ispras.fortress.expression.StandardOperation" id="STORE">
+                    <VariableRef name="M64!1"/>
+                    <Value type="LOGIC_INTEGER" value="9223372036854775808"/>
+                    <VariableRef name="__tmp_1!2"/>
+                </Operation>
+            </Operation>
+        </Formula>
+        <Formula>
+            <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ">
+                <VariableRef name="__tmp_1!2"/>
+                <Value type="(BIT_VECTOR 64)" value="1111111111111111111111111111111111111111111111111111111111111111"/>
+            </Operation>
+        </Formula>
+    </InnerRep>
+</Constraint>

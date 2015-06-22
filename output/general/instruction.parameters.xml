@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Constraint version="1.0">
+    <Name>instruction.parameters</Name>
+    <Kind>FORMULA_BASED</Kind>
+    <Description/>
+    <Signature>
+        <Variable name="x" type="LOGIC_BOOLEAN" value=""/>
+    </Signature>
+    <InnerRep>
+        <Formula>
+            <Operation family="ru.ispras.microtesk.translator.nml.coverage.SsaOperation" id="PARAMETERS">
+                <VariableRef name="x"/>
+            </Operation>
+        </Formula>
+    </InnerRep>
+</Constraint>

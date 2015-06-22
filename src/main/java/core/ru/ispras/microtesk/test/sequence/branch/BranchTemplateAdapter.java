@@ -23,6 +23,7 @@ import java.util.Set;
 import ru.ispras.microtesk.test.Adapter;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.branch.internal.BranchTraceSituation;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Label;

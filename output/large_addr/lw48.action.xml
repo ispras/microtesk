@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Constraint version="1.0">
+    <Name>lw48.action</Name>
+    <Kind>FORMULA_BASED</Kind>
+    <Description/>
+    <Signature>
+        <Variable name="lw48.rd" type="(BIT_VECTOR 48)" value=""/>
+        <Variable name="M48!1" type="(MAP (BIT_VECTOR 32) (BIT_VECTOR 48))" value=""/>
+        <Variable name="lw48.addr!1" type="(BIT_VECTOR 48)" value=""/>
+    </Signature>
+    <InnerRep>
+        <Formula>
+            <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ">
+                <Operation family="ru.ispras.microtesk.translator.nml.coverage.SsaOperation" id="UPDATE">
+                    <VariableRef name="lw48.rd"/>
+                </Operation>
+                <Operation family="ru.ispras.fortress.expression.StandardOperation" id="SELECT">
+                    <VariableRef name="M48!1"/>
+                    <VariableRef name="lw48.addr!1"/>
+                </Operation>
+            </Operation>
+        </Formula>
+    </InnerRep>
+</Constraint>

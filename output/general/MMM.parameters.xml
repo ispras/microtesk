@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Constraint version="1.0">
+    <Name>MMM.parameters</Name>
+    <Kind>FORMULA_BASED</Kind>
+    <Description/>
+    <Signature/>
+    <InnerRep>
+        <Formula>
+            <Operation family="ru.ispras.microtesk.translator.nml.coverage.SsaOperation" id="PARAMETERS"/>
+        </Formula>
+    </InnerRep>
+</Constraint>

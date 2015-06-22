@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Constraint version="1.0">
+    <Name>r48.update</Name>
+    <Kind>FORMULA_BASED</Kind>
+    <Description/>
+    <Signature>
+        <Variable name="__tmp_0!2" type="(BIT_VECTOR 48)" value=""/>
+        <Variable name="GPR48!2" type="(MAP (BIT_VECTOR 32) (BIT_VECTOR 48))" value=""/>
+        <Variable name="r48.index!1" type="(BIT_VECTOR 6)" value=""/>
+        <Variable name="GPR48!1" type="(MAP (BIT_VECTOR 32) (BIT_VECTOR 48))" value=""/>
+        <Variable name="__tmp_1!2" type="(BIT_VECTOR 48)" value=""/>
+    </Signature>
+    <InnerRep>
+        <Formula>
+            <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ">
+                <VariableRef name="GPR48!2"/>
+                <Operation family="ru.ispras.fortress.expression.StandardOperation" id="STORE">
+                    <VariableRef name="GPR48!1"/>
+                    <VariableRef name="r48.index!1"/>
+                    <VariableRef name="__tmp_1!2"/>
+                </Operation>
+            </Operation>
+        </Formula>
+        <Formula>
+            <Operation family="ru.ispras.fortress.expression.StandardOperation" id="EQ">
+                <VariableRef name="__tmp_1!2"/>
+                <Operation family="ru.ispras.microtesk.translator.nml.coverage.SsaOperation" id="SUBSTITUTE">
+                    <VariableRef name="__tmp_0!2"/>
+                </Operation>
+            </Operation>
+        </Formula>
+    </InnerRep>
+</Constraint>

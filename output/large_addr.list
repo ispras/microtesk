@@ -1,0 +1,16 @@
+instruction.action
+instruction.parameters
+lw48.action
+lw48.parameters
+lw64.action
+lw64.parameters
+r48.expand
+r48.parameters
+r48.update
+r64.expand
+r64.parameters
+r64.update
+sw48.action
+sw48.parameters
+sw64.action
+sw64.parameters

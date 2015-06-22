@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Constraint version="1.0">
+    <Name>sw48.parameters</Name>
+    <Kind>FORMULA_BASED</Kind>
+    <Description/>
+    <Signature>
+        <Variable name="addr" type="(BIT_VECTOR 48)" value=""/>
+        <Variable name="rd" type="(BIT_VECTOR 48)" value=""/>
+    </Signature>
+    <InnerRep>
+        <Formula>
+            <Operation family="ru.ispras.microtesk.translator.nml.coverage.SsaOperation" id="PARAMETERS">
+                <VariableRef name="rd"/>
+                <VariableRef name="addr"/>
+            </Operation>
+        </Formula>
+    </InnerRep>
+</Constraint>

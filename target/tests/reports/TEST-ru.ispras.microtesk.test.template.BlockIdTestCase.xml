@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="kamkin" name="ru.ispras.microtesk.test.template.BlockIdTestCase" skipped="0" tests="3" time="0.005" timestamp="2015-06-22T11:35:56">
+  <properties>
+    <property name="java.home.ivy.instance" value="C:\Program Files\Java\jdk1.7.0_75\jre" />
+    <property name="src.res.plugins.mmu.dir" value="src/main/resources/plugins/mmu" />
+    <property name="module.vendor" value="UniTESK" />
+    <property name="env.PROCESSOR_IDENTIFIER" value="Intel64 Family 6 Model 58 Stepping 9, GenuineIntel" />
+    <property name="ant.home.ivy.instance" value="C:\Tools\ant\bin\.." />
+    <property name="java.awt.graphicsenv.ivy.instance" value="sun.awt.Win32GraphicsEnvironment" />
+    <property name="java.awt.printerjob.ivy.instance" value="sun.awt.windows.WPrinterJob" />
+    <property name="mmu_lexer.name" value="MmuLexer.g" />
+    <property name="module.version.x.y.z" value="2.2.6" />
+    <property name="ant.library.dir" value="C:\Tools\ant\lib" />
+    <property name="ant.core.lib" value="C:\Tools\ant\lib\ant.jar" />
+    <property name="java.vm.info.ivy.instance" value="mixed mode" />
+    <property name="ivy.report.output.pattern.ivy.instance" value="[organisation]-[module]-[conf].[ext]" />
+    <property name="user.dir" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="java.vm.version" value="24.75-b04" />
+    <property name="env.USERPROFILE" value="C:\Users\kamkin" />
+    <property name="nml_parser.name" value="SimnMLParser.g" />
+    <property name="ivy.lib.dir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk/lib" />
+    <property name="path.separator.ivy.instance" value=";" />
+    <property name="dist.jars" value="F:\SVN\MicroTESK\microtesk\microtesk\dist\lib\jars" />
+    <property name="gensrc.dir" value="target/src" />
+    <property name="java.library.path.ivy.instance" value="C:\Program Files\Java\jdk1.7.0_75\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\Java\jdk1.7.0_75\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Dell\Dell Data Protection\Access\Advanced\Wave\Gemalto\Access Client\v5\;C:\Program Files (x86)\Security Innovation\SI TSS\bin\;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\TortoiseSVN\bin;C:\Tools\ant\bin;C:\cygwin64\bin;C:\Program Files (x86)\MiKTeX 2.9\miktex\bin\;." />
+    <property name="module.version.date" value="150619" />
+    <property name="module.version.major" value="2" />
+    <property name="ivy.resolve.default.type.filter.ivy.instance" value="*" />
+    <property name="env.USERDNSDOMAIN" value="INTRA.ISPRAS.RU" />
+    <property name="java.version.ivy.instance" value="1.7.0_75" />
+    <property name="sun.os.patch.level" value="Service Pack 1" />
+    <property name="module.svn.tag" value="microtesk_2_2_6_beta_150619" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="doc" value="F:\SVN\MicroTESK\microtesk\microtesk\dist\doc" />
+    <property name="oo.home.default.unix" value="/usr/bin" />
+    <property name="mmu_parser.name" value="MmuParser.g" />
+    <property name="ivy.patterns.absolute" value="false" />
+    <property name="file.separator.ivy.instance" value="\" />
+    <property name="os.name" value="Windows 7" />
+    <property name="clover.db" value="microtesk.cloverdb" />
+    <property name="ivy.status" value="integration" />
+    <property name="env.LOCALAPPDATA" value="C:\Users\kamkin\AppData\Local" />
+    <property name="jar" value="microtesk.jar" />
+    <property name="env.TMP" value="C:\Users\kamkin\AppData\Local\Temp" />
+    <property name="testbase.jar" value="testbase.jar" />
+    <property name="output.dir" value="target" />
+    <property name="ivy.settings.dir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/" />
+    <property name="env.ProgramW6432" value="C:\Program Files" />
+    <property name="os.arch" value="amd64" />
+    <property name="user.name" value="kamkin" />
+    <property name="user.variant.ivy.instance" value="" />
+    <property name="ivy.retrieve.pattern.ivy.instance" value="jars/[artifact]-[revision](-[classifier]).[ext]" />
+    <property name="pmd.rulesets" value="rulesets/java/clone.xml,rulesets/java/basic.xml,rulesets/java/strings.xml,rulesets/java/sunsecure.xml,rulesets/java/codesize.xml,rulesets/java/naming.xml,rulesets/java/comments.xml,rulesets/java/logging-java.xml,rulesets/java/android.xml,rulesets/java/empty.xml,rulesets/java/unusedcode.xml,rulesets/java/imports.xml,rulesets/java/controversial.xml,rulesets/java/migrating.xml,rulesets/java/migrating_to_14.xml,rulesets/java/migrating_to_13.xml,rulesets/java/migrating_to_junit4.xml,rulesets/java/junit.xml,rulesets/java/optimizations.xml,rulesets/java/design.xml,rulesets/java/finalizers.xml,rulesets/java/javabeans.xml,rulesets/java/typeresolution.xml,rulesets/java/strictexception.xml,rulesets/java/migrating_to_15.xml,rulesets/java/unnecessary.xml,rulesets/java/braces.xml,rulesets/java/j2ee.xml,rulesets/java/logging-jakarta-commons.xml" />
+    <property name="module.implementation.vendor" value="UniTESK" />
+    <property name="src.java.dir" value="src/main/java/core" />
+    <property name="sun.java.command" value="org.apache.tools.ant.launch.Launcher test" />
+    <property name="env.FP_NO_HOST_CHECK" value="NO" />
+    <property name="env.ProgramFiles" value="C:\Program Files" />
+    <property name="sun.arch.data.model.ivy.instance" value="64" />
+    <property name="metainf.dir" value="target/classes/META-INF" />
+    <property name="ivy.default.conf.dir" value="jar:file:/F:/SVN/MicroTESK/microtesk/microtesk/tools/buildbase/ivy-2.1.0.jar!/org/apache/ivy/core/settings" />
+    <property name="doc.dir" value="docs" />
+    <property name="ant.file.type.buildbase" value="file" />
+    <property name="ivy.retrieve.runtime.pattern" value="jars/[artifact].[ext]" />
+    <property name="env.OS" value="Windows_NT" />
+    <property name="env.windir" value="C:\Windows" />
+    <property name="user.country" value="RU" />
+    <property name="manifest.file" value="MANIFEST.MF" />
+    <property name="treedl.messages.output.dir" value="target/src/treedl" />
+    <property name="env.PROCESSOR_ARCHITECTURE" value="AMD64" />
+    <property name="module.buildby" value="buildbase" />
+    <property name="distr.src.dir" value="target/microtesk-2.2.6-beta-150619/src" />
+    <property name="module.specification.vendor" value="UniTESK" />
+    <property name="java.vm.specification.version.ivy.instance" value="1.7" />
+    <property name="antlr.jar" value="antlr-3.4-complete.jar" />
+    <property name="env.ECLIPSE_HOME" value="C:/Tools/eclipse/eclipse" />
+    <property name="ivy.default.always.check.exact.revision" value="false" />
+    <property name="filtered.src.dir" value="target/filtered/src" />
+    <property name="os.name.ivy.instance" value="Windows 7" />
+    <property name="distr.libs.dir" value="target/microtesk-2.2.6-beta-150619/jars" />
+    <property name="output.pmd.dir" value="target/pmd" />
+    <property name="dist.gen" value="F:\SVN\MicroTESK\microtesk\microtesk\dist\gen" />
+    <property name="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\endorsed" />
+    <property name="env.TEMP" value="C:\Users\kamkin\AppData\Local\Temp" />
+    <property name="microtesk.bin" value="F:\SVN\MicroTESK\microtesk\microtesk\bin/microtesk" />
+    <property name="java.endorsed.dirs.ivy.instance" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\endorsed" />
+    <property name="ivy.used" value="true" />
+    <property name="buildbase.dir" value="tools/buildbase" />
+    <property name="test.bin" value="F:\SVN\MicroTESK\microtesk\microtesk\bin/tests" />
+    <property name="ivy.lib.dir" value="jars" />
+    <property name="java.vm.specification.version" value="1.7" />
+    <property name="env.MICROTESK_HOME" value="F:/TOOLS/microtesk" />
+    <property name="ivy.settings.url" value="file:/F:/SVN/MicroTESK/microtesk/microtesk/ivyconf.xml" />
+    <property name="gensrc.antlr.dir" value="target/src/antlr" />
+    <property name="env.PROMPT" value="$P$G" />
+    <property name="env.=F:" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="java.vendor" value="Oracle Corporation" />
+    <property name="user.dir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="ivy.default.settings.dir" value="jar:file:/F:/SVN/MicroTESK/microtesk/microtesk/tools/buildbase/ivy-2.1.0.jar!/org/apache/ivy/core/settings" />
+    <property name="ivy.settings.file" value="ivysettings.xml" />
+    <property name="java.runtime.name.ivy.instance" value="Java(TM) SE Runtime Environment" />
+    <property name="module.name" value="microtesk" />
+    <property name="file.separator" value="\" />
+    <property name="ivy.cache.dir.ivy.instance" value="C:\Users\kamkin\.ivy2\cache" />
+    <property name="ivy.conf.file" value="F:\SVN\MicroTESK\microtesk\microtesk\ivyconf.xml" />
+    <property name="user.variant" value="" />
+    <property name="ivy.default.settings.dir.ivy.instance" value="jar:file:/F:/SVN/MicroTESK/microtesk/microtesk/tools/buildbase/ivy-2.1.0.jar!/org/apache/ivy/core/settings" />
+    <property name="jruby.jar" value="jruby.jar" />
+    <property name="env.VBOX_MSI_INSTALL_PATH" value="C:\Program Files\Oracle\VirtualBox\" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK" />
+    <property name="java.io.tmpdir.ivy.instance" value="C:\Users\kamkin\AppData\Local\Temp\" />
+    <property name="antlr.ant.jar" value="ant-antlr3.jar" />
+    <property name="ant.home" value="C:\Tools\ant\bin\.." />
+    <property name="env.FARLOCALPROFILE" value="C:\Users\kamkin\AppData\Local\Far Manager\Profile" />
+    <property name="src.test.java.dir" value="src/test/java/core" />
+    <property name="cloverize" value="false" />
+    <property name="oo.home.default.winnt" value="c:/program files/OpenOffice.org 2.4" />
+    <property name="ivy.resolved.file" value="F:\SVN\MicroTESK\microtesk\microtesk\ivy.xml" />
+    <property name="ant.java.version" value="1.7" />
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.7.0_75\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\Java\jdk1.7.0_75\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Dell\Dell Data Protection\Access\Advanced\Wave\Gemalto\Access Client\v5\;C:\Program Files (x86)\Security Innovation\SI TSS\bin\;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\TortoiseSVN\bin;C:\Tools\ant\bin;C:\cygwin64\bin;C:\Program Files (x86)\MiKTeX 2.9\miktex\bin\;." />
+    <property name="treedl.factory.output.dir" value="target/src/treedl" />
+    <property name="buildbase.basedir" value="F:\SVN\MicroTESK\microtesk\microtesk\tools\buildbase" />
+    <property name="javadoc.enabled" value="true" />
+    <property name="compile.java.debug.level" value="lines,vars,source" />
+    <property name="ivy.resolved.configurations" value="runtime, build" />
+    <property name="sun.arch.data.model" value="64" />
+    <property name="basedir" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="java.vendor.url.ivy.instance" value="http://java.oracle.com/" />
+    <property name="java.ext.dirs.ivy.instance" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\ext;C:\Windows\Sun\Java\lib\ext" />
+    <property name="env.FARPROFILE" value="C:\Users\kamkin\AppData\Roaming\Far Manager\Profile" />
+    <property name="ivy.version" value="2.1.0" />
+    <property name="src.test.java.plugins.mmu.dir" value="src/test/java/plugins/mmu" />
+    <property name="path.separator" value=";" />
+    <property name="env.USERDOMAIN" value="INTRA" />
+    <property name="ivy.resolver.default.check.modified.ivy.instance" value="false" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ivy.conf.dir" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="treedl.visitor.output.dir" value="target/src/treedl" />
+    <property name="env.SystemDrive" value="C:" />
+    <property name="module.version.minor" value="2" />
+    <property name="java.source.version" value="1.7" />
+    <property name="env.CommonProgramW6432" value="C:\Program Files\Common Files" />
+    <property name="user.language" value="ru" />
+    <property name="distr.root.dir" value="distr" />
+    <property name="ivy.jar" value="ivy-2.1.0.jar" />
+    <property name="module.distr.zip" value="microtesk-2.2.6-beta-150619.zip" />
+    <property name="compile.java.debug" value="true" />
+    <property name="java.vm.specification.vendor.ivy.instance" value="Oracle Corporation" />
+    <property name="env.CommonProgramFiles" value="C:\Program Files\Common Files" />
+    <property name="dir.module.distr.src.zip" value="distr/microtesk-src-2.2.6-beta-150619.zip" />
+    <property name="ant.project.invoked-targets" value="test" />
+    <property name="awt.toolkit.ivy.instance" value="sun.awt.windows.WToolkit" />
+    <property name="module.license.file" value="LICENSE.txt" />
+    <property name="env.ASPECTRACE_HOME" value="F:/SVN/netfsm/aspectrace/src/c" />
+    <property name="env.=C:" value="C:\" />
+    <property name="ivy.report.output.pattern" value="[organisation]-[module]-[conf].[ext]" />
+    <property name="java.class.version" value="51.0" />
+    <property name="sun.boot.library.path.ivy.instance" value="C:\Program Files\Java\jdk1.7.0_75\jre\bin" />
+    <property name="env._JAVACMD" value="C:\Program Files\Java\jdk1.7.0_75\bin\java.exe" />
+    <property name="dir.module.distr.zip" value="distr/microtesk-2.2.6-beta-150619.zip" />
+    <property name="output.clover.dir" value="target/clover" />
+    <property name="ivy.retrieve.build.pattern" value="tools/[artifact].[ext]" />
+    <property name="os.version.ivy.instance" value="6.1" />
+    <property name="sun.desktop.ivy.instance" value="windows" />
+    <property name="cli.jar" value="commons-cli-1.2.jar" />
+    <property name="filtered.src.java.dir" value="target/filtered/src/main/java/core" />
+    <property name="nml_grammar.path" value="ru/ispras/microtesk/translator/nml/grammar" />
+    <property name="ivy.project.dir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="gensrc.javacc.dir" value="target/src/javacc" />
+    <property name="env.COMPUTERNAME" value="KAMKIN" />
+    <property name="distr.exe.file.mask" value="**/*.sh" />
+    <property name="module.version.build" value="6" />
+    <property name="env.LOGONSERVER" value="\\ISP-DC2" />
+    <property name="module.cvs.tag" value="microtesk_2_2_6_beta_150619" />
+    <property name="module.distr.src.zip" value="microtesk-src-2.2.6-beta-150619.zip" />
+    <property name="ivy.configurations.ivy.instance" value="*" />
+    <property name="distr.dir" value="target/microtesk-2.2.6-beta-150619" />
+    <property name="ivy.home.ivy.instance" value="C:\Users\kamkin\.ivy2" />
+    <property name="main.package" value="ru/ispras/microtesk" />
+    <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_75\jre" />
+    <property name="env.CTESK_HOME" value="C:/Tools/ctesk" />
+    <property name="ant.project.default-target" value="build.all" />
+    <property name="treedl.messages2.output.dir" value="target/src/treedl" />
+    <property name="env.ProgramData" value="C:\ProgramData" />
+    <property name="ivy.status.ivy.instance" value="integration" />
+    <property name="mmu_grammar.path" value="ru/ispras/microtesk/translator/mmu/grammar" />
+    <property name="ant.library.dir.ivy.instance" value="C:\Tools\ant\lib" />
+    <property name="env.ANT_CMD_LINE_ARGS" value=" test" />
+    <property name="sun.java.launcher.ivy.instance" value="SUN_STANDARD" />
+    <property name="src.test.nml.dir" value="src/test/nml" />
+    <property name="env.NUMBER_OF_PROCESSORS" value="8" />
+    <property name="module.version" value="2.2.6-beta-150619" />
+    <property name="env.windows_tracing_flags" value="3" />
+    <property name="ivy.basedir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="java.vm.vendor.ivy.instance" value="Oracle Corporation" />
+    <property name="ivy.cache.ttl.default.ivy.instance" value="10s" />
+    <property name="debug" value="false" />
+    <property name="ivy.default.conf.dir.ivy.instance" value="jar:file:/F:/SVN/MicroTESK/microtesk/microtesk/tools/buildbase/ivy-2.1.0.jar!/org/apache/ivy/core/settings" />
+    <property name="get.dependencies" value="true" />
+    <property name="ivy.settings.url.ivy.instance" value="file:/F:/SVN/MicroTESK/microtesk/microtesk/ivyconf.xml" />
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers" />
+    <property name="env.DellClientSystemUpdatePath" value="C:\Program Files (x86)\Dell\ClientSystemUpdate\" />
+    <property name="ant.file" value="F:\SVN\MicroTESK\microtesk\microtesk\build.xml" />
+    <property name="env.SMT_SOLVER_PATH" value="C:\Tools\z3\bin\z3.exe" />
+    <property name="env.PUBLIC" value="C:\Users\Public" />
+    <property name="ivy.buildlist.ivyfilepath.ivy.instance" value="ivy.xml" />
+    <property name="ant.file.microtesk" value="F:\SVN\MicroTESK\microtesk\microtesk\build.xml" />
+    <property name="ivy.dir" value="F:\SVN\MicroTESK\microtesk\microtesk\tools\buildbase" />
+    <property name="user.country.ivy.instance" value="RU" />
+    <property name="mmu_grammar.package" value="translator/mmu/grammar" />
+    <property name="ivy.default.always.check.exact.revision.ivy.instance" value="false" />
+    <property name="dist" value="F:\SVN\MicroTESK\microtesk\microtesk\dist" />
+    <property name="sun.cpu.isalist.ivy.instance" value="amd64" />
+    <property name="java.vm.specification.vendor" value="Oracle Corporation" />
+    <property name="classpath" value="./jars/antlr-3.4-complete.jar:./jars/ant-antlr3.jar:./jars/commons-cli-1.2.jar:./jars/jruby.jar:./jars/fortress.jar:./jars/testbase.jar" />
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM" />
+    <property name="compile.java.encoding" value="utf8" />
+    <property name="java.io.tmpdir" value="C:\Users\kamkin\AppData\Local\Temp\" />
+    <property name="file.encoding.ivy.instance" value="Cp1251" />
+    <property name="java.vendor.url" value="http://java.oracle.com/" />
+    <property name="ivy.cache.ttl.default" value="10s" />
+    <property name="libs.dir" value="jars" />
+    <property name="ivy.settings.file.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk\ivyconf.xml" />
+    <property name="src.java.plugins.mmu.dir" value="src/main/java/plugins/mmu" />
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_75\jre\bin" />
+    <property name="file.encoding.pkg.ivy.instance" value="sun.io" />
+    <property name="env.SESSIONNAME" value="Console" />
+    <property name="ivy.resolver.default.check.modified" value="false" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="ant.project.name" value="microtesk" />
+    <property name="sun.management.compiler.ivy.instance" value="HotSpot 64-Bit Tiered Compilers" />
+    <property name="java.vendor.url.bug.ivy.instance" value="http://bugreport.sun.com/bugreport/" />
+    <property name="ivy.conf.dir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="compile.java.exclude" value="**/tests/**" />
+    <property name="env.ComSpec" value="C:\Windows\system32\cmd.exe" />
+    <property name="ivy.buildlist.ivyfilepath" value="ivy.xml" />
+    <property name="sun.cpu.isalist" value="amd64" />
+    <property name="env.ProgramFiles(x86)" value="C:\Program Files (x86)" />
+    <property name="platform.windows" value="true" />
+    <property name="ivy.default.ivy.user.dir" value="C:\Users\kamkin\.ivy2" />
+    <property name="env.ALLUSERSPROFILE" value="C:\ProgramData" />
+    <property name="java.runtime.version.ivy.instance" value="1.7.0_75-b13" />
+    <property name="user.home" value="C:\Users\kamkin" />
+    <property name="module.specification.title" value="microtesk" />
+    <property name="env.JAVA_HOME" value="C:\Program Files\Java\jdk1.7.0_75" />
+    <property name="java.vm.version.ivy.instance" value="24.75-b04" />
+    <property name="fullver" value="2.2.6-beta-150619" />
+    <property name="env.PROCESSOR_REVISION" value="3a09" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="ivy.dep.file" value="ivy.xml" />
+    <property name="user.timezone.ivy.instance" value="Europe/Moscow" />
+    <property name="ivy.deliver.ivy.pattern.ivy.instance" value="distr/[type]s/[artifact]-[revision](-[classifier]).[ext]" />
+    <property name="ivy.conf.url" value="file:/F:/SVN/MicroTESK/microtesk/microtesk/ivyconf.xml" />
+    <property name="java.specification.vendor" value="Oracle Corporation" />
+    <property name="ivy.deps.changed" value="false" />
+    <property name="java.version" value="1.7.0_75" />
+    <property name="sun.jnu.encoding.ivy.instance" value="Cp1251" />
+    <property name="module.version.status" value="beta" />
+    <property name="sun.io.unicode.encoding.ivy.instance" value="UnicodeLittle" />
+    <property name="ivy.conf.file.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk\ivyconf.xml" />
+    <property name="sun.java.command.ivy.instance" value="org.apache.tools.ant.launch.Launcher test" />
+    <property name="src.res.dir" value="src/main/resources/core" />
+    <property name="basedir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="output.class.dir" value="target/classes" />
+    <property name="filtered.dir" value="target/filtered" />
+    <property name="ivy.conf.url.ivy.instance" value="file:/F:/SVN/MicroTESK/microtesk/microtesk/ivyconf.xml" />
+    <property name="env.PSModulePath" value="C:\Windows\system32\WindowsPowerShell\v1.0\Modules\" />
+    <property name="java.specification.vendor.ivy.instance" value="Oracle Corporation" />
+    <property name="module.distr.jar" value="microtesk-2.2.6-beta-150619.jar" />
+    <property name="tools.dir" value="tools" />
+    <property name="env.PROCESSOR_LEVEL" value="6" />
+    <property name="filters.enabled" value="false" />
+    <property name="gen" value="F:\SVN\MicroTESK\microtesk\microtesk\gen" />
+    <property name="ivy.build.artifacts.dir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk/build/artifacts" />
+    <property name="jars.path" value="./jars" />
+    <property name="env.FARHOME" value="C:\Program Files\Far Manager" />
+    <property name="env.CPPTESK_HOME" value="F:/SVN/cpptesk" />
+    <property name="ant.file.type.microtesk" value="file" />
+    <property name="buildbase.repo.url" value="http://forge.ispras.ru/repo" />
+    <property name="ivy.cache.dir" value="C:\Users\kamkin\.ivy2\cache" />
+    <property name="env.=::" value="::\" />
+    <property name="user.language.ivy.instance" value="ru" />
+    <property name="java.class.path.ivy.instance" value="C:\Tools\ant\bin\..\lib\ant-launcher.jar;C:\Tools\ant\lib\ant-antlr.jar;C:\Tools\ant\lib\ant-apache-bcel.jar;C:\Tools\ant\lib\ant-apache-bsf.jar;C:\Tools\ant\lib\ant-apache-log4j.jar;C:\Tools\ant\lib\ant-apache-oro.jar;C:\Tools\ant\lib\ant-apache-regexp.jar;C:\Tools\ant\lib\ant-apache-resolver.jar;C:\Tools\ant\lib\ant-apache-xalan2.jar;C:\Tools\ant\lib\ant-commons-logging.jar;C:\Tools\ant\lib\ant-commons-net.jar;C:\Tools\ant\lib\ant-jai.jar;C:\Tools\ant\lib\ant-javamail.jar;C:\Tools\ant\lib\ant-jdepend.jar;C:\Tools\ant\lib\ant-jmf.jar;C:\Tools\ant\lib\ant-jsch.jar;C:\Tools\ant\lib\ant-junit.jar;C:\Tools\ant\lib\ant-junit4.jar;C:\Tools\ant\lib\ant-launcher.jar;C:\Tools\ant\lib\ant-netrexx.jar;C:\Tools\ant\lib\ant-swing.jar;C:\Tools\ant\lib\ant-testutil.jar;C:\Tools\ant\lib\ant.jar;C:\Program Files\Java\jdk1.7.0_75\lib\tools.jar" />
+    <property name="root.package" value="ru" />
+    <property name="sun.cpu.endian.ivy.instance" value="little" />
+    <property name="line.separator" value="&#xd;&#xa;" />
+    <property name="module.distr" value="microtesk-2.2.6-beta-150619" />
+    <property name="ivy.publish.src.artifacts.pattern" value="distr/[type]s/[artifact]-[revision](-[classifier]).[ext]" />
+    <property name="java.specification.version" value="1.7" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="dir.module.distr.jar" value="distr/microtesk-2.2.6-beta-150619.jar" />
+    <property name="distr.javadoc.dir" value="target/microtesk-2.2.6-beta-150619/javadoc" />
+    <property name="ivy.retrieve.pattern" value="jars/[artifact]-[revision](-[classifier]).[ext]" />
+    <property name="ivy.organisation" value="unitesk" />
+    <property name="nml_lexer.name" value="SimnMLLexer.g" />
+    <property name="env.ANT_HOME" value="C:\Tools\ant\bin\.." />
+    <property name="env.HOMEDRIVE" value="C:" />
+    <property name="ivy.targets.copied" value="false" />
+    <property name="treedl.translate.output.dir" value="target/src/treedl" />
+    <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\resources.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\rt.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jce.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.7.0_75\jre\classes" />
+    <property name="ivy.resolve.default.type.filter" value="*" />
+    <property name="java.specification.version.ivy.instance" value="1.7" />
+    <property name="env.CommonProgramFiles(x86)" value="C:\Program Files (x86)\Common Files" />
+    <property name="src.dir" value="src" />
+    <property name="env.APPDATA" value="C:\Users\kamkin\AppData\Roaming" />
+    <property name="ivy.basedir" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="ivy.log.modules.in.use.ivy.instance" value="false" />
+    <property name="module.implementation.version" value="2.2.6-beta-150619" />
+    <property name="java.specification.name.ivy.instance" value="Java Platform API Specification" />
+    <property name="fortress.jar" value="fortress.jar" />
+    <property name="line.separator.ivy.instance" value="&#xd;&#xa;" />
+    <property name="ivy.publish.src.artifacts.pattern.ivy.instance" value="distr/[type]s/[artifact]-[revision](-[classifier]).[ext]" />
+    <property name="gensrc.treedl.dir" value="target/src/treedl" />
+    <property name="user.home.ivy.instance" value="C:\Users\kamkin" />
+    <property name="ivy.deliver.ivy.pattern" value="distr/[type]s/[artifact]-[revision](-[classifier]).[ext]" />
+    <property name="env._USE_CLASSPATH" value="no" />
+    <property name="env.PATHEXT" value=".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC" />
+    <property name="buildbase.file" value="buildbase.zip" />
+    <property name="dir.manifest.file" value="target/classes/META-INF/MANIFEST.MF" />
+    <property name="ivy.pattern.prefix" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="ivy.checksums.ivy.instance" value="sha1,md5" />
+    <property name="dir.ivy.jar" value="F:\SVN\MicroTESK\microtesk\microtesk\tools\buildbase/ivy-2.1.0.jar" />
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob" />
+    <property name="env.SystemRoot" value="C:\Windows" />
+    <property name="bin" value="F:\SVN\MicroTESK\microtesk\microtesk\bin" />
+    <property name="sun.jnu.encoding" value="Cp1251" />
+    <property name="ivy.default.ivy.user.dir.ivy.instance" value="C:\Users\kamkin\.ivy2" />
+    <property name="dir.buildbase.file" value="F:\SVN\MicroTESK\microtesk\microtesk\tools\buildbase/buildbase.zip" />
+    <property name="ivy.project.dir" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="compile.java.verbose" value="false" />
+    <property name="ivy.revision" value="working@kamkin" />
+    <property name="module.version.patch" value="0" />
+    <property name="java.runtime.version" value="1.7.0_75-b13" />
+    <property name="compile.java.src.dir" value="src/main/java/core" />
+    <property name="ivy.home" value="C:\Users\kamkin\.ivy2" />
+    <property name="sun.boot.class.path.ivy.instance" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\resources.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\rt.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jce.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.7.0_75\jre\classes" />
+    <property name="changelog.dir" value="target" />
+    <property name="java.vendor.ivy.instance" value="Oracle Corporation" />
+    <property name="ivy.distrib.dir.ivy.instance" value="F:\SVN\MicroTESK\microtesk\microtesk/distrib" />
+    <property name="module.svn" value="http://forge.ispras.ru/svn/microtesk" />
+    <property name="user.timezone" value="" />
+    <property name="module.scm.tag" value="microtesk_2_2_6_beta_150619" />
+    <property name="env.FARLANG" value="English" />
+    <property name="user.script.ivy.instance" value="" />
+    <property name="java.vm.specification.name.ivy.instance" value="Java Virtual Machine Specification" />
+    <property name="ivy.dep.file.ivy.instance" value="ivy.xml" />
+    <property name="java.ext.dirs" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\ext;C:\Windows\Sun\Java\lib\ext" />
+    <property name="nml_grammar.package" value="translator/nml/grammar" />
+    <property name="module.implementation.title" value="microtesk" />
+    <property name="java.class.path" value="C:\Tools\ant\bin\..\lib\ant-launcher.jar;C:\Tools\ant\lib\ant-antlr.jar;C:\Tools\ant\lib\ant-apache-bcel.jar;C:\Tools\ant\lib\ant-apache-bsf.jar;C:\Tools\ant\lib\ant-apache-log4j.jar;C:\Tools\ant\lib\ant-apache-oro.jar;C:\Tools\ant\lib\ant-apache-regexp.jar;C:\Tools\ant\lib\ant-apache-resolver.jar;C:\Tools\ant\lib\ant-apache-xalan2.jar;C:\Tools\ant\lib\ant-commons-logging.jar;C:\Tools\ant\lib\ant-commons-net.jar;C:\Tools\ant\lib\ant-jai.jar;C:\Tools\ant\lib\ant-javamail.jar;C:\Tools\ant\lib\ant-jdepend.jar;C:\Tools\ant\lib\ant-jmf.jar;C:\Tools\ant\lib\ant-jsch.jar;C:\Tools\ant\lib\ant-junit.jar;C:\Tools\ant\lib\ant-junit4.jar;C:\Tools\ant\lib\ant-launcher.jar;C:\Tools\ant\lib\ant-netrexx.jar;C:\Tools\ant\lib\ant-swing.jar;C:\Tools\ant\lib\ant-testutil.jar;C:\Tools\ant\lib\ant.jar;C:\Program Files\Java\jdk1.7.0_75\lib\tools.jar" />
+    <property name="distr.doc.dir" value="target/microtesk-2.2.6-beta-150619/docs" />
+    <property name="env.Path" value="C:\Program Files\Java\jdk1.7.0_75\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Dell\Dell Data Protection\Access\Advanced\Wave\Gemalto\Access Client\v5\;C:\Program Files (x86)\Security Innovation\SI TSS\bin\;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\TortoiseSVN\bin;C:\Tools\ant\bin;C:\cygwin64\bin;C:\Program Files (x86)\MiKTeX 2.9\miktex\bin\" />
+    <property name="ivy.settings.dir" value="F:\SVN\MicroTESK\microtesk\microtesk" />
+    <property name="env.USERNAME" value="kamkin" />
+    <property name="os.version" value="6.1" />
+    <property name="env.HOMEPATH" value="\Users\kamkin" />
+    <property name="dist.ruby" value="F:\SVN\MicroTESK\microtesk\microtesk\dist\lib\ruby" />
+    <property name="sun.desktop" value="windows" />
+    <property name="java.class.version.ivy.instance" value="51.0" />
+    <property name="module.specification.version" value="2.2" />
+    <property name="ivy.module" value="microtesk" />
+    <property name="module.src.distr" value="microtesk-src-2.2.6-beta-150619" />
+    <property name="os.arch.ivy.instance" value="amd64" />
+    <property name="java.vm.name.ivy.instance" value="Java HotSpot(TM) 64-Bit Server VM" />
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment" />
+    <property name="ivy.nb.targets.copied" value="0" />
+    <property name="module.distr.tgz" value="microtesk-2.2.6-beta-150619.tar.gz" />
+    <property name="java.vm.vendor" value="Oracle Corporation" />
+    <property name="ivy.log.modules.in.use" value="false" />
+    <property name="dir.module.distr.src.tgz" value="distr/microtesk-src-2.2.6-beta-150619.tar.gz" />
+    <property name="ant.build.javac.source" value="1.7" />
+    <property name="nml_walker.name" value="SimnMLTreeWalker.g" />
+    <property name="treedl.walker.output.dir" value="target/src/treedl" />
+    <property name="ant.file.type" value="file" />
+    <property name="ivy.build.artifacts.dir" value="target" />
+    <property name="user.script" value="" />
+    <property name="env.windows_tracing_logfile" value="C:\BVTBin\Tests\installpackage\csilogfile.log" />
+    <property name="sun.os.patch.level.ivy.instance" value="Service Pack 1" />
+    <property name="ivy.checksums" value="sha1,md5" />
+    <property name="changelog.file" value="changelog" />
+    <property name="dir.module.distr.tgz" value="distr/microtesk-2.2.6-beta-150619.tar.gz" />
+    <property name="ivy.configurations" value="runtime,build" />
+    <property name="ant.build.javac.target" value="1.7" />
+    <property name="ivy.distrib.dir" value="distr" />
+    <property name="jar.classpath" value="antlr-3.4-complete.jar commons-cli-1.2.jar jruby.jar fortress.jar testbase.jar" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.9.4 compiled on April 29 2014" />
+    <property name="file.encoding" value="Cp1251" />
+    <property name="ant.file.buildbase" value="F:\SVN\MicroTESK\microtesk\microtesk\tools\buildbase\buildbase.xml" />
+    <property name="dir.changelog.file" value="target/changelog" />
+    <property name="ivy.uptodate" value="true" />
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit" />
+    <property name="mmu_walker.name" value="MmuTreeWalker.g" />
+    <property name="module.distr.src.tgz" value="microtesk-src-2.2.6-beta-150619.tar.gz" />
+    <property name="user.name.ivy.instance" value="kamkin" />
+  </properties>
+  <testcase classname="ru.ispras.microtesk.test.template.BlockIdTestCase" name="testParentChild" time="0.001" />
+  <testcase classname="ru.ispras.microtesk.test.template.BlockIdTestCase" name="testDistance" time="0.0" />
+  <testcase classname="ru.ispras.microtesk.test.template.BlockIdTestCase" name="testEquals" time="0.0" />
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
