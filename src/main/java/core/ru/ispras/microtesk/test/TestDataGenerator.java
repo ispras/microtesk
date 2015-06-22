@@ -38,6 +38,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
@@ -133,7 +134,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
     registry.registerGenerator("address", new AddressGenerator());
 
     // Register the user-defined test data generators.
-    final String home = System.getenv("MICROTESK_HOME");
+    final String home = SysUtils.getHomeDir();
     final File file = new File(new File(new File(new File(home), "lib"), "jars"), "models.jar");
 
     final URL url;
