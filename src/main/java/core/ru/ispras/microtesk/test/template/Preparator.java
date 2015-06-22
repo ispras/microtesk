@@ -96,7 +96,7 @@ public final class Preparator {
     return calls;
   }
 
-  static final class Mask {
+  protected static final class Mask {
     private final Collection<String> masks;
 
     public Mask(final String mask) {
