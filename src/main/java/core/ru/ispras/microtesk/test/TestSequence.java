@@ -31,7 +31,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-final class TestSequence {
+public final class TestSequence {
 
   public static final class Builder {
     private final List<ConcreteCall> prologue;
