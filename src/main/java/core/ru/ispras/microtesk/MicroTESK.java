@@ -204,6 +204,10 @@ public final class MicroTESK {
     statistics.reset();
 
     final Date startTime = TestEngine.generate(modelName, templateFile);
+    if (null == startTime) {
+      return;
+    }
+    
     final Date endTime = new Date();
 
     long time = endTime.getTime() - startTime.getTime();

@@ -216,7 +216,10 @@ public final class TestEngine {
     } catch (final GenerationAbortedException e) {
       Logger.message("Generation Aborted");
       Logger.error(e.getMessage());
-      new File(Printer.getLastFileName()).delete();
+
+      if (null != Printer.getLastFileName()) {
+        new File(Printer.getLastFileName()).delete();
+      }
       STATISTICS.testProgramNumber--;
     }
 
