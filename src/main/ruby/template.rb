@@ -30,13 +30,6 @@ include TemplateBuilder
 # test template class.
 #
 module Settings
-
-  # Print the generated code to the console.
-  attr_reader :use_stdout
-
-  # Print instructions being simulated to the console.
-  attr_reader :log_execution
-
   # Text that starts single-line comments.
   attr_reader :sl_comment_starts_with
 
@@ -56,9 +49,6 @@ module Settings
   # Assigns default values to the attributes.
   # 
   def initialize
-    @use_stdout    = true
-    @log_execution = true
-
     @sl_comment_starts_with = "//"
     @ml_comment_starts_with = "/*"
     @ml_comment_ends_with   = "*/"
