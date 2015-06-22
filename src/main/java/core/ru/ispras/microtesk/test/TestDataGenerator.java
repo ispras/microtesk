@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.ICallFactory;
@@ -172,13 +174,16 @@ final class TestDataGenerator implements Solver<TestSequence> {
   }
 
   @Override
-  public Iterator<TestSequence> solve(final Sequence<Call> abstractSequence) {
+  public SolverResult<TestSequence> solve(final Sequence<Call> abstractSequence) {
     try {
-      return new SingleValueIterator<TestSequence>(process(abstractSequence));
+      return new SolverResult<>(SolverResult.Status.OK,
+                                new SingleValueIterator<>(process(abstractSequence)),
+                                Collections.<String>emptyList());
     } catch (final ConfigurationException e) {
-      Logger.error(e.getMessage());
+      return new SolverResult<>(SolverResult.Status.ERROR,
+                                null,
+                                Collections.singletonList(e.getMessage()));
     }
-    return null;
   }
 
   public TestSequence process(

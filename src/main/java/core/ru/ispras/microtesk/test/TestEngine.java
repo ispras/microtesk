@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 
 import org.jruby.embed.PathType;
@@ -27,6 +28,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.IModel;
@@ -597,13 +599,24 @@ public final class TestEngine {
       }
 
       public Iterator<TestSequence> process(final Sequence<Call> abstractSequence) {
-        final Iterator<?> solutionIterator = solver.solve(abstractSequence);
-        return adapt(adapter, abstractSequence, solutionIterator);
+        final Iterator<?> solutionIt = solve(solver, abstractSequence);
+        return adapt(adapter, abstractSequence, solutionIt);
+      }
+
+      private static <T> Iterator<T> solve(final Solver<T> solver,
+                                           final Sequence<Call> sequence) {
+        final SolverResult<T> result = solver.solve(sequence);
+        if (result.getStatus() != SolverResult.Status.OK) {
+          final String msg = listErrors("Failed to find a solution for abstract call sequence",
+                                        result.getErrors());
+          throw new IllegalStateException(msg);
+        }
+        return result.getResult();
       }
 
       private static <T> Iterator<TestSequence> adapt(final Adapter<T> adapter,
-                                            final Sequence<Call> sequence,
-                                            final Iterator<?> solutionIterator) {
+                                                      final Sequence<Call> sequence,
+                                                      final Iterator<?> solutionIterator) {
         return new Iterator<TestSequence>() {
           @Override public void init() {
             solutionIterator.init();
@@ -624,6 +637,18 @@ public final class TestEngine {
             solutionIterator.next();
           }
         };
+      }
+
+      private static String listErrors(final String message, final Collection<String> errors) {
+        if (errors.isEmpty()) {
+          return message;
+        }
+        final StringBuilder builder = new StringBuilder(message);
+        builder.append(" Errors:");
+        for (final String error : errors) {
+          builder.append(System.lineSeparator() + "  " + error);
+        }
+        return builder.toString();
       }
     }
 

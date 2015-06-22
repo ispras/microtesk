@@ -14,7 +14,9 @@
 
 package ru.ispras.microtesk.test.sequence.branch;
 
+import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.test.Solver;
+import ru.ispras.microtesk.test.SolverResult;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Call;
@@ -29,8 +31,8 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
   }
 
   @Override
-  public Iterator<BranchTemplateSolution> solve(final Sequence<Call> abstractSequence) {
+  public SolverResult<BranchTemplateSolution> solve(final Sequence<Call> abstractSequence) {
     // TODO:
-    return null;
+    throw new UnsupportedOperationException();
   }
 }

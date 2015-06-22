@@ -14,17 +14,26 @@
 
 package ru.ispras.microtesk.test;
 
-import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
-import ru.ispras.microtesk.test.template.Call;
+
+import java.util.List;
 
 /**
- * {@link Solver} defines an interface of abstract call sequence solvers.
+ * {@link SolverResult} defines result of a {@link Solver}.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
 
-public interface Solver<T> {
-  Class<T> getSolutionClass();
-  SolverResult<T> solve(Sequence<Call> abstractSequence);
+public final class SolverResult<T> extends Result<SolverResult.Status, Iterator<T>> {
+  public static enum Status {
+    OK,
+    ERROR
+  }
+
+  public SolverResult(final SolverResult.Status status,
+                      final Iterator<T> result,
+                      final List<String> errors) {
+    super(status, result, errors);
+  }
 }
