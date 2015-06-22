@@ -371,6 +371,13 @@ final class TestDataGenerator implements Solver<TestSequence> {
         continue;
       }
 
+      // No point to assign output variables even if values for them are provided.
+      // We do not want extra code and conflicts when same registers are used
+      // as input and output (see Bug #6057)
+      if (arg.getMode() == ArgumentMode.OUT) {
+        continue;
+      }
+
       final Primitive mode = (Primitive) arg.getValue();
 
       final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
