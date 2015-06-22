@@ -27,37 +27,25 @@ class DataStreamTemplate < MiniMipsBaseTemplate
     super
 
     data {
-      label :data1
-      byte 1, 2, 3, 4
-
-      label :data2
-      half 0xDEAD, 0xBEEF
-
-      label :data3
-      word 0xDEADBEEF
-
-      label :hello
-      ascii  'Hello'
-
-      label :world
-      asciiz 'World'
-
-      space 6
+      label :data
+      word 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+      label :end
+      space 1
     }
 
     data_stream(:data => 'REG', :index => 'REG') {
       init {
-         # reg_index = start_label   // User-defined code
+        la index_source, start_label
       }
 
       read {
-        # reg_data = mem[reg_index] // User-defined code
-        # reg_index++
+        lw data_source, 0, index_source
+        addi index_source, zero, 4
       }
 
       write {
-        # mem[reg_index] = reg_data // User-defined code
-        # reg_index++
+        sw data_source, 0, index_source
+        addi index_source, zero, 4
       }
     }
   end
