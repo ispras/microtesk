@@ -100,19 +100,12 @@ public final class TestBase {
       final Constraint constraint = builder.build(bindings);
       result = solverId.getSolver().solve(constraint);
     } catch (Throwable e) {
-      final String msg = e.getMessage();
+      final StringWriter sw = new StringWriter();
+      final PrintWriter pw = new PrintWriter(sw);
+      e.printStackTrace(pw);
 
-      if (null == msg || msg.isEmpty()) {
-        final StringWriter sw = new StringWriter();
-        final PrintWriter pw = new PrintWriter(sw);
-
-        e.printStackTrace(pw);
-        return TestBaseQueryResult.reportErrors(
-            Collections.singletonList(sw.getBuffer().toString()));
-      } else {
-        return TestBaseQueryResult.reportErrors(
-            Collections.singletonList(e.toString()));
-      }
+      return TestBaseQueryResult.reportErrors(
+          Collections.singletonList(sw.getBuffer().toString()));
     }
 
     return fromSolverResult(query, result);
