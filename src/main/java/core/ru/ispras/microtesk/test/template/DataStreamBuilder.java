@@ -31,7 +31,7 @@ public final class DataStreamBuilder {
   private final List<Call> read;
   private final List<Call> write;
 
-  public DataStreamBuilder(
+  protected DataStreamBuilder(
       final MetaAddressingMode metaData,
       final MetaAddressingMode metaIndex) {
 
