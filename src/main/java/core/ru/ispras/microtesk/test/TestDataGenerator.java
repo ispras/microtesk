@@ -130,7 +130,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
 
     final URL url;
     try {
-      url = file.toURL();
+      url = file.toURI().toURL();
     } catch (MalformedURLException e1) {
       Logger.error(e1.getMessage());
       return testBase;
