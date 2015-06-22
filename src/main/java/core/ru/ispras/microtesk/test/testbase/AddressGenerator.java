@@ -38,7 +38,7 @@ import ru.ispras.testbase.stub.Utils;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class AddressGenerator implements DataGenerator {
+public final class AddressGenerator implements DataGenerator {
   /** Instruction operand for the address base. */
   private static final String PARAM_ADDRESS_BASE = "base";
   /** Instruction operand for the address offset (optional). */

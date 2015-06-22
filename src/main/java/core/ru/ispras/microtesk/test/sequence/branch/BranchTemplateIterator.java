@@ -430,7 +430,8 @@ public final class BranchTemplateIterator implements Generator<Call> {
 
         if (labelSequence == null) {
           labelSequence = new Sequence<Call>();
-          labelSequence.add(new Call(null, Collections.<Label>emptyList(), Collections.<LabelReference>emptyList(), Collections.<Output>emptyList()));
+          labelSequence.add(new Call(null, Collections.<Label>emptyList(),
+              Collections.<LabelReference>emptyList(), Collections.<Output>emptyList()));
           steps.put(situation.getBranchLabel(), labelSequence);
         } else {
           final Call labelCall = labelSequence.get(0);

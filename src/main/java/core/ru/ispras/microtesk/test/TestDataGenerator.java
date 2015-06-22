@@ -62,6 +62,7 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
+import ru.ispras.microtesk.test.testbase.AddressGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestBaseContext;
@@ -73,11 +74,11 @@ import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
 
 /**
- * The job of the {@link TestDataGenerator} class is to processes an abstract instruction call sequence
- * (uses symbolic values) and to build a concrete instruction call sequence (uses only concrete
- * values and can be simulated and used to generate source code in assembly language).
- * The {@link TestDataGenerator} class performs all necessary data generation and all initializing calls
- * to the generated instruction sequence.
+ * The job of the {@link TestDataGenerator} class is to processes an abstract instruction call
+ * sequence (uses symbolic values) and to build a concrete instruction call sequence (uses only
+ * concrete values and can be simulated and used to generate source code in assembly language).
+ * The {@link TestDataGenerator} class performs all necessary data generation and all initializing
+ * calls to the generated instruction sequence.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -125,6 +126,10 @@ final class TestDataGenerator implements Solver<TestSequence> {
 
     final TestBaseRegistry registry = testBase.getRegistry();
 
+    // Register the predefined test data generators.
+    registry.registerGenerator("address", new AddressGenerator());
+
+    // Register the user-defined test data generators.
     final String home = System.getenv("MICROTESK_HOME");
     final File file = new File(new File(new File(new File(home), "lib"), "jars"), "models.jar");
 
