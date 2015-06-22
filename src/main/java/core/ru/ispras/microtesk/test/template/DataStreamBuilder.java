@@ -32,9 +32,11 @@ public final class DataStreamBuilder {
   private final List<Call> write;
 
   protected DataStreamBuilder(
+      final MemoryMap memoryMap,
       final MetaAddressingMode metaData,
       final MetaAddressingMode metaIndex) {
 
+    InvariantChecks.checkNotNull(memoryMap);
     InvariantChecks.checkNotNull(metaData);
     InvariantChecks.checkNotNull(metaIndex);
 
@@ -44,7 +46,7 @@ public final class DataStreamBuilder {
     this.index = new LazyPrimitive(
         Primitive.Kind.MODE, metaIndex.getName(), metaIndex.getName());
 
-    this.startLabel = new LazyLabel(); 
+    this.startLabel = new LazyLabel(memoryMap);
 
     this.init = new ArrayList<>();
     this.read = new ArrayList<>();

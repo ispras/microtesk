@@ -14,10 +14,42 @@
 
 package ru.ispras.microtesk.test.template;
 
-public class LazyLabel {
-  
-  public void setSource(final String name) {
-    
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
+
+public final class LazyLabel {
+  private final MemoryMap memoryMap; 
+  private final LazyData data;
+  private final LazyValue value;
+
+  private String name;
+
+  protected LazyLabel(final MemoryMap memoryMap) {
+    InvariantChecks.checkNotNull(memoryMap);
+
+    this.memoryMap = memoryMap;
+    this.data = new LazyData();
+    this.value = new LazyValue(data);
+
+    this.name = "";
   }
 
+  public void setSource(final String labelName) {
+    InvariantChecks.checkNotNull(labelName);
+
+    this.name = labelName;
+
+    final int fakeValue = 0;
+    final int address = memoryMap.resolveWithDefault(name, fakeValue);
+
+    data.setValue(BitVector.valueOf(address, Integer.SIZE));
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public LazyValue getValue() {
+    return value;
+  }
 }
