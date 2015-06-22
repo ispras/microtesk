@@ -474,66 +474,70 @@ public final class TestEngine {
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
         Logger.debugHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
-        final TestSequence concreteSequence = engine.process(abstractSequence);
 
-        Logger.debugHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
-        executor.executeSequence(concreteSequence);
+        final Iterator<TestSequence> iterator = engine.process(abstractSequence);
+        for (iterator.init(); iterator.hasValue(); iterator.next()) {
+          final TestSequence concreteSequence = iterator.value();
 
-        Logger.debugHeader("Printing%s", (isSingleSequence ? "" : " " + sequenceId));
+          Logger.debugHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
+          executor.executeSequence(concreteSequence);
 
-        if (!isSingleSequence) {
-          printer.printToFile("");
-          printer.printSubheaderToFile(sequenceId);
-        }
-        printer.printSequence(concreteSequence);
+          Logger.debugHeader("Printing%s", (isSingleSequence ? "" : " " + sequenceId));
 
-        STATISTICS.instructionCount += concreteSequence.getPrologue().size();
-        STATISTICS.instructionCount += concreteSequence.getBody().size();
-
-        sequenceIt.next();
-        ++sequenceIndex;
-
-        Logger.debugHeader("");
-
-        STATISTICS.testCaseNumber++;
-
-        final Statistics after = STATISTICS.copy();
-
-        final boolean isProgramLengthLimitExceeded =
-            (after.instructionCount - before.instructionCount) >= programLengthLimit;
-        final boolean isTraceLengthLimitExceeded =
-            (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
-
-         /*
-         System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
-                before.instructionCount, after.instructionCount,
-                (after.instructionCount - before.instructionCount),
-                (after.instructionCount - before.instructionCount) >= programLengthLimit,
-                
-                before.instructionExecutedCount,
-                after.instructionExecutedCount,
-                (after.instructionCount - before.instructionCount),
-                (after.instructionCount - before.instructionCount) >= programLengthLimit
-                ));
-         */
-
-        needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
-        if (needCreateNewFile) {
-          printer.printToFile("");
-          printer.printHeaderToFile("Epilogue");
-          printer.printToFile("");
-
-          if (!postBlock.isEmpty()) {
-            try {
-              processPreOrPostBlock(postBlock);
-            } catch (ConfigurationException e) {
-              Logger.error(e.getMessage());
-            }
-          } else {
-            printer.printCommentToFile("Empty");
+          if (!isSingleSequence) {
+            printer.printToFile("");
+            printer.printSubheaderToFile(sequenceId);
           }
+          printer.printSequence(concreteSequence);
 
-          printer.close();
+          STATISTICS.instructionCount += concreteSequence.getPrologue().size();
+          STATISTICS.instructionCount += concreteSequence.getBody().size();
+
+          sequenceIt.next();
+          ++sequenceIndex;
+
+          Logger.debugHeader("");
+
+          STATISTICS.testCaseNumber++;
+
+          final Statistics after = STATISTICS.copy();
+
+          final boolean isProgramLengthLimitExceeded =
+              (after.instructionCount - before.instructionCount) >= programLengthLimit;
+          final boolean isTraceLengthLimitExceeded =
+              (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
+
+           /*
+           System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
+                  before.instructionCount, after.instructionCount,
+                  (after.instructionCount - before.instructionCount),
+                  (after.instructionCount - before.instructionCount) >= programLengthLimit,
+                  
+                  before.instructionExecutedCount,
+                  after.instructionExecutedCount,
+                  (after.instructionCount - before.instructionCount),
+                  (after.instructionCount - before.instructionCount) >= programLengthLimit
+                  ));
+           */
+
+          needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
+          if (needCreateNewFile) {
+            printer.printToFile("");
+            printer.printHeaderToFile("Epilogue");
+            printer.printToFile("");
+
+            if (!postBlock.isEmpty()) {
+              try {
+                processPreOrPostBlock(postBlock);
+              } catch (ConfigurationException e) {
+                Logger.error(e.getMessage());
+              }
+            } else {
+              printer.printCommentToFile("Empty");
+            }
+
+            printer.close();
+          }
         }
       }
     }
@@ -547,17 +551,21 @@ public final class TestEngine {
       while (sequenceIt.hasValue()) {
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
-        Logger.debugHeader("Generating Data");
-        final TestSequence concreteSequence = engine.process(abstractSequence);
+        final Iterator<TestSequence> iterator = engine.process(abstractSequence);
 
-        Logger.debugHeader("Executing");
-        executor.executeSequence(concreteSequence);
+        for (iterator.init(); iterator.hasValue(); iterator.next()) {
+          Logger.debugHeader("Generating Data");
+          final TestSequence concreteSequence = iterator.value();
 
-        Logger.debugHeader("Printing");
-        printer.printSequence(concreteSequence);
+          Logger.debugHeader("Executing");
+          executor.executeSequence(concreteSequence);
 
-        STATISTICS.instructionCount += concreteSequence.getPrologue().size();
-        STATISTICS.instructionCount += concreteSequence.getBody().size();
+          Logger.debugHeader("Printing");
+          printer.printSequence(concreteSequence);
+
+          STATISTICS.instructionCount += concreteSequence.getPrologue().size();
+          STATISTICS.instructionCount += concreteSequence.getBody().size();
+        }
 
         sequenceIt.next();
       }
@@ -581,20 +589,41 @@ public final class TestEngine {
       private final Adapter<?> adapter;
 
       public DataGenerationEngine(final Solver<?> solver, final Adapter<?> adapter) {
+        InvariantChecks.checkNotNull(solver);
+        InvariantChecks.checkNotNull(adapter);
+
         this.solver = solver;
         this.adapter = adapter;
       }
 
-      public TestSequence process(final Sequence<Call> abstractSequence) {
-        final Object solution = solver.solve(abstractSequence);
-        return adapt(adapter, abstractSequence, solution);
+      public Iterator<TestSequence> process(final Sequence<Call> abstractSequence) {
+        final Iterator<?> solutionIterator = solver.solve(abstractSequence);
+        return adapt(adapter, abstractSequence, solutionIterator);
       }
 
-      private static <T> TestSequence adapt(final Adapter<T> adapter,
+      private static <T> Iterator<TestSequence> adapt(final Adapter<T> adapter,
                                             final Sequence<Call> sequence,
-                                            final Object solution) {
-        final Class<T> cls = adapter.getSolutionClass();
-        return adapter.adapt(sequence, cls.cast(solution));
+                                            final Iterator<?> solutionIterator) {
+        return new Iterator<TestSequence>() {
+          @Override public void init() {
+            solutionIterator.init();
+          }
+
+          @Override public boolean hasValue() {
+            return solutionIterator.hasValue();
+          }
+
+          @Override public TestSequence value() {
+            final Object solution = solutionIterator.value(); 
+            final Class<T> solutionClass = adapter.getSolutionClass();
+
+            return adapter.adapt(sequence, solutionClass.cast(solution));
+          }
+
+          @Override public void next() {
+            solutionIterator.next();
+          }
+        };
       }
     }
 

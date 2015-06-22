@@ -158,6 +158,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
         e.printStackTrace();
       }
     }
+
     return testBase;
   }
 
