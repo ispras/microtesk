@@ -76,7 +76,7 @@ public abstract class Record {
     @Override
     public String toString() {
       return String.format("%s IT (%d) %08x %08x A svc_ns : %s",
-          super.toString(), getTime(), instrId, addr, disasm);
+          super.toString(), getTime(), addr, instrId, disasm);
     }
   }
 }
