@@ -16,59 +16,42 @@ package ru.ispras.microtesk.test.template;
 
 import java.util.Collections;
 import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 
-/*
-data_stream(reg_data, reg_index, start_label, array_size) {
-  init {
-    reg_index = start_label   // User-defined code
-  }
-  read {
-    reg_data = mem[reg_index] // User-defined code
-    reg_index++
-  }
-  write {
-    mem[reg_index] = reg_data // User-defined code
-    reg_index++
-  }
-}
-*/
-
 public final class DataStream {
-  private final List<Call> initCalls;
-  private final List<Call> readCalls;
-  private final List<Call> writeCalls;
+  private final List<Call> init;
+  private final List<Call> read;
+  private final List<Call> write;
 
-  private final LazyPrimitive regData;
-  private final LazyPrimitive regIndex;
-  private String startLabel;
+  private final LazyPrimitive data;
+  private final LazyPrimitive index;
+  private final LazyLabel startLabel;
 
   private int arrayLength;
   private int arrayIndex;
   private boolean isInitialized;
 
   protected DataStream(
-      final List<Call> initCalls,
-      final List<Call> readCalls,
-      final List<Call> writeCalls,
-      final LazyPrimitive regData,
-      final LazyPrimitive regIndex,
-      final String startLabel) {
-    InvariantChecks.checkNotNull(initCalls);
-    InvariantChecks.checkNotNull(readCalls);
-    InvariantChecks.checkNotNull(writeCalls);
+      final List<Call> init,
+      final List<Call> read,
+      final List<Call> write,
+      final LazyPrimitive data,
+      final LazyPrimitive index,
+      final LazyLabel startLabel) {
+    InvariantChecks.checkNotNull(init);
+    InvariantChecks.checkNotNull(read);
+    InvariantChecks.checkNotNull(write);
 
-    InvariantChecks.checkNotNull(regData);
-    InvariantChecks.checkNotNull(regIndex);
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkNotNull(index);
     InvariantChecks.checkNotNull(startLabel);
 
-    this.initCalls = Collections.unmodifiableList(initCalls);
-    this.readCalls = Collections.unmodifiableList(readCalls);
-    this.writeCalls = Collections.unmodifiableList(writeCalls);
+    this.init = Collections.unmodifiableList(init);
+    this.read = Collections.unmodifiableList(read);
+    this.write = Collections.unmodifiableList(write);
 
-    this.regData = regData;
-    this.regIndex = regIndex;
+    this.data = data;
+    this.index = index;
     this.startLabel = startLabel;
 
     this.arrayLength = 0;
@@ -77,18 +60,18 @@ public final class DataStream {
   }
 
   public void initialize(
-      final Primitive regDataSource,
-      final Primitive regIndexSource,
+      final Primitive dataSource,
+      final Primitive indexSource,
       final String startLabel,
       final int arrayLength) {
-    InvariantChecks.checkNotNull(regDataSource);
-    InvariantChecks.checkNotNull(regIndexSource);
+    InvariantChecks.checkNotNull(dataSource);
+    InvariantChecks.checkNotNull(indexSource);
     InvariantChecks.checkNotNull(startLabel);
     InvariantChecks.checkGreaterThanZero(arrayLength);
 
-    this.regData.setSource(regDataSource);
-    this.regIndex.setSource(regIndexSource);
-    this.startLabel = startLabel;
+    this.data.setSource(dataSource);
+    this.index.setSource(indexSource);
+    this.startLabel.setSource(startLabel);
 
     this.arrayLength = arrayLength;
     this.arrayIndex = 0;
@@ -102,20 +85,20 @@ public final class DataStream {
   public List<Call> getInit() {
     InvariantChecks.checkTrue(isInitialized);
 
-    return initCalls;
+    return init;
   }
 
   public List<Call> getRead() {
     InvariantChecks.checkTrue(isInitialized);
     InvariantChecks.checkBounds(arrayIndex++, arrayLength);
 
-    return readCalls;
+    return read;
   }
 
   public List<Call> getWrite() {
     InvariantChecks.checkTrue(isInitialized);
     InvariantChecks.checkBounds(arrayIndex++, arrayLength);
 
-    return writeCalls;
+    return write;
   }
 }
