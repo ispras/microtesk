@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.sequence.branch;
 
 import ru.ispras.microtesk.test.Solver;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Call;
 
 /**
@@ -28,7 +29,7 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
   }
 
   @Override
-  public BranchTemplateSolution solve(final Sequence<Call> abstractSequence) {
+  public Iterator<BranchTemplateSolution> solve(final Sequence<Call> abstractSequence) {
     // TODO:
     return null;
   }

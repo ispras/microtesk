@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,9 +14,36 @@
 
 package ru.ispras.microtesk.test.sequence.branch;
 
+import java.util.Map;
+
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.template.Call;
+
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchTemplateSolution {
+  /** Original abstract sequence. */
+  private Sequence<Call> sequence;
 
+  /** Test situations specified for branch instruction calls. */
+  private Map<Integer, BranchTraceSituation> situations;
+
+  public Sequence<Call> getSequence() {
+    return sequence;
+  }
+
+  public void setSequence(final Sequence<Call> sequence) {
+    InvariantChecks.checkNotNull(sequence);
+    this.sequence = sequence;
+  }
+
+  public Map<Integer, BranchTraceSituation> getSituations() {
+    return situations;
+  }
+
+  public void setSituations(final Map<Integer, BranchTraceSituation> situations) {
+    this.situations = situations;
+  }
 }

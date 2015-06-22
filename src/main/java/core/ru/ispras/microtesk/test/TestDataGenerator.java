@@ -23,7 +23,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +51,8 @@ import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.data.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -170,9 +171,9 @@ final class TestDataGenerator implements Solver<TestSequence> {
   }
 
   @Override
-  public TestSequence solve(final Sequence<Call> abstractSequence) {
+  public Iterator<TestSequence> solve(final Sequence<Call> abstractSequence) {
     try {
-      return process(abstractSequence);
+      return new SingleValueIterator<TestSequence>(process(abstractSequence));
     } catch (final ConfigurationException e) {
       Logger.error(e.getMessage());
     }
@@ -312,7 +313,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
       return getDefaultTestData(primitive, queryCreator);
     }
 
-    final Iterator<TestData> dataProvider = queryResult.getDataProvider();
+    final java.util.Iterator<TestData> dataProvider = queryResult.getDataProvider();
     if (!dataProvider.hasNext()) {
       Logger.warning("No data was generated for the query: default test data will be used");
       return getDefaultTestData(primitive, queryCreator);
@@ -887,8 +888,8 @@ final class AddressingModeWrapper {
       return false;
     }
 
-    final Iterator<Argument> thisIt = mode.getArguments().values().iterator();
-    final Iterator<Argument> otherIt = otherMode.getArguments().values().iterator();
+    final java.util.Iterator<Argument> thisIt = mode.getArguments().values().iterator();
+    final java.util.Iterator<Argument> otherIt = otherMode.getArguments().values().iterator();
 
     while (thisIt.hasNext() && otherIt.hasNext()) {
       final Argument thisArg = thisIt.next();

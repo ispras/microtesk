@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Call;
 
 /**
@@ -25,5 +26,5 @@ import ru.ispras.microtesk.test.template.Call;
 
 public interface Solver<T> {
   Class<T> getSolutionClass();
-  T solve(Sequence<Call> abstractSequence);
+  Iterator<T> solve(Sequence<Call> abstractSequence);
 }
