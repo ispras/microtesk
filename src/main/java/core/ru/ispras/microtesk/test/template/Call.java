@@ -89,4 +89,13 @@ public final class Call {
     // TODO
     throw new UnsupportedOperationException();
   }
+
+  public Label getTargetLabel() {
+    final LabelReference reference = labelRefs.get(0);
+    if (null == reference) {
+      return null;
+    }
+
+    return reference.getReference();
+  }
 }
