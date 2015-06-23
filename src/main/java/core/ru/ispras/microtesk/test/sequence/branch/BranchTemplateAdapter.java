@@ -14,10 +14,11 @@
 
 package ru.ispras.microtesk.test.sequence.branch;
 
+import static ru.ispras.microtesk.test.TestDataGeneratorUtils.getSituationName;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeConcreteCall;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.newTestBase;
 
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,14 +39,13 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchTemplateAdapter implements Adapter<BranchTemplateSolution> {
-  public static final String IF_THEN_SITUATION_SUFFIX = ":if-then";
-  public static final String GOTO_SITUAION_SUFFIX = ":goto";
   public static final boolean USE_DELAY_SLOTS = true;
 
   private final int delaySlotSize;
@@ -87,8 +87,6 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
 
     // Maps branch indices to control code.
     final Map<Integer, Sequence<Call>> steps = new LinkedHashMap<>();
-    // Maps branch indices to test data generators.
-    final Map<Integer, DataGenerator> testDataGenerators = new HashMap<>();
     // Contains positions of the delay slots.
     final Set<Integer> delaySlots = new HashSet<>();
 
@@ -100,6 +98,9 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
       if (!branchEntry.isIfThen()) {
         continue;
       }
+
+      // Retrieve the test data generator.
+      final DataGenerator testDataGenerator = getGenerator(abstractCall);
 
       final BranchTrace branchTrace = branchEntry.getBranchTrace();
       final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
@@ -146,8 +147,6 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
         return null;
       }
 
-      final DataGenerator testDataGenerator = testDataGenerators.get(i); // TODO: 
-
       try {
         updatePrologue(testSequenceBuilder, abstractCall, branchTrace, isBasicBlock,
             testDataGenerator, null);
@@ -188,6 +187,16 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
     }
 
     return testSequenceBuilder.build();
+  }
+
+  private DataGenerator getGenerator(final Call abstractCall) {
+    InvariantChecks.checkNotNull(abstractCall);
+
+    final String situationName = getSituationName(abstractCall);
+    final TestBaseRegistry testBaseRegistry = testBase.getRegistry();
+    final Collection<DataGenerator> generators = testBaseRegistry.getNamedGenerators(situationName);
+
+    return generators.toArray(new DataGenerator[]{})[0];
   }
 
   private void updatePrologue(

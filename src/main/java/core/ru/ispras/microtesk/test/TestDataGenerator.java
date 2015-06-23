@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.checkRootOp;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeInitializer;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeMode;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.newTestBase;
 
@@ -51,7 +52,6 @@ import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
@@ -332,7 +332,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
       }
 
       final BitVector value = FortressUtils.extractBitVector(e.getValue());
-      final List<Call> initializingCalls = makeInitializer(targetMode, value);
+      final List<Call> initializingCalls = makeInitializer(targetMode, value, preparators);
 
       addCallsToPrologue(initializingCalls);
       initializedModes.add(targetMode);
@@ -360,21 +360,6 @@ final class TestDataGenerator implements Solver<TestSequence> {
     }
 
     return sb.toString();
-  }
-
-  private List<Call> makeInitializer(AddressingModeWrapper targetMode, BitVector value) {
-    Logger.debug("Creating code to assign %s to %s...", value, targetMode);
-
-    final Preparator preparator = 
-        preparators.getPreparator(targetMode.getModePrimitive(), value);
-
-    if (null != preparator) {
-      return preparator.makeInitializer(targetMode.getModePrimitive(), value);
-    }
-
-    throw new GenerationAbortedException(
-        String.format("No suitable preparator is found for %s.",
-        targetMode.getModePrimitive().getSignature()));
   }
 
   private static void acquireContext(

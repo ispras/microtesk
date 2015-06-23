@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.sequence.branch;
 
+import static ru.ispras.microtesk.test.TestDataGeneratorUtils.getSituationName;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +36,29 @@ import ru.ispras.microtesk.test.template.Label;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchTemplateSolver implements Solver<BranchTemplateSolution> {
+  public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
+  public static final String GOTO_SITUATION_SUFFIX = "goto";
+
+  public static boolean isIfThen(final Call abstractCall) {
+    InvariantChecks.checkNotNull(abstractCall);
+
+    // TODO:
+    // return abstractCall.isBranch() && abstractCall.isConditionalBranch();
+
+    final String situationName = getSituationName(abstractCall);
+    return situationName != null && situationName.endsWith(IF_THEN_SITUATION_SUFFIX);
+  }
+
+  public static boolean isGoto(final Call abstractCall) {
+    InvariantChecks.checkNotNull(abstractCall);
+
+    // TODO:
+    // return abstractCall.isBranch() && !abstractCall.isConditionalBranch();
+
+    final String situationName = getSituationName(abstractCall);
+    return situationName != null && situationName.endsWith(GOTO_SITUATION_SUFFIX);
+  }
+
   private final int delaySlotSize;
   private final int maxBranchExecution;
 
@@ -67,11 +92,11 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
 
     int delaySlot = 0;
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final Call call = abstractSequence.get(i);
+      final Call abstractCall = abstractSequence.get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
 
-      final boolean isIfThen = call.isBranch() && call.isConditionalBranch();
-      final boolean isGoto = call.isBranch() && !call.isConditionalBranch();
+      final boolean isIfThen = isIfThen(abstractCall);
+      final boolean isGoto = isGoto(abstractCall);
 
       // Set the branch entry type.
       if (isIfThen) {
@@ -91,7 +116,7 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
 
       // Set the target label and start the delay slot.
       if (isIfThen || isGoto) {
-        final Label label = call.getTargetLabel();
+        final Label label = abstractCall.getTargetLabel();
         InvariantChecks.checkTrue(labels.containsKey(label));
 
         branchEntry.setBranchLabel(labels.get(label));

@@ -21,7 +21,9 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ICallFactory;
@@ -37,8 +39,11 @@ import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.LazyValue;
+import ru.ispras.microtesk.test.template.Preparator;
+import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
+import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.testbase.AddressGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -54,6 +59,7 @@ import ru.ispras.testbase.generator.DataGenerator;
 public final class TestDataGeneratorUtils {
   private TestDataGeneratorUtils() {}
 
+  @SuppressWarnings("resource")
   public static TestBase newTestBase(final GeneratorSettings settings) {
     final TestBase testBase = new TestBase();
     final TestBaseRegistry registry = testBase.getRegistry();
@@ -92,6 +98,22 @@ public final class TestDataGeneratorUtils {
     }
 
     return testBase;
+  }
+
+  public static String getSituationName(final Call abstractCall) {
+    checkNotNull(abstractCall);
+
+    final Primitive primitive = abstractCall.getRootOperation();
+    if (primitive == null) {
+      return null;
+    }
+
+    final Situation situation = primitive.getSituation();
+    if (situation == null) {
+      return null;
+    }
+
+    return situation.getName();
   }
 
   public static ConcreteCall makeConcreteCall(
@@ -224,6 +246,28 @@ public final class TestDataGeneratorUtils {
     }
 
     return builder.build();
+  }
+
+  public static List<Call> makeInitializer(
+      final AddressingModeWrapper targetMode,
+      final BitVector value,
+      final PreparatorStore preparators) {
+    checkNotNull(targetMode);
+    checkNotNull(value);
+    checkNotNull(preparators);
+
+    Logger.debug("Creating code to assign %s to %s...", value, targetMode);
+
+    final Preparator preparator = 
+        preparators.getPreparator(targetMode.getModePrimitive(), value);
+
+    if (null != preparator) {
+      return preparator.makeInitializer(targetMode.getModePrimitive(), value);
+    }
+
+    throw new GenerationAbortedException(
+        String.format("No suitable preparator is found for %s.",
+        targetMode.getModePrimitive().getSignature()));
   }
 
   public static void checkOp(final Primitive op) {
