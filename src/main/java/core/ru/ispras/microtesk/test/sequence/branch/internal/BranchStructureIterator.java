@@ -24,7 +24,7 @@ import ru.ispras.testbase.knowledge.iterator.IntRangeIterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
- * {@link BranchTemplateIterator} implements an iterator of valid branch structures for given branch
+ * {@link BranchStructureExecutionIterator} implements an iterator of valid branch structures for given branch
  * instructions (conditional and unconditional jumps, procedures calls, etc.).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -170,11 +170,8 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
     minBranchNumber = r.minBranchNumber;
     maxBranchNumber = r.maxBranchNumber;
     maxBranchExecution = r.maxBranchExecution;
-
     flags = r.flags;
-
     hasValue = r.hasValue;
-
     lengthIterator = r.lengthIterator.clone();
     branchNumberIterator = r.branchNumberIterator.clone();
     branchIterator = r.branchIterator.clone();
@@ -193,13 +190,13 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
 
     final BranchStructure structure = new BranchStructure(length + (delaySlot ? branchNumber : 0));
 
-    // Positions of branch instructions in test template
+    // Positions of branch instructions in the test template.
     final int[] array = branchPositionIterator.indexArrayValue();
 
     for (i = j = branch = block = 0; i < length; i++, j++) {
       BranchEntry entry = structure.get(j);
 
-      // Process branch
+      // Process the branch instruction.
       if (branch < branchNumber && i == array[branch]) {
         int branchLabel = 0;
         int branchClass = 0;
@@ -216,7 +213,7 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
         entry.setBranchLabel(branchLabel);
         entry.setGroupId(branchClass);
 
-        // Process delay slot
+        // Process the delay slot.
         if (delaySlot) {
           int slotClass = 0;
 
@@ -232,7 +229,7 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
 
         branch++;
       }
-      // Process basic block
+      // Process the basic block.
       else {
         int blockClass = 0;
 
@@ -250,7 +247,7 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
     return structure;
   }
 
-  private boolean filterBranchPositionIterator_ConsecutiveBasicBlocks() {
+  private boolean filterBranchPositionIteratorConsecutiveBasicBlocks() {
     int branchNumber = branchNumberIterator.value();
     int branchNumberLowerBound = 0;
 
@@ -275,7 +272,7 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
 
   private boolean filterBranchPositionIterator() {
     if (flags.contains(Flags.DO_NOT_ITERATE_CONSECUTIVE_BASIC_BLOCKS)) {
-      if (!filterBranchPositionIterator_ConsecutiveBasicBlocks()) {
+      if (!filterBranchPositionIteratorConsecutiveBasicBlocks()) {
         return false;
       }
     }

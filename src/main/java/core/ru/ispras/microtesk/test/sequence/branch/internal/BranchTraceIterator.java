@@ -26,13 +26,13 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public final class BranchTraceIterator implements Iterator<BranchStructure> {
   /** Current branch structure. */
-  private final BranchStructure branchStructure;
+  private BranchStructure branchStructure;
 
   /** Upper bound of branch occurrences in a trace. */
-  private final int maxBranchExecution;
+  private int maxBranchExecution;
 
   /** Stack of branches. */
-  private final Stack<Integer> branchStack;
+  private Stack<Integer> branchStack;
 
   /** Current branch index. */
   private int currentBranch;
@@ -40,21 +40,17 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
   /** Flag that reflects availability of the value. */
   private boolean hasValue;
 
-  /**
-   * Constructs a branch trace iterator.
-   * 
-   * @param branchStructure the branch structure whose execution traces to be iterated.
-   * @param maxBranchExecution the branch execution limit.
-   */
   public BranchTraceIterator(final BranchStructure branchStructure, final int maxBranchExecution) {
-    InvariantChecks.checkNotNull(branchStructure);
+    init(branchStructure, maxBranchExecution);
+  }
 
-    this.branchStructure = branchStructure;
-    this.maxBranchExecution = maxBranchExecution;
-    this.branchStack = new Stack<Integer>();
+  public BranchTraceIterator(final BranchStructure branchStructure) {
+    this(branchStructure, 1);
   }
 
   private BranchTraceIterator(final BranchTraceIterator r) {
+    InvariantChecks.checkNotNull(r);
+
     this.branchStructure = r.branchStructure.clone();
     this.maxBranchExecution = r.maxBranchExecution;
     this.currentBranch = r.currentBranch;
@@ -62,6 +58,17 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
 
     this.branchStack = new Stack<Integer>();
     this.branchStack.addAll(r.branchStack);
+  }
+
+  public void init(final BranchStructure branchStructure, final int maxBranchExecution) {
+    InvariantChecks.checkNotNull(branchStructure);
+    InvariantChecks.checkTrue(maxBranchExecution >= 0);
+
+    this.branchStructure = branchStructure;
+    this.maxBranchExecution = maxBranchExecution;
+    this.branchStack = new Stack<Integer>();
+
+    init();
   }
 
   @Override

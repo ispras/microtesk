@@ -25,7 +25,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntSampleIterator implements Iterator<List<Integer>> {
+final class IntSampleIterator implements Iterator<List<Integer>> {
   /** Minimal index. */
   private int min;
 

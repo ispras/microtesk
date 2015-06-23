@@ -28,7 +28,6 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.IModel;

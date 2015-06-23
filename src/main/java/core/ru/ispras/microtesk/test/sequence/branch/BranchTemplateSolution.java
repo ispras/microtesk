@@ -14,37 +14,22 @@
 
 package ru.ispras.microtesk.test.sequence.branch;
 
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.branch.internal.BranchTraceSituation;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.sequence.branch.internal.BranchStructure;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchTemplateSolution {
-  /** Original abstract sequence. */
-  private Sequence<Call> sequence;
+  /** Branch structure containing execution traces. */
+  private BranchStructure branchStructure;
 
-  /** Test situations specified for branch instruction calls. */
-  private Map<Integer, BranchTraceSituation> situations;
-
-  public Sequence<Call> getSequence() {
-    return sequence;
+  public BranchStructure getBranchStructure() {
+    return branchStructure;
   }
 
-  public void setSequence(final Sequence<Call> sequence) {
-    InvariantChecks.checkNotNull(sequence);
-    this.sequence = sequence;
-  }
-
-  public Map<Integer, BranchTraceSituation> getSituations() {
-    return situations;
-  }
-
-  public void setSituations(final Map<Integer, BranchTraceSituation> situations) {
-    this.situations = situations;
+  public void setBranchStructure(final BranchStructure branchStructure) {
+    InvariantChecks.checkNotNull(branchStructure);
+    this.branchStructure = branchStructure;
   }
 }

@@ -19,7 +19,7 @@ package ru.ispras.microtesk.test.sequence.branch.internal;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class BranchEntryVisitor {
+abstract class BranchEntryVisitor {
   /** Branch structure walker. */
   private BranchStructureWalker walker = null;
 

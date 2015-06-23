@@ -30,7 +30,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchTraceConstructor {
+final class BranchTraceConstructor {
   /**
    * Trace segment constructor.
    */
