@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.branch;
+package ru.ispras.microtesk.test.branch;
 
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.getSituationName;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeConcreteCall;
@@ -30,11 +30,11 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.Adapter;
 import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.branch.internal.BranchEntry;
+import ru.ispras.microtesk.test.branch.internal.BranchExecution;
+import ru.ispras.microtesk.test.branch.internal.BranchStructure;
+import ru.ispras.microtesk.test.branch.internal.BranchTrace;
 import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.branch.internal.BranchEntry;
-import ru.ispras.microtesk.test.sequence.branch.internal.BranchExecution;
-import ru.ispras.microtesk.test.sequence.branch.internal.BranchStructure;
-import ru.ispras.microtesk.test.sequence.branch.internal.BranchTrace;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.PreparatorStore;

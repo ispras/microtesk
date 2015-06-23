@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.branch.internal;
+package ru.ispras.microtesk.test.branch.internal;
 
 import java.util.List;
 
