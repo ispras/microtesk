@@ -47,6 +47,8 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.testbase.AddressGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.testbase.TestBaseQueryBuilder;
+import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
 
@@ -268,6 +270,47 @@ public final class TestDataGeneratorUtils {
     throw new GenerationAbortedException(
         String.format("No suitable preparator is found for %s.",
         targetMode.getModePrimitive().getSignature()));
+  }
+
+  public static String makeErrorMessage(final TestBaseQueryResult queryResult) {
+    checkNotNull(queryResult);
+
+    final StringBuilder sb = new StringBuilder(String.format(
+      "Failed to execute the query. Status: %s.", queryResult.getStatus()));
+
+    if (!queryResult.hasErrors()) {
+      return sb.toString();
+    }
+    sb.append(" Errors: ");
+    for (String error : queryResult.getErrors()) {
+      sb.append(System.lineSeparator() + "  " + error);
+    }
+
+    return sb.toString();
+  }
+
+  public static void acquireContext(
+      final TestBaseQueryBuilder builder,
+      final String prefix,
+      final Primitive p) {
+    checkNotNull(builder);
+    checkNotNull(prefix);
+    checkNotNull(p);
+
+    for (final Argument arg : p.getArguments().values()) {
+      final String ctxArgName = (prefix.isEmpty())
+                                ? arg.getName()
+                                : prefix + "." + arg.getName();
+      builder.setContextAttribute(ctxArgName, arg.getTypeName());
+      switch (arg.getKind()) {
+      case OP:
+      case MODE:
+        acquireContext(builder, ctxArgName, (Primitive) arg.getValue());
+        break;
+
+      default:
+      }
+    }
   }
 
   public static void checkOp(final Primitive op) {
