@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
 
 /**
  * 
@@ -57,11 +58,11 @@ public final class MemoryStorage {
     public final int block;
     public final BitVector area;
 
-    public Index(BitVector address) {
-      this.address = address;
-      this.region  = getField(address, 0, 11).intValue();
-      this.block = getField(address, 12, 43).intValue();
-      this.area  = getField(address, 44, address.getBitSize());
+    public Index(final BitVector address, final int addressBitSize) {
+      this.address = adjustSize(address, addressBitSize);
+      this.region  = getField(this.address, 0, 11).intValue();
+      this.block = getField(this.address, 12, 43).intValue();
+      this.area  = getField(this.address, 44, addressBitSize - 1);
     }
 
     private static BitVector getField(final BitVector bv, final int min, final int max) {
@@ -73,10 +74,31 @@ public final class MemoryStorage {
       return BitVector.newMapping(bv, min, bitSize);
     }
 
+    private static BitVector adjustSize(final BitVector bv, final int bitSize) {
+      if (bv.getBitSize() == bitSize) {
+        return bv; 
+      }
+
+      if (bv.getBitSize() > bitSize) {
+        return BitVector.newMapping(bv, 0, bitSize);
+      }
+
+      final BitVector adjusted = BitVector.newEmpty(bitSize);
+      BitVectorAlgorithm.copy(bv, adjusted);
+      return adjusted;
+    }
+
     @Override
     public String toString() {
-      return String.format("0x%s[area=0x%s, block=0x%X, region=0x%X]",
-          address.toHexString(), area.toHexString(), block, region);
+      return String.format(
+          "0x%s(%d bits)[area=0x%s(%d bits), block=0x%X, region=0x%X]",
+          address.toHexString(),
+          address.getBitSize(),
+          area.toHexString(),
+          area.getBitSize(),
+          block,
+          region
+          );
     }
   }
 
@@ -210,7 +232,7 @@ public final class MemoryStorage {
 
   public boolean isInitialized(final BitVector address) {
     checkNotNull(address);
-    final Index index = new Index(address);
+    final Index index = new Index(address, addressBitSize);
 
     final Map<Integer, Block> area = getAddressMap().get(index.area);
     if (null == area) {
@@ -235,7 +257,7 @@ public final class MemoryStorage {
 
   public BitVector read(final BitVector address) {
     checkNotNull(address);
-    final Index index = new Index(address);
+    final Index index = new Index(address, addressBitSize);
 
     final Map<Integer, Block> area = getAddressMap().get(index.area);
     if (null == area) {
@@ -266,7 +288,7 @@ public final class MemoryStorage {
       return;
     }
 
-    final Index index = new Index(address);
+    final Index index = new Index(address, addressBitSize);
 
     Map<Integer, Block> area = getAddressMap().get(index.area);
     Block block = null;

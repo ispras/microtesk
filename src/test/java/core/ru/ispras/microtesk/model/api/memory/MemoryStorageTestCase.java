@@ -47,6 +47,33 @@ public final class MemoryStorageTestCase {
     }
   }
 
+  @Test
+  public void testAddressSizeMismatch() {
+    final BigInteger regionCount = BigInteger.valueOf(2).pow(61);
+    final int regionBitSize = 64;
+
+    final MemoryStorage ms = new MemoryStorage(regionCount, 64);
+
+    System.out.printf("Test: regions = %d (%x), region size = %d, address size = %d%n",
+        regionCount, regionCount, regionBitSize, ms.getAddressBitSize());
+
+    final BitVector address = BitVector.valueOf(0, ms.getAddressBitSize());
+    final BitVector data = BitVector.valueOf(0xDEADBEEF, regionBitSize);
+
+    ms.write(address, data);
+
+    assertEquals(data, ms.read(0));
+    assertEquals(data, ms.read(address));
+
+    // Smaller than ms.getAddressBitSize()
+    final BitVector smallAddress = BitVector.valueOf(0, 48);
+    assertEquals(data, ms.read(smallAddress));
+
+    // Larger than ms.getAddressBitSize()
+    final BitVector largeAddress = BitVector.valueOf(0, 64);
+    assertEquals(data, ms.read(largeAddress));
+  }
+
   private void test(BigInteger regionCount, int regionBitSize) {
     final MemoryStorage ms = new MemoryStorage(regionCount, regionBitSize);
 
