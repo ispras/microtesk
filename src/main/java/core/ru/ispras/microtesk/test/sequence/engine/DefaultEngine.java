@@ -12,16 +12,16 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.allocateModes;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.checkRootOp;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeErrorMessage;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeInitializer;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeMode;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.newTestBase;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.allocateModes;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.checkRootOp;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeErrorMessage;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeInitializer;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeMode;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.newTestBase;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,8 +44,12 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.test.data.ModeAllocator;
+import ru.ispras.microtesk.test.AddressingModeWrapper;
+import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.Engine;
+import ru.ispras.microtesk.test.sequence.EngineResult;
+import ru.ispras.microtesk.test.sequence.engine.internal.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
@@ -61,28 +65,16 @@ import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestData;
 
 /**
- * The job of the {@link TestDataGenerator} class is to processes an abstract instruction call
+ * The job of the {@link DefaultEngine} class is to processes an abstract instruction call
  * sequence (uses symbolic values) and to build a concrete instruction call sequence (uses only
  * concrete values and can be simulated and used to generate source code in assembly language).
- * The {@link TestDataGenerator} class performs all necessary data generation and all initializing
+ * The {@link DefaultEngine} class performs all necessary data generation and all initializing
  * calls to the generated instruction sequence.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-final class TestSequenceAdapter implements Adapter<TestSequence> {
-  @Override
-  public Class<TestSequence> getSolutionClass() {
-    return TestSequence.class;
-  }
-
-  @Override
-  public TestSequence adapt(final Sequence<Call> abstractSequence, final TestSequence solution) {
-    return solution;
-  }
-}
-
-final class TestDataGenerator implements Solver<TestSequence> {
+public final class DefaultEngine implements Engine<TestSequence> {
   private final IModel model;
   private final TestBase testBase;
   private final PreparatorStore preparators;
@@ -92,7 +84,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
 
   private long codeAddress = 0;
 
-  TestDataGenerator(
+  public DefaultEngine(
       final IModel model,
       final PreparatorStore preparators,
       final GeneratorSettings settings) {
@@ -115,13 +107,13 @@ final class TestDataGenerator implements Solver<TestSequence> {
   }
 
   @Override
-  public SolverResult<TestSequence> solve(final Sequence<Call> abstractSequence) {
+  public EngineResult<TestSequence> solve(final Sequence<Call> abstractSequence) {
     try {
-      return new SolverResult<>(SolverResult.Status.OK,
+      return new EngineResult<>(EngineResult.Status.OK,
                                 new SingleValueIterator<>(process(abstractSequence)),
                                 Collections.<String>emptyList());
     } catch (final ConfigurationException e) {
-      return new SolverResult<>(SolverResult.Status.ERROR,
+      return new EngineResult<>(EngineResult.Status.ERROR,
                                 null,
                                 Collections.singletonList(e.getMessage()));
     }

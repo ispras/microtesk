@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.branch.internal;
+package ru.ispras.microtesk.test.sequence.engine.branch;
 
 /**
  * {@link BranchEntryVisitor} is an abstract class for branch entry visitors.

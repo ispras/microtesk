@@ -12,18 +12,19 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.sequence;
 
-import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.template.Call;
 
 /**
- * {@link Solver} defines an interface of abstract call sequence solvers.
+ * {@link Adapter} defines an interface of adapters of abstract call sequence solution provided
+ * by corresponding {@link Engine}.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
 
-public interface Solver<T> {
+public interface Adapter<T> {
   Class<T> getSolutionClass();
-  SolverResult<T> solve(Sequence<Call> abstractSequence);
+  TestSequence adapt(Sequence<Call> abstractSequence, T solution);
 }

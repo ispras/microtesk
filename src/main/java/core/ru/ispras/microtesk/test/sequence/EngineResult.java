@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.sequence;
 
 import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
@@ -20,18 +20,18 @@ import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import java.util.List;
 
 /**
- * {@link SolverResult} defines result of a {@link Solver}.
+ * {@link EngineResult} defines result of a {@link Engine}.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
 
-public final class SolverResult<T> extends Result<SolverResult.Status, Iterator<T>> {
+public final class EngineResult<T> extends Result<EngineResult.Status, Iterator<T>> {
   public static enum Status {
     OK,
     ERROR
   }
 
-  public SolverResult(final SolverResult.Status status,
+  public EngineResult(final EngineResult.Status status,
                       final Iterator<T> result,
                       final List<String> errors) {
     super(status, result, errors);

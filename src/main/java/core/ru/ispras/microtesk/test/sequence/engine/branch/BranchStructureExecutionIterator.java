@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.branch.internal;
+package ru.ispras.microtesk.test.sequence.engine.branch;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;

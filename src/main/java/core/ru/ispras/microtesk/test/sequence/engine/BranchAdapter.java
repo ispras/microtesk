@@ -12,12 +12,12 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.branch;
+package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.allocateModes;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.getSituationName;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.newTestBase;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.allocateModes;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.getSituationName;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.newTestBase;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,13 +29,13 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.test.Adapter;
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.branch.internal.BranchEntry;
-import ru.ispras.microtesk.test.branch.internal.BranchExecution;
-import ru.ispras.microtesk.test.branch.internal.BranchStructure;
-import ru.ispras.microtesk.test.branch.internal.BranchTrace;
+import ru.ispras.microtesk.test.sequence.Adapter;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecution;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchTrace;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.PreparatorStore;
@@ -46,7 +46,7 @@ import ru.ispras.testbase.generator.DataGenerator;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchTemplateAdapter implements Adapter<BranchTemplateSolution> {
+public final class BranchAdapter implements Adapter<BranchSolution> {
   public static final String TEST_DATA_PREFIX = "branch_data_";
   public static final boolean USE_DELAY_SLOTS = true;
 
@@ -55,7 +55,7 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
   private final PreparatorStore preparators;
   private final TestBase testBase;
 
-  public BranchTemplateAdapter(
+  public BranchAdapter(
       final IModel model,
       final PreparatorStore preparators,
       final GeneratorSettings settings,
@@ -72,13 +72,13 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
   }
 
   @Override
-  public Class<BranchTemplateSolution> getSolutionClass() {
-    return BranchTemplateSolution.class;
+  public Class<BranchSolution> getSolutionClass() {
+    return BranchSolution.class;
   }
 
   @Override
   public TestSequence adapt(final Sequence<Call> abstractSequence,
-      final BranchTemplateSolution solution) {
+      final BranchSolution solution) {
     InvariantChecks.checkNotNull(abstractSequence);
     InvariantChecks.checkNotNull(solution);
 

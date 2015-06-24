@@ -12,21 +12,21 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.branch;
+package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.TestDataGeneratorUtils.getSituationName;
+import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.getSituationName;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.Solver;
-import ru.ispras.microtesk.test.SolverResult;
-import ru.ispras.microtesk.test.branch.internal.BranchEntry;
-import ru.ispras.microtesk.test.branch.internal.BranchStructure;
-import ru.ispras.microtesk.test.branch.internal.BranchStructureExecutionIterator;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.Engine;
+import ru.ispras.microtesk.test.sequence.EngineResult;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructureExecutionIterator;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Call;
@@ -35,7 +35,7 @@ import ru.ispras.microtesk.test.template.Label;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchTemplateSolver implements Solver<BranchTemplateSolution> {
+public final class BranchEngine implements Engine<BranchSolution> {
   public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
   public static final String GOTO_SITUATION_SUFFIX = "goto";
 
@@ -62,7 +62,7 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
   private final int delaySlotSize;
   private final int maxBranchExecution;
 
-  public BranchTemplateSolver(final int delaySlotSize, final int maxBranchExecution) {
+  public BranchEngine(final int delaySlotSize, final int maxBranchExecution) {
     InvariantChecks.checkTrue(delaySlotSize >= 0);
 
     this.delaySlotSize = delaySlotSize;
@@ -70,12 +70,12 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
   }
 
   @Override
-  public Class<BranchTemplateSolution> getSolutionClass() {
-    return BranchTemplateSolution.class;
+  public Class<BranchSolution> getSolutionClass() {
+    return BranchSolution.class;
   }
 
   @Override
-  public SolverResult<BranchTemplateSolution> solve(final Sequence<Call> abstractSequence) {
+  public EngineResult<BranchSolution> solve(final Sequence<Call> abstractSequence) {
     // Collect information about labels.
     final Map<Label, Integer> labels = new HashMap<>();
 
@@ -124,7 +124,7 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
       }
     }
 
-    final Iterator<BranchTemplateSolution> iterator = new Iterator<BranchTemplateSolution>() {
+    final Iterator<BranchSolution> iterator = new Iterator<BranchSolution>() {
       /** Iterator of branch structures. */
       private final Iterator<BranchStructure> branchStructureIterator =
           new SingleValueIterator<BranchStructure>(branchStructure);
@@ -144,8 +144,8 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
       }
 
       @Override
-      public BranchTemplateSolution value() {
-        final BranchTemplateSolution branchTemplateSolution = new BranchTemplateSolution();
+      public BranchSolution value() {
+        final BranchSolution branchTemplateSolution = new BranchSolution();
         branchTemplateSolution.setBranchStructure(branchStructureExecutionIterator.value());
 
         return branchTemplateSolution;
@@ -157,6 +157,6 @@ public final class BranchTemplateSolver implements Solver<BranchTemplateSolution
       }
     };
 
-    return new SolverResult<>(SolverResult.Status.OK, iterator, Collections.<String>emptyList());
+    return new EngineResult<>(EngineResult.Status.OK, iterator, Collections.<String>emptyList());
   }
 }

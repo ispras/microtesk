@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.branch;
+package ru.ispras.microtesk.test.testbase;
 
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestDataProvider;

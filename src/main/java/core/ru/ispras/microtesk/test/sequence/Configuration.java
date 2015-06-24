@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,47 +12,50 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.sequence;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.sequence.CombinatorId;
-import ru.ispras.microtesk.test.sequence.CompositorId;
-import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.combinator.*;
-import ru.ispras.microtesk.test.sequence.compositor.*;
+import ru.ispras.microtesk.test.sequence.combinator.Combinator;
+import ru.ispras.microtesk.test.sequence.combinator.DiagonalCombinator;
+import ru.ispras.microtesk.test.sequence.combinator.ProductCombinator;
+import ru.ispras.microtesk.test.sequence.combinator.RandomCombinator;
+import ru.ispras.microtesk.test.sequence.compositor.CatenationCompositor;
+import ru.ispras.microtesk.test.sequence.compositor.Compositor;
+import ru.ispras.microtesk.test.sequence.compositor.NestingCompositor;
+import ru.ispras.microtesk.test.sequence.compositor.OverlappingCompositor;
+import ru.ispras.microtesk.test.sequence.compositor.RandomCompositor;
+import ru.ispras.microtesk.test.sequence.compositor.RotationCompositor;
 
 /**
- * This class implements the configuration of the test sequence generator.
+ * {@link Configuration} implements a test generator configuration.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Configuration<T> {
-  /** The map of available combinators. */
-  private Map<String, Class<?>> combinators = new HashMap<String, Class<?>>();
+public final class Configuration<T> {
+  private final Map<String, Class<?>> combinators = new HashMap<String, Class<?>>();
+  private final Map<String, Class<?>> compositors = new HashMap<String, Class<?>>();
 
-  /** The map of available compositors. */
-  private Map<String, Class<?>> compositors = new HashMap<String, Class<?>>();
-
-  private final Map<String, Solver<?>> solvers = new HashMap<>();
+  private final Map<String, Engine<?>> engines = new HashMap<>();
   private final Map<String, Adapter<?>> adapters = new HashMap<>();
 
   /**
    * Constructs a configuration object.
    */
   public Configuration() {
-    // Available combinators
     combinators.put(CombinatorId.PRODUCT.name(), ProductCombinator.class);
     combinators.put(CombinatorId.DIAGONAL.name(), DiagonalCombinator.class);
     combinators.put(CombinatorId.RANDOM.name(), RandomCombinator.class);
 
-    // Available compositors
     compositors.put(CompositorId.CATENATION.name(), CatenationCompositor.class);
     compositors.put(CompositorId.ROTATION.name(), RotationCompositor.class);
     compositors.put(CompositorId.OVERLAPPING.name(), OverlappingCompositor.class);
     compositors.put(CompositorId.NESTING.name(), NestingCompositor.class);
     compositors.put(CompositorId.RANDOM.name(), RandomCompositor.class);
+
+    // engines.put("branch", new BranchTemplateSolver(0, 5));
+    // adapters.put("branch", new BranchTemplateAdapter());
   }
 
   /**
@@ -61,7 +64,6 @@ public class Configuration<T> {
    * @param name the combinator's name.
    * @return a combinator instance.
    */
-
   @SuppressWarnings("unchecked")
   public Combinator<Sequence<T>> getCombinator(final String name) {
     return createInstance((Class<Combinator<Sequence<T>>>) combinators.get(name));
@@ -70,8 +72,8 @@ public class Configuration<T> {
   /**
    * Creates an instance of the combinator with the given id.
    * 
-   * @return a combinator instance.
    * @param id the combinator's id.
+   * @return a combinator instance.
    */
   public Combinator<Sequence<T>> getCombinator(final CombinatorId id) {
     return getCombinator(id.name());
@@ -80,8 +82,8 @@ public class Configuration<T> {
   /**
    * Creates an instance of the compositor with the given name.
    * 
-   * @return a compositor instance.
    * @param name the compositor's name.
+   * @return a compositor instance.
    */
   @SuppressWarnings("unchecked")
   public Compositor<T> getCompositor(final String name) {
@@ -91,19 +93,19 @@ public class Configuration<T> {
   /**
    * Creates an instance of the compositor with the given name.
    * 
-   * @return a compositor instance.
    * @param id the compositor's id.
+   * @return a compositor instance.
    */
   public Compositor<T> getCompositor(final CompositorId id) {
     return getCompositor(id.name());
   }
 
-  public Solver<?> registerSolver(final String name, final Solver<?> solver) {
-    return solvers.put(name, solver);
+  public Engine<?> registerEngine(final String name, final Engine<?> engine) {
+    return engines.put(name, engine);
   }
 
-  public Solver<?> getSolver(final String name) {
-    return solvers.get(name);
+  public Engine<?> getEngine(final String name) {
+    return engines.get(name);
   }
 
   public Adapter<?> registerAdapter(final String name, final Adapter<?> adapter) {

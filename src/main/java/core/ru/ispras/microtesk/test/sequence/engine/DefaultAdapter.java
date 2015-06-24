@@ -12,24 +12,24 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.branch;
+package ru.ispras.microtesk.test.sequence.engine;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.branch.internal.BranchStructure;
+import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.sequence.Adapter;
+import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.template.Call;
 
 /**
- * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
-public final class BranchTemplateSolution {
-  /** Branch structure containing execution traces. */
-  private BranchStructure branchStructure;
-
-  public BranchStructure getBranchStructure() {
-    return branchStructure;
+public final class DefaultAdapter implements Adapter<TestSequence> {
+  @Override
+  public Class<TestSequence> getSolutionClass() {
+    return TestSequence.class;
   }
 
-  public void setBranchStructure(final BranchStructure branchStructure) {
-    InvariantChecks.checkNotNull(branchStructure);
-    this.branchStructure = branchStructure;
+  @Override
+  public TestSequence adapt(final Sequence<Call> abstractSequence, final TestSequence solution) {
+    return solution;
   }
 }

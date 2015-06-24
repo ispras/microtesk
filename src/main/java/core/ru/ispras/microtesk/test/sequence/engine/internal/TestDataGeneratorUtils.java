@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.sequence.engine.internal;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
@@ -35,6 +35,8 @@ import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.test.AddressingModeWrapper;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.data.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;

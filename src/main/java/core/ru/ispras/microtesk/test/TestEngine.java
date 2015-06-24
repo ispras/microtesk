@@ -38,7 +38,13 @@ import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.data.ModeAllocator;
+import ru.ispras.microtesk.test.sequence.Adapter;
+import ru.ispras.microtesk.test.sequence.Configuration;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.Engine;
+import ru.ispras.microtesk.test.sequence.EngineResult;
+import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
+import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
@@ -295,11 +301,12 @@ public final class TestEngine {
     final PreparatorStore preparators = new PreparatorStore();
 
     final Configuration<Call> config = new Configuration<>();
-    final TestDataGenerator generator =
-        new TestDataGenerator(model, preparators, settings);
 
-    config.registerSolver("default", generator);
-    config.registerAdapter("default", new TestSequenceAdapter());
+    final DefaultEngine defaultEngine = new DefaultEngine(model, preparators, settings);
+    final DefaultAdapter defaultAdapter = new DefaultAdapter();
+
+    config.registerEngine("default", defaultEngine);
+    config.registerAdapter("default", defaultAdapter);
 
     final TemplateProcessor processor = new TemplateProcessor(
         executor,
@@ -578,7 +585,7 @@ public final class TestEngine {
       final String solverName = blockAttribute(block, "solver", "default");
       final String adapterName = blockAttribute(block, "adapter", "default");
 
-      final Solver<?> solver = config.getSolver(solverName);
+      final Engine<?> solver = config.getEngine(solverName);
       final Adapter<?> adapter = config.getAdapter(adapterName);
 
       if (!adapter.getSolutionClass().isAssignableFrom(solver.getSolutionClass())) {
@@ -588,10 +595,10 @@ public final class TestEngine {
     }
 
     private static final class DataGenerationEngine {
-      private final Solver<?> solver;
+      private final Engine<?> solver;
       private final Adapter<?> adapter;
 
-      public DataGenerationEngine(final Solver<?> solver, final Adapter<?> adapter) {
+      public DataGenerationEngine(final Engine<?> solver, final Adapter<?> adapter) {
         InvariantChecks.checkNotNull(solver);
         InvariantChecks.checkNotNull(adapter);
 
@@ -604,10 +611,10 @@ public final class TestEngine {
         return adapt(adapter, abstractSequence, solutionIt);
       }
 
-      private static <T> Iterator<T> solve(final Solver<T> solver,
+      private static <T> Iterator<T> solve(final Engine<T> solver,
                                            final Sequence<Call> sequence) {
-        final SolverResult<T> result = solver.solve(sequence);
-        if (result.getStatus() != SolverResult.Status.OK) {
+        final EngineResult<T> result = solver.solve(sequence);
+        if (result.getStatus() != EngineResult.Status.OK) {
           final String msg = listErrors("Failed to find a solution for abstract call sequence",
                                         result.getErrors());
           throw new IllegalStateException(msg);
