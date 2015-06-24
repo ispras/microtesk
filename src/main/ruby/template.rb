@@ -144,9 +144,13 @@ class Template
     @template.endBlock
   end
 
-  def atomic(&contents)
+  def atomic(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
     blockBuilder.setAtomic true
+
+    attributes.each_pair do |key, value|
+      blockBuilder.setAttribute(key.to_s, value)
+    end
 
     self.instance_eval &contents
     @template.endBlock
@@ -479,9 +483,10 @@ class Template
     data  = get_attribute attrs, :data_source
     index = get_attribute attrs, :index_source
 
-    @template.beginDataStream data.to_s, index.to_s
+    builder = @template.beginDataStream data.to_s, index.to_s
 
-    data_stream_object = DataStream.new
+    data_stream_object = DataStream.new self, builder
+    data_stream_object.instance_eval &contents
 
     @template.endDataStream
   end
@@ -660,20 +665,27 @@ end # DataManager
 #
 class DataStream
 
-  def initialize
-
+  def initialize context, builder
+    @context = context
+    @builder = builder
   end
 
   def init(&contents)
-    
+    @builder.beginInitMethod
+    @context.instance_eval &contents
+    @builder.endMethod
   end
 
   def read(&contents)
-    
+    @builder.beginReadMethod
+    @context.instance_eval &contents
+    @builder.endMethod
   end
 
   def write(&contents)
-
+    @builder.beginWriteMethod
+    @context.instance_eval &contents
+    @builder.endMethod
   end
 
 end # DataStream
