@@ -18,7 +18,6 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
 
 import org.jruby.embed.PathType;
@@ -42,7 +41,7 @@ import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
-import ru.ispras.microtesk.test.sequence.engine.EngineResult;
+import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
@@ -435,7 +434,7 @@ public final class TestEngine {
     private void processBlock(Block block) throws ConfigurationException {
       final boolean isSingleSequence = block.isSingle();
       final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
-      final DataGenerationEngine engine = getEngine(block);
+      final TestSequenceEngine engine = getEngine(block);
 
       int sequenceIndex = 0;
       sequenceIt.init();
@@ -561,7 +560,7 @@ public final class TestEngine {
     private void processPreOrPostBlock(Block block) throws ConfigurationException {
       InvariantChecks.checkTrue(block.isSingle());
       final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
-      final DataGenerationEngine engine = getEngine(block);
+      final TestSequenceEngine engine = getEngine(block);
 
       sequenceIt.init();
       while (sequenceIt.hasValue()) {
@@ -587,7 +586,7 @@ public final class TestEngine {
       }
     }
 
-   private DataGenerationEngine getEngine(final Block block) throws ConfigurationException {
+   private TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
       final String engineName = blockAttribute(block, "engine", "default");
       final String adapterName = blockAttribute(block, "adapter", "default");
 
@@ -598,78 +597,7 @@ public final class TestEngine {
         throw new IllegalStateException("Mismatched solver/adapter pair");
       }
 
-      return new DataGenerationEngine(engine, adapter);
-    }
-
-    private static final class DataGenerationEngine {
-      private final Engine<?> engine;
-      private final Adapter<?> adapter;
-
-      public DataGenerationEngine(final Engine<?> engine, final Adapter<?> adapter) {
-        InvariantChecks.checkNotNull(engine);
-        InvariantChecks.checkNotNull(adapter);
-
-        this.engine = engine;
-        this.adapter = adapter;
-      }
-
-      public Iterator<TestSequence> process(
-          final EngineContext context, final Sequence<Call> abstractSequence) {
-        final Iterator<?> solutionIt = solve(engine, context, abstractSequence);
-        return adapt(adapter, context,  abstractSequence, solutionIt);
-      }
-
-      private static <T> Iterator<T> solve(
-          final Engine<T> engine,
-          final EngineContext context,
-          final Sequence<Call> sequence) {
-        final EngineResult<T> result = engine.solve(context, sequence);
-        if (result.getStatus() != EngineResult.Status.OK) {
-          final String msg = listErrors("Failed to find a solution for abstract call sequence",
-                                        result.getErrors());
-          throw new IllegalStateException(msg);
-        }
-        return result.getResult();
-      }
-
-      private static <T> Iterator<TestSequence> adapt(
-          final Adapter<T> adapter,
-          final EngineContext context,
-          final Sequence<Call> sequence,
-          final Iterator<?> solutionIterator) {
-        return new Iterator<TestSequence>() {
-          @Override public void init() {
-            solutionIterator.init();
-          }
-
-          @Override public boolean hasValue() {
-            return solutionIterator.hasValue();
-          }
-
-          @Override public TestSequence value() {
-            final Object solution = solutionIterator.value(); 
-            final Class<T> solutionClass = adapter.getSolutionClass();
-
-            return adapter.adapt(context, sequence, solutionClass.cast(solution));
-          }
-
-          @Override public void next() {
-            solutionIterator.next();
-          }
-        };
-      }
-
-      private static String listErrors(final String message, final Collection<String> errors) {
-        if (errors.isEmpty()) {
-          return message;
-        }
-        final StringBuilder builder = new StringBuilder(message);
-        builder.append(" Errors:");
-        for (final String error : errors) {
-          builder.append(System.lineSeparator() + "  " + error);
-        }
-        return builder.toString();
-      }
+      return new TestSequenceEngine(engine, adapter);
     }
 
     private static String blockAttribute(final Block block,
