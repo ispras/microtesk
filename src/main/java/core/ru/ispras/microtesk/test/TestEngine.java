@@ -492,6 +492,8 @@ public final class TestEngine {
         Logger.debugHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
 
         final Iterator<TestSequence> iterator = engine.process(engineContext, abstractSequence);
+        checkNotNull(iterator);
+
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           final TestSequence concreteSequence = iterator.value();
           checkNotNull(concreteSequence);
@@ -510,51 +512,52 @@ public final class TestEngine {
           STATISTICS.instructionCount += concreteSequence.getPrologue().size();
           STATISTICS.instructionCount += concreteSequence.getBody().size();
 
-          sequenceIt.next();
           ++sequenceIndex;
+        }
 
-          Logger.debugHeader("");
+        sequenceIt.next();
 
-          STATISTICS.testCaseNumber++;
+        Logger.debugHeader("");
 
-          final Statistics after = STATISTICS.copy();
+        STATISTICS.testCaseNumber++;
 
-          final boolean isProgramLengthLimitExceeded =
-              (after.instructionCount - before.instructionCount) >= programLengthLimit;
-          final boolean isTraceLengthLimitExceeded =
-              (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
+        final Statistics after = STATISTICS.copy();
 
-           /*
-           System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
-                  before.instructionCount, after.instructionCount,
-                  (after.instructionCount - before.instructionCount),
-                  (after.instructionCount - before.instructionCount) >= programLengthLimit,
-                  
-                  before.instructionExecutedCount,
-                  after.instructionExecutedCount,
-                  (after.instructionCount - before.instructionCount),
-                  (after.instructionCount - before.instructionCount) >= programLengthLimit
-                  ));
-           */
+        final boolean isProgramLengthLimitExceeded =
+            (after.instructionCount - before.instructionCount) >= programLengthLimit;
+        final boolean isTraceLengthLimitExceeded =
+            (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
 
-          needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
-          if (needCreateNewFile) {
-            printer.printToFile("");
-            printer.printHeaderToFile("Epilogue");
-            printer.printToFile("");
+         /*
+         System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
+                before.instructionCount, after.instructionCount,
+                (after.instructionCount - before.instructionCount),
+                (after.instructionCount - before.instructionCount) >= programLengthLimit,
+                
+                before.instructionExecutedCount,
+                after.instructionExecutedCount,
+                (after.instructionCount - before.instructionCount),
+                (after.instructionCount - before.instructionCount) >= programLengthLimit
+                ));
+         */
 
-            if (!postBlock.isEmpty()) {
-              try {
-                processPreOrPostBlock(postBlock);
-              } catch (ConfigurationException e) {
-                Logger.error(e.getMessage());
-              }
-            } else {
-              printer.printCommentToFile("Empty");
+        needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
+        if (needCreateNewFile) {
+          printer.printToFile("");
+          printer.printHeaderToFile("Epilogue");
+          printer.printToFile("");
+
+          if (!postBlock.isEmpty()) {
+            try {
+              processPreOrPostBlock(postBlock);
+            } catch (ConfigurationException e) {
+              Logger.error(e.getMessage());
             }
-
-            printer.close();
+          } else {
+            printer.printCommentToFile("Empty");
           }
+
+          printer.close();
         }
       }
     }
