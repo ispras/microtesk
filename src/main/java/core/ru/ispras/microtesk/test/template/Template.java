@@ -347,6 +347,28 @@ public final class Template {
     preparatorBuilder = null;
   }
 
+  public LazyValue newLazy() {
+    checkPreparatorBlock();
+    return preparatorBuilder.newValue();
+  }
+
+  public LazyValue newLazy(int start, int end) {
+    checkPreparatorBlock();
+    return preparatorBuilder.newValue(start, end);
+  }
+
+  public Primitive getPreparatorTarget() {
+    checkPreparatorBlock();
+    return preparatorBuilder.getTarget();
+  }
+
+  private void checkPreparatorBlock() {
+    if (null == preparatorBuilder) {
+      throw new IllegalStateException(
+          "The construct cannot be used outside a preparator block.");
+    }
+  }
+
   public DataStreamBuilder beginDataStream(
       final String dataModeName, final String indexModeName) {
 
@@ -389,25 +411,25 @@ public final class Template {
     dataStreamBuilder = null;
   }
 
-  public LazyValue newLazy() {
-    checkPreparatorBlock();
-    return preparatorBuilder.newValue();
+  public Primitive getDataSource() {
+    checkDataStreamBlock("data_source");
+    return dataStreamBuilder.getDataSource();
   }
 
-  public LazyValue newLazy(int start, int end) {
-    checkPreparatorBlock();
-    return preparatorBuilder.newValue(start, end);
+  public Primitive getIndexSource() {
+    checkDataStreamBlock("index_source");
+    return dataStreamBuilder.getIndexSource();
   }
 
-  public Primitive getPreparatorTarget() {
-    checkPreparatorBlock();
-    return preparatorBuilder.getTarget();
+  public String getStartLabel() {
+    checkDataStreamBlock("start_label");
+    return dataStreamBuilder.getStartLabel().getName();
   }
 
-  private void checkPreparatorBlock() {
-    if (null == preparatorBuilder) {
-      throw new IllegalStateException(
-          "The construct cannot be used outside a preparator block.");
+  private void checkDataStreamBlock(final String keyword) {
+    if (null == dataStreamBuilder) {
+      throw new IllegalStateException(String.format(
+          "The %s keyword cannot be used outside data_stream block.", keyword));
     }
   }
 

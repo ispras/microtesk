@@ -486,13 +486,16 @@ class Template
     @template.endDataStream
   end
 
-  def index_source
+  def data_source
+    @template.getDataSource
   end
 
-  def data_source
+  def index_source
+    @template.getIndexSource
   end
 
   def start_label
+    @template.getStartLabel
   end
 
   # -------------------------------------------------------------------------- #
