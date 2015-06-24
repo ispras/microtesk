@@ -153,11 +153,11 @@ class ExampleTemplate < CpuBaseTemplate
 
     # Instruction sequences are described as blocks that use two kind of
     # sequence generators: (1) compositors and (2) combinators.
-    # Supported compositors: CATENATION, ROTATION, OVERLAPPING, NESTING, RANDOM
+    # Supported compositors: CATENATION, ROTATION, OVERLAP, NESTING, RANDOM
     # Supported combinators: PRODUCT, DIAGONAL, RANDOM    
 
     # Randomized sequences of 2 instuctions
-    block(:compositor => "RANDOM", :combinator => "PRODUCT") {
+    block(:compositor => 'random', :combinator => 'product') {
       block {
         # add reg(5), imm(_) do situation('imm_random', :min => 0, :max => 15) end
         sub reg(6), reg(5)

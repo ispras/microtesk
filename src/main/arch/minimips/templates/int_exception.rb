@@ -26,7 +26,7 @@ require_relative 'minimips_base'
 class IntExceptionTemplate < MiniMipsBaseTemplate
 
   def run
-    block(:combinator => 'PRODUCT', :compositor => 'RANDOM') {
+    block(:combinator => 'product', :compositor => 'random') {
       block {
         add t0, t1, t2 do situation('add', :case =>   'normal', :size => 32) end
         add t0, t1, t2 do situation('add', :case => 'overflow', :size => 32) end
