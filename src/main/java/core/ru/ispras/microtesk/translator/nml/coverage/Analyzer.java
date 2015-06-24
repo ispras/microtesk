@@ -113,9 +113,9 @@ public final class Analyzer {
   private void processAttributes(PrimitiveAND op) {
     for (Attribute a : op.getAttributes().values()) {
       if (a.getKind() == Attribute.Kind.ACTION) {
-        final SsaBuilder builder = new SsaBuilder(op.getName(), a.getStatements());
-        final String name = String.format("%s.%s", op.getName(), a.getName());
-        ssa.put(name, builder.build());
+        final SsaBuilder builder =
+            new SsaBuilder(op.getName(), a.getName(), a.getStatements());
+        ssa.put(Utility.dotConc(op.getName(), a.getName()), builder.build());
       }
     }
   }

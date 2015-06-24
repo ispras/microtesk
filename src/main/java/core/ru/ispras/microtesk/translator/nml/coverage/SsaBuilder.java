@@ -43,11 +43,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.*;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
 
 final class SsaBuilder {
-  private final String tag;
+  private final String prefix;
+  private final String suffix;
+  private final String extendedPrefix;
   private final List<Statement> code;
 
   private SsaScope scope;
@@ -382,8 +386,9 @@ final class SsaBuilder {
     blocks.add(phi);
   }
 
-  private SsaForm convertNested(List<Statement> statements) {
-    final SsaBuilder builder = new SsaBuilder(this.tag, statements);
+  private SsaForm convertNested(final List<Statement> statements) {
+    final SsaBuilder builder =
+        new SsaBuilder(prefix, suffix, extendedPrefix, statements);
     builder.numBlocks = this.numBlocks;
     final SsaForm ssa = builder.build();
     this.numBlocks = builder.numBlocks;
@@ -392,7 +397,7 @@ final class SsaBuilder {
   }
 
   private String generateBlockName() {
-    return String.format("%s.block_%d", tag, numBlocks++);
+    return String.format("%s.block_%d", extendedPrefix, numBlocks++);
   }
 
   private final class BranchPoint {
@@ -438,11 +443,11 @@ final class SsaBuilder {
 
           final String markName;
           if (callee.equals("mark")) {
-            markName = String.format("%s.%s", tag, funcall.getArgument(0));
+            markName = String.format("%s.%s", extendedPrefix, funcall.getArgument(0));
           } else if (callee.equals("undefined") || callee.equals("unpredicted")) {
             markName = String.format("%s.%s", blockId, callee);
           } else if (callee.equals("exception")) {
-            markName = String.format("%s.exception.%s", tag, funcall.getArgument(0));
+            markName = String.format("%s.exception.%s", extendedPrefix, funcall.getArgument(0));
           } else {
             continue;
           }
@@ -594,7 +599,7 @@ final class SsaBuilder {
     String name = atom.getName();
     switch (atom.getSource().getSymbolKind()) {
     case ARGUMENT:
-      name = Utility.dotConc(tag, atom.getName());
+      name = Utility.dotConc(prefix, atom.getName());
       break;
 
     case MEMORY: // FIXME recursive processing required
@@ -727,11 +732,22 @@ final class SsaBuilder {
     return null;
   }
 
-  public SsaBuilder(final String tag, final List<Statement> code) {
-    notnull(tag);
-    notnull(code);
+  public SsaBuilder(final String prefix, final String attribute, final List<Statement> code) {
+    this(prefix, attribute, Utility.dotConc(prefix, attribute), code);
 
-    this.tag = tag;
+    checkNotNull(prefix);
+    checkNotNull(attribute);
+    checkFalse(attribute.isEmpty());
+    checkNotNull(code);
+  }
+
+  private SsaBuilder(final String prefix,
+                     final String suffix,
+                     final String extended,
+                     final List<Statement> code) {
+    this.prefix = prefix;
+    this.suffix = suffix;
+    this.extendedPrefix = extended;
     this.code = code;
     this.scope = null;
     this.numBlocks = 0;
@@ -757,18 +773,16 @@ final class SsaBuilder {
                        blocks);
   }
 
-  public static SsaForm macroExpansion(final String tag, final Expr expr) {
-    final SsaBuilder builder =
-        new SsaBuilder(tag, Collections.<Statement>emptyList());
+  public static SsaForm macroExpansion(final String prefix, final Expr expr) {
+    final SsaBuilder builder = newConverter(prefix);
     builder.acquireBlockBuilder();
     builder.addToContext(EQ(builder.convertExpression(expr.getNode()),
                             builder.createOutput(Converter.toFortressData(expr.getValueInfo()))));
     return builder.build();
   }
 
-  public static SsaForm macroUpdate(final String tag, final Expr expr) {
-    final SsaBuilder builder =
-        new SsaBuilder(tag, Collections.<Statement>emptyList());
+  public static SsaForm macroUpdate(final String prefix, final Expr expr) {
+    final SsaBuilder builder = newConverter(prefix);
     builder.acquireBlockBuilder();
     final Location loc = locationFromNodeVariable(expr.getNode());
     if (loc != null) {
@@ -779,8 +793,7 @@ final class SsaBuilder {
   }
 
   public static SsaForm parametersList(final PrimitiveAND p) {
-    final SsaBuilder builder =
-        new SsaBuilder(p.getName(), Collections.<Statement>emptyList());
+    final SsaBuilder builder = newConverter(p.getName());
     builder.acquireBlockBuilder();
     final List<Node> parameters = new ArrayList<>(p.getArguments().size());
     for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
@@ -803,9 +816,7 @@ final class SsaBuilder {
     return new NodeOperation(SsaOperation.SUBSTITUTE, createTemporary(data));
   }
 
-  private static void notnull(Object o) {
-    if (o == null) {
-      throw new NullPointerException();
-    }
+  private static SsaBuilder newConverter(final String prefix) {
+    return new SsaBuilder(prefix, "", prefix, Collections.<Statement>emptyList());
   }
 }
