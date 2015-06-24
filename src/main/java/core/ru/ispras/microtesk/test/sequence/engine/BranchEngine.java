@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.getSituationName;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.getSituationName;
 
 import java.util.Collections;
 import java.util.HashMap;

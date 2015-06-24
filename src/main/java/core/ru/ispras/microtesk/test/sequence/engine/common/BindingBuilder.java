@@ -12,10 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.engine.internal;
+package ru.ispras.microtesk.test.sequence.engine.common;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeMode;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeMode;
 
 import java.math.BigInteger;
 import java.util.HashMap;

@@ -15,13 +15,13 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.allocateModes;
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.checkRootOp;
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeErrorMessage;
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeInitializer;
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.makeMode;
-import static ru.ispras.microtesk.test.sequence.engine.internal.TestDataGeneratorUtils.newTestBase;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.allocateModes;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.checkRootOp;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeErrorMessage;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeInitializer;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeMode;
+import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.newTestBase;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,12 +44,12 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.test.AddressingModeWrapper;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.Engine;
 import ru.ispras.microtesk.test.sequence.EngineResult;
-import ru.ispras.microtesk.test.sequence.engine.internal.TestBaseQueryCreator;
+import ru.ispras.microtesk.test.sequence.engine.common.AddressingModeWrapper;
+import ru.ispras.microtesk.test.sequence.engine.common.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
