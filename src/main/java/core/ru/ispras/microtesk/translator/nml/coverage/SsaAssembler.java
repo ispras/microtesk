@@ -168,6 +168,12 @@ public final class SsaAssembler {
 
   private void step(final Prefix prefix, final String method) {
     final String name = buildingContext.get(prefix.context);
+    if (!method.equals("init")) {
+      final SsaForm ssa = buildingBlocks.get(dotConc(name, "init"));
+      if (ssa != null) {
+        embedBlock(prefix, ssa.getEntryPoint());
+      }
+    }
     final SsaForm ssa = buildingBlocks.get(dotConc(name, method));
     embedBlock(prefix, ssa.getEntryPoint());
   }
