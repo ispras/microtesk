@@ -18,6 +18,7 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTes
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.test.template.DataStreamStore;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
@@ -29,6 +30,7 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 public final class EngineContext {
   private final IModel model;
   private final PreparatorStore preparators;
+  private final DataStreamStore dataStreams;
   private final GeneratorSettings settings;
   private final TestBase testBase;
 
@@ -36,13 +38,19 @@ public final class EngineContext {
   private final int delaySlotSize; 
 
   public EngineContext(
-      final IModel model, final PreparatorStore preparators, final GeneratorSettings settings) {
+      final IModel model,
+      final PreparatorStore preparators,
+      final DataStreamStore dataStreams,
+      final GeneratorSettings settings) {
+
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(preparators);
+    InvariantChecks.checkNotNull(dataStreams);
     InvariantChecks.checkNotNull(settings);
 
     this.model = model;
     this.preparators = preparators;
+    this.dataStreams = dataStreams;
     this.settings = settings;
 
     this.testBase = newTestBase(settings);
@@ -57,6 +65,10 @@ public final class EngineContext {
 
   public PreparatorStore getPreparators() {
     return preparators;
+  }
+
+  public DataStreamStore getDataStreams() {
+    return dataStreams;
   }
 
   public GeneratorSettings getSettings() {

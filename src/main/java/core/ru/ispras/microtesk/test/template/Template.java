@@ -47,6 +47,7 @@ public final class Template {
   private final MetaModel metaModel;
   private final DataManager dataManager;
   private final PreparatorStore preparators;
+  private final DataStreamStore dataStreams;
   private final Processor processor;
 
   // Variates for mode and operation groups 
@@ -65,6 +66,7 @@ public final class Template {
       final MetaModel metaModel,
       final DataManager dataManager,
       final PreparatorStore preparators,
+      final DataStreamStore dataStreams,
       final Processor processor) {
 
     Logger.debugHeader("Started Processing Template");
@@ -72,11 +74,13 @@ public final class Template {
     checkNotNull(metaModel);
     checkNotNull(dataManager);
     checkNotNull(preparators);
+    checkNotNull(dataStreams);
     checkNotNull(processor);
 
     this.metaModel = metaModel;
     this.dataManager = dataManager;
     this.preparators = preparators;
+    this.dataStreams = dataStreams;
     this.processor = processor;
 
     this.preparatorBuilder = null;
@@ -346,6 +350,11 @@ public final class Template {
   public DataStreamBuilder beginDataStream(
       final String dataModeName, final String indexModeName) {
 
+    if (dataStreams.getDataStream() != null) {
+      throw new IllegalStateException(
+          "data_stream is already defined. Only one definition is allowed.");
+    }
+
     endBuildingCall();
 
     Logger.debug("Begin data stream (data_source: %s, index_source: %s)",
@@ -374,7 +383,9 @@ public final class Template {
 
     Logger.debug("End data stream");
 
-    final DataStream stream = dataStreamBuilder.build();
+    final DataStream dataStream = dataStreamBuilder.build();
+    dataStreams.setDataStream(dataStream);
+
     dataStreamBuilder = null;
   }
 
