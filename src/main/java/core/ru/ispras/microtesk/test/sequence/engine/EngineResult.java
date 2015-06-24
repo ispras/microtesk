@@ -12,19 +12,28 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence;
+package ru.ispras.microtesk.test.sequence.engine;
 
-import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.fortress.util.Result;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+
+import java.util.List;
 
 /**
- * {@link Adapter} defines an interface of adapters of abstract call sequence solution provided
- * by corresponding {@link Engine}.
+ * {@link EngineResult} defines result of a {@link Engine}.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
 
-public interface Adapter<T> {
-  Class<T> getSolutionClass();
-  TestSequence adapt(Sequence<Call> abstractSequence, T solution);
+public final class EngineResult<T> extends Result<EngineResult.Status, Iterator<T>> {
+  public static enum Status {
+    OK,
+    ERROR
+  }
+
+  public EngineResult(final EngineResult.Status status,
+                      final Iterator<T> result,
+                      final List<String> errors) {
+    super(status, result, errors);
+  }
 }

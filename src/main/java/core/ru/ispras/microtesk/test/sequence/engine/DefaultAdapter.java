@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.sequence.Adapter;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Call;
 

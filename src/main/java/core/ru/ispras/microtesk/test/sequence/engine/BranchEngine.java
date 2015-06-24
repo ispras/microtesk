@@ -22,8 +22,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.Engine;
-import ru.ispras.microtesk.test.sequence.EngineResult;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructureExecutionIterator;

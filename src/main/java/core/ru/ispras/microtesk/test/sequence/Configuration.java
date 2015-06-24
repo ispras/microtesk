@@ -27,6 +27,8 @@ import ru.ispras.microtesk.test.sequence.compositor.NestingCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.OverlappingCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RandomCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RotationCompositor;
+import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.Engine;
 
 /**
  * {@link Configuration} implements a test generator configuration.

@@ -46,8 +46,6 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
-import ru.ispras.microtesk.test.sequence.Engine;
-import ru.ispras.microtesk.test.sequence.EngineResult;
 import ru.ispras.microtesk.test.sequence.engine.common.AddressingModeWrapper;
 import ru.ispras.microtesk.test.sequence.engine.common.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
