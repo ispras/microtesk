@@ -375,8 +375,9 @@ public final class TestEngine {
 
     @Override
     public void process(final Section section, final Block block) {
-      if (null == start)
+      if (null == start) {
         start = new Date();
+      }
 
       checkNotNull(section);
       checkNotNull(block);
@@ -416,7 +417,7 @@ public final class TestEngine {
         }
 
         printer.close();
-        
+
         if (null != logPrinter) {
           logPrinter.close();
         }
@@ -443,13 +444,13 @@ public final class TestEngine {
         if (isSingleSequence && sequenceIndex > 0) {
           throw new IllegalStateException("Only a single sequence is allowed.");
         }
-        
+
         if (needCreateNewFile) {
           try {
             before = STATISTICS.copy();
             fileName = printer.createNewFile();
             STATISTICS.testProgramNumber++;
-            
+
             if (logPrinter != null) {
               logPrinter.createNewFile();
             }
@@ -493,6 +494,7 @@ public final class TestEngine {
         final Iterator<TestSequence> iterator = engine.process(engineContext, abstractSequence);
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           final TestSequence concreteSequence = iterator.value();
+          checkNotNull(concreteSequence);
 
           Logger.debugHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
           executor.executeSequence(concreteSequence);

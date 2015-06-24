@@ -96,8 +96,10 @@ public final class TestSequenceEngine implements Engine<TestSequence> {
       @Override public TestSequence value() {
         final Object solution = solutionIterator.value(); 
         final Class<T> solutionClass = adapter.getSolutionClass();
+        final TestSequence testSequence =
+            adapter.adapt(engineContext, abstractSequence, solutionClass.cast(solution));
 
-        return adapter.adapt(engineContext, abstractSequence, solutionClass.cast(solution));
+        return testSequence;
       }
 
       @Override public void next() {
