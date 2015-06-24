@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.sequence;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.sequence.combinator.DiagonalCombinator;
 import ru.ispras.microtesk.test.sequence.combinator.ProductCombinator;
@@ -50,15 +51,15 @@ public final class Configuration<T> {
    * Constructs a configuration object.
    */
   public Configuration() {
-    combinators.put(CombinatorId.PRODUCT.name(), ProductCombinator.class);
-    combinators.put(CombinatorId.DIAGONAL.name(), DiagonalCombinator.class);
-    combinators.put(CombinatorId.RANDOM.name(), RandomCombinator.class);
+    combinators.put("product", ProductCombinator.class);
+    combinators.put("diagonal", DiagonalCombinator.class);
+    combinators.put("random", RandomCombinator.class);
 
-    compositors.put(CompositorId.CATENATION.name(), CatenationCompositor.class);
-    compositors.put(CompositorId.ROTATION.name(), RotationCompositor.class);
-    compositors.put(CompositorId.OVERLAPPING.name(), OverlappingCompositor.class);
-    compositors.put(CompositorId.NESTING.name(), NestingCompositor.class);
-    compositors.put(CompositorId.RANDOM.name(), RandomCompositor.class);
+    compositors.put("catenation", CatenationCompositor.class);
+    compositors.put("rotation", RotationCompositor.class);
+    compositors.put("overlap", OverlappingCompositor.class);
+    compositors.put("nesting", NestingCompositor.class);
+    compositors.put("random", RandomCompositor.class);
 
     registerEngine("default", new DefaultEngine());
     registerAdapter("default", new DefaultAdapter());
@@ -75,17 +76,8 @@ public final class Configuration<T> {
    */
   @SuppressWarnings("unchecked")
   public Combinator<Sequence<T>> getCombinator(final String name) {
-    return createInstance((Class<Combinator<Sequence<T>>>) combinators.get(name));
-  }
-
-  /**
-   * Creates an instance of the combinator with the given id.
-   * 
-   * @param id the combinator's id.
-   * @return a combinator instance.
-   */
-  public Combinator<Sequence<T>> getCombinator(final CombinatorId id) {
-    return getCombinator(id.name());
+    InvariantChecks.checkNotNull(name);
+    return createInstance((Class<Combinator<Sequence<T>>>) combinators.get(name.toLowerCase()));
   }
 
   /**
@@ -96,33 +88,32 @@ public final class Configuration<T> {
    */
   @SuppressWarnings("unchecked")
   public Compositor<T> getCompositor(final String name) {
-    return createInstance((Class<Compositor<T>>) compositors.get(name));
-  }
-
-  /**
-   * Creates an instance of the compositor with the given name.
-   * 
-   * @param id the compositor's id.
-   * @return a compositor instance.
-   */
-  public Compositor<T> getCompositor(final CompositorId id) {
-    return getCompositor(id.name());
+    InvariantChecks.checkNotNull(name);
+    return createInstance((Class<Compositor<T>>) compositors.get(name.toLowerCase()));
   }
 
   public Engine<?> registerEngine(final String name, final Engine<?> engine) {
-    return engines.put(name, engine);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(engine);
+
+    return engines.put(name.toLowerCase(), engine);
   }
 
   public Engine<?> getEngine(final String name) {
-    return engines.get(name);
+    InvariantChecks.checkNotNull(name);
+    return engines.get(name.toLowerCase());
   }
 
   public Adapter<?> registerAdapter(final String name, final Adapter<?> adapter) {
-    return adapters.put(name, adapter);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(adapter);
+
+    return adapters.put(name.toLowerCase(), adapter);
   }
 
   public Adapter<?> getAdapter(final String name) {
-    return adapters.get(name);
+    InvariantChecks.checkNotNull(name);
+    return adapters.get(name.toLowerCase());
   }
 
   /**

@@ -23,9 +23,9 @@ import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
  */
 public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>> {
   /** The default combinator. */
-  public static final CombinatorId DEFAULT_COMBINATOR = CombinatorId.RANDOM;
+  public static final String DEFAULT_COMBINATOR = "random";
   /** The default compositor. */
-  public static final CompositorId DEFAULT_COMPOSITOR = CompositorId.RANDOM;
+  public static final String DEFAULT_COMPOSITOR = "random";
 
   /** The configuration of the test sequence generator. */
   private Configuration<T> config = new Configuration<T>();
@@ -88,20 +88,16 @@ public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>> {
       return new GeneratorSingle<T>(getIterators());
     }
 
-    // If no compositor and no combinator is specified
-    // we use the sequence generator (creates a sequence for each nested iterator
-    // and iterates over these sequences).
-
     if ((null == combinator) && (null == compositor)) {
       return new GeneratorSequence<T>(getIterators());
     }
 
     if (null == combinator) { 
-      combinator = DEFAULT_COMBINATOR.name();
+      combinator = DEFAULT_COMBINATOR;
     }
 
     if (null == compositor) {
-      compositor = DEFAULT_COMPOSITOR.name();
+      compositor = DEFAULT_COMPOSITOR;
     }
 
     return new GeneratorMerge<T>(config.getCombinator(combinator),
