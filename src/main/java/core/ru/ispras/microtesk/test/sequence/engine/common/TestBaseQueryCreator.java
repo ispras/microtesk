@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.test.sequence.engine.common;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.acquireContext;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.acquireContext;
 
 import java.util.Map;
 

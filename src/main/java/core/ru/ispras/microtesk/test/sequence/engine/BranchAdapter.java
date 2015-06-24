@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.allocateModes;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.getSituationName;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.newTestBase;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getSituationName;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTestBase;
 
 import java.util.Collection;
 import java.util.HashSet;

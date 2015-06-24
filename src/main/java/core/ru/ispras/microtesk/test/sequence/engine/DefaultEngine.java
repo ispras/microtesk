@@ -15,13 +15,13 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.allocateModes;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.checkRootOp;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeErrorMessage;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeInitializer;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.makeMode;
-import static ru.ispras.microtesk.test.sequence.engine.common.TestDataGeneratorUtils.newTestBase;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.checkRootOp;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeErrorMessage;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeInitializer;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeMode;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTestBase;
 
 import java.util.Collections;
 import java.util.HashMap;

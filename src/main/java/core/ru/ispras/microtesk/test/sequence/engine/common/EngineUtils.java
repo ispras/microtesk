@@ -56,13 +56,13 @@ import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
 
 /**
- * {@link TestDataGeneratorUtils} implements functions shared among test data generators.
+ * {@link EngineUtils} implements functions shared among test data generators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class TestDataGeneratorUtils {
-  private TestDataGeneratorUtils() {}
+public final class EngineUtils {
+  private EngineUtils() {}
 
   @SuppressWarnings("resource")
   public static TestBase newTestBase(final GeneratorSettings settings) {
