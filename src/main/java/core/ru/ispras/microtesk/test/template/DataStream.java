@@ -102,6 +102,10 @@ public final class DataStream {
     return write;
   }
 
+  public boolean hasNext() {
+    return arrayIndex < arrayLength;
+  }
+
   @Override
   public String toString() {
     return String.format("DataStream [data_source=%s, index_source=%s]",
