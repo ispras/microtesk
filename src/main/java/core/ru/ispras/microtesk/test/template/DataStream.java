@@ -101,4 +101,10 @@ public final class DataStream {
 
     return write;
   }
+
+  @Override
+  public String toString() {
+    return String.format("DataStream [data_source=%s, index_source=%s]",
+        data.getName(), index.getName());
+  }
 }
