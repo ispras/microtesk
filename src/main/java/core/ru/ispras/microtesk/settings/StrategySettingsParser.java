@@ -16,8 +16,8 @@ package ru.ispras.microtesk.settings;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.test.data.AllocationStrategy;
-import ru.ispras.microtesk.test.data.AllocationStrategyId;
+import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategy;
+import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
 
 /**
  * {@link StrategySettingsParser} implements a parser of {@link StrategySettings}.

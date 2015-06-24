@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.data;
+package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.math.BigInteger;
 import java.util.HashMap;

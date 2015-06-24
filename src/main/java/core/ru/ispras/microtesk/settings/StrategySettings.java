@@ -17,7 +17,7 @@ package ru.ispras.microtesk.settings;
 import java.util.Collection;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.data.AllocationStrategy;
+import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategy;
 
 /**
  * {@link StrategySettings} specifies an addressing mode allocation strategy.
