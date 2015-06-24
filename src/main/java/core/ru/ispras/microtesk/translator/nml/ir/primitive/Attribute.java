@@ -23,8 +23,9 @@ import java.util.Set;
 
 public final class Attribute {
   public static final String SYNTAX_NAME = "syntax";
-  public static final String IMAGE_NAME = "image";
+  public static final String IMAGE_NAME  = "image";
   public static final String ACTION_NAME = "action";
+  public static final String INIT_NAME   = "init";
 
   public static final Set<String> STANDARD_NAMES = createStandardNames();
 
@@ -37,7 +38,7 @@ public final class Attribute {
   private final Kind kind;
   private final List<Statement> stmts;
 
-  Attribute(String name, Kind kind, List<Statement> stmts) {
+  Attribute(final String name, final Kind kind, final List<Statement> stmts) {
     checkNotNull(name);
     checkNotNull(kind);
     checkNotNull(stmts);
@@ -60,7 +61,7 @@ public final class Attribute {
   }
 
   private static Set<String> createStandardNames() {
-    final Set<String> result = new HashSet<String>();
+    final Set<String> result = new HashSet<>();
 
     result.add(SYNTAX_NAME);
     result.add(IMAGE_NAME);
