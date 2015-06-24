@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.math.BigInteger;
 import java.util.Deque;
@@ -265,10 +266,14 @@ public final class Template {
     Logger.debug("Ended building a call (empty = %b, executable = %b)",
         call.isEmpty(), call.isExecutable());
 
-    if (null == preparatorBuilder) {
-      blockBuilders.peek().addCall(call);
-    } else {
-      preparatorBuilder.addCall(call);
+    if (!call.isEmpty()) {
+      if (null != preparatorBuilder) {
+        preparatorBuilder.addCall(call);
+      } else if (null != dataStreamBuilder) {
+        dataStreamBuilder.addCall(call);
+      } else {
+        blockBuilders.peek().addCall(call);
+      }
     }
 
     this.callBuilder = new CallBuilder(getCurrentBlockId());
@@ -320,6 +325,9 @@ public final class Template {
 
     Logger.debug("Begin preparator: %s", targetName);
     checkNotNull(targetName);
+
+    checkTrue(null == preparatorBuilder);
+    checkTrue(null == dataStreamBuilder);
 
     final MetaAddressingMode targetMode = metaModel.getAddressingMode(targetName);
     if (null == targetMode) {
@@ -382,6 +390,9 @@ public final class Template {
     Logger.debug("Begin data stream (data_source: %s, index_source: %s)",
         dataModeName, indexModeName);
 
+    checkTrue(null == preparatorBuilder);
+    checkTrue(null == dataStreamBuilder);
+
     final MetaAddressingMode dataMode = metaModel.getAddressingMode(dataModeName);
     if (null == dataMode) {
       throw new IllegalArgumentException(String.format(
@@ -431,6 +442,27 @@ public final class Template {
       throw new IllegalStateException(String.format(
           "The %s keyword cannot be used outside data_stream block.", keyword));
     }
+  }
+  
+  public void beginDataStreamInitMethod() {
+    Logger.debug("Begin Data Stream Method: init");
+    dataStreamBuilder.beginInitMethod();
+  }
+
+  public void beginDataStreamReadMethod() {
+    Logger.debug("Begin Data Stream Method: read");
+    dataStreamBuilder.beginReadMethod();
+  }
+
+  public void beginDataStreamWriteMethod() {
+    Logger.debug("Begin Data Stream Method: write");
+    dataStreamBuilder.beginWriteMethod();
+  }
+
+  public void endDataStreamMethod() {
+    Logger.debug("End Data Stream Method");
+    endBuildingCall();
+    dataStreamBuilder.endMethod(); 
   }
 
   public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {

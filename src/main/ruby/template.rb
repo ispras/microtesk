@@ -483,9 +483,9 @@ class Template
     data  = get_attribute attrs, :data_source
     index = get_attribute attrs, :index_source
 
-    builder = @template.beginDataStream data.to_s, index.to_s
+    @template.beginDataStream data.to_s, index.to_s
 
-    data_stream_object = DataStream.new self, builder
+    data_stream_object = DataStream.new self, @template
     data_stream_object.instance_eval &contents
 
     @template.endDataStream
@@ -665,27 +665,27 @@ end # DataManager
 #
 class DataStream
 
-  def initialize context, builder
+  def initialize context, template
     @context = context
-    @builder = builder
+    @template = template
   end
 
   def init(&contents)
-    @builder.beginInitMethod
+    @template.beginDataStreamInitMethod
     @context.instance_eval &contents
-    @builder.endMethod
+    @template.endDataStreamMethod
   end
 
   def read(&contents)
-    @builder.beginReadMethod
+    @template.beginDataStreamReadMethod
     @context.instance_eval &contents
-    @builder.endMethod
+    @template.endDataStreamMethod
   end
 
   def write(&contents)
-    @builder.beginWriteMethod
+    @template.beginDataStreamWriteMethod
     @context.instance_eval &contents
-    @builder.endMethod
+    @template.endDataStreamMethod
   end
 
 end # DataStream

@@ -86,7 +86,7 @@ public final class DataStreamBuilder {
   public void addCall(final Call call) {
     checkNotNull(call);
 
-    if (null != currentMethod) {
+    if (null == currentMethod) {
       throw new IllegalStateException(
           "The instruction call is specified outside any data_stream method.");
     }
