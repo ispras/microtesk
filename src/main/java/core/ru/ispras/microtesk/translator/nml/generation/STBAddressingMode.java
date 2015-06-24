@@ -78,15 +78,17 @@ final class STBAddressingMode extends STBPrimitiveBase {
   }
 
   private void buildAttributes(STGroup group, ST t) {
-    final boolean isInitNeeded = mode.getAttributes().containsKey("init");
+    final boolean isInitNeeded = 
+        mode.getAttributes().containsKey(Attribute.INIT_NAME);
+
     for (Attribute attr : mode.getAttributes().values()) {
       final ST attrST = group.getInstanceOf("mode_attribute");
 
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
 
-      if (isInitNeeded && isStandardAttribute(attr.getName())) {
-        addStatement(attrST, new StatementFunctionCall("init"), false);
+      if (isInitNeeded && !Attribute.INIT_NAME.equals(attr.getName())) {
+        addStatement(attrST, new StatementFunctionCall(Attribute.INIT_NAME), false);
       }
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
