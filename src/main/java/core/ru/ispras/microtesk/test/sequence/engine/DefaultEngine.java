@@ -21,7 +21,6 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeCo
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeErrorMessage;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeInitializer;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeMode;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTestBase;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,12 +37,9 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.ICallFactory;
-import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.common.AddressingModeWrapper;
@@ -52,7 +48,6 @@ import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
@@ -73,31 +68,10 @@ import ru.ispras.testbase.TestData;
  */
 
 public final class DefaultEngine implements Engine<TestSequence> {
-  private final IModel model;
-  private final TestBase testBase;
-  private final PreparatorStore preparators;
-
   private Set<AddressingModeWrapper> initializedModes;
   private TestSequence.Builder sequenceBuilder;
 
   private long codeAddress = 0;
-
-  public DefaultEngine(
-      final IModel model,
-      final PreparatorStore preparators,
-      final GeneratorSettings settings) {
-    checkNotNull(model);
-    checkNotNull(preparators);
-
-    this.model = model;
-    this.testBase = newTestBase(settings);
-    this.preparators = preparators;
-    this.sequenceBuilder = null;
-  }
-
-  private ICallFactory getCallFactory() {
-    return model.getCallFactory();
-  }
 
   @Override
   public Class<TestSequence> getSolutionClass() {
@@ -105,10 +79,14 @@ public final class DefaultEngine implements Engine<TestSequence> {
   }
 
   @Override
-  public EngineResult<TestSequence> solve(final Sequence<Call> abstractSequence) {
+  public EngineResult<TestSequence> solve(
+      final EngineContext engineContext, final Sequence<Call> abstractSequence) {
+    checkNotNull(engineContext);
+    checkNotNull(abstractSequence);
+
     try {
       return new EngineResult<>(EngineResult.Status.OK,
-                                new SingleValueIterator<>(process(abstractSequence)),
+                                new SingleValueIterator<>(process(engineContext, abstractSequence)),
                                 Collections.<String>emptyList());
     } catch (final ConfigurationException e) {
       return new EngineResult<>(EngineResult.Status.ERROR,
@@ -117,8 +95,10 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
   }
 
-  public TestSequence process(final Sequence<Call> abstractSequence)
-      throws ConfigurationException {
+  public TestSequence process(
+      final EngineContext engineContext, final Sequence<Call> abstractSequence)
+          throws ConfigurationException {
+    checkNotNull(engineContext);
     checkNotNull(abstractSequence);
 
     Memory.setUseTempCopies(true);
@@ -130,7 +110,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
       allocateModes(abstractSequence);
 
       for (final Call abstractCall : abstractSequence) {
-        processAbstractCall(abstractCall);
+        processAbstractCall(engineContext, abstractCall);
       }
 
       final TestSequence sequence = sequenceBuilder.build();
@@ -159,7 +139,9 @@ public final class DefaultEngine implements Engine<TestSequence> {
     sequenceBuilder.addToPrologue(call);
   }
 
-  private void processAbstractCall(final Call abstractCall) throws ConfigurationException {
+  private void processAbstractCall(final EngineContext engineContext, final Call abstractCall)
+      throws ConfigurationException {
+    checkNotNull(engineContext);
     checkNotNull(abstractCall);
 
     // Only executable calls are worth printing.
@@ -169,27 +151,35 @@ public final class DefaultEngine implements Engine<TestSequence> {
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);
 
-      processSituations(rootOp);
+      processSituations(engineContext, rootOp);
     }
 
-    final ConcreteCall concreteCall = makeConcreteCall(abstractCall, getCallFactory());
+    final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
     registerCall(concreteCall);
   }
 
-  private void processSituations(final Primitive primitive) throws ConfigurationException {
+  private void processSituations(final EngineContext engineContext, final Primitive primitive)
+      throws ConfigurationException {
+    checkNotNull(engineContext);
     checkNotNull(primitive);
 
     for (Argument arg : primitive.getArguments().values()) {
       if (Argument.Kind.OP == arg.getKind()) {
-        processSituations((Primitive) arg.getValue());
+        processSituations(engineContext, (Primitive) arg.getValue());
       }
     }
 
-    generateData(primitive);
+    generateData(engineContext, primitive);
   }
 
   private TestData getDefaultTestData(
-      final Primitive primitive, final TestBaseQueryCreator queryCreator) {
+      final EngineContext engineContext,
+      final Primitive primitive,
+      final TestBaseQueryCreator queryCreator) {
+    checkNotNull(engineContext);
+    checkNotNull(primitive);
+    checkNotNull(queryCreator);
+
     final Map<String, Argument> args = new HashMap<>();
     args.putAll(queryCreator.getUnknownImmediateValues());
     args.putAll(queryCreator.getModes());
@@ -202,7 +192,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
       if (arg.getMode() == ArgumentMode.IN || arg.getMode() == ArgumentMode.INOUT) {
         if (arg.getKind() == Argument.Kind.MODE) {
           try {
-            final IAddressingMode concreteMode = makeMode(arg, getCallFactory());
+            final IAddressingMode concreteMode = makeMode(engineContext, arg);
             if (concreteMode.access().isInitialized()) {
               continue;
             }
@@ -222,12 +212,18 @@ public final class DefaultEngine implements Engine<TestSequence> {
   }
 
   private TestData getTestData(
-    final Primitive primitive, final TestBaseQueryCreator queryCreator) {
+      final EngineContext engineContext,
+      final Primitive primitive,
+      final TestBaseQueryCreator queryCreator) {
+    checkNotNull(engineContext);
+    checkNotNull(primitive);
+    checkNotNull(queryCreator);
+
     final Situation situation = primitive.getSituation();
     Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
 
     if (situation == null) {
-      return getDefaultTestData(primitive, queryCreator);
+      return getDefaultTestData(engineContext, primitive, queryCreator);
     }
 
     final TestBaseQuery query = queryCreator.getQuery();
@@ -239,28 +235,34 @@ public final class DefaultEngine implements Engine<TestSequence> {
     final Map<String, Argument> modes = queryCreator.getModes();
     Logger.debug("Modes used as arguments: " + modes);
 
+    final TestBase testBase = engineContext.getTestBase();
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
+
     if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
       Logger.warning(makeErrorMessage(queryResult) + ": default test data will be used");
-      return getDefaultTestData(primitive, queryCreator);
+      return getDefaultTestData(engineContext, primitive, queryCreator);
     }
 
     final java.util.Iterator<TestData> dataProvider = queryResult.getDataProvider();
     if (!dataProvider.hasNext()) {
       Logger.warning("No data was generated for the query: default test data will be used");
-      return getDefaultTestData(primitive, queryCreator);
+      return getDefaultTestData(engineContext, primitive, queryCreator);
     }
 
     return dataProvider.next();
   }
 
-  private void generateData(Primitive primitive) throws ConfigurationException {
+  private void generateData(final EngineContext engineContext, final Primitive primitive)
+      throws ConfigurationException {
+    checkNotNull(engineContext);
+    checkNotNull(primitive);
+
     final Situation situation = primitive.getSituation();
 
     final TestBaseQueryCreator queryCreator =
-        new TestBaseQueryCreator(model, situation, primitive);
+        new TestBaseQueryCreator(engineContext, situation, primitive);
 
-    final TestData testData = getTestData(primitive, queryCreator);
+    final TestData testData = getTestData(engineContext, primitive, queryCreator);
     Logger.debug(testData.toString());
 
     // Set unknown immediate values
@@ -313,17 +315,20 @@ public final class DefaultEngine implements Engine<TestSequence> {
       }
 
       final BitVector value = FortressUtils.extractBitVector(e.getValue());
-      final List<Call> initializingCalls = makeInitializer(targetMode, value, preparators);
+      final List<Call> initializingCalls = makeInitializer(engineContext, targetMode, value);
 
-      addCallsToPrologue(initializingCalls);
+      addCallsToPrologue(engineContext, initializingCalls);
       initializedModes.add(targetMode);
     }
   }
 
-  private void addCallsToPrologue(List<Call> abstractCalls) throws ConfigurationException {
+  private void addCallsToPrologue(final EngineContext engineContext, final List<Call> abstractCalls)
+      throws ConfigurationException {
+    checkNotNull(engineContext);
     checkNotNull(abstractCalls);
+
     for (Call abstractCall : abstractCalls) {
-      final ConcreteCall concreteCall = makeConcreteCall(abstractCall, getCallFactory());
+      final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
       registerPrologueCall(concreteCall);
     }
   }

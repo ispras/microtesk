@@ -37,6 +37,7 @@ import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.sequence.Sequence;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
@@ -131,11 +132,10 @@ public final class EngineUtils {
   }
 
   public static ConcreteCall makeConcreteCall(
-      final Call abstractCall,
-      final ICallFactory callFactory)
+      final EngineContext engineContext, final Call abstractCall)
           throws ConfigurationException {
+    checkNotNull(engineContext);
     checkNotNull(abstractCall);
-    checkNotNull(callFactory);
 
     if (!abstractCall.isExecutable()) {
       return new ConcreteCall(abstractCall);
@@ -144,7 +144,8 @@ public final class EngineUtils {
     final Primitive rootOp = abstractCall.getRootOperation();
     checkRootOp(rootOp);
 
-    final IOperation op = makeOp(rootOp, callFactory);
+    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
+    final IOperation op = makeOp(engineContext, rootOp);
     final InstructionCall executable = callFactory.newCall(op);
 
     return new ConcreteCall(abstractCall, executable);
@@ -170,11 +171,12 @@ public final class EngineUtils {
     return ((LazyValue) argument.getValue()).getValue();
   }
 
-  public static IAddressingMode makeMode(final Argument argument, final ICallFactory callFactory)
+  public static IAddressingMode makeMode(final EngineContext engineContext, final Argument argument)
       throws ConfigurationException {
+    checkNotNull(engineContext);
     checkArgKind(argument, Argument.Kind.MODE);
-    checkNotNull(callFactory);
 
+    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
     final Primitive mode = (Primitive) argument.getValue();
     final IAddressingModeBuilder builder = callFactory.newMode(mode.getName());
 
@@ -206,21 +208,22 @@ public final class EngineUtils {
     return builder.getProduct();
   }
 
-  public static IOperation makeOp(final Argument argument, final ICallFactory callFactory)
+  public static IOperation makeOp(final EngineContext engineContext, final Argument argument)
       throws ConfigurationException {
+    checkNotNull(engineContext);
     checkArgKind(argument, Argument.Kind.OP);
-    checkNotNull(callFactory);
 
     final Primitive abstractOp = (Primitive) argument.getValue();
 
-    return makeOp(abstractOp, callFactory);
+    return makeOp(engineContext, abstractOp);
   }
 
-  public static IOperation makeOp(final Primitive abstractOp, final ICallFactory callFactory)
+  public static IOperation makeOp(final EngineContext engineContext, final Primitive abstractOp)
       throws ConfigurationException {
+    checkNotNull(engineContext);
     checkOp(abstractOp);
-    checkNotNull(callFactory);
 
+    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
     final String name = abstractOp.getName();
     final String context = abstractOp.getContextName();
 
@@ -246,11 +249,11 @@ public final class EngineUtils {
           break;
 
         case MODE:
-          builder.setArgument(argName, makeMode(arg, callFactory));
+          builder.setArgument(argName, makeMode(engineContext, arg));
           break;
 
         case OP:
-          builder.setArgument(argName, makeOp(arg, callFactory));
+          builder.setArgument(argName, makeOp(engineContext, arg));
           break;
 
         default:
@@ -263,15 +266,16 @@ public final class EngineUtils {
   }
 
   public static List<Call> makeInitializer(
+      final EngineContext engineContext,
       final AddressingModeWrapper targetMode,
-      final BitVector value,
-      final PreparatorStore preparators) {
+      final BitVector value) {
+    checkNotNull(engineContext);
     checkNotNull(targetMode);
     checkNotNull(value);
-    checkNotNull(preparators);
 
     Logger.debug("Creating code to assign %s to %s...", value, targetMode);
 
+    final PreparatorStore preparators = engineContext.getPreparators();
     final Preparator preparator = 
         preparators.getPreparator(targetMode.getModePrimitive(), value);
 

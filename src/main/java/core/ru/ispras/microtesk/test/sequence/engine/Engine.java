@@ -25,5 +25,5 @@ import ru.ispras.microtesk.test.template.Call;
 
 public interface Engine<T> {
   Class<T> getSolutionClass();
-  EngineResult<T> solve(Sequence<Call> abstractSequence);
+  EngineResult<T> solve(EngineContext engineContext, Sequence<Call> abstractSequence);
 }

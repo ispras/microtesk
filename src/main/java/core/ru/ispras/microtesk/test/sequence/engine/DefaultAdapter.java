@@ -28,7 +28,10 @@ public final class DefaultAdapter implements Adapter<TestSequence> {
   }
 
   @Override
-  public TestSequence adapt(final Sequence<Call> abstractSequence, final TestSequence solution) {
+  public TestSequence adapt(
+      final EngineContext engineContext,
+      final Sequence<Call> abstractSequence,
+      final TestSequence solution) {
     return solution;
   }
 }

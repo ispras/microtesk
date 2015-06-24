@@ -28,6 +28,8 @@ import ru.ispras.microtesk.test.sequence.compositor.OverlappingCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RandomCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RotationCompositor;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
+import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 
 /**
@@ -56,8 +58,11 @@ public final class Configuration<T> {
     compositors.put(CompositorId.NESTING.name(), NestingCompositor.class);
     compositors.put(CompositorId.RANDOM.name(), RandomCompositor.class);
 
-    // engines.put("branch", new BranchTemplateSolver(0, 5));
-    // adapters.put("branch", new BranchTemplateAdapter());
+    registerEngine("default", new DefaultEngine());
+    registerAdapter("default", new DefaultAdapter());
+
+    // registerEngine("branch", new BranchEngine());
+    // registerAdapter("branch", new BranchAdapter());
   }
 
   /**

@@ -73,7 +73,8 @@ public final class BranchEngine implements Engine<BranchSolution> {
   }
 
   @Override
-  public EngineResult<BranchSolution> solve(final Sequence<Call> abstractSequence) {
+  public EngineResult<BranchSolution> solve(
+      final EngineContext context, final Sequence<Call> abstractSequence) {
     // Collect information about labels.
     final Map<Label, Integer> labels = new HashMap<>();
 

@@ -29,10 +29,10 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
@@ -40,20 +40,20 @@ import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 
 public final class BindingBuilder {
-  private final IModel model;
+  private EngineContext engineContext;
   private final TestBaseQueryBuilder queryBuilder;
   private final Map<String, Argument> unknownValues;
   private final Map<String, Argument> modes;
 
   public BindingBuilder(
-      final IModel model,
+      final EngineContext engineContext,
       final TestBaseQueryBuilder queryBuilder,
       final Primitive primitive) {
-    checkNotNull(model);
+    checkNotNull(engineContext);
     checkNotNull(queryBuilder);
     checkNotNull(primitive);
 
-    this.model = model;
+    this.engineContext = engineContext;
     this.queryBuilder = queryBuilder;
     this.unknownValues = new HashMap<String, Argument>();
     this.modes = new HashMap<String, Argument>();
@@ -123,7 +123,7 @@ public final class BindingBuilder {
 
             try {
               if (arg.getMode() != ArgumentMode.NA) {
-                final IAddressingMode mode = makeMode(arg, model.getCallFactory());
+                final IAddressingMode mode = makeMode(engineContext, arg);
                 final Location location = mode.access();
 
                 if (location.isInitialized()) {

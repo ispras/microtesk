@@ -40,9 +40,8 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.sequence.Configuration;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
-import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
-import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
@@ -301,14 +300,10 @@ public final class TestEngine {
     final PreparatorStore preparators = new PreparatorStore();
 
     final Configuration<Call> config = new Configuration<>();
-
-    final DefaultEngine defaultEngine = new DefaultEngine(model, preparators, settings);
-    final DefaultAdapter defaultAdapter = new DefaultAdapter();
-
-    config.registerEngine("default", defaultEngine);
-    config.registerAdapter("default", defaultAdapter);
+    final EngineContext context = new EngineContext(model, preparators, settings);
 
     final TemplateProcessor processor = new TemplateProcessor(
+        context,
         executor,
         printer, 
         logPrinter,
@@ -327,6 +322,7 @@ public final class TestEngine {
   }
 
   private static class TemplateProcessor implements Template.Processor {
+    private final EngineContext engineContext;
     private final Executor executor;
     private final Printer printer;
     private final LogPrinter logPrinter;
@@ -342,6 +338,7 @@ public final class TestEngine {
     private boolean needCreateNewFile;
 
     private TemplateProcessor(
+        final EngineContext engineContext,
         final Executor executor,
         final Printer printer,
         final LogPrinter logPrinter,
@@ -350,6 +347,7 @@ public final class TestEngine {
         final int programLengthLimit,
         final int traceLengthLimit) {
 
+      this.engineContext = engineContext;
       this.executor = executor;
       this.printer = printer;
       this.logPrinter = logPrinter;
@@ -485,7 +483,7 @@ public final class TestEngine {
 
         Logger.debugHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
 
-        final Iterator<TestSequence> iterator = engine.process(abstractSequence);
+        final Iterator<TestSequence> iterator = engine.process(engineContext, abstractSequence);
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           final TestSequence concreteSequence = iterator.value();
 
@@ -561,7 +559,7 @@ public final class TestEngine {
       while (sequenceIt.hasValue()) {
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
-        final Iterator<TestSequence> iterator = engine.process(abstractSequence);
+        final Iterator<TestSequence> iterator = engine.process(engineContext, abstractSequence);
 
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           Logger.debugHeader("Generating Data");
@@ -582,38 +580,42 @@ public final class TestEngine {
     }
 
    private DataGenerationEngine getEngine(final Block block) throws ConfigurationException {
-      final String solverName = blockAttribute(block, "solver", "default");
+      final String engineName = blockAttribute(block, "engine", "default");
       final String adapterName = blockAttribute(block, "adapter", "default");
 
-      final Engine<?> solver = config.getEngine(solverName);
+      final Engine<?> engine = config.getEngine(engineName);
       final Adapter<?> adapter = config.getAdapter(adapterName);
 
-      if (!adapter.getSolutionClass().isAssignableFrom(solver.getSolutionClass())) {
+      if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
         throw new IllegalStateException("Mismatched solver/adapter pair");
       }
-      return new DataGenerationEngine(solver, adapter);
+
+      return new DataGenerationEngine(engine, adapter);
     }
 
     private static final class DataGenerationEngine {
-      private final Engine<?> solver;
+      private final Engine<?> engine;
       private final Adapter<?> adapter;
 
-      public DataGenerationEngine(final Engine<?> solver, final Adapter<?> adapter) {
-        InvariantChecks.checkNotNull(solver);
+      public DataGenerationEngine(final Engine<?> engine, final Adapter<?> adapter) {
+        InvariantChecks.checkNotNull(engine);
         InvariantChecks.checkNotNull(adapter);
 
-        this.solver = solver;
+        this.engine = engine;
         this.adapter = adapter;
       }
 
-      public Iterator<TestSequence> process(final Sequence<Call> abstractSequence) {
-        final Iterator<?> solutionIt = solve(solver, abstractSequence);
-        return adapt(adapter, abstractSequence, solutionIt);
+      public Iterator<TestSequence> process(
+          final EngineContext context, final Sequence<Call> abstractSequence) {
+        final Iterator<?> solutionIt = solve(engine, context, abstractSequence);
+        return adapt(adapter, context,  abstractSequence, solutionIt);
       }
 
-      private static <T> Iterator<T> solve(final Engine<T> solver,
-                                           final Sequence<Call> sequence) {
-        final EngineResult<T> result = solver.solve(sequence);
+      private static <T> Iterator<T> solve(
+          final Engine<T> engine,
+          final EngineContext context,
+          final Sequence<Call> sequence) {
+        final EngineResult<T> result = engine.solve(context, sequence);
         if (result.getStatus() != EngineResult.Status.OK) {
           final String msg = listErrors("Failed to find a solution for abstract call sequence",
                                         result.getErrors());
@@ -622,9 +624,11 @@ public final class TestEngine {
         return result.getResult();
       }
 
-      private static <T> Iterator<TestSequence> adapt(final Adapter<T> adapter,
-                                                      final Sequence<Call> sequence,
-                                                      final Iterator<?> solutionIterator) {
+      private static <T> Iterator<TestSequence> adapt(
+          final Adapter<T> adapter,
+          final EngineContext context,
+          final Sequence<Call> sequence,
+          final Iterator<?> solutionIterator) {
         return new Iterator<TestSequence>() {
           @Override public void init() {
             solutionIterator.init();
@@ -638,7 +642,7 @@ public final class TestEngine {
             final Object solution = solutionIterator.value(); 
             final Class<T> solutionClass = adapter.getSolutionClass();
 
-            return adapter.adapt(sequence, solutionClass.cast(solution));
+            return adapter.adapt(context, sequence, solutionClass.cast(solution));
           }
 
           @Override public void next() {

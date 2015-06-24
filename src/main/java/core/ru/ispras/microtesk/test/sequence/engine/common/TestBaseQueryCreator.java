@@ -22,7 +22,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
@@ -63,7 +63,7 @@ import ru.ispras.testbase.TestBaseQueryBuilder;
  */
 
 public final class TestBaseQueryCreator {
-  private IModel model;
+  private EngineContext engineContext;
   private final Situation situation;
   private final Primitive primitive;
 
@@ -73,13 +73,13 @@ public final class TestBaseQueryCreator {
   private Map<String, Argument> modes;
 
   public TestBaseQueryCreator(
-      final IModel model,
+      final EngineContext engineContext,
       final Situation situation,
       final Primitive primitive) {
-    checkNotNull(model);
+    checkNotNull(engineContext);
     checkNotNull(primitive);
 
-    this.model = model;
+    this.engineContext = engineContext;
 
     this.situation = situation;
     this.primitive = primitive;
@@ -122,7 +122,7 @@ public final class TestBaseQueryCreator {
       createParameters(queryBuilder);
     }
 
-    final BindingBuilder bindingBuilder = new BindingBuilder(model, queryBuilder, primitive);
+    final BindingBuilder bindingBuilder = new BindingBuilder(engineContext, queryBuilder, primitive);
 
     unknownImmediateValues = bindingBuilder.getUnknownValues();
     modes = bindingBuilder.getModes();
@@ -133,7 +133,7 @@ public final class TestBaseQueryCreator {
   }
 
   private void createContext(TestBaseQueryBuilder queryBuilder) {
-    queryBuilder.setContextAttribute(TestBaseContext.PROCESSOR, model.getName());
+    queryBuilder.setContextAttribute(TestBaseContext.PROCESSOR, engineContext.getModel().getName());
     queryBuilder.setContextAttribute(TestBaseContext.INSTRUCTION, primitive.getName());
     queryBuilder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
 

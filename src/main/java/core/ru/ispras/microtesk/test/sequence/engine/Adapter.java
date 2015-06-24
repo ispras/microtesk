@@ -27,5 +27,5 @@ import ru.ispras.microtesk.test.template.Call;
 
 public interface Adapter<T> {
   Class<T> getSolutionClass();
-  TestSequence adapt(Sequence<Call> abstractSequence, T solution);
+  TestSequence adapt(EngineContext engineContext, Sequence<Call> abstractSequence, T solution);
 }

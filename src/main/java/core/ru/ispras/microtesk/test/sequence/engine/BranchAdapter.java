@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test.sequence.engine;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getSituationName;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTestBase;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,9 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
@@ -37,7 +34,6 @@ import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchTrace;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
@@ -50,24 +46,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   public static final boolean USE_DELAY_SLOTS = true;
 
   private final int delaySlotSize;
-  private final IModel model;
-  private final PreparatorStore preparators;
-  private final TestBase testBase;
 
-  public BranchAdapter(
-      final IModel model,
-      final PreparatorStore preparators,
-      final GeneratorSettings settings,
-      final int delaySlotSize) {
-    InvariantChecks.checkNotNull(model);
-    InvariantChecks.checkNotNull(preparators);
+  public BranchAdapter(final int delaySlotSize) {
     InvariantChecks.checkTrue(delaySlotSize >= 0);
 
     this.delaySlotSize = delaySlotSize;
-    this.model = model;
-    this.preparators = preparators;
-
-    this.testBase = newTestBase(settings);
   }
 
   @Override
@@ -76,8 +59,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   }
 
   @Override
-  public TestSequence adapt(final Sequence<Call> abstractSequence,
+  public TestSequence adapt(
+      final EngineContext engineContext,
+      final Sequence<Call> abstractSequence,
       final BranchSolution solution) {
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
     InvariantChecks.checkNotNull(solution);
 
@@ -154,10 +140,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       }
 
       // Retrieve the test data generator.
-      final DataGenerator testDataGenerator = getGenerator(abstractCall);
+      final DataGenerator testDataGenerator = getGenerator(engineContext, abstractCall);
 
       try {
         updatePrologue(
+            engineContext,
             testSequenceBuilder,
             abstractCall,
             branchTrace,
@@ -194,7 +181,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     }
 
     try {
-      updateBody(testSequenceBuilder, modifiedSequence);
+      updateBody(engineContext, testSequenceBuilder, modifiedSequence);
     } catch (final ConfigurationException e) {
       // Cannot convert the abstract code into the concrete code.
       return null;
@@ -203,40 +190,47 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     return testSequenceBuilder.build();
   }
 
-  private DataGenerator getGenerator(final Call abstractCall) {
+  private DataGenerator getGenerator(final EngineContext engineContext, final Call abstractCall) {
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractCall);
 
-    final String situationName = getSituationName(abstractCall);
+    final TestBase testBase = engineContext.getTestBase(); 
     final TestBaseRegistry testBaseRegistry = testBase.getRegistry();
+    final String situationName = getSituationName(abstractCall);
     final Collection<DataGenerator> generators = testBaseRegistry.getNamedGenerators(situationName);
 
     return generators.toArray(new DataGenerator[]{})[0];
   }
 
   private void updatePrologue(
+      final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
       final Call abstractCall)
           throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractCall);
 
-    final ConcreteCall concreteCall = makeConcreteCall(abstractCall, model.getCallFactory());
+    final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
     testSequenceBuilder.addToPrologue(concreteCall);
   }
 
   private void updatePrologue(
+      final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
       final Sequence<Call> abstractSequence)
           throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractSequence);
 
     for (final Call abstractCall : abstractSequence) {
-      updatePrologue(testSequenceBuilder, abstractCall);
+      updatePrologue(engineContext, testSequenceBuilder, abstractCall);
     }
   }
 
   private void updatePrologue(
+      final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
       final Call abstractBranchCall,
       final BranchTrace branchTrace,
@@ -244,12 +238,13 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final DataGenerator testDataGenerator,
       final String testDataStream)
         throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractBranchCall);
     InvariantChecks.checkNotNull(testDataGenerator);
 
     final Sequence<Call> initDataStream = new Sequence<Call>(); // TODO:
-    updatePrologue(testSequenceBuilder, initDataStream);
+    updatePrologue(engineContext, testSequenceBuilder, initDataStream);
 
     for (int i = 0; i < branchTrace.size(); i++) {
       final BranchExecution execution = branchTrace.get(i);
@@ -262,33 +257,37 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
       for (int j = 0; j < count; j++) {
         final Sequence<Call> writeDataStream = new Sequence<Call>(); // TODO:
-        updatePrologue(testSequenceBuilder, writeDataStream);
+        updatePrologue(engineContext, testSequenceBuilder, writeDataStream);
       }
     }
 
-    updatePrologue(testSequenceBuilder, initDataStream);
+    updatePrologue(engineContext, testSequenceBuilder, initDataStream);
   }
 
   private void updateBody(
+      final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
       final Call abstractCall)
           throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractCall);
 
-    final ConcreteCall concreteCall = makeConcreteCall(abstractCall, model.getCallFactory());
+    final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
     testSequenceBuilder.add(concreteCall);
   }
 
   private void updateBody(
+      final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
       final Sequence<Call> abstractSequence)
           throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractSequence);
 
     for (final Call abstractCall : abstractSequence) {
-      updateBody(testSequenceBuilder, abstractCall);
+      updateBody(engineContext, testSequenceBuilder, abstractCall);
     }
   }
 }
