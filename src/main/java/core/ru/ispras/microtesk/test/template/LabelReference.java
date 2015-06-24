@@ -17,6 +17,8 @@ package ru.ispras.microtesk.test.template;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
 
+import java.math.BigInteger;
+
 /**
  * The LabelReference class describes a reference to a label. This means a label specified as an
  * argument of a control-transfer instruction. The important point is that a reference is not linked
@@ -30,6 +32,8 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
 
 public final class LabelReference {
   private final Label reference;
+  private final LazyLabel lazyReference;
+  private final BlockId blockId;
   private final Primitive primitive;
   private final String argumentName;
   private final int argumentValue;
@@ -71,7 +75,7 @@ public final class LabelReference {
    *         blockId or argumentName.
    */
 
-  LabelReference(
+  protected LabelReference(
       final String labelName,
       final BlockId blockId,
       final Primitive primitive,
@@ -83,9 +87,30 @@ public final class LabelReference {
     checkNotNull(argumentName);
 
     this.reference = new Label(labelName, blockId);
+    this.lazyReference = null;
+    this.blockId = blockId;
     this.primitive = primitive;
     this.argumentName = argumentName;
     this.argumentValue = argumentValue;
+    this.target = null;
+  }
+
+  protected LabelReference(
+      final LazyLabel lazyLabel,
+      final BlockId blockId,
+      final Primitive primitive,
+      final String argumentName) {
+    checkNotNull(lazyLabel);
+    checkNotNull(blockId);
+    checkNotNull(primitive);
+    checkNotNull(argumentName);
+
+    this.reference = null;
+    this.lazyReference = lazyLabel;
+    this.blockId = blockId;
+    this.primitive = primitive;
+    this.argumentName = argumentName;
+    this.argumentValue = 0;
     this.target = null;
   }
 
@@ -99,7 +124,16 @@ public final class LabelReference {
    */
 
   public Label getReference() {
-    return reference;
+    if (null != reference) {
+      return reference;
+    }
+
+    final String labelName = lazyReference.getName();
+    if (null == labelName || labelName.isEmpty()) {
+      throw new IllegalStateException("LazyLabel: Label name is initialized.");
+    }
+
+    return new Label(labelName, blockId);
   }
 
   /**
@@ -131,7 +165,14 @@ public final class LabelReference {
    */
 
   public int getArgumentValue() {
-    return argumentValue;
+    if (null != reference) {
+      return argumentValue;
+    }
+
+    final LazyValue lazyValue = lazyReference.getValue();
+    final BigInteger value = lazyValue.getValue();
+
+    return value.intValue();
   }
 
   public Target getTarget() {

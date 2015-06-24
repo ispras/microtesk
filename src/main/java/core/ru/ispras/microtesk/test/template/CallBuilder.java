@@ -67,7 +67,7 @@ public final class CallBuilder {
 
     labelRefs.add(labelRef);
   }
-  
+
   public void addLabelReference(
       final LazyLabel label,
       final Primitive primitive,
@@ -76,7 +76,11 @@ public final class CallBuilder {
     checkNotNull(label);
     checkNotNull(primitive);
     checkNotNull(argumentName);
-    // TODO
+
+    final LabelReference labelRef = new LabelReference(
+        label, blockId, primitive, argumentName);
+
+    labelRefs.add(labelRef);
   }
 
   public void addOutput(final Output output) {

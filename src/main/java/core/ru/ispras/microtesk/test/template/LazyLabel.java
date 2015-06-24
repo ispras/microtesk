@@ -31,7 +31,7 @@ public final class LazyLabel {
     this.data = new LazyData();
     this.value = new LazyValue(data);
 
-    this.name = "";
+    this.name = null;
   }
 
   public void setSource(final String labelName) {
