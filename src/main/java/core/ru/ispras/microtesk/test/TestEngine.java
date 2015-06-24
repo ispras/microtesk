@@ -433,7 +433,6 @@ public final class TestEngine {
     }
 
     private void processBlock(Block block) throws ConfigurationException {
-      final boolean isSingleSequence = block.isSingle();
       final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
@@ -441,10 +440,6 @@ public final class TestEngine {
       sequenceIt.init();
 
       while (sequenceIt.hasValue()) {
-        if (isSingleSequence && sequenceIndex > 0) {
-          throw new IllegalStateException("Only a single sequence is allowed.");
-        }
-
         if (needCreateNewFile) {
           try {
             before = STATISTICS.copy();
@@ -489,7 +484,7 @@ public final class TestEngine {
         final String sequenceId = String.format("Test Case %d", sequenceIndex);
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
-        Logger.debugHeader("Generating Data%s", (isSingleSequence ? "" : " for " + sequenceId));
+        Logger.debugHeader("Generating Data for %s", sequenceId);
 
         final Iterator<TestSequence> iterator = engine.process(engineContext, abstractSequence);
         checkNotNull(iterator);
@@ -498,15 +493,13 @@ public final class TestEngine {
           final TestSequence concreteSequence = iterator.value();
           checkNotNull(concreteSequence);
 
-          Logger.debugHeader("Executing%s", (isSingleSequence ? "" : " " + sequenceId));
+          Logger.debugHeader("Executing %s", sequenceId);
           executor.executeSequence(concreteSequence);
 
-          Logger.debugHeader("Printing%s", (isSingleSequence ? "" : " " + sequenceId));
+          Logger.debugHeader("Printing %s", sequenceId);
 
-          if (!isSingleSequence) {
-            printer.printToFile("");
-            printer.printSubheaderToFile(sequenceId);
-          }
+          printer.printToFile("");
+          printer.printSubheaderToFile(sequenceId);
           printer.printSequence(concreteSequence);
 
           STATISTICS.instructionCount += concreteSequence.getPrologue().size();
@@ -593,7 +586,7 @@ public final class TestEngine {
 
    private TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
       final String engineName = blockAttribute(block, "engine", "default");
-      final String adapterName = blockAttribute(block, "adapter", "default");
+      final String adapterName = blockAttribute(block, "adapter", engineName);
 
       final Engine<?> engine = config.getEngine(engineName);
       final Adapter<?> adapter = config.getAdapter(adapterName);
