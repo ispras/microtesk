@@ -32,6 +32,9 @@ public final class EngineContext {
   private final GeneratorSettings settings;
   private final TestBase testBase;
 
+  // TODO:
+  private final int delaySlotSize; 
+
   public EngineContext(
       final IModel model, final PreparatorStore preparators, final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(model);
@@ -43,6 +46,9 @@ public final class EngineContext {
     this.settings = settings;
 
     this.testBase = newTestBase(settings);
+
+    // TODO:
+    this.delaySlotSize = 0;
   }
 
   public IModel getModel() {
@@ -59,5 +65,9 @@ public final class EngineContext {
 
   public TestBase getTestBase() {
     return testBase;
+  }
+
+  public int getDelaySlotSize() {
+    return delaySlotSize;
   }
 }

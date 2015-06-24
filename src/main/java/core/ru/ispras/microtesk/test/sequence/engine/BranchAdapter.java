@@ -45,14 +45,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   public static final String TEST_DATA_PREFIX = "branch_data_";
   public static final boolean USE_DELAY_SLOTS = true;
 
-  private final int delaySlotSize;
-
-  public BranchAdapter(final int delaySlotSize) {
-    InvariantChecks.checkTrue(delaySlotSize >= 0);
-
-    this.delaySlotSize = delaySlotSize;
-  }
-
   @Override
   public Class<BranchSolution> getSolutionClass() {
     return BranchSolution.class;
@@ -119,7 +111,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
       // Insert the control code into the delay slot if it is possible.
       if (USE_DELAY_SLOTS && !isInserted && slotCoverage != null) {
-        if (controlCode.size() <= delaySlotSize) {
+        if (controlCode.size() <= engineContext.getDelaySlotSize()) {
           final int slotPosition = i + 1;
 
           Sequence<Call> step = steps.get(slotPosition);

@@ -28,6 +28,8 @@ import ru.ispras.microtesk.test.sequence.compositor.OverlappingCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RandomCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RotationCompositor;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.BranchAdapter;
+import ru.ispras.microtesk.test.sequence.engine.BranchEngine;
 import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
 import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -61,8 +63,8 @@ public final class Configuration<T> {
     registerEngine("default", new DefaultEngine());
     registerAdapter("default", new DefaultAdapter());
 
-    // registerEngine("branch", new BranchEngine());
-    // registerAdapter("branch", new BranchAdapter());
+    registerEngine("branch", new BranchEngine());
+    registerAdapter("branch", new BranchAdapter());
   }
 
   /**

@@ -57,16 +57,6 @@ public final class BranchEngine implements Engine<BranchSolution> {
     return situationName != null && situationName.endsWith(GOTO_SITUATION_SUFFIX);
   }
 
-  private final int delaySlotSize;
-  private final int maxBranchExecution;
-
-  public BranchEngine(final int delaySlotSize, final int maxBranchExecution) {
-    InvariantChecks.checkTrue(delaySlotSize >= 0);
-
-    this.delaySlotSize = delaySlotSize;
-    this.maxBranchExecution = maxBranchExecution;
-  }
-
   @Override
   public Class<BranchSolution> getSolutionClass() {
     return BranchSolution.class;
@@ -74,7 +64,10 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
   @Override
   public EngineResult<BranchSolution> solve(
-      final EngineContext context, final Sequence<Call> abstractSequence) {
+      final EngineContext engineContext, final Sequence<Call> abstractSequence) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractSequence);
+
     // Collect information about labels.
     final Map<Label, Integer> labels = new HashMap<>();
 
@@ -119,11 +112,14 @@ public final class BranchEngine implements Engine<BranchSolution> {
         InvariantChecks.checkTrue(labels.containsKey(label));
 
         branchEntry.setBranchLabel(labels.get(label));
-        delaySlot = delaySlotSize;
+        delaySlot = engineContext.getDelaySlotSize();
       }
     }
 
     final Iterator<BranchSolution> iterator = new Iterator<BranchSolution>() {
+      // TODO:
+      private final int maxBranchExecution = 10;
+
       /** Iterator of branch structures. */
       private final Iterator<BranchStructure> branchStructureIterator =
           new SingleValueIterator<BranchStructure>(branchStructure);
