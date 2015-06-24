@@ -40,12 +40,12 @@ class DataStreamTemplate < MiniMipsBaseTemplate
 
       read {
         lw data_source, 0, index_source
-        addi index_source, zero, 4
+        addi index_source, index_source, 4
       }
 
       write {
         sw data_source, 0, index_source
-        addi index_source, zero, 4
+        addi index_source, index_source, 4
       }
     }
   end
