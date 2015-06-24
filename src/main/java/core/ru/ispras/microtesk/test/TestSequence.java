@@ -37,33 +37,44 @@ public final class TestSequence {
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
     private int byteSize;
+    private int instructionCount;
 
     public Builder() {
       this.prologue = new ArrayList<ConcreteCall>();
       this.body = new ArrayList<ConcreteCall>();
       this.byteSize = 0;
+      this.instructionCount = 0;
     }
 
     public void addToPrologue(final ConcreteCall call) {
       checkNotNull(call);
       prologue.add(call);
       byteSize += call.getByteSize();
+
+      if (call.isExecutable()) {
+        instructionCount++;
+      }
     }
 
     public void add(final ConcreteCall call) {
       checkNotNull(call);
       body.add(call);
       byteSize += call.getByteSize();
+
+      if (call.isExecutable()) {
+        instructionCount++;
+      }
     }
 
     public TestSequence build() {
-      return new TestSequence(byteSize, prologue, body);
+      return new TestSequence(byteSize, prologue, body, instructionCount);
     }
   }
 
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
   private final int byteSize;
+  private final int instructionCount;
 
   private long address = 0;
   private boolean isAddressSet = false;
@@ -71,13 +82,15 @@ public final class TestSequence {
   private TestSequence(
       final int byteSize,
       final List<ConcreteCall> prologue,
-      final List<ConcreteCall> body) {
+      final List<ConcreteCall> body,
+      final int instructionCount) {
     checkNotNull(prologue);
     checkNotNull(body);
 
     this.byteSize = byteSize;
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
+    this.instructionCount = instructionCount;
   }
 
   public List<ConcreteCall> getPrologue() {
@@ -114,5 +127,9 @@ public final class TestSequence {
       call.setAddress(currentCallAddress);
       currentCallAddress += call.getByteSize();
     }
+  }
+
+  public int getInstructionCount() {
+    return instructionCount;
   }
 }

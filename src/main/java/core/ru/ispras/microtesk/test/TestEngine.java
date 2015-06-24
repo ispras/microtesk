@@ -502,8 +502,7 @@ public final class TestEngine {
           printer.printSubheaderToFile(sequenceId);
           printer.printSequence(concreteSequence);
 
-          STATISTICS.instructionCount += concreteSequence.getPrologue().size();
-          STATISTICS.instructionCount += concreteSequence.getBody().size();
+          STATISTICS.instructionCount += concreteSequence.getInstructionCount();
 
           ++sequenceIndex;
         }
@@ -576,8 +575,7 @@ public final class TestEngine {
           Logger.debugHeader("Printing");
           printer.printSequence(concreteSequence);
 
-          STATISTICS.instructionCount += concreteSequence.getPrologue().size();
-          STATISTICS.instructionCount += concreteSequence.getBody().size();
+          STATISTICS.instructionCount += concreteSequence.getInstructionCount();
         }
 
         sequenceIt.next();
