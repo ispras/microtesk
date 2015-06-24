@@ -295,7 +295,7 @@ public final class TestEngine {
         commentsEnabled,
         commentsDebug
         );
-    
+
     final DataManager dataManager = new DataManager(indentToken);
     final PreparatorStore preparators = new PreparatorStore();
 
@@ -314,7 +314,11 @@ public final class TestEngine {
         );
 
     return new Template(
-        model.getMetaData(), dataManager, preparators, processor);
+        model.getMetaData(),
+        dataManager,
+        preparators,
+        processor
+        );
   }
 
   public void process(Template template) throws ConfigurationException, IOException {

@@ -53,6 +53,8 @@ public final class Template {
   private final Map<String, Variate<String>> groupVariates;
 
   private PreparatorBuilder preparatorBuilder;
+  private DataStreamBuilder dataStreamBuilder;
+
   private Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
 
@@ -60,10 +62,10 @@ public final class Template {
   private int openBlockCount;
 
   public Template(
-      MetaModel metaModel,
-      DataManager dataManager,
-      PreparatorStore preparators,
-      Processor processor) {
+      final MetaModel metaModel,
+      final DataManager dataManager,
+      final PreparatorStore preparators,
+      final Processor processor) {
 
     Logger.debugHeader("Started Processing Template");
 
@@ -78,6 +80,8 @@ public final class Template {
     this.processor = processor;
 
     this.preparatorBuilder = null;
+    this.dataStreamBuilder = null;
+
     this.blockBuilders = null;
     this.callBuilder = null;
 
@@ -87,7 +91,7 @@ public final class Template {
     this.groupVariates = newVariatesForGroups(metaModel);
   }
 
-  private void processBlock(Section section, Block block) {
+  private void processBlock(final Section section, final Block block) {
     processor.process(section, block);
   }
 
@@ -99,7 +103,7 @@ public final class Template {
     return processor;
   }
 
-  public int getAddressForLabel(String label) {
+  public int getAddressForLabel(final String label) {
     return dataManager.getMemoryMap().resolve(label);
   }
 
@@ -237,18 +241,18 @@ public final class Template {
     --openBlockCount;
   }
 
-  public void addLabel(String name) {
+  public void addLabel(final String name) {
     final Label label = new Label(name, getCurrentBlockId());
     Logger.debug("Label: " + label.toString());
     callBuilder.addLabel(label);
   }
 
-  public void addOutput(Output output) {
+  public void addOutput(final Output output) {
     Logger.debug(output.toString());
     callBuilder.addOutput(output);
   }
 
-  public void setRootOperation(Primitive rootOperation) {
+  public void setRootOperation(final Primitive rootOperation) {
     callBuilder.setRootOperation(rootOperation);
   }
 
@@ -266,7 +270,7 @@ public final class Template {
     this.callBuilder = new CallBuilder(getCurrentBlockId());
   }
 
-  public PrimitiveBuilder newOperationBuilder(String name) {
+  public PrimitiveBuilder newOperationBuilder(final String name) {
     Logger.debug("Operation: " + name);
     checkNotNull(name);
 
@@ -274,7 +278,7 @@ public final class Template {
         name, metaModel, callBuilder, dataManager.getMemoryMap());
   }
 
-  public PrimitiveBuilder newAddressingModeBuilder(String name) {
+  public PrimitiveBuilder newAddressingModeBuilder(final String name) {
     Logger.debug("Addressing mode: " + name);
     checkNotNull(name);
 
@@ -287,7 +291,7 @@ public final class Template {
         metaModel, callBuilder, dataManager.getMemoryMap(), metaData);
   }
 
-  public RandomValue newRandom(BigInteger from, BigInteger to) {
+  public RandomValue newRandom(final BigInteger from, final BigInteger to) {
     return new RandomValue(from, to);
   }
 
@@ -339,8 +343,12 @@ public final class Template {
     preparatorBuilder = null;
   }
 
-  public void beginDataStream(final String dataModeName, final String indexModeName) {
-    Logger.debug("Begin data stream (data: %s, index: %s)",
+  public DataStreamBuilder beginDataStream(
+      final String dataModeName, final String indexModeName) {
+
+    endBuildingCall();
+
+    Logger.debug("Begin data stream (data_source: %s, index_source: %s)",
         dataModeName, indexModeName);
 
     final MetaAddressingMode dataMode = metaModel.getAddressingMode(dataModeName);
@@ -355,12 +363,19 @@ public final class Template {
           "%s is not an addressing mode.", indexModeName));
     }
 
-    // TODO
-    new DataStreamBuilder(dataManager.getMemoryMap(), dataMode, indexMode);
+    dataStreamBuilder = new DataStreamBuilder(
+        dataManager.getMemoryMap(), dataMode, indexMode);
+
+    return dataStreamBuilder;
   }
 
   public void endDataStream() {
+    endBuildingCall();
+
     Logger.debug("End data stream");
+
+    final DataStream stream = dataStreamBuilder.build();
+    dataStreamBuilder = null;
   }
 
   public LazyValue newLazy() {

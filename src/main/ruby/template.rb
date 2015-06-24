@@ -476,14 +476,23 @@ class Template
   # -------------------------------------------------------------------------- #
 
   def data_stream(attrs, &contents)
-    data  = get_attribute attrs, :data
-    index = get_attribute attrs, :index
+    data  = get_attribute attrs, :data_source
+    index = get_attribute attrs, :index_source
 
     @template.beginDataStream data.to_s, index.to_s
 
     # TODO
 
     @template.endDataStream
+  end
+
+  def index_source
+  end
+
+  def data_source
+  end
+
+  def start_label
   end
 
   # -------------------------------------------------------------------------- #
