@@ -45,6 +45,7 @@ public interface PrimitiveBuilder {
   void addArgument(PrimitiveBuilder value);
   void addArgument(UnknownImmediateValue value);
   void addArgument(LazyValue value);
+  void addArgument(LazyLabel value);
   void setArgument(String name, BigInteger value);
   void setArgument(String name, String value);
   void setArgument(String name, RandomValue value);
@@ -52,6 +53,7 @@ public interface PrimitiveBuilder {
   void setArgument(String name, PrimitiveBuilder value);
   void setArgument(String name, UnknownImmediateValue value);
   void setArgument(String name, LazyValue value);
+  void setArgument(String name, LazyLabel value);
 }
 
 final class PrimitiveBuilderOperation implements PrimitiveBuilder {
@@ -185,6 +187,12 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     registerArgument(new ArgumentLazyVal(value));
   }
 
+  @Override
+  public void addArgument(LazyLabel value) {
+    checkNotNull(value);
+    registerArgument(new ArgumentLazyLabel(value));
+  }
+
   // /////////////////////////////////////////////////////////////////////////
   // For Hash-based syntax
 
@@ -230,6 +238,13 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     checkNotNull(name);
     checkNotNull(value);
     registerArgument(new ArgumentLazyVal(name, value));
+  }
+  
+  @Override
+  public void setArgument(String name, LazyLabel value) {
+    checkNotNull(name);
+    checkNotNull(value);
+    registerArgument(new ArgumentLazyLabel(name, value));
   }
 
   private interface Argument {
@@ -405,6 +420,26 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
       }
     }
   }
+
+  private static class ArgumentLazyLabel extends AbstractArgument<LazyLabel> {
+    public ArgumentLazyLabel(String name, LazyLabel value) {
+      super(name, value);
+    }
+
+    public ArgumentLazyLabel(LazyLabel value) {
+      super(value);
+    }
+
+    @Override
+    public void addToBuilder(PrimitiveBuilder builder) {
+      if (hasName()) {
+        builder.setArgument(getName(), getValue());
+      }
+      else {
+        builder.addArgument(getValue());
+      }
+    }
+  }
 }
 
 final class PrimitiveBuilderCommon implements PrimitiveBuilder {
@@ -562,9 +597,16 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     setArgument(name, value);
   }
 
+  @Override
+  public void addArgument(LazyLabel value) {
+    final String name = getNextArgumentName();
+    setArgument(name, value);
+  }
+
   // /////////////////////////////////////////////////////////////////////////
   // For Hash-based syntax
 
+  @Override
   public void setArgument(String name, BigInteger value) {
     checkNotNull(name);
 
@@ -578,6 +620,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   // For labels
+  @Override
   public void setArgument(String name, String value) {
     checkNotNull(name);
     checkNotNull(value);
@@ -592,6 +635,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     callBuilder.addLabelReference(value, lazyPrimitive, name, address);
   }
 
+  @Override
   public void setArgument(String name, RandomValue value) {
     checkNotNull(name);
     checkNotNull(value);
@@ -605,6 +649,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     putArgument(arg);
   }
 
+  @Override
   public void setArgument(String name, Primitive value) {
     checkNotNull(name);
     checkNotNull(value);
@@ -657,6 +702,16 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
     checkValidArgument(arg);
     putArgument(arg);
+  }
+
+  // For lazy labels (used in data_stream blocks) 
+  @Override
+  public void setArgument(String name, LazyLabel value) {
+    checkNotNull(name);
+    checkNotNull(value);
+
+    setArgument(name, value.getValue());
+    callBuilder.addLabelReference(value, lazyPrimitive, name);
   }
 
   private String getName() {

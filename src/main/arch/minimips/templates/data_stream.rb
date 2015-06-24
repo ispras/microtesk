@@ -35,8 +35,7 @@ class DataStreamTemplate < MiniMipsBaseTemplate
 
     data_stream(:data_source  => 'REG', :index_source => 'REG') {
       init {
-        #la index_source, start_label
-        la index_source, :data
+        la index_source, start_label
       }
 
       read {
