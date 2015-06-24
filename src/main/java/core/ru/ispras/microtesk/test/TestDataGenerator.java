@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.microtesk.test.TestDataGeneratorUtils.allocateModes;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.checkRootOp;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeConcreteCall;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeErrorMessage;
@@ -136,11 +137,7 @@ final class TestDataGenerator implements Solver<TestSequence> {
     sequenceBuilder = new TestSequence.Builder();
 
     try {
-      // Allocate addressing modes.
-      final ModeAllocator modeAllocator = ModeAllocator.get();
-      if (null != modeAllocator) {
-        modeAllocator.allocate(abstractSequence);
-      }
+      allocateModes(abstractSequence);
 
       for (final Call abstractCall : abstractSequence) {
         processAbstractCall(abstractCall);

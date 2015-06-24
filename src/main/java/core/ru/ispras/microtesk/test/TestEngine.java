@@ -38,7 +38,6 @@ import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.data.ModeAllocator;
-import ru.ispras.microtesk.test.sequence.Configuration;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;

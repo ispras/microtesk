@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence;
 
+import ru.ispras.microtesk.test.Configuration;
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 
 /**

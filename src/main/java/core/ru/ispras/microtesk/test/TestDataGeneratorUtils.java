@@ -35,6 +35,8 @@ import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.test.data.ModeAllocator;
+import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -116,6 +118,15 @@ public final class TestDataGeneratorUtils {
     }
 
     return situation.getName();
+  }
+
+  public static void allocateModes(final Sequence<Call> abstractSequence) {
+    checkNotNull(abstractSequence);
+
+    final ModeAllocator modeAllocator = ModeAllocator.get();
+    if (null != modeAllocator) {
+      modeAllocator.allocate(abstractSequence);
+    }
   }
 
   public static ConcreteCall makeConcreteCall(

@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.branch;
 
+import static ru.ispras.microtesk.test.TestDataGeneratorUtils.allocateModes;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.getSituationName;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.makeConcreteCall;
 import static ru.ispras.microtesk.test.TestDataGeneratorUtils.newTestBase;
@@ -46,6 +47,7 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchTemplateAdapter implements Adapter<BranchTemplateSolution> {
+  public static final String TEST_DATA_PREFIX = "branch_data_";
   public static final boolean USE_DELAY_SLOTS = true;
 
   private final int delaySlotSize;
@@ -83,6 +85,9 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
     final BranchStructure branchStructure = solution.getBranchStructure();
     InvariantChecks.checkTrue(abstractSequence.size() == branchStructure.size());
 
+    // Allocate uninitialized addressing modes.
+    allocateModes(abstractSequence);
+
     final TestSequence.Builder testSequenceBuilder = new TestSequence.Builder();
 
     // Maps branch indices to control code.
@@ -91,6 +96,8 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
     final Set<Integer> delaySlots = new HashSet<>();
 
     // Construct the control code to enforce the given execution trace.
+    int branchNumber = 0;
+
     for (int i = 0; i < abstractSequence.size(); i++) {
       final Call abstractCall = abstractSequence.get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
@@ -99,8 +106,8 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
         continue;
       }
 
-      // Retrieve the test data generator.
-      final DataGenerator testDataGenerator = getGenerator(abstractCall);
+      final String testDataArray = String.format("%s%d", TEST_DATA_PREFIX, branchNumber);
+      branchNumber++;
 
       final BranchTrace branchTrace = branchEntry.getBranchTrace();
       final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
@@ -147,9 +154,17 @@ public final class BranchTemplateAdapter implements Adapter<BranchTemplateSoluti
         return null;
       }
 
+      // Retrieve the test data generator.
+      final DataGenerator testDataGenerator = getGenerator(abstractCall);
+
       try {
-        updatePrologue(testSequenceBuilder, abstractCall, branchTrace, isBasicBlock,
-            testDataGenerator, null);
+        updatePrologue(
+            testSequenceBuilder,
+            abstractCall,
+            branchTrace,
+            isBasicBlock,
+            testDataGenerator,
+            testDataArray);
       } catch (final ConfigurationException e) {
         // Cannot convert the abstract code into the concrete code.
         return null;

@@ -12,13 +12,14 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence;
+package ru.ispras.microtesk.test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.Adapter;
-import ru.ispras.microtesk.test.Solver;
+import ru.ispras.microtesk.test.sequence.CombinatorId;
+import ru.ispras.microtesk.test.sequence.CompositorId;
+import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.combinator.*;
 import ru.ispras.microtesk.test.sequence.compositor.*;
 
