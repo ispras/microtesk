@@ -30,6 +30,7 @@ public final class DataStreamBuilder {
   private final List<Call> init;
   private final List<Call> read;
   private final List<Call> write;
+  private List<Call> currentMethod;
 
   protected DataStreamBuilder(
       final MemoryMap memoryMap,
@@ -51,6 +52,7 @@ public final class DataStreamBuilder {
     this.init = new ArrayList<>();
     this.read = new ArrayList<>();
     this.write = new ArrayList<>();
+    this.currentMethod = null;
   }
 
   public Primitive getDataSource() {
@@ -65,19 +67,31 @@ public final class DataStreamBuilder {
     return startLabel;
   }
 
-  public void addCallToInit(final Call call) {
-    checkNotNull(call);
-    init.add(call);
+  public void beginInitMethod() {
+    currentMethod = init;
   }
 
-  public void addCallToRead(final Call call) {
-    checkNotNull(call);
-    read.add(call);
+  public void beginReadMethod() {
+    currentMethod = read;
   }
 
-  public void addCallToWrite(final Call call) {
+  public void beginWriteMethod() {
+    currentMethod = write;
+  }
+
+  public void endMethod() {
+    currentMethod = null; 
+  }
+
+  public void addCall(final Call call) {
     checkNotNull(call);
-    write.add(call);
+
+    if (null != currentMethod) {
+      throw new IllegalStateException(
+          "The instruction call is specified outside any data_stream method.");
+    }
+
+    currentMethod.add(call);
   }
 
   public DataStream build() {

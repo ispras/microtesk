@@ -421,9 +421,9 @@ public final class Template {
     return dataStreamBuilder.getIndexSource();
   }
 
-  public String getStartLabel() {
+  public LazyLabel getStartLabel() {
     checkDataStreamBlock("start_label");
-    return dataStreamBuilder.getStartLabel().getName();
+    return dataStreamBuilder.getStartLabel();
   }
 
   private void checkDataStreamBlock(final String keyword) {

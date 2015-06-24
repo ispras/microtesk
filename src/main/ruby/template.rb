@@ -481,7 +481,7 @@ class Template
 
     @template.beginDataStream data.to_s, index.to_s
 
-    # TODO
+    data_stream_object = DataStream.new
 
     @template.endDataStream
   end
@@ -653,4 +653,27 @@ class DataManager
     define_method_for DataManager, id, 'string', p
   end
 
-end # Data
+end # DataManager
+
+# Methods init, read, write are defined in a separate class to
+# avoid name conflicts
+#
+class DataStream
+
+  def initialize
+
+  end
+
+  def init(&contents)
+    
+  end
+
+  def read(&contents)
+    
+  end
+
+  def write(&contents)
+
+  end
+
+end # DataStream
