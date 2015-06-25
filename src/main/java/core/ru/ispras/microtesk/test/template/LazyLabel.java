@@ -34,6 +34,19 @@ public final class LazyLabel {
     this.name = null;
   }
 
+  protected LazyLabel(final LazyLabel other) {
+    InvariantChecks.checkNotNull(other);
+
+    final LazyValue copyValue = new LazyValue(other.value);
+    final LazyData copyData = copyValue.getData();
+
+    this.memoryMap = other.memoryMap;
+    this.data = copyData;
+    this.value = copyValue;
+
+    this.name = other.name;
+  }
+
   public void setSource(final String labelName) {
     InvariantChecks.checkNotNull(labelName);
 
