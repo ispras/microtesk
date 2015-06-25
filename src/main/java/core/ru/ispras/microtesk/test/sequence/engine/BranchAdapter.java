@@ -267,18 +267,21 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     // Initialize test data to ensure branch execution.
     for (final Map.Entry<String, Node> testDatum : testData.getBindings().entrySet()) {
       final String name = testDatum.getKey();
-      final Argument argument = queryCreator.getModes().get(name);
+      final Argument arg = queryCreator.getModes().get(name);
 
-      if (argument.getKind() != Argument.Kind.MODE || argument.getMode() == ArgumentMode.OUT) {
+      if (arg == null || arg.getKind() != Argument.Kind.MODE || arg.getMode() == ArgumentMode.OUT) {
         continue;
       }
 
-      final Primitive mode = (Primitive) argument.getValue();
-
+      final Primitive mode = (Primitive) arg.getValue();
       final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
 
-      final List<Call> initializingCalls = writeIntoStream ?
-          makeStreamWrite(engineContext, testDataArray, value) : makeInitializer(engineContext, mode, value);
+      final List<Call> initializingCalls = new Sequence<Call>();
+
+      initializingCalls.addAll(makeInitializer(engineContext, mode, value));
+      if (writeIntoStream) {
+        initializingCalls.addAll(makeStreamWrite(engineContext, testDataArray));
+      }
 
       updatePrologue(engineContext, testSequenceBuilder, initializingCalls);
     }

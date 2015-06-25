@@ -32,6 +32,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ArgumentMode;
@@ -57,6 +58,8 @@ import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.test.template.Stream;
+import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.testbase.AddressGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -412,8 +415,11 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkNotNull(streamId);
 
-    // TODO:
-    return new Sequence<Call>();
+    final StreamStore streams = engineContext.getStreams();
+    final Stream stream = streams.getStream(streamId);
+    InvariantChecks.checkNotNull(stream);
+
+    return stream.getInit();
   }
 
   public static List<Call> makeStreamRead(
@@ -421,18 +427,23 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkNotNull(streamId);
 
-    // TODO:
-    return new Sequence<Call>();
+    final StreamStore streams = engineContext.getStreams();
+    final Stream stream = streams.getStream(streamId);
+    InvariantChecks.checkNotNull(stream);
+
+    return stream.getRead();
   }
 
   public static List<Call> makeStreamWrite(
-      final EngineContext engineContext, final String streamId, final BitVector value) {
+      final EngineContext engineContext, final String streamId) {
     checkNotNull(engineContext);
     checkNotNull(streamId);
-    checkNotNull(value);
 
-    // TODO:
-    return new Sequence<Call>();
+    final StreamStore streams = engineContext.getStreams();
+    final Stream stream = streams.getStream(streamId);
+    InvariantChecks.checkNotNull(stream);
+
+    return stream.getWrite();
   }
 
   public static String makeErrorMessage(final TestBaseQueryResult queryResult) {
