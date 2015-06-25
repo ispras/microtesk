@@ -28,14 +28,18 @@ import java.math.BigInteger;
  * hold a reference to the same unknown value object the concrete value must be generated and
  * assigned only once.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class UnknownImmediateValue implements Value {
   private BigInteger value;
 
-  UnknownImmediateValue() {
+  protected UnknownImmediateValue() {
     this.value = null;
+  }
+
+  protected UnknownImmediateValue(final UnknownImmediateValue other) {
+    this.value = other.value;
   }
 
   public boolean isValueSet() {
