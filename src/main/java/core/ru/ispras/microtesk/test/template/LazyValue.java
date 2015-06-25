@@ -25,7 +25,7 @@ public final class LazyValue implements Value {
   private final int start;
   private final int size;
 
-  LazyValue(final LazyData data) {
+  protected LazyValue(final LazyData data) {
     checkNotNull(data);
 
     this.data = data;
@@ -33,7 +33,7 @@ public final class LazyValue implements Value {
     this.size = 0; // This means that we will use all data.
   }
 
-  LazyValue(final LazyData data, final int start, final int end) {
+  protected LazyValue(final LazyData data, final int start, final int end) {
     checkNotNull(data);
 
     if ((start < 0) || (end < 0)) {
@@ -43,6 +43,18 @@ public final class LazyValue implements Value {
     this.data = data;
     this.start = Math.min(start, end);
     this.size = Math.abs(end - start) + 1;
+  }
+
+  protected LazyValue(final LazyValue other) {
+    checkNotNull(other);
+
+    this.data = new LazyData(other.data);
+    this.start = other.start;
+    this.size = other.size;
+  }
+
+  protected LazyData getData() {
+    return data;
   }
 
   @Override
