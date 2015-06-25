@@ -20,6 +20,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Stream {
+  private final String startLabelName;
   private final List<Call> init;
   private final List<Call> read;
   private final List<Call> write;
@@ -27,14 +28,18 @@ public final class Stream {
   private int index;
 
   protected Stream(
+      final String startLabelName,
       final List<Call> init,
       final List<Call> read,
       final List<Call> write,
       final int length) {
+    InvariantChecks.checkNotNull(startLabelName);
     InvariantChecks.checkNotNull(init);
     InvariantChecks.checkNotNull(read);
     InvariantChecks.checkNotNull(write);
     InvariantChecks.checkGreaterThanZero(length);
+
+    this.startLabelName = startLabelName;
 
     this.init = Collections.unmodifiableList(init);
     this.read = Collections.unmodifiableList(read);
@@ -42,6 +47,10 @@ public final class Stream {
 
     this.length = length;
     this.index = 0;
+  }
+
+  public String getStartLabelName() {
+    return startLabelName;
   }
 
   public List<Call> getInit() {

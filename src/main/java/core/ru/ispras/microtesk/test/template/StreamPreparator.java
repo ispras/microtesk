@@ -54,19 +54,24 @@ public final class StreamPreparator {
   public Stream newStream(
       final Primitive dataSource,
       final Primitive indexSource,
-      final String startLabel,
+      final String startLabelName,
       final int length) {
     InvariantChecks.checkNotNull(dataSource);
     InvariantChecks.checkNotNull(indexSource);
     InvariantChecks.checkNotNull(startLabel);
     InvariantChecks.checkGreaterThanZero(length);
 
-    this.data.setSource(dataSource);
-    this.index.setSource(indexSource);
-    this.startLabel.setSource(startLabel);
-
-    // TODO: CLONE calls in init, read, write
-    return new Stream(init, read, write, length);
+    data.setSource(dataSource);
+    index.setSource(indexSource);
+    startLabel.setSource(startLabelName);
+    
+    return new Stream(
+        startLabelName,
+        Call.newCopy(init),
+        Call.newCopy(read),
+        Call.newCopy(write),
+        length
+        );
   }
 
   @Override

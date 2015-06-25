@@ -417,7 +417,7 @@ public final class Template {
     Logger.debug("End stream preparator");
 
     final StreamPreparator streamPreparator = streamPreparatorBuilder.build();
-    streams.setDataStream(streamPreparator);
+    streams.setPreparator(streamPreparator);
 
     streamPreparatorBuilder = null;
   }

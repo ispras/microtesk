@@ -14,21 +14,51 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class StreamStore {
   private StreamPreparator preparator;
+  private Map<String, Stream> streams;
 
   public StreamStore() {
     this.preparator = null;
+    this.streams = new HashMap<>();
   }
 
   public StreamPreparator getPreparator() {
     return preparator;
   }
 
-  public void setDataStream(final StreamPreparator preparator) {
+  public void setPreparator(final StreamPreparator preparator) {
     InvariantChecks.checkNotNull(preparator);
     this.preparator = preparator;
+  }
+
+  public Stream getStream(final String startLabelName) {
+    return streams.get(startLabelName);
+  }
+
+  public void addStream(final Stream stream) {
+    InvariantChecks.checkNotNull(stream);
+    streams.put(stream.getStartLabelName(), stream);
+  }
+
+  public void addStream(
+      final Primitive dataSource,
+      final Primitive indexSource,
+      final String startLabelName,
+      final int length) {
+
+    if (null == preparator) {
+      throw new IllegalStateException("No stream preparator is defined.");
+    }
+
+    final Stream stream = preparator.newStream(
+        dataSource, indexSource, startLabelName, length);
+
+    addStream(stream);
   }
 }

@@ -14,8 +14,11 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Call {
   private final Primitive rootOperation;
@@ -97,5 +100,24 @@ public final class Call {
     }
 
     return reference.getReference();
+  }
+
+  public Call newCopy() {
+    // TODO
+    return this;
+  }
+
+  public static List<Call> newCopy(final List<Call> calls) {
+    InvariantChecks.checkNotNull(calls);
+    if (calls.isEmpty()) {
+      return calls;
+    }
+
+    final List<Call> result = new ArrayList<>(calls.size());
+    for (final Call call : calls) {
+      result.add(call.newCopy());
+    }
+
+    return result;
   }
 }
