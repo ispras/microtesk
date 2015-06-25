@@ -37,16 +37,16 @@ public final class Call {
     this.outputs = Collections.unmodifiableList(outputs);
   }
 
-  private Call(final Call call) {
-    this.rootOperation = call.rootOperation.newCopy(); 
-    this.labels = call.labels;
-    this.labelRefs = copyLabelReferences(call.labelRefs);
-    this.outputs = call.outputs;
+  private Call(final Call other) {
+    this.rootOperation = other.rootOperation.newCopy(); 
+    this.labels = other.labels;
+    this.labelRefs = copyLabelReferences(other.labelRefs);
+    this.outputs = other.outputs;
   }
 
   private static List<LabelReference> copyLabelReferences(
       final List<LabelReference> labelRefs) {
-    if (!labelRefs.isEmpty()) {
+    if (labelRefs.isEmpty()) {
       return Collections.emptyList();
     }
 
