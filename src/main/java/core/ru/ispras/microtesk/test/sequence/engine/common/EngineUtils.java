@@ -15,17 +15,26 @@
 package ru.ispras.microtesk.test.sequence.engine.common;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.io.File;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
@@ -42,6 +51,8 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.DataStream;
+import ru.ispras.microtesk.test.template.DataStreamStore;
 import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;
@@ -51,9 +62,11 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.testbase.AddressGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestBaseRegistry;
+import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
 
 /**
@@ -104,6 +117,117 @@ public final class EngineUtils {
     }
 
     return testBase;
+  }
+
+  private static TestData getDefaultTestData(
+      final EngineContext engineContext,
+      final Primitive primitive,
+      final TestBaseQueryCreator queryCreator) {
+    checkNotNull(engineContext);
+    checkNotNull(primitive);
+    checkNotNull(queryCreator);
+
+    final Map<String, Argument> args = new HashMap<>();
+    args.putAll(queryCreator.getUnknownImmValues());
+    args.putAll(queryCreator.getModes());
+
+    final Map<String, Node> bindings = new HashMap<>();
+    for (final Map.Entry<String, Argument> entry : args.entrySet()) {
+      final String name = entry.getKey();
+      final Argument arg = entry.getValue();
+
+      if (arg.getMode() == ArgumentMode.IN || arg.getMode() == ArgumentMode.INOUT) {
+        if (arg.getKind() == Argument.Kind.MODE) {
+          try {
+            final IAddressingMode concreteMode = makeMode(engineContext, arg);
+            if (concreteMode.access().isInitialized()) {
+              continue;
+            }
+          } catch (ConfigurationException e) {
+            Logger.error(e.getMessage());
+          }
+        }
+
+        final BitVector value = BitVector.newEmpty(arg.getType().getBitSize());
+        Randomizer.get().fill(value);
+
+        bindings.put(name, NodeValue.newBitVector(value));
+      }
+    }
+
+    return new TestData(bindings);
+  }
+
+  public static TestData getTestData(
+      final EngineContext engineContext,
+      final Primitive primitive,
+      final TestBaseQueryCreator queryCreator) {
+    checkNotNull(engineContext);
+    checkNotNull(primitive);
+    checkNotNull(queryCreator);
+
+    final Situation situation = primitive.getSituation();
+    Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
+
+    if (situation == null) {
+      return getDefaultTestData(engineContext, primitive, queryCreator);
+    }
+
+    final TestBaseQuery query = queryCreator.getQuery();
+    Logger.debug("Query to TestBase: " + query);
+
+    final Map<String, Argument> unknownImmediateValues = queryCreator.getUnknownImmValues();
+    Logger.debug("Unknown immediate values: " + unknownImmediateValues.keySet());
+
+    final Map<String, Argument> modes = queryCreator.getModes();
+    Logger.debug("Modes used as arguments: " + modes);
+
+    final TestBase testBase = engineContext.getTestBase();
+    final TestBaseQueryResult queryResult = testBase.executeQuery(query);
+
+    if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
+      Logger.warning(makeErrorMessage(queryResult) + ": default test data will be used");
+      return getDefaultTestData(engineContext, primitive, queryCreator);
+    }
+
+    final java.util.Iterator<TestData> dataProvider = queryResult.getDataProvider();
+    if (!dataProvider.hasNext()) {
+      Logger.warning("No data was generated for the query: default test data will be used");
+      return getDefaultTestData(engineContext, primitive, queryCreator);
+    }
+
+    return dataProvider.next();
+  }
+
+  public static void setUnknownImmValue(final Argument arg, final Node value) {
+    checkNotNull(arg);
+    checkNotNull(value);
+    checkTrue(value.getKind() == Node.Kind.VALUE);
+
+    final UnknownImmediateValue target = (UnknownImmediateValue) arg.getValue();
+    final Data data = ((NodeValue) value).getData();
+
+    if (data.isType(DataTypeId.LOGIC_INTEGER)) {
+      target.setValue(data.getInteger());
+    } else if (data.isType(DataTypeId.BIT_VECTOR)) {
+      target.setValue(data.getBitVector().bigIntegerValue());
+    } else {
+      throw new IllegalStateException(String.format("%s cannot be converted to integer", value));
+    }
+  }
+
+  public static void setUnknownImmValues(
+      final Map<String, Argument> unknownImmValues, final TestData testData) {
+    checkNotNull(unknownImmValues);
+    checkNotNull(testData);
+
+    for (final Map.Entry<String, Argument> e : unknownImmValues.entrySet()) {
+      final String name = e.getKey();
+      final Argument arg = e.getValue();
+      final Node value = testData.getBindings().get(name);
+
+      setUnknownImmValue(arg, value);
+    }
   }
 
   public static String getSituationName(final Call abstractCall) {
@@ -267,25 +391,71 @@ public final class EngineUtils {
 
   public static List<Call> makeInitializer(
       final EngineContext engineContext,
-      final AddressingModeWrapper targetMode,
+      final Primitive mode,
       final BitVector value) {
     checkNotNull(engineContext);
-    checkNotNull(targetMode);
+    checkNotNull(mode);
     checkNotNull(value);
-
-    Logger.debug("Creating code to assign %s to %s...", value, targetMode);
 
     final PreparatorStore preparators = engineContext.getPreparators();
     final Preparator preparator = 
-        preparators.getPreparator(targetMode.getModePrimitive(), value);
+        preparators.getPreparator(mode, value);
 
     if (null != preparator) {
-      return preparator.makeInitializer(targetMode.getModePrimitive(), value);
+      return preparator.makeInitializer(mode, value);
     }
 
     throw new GenerationAbortedException(
-        String.format("No suitable preparator is found for %s.",
-        targetMode.getModePrimitive().getSignature()));
+        String.format("No suitable preparator is found for %s.", mode.getSignature()));
+  }
+
+  public static List<Call> makeStreamInit(
+      final EngineContext engineContext, final String streamId) {
+    checkNotNull(engineContext);
+    checkNotNull(streamId);
+
+    final DataStreamStore dataStreams = engineContext.getDataStreams();
+    final DataStream dataStream = dataStreams.getDataStream();
+
+    if (null != dataStream) {
+      // TODO:
+      return new Sequence<Call>();
+    }
+
+    throw new GenerationAbortedException("No suitable data stream is found");
+  }
+
+  public static List<Call> makeStreamRead(
+      final EngineContext engineContext, final String streamId) {
+    checkNotNull(engineContext);
+    checkNotNull(streamId);
+
+    final DataStreamStore dataStreams = engineContext.getDataStreams();
+    final DataStream dataStream = dataStreams.getDataStream();
+
+    if (null != dataStream) {
+      // TODO:
+      return new Sequence<Call>();
+    }
+
+    throw new GenerationAbortedException("No suitable data stream is found");
+  }
+
+  public static List<Call> makeStreamWrite(
+      final EngineContext engineContext, final String streamId, final BitVector value) {
+    checkNotNull(engineContext);
+    checkNotNull(streamId);
+    checkNotNull(value);
+
+    final DataStreamStore dataStreams = engineContext.getDataStreams();
+    final DataStream dataStream = dataStreams.getDataStream();
+
+    if (null != dataStream) {
+      // TODO:
+      return new Sequence<Call>();
+    }
+
+    throw new GenerationAbortedException("No suitable data stream is found");
   }
 
   public static String makeErrorMessage(final TestBaseQueryResult queryResult) {

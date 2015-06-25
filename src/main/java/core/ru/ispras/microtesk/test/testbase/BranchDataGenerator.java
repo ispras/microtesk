@@ -27,9 +27,9 @@ import ru.ispras.testbase.stub.Utils;
  */
 public abstract class BranchDataGenerator implements DataGenerator {
   /** Branch condition parameter. */
-  private static final String PARAM_CONDITION = "condition";
-  private static final String PARAM_CONDITION_THEN = "true";
-  private static final String PARAM_CONDITION_ELSE = "false";
+  public static final String PARAM_CONDITION = "condition";
+  public static final String PARAM_CONDITION_THEN = "true";
+  public static final String PARAM_CONDITION_ELSE = "false";
 
   @Override
   public final boolean isSuitable(final TestBaseQuery query) {

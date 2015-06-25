@@ -69,7 +69,7 @@ public final class TestBaseQueryCreator {
 
   private boolean isCreated;
   private TestBaseQuery query;
-  private Map<String, Argument> unknownImmediateValues;
+  private Map<String, Argument> unknownImmValues;
   private Map<String, Argument> modes;
 
   public TestBaseQueryCreator(
@@ -86,7 +86,7 @@ public final class TestBaseQueryCreator {
 
     this.isCreated = false;
     this.query = null;
-    this.unknownImmediateValues = null;
+    this.unknownImmValues = null;
     this.modes = null;
   }
 
@@ -96,11 +96,11 @@ public final class TestBaseQueryCreator {
     return query;
   }
 
-  public Map<String, Argument> getUnknownImmediateValues() {
+  public Map<String, Argument> getUnknownImmValues() {
     createQuery();
 
-    checkNotNull(unknownImmediateValues);
-    return unknownImmediateValues;
+    checkNotNull(unknownImmValues);
+    return unknownImmValues;
   }
 
   public Map<String, Argument> getModes() {
@@ -124,7 +124,7 @@ public final class TestBaseQueryCreator {
 
     final BindingBuilder bindingBuilder = new BindingBuilder(engineContext, queryBuilder, primitive);
 
-    unknownImmediateValues = bindingBuilder.getUnknownValues();
+    unknownImmValues = bindingBuilder.getUnknownValues();
     modes = bindingBuilder.getModes();
 
     query = queryBuilder.build();

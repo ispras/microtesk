@@ -19,8 +19,12 @@ import java.util.ArrayList;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link BranchStructure} implements an internal representation of branch structures (control flow
- * graphs).
+ * {@link BranchStructure} implements an internal representation of branch structures.
+ * 
+ * <p>A branch structure is a sequence of entries. An entry is either a branch or a basic block or
+ * a delay slot. A branch entry is either an if-then entry (a conditional jump) or a goto entry
+ * (an unconditional jump). A branch entry contains the label (an index in the sequence) and the
+ * execution trace (a sequence of jump conditions).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

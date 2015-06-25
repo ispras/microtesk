@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -23,9 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.microtesk.test.template.Call;
-import ru.ispras.microtesk.test.template.LazyData;
-import ru.ispras.microtesk.test.template.Primitive;
 
 public final class Preparator {
   private final LazyPrimitive targetHolder;

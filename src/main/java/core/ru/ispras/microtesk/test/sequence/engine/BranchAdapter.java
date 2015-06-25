@@ -16,16 +16,24 @@ package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getSituationName;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getTestData;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamInit;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamWrite;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.setUnknownImmValues;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
@@ -33,10 +41,17 @@ import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecution;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchTrace;
+import ru.ispras.microtesk.test.sequence.engine.common.TestBaseQueryCreator;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.test.testbase.BranchDataGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestBaseRegistry;
+import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
 
 /**
@@ -131,9 +146,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         return new AdapterResult("Cannot construct the control code");
       }
 
-      // Retrieve the test data generator.
-      final DataGenerator testDataGenerator = getGenerator(engineContext, abstractCall);
-
       try {
         updatePrologue(
             engineContext,
@@ -141,7 +153,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
             abstractCall,
             branchTrace,
             isBasicBlock,
-            testDataGenerator,
             testDataArray);
       } catch (final ConfigurationException e) {
         return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
@@ -210,7 +221,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updatePrologue(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
-      final Sequence<Call> abstractSequence)
+      final List<Call> abstractSequence)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
@@ -224,25 +235,73 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updatePrologue(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
+      final Call abstractCall,
+      final boolean branchCondition,
+      final String testDataArray)
+        throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(testSequenceBuilder);
+    InvariantChecks.checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(testDataArray);
+
+    final Primitive primitive = abstractCall.getRootOperation();
+    InvariantChecks.checkNotNull(primitive);
+
+    final Situation situation = primitive.getSituation();
+    InvariantChecks.checkNotNull(situation);
+
+    // Specify the situation's parameter (branch condition).
+    situation.getAttributes().put(BranchDataGenerator.PARAM_CONDITION,
+        branchCondition ?
+            BranchDataGenerator.PARAM_CONDITION_THEN :
+            BranchDataGenerator.PARAM_CONDITION_ELSE);
+
+    final TestBaseQueryCreator queryCreator =
+        new TestBaseQueryCreator(engineContext, situation, primitive);
+
+    final TestData testData = getTestData(engineContext, primitive, queryCreator);
+    Logger.debug(testData.toString());
+
+    // Set unknown immediate values (if there are any).
+    setUnknownImmValues(queryCreator.getUnknownImmValues(), testData);
+
+    // Initialize test data to ensure branch execution.
+    for (final Map.Entry<String, Node> testDatum : testData.getBindings().entrySet()) {
+      final String name = testDatum.getKey();
+      final Argument argument = queryCreator.getModes().get(name);
+
+      if (argument.getKind() != Argument.Kind.MODE || argument.getMode() == ArgumentMode.OUT) {
+        continue;
+      }
+
+      final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
+      final List<Call> writeDataStream = makeStreamWrite(engineContext, testDataArray, value);
+
+      updatePrologue(engineContext, testSequenceBuilder, writeDataStream);
+    }
+  }
+
+  private void updatePrologue(
+      final EngineContext engineContext,
+      final TestSequence.Builder testSequenceBuilder,
       final Call abstractBranchCall,
       final BranchTrace branchTrace,
       final boolean controlCodeInBasicBlock,
-      final DataGenerator testDataGenerator,
-      final String testDataStream)
+      final String testDataArray)
         throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractBranchCall);
-    InvariantChecks.checkNotNull(testDataGenerator);
 
-    final Sequence<Call> initDataStream = new Sequence<Call>(); // TODO:
+    final List<Call> initDataStream = makeStreamInit(engineContext, testDataArray);
+
     updatePrologue(engineContext, testSequenceBuilder, initDataStream);
 
     for (int i = 0; i < branchTrace.size(); i++) {
       final BranchExecution execution = branchTrace.get(i);
 
       final boolean condition = execution.value();
-      testDataGenerator.generate(null); // TODO:
+      // TODO:
 
       final int count = controlCodeInBasicBlock ?
           execution.getBlockCoverageCount() : execution.getSlotCoverageCount();
