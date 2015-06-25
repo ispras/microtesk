@@ -46,7 +46,7 @@ public final class StreamStore {
     streams.put(stream.getStartLabelName(), stream);
   }
 
-  public void addStream(
+  public Stream addStream(
       final String startLabelName,
       final Primitive dataSource,
       final Primitive indexSource,
@@ -60,5 +60,6 @@ public final class StreamStore {
         startLabelName, dataSource, indexSource, length);
 
     addStream(stream);
+    return stream;
   }
 }
