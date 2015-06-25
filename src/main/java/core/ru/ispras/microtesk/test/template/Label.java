@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -32,10 +32,10 @@ public final class Label {
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
    * 
-   * @throws NullPointerException if any of the parameters equals null.
+   * @throws IllegalStateException if any of the parameters equals {@code null}.
    */
 
-  public Label(String name, BlockId blockId) {
+  public Label(final String name, final BlockId blockId) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(blockId);
 
