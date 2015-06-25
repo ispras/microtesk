@@ -475,6 +475,30 @@ public final class Template {
         startLabelName, dataSource.getName(), indexSource.getName(), length);
 
     streams.addStream(startLabelName, dataSource, indexSource, length);
+
+    /*
+    // THIS IS CODE TO TEST DATA STREAMS. IT ADDS CALLS FROM DATA STREAMS
+    // TO THE CURRENT TEST SEQUENCE.
+    final Stream stream = streams.addStream(startLabelName, dataSource, indexSource, length);
+    for (final Call call : stream.getInit()) {
+      blockBuilders.peek().addCall(call);
+    }
+
+    int index = 0;
+    while (index < length) {
+      for (final Call call : stream.getRead()) {
+        blockBuilders.peek().addCall(call);
+      }
+      index++;
+
+      if (index < length) {
+        for (final Call call : stream.getWrite()) {
+          blockBuilders.peek().addCall(call);
+        }
+        index++;
+      }
+    }
+    */
   }
 
   public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {
