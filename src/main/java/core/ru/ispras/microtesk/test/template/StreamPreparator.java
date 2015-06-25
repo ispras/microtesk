@@ -79,4 +79,17 @@ public final class StreamPreparator {
     return String.format("StreamPreparator [data_source=%s, index_source=%s]",
         data.getName(), index.getName());
   }
+
+  public static String getId(
+      final Primitive data, final Primitive index) {
+
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkNotNull(index);
+
+    return String.format("%s_%s", data.getName(), index.getName());
+  }
+
+  public String getId() {
+    return getId(data, index);
+  }
 }

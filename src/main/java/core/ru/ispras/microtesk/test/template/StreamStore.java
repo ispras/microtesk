@@ -20,21 +20,22 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class StreamStore {
-  private StreamPreparator preparator;
+  private Map<String, StreamPreparator> preparators;
   private Map<String, Stream> streams;
 
   public StreamStore() {
-    this.preparator = null;
+    this.preparators = new HashMap<>();
     this.streams = new HashMap<>();
   }
 
-  public StreamPreparator getPreparator() {
-    return preparator;
+  public StreamPreparator getPreparator(
+      final Primitive data, final Primitive index) {
+    return preparators.get(StreamPreparator.getId(data, index));
   }
 
   public void addPreparator(final StreamPreparator preparator) {
     InvariantChecks.checkNotNull(preparator);
-    this.preparator = preparator;
+    preparators.put(preparator.getId(), preparator);
   }
 
   public Stream getStream(final String startLabelName) {
@@ -52,8 +53,13 @@ public final class StreamStore {
       final Primitive indexSource,
       final int length) {
 
+    final StreamPreparator preparator = 
+        getPreparator(dataSource, indexSource);
+
     if (null == preparator) {
-      throw new IllegalStateException("No stream preparator is defined.");
+      throw new IllegalStateException(String.format(
+          "No stream preparator is defined for %s (data) and %s (index) addressing modes.",
+          dataSource.getName(), indexSource.getName()));
     }
 
     final Stream stream = preparator.newStream(
