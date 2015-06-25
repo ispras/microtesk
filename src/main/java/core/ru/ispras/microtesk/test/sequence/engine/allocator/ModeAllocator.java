@@ -26,6 +26,7 @@ import ru.ispras.microtesk.settings.StrategySettings;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
@@ -118,6 +119,12 @@ public final class ModeAllocator {
             use(primitive.getName(), unknownValue.getValue());
           }
           break;
+        case IMM_LAZY:
+          final LazyValue lazyValue = (LazyValue) arg.getValue();
+          if (primitive.getKind() == Primitive.Kind.MODE) {
+            use(primitive.getName(), lazyValue.getValue());
+          }
+          break;
         default:
           useInitializedModes((Primitive) arg.getValue());
           break;
@@ -130,6 +137,7 @@ public final class ModeAllocator {
       switch (arg.getKind()) {
         case IMM:
         case IMM_RANDOM:
+        case IMM_LAZY:
           break;
         case IMM_UNKNOWN:
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
