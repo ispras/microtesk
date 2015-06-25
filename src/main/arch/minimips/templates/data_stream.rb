@@ -27,8 +27,11 @@ class DataStreamTemplate < MiniMipsBaseTemplate
     super
 
     data {
-      label :data
+      label :data1
       word 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+      label :data2
+      word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9),
+           rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
       label :end
       space 1
     }
@@ -51,7 +54,8 @@ class DataStreamTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    stream :data, t0, t1, 16
+    stream :data1, t0, t1, 16
+    stream :data2, s0, s1, 8
   end
 
 end

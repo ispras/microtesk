@@ -470,6 +470,7 @@ public final class Template {
         startLabelName, dataSource.getName(), indexSource.getName(), length);
 
     streams.addStream(startLabelName, dataSource, indexSource, length);
+
     /*
     // THIS IS CODE TO TEST DATA STREAMS. IT ADDS CALLS FROM DATA STREAMS
     // TO THE CURRENT TEST SEQUENCE.
