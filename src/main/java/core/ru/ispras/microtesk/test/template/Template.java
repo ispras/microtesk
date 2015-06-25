@@ -380,11 +380,6 @@ public final class Template {
   public StreamPreparatorBuilder beginStreamPreparator(
       final String dataModeName, final String indexModeName) {
 
-    if (streams.getPreparator() != null) {
-      throw new IllegalStateException(
-          "Stream preparator is already defined. Only one definition is allowed.");
-    }
-
     endBuildingCall();
 
     Logger.debug("Begin stream preparator(data_source: %s, index_source: %s)",
@@ -417,7 +412,7 @@ public final class Template {
     Logger.debug("End stream preparator");
 
     final StreamPreparator streamPreparator = streamPreparatorBuilder.build();
-    streams.setPreparator(streamPreparator);
+    streams.addPreparator(streamPreparator);
 
     streamPreparatorBuilder = null;
   }

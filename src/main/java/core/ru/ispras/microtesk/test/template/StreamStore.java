@@ -32,7 +32,7 @@ public final class StreamStore {
     return preparator;
   }
 
-  public void setPreparator(final StreamPreparator preparator) {
+  public void addPreparator(final StreamPreparator preparator) {
     InvariantChecks.checkNotNull(preparator);
     this.preparator = preparator;
   }
