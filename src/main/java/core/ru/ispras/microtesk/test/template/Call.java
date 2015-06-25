@@ -37,6 +37,13 @@ public final class Call {
     this.outputs = Collections.unmodifiableList(outputs);
   }
 
+  private Call(final Call call) {
+    this.rootOperation = call.rootOperation; // TODO: CLONE HERE! 
+    this.labels = call.labels;
+    this.labelRefs = call.labelRefs; // TODO: CLONE HERE!
+    this.outputs = call.outputs;
+  }
+
   public boolean isExecutable() {
     return null != rootOperation;
   }
@@ -103,8 +110,7 @@ public final class Call {
   }
 
   public Call newCopy() {
-    // TODO
-    return this;
+    return new Call(this);
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
