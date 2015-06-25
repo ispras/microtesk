@@ -117,7 +117,7 @@ public final class BranchEngine implements Engine<BranchSolution> {
       }
     }
 
-    Logger.debug("%nConstruct branch structure: %s", branchStructure);
+    Logger.debug("%nBranch Structure: %s", branchStructure);
 
     final Iterator<BranchSolution> iterator = new Iterator<BranchSolution>() {
       // TODO: Block attributes should be used.
@@ -155,7 +155,6 @@ public final class BranchEngine implements Engine<BranchSolution> {
       }
     };
 
-    Logger.debug("%nReturn the solution iterator");
     return new EngineResult<>(EngineResult.Status.OK, iterator, Collections.<String>emptyList());
   }
 }

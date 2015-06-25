@@ -39,6 +39,7 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.sequence.Configuration;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
@@ -486,11 +487,19 @@ public final class TestEngine {
 
         Logger.debugHeader("Generating Data for %s", sequenceId);
 
-        final Iterator<TestSequence> iterator = engine.process(engineContext, abstractSequence);
+        final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
         checkNotNull(iterator);
 
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
-          final TestSequence concreteSequence = iterator.value();
+          final AdapterResult adapterResult = iterator.value();
+          checkNotNull(adapterResult);
+
+          if (adapterResult.getStatus() != AdapterResult.Status.OK) {
+            Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
+            continue;
+          }
+
+          final TestSequence concreteSequence = adapterResult.getResult();;
           checkNotNull(concreteSequence);
 
           Logger.debugHeader("Executing %s", sequenceId);
@@ -563,11 +572,20 @@ public final class TestEngine {
       while (sequenceIt.hasValue()) {
         final Sequence<Call> abstractSequence = sequenceIt.value();
 
-        final Iterator<TestSequence> iterator = engine.process(engineContext, abstractSequence);
+        final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
 
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
+          final AdapterResult adapterResult = iterator.value();
+          checkNotNull(adapterResult);
+
+          if (adapterResult.getStatus() != AdapterResult.Status.OK) {
+            Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
+            continue;
+          }
+
           Logger.debugHeader("Generating Data");
-          final TestSequence concreteSequence = iterator.value();
+          final TestSequence concreteSequence = adapterResult.getResult();;
+          checkNotNull(concreteSequence);
 
           Logger.debugHeader("Executing");
           executor.executeSequence(concreteSequence);

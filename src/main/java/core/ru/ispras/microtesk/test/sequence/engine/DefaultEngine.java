@@ -22,7 +22,6 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeEr
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeInitializer;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeMode;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,13 +84,9 @@ public final class DefaultEngine implements Engine<TestSequence> {
     checkNotNull(abstractSequence);
 
     try {
-      return new EngineResult<>(EngineResult.Status.OK,
-                                new SingleValueIterator<>(process(engineContext, abstractSequence)),
-                                Collections.<String>emptyList());
+      return new EngineResult<>(new SingleValueIterator<>(process(engineContext, abstractSequence)));
     } catch (final ConfigurationException e) {
-      return new EngineResult<>(EngineResult.Status.ERROR,
-                                null,
-                                Collections.singletonList(e.getMessage()));
+      return new EngineResult<>(e.getMessage());
     }
   }
 

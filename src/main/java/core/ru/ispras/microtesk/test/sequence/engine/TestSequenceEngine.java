@@ -15,10 +15,8 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Call;
@@ -26,7 +24,7 @@ import ru.ispras.microtesk.test.template.Call;
 /**
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
-public final class TestSequenceEngine implements Engine<TestSequence> {
+public final class TestSequenceEngine implements Engine<AdapterResult> {
   private final Engine<?> engine;
   private final Adapter<?> adapter;
 
@@ -39,12 +37,12 @@ public final class TestSequenceEngine implements Engine<TestSequence> {
   }
 
   @Override
-  public Class<TestSequence> getSolutionClass() {
-    return TestSequence.class;
+  public Class<AdapterResult> getSolutionClass() {
+    return AdapterResult.class;
   }
 
   @Override
-  public EngineResult<TestSequence> solve(
+  public EngineResult<AdapterResult> solve(
       final EngineContext engineContext, final Sequence<Call> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -52,15 +50,15 @@ public final class TestSequenceEngine implements Engine<TestSequence> {
     final EngineResult<?> result = solve(engine, engineContext, abstractSequence);
 
     if (result.getStatus() != EngineResult.Status.OK) {
-      return new EngineResult<TestSequence>(result.getStatus(), null, result.getErrors());
+      return new EngineResult<AdapterResult>(result.getStatus(), null, result.getErrors());
     }
 
     return adapt(adapter, engineContext, abstractSequence, result.getResult());
   }
 
-  public Iterator<TestSequence> process(
+  public Iterator<AdapterResult> process(
       final EngineContext engineContext, final Sequence<Call> abstractSequence) {
-    final EngineResult<TestSequence> result = solve(engineContext, abstractSequence);
+    final EngineResult<AdapterResult> result = solve(engineContext, abstractSequence);
 
     if (result.getStatus() != EngineResult.Status.OK) {
       final String msg = listErrors(
@@ -79,12 +77,12 @@ public final class TestSequenceEngine implements Engine<TestSequence> {
     return engine.solve(engineContext, abstractSequence);
   }
 
-  private static <T> EngineResult<TestSequence> adapt(
+  private static <T> EngineResult<AdapterResult> adapt(
       final Adapter<T> adapter,
       final EngineContext engineContext,
       final Sequence<Call> abstractSequence,
       final Iterator<?> solutionIterator) {
-    final Iterator<TestSequence> testSequenceIterator = new Iterator<TestSequence>() {
+    final Iterator<AdapterResult> resultIterator = new Iterator<AdapterResult>() {
       @Override public void init() {
         solutionIterator.init();
       }
@@ -93,13 +91,11 @@ public final class TestSequenceEngine implements Engine<TestSequence> {
         return solutionIterator.hasValue();
       }
 
-      @Override public TestSequence value() {
+      @Override public AdapterResult value() {
         final Object solution = solutionIterator.value(); 
         final Class<T> solutionClass = adapter.getSolutionClass();
-        final TestSequence testSequence =
-            adapter.adapt(engineContext, abstractSequence, solutionClass.cast(solution));
 
-        return testSequence;
+        return adapter.adapt(engineContext, abstractSequence, solutionClass.cast(solution));
       }
 
       @Override public void next() {
@@ -107,8 +103,7 @@ public final class TestSequenceEngine implements Engine<TestSequence> {
       }
     };
 
-    return new EngineResult<TestSequence>(
-        EngineResult.Status.OK, testSequenceIterator, Collections.<String>emptyList());
+    return new EngineResult<AdapterResult>(resultIterator);
   }
 
   private static String listErrors(final String message, final Collection<String> errors) {

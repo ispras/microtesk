@@ -52,7 +52,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   }
 
   @Override
-  public TestSequence adapt(
+  public AdapterResult adapt(
       final EngineContext engineContext,
       final Sequence<Call> abstractSequence,
       final BranchSolution solution) {
@@ -128,8 +128,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       }
 
       if (!isInserted) {
-        Logger.debug("%nCannot construct the control code");
-        return null;
+        return new AdapterResult("Cannot construct the control code");
       }
 
       // Retrieve the test data generator.
@@ -145,8 +144,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
             testDataGenerator,
             testDataArray);
       } catch (final ConfigurationException e) {
-        Logger.debug("%nCannot convert the abstract sequence into the concrete one");
-        return null;
+        return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
       }
     }
 
@@ -177,12 +175,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       updateBody(engineContext, testSequenceBuilder, modifiedSequence);
     } catch (final ConfigurationException e) {
       // Cannot convert the abstract code into the concrete code.
-      Logger.debug("%nCannot convert the abstract sequence into the concrete one");
-      return null;
+      return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
     }
 
     Logger.debug("%nReturn the test sequence");
-    return testSequenceBuilder.build();
+    return new AdapterResult(testSequenceBuilder.build());
   }
 
   private DataGenerator getGenerator(final EngineContext engineContext, final Call abstractCall) {

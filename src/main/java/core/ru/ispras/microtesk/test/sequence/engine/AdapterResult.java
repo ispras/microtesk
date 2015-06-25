@@ -18,31 +18,31 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.Result;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.test.TestSequence;
 
 /**
- * {@link EngineResult} defines result of a {@link Engine}.
+ * {@link AdapterResult} defines result of a {@link Adapter}.
  * 
- * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class EngineResult<T> extends Result<EngineResult.Status, Iterator<T>> {
+public final class AdapterResult extends Result<AdapterResult.Status, TestSequence> {
   public static enum Status {
     OK,
     ERROR
   }
 
-  public EngineResult(
-      final EngineResult.Status status,
-      final Iterator<T> result,
+  public AdapterResult(
+      final AdapterResult.Status status,
+      final TestSequence result,
       final List<String> errors) {
     super(status, result, errors);
   }
 
-  public EngineResult(final Iterator<T> result) {
+  public AdapterResult(final TestSequence result) {
     super(Status.OK, result, Collections.<String>emptyList());
   }
 
-  public EngineResult(final String error) {
+  public AdapterResult(final String error) {
     super(Status.ERROR, null, Collections.singletonList(error));
   }
 }
