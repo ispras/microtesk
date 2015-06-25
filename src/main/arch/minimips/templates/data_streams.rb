@@ -21,7 +21,7 @@ require_relative 'minimips_base'
 #
 # This test template demonstrates how to use data stream constucts.
 #
-class DataStreamTemplate < MiniMipsBaseTemplate
+class DataStreamsTemplate < MiniMipsBaseTemplate
 
   def pre
     super

@@ -510,6 +510,14 @@ class Template
   def stream(label, data, index, length)
     @template.addStream label.to_s, data, index, length
   end
+  
+  # -------------------------------------------------------------------------- #
+  # Generating Data Files                                                      #
+  # -------------------------------------------------------------------------- #
+
+  def generate_data(address, label, type, length, method)
+    # puts "Generating data file"
+  end
 
   # -------------------------------------------------------------------------- #
   # Data Definition Facilities                                                 #
