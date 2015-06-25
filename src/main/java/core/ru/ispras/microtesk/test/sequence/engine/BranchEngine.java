@@ -21,10 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructureExecutionIterator;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecutionIterator;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Call;
@@ -116,8 +117,10 @@ public final class BranchEngine implements Engine<BranchSolution> {
       }
     }
 
+    Logger.debug("%nConstruct branch structure: %s", branchStructure);
+
     final Iterator<BranchSolution> iterator = new Iterator<BranchSolution>() {
-      // TODO:
+      // TODO: Block attributes should be used.
       private final int maxBranchExecution = 10;
 
       /** Iterator of branch structures. */
@@ -125,8 +128,8 @@ public final class BranchEngine implements Engine<BranchSolution> {
           new SingleValueIterator<BranchStructure>(branchStructure);
 
       /** Iterator of branch structures and execution trances. */
-      private final BranchStructureExecutionIterator branchStructureExecutionIterator =
-          new BranchStructureExecutionIterator(branchStructureIterator, maxBranchExecution);
+      private final BranchExecutionIterator branchStructureExecutionIterator =
+          new BranchExecutionIterator(branchStructureIterator, maxBranchExecution);
 
       @Override
       public void init() {
@@ -140,10 +143,10 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
       @Override
       public BranchSolution value() {
-        final BranchSolution branchTemplateSolution = new BranchSolution();
-        branchTemplateSolution.setBranchStructure(branchStructureExecutionIterator.value());
+        final BranchSolution branchSolution = new BranchSolution();
+        branchSolution.setBranchStructure(branchStructureExecutionIterator.value());
 
-        return branchTemplateSolution;
+        return branchSolution;
       }
 
       @Override
@@ -152,6 +155,7 @@ public final class BranchEngine implements Engine<BranchSolution> {
       }
     };
 
+    Logger.debug("%nReturn the solution iterator");
     return new EngineResult<>(EngineResult.Status.OK, iterator, Collections.<String>emptyList());
   }
 }

@@ -26,13 +26,13 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public final class BranchTraceIterator implements Iterator<BranchStructure> {
   /** Current branch structure. */
-  private BranchStructure branchStructure;
+  private final BranchStructure branchStructure;
 
   /** Upper bound of branch occurrences in a trace. */
-  private int maxBranchExecution;
+  private final int maxBranchExecution;
 
   /** Stack of branches. */
-  private Stack<Integer> branchStack;
+  private final Stack<Integer> branchStack;
 
   /** Current branch index. */
   private int currentBranch;
@@ -41,11 +41,75 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
   private boolean hasValue;
 
   public BranchTraceIterator(final BranchStructure branchStructure, final int maxBranchExecution) {
-    init(branchStructure, maxBranchExecution);
+    InvariantChecks.checkNotNull(branchStructure);
+    InvariantChecks.checkTrue(maxBranchExecution >= 0);
+
+    this.branchStructure = branchStructure;
+    this.maxBranchExecution = maxBranchExecution;
+    this.branchStack = new Stack<Integer>();
+
+    hasValue = false;
   }
 
   public BranchTraceIterator(final BranchStructure branchStructure) {
     this(branchStructure, 1);
+  }
+
+  @Override
+  public void init() {
+    hasValue = !branchStructure.isEmpty();
+
+    // Clear the execution traces.
+    branchStack.clear();
+    for (int i = 0; i < branchStructure.size(); i++) {
+      final BranchEntry branchEntry = branchStructure.get(i);
+      final BranchTrace branchTrace = branchEntry.getBranchTrace();
+
+      branchTrace.clear();
+    }
+
+    currentBranch = 0;
+    searchNextBranch();
+
+    if (currentBranch != -1) {
+      // Find the first branch execution trace.
+      next();
+    } else {
+      // Do nothing: the structure does not contain branches.
+    }
+  }
+
+  @Override
+  public boolean hasValue() {
+    return hasValue;
+  }
+
+  @Override
+  public BranchStructure value() {
+    InvariantChecks.checkTrue(hasValue());
+    return branchStructure;
+  }
+
+  @Override
+  public void next() {
+    while (hasValue()) {
+      final BranchTraceConstructor branchTraceConstructor =
+          new BranchTraceConstructor(nextBranchStructure());
+
+      if (hasValue() && branchTraceConstructor.construct()) {
+        break;
+      }
+    }
+  }
+
+  @Override
+  public void stop() {
+    hasValue = false;
+  }
+
+  @Override
+  public BranchTraceIterator clone() {
+    return new BranchTraceIterator(this);
   }
 
   private BranchTraceIterator(final BranchTraceIterator r) {
@@ -60,45 +124,6 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
     this.branchStack.addAll(r.branchStack);
   }
 
-  public void init(final BranchStructure branchStructure, final int maxBranchExecution) {
-    InvariantChecks.checkNotNull(branchStructure);
-    InvariantChecks.checkTrue(maxBranchExecution >= 0);
-
-    this.branchStructure = branchStructure;
-    this.maxBranchExecution = maxBranchExecution;
-    this.branchStack = new Stack<Integer>();
-
-    init();
-  }
-
-  @Override
-  public void init() {
-    branchStack.clear();
-
-    for (currentBranch = 0; currentBranch < branchStructure.size(); currentBranch++) {
-      BranchEntry entry = branchStructure.get(currentBranch);
-
-      if (entry.isBranch()) {
-        break;
-      }
-    }
-
-    hasValue = !branchStructure.isEmpty();
-
-    // Find the first branch execution trace.
-    next();
-  }
-
-  @Override
-  public boolean hasValue() {
-    return hasValue;
-  }
-
-  @Override
-  public BranchStructure value() {
-    return branchStructure;
-  }
-
   private void performBranching() {
     final BranchEntry entry = branchStructure.get(currentBranch);
     final BranchTrace trace = entry.getBranchTrace();
@@ -109,7 +134,7 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
 
   private void searchNextBranch() {
     for (; currentBranch < branchStructure.size(); currentBranch++) {
-      BranchEntry entry = branchStructure.get(currentBranch);
+      final BranchEntry entry = branchStructure.get(currentBranch);
 
       if (entry.isBranch()) {
         return;
@@ -142,10 +167,8 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
 
       if (!isTraceCompleted && trace.size() < maxBranchExecution) {
         // Prolong the trace if it is not completed.
-        {
-          trace.addExecution(entry.isIfThen());
-          branchStack.push(currentBranch);
-        }
+        trace.addExecution(entry.isIfThen());
+        branchStack.push(currentBranch);
 
         handleBranch();
 
@@ -194,10 +217,8 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
             }
           }
 
-          {
-            trace.removeLastExecution();
-            branchStack.pop();
-          }
+          trace.removeLastExecution();
+          branchStack.pop();
         }
 
         if (branchStack.isEmpty()) {
@@ -210,27 +231,5 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
     }
 
     return branchStructure;
-  }
-
-  @Override
-  public void next() {
-    while (hasValue()) {
-      final BranchTraceConstructor branchTraceConstructor =
-          new BranchTraceConstructor(nextBranchStructure());
-
-      if (hasValue() && branchTraceConstructor.construct()) {
-        break;
-      }
-    }
-  }
-
-  @Override
-  public void stop() {
-    hasValue = false;
-  }
-
-  @Override
-  public BranchTraceIterator clone() {
-    return new BranchTraceIterator(this);
   }
 }

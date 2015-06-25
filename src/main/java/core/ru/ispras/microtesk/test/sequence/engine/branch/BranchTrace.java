@@ -59,6 +59,13 @@ public final class BranchTrace {
   }
 
   /**
+   * Removes all executions from the trace.
+   */
+  public void clear() {
+    executions.clear();
+  }
+
+  /**
    * Adds an execution to the trace.
    */
   public void add() {
@@ -208,6 +215,11 @@ public final class BranchTrace {
   public boolean getCondition(int i) {
     final BranchExecution execution = executions.get(i);
     return execution.value();
+  }
+
+  @Override
+  public String toString() {
+    return executions.toString();
   }
 
   @Override

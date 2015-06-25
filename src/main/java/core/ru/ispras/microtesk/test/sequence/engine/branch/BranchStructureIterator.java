@@ -24,7 +24,7 @@ import ru.ispras.testbase.knowledge.iterator.IntRangeIterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
- * {@link BranchStructureExecutionIterator} implements an iterator of valid branch structures for given branch
+ * {@link BranchExecutionIterator} implements an iterator of valid branch structures for given branch
  * instructions (conditional and unconditional jumps, procedures calls, etc.).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

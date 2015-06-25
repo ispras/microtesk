@@ -18,18 +18,18 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
- * {@link BranchStructureExecutionIterator} implements a composite iterator of branch structures and
+ * {@link BranchExecutionIterator} implements a composite iterator of branch structures and
  * execution traces.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchStructureExecutionIterator implements Iterator<BranchStructure> {
+public final class BranchExecutionIterator implements Iterator<BranchStructure> {
   private final int maxBranchExecution;
   private final Iterator<BranchStructure> branchStructureIterator;
   private BranchTraceIterator branchTraceIterator;
   private boolean hasValue;
 
-  public BranchStructureExecutionIterator(
+  public BranchExecutionIterator(
       final Iterator<BranchStructure> branchStructureIterator,
       final int maxBranchExecution) {
     InvariantChecks.checkNotNull(branchStructureIterator);
@@ -38,7 +38,7 @@ public final class BranchStructureExecutionIterator implements Iterator<BranchSt
     this.branchStructureIterator = branchStructureIterator;
     this.maxBranchExecution = maxBranchExecution;
 
-    init();
+    hasValue = false;
   }
 
   private boolean initBranchStructureIterator() {
@@ -56,7 +56,9 @@ public final class BranchStructureExecutionIterator implements Iterator<BranchSt
   }
 
   private boolean initBranchTraceIterator() {
-    branchTraceIterator = new BranchTraceIterator(branchStructureIterator.value(), maxBranchExecution);
+    branchTraceIterator =
+        new BranchTraceIterator(branchStructureIterator.value(), maxBranchExecution);
+
     branchTraceIterator.init();
 
     return branchTraceIterator.hasValue();
@@ -83,6 +85,7 @@ public final class BranchStructureExecutionIterator implements Iterator<BranchSt
 
   @Override
   public BranchStructure value() {
+    InvariantChecks.checkTrue(hasValue());
     return branchTraceIterator.value();
   }
 

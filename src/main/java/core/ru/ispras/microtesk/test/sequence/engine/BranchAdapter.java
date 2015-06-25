@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.Sequence;
@@ -127,7 +128,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       }
 
       if (!isInserted) {
-        // Cannot construct the control code.
+        Logger.debug("%nCannot construct the control code");
         return null;
       }
 
@@ -144,7 +145,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
             testDataGenerator,
             testDataArray);
       } catch (final ConfigurationException e) {
-        // Cannot convert the abstract code into the concrete code.
+        Logger.debug("%nCannot convert the abstract sequence into the concrete one");
         return null;
       }
     }
@@ -156,7 +157,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     modifiedSequence.addAll(abstractSequence);
 
     for (final Map.Entry<Integer, Sequence<Call>> entry : steps.entrySet()) {
-      final Integer position = entry.getKey();
+      final int position = entry.getKey();
       final Sequence<Call> controlCode = entry.getValue();
 
       modifiedSequence.addAll(position + correction, controlCode);
@@ -176,9 +177,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       updateBody(engineContext, testSequenceBuilder, modifiedSequence);
     } catch (final ConfigurationException e) {
       // Cannot convert the abstract code into the concrete code.
+      Logger.debug("%nCannot convert the abstract sequence into the concrete one");
       return null;
     }
 
+    Logger.debug("%nReturn the test sequence");
     return testSequenceBuilder.build();
   }
 

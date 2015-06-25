@@ -154,7 +154,7 @@ final class BranchTraceConstructor {
       final BranchTrace trace = entry.getBranchTrace();
 
       for (int j = 0; j < trace.size(); j++) {
-        BranchExecution execution = trace.get(j);
+        final BranchExecution execution = trace.get(j);
         execution.clear();
       }
     }
