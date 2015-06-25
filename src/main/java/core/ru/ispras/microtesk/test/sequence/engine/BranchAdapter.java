@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.sequence.engine;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getTestData;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeInitializer;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamInit;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamRead;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamWrite;
@@ -227,7 +228,8 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final TestSequence.Builder testSequenceBuilder,
       final Call abstractCall,
       final boolean branchCondition,
-      final String testDataArray)
+      final String testDataArray,
+      final boolean writeIntoStream)
         throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
@@ -271,10 +273,14 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         continue;
       }
 
-      final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
-      final List<Call> writeDataStream = makeStreamWrite(engineContext, testDataArray, value);
+      final Primitive mode = (Primitive) argument.getValue();
 
-      updatePrologue(engineContext, testSequenceBuilder, writeDataStream);
+      final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
+
+      final List<Call> initializingCalls = writeIntoStream ?
+          makeStreamWrite(engineContext, testDataArray, value) : makeInitializer(engineContext, mode, value);
+
+      updatePrologue(engineContext, testSequenceBuilder, initializingCalls);
     }
   }
 
@@ -293,6 +299,10 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     final List<Call> initDataStream = makeStreamInit(engineContext, testDataArray);
     updatePrologue(engineContext, testSequenceBuilder, initDataStream);
 
+    // If the control code is not executed before the first branch execution,
+    // the registers of the branch instruction should be initialized.
+    boolean needsInitialization = !branchTrace.isEmpty();
+
     for (int i = 0; i < branchTrace.size(); i++) {
       final BranchExecution execution = branchTrace.get(i);
 
@@ -301,17 +311,35 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final int count = controlCodeInBasicBlock ?
           execution.getBlockCoverageCount() : execution.getSlotCoverageCount();
 
+      if(i == 0 && count > 0) {
+        needsInitialization = false;
+      }
+
       for (int j = 0; j < count; j++) {
         updatePrologue(
             engineContext,
             testSequenceBuilder,
             abstractBranchCall,
             branchCondition,
-            testDataArray);
+            testDataArray,
+            true /* Write into the stream */);
       }
     }
 
     updatePrologue(engineContext, testSequenceBuilder, initDataStream);
+
+    if (needsInitialization) {
+      final BranchExecution execution = branchTrace.get(0);
+      final boolean branchCondition = execution.value();
+
+      updatePrologue(
+          engineContext,
+          testSequenceBuilder,
+          abstractBranchCall,
+          branchCondition,
+          testDataArray,
+          false /* Write into the registers */);
+    }
   }
 
   private void updateBody(
