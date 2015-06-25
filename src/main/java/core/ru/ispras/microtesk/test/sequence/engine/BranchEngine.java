@@ -117,11 +117,11 @@ public final class BranchEngine implements Engine<BranchSolution> {
       }
     }
 
-    Logger.debug("%nBranch Structure: %s", branchStructure);
+    Logger.debug("Branch Structure: %s", branchStructure);
 
     final Iterator<BranchSolution> iterator = new Iterator<BranchSolution>() {
       // TODO: Block attributes should be used.
-      private final int maxBranchExecution = 10;
+      private final int maxBranchExecution = 2;
 
       /** Iterator of branch structures. */
       private final Iterator<BranchStructure> branchStructureIterator =

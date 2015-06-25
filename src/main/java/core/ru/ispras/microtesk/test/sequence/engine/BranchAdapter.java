@@ -22,6 +22,7 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeSt
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamWrite;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.setUnknownImmValues;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,6 +74,8 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
     final BranchStructure branchStructure = solution.getBranchStructure();
     InvariantChecks.checkTrue(abstractSequence.size() == branchStructure.size());
+
+    Logger.debug("Branch Structure: %s", branchStructure);
 
     // Allocate uninitialized addressing modes.
     allocateModes(abstractSequence);
@@ -139,7 +142,10 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       }
 
       if (!isInserted) {
-        return new AdapterResult("Cannot construct the control code");
+        return new AdapterResult(
+            String.format("Cannot construct the control code: blockCoverage=%s, slotCoverage=%s",
+                (blockCoverage != null ? blockCoverage.toString() : "[]"),
+                (slotCoverage != null ? slotCoverage.toString() : "[]")));
       }
 
       try {
@@ -185,7 +191,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
     }
 
-    Logger.debug("%nReturn the test sequence");
     return new AdapterResult(testSequenceBuilder.build());
   }
 
@@ -234,14 +239,21 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     final Situation situation = primitive.getSituation();
     InvariantChecks.checkNotNull(situation);
 
+    final Map<String, Object> attributes = situation.getAttributes();
+    InvariantChecks.checkNotNull(attributes);
+
     // Specify the situation's parameter (branch condition).
-    situation.getAttributes().put(BranchDataGenerator.PARAM_CONDITION,
+    final Map<String, Object> newAttributes = new HashMap<>(attributes);
+
+    newAttributes.put(BranchDataGenerator.PARAM_CONDITION,
         branchCondition ?
             BranchDataGenerator.PARAM_CONDITION_THEN :
             BranchDataGenerator.PARAM_CONDITION_ELSE);
 
+    final Situation newSituation = new Situation(situation.getName(), newAttributes);
+
     final TestBaseQueryCreator queryCreator =
-        new TestBaseQueryCreator(engineContext, situation, primitive);
+        new TestBaseQueryCreator(engineContext, newSituation, primitive);
 
     final TestData testData = getTestData(engineContext, primitive, queryCreator);
     Logger.debug(testData.toString());

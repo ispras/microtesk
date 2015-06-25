@@ -23,7 +23,7 @@ public final class Situation {
   private final String name;
   private final Map<String, Object> attributes;
 
-  Situation(final String name, final Map<String, Object> attributes) {
+  public Situation(final String name, final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(name);
 
     this.name = name;
