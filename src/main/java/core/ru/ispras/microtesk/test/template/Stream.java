@@ -16,62 +16,49 @@ package ru.ispras.microtesk.test.template;
 
 import java.util.Collections;
 import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class StreamPreparator {
+public final class Stream {
   private final List<Call> init;
   private final List<Call> read;
   private final List<Call> write;
+  private final int length;
+  private int index;
 
-  private final LazyPrimitive data;
-  private final LazyPrimitive index;
-  private final LazyLabel startLabel;
-
-  protected StreamPreparator(
+  protected Stream(
       final List<Call> init,
       final List<Call> read,
       final List<Call> write,
-      final LazyPrimitive data,
-      final LazyPrimitive index,
-      final LazyLabel startLabel) {
+      final int length) {
     InvariantChecks.checkNotNull(init);
     InvariantChecks.checkNotNull(read);
     InvariantChecks.checkNotNull(write);
-
-    InvariantChecks.checkNotNull(data);
-    InvariantChecks.checkNotNull(index);
-    InvariantChecks.checkNotNull(startLabel);
+    InvariantChecks.checkGreaterThanZero(length);
 
     this.init = Collections.unmodifiableList(init);
     this.read = Collections.unmodifiableList(read);
     this.write = Collections.unmodifiableList(write);
 
-    this.data = data;
-    this.index = index;
-    this.startLabel = startLabel;
+    this.length = length;
+    this.index = 0;
   }
 
-  public Stream newStream(
-      final Primitive dataSource,
-      final Primitive indexSource,
-      final String startLabel,
-      final int length) {
-    InvariantChecks.checkNotNull(dataSource);
-    InvariantChecks.checkNotNull(indexSource);
-    InvariantChecks.checkNotNull(startLabel);
-    InvariantChecks.checkGreaterThanZero(length);
-
-    this.data.setSource(dataSource);
-    this.index.setSource(indexSource);
-    this.startLabel.setSource(startLabel);
-
-    // TODO: CLONE calls in init, read, write
-    return new Stream(init, read, write, length);
+  public List<Call> getInit() {
+    return init;
   }
 
-  @Override
-  public String toString() {
-    return String.format("StreamPreparator [data_source=%s, index_source=%s]",
-        data.getName(), index.getName());
+  public List<Call> getRead() {
+    InvariantChecks.checkBounds(index++, length);
+    return read;
+  }
+
+  public List<Call> getWrite() {
+    InvariantChecks.checkBounds(index++, length);
+    return write;
+  }
+
+  public boolean hasNext() {
+    return index < length;
   }
 }
