@@ -476,7 +476,7 @@ class Template
   end
 
   # -------------------------------------------------------------------------- #
-  # Creating Data Streams                                                      #
+  # Creating Stream Preparators                                                #
   # -------------------------------------------------------------------------- #
 
   def stream_preparator(attrs, &contents)
@@ -501,6 +501,14 @@ class Template
 
   def start_label
     @template.getStartLabel
+  end
+
+  # -------------------------------------------------------------------------- #
+  # Creating Streams                                                           #
+  # -------------------------------------------------------------------------- #
+  
+  def stream(label, data, index, length)
+    @template.addStream label.to_s, data, index, length
   end
 
   # -------------------------------------------------------------------------- #

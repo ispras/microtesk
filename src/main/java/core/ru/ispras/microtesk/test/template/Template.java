@@ -465,6 +465,18 @@ public final class Template {
     streamPreparatorBuilder.endMethod(); 
   }
 
+  public void addStream(
+      final String startLabelName,
+      final Primitive dataSource,
+      final Primitive indexSource,
+      final int length) {
+
+    Logger.debug("Stream: label=%s, data=%s, source=%s, length=%s",
+        startLabelName, dataSource.getName(), indexSource.getName(), length);
+
+    streams.addStream(startLabelName, dataSource, indexSource, length);
+  }
+
   public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {
     final Variate<String> variate = getGroupVariate(name);
     return newAddressingModeBuilder(variate.value());

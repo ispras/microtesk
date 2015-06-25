@@ -52,19 +52,19 @@ public final class StreamPreparator {
   }
 
   public Stream newStream(
+      final String startLabelName,
       final Primitive dataSource,
       final Primitive indexSource,
-      final String startLabelName,
       final int length) {
+    InvariantChecks.checkNotNull(startLabelName);
     InvariantChecks.checkNotNull(dataSource);
     InvariantChecks.checkNotNull(indexSource);
-    InvariantChecks.checkNotNull(startLabel);
     InvariantChecks.checkGreaterThanZero(length);
 
+    startLabel.setSource(startLabelName);
     data.setSource(dataSource);
     index.setSource(indexSource);
-    startLabel.setSource(startLabelName);
-    
+
     return new Stream(
         startLabelName,
         Call.newCopy(init),

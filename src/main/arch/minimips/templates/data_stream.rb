@@ -51,7 +51,7 @@ class DataStreamTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    
+    stream :data, t0, t1, 16
   end
 
 end

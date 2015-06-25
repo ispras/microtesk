@@ -47,9 +47,9 @@ public final class StreamStore {
   }
 
   public void addStream(
+      final String startLabelName,
       final Primitive dataSource,
       final Primitive indexSource,
-      final String startLabelName,
       final int length) {
 
     if (null == preparator) {
@@ -57,7 +57,7 @@ public final class StreamStore {
     }
 
     final Stream stream = preparator.newStream(
-        dataSource, indexSource, startLabelName, length);
+        startLabelName, dataSource, indexSource, length);
 
     addStream(stream);
   }
