@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,13 +17,21 @@ package ru.ispras.microtesk.test.template;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 final class LazyData {
-  private BitVector value = null;
+  private BitVector value;
+
+  public LazyData() {
+    this.value = null;
+  }
+
+  public LazyData(final LazyData other) {
+    this.value = other.value;
+  }
 
   public BitVector getValue() {
     return value;
   }
 
-  public void setValue(BitVector value) {
+  public void setValue(final BitVector value) {
     this.value = value;
   }
 }
