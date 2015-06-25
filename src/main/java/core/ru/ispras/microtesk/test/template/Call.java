@@ -38,10 +38,24 @@ public final class Call {
   }
 
   private Call(final Call call) {
-    this.rootOperation = call.rootOperation; // TODO: CLONE HERE! 
+    this.rootOperation = call.rootOperation.newCopy(); 
     this.labels = call.labels;
-    this.labelRefs = call.labelRefs; // TODO: CLONE HERE!
+    this.labelRefs = copyLabelReferences(call.labelRefs);
     this.outputs = call.outputs;
+  }
+
+  private static List<LabelReference> copyLabelReferences(
+      final List<LabelReference> labelRefs) {
+    if (!labelRefs.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<LabelReference> result = new ArrayList<>();
+    for (final LabelReference labelRef : labelRefs) {
+      result.add(new LabelReference(labelRef));
+    }
+
+    return result;
   }
 
   public boolean isExecutable() {
@@ -116,7 +130,7 @@ public final class Call {
   public static List<Call> newCopy(final List<Call> calls) {
     InvariantChecks.checkNotNull(calls);
     if (calls.isEmpty()) {
-      return calls;
+      return Collections.emptyList();
     }
 
     final List<Call> result = new ArrayList<>(calls.size());

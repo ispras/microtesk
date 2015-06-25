@@ -24,19 +24,48 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Argument {
   public static enum Kind {
-    IMM (BigInteger.class, true),
-    IMM_RANDOM (RandomValue.class, true),
-    IMM_UNKNOWN (UnknownImmediateValue.class, true),
-    IMM_LAZY (LazyValue.class, true),
-    MODE (Primitive.class, false),
-    OP (Primitive.class, false);
+    IMM (BigInteger.class, true) {
+      @Override protected Object copy(Object value) {
+        return value;
+      }
+    },
+
+    IMM_RANDOM (RandomValue.class, true) {
+      @Override protected Object copy(final Object value) {
+        return new RandomValue((RandomValue) value);
+      }
+    },
+
+    IMM_UNKNOWN (UnknownImmediateValue.class, true) {
+      @Override protected Object copy(final Object value) {
+        return new UnknownImmediateValue((UnknownImmediateValue) value);
+      }
+    },
+
+    IMM_LAZY (LazyValue.class, true) {
+      @Override protected Object copy(final Object value) {
+        return new LazyValue((LazyValue) value);
+      }
+    },
+
+    MODE (Primitive.class, false) {
+      @Override protected Object copy(final Object value) {
+        return ((Primitive) value).newCopy();
+      }
+    },
+
+    OP (Primitive.class, false) {
+      @Override protected Object copy(final Object value) {
+        return ((Primitive) value).newCopy();
+      }
+    };
 
     private static final String ILLEGAL_CLASS = "%s is illegal value class, %s is expected.";
 
     private final Class<?> vc;
     private final boolean isImmediate;
 
-    private Kind(Class<?> valueClass, boolean isImmediate) {
+    private Kind(final Class<?> valueClass, final boolean isImmediate) {
       if (isImmediate) {
         if (!(Number.class.isAssignableFrom(valueClass) 
            || Value.class.isAssignableFrom(valueClass))) {
@@ -49,7 +78,7 @@ public final class Argument {
       this.isImmediate = isImmediate;
     }
 
-    private void checkClass(Class<?> c) {
+    protected void checkClass(final Class<?> c) {
       if (!vc.isAssignableFrom(c)) {
         throw new IllegalArgumentException(String.format(
           ILLEGAL_CLASS, c.getSimpleName(),vc.getSimpleName()));
@@ -59,6 +88,8 @@ public final class Argument {
     private final boolean isImmediate() {
       return isImmediate;
     }
+
+    protected abstract Object copy(Object value);
   }
 
   private final String name;
@@ -67,7 +98,7 @@ public final class Argument {
   private final ArgumentMode mode;
   private final Type type;
 
-  Argument(
+  protected Argument(
       final String name,
       final Kind kind,
       final Object value,
@@ -85,6 +116,16 @@ public final class Argument {
     this.value = value;
     this.mode = mode;
     this.type = type;
+  }
+
+  protected Argument(final Argument other) {
+    checkNotNull(other);
+
+    this.name = other.name;
+    this.kind = other.kind;
+    this.value = kind.copy(other.value);
+    this.mode = other.mode;
+    this.type = other.type;
   }
 
   public boolean isImmediate() {

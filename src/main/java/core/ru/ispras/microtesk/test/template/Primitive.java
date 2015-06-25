@@ -16,10 +16,11 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-public interface Primitive
-{
+public interface Primitive {
   public static enum Kind {
     OP("op"),
     MODE("mode");
@@ -35,6 +36,7 @@ public interface Primitive
     }
   };
 
+  public Primitive newCopy();
   public Kind getKind();
   public String getName();
   public String getTypeName();
@@ -55,8 +57,14 @@ final class ConcretePrimitive implements Primitive {
   private final String contextName;
   private final Situation situation;
 
-  ConcretePrimitive(Kind kind, String name, String typeName, boolean isRoot, Map<String, Argument> args,
-      String contextName, Situation situation) {
+  protected ConcretePrimitive(
+      final Kind kind,
+      final String name,
+      final String typeName,
+      final boolean isRoot,
+      final Map<String, Argument> args,
+      final String contextName,
+      final Situation situation) {
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(typeName);
@@ -69,6 +77,36 @@ final class ConcretePrimitive implements Primitive {
     this.args = args;
     this.contextName = contextName;
     this.situation = situation;
+  }
+
+  private ConcretePrimitive(final ConcretePrimitive other) {
+    this.kind = other.kind;
+    this.name = other.name;
+    this.typeName = other.typeName;
+    this.isRoot = other.isRoot;
+    this.args = copyArguments(other.args);
+    this.contextName = other.contextName;
+    this.situation = other.situation;
+  }
+
+  public static Map<String, Argument> copyArguments(
+      final Map<String, Argument> args) {
+
+    if (args.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    final Map<String, Argument> result = new LinkedHashMap<>(args.size()); 
+    for (final Map.Entry<String, Argument> entry : args.entrySet()) {
+      result.put(entry.getKey(), new Argument(entry.getValue()));
+    }
+
+    return result;
+  }
+
+  @Override
+  public Primitive newCopy() {
+    return new ConcretePrimitive(this);
   }
 
   public Kind getKind() {
@@ -136,8 +174,10 @@ final class LazyPrimitive implements Primitive {
   private final String name;
   private final String typeName;
 
-  LazyPrimitive(Kind kind, String name, String typeName)
-  {
+  protected LazyPrimitive(
+      final Kind kind,
+      final String name,
+      final String typeName) {
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(typeName);
@@ -148,12 +188,19 @@ final class LazyPrimitive implements Primitive {
     this.typeName = typeName;
   }
 
-  public void setSource(Primitive source) {
+  private LazyPrimitive(final LazyPrimitive other) {
+    this.source = null != other.source ? other.source.newCopy() : null;
+    this.kind = other.kind;
+    this.name = other.name;
+    this.typeName = other.typeName;
+  }
+
+  public void setSource(final Primitive source) {
     checkCompatible(source);
     this.source = source;
   }
 
-  private void checkCompatible(Primitive p) {
+  private void checkCompatible(final Primitive p) {
     if (null == p) { // null can be used to reset the field.
       return;
     }
@@ -176,6 +223,11 @@ final class LazyPrimitive implements Primitive {
       throw new IllegalArgumentException(String.format(
         "Incompatible type: %s (%s is expected).", p.getTypeName(), typeName));
     }
+  }
+
+  @Override
+  public Primitive newCopy() {
+    return new LazyPrimitive(this);
   }
 
   @Override
