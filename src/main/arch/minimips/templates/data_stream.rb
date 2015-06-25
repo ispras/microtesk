@@ -33,7 +33,7 @@ class DataStreamTemplate < MiniMipsBaseTemplate
       space 1
     }
 
-    data_stream(:data_source => 'REG', :index_source => 'REG') {
+    stream_preparator(:data_source => 'REG', :index_source => 'REG') {
       init {
         la index_source, start_label
       }
@@ -51,7 +51,7 @@ class DataStreamTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    add t1, t2, t3
+    
   end
 
 end

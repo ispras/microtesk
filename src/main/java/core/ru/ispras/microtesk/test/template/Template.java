@@ -377,7 +377,7 @@ public final class Template {
     }
   }
 
-  public DataStreamBuilder beginDataStream(
+  public DataStreamBuilder beginStreamPreparator(
       final String dataModeName, final String indexModeName) {
 
     if (dataStreams.getDataStream() != null) {
@@ -387,7 +387,7 @@ public final class Template {
 
     endBuildingCall();
 
-    Logger.debug("Begin data stream (data_source: %s, index_source: %s)",
+    Logger.debug("Begin stream preparator(data_source: %s, index_source: %s)",
         dataModeName, indexModeName);
 
     checkTrue(null == preparatorBuilder);
@@ -411,10 +411,10 @@ public final class Template {
     return dataStreamBuilder;
   }
 
-  public void endDataStream() {
+  public void endStreamPreparator() {
     endBuildingCall();
 
-    Logger.debug("End data stream");
+    Logger.debug("End stream preparator");
 
     final DataStream dataStream = dataStreamBuilder.build();
     dataStreams.setDataStream(dataStream);
@@ -423,44 +423,44 @@ public final class Template {
   }
 
   public Primitive getDataSource() {
-    checkDataStreamBlock("data_source");
+    checkStreamPreparatorBlock("data_source");
     return dataStreamBuilder.getDataSource();
   }
 
   public Primitive getIndexSource() {
-    checkDataStreamBlock("index_source");
+    checkStreamPreparatorBlock("index_source");
     return dataStreamBuilder.getIndexSource();
   }
 
   public LazyLabel getStartLabel() {
-    checkDataStreamBlock("start_label");
+    checkStreamPreparatorBlock("start_label");
     return dataStreamBuilder.getStartLabel();
   }
 
-  private void checkDataStreamBlock(final String keyword) {
+  private void checkStreamPreparatorBlock(final String keyword) {
     if (null == dataStreamBuilder) {
       throw new IllegalStateException(String.format(
-          "The %s keyword cannot be used outside data_stream block.", keyword));
+          "The %s keyword cannot be used outside a stream preparator block.", keyword));
     }
   }
   
-  public void beginDataStreamInitMethod() {
-    Logger.debug("Begin Data Stream Method: init");
+  public void beginStreamInitMethod() {
+    Logger.debug("Begin Stream Method: init");
     dataStreamBuilder.beginInitMethod();
   }
 
-  public void beginDataStreamReadMethod() {
-    Logger.debug("Begin Data Stream Method: read");
+  public void beginStreamReadMethod() {
+    Logger.debug("Begin Stream Method: read");
     dataStreamBuilder.beginReadMethod();
   }
 
-  public void beginDataStreamWriteMethod() {
-    Logger.debug("Begin Data Stream Method: write");
+  public void beginStreamWriteMethod() {
+    Logger.debug("Begin Stream Method: write");
     dataStreamBuilder.beginWriteMethod();
   }
 
-  public void endDataStreamMethod() {
-    Logger.debug("End Data Stream Method");
+  public void endStreamMethod() {
+    Logger.debug("End Stream Method");
     endBuildingCall();
     dataStreamBuilder.endMethod(); 
   }

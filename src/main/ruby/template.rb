@@ -479,16 +479,16 @@ class Template
   # Creating Data Streams                                                      #
   # -------------------------------------------------------------------------- #
 
-  def data_stream(attrs, &contents)
+  def stream_preparator(attrs, &contents)
     data  = get_attribute attrs, :data_source
     index = get_attribute attrs, :index_source
 
-    @template.beginDataStream data.to_s, index.to_s
+    @template.beginStreamPreparator data.to_s, index.to_s
 
-    data_stream_object = DataStream.new self, @template
+    data_stream_object = StreamPreparator.new self, @template
     data_stream_object.instance_eval &contents
 
-    @template.endDataStream
+    @template.endStreamPreparator
   end
 
   def data_source
@@ -663,7 +663,7 @@ end # DataManager
 # Methods init, read, write are defined in a separate class to
 # avoid name conflicts
 #
-class DataStream
+class StreamPreparator
 
   def initialize context, template
     @context = context
@@ -671,21 +671,21 @@ class DataStream
   end
 
   def init(&contents)
-    @template.beginDataStreamInitMethod
+    @template.beginStreamInitMethod
     @context.instance_eval &contents
-    @template.endDataStreamMethod
+    @template.endStreamMethod
   end
 
   def read(&contents)
-    @template.beginDataStreamReadMethod
+    @template.beginStreamReadMethod
     @context.instance_eval &contents
-    @template.endDataStreamMethod
+    @template.endStreamMethod
   end
 
   def write(&contents)
-    @template.beginDataStreamWriteMethod
+    @template.beginStreamWriteMethod
     @context.instance_eval &contents
-    @template.endDataStreamMethod
+    @template.endStreamMethod
   end
 
-end # DataStream
+end # StreamPreparator
