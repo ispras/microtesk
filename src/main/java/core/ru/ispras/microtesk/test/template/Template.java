@@ -48,7 +48,7 @@ public final class Template {
   private final MetaModel metaModel;
   private final DataManager dataManager;
   private final PreparatorStore preparators;
-  private final StreamStore dataStreams;
+  private final StreamStore streams;
   private final Processor processor;
 
   // Variates for mode and operation groups 
@@ -67,7 +67,7 @@ public final class Template {
       final MetaModel metaModel,
       final DataManager dataManager,
       final PreparatorStore preparators,
-      final StreamStore dataStreams,
+      final StreamStore streams,
       final Processor processor) {
 
     Logger.debugHeader("Started Processing Template");
@@ -75,13 +75,13 @@ public final class Template {
     checkNotNull(metaModel);
     checkNotNull(dataManager);
     checkNotNull(preparators);
-    checkNotNull(dataStreams);
+    checkNotNull(streams);
     checkNotNull(processor);
 
     this.metaModel = metaModel;
     this.dataManager = dataManager;
     this.preparators = preparators;
-    this.dataStreams = dataStreams;
+    this.streams = streams;
     this.processor = processor;
 
     this.preparatorBuilder = null;
@@ -380,9 +380,9 @@ public final class Template {
   public StreamPreparatorBuilder beginStreamPreparator(
       final String dataModeName, final String indexModeName) {
 
-    if (dataStreams.getPreparator() != null) {
+    if (streams.getPreparator() != null) {
       throw new IllegalStateException(
-          "data_stream is already defined. Only one definition is allowed.");
+          "Stream preparator is already defined. Only one definition is allowed.");
     }
 
     endBuildingCall();
@@ -417,7 +417,7 @@ public final class Template {
     Logger.debug("End stream preparator");
 
     final StreamPreparator dataStream = streamPreparatorBuilder.build();
-    dataStreams.setDataStream(dataStream);
+    streams.setDataStream(dataStream);
 
     streamPreparatorBuilder = null;
   }
