@@ -24,7 +24,7 @@ public final class RandomValue implements Value {
   private final BigInteger max;
   private BigInteger value;
 
-  RandomValue(final BigInteger min, final BigInteger max) {
+  protected RandomValue(final BigInteger min, final BigInteger max) {
     InvariantChecks.checkNotNull(min);
     InvariantChecks.checkNotNull(max);
     InvariantChecks.checkGreaterOrEq(max, min);
@@ -32,6 +32,14 @@ public final class RandomValue implements Value {
     this.min = min;
     this.max = max;
     this.value = null;
+  }
+
+  protected RandomValue(final RandomValue other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.min = other.min;
+    this.max = other.max;
+    this.value = other.value;
   }
 
   public BigInteger getMin() {
