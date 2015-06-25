@@ -114,6 +114,18 @@ public final class LabelReference {
     this.target = null;
   }
 
+  protected LabelReference(final LabelReference other) {
+    checkNotNull(other);
+
+    this.reference = other.reference;
+    this.lazyReference = other.lazyReference != null ? new LazyLabel(other.lazyReference) : null;
+    this.blockId = other.blockId;
+    this.primitive = other.primitive.newCopy();
+    this.argumentName = other.argumentName;
+    this.argumentValue = other.argumentValue;
+    this.target = other.target;
+  }
+
   /**
    * Return a {@link Label} object that describes a reference to a label with a specific name made
    * from a specific block. There is no correspondence between the returned label and the actual
