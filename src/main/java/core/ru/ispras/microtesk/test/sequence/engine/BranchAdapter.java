@@ -107,10 +107,10 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
       final List<Call> controlCode = makeStreamRead(engineContext, testDataArray);
 
-      boolean isInserted = false;
+      boolean isEnforced = false;
 
       // Insert the control code into the basic block if it is possible.
-      if (!isInserted && blockCoverage != null) {
+      if (!isEnforced && blockCoverage != null) {
         for (final int block : blockCoverage) {
           Sequence<Call> step = steps.get(block);
           if (step == null) {
@@ -118,14 +118,16 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
           }
 
           step.addAll(controlCode);
-          isInserted = true;
         }
+
+        // Block coverage is allowed to be empty; this means that no additional code is required. 
+        isEnforced = true;
       }
 
-      boolean isBasicBlock = isInserted;
+      boolean isBasicBlock = isEnforced;
 
       // Insert the control code into the delay slot if it is possible.
-      if (USE_DELAY_SLOTS && !isInserted && slotCoverage != null) {
+      if (USE_DELAY_SLOTS && !isEnforced && slotCoverage != null) {
         if (controlCode.size() <= engineContext.getDelaySlotSize()) {
           final int slotPosition = i + 1;
 
@@ -137,15 +139,14 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
           delaySlots.add(slotPosition);
 
           step.addAll(controlCode);
-          isInserted = true;
+          isEnforced = true;
         }
       }
 
-      if (!isInserted) {
+      if (!isEnforced) {
         return new AdapterResult(
-            String.format("Cannot construct the control code: blockCoverage=%s, slotCoverage=%s",
-                (blockCoverage != null ? blockCoverage.toString() : "[]"),
-                (slotCoverage != null ? slotCoverage.toString() : "[]")));
+            String.format("Cannot construct the control code %d: blockCoverage=%s, slotCoverage=%s",
+                branchNumber, blockCoverage, slotCoverage));
       }
 
       try {

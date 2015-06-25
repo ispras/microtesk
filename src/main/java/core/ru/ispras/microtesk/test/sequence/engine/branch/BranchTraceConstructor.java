@@ -260,6 +260,7 @@ final class BranchTraceConstructor {
     // Get the set of segments to be covered.
     final List<Set<Integer>> segments = getChangeSegments(entry);
 
+    // Reset the block and slot coverage.
     entry.setBlockCoverage(null);
     entry.setSlotCoverage(null);
 
@@ -299,6 +300,8 @@ final class BranchTraceConstructor {
     }
 
     // Complex branching.
+
+    // Maps a block to the number of segments it belongs to.
     final Map<Integer, Integer> counts = new LinkedHashMap<>();
 
     int maxCount = 0;
@@ -312,12 +315,7 @@ final class BranchTraceConstructor {
 
           if (segment.contains(block)) {
             Integer count = counts.get(block);
-
-            if (count == null) {
-              count = new Integer(0);
-            } else {
-              count = new Integer(count + 1);
-            }
+            count = count == null ? new Integer(0) : new Integer(count + 1);
 
             if (count > maxCount) {
               maxCount = count;
@@ -366,7 +364,7 @@ final class BranchTraceConstructor {
    * @param index the branch entry index.
    * @param entry the branch entry.
    */
-  private void calculateCoverageCounts(int index, BranchEntry entry) {
+  private void calculateCoverageCounts(final int index, final BranchEntry entry) {
     final BranchStructureWalker walker =
         new BranchStructureWalker(branchStructure, new CoverageCounter(index, entry));
 
