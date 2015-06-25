@@ -15,14 +15,13 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getSituationName;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getTestData;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamInit;
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamRead;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamWrite;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.setUnknownImmValues;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,11 +47,8 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.testbase.BranchDataGenerator;
-import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.microtesk.utils.FortressUtils;
-import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.TestData;
-import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -106,7 +102,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
       final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
 
-      final Sequence<Call> controlCode = new Sequence<Call>(); // TODO: read data stream
+      final List<Call> controlCode = makeStreamRead(engineContext, testDataArray);
 
       boolean isInserted = false;
 
@@ -191,18 +187,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
     Logger.debug("%nReturn the test sequence");
     return new AdapterResult(testSequenceBuilder.build());
-  }
-
-  private DataGenerator getGenerator(final EngineContext engineContext, final Call abstractCall) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractCall);
-
-    final TestBase testBase = engineContext.getTestBase(); 
-    final TestBaseRegistry testBaseRegistry = testBase.getRegistry();
-    final String situationName = getSituationName(abstractCall);
-    final Collection<DataGenerator> generators = testBaseRegistry.getNamedGenerators(situationName);
-
-    return generators.toArray(new DataGenerator[]{})[0];
   }
 
   private void updatePrologue(
@@ -294,21 +278,23 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     InvariantChecks.checkNotNull(abstractBranchCall);
 
     final List<Call> initDataStream = makeStreamInit(engineContext, testDataArray);
-
     updatePrologue(engineContext, testSequenceBuilder, initDataStream);
 
     for (int i = 0; i < branchTrace.size(); i++) {
       final BranchExecution execution = branchTrace.get(i);
 
-      final boolean condition = execution.value();
-      // TODO:
+      final boolean branchCondition = execution.value();
 
       final int count = controlCodeInBasicBlock ?
           execution.getBlockCoverageCount() : execution.getSlotCoverageCount();
 
       for (int j = 0; j < count; j++) {
-        final Sequence<Call> writeDataStream = new Sequence<Call>(); // TODO:
-        updatePrologue(engineContext, testSequenceBuilder, writeDataStream);
+        updatePrologue(
+            engineContext,
+            testSequenceBuilder,
+            abstractBranchCall,
+            branchCondition,
+            testDataArray);
       }
     }
 
