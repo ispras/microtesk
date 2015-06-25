@@ -414,15 +414,8 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkNotNull(streamId);
 
-    final DataStreamStore dataStreams = engineContext.getDataStreams();
-    final DataStream dataStream = dataStreams.getDataStream();
-
-    if (null != dataStream) {
-      // TODO:
-      return new Sequence<Call>();
-    }
-
-    throw new GenerationAbortedException("No suitable data stream is found");
+    // TODO:
+    return new Sequence<Call>();
   }
 
   public static List<Call> makeStreamRead(
@@ -430,15 +423,8 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkNotNull(streamId);
 
-    final DataStreamStore dataStreams = engineContext.getDataStreams();
-    final DataStream dataStream = dataStreams.getDataStream();
-
-    if (null != dataStream) {
-      // TODO:
-      return new Sequence<Call>();
-    }
-
-    throw new GenerationAbortedException("No suitable data stream is found");
+    // TODO:
+    return new Sequence<Call>();
   }
 
   public static List<Call> makeStreamWrite(
@@ -447,15 +433,8 @@ public final class EngineUtils {
     checkNotNull(streamId);
     checkNotNull(value);
 
-    final DataStreamStore dataStreams = engineContext.getDataStreams();
-    final DataStream dataStream = dataStreams.getDataStream();
-
-    if (null != dataStream) {
-      // TODO:
-      return new Sequence<Call>();
-    }
-
-    throw new GenerationAbortedException("No suitable data stream is found");
+    // TODO:
+    return new Sequence<Call>();
   }
 
   public static String makeErrorMessage(final TestBaseQueryResult queryResult) {
