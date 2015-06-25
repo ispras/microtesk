@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class DataStream {
+public final class StreamPreparator {
   private final List<Call> init;
   private final List<Call> read;
   private final List<Call> write;
@@ -31,7 +31,7 @@ public final class DataStream {
   private int arrayIndex;
   private boolean isInitialized;
 
-  protected DataStream(
+  protected StreamPreparator(
       final List<Call> init,
       final List<Call> read,
       final List<Call> write,

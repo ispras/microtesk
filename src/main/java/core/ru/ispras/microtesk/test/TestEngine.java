@@ -48,7 +48,7 @@ import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.DataManager;
-import ru.ispras.microtesk.test.template.DataStreamStore;
+import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
@@ -299,11 +299,11 @@ public final class TestEngine {
 
     final DataManager dataManager = new DataManager(indentToken);
     final PreparatorStore preparators = new PreparatorStore();
-    final DataStreamStore dataStreams = new DataStreamStore();
+    final StreamStore streams = new StreamStore();
 
     final Configuration<Call> config = new Configuration<>();
     final EngineContext context = new EngineContext(
-        model, preparators, dataStreams, settings);
+        model, preparators, streams, settings);
 
     final TemplateProcessor processor = new TemplateProcessor(
         context,
@@ -320,7 +320,7 @@ public final class TestEngine {
         model.getMetaData(),
         dataManager,
         preparators,
-        dataStreams,
+        streams,
         processor
         );
   }

@@ -22,7 +22,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 
-public final class DataStreamBuilder {
+public final class StreamPreparatorBuilder {
   private final LazyPrimitive data;
   private final LazyPrimitive index;
   private final LazyLabel startLabel;
@@ -32,7 +32,7 @@ public final class DataStreamBuilder {
   private final List<Call> write;
   private List<Call> currentMethod;
 
-  protected DataStreamBuilder(
+  protected StreamPreparatorBuilder(
       final MemoryMap memoryMap,
       final MetaAddressingMode metaData,
       final MetaAddressingMode metaIndex) {
@@ -94,8 +94,8 @@ public final class DataStreamBuilder {
     currentMethod.add(call);
   }
 
-  public DataStream build() {
-    return new DataStream(
+  public StreamPreparator build() {
+    return new StreamPreparator(
         init,
         read,
         write,

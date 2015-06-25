@@ -51,8 +51,6 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.DataStream;
-import ru.ispras.microtesk.test.template.DataStreamStore;
 import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;

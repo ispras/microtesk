@@ -48,14 +48,14 @@ public final class Template {
   private final MetaModel metaModel;
   private final DataManager dataManager;
   private final PreparatorStore preparators;
-  private final DataStreamStore dataStreams;
+  private final StreamStore dataStreams;
   private final Processor processor;
 
   // Variates for mode and operation groups 
   private final Map<String, Variate<String>> groupVariates;
 
   private PreparatorBuilder preparatorBuilder;
-  private DataStreamBuilder dataStreamBuilder;
+  private StreamPreparatorBuilder streamPreparatorBuilder;
 
   private Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
@@ -67,7 +67,7 @@ public final class Template {
       final MetaModel metaModel,
       final DataManager dataManager,
       final PreparatorStore preparators,
-      final DataStreamStore dataStreams,
+      final StreamStore dataStreams,
       final Processor processor) {
 
     Logger.debugHeader("Started Processing Template");
@@ -85,7 +85,7 @@ public final class Template {
     this.processor = processor;
 
     this.preparatorBuilder = null;
-    this.dataStreamBuilder = null;
+    this.streamPreparatorBuilder = null;
 
     this.blockBuilders = null;
     this.callBuilder = null;
@@ -269,8 +269,8 @@ public final class Template {
     if (!call.isEmpty()) {
       if (null != preparatorBuilder) {
         preparatorBuilder.addCall(call);
-      } else if (null != dataStreamBuilder) {
-        dataStreamBuilder.addCall(call);
+      } else if (null != streamPreparatorBuilder) {
+        streamPreparatorBuilder.addCall(call);
       } else {
         blockBuilders.peek().addCall(call);
       }
@@ -327,7 +327,7 @@ public final class Template {
     checkNotNull(targetName);
 
     checkTrue(null == preparatorBuilder);
-    checkTrue(null == dataStreamBuilder);
+    checkTrue(null == streamPreparatorBuilder);
 
     final MetaAddressingMode targetMode = metaModel.getAddressingMode(targetName);
     if (null == targetMode) {
@@ -377,10 +377,10 @@ public final class Template {
     }
   }
 
-  public DataStreamBuilder beginStreamPreparator(
+  public StreamPreparatorBuilder beginStreamPreparator(
       final String dataModeName, final String indexModeName) {
 
-    if (dataStreams.getDataStream() != null) {
+    if (dataStreams.getPreparator() != null) {
       throw new IllegalStateException(
           "data_stream is already defined. Only one definition is allowed.");
     }
@@ -391,7 +391,7 @@ public final class Template {
         dataModeName, indexModeName);
 
     checkTrue(null == preparatorBuilder);
-    checkTrue(null == dataStreamBuilder);
+    checkTrue(null == streamPreparatorBuilder);
 
     final MetaAddressingMode dataMode = metaModel.getAddressingMode(dataModeName);
     if (null == dataMode) {
@@ -405,10 +405,10 @@ public final class Template {
           "%s is not an addressing mode.", indexModeName));
     }
 
-    dataStreamBuilder = new DataStreamBuilder(
+    streamPreparatorBuilder = new StreamPreparatorBuilder(
         dataManager.getMemoryMap(), dataMode, indexMode);
 
-    return dataStreamBuilder;
+    return streamPreparatorBuilder;
   }
 
   public void endStreamPreparator() {
@@ -416,29 +416,29 @@ public final class Template {
 
     Logger.debug("End stream preparator");
 
-    final DataStream dataStream = dataStreamBuilder.build();
+    final StreamPreparator dataStream = streamPreparatorBuilder.build();
     dataStreams.setDataStream(dataStream);
 
-    dataStreamBuilder = null;
+    streamPreparatorBuilder = null;
   }
 
   public Primitive getDataSource() {
     checkStreamPreparatorBlock("data_source");
-    return dataStreamBuilder.getDataSource();
+    return streamPreparatorBuilder.getDataSource();
   }
 
   public Primitive getIndexSource() {
     checkStreamPreparatorBlock("index_source");
-    return dataStreamBuilder.getIndexSource();
+    return streamPreparatorBuilder.getIndexSource();
   }
 
   public LazyLabel getStartLabel() {
     checkStreamPreparatorBlock("start_label");
-    return dataStreamBuilder.getStartLabel();
+    return streamPreparatorBuilder.getStartLabel();
   }
 
   private void checkStreamPreparatorBlock(final String keyword) {
-    if (null == dataStreamBuilder) {
+    if (null == streamPreparatorBuilder) {
       throw new IllegalStateException(String.format(
           "The %s keyword cannot be used outside a stream preparator block.", keyword));
     }
@@ -446,23 +446,23 @@ public final class Template {
   
   public void beginStreamInitMethod() {
     Logger.debug("Begin Stream Method: init");
-    dataStreamBuilder.beginInitMethod();
+    streamPreparatorBuilder.beginInitMethod();
   }
 
   public void beginStreamReadMethod() {
     Logger.debug("Begin Stream Method: read");
-    dataStreamBuilder.beginReadMethod();
+    streamPreparatorBuilder.beginReadMethod();
   }
 
   public void beginStreamWriteMethod() {
     Logger.debug("Begin Stream Method: write");
-    dataStreamBuilder.beginWriteMethod();
+    streamPreparatorBuilder.beginWriteMethod();
   }
 
   public void endStreamMethod() {
     Logger.debug("End Stream Method");
     endBuildingCall();
-    dataStreamBuilder.endMethod(); 
+    streamPreparatorBuilder.endMethod(); 
   }
 
   public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {

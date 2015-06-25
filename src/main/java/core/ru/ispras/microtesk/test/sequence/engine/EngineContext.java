@@ -18,7 +18,7 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTes
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.test.template.DataStreamStore;
+import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
@@ -30,7 +30,7 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 public final class EngineContext {
   private final IModel model;
   private final PreparatorStore preparators;
-  private final DataStreamStore dataStreams;
+  private final StreamStore streams;
   private final GeneratorSettings settings;
   private final TestBase testBase;
 
@@ -40,17 +40,17 @@ public final class EngineContext {
   public EngineContext(
       final IModel model,
       final PreparatorStore preparators,
-      final DataStreamStore dataStreams,
+      final StreamStore streams,
       final GeneratorSettings settings) {
 
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(preparators);
-    InvariantChecks.checkNotNull(dataStreams);
+    InvariantChecks.checkNotNull(streams);
     InvariantChecks.checkNotNull(settings);
 
     this.model = model;
     this.preparators = preparators;
-    this.dataStreams = dataStreams;
+    this.streams = streams;
     this.settings = settings;
 
     this.testBase = newTestBase(settings);
@@ -67,8 +67,8 @@ public final class EngineContext {
     return preparators;
   }
 
-  public DataStreamStore getDataStreams() {
-    return dataStreams;
+  public StreamStore getStreams() {
+    return streams;
   }
 
   public GeneratorSettings getSettings() {

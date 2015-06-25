@@ -16,19 +16,19 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class DataStreamStore {
-  private DataStream dataStream;
+public final class StreamStore {
+  private StreamPreparator preparator;
 
-  public DataStreamStore() {
-    this.dataStream = null;
+  public StreamStore() {
+    this.preparator = null;
   }
 
-  public DataStream getDataStream() {
-    return dataStream;
+  public StreamPreparator getPreparator() {
+    return preparator;
   }
 
-  public void setDataStream(final DataStream dataStream) {
-    InvariantChecks.checkNotNull(dataStream);
-    this.dataStream = dataStream;
+  public void setDataStream(final StreamPreparator preparator) {
+    InvariantChecks.checkNotNull(preparator);
+    this.preparator = preparator;
   }
 }
