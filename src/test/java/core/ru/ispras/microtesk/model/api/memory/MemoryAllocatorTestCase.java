@@ -35,7 +35,7 @@ public class MemoryAllocatorTestCase {
     System.out.println(allocator);
 
     // Check correct initialization
-    assertEquals(0, allocator.getCurrentAddress());
+    assertEquals(BigInteger.valueOf(0), allocator.getCurrentAddress());
     assertEquals(ADDRESSABLE_UNIT_SIZE, allocator.getAddressableUnitBitSize());
     assertEquals(REGION_SIZE, allocator.getRegionBitSize());
     assertEquals(4, allocator.getAddressableUnitsInRegion());
@@ -48,30 +48,30 @@ public class MemoryAllocatorTestCase {
 
     // Check correct allocation/alignment
     address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32));
-    assertEquals(0, address);
+    assertEquals(BigInteger.valueOf(0), address);
     assertEquals(BitVector.valueOf(0xDEADBEEF, 32), memory.read(0));
 
     address = allocator.allocate(BitVector.valueOf(0xF0F0F0F, 32));
-    assertEquals(4, address);
+    assertEquals(BigInteger.valueOf(4), address);
     assertEquals(BitVector.valueOf(0xF0F0F0F, 32), memory.read(1));
 
     address = allocator.allocate(BitVector.valueOf(0xFF, ADDRESSABLE_UNIT_SIZE), 5);
-    assertEquals(8, address);
+    assertEquals(BigInteger.valueOf(8), address);
     assertEquals(BitVector.valueOf(0xFFFFFFFF, 32), memory.read(2));
     assertEquals(BitVector.valueOf(0x000000FF, 32), memory.read(3));
     
     address = allocator.allocateAsciiString("TEST", true);
-    assertEquals(13, address);
+    assertEquals(BigInteger.valueOf(13), address);
     assertEquals(BitVector.valueOf(0x534554ff, 32), memory.read(3));
     assertEquals(BitVector.valueOf(0x00000054, 32), memory.read(4));
     
     address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32), BitVector.valueOf(0xBAADF00D, 32));
-    assertEquals(20, address);
+    assertEquals(BigInteger.valueOf(20), address);
     assertEquals(BitVector.valueOf(0xDEADBEEF, 32), memory.read(5));
     assertEquals(BitVector.valueOf(0xBAADF00D, 32), memory.read(6));
     
     address = allocator.allocate(BitVector.valueOf(0xC0DE, 16), BitVector.valueOf(0xC001, 16));
-    assertEquals(28, address);
+    assertEquals(BigInteger.valueOf(28), address);
     assertEquals(BitVector.valueOf(0xC001C0DE, 32), memory.read(7));
     
     allocator.allocate(BitVector.valueOf(0xFF, 8));
