@@ -134,7 +134,6 @@ public final class BranchEngine implements Engine<BranchSolution> {
     Logger.debug("Branch Structure: %s", branchStructure);
 
     final Iterator<BranchSolution> iterator = new Iterator<BranchSolution>() {
-      // TODO: Block attributes should be used.
       /** Iterator of branch structures. */
       private final Iterator<BranchStructure> branchStructureIterator =
           new SingleValueIterator<BranchStructure>(branchStructure);

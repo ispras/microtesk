@@ -47,6 +47,7 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
@@ -514,6 +515,15 @@ public final class TestEngine {
 
           final TestSequence concreteSequence = adapterResult.getResult();
           checkNotNull(concreteSequence);
+
+          Logger.debugHeader("Initialization");
+          for (final ConcreteCall concreteCall : concreteSequence.getPrologue()) {
+            Logger.debug(concreteCall.getText());
+          }
+          Logger.debugHeader("Test Case");
+          for (final ConcreteCall concreteCall : concreteSequence.getBody()) {
+            Logger.debug(concreteCall.getText());
+          }
 
           final String sequenceId = String.format("Test Case %d", sequenceIndex);
           Logger.debugHeader("Generating Data for %s", sequenceId);

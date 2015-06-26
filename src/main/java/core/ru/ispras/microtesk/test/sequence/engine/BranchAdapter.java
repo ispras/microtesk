@@ -99,8 +99,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         continue;
       }
 
-      branchNumber++;
-
       final BranchTrace branchTrace = branchEntry.getBranchTrace();
       final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
       final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
@@ -163,6 +161,8 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       } catch (final ConfigurationException e) {
         return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
       }
+
+      branchNumber++;
     }
 
     // Insert the control code into the sequence.
