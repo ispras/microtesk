@@ -28,7 +28,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 /**
  * The job of the MemoryAllocator class is to place data in the memory storage.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class MemoryAllocator {
@@ -49,12 +49,15 @@ public final class MemoryAllocator {
    * @param memory Memory storage to store the data.
    * @param addressableUnitBitSize Size of an addressable unit in bits.
    * 
-   * @throws NullPointerException if the {@code memory} parameter is {@code null}.
-   * @throws IllegalArgumentException if the specified size of an addressable unit is negative or is
-   *         not a divisor of memory region size.
+   * @throws IllegalArgumentException if the {@code memory} parameter is {@code null};
+   *         if the specified size of an addressable unit is negative or is not a divisor
+   *         of memory region size.
    */
 
-  public MemoryAllocator(MemoryStorage memory, int addressableUnitBitSize) {
+  public MemoryAllocator(
+      final MemoryStorage memory,
+      final int addressableUnitBitSize) {
+
     checkNotNull(memory);
     checkGreaterThanZero(addressableUnitBitSize);
 
@@ -119,10 +122,10 @@ public final class MemoryAllocator {
    * @param data Data to be stored in the memory storage.
    * @return Address of the allocated memory (in addressable units).
    * 
-   * @throws NullPointerException if the parameter is {@code null}.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  public int allocate(BitVector data) {
+  public int allocate(final BitVector data) {
     checkNotNull(data);
     final int dataBitSize = data.getBitSize();
 
@@ -175,10 +178,10 @@ public final class MemoryAllocator {
    * @param count Number of copies to be placed in the memory storage.
    * @return Address of the allocated memory (in addressable units)
    * 
-   * @throws NullPointerException if the parameter is {@code null}.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  public int allocate(BitVector data, int count) {
+  public int allocate(final BitVector data, final int count) {
     checkNotNull(data);
     checkGreaterThanZero(count);
 
@@ -206,7 +209,7 @@ public final class MemoryAllocator {
    * different sizes. 
    */
 
-  public int allocate(BitVector ... data) {
+  public int allocate(final BitVector... data) {
     checkGreaterThanZero(data.length);
     return allocate(Arrays.asList(data));
   }
@@ -220,12 +223,11 @@ public final class MemoryAllocator {
    * @param data Collection of data elements to be stored in the memory storage.
    * @return Address of the first allocated element.
    * 
-   * @throws NullPointerException if the parameter is {@code null}.
-   * @throws IllegalArgumentException if the list is empty or it list elements have
-   * different sizes. 
+   * @throws IllegalArgumentException if the parameter is {@code null};
+   *         if the list is empty or it list elements have different sizes.
    */
 
-  public int allocate(List<BitVector> data) {
+  public int allocate(final List<BitVector> data) {
     checkNotNull(data);
 
     if (data.isEmpty()) {
@@ -252,7 +254,7 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if bit vectors in the list have different sizes.
    */
 
-  private static void checkEqualBitSize(List<BitVector> data) {
+  private static void checkEqualBitSize(final List<BitVector> data) {
     final Iterator<BitVector> it = data.iterator();
     final BitVector first = it.next();
 
@@ -274,11 +276,11 @@ public final class MemoryAllocator {
    * @param zeroTerm Specifies whether the string must be terminated with zero.
    * @return Address of the allocated ASCII string (in addressable units).
    * 
-   * @throws NullPointerException if the {@code string} parameter equals {@code null}.
-   * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.
+   * @throws IllegalArgumentException if the {@code string} parameter equals {@code null};
+   *         if failed to convert the string to the "US-ASCII" encoding.
    */
 
-  public int allocateAsciiString(String string, boolean zeroTerm) {
+  public int allocateAsciiString(final String string, final boolean zeroTerm) {
     checkNotNull(string);
 
     final BitVector data = toAsciiBinary(string, zeroTerm);
@@ -314,7 +316,7 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the {@code bitSize} argument is 0 or negative.
    */
 
-  public int bitsToAddressableUnits(int bitSize) {
+  public int bitsToAddressableUnits(final int bitSize) {
     checkGreaterThanZero(bitSize);
     return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
   }
@@ -329,7 +331,7 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if any of the parameters is negative.
    */
 
-  static int alignAddress(int address, int alignment) {
+  static int alignAddress(final int address, final int alignment) {
     checkGreaterOrEqZero(address);
     checkGreaterOrEqZero(alignment);
 
@@ -351,11 +353,11 @@ public final class MemoryAllocator {
    * @param zeroTerm Specifies whether the string must be terminated with zero.
    * @return ASCII representation of the string stored in a bit vector.
    * 
-   * @throws NullPointerException if the {@code string} argument is {@code null}.
+   * @throws IllegalArgumentException if the {@code string} argument is {@code null}.
    * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.
    */
 
-  private BitVector toAsciiBinary(String string, boolean zeroTerm) {
+  private BitVector toAsciiBinary(final String string, final boolean zeroTerm) {
     checkNotNull(string);
 
     final byte[] stringBytes;

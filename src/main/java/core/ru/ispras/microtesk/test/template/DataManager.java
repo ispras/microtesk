@@ -365,6 +365,8 @@ public final class DataManager {
     checkGreaterThanZero(length);
     checkNotNull(method);
 
+    checkInitialized();
+
     final String fileName = String.format(
         "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
 
