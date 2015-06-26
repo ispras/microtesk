@@ -54,6 +54,7 @@ public final class Stream {
   }
 
   public List<Call> getInit() {
+    index = 0;
     return init;
   }
 
