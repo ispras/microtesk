@@ -378,6 +378,15 @@ public final class DataManager {
           "The %s type is not defined.", typeId));
     }
 
+    final MemoryAllocator localAllocator = new MemoryAllocator(
+        allocator.getMemoryStorage(), allocator.getAddressableUnitBitSize(), address);
+
+    if (memoryMap.isDefined(label)) {
+      Logger.warning("Label %s is redefined", label);
+    }
+
+    memoryMap.addLabel(label, address);
+
     // TODO: Allocate data and print to file
 
     dataFileIndex++;
