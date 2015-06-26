@@ -92,7 +92,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     int branchNumber = 0;
 
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final Call abstractCall = abstractSequence.get(i);
+      final Call abstractBranchCall = abstractSequence.get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
 
       if (!branchEntry.isIfThen()) {
@@ -103,7 +103,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
       final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
 
-      final String testDataStream = getTestDataStream(abstractCall);
+      final String testDataStream = getTestDataStream(abstractBranchCall);
       final List<Call> controlCode = makeStreamRead(engineContext, testDataStream);
 
       boolean isEnforced = false;
@@ -155,7 +155,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         updatePrologue(
             engineContext,
             testSequenceBuilder,
-            abstractCall,
+            abstractBranchCall,
             branchTrace,
             isBasicBlock);
       } catch (final ConfigurationException e) {
