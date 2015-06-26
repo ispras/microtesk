@@ -485,10 +485,8 @@ public final class TestEngine {
           printer.printSeparatorToFile(String.format("Test %d", testIndex++));
         }
 
-        final String sequenceId = String.format("Test Case %d", sequenceIndex);
         final List<Call> abstractSequence = sequenceIt.value();
-
-        Logger.debugHeader("Generating Data for %s", sequenceId);
+        checkNotNull(abstractSequence);
 
         final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
         checkNotNull(iterator);
@@ -502,8 +500,11 @@ public final class TestEngine {
             continue;
           }
 
-          final TestSequence concreteSequence = adapterResult.getResult();;
+          final TestSequence concreteSequence = adapterResult.getResult();
           checkNotNull(concreteSequence);
+
+          final String sequenceId = String.format("Test Case %d", sequenceIndex);
+          Logger.debugHeader("Generating Data for %s", sequenceId);
 
           Logger.debugHeader("Executing %s", sequenceId);
           executor.executeSequence(concreteSequence);
