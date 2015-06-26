@@ -93,11 +93,17 @@ public final class Label {
    */
 
   public String getUniqueName() {
+    // For root blocks (that have no parent), we do not add the block
+    // identifier as a suffix to the label name. 
+
+    final String blockSuffix = blockId.parentId() != null ?
+        blockId.toString() : "";
+
     if (sequenceIndex == NO_SEQUENCE_INDEX) {
-      return String.format("%s%s", name, blockId);
+      return String.format("%s%s", name, blockSuffix);
     }
 
-    return String.format("%s%s__%d", name, blockId, sequenceIndex);
+    return String.format("%s%s_%04d", name, blockSuffix, sequenceIndex);
   }
 
   /**
