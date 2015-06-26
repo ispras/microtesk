@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
   <setting name="random-seed" value="0"/>
-  <setting name="branch-exec-limit" value="200"/>
+  <setting name="branch-exec-limit" value="1000"/>
   <setting name="code-file-extension" value="asm"/>
   <setting name="code-file-prefix" value="test"/>
   <setting name="data-file-extension" value="dat"/>
