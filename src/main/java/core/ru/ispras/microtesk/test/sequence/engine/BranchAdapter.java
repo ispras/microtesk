@@ -89,8 +89,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     final Set<Integer> delaySlots = new HashSet<>();
 
     // Construct the control code to enforce the given execution trace.
-    int branchNumber = 0;
-
     for (int i = 0; i < abstractSequence.size(); i++) {
       final Call abstractBranchCall = abstractSequence.get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
@@ -111,12 +109,16 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       // Insert the control code into the basic block if it is possible.
       if (!isEnforced && blockCoverage != null) {
         for (final int block : blockCoverage) {
-          List<Call> step = steps.get(block);
+          // Add the control code just after the basic block (the code should follow the label).
+          final int codePosition = block + 1;
+
+          List<Call> step = steps.get(codePosition);
           if (step == null) {
-            // Add the control code just after the basic block (the code should follow the label).
-            final int codePosition = block + 1;
             steps.put(codePosition, step = new ArrayList<Call>());
           }
+
+          Logger.debug("Control code of length %d for instruction %d put to block %d",
+              controlCode.size(), i, block);
 
           step.addAll(controlCode);
         }
@@ -148,7 +150,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       if (!isEnforced) {
         return new AdapterResult(
             String.format("Cannot construct the control code %d: blockCoverage=%s, slotCoverage=%s",
-                branchNumber, blockCoverage, slotCoverage));
+                i, blockCoverage, slotCoverage));
       }
 
       try {
@@ -161,8 +163,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       } catch (final ConfigurationException e) {
         return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
       }
-
-      branchNumber++;
     }
 
     // Insert the control code into the sequence.

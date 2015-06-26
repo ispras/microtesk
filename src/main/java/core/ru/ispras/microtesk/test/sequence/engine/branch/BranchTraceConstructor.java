@@ -251,7 +251,7 @@ final class BranchTraceConstructor {
    * Constructs the block and the slot coverage of the branch entry.
    * 
    * @param entry the branch entry.
-   * @return {@code true} if construction is successful; {@code false} otherwise.
+   * @return {@code true} if the construction is successful; {@code false} otherwise.
    */
   private boolean constructCoverage(final BranchEntry entry) {
     // Get all blocks from all segments of the branch.
@@ -260,7 +260,7 @@ final class BranchTraceConstructor {
     // Get the set of segments to be covered.
     final List<Set<Integer>> segments = getChangeSegments(entry);
 
-    // Reset the block and slot coverage.
+    // Reset the block and the slot coverage.
     entry.setBlockCoverage(null);
     entry.setSlotCoverage(null);
 
@@ -270,9 +270,7 @@ final class BranchTraceConstructor {
       return true;
     }
 
-    for (int i = 0; i < segments.size(); i++) {
-      final Set<Integer> segment = segments.get(i);
-
+    for (final Set<Integer> segment : segments) {
       // Cannot cover the empty segment.
       if (segment.isEmpty()) {
         if (flags.contains(Flags.DO_NOT_USE_DELAY_SLOTS)) {
@@ -287,6 +285,7 @@ final class BranchTraceConstructor {
     final Set<Integer> coverage = new LinkedHashSet<Integer>();
 
     // Simple branching.
+
     if (segments.size() == 1) {
       // Get a random block from the segment.
       final Set<Integer> segment = segments.get(0);
@@ -310,9 +309,7 @@ final class BranchTraceConstructor {
     while (!segments.isEmpty()) {
       // Calculate the block coverage count.
       for (final int block : blocks) {
-        for (int i = 0; i < segments.size(); i++) {
-          final Set<Integer> segment = segments.get(i);
-
+        for (final Set<Integer> segment : segments) {
           if (segment.contains(block)) {
             Integer count = counts.get(block);
             count = count == null ? new Integer(0) : new Integer(count + 1);
@@ -327,15 +324,15 @@ final class BranchTraceConstructor {
       }
 
       // Choose a block with the maximal coverage count.
-      final Set<Integer> bests = new LinkedHashSet<>();
+      final Set<Integer> bestBlocks = new LinkedHashSet<>();
 
       for (final Map.Entry<Integer, Integer> pair : counts.entrySet()) {
         if (pair.getValue() == maxCount) {
-          bests.add(pair.getKey());
+          bestBlocks.add(pair.getKey());
         }
       }
 
-      final int block = Randomizer.get().choose(bests);
+      final int block = Randomizer.get().choose(bestBlocks);
       coverage.add(block);
 
       // Change the coverage.

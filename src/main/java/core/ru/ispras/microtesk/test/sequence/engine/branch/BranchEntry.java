@@ -242,7 +242,8 @@ public final class BranchEntry {
     final StringBuilder builder = new StringBuilder(type.name());
 
     if (isBranch()) {
-      builder.append(String.format(": Target=%d, Trace=%s", branchLabel, branchTrace));
+      builder.append(String.format(": Target=%d, Trace=%s, BlockCoverage=%s, SlotCoverage=%s",
+          branchLabel, branchTrace, blockCoverage, slotCoverage));
     }
 
     return builder.toString();
