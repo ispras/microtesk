@@ -291,7 +291,8 @@ public final class DataManager {
 
     final TypeInfo typeInfo = typeMap.get(id);
     if (null == typeInfo) {
-      throw new IllegalStateException();
+      throw new IllegalStateException(String.format(
+          "The %s type is not defined.", id));
     }
 
     final int address = allocator.allocate(
@@ -355,12 +356,12 @@ public final class DataManager {
   public void generateData(
       final BigInteger address,
       final String label,
-      final String type,
+      final String typeId,
       final int length,
       final String method) {
     checkNotNull(address);
     checkNotNull(label);
-    checkNotNull(type);
+    checkNotNull(typeId);
     checkGreaterThanZero(length);
     checkNotNull(method);
 
@@ -368,6 +369,12 @@ public final class DataManager {
         "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
 
     Logger.debug("Generating data file: %s", fileName);
+
+    final TypeInfo typeInfo = typeMap.get(typeId);
+    if (null == typeInfo) {
+      throw new IllegalStateException(String.format(
+          "The %s type is not defined.", typeId));
+    }
 
     // TODO: Allocate data and print to file
 
