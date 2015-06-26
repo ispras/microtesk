@@ -111,7 +111,9 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         for (final int block : blockCoverage) {
           List<Call> step = steps.get(block);
           if (step == null) {
-            steps.put(block, step = new ArrayList<Call>());
+            // Add the control code just after the basic block (the code should follow the label).
+            final int codePosition = block + 1;
+            steps.put(codePosition, step = new ArrayList<Call>());
           }
 
           step.addAll(controlCode);
@@ -126,6 +128,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       // Insert the control code into the delay slot if it is possible.
       if (USE_DELAY_SLOTS && !isEnforced && slotCoverage != null) {
         if (controlCode.size() <= engineContext.getDelaySlotSize()) {
+          // Delay slot follows the branch.
           final int slotPosition = i + 1;
 
           List<Call> step = steps.get(slotPosition);
