@@ -28,14 +28,14 @@ class BlockTemplate < MiniMipsBaseTemplate
     atomic {
       Add t0, t1, t2
       Sub t3, t4, t5
-      And t6, t7, t8
+      And reg(_), reg(_), reg(_)
     }
 
     # Produces three test cases each consisting of one instruction
     block {
       Add t0, t1, t2
       Sub t3, t4, t5
-      And t6, t7, t8
+      And reg(_), reg(_), reg(_)
     }
   end
 
