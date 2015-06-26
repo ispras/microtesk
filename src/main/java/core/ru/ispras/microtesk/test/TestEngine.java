@@ -310,7 +310,7 @@ public final class TestEngine {
         );
 
     final DataManager dataManager = new DataManager(
-        indentToken, dataFilePrefix, dataFileExtension);
+        indentToken, printer, dataFilePrefix, dataFileExtension);
 
     final PreparatorStore preparators = new PreparatorStore();
     final StreamStore streams = new StreamStore();

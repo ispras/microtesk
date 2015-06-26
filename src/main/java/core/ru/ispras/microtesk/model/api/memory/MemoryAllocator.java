@@ -128,6 +128,11 @@ public final class MemoryAllocator {
     return addressableUnitsInRegion;
   }
 
+  public int getAddressBitSize() {
+    return memory.getAddressBitSize() + 
+        MemoryStorage.calculateAddressSize(BigInteger.valueOf(addressableUnitsInRegion));
+  }
+
   /**
    * Allocates memory in the memory storage to hold the specified data and returns its address (in
    * addressable units). The data is aligned in the memory by its size (in addressable units). Space

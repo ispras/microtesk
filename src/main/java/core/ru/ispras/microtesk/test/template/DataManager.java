@@ -17,6 +17,8 @@ package ru.ispras.microtesk.test.template;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +31,8 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.Printer;
 
 public final class DataManager {
   private static interface DataDeclItem {
@@ -97,7 +101,7 @@ public final class DataManager {
       return sb.toString();
     }
   }
-  
+
   private static final class DetaDecl extends DetaDeclText {
     final BigInteger[] values;
 
@@ -123,6 +127,7 @@ public final class DataManager {
     }
   }
 
+  private final Printer printer;
   private final MemoryMap memoryMap;
   private final List<DataDeclItem> dataDecls;
 
@@ -153,9 +158,11 @@ public final class DataManager {
 
   public DataManager(
       final String indentToken,
+      final Printer printer,
       final String dataFilePrefix,
       final String dataFileExtension) {
     this.indentToken = indentToken;
+    this.printer = printer;
     this.dataFilePrefix = dataFilePrefix;
     this.dataFileExtension = dataFileExtension;
     this.dataFileIndex = 0;
@@ -387,10 +394,40 @@ public final class DataManager {
 
     memoryMap.addLabel(label, address);
 
+    final BitVector bvAddress = BitVector.valueOf(address, localAllocator.getAddressBitSize());
+    final String typeText = indentToken + typeInfo.text;
+
     final DataGenerator dataGenerator = newDataGenerator(method, typeInfo);
-    for (int index = 0; index < length; index++) {
-      final BitVector data = dataGenerator.nextData();
-      localAllocator.allocate(data);
+    PrintWriter writer = null;
+    try {
+      writer = printer.newFileWriter(fileName);
+      writer.println();
+      printer.printCommentToFile(writer,
+          String.format("0x%s", bvAddress.toHexString()));
+      writer.println(label + ":");
+
+      
+      try {
+        for (int index = 0; index < length; index++) {
+          final BitVector data = dataGenerator.nextData();
+          localAllocator.allocate(data);
+
+          final boolean nextLine = index % 4 == 0;
+          if (nextLine && index > 0) {
+            writer.println();
+          }
+
+          writer.print(nextLine ? typeText : ",");
+          writer.print(" 0x" + data.toHexString());
+        }
+        writer.println();
+      } finally {
+        writer.close();
+      }
+    } catch (final Exception e) {
+      new File(fileName).delete();
+      throw new GenerationAbortedException(String.format(
+          "Failed to generate data file %s. Reason: %s", e.getMessage()));
     }
 
     dataFileIndex++;
