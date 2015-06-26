@@ -531,7 +531,7 @@ public final class TestEngine {
           Logger.debugHeader("Executing %s", sequenceId);
           executor.executeSequence(concreteSequence);
 
-          Logger.debugHeader("Printing %s", sequenceId);
+          Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
 
           printer.printToFile("");
           printer.printSubheaderToFile(sequenceId);
@@ -615,7 +615,7 @@ public final class TestEngine {
           Logger.debugHeader("Executing");
           executor.executeSequence(concreteSequence);
 
-          Logger.debugHeader("Printing");
+          Logger.debugHeader("Printing to %s", fileName);
           printer.printSequence(concreteSequence);
 
           STATISTICS.instructionCount += concreteSequence.getInstructionCount();
