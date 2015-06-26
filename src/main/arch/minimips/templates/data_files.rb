@@ -24,8 +24,24 @@ require_relative 'minimips_base'
 class DataFilesTemplate < MiniMipsBaseTemplate
 
   def run
-    generate_data 0x00000000, :data1, 'word', 100, :random
-    generate_data 0x0000FFFF, :data2, 'word', 100, :zero
+    generate_data 0x00000000, :data1, 'word', 64, :random
+    generate_data 0x0000FFFF, :data2, 'word', 64, :zero
+
+    trace_memory_data :data1, 64
+    la t1, :data1
+
+    trace_memory_data :data2, 64
+    la t2, :data2
+  end
+
+  def trace_memory_data(begin_label, length)
+    trace "Data at #{begin_label}:"
+    addr = address(begin_label)
+    length.times.each {
+      trace "M[%d]: %d", addr, mem_observer(addr)
+      addr = addr + 1
+    }
+    trace ''
   end
 
 end
