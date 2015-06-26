@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(executable);
 
-    this.labels = abstractCall.getLabels();
+    this.labels = copyLabels(abstractCall.getLabels());
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
@@ -45,7 +46,7 @@ public final class ConcreteCall {
   public ConcreteCall(final Call abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
-    this.labels = abstractCall.getLabels();
+    this.labels = copyLabels(abstractCall.getLabels());
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = null;
@@ -58,6 +59,19 @@ public final class ConcreteCall {
     this.labelRefs = Collections.<LabelReference>emptyList();
     this.outputs = Collections.<Output>emptyList();
     this.executable = executable;
+  }
+
+  private static List<Label> copyLabels(final List<Label> labels) {
+    if (labels.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<Label> result = new ArrayList<>(labels.size());
+    for (final Label label : labels) {
+      result.add(new Label(label));
+    }
+
+    return result;
   }
 
   public boolean isExecutable() {

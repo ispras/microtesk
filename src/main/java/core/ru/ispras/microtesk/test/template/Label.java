@@ -19,15 +19,18 @@ import ru.ispras.fortress.util.InvariantChecks;
 /**
  * The Label class describes a label set in test templates and symbolic test programs.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class Label {
   private final String name;
   private final BlockId blockId;
 
+  private static final int NO_SEQUENCE_INDEX = -1;
+  private int sequenceIndex;
+
   /**
-   * Constructs a label object.
+   * Constructs a label object.  
    * 
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
@@ -41,6 +44,21 @@ public final class Label {
 
     this.name = name;
     this.blockId = blockId;
+    this.sequenceIndex = NO_SEQUENCE_INDEX;
+  }
+
+  /**
+   * Constructs a copy of the specified label.
+   * 
+   * @param other Label to be copied.
+   */
+
+  public Label(final Label other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.name = other.name;
+    this.blockId = other.blockId;
+    this.sequenceIndex = other.sequenceIndex;
   }
 
   /**
@@ -54,14 +72,19 @@ public final class Label {
   }
 
   /**
-   * Returns a unique name for the label based on its name and the identifier of the block where it
-   * was defined.
+   * Returns a unique name for the label based on its name, the identifier of
+   * the block where it was defined and the sequence index if it has been set up.
    * 
-   * @return Unique name based on the label name and the block identifier.
+   * @return Unique name based on the label name, the block identifier and the
+   *         sequence index.
    */
 
   public String getUniqueName() {
-    return name + blockId;
+    if (sequenceIndex == NO_SEQUENCE_INDEX) {
+      return String.format("%s%s");
+    }
+
+    return String.format("%s%s_%d", name, blockId, sequenceIndex);
   }
 
   /**
