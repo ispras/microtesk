@@ -173,6 +173,7 @@ final class Executor {
   private int executeCall(final ConcreteCall call, final int currentPos)
       throws ConfigurationException {
     logOutputs(call.getOutputs());
+    logLabels(call.getLabels());
 
     // If the call is not executable (contains only attributes like
     // labels or outputs, but no "body"), continue to the next instruction.
@@ -183,7 +184,7 @@ final class Executor {
     logText(call.getText());
     call.execute();
     TestEngine.STATISTICS.instructionExecutedCount++;
-    
+
     if (logPrinter != null) {
       logPrinter.addRecord(Record.newInstruction(call));
     }
@@ -239,6 +240,13 @@ final class Executor {
       if (output.isRuntime()) {
         logText(output.evaluate(observer));
       }
+    }
+  }
+  
+  private void logLabels(final List<Label> labels) {
+    checkNotNull(labels);
+    for (final Label label : labels) {
+      logText(label.getUniqueName() + ":");
     }
   }
 
