@@ -55,7 +55,6 @@ import ru.ispras.testbase.TestData;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchAdapter implements Adapter<BranchSolution> {
-  public static final String TEST_DATA_PREFIX = "branch_data_";
   public static final boolean USE_DELAY_SLOTS = true;
 
   @Override
@@ -95,14 +94,14 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         continue;
       }
 
-      final String testDataArray = String.format("%s%d", TEST_DATA_PREFIX, branchNumber);
       branchNumber++;
 
       final BranchTrace branchTrace = branchEntry.getBranchTrace();
       final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
       final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
 
-      final List<Call> controlCode = makeStreamRead(engineContext, testDataArray);
+      final String testDataStream = getTestDataStream(abstractCall);
+      final List<Call> controlCode = makeStreamRead(engineContext, testDataStream);
 
       boolean isEnforced = false;
 
@@ -155,8 +154,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
             testSequenceBuilder,
             abstractCall,
             branchTrace,
-            isBasicBlock,
-            testDataArray);
+            isBasicBlock);
       } catch (final ConfigurationException e) {
         return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
       }
@@ -227,13 +225,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final TestSequence.Builder testSequenceBuilder,
       final Call abstractCall,
       final boolean branchCondition,
-      final String testDataArray,
       final boolean writeIntoStream)
         throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractCall);
-    InvariantChecks.checkNotNull(testDataArray);
 
     final Primitive primitive = abstractCall.getRootOperation();
     InvariantChecks.checkNotNull(primitive);
@@ -281,7 +277,8 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
       initializingCalls.addAll(makeInitializer(engineContext, mode, value));
       if (writeIntoStream) {
-        initializingCalls.addAll(makeStreamWrite(engineContext, testDataArray));
+        final String testDataStream = getTestDataStream(abstractCall);
+        initializingCalls.addAll(makeStreamWrite(engineContext, testDataStream));
       }
 
       updatePrologue(engineContext, testSequenceBuilder, initializingCalls);
@@ -296,8 +293,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final TestSequence.Builder testSequenceBuilder,
       final Call abstractBranchCall,
       final BranchTrace branchTrace,
-      final boolean controlCodeInBasicBlock,
-      final String testDataArray)
+      final boolean controlCodeInBasicBlock)
         throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
@@ -324,9 +320,10 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       for (int j = 0; j < count; j++) {
         // Data stream should be initialized before the first write. 
         if (!streamUsed) {
-          final List<Call> initDataStream = makeStreamInit(engineContext, testDataArray);
-          updatePrologue(engineContext, testSequenceBuilder, initDataStream);
+          final String testDataStream = getTestDataStream(abstractBranchCall);
+          final List<Call> initDataStream = makeStreamInit(engineContext, testDataStream);
 
+          updatePrologue(engineContext, testSequenceBuilder, initDataStream);
           streamUsed = true;
         }
 
@@ -335,14 +332,15 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
             testSequenceBuilder,
             abstractBranchCall,
             branchCondition,
-            testDataArray,
             true /* Write into the stream */);
       }
     }
 
     // Initialize the data stream if it was used. 
     if (streamUsed) {
-      final List<Call> initDataStream = makeStreamInit(engineContext, testDataArray);
+      final String testDataStream = getTestDataStream(abstractBranchCall);
+      final List<Call> initDataStream = makeStreamInit(engineContext, testDataStream);
+
       updatePrologue(engineContext, testSequenceBuilder, initDataStream);
     }
 
@@ -356,7 +354,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
           testSequenceBuilder,
           abstractBranchCall,
           branchCondition,
-          testDataArray,
           false /* Write into the registers */);
     }
   }
@@ -386,5 +383,20 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     for (final Call abstractCall : abstractSequence) {
       updateBody(engineContext, testSequenceBuilder, abstractCall);
     }
+  }
+
+  private String getTestDataStream(final Call abstractBranchCall) {
+    InvariantChecks.checkNotNull(abstractBranchCall);
+
+    final Primitive primitive = abstractBranchCall.getRootOperation();
+    InvariantChecks.checkNotNull(primitive);
+
+    final Situation situation = primitive.getSituation();
+    InvariantChecks.checkNotNull(situation);
+
+    final Object testDataStream = situation.getAttribute(BranchDataGenerator.PARAM_STREAM);
+    InvariantChecks.checkNotNull(testDataStream);
+
+    return testDataStream.toString();
   }
 }

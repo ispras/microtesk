@@ -26,17 +26,19 @@ import ru.ispras.testbase.stub.Utils;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class BranchDataGenerator implements DataGenerator {
-  /** Branch condition parameter. */
   public static final String PARAM_CONDITION = "condition";
   public static final String PARAM_CONDITION_THEN = "true";
   public static final String PARAM_CONDITION_ELSE = "false";
+  public static final String PARAM_STREAM = "stream";
 
   @Override
   public final boolean isSuitable(final TestBaseQuery query) {
     final Object condition = Utils.getParameter(query, PARAM_CONDITION);
+    final Object stream = Utils.getParameter(query, PARAM_STREAM);
 
     return condition != null
-        && (condition.equals(PARAM_CONDITION_THEN) || condition.equals(PARAM_CONDITION_ELSE));
+        && (condition.equals(PARAM_CONDITION_THEN) || condition.equals(PARAM_CONDITION_ELSE))
+        && stream != null;
   }
 
   /**
