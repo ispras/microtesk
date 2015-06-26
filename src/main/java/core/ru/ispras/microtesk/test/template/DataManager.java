@@ -352,7 +352,7 @@ public final class DataManager {
       throw new IllegalStateException("DataManager is not initialized!");
     }
   }
-  
+
   public void generateData(
       final BigInteger address,
       final String label,
