@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.BlockId.Distance;
 import ru.ispras.microtesk.test.template.Label;
@@ -43,7 +44,7 @@ import ru.ispras.microtesk.test.template.Label;
  * </ol>
  * For more implementation details, see the {@link LabelManager.TargetDistance} class.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 final class LabelManager {
@@ -51,20 +52,16 @@ final class LabelManager {
    * The Target class stores information about the target the specified label points to. It
    * associates a label with a position in an instruction call sequence.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   public static final class Target {
     private final Label label;
     private final int position;
 
-    Target(Label label, int position) {
-      if (null == label) {
-        throw new NullPointerException();
-      }
-      if (position < 0) {
-        throw new IllegalArgumentException();
-      }
+    Target(final Label label, final int position) {
+      InvariantChecks.checkNotNull(label);
+      InvariantChecks.checkGreaterOrEqZero(position);
 
       this.label = label;
       this.position = position;
@@ -90,7 +87,7 @@ final class LabelManager {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
       if (this == obj) {
         return true;
       }
@@ -127,7 +124,7 @@ final class LabelManager {
    * <code>down</code> path is considered when up paths are equal).</li>
    * </ol>
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   private static final class TargetDistance implements Comparable<TargetDistance> {
@@ -136,13 +133,13 @@ final class LabelManager {
 
     private static final Distance ZERO = new Distance(0, 0);
 
-    private TargetDistance(Target target, Distance distance) {
+    private TargetDistance(final Target target, final Distance distance) {
       this.target = target;
       this.distance = distance;
     }
 
     @Override
-    public int compareTo(TargetDistance other) {
+    public int compareTo(final TargetDistance other) {
       // /////////////////////////////////////////////////////////////////
       // This one and the other one refer to the same block.
       if (this.distance.equals(other.distance)) {
@@ -210,7 +207,7 @@ final class LabelManager {
    */
 
   public LabelManager() {
-    this.table = new HashMap<String, List<Target>>();
+    this.table = new HashMap<>();
   }
 
   /**
@@ -219,13 +216,11 @@ final class LabelManager {
    * @param label Label to be registered.
    * @param position Position in the sequence of the instruction the label points to.
    * 
-   * @throws NullPointerException if the parameter is <code>null</code>.
+   * @throws IllegalArgumentException if the parameter is <code>null</code>.
    */
 
-  public void addLabel(Label label, int position) {
-    if (null == label) {
-      throw new NullPointerException();
-    }
+  public void addLabel(final Label label, final int position) {
+    InvariantChecks.checkNotNull(label);
 
     final Target target = new Target(label, position);
 
@@ -233,7 +228,7 @@ final class LabelManager {
     if (table.containsKey(label.getName())) {
       targets = table.get(label.getName());
     } else {
-      targets = new ArrayList<Target>();
+      targets = new ArrayList<>();
       table.put(label.getName(), targets);
     }
 
@@ -248,17 +243,15 @@ final class LabelManager {
    * @param position Position in the sequence of the instruction the labels in the collection point
    *        to.
    * 
-   * @throws NullPointerException if the <code>label</code> parameter is <code>null</code>.
+   * @throws IllegalArgumentException if the <code>label</code> parameter is <code>null</code>.
    * @throws IllegalArgumentException if an object in the <code>labels</code> collection is not a
    *         Label object.
    */
 
-  public void addAllLabels(Collection<?> labels, int position) {
-    if (null == labels) {
-      throw new NullPointerException();
-    }
+  public void addAllLabels(final Collection<?> labels, final int position) {
+    InvariantChecks.checkNotNull(labels);
 
-    for (Object item : labels) {
+    for (final Object item : labels) {
       if (!(item instanceof Label)) {
         throw new IllegalArgumentException(item + " is not a Label object!");
       }
@@ -277,13 +270,11 @@ final class LabelManager {
    * @return The most suitable target (label and its position) for the given reference or
    *         <code>null</code> if no label having such name is found.
    * 
-   * @throws NullPointerException if the parameter is <code>null</code>.
+   * @throws IllegalArgumentException if the parameter is <code>null</code>.
    */
 
-  public Target resolve(Label referenceLabel) {
-    if (null == referenceLabel) {
-      throw new NullPointerException();
-    }
+  public Target resolve(final Label referenceLabel) {
+    InvariantChecks.checkNotNull(referenceLabel);
 
     if (!table.containsKey(referenceLabel.getName())) {
       return null;
@@ -294,7 +285,7 @@ final class LabelManager {
       return targets.get(0);
     }
 
-    final List<TargetDistance> distances = new ArrayList<TargetDistance>(targets.size());
+    final List<TargetDistance> distances = new ArrayList<>(targets.size());
     for (int index = 0; index < targets.size(); ++index) {
       final Target target = targets.get(index);
       final Label targetLabel = target.getLabel();
@@ -309,7 +300,7 @@ final class LabelManager {
     return distances.get(0).target;
   }
 
-  private void checkAmbiguousChoice(List<TargetDistance> items) {
+  private void checkAmbiguousChoice(final List<TargetDistance> items) {
     final StringBuilder sb = new StringBuilder();
 
     final TargetDistance chosenItem = items.get(0);
