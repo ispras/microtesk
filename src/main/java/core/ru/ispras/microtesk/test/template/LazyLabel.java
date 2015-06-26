@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -52,10 +54,11 @@ public final class LazyLabel {
 
     this.name = labelName;
 
-    final int fakeValue = 0;
-    final int address = memoryMap.resolveWithDefault(name, fakeValue);
+    final BigInteger fakeValue = BigInteger.ZERO;
+    final BigInteger address = memoryMap.resolveWithDefault(name, fakeValue);
 
-    data.setValue(BitVector.valueOf(address, Integer.SIZE));
+    // TODO: It would be better to have here precise size.
+    data.setValue(BitVector.valueOf(address, Long.SIZE + 1));
   }
 
   public String getName() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,7 +27,7 @@ import java.math.BigInteger;
  * for control transfer will be chosen depending on the context (see
  * {@link ru.ispras.microtesk.test.LabelManager}).
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class LabelReference {
@@ -36,7 +36,7 @@ public final class LabelReference {
   private final BlockId blockId;
   private final Primitive primitive;
   private final String argumentName;
-  private final int argumentValue;
+  private final BigInteger argumentValue;
 
   public static final class Target
   {
@@ -80,7 +80,7 @@ public final class LabelReference {
       final BlockId blockId,
       final Primitive primitive,
       final String argumentName,
-      final int argumentValue) {
+      final BigInteger argumentValue) {
     checkNotNull(labelName);
     checkNotNull(blockId);
     checkNotNull(primitive);
@@ -110,7 +110,7 @@ public final class LabelReference {
     this.blockId = blockId;
     this.primitive = primitive;
     this.argumentName = argumentName;
-    this.argumentValue = 0;
+    this.argumentValue = BigInteger.ZERO;
     this.target = null;
   }
 
@@ -176,7 +176,7 @@ public final class LabelReference {
    * @return Value assigned to the associated primitive argument.
    */
 
-  public int getArgumentValue() {
+  public BigInteger getArgumentValue() {
     if (null != reference) {
       return argumentValue;
     }
@@ -184,7 +184,7 @@ public final class LabelReference {
     final LazyValue lazyValue = lazyReference.getValue();
     final BigInteger value = lazyValue.getValue();
 
-    return value.intValue();
+    return value;
   }
 
   public Target getTarget() {

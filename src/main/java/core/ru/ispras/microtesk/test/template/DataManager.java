@@ -271,7 +271,7 @@ public final class DataManager {
     dataDecls.add(new DetaDeclLabel(id));
   }
 
-  private void setAllLabelsToAddress(int address) {
+  private void setAllLabelsToAddress(final BigInteger address) {
     checkInitialized();
 
     if (null != labels) {
@@ -295,7 +295,7 @@ public final class DataManager {
           "The %s type is not defined.", id));
     }
 
-    final int address = allocator.allocate(
+    final BigInteger address = allocator.allocate(
         BitVector.valueOf(values[0], typeInfo.type.getBitSize()));
 
     for (int i = 1; i < values.length; i++) {
@@ -315,7 +315,7 @@ public final class DataManager {
       throw new IllegalStateException();
     }
 
-    final int address = allocator.allocate(spaceData, length);
+    final BigInteger address = allocator.allocate(spaceData, length);
 
     setAllLabelsToAddress(address);
     dataDecls.add(new DetaDeclSpace(spaceText, length));
@@ -334,7 +334,7 @@ public final class DataManager {
       throw new IllegalStateException();
     }
 
-    final int address = allocator.allocateAsciiString(strings[0], zeroTerm);
+    final BigInteger address = allocator.allocateAsciiString(strings[0], zeroTerm);
     for (int index = 1; index < strings.length; index++) {
       allocator.allocateAsciiString(strings[index], zeroTerm);
     }

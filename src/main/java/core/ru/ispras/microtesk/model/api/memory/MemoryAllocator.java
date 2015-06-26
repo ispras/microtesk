@@ -14,11 +14,13 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEq;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +39,7 @@ public final class MemoryAllocator {
   private final int addressableUnitBitSize;
   private final int addressableUnitsInRegion;
 
-  private int currentAddress; // in addressable units
+  private BigInteger currentAddress; // in addressable units
 
   private static String ERROR_INVALID_SIZE =
       "Memory region size (%d) must be a multiple of addressable unit size (%d).";
@@ -48,6 +50,7 @@ public final class MemoryAllocator {
    * 
    * @param memory Memory storage to store the data.
    * @param addressableUnitBitSize Size of an addressable unit in bits.
+   * @param baseAddress Address where allocation starts.
    * 
    * @throws IllegalArgumentException if the {@code memory} parameter is {@code null};
    *         if the specified size of an addressable unit is negative or is not a divisor
@@ -56,7 +59,8 @@ public final class MemoryAllocator {
 
   public MemoryAllocator(
       final MemoryStorage memory,
-      final int addressableUnitBitSize) {
+      final int addressableUnitBitSize,
+      final BigInteger baseAddress) {
 
     checkNotNull(memory);
     checkGreaterThanZero(addressableUnitBitSize);
@@ -71,7 +75,13 @@ public final class MemoryAllocator {
     this.addressableUnitBitSize = addressableUnitBitSize;
     this.addressableUnitsInRegion = regionBitSize / addressableUnitBitSize;
 
-    this.currentAddress = 0;
+    this.currentAddress = baseAddress;
+  }
+  
+  public MemoryAllocator(
+      final MemoryStorage memory,
+      final int addressableUnitBitSize) {
+    this(memory, addressableUnitBitSize, BigInteger.ZERO);
   }
 
   /**
@@ -80,7 +90,7 @@ public final class MemoryAllocator {
    * @return Current address (in addressable units).
    */
 
-  public int getCurrentAddress() {
+  public BigInteger getCurrentAddress() {
     return currentAddress;
   }
 
@@ -125,14 +135,14 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  public int allocate(final BitVector data) {
+  public BigInteger allocate(final BitVector data) {
     checkNotNull(data);
     final int dataBitSize = data.getBitSize();
 
     final int sizeInAddressableUnits = bitsToAddressableUnits(dataBitSize);
-    final int address = alignAddress(currentAddress, sizeInAddressableUnits);
+    final BigInteger address = alignAddress(currentAddress, sizeInAddressableUnits);
 
-    int regionIndex = regionIndexForAddress(address);
+    BigInteger regionIndex = regionIndexForAddress(address);
     int regionBitOffset = regionBitOffsetForAddress(address);
 
     int bitPos = 0;
@@ -153,20 +163,20 @@ public final class MemoryAllocator {
       memory.write(regionIndex, dataToWrite);
       bitPos += bitsToWrite;
 
-      regionIndex++;
+      regionIndex = regionIndex.add(BigInteger.ONE);
       regionBitOffset = 0;
     }
 
-    currentAddress = address + sizeInAddressableUnits;
+    currentAddress = address.add(BigInteger.valueOf(sizeInAddressableUnits));
     return address;
   }
 
-  private int regionBitOffsetForAddress(final int address) {
-    return (address % addressableUnitsInRegion) * addressableUnitBitSize;
+  private int regionBitOffsetForAddress(final BigInteger address) {
+    return address.mod(BigInteger.valueOf(addressableUnitsInRegion)).intValue() * addressableUnitBitSize;
   }
 
-  private int regionIndexForAddress(final int address) {
-    return address / addressableUnitsInRegion;
+  private BigInteger regionIndexForAddress(final BigInteger address) {
+    return address.divide(BigInteger.valueOf(addressableUnitsInRegion));
   }
 
   /**
@@ -181,13 +191,13 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  public int allocate(final BitVector data, final int count) {
+  public BigInteger allocate(final BitVector data, final int count) {
     checkNotNull(data);
     checkGreaterThanZero(count);
 
-    int address = 0;
+    BigInteger address = BigInteger.ZERO;
     for (int index = 0; index < count; ++index) {
-      final int allocatedAddress = allocate(data);
+      final BigInteger allocatedAddress = allocate(data);
       if (0 == index) {
         address = allocatedAddress;
       }
@@ -209,7 +219,7 @@ public final class MemoryAllocator {
    * different sizes. 
    */
 
-  public int allocate(final BitVector... data) {
+  public BigInteger allocate(final BitVector... data) {
     checkGreaterThanZero(data.length);
     return allocate(Arrays.asList(data));
   }
@@ -227,7 +237,7 @@ public final class MemoryAllocator {
    *         if the list is empty or it list elements have different sizes.
    */
 
-  public int allocate(final List<BitVector> data) {
+  public BigInteger allocate(final List<BitVector> data) {
     checkNotNull(data);
 
     if (data.isEmpty()) {
@@ -237,7 +247,7 @@ public final class MemoryAllocator {
     checkEqualBitSize(data);
 
     final Iterator<BitVector> dataIt = data.iterator();
-    final int address = allocate(dataIt.next());
+    final BigInteger address = allocate(dataIt.next());
 
     while (dataIt.hasNext()) {
       allocate(dataIt.next());
@@ -280,7 +290,7 @@ public final class MemoryAllocator {
    *         if failed to convert the string to the "US-ASCII" encoding.
    */
 
-  public int allocateAsciiString(final String string, final boolean zeroTerm) {
+  public BigInteger allocateAsciiString(final String string, final boolean zeroTerm) {
     checkNotNull(string);
 
     final BitVector data = toAsciiBinary(string, zeroTerm);
@@ -288,7 +298,7 @@ public final class MemoryAllocator {
     final int dataBitSize = data.getBitSize();
     final int sizeInAddressableUnits = bitsToAddressableUnits(dataBitSize);
 
-    int address = 0;
+    BigInteger address = BigInteger.ZERO;
     int startBitPos = 0;
 
     for (int index = 0; index < sizeInAddressableUnits; ++index) {
@@ -297,7 +307,7 @@ public final class MemoryAllocator {
       final BitVector unitData = BitVector.newMapping(data, startBitPos, unitBitSize);
       startBitPos += unitBitSize;
 
-      final int allocatedAddress = allocate(unitData);
+      final BigInteger allocatedAddress = allocate(unitData);
       if (index == 0) {
         address = allocatedAddress;
       }
@@ -331,12 +341,15 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if any of the parameters is negative.
    */
 
-  static int alignAddress(final int address, final int alignment) {
-    checkGreaterOrEqZero(address);
+  static BigInteger alignAddress(final BigInteger address, final int alignment) {
+    checkGreaterOrEq(address, BigInteger.ZERO);
     checkGreaterOrEqZero(alignment);
 
-    final int unaligned = address % alignment;
-    return unaligned == 0 ? address : address + (alignment - unaligned);
+    final BigInteger alignmentLength = BigInteger.valueOf(alignment);
+    final BigInteger unaligned = address.mod(alignmentLength);
+    return unaligned.equals(BigInteger.ZERO) ? 
+        address :
+        address.add(alignmentLength.subtract(unaligned));
   }
 
   @Override

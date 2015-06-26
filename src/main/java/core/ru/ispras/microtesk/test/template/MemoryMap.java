@@ -14,27 +14,28 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEq;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class MemoryMap {
-  private final Map<String, Integer> labels;
+  private final Map<String, BigInteger> labels;
 
   MemoryMap() {
-    this.labels = new HashMap<String, Integer>(); 
+    this.labels = new HashMap<>(); 
   }
 
-  public void addLabel(String label, int address) {
+  public void addLabel(final String label, final BigInteger address) {
     checkNotNull(label);
-    checkGreaterOrEqZero(address);
+    checkGreaterOrEq(address, BigInteger.ZERO);
 
     labels.put(label, address);
   }
 
-  public int resolve(String label) {
+  public BigInteger resolve(final String label) {
     checkNotNull(label);
 
     if (!labels.containsKey(label)) {
@@ -44,7 +45,7 @@ public final class MemoryMap {
     return labels.get(label);
   }
 
-  public int resolveWithDefault(String label, int defaultValue) {
+  public BigInteger resolveWithDefault(final String label, final BigInteger defaultValue) {
     checkNotNull(label);
 
     if (!labels.containsKey(label)) {

@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +57,7 @@ public final class CallBuilder {
       final String labelName,
       final Primitive primitive,
       final String argumentName,
-      final int argumentValue) {
+      final BigInteger argumentValue) {
 
     checkNotNull(labelName);
     checkNotNull(primitive);

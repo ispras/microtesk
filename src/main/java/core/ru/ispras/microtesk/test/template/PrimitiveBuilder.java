@@ -627,11 +627,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
     // TODO: Current limitation: 0 is instead of
     // the actual label address/offset.
-    final int fakeValue = 0;
-    final int address = memoryMap.resolveWithDefault(value, fakeValue);
+    final BigInteger fakeValue = BigInteger.ZERO;
+    final BigInteger address = memoryMap.resolveWithDefault(value, fakeValue);
 
     // TODO
-    setArgument(name, BigInteger.valueOf(address));
+    setArgument(name, address);
     callBuilder.addLabelReference(value, lazyPrimitive, name, address);
   }
 

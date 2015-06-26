@@ -16,6 +16,8 @@ package ru.ispras.microtesk.model.api.memory;
 
 import static org.junit.Assert.assertEquals;
 
+import java.math.BigInteger;
+
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -42,7 +44,7 @@ public class MemoryAllocatorTestCase {
     testBitsToAddressableUnits(allocator);
     testAlignAddress();
 
-    int address = 0;
+    BigInteger address = BigInteger.ZERO;
 
     // Check correct allocation/alignment
     address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32));
@@ -81,16 +83,20 @@ public class MemoryAllocatorTestCase {
   }
 
   private void testAlignAddress() {
-    assertEquals(0, MemoryAllocator.alignAddress(0, 4));
-    assertEquals(4, MemoryAllocator.alignAddress(1, 4));
-    assertEquals(4, MemoryAllocator.alignAddress(2, 4));
-    assertEquals(4, MemoryAllocator.alignAddress(3, 4));
-    assertEquals(4, MemoryAllocator.alignAddress(4, 4));
-    assertEquals(8, MemoryAllocator.alignAddress(5, 4));
-    assertEquals(8, MemoryAllocator.alignAddress(6, 4));
-    assertEquals(256, MemoryAllocator.alignAddress(255, 4));
-    assertEquals(256, MemoryAllocator.alignAddress(256, 4));
-    assertEquals(260, MemoryAllocator.alignAddress(257, 4));
+    assertEquals(BigInteger.valueOf(0),   alignAddress(0, 4));
+    assertEquals(BigInteger.valueOf(4),   alignAddress(1, 4));
+    assertEquals(BigInteger.valueOf(4),   alignAddress(2, 4));
+    assertEquals(BigInteger.valueOf(4),   alignAddress(3, 4));
+    assertEquals(BigInteger.valueOf(4),   alignAddress(4, 4));
+    assertEquals(BigInteger.valueOf(8),   alignAddress(5, 4));
+    assertEquals(BigInteger.valueOf(8),   alignAddress(6, 4));
+    assertEquals(BigInteger.valueOf(256), alignAddress(255, 4));
+    assertEquals(BigInteger.valueOf(256), alignAddress(256, 4));
+    assertEquals(BigInteger.valueOf(260), alignAddress(257, 4));
+  }
+
+  private static BigInteger alignAddress(final long address, final int alignment) {
+    return MemoryAllocator.alignAddress(BigInteger.valueOf(address), alignment);
   }
 
   private void testBitsToAddressableUnits(MemoryAllocator allocator) {

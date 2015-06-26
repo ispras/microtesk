@@ -108,7 +108,7 @@ public final class Template {
     return processor;
   }
 
-  public int getAddressForLabel(final String label) {
+  public BigInteger getAddressForLabel(final String label) {
     return dataManager.getMemoryMap().resolve(label);
   }
 
