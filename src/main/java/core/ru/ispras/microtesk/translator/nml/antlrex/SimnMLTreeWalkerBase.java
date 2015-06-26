@@ -21,7 +21,6 @@ import org.antlr.runtime.tree.TreeNodeStream;
 
 import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
-
 import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.expression.ExprFactory;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationFactory;
@@ -30,8 +29,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetFactory;
-import ru.ispras.microtesk.translator.nml.ir.shared.TypeFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExprFactory;
+import ru.ispras.microtesk.translator.nml.ir.shared.TypeFactory;
 
 public class SimnMLTreeWalkerBase extends TreeParserBase implements WalkerContext {
   private IR ir;

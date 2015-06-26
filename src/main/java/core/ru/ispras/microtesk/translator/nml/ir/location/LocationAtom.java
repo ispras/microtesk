@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.translator.nml.ir.location;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import ru.ispras.microtesk.translator.nml.ESymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;

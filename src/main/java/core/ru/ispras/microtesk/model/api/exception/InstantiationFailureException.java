@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.model.api.exception;
 
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public class InstantiationFailureException extends ConfigurationException {
   private static final long serialVersionUID = -5952137767948105546L;

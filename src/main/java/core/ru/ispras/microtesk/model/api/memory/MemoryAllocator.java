@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;

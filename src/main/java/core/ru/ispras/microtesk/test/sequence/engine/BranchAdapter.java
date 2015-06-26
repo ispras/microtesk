@@ -63,6 +63,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   }
 
   @Override
+  public void configure(final Map<String, Object> attributes) {
+    // Do nothing.
+  }
+
+  @Override
   public AdapterResult adapt(
       final EngineContext engineContext,
       final List<Call> abstractSequence,

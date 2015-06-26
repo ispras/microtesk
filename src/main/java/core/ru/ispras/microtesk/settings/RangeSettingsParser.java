@@ -16,9 +16,6 @@ package ru.ispras.microtesk.settings;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.settings.AbstractSettings;
-import ru.ispras.microtesk.settings.AbstractSettingsParser;
-
 /**
  * {@link RangeSettingsParser} implements a parser of {@link RangeSettings}.
  * 

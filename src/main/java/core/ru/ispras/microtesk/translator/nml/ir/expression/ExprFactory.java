@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expression;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull; 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 import java.util.ArrayDeque;
@@ -30,16 +30,12 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
-
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
-
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedConstant;
-
-import ru.ispras.microtesk.translator.nml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;

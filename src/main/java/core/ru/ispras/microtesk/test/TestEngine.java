@@ -613,18 +613,26 @@ public final class TestEngine {
       }
     }
 
-   private TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
+    private TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
+      checkNotNull(block);
+
       final String engineName = blockAttribute(block, "engine", "default");
       final String adapterName = blockAttribute(block, "adapter", engineName);
 
       final Engine<?> engine = config.getEngine(engineName);
+      checkNotNull(engine);
+
       final Adapter<?> adapter = config.getAdapter(adapterName);
+      checkNotNull(adapter);
 
       if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
         throw new IllegalStateException("Mismatched solver/adapter pair");
       }
 
-      return new TestSequenceEngine(engine, adapter);
+      final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
+      testSequenceEngine.configure(block.getAttributes());
+
+      return testSequenceEngine;
     }
 
     private static String blockAttribute(final Block block,

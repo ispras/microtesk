@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.template.Call;
@@ -26,6 +27,11 @@ public final class DefaultAdapter implements Adapter<TestSequence> {
   @Override
   public Class<TestSequence> getSolutionClass() {
     return TestSequence.class;
+  }
+
+  @Override
+  public void configure(final Map<String, Object> attributes) {
+    // Do nothing.
   }
 
   @Override

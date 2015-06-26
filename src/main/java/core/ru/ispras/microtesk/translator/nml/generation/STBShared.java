@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import static ru.ispras.microtesk.translator.generation.PackageInfo.SHARED_PACKAGE_FORMAT;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +24,12 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.type.TypeId;
-import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
-
+import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
@@ -36,8 +37,6 @@ import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
-
-import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 final class STBShared implements ITemplateBuilder {
   public final String specFileName;

@@ -22,7 +22,6 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.StandardOperation;
-
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Attribute;
 import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;

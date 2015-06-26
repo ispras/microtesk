@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import java.util.Collections;
 import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class StreamPreparator {

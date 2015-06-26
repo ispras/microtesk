@@ -17,10 +17,10 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.Collection;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The IAddressingMode interface is the base interface for addressing mode objects or OR rules that

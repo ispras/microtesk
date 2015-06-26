@@ -21,7 +21,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.template.Primitive;
 
 public final class PreparatorStore {
   private static class PreparatorGroup {

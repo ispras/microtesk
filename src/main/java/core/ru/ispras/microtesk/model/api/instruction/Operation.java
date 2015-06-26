@@ -25,13 +25,13 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
+import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The Operation abstract class is the base class for all classes that simulate behavior specified

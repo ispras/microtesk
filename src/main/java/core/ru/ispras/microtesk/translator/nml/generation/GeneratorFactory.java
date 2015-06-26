@@ -14,12 +14,18 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import ru.ispras.microtesk.translator.generation.*;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.COMMON_TEMPLATE_DIR;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.SIMNML_TEMPLATE_DIR;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.getModeFileFormat;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.getModelFileFormat;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.getOpFileFormat;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.getSharedFileFormat;
+import ru.ispras.microtesk.translator.generation.ClassGenerator;
+import ru.ispras.microtesk.translator.generation.IClassGenerator;
+import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
-
-import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 final class GeneratorFactory {
   private final String outDir;

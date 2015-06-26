@@ -17,6 +17,7 @@ package ru.ispras.microtesk.model.api;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
+
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;

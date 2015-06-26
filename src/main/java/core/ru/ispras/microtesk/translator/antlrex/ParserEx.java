@@ -23,10 +23,9 @@ import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 
 import ru.ispras.fortress.util.InvariantChecks;
-
 import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
-import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
+import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 
 /**

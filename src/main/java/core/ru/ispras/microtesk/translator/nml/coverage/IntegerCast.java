@@ -14,14 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.DataTypeId;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.fortress.transformer.TransformerRule;
+import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -31,7 +24,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.TransformerRule;
 
 public final class IntegerCast {
   public static Map<Enum<?>, TransformerRule> rules() {

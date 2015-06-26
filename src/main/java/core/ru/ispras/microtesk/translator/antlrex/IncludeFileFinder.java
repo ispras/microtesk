@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.antlr.runtime.*;
+import org.antlr.runtime.ANTLRFileStream;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

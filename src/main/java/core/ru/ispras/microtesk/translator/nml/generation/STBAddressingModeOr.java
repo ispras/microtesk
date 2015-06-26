@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_PACKAGE_FORMAT;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +26,6 @@ import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
-
-import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 final class STBAddressingModeOr implements ITemplateBuilder {
   private final String specFileName;

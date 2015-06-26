@@ -14,6 +14,11 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import static ru.ispras.microtesk.translator.generation.PackageInfo.MODEL_PACKAGE_FORMAT;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_CLASS_FORMAT;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.OP_CLASS_FORMAT;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.SHARED_CLASS_FORMAT;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,16 +26,13 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
+import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
+import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-
-import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
-import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
-
-import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 final class STBModel implements ITemplateBuilder {
   private final String specFileName;

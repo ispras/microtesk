@@ -65,6 +65,11 @@ public final class DefaultEngine implements Engine<TestSequence> {
   }
 
   @Override
+  public void configure(final Map<String, Object> attributes) {
+    // Do nothing.
+  }
+
+  @Override
   public EngineResult<TestSequence> solve(
       final EngineContext engineContext, final List<Call> abstractSequence) {
     checkNotNull(engineContext);

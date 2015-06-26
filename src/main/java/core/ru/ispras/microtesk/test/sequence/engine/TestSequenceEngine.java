@@ -18,6 +18,7 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.alloca
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
@@ -42,6 +43,14 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
   @Override
   public Class<AdapterResult> getSolutionClass() {
     return AdapterResult.class;
+  }
+
+  @Override
+  public void configure(final Map<String, Object> attributes) {
+    InvariantChecks.checkNotNull(attributes);
+
+    engine.configure(attributes);
+    adapter.configure(attributes);
   }
 
   @Override

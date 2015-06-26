@@ -66,6 +66,10 @@ public final class Block {
     return attributes.get(name);
   }
 
+  public Map<String, Object> getAttributes() {
+    return attributes;
+  }
+
   public boolean isEmpty() {
     return isEmpty;
   }

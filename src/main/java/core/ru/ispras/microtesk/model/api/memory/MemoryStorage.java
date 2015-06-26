@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
 import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 import java.util.BitSet;

@@ -14,26 +14,27 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_PACKAGE_FORMAT;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.SHARED_CLASS_FORMAT;
 
 import java.math.BigInteger;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.type.Type;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
-
-import static ru.ispras.microtesk.translator.generation.PackageInfo.*;
 
 final class STBAddressingMode extends STBPrimitiveBase {
   private final String specFileName;

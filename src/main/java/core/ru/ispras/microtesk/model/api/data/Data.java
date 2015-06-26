@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.model.api.data;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.type.Type;
 

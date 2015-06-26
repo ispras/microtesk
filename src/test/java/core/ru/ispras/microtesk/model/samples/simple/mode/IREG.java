@@ -24,14 +24,18 @@
 
 package ru.ispras.microtesk.model.samples.simple.mode;
 
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.M;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.R;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.byte_t;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.nibble;
+
 import java.util.Map;
+
+import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
-
-import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 /*
 mode IREG(i: nibble) = M[R[i]]

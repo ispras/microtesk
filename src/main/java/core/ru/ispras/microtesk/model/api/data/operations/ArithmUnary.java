@@ -21,8 +21,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IUnaryOperator;
-import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.type.TypeId;
 
 public final class ArithmUnary implements IUnaryOperator {
   // Sim-nML spec: these operators (unary +,-) are used only for

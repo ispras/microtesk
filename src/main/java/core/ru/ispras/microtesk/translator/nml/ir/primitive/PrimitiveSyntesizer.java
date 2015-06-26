@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import static ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveUtils.isJunction;
 import static ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveUtils.isLeaf;
 

@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.translator.mmu.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Collections;
 import java.util.List;

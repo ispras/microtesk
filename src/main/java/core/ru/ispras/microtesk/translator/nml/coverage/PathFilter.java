@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.StandardOperation;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.StandardOperation;
 
 final class PathFilter {
   private static final class OpHeader {

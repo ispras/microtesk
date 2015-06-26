@@ -19,7 +19,6 @@ import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 
 import ru.ispras.fortress.util.InvariantChecks;
-
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;

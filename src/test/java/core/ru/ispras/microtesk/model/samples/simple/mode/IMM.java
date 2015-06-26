@@ -24,14 +24,14 @@
 
 package ru.ispras.microtesk.model.samples.simple.mode;
 
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.byte_t;
+
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-
-import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
+import ru.ispras.microtesk.model.api.memory.Location;
 
 /*
 mode IMM(i: byte)=i

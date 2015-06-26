@@ -14,24 +14,24 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
-import ru.ispras.fortress.solver.constraint.Formulas;
-import ru.ispras.fortress.data.Variable;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.fortress.transformer.NodeTransformer;
-import ru.ispras.fortress.transformer.TransformerRule;
-import ru.ispras.fortress.util.InvariantChecks;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
+import ru.ispras.fortress.solver.constraint.Formulas;
+import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.TransformerRule;
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class PathConstraintBuilder {
   final Map<String, NodeVariable> variables;

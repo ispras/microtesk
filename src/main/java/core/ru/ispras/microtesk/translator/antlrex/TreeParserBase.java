@@ -19,17 +19,13 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.TreeNodeStream;
 
 import ru.ispras.fortress.util.InvariantChecks;
-
-import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.antlrex.TreeParserEx;
+import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
+import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
+import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-
-import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
-import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 
 /**
  * The TreeParserBase class is a base class for implementing ANTLR-based tree walkers.

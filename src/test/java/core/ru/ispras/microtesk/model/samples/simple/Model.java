@@ -24,15 +24,28 @@
 
 package ru.ispras.microtesk.model.samples.simple;
 
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__LABELS;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__MEMORY;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__REGISTERS;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__RESETTER;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__STATUSES;
+import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
-import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
-import ru.ispras.microtesk.model.samples.simple.mode.*;
-import ru.ispras.microtesk.model.samples.simple.op.*;
-
-import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
+import ru.ispras.microtesk.model.samples.simple.mode.IMM;
+import ru.ispras.microtesk.model.samples.simple.mode.IREG;
+import ru.ispras.microtesk.model.samples.simple.mode.MEM;
+import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;
+import ru.ispras.microtesk.model.samples.simple.mode.OPRNDR;
+import ru.ispras.microtesk.model.samples.simple.mode.REG;
+import ru.ispras.microtesk.model.samples.simple.op.Add;
+import ru.ispras.microtesk.model.samples.simple.op.Add_sub_mov;
+import ru.ispras.microtesk.model.samples.simple.op.Arith_Mem_Inst;
+import ru.ispras.microtesk.model.samples.simple.op.Instruction;
+import ru.ispras.microtesk.model.samples.simple.op.Mov;
+import ru.ispras.microtesk.model.samples.simple.op.Sub;
 
 public final class Model extends ProcessorModel
 {

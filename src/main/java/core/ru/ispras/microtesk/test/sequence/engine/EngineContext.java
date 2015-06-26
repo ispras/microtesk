@@ -18,8 +18,8 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTes
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.PreparatorStore;
+import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 /**

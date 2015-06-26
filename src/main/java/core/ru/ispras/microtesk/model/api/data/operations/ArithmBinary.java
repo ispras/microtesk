@@ -21,8 +21,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
-import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.type.TypeId;
 
 /*
  * TODO: This implementation should be reviewed and rewritten in accordance with the Sim-nML

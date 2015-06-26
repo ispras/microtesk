@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.mmu.spec.builder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;

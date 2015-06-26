@@ -24,18 +24,21 @@
 
 package ru.ispras.microtesk.model.samples.simple.op;
 
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.DEST;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.PC;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.SRC1;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.SRC2;
+
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
+import ru.ispras.microtesk.model.api.data.DataEngine;
+import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
-import ru.ispras.microtesk.model.api.data.DataEngine;
-import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDR;
-
-import static ru.ispras.microtesk.model.samples.simple.shared.Shared.*;
 
 /*
     op arith_mem_inst(y: Add_sub_mov, op1: OPRND, op2: OPRND)

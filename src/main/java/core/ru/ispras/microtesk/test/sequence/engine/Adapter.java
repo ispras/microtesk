@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.microtesk.test.template.Call;
 
@@ -24,8 +25,10 @@ import ru.ispras.microtesk.test.template.Call;
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
-
 public interface Adapter<T> {
   Class<T> getSolutionClass();
+
+  void configure(Map<String, Object> attributes);
+
   AdapterResult adapt(EngineContext engineContext, List<Call> abstractSequence, T solution);
 }

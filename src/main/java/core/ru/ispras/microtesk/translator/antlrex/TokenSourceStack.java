@@ -14,8 +14,10 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import java.util.*;
-import org.antlr.runtime.*;
+import java.util.Stack;
+
+import org.antlr.runtime.Token;
+import org.antlr.runtime.TokenSource;
 
 /**
  * Composite token source for hierarchically organized sub-sources.

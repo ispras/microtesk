@@ -14,6 +14,26 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.AND;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.CONCAT;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.EXTRACT;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.NOT;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.OR;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.SELECT;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.STORE;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.TRUE;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
@@ -25,28 +45,24 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expression.Converter;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
-import ru.ispras.microtesk.translator.nml.ir.location.*;
-import ru.ispras.microtesk.translator.nml.ir.primitive.*;
+import ru.ispras.microtesk.translator.nml.ir.location.Location;
+import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.location.LocationConcat;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
+import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.*;
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
 
 final class SsaBuilder {
   private final String prefix;

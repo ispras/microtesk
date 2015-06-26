@@ -35,6 +35,9 @@ import ru.ispras.microtesk.test.template.Label;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchEngine implements Engine<BranchSolution> {
+  public static final String PARAM_BRANCH_EXEC_LIMIT = "branch-exec-limit";
+  public static final int PARAM_BRANCH_EXEC_LIMIT_DEFAULT = 1;
+  
   public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
   public static final String GOTO_SITUATION_SUFFIX = "goto";
 
@@ -58,9 +61,20 @@ public final class BranchEngine implements Engine<BranchSolution> {
     return situationName != null && situationName.endsWith(GOTO_SITUATION_SUFFIX);
   }
 
+  /** Branch execution limit: default value is 1. */
+  private int maxBranchExecution = PARAM_BRANCH_EXEC_LIMIT_DEFAULT;
+
   @Override
   public Class<BranchSolution> getSolutionClass() {
     return BranchSolution.class;
+  }
+
+  @Override
+  public void configure(final Map<String, Object> attributes) {
+    final Object branchExecLimit = attributes.get(PARAM_BRANCH_EXEC_LIMIT);
+
+    maxBranchExecution = branchExecLimit != null ?
+        Integer.parseInt(branchExecLimit.toString()) : PARAM_BRANCH_EXEC_LIMIT_DEFAULT;
   }
 
   @Override
@@ -121,8 +135,6 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
     final Iterator<BranchSolution> iterator = new Iterator<BranchSolution>() {
       // TODO: Block attributes should be used.
-      private final int maxBranchExecution = 2;
-
       /** Iterator of branch structures. */
       private final Iterator<BranchStructure> branchStructureIterator =
           new SingleValueIterator<BranchStructure>(branchStructure);

@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.Variable;
-import ru.ispras.fortress.expression.NodeVariable;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.NodeVariable;
 
 public final class SsaScopeFactory {
   private static final SsaScope EMPTY_SCOPE = new SsaScope() {

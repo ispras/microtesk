@@ -14,18 +14,18 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.Variable;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.fortress.util.InvariantChecks;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.InvariantChecks;
 
 final class Batch {
   public final String key;

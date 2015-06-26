@@ -15,9 +15,6 @@
 package ru.ispras.microtesk.translator;
 
 import static org.junit.Assert.fail;
-
-import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreListener;

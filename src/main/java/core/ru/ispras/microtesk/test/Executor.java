@@ -24,10 +24,10 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.model.api.tarmac.Record;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
-import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
  * The role of the Executor class is to execute (simulate) sequences of instruction calls (concrete

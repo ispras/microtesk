@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import java.util.Iterator;
+
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.solver.constraint.Constraint;
-
-import java.util.Iterator;
 
 final class PathIterator implements Iterator<Constraint> {
   final PathConstraintBuilder builder;

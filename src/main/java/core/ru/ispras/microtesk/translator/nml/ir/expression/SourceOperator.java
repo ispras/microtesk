@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expression;
 
-import ru.ispras.microtesk.translator.nml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.nml.ir.valueinfo.ValueInfo;
 
 public final class SourceOperator {

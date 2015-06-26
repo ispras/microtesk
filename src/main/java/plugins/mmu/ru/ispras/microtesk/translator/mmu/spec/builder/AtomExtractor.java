@@ -23,7 +23,6 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
-
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.AttributeRef;
 import ru.ispras.microtesk.translator.mmu.ir.FieldRef;

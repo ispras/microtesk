@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.translator.mmu.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import ru.ispras.fortress.expression.Node;
 
 public final class StmtAssign extends Stmt {

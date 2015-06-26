@@ -20,8 +20,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the random combinator of iterators.

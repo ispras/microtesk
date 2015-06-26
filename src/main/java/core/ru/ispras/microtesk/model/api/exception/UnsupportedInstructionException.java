@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.model.api.exception;
 
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public final class UnsupportedInstructionException extends ConfigurationException {
   private static final long serialVersionUID = 67522463236330331L;

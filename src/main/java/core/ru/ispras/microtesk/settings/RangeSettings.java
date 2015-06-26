@@ -18,8 +18,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import ru.ispras.microtesk.settings.AbstractSettings;
-
 /**
  * {@link RangeSettings} describes a finite set of integers.
  * 

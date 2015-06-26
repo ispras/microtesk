@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.BlockId.Distance;
+import ru.ispras.microtesk.test.template.Label;
 
 /**
  * The role of the LabelManager class is resolving references to labels that have the same names,

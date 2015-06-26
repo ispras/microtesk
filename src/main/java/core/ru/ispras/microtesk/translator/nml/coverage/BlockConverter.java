@@ -14,19 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
-import ru.ispras.fortress.solver.constraint.ConstraintKind;
-
-import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeVariable;
-
-import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.constraint.Formulas;
-
-import ru.ispras.fortress.transformer.NodeTransformer;
-import ru.ispras.fortress.transformer.TransformerRule;
+import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +25,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
+import ru.ispras.fortress.solver.constraint.ConstraintKind;
+import ru.ispras.fortress.solver.constraint.Formulas;
+import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.TransformerRule;
 
 public final class BlockConverter {
   final Set<Block> visited;

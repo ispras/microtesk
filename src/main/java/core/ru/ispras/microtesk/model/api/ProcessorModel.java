@@ -20,22 +20,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.memory.Label;
-import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.metadata.*;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.microtesk.model.api.memory.Label;
+import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.api.metadata.MetaGroup;
+import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
+import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 
 /**
  * The ProcessorModel class is base class for all families of microprocessor model classes. It

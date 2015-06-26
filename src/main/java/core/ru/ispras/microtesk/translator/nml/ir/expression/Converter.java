@@ -25,9 +25,8 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.microtesk.model.api.type.TypeId;
-import ru.ispras.microtesk.translator.nml.ir.expression.Operator;
-import ru.ispras.microtesk.translator.nml.ir.valueinfo.ValueInfo;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+import ru.ispras.microtesk.translator.nml.ir.valueinfo.ValueInfo;
 
 /**
  * Contains methods that perform conversion from MicroTESK data types and operators to Fortress data

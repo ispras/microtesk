@@ -16,9 +16,9 @@ package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.model.api.data.Data;
 
 /**
  * The AddressingModeImm class is a stub class that implements the immediate addressing mode. It

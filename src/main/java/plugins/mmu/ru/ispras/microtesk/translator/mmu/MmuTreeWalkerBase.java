@@ -39,15 +39,12 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.Pair;
-
 import ru.ispras.microtesk.model.api.mmu.PolicyId;
-
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
-
 import ru.ispras.microtesk.translator.mmu.ir.AbstractStorage;
 import ru.ispras.microtesk.translator.mmu.ir.Address;
 import ru.ispras.microtesk.translator.mmu.ir.Attribute;
@@ -56,6 +53,7 @@ import ru.ispras.microtesk.translator.mmu.ir.Buffer;
 import ru.ispras.microtesk.translator.mmu.ir.Field;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
 import ru.ispras.microtesk.translator.mmu.ir.Memory;
+import ru.ispras.microtesk.translator.mmu.ir.Segment;
 import ru.ispras.microtesk.translator.mmu.ir.Stmt;
 import ru.ispras.microtesk.translator.mmu.ir.StmtAssign;
 import ru.ispras.microtesk.translator.mmu.ir.StmtException;
@@ -63,7 +61,6 @@ import ru.ispras.microtesk.translator.mmu.ir.StmtIf;
 import ru.ispras.microtesk.translator.mmu.ir.StmtTrace;
 import ru.ispras.microtesk.translator.mmu.ir.Type;
 import ru.ispras.microtesk.translator.mmu.ir.Variable;
-import ru.ispras.microtesk.translator.mmu.ir.Segment;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {

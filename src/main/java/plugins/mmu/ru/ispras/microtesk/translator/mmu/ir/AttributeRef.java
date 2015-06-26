@@ -14,9 +14,8 @@
 
 package ru.ispras.microtesk.translator.mmu.ir;
 
-import ru.ispras.fortress.expression.Node;
-
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.expression.Node;
 
 public final class AttributeRef {
   private final AbstractStorage target;

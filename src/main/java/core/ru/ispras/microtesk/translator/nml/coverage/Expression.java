@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import java.util.Collection;
+
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
-
-import java.util.Collection;
 
 final class Expression {
   public static final Node TRUE = new NodeValue(Data.newBoolean(true));

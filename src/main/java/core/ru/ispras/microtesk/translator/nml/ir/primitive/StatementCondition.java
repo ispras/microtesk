@@ -14,11 +14,12 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
 import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.List;
+
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 
 public final class StatementCondition extends Statement {

@@ -16,8 +16,6 @@ package ru.ispras.microtesk.settings;
 
 import java.util.Collection;
 
-import ru.ispras.microtesk.settings.AbstractSettings;
-
 /**
  * {@link IncludeSettings} specifies an integer to be included into a range.
  * 

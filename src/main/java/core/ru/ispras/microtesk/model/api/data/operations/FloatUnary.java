@@ -17,8 +17,8 @@ package ru.ispras.microtesk.model.api.data.operations;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IUnaryOperator;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
-import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.type.TypeId;
 
 public abstract class FloatUnary implements IUnaryOperator {
   public static FloatX dataToFloatX(Data data) {

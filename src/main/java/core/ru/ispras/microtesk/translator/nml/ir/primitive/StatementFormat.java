@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import java.util.List;
+
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class StatementFormat extends Statement {
