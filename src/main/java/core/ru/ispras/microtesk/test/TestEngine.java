@@ -512,55 +512,54 @@ public final class TestEngine {
           printer.printSequence(concreteSequence);
 
           STATISTICS.instructionCount += concreteSequence.getInstructionCount();
+          STATISTICS.testCaseNumber++;
 
           ++sequenceIndex;
-        }
+
+          Logger.debugHeader("");
+
+          final Statistics after = STATISTICS.copy();
+
+          final boolean isProgramLengthLimitExceeded =
+              (after.instructionCount - before.instructionCount) >= programLengthLimit;
+          final boolean isTraceLengthLimitExceeded =
+              (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
+
+           /*
+           System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
+                  before.instructionCount, after.instructionCount,
+                  (after.instructionCount - before.instructionCount),
+                  (after.instructionCount - before.instructionCount) >= programLengthLimit,
+                  
+                  before.instructionExecutedCount,
+                  after.instructionExecutedCount,
+                  (after.instructionCount - before.instructionCount),
+                  (after.instructionCount - before.instructionCount) >= programLengthLimit
+                  ));
+           */
+
+          needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
+          if (needCreateNewFile) {
+            printer.printToFile("");
+            printer.printHeaderToFile("Epilogue");
+            printer.printToFile("");
+
+            if (!postBlock.isEmpty()) {
+              try {
+                processPreOrPostBlock(postBlock);
+              } catch (ConfigurationException e) {
+                Logger.error(e.getMessage());
+              }
+            } else {
+              printer.printCommentToFile("Empty");
+            }
+
+            printer.close();
+          }
+        } // Concrete sequence iterator
 
         sequenceIt.next();
-
-        Logger.debugHeader("");
-
-        STATISTICS.testCaseNumber++;
-
-        final Statistics after = STATISTICS.copy();
-
-        final boolean isProgramLengthLimitExceeded =
-            (after.instructionCount - before.instructionCount) >= programLengthLimit;
-        final boolean isTraceLengthLimitExceeded =
-            (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
-
-         /*
-         System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
-                before.instructionCount, after.instructionCount,
-                (after.instructionCount - before.instructionCount),
-                (after.instructionCount - before.instructionCount) >= programLengthLimit,
-                
-                before.instructionExecutedCount,
-                after.instructionExecutedCount,
-                (after.instructionCount - before.instructionCount),
-                (after.instructionCount - before.instructionCount) >= programLengthLimit
-                ));
-         */
-
-        needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
-        if (needCreateNewFile) {
-          printer.printToFile("");
-          printer.printHeaderToFile("Epilogue");
-          printer.printToFile("");
-
-          if (!postBlock.isEmpty()) {
-            try {
-              processPreOrPostBlock(postBlock);
-            } catch (ConfigurationException e) {
-              Logger.error(e.getMessage());
-            }
-          } else {
-            printer.printCommentToFile("Empty");
-          }
-
-          printer.close();
-        }
-      }
+      } // Abstract sequence iterator
     }
 
     private void processPreOrPostBlock(Block block) throws ConfigurationException {

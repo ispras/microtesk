@@ -14,10 +14,13 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
+import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
+
 import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Call;
 
@@ -99,6 +102,11 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
         // Adapter may modify the abstract sequence.
         final List<Call> abstractSequenceCopy = Call.newCopy(abstractSequence);
+        // Allocate uninitialized addressing modes.
+        allocateModes(abstractSequenceCopy);
+
+        Memory.setUseTempCopies(true);
+
         return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
       }
 

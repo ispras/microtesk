@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getTestData;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeInitializer;
@@ -77,9 +76,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     InvariantChecks.checkTrue(abstractSequence.size() == branchStructure.size());
 
     Logger.debug("Branch Structure: %s", branchStructure);
-
-    // Allocate uninitialized addressing modes.
-    allocateModes(abstractSequence);
 
     final TestSequence.Builder testSequenceBuilder = new TestSequence.Builder();
 

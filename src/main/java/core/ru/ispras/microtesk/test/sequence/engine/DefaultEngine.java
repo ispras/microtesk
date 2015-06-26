@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.checkRootOp;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getTestData;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
@@ -32,7 +31,6 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.common.AddressingModeWrapper;
 import ru.ispras.microtesk.test.sequence.engine.common.TestBaseQueryCreator;
@@ -85,14 +83,10 @@ public final class DefaultEngine implements Engine<TestSequence> {
     checkNotNull(engineContext);
     checkNotNull(abstractSequence);
 
-    Memory.setUseTempCopies(true);
-
     initializedModes = new HashSet<>();
     sequenceBuilder = new TestSequence.Builder();
 
     try {
-      allocateModes(abstractSequence);
-
       for (final Call abstractCall : abstractSequence) {
         processAbstractCall(engineContext, abstractCall);
       }
