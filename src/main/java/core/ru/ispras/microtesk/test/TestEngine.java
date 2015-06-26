@@ -455,7 +455,10 @@ public final class TestEngine {
           }
 
           if (!isDataPrinted && dataManager.containsDecls()) {
-            printSectionHeader("Data Declarations");
+            printer.printToFile("");
+            printSectionHeader("Data Declaration");
+            printer.printToFile("");
+
             printer.printText(dataManager.getDeclText());
             isDataPrinted = true;
           }
