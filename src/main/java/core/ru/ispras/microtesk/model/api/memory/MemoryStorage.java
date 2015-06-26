@@ -255,6 +255,10 @@ public final class MemoryStorage {
     return read(BitVector.valueOf(address, addressBitSize));
   }
 
+  public BitVector read(final BigInteger address) {
+    return read(BitVector.valueOf(address, addressBitSize));
+  }
+
   public BitVector read(final BitVector address) {
     checkNotNull(address);
     final Index index = new Index(address, addressBitSize);
@@ -277,6 +281,10 @@ public final class MemoryStorage {
   }
 
   public void write(final long address, final BitVector data) {
+    write(BitVector.valueOf(address, addressBitSize), data);
+  }
+
+  public void write(final BigInteger address, final BitVector data) {
     write(BitVector.valueOf(address, addressBitSize), data);
   }
 
