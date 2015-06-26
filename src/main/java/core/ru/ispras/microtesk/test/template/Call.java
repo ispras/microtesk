@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -31,6 +31,10 @@ public final class Call {
       final List<Label> labels,
       final List<LabelReference> labelRefs,
       final List<Output> outputs) {
+    InvariantChecks.checkNotNull(labels);
+    InvariantChecks.checkNotNull(labelRefs);
+    InvariantChecks.checkNotNull(outputs);
+
     this.rootOperation = rootOperation;
     this.labels = Collections.unmodifiableList(labels);
     this.labelRefs = Collections.unmodifiableList(labelRefs);
@@ -38,7 +42,7 @@ public final class Call {
   }
 
   private Call(final Call other) {
-    this.rootOperation = other.rootOperation.newCopy(); 
+    this.rootOperation = null != other.rootOperation ? other.rootOperation.newCopy() : null; 
     this.labels = other.labels;
     this.labelRefs = copyLabelReferences(other.labelRefs);
     this.outputs = other.outputs;
