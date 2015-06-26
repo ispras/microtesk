@@ -62,6 +62,19 @@ public final class Label {
   }
 
   /**
+   * Assigns index that identifies the instruction sequence where the label is defined.
+   * This is required to avoid situations when different sequences produced by the same 
+   * block refer to the same labels.
+   * 
+   * @param value Index that identifies the instruction sequence where the label is defined.
+   */
+
+  public void setSequenceIndex(final int value) {
+    InvariantChecks.checkGreaterOrEqZero(value);
+    this.sequenceIndex = value;
+  }
+
+  /**
    * Returns the name of the label as it was defined in a test template.
    * 
    * @return The name of the label.
@@ -81,7 +94,7 @@ public final class Label {
 
   public String getUniqueName() {
     if (sequenceIndex == NO_SEQUENCE_INDEX) {
-      return String.format("%s%s");
+      return String.format("%s%s", name, blockId);
     }
 
     return String.format("%s%s_%d", name, blockId, sequenceIndex);
