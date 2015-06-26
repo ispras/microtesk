@@ -14,7 +14,8 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import ru.ispras.microtesk.test.sequence.Sequence;
+import java.util.List;
+
 import ru.ispras.microtesk.test.template.Call;
 
 /**
@@ -26,5 +27,5 @@ import ru.ispras.microtesk.test.template.Call;
 
 public interface Adapter<T> {
   Class<T> getSolutionClass();
-  AdapterResult adapt(EngineContext engineContext, Sequence<Call> abstractSequence, T solution);
+  AdapterResult adapt(EngineContext engineContext, List<Call> abstractSequence, T solution);
 }

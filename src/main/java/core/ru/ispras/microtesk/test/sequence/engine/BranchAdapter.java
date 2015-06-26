@@ -67,7 +67,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   @Override
   public AdapterResult adapt(
       final EngineContext engineContext,
-      final Sequence<Call> abstractSequence,
+      final List<Call> abstractSequence,
       final BranchSolution solution) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);

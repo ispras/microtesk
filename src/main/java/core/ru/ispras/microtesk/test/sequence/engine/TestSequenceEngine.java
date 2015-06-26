@@ -15,9 +15,9 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import java.util.Collection;
+import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Call;
 
@@ -43,7 +43,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
   @Override
   public EngineResult<AdapterResult> solve(
-      final EngineContext engineContext, final Sequence<Call> abstractSequence) {
+      final EngineContext engineContext, final List<Call> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -57,7 +57,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
   }
 
   public Iterator<AdapterResult> process(
-      final EngineContext engineContext, final Sequence<Call> abstractSequence) {
+      final EngineContext engineContext, final List<Call> abstractSequence) {
     final EngineResult<AdapterResult> result = solve(engineContext, abstractSequence);
 
     if (result.getStatus() != EngineResult.Status.OK) {
@@ -73,14 +73,16 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
   private static <T> EngineResult<T> solve(
       final Engine<T> engine,
       final EngineContext engineContext,
-      final Sequence<Call> abstractSequence) {
-    return engine.solve(engineContext, abstractSequence);
+      final List<Call> abstractSequence) {
+    // Solver may modify the abstract sequence.
+    final List<Call> abstractSequenceCopy = Call.newCopy(abstractSequence);
+    return engine.solve(engineContext, abstractSequenceCopy);
   }
 
   private static <T> EngineResult<AdapterResult> adapt(
       final Adapter<T> adapter,
       final EngineContext engineContext,
-      final Sequence<Call> abstractSequence,
+      final List<Call> abstractSequence,
       final Iterator<?> solutionIterator) {
     final Iterator<AdapterResult> resultIterator = new Iterator<AdapterResult>() {
       @Override public void init() {
@@ -95,7 +97,9 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
         final Object solution = solutionIterator.value(); 
         final Class<T> solutionClass = adapter.getSolutionClass();
 
-        return adapter.adapt(engineContext, abstractSequence, solutionClass.cast(solution));
+        // Adapter may modify the abstract sequence.
+        final List<Call> abstractSequenceCopy = Call.newCopy(abstractSequence);
+        return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
       }
 
       @Override public void next() {

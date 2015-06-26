@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -23,7 +24,6 @@ import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.ModeSettings;
 import ru.ispras.microtesk.settings.RangeSettings;
 import ru.ispras.microtesk.settings.StrategySettings;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LazyValue;
@@ -76,7 +76,7 @@ public final class ModeAllocator {
     }
   }
 
-  public void allocate(final Sequence<Call> sequence) {
+  public void allocate(final List<Call> sequence) {
     InvariantChecks.checkNotNull(sequence);
 
     reset();

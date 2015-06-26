@@ -18,14 +18,14 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getSit
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecutionIterator;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Call;
@@ -65,7 +65,7 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
   @Override
   public EngineResult<BranchSolution> solve(
-      final EngineContext engineContext, final Sequence<Call> abstractSequence) {
+      final EngineContext engineContext, final List<Call> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 

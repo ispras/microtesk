@@ -14,8 +14,9 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
+import java.util.List;
+
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.template.Call;
 
 /**
@@ -30,7 +31,7 @@ public final class DefaultAdapter implements Adapter<TestSequence> {
   @Override
   public AdapterResult adapt(
       final EngineContext engineContext,
-      final Sequence<Call> abstractSequence,
+      final List<Call> abstractSequence,
       final TestSequence solution) {
     return new AdapterResult(solution);
   }

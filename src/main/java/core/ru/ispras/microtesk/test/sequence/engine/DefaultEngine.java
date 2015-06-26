@@ -34,7 +34,6 @@ import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.common.AddressingModeWrapper;
 import ru.ispras.microtesk.test.sequence.engine.common.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
@@ -69,7 +68,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
   @Override
   public EngineResult<TestSequence> solve(
-      final EngineContext engineContext, final Sequence<Call> abstractSequence) {
+      final EngineContext engineContext, final List<Call> abstractSequence) {
     checkNotNull(engineContext);
     checkNotNull(abstractSequence);
 
@@ -81,7 +80,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
   }
 
   private TestSequence process(
-      final EngineContext engineContext, final Sequence<Call> abstractSequence)
+      final EngineContext engineContext, final List<Call> abstractSequence)
           throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(abstractSequence);

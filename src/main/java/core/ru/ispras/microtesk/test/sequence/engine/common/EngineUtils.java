@@ -46,7 +46,6 @@ import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Argument;
@@ -247,7 +246,7 @@ public final class EngineUtils {
     return situation.getName();
   }
 
-  public static void allocateModes(final Sequence<Call> abstractSequence) {
+  public static void allocateModes(final List<Call> abstractSequence) {
     checkNotNull(abstractSequence);
 
     final ModeAllocator modeAllocator = ModeAllocator.get();
