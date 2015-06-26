@@ -28,6 +28,10 @@ public final class MemoryMap {
     this.labels = new HashMap<>(); 
   }
 
+  public boolean isDefined(final String label) {
+    return labels.containsKey(label);
+  }
+
   public void addLabel(final String label, final BigInteger address) {
     checkNotNull(label);
     checkGreaterOrEq(address, BigInteger.ZERO);
