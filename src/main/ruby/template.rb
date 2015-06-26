@@ -517,6 +517,7 @@ class Template
 
   def generate_data(address, label, type, length, method)
     # puts "Generating data file"
+    @template.getDataManager.generateData address, label, type, length, method
   end
 
   # -------------------------------------------------------------------------- #

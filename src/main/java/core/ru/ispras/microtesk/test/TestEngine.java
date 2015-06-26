@@ -307,7 +307,9 @@ public final class TestEngine {
         commentsDebug
         );
 
-    final DataManager dataManager = new DataManager(indentToken);
+    final DataManager dataManager = new DataManager(
+        indentToken, dataFilePrefix, dataFileExtension);
+
     final PreparatorStore preparators = new PreparatorStore();
     final StreamStore streams = new StreamStore();
 

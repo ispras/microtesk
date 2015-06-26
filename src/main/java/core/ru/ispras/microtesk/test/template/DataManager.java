@@ -136,6 +136,9 @@ public final class DataManager {
   private String nztermStrText;
 
   private final String indentToken;
+  private final String dataFilePrefix;
+  private final String dataFileExtension;
+  private int dataFileIndex;
 
   private final Map<String, TypeInfo> typeMap;
   final static class TypeInfo {
@@ -148,9 +151,15 @@ public final class DataManager {
     }
   }
 
-  public DataManager(String indentToken) {
+  public DataManager(
+      final String indentToken,
+      final String dataFilePrefix,
+      final String dataFileExtension) {
     this.indentToken = indentToken;
-    
+    this.dataFilePrefix = dataFilePrefix;
+    this.dataFileExtension = dataFileExtension;
+    this.dataFileIndex = 0;
+
     this.memoryMap = new MemoryMap();
     this.dataDecls = new ArrayList<>();
 
@@ -341,5 +350,27 @@ public final class DataManager {
     if (!isInitialized()) {
       throw new IllegalStateException("DataManager is not initialized!");
     }
+  }
+  
+  public void generateData(
+      final BigInteger address,
+      final String label,
+      final String type,
+      final int length,
+      final String method) {
+    checkNotNull(address);
+    checkNotNull(label);
+    checkNotNull(type);
+    checkGreaterThanZero(length);
+    checkNotNull(method);
+
+    final String fileName = String.format(
+        "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
+
+    Logger.debug("Generating data file: %s", fileName);
+
+    // TODO: Allocate data and print to file
+
+    dataFileIndex++;
   }
 }
