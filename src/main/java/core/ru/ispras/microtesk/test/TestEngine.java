@@ -111,6 +111,8 @@ public final class TestEngine {
   private static int branchExecutionLimit = 100;
   private static String codeFileExtension = ".asm";
   private static String codeFilePrefix = "test";
+  private static String dataFileExtension = ".dat";
+  private static String dataFilePrefix = codeFilePrefix;
   private static int programLengthLimit = 1000;
   private static int traceLengthLimit = 1000;
   private static boolean commentsDebug = false;
@@ -152,6 +154,14 @@ public final class TestEngine {
 
   public static void setCodeFilePrefix(final String value) {
     codeFilePrefix = value;
+  }
+
+  public static void setDataFileExtension(final String value) {
+    dataFileExtension = value;
+  }
+
+  public static void setDataFilePrefix(final String value) {
+    dataFilePrefix = value;
   }
 
   public static void setProgramLengthLimit(final int value) {

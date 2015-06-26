@@ -156,6 +156,18 @@ public final class MicroTESK {
       reportUndefinedOption(Parameters.CODE_PRE);
     }
 
+    if (params.hasOption(Parameters.DATA_EXT)) {
+      TestEngine.setDataFileExtension(params.getOptionValue(Parameters.DATA_EXT));
+    } else {
+      reportUndefinedOption(Parameters.DATA_EXT);
+    }
+ 
+    if (params.hasOption(Parameters.DATA_PRE)) {
+      TestEngine.setDataFilePrefix(params.getOptionValue(Parameters.DATA_PRE));
+    } else {
+      reportUndefinedOption(Parameters.DATA_PRE);
+    }
+
     if (params.hasOption(Parameters.CODE_LIMIT)) {
       final int programLengthLimit = params.getOptionValueAsInt(Parameters.CODE_LIMIT);
       TestEngine.setProgramLengthLimit(programLengthLimit);
