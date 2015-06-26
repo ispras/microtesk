@@ -454,50 +454,6 @@ public final class TestEngine {
       sequenceIt.init();
 
       while (sequenceIt.hasValue()) {
-        if (needCreateNewFile) {
-          try {
-            before = STATISTICS.copy();
-            fileName = printer.createNewFile();
-            STATISTICS.testProgramNumber++;
-
-            if (logPrinter != null) {
-              logPrinter.createNewFile();
-            }
-          } catch (IOException e) {
-            Logger.error(e.getMessage());
-          }
-
-          if (!isDataPrinted && dataManager.containsDecls()) {
-            printer.printToFile("");
-            printSectionHeader("Data Declaration");
-            printer.printToFile("");
-
-            printer.printText(dataManager.getDeclText());
-            isDataPrinted = true;
-          }
-
-          printer.printToFile("");
-          printer.printHeaderToFile("Prologue");
-          printer.printToFile("");
-
-          if (!preBlock.isEmpty()) {
-            try {
-              processPreOrPostBlock(preBlock);
-            } catch (ConfigurationException e) {
-              Logger.error(e.getMessage());
-            }
-          } else {
-            printer.printCommentToFile("Empty");
-          }
-
-          needCreateNewFile = false;
-        }
-
-        if (sequenceIndex == 0) {
-          printer.printText("");
-          printer.printSeparatorToFile(String.format("Test %d", testIndex++));
-        }
-
         final List<Call> abstractSequence = sequenceIt.value();
         checkNotNull(abstractSequence);
 
@@ -505,6 +461,50 @@ public final class TestEngine {
         checkNotNull(iterator);
 
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
+          if (needCreateNewFile) {
+            try {
+              before = STATISTICS.copy();
+              fileName = printer.createNewFile();
+              STATISTICS.testProgramNumber++;
+
+              if (logPrinter != null) {
+                logPrinter.createNewFile();
+              }
+            } catch (IOException e) {
+              Logger.error(e.getMessage());
+            }
+
+            if (!isDataPrinted && dataManager.containsDecls()) {
+              printer.printToFile("");
+              printSectionHeader("Data Declaration");
+              printer.printToFile("");
+
+              printer.printText(dataManager.getDeclText());
+              isDataPrinted = true;
+            }
+
+            printer.printToFile("");
+            printer.printHeaderToFile("Prologue");
+            printer.printToFile("");
+
+            if (!preBlock.isEmpty()) {
+              try {
+                processPreOrPostBlock(preBlock);
+              } catch (ConfigurationException e) {
+                Logger.error(e.getMessage());
+              }
+            } else {
+              printer.printCommentToFile("Empty");
+            }
+
+            needCreateNewFile = false;
+          }
+
+          if (sequenceIndex == 0) {
+            printer.printText("");
+            printer.printSeparatorToFile(String.format("Test %d", testIndex++));
+          }
+
           final AdapterResult adapterResult = iterator.value();
           checkNotNull(adapterResult);
 
