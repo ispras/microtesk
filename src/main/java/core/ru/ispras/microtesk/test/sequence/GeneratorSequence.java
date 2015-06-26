@@ -22,25 +22,24 @@ import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 public final class GeneratorSequence<T> implements Generator<T> {
 
-  private final CollectionIterator<Sequence<T>> collectionIterator; 
+  private final CollectionIterator<List<T>> collectionIterator; 
 
-  public GeneratorSequence(List<Iterator<Sequence<T>>> iterators) {
+  public GeneratorSequence(List<Iterator<List<T>>> iterators) {
     if (null == iterators) {
       throw new NullPointerException(); 
     }
 
-    final List<Sequence<T>> sequences = new ArrayList<Sequence<T>>();
-    for (Iterator<Sequence<T>> sequenceIterator : iterators) {
-      final Sequence<T> sequence = createSingleSequence(sequenceIterator);
+    final List<List<T>> sequences = new ArrayList<List<T>>();
+    for (Iterator<List<T>> sequenceIterator : iterators) {
+      final List<T> sequence = createSingleSequence(sequenceIterator);
       sequences.add(sequence);
     }
 
-    this.collectionIterator = new CollectionIterator<Sequence<T>>(sequences);
+    this.collectionIterator = new CollectionIterator<List<T>>(sequences);
   }
 
-  private static <T> Sequence<T> createSingleSequence(Iterator<Sequence<T>> sequenceIterator)
-  {
-    final Sequence<T> result = new Sequence<T>();
+  private static <T> List<T> createSingleSequence(Iterator<List<T>> sequenceIterator) {
+    final List<T> result = new ArrayList<T>();
 
     sequenceIterator.init();
     while (sequenceIterator.hasValue()) {
@@ -62,7 +61,7 @@ public final class GeneratorSequence<T> implements Generator<T> {
   }
 
   @Override
-  public Sequence<T> value() {
+  public List<T> value() {
     return collectionIterator.value();
   }
 

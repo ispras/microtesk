@@ -14,8 +14,10 @@
 
 package ru.ispras.microtesk.test.sequence;
 
+import java.util.List;
+
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
-public interface Generator<T> extends Iterator<Sequence<T>> {
+public interface Generator<T> extends Iterator<List<T>> {
 
 }

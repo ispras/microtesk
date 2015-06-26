@@ -14,16 +14,15 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull; 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 
@@ -106,10 +105,10 @@ public final class BlockBuilder {
       return;
     }
 
-    final Sequence<Call> sequence = new Sequence<Call>();
+    final List<Call> sequence = new ArrayList<Call>();
     sequence.add(call);
 
-    final Iterator<Sequence<Call>> iterator = new SingleValueIterator<Sequence<Call>>(sequence);
+    final Iterator<List<Call>> iterator = new SingleValueIterator<List<Call>>(sequence);
     nestedBlocks.add(new Block(blockId, iterator));
   }
 

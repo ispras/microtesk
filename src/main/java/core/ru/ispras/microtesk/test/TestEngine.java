@@ -19,6 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
@@ -37,7 +38,6 @@ import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.sequence.Configuration;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -48,8 +48,8 @@ import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.DataManager;
-import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.PreparatorStore;
+import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -434,7 +434,7 @@ public final class TestEngine {
     }
 
     private void processBlock(Block block) throws ConfigurationException {
-      final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
+      final Iterator<List<Call>> sequenceIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
       int sequenceIndex = 0;
@@ -483,7 +483,7 @@ public final class TestEngine {
         }
 
         final String sequenceId = String.format("Test Case %d", sequenceIndex);
-        final Sequence<Call> abstractSequence = sequenceIt.value();
+        final List<Call> abstractSequence = sequenceIt.value();
 
         Logger.debugHeader("Generating Data for %s", sequenceId);
 
@@ -564,12 +564,12 @@ public final class TestEngine {
 
     private void processPreOrPostBlock(Block block) throws ConfigurationException {
       InvariantChecks.checkTrue(block.isSingle());
-      final Iterator<Sequence<Call>> sequenceIt = block.getIterator();
+      final Iterator<List<Call>> sequenceIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
       sequenceIt.init();
       while (sequenceIt.hasValue()) {
-        final Sequence<Call> abstractSequence = sequenceIt.value();
+        final List<Call> abstractSequence = sequenceIt.value();
 
         final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
 

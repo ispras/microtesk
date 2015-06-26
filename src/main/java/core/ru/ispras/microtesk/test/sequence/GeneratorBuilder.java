@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.sequence;
 
+import java.util.List;
+
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 
 /**
@@ -21,7 +23,7 @@ import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class GeneratorBuilder<T> extends CompositeIterator<Sequence<T>> {
+public class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   /** The default combinator. */
   public static final String DEFAULT_COMBINATOR = "random";
   /** The default compositor. */

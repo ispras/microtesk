@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.sequence;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -75,9 +76,9 @@ public final class Configuration<T> {
    * @return a combinator instance.
    */
   @SuppressWarnings("unchecked")
-  public Combinator<Sequence<T>> getCombinator(final String name) {
+  public Combinator<List<T>> getCombinator(final String name) {
     InvariantChecks.checkNotNull(name);
-    return createInstance((Class<Combinator<Sequence<T>>>) combinators.get(name.toLowerCase()));
+    return createInstance((Class<Combinator<List<T>>>) combinators.get(name.toLowerCase()));
   }
 
   /**

@@ -22,6 +22,7 @@ import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeSt
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamWrite;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.setUnknownImmValues;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -36,7 +37,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.sequence.Sequence;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecution;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
@@ -80,7 +80,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     final TestSequence.Builder testSequenceBuilder = new TestSequence.Builder();
 
     // Maps branch indices to control code.
-    final Map<Integer, Sequence<Call>> steps = new LinkedHashMap<>();
+    final Map<Integer, List<Call>> steps = new LinkedHashMap<>();
     // Contains positions of the delay slots.
     final Set<Integer> delaySlots = new HashSet<>();
 
@@ -109,9 +109,9 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       // Insert the control code into the basic block if it is possible.
       if (!isEnforced && blockCoverage != null) {
         for (final int block : blockCoverage) {
-          Sequence<Call> step = steps.get(block);
+          List<Call> step = steps.get(block);
           if (step == null) {
-            steps.put(block, step = new Sequence<Call>());
+            steps.put(block, step = new ArrayList<Call>());
           }
 
           step.addAll(controlCode);
@@ -128,9 +128,9 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         if (controlCode.size() <= engineContext.getDelaySlotSize()) {
           final int slotPosition = i + 1;
 
-          Sequence<Call> step = steps.get(slotPosition);
+          List<Call> step = steps.get(slotPosition);
           if (step == null) {
-            steps.put(slotPosition, step = new Sequence<Call>());
+            steps.put(slotPosition, step = new ArrayList<Call>());
           }
 
           delaySlots.add(slotPosition);
@@ -162,12 +162,12 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     // Insert the control code into the sequence.
     int correction = 0;
 
-    final Sequence<Call> modifiedSequence = new Sequence<Call>();
+    final List<Call> modifiedSequence = new ArrayList<Call>();
     modifiedSequence.addAll(abstractSequence);
 
-    for (final Map.Entry<Integer, Sequence<Call>> entry : steps.entrySet()) {
+    for (final Map.Entry<Integer, List<Call>> entry : steps.entrySet()) {
       final int position = entry.getKey();
-      final Sequence<Call> controlCode = entry.getValue();
+      final List<Call> controlCode = entry.getValue();
 
       modifiedSequence.addAll(position + correction, controlCode);
 
@@ -274,7 +274,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final Primitive mode = (Primitive) arg.getValue();
       final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
 
-      final List<Call> initializingCalls = new Sequence<Call>();
+      final List<Call> initializingCalls = new ArrayList<Call>();
 
       initializingCalls.addAll(makeInitializer(engineContext, mode, value));
       if (writeIntoStream) {
@@ -374,7 +374,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updateBody(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
-      final Sequence<Call> abstractSequence)
+      final List<Call> abstractSequence)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);

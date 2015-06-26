@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
@@ -30,13 +31,13 @@ public class GeneratorMerge<T> implements Generator<T> {
   /**
    * The combinator used by the generator (it produces different combinations of the sequences).
    */
-  private Combinator<Sequence<T>> combinator;
+  private Combinator<List<T>> combinator;
 
   /** The compositor used by the generator (it merges several sequences into one). */
   private Compositor<T> compositor;
 
   /** The list of iterators. */
-  private List<Iterator<Sequence<T>>> iterators;
+  private List<Iterator<List<T>>> iterators;
 
   /**
    * Constructs a test sequence generator.
@@ -45,8 +46,8 @@ public class GeneratorMerge<T> implements Generator<T> {
    * @param compositor the compositor.
    */
 
-  public GeneratorMerge(final Combinator<Sequence<T>> combinator, final Compositor<T> compositor,
-      final List<Iterator<Sequence<T>>> iterators) {
+  public GeneratorMerge(final Combinator<List<T>> combinator, final Compositor<T> compositor,
+      final List<Iterator<List<T>>> iterators) {
     this.combinator = combinator;
     this.compositor = compositor;
     this.iterators = iterators;
@@ -66,15 +67,15 @@ public class GeneratorMerge<T> implements Generator<T> {
   }
 
   @Override
-  public Sequence<T> value() {
-    final List<Sequence<T>> combination = combinator.value();
+  public List<T> value() {
+    final List<List<T>> combination = combinator.value();
 
     compositor.removeIterators();
-    for (final Sequence<T> sequence : combination) {
+    for (final List<T> sequence : combination) {
       compositor.addIterator(new CollectionIterator<T>(sequence));
     }
 
-    final Sequence<T> result = new Sequence<T>();
+    final List<T> result = new ArrayList<T>();
     for (compositor.init(); compositor.hasValue(); compositor.next()) {
       result.add(compositor.value());
     }
