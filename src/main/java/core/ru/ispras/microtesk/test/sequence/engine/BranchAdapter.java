@@ -265,6 +265,8 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     setUnknownImmValues(queryCreator.getUnknownImmValues(), testData);
 
     // Initialize test data to ensure branch execution.
+    boolean isInitialized = false;
+
     for (final Map.Entry<String, Node> testDatum : testData.getBindings().entrySet()) {
       final String name = testDatum.getKey();
       final Argument arg = queryCreator.getModes().get(name);
@@ -284,7 +286,10 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       }
 
       updatePrologue(engineContext, testSequenceBuilder, initializingCalls);
+      isInitialized = true;
     }
+
+    InvariantChecks.checkTrue(isInitialized);
   }
 
   private void updatePrologue(
