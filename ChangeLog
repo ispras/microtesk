@@ -3,8 +3,15 @@
 ================================================================================
 
 --------------------------------------------------------------------------------
- 2015/03/24 MicroTESK 2.2 alpha
+ 2015/03/24 MicroTESK 2.2 beta
 --------------------------------------------------------------------------------
+
+ 2015/06/26 MicroTESK 2.2.7 beta
+ 
+ The new build contains the following changes:
+ 
+ - Data file generation feature was implemented
+ - Several bug fixes and general improvements were made
 
  2015/06/19 MicroTESK 2.2.6 beta
  
