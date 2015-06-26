@@ -49,6 +49,7 @@ import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataManager;
+import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.Template;
@@ -529,7 +530,7 @@ public final class TestEngine {
           Logger.debugHeader("Generating Data for %s", sequenceId);
 
           Logger.debugHeader("Executing %s", sequenceId);
-          executor.executeSequence(concreteSequence);
+          executor.executeSequence(concreteSequence, sequenceIndex);
 
           Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
 
@@ -609,11 +610,11 @@ public final class TestEngine {
           }
 
           Logger.debugHeader("Generating Data");
-          final TestSequence concreteSequence = adapterResult.getResult();;
+          final TestSequence concreteSequence = adapterResult.getResult();
           checkNotNull(concreteSequence);
 
           Logger.debugHeader("Executing");
-          executor.executeSequence(concreteSequence);
+          executor.executeSequence(concreteSequence, Label.NO_SEQUENCE_INDEX);
 
           Logger.debugHeader("Printing to %s", fileName);
           printer.printSequence(concreteSequence);

@@ -26,7 +26,7 @@ public final class Label {
   private final String name;
   private final BlockId blockId;
 
-  private static final int NO_SEQUENCE_INDEX = -1;
+  public static final int NO_SEQUENCE_INDEX = -1;
   private int sequenceIndex;
 
   /**
@@ -97,7 +97,7 @@ public final class Label {
       return String.format("%s%s", name, blockId);
     }
 
-    return String.format("%s%s_%d", name, blockId, sequenceIndex);
+    return String.format("%s%s__%d", name, blockId, sequenceIndex);
   }
 
   /**

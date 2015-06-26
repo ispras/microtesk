@@ -79,28 +79,28 @@ final class Executor {
    */
 
   public void executeSequence(
-      final TestSequence sequence) throws ConfigurationException {
+      final TestSequence sequence, final int sequenceIndex) throws ConfigurationException {
     Memory.setUseTempCopies(false);
 
     final List<ConcreteCall> prologue = sequence.getPrologue();
     if (!prologue.isEmpty()) {
       logText("Initialization:\r\n");
-      executeSequence(sequence.getPrologue());
+      executeSequence(sequence.getPrologue(), Label.NO_SEQUENCE_INDEX);
       logText("\r\nMain Code:\r\n");
     }
 
-    executeSequence(sequence.getBody());
+    executeSequence(sequence.getBody(), sequenceIndex);
   }
 
   private void executeSequence(
-      final List<ConcreteCall> sequence) throws ConfigurationException {
+      final List<ConcreteCall> sequence, final int sequenceIndex) throws ConfigurationException {
     checkNotNull(sequence);
 
     // Remembers all labels defined by the sequence and its positions.
     final LabelManager labelManager = new LabelManager();
     for (int index = 0; index < sequence.size(); ++index) {
       final ConcreteCall call = sequence.get(index);
-      labelManager.addAllLabels(call.getLabels(), index);
+      labelManager.addAllLabels(call.getLabels(), index, sequenceIndex);
     }
 
     // Resolves all label references and patches the instruction call text accordingly.
