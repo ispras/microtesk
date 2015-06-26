@@ -299,26 +299,33 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractBranchCall);
 
-    final List<Call> initDataStream = makeStreamInit(engineContext, testDataArray);
-    updatePrologue(engineContext, testSequenceBuilder, initDataStream);
-
     // If the control code is not executed before the first branch execution,
     // the registers of the branch instruction should be initialized.
-    boolean needsInitialization = !branchTrace.isEmpty();
+    boolean initNeeded = !branchTrace.isEmpty();
+    // Data stream is not used if the trace is empty or consists of one execution.
+    boolean streamUsed = false;
 
     for (int i = 0; i < branchTrace.size(); i++) {
       final BranchExecution execution = branchTrace.get(i);
-
       final boolean branchCondition = execution.value();
 
+      // Count defines how many times the control code is executed before calling the branch.
       final int count = controlCodeInBasicBlock ?
           execution.getBlockCoverageCount() : execution.getSlotCoverageCount();
 
       if(i == 0 && count > 0) {
-        needsInitialization = false;
+        initNeeded = false;
       }
 
       for (int j = 0; j < count; j++) {
+        // Data stream should be initialized before the first write. 
+        if (!streamUsed) {
+          final List<Call> initDataStream = makeStreamInit(engineContext, testDataArray);
+          updatePrologue(engineContext, testSequenceBuilder, initDataStream);
+
+          streamUsed = true;
+        }
+
         updatePrologue(
             engineContext,
             testSequenceBuilder,
@@ -329,9 +336,14 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       }
     }
 
-    updatePrologue(engineContext, testSequenceBuilder, initDataStream);
+    // Initialize the data stream if it was used. 
+    if (streamUsed) {
+      final List<Call> initDataStream = makeStreamInit(engineContext, testDataArray);
+      updatePrologue(engineContext, testSequenceBuilder, initDataStream);
+    }
 
-    if (needsInitialization) {
+    // Initialize the registers if it is needed. 
+    if (initNeeded) {
       final BranchExecution execution = branchTrace.get(0);
       final boolean branchCondition = execution.value();
 
