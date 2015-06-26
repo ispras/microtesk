@@ -84,6 +84,10 @@ public final class MemoryAllocator {
     this(memory, addressableUnitBitSize, BigInteger.ZERO);
   }
 
+  public MemoryStorage getMemoryStorage() {
+    return memory;
+  }
+
   /**
    * Returns the current address.
    * 
