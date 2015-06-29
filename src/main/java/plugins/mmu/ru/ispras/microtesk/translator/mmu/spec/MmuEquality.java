@@ -20,11 +20,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 /**
- * This class describes an equality/inequality.
+ * {@link MmuEquality} class describes an equality/inequality.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuEquality {
+public final class MmuEquality {
 
   /**
    * This enumeration contains equality/inequality types.

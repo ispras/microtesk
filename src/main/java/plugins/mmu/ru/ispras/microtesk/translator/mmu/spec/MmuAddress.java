@@ -18,7 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 /**
- * This class describes an address, i.e. a parameter used to access some MMU device.
+ * {@link MmuAddress} describes an address, i.e. a parameter used to access a buffer.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>

@@ -21,11 +21,12 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 /**
- * This class describes an assignment.
+ * {@link MmuAssignment} describes an assignment, i.e. a pair {@code lhs = rhs}, where {@code lhs}
+ * is an integer field and {@code rhs} is an expression.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuAssignment {
+public final class MmuAssignment {
   /** The field. */
   private final IntegerField field;
   /** The expression. */
@@ -35,8 +36,8 @@ public class MmuAssignment {
    * Constructs an assignment.
    * 
    * @param field the field.
-   * @param expression the expression.
-   * @throws NullPointerException if {@code field} is null.
+   * @param expression the expression or {@code null}.
+   * @throws IllegalArgumentException if {@code field} is null.
    */
   public MmuAssignment(final IntegerField field, final MmuExpression expression) {
     InvariantChecks.checkNotNull(field);
@@ -48,47 +49,49 @@ public class MmuAssignment {
   /**
    * Constructs an assignment.
    * 
-   * @param variable the variable.
-   * @param expression the expression.
-   * @throws NullPointerException if {@code variable} is null.
+   * @param variable the left-hand side (LHS).
+   * @param expression the right-hand side (RHS).
+   * @throws IllegalArgumentException if {@code variable} is null.
    */
   public MmuAssignment(final IntegerVariable variable, final MmuExpression expression) {
     this(new IntegerField(variable), expression);
   }
 
   /**
-   * Constructs an assignment with no right-hand side (RHS). It is assumed that RHS can be derived
-   * from context.
+   * Constructs an assignment with no right-hand side (RHS).
    * 
-   * @param field the field.
+   * <p>It is assumed that RHS can be derived from the context.</p>
+   * 
+   * @param field the left-hand side (LHS).
    */
   public MmuAssignment(final IntegerField field) {
     this(field, null);
   }
 
   /**
-   * Constructs an assignment with no right-hand side (RHS). It is assumed that RHS can be derived
-   * from context.
+   * Constructs an assignment with no right-hand side (RHS).
    * 
-   * @param variable the variable.
+   * It is assumed that RHS can be derived from the context.
+   * 
+   * @param variable the variable the right-hand side (RHS).
    */
   public MmuAssignment(final IntegerVariable variable) {
     this(new IntegerField(variable), null);
   }
 
   /**
-   * Returns the field of the assignment.
+   * Returns the left-hand side (LHS) of the assignment.
    * 
-   * @return the field.
+   * @return LHS.
    */
   public IntegerField getField() {
     return field;
   }
 
   /**
-   * Returns the expression of the assignment.
+   * Returns the right-hand side (RHS) of the assignment.
    * 
-   * @return the expression.
+   * @return RHS.
    */
   public MmuExpression getExpression() {
     return expression;

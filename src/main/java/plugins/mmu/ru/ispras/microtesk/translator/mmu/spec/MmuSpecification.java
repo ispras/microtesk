@@ -25,8 +25,10 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * This class describes a memory management unit (MMU). The description includes a set of devices
- * and a network (directed acyclic graph with one source and one sink nodes) of actions.
+ * {@link MmuSpecification} describes a memory management unit (MMU).
+ * 
+ * <p>The description includes a set of devices and a network (directed acyclic graph with one
+ * source and multiple sink nodes) of actions.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>

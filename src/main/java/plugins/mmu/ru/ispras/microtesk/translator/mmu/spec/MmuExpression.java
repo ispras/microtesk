@@ -24,11 +24,11 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 /**
- * This class represents an expression, which is a sequence of terms.
+ * {@link MmuExpression} class represents an expression, which is a sequence of terms.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class MmuExpression {
+public final class MmuExpression {
   /** The terms. */
   private final List<IntegerField> terms = new ArrayList<>();
 

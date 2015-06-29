@@ -29,11 +29,11 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
- * This class describes a MMU device (buffer).
+ * {@link MmuDevice} describes an MMU device (buffer).
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class MmuDevice {
+public final class MmuDevice {
   /** The device name. */
   private final String name;
 

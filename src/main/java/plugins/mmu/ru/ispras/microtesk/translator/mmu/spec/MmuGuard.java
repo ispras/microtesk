@@ -18,11 +18,11 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
 
 /**
- * This class describes a guard (transition activation condition).
+ * {@link MmuGuard} describes a guard (transition activation condition).
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuGuard {
+public final class MmuGuard {
   /** The operation: {@code LOAD}, {@code STORE} or {@code null} (any operation). */
   private final MemoryOperation operation;
   /** The device (buffer). */

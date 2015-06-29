@@ -23,11 +23,11 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 /**
- * This class implements an expression calculator.
+ * {@link MmuCalculator} implements an expression calculator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuCalculator {
+public final class MmuCalculator {
 
   /**
    * Evaluates the expression. The empty expression is evaluated to zero.
@@ -35,7 +35,7 @@ public class MmuCalculator {
    * @param expression the expression to be calculated.
    * @param values the values of the variables.
    * @return the expression value.
-   * @throws NullPointerException if {@code expression} or {@code values} is null.
+   * @throws IllegalArgumentException if {@code expression} or {@code values} is null.
    */
   public static BigInteger eval(final MmuExpression expression,
       final Map<IntegerVariable, BigInteger> values) {
@@ -67,7 +67,7 @@ public class MmuCalculator {
    * @param variable the variable.
    * @param value the value of the variable.
    * @return the expression value.
-   * @throws NullPointerException if some parameters are null.
+   * @throws IllegalArgumentException if some parameters are null.
    */
   public static BigInteger eval(final MmuExpression expression, final IntegerVariable variable,
       final BigInteger value) {

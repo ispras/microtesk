@@ -37,7 +37,7 @@ public final class IntegerVariable {
    * @param name the variable name.
    * @param width the variable width.
    * @param value the variable value or null.
-   * @throws IllegalArgumentException if {@code name == null} or {@code width} is not positive.
+   * @throws IllegalArgumentException if {@code width} is not positive.
    */
   public IntegerVariable(final String name, final int width, final BigInteger value) {
     InvariantChecks.checkNotNull(name);

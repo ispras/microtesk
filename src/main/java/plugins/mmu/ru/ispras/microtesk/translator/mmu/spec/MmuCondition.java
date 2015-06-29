@@ -23,12 +23,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 /**
- * This class represents a set of equalities/inequalities.
+ * {@link MmuCondition} represents a set of equalities/inequalities.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class MmuCondition {
-
+public final class MmuCondition {
   /** The list of equalities/inequalities. */
   private final List<MmuEquality> equalities = new ArrayList<>();
 

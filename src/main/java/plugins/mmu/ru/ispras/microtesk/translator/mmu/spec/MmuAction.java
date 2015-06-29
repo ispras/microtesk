@@ -21,8 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
 
 /**
- * This class describes an action. The description includes a device and an output (result
- * calculation expression).
+ * {@link MmuAction} describes an action, which is a named set of assignments.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
