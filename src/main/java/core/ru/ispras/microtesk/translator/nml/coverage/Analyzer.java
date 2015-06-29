@@ -30,6 +30,7 @@ import ru.ispras.fortress.solver.xml.XMLNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -40,6 +41,7 @@ import ru.ispras.microtesk.utils.FileUtils;
  */
 public final class Analyzer {
   private final IR ir;
+  private final IrInquirer inquirer;
   private final Map<String, SsaForm> ssa;
   private final String modelName;
 
@@ -48,6 +50,7 @@ public final class Analyzer {
     InvariantChecks.checkNotNull(modelName);
 
     this.ir = ir;
+    this.inquirer = new IrInquirer(ir);
     this.ssa = new TreeMap<>();
     this.modelName = modelName;
   }
@@ -114,14 +117,14 @@ public final class Analyzer {
     for (Attribute a : op.getAttributes().values()) {
       if (a.getKind() == Attribute.Kind.ACTION) {
         final SsaBuilder builder =
-            new SsaBuilder(op.getName(), a.getName(), a.getStatements());
+            new SsaBuilder(inquirer, op.getName(), a.getName(), a.getStatements());
         ssa.put(Utility.dotConc(op.getName(), a.getName()), builder.build());
       }
     }
   }
 
   private void processParameters(PrimitiveAND op) {
-    ssa.put(op.getName() + ".parameters", SsaBuilder.parametersList(op));
+    ssa.put(op.getName() + ".parameters", SsaBuilder.parametersList(inquirer, op));
   }
 
   private void processModes(Collection<Primitive> modes) {
@@ -129,9 +132,9 @@ public final class Analyzer {
       if (!p.isOrRule() && p.getReturnType() != null) {
         final PrimitiveAND mode = (PrimitiveAND) p;
         ssa.put(mode.getName() + ".expand",
-                SsaBuilder.macroExpansion(mode.getName(), mode.getReturnExpr()));
+                SsaBuilder.macroExpansion(inquirer, mode.getName(), mode.getReturnExpr()));
         ssa.put(mode.getName() + ".update",
-                SsaBuilder.macroUpdate(mode.getName(), mode.getReturnExpr()));
+                SsaBuilder.macroUpdate(inquirer, mode.getName(), mode.getReturnExpr()));
       }
     }
   }

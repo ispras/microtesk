@@ -45,6 +45,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
+import ru.ispras.microtesk.translator.nml.ir.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.expression.Converter;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
@@ -65,6 +66,12 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 final class SsaBuilder {
+  private static final String ARRAY_INDEX = "index";
+  private static final String ARRAY_VALUE = "value";
+  private static final String ARRAY_EVENT_READ = "read";
+  private static final String ARRAY_EVENT_WRITE = "write";
+
+  private final IrInquirer inquirer;
   private final String prefix;
   private final String suffix;
   private final String extendedPrefix;
@@ -86,8 +93,13 @@ final class SsaBuilder {
     public final Node minorBit;
     public final Node majorBit;
 
+    // type of container object (array or scalar)
     public final DataType baseType;
+
+    // type of complete self object (array element or scalar)
     public final DataType sourceType;
+
+    // type after applying bitfields to self object
     public final DataType targetType;
 
     public LValue(Variable base,
@@ -106,6 +118,10 @@ final class SsaBuilder {
       this.baseType = baseType;
       this.sourceType = sourceType;
       this.targetType = targetType;
+    }
+
+    public LValue stripBitfield() {
+      return new LValue(base, macro, index, null, null, baseType, sourceType, targetType);
     }
 
     public boolean isArray() {
@@ -140,9 +156,17 @@ final class SsaBuilder {
   }
 
   private NodeVariable createTemporary(Data data) {
-    final NodeVariable var = scope.create(String.format("__tmp_%d", numTemps++),
-                                          data);
+    return newUniqueTmp(String.format("__tmp_%d", numTemps++), data);
+  }
+
+  private NodeVariable newUniqueTmp(final String name, final DataType type) {
+    return newUniqueTmp(name, type.valueUninitialized());
+  }
+
+  private NodeVariable newUniqueTmp(final String name, final Data data) {
+    final NodeVariable var = scope.create(name, data);
     var.setUserData(2);
+
     return var;
   }
 
@@ -164,12 +188,16 @@ final class SsaBuilder {
     return new NodeOperation(op, new NodeVariable(v));
   }
 
+  private Node createRValue(final LValue lvalue) {
+    return createRValue(lvalue, true);
+  }
+
   /**
    * Assemble LValue object into Node instance representing rvalue.
    * Named variables are considered latest in current builder state.
    * Variables are not updated by this method.
    */
-  private Node createRValue(LValue lvalue) {
+  private Node createRValue(LValue lvalue, boolean signal) {
     Node root = null;
     if (lvalue.isMacro()) {
       root = macro(SsaOperation.EXPAND, lvalue.base);
@@ -178,7 +206,12 @@ final class SsaBuilder {
     }
 
     if (lvalue.isArray()) {
-      root = SELECT(root, lvalue.index);
+      final Node element = SELECT(root, lvalue.index);
+      if (signal) {
+        signalArrayEvent(root, ARRAY_EVENT_READ, lvalue.index, element);
+      }
+
+      root = element;
     }
 
     if (lvalue.hasStaticBitfield()) {
@@ -194,6 +227,21 @@ final class SsaBuilder {
                      new NodeOperation(StandardOperation.BVLSHR, root, lvalue.minorBit));
     }
     return root;
+  }
+
+  private void signalArrayEvent(final Node array,
+                                final String event,
+                                final Node index,
+                                final Node value) {
+    final NodeVariable var = (NodeVariable) array;
+    final String fmt = String.format("%s.%s.%%s.%d", var.getName(), event, numTemps++);
+    addToContext(EQ(newUniqueTmp(String.format(fmt, ARRAY_INDEX), index.getDataType()), index));
+    addToContext(EQ(newUniqueTmp(String.format(fmt, ARRAY_VALUE), value.getDataType()), value));
+  }
+
+  private void signalBranchEvent(final Node address) {
+    final String name = String.format("branch.address.%d", numTemps++);
+    addToContext(EQ(newUniqueTmp(name, address.getDataType()), address));
   }
 
   private Node[] createRValues(LValue[] lhs) {
@@ -235,6 +283,10 @@ final class SsaBuilder {
     } else {
       addToContext(EQ(updateScalar(lvalue), value));
     }
+    if (inquirer.isPC(lhs)) {
+      final Node address = createRValue(lvalue.stripBitfield(), false);
+      signalBranchEvent(address);
+    }
   }
 
   private final class SsaValue {
@@ -275,6 +327,8 @@ final class SsaBuilder {
 
     final NodeVariable newer = createTemporary(lvalue.sourceType);
     addToContext(EQ(array.newer, STORE(array.older, lvalue.index, newer)));
+
+    signalArrayEvent(array.newer, ARRAY_EVENT_WRITE, lvalue.index, newer);
 
     if (!lvalue.hasBitfield()) {
       return newer;
@@ -404,7 +458,7 @@ final class SsaBuilder {
 
   private SsaForm convertNested(final List<Statement> statements) {
     final SsaBuilder builder =
-        new SsaBuilder(prefix, suffix, extendedPrefix, statements);
+        new SsaBuilder(inquirer, prefix, suffix, extendedPrefix, statements);
     builder.numBlocks = this.numBlocks;
     final SsaForm ssa = builder.build();
     this.numBlocks = builder.numBlocks;
@@ -748,8 +802,8 @@ final class SsaBuilder {
     return null;
   }
 
-  public SsaBuilder(final String prefix, final String attribute, final List<Statement> code) {
-    this(prefix, attribute, Utility.dotConc(prefix, attribute), code);
+  public SsaBuilder(final IrInquirer inquirer, final String prefix, final String attribute, final List<Statement> code) {
+    this(inquirer, prefix, attribute, Utility.dotConc(prefix, attribute), code);
 
     checkNotNull(prefix);
     checkNotNull(attribute);
@@ -757,10 +811,12 @@ final class SsaBuilder {
     checkNotNull(code);
   }
 
-  private SsaBuilder(final String prefix,
+  private SsaBuilder(final IrInquirer inquirer,
+                     final String prefix,
                      final String suffix,
                      final String extended,
                      final List<Statement> code) {
+    this.inquirer = inquirer;
     this.prefix = prefix;
     this.suffix = suffix;
     this.extendedPrefix = extended;
@@ -789,16 +845,16 @@ final class SsaBuilder {
                        blocks);
   }
 
-  public static SsaForm macroExpansion(final String prefix, final Expr expr) {
-    final SsaBuilder builder = newConverter(prefix);
+  public static SsaForm macroExpansion(final IrInquirer inquirer, final String prefix, final Expr expr) {
+    final SsaBuilder builder = newConverter(inquirer, prefix);
     builder.acquireBlockBuilder();
     builder.addToContext(EQ(builder.convertExpression(expr.getNode()),
                             builder.createOutput(Converter.toFortressData(expr.getValueInfo()))));
     return builder.build();
   }
 
-  public static SsaForm macroUpdate(final String prefix, final Expr expr) {
-    final SsaBuilder builder = newConverter(prefix);
+  public static SsaForm macroUpdate(final IrInquirer inquirer, final String prefix, final Expr expr) {
+    final SsaBuilder builder = newConverter(inquirer, prefix);
     builder.acquireBlockBuilder();
     final Location loc = locationFromNodeVariable(expr.getNode());
     if (loc != null) {
@@ -808,8 +864,8 @@ final class SsaBuilder {
     return builder.build();
   }
 
-  public static SsaForm parametersList(final PrimitiveAND p) {
-    final SsaBuilder builder = newConverter(p.getName());
+  public static SsaForm parametersList(final IrInquirer inquirer, final PrimitiveAND p) {
+    final SsaBuilder builder = newConverter(inquirer, p.getName());
     builder.acquireBlockBuilder();
     final List<Node> parameters = new ArrayList<>(p.getArguments().size());
     for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
@@ -832,7 +888,7 @@ final class SsaBuilder {
     return new NodeOperation(SsaOperation.SUBSTITUTE, createTemporary(data));
   }
 
-  private static SsaBuilder newConverter(final String prefix) {
-    return new SsaBuilder(prefix, "", prefix, Collections.<Statement>emptyList());
+  private static SsaBuilder newConverter(final IrInquirer inquirer, final String prefix) {
+    return new SsaBuilder(inquirer, prefix, "", prefix, Collections.<Statement>emptyList());
   }
 }
