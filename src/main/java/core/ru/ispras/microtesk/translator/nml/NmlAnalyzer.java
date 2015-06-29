@@ -45,16 +45,16 @@ import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
-public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceIncluder {
+public final class NmlAnalyzer extends Translator<IR> implements TokenSourceIncluder {
   private static final Set<String> FILTER = Collections.singleton(".nml");
 
-  public SimnMLAnalyzer() {
+  public NmlAnalyzer() {
     super(FILTER);
   }
 
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Include file finder
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   private IncludeFileFinder finder = new IncludeFileFinder();
 
@@ -62,9 +62,9 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     finder.addPaths(path);
   }
 
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Lexer
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   private TokenSourceStack source;
 
@@ -96,9 +96,9 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     source.push(new SimnMLLexer(stream, this));
   }
 
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Parser
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   private IR startParserAndWalker(TokenSource source) {// throws RecognitionException {
     final LogStore log = getLog();
@@ -141,18 +141,18 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
     }
   }
 
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Generator
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   private void startGenerator(String modelName, String fileName, IR ir) {
     final Generator generator = new Generator(getOutDir() + "/src/java", modelName, fileName, ir);
     generator.generate();
   }
 
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Translator
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   @Override
   protected void start(final List<String> filenames) {
@@ -187,27 +187,6 @@ public final class SimnMLAnalyzer extends Translator<IR> implements TokenSourceI
 
     startGenerator(modelName, FileUtils.getShortFileName(fileName), ir);
   }
-
-  // /////////////////////////////////////////////////////////////////////////
-  // Debug
-  // /////////////////////////////////////////////////////////////////////////
-  /*
-   * private static void print(final CommonTree tree) { print(tree, 0); }
-   * 
-   * private static void print(Object obj, int indent) { if(obj == null) { return; }
-   * 
-   * CommonTree ast = (CommonTree)obj; StringBuffer sb = new StringBuffer(indent);
-   * 
-   * for(int i = 0; i < indent; i++) { sb.append("   "); }
-   * 
-   * System.out.println(sb.toString() + ast.getText());
-   * 
-   * for(int i = 0; i < ast.getChildCount(); i++) { print(ast.getChild(i), indent + 1); } }
-   */
-  /*
-   * private static final String FAILED_TO_SYNTH_INSTRUCTIONS =
-   * "FAILED TO SYNTHESIZE INSTRUCTIONS. " + "TRANSLATION WAS INTERRUPTED.";
-   */
 
   private static final String FAILED_TO_SYNTH_PRIMITIVES =
     "FAILED TO SYNTHESIZE INFORMATION ON DESCRIBED OPERATIONS. " + "TRANSLATION WAS INTERRUPTED.";

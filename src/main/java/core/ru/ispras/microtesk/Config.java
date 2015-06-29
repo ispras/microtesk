@@ -35,7 +35,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.nml.SimnMLAnalyzer;
+import ru.ispras.microtesk.translator.nml.NmlAnalyzer;
 
 public final class Config {
   private Config() {}
@@ -79,7 +79,7 @@ public final class Config {
     }
 
     final List<Translator<?>> result = new ArrayList<>();
-    result.add(new SimnMLAnalyzer());
+    result.add(new NmlAnalyzer());
 
     final NodeList plugins = config.getChildNodes();
     for (int index = 0; index < plugins.getLength(); ++index) {
