@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir;
 
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
@@ -55,7 +55,7 @@ public final class IrInquirer {
   }
 
   private static MemoryExpr getMemoryExpr(final LocationAtom location) {
-    if (location.getSource().getSymbolKind() != ESymbolKind.MEMORY) {
+    if (location.getSource().getSymbolKind() != NmlSymbolKind.MEMORY) {
       return null;
     }
     return ((LocationAtom.MemorySource) location.getSource()).getMemory();

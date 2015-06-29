@@ -60,7 +60,7 @@ public final class PCAnalyzer {
         return 1;
       }
 
-      if (location.getSource().getSymbolKind() == ESymbolKind.MEMORY &&
+      if (location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY &&
           !inquirer.isPC(location)) {
         return 1;
       }
