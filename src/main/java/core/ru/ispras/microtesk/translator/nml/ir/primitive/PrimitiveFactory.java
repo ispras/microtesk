@@ -68,9 +68,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Where where,
       final String name,
       final List<String> orNames)throws SemanticException {
-    final List<Primitive> orModes = new ArrayList<Primitive>();
+    final List<Primitive> orModes = new ArrayList<>();
 
-    for (String orName : orNames) {
+    for (final String orName : orNames) {
       if (!getIR().getModes().containsKey(orName)) {
         raiseError(where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.MODE));
       }
@@ -90,9 +90,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Where where,
       final String name,
       final List<String> orNames) throws SemanticException {
-    final List<Primitive> orOps = new ArrayList<Primitive>();
+    final List<Primitive> orOps = new ArrayList<>();
 
-    for (String orName : orNames) {
+    for (final String orName : orNames) {
       if (!getIR().getOps().containsKey(orName)) {
         raiseError(where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.OP));
       }
@@ -208,8 +208,12 @@ final class CompatibilityChecker extends WalkerFactoryBase {
   private final Primitive current;
   private final Primitive expected;
 
-  public CompatibilityChecker(WalkerContext context, Where where, String name, Primitive current,
-      Primitive expected) {
+  public CompatibilityChecker(
+      final WalkerContext context,
+      final Where where,
+      final String name,
+      final Primitive current,
+      final Primitive expected) {
     super(context);
 
     this.where = where;
