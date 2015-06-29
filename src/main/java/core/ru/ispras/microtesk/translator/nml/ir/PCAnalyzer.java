@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationFactory;
@@ -57,11 +57,11 @@ public final class PCAnalyzer {
     }
 
     for (LocationAtom location : srcLocations) {
-      if (location.getSource().getSymbolKind() == ESymbolKind.ARGUMENT) {
+      if (location.getSource().getSymbolKind() == NmlSymbolKind.ARGUMENT) {
         return 1;
       }
 
-      if (location.getSource().getSymbolKind() == ESymbolKind.MEMORY && !isPC(location)) {
+      if (location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY && !isPC(location)) {
         return 1;
       }
     }
@@ -100,7 +100,7 @@ public final class PCAnalyzer {
   }
 
   private boolean isRegisterLocation(LocationAtom location) {
-    if (location.getSource().getSymbolKind() != ESymbolKind.MEMORY) {
+    if (location.getSource().getSymbolKind() != NmlSymbolKind.MEMORY) {
       return false;
     }
 

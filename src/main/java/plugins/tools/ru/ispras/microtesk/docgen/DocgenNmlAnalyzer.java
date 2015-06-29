@@ -38,7 +38,7 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
 import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
@@ -179,8 +179,8 @@ public final class DocgenNmlAnalyzer implements Preprocessor {
   public IR startParserAndWalker(TokenSource source) throws RecognitionException {
     final SymbolTable symbols = new SymbolTable();
 
-    symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.JAVA);
-    symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.RUBY);
+    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
+    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
     final CommonTokenStream tokens = new TokenRewriteStream();
     tokens.setTokenSource(source);

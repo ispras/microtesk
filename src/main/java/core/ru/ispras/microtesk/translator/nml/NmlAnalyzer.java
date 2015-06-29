@@ -198,8 +198,8 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     final LogStore log = getLog();
     final SymbolTable symbols = new SymbolTable();
 
-    symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.JAVA);
-    symbols.defineReserved(ESymbolKind.KEYWORD, ReservedKeywords.RUBY);
+    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
+    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
     final CommonTokenStream tokens = new TokenRewriteStream();
     tokens.setTokenSource(source);

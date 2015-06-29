@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
@@ -68,7 +68,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       log.add(location);
     }
 
-    if (location.getSource().getSymbolKind() != ESymbolKind.ARGUMENT) {
+    if (location.getSource().getSymbolKind() != NmlSymbolKind.ARGUMENT) {
       return;
     }
 
@@ -103,15 +103,15 @@ public final class LocationFactory extends WalkerFactoryBase {
     final ISymbol symbol = findSymbol(where, name);
     final Enum<?> kind = symbol.getKind();
 
-    if ((ESymbolKind.MEMORY != kind) && (ESymbolKind.ARGUMENT != kind)) {
+    if ((NmlSymbolKind.MEMORY != kind) && (NmlSymbolKind.ARGUMENT != kind)) {
       raiseError(
         where,
         new SymbolTypeMismatch(
-          name, kind, Arrays.<Enum<?>>asList(ESymbolKind.MEMORY, ESymbolKind.ARGUMENT))
+          name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
       );
     }
 
-    final LocationCreator creator = (ESymbolKind.MEMORY == kind) ?
+    final LocationCreator creator = (NmlSymbolKind.MEMORY == kind) ?
       new MemoryBasedLocationCreator(this, where, name, null) :
       new ArgumentBasedLocationCreator(this, where, name);
 
@@ -127,8 +127,8 @@ public final class LocationFactory extends WalkerFactoryBase {
     final ISymbol symbol = findSymbol(where, name);
     final Enum<?> kind = symbol.getKind();
 
-    if (ESymbolKind.MEMORY != kind) {
-      raiseError(where, new SymbolTypeMismatch(name, kind, ESymbolKind.MEMORY));
+    if (NmlSymbolKind.MEMORY != kind) {
+      raiseError(where, new SymbolTypeMismatch(name, kind, NmlSymbolKind.MEMORY));
     }
 
     final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, index);
@@ -296,7 +296,7 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
 
   private MemoryExpr findMemory() throws SemanticException {
     if (!getIR().getMemory().containsKey(name)) {
-      raiseError(where, new UndefinedPrimitive(name, ESymbolKind.MEMORY));
+      raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.MEMORY));
     }
 
     return getIR().getMemory().get(name);
@@ -331,7 +331,7 @@ final class ArgumentBasedLocationCreator extends WalkerFactoryBase implements Lo
 
   private Primitive findArgument() throws SemanticException {
     if (!getThisArgs().containsKey(name)) {
-      raiseError(where, new UndefinedPrimitive(name, ESymbolKind.ARGUMENT));
+      raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
     }
 
     return getThisArgs().get(name);

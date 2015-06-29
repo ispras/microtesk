@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.location;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
@@ -23,7 +23,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class LocationAtom implements Location {
   public static interface Source {
-    public ESymbolKind getSymbolKind();
+    public NmlSymbolKind getSymbolKind();
     public Type getType();
   }
 
@@ -36,8 +36,8 @@ public final class LocationAtom implements Location {
     }
 
     @Override
-    public ESymbolKind getSymbolKind() {
-      return ESymbolKind.MEMORY;
+    public NmlSymbolKind getSymbolKind() {
+      return NmlSymbolKind.MEMORY;
     }
 
     @Override
@@ -77,8 +77,8 @@ public final class LocationAtom implements Location {
     }
 
     @Override
-    public ESymbolKind getSymbolKind() {
-      return ESymbolKind.ARGUMENT;
+    public NmlSymbolKind getSymbolKind() {
+      return NmlSymbolKind.ARGUMENT;
     }
 
     @Override

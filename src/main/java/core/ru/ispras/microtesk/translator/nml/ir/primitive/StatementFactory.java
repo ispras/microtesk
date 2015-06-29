@@ -20,7 +20,7 @@ import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
@@ -63,8 +63,8 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
 
     final ISymbol symbol = getSymbols().resolveMember(attributeName);
-    if ((null == symbol) || (symbol.getKind() != ESymbolKind.ATTRIBUTE)) {
-      raiseError(where, new UndefinedPrimitive(attributeName, ESymbolKind.ATTRIBUTE));
+    if ((null == symbol) || (symbol.getKind() != NmlSymbolKind.ATTRIBUTE)) {
+      raiseError(where, new UndefinedPrimitive(attributeName, NmlSymbolKind.ATTRIBUTE));
     }
 
     return StatementAttributeCall.newThisCall(attributeName);

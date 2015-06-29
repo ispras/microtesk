@@ -15,16 +15,16 @@
 package ru.ispras.microtesk.translator.nml.errors;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 
 public final class UndefinedPrimitive implements ISemanticError {
   private static final String FORMAT =
     "The '%s' primitive is not defined or does not have the '%s' type.";
 
   private final String name;
-  private final ESymbolKind type;
+  private final NmlSymbolKind type;
 
-  public UndefinedPrimitive(String name, ESymbolKind type) {
+  public UndefinedPrimitive(String name, NmlSymbolKind type) {
     this.name = name;
     this.type = type;
   }

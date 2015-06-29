@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.nml.errors;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 
 public class UndefinedProductionRuleItem implements ISemanticError {
   private static final String FORMAT =
@@ -24,10 +24,10 @@ public class UndefinedProductionRuleItem implements ISemanticError {
   private final String itemName;
   private final String ruleName;
   private final boolean isOrRule;
-  private final ESymbolKind expectedKind;
+  private final NmlSymbolKind expectedKind;
 
   public UndefinedProductionRuleItem(String itemName, String ruleName, boolean isOrRule,
-      ESymbolKind expectedKind) {
+      NmlSymbolKind expectedKind) {
     this.itemName = itemName;
     this.ruleName = ruleName;
     this.isOrRule = isOrRule;

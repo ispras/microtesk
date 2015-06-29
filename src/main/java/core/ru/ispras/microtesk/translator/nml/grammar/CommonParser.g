@@ -87,7 +87,7 @@ void setInBitField(boolean value) {
 //==================================================================================================
 
 typeExpr
-    :  id=ID  { checkDeclaration($id,ESymbolKind.TYPE); }
+    :  id=ID  { checkDeclaration($id,NmlSymbolKind.TYPE); }
 //  |  BOOL // TODO: NOT SUPPORTED IN THE CURRENT VERSION 
     |  INT^ LEFT_PARENTH! expr RIGHT_PARENTH!
     |  CARD^ LEFT_PARENTH! expr RIGHT_PARENTH!
@@ -202,7 +202,7 @@ atom
     ;
 
 letConst
-    : {isDeclaredAs(input.LT(1), ESymbolKind.LET_CONST)}? ID -> ^(CONST ID)
+    : {isDeclaredAs(input.LT(1), NmlSymbolKind.LET_CONST)}? ID -> ^(CONST ID)
     ;
 
 //==================================================================================================
@@ -293,7 +293,7 @@ attributeCall
     ;
 
 instance
-    :  /*{isDeclaredAs(input.LT(1), ESymbolKind.MODE) || isDeclaredAs(input.LT(1), ESymbolKind.OP)}?*/ ID LEFT_PARENTH (instance_arg (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE ID instance_arg*)
+    :  /*{isDeclaredAs(input.LT(1), NmlSymbolKind.MODE) || isDeclaredAs(input.LT(1), NmlSymbolKind.OP)}?*/ ID LEFT_PARENTH (instance_arg (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE ID instance_arg*)
     ;
 
 instance_arg
@@ -303,7 +303,7 @@ instance_arg
     ;
 
 argument
-    : {isDeclaredAs(input.LT(1), ESymbolKind.ARGUMENT) && (input.LA(2) == COMMA || input.LA(2) == RIGHT_PARENTH) }? ID -> ^(ARGUMENT ID)
+    : {isDeclaredAs(input.LT(1), NmlSymbolKind.ARGUMENT) && (input.LA(2) == COMMA || input.LA(2) == RIGHT_PARENTH) }? ID -> ^(ARGUMENT ID)
     ;
 
 conditionalStatement

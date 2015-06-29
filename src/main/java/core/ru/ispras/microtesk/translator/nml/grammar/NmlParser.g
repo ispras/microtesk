@@ -96,7 +96,7 @@ catch (RecognitionException re) { // Default behavior
 package ru.ispras.microtesk.translator.nml.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.ParserBase;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 }
 
 @members {
@@ -140,9 +140,9 @@ letDef
     :  LET^ id=ID ASSIGN! le=letExpr { declare($id, $le.res, false); }
     ;
 
-letExpr returns [ESymbolKind res]
-    :  expr    { $res = ESymbolKind.LET_CONST;  } // Statically calculated constant expression. E.g. let A = 2 ** 4
-    |  STRING_CONST { $res = ESymbolKind.LET_STRING; } // Some string constant. E.g. let A = "some text"
+letExpr returns [NmlSymbolKind res]
+    :  expr    { $res = NmlSymbolKind.LET_CONST;  } // Statically calculated constant expression. E.g. let A = 2 ** 4
+    |  STRING_CONST { $res = NmlSymbolKind.LET_STRING; } // Some string constant. E.g. let A = "some text"
 //  |  IF^ constNumExpr THEN! letExpr (ELSE! letExpr)? ENDIF! // TODO: NOT SUPPORTED IN THE CURRENT VERSION
 //  |  SWITCH Construction // TODO: NOT SUPPORTED IN THE CURRENT VERSION
     ;
@@ -152,7 +152,7 @@ letExpr returns [ESymbolKind res]
 /*======================================================================================*/
 
 typeDef
-    :  TYPE^ id=ID ASSIGN! typeExpr { declare($id, ESymbolKind.TYPE, false); }
+    :  TYPE^ id=ID ASSIGN! typeExpr { declare($id, NmlSymbolKind.TYPE, false); }
     ;
 
 // TODO: NOT SUPPORTED IN THE CURRENT VERSION 
@@ -166,17 +166,17 @@ typeDef
 
 memDef
     :  MEM^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK!
-                                         {declare($id, ESymbolKind.MEMORY, false);} alias?
+                                         {declare($id, NmlSymbolKind.MEMORY, false);} alias?
     ;
 
 regRef
     :  REG^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK! 
-                                         {declare($id, ESymbolKind.MEMORY, false);} alias?
+                                         {declare($id, NmlSymbolKind.MEMORY, false);} alias?
     ;
 
 varDef
     :  VAR^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK!
-                                         {declare($id, ESymbolKind.MEMORY, false);} alias?
+                                         {declare($id, NmlSymbolKind.MEMORY, false);} alias?
     ;
 
 sizeType
@@ -199,7 +199,7 @@ aliasExpr
 /*======================================================================================*/
 
 modeDef
-    :  MODE^ id=ID {declareAndPushSymbolScope($id, ESymbolKind.MODE);} modeSpecPart
+    :  MODE^ id=ID {declareAndPushSymbolScope($id, NmlSymbolKind.MODE);} modeSpecPart
     ;  finally     {popSymbolScope();}
 
 modeSpecPart
@@ -216,7 +216,7 @@ modeReturn
 /*======================================================================================*/
 
 opDef
-    :  OP^ id=ID {declareAndPushSymbolScope($id, ESymbolKind.OP);} opSpecPart
+    :  OP^ id=ID {declareAndPushSymbolScope($id, NmlSymbolKind.OP);} opSpecPart
     ;  finally   {popSymbolScope();}
 
 opSpecPart
@@ -241,12 +241,12 @@ andRule
     ;
 
 argDef
-    :  id=ID^ COLON! argType {declare($id, ESymbolKind.ARGUMENT, false);}
+    :  id=ID^ COLON! argType {declare($id, NmlSymbolKind.ARGUMENT, false);}
     ;
 
 argType
-    :  {isDeclaredAs(input.LT(1), ESymbolKind.MODE)}? ID -> ^(ARG_MODE ID)
-    |  {isDeclaredAs(input.LT(1), ESymbolKind.OP)}? ID -> ^(ARG_OP ID) 
+    :  {isDeclaredAs(input.LT(1), NmlSymbolKind.MODE)}? ID -> ^(ARG_MODE ID)
+    |  {isDeclaredAs(input.LT(1), NmlSymbolKind.OP)}? ID -> ^(ARG_OP ID) 
     |  typeExpr
     ;
 
@@ -259,7 +259,7 @@ attrDefList
     ;
 
 attrDef
-    @after {declare($id, ESymbolKind.ATTRIBUTE, false);}
+    @after {declare($id, NmlSymbolKind.ATTRIBUTE, false);}
     :  id=SYNTAX^ ASSIGN! syntaxDef
     |  id=IMAGE^ ASSIGN! imageDef
     |  id=ACTION^ ASSIGN! actionDef

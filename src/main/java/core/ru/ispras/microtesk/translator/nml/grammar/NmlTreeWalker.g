@@ -74,7 +74,7 @@ import java.util.LinkedHashMap;
 import ru.ispras.microtesk.translator.antlrex.Where;
 
 import ru.ispras.microtesk.translator.nml.antlrex.SimnMLTreeWalkerBase;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.model.api.memory.Memory;
 
 import ru.ispras.microtesk.translator.nml.ir.PCAnalyzer;
@@ -352,10 +352,10 @@ attrs.put($attr.res.getName(), $attr.res);
     ;
 
 attrDef returns [Attribute res]
-    :  ^(SYNTAX {checkMemberDeclared($SYNTAX, ESymbolKind.ATTRIBUTE);} attr=syntaxDef) {$res = $attr.res;}
-    |  ^(IMAGE  {checkMemberDeclared($IMAGE,  ESymbolKind.ATTRIBUTE);} attr=imageDef)  {$res = $attr.res;}
-    |  ^(ACTION {checkMemberDeclared($ACTION, ESymbolKind.ATTRIBUTE);} attr=actionDef[$ACTION.text]) {$res = $attr.res;}
-    |  ^(id=ID  {checkMemberDeclared($ID,     ESymbolKind.ATTRIBUTE);} attr=actionDef[$id.text]) {$res = $attr.res;}
+    :  ^(SYNTAX {checkMemberDeclared($SYNTAX, NmlSymbolKind.ATTRIBUTE);} attr=syntaxDef) {$res = $attr.res;}
+    |  ^(IMAGE  {checkMemberDeclared($IMAGE,  NmlSymbolKind.ATTRIBUTE);} attr=imageDef)  {$res = $attr.res;}
+    |  ^(ACTION {checkMemberDeclared($ACTION, NmlSymbolKind.ATTRIBUTE);} attr=actionDef[$ACTION.text]) {$res = $attr.res;}
+    |  ^(id=ID  {checkMemberDeclared($ID,     NmlSymbolKind.ATTRIBUTE);} attr=actionDef[$id.text]) {$res = $attr.res;}
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 

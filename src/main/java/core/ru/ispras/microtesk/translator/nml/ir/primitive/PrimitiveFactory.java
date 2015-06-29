@@ -26,7 +26,7 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
-import ru.ispras.microtesk.translator.nml.ESymbolKind;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
@@ -72,7 +72,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
     for (final String orName : orNames) {
       if (!getIR().getModes().containsKey(orName)) {
-        raiseError(where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.MODE));
+        raiseError(where, new UndefinedProductionRuleItem(orName, name, true, NmlSymbolKind.MODE));
       }
 
       final Primitive mode = getIR().getModes().get(orName);
@@ -94,7 +94,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
     for (final String orName : orNames) {
       if (!getIR().getOps().containsKey(orName)) {
-        raiseError(where, new UndefinedProductionRuleItem(orName, name, true, ESymbolKind.OP));
+        raiseError(where, new UndefinedProductionRuleItem(orName, name, true, NmlSymbolKind.OP));
       }
 
       orOps.add(getIR().getOps().get(orName));
@@ -111,7 +111,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Where where,
       final String modeName) throws SemanticException {
     if (!getIR().getModes().containsKey(modeName)) {
-      raiseError(where, new UndefinedPrimitive(modeName, ESymbolKind.MODE));
+      raiseError(where, new UndefinedPrimitive(modeName, NmlSymbolKind.MODE));
     }
 
     return getIR().getModes().get(modeName);
@@ -121,7 +121,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Where where,
       final String opName) throws SemanticException {
     if (!getIR().getOps().containsKey(opName)) {
-      raiseError(where, new UndefinedPrimitive(opName, ESymbolKind.OP));
+      raiseError(where, new UndefinedPrimitive(opName, NmlSymbolKind.OP));
     }
 
     return getIR().getOps().get(opName);
@@ -131,7 +131,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Where where,
       final String name) throws SemanticException {
     if (!getThisArgs().containsKey(name)) {
-      raiseError(where, new UndefinedPrimitive(name, ESymbolKind.ARGUMENT));
+      raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
     }
 
     return getThisArgs().get(name);
@@ -146,16 +146,16 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       raiseError(where, new UndeclaredSymbol(name));
     }
 
-    if ((symbol.getKind() != ESymbolKind.MODE) && (symbol.getKind() != ESymbolKind.OP)) {
+    if ((symbol.getKind() != NmlSymbolKind.MODE) && (symbol.getKind() != NmlSymbolKind.OP)) {
       raiseError(where, new SymbolTypeMismatch(name, symbol.getKind(),
-          Arrays.<Enum<?>>asList(ESymbolKind.MODE, ESymbolKind.OP)));
+          Arrays.<Enum<?>>asList(NmlSymbolKind.MODE, NmlSymbolKind.OP)));
     }
 
-    final Primitive primitive = symbol.getKind() == ESymbolKind.MODE ?
+    final Primitive primitive = symbol.getKind() == NmlSymbolKind.MODE ?
         getIR().getModes().get(name) : getIR().getOps().get(name);
 
     if (null == primitive) {
-      raiseError(where, new UndefinedPrimitive(name, (ESymbolKind)symbol.getKind()));
+      raiseError(where, new UndefinedPrimitive(name, (NmlSymbolKind)symbol.getKind()));
     }
 
     if (primitive.isOrRule()) {

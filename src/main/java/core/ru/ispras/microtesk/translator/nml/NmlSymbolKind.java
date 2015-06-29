@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,12 +15,12 @@
 package ru.ispras.microtesk.translator.nml;
 
 /**
- * Symbols used in Sim-nML translators.
+ * Symbols used in nML translators.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public enum ESymbolKind {
+public enum NmlSymbolKind {
   /** Reserved keywords */
   KEYWORD,
 
