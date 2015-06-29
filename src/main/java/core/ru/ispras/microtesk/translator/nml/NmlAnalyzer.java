@@ -58,7 +58,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
   }
 
   //------------------------------------------------------------------------------------------------
-  // Preprocessor
+  // Lexer and Preprocessor
   //------------------------------------------------------------------------------------------------
 
   private static enum IfDefScope {
@@ -68,9 +68,11 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     ELSE_FALSE
   }
 
-  private IncludeFileFinder finder = new IncludeFileFinder();
-  private HashMap<String, String> defines = new LinkedHashMap<>();
-  private Stack<IfDefScope> ifdefs = new Stack<>();
+  private TokenSourceStack source;
+
+  private final IncludeFileFinder finder = new IncludeFileFinder();
+  private final HashMap<String, String> defines = new LinkedHashMap<>();
+  private final Stack<IfDefScope> ifdefs = new Stack<>();
 
   public void addPath(final String path) {
     finder.addPaths(path);
@@ -142,12 +144,6 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     return defines.get(key.trim());
   }
 
-  //------------------------------------------------------------------------------------------------
-  // Lexer
-  //------------------------------------------------------------------------------------------------
-
-  private TokenSourceStack source;
-
   private TokenSource startLexer(final List<String> filenames) {
     ListIterator<String> iterator = filenames.listIterator(filenames.size());
 
@@ -163,7 +159,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
   }
 
   @Override
-  public void includeTokensFromFile(String filename) {
+  public void includeTokensFromFile(final String filename) {
     final ANTLRFileStream stream = finder.openFile(filename);
 
     Logger.message("Included: " + filename);
@@ -188,7 +184,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
   // Parser
   //------------------------------------------------------------------------------------------------
 
-  private IR startParserAndWalker(TokenSource source) {// throws RecognitionException {
+  private IR startParserAndWalker(final TokenSource source) {// throws RecognitionException {
     final LogStore log = getLog();
     final SymbolTable symbols = new SymbolTable();
 
@@ -233,7 +229,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
   // Generator
   //------------------------------------------------------------------------------------------------
 
-  private void startGenerator(String modelName, String fileName, IR ir) {
+  private void startGenerator(final String modelName, final String fileName, final IR ir) {
     final Generator generator = new Generator(getOutDir() + "/src/java", modelName, fileName, ir);
     generator.generate();
   }

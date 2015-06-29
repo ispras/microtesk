@@ -14,6 +14,16 @@
 
 lexer grammar CommonLexer;
 
+@members {
+private ru.ispras.microtesk.translator.antlrex.Preprocessor pp;
+
+public final ru.ispras.microtesk.translator.antlrex.Preprocessor getPreprocessor() {
+  return pp;
+}
+public final void setPreprocessor(final ru.ispras.microtesk.translator.antlrex.Preprocessor pp) {
+  this.pp = pp;
+}}
+
 //==================================================================================================
 // Comments, Spaces and Newlines
 //==================================================================================================

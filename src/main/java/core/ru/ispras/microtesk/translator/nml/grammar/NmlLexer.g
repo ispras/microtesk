@@ -18,7 +18,7 @@ options {
   language=Java;
 }
 
-import CommonLexer;
+import commonLexer=CommonLexer;
 
 @header {
 /*
@@ -40,14 +40,17 @@ import CommonLexer;
 package ru.ispras.microtesk.translator.nml.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
+import ru.ispras.fortress.util.InvariantChecks;
 }
 
 @members {
-private Preprocessor preprocessor;
+private Preprocessor pp = null;
 
-public NmlLexer(final CharStream chars, final Preprocessor preprocessor) {
+public NmlLexer(final CharStream chars, final Preprocessor pp) {
   this(chars);
-  this.preprocessor = preprocessor;
+
+  commonLexer.setPreprocessor(pp);
+  this.pp = pp;
 }}
 
 //==================================================================================================
@@ -55,8 +58,8 @@ public NmlLexer(final CharStream chars, final Preprocessor preprocessor) {
 //==================================================================================================
 
 PP_INCLUDE : 'include' WHITESPACE '"' filename=PP_FILENAME '"' (WHITESPACE)? NEWLINE {
-preprocessor.includeTokensFromFile($filename.getText());
-skip();
+  pp.includeTokensFromFile($filename.getText());
+  skip();
 };
 
 fragment
