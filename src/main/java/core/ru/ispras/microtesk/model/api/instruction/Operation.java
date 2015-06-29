@@ -302,8 +302,12 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     private final Shortcuts shortcuts;
     private final MetaOperation metaData;
 
-    public InfoAndRule(Class<?> opClass, String name, boolean isRoot, ParamDecls decls,
-        Shortcuts shortcuts) {
+    public InfoAndRule(
+        final Class<?> opClass,
+        final String name,
+        final boolean isRoot,
+        final ParamDecls decls,
+        final Shortcuts shortcuts) {
       this.opClass = opClass;
       this.name = name;
       this.isRoot = isRoot;
@@ -319,7 +323,11 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         );
     }
 
-    public InfoAndRule(Class<?> opClass, String name, boolean isRoot, ParamDecls decls) {
+    public InfoAndRule(
+        final Class<?> opClass,
+        final String name,
+        final boolean isRoot,
+        final ParamDecls decls) {
       this(opClass, name, isRoot, decls, new Shortcuts());
     }
 
