@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.mmu.solver;
+package ru.ispras.microtesk.test.mmu.engine;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,18 +27,18 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 
 /**
- * {@link TemplateSolution} represents a solution (test data) for a number of dependent instruction
+ * {@link MmuSolution} represents a solution (test data) for a number of dependent instruction
  * calls (test template).
  * 
- * <p>Solution includes test data for individual executions (see {@link ExecutionTestData}) and
+ * <p>Solution includes test data for individual executions (see {@link MmuTestData}) and
  * a set of entries to be written into the devices (buffers).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class TemplateSolution {
+public final class MmuSolution {
 
   /** Contains test data for individual executions. */
-  private final List<ExecutionTestData> solution;
+  private final List<MmuTestData> solution;
 
   /** Contains addresses to be accessed to prepare hit/miss situations. */
   private final MemoryLoader loader;
@@ -47,7 +47,7 @@ public final class TemplateSolution {
    * Contains entries to be written into the devices to prepare hit/miss situations.
    * 
    * <p>This map unites the analogous maps of the test data of the executions stored in
-   * {@link TemplateSolution#solution}.</p>
+   * {@link MmuSolution#solution}.</p>
    */
   private final Map<MmuDevice, Map<Long, /* Entry */ Object>> entries = new LinkedHashMap<>();
 
@@ -57,7 +57,7 @@ public final class TemplateSolution {
    * @param memory the MMU specification.
    * @param template the test template.
    */
-  public TemplateSolution(final MmuSpecification memory, final Template template) {
+  public MmuSolution(final MmuSpecification memory, final Template template) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(template);
 
@@ -65,7 +65,7 @@ public final class TemplateSolution {
     for (int i = 0; i < template.size(); i++) {
       final ExecutionPath execution = template.getExecution(i);
 
-      solution.add(new ExecutionTestData(memory, execution));
+      solution.add(new MmuTestData(memory, execution));
     }
 
     for (final MmuDevice device : memory.getDevices()) {
@@ -91,7 +91,7 @@ public final class TemplateSolution {
    * @return the test data.
    * @throws IndexOutOfBoundsException if {@code i} is out of bounds.
    */
-  public ExecutionTestData getTestData(final int i) {
+  public MmuTestData getTestData(final int i) {
     InvariantChecks.checkBounds(i, solution.size());
 
     return solution.get(i);
@@ -102,7 +102,7 @@ public final class TemplateSolution {
    * 
    * @return the list of test data.
    */
-  public List<ExecutionTestData> getTestData() {
+  public List<MmuTestData> getTestData() {
     return solution;
   }
 
@@ -113,7 +113,7 @@ public final class TemplateSolution {
    * @param testData the test data to be set.
    * @throws IndexOutOfBoundsException if {@code i} is out of bounds.
    */
-  public void setTestData(final int i, final ExecutionTestData testData) {
+  public void setTestData(final int i, final MmuTestData testData) {
     InvariantChecks.checkBounds(i, solution.size());
     InvariantChecks.checkNotNull(testData);
 

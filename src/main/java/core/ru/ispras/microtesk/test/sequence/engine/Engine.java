@@ -20,7 +20,7 @@ import java.util.Map;
 import ru.ispras.microtesk.test.template.Call;
 
 /**
- * {@link Engine} defines an interface of abstract call sequence solvers.
+ * {@link Engine} defines an interface of abstract sequence processing engines.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */

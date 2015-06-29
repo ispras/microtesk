@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,18 +15,10 @@
 package ru.ispras.microtesk.translator.mmu.spec.basis;
 
 /**
- * This is a generic interface of a constraint solver.
- *
- * @param <T> type of a solution.
+ * {@link Solver} defines an interface of solvers.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Solver<T> {
-
-  /**
-   * Solves the constraint.
-   * 
-   * @return the solution.
-   */
   SolverResult<T> solve();
 }

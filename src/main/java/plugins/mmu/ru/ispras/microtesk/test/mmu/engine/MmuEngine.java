@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.mmu.solver;
+package ru.ispras.microtesk.test.mmu.engine;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -25,6 +25,10 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.mmu.Template;
 import ru.ispras.microtesk.test.mmu.filter.FilterAccessThenMiss;
+import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.EngineResult;
+import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.translator.mmu.coverage.ExecutionPath;
 import ru.ispras.microtesk.translator.mmu.coverage.UnitedDependency;
 import ru.ispras.microtesk.translator.mmu.coverage.UnitedHazard;
@@ -34,7 +38,6 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.translator.mmu.spec.basis.BufferStateTracker;
 import ru.ispras.microtesk.translator.mmu.spec.basis.DataType;
-import ru.ispras.microtesk.translator.mmu.spec.basis.Solver;
 import ru.ispras.microtesk.translator.mmu.spec.basis.SolverResult;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
@@ -44,30 +47,30 @@ import ru.ispras.microtesk.utils.function.TriConsumer;
 import ru.ispras.microtesk.utils.function.UnaryOperator;
 
 /**
- * {@link TemplateSolver} implements a solver of memory-related constraints (hit, miss, etc.)
+ * {@link MmuEngine} implements a solver of memory-related constraints (hit, miss, etc.)
  * specified in a test template.
  * 
  * <p>The input is a test template (an object of {@link Template}); the output is a solution (an
- * object of {@link TemplateSolution}).</p>
+ * object of {@link MmuSolution}).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class TemplateSolver implements Solver<TemplateSolution> {
+public final class MmuEngine implements Engine<MmuSolution> {
   /**
    * Refers to the test data constructor.
    * 
    * <p>A test data constructor is a user-defined function that maps an execution path (an object
-   * of {@link ExecutionPath}) to the test data (an object of {@link ExecutionTestData}).</p>
+   * of {@link ExecutionPath}) to the test data (an object of {@link MmuTestData}).</p>
    */
-  private final Function<ExecutionPath, ExecutionTestData> testDataConstructor;
+  private final Function<ExecutionPath, MmuTestData> testDataConstructor;
 
   /**
    * Refers to the test data corrector.
    * 
    * <p>A test data corrector is a user-defined function that corrects inconsistencies in test data
-   * (an object of {@link ExecutionTestData}) after solving the constraints.</p>
+   * (an object of {@link MmuTestData}) after solving the constraints.</p>
    */
-  private final BiConsumer<ExecutionPath, ExecutionTestData> testDataCorrector;
+  private final BiConsumer<ExecutionPath, MmuTestData> testDataCorrector;
 
   /**
    * Given a device, contains the guard condition.
@@ -107,7 +110,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * <p>An entry provider is a user-defined function that fills a given entry with appropriate data
    * (the data are produced on the basis the execution path and the test data).</p>
    */
-  private final Map<MmuDevice, TriConsumer<ExecutionPath, ExecutionTestData, Object>> entryProviders;
+  private final Map<MmuDevice, TriConsumer<ExecutionPath, MmuTestData, Object>> entryProviders;
 
   /** Test case number (used for debug purposes). */
   private final int templateId;
@@ -116,7 +119,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
   private final Template template;
 
   /** Test template solution. */
-  private final TemplateSolution solution;
+  private final MmuSolution solution;
 
   /** Given a device, maps indices to sets of tags to be explicitly loaded into the device. */
   private final Map<MmuDevice, Map<Long, Set<Long>>> deviceHitTags = new LinkedHashMap<>();
@@ -141,17 +144,17 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param entryProviders the entry providers.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public TemplateSolver(
+  public MmuEngine(
       final MmuSpecification memory,
       final int templateId,
-      final Template template,
-      final Function<ExecutionPath, ExecutionTestData> testDataConstructor,
-      final BiConsumer<ExecutionPath, ExecutionTestData> testDataCorrector,
+      final Template template, // TODO: List<Call> abstractSequence
+      final Function<ExecutionPath, MmuTestData> testDataConstructor,
+      final BiConsumer<ExecutionPath, MmuTestData> testDataCorrector,
       final Map<MmuDevice, Predicate<ExecutionPath>> deviceGuards,
       final Map<MmuDevice, UnaryOperator<Long>> tagAllocators,
       final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
-      final Map<MmuDevice, TriConsumer<ExecutionPath, ExecutionTestData, Object>> entryProviders) {
+      final Map<MmuDevice, TriConsumer<ExecutionPath, MmuTestData, Object>> entryProviders) {
 
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(template);
@@ -172,7 +175,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
     this.entryConstructors = entryConstructors;
     this.entryProviders = entryProviders;
 
-    this.solution = new TemplateSolution(memory, template);
+    this.solution = new MmuSolution(memory, template);
   }
 
   /**
@@ -180,7 +183,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * 
    * @return the solution.
    */
-  public TemplateSolution getSolution() {
+  public MmuSolution getSolution() {
     return solution;
   }
 
@@ -193,11 +196,11 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param addrType the address type to be aligned.
    * @return the solution.
    */
-  private SolverResult<TemplateSolution> solveAlignConstraint(
+  private SolverResult<MmuSolution> solveAlignConstraint(
       final int j, final MmuAddress addrType) {
 
     final ExecutionPath execution = template.getExecution(j);
-    final ExecutionTestData testData = solution.getTestData(j);
+    final MmuTestData testData = solution.getTestData(j);
 
     DataType maxType = execution.getType();
 
@@ -232,8 +235,8 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solveHitConstraint(final int j, final MmuDevice device) {
-    final ExecutionTestData testData = solution.getTestData(j);
+  private SolverResult<MmuSolution> solveHitConstraint(final int j, final MmuDevice device) {
+    final MmuTestData testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
     final long address = testData.getAddress(addrType);
@@ -300,7 +303,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
       }
 
       if (execution.getEvent(prevDevice) == BufferAccessEvent.MISS) {
-        final SolverResult<TemplateSolution> result = solveMissConstraint(j, prevDevice);
+        final SolverResult<MmuSolution> result = solveMissConstraint(j, prevDevice);
 
         if (result.getStatus() == SolverResult.Status.UNSAT) {
           return result;
@@ -318,14 +321,14 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solveMissConstraint(final int j, final MmuDevice device) {
+  private SolverResult<MmuSolution> solveMissConstraint(final int j, final MmuDevice device) {
     final UnitedDependency dependency = template.getUnitedDependency(j);
 
     if (!FilterAccessThenMiss.test(device, dependency)) {
       return new SolverResult<>(String.format("Miss constraint violation for device %s", device));
     }
 
-    final ExecutionTestData testData = solution.getTestData(j);
+    final MmuTestData testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
     final UnaryOperator<Long> tagAllocator = tagAllocators.get(device);
 
@@ -380,8 +383,8 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solveEntryConstraint(final int j, final MmuDevice device) {
-    final ExecutionTestData testData = solution.getTestData(j);
+  private SolverResult<MmuSolution> solveEntryConstraint(final int j, final MmuDevice device) {
+    final MmuTestData testData = solution.getTestData(j);
     final ExecutionPath execution = template.getExecution(j);
     final UnitedDependency dependency = template.getUnitedDependency(j);
     final MmuAddress addrType = device.getAddress();
@@ -392,7 +395,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
 
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next();
-      final ExecutionTestData prevTestData = solution.getTestData(i);
+      final MmuTestData prevTestData = solution.getTestData(i);
 
       // Instruction uses the same entry of the device.
       final Map<Long, Object> entries = prevTestData.getEntries(device);
@@ -410,7 +413,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
           entryIdAllocators.get(device);
       final Supplier<Object> entryConstructor =
           entryConstructors.get(device);
-      final TriConsumer<ExecutionPath, ExecutionTestData, Object> entryProvider =
+      final TriConsumer<ExecutionPath, MmuTestData, Object> entryProvider =
           entryProviders.get(device);
 
       final Long deviceEntryId = entryIdAllocator.apply(address);
@@ -437,9 +440,9 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param addrType the address type.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solveAddrEqualConstraint(
+  private SolverResult<MmuSolution> solveAddrEqualConstraint(
       final int j, final MmuAddress addrType) {
-    final ExecutionTestData testData = solution.getTestData(j);
+    final MmuTestData testData = solution.getTestData(j);
 
     final UnitedDependency dependency = template.getUnitedDependency(j);
     final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
@@ -447,7 +450,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
     // The instruction uses the same address as one of the previous instructions.
     if (!addrEqualRelation.isEmpty()) {
       final int i = addrEqualRelation.iterator().next();
-      final ExecutionTestData prevTestData = solution.getTestData(i);
+      final MmuTestData prevTestData = solution.getTestData(i);
 
       final long newAddress = prevTestData.getAddress(addrType);
 
@@ -465,9 +468,9 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solveIndexEqualConstraint(
+  private SolverResult<MmuSolution> solveIndexEqualConstraint(
       final int j, final MmuDevice device) {
-    final ExecutionTestData testData = solution.getTestData(j);
+    final MmuTestData testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
     final UnitedDependency dependency = template.getUnitedDependency(j);
@@ -475,7 +478,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
 
     if (!indexEqualRelation.isEmpty()) {
       final int i = indexEqualRelation.iterator().next();
-      final ExecutionTestData prevTestData = solution.getTestData(i);
+      final MmuTestData prevTestData = solution.getTestData(i);
 
       final UnaryOperator<Long> tagAllocator = tagAllocators.get(device);
   
@@ -503,9 +506,9 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solveTagEqualConstraint(
+  private SolverResult<MmuSolution> solveTagEqualConstraint(
       final int j, final MmuDevice device) {
-    final ExecutionTestData testData = solution.getTestData(j);
+    final MmuTestData testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
     final UnitedDependency dependency = template.getUnitedDependency(j);
@@ -514,7 +517,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
     // Instruction uses the same tag and the same index as one of the previous instructions.
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next();
-      final ExecutionTestData prevTestData = solution.getTestData(i);
+      final MmuTestData prevTestData = solution.getTestData(i);
 
       // Copy the tag and the index from the previous instruction.
       final long newTag = device.getTag(prevTestData.getAddress(addrType));
@@ -535,7 +538,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solveTagReplacedConstraints(
+  private SolverResult<MmuSolution> solveTagReplacedConstraints(
       final int j, final MmuDevice device) {
     final MmuAddress addrType = device.getAddress();
     final Predicate<ExecutionPath> guard = deviceGuards.get(device);
@@ -552,7 +555,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
     for (int i = 0; i <= j; i++) {
       final ExecutionPath execution = template.getExecution(i);
       final UnitedDependency dependency = template.getUnitedDependency(i);
-      final ExecutionTestData testData = solution.getTestData(i);
+      final MmuTestData testData = solution.getTestData(i);
 
       final long address = testData.getAddress(addrType);
       final long index = device.getIndex(address);
@@ -594,7 +597,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solveDeviceConstraint(
+  private SolverResult<MmuSolution> solveDeviceConstraint(
       final int j, final MmuDevice device) {
     // Do nothing if the device has been already handled.
     Set<MmuDevice> handledDevicesForExecution = handledDevices.get(j);
@@ -602,7 +605,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
     if (handledDevicesForExecution == null) {
       handledDevices.put(j, handledDevicesForExecution = new LinkedHashSet<>());
     } else if (handledDevicesForExecution.contains(device)) {
-      return new SolverResult<TemplateSolution>(solution);
+      return new SolverResult<MmuSolution>(solution);
     }
 
     handledDevicesForExecution.add(device);
@@ -625,7 +628,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
         !device.isView() || execution.getEvent(device.getParent()) != BufferAccessEvent.MISS;
 
     if (canBeAccessed && deviceGuard.test(execution)) {
-      SolverResult<TemplateSolution> result = null;
+      SolverResult<MmuSolution> result = null;
 
       if (device.isReplaceable()) {
         // Construct a sequence of addresses to be accessed.
@@ -656,7 +659,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
       }
     }
 
-    return new SolverResult<TemplateSolution>(solution);
+    return new SolverResult<MmuSolution>(solution);
   }
 
   /**
@@ -665,12 +668,12 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
    * @param j the execution index.
    * @return the partial solution.
    */
-  private SolverResult<TemplateSolution> solve(final int j) {
+  private SolverResult<MmuSolution> solve(final int j) {
     final ExecutionPath execution = template.getExecution(j);
     final UnitedDependency dependency = template.getUnitedDependency(j);
 
     // Construct initial test data for the execution.
-    final ExecutionTestData testData = testDataConstructor.apply(execution);
+    final MmuTestData testData = testDataConstructor.apply(execution);
     solution.setTestData(j, testData);
 
     // Align the addresses.
@@ -716,7 +719,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
     final List<MmuDevice> devices = execution.getDevices();
 
     for (final MmuDevice device : devices) {
-      final SolverResult<TemplateSolution> result = solveDeviceConstraint(j, device);
+      final SolverResult<MmuSolution> result = solveDeviceConstraint(j, device);
 
       if (result.getStatus() == SolverResult.Status.UNSAT) {
         return result;
@@ -726,20 +729,32 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
     // Correct the solution.
     testDataCorrector.accept(execution, testData);
 
-    return new SolverResult<TemplateSolution>(solution);
+    return new SolverResult<MmuSolution>(solution);
   }
 
   @Override
-  public SolverResult<TemplateSolution> solve() {
+  public Class<MmuSolution> getSolutionClass() {
+    return MmuSolution.class;
+  }
+
+  @Override
+  public void configure(final Map<String, Object> attributes) {
+    // Do nothing.
+  }
+
+  @Override
+  public EngineResult<MmuSolution> solve(
+      final EngineContext engineContext, final List<Call> abstractSequence) {
     for (int j = 0; j < template.size(); j++) {
-      final SolverResult<TemplateSolution> result = solve(j);
+      // TODO:
+      final SolverResult<MmuSolution> result = solve(j);
 
       if (result.getStatus() == SolverResult.Status.UNSAT) {
-        return result;
+        return new EngineResult<MmuSolution>(result.getErrors());
       }
     }
 
-    return new SolverResult<TemplateSolution>(solution);
+    return new EngineResult<MmuSolution>(solution);
   }
 
   /**
@@ -804,7 +819,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
       }
     }
 
-    final ExecutionTestData testData = solution.getTestData(j);
+    final MmuTestData testData = solution.getTestData(j);
 
     final long address = testData.getAddress(addrType);
     final long tag = device.getTag(address);
@@ -823,6 +838,7 @@ public final class TemplateSolver implements Solver<TemplateSolution> {
     // Definitely MISS.
     return false;
   }
+
   @Override
   public String toString() {
     return Integer.toString(templateId);

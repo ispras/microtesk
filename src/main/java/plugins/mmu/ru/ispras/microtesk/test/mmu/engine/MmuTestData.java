@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.mmu.solver;
+package ru.ispras.microtesk.test.mmu.engine;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
 
 /**
- * {@link ExecutionTestData} represents test data for an individual instruction call (execution).
+ * {@link MmuTestData} represents test data for an individual instruction call (execution).
  * 
  * <p>Test data include addresses (virtual and physical ones), auxiliary attributes (cache policy,
  * control bits, etc.), sequences of addresses to be accessed to prepare hit/miss situations and
@@ -35,7 +35,7 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ExecutionTestData {
+public final class MmuTestData {
 
   /**
    * Refers to the MMU specification.
@@ -69,7 +69,7 @@ public final class ExecutionTestData {
    * @param execution the execution under processing.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public ExecutionTestData(final MmuSpecification memory, final ExecutionPath execution) {
+  public MmuTestData(final MmuSpecification memory, final ExecutionPath execution) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(execution);
 
