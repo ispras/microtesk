@@ -51,59 +51,53 @@ public NmlLexer(final CharStream chars, final Preprocessor pp) {
 
   commonLexer.setPreprocessor(pp);
   this.pp = pp;
+}
+
+private void pp() {
+  if(pp.isHidden()) {
+    skip();
+  }
 }}
-
-//==================================================================================================
-// Preprocessor Directives
-//==================================================================================================
-
-PP_INCLUDE : 'include' WHITESPACE '"' filename=PP_FILENAME '"' (WHITESPACE)? NEWLINE {
-  pp.includeTokensFromFile($filename.getText());
-  skip();
-};
-
-fragment
-PP_FILENAME : (~('"' | '\n'))*;
 
 //==================================================================================================
 // Keywords
 //==================================================================================================
 
 /* Declaration Keywords */
-LET                     :    'let';
-TYPE                    :    'type';
-MEM                     :    'mem';
-REG                     :    'reg';
-VAR                     :    'var';
-ALIAS                   :    'alias';
-MODE                    :    'mode';
-OP                      :    'op';
+LET       : 'let'       { pp(); };
+TYPE      : 'type'      { pp(); };
+MEM       : 'mem'       { pp(); };
+REG       : 'reg'       { pp(); };
+VAR       : 'var'       { pp(); };
+ALIAS     : 'alias'     { pp(); };
+MODE      : 'mode'      { pp(); };
+OP        : 'op'        { pp(); };
 
 /* Standard Attributes */
-SYNTAX                  :    'syntax';
-IMAGE                   :    'image';
-ACTION                  :    'action';
+SYNTAX    : 'syntax'    { pp(); };
+IMAGE     : 'image'     { pp(); };
+ACTION    : 'action'    { pp(); };
 
 /* Data Types */
-BOOL                    :    'bool';
-CARD                    :    'card';
-FIX                     :    'fix';
-FLOAT                   :    'float';
-INT                     :    'int';
-ENUM                    :    'enum';
+BOOL      : 'bool'      { pp(); };
+CARD      : 'card'      { pp(); };
+FIX       : 'fix'       { pp(); };
+FLOAT     : 'float'     { pp(); };
+INT       : 'int'       { pp(); };
+ENUM      : 'enum'      { pp(); };
 
 /* Special Functions */
-COERCE                  :    'coerce';
-FORMAT                  :    'format';
-EXCEPTION               :    'exception';
-TRACE                   :    'trace';
+COERCE    : 'coerce'    { pp(); };
+FORMAT    : 'format'    { pp(); };
+EXCEPTION : 'exception' { pp(); };
+TRACE     : 'trace'     { pp(); };
 
 /* Control Statements */
-IF                      :    'if';
-THEN                    :    'then';
-ELSE                    :    'else';
-ELSEIF                  :    'elif';
-ENDIF                   :    'endif';
+IF        : 'if'        { pp(); };
+THEN      : 'then'      { pp(); };
+ELSE      : 'else'      { pp(); };
+ELSEIF    : 'elif'      { pp(); };
+ENDIF     : 'endif'     { pp(); };
 
 //==================================================================================================
 // The End

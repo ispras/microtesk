@@ -104,6 +104,56 @@ public final class DocgenNmlAnalyzer implements Preprocessor {
   }
 
   @Override
+  public boolean isDefined(final String key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean underIfElse() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isHidden() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void onDefine(final String key, final String val) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void onUndef(final String key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void onIfdef(final String key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void onIfndef(final String key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void onElse() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void onEndif() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String expand(final String key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void includeTokensFromFile(final String filename) {
     final ANTLRFileStream stream = finder.openFile(filename);
 

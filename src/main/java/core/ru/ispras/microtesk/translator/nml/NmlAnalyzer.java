@@ -78,14 +78,17 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     finder.addPaths(path);
   }
 
+  @Override
   public boolean isDefined(final String key) {
     return defines.containsKey(key.trim());
   }
 
+  @Override
   public boolean underIfElse() {
     return !ifdefs.empty();
   }
 
+  @Override
   public boolean isHidden() {
     if (underIfElse()) {
       IfDefScope scope = ifdefs.peek();
@@ -95,6 +98,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     return false;
   }
 
+  @Override
   public void onDefine(final String key, final String val) {
     final int index = val.indexOf("//");
     final String value = index == -1 ? val : val.substring(0, index);
@@ -102,10 +106,12 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     defines.put(key.trim(), value.trim());
   }
 
+  @Override
   public void onUndef(final String key) {
     defines.remove(key.trim());
   }
 
+  @Override
   public void onIfdef(final String key) {
     if (isHidden() || !isDefined(key)) {
       ifdefs.push(IfDefScope.IF_FALSE);
@@ -114,6 +120,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     }
   }
 
+  @Override
   public void onIfndef(final String key) {
     if (isHidden() || isDefined(key)) {
       ifdefs.push(IfDefScope.IF_FALSE);
@@ -122,6 +129,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     }
   }
 
+  @Override
   public void onElse() {
     InvariantChecks.checkTrue(underIfElse());
 
@@ -135,11 +143,13 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     }
   }
 
+  @Override
   public void onEndif() {
     InvariantChecks.checkTrue(underIfElse());
     ifdefs.pop();
   }
 
+  @Override
   public String expand(final String key) {
     return defines.get(key.trim());
   }

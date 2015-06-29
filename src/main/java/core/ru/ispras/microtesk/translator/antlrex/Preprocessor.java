@@ -15,6 +15,17 @@
 package ru.ispras.microtesk.translator.antlrex;
 
 public interface Preprocessor {
+  boolean isDefined(String key);
+  boolean underIfElse();
+  boolean isHidden();
+  void onDefine(String key, String val);
+  void onUndef(String key);
+  void onIfdef(String key);
+  void onIfndef(String key);
+  void onElse();
+  void onEndif();
+  String expand(String key);
+
   void includeTokensFromFile(String fileName);
   void includeTokensFromString(String substitution);
 }

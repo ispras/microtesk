@@ -22,6 +22,20 @@ public final ru.ispras.microtesk.translator.antlrex.Preprocessor getPreprocessor
 }
 public final void setPreprocessor(final ru.ispras.microtesk.translator.antlrex.Preprocessor pp) {
   this.pp = pp;
+}
+
+private void pp() {
+  if(pp.isHidden()) {
+    skip();
+  }
+}
+
+private void pp(final String text) {
+  if(pp.isHidden()) {
+    skip();
+  } else {
+    setText(text);
+  }
 }}
 
 //==================================================================================================
@@ -34,102 +48,167 @@ NEWLINE        : ('\r'?'\n')+          { skip(); };
 SINGLE_COMMENT : '//' .* NEWLINE       { skip(); };
 MULTI_COMMENT  : '/*' .* '*/' NEWLINE? { skip(); };
 
+fragment
+LINE : (~('\n' | '\r'))* ;
+
+fragment
+REST : LINE (NEWLINE | EOF) ;
+
+//==================================================================================================
+// Preprocessor Directives
+//==================================================================================================
+
+PP_DEFINE : '#define' WHITESPACE key=ID val=LINE (NEWLINE | EOF) {
+  if (!pp.isHidden()) {
+    pp.onDefine($key.getText(), $val.getText());
+  }
+  skip();
+};
+
+PP_UNDEF : '#undef' WHITESPACE key=ID REST {
+  if (!pp.isHidden()) {
+    pp.onUndef($key.getText());
+  }
+  skip();
+};
+
+PP_IFDEF : '#ifdef' WHITESPACE key=ID {
+  // #ifdef is processed even in the hidden scope.
+  pp.onIfdef($key.getText());
+  skip();
+};
+
+PP_IFNDEF : '#ifndef' WHITESPACE key=ID {
+  // #ifndef is processed even in the hidden scope.
+  pp.onIfndef($key.getText());
+  skip();
+};
+
+PP_ELSE : '#else' {
+  // #else is processed even in the hidden scope.
+  pp.onElse();
+  skip();
+};
+
+PP_ENDIF : '#endif' {
+  // #endif is processed even in the hidden scope.
+  pp.onEndif();
+  skip();
+};
+
+PP_INCLUDE : '#include' WHITESPACE '"' filename=PP_FILENAME '"' (WHITESPACE)? (NEWLINE | EOF) {
+  if (!pp.isHidden()) {
+    pp.includeTokensFromFile($filename.getText());
+  }
+};
+
+PP_EXPAND : '#' key=ID {
+  if (!pp.isHidden()) {
+    final String substitution = pp.expand($key.getText());
+    pp.includeTokensFromString(substitution);
+  }
+  skip();
+};
+
+fragment
+PP_FILENAME : (~('"' | '\n'))*;
+
 //==================================================================================================
 // Different Symbols
 //==================================================================================================
 
-LEFT_PARENTH  : '(';
-RIGHT_PARENTH : ')';
+LEFT_PARENTH  : '('           { pp(); };
+RIGHT_PARENTH : ')'           { pp(); };
 
-LEFT_BRACE    : '{';
-RIGHT_BRACE   : '}';
+LEFT_BRACE    : '{'           { pp(); };
+RIGHT_BRACE   : '}'           { pp(); };
 
-LEFT_HOOK     : '[';
-RIGHT_HOOK    : ']';
+LEFT_HOOK     : '['           { pp(); };
+RIGHT_HOOK    : ']'           { pp(); };
 
-COLON         : ':';
-SEMI          : ';';
-COMMA         : ',';
-DOT           : '.';
+COLON         : ':'           { pp(); };
+SEMI          : ';'           { pp(); };
+COMMA         : ','           { pp(); };
+DOT           : '.'           { pp(); };
 
-SHARP         : '#';
+SHARP         : '#'           { pp(); };
 
 //==================================================================================================
 // Operations
 //==================================================================================================
 
-ASSIGN        : '=';
+ASSIGN        : '='           { pp(); };
 
-PLUS          : '+';
-MINUS         : '-';
-MUL           : '*';
-DIV           : '/';
-REM           : '%';
+PLUS          : '+'           { pp(); };
+MINUS         : '-'           { pp(); };
+MUL           : '*'           { pp(); };
+DIV           : '/'           { pp(); };
+REM           : '%'           { pp(); };
 
-DOUBLE_STAR   : '**';
+DOUBLE_STAR   : '**'          { pp(); };
 
-LEFT_SHIFT    : '<<';
-RIGHT_SHIFT   : '>>';
-ROTATE_LEFT   : '<<<';
-ROTATE_RIGHT  : '>>>';
+LEFT_SHIFT    : '<<'          { pp(); };
+RIGHT_SHIFT   : '>>'          { pp(); };
+ROTATE_LEFT   : '<<<'         { pp(); };
+ROTATE_RIGHT  : '>>>'         { pp(); };
 
-LEQ           : '<=';
-GEQ           : '>=';
-EQ            : '==';
-NEQ           : '!=';
+LEQ           : '<='          { pp(); };
+GEQ           : '>='          { pp(); };
+EQ            : '=='          { pp(); };
+NEQ           : '!='          { pp(); };
 
-LEFT_BROCKET  : '<';
-RIGHT_BROCKET : '>';
+LEFT_BROCKET  : '<'           { pp(); };
+RIGHT_BROCKET : '>'           { pp(); };
 
-NOT           : '!';
-AND           : '&&';
-OR            : '||';
+NOT           : '!'           { pp(); };
+AND           : '&&'          { pp(); };
+OR            : '||'          { pp(); };
 
-TILDE         : '~';
-AMPER         : '&';
-UP_ARROW      : '^';
-VERT_BAR      : '|';
+TILDE         : '~'           { pp(); };
+AMPER         : '&'           { pp(); };
+UP_ARROW      : '^'           { pp(); };
+VERT_BAR      : '|'           { pp(); };
 
-DOUBLE_DOT    : '..';
-DOUBLE_COLON  : '::';
+DOUBLE_DOT    : '..'          { pp(); };
+DOUBLE_COLON  : '::'          { pp(); };
 
 //==================================================================================================
 // Control Statements
 //==================================================================================================
 
-IF                      :    'if';
-THEN                    :    'then';
-ELSE                    :    'else';
-ELSEIF                  :    'elif';
-ENDIF                   :    'endif';
+IF            : 'if'          { pp(); };
+THEN          : 'then'        { pp(); };
+ELSE          : 'else'        { pp(); };
+ELSEIF        : 'elif'        { pp(); };
+ENDIF         : 'endif'       { pp(); };
 
 //==================================================================================================
 // Special Function Names
 //==================================================================================================
 
-COERCE                  :    'coerce';
-FORMAT                  :    'format';
-TRACE                   :    'trace';
-EXCEPTION               :    'exception';
-MARK                    :    'mark';
-UNPREDICTED             :    'unpredicted';  
-UNDEFINED               :    'undefined';
+COERCE        : 'coerce'      { pp(); };
+FORMAT        : 'format'      { pp(); };
+TRACE         : 'trace'       { pp(); };
+EXCEPTION     : 'exception'   { pp(); };
+MARK          : 'mark'        { pp(); };
+UNPREDICTED   : 'unpredicted' { pp(); };
+UNDEFINED     : 'undefined'   { pp(); };
 
 //==================================================================================================
 // Identifier
 //==================================================================================================
 
-ID : LETTER (LETTER | DIGIT | '_')*;
+ID : LETTER (LETTER | DIGIT | '_')* { pp(); };
 
 //==================================================================================================
 // Literals
 //==================================================================================================
 
-STRING_CONST : '"' NONCONTROL* '"' { String s = $text; setText(s.substring(1, s.length() - 1)); };
+STRING_CONST : '"' NONCONTROL* '"' { String s = $text; pp(s.substring(1, s.length() - 1)); };
 
-BINARY_CONST : '0b' b=BIN_DIG_LST { setText($b.text); };
-HEX_CONST    : '0x' h=HEX_DIG_LST { setText($h.text); };
-CARD_CONST   : DIGIT+;
+BINARY_CONST : '0b' b=BIN_DIG_LST  { pp($b.text); };
+HEX_CONST    : '0x' h=HEX_DIG_LST  { pp($h.text); };
+CARD_CONST   : DIGIT+              { pp(); };
 
 // TODO: fixed numbers are NOT SUPPORTED IN THE CURRENT VERSION.
 // NOTE: When they are supported and the rule is enabled it will make bitfield
@@ -164,4 +243,3 @@ fragment SYMBOL      : '!' | '#'..'/' | ':'..'@' | '['..'`' | '{'..'~';
 //==================================================================================================
 // The End
 //==================================================================================================
-
