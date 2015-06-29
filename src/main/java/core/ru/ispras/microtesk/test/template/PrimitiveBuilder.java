@@ -452,11 +452,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     void checkValidArgument(Argument arg);
     void checkAllArgumentsAssigned(Set<String> argNames);
   }
- 
+
   private final MetaModel metaModel; 
   private final CallBuilder callBuilder;
   private final MemoryMap memoryMap;
- 
+
   private final Strategy strategy;
   private final Kind kind;
   private final Map<String, Argument> args;
@@ -513,7 +513,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
     this.strategy = strategy;
     this.kind = kind;
-    this.args = new LinkedHashMap<String, Argument>();
+    this.args = new LinkedHashMap<>();
     this.contextName = contextName;
     this.situation = null;
 
@@ -521,29 +521,45 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
       kind, strategy.getName(), strategy.getTypeName());
   }
 
-  private void putArgument(Argument arg) {
+  private void putArgument(final Argument arg) {
     args.put(arg.getName(), arg);
   }
 
   public Primitive build() {
     checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
 
+    boolean canThrowException = (kind == Kind.MODE) ?
+        metaModel.getAddressingMode(getName()).canThrowException() :
+        getMetaOperation().canThrowException();
+
+    if (canThrowException) {
+      for (final Argument arg : args.values()) {
+        if (arg.getKind() == Argument.Kind.OP || arg.getKind() == Argument.Kind.MODE) {
+          if (((Primitive) arg.getValue()).canThrowException()) {
+            canThrowException = true;
+            break;
+          }
+        }
+      }
+    }
+
     final Primitive primitive = new ConcretePrimitive(
-      kind,
-      getName(),
-      strategy.getTypeName(),
-      strategy.isRoot(),
-      args,
-      contextName,
-      situation
-      );
+        kind,
+        getName(),
+        strategy.getTypeName(),
+        strategy.isRoot(),
+        args,
+        contextName,
+        situation,
+        canThrowException
+        );
 
     lazyPrimitive.setSource(primitive);
     return primitive;
   }
 
   @Override
-  public void setContext(String contextName) {
+  public void setContext(final String contextName) {
     if (null != this.contextName) {
       throw new IllegalStateException("Context is already assigned.");
     }
@@ -551,54 +567,54 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     this.contextName = contextName;
   }
 
-  public void setSituation(Situation situation) {
+  public void setSituation(final Situation situation) {
     this.situation = situation;
   }
 
   // /////////////////////////////////////////////////////////////////////////
   // For Array-based syntax
 
-  public void addArgument(BigInteger value) {
+  public void addArgument(final BigInteger value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
 
   // For labels
-  public void addArgument(String value) {
+  public void addArgument(final String value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
 
-  public void addArgument(RandomValue value) {
+  public void addArgument(final RandomValue value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
 
-  public void addArgument(Primitive value) {
-    final String name = getNextArgumentName();
-    setArgument(name, value);
-  }
-
-  @Override
-  public void addArgument(PrimitiveBuilder value) {
+  public void addArgument(final Primitive value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
 
   @Override
-  public void addArgument(UnknownImmediateValue value) {
+  public void addArgument(final PrimitiveBuilder value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
 
   @Override
-  public void addArgument(LazyValue value) {
+  public void addArgument(final UnknownImmediateValue value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
 
   @Override
-  public void addArgument(LazyLabel value) {
+  public void addArgument(final LazyValue value) {
+    final String name = getNextArgumentName();
+    setArgument(name, value);
+  }
+
+  @Override
+  public void addArgument(final LazyLabel value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
@@ -607,7 +623,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   // For Hash-based syntax
 
   @Override
-  public void setArgument(String name, BigInteger value) {
+  public void setArgument(final String name, final BigInteger value) {
     checkNotNull(name);
 
     final MetaArgument metaArg = getMetaArgument(name);
@@ -621,7 +637,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   // For labels
   @Override
-  public void setArgument(String name, String value) {
+  public void setArgument(final String name, final String value) {
     checkNotNull(name);
     checkNotNull(value);
 
@@ -636,7 +652,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   @Override
-  public void setArgument(String name, RandomValue value) {
+  public void setArgument(final String name, final RandomValue value) {
     checkNotNull(name);
     checkNotNull(value);
 
@@ -650,7 +666,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   @Override
-  public void setArgument(String name, Primitive value) {
+  public void setArgument(final String name, final Primitive value) {
     checkNotNull(name);
     checkNotNull(value);
 
@@ -671,13 +687,13 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   @Override
-  public void setArgument(String name, PrimitiveBuilder value) {
+  public void setArgument(final String name, final PrimitiveBuilder value) {
     value.setContext(getName());
     setArgument(name, value.build());
   }
 
   @Override
-  public void setArgument(String name, UnknownImmediateValue value) {
+  public void setArgument(final String name, final UnknownImmediateValue value) {
     checkNotNull(name);
     checkNotNull(value);
 
@@ -691,7 +707,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
   
   @Override
-  public void setArgument(String name, LazyValue value) {
+  public void setArgument(final String name, final LazyValue value) {
     checkNotNull(name);
     checkNotNull(value);
 
@@ -706,7 +722,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   // For lazy labels (used in data_stream blocks) 
   @Override
-  public void setArgument(String name, LazyLabel value) {
+  public void setArgument(final String name, final LazyLabel value) {
     checkNotNull(name);
     checkNotNull(value);
 
@@ -722,11 +738,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     return strategy.getNextArgumentName();
   }
 
-  private void checkValidArgument(Argument arg) {
+  private void checkValidArgument(final Argument arg) {
     strategy.checkValidArgument(arg);
   }
 
-  private void checkAllArgumentsSet(Set<String> argNames) {
+  private void checkAllArgumentsSet(final Set<String> argNames) {
     strategy.checkAllArgumentsAssigned(argNames);
   }
 
@@ -736,31 +752,30 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     if (kind == Kind.OP) {
-      final MetaOperation metaOp = metaModel.getOperation(getName());
-      final MetaShortcut metaShortcut = metaOp.getShortcut(contextName);
-
-      final MetaArgument result;
-      if (null != metaShortcut) {
-        result = metaShortcut.getOperation().getArgument(name);
-      } else {
-        result = metaOp.getArgument(name);
-      }
-
-      return result;
+      final MetaOperation metaOp = getMetaOperation();
+      return metaOp.getArgument(name);
     }
 
     throw new IllegalStateException("Illegal kind: " + kind);
   }
 
-  private static final String ERR_UNASSIGNED_ARGUMENT = "The %s argument of %s is not assigned.";
+  private MetaOperation getMetaOperation() {
+    final MetaOperation metaOp = metaModel.getOperation(getName());
+    final MetaShortcut metaShortcut = metaOp.getShortcut(contextName);
+    return (null != metaShortcut) ? metaShortcut.getOperation() : metaOp;
+  }
+
+  private static final String ERR_UNASSIGNED_ARGUMENT = 
+      "The %s argument of %s is not assigned.";
 
   private static final String ERR_NO_MORE_ARGUMENTS =
-    "Too many arguments: %s has only %d arguments.";
+      "Too many arguments: %s has only %d arguments.";
 
-  private static final String ERR_UNDEFINED_ARGUMENT = "The %s argument is not defined for %s.";
+  private static final String ERR_UNDEFINED_ARGUMENT = 
+      "The %s argument is not defined for %s.";
 
   private static final String ERR_TYPE_NOT_ACCEPTED =
-    "The %s type is not accepted for the %s argument of %s.";
+      "The %s type is not accepted for the %s argument of %s.";
 
   private static final class StrategyOperation implements Strategy {
     private final MetaOperation metaData;
@@ -769,7 +784,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     private int argumentCount;
     private final Iterator<MetaArgument> argumentIterator;
 
-    StrategyOperation(MetaOperation metaData, String contextName) {
+    StrategyOperation(final MetaOperation metaData, final String contextName) {
       checkNotNull(metaData);
 
       this.metaData = metaData;
@@ -809,7 +824,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     public String getNextArgumentName() {
       if (!argumentIterator.hasNext()) {
         throw new IllegalStateException(String.format(
-          ERR_NO_MORE_ARGUMENTS, getDescription(), argumentCount));
+            ERR_NO_MORE_ARGUMENTS, getDescription(), argumentCount));
       }
 
       final MetaArgument argument = argumentIterator.next();
@@ -819,27 +834,27 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     @Override
-    public void checkValidArgument(Argument arg) {
+    public void checkValidArgument(final Argument arg) {
       final MetaArgument metaArgument = metaData.getArgument(arg.getName());
 
       if (null == metaArgument) {
         throw new IllegalStateException(String.format(
-          ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
+            ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
       }
 
       final String typeName = arg.getTypeName();
       if (!metaArgument.isTypeAccepted(typeName)) {
         throw new IllegalStateException(String.format(
-          ERR_TYPE_NOT_ACCEPTED, typeName, arg.getName(), getDescription()));
+            ERR_TYPE_NOT_ACCEPTED, typeName, arg.getName(), getDescription()));
       }
     }
 
     @Override
-    public void checkAllArgumentsAssigned(Set<String> argNames) {
-      for (MetaArgument arg : metaData.getArguments()) {
+    public void checkAllArgumentsAssigned(final Set<String> argNames) {
+      for (final MetaArgument arg : metaData.getArguments()) {
         if (!argNames.contains(arg.getName())) {
           throw new IllegalStateException(String.format(
-            ERR_UNASSIGNED_ARGUMENT, arg.getName(), getDescription()));
+              ERR_UNASSIGNED_ARGUMENT, arg.getName(), getDescription()));
         }
       }
     }
@@ -847,14 +862,14 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   private static final class StrategyAddressingMode implements Strategy {
     private static final String ERR_WRONG_ARGUMENT_KIND =
-      "The %s argument of %s is %s, but it must be an immediate value.";
+        "The %s argument of %s is %s, but it must be an immediate value.";
 
     private final MetaAddressingMode metaData;
 
     private int argumentCount;
     private final Iterator<String> argumentNameIterator;
 
-    StrategyAddressingMode(MetaAddressingMode metaData) {
+    StrategyAddressingMode(final MetaAddressingMode metaData) {
       checkNotNull(metaData);
 
       this.metaData = metaData;
@@ -887,7 +902,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     public String getNextArgumentName() {
       if (!argumentNameIterator.hasNext()) {
         throw new IllegalStateException(String.format(
-          ERR_NO_MORE_ARGUMENTS, getDescription(), argumentCount));
+            ERR_NO_MORE_ARGUMENTS, getDescription(), argumentCount));
       }
 
       final String argumentName = argumentNameIterator.next();
@@ -897,24 +912,24 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     @Override
-    public void checkValidArgument(Argument arg) {
+    public void checkValidArgument(final Argument arg) {
       if (!metaData.isArgumentDefined(arg.getName())) {
         throw new IllegalStateException(String.format(
-          ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
+            ERR_UNDEFINED_ARGUMENT, arg.getName(), getDescription()));
       }
 
       if (!arg.isImmediate()) {
         throw new IllegalStateException(String.format(
-          ERR_WRONG_ARGUMENT_KIND, arg.getName(), getDescription(), arg.getKind()));
+            ERR_WRONG_ARGUMENT_KIND, arg.getName(), getDescription(), arg.getKind()));
       }
     }
 
     @Override
-    public void checkAllArgumentsAssigned(Set<String> argNames) {
-      for (String argName : metaData.getArgumentNames()) {
+    public void checkAllArgumentsAssigned(final Set<String> argNames) {
+      for (final String argName : metaData.getArgumentNames()) {
         if (!argNames.contains(argName)) {
           throw new IllegalStateException(String.format(
-            ERR_UNASSIGNED_ARGUMENT, argName, getDescription()));
+              ERR_UNASSIGNED_ARGUMENT, argName, getDescription()));
         }
       }
     }

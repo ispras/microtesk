@@ -25,6 +25,7 @@ public final class Call {
   private final List<Label> labels;
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
+  private final boolean exception;
 
   public Call(
       final Primitive rootOperation,
@@ -39,6 +40,9 @@ public final class Call {
     this.labels = Collections.unmodifiableList(labels);
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
+
+    this.exception = null != rootOperation ? 
+        rootOperation.canThrowException() : false;
   }
 
   public Call(final Call other) {
@@ -48,6 +52,7 @@ public final class Call {
     this.labels = other.labels;
     this.labelRefs = copyLabelReferences(other.labelRefs);
     this.outputs = other.outputs;
+    this.exception = other.exception;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
@@ -126,12 +131,7 @@ public final class Call {
   }
 
   public boolean canThrowException() {
-    if (!isExecutable()) {
-      return false;
-    }
-
-    // TODO
-    throw new UnsupportedOperationException();
+    return exception;
   }
 
   public Label getTargetLabel() {

@@ -36,16 +36,17 @@ public interface Primitive {
     }
   };
 
-  public Primitive newCopy();
-  public Kind getKind();
-  public String getName();
-  public String getTypeName();
-  public boolean isRoot();
-  public Map<String, Argument> getArguments();
-  public String getContextName();
-  public boolean hasSituation();
-  public Situation getSituation();
-  public String getSignature();
+  Primitive newCopy();
+  Kind getKind();
+  String getName();
+  String getTypeName();
+  boolean isRoot();
+  Map<String, Argument> getArguments();
+  String getContextName();
+  boolean hasSituation();
+  Situation getSituation();
+  String getSignature();
+  boolean canThrowException();
 }
 
 final class ConcretePrimitive implements Primitive {
@@ -56,6 +57,7 @@ final class ConcretePrimitive implements Primitive {
   private final Map<String, Argument> args;
   private final String contextName;
   private final Situation situation;
+  private final boolean exception;
 
   protected ConcretePrimitive(
       final Kind kind,
@@ -64,7 +66,8 @@ final class ConcretePrimitive implements Primitive {
       final boolean isRoot,
       final Map<String, Argument> args,
       final String contextName,
-      final Situation situation) {
+      final Situation situation,
+      final boolean exception) {
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(typeName);
@@ -77,6 +80,7 @@ final class ConcretePrimitive implements Primitive {
     this.args = args;
     this.contextName = contextName;
     this.situation = situation;
+    this.exception = exception;
   }
 
   private ConcretePrimitive(final ConcretePrimitive other) {
@@ -87,6 +91,7 @@ final class ConcretePrimitive implements Primitive {
     this.args = copyArguments(other.args);
     this.contextName = other.contextName;
     this.situation = other.situation;
+    this.exception = other.exception;
   }
 
   public static Map<String, Argument> copyArguments(
@@ -159,6 +164,11 @@ final class ConcretePrimitive implements Primitive {
     // The rest attributes make sense only for OPs.
     return signature + String.format(
       ":[context=%s, type=%s, root=%b]", contextName, typeName, isRoot);
+  }
+
+  @Override
+  public boolean canThrowException() {
+    return exception;
   }
 
   @Override
@@ -279,6 +289,12 @@ final class LazyPrimitive implements Primitive {
   public String getSignature() {
     checkSourceAssigned();
     return source.getSignature();
+  }
+
+  @Override
+  public boolean canThrowException() {
+    checkSourceAssigned();
+    return source.canThrowException();
   }
 
   @Override
