@@ -41,11 +41,27 @@ public final class Call {
     this.outputs = Collections.unmodifiableList(outputs);
   }
 
-  private Call(final Call other) {
+  public Call(final Call other) {
+    InvariantChecks.checkNotNull(other);
+
     this.rootOperation = null != other.rootOperation ? other.rootOperation.newCopy() : null; 
     this.labels = other.labels;
     this.labelRefs = copyLabelReferences(other.labelRefs);
     this.outputs = other.outputs;
+  }
+
+  public static List<Call> newCopy(final List<Call> calls) {
+    InvariantChecks.checkNotNull(calls);
+    if (calls.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<Call> result = new ArrayList<>(calls.size());
+    for (final Call call : calls) {
+      result.add(new Call(call));
+    }
+
+    return result;
   }
 
   private static List<LabelReference> copyLabelReferences(
@@ -125,23 +141,5 @@ public final class Call {
     }
 
     return reference.getReference();
-  }
-
-  public Call newCopy() {
-    return new Call(this);
-  }
-
-  public static List<Call> newCopy(final List<Call> calls) {
-    InvariantChecks.checkNotNull(calls);
-    if (calls.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<Call> result = new ArrayList<>(calls.size());
-    for (final Call call : calls) {
-      result.add(call.newCopy());
-    }
-
-    return result;
   }
 }
