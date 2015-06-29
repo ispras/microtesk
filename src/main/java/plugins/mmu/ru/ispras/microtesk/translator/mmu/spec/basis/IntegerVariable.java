@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.mmu.spec.basis;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -21,30 +23,44 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class IntegerVariable {
-  /** The address name. */
-  private String name;
-  /** The address width. */
-  private int width;
+public final class IntegerVariable {
+  /** The variable name. */
+  private final String name;
+  /** The variable width. */
+  private final int width;
+  /** The variable value (optional). */
+  private final BigInteger value;
 
   /**
    * Constructs a variable.
    * 
    * @param name the variable name.
    * @param width the variable width.
-   * @throws NullPointerException if {@code name} is null.
-   * @throws IllegalArgumentException if {@code width} is not positive.
+   * @param value the variable value or null.
+   * @throws IllegalArgumentException if {@code name == null} or {@code width} is not positive.
    */
-  public IntegerVariable(final String name, int width) {
+  public IntegerVariable(final String name, final int width, final BigInteger value) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkGreaterThanZero(width);
 
     this.name = name;
     this.width = width;
+    this.value = value;
   }
 
   /**
-   * Returns the variable name.
+   * Constructs a variable.
+   * 
+   * @param name the variable name.
+   * @param width the variable width.
+   * @throws IllegalArgumentException if {@code name == null} or {@code width} is not positive.
+   */
+  public IntegerVariable(final String name, final int width) {
+    this(name, width, null);
+  }
+
+  /**
+   * Returns the name of the variable.
    * 
    * @return the variable name.
    */
@@ -53,12 +69,30 @@ public class IntegerVariable {
   }
 
   /**
-   * Returns the variable width.
+   * Returns the width of the variable.
    * 
    * @return the variable width.
    */
   public int getWidth() {
     return width;
+  }
+
+  /**
+   * Checks whether the variable is defined, i.e. there is a value associated with the variable.
+   * 
+   * @return {@code true} if the variable is defined; {@code false} otherwise.
+   */
+  public boolean isDefined() {
+    return value != null;
+  }
+
+  /**
+   * Returns the value of the variable.
+   * 
+   * @return the variable value.
+   */
+  public BigInteger getValue() {
+    return value;
   }
 
   @Override
@@ -68,7 +102,16 @@ public class IntegerVariable {
     }
 
     final IntegerVariable r = (IntegerVariable) o;
-    return name.equals(r.name);
+
+    if (!name.equals(r.name)) {
+      return false;
+    }
+
+    if ((value == null) != (r.value == null)) {
+      return false;
+    }
+
+    return value != null ? value.compareTo(r.value) == 0 : true;
   }
 
   @Override
@@ -78,6 +121,6 @@ public class IntegerVariable {
 
   @Override
   public String toString() {
-    return name;
+    return String.format("%s=%s", name, value);
   }
 }
