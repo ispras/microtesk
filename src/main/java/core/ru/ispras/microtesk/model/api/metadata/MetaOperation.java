@@ -31,7 +31,7 @@ public final class MetaOperation implements MetaData {
   private final Map<String, MetaArgument> args;
   private final Map<String, MetaShortcut> shortcuts;
   private final boolean hasRootShortcuts;
-  private final boolean canThrowException;
+  private final boolean exception;
 
   public MetaOperation(
       final String name,
@@ -39,7 +39,7 @@ public final class MetaOperation implements MetaData {
       final boolean isRoot,
       final Map<String, MetaArgument> args,
       final Map<String, MetaShortcut> shortcuts,
-      final boolean canThrowException) {
+      final boolean exception) {
     checkNotNull(name);
     checkNotNull(typeName);
     checkNotNull(args);
@@ -60,7 +60,7 @@ public final class MetaOperation implements MetaData {
     }
 
     this.hasRootShortcuts = rootShortcuts;
-    this.canThrowException = canThrowException;
+    this.exception = exception;
   }
 
   /**
@@ -159,6 +159,6 @@ public final class MetaOperation implements MetaData {
    */
 
   public boolean canThrowException() {
-    return canThrowException;
+    return exception;
   }
 }
