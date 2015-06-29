@@ -32,22 +32,22 @@ import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
 import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
-import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
+import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.nml.ESymbolKind;
-import ru.ispras.microtesk.translator.nml.grammar.SimnMLLexer;
-import ru.ispras.microtesk.translator.nml.grammar.SimnMLParser;
-import ru.ispras.microtesk.translator.nml.grammar.SimnMLTreeWalker;
+import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
+import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
+import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
 import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker.Direction;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 
-public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
+public final class DocgenNmlAnalyzer implements Preprocessor {
 
   private final LogStore LOG = new LogStore() {
     @Override
@@ -56,7 +56,7 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     }
   };
 
-  public DocgenSimnMLAnalyzer() {}
+  public DocgenNmlAnalyzer() {}
 
   private String getModelName(String fileName) {
     final String shortFileName = getShortFileName(fileName);
@@ -97,14 +97,14 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
 
     // Process the files in reverse order (emulate inclusion).
     while (iterator.hasPrevious()) {
-      includeTokensFrom(iterator.previous());
+      includeTokensFromFile(iterator.previous());
     }
 
     return source;
   }
 
   @Override
-  public void includeTokensFrom(String filename) {
+  public void includeTokensFromFile(final String filename) {
     final ANTLRFileStream stream = finder.openFile(filename);
 
     System.out.println("Included: " + filename);
@@ -114,7 +114,12 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
       return;
     }
 
-    source.push(new SimnMLLexer(stream, this));
+    source.push(new NmlLexer(stream, this));
+  }
+
+  @Override
+  public void includeTokensFromString(final String substitution) {
+    throw new UnsupportedOperationException();
   }
 
   // /////////////////////////////////////////////////////////////////////////
@@ -130,7 +135,7 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     final CommonTokenStream tokens = new TokenRewriteStream();
     tokens.setTokenSource(source);
 
-    final SimnMLParser parser = new SimnMLParser(tokens);
+    final NmlParser parser = new NmlParser(tokens);
     parser.assignLog(LOG);
     parser.assignSymbols(symbols);
     parser.commonParser.assignLog(LOG);
@@ -147,7 +152,7 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
     nodes.setTokenStream(tokens);
 
     final IR ir = new IR();
-    final SimnMLTreeWalker walker = new SimnMLTreeWalker(nodes);
+    final NmlTreeWalker walker = new NmlTreeWalker(nodes);
 
     walker.assignLog(LOG);
     walker.assignSymbols(symbols);
@@ -203,7 +208,7 @@ public final class DocgenSimnMLAnalyzer implements TokenSourceIncluder {
   }
 
   public static void main(String[] args) throws RecognitionException {
-    final DocgenSimnMLAnalyzer analyzer = new DocgenSimnMLAnalyzer();
+    final DocgenNmlAnalyzer analyzer = new DocgenNmlAnalyzer();
     try {
       analyzer.start(Arrays.asList(args));
     } catch (Exception e) {

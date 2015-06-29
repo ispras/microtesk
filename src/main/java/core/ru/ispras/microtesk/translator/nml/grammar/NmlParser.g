@@ -21,7 +21,7 @@
 /* - "TODO" notes                                                                       */
 /*======================================================================================*/
 
-parser grammar SimnMLParser;
+parser grammar NmlParser;
 
 /*======================================================================================*/
 /* Options                                                                              */
@@ -29,7 +29,7 @@ parser grammar SimnMLParser;
 
 options {
   language=Java;
-  tokenVocab=SimnMLLexer;
+  tokenVocab=NmlLexer;
   output=AST;
   superClass=ParserBase;
   backtrack=true;

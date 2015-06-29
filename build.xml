@@ -187,9 +187,9 @@
   <!-- Target for generating parsers for Sim-nML code from grammars with ANTLR -->
   <property name="nml_grammar.package" value="translator/nml/grammar"/>
   <property name="nml_grammar.path"    value="${main.package}/${nml_grammar.package}"/>
-  <property name="nml_lexer.name"      value="SimnMLLexer.g"/>
-  <property name="nml_parser.name"     value="SimnMLParser.g"/>
-  <property name="nml_walker.name"     value="SimnMLTreeWalker.g"/>
+  <property name="nml_lexer.name"      value="NmlLexer.g"/>
+  <property name="nml_parser.name"     value="NmlParser.g"/>
+  <property name="nml_walker.name"     value="NmlTreeWalker.g"/>
 
   <target name="antlr_nml">
     <antlr3 grammar.name="${nml_lexer.name}"  grammar.path="${nml_grammar.path}"

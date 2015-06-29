@@ -15,11 +15,15 @@
 package ru.ispras.microtesk.translator.nml;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import java.util.Stack;
 
 import org.antlr.runtime.ANTLRFileStream;
+import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RuleReturnScope;
@@ -29,23 +33,24 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
-import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
+import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.nml.generation.Generator;
-import ru.ispras.microtesk.translator.nml.grammar.SimnMLLexer;
-import ru.ispras.microtesk.translator.nml.grammar.SimnMLParser;
-import ru.ispras.microtesk.translator.nml.grammar.SimnMLTreeWalker;
+import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
+import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
+import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
 import ru.ispras.microtesk.translator.nml.ir.IR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
-public final class NmlAnalyzer extends Translator<IR> implements TokenSourceIncluder {
+public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
   private static final Set<String> FILTER = Collections.singleton(".nml");
 
   public NmlAnalyzer() {
@@ -53,13 +58,88 @@ public final class NmlAnalyzer extends Translator<IR> implements TokenSourceIncl
   }
 
   //------------------------------------------------------------------------------------------------
-  // Include file finder
+  // Preprocessor
   //------------------------------------------------------------------------------------------------
 
+  private static enum IfDefScope {
+    IF_TRUE,
+    IF_FALSE,
+    ELSE_TRUE,
+    ELSE_FALSE
+  }
+
   private IncludeFileFinder finder = new IncludeFileFinder();
+  private HashMap<String, String> defines = new LinkedHashMap<>();
+  private Stack<IfDefScope> ifdefs = new Stack<>();
 
   public void addPath(final String path) {
     finder.addPaths(path);
+  }
+
+  public boolean isDefined(final String key) {
+    return defines.containsKey(key.trim());
+  }
+
+  public boolean underIfElse() {
+    return !ifdefs.empty();
+  }
+
+  public boolean isHidden() {
+    if (underIfElse()) {
+      IfDefScope scope = ifdefs.peek();
+      return scope == IfDefScope.IF_FALSE || scope == IfDefScope.ELSE_FALSE;
+    }
+
+    return false;
+  }
+
+  public void onDefine(final String key, final String val) {
+    final int index = val.indexOf("//");
+    final String value = index == -1 ? val : val.substring(0, index);
+
+    defines.put(key.trim(), value.trim());
+  }
+
+  public void onUndef(final String key) {
+    defines.remove(key.trim());
+  }
+
+  public void onIfdef(final String key) {
+    if (isHidden() || !isDefined(key)) {
+      ifdefs.push(IfDefScope.IF_FALSE);
+    } else {
+      ifdefs.push(IfDefScope.IF_TRUE);
+    }
+  }
+
+  public void onIfndef(final String key) {
+    if (isHidden() || isDefined(key)) {
+      ifdefs.push(IfDefScope.IF_FALSE);
+    } else {
+      ifdefs.push(IfDefScope.IF_TRUE);
+    }
+  }
+
+  public void onElse() {
+    InvariantChecks.checkTrue(underIfElse());
+
+    final IfDefScope scope = ifdefs.pop();
+    InvariantChecks.checkTrue(scope == IfDefScope.IF_TRUE || scope == IfDefScope.IF_FALSE);
+
+    if (isHidden() || scope == IfDefScope.IF_TRUE) {
+      ifdefs.push(IfDefScope.ELSE_FALSE);
+    } else {
+      ifdefs.push(IfDefScope.ELSE_TRUE);
+    }
+  }
+
+  public void onEndif() {
+    InvariantChecks.checkTrue(underIfElse());
+    ifdefs.pop();
+  }
+
+  public String expand(final String key) {
+    return defines.get(key.trim());
   }
 
   //------------------------------------------------------------------------------------------------
@@ -76,14 +156,14 @@ public final class NmlAnalyzer extends Translator<IR> implements TokenSourceIncl
 
     // Process the files in reverse order (emulate inclusion).
     while (iterator.hasPrevious()) {
-      includeTokensFrom(iterator.previous());
+      includeTokensFromFile(iterator.previous());
     }
 
     return source;
   }
 
   @Override
-  public void includeTokensFrom(String filename) {
+  public void includeTokensFromFile(String filename) {
     final ANTLRFileStream stream = finder.openFile(filename);
 
     Logger.message("Included: " + filename);
@@ -93,7 +173,15 @@ public final class NmlAnalyzer extends Translator<IR> implements TokenSourceIncl
       return;
     }
 
-    source.push(new SimnMLLexer(stream, this));
+    source.push(new NmlLexer(stream, this));
+  }
+
+  @Override
+  public void includeTokensFromString(final String substitution) {
+    if (substitution != null && !substitution.isEmpty()) {
+      final ANTLRStringStream stream = new ANTLRStringStream(substitution);
+      source.push(new NmlLexer(stream, this));
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -110,7 +198,7 @@ public final class NmlAnalyzer extends Translator<IR> implements TokenSourceIncl
     final CommonTokenStream tokens = new TokenRewriteStream();
     tokens.setTokenSource(source);
 
-    final SimnMLParser parser = new SimnMLParser(tokens);
+    final NmlParser parser = new NmlParser(tokens);
     parser.assignLog(log);
     parser.assignSymbols(symbols);
     parser.commonParser.assignLog(log);
@@ -128,7 +216,7 @@ public final class NmlAnalyzer extends Translator<IR> implements TokenSourceIncl
       nodes.setTokenStream(tokens);
 
       final IR ir = new IR();
-      final SimnMLTreeWalker walker = new SimnMLTreeWalker(nodes);
+      final NmlTreeWalker walker = new NmlTreeWalker(nodes);
 
       walker.assignLog(log);
       walker.assignSymbols(symbols);

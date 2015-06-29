@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-public interface TokenSourceIncluder {
-  void includeTokensFrom(String fileName);
+public interface Preprocessor {
+  void includeTokensFromFile(String fileName);
+  void includeTokensFromString(String substitution);
 }

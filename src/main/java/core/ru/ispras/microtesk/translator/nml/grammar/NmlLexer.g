@@ -12,7 +12,7 @@
  * the License.
  */
 
-lexer grammar SimnMLLexer;
+lexer grammar NmlLexer;
 
 options {
   language=Java;
@@ -39,15 +39,15 @@ import CommonLexer;
 
 package ru.ispras.microtesk.translator.nml.grammar;
 
-import ru.ispras.microtesk.translator.antlrex.TokenSourceIncluder;
+import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 }
 
 @members {
-private TokenSourceIncluder includer;
+private Preprocessor preprocessor;
 
-public SimnMLLexer(CharStream chars, TokenSourceIncluder includer) {
+public NmlLexer(final CharStream chars, final Preprocessor preprocessor) {
   this(chars);
-  this.includer = includer;
+  this.preprocessor = preprocessor;
 }}
 
 //==================================================================================================
@@ -55,7 +55,7 @@ public SimnMLLexer(CharStream chars, TokenSourceIncluder includer) {
 //==================================================================================================
 
 PP_INCLUDE : 'include' WHITESPACE '"' filename=PP_FILENAME '"' (WHITESPACE)? NEWLINE {
-includer.includeTokensFrom($filename.getText());
+preprocessor.includeTokensFromFile($filename.getText());
 skip();
 };
 

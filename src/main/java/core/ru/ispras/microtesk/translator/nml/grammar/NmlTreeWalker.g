@@ -21,7 +21,7 @@
 /* - "TODO" notes                                                                       */     
 /*======================================================================================*/
 
-tree grammar SimnMLTreeWalker;
+tree grammar NmlTreeWalker;
 
 /*======================================================================================*/
 /* Options                                                                              */
@@ -29,7 +29,7 @@ tree grammar SimnMLTreeWalker;
 
 options {
   language=Java;
-  tokenVocab=SimnMLParser;
+  tokenVocab=NmlParser;
   ASTLabelType=CommonTree;
   superClass=SimnMLTreeWalkerBase;
 }
