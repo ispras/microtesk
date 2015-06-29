@@ -47,12 +47,13 @@ public final class Instruction extends Operation
                 Instruction.class.getSimpleName(),
                 true,
                 new ParamDecls()
-                    .declareParam("x", Arith_Mem_Inst.INFO)
+                    .declareParam("x", Arith_Mem_Inst.INFO),
+                false
             );
         }
 
         @Override
-        public IOperation create(Map<String, Object> args)
+        public IOperation create(final Map<String, Object> args)
         {
             final IOperation x = (IOperation) getArgument("x", args);
             return new Instruction(x);
@@ -63,7 +64,7 @@ public final class Instruction extends Operation
 
     private final IOperation x;
 
-    public Instruction(IOperation x)
+    public Instruction(final IOperation x)
     {
         assert Arith_Mem_Inst.INFO.isSupported(x);
         this.x = x;

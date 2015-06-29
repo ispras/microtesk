@@ -307,6 +307,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         final String name,
         final boolean isRoot,
         final ParamDecls decls,
+        final boolean canThrowException,
         final Shortcuts shortcuts) {
       this.opClass = opClass;
       this.name = name;
@@ -319,7 +320,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         opClass.getSimpleName(),
         isRoot(),
         decls.getMetaData(),
-        shortcuts.getMetaData()
+        shortcuts.getMetaData(),
+        canThrowException
         );
     }
 
@@ -327,8 +329,9 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         final Class<?> opClass,
         final String name,
         final boolean isRoot,
-        final ParamDecls decls) {
-      this(opClass, name, isRoot, decls, new Shortcuts());
+        final ParamDecls decls,
+        final boolean canThrowException) {
+      this(opClass, name, isRoot, decls, canThrowException, new Shortcuts());
     }
 
     @Override

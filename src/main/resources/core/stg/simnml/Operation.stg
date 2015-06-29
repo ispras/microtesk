@@ -55,7 +55,8 @@ Info()
        <name>.class,
        "<name>",
        <is_root>,
-       <new_op_decls(arg_names, arg_tnames)><if(shortcut_defs)>,
+       <new_op_decls(arg_names, arg_tnames)>,
+       false<if(shortcut_defs)>,
        new Shortcuts()
            <shortcut_defs; separator="\n">
        <endif>
@@ -103,7 +104,8 @@ shortcut_body(name, is_root, entry, arg_names, arg_tnames, arg_types, op_tree) :
         <entry>.class,
         "<name>",
         <is_root>,
-        <new_op_decls(arg_names, arg_tnames)>
+        <new_op_decls(arg_names, arg_tnames)>,
+        false
     );
 }<\n>
 @Override

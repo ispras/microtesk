@@ -59,13 +59,14 @@ public class Sub extends Operation
                 Sub.class.getSimpleName(),
                 false,
                 new ParamDecls(),
+                false,
                 new Shortcuts()
                     .addShortcut(new Info_Instruction(), "#root")
             );
         }
 
         @Override
-        public IOperation create(Map<String, Object> args)
+        public IOperation create(final Map<String, Object> args)
         {
             return new Sub();
         }
@@ -82,12 +83,13 @@ public class Sub extends Operation
                true,
                new ParamDecls()
                    .declareParam("op1", ArgumentMode.NA, OPRNDL.INFO)
-                   .declareParam("op2", ArgumentMode.NA, OPRNDR.INFO)
+                   .declareParam("op2", ArgumentMode.NA, OPRNDR.INFO),
+               false
             );
         }
 
         @Override
-        public IOperation create(Map<String, Object> args)
+        public IOperation create(final Map<String, Object> args)
         {
             final IAddressingMode op1 = (IAddressingMode) getArgument("op1", args);
             final IAddressingMode op2 = (IAddressingMode) getArgument("op2", args);
