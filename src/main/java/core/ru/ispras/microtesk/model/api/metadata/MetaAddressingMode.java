@@ -31,6 +31,7 @@ public final class MetaAddressingMode implements MetaData {
   private final String name;
   private final Type dataType;
   private final Map<String, MetaArgument> args;
+  private final boolean exception;
 
   /**
    * Constructs a metadata object for an addressing mode.
@@ -38,6 +39,8 @@ public final class MetaAddressingMode implements MetaData {
    * @param name Addressing mode name.
    * @param dataType the type of data accessed via the addressing mode.
    * @param argumentNames Argument names.
+   * @param exception {@code true} if the addressing mode can throw an
+   *        exception or {@code false} otherwise.
    * 
    * @throws IllegalArgumentException if any of the parameters is {@code null}.
    */
@@ -45,13 +48,15 @@ public final class MetaAddressingMode implements MetaData {
   public MetaAddressingMode(
       final String name,
       final Type dataType,
-      final Map<String, MetaArgument> args) {
+      final Map<String, MetaArgument> args,
+      final boolean exception) {
     checkNotNull(name);
     checkNotNull(args);
 
     this.name = name;
     this.dataType = dataType;
     this.args = args;
+    this.exception = exception;
   }
 
   /**
@@ -116,6 +121,17 @@ public final class MetaAddressingMode implements MetaData {
 
   public boolean isArgumentDefined(final String name) {
     return args.containsKey(name);
+  }
+
+  /**
+   * Checks whether the addressing mode (its attributes) can throw an exception.
+   *  
+   * @return {@code true} if the addressing mode can throw an exception
+   * or {@code false} otherwise.
+   */
+
+  public boolean canThrowException() {
+    return exception;
   }
 
   @Override

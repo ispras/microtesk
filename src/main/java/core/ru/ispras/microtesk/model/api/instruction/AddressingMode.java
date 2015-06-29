@@ -142,7 +142,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         args.put(argName, arg);
       }
 
-      return new MetaAddressingMode(name, dataType, args);
+      return new MetaAddressingMode(name, dataType, args, false);
     }
 
     @Override
