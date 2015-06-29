@@ -23,18 +23,17 @@ import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
 public final class PCAnalyzer {
   private final LocationFactory locationFactory;
-  private final IR ir;
+  private final IrInquirer inquirer;
 
   private final List<LocationAtom> destLocations;
   private List<LocationAtom> srcLocations;
 
   public PCAnalyzer(LocationFactory locationFactory, IR ir) {
     this.locationFactory = locationFactory;
-    this.ir = ir;
+    this.inquirer = new IrInquirer(ir);
 
     this.destLocations = new ArrayList<LocationAtom>();
     this.locationFactory.setLog(destLocations);
@@ -61,7 +60,8 @@ public final class PCAnalyzer {
         return 1;
       }
 
-      if (location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY && !isPC(location)) {
+      if (location.getSource().getSymbolKind() == ESymbolKind.MEMORY &&
+          !inquirer.isPC(location)) {
         return 1;
       }
     }
@@ -75,71 +75,11 @@ public final class PCAnalyzer {
 
   private boolean isPCAssignment() {
     for (LocationAtom location : destLocations) {
-      if (isPC(location)) {
+      if (inquirer.isPC(location)) {
         return true;
       }
     }
 
     return false;
-  }
-
-  private boolean isPC(LocationAtom location) {
-    if (null == location) {
-      throw new NullPointerException(); 
-    }
-
-    if (!isRegisterLocation(location)) {
-      return false;
-    }
-
-    if (isExplicitPCAccess(location)) {
-      return true;
-    }
-
-    return isLabelledAsPC(location);
-  }
-
-  private boolean isRegisterLocation(LocationAtom location) {
-    if (location.getSource().getSymbolKind() != NmlSymbolKind.MEMORY) {
-      return false;
-    }
-
-    assert location.getSource() instanceof LocationAtom.MemorySource;
-
-    final MemoryExpr memory = ((LocationAtom.MemorySource) location.getSource()).getMemory();
-    if (memory.getKind() != Memory.Kind.REG) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private boolean isExplicitPCAccess(LocationAtom location) {
-    return location.getName().equals("PC");
-  }
-
-  private boolean isLabelledAsPC(LocationAtom location) {
-    if (!ir.getLabels().containsKey("PC")) {
-      return false;
-    }
-
-    final LetLabel label = ir.getLabels().get("PC");
-    if (!label.getMemoryName().equals(location.getName())) {
-      return false;
-    }
-
-    final int locationIndex;
-
-    final Expr indexExpr = location.getIndex();
-    if (null != indexExpr) {
-      if (!indexExpr.getValueInfo().isConstant()) {
-        return false;
-      }
-      locationIndex = indexExpr.integerValue();
-    } else {
-      locationIndex = 0;
-    }
-
-    return label.getIndex() == locationIndex;
   }
 }
