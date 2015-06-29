@@ -310,43 +310,46 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     // Data stream is not used if the trace is empty or consists of one execution.
     boolean streamUsed = false;
 
-    for (int i = 0; i < branchTrace.size(); i++) {
-      final BranchExecution execution = branchTrace.get(i);
-      final boolean branchCondition = execution.value();
+    // There is no need to construct the control code if the branch condition does not change.
+    if (branchTrace.getChangeNumber() > 0) {
+      for (int i = 0; i < branchTrace.size(); i++) {
+        final BranchExecution execution = branchTrace.get(i);
+        final boolean branchCondition = execution.value();
 
-      // Count defines how many times the control code is executed before calling the branch.
-      final int count = controlCodeInBasicBlock ?
-          execution.getBlockCoverageCount() : execution.getSlotCoverageCount();
+        // Count defines how many times the control code is executed before calling the branch.
+        final int count = controlCodeInBasicBlock ?
+            execution.getBlockCoverageCount() : execution.getSlotCoverageCount();
 
-      if(i == 0 && count > 0) {
-        initNeeded = false;
-      }
-
-      for (int j = 0; j < count; j++) {
-        // Data stream should be initialized before the first write. 
-        if (!streamUsed) {
-          final String testDataStream = getTestDataStream(abstractBranchCall);
-          final List<Call> initDataStream = makeStreamInit(engineContext, testDataStream);
-
-          updatePrologue(engineContext, testSequenceBuilder, initDataStream);
-          streamUsed = true;
+        if(i == 0 && count > 0) {
+          initNeeded = false;
         }
 
-        updatePrologue(
-            engineContext,
-            testSequenceBuilder,
-            abstractBranchCall,
-            branchCondition,
-            true /* Write into the stream */);
+        for (int j = 0; j < count; j++) {
+          // Data stream should be initialized before the first write. 
+          if (!streamUsed) {
+            final String testDataStream = getTestDataStream(abstractBranchCall);
+            final List<Call> initDataStream = makeStreamInit(engineContext, testDataStream);
+
+            updatePrologue(engineContext, testSequenceBuilder, initDataStream);
+            streamUsed = true;
+          }
+
+          updatePrologue(
+              engineContext,
+              testSequenceBuilder,
+              abstractBranchCall,
+              branchCondition,
+              true /* Write into the stream */);
+        }
       }
-    }
 
-    // Initialize the data stream if it was used. 
-    if (streamUsed) {
-      final String testDataStream = getTestDataStream(abstractBranchCall);
-      final List<Call> initDataStream = makeStreamInit(engineContext, testDataStream);
+      // Initialize the data stream if it was used. 
+      if (streamUsed) {
+        final String testDataStream = getTestDataStream(abstractBranchCall);
+        final List<Call> initDataStream = makeStreamInit(engineContext, testDataStream);
 
-      updatePrologue(engineContext, testSequenceBuilder, initDataStream);
+        updatePrologue(engineContext, testSequenceBuilder, initDataStream);
+      }
     }
 
     // Initialize the registers if it is needed. 
