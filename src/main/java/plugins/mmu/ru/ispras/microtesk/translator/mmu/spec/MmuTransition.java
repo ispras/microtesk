@@ -40,7 +40,7 @@ public final class MmuTransition {
    * 
    * @param source the source action.
    * @param target the target action.
-   * @param guard the guard condition.
+   * @param guard the guard condition or {@code null}.
    */
   public MmuTransition(final MmuAction source, final MmuAction target, final MmuGuard guard) {
     InvariantChecks.checkNotNull(source);
