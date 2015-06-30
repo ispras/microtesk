@@ -42,6 +42,7 @@ import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
+import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.generation.Generator;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
@@ -266,9 +267,8 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
 
     processIr(ir);
 
-    final ru.ispras.microtesk.translator.nml.coverage.Analyzer analyzer =
-        new ru.ispras.microtesk.translator.nml.coverage.Analyzer(ir, modelName);
-    analyzer.generateOutput(this.getOutDir());
+    final Analyzer coverageAnalyzer = new Analyzer(ir, modelName);
+    coverageAnalyzer.generateOutput(this.getOutDir());
 
     final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
         ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());
