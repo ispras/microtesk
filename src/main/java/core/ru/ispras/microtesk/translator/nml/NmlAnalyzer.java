@@ -231,7 +231,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
 
       walker.startRule();
       return ir;
-    } catch (RecognitionException re) {
+    } catch (final RecognitionException re) {
       return null;
     }
   }
