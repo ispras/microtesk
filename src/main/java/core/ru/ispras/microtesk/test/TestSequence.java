@@ -56,6 +56,12 @@ public final class TestSequence {
       }
     }
 
+    public void addToPrologue(final List<ConcreteCall> calls) {
+      for (final ConcreteCall call : calls) {
+        addToPrologue(call);
+      }
+    }
+
     public void add(final ConcreteCall call) {
       checkNotNull(call);
       body.add(call);
@@ -63,6 +69,12 @@ public final class TestSequence {
 
       if (call.isExecutable()) {
         instructionCount++;
+      }
+    }
+
+    public void add(final List<ConcreteCall> calls) {
+      for (final ConcreteCall call : calls) {
+        add(call);
       }
     }
 
