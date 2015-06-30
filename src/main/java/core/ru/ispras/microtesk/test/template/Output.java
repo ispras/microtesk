@@ -189,11 +189,11 @@ public final class Output {
    */
 
   public String evaluate(final IModelStateObserver observer) throws ConfigurationException {
-    checkNotNull(observer);
-
     if (args.isEmpty()) {
       return format;
     }
+
+    checkNotNull(observer);
 
     final List<Object> values = new ArrayList<Object>(args.size());
     for (Argument argument : args) {
