@@ -134,7 +134,7 @@ public final class Output {
    * @param args Format arguments.
    */
 
-  Output(
+  public Output(
       final boolean isRuntime,
       final boolean isComment,
       final String format,
@@ -155,7 +155,7 @@ public final class Output {
    * @param format Format string.
    */
 
-  Output(final boolean isRuntime, final boolean isComment, final String format) {
+  public Output(final boolean isRuntime, final boolean isComment, final String format) {
     this(isRuntime, isComment, format, Collections.<Argument>emptyList());
   }
 

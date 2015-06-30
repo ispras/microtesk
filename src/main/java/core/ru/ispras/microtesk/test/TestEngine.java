@@ -447,7 +447,7 @@ public final class TestEngine {
       Logger.debugHeader("Ended Processing Template");
     }
 
-    private void processBlock(Block block) throws ConfigurationException {
+    private void processBlock(final Block block) throws ConfigurationException {
       final Iterator<List<Call>> sequenceIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
@@ -589,8 +589,9 @@ public final class TestEngine {
       } // Abstract sequence iterator
     }
 
-    private void processPreOrPostBlock(Block block) throws ConfigurationException {
+    private void processPreOrPostBlock(final Block block) throws ConfigurationException {
       InvariantChecks.checkTrue(block.isSingle());
+
       final Iterator<List<Call>> sequenceIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
