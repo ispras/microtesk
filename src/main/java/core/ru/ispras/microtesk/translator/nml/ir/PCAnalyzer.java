@@ -28,11 +28,11 @@ public final class PCAnalyzer {
   private final List<LocationAtom> destLocations;
   private List<LocationAtom> srcLocations;
 
-  public PCAnalyzer(LocationFactory locationFactory, Ir ir) {
+  public PCAnalyzer(final LocationFactory locationFactory, final Ir ir) {
     this.locationFactory = locationFactory;
     this.inquirer = new IrInquirer(ir);
 
-    this.destLocations = new ArrayList<LocationAtom>();
+    this.destLocations = new ArrayList<>();
     this.locationFactory.setLog(destLocations);
 
     this.srcLocations = null;
@@ -43,7 +43,7 @@ public final class PCAnalyzer {
       return;
     }
 
-    srcLocations = new ArrayList<LocationAtom>();
+    srcLocations = new ArrayList<>();
     locationFactory.setLog(srcLocations);
   }
 
@@ -71,7 +71,7 @@ public final class PCAnalyzer {
   }
 
   private boolean isPCAssignment() {
-    for (LocationAtom location : destLocations) {
+    for (final LocationAtom location : destLocations) {
       if (inquirer.isPC(location)) {
         return true;
       }
