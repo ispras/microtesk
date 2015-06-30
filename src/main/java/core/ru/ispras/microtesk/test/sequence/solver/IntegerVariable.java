@@ -43,6 +43,11 @@ public final class IntegerVariable {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkGreaterThanZero(width);
 
+    if (value != null) {
+      InvariantChecks.checkTrue(value.compareTo(BigInteger.valueOf(0)) >= 0);
+      InvariantChecks.checkTrue(value.compareTo(BigInteger.ONE.shiftLeft(width - 1)) <= 0);
+    }
+
     this.name = name;
     this.width = width;
     this.value = value;

@@ -95,13 +95,11 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
     // Handle the OR case.
     if (clause.getType() == IntegerClause.Type.OR) {
       for (final IntegerEquation equation : clause.getEquations()) {
-        final IntegerClause variant =
-            new IntegerClause(IntegerClause.Type.AND);
+        final IntegerClause variant = new IntegerClause(IntegerClause.Type.AND);
 
         variant.addEquation(equation);
 
-        final IntegerClauseSolver solver =
-            new IntegerClauseSolver(variables, variant);
+        final IntegerClauseSolver solver =  new IntegerClauseSolver(variables, variant);
 
         if (solver.solve().getStatus() == SolverResult.Status.SAT) {
           return new SolverResult<>(true);
@@ -169,7 +167,13 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
    * @param variable the variable to be added.
    */
   private void addVariable(final IntegerVariable variable) {
-    domains.put(variable, new IntegerDomain(variable.getWidth()));
+    InvariantChecks.checkNotNull(variable);
+
+    if (variable.isDefined()) {
+      domains.put(variable, new IntegerDomain(variable.getValue()));
+    } else {
+      domains.put(variable, new IntegerDomain(variable.getWidth()));
+    }
   }
 
   /**
@@ -178,26 +182,33 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
    * @param equation the equation to be added.
    */
   private void addEquation(final IntegerEquation equation) {
-    if (equation.value) {
-      final IntegerDomain domain = domains.get(equation.lhs);
+    InvariantChecks.checkNotNull(equation);
 
-      if (domain == null) {
+    if (equation.value) {
+      // Constraint X == CONST or X != CONST.
+      final IntegerDomain lhsDomain = domains.get(equation.lhs);
+
+      if (lhsDomain == null) {
         throw new IllegalStateException("The variable has not been declared");
       }
 
       if (equation.equal) {
         // Equality (var == val): restricts the domain to the single value.
-        domain.intersect(new IntegerRange(equation.val));
+        lhsDomain.intersect(new IntegerRange(equation.val));
       } else {
         // Inequality (var != val): exclude the value from the domain.
-        domain.exclude(new IntegerRange(equation.val));
+        lhsDomain.exclude(new IntegerRange(equation.val));
       }
     } else {
+      // Constraint X == Y or X != Y.
       if (equation.lhs.equals(equation.rhs)) {
         throw new IllegalArgumentException("The LHS variable is equal to the RHS variable");
       }
 
-      if (!domains.containsKey(equation.lhs) || !domains.containsKey(equation.rhs)) {
+      final IntegerDomain lhsDomain = domains.get(equation.lhs);
+      final IntegerDomain rhsDomain = domains.get(equation.rhs);
+
+      if (lhsDomain == null || rhsDomain == null) {
         throw new IllegalStateException("The variable has not been declared");
       }
 
