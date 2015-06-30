@@ -30,36 +30,36 @@ import ru.ispras.microtesk.translator.antlrex.log.LogStoreListener;
 public abstract class TranslatorTest<Ir> {
 
   private final class LogChecker extends LogStoreListener {
-    public LogChecker(LogStore log) {
+    public LogChecker(final LogStore log) {
       super(log);
     }
 
     @Override
-    protected void processLogEntry(LogEntry entry) {
+    protected void processLogEntry(final LogEntry entry) {
       checkLogEntry(entry);
     }
   }
 
   private final class IrChecker implements TranslatorHandler<Ir> {
     @Override
-    public void processIr(Ir ir) {
+    public void processIr(final Ir ir) {
       checkIr(ir);
     }
   }
 
   private final IrChecker irChecker = new IrChecker(); 
 
-  protected void checkLogEntry(LogEntry entry) {
+  protected void checkLogEntry(final LogEntry entry) {
     fail(entry.toString());
   }
 
-  protected void checkIr(Ir ir) {
+  protected void checkIr(final Ir ir) {
     System.out.println(ir);
   }
 
   protected void translate(
       final Translator<Ir> translator,
-      final String ... fileNames) {
+      final String... fileNames) {
     translator.setLog(new LogChecker(translator.getLog()));
     translator.addHandler(irChecker);
     translator.start(fileNames);
