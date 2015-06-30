@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 
@@ -21,16 +22,11 @@ public final class StatementAssignment extends Statement {
   private final Location left;
   private final Expr right;
 
-  StatementAssignment(Location left, Expr right) {
+  StatementAssignment(final Location left, final Expr right) {
     super(Kind.ASSIGN);
 
-    if (null == left) {
-      throw new NullPointerException();
-    }
-
-    if (null == right) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(left);
+    InvariantChecks.checkNotNull(right);
 
     this.left = left;
     this.right = right;
