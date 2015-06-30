@@ -60,8 +60,8 @@ public final class AttributeFactory extends WalkerFactoryBase {
 
   private static boolean isException(final Statement stmt) {
     if (stmt.getKind() == Statement.Kind.FUNCALL) {
-      final StatementFunctionCall callStmt = (StatementFunctionCall) stmt;
-      return "exception".equals(callStmt.getName());
+      final StatementFunctionCall funCallStmt = (StatementFunctionCall) stmt;
+      return "exception".equals(funCallStmt.getName());
     }
 
     if (stmt.getKind() == Statement.Kind.COND) {
@@ -71,6 +71,25 @@ public final class AttributeFactory extends WalkerFactoryBase {
           return true;
         }
       }
+      return false;
+    }
+
+    if (stmt.getKind() == Statement.Kind.CALL) {
+      final StatementAttributeCall attrCallStmt = (StatementAttributeCall) stmt;
+
+      if (null != attrCallStmt.getCalleeInstance()) {
+        final PrimitiveAND calleeObject =
+            attrCallStmt.getCalleeInstance().getPrimitive();
+
+        final Attribute calleeAttribute =
+            calleeObject.getAttributes().get(attrCallStmt.getAttributeName());
+
+        if (calleeAttribute.canThrowException()) {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     return false;
