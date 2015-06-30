@@ -47,11 +47,11 @@ import ru.ispras.microtesk.translator.nml.generation.Generator;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
 import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
-public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
+public final class NmlAnalyzer extends Translator<Ir> implements Preprocessor {
   private static final Set<String> FILTER = Collections.singleton(".nml");
 
   public NmlAnalyzer() {
@@ -195,7 +195,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
   // Parser
   //------------------------------------------------------------------------------------------------
 
-  private IR startParserAndWalker(final TokenSource source) {// throws RecognitionException {
+  private Ir startParserAndWalker(final TokenSource source) {// throws RecognitionException {
     final LogStore log = getLog();
     final SymbolTable symbols = new SymbolTable();
 
@@ -222,7 +222,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
       final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
       nodes.setTokenStream(tokens);
 
-      final IR ir = new IR();
+      final Ir ir = new Ir();
       final NmlTreeWalker walker = new NmlTreeWalker(nodes);
 
       walker.assignLog(log);
@@ -240,7 +240,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
   // Generator
   //------------------------------------------------------------------------------------------------
 
-  private void startGenerator(final String modelName, final String fileName, final IR ir) {
+  private void startGenerator(final String modelName, final String fileName, final Ir ir) {
     final Generator generator = new Generator(getOutDir() + "/src/java", modelName, fileName, ir);
     generator.generate();
   }
@@ -263,7 +263,7 @@ public final class NmlAnalyzer extends Translator<IR> implements Preprocessor {
     Logger.message("Model name: " + modelName);
 
     final TokenSource source = startLexer(filenames);
-    final IR ir = startParserAndWalker(source);
+    final Ir ir = startParserAndWalker(source);
 
     processIr(ir);
 

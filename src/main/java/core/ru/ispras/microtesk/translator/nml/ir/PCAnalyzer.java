@@ -28,7 +28,7 @@ public final class PCAnalyzer {
   private final List<LocationAtom> destLocations;
   private List<LocationAtom> srcLocations;
 
-  public PCAnalyzer(LocationFactory locationFactory, IR ir) {
+  public PCAnalyzer(LocationFactory locationFactory, Ir ir) {
     this.locationFactory = locationFactory;
     this.inquirer = new IrInquirer(ir);
 

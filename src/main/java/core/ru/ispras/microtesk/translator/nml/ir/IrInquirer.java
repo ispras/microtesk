@@ -26,9 +26,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 public final class IrInquirer {
   private static final String PC_LABEL = "PC";
 
-  private final IR ir;
+  private final Ir ir;
 
-  public IrInquirer(final IR ir) {
+  public IrInquirer(final Ir ir) {
     checkNotNull(ir);
 
     this.ir = ir;

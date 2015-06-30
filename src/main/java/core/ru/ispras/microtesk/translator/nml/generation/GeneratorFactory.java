@@ -23,7 +23,7 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.getSharedFil
 import ru.ispras.microtesk.translator.generation.ClassGenerator;
 import ru.ispras.microtesk.translator.generation.IClassGenerator;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
@@ -38,7 +38,7 @@ final class GeneratorFactory {
     this.modelName = modelName.toLowerCase();
   }
 
-  public IClassGenerator createModelGenerator(IR ir) {
+  public IClassGenerator createModelGenerator(Ir ir) {
     final String outputFileName = String.format(getModelFileFormat(outDir), modelName);
 
     final String[] templateGroups = new String[] { 
@@ -50,7 +50,7 @@ final class GeneratorFactory {
     return new ClassGenerator(outputFileName, templateGroups, modelBuilder);
   }
 
-  public IClassGenerator createSharedGenerator(IR ir) {
+  public IClassGenerator createSharedGenerator(Ir ir) {
     final String outputFileName = String.format(getSharedFileFormat(outDir), modelName);
 
     final String[] templateGroups = new String[] {

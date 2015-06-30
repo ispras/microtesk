@@ -31,7 +31,7 @@ import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
@@ -41,9 +41,9 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 final class STBShared implements ITemplateBuilder {
   public final String specFileName;
   public final String modelName;
-  public final IR ir;
+  public final Ir ir;
 
-  public STBShared(IR ir, String specFileName, String modelName) {
+  public STBShared(Ir ir, String specFileName, String modelName) {
     this.specFileName = specFileName;
     this.modelName = modelName;
     this.ir = ir;

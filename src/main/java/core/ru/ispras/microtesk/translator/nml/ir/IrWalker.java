@@ -44,11 +44,11 @@ public final class IrWalker {
     TREE
   }
 
-  private final IR ir;
+  private final Ir ir;
   private final Direction direction;
   private IrVisitor visitor;
 
-  public IrWalker(IR ir, Direction direction) {
+  public IrWalker(Ir ir, Direction direction) {
     checkNotNull(ir);
     checkNotNull(direction);
 

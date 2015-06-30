@@ -28,7 +28,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
-public final class IR {
+public final class Ir {
   private final Map<String, LetConstant> consts;
   private final Map<String, LetString> strings;
   private final Map<String, LetLabel> labels;
@@ -38,7 +38,7 @@ public final class IR {
   private final Map<String, Primitive> ops;
   private List<Primitive> roots;
 
-  public IR() {
+  public Ir() {
     this.consts = new LinkedHashMap<String, LetConstant>();
     this.strings = new LinkedHashMap<String, LetString>();
 

@@ -22,7 +22,7 @@ import org.antlr.runtime.tree.TreeNodeStream;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.expression.ExprFactory;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.AttributeFactory;
@@ -34,7 +34,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExprFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.TypeFactory;
 
 public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
-  private IR ir;
+  private Ir ir;
   private Map<String, Primitive> thisArgs;
   private Primitive.Holder thisPrimitive;
 
@@ -53,12 +53,12 @@ public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
     return this;
   }
 
-  public final void assignIR(final IR ir) {
+  public final void assignIR(final Ir ir) {
     this.ir = ir;
   }
 
   @Override
-  public final IR getIR() {
+  public final Ir getIR() {
     return ir;
   }
 

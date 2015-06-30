@@ -31,18 +31,18 @@ import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 final class STBModel implements ITemplateBuilder {
   private final String specFileName;
   private final String modelName;
-  private final IR ir;
+  private final Ir ir;
 
   public STBModel(
       final String specFileName,
       final String modelName,
-      final IR ir) {
+      final Ir ir) {
     this.specFileName = specFileName;
     this.modelName = modelName;
     this.ir = ir;

@@ -17,16 +17,16 @@ package ru.ispras.microtesk.translator.nml.generation;
 import java.io.IOException;
 
 import ru.ispras.microtesk.translator.generation.IClassGenerator;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
 public final class Generator {
   private final GeneratorFactory factory;
-  private final IR ir;
+  private final Ir ir;
 
-  public Generator(String outDir, String modelName, String specFileName, IR ir) {
+  public Generator(String outDir, String modelName, String specFileName, Ir ir) {
     this.factory = new GeneratorFactory(outDir, modelName, specFileName);
     this.ir = ir;
   }

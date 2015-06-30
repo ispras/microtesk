@@ -18,13 +18,13 @@ import java.util.Map;
 
 import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 public interface WalkerContext {
   public ErrorReporter getReporter();
   public SymbolTable getSymbols();
-  public IR getIR();
+  public Ir getIR();
   public Map<String, Primitive> getThisArgs();
   public Primitive.Holder getThis();
 }

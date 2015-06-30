@@ -42,7 +42,7 @@ import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
 import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker.Direction;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
@@ -176,7 +176,7 @@ public final class DocgenNmlAnalyzer implements Preprocessor {
   // Parser
   // /////////////////////////////////////////////////////////////////////////
 
-  public IR startParserAndWalker(TokenSource source) throws RecognitionException {
+  public Ir startParserAndWalker(TokenSource source) throws RecognitionException {
     final SymbolTable symbols = new SymbolTable();
 
     symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
@@ -201,7 +201,7 @@ public final class DocgenNmlAnalyzer implements Preprocessor {
     final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
     nodes.setTokenStream(tokens);
 
-    final IR ir = new IR();
+    final Ir ir = new Ir();
     final NmlTreeWalker walker = new NmlTreeWalker(nodes);
 
     walker.assignLog(LOG);
@@ -229,7 +229,7 @@ public final class DocgenNmlAnalyzer implements Preprocessor {
     System.out.println("Model name: " + modelName);
 
     final TokenSource source = startLexer(filenames);
-    final IR ir = startParserAndWalker(source);
+    final Ir ir = startParserAndWalker(source);
 
     final PrimitiveSyntesizer primitiveSyntesizer =
         new PrimitiveSyntesizer(ir.getOps().values(), getShortFileName(fileName), LOG);

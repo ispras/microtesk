@@ -17,9 +17,9 @@ package ru.ispras.microtesk.translator.nml;
 import org.junit.Test;
 
 import ru.ispras.microtesk.translator.TranslatorTest;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 
-public class GeneralTestCase extends TranslatorTest<IR> {
+public class GeneralTestCase extends TranslatorTest<Ir> {
   @Test
   public void test() {
     final NmlAnalyzer analyzer = new NmlAnalyzer();

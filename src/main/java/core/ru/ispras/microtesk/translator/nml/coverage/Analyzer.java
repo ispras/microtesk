@@ -29,7 +29,7 @@ import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
 import ru.ispras.fortress.solver.xml.XMLNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.translator.nml.ir.IR;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -40,12 +40,12 @@ import ru.ispras.microtesk.utils.FileUtils;
  * Class for model code coverage extraction from internal representation.
  */
 public final class Analyzer {
-  private final IR ir;
+  private final Ir ir;
   private final IrInquirer inquirer;
   private final Map<String, SsaForm> ssa;
   private final String modelName;
 
-  public Analyzer(final IR ir, final String modelName) {
+  public Analyzer(final Ir ir, final String modelName) {
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(modelName);
 
