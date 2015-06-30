@@ -19,6 +19,7 @@ import java.util.Map;
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.TreeNodeStream;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.nml.ir.IR;
@@ -32,12 +33,14 @@ import ru.ispras.microtesk.translator.nml.ir.shared.LetFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExprFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.TypeFactory;
 
-public class SimnMLTreeWalkerBase extends TreeParserBase implements WalkerContext {
+public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
   private IR ir;
   private Map<String, Primitive> thisArgs;
   private Primitive.Holder thisPrimitive;
 
-  public SimnMLTreeWalkerBase(TreeNodeStream input, RecognizerSharedState state) {
+  public NmlTreeWalkerBase(
+      final TreeNodeStream input,
+      final RecognizerSharedState state) {
     super(input, state);
 
     this.ir = null;
@@ -50,7 +53,7 @@ public class SimnMLTreeWalkerBase extends TreeParserBase implements WalkerContex
     return this;
   }
 
-  public final void assignIR(IR ir) {
+  public final void assignIR(final IR ir) {
     this.ir = ir;
   }
 
@@ -59,11 +62,8 @@ public class SimnMLTreeWalkerBase extends TreeParserBase implements WalkerContex
     return ir;
   }
 
-  protected final void setThisArgs(Map<String, Primitive> value) {
-    if (null == value) {
-      throw new NullPointerException();
-    }
-
+  protected final void setThisArgs(final Map<String, Primitive> value) {
+    InvariantChecks.checkNotNull(value);
     this.thisArgs = value;
   }
 
@@ -81,7 +81,7 @@ public class SimnMLTreeWalkerBase extends TreeParserBase implements WalkerContex
     thisPrimitive = new Primitive.Holder();
   }
 
-  protected final void finalizeThis(Primitive value) {
+  protected final void finalizeThis(final Primitive value) {
     assert null != thisPrimitive;
     thisPrimitive.setValue(value);
     thisPrimitive = null;

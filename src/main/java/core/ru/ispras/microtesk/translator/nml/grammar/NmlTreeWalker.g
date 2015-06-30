@@ -31,7 +31,7 @@ options {
   language=Java;
   tokenVocab=NmlParser;
   ASTLabelType=CommonTree;
-  superClass=SimnMLTreeWalkerBase;
+  superClass=NmlTreeWalkerBase;
 }
 
 @rulecatch {
@@ -47,7 +47,7 @@ catch (RecognitionException re) { // Default behavior
 
 @header {
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -73,7 +73,7 @@ import java.util.LinkedHashMap;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
 
-import ru.ispras.microtesk.translator.nml.antlrex.SimnMLTreeWalkerBase;
+import ru.ispras.microtesk.translator.nml.antlrex.NmlTreeWalkerBase;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.model.api.memory.Memory;
 
