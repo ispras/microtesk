@@ -88,6 +88,9 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
       final List<Call> abstractSequence) {
     // Solver may modify the abstract sequence.
     final List<Call> abstractSequenceCopy = Call.newCopy(abstractSequence);
+
+    Memory.setUseTempCopies(true);
+
     return engine.solve(engineContext, abstractSequenceCopy);
   }
 
