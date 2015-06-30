@@ -78,6 +78,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     private final String name;
     private final Type type;
     private final Map<String, Type> decls;
+    private final boolean exception;
 
     private MetaAddressingMode metaData;
 
@@ -85,12 +86,15 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         final Class<?> modeClass,
         final String name,
         final Type type,
-        final ParamDecls decls) {
+        final ParamDecls decls,
+        final boolean exception
+        ) {
       this.modeClass = modeClass;
       this.name = name;
       this.type = type; 
       this.decls = decls.getDecls();
       this.metaData = null;
+      this.exception = exception;
     }
 
     @Override
@@ -116,7 +120,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
     public MetaAddressingMode getMetaDataItem() {
       if (null == metaData) {
-        metaData = createMetaData(name, type, decls);
+        metaData = createMetaData(name, type, decls, exception);
       }
       return metaData;
     }
@@ -124,7 +128,8 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     private static MetaAddressingMode createMetaData(
         final String name,
         final Type dataType,
-        final Map<String, Type> decls) {
+        final Map<String, Type> decls,
+        final boolean exception) {
       final Map<String, MetaArgument> args = new LinkedHashMap<>(decls.size());
 
       for (Map.Entry<String, Type> e : decls.entrySet()) {
@@ -142,7 +147,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         args.put(argName, arg);
       }
 
-      return new MetaAddressingMode(name, dataType, args, false);
+      return new MetaAddressingMode(name, dataType, args, exception);
     }
 
     @Override

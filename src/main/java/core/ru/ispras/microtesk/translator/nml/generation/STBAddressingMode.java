@@ -66,6 +66,8 @@ final class STBAddressingMode extends STBPrimitiveBase {
 
     t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
     t.add("base", AddressingMode.class.getSimpleName());
+
+    t.add("except", mode.canThrowException());
   }
 
   private void buildArguments(STGroup group, ST t) {

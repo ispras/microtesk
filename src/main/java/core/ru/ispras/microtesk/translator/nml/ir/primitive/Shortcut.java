@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -47,7 +47,11 @@ public final class Shortcut {
     private final String name;
     private final PrimitiveAND source;
 
-    public Argument(String uniqueName, Primitive type, String name, PrimitiveAND source) {
+    public Argument(
+        final String uniqueName,
+        final Primitive type,
+        final String name,
+        final PrimitiveAND source) {
       this.uniqueName = uniqueName;
       this.type = type;
       this.name = name;
@@ -105,6 +109,7 @@ public final class Shortcut {
   private final PrimitiveAND target;
   private final List<String> contextNames;
   private final Map<String, Argument> arguments;
+  private final boolean exception;
 
   /**
    * Constructs a shortcut object. The shortcut object describes how to create the target operation
@@ -117,12 +122,15 @@ public final class Shortcut {
    * @param contextNames The list of names that identify the contexts in which the shortcut can be
    *        called.
    * 
-   * @throws NullPointerException if any of the parameters equals null.
+   * @throws IllegalArgumentException if any of the parameters equals null.
    * @throws IllegalArgumentException if target or entry is not an operation; if an operation on the
    *         shortcut path is an OR rule (all OR rules must be resolved at this point).
    */
 
-  public Shortcut(PrimitiveAND entry, PrimitiveAND target, List<String> contextNames) {
+  public Shortcut(
+      final PrimitiveAND entry,
+      final PrimitiveAND target,
+      final List<String> contextNames) {
     checkNotNull(entry);
     checkNotNull(target);
     checkNotNull(contextNames);
@@ -133,16 +141,20 @@ public final class Shortcut {
     this.entry = entry;
     this.target = target;
     this.contextNames = contextNames;
-    this.arguments = new LinkedHashMap<String, Argument>();
+    this.arguments = new LinkedHashMap<>();
 
     addArguments(entry, false);
+    this.exception = canThrowException(entry, false);
   }
 
   /**
    * Constructor than uses one context name.
    */
 
-  public Shortcut(PrimitiveAND entry, PrimitiveAND target, String contextName) {
+  public Shortcut(
+      final PrimitiveAND entry,
+      final PrimitiveAND target,
+      final String contextName) {
     this(entry, target, Collections.singletonList(contextName));
     checkNotNull(contextName);
   }
@@ -156,8 +168,8 @@ public final class Shortcut {
    *        stops and all child operations are added as arguments.
    */
 
-  private void addArguments(PrimitiveAND root, boolean reachedTarget) {
-    for (Map.Entry<String, Primitive> e : root.getArguments().entrySet()) {
+  private void addArguments(final PrimitiveAND root, final boolean reachedTarget) {
+    for (final Map.Entry<String, Primitive> e : root.getArguments().entrySet()) {
       final String argName = e.getKey();
       final Primitive argType = e.getValue();
 
@@ -172,6 +184,23 @@ public final class Shortcut {
     }
   }
 
+  private boolean canThrowException(final PrimitiveAND root, final boolean reachedTarget) {
+    if (root.canThrowException()) {
+      return true;
+    }
+
+    for (final Primitive arg : root.getArguments().values()) {
+      if ((arg.getKind() == Primitive.Kind.OP) && !reachedTarget) {
+        notOrRuleCheck(arg);
+        if (canThrowException((PrimitiveAND) arg, arg == target)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   /**
    * Creates a name that uniquely identifies an argument of a composite operation. The name is based
    * on the name of the argument of the operation on the shortcut path which takes the given
@@ -182,7 +211,7 @@ public final class Shortcut {
    * @return A unique argument name.
    */
 
-  private String createUniqueArgumentName(String name) {
+  private String createUniqueArgumentName(final String name) {
     String result = name;
 
     int index = 0;
@@ -244,12 +273,16 @@ public final class Shortcut {
     return arguments.values();
   }
 
+  public boolean canThrowException() {
+    return exception;
+  }
+
   @Override
   public String toString() {
     final StringBuilder cnsb = new StringBuilder();
     boolean isFirst = true;
 
-    for (String cn : contextNames) {
+    for (final String cn : contextNames) {
       if (!isFirst) {
         cnsb.append(", ");
       } else {
@@ -261,7 +294,7 @@ public final class Shortcut {
     final StringBuilder argsb = new StringBuilder();
     isFirst = true;
 
-    for (Argument arg : arguments.values()) {
+    for (final Argument arg : arguments.values()) {
       if (!isFirst) {
         argsb.append(", ");
       } else {
@@ -270,21 +303,27 @@ public final class Shortcut {
       argsb.append(arg);
     }
 
-    return String.format("%s: Entry = %s, Target = %s, Contexts = [%s], Args = [%s]", getName(),
-        entry.getName(), target.getName(), cnsb, argsb);
+    return String.format(
+        "%s: Entry = %s, Target = %s, Contexts = [%s], Args = [%s]",
+        getName(),
+        entry.getName(),
+        target.getName(),
+        cnsb,
+        argsb
+        );
   }
 
-  private static void opCheck(Primitive p) {
+  private static void opCheck(final Primitive p) {
     if (p.getKind() != Primitive.Kind.OP) {
       throw new IllegalArgumentException(String.format(
-        "The %s primitive is not an operation.", p.getName()));
+          "The %s primitive is not an operation.", p.getName()));
     }
   }
 
-  private static void notOrRuleCheck(Primitive p) {
+  private static void notOrRuleCheck(final Primitive p) {
     if (p.isOrRule()) {
       throw new IllegalArgumentException(String.format(
-        "The %s primitive is an OR rule.", p.getName()));
+          "The %s primitive is an OR rule.", p.getName()));
     }
   }
 }

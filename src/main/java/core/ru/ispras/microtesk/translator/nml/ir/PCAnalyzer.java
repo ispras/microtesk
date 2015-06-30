@@ -17,12 +17,9 @@ package ru.ispras.microtesk.translator.nml.ir;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationFactory;
-import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 
 public final class PCAnalyzer {
   private final LocationFactory locationFactory;

@@ -52,7 +52,8 @@ public class MEM extends AddressingMode
                 MEM.class,
                 "MEM",
                 byte_t,
-                new ParamDecls().declareParam("i", index)
+                new ParamDecls().declareParam("i", index),
+                false
             );
         }
 

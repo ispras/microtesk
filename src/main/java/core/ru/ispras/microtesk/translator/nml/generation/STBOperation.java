@@ -97,6 +97,7 @@ final class STBOperation extends STBPrimitiveBase {
 
     t.add("base", Operation.class.getSimpleName());
     t.add("is_root", op.isRoot());
+    t.add("except", op.canThrowException());
   }
 
   private void buildArguments(STGroup group, ST t) {
@@ -196,6 +197,7 @@ final class STBOperation extends STBPrimitiveBase {
       shortcutST.add("is_root", shortcut.getEntry().isRoot());
 
       shortcutST.add("entry", shortcut.getEntry().getName());
+      shortcutST.add("except", shortcut.canThrowException());
 
       for (Shortcut.Argument arg : shortcut.getArguments()) {
         final Primitive argType = arg.getType();
