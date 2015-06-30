@@ -263,7 +263,7 @@ public final class TemplateChecker {
     for (int i = 0; i < templateExecutionsSize - 1; i++) {
       for (int j = i + 1; j < templateExecutionsSize; j++) {
 
-        Dependency dependency = template.getDependency(i, j);
+        final Dependency dependency = template.getDependency(i, j);
         if (dependency != null) {
           // Get equations from dependency of i & j execution.
           if (!process(i, j, templateExecutions.get(i), templateExecutions.get(j),
@@ -343,9 +343,9 @@ public final class TemplateChecker {
   private void initVariableRange(final Dependency dependency,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
 
-    final List<Hazard> conflicts = dependency.getHazards();
-    for (final Hazard conflict : conflicts) {
-      final MmuCondition condition = conflict.getCondition();
+    final List<Hazard> hazards = dependency.getHazards();
+    for (final Hazard hazard : hazards) {
+      final MmuCondition condition = hazard.getCondition();
       if (condition != null) {
         initVariableRange(condition, variableRange);
       }
@@ -858,7 +858,9 @@ public final class TemplateChecker {
    * @throws IllegalStateException if equalityType not EQUAL_CONST || NOT_EQUAL_CONST.
    */
   private boolean process(final int i, final MmuEquality equality) {
-    final MmuExpression expression = equality.getExpression();
+    InvariantChecks.checkNotNull(equality);
+
+    final BigInteger equalityConstant = equality.getConstant();
 
     boolean equalityType;
     switch (equality.getType()) {
@@ -873,14 +875,14 @@ public final class TemplateChecker {
             equality));
     }
 
-    final List<IntegerField> terms = expression.getTerms();
-
-    final BigInteger equalityConstant = equality.getConstant();
-
     // Add variables to the solver.
-    final IntegerClause clause =
-        new IntegerClause(equalityType ? IntegerClause.Type.AND
-            : IntegerClause.Type.OR);
+    final IntegerClause clause = new IntegerClause(equalityType ? IntegerClause.Type.AND
+                                                                : IntegerClause.Type.OR);
+
+    final MmuExpression expression = equality.getExpression();
+    InvariantChecks.checkNotNull(expression);
+
+    final List<IntegerField> terms = expression.getTerms();
 
     for (final IntegerField term : terms) {
       // Get variables of the ranges
@@ -912,81 +914,92 @@ public final class TemplateChecker {
    * @throws IllegalStateException if ranges size not equal.
    */
   private boolean process(final int i, final Map<IntegerField, MmuAssignment> assignments) {
+    InvariantChecks.checkNotNull(assignments);
+
     for (final Map.Entry<IntegerField, MmuAssignment> assignmentSet : assignments.entrySet()) {
       final IntegerField field = assignmentSet.getKey();
       final MmuAssignment assignment = assignmentSet.getValue();
       final String name = gatherVariableName(field.getVariable(), i);
-      final List<IntegerRange> rangesList = variableRanges.get(name);
-      final MmuExpression expression = assignment.getExpression();
 
-      if (expression != null) {
-        final List<IntegerField> termList = expression.getTerms();
+      final MmuExpression expression = assignment != null ? assignment.getExpression() : null;
 
-        int termsSize = 0;
-        // Get the shift value
-        for (final IntegerField term : termList) {
-          termsSize += term.getWidth();
-        }
+      if (expression == null) {
+        continue;
+      }
 
-        // Get variable shift
-        int variableShift = 0;
-        int zeroShift = field.getLoIndex();
-        final int variableWidth = field.getWidth();
-        if (termsSize < variableWidth) {
+      final List<IntegerField> termList = expression.getTerms();
 
-          variableShift = variableWidth - termsSize;
+      int termsSize = 0;
+      // Get the shift value
+      for (final IntegerField term : termList) {
+        termsSize += term.getWidth();
+      }
 
-          final IntegerRange seachRange =
-              new IntegerRange(zeroShift + variableWidth - variableShift, 
-                  zeroShift + variableWidth - 1);
+      // Get variable shift
+      int variableShift = 0;
+      int zeroShift = field.getLoIndex();
+      final int variableWidth = field.getWidth();
 
-          final String baseVarName = gatherVariableName(field.getVariable(), i);
-          final List<String> a = variableLink.get(baseVarName);
+      if (termsSize < variableWidth) {
+        variableShift = variableWidth - termsSize;
 
-          for (String b : a) {
-            final IntegerRange c = mmuRanges.get(b);
-            if (seachRange.contains(c)) {
-              final String varName = gatherVariableName(field.getVariable(), i, c);
-              final IntegerVariable var = mmuVariables.get(varName);
+        final IntegerRange seachRange =
+            new IntegerRange(zeroShift + variableWidth - variableShift, 
+                zeroShift + variableWidth - 1);
 
-              if (var == null) {
-                throw new IllegalArgumentException("MmuVariable '" + varName
-                    + "' was null inside method 'process'.");
-              }
+        final String baseVarName = gatherVariableName(field.getVariable(), i);
 
-              // Create constant for solver
-              final BigInteger val = getRangeConstant(BigInteger.ZERO, 0, c.size().intValue() - 1);
-              formula.addEquation(var, val, true);
-            }
-          }
-        }
+        final List<String> a = variableLink.get(baseVarName);
+        InvariantChecks.checkNotNull(a);
 
-        int index = 0;
-        for (final IntegerField term : termList) {
-          List<IntegerVariable> termVariables = getVariable(i, term);
+        for (final String b : a) {
+          final IntegerRange c = mmuRanges.get(b);
+          if (seachRange.contains(c)) {
+            final String varName = gatherVariableName(field.getVariable(), i, c);
+            final IntegerVariable var = mmuVariables.get(varName);
 
-          for (final IntegerVariable termVariable : termVariables) {
-
-            if (index >= rangesList.size()) {
-              throw new IllegalStateException("Error: Ranges size not equal.");
+            if (var == null) {
+              throw new IllegalArgumentException("MmuVariable '" + varName
+                  + "' was null inside method 'process'.");
             }
 
-            final IntegerRange varRange = rangesList.get(index);
-            final IntegerRange var2Range = mmuRanges.get(termVariable.toString());
-
-            if (!varRange.size().equals(var2Range.size())) {
-              throw new IllegalStateException("Error: Ranges size not equal: " + varRange + " =/= "
-                  + var2Range + ". Variable:" + field.getVariable());
-            }
-            final IntegerVariable var = mmuVariables.get(gatherVariableName(field.getVariable(), i, varRange));
-
-            formula.addEquation(var, termVariable, true);
-
-            index++;
+            // Create constant for solver
+            final BigInteger val = getRangeConstant(BigInteger.ZERO, 0, c.size().intValue() - 1);
+            formula.addEquation(var, val, true);
           }
         }
       }
+
+      final List<IntegerRange> rangesList = variableRanges.get(name);
+      InvariantChecks.checkNotNull(rangesList);
+
+      int index = 0;
+      for (final IntegerField term : termList) {
+        List<IntegerVariable> termVariables = getVariable(i, term);
+
+        for (final IntegerVariable termVariable : termVariables) {
+
+          if (index >= rangesList.size()) {
+            throw new IllegalStateException("Error: Ranges size not equal.");
+          }
+
+          final IntegerRange varRange = rangesList.get(index);
+          final IntegerRange var2Range = mmuRanges.get(termVariable.getName());
+          InvariantChecks.checkNotNull(var2Range);
+
+          if (!varRange.size().equals(var2Range.size())) {
+            throw new IllegalStateException("Error: Ranges size not equal: " + varRange + " =/= "
+                + var2Range + ". Variable:" + field.getVariable());
+          }
+
+          final IntegerVariable var = mmuVariables.get(gatherVariableName(field.getVariable(), i, varRange));
+          formula.addEquation(var, termVariable, true);
+
+          index++;
+        }
+      }
     }
+
     return true;
   }
 
@@ -998,6 +1011,8 @@ public final class TemplateChecker {
    * @return {@code true} if the condition is consistent; {@code false} otherwise.
    */
   private boolean process(final int i, final MmuCondition condition) {
+    InvariantChecks.checkNotNull(condition);
+
     final List<MmuEquality> equalities = condition.getEqualities();
     for (final MmuEquality equality : equalities) {
       final MmuExpression expression = equality.getExpression();
@@ -1008,6 +1023,7 @@ public final class TemplateChecker {
         }
       }
     }
+
     return true;
   }
 
@@ -1019,6 +1035,8 @@ public final class TemplateChecker {
    * @return {@code true} if the transition is solved; {@code false} otherwise.
    */
   private boolean process(final int i, final MmuTransition transition) {
+    InvariantChecks.checkNotNull(transition);
+
     final MmuGuard guard = transition.getGuard();
 
     if (guard != null) {
@@ -1033,6 +1051,7 @@ public final class TemplateChecker {
 
     final MmuAction source = transition.getSource();
     final Map<IntegerField, MmuAssignment> assignments = source.getAction();
+
     if (assignments != null) {
       if (!process(i, assignments)) {
         return false;
@@ -1054,13 +1073,18 @@ public final class TemplateChecker {
    */
   private boolean process(final int i, final int j, final ExecutionPath execution1,
       final ExecutionPath execution2, final Dependency dependency) {
+    InvariantChecks.checkNotNull(execution1);
+    InvariantChecks.checkNotNull(execution2);
+    InvariantChecks.checkNotNull(dependency);
+
     if (dependency == null) {
       return true;
     }
 
-    for (final Hazard conflict : dependency.getHazards()) {
-      if (conflict.getType() == Hazard.Type.TAG_EQUAL) {
-        final MmuDevice device = conflict.getDevice();
+    for (final Hazard hazard : dependency.getHazards()) {
+      if (hazard.getType() == Hazard.Type.TAG_EQUAL) {
+        final MmuDevice device = hazard.getDevice();
+        InvariantChecks.checkNotNull(device);
 
         if (BufferAccessEvent.HIT == execution1.getEvent(device) &&
             BufferAccessEvent.HIT == execution2.getEvent(device)) {
@@ -1092,7 +1116,7 @@ public final class TemplateChecker {
         }
       }
 
-      final MmuCondition condition = conflict.getCondition();
+      final MmuCondition condition = hazard.getCondition();
 
       if (condition != null) {
         final List<MmuEquality> equalities = condition.getEqualities();
@@ -1128,11 +1152,10 @@ public final class TemplateChecker {
             }
 
             final IntegerClause clause =
-                new IntegerClause(equalityType ? IntegerClause.Type.AND :
-                                                      IntegerClause.Type.OR);
+                new IntegerClause(equalityType ? IntegerClause.Type.AND
+                                               : IntegerClause.Type.OR);
 
             for (final IntegerField term : terms) {
-
               // Get variables of the ranges.
               final List<IntegerVariable> variableListI = getVariable(i, term);
               final List<IntegerVariable> variableListJ = getVariable(j, term);

@@ -31,11 +31,6 @@ public final class SolverResult<T> extends Result<SolverResult.Status, T> {
   }
 
   public SolverResult(
-      final SolverResult.Status status) {
-    super(status, null, null);
-  }
-
-  public SolverResult(
       final SolverResult.Status status,
       final T result,
       final List<String> errors) {

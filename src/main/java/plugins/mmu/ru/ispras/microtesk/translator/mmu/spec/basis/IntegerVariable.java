@@ -107,10 +107,6 @@ public final class IntegerVariable {
       return false;
     }
 
-    if ((value == null) != (r.value == null)) {
-      return false;
-    }
-
     return value != null ? value.compareTo(r.value) == 0 : true;
   }
 

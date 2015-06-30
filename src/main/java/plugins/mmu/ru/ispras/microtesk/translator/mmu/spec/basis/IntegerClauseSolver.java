@@ -30,7 +30,7 @@ import ru.ispras.microtesk.test.sequence.iterator.Iterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerClauseSolver implements Solver<Object> {
+public final class IntegerClauseSolver implements Solver<Boolean> {
   /** Equation clause to be solved. */
   private final IntegerClause clause;
   /** Variables used in the clause. */
@@ -91,7 +91,7 @@ public final class IntegerClauseSolver implements Solver<Object> {
    * 
    * @return {@code true} if the equation clause is satisfiable; {@code false} otherwise.
    */
-  public SolverResult<Object> solve() {
+  public SolverResult<Boolean> solve() {
     // Handle the OR case.
     if (clause.getType() == IntegerClause.Type.OR) {
       for (final IntegerEquation equation : clause.getEquations()) {
@@ -104,11 +104,11 @@ public final class IntegerClauseSolver implements Solver<Object> {
             new IntegerClauseSolver(variables, variant);
 
         if (solver.solve().getStatus() == SolverResult.Status.SAT) {
-          return new SolverResult<>(SolverResult.Status.SAT);
+          return new SolverResult<>(true);
         }
       }
 
-      return new SolverResult<>(SolverResult.Status.UNSAT);
+      return new SolverResult<>("UNSAT");
     }
 
     // Handle the AND case.
@@ -125,7 +125,7 @@ public final class IntegerClauseSolver implements Solver<Object> {
 
     // Returns false if there is a variable whose domain is empty (updates the set of variables).
     if (!checkDomains()) {
-      return new SolverResult<>(SolverResult.Status.UNSAT);
+      return new SolverResult<>("UNSAT");
     }
 
     final Set<IntegerVariable> variables = new LinkedHashSet<>(equalTo.keySet());
@@ -139,7 +139,7 @@ public final class IntegerClauseSolver implements Solver<Object> {
         if (notEqualVars != null) {
           // There is a conflict: x == y && x != y.
           if (!Collections.disjoint(equalVars, notEqualVars)) {
-            return new SolverResult<>(SolverResult.Status.UNSAT);
+            return new SolverResult<>("UNSAT");
           }
         }
 
@@ -148,7 +148,7 @@ public final class IntegerClauseSolver implements Solver<Object> {
           final IntegerVariable rhs = equalVars.iterator().next();
 
           if (!handleEquality(lhs, rhs)) {
-            return new SolverResult<>(SolverResult.Status.UNSAT);
+            return new SolverResult<>("UNSAT");
           }
         }
       }
@@ -213,15 +213,15 @@ public final class IntegerClauseSolver implements Solver<Object> {
    * @param equations the set of inequalities.
    * @return {@code true} if the constraint is satisfiable; {@code false} otherwise.
    */
-  private SolverResult<Object> solveInequalities() {
+  private SolverResult<Boolean> solveInequalities() {
     // If the set of inequalities is empty, it is satisfiable.
     if (notEqualTo.isEmpty()) {
-      return new SolverResult<>(SolverResult.Status.SAT);
+      return new SolverResult<>(true);
     }
 
     // Returns false if there is a variable whose domain is empty (updates the set of variables).
     if (!checkDomains()) {
-      return new SolverResult<>(SolverResult.Status.UNSAT);
+      return new SolverResult<>("UNSAT");
     }
 
     final Set<IntegerVariable> variables = new LinkedHashSet<>(notEqualTo.keySet());
@@ -236,7 +236,7 @@ public final class IntegerClauseSolver implements Solver<Object> {
 
         for (final IntegerVariable rhs : rhsVars) {
           if (!handleInequality(lhs, rhs)) {
-            return new SolverResult<>(SolverResult.Status.UNSAT);
+            return new SolverResult<>("UNSAT");
           }
         }
       }
@@ -265,7 +265,7 @@ public final class IntegerClauseSolver implements Solver<Object> {
     }
 
     if (simple) {
-      return new SolverResult<>(SolverResult.Status.SAT);
+      return new SolverResult<>(true);
     }
 
     // This code needs to be optimized.
@@ -278,11 +278,11 @@ public final class IntegerClauseSolver implements Solver<Object> {
       problem.domains.put(minDomainVar, new IntegerDomain(iterator.value()));
 
       if (problem.solveInequalities().getStatus() == SolverResult.Status.SAT) {
-        return new SolverResult<>(SolverResult.Status.SAT);
+        return new SolverResult<>(true);
       }
     }
 
-    return new SolverResult<>(SolverResult.Status.UNSAT);
+    return new SolverResult<>("UNSAT");
   }
 
   /**

@@ -30,7 +30,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerFormulaSolver implements Solver<Object> {
+public final class IntegerFormulaSolver implements Solver<Boolean> {
   /** Equation formula (constraint) to be solved. */
   private final IntegerFormula formula;
   /** Variables used in the clause. */
@@ -57,7 +57,7 @@ public final class IntegerFormulaSolver implements Solver<Object> {
    * 
    * @return {@code true} if the equation formula is satisfiable; {@code false} otherwise.
    */
-  public SolverResult<Object> solve() {
+  public SolverResult<Boolean> solve() {
     final IntegerClause kernel = new IntegerClause(IntegerClause.Type.AND);
     final IntegerFormula simplifiedFormula = new IntegerFormula();
 
@@ -65,7 +65,7 @@ public final class IntegerFormulaSolver implements Solver<Object> {
 
     for (final IntegerClause clause : formula.getEquationClauses()) {
       if (clause.size() == 0) {
-        return new SolverResult<Object>(SolverResult.Status.UNSAT);
+        return new SolverResult<>("UNSAT");
       }
 
       if (clause.size() == 1) {
@@ -79,7 +79,7 @@ public final class IntegerFormulaSolver implements Solver<Object> {
     final IntegerClauseSolver kernelSolver =
         new IntegerClauseSolver(variables, kernel);
 
-    final SolverResult<Object> kernelResult = kernelSolver.solve();
+    final SolverResult<Boolean> kernelResult = kernelSolver.solve();
 
     if (numberOfVariants == 1 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
       return kernelResult;
@@ -104,10 +104,10 @@ public final class IntegerFormulaSolver implements Solver<Object> {
           new IntegerClauseSolver(variables, variant);
 
       if (variantSolver.solve().getStatus() == SolverResult.Status.SAT) {
-        return new SolverResult<Object>(SolverResult.Status.SAT);
+        return new SolverResult<>(true);
       }
     }
 
-    return new SolverResult<Object>(SolverResult.Status.UNSAT);
+    return new SolverResult<>("UNSAT");
   }
 }
