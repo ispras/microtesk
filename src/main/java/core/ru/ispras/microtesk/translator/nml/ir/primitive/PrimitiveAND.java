@@ -30,6 +30,7 @@ public final class PrimitiveAND extends Primitive {
   private Map<String, ArgumentMode> argsUsage;
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
+  private final boolean exception;
 
   PrimitiveAND(
       final String name,
@@ -45,15 +46,25 @@ public final class PrimitiveAND extends Primitive {
     this.attrs = Collections.unmodifiableMap(attrs);
     this.shortcuts = new ArrayList<>();
 
-    for (Map.Entry<String, Primitive> e : args.entrySet()) {
+    for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       final Primitive target = e.getValue();
       final String referenceName = e.getKey();
 
       target.addParentReference(this, referenceName);
     }
+
+    boolean exception = false;
+    for (final Attribute attr : attrs.values()) {
+      if (attr.canThrowException()) {
+        exception = true;
+        break;
+      }
+    }
+
+    this.exception = exception;
   }
 
-  private PrimitiveAND(PrimitiveAND source) {
+  private PrimitiveAND(final PrimitiveAND source) {
     super(source);
 
     this.retExpr = source.retExpr;
@@ -61,9 +72,10 @@ public final class PrimitiveAND extends Primitive {
     this.argsUsage = source.argsUsage;
     this.attrs = source.attrs;
     this.shortcuts = source.shortcuts;
+    this.exception = source.exception;
   }
 
-  void addShortcut(Shortcut shortcut) {
+  void addShortcut(final Shortcut shortcut) {
     shortcuts.add(shortcut);
   }
 
@@ -87,7 +99,7 @@ public final class PrimitiveAND extends Primitive {
     return retExpr;
   }
 
-  private static Type getReturnType(Expr retExpr) {
+  private static Type getReturnType(final Expr retExpr) {
     return (null != retExpr) ? retExpr.getValueInfo().getModelType() : null;
   }
 
@@ -96,7 +108,11 @@ public final class PrimitiveAND extends Primitive {
     return result != null ? result : ArgumentMode.NA;
   }
 
-  void setArgsUsage(Map<String, ArgumentMode> argsUsage) {
+  void setArgsUsage(final Map<String, ArgumentMode> argsUsage) {
     this.argsUsage = argsUsage;
+  }
+
+  public boolean canThrowException() {
+    return exception;
   }
 }

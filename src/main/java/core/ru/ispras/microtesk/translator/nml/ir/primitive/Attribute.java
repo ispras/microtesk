@@ -69,4 +69,8 @@ public final class Attribute {
 
     return Collections.unmodifiableSet(result);
   }
+
+  public boolean canThrowException() {
+    return false;
+  }
 }
