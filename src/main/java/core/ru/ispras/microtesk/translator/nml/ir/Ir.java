@@ -137,6 +137,6 @@ public final class Ir {
       throw new IllegalArgumentException("Root is already assigned.");
     }
 
-    roots = Collections.unmodifiableList(roots);
+    roots = Collections.unmodifiableList(value);
   }
 }
