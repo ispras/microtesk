@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -25,7 +25,10 @@ public final class StatementFormat extends Statement {
   private final List<Format.Argument> arguments;
 
   StatementFormat(
-      String funcName, String format, List<FormatMarker> markers, List<Format.Argument> arguments) {
+      final String funcName,
+      final String format,
+      final List<FormatMarker> markers,
+      final List<Format.Argument> arguments) {
     super(Kind.FORMAT);
 
     this.funcName = funcName;
@@ -33,8 +36,11 @@ public final class StatementFormat extends Statement {
     this.markers = markers;
     this.arguments = arguments;
   }
-  
-  StatementFormat(String format, List<FormatMarker> markers, List<Format.Argument> arguments) {
+
+  StatementFormat(
+      final String format,
+      final List<FormatMarker> markers,
+      final List<Format.Argument> arguments) {
     this(null, format, markers, arguments);
   }
 
