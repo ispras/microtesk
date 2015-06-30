@@ -12,12 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.mmu.solver.loader;
+package ru.ispras.microtesk.test.mmu.engine.loader;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
@@ -25,45 +23,36 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BufferLoader implements Loader {
+public final class GoalReacher implements Loader {
   private final MmuDevice device;
-  private final Map<Long, SetLoader> loaders = new LinkedHashMap<>();
+  private final BufferAccessEvent event;
+  private final long address;
+  private final List<Long> loads = new ArrayList<>();
 
-  public BufferLoader(final MmuDevice device) {
+  public GoalReacher(final MmuDevice device, final BufferAccessEvent event, final long address) {
     this.device = device;
+    this.event = event;
+    this.address = address;
   }
 
-  private SetLoader getLoader(final long address) {
-    final long index = device.getIndex(address);
-
-    SetLoader loader = loaders.get(index);
-    if (loader == null) {
-      loaders.put(index, loader = new SetLoader(device, index));
-    }
-
-    return loader;
+  public MmuDevice getDevice() {
+    return device;
+  }
+  
+  public BufferAccessEvent getEvent() {
+    return event;
   }
 
-  public boolean contains(final BufferAccessEvent event, final long address) {
-    final SetLoader loader = getLoader(address);
-
-    return loader.contains(event, address);
+  public long getAddress() {
+    return address;
   }
 
   public void addLoads(final BufferAccessEvent event, final long address, final List<Long> loads) {
-    final SetLoader loader = getLoader(address);
-
-    loader.addLoads(event, address, loads);
+    this.loads.addAll(loads);
   }
 
   @Override
   public List<Long> prepareLoads() {
-    final List<Long> sequence = new ArrayList<>();
-
-    for (final SetLoader loader : loaders.values()) {
-      sequence.addAll(loader.prepareLoads());
-    }
-
-    return sequence;
+    return loads;
   }
 }

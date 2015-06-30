@@ -21,7 +21,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.mmu.Template;
-import ru.ispras.microtesk.test.mmu.solver.loader.MemoryLoader;
+import ru.ispras.microtesk.test.mmu.engine.loader.MemoryLoader;
 import ru.ispras.microtesk.translator.mmu.coverage.ExecutionPath;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;

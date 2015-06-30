@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.mmu.solver.loader;
+package ru.ispras.microtesk.test.mmu.engine.loader;
 
 import java.util.ArrayList;
 import java.util.Collection;

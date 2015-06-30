@@ -31,7 +31,7 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class Template {
+public final class Template {
   /** The memory specification. */
   private MmuSpecification memory;
   /** The list of executions. */
