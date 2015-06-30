@@ -28,7 +28,7 @@ public final class Instance {
   private final PrimitiveAND primitive;
   private final List<InstanceArgument> arguments;
 
-  Instance(PrimitiveAND primitive, List<InstanceArgument> arguments) {
+  Instance(final PrimitiveAND primitive, final List<InstanceArgument> arguments) {
     checkNotNull(primitive);
     checkNotNull(arguments);
 

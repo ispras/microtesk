@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,36 +14,38 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class StatementAttributeCall extends Statement {
   private final Instance calleeInstance;
   private final String calleeName;
   private final String attributeName;
 
-  static StatementAttributeCall newThisCall(String attributeName) {
+  static StatementAttributeCall newThisCall(
+      final String attributeName) {
     return new StatementAttributeCall(null, null, attributeName);
   }
 
-  static StatementAttributeCall newArgumentCall(String calleeName, String attributeName) {
-    if (null == calleeName) {
-      throw new NullPointerException();
-    }
-
+  static StatementAttributeCall newArgumentCall(
+      final String calleeName,
+      final String attributeName) {
+    InvariantChecks.checkNotNull(calleeName);
     return new StatementAttributeCall(null, calleeName, attributeName);
   }
   
-  static StatementAttributeCall newInstanceCall(Instance calleeInstance, String attributeName) {
-    if (null == calleeInstance) {
-      throw new NullPointerException();
-    }
-
+  static StatementAttributeCall newInstanceCall(
+      final Instance calleeInstance,
+      final String attributeName) {
+    InvariantChecks.checkNotNull(calleeInstance);
     return new StatementAttributeCall(calleeInstance, null, attributeName);
   }
 
-  private StatementAttributeCall(Instance calleeInstance, String calleeName, String attributeName) {
+  private StatementAttributeCall(
+      final Instance calleeInstance,
+      final String calleeName,
+      final String attributeName) {
     super(Kind.CALL);
-    if (null == attributeName) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(calleeName);
 
     this.calleeInstance = calleeInstance;
     this.calleeName = calleeName;
