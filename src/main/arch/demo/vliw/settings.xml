@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
+
   <allocation>
     <mode name="R">
       <strategy name="random" free-bias="50" used-bias="50"/>
@@ -15,4 +16,7 @@
       </range>
     </mode>
   </allocation>
+
+  <delaySlot size="1" />
+
 </settings>
