@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
+import ru.ispras.microtesk.test.sequence.solver.IntegerField;
+import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 
 /**
  * This class is to track fields in a variable by exclusion.

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.mmu.spec.basis;
+package ru.ispras.microtesk.test.sequence.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

@@ -24,6 +24,13 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.mmu.Template;
+import ru.ispras.microtesk.test.sequence.solver.IntegerClause;
+import ru.ispras.microtesk.test.sequence.solver.IntegerField;
+import ru.ispras.microtesk.test.sequence.solver.IntegerFormula;
+import ru.ispras.microtesk.test.sequence.solver.IntegerFormulaSolver;
+import ru.ispras.microtesk.test.sequence.solver.IntegerRange;
+import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
+import ru.ispras.microtesk.test.sequence.solver.SolverResult;
 import ru.ispras.microtesk.translator.mmu.coverage.Dependency;
 import ru.ispras.microtesk.translator.mmu.coverage.ExecutionPath;
 import ru.ispras.microtesk.translator.mmu.coverage.Hazard;
@@ -37,13 +44,6 @@ import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
 import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
 import ru.ispras.microtesk.translator.mmu.spec.MmuTransition;
 import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerClause;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerFormula;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerFormulaSolver;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerRange;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
-import ru.ispras.microtesk.translator.mmu.spec.basis.SolverResult;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**

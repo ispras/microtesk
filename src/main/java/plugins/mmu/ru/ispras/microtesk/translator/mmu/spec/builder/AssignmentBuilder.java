@@ -21,12 +21,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ru.ispras.microtesk.test.sequence.solver.IntegerField;
+import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
 import ru.ispras.microtesk.translator.mmu.spec.MmuAssignment;
 import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
 import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerField;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 
 public class AssignmentBuilder {
   private final String name;

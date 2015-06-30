@@ -19,6 +19,10 @@ import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.microtesk.test.sequence.solver.IntegerEquationSet;
+import ru.ispras.microtesk.test.sequence.solver.IntegerEquationSolver;
+import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
+
 /**
  * Test for {@link IntegerEquationSolver}.
  * 

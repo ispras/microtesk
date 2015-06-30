@@ -21,8 +21,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 import ru.ispras.microtesk.translator.mmu.spec.basis.AddressView;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**

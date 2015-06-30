@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
+import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 
 /**
  * Test for {@link MmuCondition}.

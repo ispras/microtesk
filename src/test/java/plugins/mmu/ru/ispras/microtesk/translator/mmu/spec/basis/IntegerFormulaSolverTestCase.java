@@ -21,6 +21,12 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.microtesk.test.sequence.solver.IntegerClause;
+import ru.ispras.microtesk.test.sequence.solver.IntegerFormula;
+import ru.ispras.microtesk.test.sequence.solver.IntegerFormulaSolver;
+import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
+import ru.ispras.microtesk.test.sequence.solver.SolverResult;
+
 /**
  * Test for {@link IntegerFormulaSolver}.
  * 

@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.basis.IntegerVariable;
+import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 
 /**
  * {@link MmuCondition} represents a set of equalities/inequalities.
