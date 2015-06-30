@@ -21,15 +21,58 @@ import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 
 public final class AttributeFactory extends WalkerFactoryBase {
-  public AttributeFactory(WalkerContext context) {
+  public AttributeFactory(final WalkerContext context) {
     super(context);
   }
 
-  public Attribute createAction(String name, List<Statement> stmts) {
-    return new Attribute(name, Attribute.Kind.ACTION, stmts);
+  public Attribute createAction(
+      final String name,
+      final List<Statement> stmts) {
+    return new Attribute(
+        name, 
+        Attribute.Kind.ACTION,
+        stmts,
+        isException(stmts)
+        );
   }
 
-  public Attribute createExpression(String name, Statement stmt) {
-    return new Attribute(name, Attribute.Kind.EXPRESSION, Collections.singletonList(stmt));
+  public Attribute createExpression(
+      final String name,
+      final Statement stmt) {
+
+    return new Attribute(
+        name,
+        Attribute.Kind.EXPRESSION,
+        Collections.singletonList(stmt),
+        isException(stmt)
+        );
+  }
+
+  private static boolean isException(final List<Statement> stmts) {
+    for (final Statement stmt : stmts) {
+      if (isException(stmt)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean isException(final Statement stmt) {
+    if (stmt.getKind() == Statement.Kind.FUNCALL) {
+      final StatementFunctionCall callStmt = (StatementFunctionCall) stmt;
+      return "exception".equals(callStmt.getName());
+    }
+
+    if (stmt.getKind() == Statement.Kind.COND) {
+      final StatementCondition condStmt = (StatementCondition) stmt;
+      for (int index = 0; index < condStmt.getBlockCount(); index++) {
+        if (isException(condStmt.getBlock(index).getStatements())) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
