@@ -88,6 +88,10 @@ public final class MetaModelPrinter {
       final StringBuilder sb = new StringBuilder();
 
       sb.append(String.format("Name: %s", am.getName()));
+      if (am.canThrowException()) {
+        sb.append(" throws");
+      }
+
       sb.append(", Parameters: ");
 
       boolean isFirstArg = true;
@@ -121,11 +125,12 @@ public final class MetaModelPrinter {
 
     System.out.println("OPERATIONS:");
     for (MetaOperation o : metaModel.getOperations()) {
-      System.out.println(String.format("Name: %s", o.getName()));
+      System.out.println(String.format(
+          "Name: %s%s", o.getName(), o.canThrowException() ? " throws" : ""));
       System.out.println("Parameters:");
 
       int count = 0;
-      for (MetaArgument a : o.getArguments()) {
+      for (final MetaArgument a : o.getArguments()) {
         printArgument(a);
         count++;
       }
@@ -172,12 +177,14 @@ public final class MetaModelPrinter {
   }
 
   private void printShortcut(MetaShortcut s) {
-    System.out.printf("   Name: %s%n", s.getOperation().getName());
+    System.out.printf("   Name: %s%s%n",
+        s.getOperation().getName(), s.getOperation().canThrowException() ? " throws" : "");
+
     System.out.printf("   Context: %s%n", s.getContextName());
     System.out.println("   Parameters:");
 
     int count = 0;
-    for (MetaArgument a : s.getOperation().getArguments()) {
+    for (final MetaArgument a : s.getOperation().getArguments()) {
       System.out.print("   ");
       printArgument(a);
       count++;
