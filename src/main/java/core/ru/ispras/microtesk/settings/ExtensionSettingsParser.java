@@ -21,7 +21,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ExtensionSettingsParser extends AbstractSettingsParser {
+public final class ExtensionSettingsParser extends AbstractSettingsParser<ExtensionSettings> {
   public static final String ATTR_NAME = "name";
   public static final String ATTR_PATH = "path";
 
@@ -30,7 +30,7 @@ public final class ExtensionSettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  public AbstractSettings createSettings(final Map<String, String> attributes) {
+  public ExtensionSettings createSettings(final Map<String, String> attributes) {
     final String name = AbstractSettingsParser.getString(attributes.get(ATTR_NAME));
     final String path = AbstractSettingsParser.getString(attributes.get(ATTR_PATH));
 

@@ -21,7 +21,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ExtensionsSettingsParser extends AbstractSettingsParser {
+public final class ExtensionsSettingsParser extends AbstractSettingsParser<ExtensionsSettings> {
   public ExtensionsSettingsParser() {
     super(ExtensionsSettings.TAG);
 
@@ -29,7 +29,7 @@ public final class ExtensionsSettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  public AbstractSettings createSettings(final Map<String, String> attributes) {
+  public ExtensionsSettings createSettings(final Map<String, String> attributes) {
     return new ExtensionsSettings();
   }
 }

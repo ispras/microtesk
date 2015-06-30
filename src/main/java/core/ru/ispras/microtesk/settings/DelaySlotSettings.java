@@ -14,23 +14,35 @@
 
 package ru.ispras.microtesk.settings;
 
-import java.util.Map;
+import java.util.Collection;
 
 /**
- * {@link AllocationSettingsParser} implements a parser of {@link AllocationSettings}.
+ * {@link DelaySlotSettings} specifies a delay slot size.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class AllocationSettingsParser extends AbstractSettingsParser<AllocationSettings> {
-  public AllocationSettingsParser() {
-    super(AllocationSettings.TAG);
+public final class DelaySlotSettings extends AbstractSettings {
+  public static final String TAG = "delaySlot";
 
-    addParser(new ModeSettingsParser());
+  private final int size;
+
+  public DelaySlotSettings(final int size) {
+    super(TAG);
+
+    this.size = size;
+  }
+
+  public int getSize() {
+    return size;
   }
 
   @Override
-  public AllocationSettings createSettings(final Map<String, String> attributes) {
-    return new AllocationSettings();
+  public Collection<AbstractSettings> get(final String tag) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void add(final AbstractSettings section) {
+    throw new UnsupportedOperationException();
   }
 }
-

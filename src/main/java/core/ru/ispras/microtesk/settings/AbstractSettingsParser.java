@@ -28,7 +28,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class AbstractSettingsParser {
+public abstract class AbstractSettingsParser<T extends AbstractSettings> {
   public static String getString(final String value) {
     return value;
   }
@@ -68,10 +68,10 @@ public abstract class AbstractSettingsParser {
 
   private final String tag;
 
-  private final Stack<AbstractSettingsParser> parserStack = new Stack<>();
-  private final Map<String, AbstractSettingsParser> parsers = new HashMap<>();
+  private final Stack<AbstractSettingsParser<?>> parserStack = new Stack<>();
+  private final Map<String, AbstractSettingsParser<?>> parsers = new HashMap<>();
 
-  private AbstractSettings settings;
+  private T settings;
 
   public AbstractSettingsParser(final String tag) {
     InvariantChecks.checkNotNull(tag);
@@ -81,14 +81,14 @@ public abstract class AbstractSettingsParser {
   public final String getTag() {
     return tag;
   }
-  
-  public final AbstractSettings getSettings() {
+
+  public final T getSettings() {
     return settings;
   }
 
-  protected abstract AbstractSettings createSettings(final Map<String, String> attributes);
+  protected abstract T createSettings(final Map<String, String> attributes);
 
-  public final void addParser(final AbstractSettingsParser parser) {
+  public final void addParser(final AbstractSettingsParser<?> parser) {
     InvariantChecks.checkNotNull(parser);
     parsers.put(parser.getTag(), parser);
   }
@@ -118,7 +118,7 @@ public abstract class AbstractSettingsParser {
       parserStack.firstElement().onStart(tag, attrs);
     } else if (parsers.containsKey(tag)) {
       // A new subsection has started.
-      final AbstractSettingsParser parser = parsers.get(tag);
+      final AbstractSettingsParser<?> parser = parsers.get(tag);
 
       parser.onStart(tag, attrs);
       parserStack.push(parser);
@@ -133,7 +133,7 @@ public abstract class AbstractSettingsParser {
     if (getTag().equals(tag)) {
       // The main section has completed.
     } else if (!parserStack.isEmpty()) {
-      final AbstractSettingsParser topParser = parserStack.firstElement();
+      final AbstractSettingsParser<?> topParser = parserStack.firstElement();
 
       if (tag.equals(topParser.getTag())) {
         // The subsection has completed.

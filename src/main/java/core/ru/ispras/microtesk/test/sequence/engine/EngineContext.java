@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.sequence.engine;
 import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTestBase;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
@@ -33,8 +34,6 @@ public final class EngineContext {
   private final StreamStore streams;
   private final GeneratorSettings settings;
   private final TestBase testBase;
-
-  // TODO:
   private final int delaySlotSize; 
 
   public EngineContext(
@@ -55,8 +54,8 @@ public final class EngineContext {
 
     this.testBase = newTestBase(settings);
 
-    // TODO:
-    this.delaySlotSize = 0;
+    final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
+    this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
   }
 
   public IModel getModel() {

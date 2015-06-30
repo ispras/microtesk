@@ -17,20 +17,21 @@ package ru.ispras.microtesk.settings;
 import java.util.Map;
 
 /**
- * {@link AllocationSettingsParser} implements a parser of {@link AllocationSettings}.
+ * {@link DelaySlotSettingsParser} implements a parser of {@link DelaySlotSettings}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class AllocationSettingsParser extends AbstractSettingsParser<AllocationSettings> {
-  public AllocationSettingsParser() {
-    super(AllocationSettings.TAG);
+public final class DelaySlotSettingsParser extends AbstractSettingsParser<DelaySlotSettings> {
+  public static final String ATTR_ITEM = "size";
 
-    addParser(new ModeSettingsParser());
+  public DelaySlotSettingsParser() {
+    super(DelaySlotSettings.TAG);
   }
 
   @Override
-  public AllocationSettings createSettings(final Map<String, String> attributes) {
-    return new AllocationSettings();
+  protected DelaySlotSettings createSettings(final Map<String, String> attributes) {
+    final int size = AbstractSettingsParser.getDecInteger(attributes.get(ATTR_ITEM));
+
+    return new DelaySlotSettings(size);
   }
 }
-

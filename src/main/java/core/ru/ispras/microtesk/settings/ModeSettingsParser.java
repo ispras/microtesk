@@ -21,7 +21,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ModeSettingsParser extends AbstractSettingsParser {
+public final class ModeSettingsParser extends AbstractSettingsParser<ModeSettings> {
   public static final String ATTR_NAME = "name";
 
   public ModeSettingsParser() {
@@ -32,7 +32,7 @@ public final class ModeSettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  public AbstractSettings createSettings(final Map<String, String> attributes) {
+  public ModeSettings createSettings(final Map<String, String> attributes) {
     final String name = AbstractSettingsParser.getString(attributes.get(ATTR_NAME));
 
     return new ModeSettings(name);

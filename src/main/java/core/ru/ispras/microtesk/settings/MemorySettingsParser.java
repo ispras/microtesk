@@ -21,7 +21,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemorySettingsParser extends AbstractSettingsParser {
+public final class MemorySettingsParser extends AbstractSettingsParser<MemorySettings> {
   public MemorySettingsParser() {
     super(MemorySettings.TAG);
 
@@ -29,7 +29,7 @@ public final class MemorySettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  public AbstractSettings createSettings(final Map<String, String> attributes) {
+  public MemorySettings createSettings(final Map<String, String> attributes) {
     return new MemorySettings();
   }
 }

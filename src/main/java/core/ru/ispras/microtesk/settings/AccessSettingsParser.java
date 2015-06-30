@@ -21,7 +21,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class AccessSettingsParser extends AbstractSettingsParser {
+public final class AccessSettingsParser extends AbstractSettingsParser<AccessSettings> {
   public static final String ATTR_SEGMENT = "segment";
 
   public AccessSettingsParser() {
@@ -29,7 +29,7 @@ public final class AccessSettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  protected AbstractSettings createSettings(final Map<String, String> attributes) {
+  protected AccessSettings createSettings(final Map<String, String> attributes) {
     final String segment = AbstractSettingsParser.getString(attributes.get(ATTR_SEGMENT));
 
     return new AccessSettings(segment);

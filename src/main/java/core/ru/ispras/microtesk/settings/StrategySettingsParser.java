@@ -24,7 +24,7 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class StrategySettingsParser extends AbstractSettingsParser {
+public final class StrategySettingsParser extends AbstractSettingsParser<StrategySettings> {
   public static final String ATTR_NAME = "name";
 
   public StrategySettingsParser() {
@@ -32,7 +32,7 @@ public final class StrategySettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  protected AbstractSettings createSettings(final Map<String, String> attributes) {
+  protected StrategySettings createSettings(final Map<String, String> attributes) {
     final AllocationStrategy strategy =
         AbstractSettingsParser.getEnum(AllocationStrategyId.class, attributes.get(ATTR_NAME));
 

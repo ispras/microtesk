@@ -21,18 +21,19 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class GeneratorSettingsParser extends AbstractSettingsParser {
+public class GeneratorSettingsParser extends AbstractSettingsParser<GeneratorSettings> {
   public GeneratorSettingsParser() {
     super(GeneratorSettings.TAG);
 
     // Parsers for the standard sections.
     addParser(new MemorySettingsParser());
     addParser(new AllocationSettingsParser());
+    addParser(new DelaySlotSettingsParser());
     addParser(new ExtensionsSettingsParser());
   }
 
   @Override
-  public AbstractSettings createSettings(final Map<String, String> attributes) {
+  public GeneratorSettings createSettings(final Map<String, String> attributes) {
     return new GeneratorSettings();
   }
 }

@@ -26,7 +26,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class SettingsParser extends DefaultHandler {
-  public static GeneratorSettings parse(final String fileName, final AbstractSettingsParser parser) {
+  public static GeneratorSettings parse(
+      final String fileName, final AbstractSettingsParser<?> parser) {
     final SettingsParser settingsParser = new SettingsParser(fileName, parser);
     return settingsParser.parse();
   }
@@ -36,10 +37,10 @@ public final class SettingsParser extends DefaultHandler {
     return settingsParser.parse();
   }
 
-  private final AbstractSettingsParser parser;
+  private final AbstractSettingsParser<?> parser;
   private final String fileName;
 
-  private SettingsParser(final String fileName, final AbstractSettingsParser parser) {
+  private SettingsParser(final String fileName, final AbstractSettingsParser<?> parser) {
     this.parser = parser;
     this.fileName = fileName;
   }

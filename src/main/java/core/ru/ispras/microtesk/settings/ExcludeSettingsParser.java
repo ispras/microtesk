@@ -21,7 +21,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ExcludeSettingsParser extends AbstractSettingsParser {
+public final class ExcludeSettingsParser extends AbstractSettingsParser<ExcludeSettings> {
   public static final String ATTR_ITEM = "item";
 
   public ExcludeSettingsParser() {
@@ -29,7 +29,7 @@ public final class ExcludeSettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  protected AbstractSettings createSettings(final Map<String, String> attributes) {
+  protected ExcludeSettings createSettings(final Map<String, String> attributes) {
     final int item = AbstractSettingsParser.getDecInteger(attributes.get(ATTR_ITEM));
 
     return new ExcludeSettings(item);

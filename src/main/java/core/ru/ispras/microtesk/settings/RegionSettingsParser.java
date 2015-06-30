@@ -21,7 +21,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class RegionSettingsParser extends AbstractSettingsParser {
+public final class RegionSettingsParser extends AbstractSettingsParser<RegionSettings> {
   public static final String ATTR_NAME = "name";
   public static final String ATTR_TYPE = "type";
   public static final String ATTR_START = "start";
@@ -35,7 +35,7 @@ public final class RegionSettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  public AbstractSettings createSettings(final Map<String, String> attributes) {
+  public RegionSettings createSettings(final Map<String, String> attributes) {
     final String name = AbstractSettingsParser.getString(attributes.get(ATTR_NAME));
     final RegionSettings.Type type =
         AbstractSettingsParser.getEnum(RegionSettings.Type.class, attributes.get(ATTR_TYPE));

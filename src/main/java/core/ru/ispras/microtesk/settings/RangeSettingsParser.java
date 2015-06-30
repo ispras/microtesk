@@ -21,7 +21,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class RangeSettingsParser extends AbstractSettingsParser {
+public final class RangeSettingsParser extends AbstractSettingsParser<RangeSettings> {
   public static final String ATTR_MIN = "min";
   public static final String ATTR_MAX = "max";
 
@@ -33,7 +33,7 @@ public final class RangeSettingsParser extends AbstractSettingsParser {
   }
 
   @Override
-  public AbstractSettings createSettings(final Map<String, String> attributes) {
+  public RangeSettings createSettings(final Map<String, String> attributes) {
     final int min = AbstractSettingsParser.getDecInteger(attributes.get(ATTR_MIN));
     final int max = AbstractSettingsParser.getDecInteger(attributes.get(ATTR_MAX));
 

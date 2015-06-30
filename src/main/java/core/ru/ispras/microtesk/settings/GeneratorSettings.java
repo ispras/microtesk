@@ -36,7 +36,11 @@ public class GeneratorSettings extends AbstractSettings {
   public AllocationSettings getAllocation() {
     return getSingle(AllocationSettings.TAG);
   }
-  
+
+  public DelaySlotSettings getDelaySlot() {
+    return getSingle(DelaySlotSettings.TAG);
+  }
+
   public ExtensionsSettings getExtensions() {
     return getSingle(ExtensionsSettings.TAG);
   }
