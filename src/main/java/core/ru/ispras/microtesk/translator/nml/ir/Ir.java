@@ -39,50 +39,50 @@ public final class Ir {
   private List<Primitive> roots;
 
   public Ir() {
-    this.consts = new LinkedHashMap<String, LetConstant>();
-    this.strings = new LinkedHashMap<String, LetString>();
+    this.consts  = new LinkedHashMap<>();
+    this.strings = new LinkedHashMap<>();
 
-    this.labels = new LinkedHashMap<String, LetLabel>();
-    this.types = new LinkedHashMap<String, Type>();
-    this.memory = new LinkedHashMap<String, MemoryExpr>();
+    this.labels  = new LinkedHashMap<>();
+    this.types   = new LinkedHashMap<>();
+    this.memory  = new LinkedHashMap<>();
 
-    this.modes = new LinkedHashMap<String, Primitive>();
-    this.ops = new LinkedHashMap<String, Primitive>();
+    this.modes   = new LinkedHashMap<>();
+    this.ops     = new LinkedHashMap<>();
 
     this.roots = Collections.<Primitive>emptyList();
   }
 
-  public void add(String name, LetConstant value) {
+  public void add(final String name, final LetConstant value) {
     checkNotNull(name);
     checkNotNull(value);
     consts.put(name, value);
   }
 
-  public void add(String name, LetString value) {
+  public void add(final String name, final LetString value) {
     checkNotNull(name);
     checkNotNull(value);
     strings.put(name, value);
   }
 
-  public void add(String name, LetLabel value) {
+  public void add(final String name, final LetLabel value) {
     checkNotNull(name);
     checkNotNull(value);
     labels.put(name, value);
   }
 
-  public void add(String name, Type value) {
+  public void add(final String name, final Type value) {
     checkNotNull(name);
     checkNotNull(value);
     types.put(name, value);
   }
 
-  public void add(String name, MemoryExpr value) {
+  public void add(final String name, final MemoryExpr value) {
     checkNotNull(name);
     checkNotNull(value);
     memory.put(name, value);
   }
 
-  public void add(String name, Primitive value) {
+  public void add(final String name, final Primitive value) {
     checkNotNull(name);
     checkNotNull(value);
 
@@ -130,7 +130,7 @@ public final class Ir {
     return roots;
   }
 
-  public void setRoots(List<Primitive> value) {
+  public void setRoots(final List<Primitive> value) {
     checkNotNull(value);
 
     if (!roots.isEmpty()) {
