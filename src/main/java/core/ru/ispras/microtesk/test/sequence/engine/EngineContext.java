@@ -34,7 +34,8 @@ public final class EngineContext {
   private final StreamStore streams;
   private final GeneratorSettings settings;
   private final TestBase testBase;
-  private final int delaySlotSize; 
+  private final int delaySlotSize;
+  private long codeAddress;
 
   public EngineContext(
       final IModel model,
@@ -56,6 +57,8 @@ public final class EngineContext {
 
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
+
+    this.codeAddress = 0;
   }
 
   public IModel getModel() {
@@ -80,5 +83,13 @@ public final class EngineContext {
 
   public int getDelaySlotSize() {
     return delaySlotSize;
+  }
+
+  public long getCodeAddress() {
+    return codeAddress;
+  }
+
+  public void setCodeAddress(final long codeAddress) {
+    this.codeAddress = codeAddress;
   }
 }

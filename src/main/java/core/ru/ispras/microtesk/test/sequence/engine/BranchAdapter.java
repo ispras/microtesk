@@ -195,7 +195,14 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
     }
 
-    return new AdapterResult(testSequenceBuilder.build());
+    final TestSequence testSequence = testSequenceBuilder.build();
+
+    long codeAddress = engineContext.getCodeAddress();
+    testSequence.setAddress(codeAddress);
+    codeAddress += testSequence.getByteSize();
+    engineContext.setCodeAddress(codeAddress);
+
+    return new AdapterResult(testSequence);
   }
 
   private void updatePrologue(

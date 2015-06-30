@@ -58,8 +58,6 @@ public final class DefaultEngine implements Engine<TestSequence> {
   private Set<AddressingModeWrapper> initializedModes;
   private TestSequence.Builder sequenceBuilder;
 
-  private long codeAddress = 0;
-
   @Override
   public Class<TestSequence> getSolutionClass() {
     return TestSequence.class;
@@ -72,7 +70,8 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
   @Override
   public EngineResult<TestSequence> solve(
-      final EngineContext engineContext, final List<Call> abstractSequence) {
+      final EngineContext engineContext,
+      final List<Call> abstractSequence) {
     checkNotNull(engineContext);
     checkNotNull(abstractSequence);
 
@@ -84,8 +83,8 @@ public final class DefaultEngine implements Engine<TestSequence> {
   }
 
   private TestSequence process(
-      final EngineContext engineContext, final List<Call> abstractSequence)
-          throws ConfigurationException {
+      final EngineContext engineContext,
+      final List<Call> abstractSequence) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(abstractSequence);
 
@@ -102,8 +101,10 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
       final TestSequence sequence = sequenceBuilder.build();
 
+      long codeAddress = engineContext.getCodeAddress();
       sequence.setAddress(codeAddress);
       codeAddress += sequence.getByteSize();
+      engineContext.setCodeAddress(codeAddress);
 
       return sequence;
     } finally {

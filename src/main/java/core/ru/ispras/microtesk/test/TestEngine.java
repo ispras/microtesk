@@ -471,6 +471,8 @@ public final class TestEngine {
               if (logPrinter != null) {
                 logPrinter.createNewFile();
               }
+
+              engineContext.setCodeAddress(0);
             } catch (IOException e) {
               Logger.error(e.getMessage());
             }
