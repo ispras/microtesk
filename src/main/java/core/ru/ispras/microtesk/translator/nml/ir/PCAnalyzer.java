@@ -52,7 +52,7 @@ public final class PCAnalyzer {
       return -1;
     }
 
-    for (LocationAtom location : srcLocations) {
+    for (final LocationAtom location : srcLocations) {
       if (location.getSource().getSymbolKind() == NmlSymbolKind.ARGUMENT) {
         return 1;
       }
