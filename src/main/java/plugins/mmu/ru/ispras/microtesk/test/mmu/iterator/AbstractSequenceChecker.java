@@ -47,12 +47,14 @@ import ru.ispras.microtesk.translator.mmu.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
- * {@link TemplateChecker} implements a test template checker. It checks consistency of test
- * situations and dependencies specified in a test template.
+ * {@link AbstractSequenceChecker} implements a checker of abstract sequences (templates) for memory
+ * access instructions.
+ * 
+ * <p>It checks consistency of test situations and dependencies specified in a template.</p>
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class TemplateChecker {
+public final class AbstractSequenceChecker {
   private final Set<IntegerVariable> formulaVariables = new LinkedHashSet<>();
   private final IntegerFormula formula = new IntegerFormula();
 
@@ -108,7 +110,7 @@ public final class TemplateChecker {
    * @param filter the template filter.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public TemplateChecker(final MmuSpecification memory, final ExecutionPath execution1,
+  public AbstractSequenceChecker(final MmuSpecification memory, final ExecutionPath execution1,
       final ExecutionPath execution2, final Dependency dependency, final Predicate<Template> filter) {
     InvariantChecks.checkNotNull(execution1);
     InvariantChecks.checkNotNull(execution2);
@@ -135,7 +137,7 @@ public final class TemplateChecker {
    * @param filter the template filter.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public TemplateChecker(final Template template, final Predicate<Template> filter) {
+  public AbstractSequenceChecker(final Template template, final Predicate<Template> filter) {
     InvariantChecks.checkNotNull(template);
     InvariantChecks.checkNotNull(filter);
 

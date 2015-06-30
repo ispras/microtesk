@@ -50,7 +50,8 @@ import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
 /**
- * {@link TemplateIterator} implements a test template iterator.
+ * {@link AbstractSequenceIterator} implements an iterator of abstract sequences (templates) for
+ * memory access instructions.
  * 
  * <p>A template is a sequence of situations linked together with a number of dependencies.</p>
  * 
@@ -59,7 +60,7 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class TemplateIterator implements Iterator<Template> {
+public final class AbstractSequenceIterator implements Iterator<Template> {
   /** Checks the consistency of execution path pairs (template parts) and templates. */
   private static final FilterBuilder BASIC_FILTERS = new FilterBuilder();
   static {
@@ -129,7 +130,7 @@ public final class TemplateIterator implements Iterator<Template> {
    * @param executionPathClassifier the policy of unification executions.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public TemplateIterator(final MmuSpecification memory, final DataType[] dataTypes,
+  public AbstractSequenceIterator(final MmuSpecification memory, final DataType[] dataTypes,
       final boolean randomDataType, final int numberOfExecutions,
       final ExecutionPathClassifier executionPathClassifier) {
     InvariantChecks.checkNotNull(memory);
@@ -249,7 +250,7 @@ public final class TemplateIterator implements Iterator<Template> {
           dependency.addHazard(hazard);
 
           // Check consistency
-          final TemplateChecker checker = new TemplateChecker(memory, execution1, execution2,
+          final AbstractSequenceChecker checker = new AbstractSequenceChecker(memory, execution1, execution2,
               dependency, executionPairFilter);
 
           if (checker.check()) {
@@ -268,7 +269,7 @@ public final class TemplateIterator implements Iterator<Template> {
 
             newDependency.addHazard(hazard);
 
-            final TemplateChecker newChecker = new TemplateChecker(memory, execution1, execution2,
+            final AbstractSequenceChecker newChecker = new AbstractSequenceChecker(memory, execution1, execution2,
                 newDependency, executionPairFilter);
 
             if (newChecker.check()) {
@@ -315,7 +316,7 @@ public final class TemplateIterator implements Iterator<Template> {
     this.template = new Template(memory, templateExecutions, templateDependencies);
 
     // Check template.
-    final TemplateChecker checker = new TemplateChecker(template, wholeTemplateFilter);
+    final AbstractSequenceChecker checker = new AbstractSequenceChecker(template, wholeTemplateFilter);
 
     if (!checker.check()) {
       step();
@@ -375,7 +376,7 @@ public final class TemplateIterator implements Iterator<Template> {
     setDataTypes();
     this.template = new Template(memory, templateExecutions, templateDependencies);
 
-    TemplateChecker checker = new TemplateChecker(template, wholeTemplateFilter);
+    AbstractSequenceChecker checker = new AbstractSequenceChecker(template, wholeTemplateFilter);
 
     while (!checker.check() && hasNext) {
       if (!nextDependencies()) {
@@ -387,7 +388,7 @@ public final class TemplateIterator implements Iterator<Template> {
       // TODO:
       setDataTypes();
       this.template = new Template(memory, templateExecutions, templateDependencies);
-      checker = new TemplateChecker(template, wholeTemplateFilter);
+      checker = new AbstractSequenceChecker(template, wholeTemplateFilter);
     }
   }
 

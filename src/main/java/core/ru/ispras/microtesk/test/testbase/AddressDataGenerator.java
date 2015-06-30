@@ -34,11 +34,11 @@ import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.stub.Utils;
 
 /**
- * {@link AddressGenerator} randomly generates an address from a given memory region.
+ * {@link AddressDataGenerator} randomly generates an address from a given memory region.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class AddressGenerator implements DataGenerator {
+public final class AddressDataGenerator implements DataGenerator {
   /** Instruction operand for the address base. */
   private static final String PARAM_ADDRESS_BASE = "base";
   /** Instruction operand for the address offset (optional). */
