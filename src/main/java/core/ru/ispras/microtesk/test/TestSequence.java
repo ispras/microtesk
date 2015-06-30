@@ -57,6 +57,7 @@ public final class TestSequence {
     }
 
     public void addToPrologue(final List<ConcreteCall> calls) {
+      checkNotNull(calls);
       for (final ConcreteCall call : calls) {
         addToPrologue(call);
       }
@@ -73,6 +74,7 @@ public final class TestSequence {
     }
 
     public void add(final List<ConcreteCall> calls) {
+      checkNotNull(calls);
       for (final ConcreteCall call : calls) {
         add(call);
       }
