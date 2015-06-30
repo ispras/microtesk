@@ -18,10 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
-import ru.ispras.microtesk.translator.mmu.spec.MmuCondition;
-import ru.ispras.microtesk.translator.mmu.spec.MmuEquality;
-import ru.ispras.microtesk.translator.mmu.spec.MmuExpression;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuAddress;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuCondition;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuEquality;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuExpression;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>

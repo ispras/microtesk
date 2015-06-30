@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
-import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
-import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuAddress;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuDevice;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuSpecification;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

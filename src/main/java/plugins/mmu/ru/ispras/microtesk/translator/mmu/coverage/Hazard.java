@@ -15,9 +15,9 @@
 package ru.ispras.microtesk.translator.mmu.coverage;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
-import ru.ispras.microtesk.translator.mmu.spec.MmuCondition;
-import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuAddress;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuCondition;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuDevice;
 
 /**
  * This class describes a device usage conflict, which is a simple dependency between two

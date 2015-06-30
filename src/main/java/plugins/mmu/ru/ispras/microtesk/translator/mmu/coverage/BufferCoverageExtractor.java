@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.MmuCondition;
-import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
-import ru.ispras.microtesk.translator.mmu.spec.MmuEquality;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuCondition;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuDevice;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuEquality;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>

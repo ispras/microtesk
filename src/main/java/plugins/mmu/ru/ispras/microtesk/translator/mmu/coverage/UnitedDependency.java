@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.MmuAddress;
-import ru.ispras.microtesk.translator.mmu.spec.MmuDevice;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuAddress;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuDevice;
 
 /**
  * This class represents a united dependency, which combines information on dependencies of a single

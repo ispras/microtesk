@@ -32,7 +32,7 @@ import ru.ispras.microtesk.translator.mmu.grammar.MmuLexer;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuParser;
 import ru.ispras.microtesk.translator.mmu.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.translator.mmu.ir.Ir;
-import ru.ispras.microtesk.translator.mmu.spec.builder.MmuSpecBuilder;
+import ru.ispras.microtesk.translator.mmu.ir.spec.builder.MmuSpecBuilder;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public class MmuTranslator extends Translator<Ir> {

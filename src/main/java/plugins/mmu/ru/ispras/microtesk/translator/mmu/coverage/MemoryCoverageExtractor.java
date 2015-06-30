@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.mmu.spec.MmuAction;
-import ru.ispras.microtesk.translator.mmu.spec.MmuGuard;
-import ru.ispras.microtesk.translator.mmu.spec.MmuSpecification;
-import ru.ispras.microtesk.translator.mmu.spec.MmuTransition;
-import ru.ispras.microtesk.translator.mmu.spec.basis.MemoryOperation;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuAction;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuGuard;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.translator.mmu.ir.spec.MmuTransition;
+import ru.ispras.microtesk.translator.mmu.ir.spec.basis.MemoryOperation;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
