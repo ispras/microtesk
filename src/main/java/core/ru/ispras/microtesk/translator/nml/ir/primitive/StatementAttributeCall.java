@@ -45,7 +45,7 @@ public final class StatementAttributeCall extends Statement {
       final String calleeName,
       final String attributeName) {
     super(Kind.CALL);
-    InvariantChecks.checkNotNull(calleeName);
+    InvariantChecks.checkNotNull(attributeName);
 
     this.calleeInstance = calleeInstance;
     this.calleeName = calleeName;
