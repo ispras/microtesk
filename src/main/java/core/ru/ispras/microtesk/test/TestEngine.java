@@ -471,8 +471,6 @@ public final class TestEngine {
               if (logPrinter != null) {
                 logPrinter.createNewFile();
               }
-
-              engineContext.setCodeAddress(0);
             } catch (IOException e) {
               Logger.error(e.getMessage());
             }
@@ -584,6 +582,8 @@ public final class TestEngine {
             }
 
             printer.close();
+
+            engineContext.setCodeAddress(0);
           }
         } // Concrete sequence iterator
 
