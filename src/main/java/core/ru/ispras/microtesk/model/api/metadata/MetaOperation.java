@@ -33,9 +33,9 @@ public final class MetaOperation implements MetaData {
   private final Map<String, MetaArgument> args;
   private final Map<String, MetaShortcut> shortcuts;
   private final boolean hasRootShortcuts;
-  private final boolean exception;
   private final boolean branch;
   private final boolean conditionalBranch;
+  private final boolean exception;
 
   public MetaOperation(
       final String name,
@@ -43,9 +43,9 @@ public final class MetaOperation implements MetaData {
       final boolean isRoot,
       final Map<String, MetaArgument> args,
       final Map<String, MetaShortcut> shortcuts,
-      final boolean exception,
       final boolean branch,
-      final boolean conditionalBranch) {
+      final boolean conditionalBranch,
+      final boolean exception) {
     checkNotNull(name);
     checkNotNull(typeName);
     checkNotNull(args);
@@ -74,10 +74,9 @@ public final class MetaOperation implements MetaData {
     }
 
     this.hasRootShortcuts = rootShortcuts;
-    this.exception = exception;
-
     this.branch = branch;
     this.conditionalBranch = conditionalBranch;
+    this.exception = exception;
   }
 
   /**
@@ -169,17 +168,6 @@ public final class MetaOperation implements MetaData {
   }
 
   /**
-   * Checks whether the current operation can throw an exception.
-   *  
-   * @return {@code true} if the operation can throw an exception
-   * or {@code false} otherwise.
-   */
-
-  public boolean canThrowException() {
-    return exception;
-  }
-
-  /**
    * Checks whether the operation is a branch operation (causes control transfer).
    * 
    * @return {@code true} if the operation is a branch operation
@@ -200,5 +188,16 @@ public final class MetaOperation implements MetaData {
 
   public boolean isConditionalBranch() {
     return conditionalBranch;
+  }
+
+  /**
+   * Checks whether the current operation can throw an exception.
+   *  
+   * @return {@code true} if the operation can throw an exception
+   * or {@code false} otherwise.
+   */
+
+  public boolean canThrowException() {
+    return exception;
   }
 }
