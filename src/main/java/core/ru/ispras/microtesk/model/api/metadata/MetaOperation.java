@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.util.Map;
 
@@ -32,6 +34,8 @@ public final class MetaOperation implements MetaData {
   private final Map<String, MetaShortcut> shortcuts;
   private final boolean hasRootShortcuts;
   private final boolean exception;
+  private final boolean branch;
+  private final boolean conditionalBranch;
 
   public MetaOperation(
       final String name,
@@ -39,11 +43,21 @@ public final class MetaOperation implements MetaData {
       final boolean isRoot,
       final Map<String, MetaArgument> args,
       final Map<String, MetaShortcut> shortcuts,
-      final boolean exception) {
+      final boolean exception,
+      final boolean branch,
+      final boolean conditionalBranch) {
     checkNotNull(name);
     checkNotNull(typeName);
     checkNotNull(args);
     checkNotNull(shortcuts);
+
+    if (!branch) {
+      checkFalse(conditionalBranch);
+    }
+
+    if (conditionalBranch) {
+      checkTrue(branch);
+    }
 
     this.name = name;
     this.typeName = typeName;
@@ -61,6 +75,9 @@ public final class MetaOperation implements MetaData {
 
     this.hasRootShortcuts = rootShortcuts;
     this.exception = exception;
+
+    this.branch = branch;
+    this.conditionalBranch = conditionalBranch;
   }
 
   /**
@@ -160,5 +177,28 @@ public final class MetaOperation implements MetaData {
 
   public boolean canThrowException() {
     return exception;
+  }
+
+  /**
+   * Checks whether the operation is a branch operation (causes control transfer).
+   * 
+   * @return {@code true} if the operation is a branch operation
+   * or {@code false} otherwise.
+   */
+
+  public boolean isBranch() {
+    return branch;
+  }
+
+  /**
+   * Checks whether the operation is a conditional branch operation
+   * (causes control transfer on some condition).
+   * 
+   * @return {@code true} if the operation is a conditional branch operation
+   * or {@code false} otherwise.
+   */
+
+  public boolean isConditionalBranch() {
+    return conditionalBranch;
   }
 }

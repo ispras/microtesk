@@ -321,7 +321,9 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         isRoot(),
         decls.getMetaData(),
         shortcuts.getMetaData(),
-        canThrowException
+        canThrowException,
+        false, // TODO
+        false  // TODO
         );
     }
 
