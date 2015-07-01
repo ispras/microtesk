@@ -47,6 +47,7 @@ import ru.ispras.microtesk.translator.nml.generation.Generator;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
 import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
+import ru.ispras.microtesk.translator.nml.ir.BranchDetector;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -278,6 +279,9 @@ public final class NmlTranslator extends Translator<Ir> implements Preprocessor 
       return;
     }
     ir.setRoots(primitiveSyntesizer.getRoots());
+
+    final BranchDetector branchDetector = new BranchDetector(ir);
+    branchDetector.start();
 
     startGenerator(modelName, FileUtils.getShortFileName(fileName), ir);
   }
