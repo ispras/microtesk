@@ -60,6 +60,8 @@ public final class Add extends Operation
                 false,
                 new ParamDecls(),
                 false,
+                false,
+                false,
                 new Shortcuts()
                     .addShortcut(new Info_Instruction(), "#root")
             );
@@ -84,6 +86,8 @@ public final class Add extends Operation
                new ParamDecls()
                    .declareParam("op1", ArgumentMode.INOUT, OPRNDL.INFO)
                    .declareParam("op2", ArgumentMode.IN, OPRNDR.INFO),
+               false,
+               false,
                false
             );
         }

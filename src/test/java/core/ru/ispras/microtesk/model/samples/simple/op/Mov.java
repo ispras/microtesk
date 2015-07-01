@@ -57,6 +57,8 @@ public final class Mov extends Operation
                 false,
                 new ParamDecls(),
                 false,
+                false,
+                false,
                 new Shortcuts()
                     .addShortcut(new Info_Instruction(), "#root")
             );
@@ -81,6 +83,8 @@ public final class Mov extends Operation
                new ParamDecls()
                    .declareParam("op1", ArgumentMode.NA, OPRNDL.INFO)
                    .declareParam("op2", ArgumentMode.NA, OPRNDR.INFO),
+               false,
+               false,
                false
             );
         }

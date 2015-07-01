@@ -274,14 +274,14 @@ public final class NmlTranslator extends Translator<Ir> implements Preprocessor 
     final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
         ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());
 
+    final BranchDetector branchDetector = new BranchDetector(ir);
+    branchDetector.start();
+
     if (!primitiveSyntesizer.syntesize()) {
       Logger.error(FAILED_TO_SYNTH_PRIMITIVES);
       return;
     }
     ir.setRoots(primitiveSyntesizer.getRoots());
-
-    final BranchDetector branchDetector = new BranchDetector(ir);
-    branchDetector.start();
 
     startGenerator(modelName, FileUtils.getShortFileName(fileName), ir);
   }

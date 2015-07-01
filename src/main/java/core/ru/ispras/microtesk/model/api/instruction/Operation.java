@@ -307,6 +307,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         final String name,
         final boolean isRoot,
         final ParamDecls decls,
+        final boolean isBranch,
+        final boolean isConditionalBranch,
         final boolean canThrowException,
         final Shortcuts shortcuts) {
       this.opClass = opClass;
@@ -321,9 +323,9 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         isRoot(),
         decls.getMetaData(),
         shortcuts.getMetaData(),
-        canThrowException,
-        false, // TODO
-        false  // TODO
+        isBranch,
+        isConditionalBranch,
+        canThrowException
         );
     }
 
@@ -332,8 +334,19 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         final String name,
         final boolean isRoot,
         final ParamDecls decls,
+        final boolean isBranch,
+        final boolean isConditionalBranch,
         final boolean canThrowException) {
-      this(opClass, name, isRoot, decls, canThrowException, new Shortcuts());
+      this(
+          opClass,
+          name,
+          isRoot,
+          decls,
+          isBranch,
+          isConditionalBranch,
+          canThrowException,
+          new Shortcuts()
+          );
     }
 
     @Override

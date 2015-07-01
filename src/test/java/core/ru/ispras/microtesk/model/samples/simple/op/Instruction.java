@@ -48,6 +48,8 @@ public final class Instruction extends Operation
                 true,
                 new ParamDecls()
                     .declareParam("x", Arith_Mem_Inst.INFO),
+                false,
+                false,
                 false
             );
         }

@@ -68,6 +68,8 @@ public class Arith_Mem_Inst extends Operation
                     .declareParam("y",   Add_sub_mov.INFO)
                     .declareParam("op1", ArgumentMode.NA, OPRNDL.INFO)
                     .declareParam("op2", ArgumentMode.NA, OPRNDR.INFO),
+                false,
+                false,
                 false
             );
         }

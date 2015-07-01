@@ -22,6 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.Pair;
+
 /**
  * The Shortcut class describes a shortcut (a short way) to address a group of operations within the
  * operation tree (some specific path) that describes a composite operation. In most specifications,
@@ -109,6 +111,9 @@ public final class Shortcut {
   private final PrimitiveAND target;
   private final List<String> contextNames;
   private final Map<String, Argument> arguments;
+
+  private final boolean branch;
+  private final boolean conditionalBranch;
   private final boolean exception;
 
   /**
@@ -141,9 +146,14 @@ public final class Shortcut {
     this.entry = entry;
     this.target = target;
     this.contextNames = contextNames;
-    this.arguments = new LinkedHashMap<>();
 
+    this.arguments = new LinkedHashMap<>();
     addArguments(entry, false);
+
+    final Pair<Boolean, Boolean> branchInfo = getBranchInfo(entry, false);
+    this.branch = branchInfo.first;
+    this.conditionalBranch = branchInfo.second;
+
     this.exception = canThrowException(entry, false);
   }
 
@@ -199,6 +209,26 @@ public final class Shortcut {
     }
 
     return false;
+  }
+
+  private Pair<Boolean, Boolean> getBranchInfo(final PrimitiveAND root, final boolean reachedTarget) {
+    if (root.isBranch()) {
+      return new Pair<>(root.isBranch(), root.isConditionalBranch());
+    }
+
+    for (final Primitive arg : root.getArguments().values()) {
+      if ((arg.getKind() == Primitive.Kind.OP) && !reachedTarget) {
+        notOrRuleCheck(arg);
+        final PrimitiveAND primitive = (PrimitiveAND) arg;
+        final Pair<Boolean, Boolean> branchInfo = getBranchInfo(primitive, primitive == target);
+
+        if (branchInfo.first) {
+          return branchInfo;
+        }
+      }
+    }
+
+    return new Pair<>(false, false);
   }
 
   /**
@@ -271,6 +301,14 @@ public final class Shortcut {
 
   public Collection<Argument> getArguments() {
     return arguments.values();
+  }
+
+  public boolean isBranch() {
+    return branch;
+  }
+
+  public boolean isConditionalBranch() {
+    return conditionalBranch;
   }
 
   public boolean canThrowException() {
