@@ -16,6 +16,7 @@ package ru.ispras.microtesk;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -55,23 +56,36 @@ public final class MicroTESK {
     }
 
     try {
+      registerPlugins(Config.loadPlugins());
+
       if (params.hasOption(Parameters.GENERATE)) {
         generate(params);
       } else {
         translate(params);
       }
-    } catch (ParseException e) {
+    } catch (final ParseException e) {
       Logger.error("Incorrect command line or configuration file: " + e.getMessage());
       Parameters.help();
       System.exit(-1);
-    } catch (Throwable e) {
+    } catch (final Throwable e) {
       Logger.exception(e);
       System.exit(-1);
     }
   }
 
+  private static final List<Translator<?>> translators = new ArrayList<>();
+
+  private static void registerPlugins(final List<Plugin> plugins) {
+    for (final Plugin plugin : plugins) {
+      final Translator<?> translator = plugin.getTranslator();
+
+      if (translator != null) {
+        translators.add(translator);
+      }
+    }
+  }
+
   private static void translate(final Parameters params) throws RecognitionException {
-    final List<Translator<?>> translators = Config.loadTranslators();
     for (final Translator<?> translator : translators) {
       if (params.hasOption(Parameters.INCLUDE)) {
         translator.addPath(params.getOptionValue(Parameters.INCLUDE));
@@ -109,7 +123,7 @@ public final class MicroTESK {
       try {
         FileUtils.copyDirectory(extensionDirFile, outDirFile);
         Logger.message("Copied %s to %s", extensionDir, outDir);
-      } catch (IOException e) {
+      } catch (final IOException e) {
         Logger.error("Failed to copy %s to %s", extensionDir, outDir);
       }
     }

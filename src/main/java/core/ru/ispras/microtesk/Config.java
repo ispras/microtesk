@@ -34,8 +34,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.nml.NmlAnalyzer;
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Config {
   private Config() {}
@@ -61,7 +60,19 @@ public final class Config {
 
   private static final String ERR_FAILED_TO_PARSE = "Failed to parse %s.";
 
-  public static List<Translator<?>> loadTranslators() {
+  public static Plugin loadPlugin(final String className) {
+    InvariantChecks.checkNotNull(className);
+
+    final ClassLoader loader = Plugin.class.getClassLoader();
+    try {
+      final Class<?> pluginClass = loader.loadClass(className);
+      return (Plugin) pluginClass.newInstance();
+    } catch(ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+      return null;
+    }
+  }
+  
+  public static List<Plugin> loadPlugins() {
     final URL configUrl = getResource(CONFIG_URL);
     if (null == configUrl) {
       throw new IllegalStateException(String.format("Document %s is not found.", CONFIG_URL));
@@ -78,25 +89,25 @@ public final class Config {
           ERR_NO_ROOT_NODE, CONFIG_URL, CONFIG));
     }
 
-    final List<Translator<?>> result = new ArrayList<>();
-    result.add(new NmlAnalyzer());
+    final List<Plugin> result = new ArrayList<>();
+    result.add(new Core());
 
-    final NodeList plugins = config.getChildNodes();
-    for (int index = 0; index < plugins.getLength(); ++index) {
-      final Node plugin = plugins.item(index);
-      if (!PLUGIN.equalsIgnoreCase((plugin.getNodeName()))) {
+    final NodeList pluginNodes = config.getChildNodes();
+    for (int index = 0; index < pluginNodes.getLength(); ++index) {
+      final Node pluginNode = pluginNodes.item(index);
+      if (!PLUGIN.equalsIgnoreCase((pluginNode.getNodeName()))) {
         continue;
       }
 
-      final NamedNodeMap attributes = plugin.getAttributes();
+      final NamedNodeMap attributes = pluginNode.getAttributes();
       final Node className = attributes.getNamedItem(CLASS);
       if (null == className) {
         throw new IllegalStateException(String.format(
             ERR_ATTRIBUTE_NOT_DEFINED, CLASS, CONFIG_URL));
       }
 
-      final Translator<?> translator = Translator.load(className.getNodeValue());
-      result.add(translator);
+      final Plugin plugin = loadPlugin(className.getNodeValue());
+      result.add(plugin);
     }
 
     return result;
