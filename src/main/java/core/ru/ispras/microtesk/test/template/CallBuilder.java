@@ -33,9 +33,9 @@ public final class CallBuilder {
 
     this.blockId = blockId;
     this.rootOperation = null;
-    this.labels = new ArrayList<Label>();
-    this.labelRefs = new ArrayList<LabelReference>();
-    this.outputs = new ArrayList<Output>();
+    this.labels = new ArrayList<>();
+    this.labelRefs = new ArrayList<>();
+    this.outputs = new ArrayList<>();
   }
 
   public void setRootOperation(final Primitive rootOperation) {
