@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -528,6 +529,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   public Primitive build() {
     checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
 
+    final Pair<Boolean, Boolean> branchInfo = getBranchInfo();
     final Primitive primitive = new ConcretePrimitive(
         kind,
         getName(),
@@ -536,8 +538,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         args,
         contextName,
         situation,
-        false, // TODO
-        false, // TODO
+        branchInfo.first,
+        branchInfo.second,
         canThrowException()
         );
 
@@ -582,6 +584,36 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     return false;
+  }
+
+  private Pair<Boolean, Boolean> getBranchInfo() {
+    if (kind == Kind.MODE) {
+      // Modes do not perform control transfers.
+      return new Pair<>(false, false);
+    }
+
+    final MetaOperation metaOperation = getMetaOperation(); 
+    if (metaOperation.isBranch()) {
+      return new Pair<>(metaOperation.isBranch(), metaOperation.isConditionalBranch());
+    }
+
+    for (final Argument arg : args.values()) {
+      if (arg.getKind() != Argument.Kind.OP) {
+        continue;
+      }
+
+      final Primitive primitive = (Primitive) arg.getValue();
+      if (primitive instanceof ConcretePrimitive) {
+        if (primitive.isBranch()) {
+          return new Pair<>(primitive.isBranch(), primitive.isConditionalBranch());
+        }
+      } else {
+        throw new IllegalArgumentException(
+            "Unsupported primitive implementation: " + primitive.getClass().getName());
+      }
+    }
+
+    return new Pair<>(false, false);
   }
 
   @Override
