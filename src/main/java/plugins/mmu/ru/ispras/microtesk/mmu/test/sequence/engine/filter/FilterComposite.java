@@ -12,12 +12,12 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.filter;
+package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.Template;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
@@ -25,8 +25,8 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterComposite implements Predicate<Template> {
-  private final Collection<Predicate<Template>> filters;
+public final class FilterComposite implements Predicate<AbstractSequence> {
+  private final Collection<Predicate<AbstractSequence>> filters;
 
   /**
    * Constructs a template-level filter from the collection of template-level filters.
@@ -34,14 +34,14 @@ public final class FilterComposite implements Predicate<Template> {
    * @param filters the collection of template-level filters to be composed.
    * @throws IllegalArgumentException if {@code filters} is {@code null}.
    */
-  public FilterComposite(final Collection<Predicate<Template>> filters) {
+  public FilterComposite(final Collection<Predicate<AbstractSequence>> filters) {
     InvariantChecks.checkNotNull(filters);
     this.filters = filters;
   }
   
   @Override
-  public boolean test(final Template template) {
-    for (final Predicate<Template> filter : filters) {
+  public boolean test(final AbstractSequence template) {
+    for (final Predicate<AbstractSequence> filter : filters) {
       if (!filter.test(template)) {
         // Filter off.
         return false;

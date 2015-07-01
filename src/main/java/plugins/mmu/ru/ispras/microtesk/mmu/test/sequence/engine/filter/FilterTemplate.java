@@ -12,12 +12,12 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.filter;
+package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.Template;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
@@ -31,7 +31,7 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterTemplate implements Predicate<Template> {
+public final class FilterTemplate implements Predicate<AbstractSequence> {
   private final Collection<Predicate<ExecutionPath>> executionFilters;
   private final Collection<TriPredicate<ExecutionPath, ExecutionPath, Dependency>> dependencyFilters;
   private final Collection<BiPredicate<ExecutionPath, UnitedDependency>> unitedDependencyFilters;
@@ -58,7 +58,7 @@ public final class FilterTemplate implements Predicate<Template> {
   }
 
   @Override
-  public boolean test(final Template template) {
+  public boolean test(final AbstractSequence template) {
     for (int i = 0; i < template.size(); i++) {
       final ExecutionPath execution1 = template.getExecution(i);
 

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.iterator;
+package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

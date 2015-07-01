@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.Template;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.mmu.test.sequence.engine.loader.MemoryLoader;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
@@ -57,7 +57,7 @@ public final class MmuSolution {
    * @param memory the MMU specification.
    * @param template the test template.
    */
-  public MmuSolution(final MmuSpecification memory, final Template template) {
+  public MmuSolution(final MmuSpecification memory, final AbstractSequence template) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(template);
 

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.iterator;
+package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.Template;
 import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
@@ -97,8 +96,8 @@ public final class AbstractSequenceChecker {
   private final Map<IntegerVariable, Set<IntegerField>> intersectingRanges = new LinkedHashMap<>();
 
   /** Template to be checked. */
-  private final Template template;
-  private final Predicate<Template> filter;
+  private final AbstractSequence template;
+  private final Predicate<AbstractSequence> filter;
 
   /**
    * Constructs a checker for the given pair of executions.
@@ -111,7 +110,7 @@ public final class AbstractSequenceChecker {
    * @throws IllegalArgumentException if some parameters are null.
    */
   public AbstractSequenceChecker(final MmuSpecification memory, final ExecutionPath execution1,
-      final ExecutionPath execution2, final Dependency dependency, final Predicate<Template> filter) {
+      final ExecutionPath execution2, final Dependency dependency, final Predicate<AbstractSequence> filter) {
     InvariantChecks.checkNotNull(execution1);
     InvariantChecks.checkNotNull(execution2);
     InvariantChecks.checkNotNull(filter);
@@ -126,7 +125,7 @@ public final class AbstractSequenceChecker {
     dependencies[0][1] = null;
     dependencies[1][1] = null;
 
-    this.template = new Template(memory, executions, dependencies);
+    this.template = new AbstractSequence(memory, executions, dependencies);
     this.filter = filter;
   }
 
@@ -137,7 +136,7 @@ public final class AbstractSequenceChecker {
    * @param filter the template filter.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public AbstractSequenceChecker(final Template template, final Predicate<Template> filter) {
+  public AbstractSequenceChecker(final AbstractSequence template, final Predicate<AbstractSequence> filter) {
     InvariantChecks.checkNotNull(template);
     InvariantChecks.checkNotNull(filter);
 

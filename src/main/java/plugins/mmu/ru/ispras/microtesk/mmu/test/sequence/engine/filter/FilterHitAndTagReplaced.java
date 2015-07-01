@@ -12,27 +12,33 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.filter;
+package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
 import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
- * Filters off test templates with multiple {@code TAG_REPLACED} hazards over the same device for
- * a single execution.
+ * Filters off test templates, where {@code TAG_REPLACED} and {@code HIT} are simultaneously set for
+ * the same device.
  * 
- * <p>NOTE: Such constraints do not have a well-defined semantics.</p>
+ * <p>NOTE: In a more general case, replace-use chains should not include reloads.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterMultipleTagReplaced implements BiPredicate<ExecutionPath, UnitedHazard> {
+public final class FilterHitAndTagReplaced implements BiPredicate<ExecutionPath, UnitedHazard> {
   @Override
   public boolean test(final ExecutionPath execution, final UnitedHazard hazard) {
-    if (hazard.getRelation(Hazard.Type.TAG_REPLACED).size() > 1) {
-      // Filter off.
-      return false;
+    final MmuDevice device = hazard.getDevice();
+
+    if (device != null && execution.getEvent(device) == BufferAccessEvent.HIT) {
+      if (!hazard.getRelation(Hazard.Type.TAG_REPLACED).isEmpty()) {
+        // Filter off.
+        return false;
+      }
     }
 
     return true;

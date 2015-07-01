@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.filter;
+package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.Template;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
 import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
@@ -44,9 +44,9 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class FilterUnclosedEqualRelations implements Predicate<Template> {
+public final class FilterUnclosedEqualRelations implements Predicate<AbstractSequence> {
   @Override
-  public boolean test(final Template template) {
+  public boolean test(final AbstractSequence template) {
     final Map<String, Map<Integer, Set<Integer>>> relations = new LinkedHashMap<>();
 
     for (int i = 0; i < template.size() - 1; i++) {

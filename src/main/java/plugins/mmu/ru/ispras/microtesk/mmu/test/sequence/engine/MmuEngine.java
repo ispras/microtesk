@@ -23,8 +23,8 @@ import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.Template;
-import ru.ispras.microtesk.mmu.test.sequence.filter.FilterAccessThenMiss;
+import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterAccessThenMiss;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
@@ -50,7 +50,7 @@ import ru.ispras.microtesk.utils.function.UnaryOperator;
  * {@link MmuEngine} implements a solver of memory-related constraints (hit, miss, etc.)
  * specified in a test template.
  * 
- * <p>The input is a test template (an object of {@link Template}); the output is a solution (an
+ * <p>The input is a test template (an object of {@link AbstractSequence}); the output is a solution (an
  * object of {@link MmuSolution}).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -116,7 +116,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
   private final int templateId;
 
   /** Test template to be solved. */
-  private final Template template;
+  private final AbstractSequence template;
 
   /** Test template solution. */
   private final MmuSolution solution;
@@ -147,7 +147,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
   public MmuEngine(
       final MmuSpecification memory,
       final int templateId,
-      final Template template, // TODO: List<Call> abstractSequence
+      final AbstractSequence template, // TODO: List<Call> abstractSequence
       final Function<ExecutionPath, MmuTestData> testDataConstructor,
       final BiConsumer<ExecutionPath, MmuTestData> testDataCorrector,
       final Map<MmuDevice, Predicate<ExecutionPath>> deviceGuards,

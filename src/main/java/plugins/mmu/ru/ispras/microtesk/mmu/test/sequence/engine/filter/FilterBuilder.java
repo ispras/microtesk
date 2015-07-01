@@ -12,13 +12,13 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.filter;
+package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.Template;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
@@ -50,7 +50,7 @@ public final class FilterBuilder {
   private final Collection<BiPredicate<ExecutionPath, UnitedDependency>>
     unitedDependencyFilters = new ArrayList<>();
 
-  private final Collection<Predicate<Template>>
+  private final Collection<Predicate<AbstractSequence>>
     templateFilters = new ArrayList<>();
 
   public FilterBuilder() {
@@ -116,12 +116,12 @@ public final class FilterBuilder {
     unitedDependencyFilters.addAll(filters);
   }
 
-  public void addTemplateFilter(final Predicate<Template> filter) {
+  public void addTemplateFilter(final Predicate<AbstractSequence> filter) {
     InvariantChecks.checkNotNull(filter);
     templateFilters.add(filter);
   }
 
-  public void addTemplateFilters(final Collection<Predicate<Template>> filters) {
+  public void addTemplateFilters(final Collection<Predicate<AbstractSequence>> filters) {
     InvariantChecks.checkNotNull(filters);
     templateFilters.addAll(filters);
   }
@@ -137,7 +137,7 @@ public final class FilterBuilder {
     templateFilters.addAll(builder.templateFilters);
   }
 
-  public Predicate<Template> build() {
+  public Predicate<AbstractSequence> build() {
     final Collection<TriPredicate<ExecutionPath, ExecutionPath, Dependency>>
       newDependencyFilters = new ArrayList<>(dependencyFilters);
     newDependencyFilters.add(new FilterDependency(hazardFilters));
@@ -146,7 +146,7 @@ public final class FilterBuilder {
       newUnitedDependencyFilters = new ArrayList<>(unitedDependencyFilters);
     newUnitedDependencyFilters.add(new FilterUnitedDependency(unitedHazardFilters));
 
-    final Collection<Predicate<Template>>
+    final Collection<Predicate<AbstractSequence>>
       newTemplateFilters = new ArrayList<>(templateFilters);
     newTemplateFilters.add(new FilterTemplate(
         executionFilters, newDependencyFilters, newUnitedDependencyFilters));

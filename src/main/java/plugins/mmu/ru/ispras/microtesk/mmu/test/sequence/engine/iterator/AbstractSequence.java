@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence;
+package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,7 +31,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class Template {
+public final class AbstractSequence {
   /** The memory specification. */
   private MmuSpecification memory;
   /** The list of executions. */
@@ -46,7 +46,7 @@ public final class Template {
    * @param dependencies the dependencies.
    * @throws IllegalArgumentException if {@code executions} or {@code dependencies} is null.
    */
-  public Template(final MmuSpecification memory, final List<ExecutionPath> executions,
+  public AbstractSequence(final MmuSpecification memory, final List<ExecutionPath> executions,
       final Dependency[][] dependencies) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(executions);
