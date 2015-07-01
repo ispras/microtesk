@@ -31,6 +31,8 @@ public final class PrimitiveAND extends Primitive {
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
   private final boolean exception;
+  private boolean branch;
+  private boolean conditionalBranch;
 
   PrimitiveAND(
       final String name,
@@ -64,15 +66,17 @@ public final class PrimitiveAND extends Primitive {
     this.exception = exception;
   }
 
-  private PrimitiveAND(final PrimitiveAND source) {
-    super(source);
+  private PrimitiveAND(final PrimitiveAND other) {
+    super(other);
 
-    this.retExpr = source.retExpr;
-    this.args = new LinkedHashMap<>(source.args);
-    this.argsUsage = source.argsUsage;
-    this.attrs = source.attrs;
-    this.shortcuts = source.shortcuts;
-    this.exception = source.exception;
+    this.retExpr = other.retExpr;
+    this.args = new LinkedHashMap<>(other.args);
+    this.argsUsage = other.argsUsage;
+    this.attrs = other.attrs;
+    this.shortcuts = other.shortcuts;
+    this.exception = other.exception;
+    this.branch = other.branch;
+    this.conditionalBranch = other.conditionalBranch;
   }
 
   void addShortcut(final Shortcut shortcut) {
@@ -114,5 +118,27 @@ public final class PrimitiveAND extends Primitive {
 
   public boolean canThrowException() {
     return exception;
+  }
+
+  public boolean isBranch() {
+    return branch;
+  }
+
+  public void setBranch(final boolean value) {
+    this.branch = value;
+    if (!value) {
+      conditionalBranch = false;
+    }
+  }
+
+  public boolean isConditionalBranch() {
+    return conditionalBranch;
+  }
+
+  public void setConditionalBranch(final boolean value) {
+    this.conditionalBranch = value;
+    if (value) {
+      branch = true;
+    }
   }
 }
