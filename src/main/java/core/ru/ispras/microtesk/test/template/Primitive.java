@@ -61,6 +61,8 @@ final class ConcretePrimitive implements Primitive {
   private final Map<String, Argument> args;
   private final String contextName;
   private final Situation situation;
+  private final boolean branch;
+  private final boolean conditionalBranch;
   private final boolean exception;
 
   protected ConcretePrimitive(
@@ -71,6 +73,8 @@ final class ConcretePrimitive implements Primitive {
       final Map<String, Argument> args,
       final String contextName,
       final Situation situation,
+      final boolean branch,
+      final boolean conditionalBranch,
       final boolean exception) {
     checkNotNull(kind);
     checkNotNull(name);
@@ -84,6 +88,8 @@ final class ConcretePrimitive implements Primitive {
     this.args = args;
     this.contextName = contextName;
     this.situation = situation;
+    this.branch = branch;
+    this.conditionalBranch = conditionalBranch;
     this.exception = exception;
   }
 
@@ -95,6 +101,8 @@ final class ConcretePrimitive implements Primitive {
     this.args = copyArguments(other.args);
     this.contextName = other.contextName;
     this.situation = other.situation;
+    this.branch = other.branch;
+    this.conditionalBranch = other.conditionalBranch;
     this.exception = other.exception;
   }
 
@@ -177,14 +185,12 @@ final class ConcretePrimitive implements Primitive {
 
   @Override
   public boolean isBranch() {
-    // TODO Auto-generated method stub
-    return false;
+    return branch;
   }
 
   @Override
   public boolean isConditionalBranch() {
-    // TODO Auto-generated method stub
-    return false;
+    return conditionalBranch;
   }
 
   @Override

@@ -536,6 +536,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         args,
         contextName,
         situation,
+        false, // TODO
+        false, // TODO
         canThrowException()
         );
 
