@@ -50,11 +50,11 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
 
 /**
  * {@link AbstractSequenceIterator} implements an iterator of abstract sequences (templates) for
- * memory access instructions.
+ * memory access instructions (loads and stores).
  * 
- * <p>A template is a sequence of situations linked together with a number of dependencies. The
- * template iterator systematically enumerates templates to cover a representative set of cases of
- * the memory subsystem behavior.</p>
+ * <p>A template is a sequence of execution paths (situations) linked together with a number of
+ * dependencies. The iterator systematically enumerates templates to cover a representative set of
+ * cases of the memory subsystem behavior.</p>
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
@@ -79,7 +79,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     ADVANCED_FILTERS.addUnitedDependencyFilter(new FilterAccessThenMiss());
   }
 
-  /** Contains the basic filters as well as user-defined filters. */
+  /** Contains the basic filters as well as user-defined ones. */
   private final FilterBuilder filterBuilder = new FilterBuilder(BASIC_FILTERS);
 
   /** Memory subsystem specification. */
@@ -89,17 +89,20 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
   /** Data type randomization option. */
   private final boolean randomDataType;
 
-  /** Number of execution paths in a test template. */
+  /** Number of execution paths in a template. */
   private final int numberOfExecutions;
   /** Execution path classifier. */
   private final ExecutionPathClassifier executionPathClassifier;
 
+  /** Array of indices in the data types array. */
   private final int[] dataTypeIndices;
+  /** Array of indices in the executions array. */
   private final int[] executionPathIndices;
+  /** Array of indices in the dependencies array. */
   private final int[][] dependencyIndices;
 
   /** The executions paths. */
-  private List<ExecutionPath> executions = new ArrayList<>();
+  private List<ExecutionPathClass> executions = new ArrayList<>();
   /** The current test template. */
   private AbstractSequence template;
 
@@ -303,7 +306,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
         executionPathClassifier.unifyExecutions(executionPaths);
 
     for (final ExecutionPathClass unifyExecution : executionPathClasses) {
-      this.executions.add(unifyExecution.getExecution());
+      this.executions.add(unifyExecution);
     }
 
     Arrays.fill(dataTypeIndices, 0);
@@ -463,7 +466,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
   private void assignExecutions() {
     final List<ExecutionPath> templateExecutions = new ArrayList<>(numberOfExecutions);
     for (int i = 0; i < numberOfExecutions; i++) {
-      final ExecutionPath execution = this.executions.get(executionPathIndices[i]);
+      final ExecutionPath execution = this.executions.get(executionPathIndices[i]).getExecution();
       templateExecutions.add(execution);
     }
 

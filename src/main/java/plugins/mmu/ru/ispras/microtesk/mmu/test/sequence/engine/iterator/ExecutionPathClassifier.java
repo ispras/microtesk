@@ -32,7 +32,7 @@ public class ExecutionPathClassifier {
    * 
    * @param executions the execution list
    * @return the list of execution classes paths.
-   * @throws NullPointerException if {@code conflicts} is null.
+   * @throws IllegalArgumentException if {@code conflicts} is null.
    */
   public List<ExecutionPathClass> unifyExecutions(List<ExecutionPath> executions) {
     InvariantChecks.checkNotNull(executions);

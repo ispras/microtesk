@@ -51,8 +51,8 @@ import ru.ispras.microtesk.utils.function.UnaryOperator;
  * {@link MmuEngine} implements a solver of memory-related constraints (hit, miss, etc.)
  * specified in a test template.
  * 
- * <p>The input is a test template (an object of {@link AbstractSequence}); the output is a solution (an
- * object of {@link MmuSolution}).</p>
+ * <p>The input is a test template (an object of {@link AbstractSequence}); the output is a solution
+ * (an object of {@link MmuSolution}).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -129,6 +129,10 @@ public final class MmuEngine implements Engine<MmuSolution> {
   // TODO: to be parameters.
   private AbstractSequence template;
   private MmuSolution solution;
+  
+  public MmuSolution getCurrentSolution() {
+    return solution;
+  }
 
   /**
    * Constructs a solver for the given test template.

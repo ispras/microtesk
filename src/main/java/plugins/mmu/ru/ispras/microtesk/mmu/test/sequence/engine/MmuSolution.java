@@ -37,6 +37,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
  */
 public final class MmuSolution {
 
+  /** Contains the test template. */
+  private final AbstractSequence template;
+  
   /** Contains test data for individual executions. */
   private final List<MmuTestData> solution;
 
@@ -61,15 +64,17 @@ public final class MmuSolution {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(template);
 
-    solution = new ArrayList<>(template.size());
+    this.template = template;
+
+    this.solution = new ArrayList<>(template.size());
     for (int i = 0; i < template.size(); i++) {
       final ExecutionPath execution = template.getExecution(i);
 
-      solution.add(new MmuTestData(memory, execution));
+      this.solution.add(new MmuTestData(memory, execution));
     }
 
     for (final MmuDevice device : memory.getDevices()) {
-      entries.put(device, new LinkedHashMap<Long, Object>());
+      this.entries.put(device, new LinkedHashMap<Long, Object>());
     }
 
     loader = new MemoryLoader(memory);
@@ -82,6 +87,10 @@ public final class MmuSolution {
    */
   public int size() {
     return solution.size();
+  }
+
+  public AbstractSequence getTemplate() {
+    return template;
   }
 
   /**
