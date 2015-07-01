@@ -16,7 +16,7 @@ package ru.ispras.microtesk.utils;
 
 import java.math.BigInteger;
 
-public class BigIntegerUtils {
+public final class BigIntegerUtils {
   private BigIntegerUtils() {}
 
   private static final BigInteger TWO_POWER_64 = BigInteger.ONE.shiftLeft(64);
