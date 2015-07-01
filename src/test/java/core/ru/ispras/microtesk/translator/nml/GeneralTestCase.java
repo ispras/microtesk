@@ -22,7 +22,7 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 public class GeneralTestCase extends TranslatorTest<Ir> {
   @Test
   public void test() {
-    final NmlAnalyzer analyzer = new NmlAnalyzer();
+    final NmlTranslator analyzer = new NmlTranslator();
     translate(analyzer, "./src/test/nml/general.nml");
   }
 }

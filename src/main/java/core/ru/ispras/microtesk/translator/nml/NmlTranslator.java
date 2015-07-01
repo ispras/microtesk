@@ -51,10 +51,10 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
-public final class NmlAnalyzer extends Translator<Ir> implements Preprocessor {
+public final class NmlTranslator extends Translator<Ir> implements Preprocessor {
   private static final Set<String> FILTER = Collections.singleton(".nml");
 
-  public NmlAnalyzer() {
+  public NmlTranslator() {
     super(FILTER);
   }
 

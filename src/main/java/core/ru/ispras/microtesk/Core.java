@@ -15,16 +15,16 @@
 package ru.ispras.microtesk;
 
 import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.nml.NmlAnalyzer;
+import ru.ispras.microtesk.translator.nml.NmlTranslator;
 
 /**
- * {@link Core} is organized as a {@link Plugin}.
+ * MicroTESK {@link Core} is organized as a MicroTESK {@link Plugin}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class Core implements Plugin {
   @Override
   public Translator<?> getTranslator() {
-    return new NmlAnalyzer();
+    return new NmlTranslator();
   }
 }
