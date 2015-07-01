@@ -19,7 +19,6 @@ import java.util.List;
 
 import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.test.sequence.iterator.Iterator;
-import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 
 /**
  * {@link EngineResult} defines result of a {@link Engine}.
@@ -41,10 +40,6 @@ public final class EngineResult<T> extends Result<EngineResult.Status, Iterator<
 
   public EngineResult(final Iterator<T> result) {
     super(Status.OK, result, Collections.<String>emptyList());
-  }
-
-  public EngineResult(final T result) {
-    this(new SingleValueIterator<T>(result));
   }
 
   public EngineResult(final List<String> errors) {

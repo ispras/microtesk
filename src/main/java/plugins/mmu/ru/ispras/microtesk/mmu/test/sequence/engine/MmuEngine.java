@@ -37,6 +37,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
+import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.solver.SolverResult;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.utils.function.BiConsumer;
@@ -112,14 +113,8 @@ public final class MmuEngine implements Engine<MmuSolution> {
    */
   private final Map<MmuDevice, TriConsumer<ExecutionPath, MmuTestData, Object>> entryProviders;
 
-  /** Test case number (used for debug purposes). */
-  private final int templateId;
-
-  /** Test template to be solved. */
-  private final AbstractSequence template;
-
-  /** Test template solution. */
-  private final MmuSolution solution;
+  /** Iterator of test template to be solved. */
+  private final Iterator<AbstractSequence> iterator;
 
   /** Given a device, maps indices to sets of tags to be explicitly loaded into the device. */
   private final Map<MmuDevice, Map<Long, Set<Long>>> deviceHitTags = new LinkedHashMap<>();
@@ -130,12 +125,16 @@ public final class MmuEngine implements Engine<MmuSolution> {
   /** Given an execution index, contains the devices having been processed. */
   private final Map<Integer, Set<MmuDevice>> handledDevices = new LinkedHashMap<>();
 
+  private MmuSpecification memory;
+  // TODO: to be parameters.
+  private AbstractSequence template;
+  private MmuSolution solution;
+
   /**
    * Constructs a solver for the given test template.
    * 
    * @param memory the memory subsystem specification.
-   * @param templateId the test case number.
-   * @param template the test template to be solved.
+   * @param iterator the iterator of abstract sequences.
    * @param testDataConstructor the test data constructor.
    * @param testDataCorrector the test data corrector.
    * @param tagAllocators the tag allocators.
@@ -146,8 +145,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
    */
   public MmuEngine(
       final MmuSpecification memory,
-      final int templateId,
-      final AbstractSequence template, // TODO: List<Call> abstractSequence
+      final Iterator<AbstractSequence> iterator,
       final Function<ExecutionPath, MmuTestData> testDataConstructor,
       final BiConsumer<ExecutionPath, MmuTestData> testDataCorrector,
       final Map<MmuDevice, Predicate<ExecutionPath>> deviceGuards,
@@ -157,7 +155,6 @@ public final class MmuEngine implements Engine<MmuSolution> {
       final Map<MmuDevice, TriConsumer<ExecutionPath, MmuTestData, Object>> entryProviders) {
 
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(template);
     InvariantChecks.checkNotNull(testDataConstructor);
     InvariantChecks.checkNotNull(deviceGuards);
     InvariantChecks.checkNotNull(tagAllocators);
@@ -165,8 +162,10 @@ public final class MmuEngine implements Engine<MmuSolution> {
     InvariantChecks.checkNotNull(entryConstructors);
     InvariantChecks.checkNotNull(entryProviders);
 
-    this.templateId = templateId;
-    this.template = template;
+    this.memory = memory;
+
+    this.iterator = iterator;
+
     this.testDataConstructor = testDataConstructor;
     this.testDataCorrector = testDataCorrector;
     this.deviceGuards = deviceGuards;
@@ -174,17 +173,6 @@ public final class MmuEngine implements Engine<MmuSolution> {
     this.entryIdAllocators = entryIdAllocators;
     this.entryConstructors = entryConstructors;
     this.entryProviders = entryProviders;
-
-    this.solution = new MmuSolution(memory, template);
-  }
-
-  /**
-   * Returns the object that stores a solution.
-   * 
-   * @return the solution.
-   */
-  public MmuSolution getSolution() {
-    return solution;
   }
 
   /**
@@ -745,16 +733,56 @@ public final class MmuEngine implements Engine<MmuSolution> {
   @Override
   public EngineResult<MmuSolution> solve(
       final EngineContext engineContext, final List<Call> abstractSequence) {
-    for (int j = 0; j < template.size(); j++) {
-      // TODO:
-      final SolverResult<MmuSolution> result = solve(j);
 
-      if (result.getStatus() == SolverResult.Status.UNSAT) {
-        return new EngineResult<MmuSolution>(result.getErrors());
+    final Iterator<MmuSolution> solutionIterator = new Iterator<MmuSolution>() {
+      private MmuSolution getSolution() {
+        while (iterator.hasValue()) {
+          template = iterator.value();
+          solution = new MmuSolution(memory, template);
+
+          SolverResult<MmuSolution> result = null;
+          for (int j = 0; j < template.size(); j++) {
+            result = solve(j);
+
+            if (result.getStatus() == SolverResult.Status.UNSAT) {
+              break;
+            }
+          }
+
+          if (result != null && result.getStatus() == SolverResult.Status.SAT) {
+            break;
+          }
+
+          iterator.next();
+        }
+
+        return iterator.hasValue() ? solution : null;
       }
-    }
 
-    return new EngineResult<MmuSolution>(solution);
+      @Override
+      public void init() {
+        iterator.init();
+        solution = getSolution();
+      }
+
+      @Override
+      public boolean hasValue() {
+        return solution != null;
+      }
+
+      @Override
+      public MmuSolution value() {
+        return solution;
+      }
+
+      @Override
+      public void next() {
+        iterator.next();
+        solution = getSolution();
+      }
+    };
+
+    return new EngineResult<MmuSolution>(solutionIterator);
   }
 
   /**
@@ -837,10 +865,5 @@ public final class MmuEngine implements Engine<MmuSolution> {
 
     // Definitely MISS.
     return false;
-  }
-
-  @Override
-  public String toString() {
-    return Integer.toString(templateId);
   }
 }
