@@ -43,11 +43,11 @@ public final class BranchDetector {
 
   public void start() {
     for (final Primitive item : ir.getOps().values()) {
-      InvariantChecks.checkFalse(item.isOrRule());
-      final PrimitiveAND primitive = (PrimitiveAND) item; 
-
-      final Attribute actionAttribute = primitive.getAttributes().get(Attribute.ACTION_NAME);
-      traverse(primitive, actionAttribute.getStatements());
+      if (!item.isOrRule()) {
+        final PrimitiveAND primitive = (PrimitiveAND) item; 
+        final Attribute actionAttribute = primitive.getAttributes().get(Attribute.ACTION_NAME);
+        traverse(primitive, actionAttribute.getStatements());
+      }
     }
   }
 
