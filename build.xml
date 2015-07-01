@@ -193,15 +193,15 @@
 
   <target name="antlr_nml">
     <antlr3 grammar.name="${nml_lexer.name}"  grammar.path="${nml_grammar.path}"
-            grammar.root="${src.java.dir}"       grammar.lib="${src.java.dir}/${nml_grammar.path}"/>
+            grammar.root="${src.java.dir}"    grammar.lib="${src.java.dir}/${nml_grammar.path}"/>
     <antlr3 grammar.name="${nml_parser.name}" grammar.path="${nml_grammar.path}"
-            grammar.root="${src.java.dir}"       grammar.lib="${src.java.dir}/${nml_grammar.path}"/>
+            grammar.root="${src.java.dir}"    grammar.lib="${src.java.dir}/${nml_grammar.path}"/>
     <antlr3 grammar.name="${nml_walker.name}" grammar.path="${nml_grammar.path}"
-            grammar.root="${src.java.dir}"       grammar.lib="${src.java.dir}/${nml_grammar.path}"/>
+            grammar.root="${src.java.dir}"    grammar.lib="${src.java.dir}/${nml_grammar.path}"/>
   </target>
 
   <!-- Target for generating parsers for MMU specification code from grammars with ANTLR -->
-  <property name="mmu_grammar.package" value="translator/mmu/grammar"/>
+  <property name="mmu_grammar.package" value="mmu/translator/grammar"/>
   <property name="mmu_grammar.path"    value="${main.package}/${mmu_grammar.package}"/>
   <property name="mmu_lexer.name"      value="MmuLexer.g"/>
   <property name="mmu_parser.name"     value="MmuParser.g"/>

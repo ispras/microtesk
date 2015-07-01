@@ -46,7 +46,6 @@ import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.mmu.testbase.MmuDataGenerator;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Argument;
@@ -86,7 +85,6 @@ public final class EngineUtils {
 
     // Register the predefined test data generators.
     registry.registerGenerator("address", new AddressDataGenerator());
-    registry.registerGenerator("memory", new MmuDataGenerator());
 
     if (null == settings || null == settings.getExtensions()) {
       return testBase;
