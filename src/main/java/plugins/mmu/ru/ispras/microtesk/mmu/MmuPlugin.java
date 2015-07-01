@@ -14,9 +14,14 @@
 
 package ru.ispras.microtesk.mmu;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import ru.ispras.microtesk.Plugin;
+import ru.ispras.microtesk.mmu.test.testbase.MmuDataGenerator;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * {@code MmuPlugin} is a MicroTESK plugin responsible for specifying and testing memory management
@@ -28,5 +33,15 @@ public final class MmuPlugin implements Plugin {
   @Override
   public Translator<?> getTranslator() {
     return new MmuTranslator();
+  }
+
+  @Override
+  public Map<String, DataGenerator> getDataGenerators() {
+    final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
+
+    // Predefined test data generators.
+    dataGenerators.put("mmu", new MmuDataGenerator());
+
+    return dataGenerators;
   }
 }

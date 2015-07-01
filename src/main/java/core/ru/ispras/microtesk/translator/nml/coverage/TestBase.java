@@ -60,7 +60,13 @@ public final class TestBase {
   final Map<String, Map<String, SsaForm>> storage;
   final ru.ispras.testbase.stub.TestBase testBase;
 
+  private static TestBase instance = new TestBase();
+
   private static SolverId solverId = SolverId.Z3_TEXT;
+
+  public static TestBase get() {
+    return instance;
+  }
 
   public static void setSolverId(final SolverId value) {
     InvariantChecks.checkNotNull(value);
@@ -68,13 +74,13 @@ public final class TestBase {
     ru.ispras.testbase.stub.TestBase.setSolverId(value);
   }
 
-  public TestBase(String path) {
+  private TestBase(String path) {
     this.path = path;
     this.storage = new HashMap<>();
     this.testBase = ru.ispras.testbase.stub.TestBase.get();
   }
 
-  public TestBase() {
+  private TestBase() {
     this(System.getenv("MICROTESK_HOME"));
   }
 

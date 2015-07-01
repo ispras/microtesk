@@ -60,7 +60,6 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
-import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
@@ -80,11 +79,8 @@ public final class EngineUtils {
 
   @SuppressWarnings("resource")
   public static TestBase newTestBase(final GeneratorSettings settings) {
-    final TestBase testBase = new TestBase();
+    final TestBase testBase = TestBase.get();
     final TestBaseRegistry registry = testBase.getRegistry();
-
-    // Register the predefined test data generators.
-    registry.registerGenerator("address", new AddressDataGenerator());
 
     if (null == settings || null == settings.getExtensions()) {
       return testBase;

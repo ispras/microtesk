@@ -14,7 +14,10 @@
 
 package ru.ispras.microtesk;
 
+import java.util.Map;
+
 import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * {@link Plugin} is an interface of the MicroTESK tool plugins.
@@ -23,9 +26,16 @@ import ru.ispras.microtesk.translator.Translator;
  */
 public interface Plugin {
   /**
-   * Returns the plugin translator or {@code null}.
+   * Returns the plugin's translator (or {@code null}).
    * 
-   * @return the plugin translator.
+   * @return the translator.
    */
   public Translator<?> getTranslator();
+
+  /**
+   * Returns the plugin's data generators with their names (or {@code null}).
+   * 
+   * @return the data generators.
+   */
+  public Map<String, DataGenerator> getDataGenerators();
 }

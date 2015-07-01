@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
 import org.apache.commons.cli.Option;
@@ -31,6 +32,9 @@ import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
+import ru.ispras.testbase.TestBaseRegistry;
+import ru.ispras.testbase.generator.DataGenerator;
+import ru.ispras.testbase.stub.TestBase;
 
 public final class MicroTESK {
   private MicroTESK() {}
@@ -77,10 +81,21 @@ public final class MicroTESK {
 
   private static void registerPlugins(final List<Plugin> plugins) {
     for (final Plugin plugin : plugins) {
+      // Register the translator.
       final Translator<?> translator = plugin.getTranslator();
 
       if (translator != null) {
         translators.add(translator);
+      }
+
+      // Register the data generators.
+      final TestBaseRegistry testBaseRegistry = TestBase.get().getRegistry();
+      final Map<String, DataGenerator> dataGenerators = plugin.getDataGenerators();
+
+      if (dataGenerators != null) {
+        for (final Map.Entry<String, DataGenerator> entry : dataGenerators.entrySet()) {
+          testBaseRegistry.registerGenerator(entry.getKey(), entry.getValue());
+        }
       }
     }
   }

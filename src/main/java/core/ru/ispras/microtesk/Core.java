@@ -14,17 +14,32 @@
 
 package ru.ispras.microtesk;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.nml.NmlTranslator;
+import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * MicroTESK {@link Core} is organized as a MicroTESK {@link Plugin}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class Core implements Plugin {
+final class Core implements Plugin {
   @Override
   public Translator<?> getTranslator() {
     return new NmlTranslator();
+  }
+
+  @Override
+  public Map<String, DataGenerator> getDataGenerators() {
+    final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
+
+    // Predefined test data generators.
+    dataGenerators.put("address", new AddressDataGenerator());
+
+    return dataGenerators;
   }
 }
