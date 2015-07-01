@@ -27,7 +27,7 @@ public interface Primitive {
 
     private final String text;
 
-    private Kind(String text) {
+    private Kind(final String text) {
       this.text = text;
     }
 
@@ -40,13 +40,17 @@ public interface Primitive {
   Kind getKind();
   String getName();
   String getTypeName();
+
   boolean isRoot();
   Map<String, Argument> getArguments();
   String getContextName();
   boolean hasSituation();
   Situation getSituation();
   String getSignature();
+
   boolean canThrowException();
+  boolean isBranch();
+  boolean isConditionalBranch();
 }
 
 final class ConcretePrimitive implements Primitive {
@@ -169,6 +173,18 @@ final class ConcretePrimitive implements Primitive {
   @Override
   public boolean canThrowException() {
     return exception;
+  }
+
+  @Override
+  public boolean isBranch() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean isConditionalBranch() {
+    // TODO Auto-generated method stub
+    return false;
   }
 
   @Override
@@ -295,6 +311,18 @@ final class LazyPrimitive implements Primitive {
   public boolean canThrowException() {
     checkSourceAssigned();
     return source.canThrowException();
+  }
+
+  @Override
+  public boolean isBranch() {
+    checkSourceAssigned();
+    return source.isBranch();
+  }
+
+  @Override
+  public boolean isConditionalBranch() {
+    checkSourceAssigned();
+    return source.isConditionalBranch();
   }
 
   @Override

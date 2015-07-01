@@ -26,6 +26,8 @@ public final class Call {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
   private final boolean exception;
+  private final boolean branch;
+  private final boolean conditionalBranch;
 
   public Call(
       final Primitive rootOperation,
@@ -41,18 +43,29 @@ public final class Call {
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
 
-    this.exception = null != rootOperation ? 
-        rootOperation.canThrowException() : false;
+    if (null != rootOperation) {
+      this.exception = rootOperation.canThrowException();
+      this.branch = rootOperation.isBranch();
+      this.conditionalBranch = rootOperation.isConditionalBranch();
+    } else {
+      this.exception = false;
+      this.branch = false;
+      this.conditionalBranch = false;
+    }
   }
 
   public Call(final Call other) {
     InvariantChecks.checkNotNull(other);
 
-    this.rootOperation = null != other.rootOperation ? other.rootOperation.newCopy() : null; 
+    this.rootOperation = null != other.rootOperation ? 
+        other.rootOperation.newCopy() : null;
+
     this.labels = other.labels;
     this.labelRefs = copyLabelReferences(other.labelRefs);
     this.outputs = other.outputs;
     this.exception = other.exception;
+    this.branch = other.branch;
+    this.conditionalBranch = other.conditionalBranch;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
@@ -113,21 +126,11 @@ public final class Call {
   }
 
   public boolean isBranch() {
-    if (!isExecutable()) {
-      return false;
-    }
-
-    // TODO
-    throw new UnsupportedOperationException();
+    return branch;
   }
 
   public boolean isConditionalBranch() {
-    if (!isExecutable()) {
-      return false;
-    }
-
-    // TODO
-    throw new UnsupportedOperationException();
+    return conditionalBranch;
   }
 
   public boolean canThrowException() {
