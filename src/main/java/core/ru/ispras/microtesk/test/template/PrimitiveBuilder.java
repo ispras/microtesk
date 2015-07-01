@@ -528,22 +528,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   public Primitive build() {
     checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
 
-    boolean canThrowException = (kind == Kind.MODE) ?
-        metaModel.getAddressingMode(getName()).canThrowException() :
-        getMetaOperation().canThrowException();
-
-    if (!canThrowException) {
-      for (final Argument arg : args.values()) {
-        if (arg.getKind() == Argument.Kind.OP || arg.getKind() == Argument.Kind.MODE) {
-          if (!(arg.getValue() instanceof LazyPrimitive) && 
-              ((Primitive) arg.getValue()).canThrowException()) {
-            canThrowException = true;
-            break;
-          }
-        }
-      }
-    }
-
     final Primitive primitive = new ConcretePrimitive(
         kind,
         getName(),
@@ -552,11 +536,50 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         args,
         contextName,
         situation,
-        canThrowException
+        canThrowException()
         );
 
     lazyPrimitive.setSource(primitive);
     return primitive;
+  }
+
+  private boolean canThrowException() {
+    if (kind == Kind.MODE) {
+      // Modes have only immediate arguments and don't depend on their behavior.
+      return metaModel.getAddressingMode(getName()).canThrowException();
+    }
+
+    if (getMetaOperation().canThrowException()) {
+      return true;
+    }
+
+    for (final Argument arg : args.values()) {
+      if (arg.getKind() != Argument.Kind.OP && arg.getKind() != Argument.Kind.MODE) {
+        continue;
+      }
+
+      final Primitive primitive = (Primitive) arg.getValue();
+      boolean exception = false;
+
+      if (primitive instanceof ConcretePrimitive) {
+        exception = primitive.canThrowException();
+      } else if (primitive instanceof LazyPrimitive) {
+        if (arg.getKind() == Argument.Kind.OP) {
+          throw new IllegalStateException("LazyPrimitive cannot be an OP.");
+        }
+
+        exception = metaModel.getAddressingMode(primitive.getName()).canThrowException();
+      } else {
+        throw new IllegalArgumentException(
+            "Unsupported primitive implementation: " + primitive.getClass().getName());
+      }
+
+      if (exception) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @Override
