@@ -532,10 +532,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         metaModel.getAddressingMode(getName()).canThrowException() :
         getMetaOperation().canThrowException();
 
-    if (canThrowException) {
+    if (!canThrowException) {
       for (final Argument arg : args.values()) {
         if (arg.getKind() == Argument.Kind.OP || arg.getKind() == Argument.Kind.MODE) {
-          if (((Primitive) arg.getValue()).canThrowException()) {
+          if (!(arg.getValue() instanceof LazyPrimitive) && 
+              ((Primitive) arg.getValue()).canThrowException()) {
             canThrowException = true;
             break;
           }
