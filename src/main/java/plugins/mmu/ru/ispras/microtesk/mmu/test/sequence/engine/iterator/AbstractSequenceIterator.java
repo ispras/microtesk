@@ -102,7 +102,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
   private final int[][] dependencyIndices;
 
   /** The executions paths. */
-  private List<ExecutionPathClass> executions = new ArrayList<>();
+  private final List<Set<ExecutionPath>> allExecutionClasses = new ArrayList<>();
   /** The current test template. */
   private AbstractSequence template;
 
@@ -299,14 +299,14 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     wholeTemplateFilterBuilder.addFilterBuilder(ADVANCED_FILTERS);
     this.wholeTemplateFilter = wholeTemplateFilterBuilder.build();
 
-    executions.clear();
+    allExecutionClasses.clear();
 
     final List<ExecutionPath> executionPaths = CoverageExtractor.get().getCoverage(memory);
-    final List<ExecutionPathClass> executionPathClasses =
+    final List<Set<ExecutionPath>> executionPathClasses =
         executionPathClassifier.unifyExecutions(executionPaths);
 
-    for (final ExecutionPathClass unifyExecution : executionPathClasses) {
-      this.executions.add(unifyExecution);
+    for (final Set<ExecutionPath> unifyExecution : executionPathClasses) {
+      this.allExecutionClasses.add(unifyExecution);
     }
 
     Arrays.fill(dataTypeIndices, 0);
@@ -403,7 +403,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
    * @return {@code true} increment the executions iterator; {@code false} otherwise.
    */
   private boolean nextExecution() {
-    final int size = executions.size();
+    final int size = allExecutionClasses.size();
 
     executionPathIndices[0]++;
     if (executionPathIndices[0] == size) {
@@ -466,7 +466,9 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
   private void assignExecutions() {
     final List<ExecutionPath> templateExecutions = new ArrayList<>(numberOfExecutions);
     for (int i = 0; i < numberOfExecutions; i++) {
-      final ExecutionPath execution = this.executions.get(executionPathIndices[i]).getExecution();
+      final Set<ExecutionPath> executionClass = allExecutionClasses.get(executionPathIndices[i]);
+      final ExecutionPath execution = Randomizer.get().choose(executionClass);
+
       templateExecutions.add(execution);
     }
 

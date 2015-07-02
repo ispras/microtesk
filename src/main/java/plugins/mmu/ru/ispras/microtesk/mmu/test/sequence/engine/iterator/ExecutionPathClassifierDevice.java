@@ -15,9 +15,11 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
@@ -35,12 +37,12 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 
 public class ExecutionPathClassifierDevice extends ExecutionPathClassifier {
   @Override
-  public List<ExecutionPathClass> unifyExecutions(final List<ExecutionPath> executions) {
-    final List<ExecutionPathClass> executionsOfOperation = new ArrayList<>();
+  public List<Set<ExecutionPath>> unifyExecutions(final List<ExecutionPath> executions) {
+    final List<Set<ExecutionPath>> executionsOfOperation = new ArrayList<>();
 
     for (MemoryOperation operation : MemoryOperation.values()) {
       // For Store and Load
-      final Map<Map<MmuDevice, BufferAccessEvent>, ExecutionPathClass> mapExecution =
+      final Map<Map<MmuDevice, BufferAccessEvent>, Set<ExecutionPath>> mapExecution =
           new LinkedHashMap<>();
 
       for (final ExecutionPath execution : executions) {
@@ -49,11 +51,11 @@ public class ExecutionPathClassifierDevice extends ExecutionPathClassifier {
               getDevicesAndEvents(execution.getTransitions());
 
           if (mapExecution.containsKey(mapDevices)) {
-            final ExecutionPathClass mmuExecutionClass = mapExecution.get(mapDevices);
-            mmuExecutionClass.addExecution(execution);
+            final Set<ExecutionPath> mmuExecutionClass = mapExecution.get(mapDevices);
+            mmuExecutionClass.add(execution);
           } else {
-            final ExecutionPathClass mmuExecutionClass = new ExecutionPathClass();
-            mmuExecutionClass.addExecution(execution);
+            final Set<ExecutionPath> mmuExecutionClass = new HashSet<>();
+            mmuExecutionClass.add(execution);
             mapExecution.put(mapDevices, mmuExecutionClass);
           }
         }

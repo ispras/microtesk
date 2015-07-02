@@ -15,7 +15,9 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
@@ -34,14 +36,14 @@ public class ExecutionPathClassifier {
    * @return the list of execution classes paths.
    * @throws IllegalArgumentException if {@code conflicts} is null.
    */
-  public List<ExecutionPathClass> unifyExecutions(List<ExecutionPath> executions) {
+  public List<Set<ExecutionPath>> unifyExecutions(List<ExecutionPath> executions) {
     InvariantChecks.checkNotNull(executions);
 
-    final List<ExecutionPathClass> executionList = new ArrayList<>();
+    final List<Set<ExecutionPath>> executionList = new ArrayList<>();
 
     for (final ExecutionPath execution : executions) {
-      final ExecutionPathClass mmuExecutionClass = new ExecutionPathClass();
-      mmuExecutionClass.addExecution(execution);
+      final Set<ExecutionPath> mmuExecutionClass = new HashSet<>();
+      mmuExecutionClass.add(execution);
       executionList.add(mmuExecutionClass);
     }
 
