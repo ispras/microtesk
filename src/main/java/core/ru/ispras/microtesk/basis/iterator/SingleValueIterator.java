@@ -19,7 +19,7 @@ package ru.ispras.microtesk.basis.iterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class SingleValueIterator<T> implements BoundedIterator<T> {
+public final class SingleValueIterator<T> implements BoundedIterator<T> {
   /** The value itself. */
   private final T value;
 
