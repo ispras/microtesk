@@ -169,7 +169,7 @@ public final class MemoryAccessStructureChecker {
       }
     }
 
-    final List<MemoryAccess> templateExecutions = template.getExecutions();
+    final List<MemoryAccess> templateExecutions = template.getAccesses();
 
     // Step 2. Add Ranges for constants from execution.
     for (final MemoryAccess execution : templateExecutions) {

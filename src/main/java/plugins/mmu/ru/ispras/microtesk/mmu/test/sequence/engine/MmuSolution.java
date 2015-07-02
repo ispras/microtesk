@@ -68,7 +68,7 @@ public final class MmuSolution {
 
     this.solution = new ArrayList<>(template.size());
     for (int i = 0; i < template.size(); i++) {
-      final MemoryAccess execution = template.getExecution(i);
+      final MemoryAccess execution = template.getAccess(i);
 
       this.solution.add(new MmuTestData(memory, execution));
     }

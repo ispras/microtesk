@@ -60,7 +60,7 @@ public final class FilterTemplate implements Predicate<MemoryAccessStructure> {
   @Override
   public boolean test(final MemoryAccessStructure template) {
     for (int i = 0; i < template.size(); i++) {
-      final MemoryAccess execution1 = template.getExecution(i);
+      final MemoryAccess execution1 = template.getAccess(i);
 
       // Apply the execution-level filters.
       for (final Predicate<MemoryAccess> filter : executionFilters) {
@@ -71,7 +71,7 @@ public final class FilterTemplate implements Predicate<MemoryAccessStructure> {
       }
 
       for (int j = i + 1; j < template.size(); j++) {
-        final MemoryAccess execution2 = template.getExecution(j);
+        final MemoryAccess execution2 = template.getAccess(j);
         final MemoryDependency dependency = template.getDependency(i, j);
 
         if (dependency == null) {

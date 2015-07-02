@@ -14,113 +14,124 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
- * This class describes a test template. The description includes a set of MMU execution paths and a
- * set of MMU dependencies.
+ * {@link MemoryAccessStructure} describes a memory access structure, i.e. a sequence of memory
+ * accesses (executions) linked with a number of memory-related dependencies.
  * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MemoryAccessStructure {
-  /** The memory specification. */
-  private MmuSubsystem memory;
-  /** The list of executions. */
-  private List<MemoryAccess> executions = new ArrayList<>();
-  /** The dependencies between the executions. */
-  private MemoryDependency[][] dependencies;
+  /** Memory subsystem specification. */
+  private final MmuSubsystem memory;
+  /** Memory accesses (accesses). */
+  private final List<MemoryAccess> accesses;
+  /** Dependencies between the memory accesses. */
+  private final MemoryDependency[][] dependencies;
 
   /**
-   * Constructs a test template.
+   * Constructs a memory access structure.
    * 
-   * @param executions the executions.
+   * @param accesses the sequence of memory accesses (accesses).
    * @param dependencies the dependencies.
-   * @throws IllegalArgumentException if {@code executions} or {@code dependencies} is null.
    */
-  public MemoryAccessStructure(final MmuSubsystem memory, final List<MemoryAccess> executions,
+  public MemoryAccessStructure(
+      final MmuSubsystem memory,
+      final List<MemoryAccess> accesses,
       final MemoryDependency[][] dependencies) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(executions);
+    InvariantChecks.checkNotNull(accesses);
     InvariantChecks.checkNotNull(dependencies);
+    InvariantChecks.checkTrue(dependencies.length == accesses.size());
 
     this.memory = memory;
-    this.executions = executions;
+    this.accesses = accesses;
     this.dependencies = dependencies;
   }
 
   /**
-   * Returns the memory specification.
+   * Returns the memory subsystem specification.
    * 
-   * @return the memory specification.
+   * @return the memory subsystem.
    */
-  public MmuSubsystem getMemory() {
+  public MmuSubsystem getSubsystem() {
     return memory;
   }
 
   /**
-   * Returns the size of the test template.
+   * Returns the number of memory accesses in the structure.
    * 
-   * @return the template size.
+   * @return the size of the memory access structure.
    */
   public int size() {
-    return executions.size();
+    return accesses.size();
   }
 
   /**
-   * Returns the executions of the template.
+   * Returns the {@code i}-th  memory access of the structure.
    * 
-   * @return the template executions.
+   * @param i the index of the memory access to be returned.
+   * @return the memory access.
    */
-  public List<MemoryAccess> getExecutions() {
-    return executions;
+  public MemoryAccess getAccess(final int i) {
+    InvariantChecks.checkBounds(i, accesses.size());
+    return accesses.get(i);
   }
 
   /**
-   * Returns the execution of the template.
+   * Returns all memory accesses of the structure.
    * 
-   * @param i the index of execution.
-   * @return the execution.
+   * @return the memory accesses.
    */
-  public MemoryAccess getExecution(final int i) {
-    return executions.get(i);
+  public List<MemoryAccess> getAccesses() {
+    return accesses;
   }
 
   /**
-   * Returns the template dependency.
+   * Returns the dependency of the {@code j}-th memory access on the {@code i}-th memory access.
    * 
-   * @param i the index of the primary execution.
-   * @param j the index of the secondary execution.
-   * @return the dependency.
+   * <p>There is a restriction: {@code i < j}.</p>
+   * 
+   * @param i the index of the primary memory access.
+   * @param j the index of the secondary memory access.
+   * @return the dependency between the memory accesses.
    */
   public MemoryDependency getDependency(final int i, final int j) {
+    InvariantChecks.checkTrue(i < j);
+    InvariantChecks.checkBounds(j, dependencies.length);
+    InvariantChecks.checkBounds(i, dependencies[j].length);
+
     return dependencies[j][i];
   }
 
   /**
-   * Returns the dependencies between the template executions.
+   * Returns the dependencies between all memory accesses.
    * 
-   * @return the template dependencies.
+   * @return the dependencies between all memory accesses.
    */
   public MemoryDependency[][] getDependencies() {
     return dependencies;
   }
 
   /**
-   * Returns the united dependency for the {@code j}-th execution.
+   * Returns the united dependency of the {@code j}-th memory access on the previous accesses.
    * 
-   * @param j the execution index.
+   * @param j the index of the memory access.
    * @return the united dependency.
    */
   public MemoryUnitedDependency getUnitedDependency(final int j) {
+    InvariantChecks.checkBounds(j, dependencies.length);
+
     final Map<MemoryDependency, Integer> dependencies = new LinkedHashMap<>();
 
     for (int i = 0; i < j; i++) {
@@ -136,30 +147,25 @@ public final class MemoryAccessStructure {
 
   @Override
   public String toString() {
-    final String newLine = System.lineSeparator();
+    final StringBuilder builder = new StringBuilder();
 
-    final StringBuilder string = new StringBuilder("Mmu template:");
-    string.append(newLine);
-    string.append("Executions:");
-    string.append(newLine);
-    string.append(executions.toString());
+    builder.append("Executions: ");
+    builder.append(accesses.toString());
 
-    string.append(newLine);
-    string.append("Dependencies:");
-    string.append(newLine);
+    builder.append(", ");
+    builder.append("Dependencies:");
 
+    boolean comma = false;
     for (int i = 0; i < dependencies.length; i++) {
       for (int j = 0; j < dependencies.length; j++) {
-        string.append("[").append(i).append("], ");
-        string.append("[").append(j).append("] = ");
-        if (dependencies[j][i] == null) {
-          string.append("[null]").append(newLine);
-        } else {
-          string.append(dependencies[j][i].toString()).append(newLine);
+        if (comma) {
+          builder.append(", ");
         }
+        builder.append(String.format("[%d][%d]=%s", j, i, dependencies[j][i]));
+        comma = true;
       }
     }
 
-    return string.toString();
+    return builder.toString();
   }
 }

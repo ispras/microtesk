@@ -54,7 +54,7 @@ public final class FilterUnclosedEqualRelations implements Predicate<MemoryAcces
         final MemoryDependency dependency = template.getDependency(i, j);
 
         if (dependency != null) {
-          update(template.getMemory(), relations, i, j, dependency);
+          update(template.getSubsystem(), relations, i, j, dependency);
         }
       }
     }
