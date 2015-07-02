@@ -42,11 +42,11 @@ private void pp(final String text) {
 // Comments, Spaces and Newlines
 //==================================================================================================
 
-WHITESPACE     : SPACE+                { skip(); };
-NEWLINE        : ('\r'?'\n')+          { skip(); };
+WHITESPACE     : SPACE+          { skip(); };
+NEWLINE        : ('\r'?'\n')+    { skip(); };
 
-SINGLE_COMMENT : '//' .* NEWLINE       { skip(); };
-MULTI_COMMENT  : '/*' .* '*/' NEWLINE? { skip(); };
+SINGLE_COMMENT : '//' .* NEWLINE { skip(); };
+MULTI_COMMENT  : '/*' .* '*/'    { skip(); };
 
 fragment
 LINE : (~('\n' | '\r'))* ;
@@ -100,6 +100,7 @@ PP_INCLUDE : '#include' WHITESPACE '"' filename=PP_FILENAME '"' (WHITESPACE)? (N
   if (!pp.isHidden()) {
     pp.includeTokensFromFile($filename.getText());
   }
+  skip();
 };
 
 PP_EXPAND : '#' key=ID {

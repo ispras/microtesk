@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,29 +19,27 @@ import java.util.Stack;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenSource;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * Composite token source for hierarchically organized sub-sources.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class TokenSourceStack implements TokenSource {
-  protected class TokenSourceEntry {
-    // / The latest token of the parent stream.
-    public Token token;
-    public TokenSource source;
+public final class TokenSourceStack implements TokenSource {
+  public static class TokenSourceEntry {
+    public final TokenSource source;
 
-    public TokenSourceEntry(TokenSource source) {
-      this.token = null;
-      this.source = source;
-    }
+    /** The latest token of the parent stream. */
+    public Token lastParentToken = null;
 
-    public TokenSourceEntry(Token token, TokenSource source) {
-      this.token = token;
+    public TokenSourceEntry(final TokenSource source) {
+      InvariantChecks.checkNotNull(source);
       this.source = source;
     }
   }
 
-  protected Stack<TokenSourceEntry> sources = new Stack<TokenSourceEntry>();
+  private Stack<TokenSourceEntry> sources = new Stack<TokenSourceEntry>();
 
   public TokenSourceStack() {}
 
@@ -53,12 +51,16 @@ public class TokenSourceStack implements TokenSource {
     sources.pop();
   }
 
-  public Token getToken() {
-    return sources.peek().token;
+  public Token getLastParentToken() {
+    return sources.peek().lastParentToken;
   }
 
-  public void setToken(final Token token) {
-    sources.peek().token = token;
+  public void setLastParentToken(final Token token) {
+    sources.peek().lastParentToken = token;
+  }
+
+  public void setLastParentToken(final int i, final Token token) {
+    sources.get(i).lastParentToken = token;
   }
 
   public TokenSource getSource() {
@@ -84,29 +86,35 @@ public class TokenSourceStack implements TokenSource {
       return Token.EOF_TOKEN;
     }
 
+    int size = -1;
     TokenSource source = null;
     Token token = Token.EOF_TOKEN;
 
-    boolean subsource_created = true;
+    boolean subsourceCreated = true;
 
-    while (subsource_created) {
+    while (subsourceCreated) {
       // Request the active source for the next token.
+      size = sources.size();
       source = getSource();
       token = source.nextToken();
 
-      // A new sub-source was created during the nextToken() call
-      // (e.g., for macro expansion or file inclusion).
-      if (subsource_created = (source != getSource())) {
-        // Store a token of the parent source in the stack
-        // (it will be returned after this sub-source is completed).
-        setToken(token);
+      // New sub-sources were created during the recent nextToken() call and pushed into the stack
+      // (e.g., for macro expansion or file inclusion). Note that if there are several includes in
+      // a row, the corresponding number of sub-sources are created. 
+      subsourceCreated = (source != getSource());
+      InvariantChecks.checkTrue(!subsourceCreated || size < sources.size());
+
+      if (subsourceCreated) {
+        // Store a token of the parent source in the stack (it will be returned as soon as the
+        // created sub-sources are completed).
+        setLastParentToken(size, token);
       }
     }
 
     // Skip EOFs of sub-sources (sub-sources are invisible for a user).
     while (isEof(token) && !isRootSource()) {
       // Try the latest token of the parent stream.
-      token = getToken();
+      token = getLastParentToken();
 
       // Remove an exhausted sub-source from the stack.
       pop();
@@ -118,7 +126,6 @@ public class TokenSourceStack implements TokenSource {
     }
 
     // The root source stays in the stack even if EOF is achieved.
-
     return token;
   }
 

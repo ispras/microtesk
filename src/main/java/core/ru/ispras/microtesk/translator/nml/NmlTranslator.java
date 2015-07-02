@@ -93,7 +93,7 @@ public final class NmlTranslator extends Translator<Ir> implements Preprocessor 
   @Override
   public boolean isHidden() {
     if (underIfElse()) {
-      IfDefScope scope = ifdefs.peek();
+      final IfDefScope scope = ifdefs.peek();
       return scope == IfDefScope.IF_FALSE || scope == IfDefScope.ELSE_FALSE;
     }
 
