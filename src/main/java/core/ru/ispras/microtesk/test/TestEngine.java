@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
@@ -699,18 +701,29 @@ public final class TestEngine {
             "Failed to create the %s file. Reason: %s", exceptionFileName, e.getMessage()));
       }
 
-      final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
-      for (final ExceptionHandler.Section section : handler.getSections()) {
-        final Iterator<AdapterResult> iterator = 
-            testSequenceEngine.process(engineContext, section.getCalls());
+      try {
+        final Map<Long, List<ConcreteCall>> handlers = new LinkedHashMap<>();
 
-        for (iterator.init(); iterator.hasValue(); iterator.next()) {
+        final TestSequenceEngine testSequenceEngine = 
+            new TestSequenceEngine(engine, adapter);
+
+        for (final ExceptionHandler.Section section : handler.getSections()) {
+          final Iterator<AdapterResult> iterator = 
+              testSequenceEngine.process(engineContext, section.getCalls());
+
+          // At least one sequence is expected 
+          iterator.init(); 
+          InvariantChecks.checkTrue(iterator.hasValue());
+
           final AdapterResult adapterResult = iterator.value();
-          checkNotNull(adapterResult);
+
+          // Only one sequence is expected
+          iterator.next();
+          InvariantChecks.checkFalse(iterator.hasValue());
 
           if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-            Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
-            continue;
+            throw new GenerationAbortedException(
+                String.format("%nAdapter Error: %s", adapterResult.getErrors()));
           }
 
           final TestSequence concreteSequence = adapterResult.getResult();
@@ -718,6 +731,8 @@ public final class TestEngine {
 
           final long address = section.getAddress().longValue();
           concreteSequence.setAddress(address);
+          handlers.put(address, concreteSequence.getAll());
+
           try {
             fileWriter.println();
             Logger.debug("");
@@ -732,10 +747,12 @@ public final class TestEngine {
 
           STATISTICS.instructionCount += concreteSequence.getInstructionCount();
         }
-      }
 
-      fileWriter.close();
-      Logger.debugBar();
+        executor.setExceptionHandlers(handlers);
+      } finally {
+        fileWriter.close();
+        Logger.debugBar();
+      }
     }
   }
 }
