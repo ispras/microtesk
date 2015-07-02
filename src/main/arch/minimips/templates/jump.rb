@@ -30,6 +30,7 @@ class JumpTemplate < MiniMipsBaseTemplate
     la t2, :end
     addi t2, zero, 8
 
+    # Jump to the last nop is expected
     jr t2
     nop
 
