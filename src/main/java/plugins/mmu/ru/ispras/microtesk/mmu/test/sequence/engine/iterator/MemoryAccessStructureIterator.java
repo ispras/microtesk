@@ -36,8 +36,8 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterTagEqualTagRepl
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterUnclosedEqualRelations;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterVaEqualPaNotEqual;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
@@ -48,6 +48,8 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
+import ru.ispras.testbase.knowledge.iterator.IntRangeIterator;
+import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
  * {@link MemoryAccessStructureIterator} implements an iterator of memory access structures, i.e.
@@ -96,17 +98,18 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   /** Array of indices in the data types array. */
   private final int[] dataTypeIndices;
-  /** Array of indices in the executions array. */
-  private final int[] executionPathIndices;
   /** Array of indices in the dependencies array. */
   private final int[][] dependencyIndices;
 
   /** Sequence of memory accesses */
-  private List<MemoryAccess> accesses = new ArrayList<>();
+  private final List<MemoryAccess> accesses = new ArrayList<>();
   /** Matrix of dependencies. */
-  private MemoryDependency[][] dependencies;
+  private final MemoryDependency[][] dependencies;
   /** Nested lists of dependencies. */
   private List<List<List<MemoryDependency>>> dependencyMatrix = new ArrayList<>();
+
+  /** Iterator of memory access classes. */
+  private final ProductIterator<Integer> accessIterator = new ProductIterator<>();
 
   /** {@code true} if the iteration has more elements; {@code false} otherwise. */
   private boolean hasValue;
@@ -134,6 +137,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(dataTypes);
     InvariantChecks.checkNotNull(classifier);
+    InvariantChecks.checkTrue(size > 0);
  
     this.memory = memory;
     this.dataTypes = dataTypes;
@@ -141,11 +145,16 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     this.size = size;
 
     this.dataTypeIndices = new int[size];
-    this.executionPathIndices = new int[size];
     this.dependencyIndices = new int[size][size];
+
+    this.dependencies = new MemoryDependency[size][size];
 
     final List<MemoryAccess> accesses = CoverageExtractor.get().getCoverage(memory);
     this.accessClasses = classifier.classify(accesses);
+
+    for (int i = 0; i < size; i++) {
+      accessIterator.registerIterator(new IntRangeIterator(0, size - 1));
+    }
 
     init();
   }
@@ -181,8 +190,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     List<MemoryDependency> addrDeps = new ArrayList<>();
     for (final MmuAddress address : addresses) {
       final List<MemoryHazard> hazards = CoverageExtractor.get().getCoverage(address);
-
-      addrDeps = addConflictToDependency(hazards,  addrDeps, access1, access2);
+      addHazardsToDependencies(addrDeps, access1, access2, hazards);
 
       if (!hazards.isEmpty()) {
         unsat = false;
@@ -191,107 +199,92 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     List<MemoryDependency> allDeps = new ArrayList<>();
     for (final MemoryDependency addrDep : addrDeps) {
-      List<MemoryDependency> dependency = new ArrayList<>();
+      final List<MemoryDependency> deps = new ArrayList<>();
 
-      dependency.add(addrDep);
+      deps.add(addrDep);
       for (final MmuDevice device : devices) {
         final List<MemoryHazard> hazards = CoverageExtractor.get().getCoverage(device);
-
-        dependency = addConflictToDependency(hazards, dependency, access1, access2);
+        addHazardsToDependencies(deps, access1, access2, hazards);
 
         if (!hazards.isEmpty()) {
           unsat = false;
         }
 
-        if (dependency.isEmpty()) {
+        if (deps.isEmpty()) {
           break;
         }
       }
 
-      allDeps.addAll(dependency);
+      allDeps.addAll(deps);
     }
 
     return allDeps.isEmpty() && !unsat ? null : allDeps;
   }
 
   /**
-   * Returns the list of dependencies created from this list of dependencies & hazards.
+   * Extends the dependencies with the hazards.
    * 
    * @param hazards the hazards
    * @param dependencies the list of dependencies
    * @return the list of dependencies.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  private List<MemoryDependency> addConflictToDependency(
-      final List<MemoryHazard> hazards, final List<MemoryDependency> dependencies,
-      final MemoryAccess access1, final MemoryAccess access2) {
-
-    InvariantChecks.checkNotNull(hazards);
+  private void addHazardsToDependencies(
+      final List<MemoryDependency> dependencies,
+      final MemoryAccess access1,
+      final MemoryAccess access2,
+      final List<MemoryHazard> hazards) {
     InvariantChecks.checkNotNull(dependencies);
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
+    InvariantChecks.checkNotNull(hazards);
 
-    if (!hazards.isEmpty()) {
-      if (dependencies.isEmpty()) {
-        // Initialize the list of dependencies.
-        for (final MemoryHazard hazard : hazards) {
-          final MemoryDependency dependency = new MemoryDependency();
+    if (hazards.isEmpty()) {
+      return;
+    }
 
-          dependency.addHazard(hazard);
+    if (dependencies.isEmpty()) {
+      dependencies.add(new MemoryDependency());
+    }
 
-          // Check consistency
-          final MemoryAccessStructureChecker checker = new MemoryAccessStructureChecker(memory, access1, access2,
-              dependency, accessPairFilter);
+    final List<MemoryDependency> tempDependencies = new ArrayList<>(dependencies);
 
-          if (checker.check()) {
-            dependencies.add(dependency);
-          }
-        }
-      } else {
-        // Add the hazards to the dependency list.
-        final List<MemoryDependency> dependencyListTemp = new ArrayList<>();
-        dependencyListTemp.addAll(dependencies);
-        dependencies.clear();
+    dependencies.clear();
+    for (final MemoryDependency tempDependency : tempDependencies) {
+      for (final MemoryHazard hazard : hazards) {
+        final MemoryDependency dependency = new MemoryDependency(tempDependency);
+        dependency.addHazard(hazard);
 
-        for (final MemoryDependency dependency : dependencyListTemp) {
-          for (final MemoryHazard hazard : hazards) {
-            final MemoryDependency newDependency = new MemoryDependency(dependency);
+        final MemoryAccessStructureChecker checker = new MemoryAccessStructureChecker(
+            memory, access1, access2, dependency, accessPairFilter);
 
-            newDependency.addHazard(hazard);
-
-            final MemoryAccessStructureChecker newChecker = new MemoryAccessStructureChecker(memory, access1, access2,
-                newDependency, accessPairFilter);
-
-            if (newChecker.check()) {
-              dependencies.add(newDependency);
-            }
-          }
+        if (checker.check()) {
+          dependencies.add(dependency);
         }
       }
     }
-
-    return dependencies;
   }
 
   @Override
   public void init() {
-    // Initialize the filter for checking execution pairs.
+    // Initialize the filter for checking memory access pairs.
     this.accessPairFilter = filterBuilder.build();
-
-    // Initialize the filter for checking whole templates.
+    // Initialize the filter for checking whole memory access structures.
     final FilterBuilder structureFilterBuilder = new FilterBuilder(filterBuilder);
 
     structureFilterBuilder.addFilterBuilder(ADVANCED_FILTERS);
     this.structureFilter = structureFilterBuilder.build();
 
     Arrays.fill(dataTypeIndices, 0);
-    Arrays.fill(executionPathIndices, 0);
+
+    accessIterator.init();
 
     hasValue = true;
-    assignExecutions();
+
+    assignAccesses();
     assignDependency();
 
-    if (!checkAbstractSequence()) {
+    if (!check()) {
       step();
     }
   }
@@ -337,47 +330,38 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   private void step() {
     if (!nextDependencies()) {
-      while (!nextExecution() && hasValue) {
+      while (!nextAccess() && hasValue) {
         // If the dependencies are inconsistent, try the next variant.
       }
     } else {
-      assignRecentDependencies();
+      assignDependencies();
     }
 
-    while (!checkAbstractSequence() && hasValue) {
+    while (!check() && hasValue) {
       if (!nextDependencies()) {
-        nextExecution();
+        nextAccess();
       } else {
-        assignRecentDependencies();
+        assignDependencies();
       }
     }
   }
 
   /**
-   * Iterate the execution.
+   * Makes an iteration through the executions.
    * 
-   * @return {@code true} increment the executions iterator; {@code false} otherwise.
+   * @return {@code true} if the iteration is successful; {@code false} otherwise.
    */
-  private boolean nextExecution() {
-    executionPathIndices[0]++;
-    if (executionPathIndices[0] == accessClasses.size()) {
-      for (int i = 0; i < size - 1; i++) {
-        if (executionPathIndices[i] == accessClasses.size()) {
-          executionPathIndices[i] = 0;
-          executionPathIndices[i + 1]++;
-        }
-      }
-      if (executionPathIndices[size - 1] == accessClasses.size()) {
-        hasValue = false;
-      }
-    }
+  private boolean nextAccess() {
+    accessIterator.next();
+    hasValue = accessIterator.hasValue();
 
     if (hasValue) {
-      assignExecutions();
+      assignAccesses();
       if (!assignDependency()) {
         return false;
       }
     }
+
     return true;
   }
 
@@ -406,47 +390,35 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       }
 
       return false;
-
     } else {
       dependencyIndices[0][0]++;
       return true;
     }
   }
 
-  /**
-   * Assigns the template executions.
-   */
-  private void assignExecutions() {
-    final List<MemoryAccess> templateExecutions = new ArrayList<>(size);
+  private void assignAccesses() {
+    final List<Integer> accessIndices = accessIterator.value();
+
+    accesses.clear();
     for (int i = 0; i < size; i++) {
-      final Set<MemoryAccess> executionClass = accessClasses.get(executionPathIndices[i]);
-      final MemoryAccess execution = Randomizer.get().choose(executionClass);
-
-      templateExecutions.add(execution);
+      final Set<MemoryAccess> executionClass = accessClasses.get(accessIndices.get(i));
+      accesses.add(Randomizer.get().choose(executionClass));
     }
-
-    this.accesses.clear();
-    this.accesses = templateExecutions;
   }
 
-  /**
-   * Assigns the recent dependencies.
-   */
-  private void assignRecentDependencies() {
-    dependencies = new MemoryDependency[size][size];
-    for (int i = 0; i < size - 1; i++) {
+  private void assignDependencies() {
+    for (int i = 0; i < size; i++) {
       Arrays.fill(dependencies[i], null);
     }
 
-    if (!dependencyMatrix.isEmpty()) {
-      for (int i = 0; i < size; i++) {
-        final List<List<MemoryDependency>> dependencyMatrixI = dependencyMatrix.get(i);
-        for (int j = 0; j < dependencyMatrixI.size(); j++) {
-          final List<MemoryDependency> dependencyMatrixJ = dependencyMatrixI.get(j);
-          if (!dependencyMatrixJ.isEmpty()) {
-            dependencies[(size - 1) - i][(size - 1) - j] =
-                dependencyMatrixJ.get(dependencyIndices[i][j]);
-          }
+    for (int i = 0; i < size; i++) {
+      final List<List<MemoryDependency>> dependenciesI = dependencyMatrix.get(i);
+
+      for (int j = 0; j < dependenciesI.size(); j++) {
+        final List<MemoryDependency> dependenciesJ = dependenciesI.get(j);
+
+        if (!dependenciesJ.isEmpty()) {
+          dependencies[(size-1) - i][(size-1) - j] = dependenciesJ.get(dependencyIndices[i][j]);
         }
       }
     }
@@ -486,11 +458,11 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       }
     }
 
-    assignRecentDependencies();
+    assignDependencies();
     return true;
   }
 
-  private boolean checkAbstractSequence() {
+  private boolean check() {
     final MemoryAccessStructure abstractSequence =
         new MemoryAccessStructure(memory, accesses, dependencies);
     final MemoryAccessStructureChecker abstractSequenceChecker =
@@ -504,12 +476,14 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   // Filter Registration
   //------------------------------------------------------------------------------------------------
 
-  public void addExecutionFilter(final Predicate<MemoryAccess> filter) {
+  public void addExecutionFilter(
+      final Predicate<MemoryAccess> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addExecutionFilter(filter);
   }
 
-  public void addHazardFilter(final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
+  public void addHazardFilter(
+      final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addHazardFilter(filter);
   }
@@ -520,17 +494,20 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     filterBuilder.addDependencyFilter(filter);
   }
 
-  public void addUnitedHazardFilter(final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter) {
+  public void addUnitedHazardFilter(
+      final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addUnitedHazardFilter(filter);
   }
 
-  public void addUnitedDependencyFilter(final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter) {
+  public void addUnitedDependencyFilter(
+      final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addUnitedDependencyFilter(filter);
   }
 
-  public void addTemplateFilter(final Predicate<MemoryAccessStructure> filter) {
+  public void addTemplateFilter(
+      final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addTemplateFilter(filter);
   }
