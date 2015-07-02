@@ -18,7 +18,7 @@ let X = 10
 #include "include_two.nml"
 
 mode ALL_MODES = A | B | C
-mode ALL_OPS = ADD | SUB | MOV
+op ALL_OPS = ADD | SUB | MOV
 
 op instruction(x : ALL_MODES, y : ALL_OPS)
   syntax = ""
