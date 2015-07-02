@@ -37,13 +37,13 @@ public final class TestSequence {
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
     private int byteSize;
-    private int instructionCount;
+    private int length;
 
     public Builder() {
       this.prologue = new ArrayList<ConcreteCall>();
       this.body = new ArrayList<ConcreteCall>();
       this.byteSize = 0;
-      this.instructionCount = 0;
+      this.length = 0;
     }
 
     public void addToPrologue(final ConcreteCall call) {
@@ -52,7 +52,7 @@ public final class TestSequence {
       byteSize += call.getByteSize();
 
       if (call.isExecutable()) {
-        instructionCount++;
+        length++;
       }
     }
 
@@ -69,7 +69,7 @@ public final class TestSequence {
       byteSize += call.getByteSize();
 
       if (call.isExecutable()) {
-        instructionCount++;
+        length++;
       }
     }
 
@@ -81,14 +81,14 @@ public final class TestSequence {
     }
 
     public TestSequence build() {
-      return new TestSequence(byteSize, prologue, body, instructionCount);
+      return new TestSequence(byteSize, prologue, body, length);
     }
   }
 
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
   private final int byteSize;
-  private final int instructionCount;
+  private final int length;
 
   private long address = 0;
   private boolean isAddressSet = false;
@@ -97,14 +97,14 @@ public final class TestSequence {
       final int byteSize,
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body,
-      final int instructionCount) {
+      final int length) {
     checkNotNull(prologue);
     checkNotNull(body);
 
     this.byteSize = byteSize;
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
-    this.instructionCount = instructionCount;
+    this.length = length;
   }
 
   public List<ConcreteCall> getPrologue() {
@@ -143,7 +143,7 @@ public final class TestSequence {
     }
   }
 
-  public int getInstructionCount() {
-    return instructionCount;
+  public int getLength() {
+    return length;
   }
 }
