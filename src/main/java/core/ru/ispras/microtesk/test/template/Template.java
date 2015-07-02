@@ -41,6 +41,7 @@ public final class Template {
   }
 
   public interface Processor {
+    void defineExceptionHandler(ExceptionHandler handler);
     void process(Section section, Block block);
     void finish();
   }
@@ -592,9 +593,10 @@ public final class Template {
     endBuildingCall();
     Logger.debug("End exception handler");
 
-    exceptionHandlerBuilder.build();
+    final ExceptionHandler handler = exceptionHandlerBuilder.build();
     exceptionHandlerBuilder = null;
 
+    processor.defineExceptionHandler(handler);
     isExceptionHandlerDefined = true;
   }
 }

@@ -48,6 +48,7 @@ import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataManager;
+import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
@@ -669,6 +670,12 @@ public final class TestEngine {
     private void printSectionHeader(String title) {
       Logger.debugHeader(title);
       printer.printHeaderToFile(title);
+    }
+
+    @Override
+    public void defineExceptionHandler(final ExceptionHandler handler) {
+      // TODO Auto-generated method stub
+      
     }
   }
 }
