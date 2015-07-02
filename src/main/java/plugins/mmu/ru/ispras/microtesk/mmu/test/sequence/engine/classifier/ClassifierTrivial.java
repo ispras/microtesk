@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
+package ru.ispras.microtesk.mmu.test.sequence.engine.classifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,22 +22,22 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.Classifier;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
 
 /**
  * This class describes the policy of unification by execution paths.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class ExecutionPathClassifierTrivial implements Classifier<ExecutionPath> {
+public final class ClassifierTrivial implements Classifier<MemoryAccess> {
   @Override
-  public List<Set<ExecutionPath>> classify(final Collection<ExecutionPath> executions) {
+  public List<Set<MemoryAccess>> classify(final Collection<MemoryAccess> executions) {
     InvariantChecks.checkNotNull(executions);
 
-    final List<Set<ExecutionPath>> executionList = new ArrayList<>();
+    final List<Set<MemoryAccess>> executionList = new ArrayList<>();
 
-    for (final ExecutionPath execution : executions) {
-      final Set<ExecutionPath> mmuExecutionClass = new HashSet<>();
+    for (final MemoryAccess execution : executions) {
+      final Set<MemoryAccess> mmuExecutionClass = new HashSet<>();
       mmuExecutionClass.add(execution);
       executionList.add(mmuExecutionClass);
     }

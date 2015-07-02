@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.utils.function.BiPredicate;
@@ -32,9 +32,9 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterUnitedDependency implements BiPredicate<ExecutionPath, UnitedDependency> {
+public final class FilterUnitedDependency implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   /** The device-level filters to be composed. */
-  private final Collection<BiPredicate<ExecutionPath, UnitedHazard>> filters;
+  private final Collection<BiPredicate<MemoryAccess, MemoryUnitedHazard>> filters;
 
   /**
    * Constructs an execution-level filter from the collection of device-level filters.
@@ -42,23 +42,23 @@ public final class FilterUnitedDependency implements BiPredicate<ExecutionPath, 
    * @param filters the collection of device-level filters to be composed.
    * @throws IllegalArgumentException if {@code filters} is {@code null}.
    */
-  public FilterUnitedDependency(final Collection<BiPredicate<ExecutionPath, UnitedHazard>> filters) {
+  public FilterUnitedDependency(final Collection<BiPredicate<MemoryAccess, MemoryUnitedHazard>> filters) {
     InvariantChecks.checkNotNull(filters);
     this.filters = filters;
   }
 
   @Override
-  public boolean test(final ExecutionPath execution, final UnitedDependency dependency) {
-    final Set<UnitedHazard> hazards = new LinkedHashSet<>();
+  public boolean test(final MemoryAccess execution, final MemoryUnitedDependency dependency) {
+    final Set<MemoryUnitedHazard> hazards = new LinkedHashSet<>();
 
-    final Map<MmuAddress, UnitedHazard> addrHazards = dependency.getAddrHazards();
-    final Map<MmuDevice, UnitedHazard> deviceHazards = dependency.getDeviceHazards();
+    final Map<MmuAddress, MemoryUnitedHazard> addrHazards = dependency.getAddrHazards();
+    final Map<MmuDevice, MemoryUnitedHazard> deviceHazards = dependency.getDeviceHazards();
 
     hazards.addAll(addrHazards.values());
     hazards.addAll(deviceHazards.values());
 
-    for (final UnitedHazard hazard : hazards) {
-      for (final BiPredicate<ExecutionPath, UnitedHazard> filter : filters) {
+    for (final MemoryUnitedHazard hazard : hazards) {
+      for (final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter : filters) {
         if (!filter.test(execution, hazard)) {
           return false;
         }

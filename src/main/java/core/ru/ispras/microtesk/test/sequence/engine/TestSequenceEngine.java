@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.allocateModes;
 
 import java.util.Collection;
 import java.util.List;

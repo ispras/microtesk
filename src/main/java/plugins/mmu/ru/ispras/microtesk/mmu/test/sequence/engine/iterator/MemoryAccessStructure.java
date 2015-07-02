@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -31,13 +31,13 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class AbstractSequence {
+public final class MemoryAccessStructure {
   /** The memory specification. */
   private MmuSubsystem memory;
   /** The list of executions. */
-  private List<ExecutionPath> executions = new ArrayList<>();
+  private List<MemoryAccess> executions = new ArrayList<>();
   /** The dependencies between the executions. */
-  private Dependency[][] dependencies;
+  private MemoryDependency[][] dependencies;
 
   /**
    * Constructs a test template.
@@ -46,8 +46,8 @@ public final class AbstractSequence {
    * @param dependencies the dependencies.
    * @throws IllegalArgumentException if {@code executions} or {@code dependencies} is null.
    */
-  public AbstractSequence(final MmuSubsystem memory, final List<ExecutionPath> executions,
-      final Dependency[][] dependencies) {
+  public MemoryAccessStructure(final MmuSubsystem memory, final List<MemoryAccess> executions,
+      final MemoryDependency[][] dependencies) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(executions);
     InvariantChecks.checkNotNull(dependencies);
@@ -80,7 +80,7 @@ public final class AbstractSequence {
    * 
    * @return the template executions.
    */
-  public List<ExecutionPath> getExecutions() {
+  public List<MemoryAccess> getExecutions() {
     return executions;
   }
 
@@ -90,7 +90,7 @@ public final class AbstractSequence {
    * @param i the index of execution.
    * @return the execution.
    */
-  public ExecutionPath getExecution(final int i) {
+  public MemoryAccess getExecution(final int i) {
     return executions.get(i);
   }
 
@@ -101,7 +101,7 @@ public final class AbstractSequence {
    * @param j the index of the secondary execution.
    * @return the dependency.
    */
-  public Dependency getDependency(final int i, final int j) {
+  public MemoryDependency getDependency(final int i, final int j) {
     return dependencies[j][i];
   }
 
@@ -110,7 +110,7 @@ public final class AbstractSequence {
    * 
    * @return the template dependencies.
    */
-  public Dependency[][] getDependencies() {
+  public MemoryDependency[][] getDependencies() {
     return dependencies;
   }
 
@@ -120,18 +120,18 @@ public final class AbstractSequence {
    * @param j the execution index.
    * @return the united dependency.
    */
-  public UnitedDependency getUnitedDependency(final int j) {
-    final Map<Dependency, Integer> dependencies = new LinkedHashMap<>();
+  public MemoryUnitedDependency getUnitedDependency(final int j) {
+    final Map<MemoryDependency, Integer> dependencies = new LinkedHashMap<>();
 
     for (int i = 0; i < j; i++) {
-      final Dependency dependency = getDependency(i, j);
+      final MemoryDependency dependency = getDependency(i, j);
 
       if (dependency != null) {
         dependencies.put(dependency, i);
       }
     }
 
-    return new UnitedDependency(dependencies);
+    return new MemoryUnitedDependency(dependencies);
   }
 
   @Override

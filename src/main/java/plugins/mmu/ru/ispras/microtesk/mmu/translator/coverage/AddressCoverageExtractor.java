@@ -39,15 +39,15 @@ final class AddressCoverageExtractor {
    * 
    * @return the hazards list.
    */
-  public List<Hazard> getHazards() {
-    final List<Hazard> hazardList = new ArrayList<>();
+  public List<MemoryHazard> getHazards() {
+    final List<MemoryHazard> hazardList = new ArrayList<>();
 
     // Address1 != Address2.
     final MmuEquality equalityNoEqual =
         new MmuEquality(MmuEquality.Type.NOT_EQUAL, MmuExpression.VAR(address.getAddress()));
     final MmuCondition conditionNoEqual = new MmuCondition(equalityNoEqual);
 
-    final Hazard hazardNoEqual = new Hazard(Hazard.Type.ADDR_NOT_EQUAL, address, conditionNoEqual);
+    final MemoryHazard hazardNoEqual = new MemoryHazard(MemoryHazard.Type.ADDR_NOT_EQUAL, address, conditionNoEqual);
     hazardList.add(hazardNoEqual);
 
     // Address1 == Address2.
@@ -55,7 +55,7 @@ final class AddressCoverageExtractor {
         new MmuEquality(MmuEquality.Type.EQUAL, MmuExpression.VAR(address.getAddress()));
     final MmuCondition conditionEqual = new MmuCondition(equalityEqual);
 
-    final Hazard hazardEqual = new Hazard(Hazard.Type.ADDR_EQUAL, address, conditionEqual);
+    final MemoryHazard hazardEqual = new MemoryHazard(MemoryHazard.Type.ADDR_EQUAL, address, conditionEqual);
     hazardList.add(hazardEqual);
 
     return hazardList;

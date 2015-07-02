@@ -25,7 +25,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class Hazard {
+public final class MemoryHazard {
 
   /**
    * This enumeration contains conflict types.
@@ -99,7 +99,7 @@ public final class Hazard {
    * @param condition the condition.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public Hazard(final Type type, final MmuDevice device, final MmuCondition condition) {
+  public MemoryHazard(final Type type, final MmuDevice device, final MmuCondition condition) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(condition);
@@ -118,7 +118,7 @@ public final class Hazard {
    * @param condition the condition.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public Hazard(final Type type, final MmuAddress address, final MmuCondition condition) {
+  public MemoryHazard(final Type type, final MmuAddress address, final MmuCondition condition) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(condition);
@@ -202,11 +202,11 @@ public final class Hazard {
       return true;
     }
 
-    if (o == null || !(o instanceof Hazard)) {
+    if (o == null || !(o instanceof MemoryHazard)) {
       return false;
     }
 
-    final Hazard r = (Hazard) o;
+    final MemoryHazard r = (MemoryHazard) o;
 
     return getFullName().equals(r.getFullName());
   }

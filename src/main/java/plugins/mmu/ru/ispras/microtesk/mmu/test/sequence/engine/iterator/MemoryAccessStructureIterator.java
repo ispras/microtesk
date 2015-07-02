@@ -36,11 +36,11 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterTagEqualTagRepl
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterUnclosedEqualRelations;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterVaEqualPaNotEqual;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -50,16 +50,17 @@ import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
 /**
- * {@link AbstractSequenceIterator} implements an iterator of abstract sequences (templates) for
+ * {@link MemoryAccessStructureIterator} implements an iterator of abstract sequences (templates) for
  * memory access instructions (loads and stores).
  * 
  * <p>A template is a sequence of execution paths (situations) linked together with a number of
  * dependencies. The iterator systematically enumerates templates to cover a representative set of
  * cases of the memory subsystem behavior.</p>
  * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
+public final class MemoryAccessStructureIterator implements Iterator<MemoryAccessStructure> {
   /** Checks the consistency of execution path pairs (template parts) and whole templates. */
   private static final FilterBuilder BASIC_FILTERS = new FilterBuilder();
   static {
@@ -85,6 +86,10 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
   /** Memory subsystem specification. */
   private final MmuSubsystem memory;
+
+  /** Executions path equivalence classes. */
+  private final List<Set<MemoryAccess>> allExecutionClasses = new ArrayList<>();
+
   /** Supported data types, i.e. sizes of data blocks accessed by load/store instructions. */
   private final DataType[] dataTypes;
   /** Data type randomization option. */
@@ -100,23 +105,20 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
   /** Array of indices in the dependencies array. */
   private final int[][] dependencyIndices;
 
-  /** The executions paths. */
-  private final List<Set<ExecutionPath>> allExecutionClasses = new ArrayList<>();
-
   /** The list of executions. */
-  private List<ExecutionPath> templateExecutions = new ArrayList<>();
+  private List<MemoryAccess> templateExecutions = new ArrayList<>();
   /** The array of dependencies. */
-  private Dependency[][] templateDependencies;
+  private MemoryDependency[][] templateDependencies;
   /** The dependencies matrix. */
-  private List<List<List<Dependency>>> dependencyMatrix = new ArrayList<>();
+  private List<List<List<MemoryDependency>>> dependencyMatrix = new ArrayList<>();
 
   /** {@code true} if the iteration has more elements; {@code false} otherwise. */
-  private boolean hasNext;
+  private boolean hasValue;
 
   /** Checks the consistency of execution path pairs. */
-  private Predicate<AbstractSequence> executionPairFilter;
+  private Predicate<MemoryAccessStructure> executionPairFilter;
   /** Checks the consistency of whole test templates. */
-  private Predicate<AbstractSequence> wholeTemplateFilter;
+  private Predicate<MemoryAccessStructure> wholeTemplateFilter;
 
   /**
    * Constructs a MMU iterator.
@@ -128,12 +130,12 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
    * @param executionPathClassifier the policy of unification executions.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public AbstractSequenceIterator(
+  public MemoryAccessStructureIterator(
       final MmuSubsystem memory,
       final DataType[] dataTypes,
       final boolean randomDataType,
       final int numberOfExecutions,
-      final Classifier<ExecutionPath> classifier) {
+      final Classifier<MemoryAccess> classifier) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(dataTypes);
     InvariantChecks.checkNotNull(classifier);
@@ -147,10 +149,10 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     this.executionPathIndices = new int[numberOfExecutions];
     this.dependencyIndices = new int[numberOfExecutions][numberOfExecutions];
 
-    final List<ExecutionPath> executionPaths = CoverageExtractor.get().getCoverage(memory);
-    final List<Set<ExecutionPath>> executionClasses = classifier.classify(executionPaths);
+    final List<MemoryAccess> executionPaths = CoverageExtractor.get().getCoverage(memory);
+    final List<Set<MemoryAccess>> executionClasses = classifier.classify(executionPaths);
 
-    for (final Set<ExecutionPath> executionClass : executionClasses) {
+    for (final Set<MemoryAccess> executionClass : executionClasses) {
       this.allExecutionClasses.add(executionClass);
     }
 
@@ -165,9 +167,9 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
    * @return the list of dependencies.
    * @throws IllegalArgumentException if {@code execution1} or {@code execution2} is null.
    */
-  public List<Dependency> getDependencies(
-      final ExecutionPath execution1,
-      final ExecutionPath execution2) {
+  public List<MemoryDependency> getDependencies(
+      final MemoryAccess execution1,
+      final MemoryAccess execution2) {
     InvariantChecks.checkNotNull(execution1);
     InvariantChecks.checkNotNull(execution2);
 
@@ -189,8 +191,8 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     //  }
     }
 
-    List<Dependency> dependencyList = new ArrayList<>();
-    List<Dependency> dependencyAddressList = new ArrayList<>();
+    List<MemoryDependency> dependencyList = new ArrayList<>();
+    List<MemoryDependency> dependencyAddressList = new ArrayList<>();
 
     final Set<MmuAddress> addresses = new LinkedHashSet<>();
 
@@ -208,12 +210,12 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
       }
     }
 
-    for (final Dependency dependencyAddress : dependencyAddressList) {
-      List<Dependency> dependency = new ArrayList<>();
+    for (final MemoryDependency dependencyAddress : dependencyAddressList) {
+      List<MemoryDependency> dependency = new ArrayList<>();
 
       dependency.add(dependencyAddress);
       for (final MmuDevice device : devices) {
-        final List<Hazard> hazards = CoverageExtractor.get().getCoverage(device);
+        final List<MemoryHazard> hazards = CoverageExtractor.get().getCoverage(device);
 
         if (!hazards.isEmpty()) {
           notSolved = false;
@@ -240,9 +242,9 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
    * @return the list of dependencies.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  private List<Dependency> addConflictToDependency(
-      final List<Hazard> hazards, final List<Dependency> dependencies,
-      final ExecutionPath execution1, final ExecutionPath execution2) {
+  private List<MemoryDependency> addConflictToDependency(
+      final List<MemoryHazard> hazards, final List<MemoryDependency> dependencies,
+      final MemoryAccess execution1, final MemoryAccess execution2) {
 
     InvariantChecks.checkNotNull(hazards);
     InvariantChecks.checkNotNull(dependencies);
@@ -252,13 +254,13 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     if (!hazards.isEmpty()) {
       if (dependencies.isEmpty()) {
         // Initialize the list of dependencies.
-        for (final Hazard hazard : hazards) {
-          final Dependency dependency = new Dependency();
+        for (final MemoryHazard hazard : hazards) {
+          final MemoryDependency dependency = new MemoryDependency();
 
           dependency.addHazard(hazard);
 
           // Check consistency
-          final AbstractSequenceChecker checker = new AbstractSequenceChecker(memory, execution1, execution2,
+          final MemoryAccessStructureChecker checker = new MemoryAccessStructureChecker(memory, execution1, execution2,
               dependency, executionPairFilter);
 
           if (checker.check()) {
@@ -267,17 +269,17 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
         }
       } else {
         // Add the hazards to the dependency list.
-        final List<Dependency> dependencyListTemp = new ArrayList<>();
+        final List<MemoryDependency> dependencyListTemp = new ArrayList<>();
         dependencyListTemp.addAll(dependencies);
         dependencies.clear();
 
-        for (final Dependency dependency : dependencyListTemp) {
-          for (final Hazard hazard : hazards) {
-            final Dependency newDependency = new Dependency(dependency);
+        for (final MemoryDependency dependency : dependencyListTemp) {
+          for (final MemoryHazard hazard : hazards) {
+            final MemoryDependency newDependency = new MemoryDependency(dependency);
 
             newDependency.addHazard(hazard);
 
-            final AbstractSequenceChecker newChecker = new AbstractSequenceChecker(memory, execution1, execution2,
+            final MemoryAccessStructureChecker newChecker = new MemoryAccessStructureChecker(memory, execution1, execution2,
                 newDependency, executionPairFilter);
 
             if (newChecker.check()) {
@@ -305,7 +307,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     Arrays.fill(dataTypeIndices, 0);
     Arrays.fill(executionPathIndices, 0);
 
-    hasNext = true;
+    hasValue = true;
     assignExecutions();
     assignDependency();
 
@@ -319,18 +321,19 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
   @Override
   public boolean hasValue() {
-    return hasNext;
+    return hasValue;
   }
 
   @Override
-  public AbstractSequence value() {
-    return new AbstractSequence(memory, templateExecutions, templateDependencies);
+  public MemoryAccessStructure value() {
+    setDataTypes();
+    return new MemoryAccessStructure(memory, templateExecutions, templateDependencies);
   }
 
   // TODO:
   private void setDataTypes() {
     for (int i = 0; i < templateExecutions.size(); i++) {
-      final ExecutionPath execution = templateExecutions.get(i);
+      final MemoryAccess execution = templateExecutions.get(i);
       execution.setType(dataTypes[dataTypeIndices[i]]);
     }
   }
@@ -357,7 +360,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
   private void step() {
     if (!nextDependencies()) {
-      while (!nextExecution() && hasNext) {
+      while (!nextExecution() && hasValue) {
         // If the dependencies are inconsistent, try the next variant.
       }
     } else {
@@ -367,7 +370,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     // TODO:
     setDataTypes();
 
-    while (!checkAbstractSequence() && hasNext) {
+    while (!checkAbstractSequence() && hasValue) {
       if (!nextDependencies()) {
         nextExecution();
       } else {
@@ -396,11 +399,11 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
         }
       }
       if (executionPathIndices[numberOfExecutions - 1] == size) {
-        hasNext = false;
+        hasValue = false;
       }
     }
 
-    if (hasNext) {
+    if (hasValue) {
       assignExecutions();
       if (!assignDependency()) {
         return false;
@@ -421,7 +424,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
     if (dependencyIndices[0][0] + 1 >= dependencyMatrix.get(0).get(0).size()) {
       for (int i = 0; i < numberOfExecutions; i++) {
-        final List<List<Dependency>> dependencyMatrixI = dependencyMatrix.get(i);
+        final List<List<MemoryDependency>> dependencyMatrixI = dependencyMatrix.get(i);
         for (int j = 0; j < dependencyMatrixI.size(); j++) {
           dependencyIndices[i][j]++;
 
@@ -445,10 +448,10 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
    * Assigns the template executions.
    */
   private void assignExecutions() {
-    final List<ExecutionPath> templateExecutions = new ArrayList<>(numberOfExecutions);
+    final List<MemoryAccess> templateExecutions = new ArrayList<>(numberOfExecutions);
     for (int i = 0; i < numberOfExecutions; i++) {
-      final Set<ExecutionPath> executionClass = allExecutionClasses.get(executionPathIndices[i]);
-      final ExecutionPath execution = Randomizer.get().choose(executionClass);
+      final Set<MemoryAccess> executionClass = allExecutionClasses.get(executionPathIndices[i]);
+      final MemoryAccess execution = Randomizer.get().choose(executionClass);
 
       templateExecutions.add(execution);
     }
@@ -462,16 +465,16 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
    */
   private void assignRecentDependencies() {
     final int size = numberOfExecutions - 1;
-    templateDependencies = new Dependency[numberOfExecutions][numberOfExecutions];
+    templateDependencies = new MemoryDependency[numberOfExecutions][numberOfExecutions];
     for (int i = 0; i < size; i++) {
       Arrays.fill(templateDependencies[i], null);
     }
 
     if (!dependencyMatrix.isEmpty()) {
       for (int i = 0; i < numberOfExecutions; i++) {
-        final List<List<Dependency>> dependencyMatrixI = dependencyMatrix.get(i);
+        final List<List<MemoryDependency>> dependencyMatrixI = dependencyMatrix.get(i);
         for (int j = 0; j < dependencyMatrixI.size(); j++) {
-          final List<Dependency> dependencyMatrixJ = dependencyMatrixI.get(j);
+          final List<MemoryDependency> dependencyMatrixJ = dependencyMatrixI.get(j);
           if (!dependencyMatrixJ.isEmpty()) {
             templateDependencies[size - i][size - j] =
                 dependencyMatrixJ.get(dependencyIndices[i][j]);
@@ -488,14 +491,14 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
    */
   private boolean assignDependency() {
     if (numberOfExecutions > 1) {
-      final List<List<List<Dependency>>> dependencyMatrix = new ArrayList<>();
+      final List<List<List<MemoryDependency>>> dependencyMatrix = new ArrayList<>();
       for (int i = numberOfExecutions - 1; i >= 0; i--) {
-        final List<List<Dependency>> dependencyMatrixI = new ArrayList<>();
+        final List<List<MemoryDependency>> dependencyMatrixI = new ArrayList<>();
         for (int j = numberOfExecutions - 1; j >= 0; j--) {
           if (i <= j) {
-            dependencyMatrixI.add(new ArrayList<Dependency>());
+            dependencyMatrixI.add(new ArrayList<MemoryDependency>());
           } else {
-            final List<Dependency> dependency =
+            final List<MemoryDependency> dependency =
                 getDependencies(templateExecutions.get(i), templateExecutions.get(j));
 
             if (dependency == null) {
@@ -521,10 +524,10 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
   }
 
   private boolean checkAbstractSequence() {
-    final AbstractSequence abstractSequence =
-        new AbstractSequence(memory, templateExecutions, templateDependencies);
-    final AbstractSequenceChecker abstractSequenceChecker =
-        new AbstractSequenceChecker(abstractSequence, wholeTemplateFilter);
+    final MemoryAccessStructure abstractSequence =
+        new MemoryAccessStructure(memory, templateExecutions, templateDependencies);
+    final MemoryAccessStructureChecker abstractSequenceChecker =
+        new MemoryAccessStructureChecker(abstractSequence, wholeTemplateFilter);
 
     return abstractSequenceChecker.check();
   }
@@ -533,33 +536,33 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
   // Filter Registration
   // -----------------------------------------------------------------------------------------------
 
-  public void addExecutionFilter(final Predicate<ExecutionPath> filter) {
+  public void addExecutionFilter(final Predicate<MemoryAccess> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addExecutionFilter(filter);
   }
 
-  public void addHazardFilter(final TriPredicate<ExecutionPath, ExecutionPath, Hazard> filter) {
+  public void addHazardFilter(final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addHazardFilter(filter);
   }
 
   public void addDependencyFilter(
-      final TriPredicate<ExecutionPath, ExecutionPath, Dependency> filter) {
+      final TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addDependencyFilter(filter);
   }
 
-  public void addUnitedHazardFilter(final BiPredicate<ExecutionPath, UnitedHazard> filter) {
+  public void addUnitedHazardFilter(final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addUnitedHazardFilter(filter);
   }
 
-  public void addUnitedDependencyFilter(final BiPredicate<ExecutionPath, UnitedDependency> filter) {
+  public void addUnitedDependencyFilter(final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addUnitedDependencyFilter(filter);
   }
 
-  public void addTemplateFilter(final Predicate<AbstractSequence> filter) {
+  public void addTemplateFilter(final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addTemplateFilter(filter);
   }

@@ -17,10 +17,10 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
@@ -32,25 +32,25 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterVaEqualPaNotEqual implements BiPredicate<ExecutionPath, UnitedDependency> {
+public final class FilterVaEqualPaNotEqual implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
-  public boolean test(final ExecutionPath execution, UnitedDependency dependency) {
+  public boolean test(final MemoryAccess execution, MemoryUnitedDependency dependency) {
     final MmuAddress va = execution.getStartAddress();
-    final UnitedHazard vaHazard = dependency.getHazard(va);
+    final MemoryUnitedHazard vaHazard = dependency.getHazard(va);
 
     final Set<Integer> vaEqualRelation =
-        vaHazard != null ? vaHazard.getRelation(Hazard.Type.ADDR_EQUAL) : null;
+        vaHazard != null ? vaHazard.getRelation(MemoryHazard.Type.ADDR_EQUAL) : null;
 
     if (vaEqualRelation == null) {
       return true;
     }
 
-    for (final Map.Entry<MmuAddress, UnitedHazard> addrEntry : dependency.getAddrHazards().entrySet()) {
+    for (final Map.Entry<MmuAddress, MemoryUnitedHazard> addrEntry : dependency.getAddrHazards().entrySet()) {
       final MmuAddress pa = addrEntry.getKey();
-      final UnitedHazard paHazard = addrEntry.getValue();
+      final MemoryUnitedHazard paHazard = addrEntry.getValue();
 
       if (pa != va) {
-        final Set<Integer> paEqualRelation = paHazard.getRelation(Hazard.Type.ADDR_EQUAL);
+        final Set<Integer> paEqualRelation = paHazard.getRelation(MemoryHazard.Type.ADDR_EQUAL);
 
         // VA.ADDR_EQUAL => PA.ADDR_EQUAL.
         if (paEqualRelation != null) {

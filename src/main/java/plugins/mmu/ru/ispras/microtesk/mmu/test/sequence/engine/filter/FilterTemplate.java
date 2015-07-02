@@ -17,10 +17,10 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
-import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -31,10 +31,10 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterTemplate implements Predicate<AbstractSequence> {
-  private final Collection<Predicate<ExecutionPath>> executionFilters;
-  private final Collection<TriPredicate<ExecutionPath, ExecutionPath, Dependency>> dependencyFilters;
-  private final Collection<BiPredicate<ExecutionPath, UnitedDependency>> unitedDependencyFilters;
+public final class FilterTemplate implements Predicate<MemoryAccessStructure> {
+  private final Collection<Predicate<MemoryAccess>> executionFilters;
+  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> dependencyFilters;
+  private final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> unitedDependencyFilters;
 
   /**
    * Constructs a template-level filter from execution- and dependency-level filters.
@@ -45,9 +45,9 @@ public final class FilterTemplate implements Predicate<AbstractSequence> {
    * @throws IllegalArgumentException if some parameters are null.
    */
   public FilterTemplate(
-      final Collection<Predicate<ExecutionPath>> executionFilters,
-      final Collection<TriPredicate<ExecutionPath, ExecutionPath, Dependency>> dependencyFilters,
-      final Collection<BiPredicate<ExecutionPath, UnitedDependency>> unitedDependencyFilters) {
+      final Collection<Predicate<MemoryAccess>> executionFilters,
+      final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> dependencyFilters,
+      final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> unitedDependencyFilters) {
     InvariantChecks.checkNotNull(executionFilters);
     InvariantChecks.checkNotNull(dependencyFilters);
     InvariantChecks.checkNotNull(unitedDependencyFilters);
@@ -58,12 +58,12 @@ public final class FilterTemplate implements Predicate<AbstractSequence> {
   }
 
   @Override
-  public boolean test(final AbstractSequence template) {
+  public boolean test(final MemoryAccessStructure template) {
     for (int i = 0; i < template.size(); i++) {
-      final ExecutionPath execution1 = template.getExecution(i);
+      final MemoryAccess execution1 = template.getExecution(i);
 
       // Apply the execution-level filters.
-      for (final Predicate<ExecutionPath> filter : executionFilters) {
+      for (final Predicate<MemoryAccess> filter : executionFilters) {
         if (!filter.test(execution1)) {
           // Filter off.
           return false;
@@ -71,15 +71,15 @@ public final class FilterTemplate implements Predicate<AbstractSequence> {
       }
 
       for (int j = i + 1; j < template.size(); j++) {
-        final ExecutionPath execution2 = template.getExecution(j);
-        final Dependency dependency = template.getDependency(i, j);
+        final MemoryAccess execution2 = template.getExecution(j);
+        final MemoryDependency dependency = template.getDependency(i, j);
 
         if (dependency == null) {
           continue;
         }
 
         // Apply the dependency-level filters.
-        for (final TriPredicate<ExecutionPath, ExecutionPath, Dependency> filter : dependencyFilters) {
+        for (final TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> filter : dependencyFilters) {
           if (!filter.test(execution1, execution2, dependency)) {
             // Filter off.
             return false;
@@ -87,10 +87,10 @@ public final class FilterTemplate implements Predicate<AbstractSequence> {
         }
       }
 
-      final UnitedDependency unitedDependency = template.getUnitedDependency(i);
+      final MemoryUnitedDependency unitedDependency = template.getUnitedDependency(i);
 
       // Apply the united-dependency-level filters.
-      for (final BiPredicate<ExecutionPath, UnitedDependency> filter : unitedDependencyFilters) {
+      for (final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter : unitedDependencyFilters) {
         if (!filter.test(execution1, unitedDependency)) {
           // Filter off.
           return false;

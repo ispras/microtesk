@@ -15,12 +15,12 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.allocateModes;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.checkRootOp;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getTestData;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeInitializer;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.setUnknownImmValues;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.allocateModes;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.checkRootOp;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.getTestData;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeInitializer;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.setUnknownImmValues;
 
 import java.util.HashSet;
 import java.util.List;
@@ -34,8 +34,8 @@ import ru.ispras.microtesk.basis.iterator.SingleValueIterator;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.sequence.engine.common.AddressingModeWrapper;
-import ru.ispras.microtesk.test.sequence.engine.common.TestBaseQueryCreator;
+import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
+import ru.ispras.microtesk.test.sequence.engine.utils.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;

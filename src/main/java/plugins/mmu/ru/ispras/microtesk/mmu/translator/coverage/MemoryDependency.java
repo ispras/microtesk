@@ -26,14 +26,14 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class Dependency {
+public class MemoryDependency {
   /** The list of device conflicts. */
-  private final List<Hazard> hazards = new ArrayList<>();
+  private final List<MemoryHazard> hazards = new ArrayList<>();
 
   /**
    * Constructs a dependency.
    */
-  public Dependency() {}
+  public MemoryDependency() {}
 
   /**
    * Constructs a copy of the dependency.
@@ -41,7 +41,7 @@ public class Dependency {
    * @param dependency the dependency to be copied.
    * @throws IllegalArgumentException if {@code dependency} is null.
    */
-  public Dependency(final Dependency dependency) {
+  public MemoryDependency(final MemoryDependency dependency) {
     InvariantChecks.checkNotNull(dependency);
 
     hazards.addAll(dependency.getHazards());
@@ -52,7 +52,7 @@ public class Dependency {
    * 
    * @return the list of conflicts.
    */
-  public List<Hazard> getHazards() {
+  public List<MemoryHazard> getHazards() {
     return hazards;
   }
 
@@ -62,7 +62,7 @@ public class Dependency {
    * @param hazard the conflict.
    * @throws IllegalArgumentException if {@code hazard} is null.
    */
-  public void addHazard(final Hazard hazard) {
+  public void addHazard(final MemoryHazard hazard) {
     InvariantChecks.checkNotNull(hazard);
 
     hazards.add(hazard);
@@ -75,10 +75,10 @@ public class Dependency {
    * @return the conflict of the device.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public Hazard getHazard(final MmuDevice device) {
+  public MemoryHazard getHazard(final MmuDevice device) {
     InvariantChecks.checkNotNull(device);
 
-    for (final Hazard hazard : hazards) {
+    for (final MemoryHazard hazard : hazards) {
       if ((hazard.getDevice() != null) && (hazard.getDevice().equals(device))) {
         return hazard;
       }
@@ -96,11 +96,11 @@ public class Dependency {
    *         otherwise.
    * @throws IllegalArgumentException if {@code device} or {@code hazardType} is null.
    */
-  public boolean contains(final MmuDevice device, final Hazard.Type hazardType) {
+  public boolean contains(final MmuDevice device, final MemoryHazard.Type hazardType) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(hazardType);
 
-    for (final Hazard hazard : hazards) {
+    for (final MemoryHazard hazard : hazards) {
       if (device.equals(hazard.getDevice()) && hazard.getType() == hazardType) {
         return true;
       }
@@ -117,11 +117,11 @@ public class Dependency {
    *         otherwise.
    * @throws IllegalArgumentException if {@code address} or {@code hazardType} is null.
    */
-  public boolean contains(final MmuAddress address, final Hazard.Type hazardType) {
+  public boolean contains(final MmuAddress address, final MemoryHazard.Type hazardType) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(hazardType);
 
-    for (final Hazard hazard : hazards) {
+    for (final MemoryHazard hazard : hazards) {
       if (address.equals(hazard.getAddress()) && hazard.getType() == hazardType) {
         return true;
       }
@@ -137,7 +137,7 @@ public class Dependency {
     boolean comma = false;
 
     builder.append("{");
-    for (final Hazard hazard : hazards) {
+    for (final MemoryHazard hazard : hazards) {
       builder.append(comma ? separator : "");
       builder.append(hazard);
     }

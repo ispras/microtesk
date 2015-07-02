@@ -32,14 +32,14 @@ public final class CoverageExtractor {
     return instance;
   }
 
-  private Map<MmuAddress, List<Hazard>> addressCoverage = new HashMap<>();
-  private Map<MmuDevice, List<Hazard>> deviceCoverage = new HashMap<>();
-  private Map<MmuSubsystem, List<ExecutionPath>> memoryCoverage = new HashMap<>();
+  private Map<MmuAddress, List<MemoryHazard>> addressCoverage = new HashMap<>();
+  private Map<MmuDevice, List<MemoryHazard>> deviceCoverage = new HashMap<>();
+  private Map<MmuSubsystem, List<MemoryAccess>> memoryCoverage = new HashMap<>();
 
   private CoverageExtractor() {}
 
-  public List<Hazard> getCoverage(final MmuAddress address) {
-    List<Hazard> coverage = addressCoverage.get(address);
+  public List<MemoryHazard> getCoverage(final MmuAddress address) {
+    List<MemoryHazard> coverage = addressCoverage.get(address);
 
     if (coverage != null) {
       return coverage;
@@ -51,8 +51,8 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  public List<Hazard> getCoverage(final MmuDevice device) {
-    List<Hazard> coverage = deviceCoverage.get(device);
+  public List<MemoryHazard> getCoverage(final MmuDevice device) {
+    List<MemoryHazard> coverage = deviceCoverage.get(device);
 
     if (coverage != null) {
       return coverage;
@@ -64,8 +64,8 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  public List<ExecutionPath> getCoverage(final MmuSubsystem memory) {
-    List<ExecutionPath> coverage = memoryCoverage.get(memory);
+  public List<MemoryAccess> getCoverage(final MmuSubsystem memory) {
+    List<MemoryAccess> coverage = memoryCoverage.get(memory);
 
     if (coverage != null) {
       return coverage;

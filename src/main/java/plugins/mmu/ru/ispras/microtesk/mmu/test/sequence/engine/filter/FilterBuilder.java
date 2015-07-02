@@ -18,12 +18,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
-import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -35,22 +35,22 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  */
 public final class FilterBuilder {
 
-  private final Collection<Predicate<ExecutionPath>>
+  private final Collection<Predicate<MemoryAccess>>
     executionFilters = new ArrayList<>();
 
-  private final Collection<TriPredicate<ExecutionPath, ExecutionPath, Hazard>>
+  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>>
     hazardFilters = new ArrayList<>();
 
-  private final Collection<TriPredicate<ExecutionPath, ExecutionPath, Dependency>>
+  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>>
     dependencyFilters = new ArrayList<>();
 
-  private final Collection<BiPredicate<ExecutionPath, UnitedHazard>>
+  private final Collection<BiPredicate<MemoryAccess, MemoryUnitedHazard>>
     unitedHazardFilters = new ArrayList<>();
 
-  private final Collection<BiPredicate<ExecutionPath, UnitedDependency>>
+  private final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>>
     unitedDependencyFilters = new ArrayList<>();
 
-  private final Collection<Predicate<AbstractSequence>>
+  private final Collection<Predicate<MemoryAccessStructure>>
     templateFilters = new ArrayList<>();
 
   public FilterBuilder() {
@@ -61,67 +61,67 @@ public final class FilterBuilder {
     addFilterBuilder(r);
   }
 
-  public void addExecutionFilter(final Predicate<ExecutionPath> filter) {
+  public void addExecutionFilter(final Predicate<MemoryAccess> filter) {
     InvariantChecks.checkNotNull(filter);
     executionFilters.add(filter);
   }
 
-  public void addExecutionFilters(final Collection<Predicate<ExecutionPath>> filters) {
+  public void addExecutionFilters(final Collection<Predicate<MemoryAccess>> filters) {
     InvariantChecks.checkNotNull(filters);
     executionFilters.addAll(filters);
   }
 
-  public void addHazardFilter(final TriPredicate<ExecutionPath, ExecutionPath, Hazard> filter) {
+  public void addHazardFilter(final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
     InvariantChecks.checkNotNull(filter);
     hazardFilters.add(filter);
   }
 
   public void addHazardFilters(
-      final Collection<TriPredicate<ExecutionPath, ExecutionPath, Hazard>> filters) {
+      final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> filters) {
     InvariantChecks.checkNotNull(filters);
     hazardFilters.addAll(filters);
   }
 
   public void addDependencyFilter(
-      final TriPredicate<ExecutionPath, ExecutionPath, Dependency> filter) {
+      final TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     dependencyFilters.add(filter);
   }
 
   public void addDependencyFilters(
-      final Collection<TriPredicate<ExecutionPath, ExecutionPath, Dependency>> filters) {
+      final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> filters) {
     InvariantChecks.checkNotNull(filters);
     dependencyFilters.addAll(filters);
   }
 
-  public void addUnitedHazardFilter(final BiPredicate<ExecutionPath, UnitedHazard> filter) {
+  public void addUnitedHazardFilter(final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter) {
     InvariantChecks.checkNotNull(filter);
     unitedHazardFilters.add(filter);
   }
 
   public void addUnitedHazardFilters(
-      final Collection<BiPredicate<ExecutionPath, UnitedHazard>> filters) {
+      final Collection<BiPredicate<MemoryAccess, MemoryUnitedHazard>> filters) {
     InvariantChecks.checkNotNull(filters);
     unitedHazardFilters.addAll(filters);
   }
 
-  public void addUnitedDependencyFilter(final BiPredicate<ExecutionPath, UnitedDependency> filter) {
+  public void addUnitedDependencyFilter(final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     unitedDependencyFilters.add(filter);
   }
 
   public void addUnitedDependencyFilters(
-      final Collection<BiPredicate<ExecutionPath, UnitedDependency>> filters) {
+      final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> filters) {
     InvariantChecks.checkNotNull(filters);
     unitedDependencyFilters.addAll(filters);
   }
 
-  public void addTemplateFilter(final Predicate<AbstractSequence> filter) {
+  public void addTemplateFilter(final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(filter);
     templateFilters.add(filter);
   }
 
-  public void addTemplateFilters(final Collection<Predicate<AbstractSequence>> filters) {
+  public void addTemplateFilters(final Collection<Predicate<MemoryAccessStructure>> filters) {
     InvariantChecks.checkNotNull(filters);
     templateFilters.addAll(filters);
   }
@@ -137,16 +137,16 @@ public final class FilterBuilder {
     templateFilters.addAll(builder.templateFilters);
   }
 
-  public Predicate<AbstractSequence> build() {
-    final Collection<TriPredicate<ExecutionPath, ExecutionPath, Dependency>>
+  public Predicate<MemoryAccessStructure> build() {
+    final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>>
       newDependencyFilters = new ArrayList<>(dependencyFilters);
     newDependencyFilters.add(new FilterDependency(hazardFilters));
 
-    final Collection<BiPredicate<ExecutionPath, UnitedDependency>>
+    final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>>
       newUnitedDependencyFilters = new ArrayList<>(unitedDependencyFilters);
     newUnitedDependencyFilters.add(new FilterUnitedDependency(unitedHazardFilters));
 
-    final Collection<Predicate<AbstractSequence>>
+    final Collection<Predicate<MemoryAccessStructure>>
       newTemplateFilters = new ArrayList<>(templateFilters);
     newTemplateFilters.add(new FilterTemplate(
         executionFilters, newDependencyFilters, newUnitedDependencyFilters));

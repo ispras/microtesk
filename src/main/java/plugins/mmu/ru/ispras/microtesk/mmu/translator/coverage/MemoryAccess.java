@@ -35,7 +35,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class ExecutionPath {
+public final class MemoryAccess {
 
   /** The operation being executed. */
   private final MemoryOperation operation;
@@ -58,7 +58,7 @@ public final class ExecutionPath {
    * @param operation the operation being executed.
    * @param type the operation type.
    */
-  public ExecutionPath(final MemoryOperation operation, final DataType type,
+  public MemoryAccess(final MemoryOperation operation, final DataType type,
       final MmuAddress startAddress) {
     InvariantChecks.checkNotNull(operation);
     InvariantChecks.checkNotNull(startAddress);
@@ -73,7 +73,7 @@ public final class ExecutionPath {
    * 
    * @param operation the operation being executed.
    */
-  public ExecutionPath(final MemoryOperation operation, final MmuAddress startAddress) {
+  public MemoryAccess(final MemoryOperation operation, final MmuAddress startAddress) {
     this(operation, null, startAddress);
   }
 

@@ -18,10 +18,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.utils.function.BiPredicate;
@@ -34,17 +34,17 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterMultipleTagReplacedEx implements BiPredicate<ExecutionPath, UnitedDependency> {
+public final class FilterMultipleTagReplacedEx implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
-  public boolean test(final ExecutionPath execution, final UnitedDependency dependency) {
+  public boolean test(final MemoryAccess execution, final MemoryUnitedDependency dependency) {
     final Set<MmuAddress> addresses = new HashSet<>();
-    final Map<MmuDevice, UnitedHazard> hazards = dependency.getDeviceHazards();
+    final Map<MmuDevice, MemoryUnitedHazard> hazards = dependency.getDeviceHazards();
 
-    for (final Map.Entry<MmuDevice, UnitedHazard> entry : hazards.entrySet()) {
+    for (final Map.Entry<MmuDevice, MemoryUnitedHazard> entry : hazards.entrySet()) {
       final MmuDevice device = entry.getKey();
-      final UnitedHazard hazard = entry.getValue();
+      final MemoryUnitedHazard hazard = entry.getValue();
 
-      if (!hazard.getRelation(Hazard.Type.TAG_REPLACED).isEmpty()) {
+      if (!hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty()) {
         if(!addresses.add(device.getAddress())) {
           // Filter off.
           return false;

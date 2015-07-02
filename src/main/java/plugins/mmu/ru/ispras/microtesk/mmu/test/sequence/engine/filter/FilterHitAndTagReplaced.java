@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.BiPredicate;
@@ -29,13 +29,13 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterHitAndTagReplaced implements BiPredicate<ExecutionPath, UnitedHazard> {
+public final class FilterHitAndTagReplaced implements BiPredicate<MemoryAccess, MemoryUnitedHazard> {
   @Override
-  public boolean test(final ExecutionPath execution, final UnitedHazard hazard) {
+  public boolean test(final MemoryAccess execution, final MemoryUnitedHazard hazard) {
     final MmuDevice device = hazard.getDevice();
 
     if (device != null && execution.getEvent(device) == BufferAccessEvent.HIT) {
-      if (!hazard.getRelation(Hazard.Type.TAG_REPLACED).isEmpty()) {
+      if (!hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty()) {
         // Filter off.
         return false;
       }

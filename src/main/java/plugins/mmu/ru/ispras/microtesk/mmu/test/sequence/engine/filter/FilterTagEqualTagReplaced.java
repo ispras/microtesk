@@ -16,9 +16,9 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
 import java.util.Set;
 
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
@@ -29,11 +29,11 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterTagEqualTagReplaced implements BiPredicate<ExecutionPath, UnitedHazard> {
+public final class FilterTagEqualTagReplaced implements BiPredicate<MemoryAccess, MemoryUnitedHazard> {
   @Override
-  public boolean test(final ExecutionPath execution, final UnitedHazard hazard) {
-    final Set<Integer> tagEqualRelation = hazard.getRelation(Hazard.Type.TAG_EQUAL);
-    final Set<Integer> tagReplacedRelation = hazard.getRelation(Hazard.Type.TAG_REPLACED);
+  public boolean test(final MemoryAccess execution, final MemoryUnitedHazard hazard) {
+    final Set<Integer> tagEqualRelation = hazard.getRelation(MemoryHazard.Type.TAG_EQUAL);
+    final Set<Integer> tagReplacedRelation = hazard.getRelation(MemoryHazard.Type.TAG_REPLACED);
 
     if (!tagEqualRelation.isEmpty() && !tagReplacedRelation.isEmpty()) {
       // Filter off.

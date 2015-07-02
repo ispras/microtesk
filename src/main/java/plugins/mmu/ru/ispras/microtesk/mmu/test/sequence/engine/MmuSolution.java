@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.loader.MemoryLoader;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
@@ -38,7 +38,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 public final class MmuSolution {
 
   /** Contains the test template. */
-  private final AbstractSequence template;
+  private final MemoryAccessStructure template;
   
   /** Contains test data for individual executions. */
   private final List<MmuTestData> solution;
@@ -60,7 +60,7 @@ public final class MmuSolution {
    * @param memory the MMU specification.
    * @param template the test template.
    */
-  public MmuSolution(final MmuSubsystem memory, final AbstractSequence template) {
+  public MmuSolution(final MmuSubsystem memory, final MemoryAccessStructure template) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(template);
 
@@ -68,7 +68,7 @@ public final class MmuSolution {
 
     this.solution = new ArrayList<>(template.size());
     for (int i = 0; i < template.size(); i++) {
-      final ExecutionPath execution = template.getExecution(i);
+      final MemoryAccess execution = template.getExecution(i);
 
       this.solution.add(new MmuTestData(memory, execution));
     }
@@ -89,7 +89,7 @@ public final class MmuSolution {
     return solution.size();
   }
 
-  public AbstractSequence getTemplate() {
+  public MemoryAccessStructure getTemplate() {
     return template;
   }
 

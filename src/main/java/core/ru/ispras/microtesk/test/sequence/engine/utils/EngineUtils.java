@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.engine.common;
+package ru.ispras.microtesk.test.sequence.engine.utils;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkTrue;

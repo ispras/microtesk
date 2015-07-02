@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.getTestData;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeInitializer;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamInit;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamRead;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.makeStreamWrite;
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.setUnknownImmValues;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.getTestData;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeInitializer;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeStreamInit;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeStreamRead;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeStreamWrite;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.setUnknownImmValues;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecution;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchTrace;
-import ru.ispras.microtesk.test.sequence.engine.common.TestBaseQueryCreator;
+import ru.ispras.microtesk.test.sequence.engine.utils.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;

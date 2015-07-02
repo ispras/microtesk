@@ -17,9 +17,9 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
 /**
@@ -27,9 +27,9 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterDependency implements TriPredicate<ExecutionPath, ExecutionPath, Dependency> {
+public final class FilterDependency implements TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> {
   /** The hazard-level filters to be composed. */
-  private final Collection<TriPredicate<ExecutionPath, ExecutionPath, Hazard>> filters;
+  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> filters;
 
   /**
    * Constructs a dependency-level filter from the collection of hazard-level filters.
@@ -37,21 +37,21 @@ public final class FilterDependency implements TriPredicate<ExecutionPath, Execu
    * @param filters the collection of hazard-level filters to be composed.
    * @throws IllegalArgumentException if {@code filters} is {@code null}.
    */
-  public FilterDependency(final Collection<TriPredicate<ExecutionPath, ExecutionPath, Hazard>> filters) {
+  public FilterDependency(final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> filters) {
     InvariantChecks.checkNotNull(filters);
     this.filters = filters;
   }
   
   @Override
-  public boolean test(final ExecutionPath execution1, final ExecutionPath execution2,
-      final Dependency dependency) {
+  public boolean test(final MemoryAccess execution1, final MemoryAccess execution2,
+      final MemoryDependency dependency) {
 
     if (dependency == null) {
       return true;
     }
 
-    for (final Hazard hazard : dependency.getHazards()) {
-      for (final TriPredicate<ExecutionPath, ExecutionPath, Hazard> filter : filters) {
+    for (final MemoryHazard hazard : dependency.getHazards()) {
+      for (final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter : filters) {
         if (!filter.test(execution1, execution2, hazard)) {
           // Filter off.
           return false;

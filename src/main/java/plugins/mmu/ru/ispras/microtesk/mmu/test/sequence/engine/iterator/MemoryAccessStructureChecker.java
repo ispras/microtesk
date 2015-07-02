@@ -30,9 +30,9 @@ import ru.ispras.microtesk.basis.solver.IntegerFormulaSolver;
 import ru.ispras.microtesk.basis.solver.IntegerRange;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
@@ -46,14 +46,14 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
- * {@link AbstractSequenceChecker} implements a checker of abstract sequences (templates) for memory
+ * {@link MemoryAccessStructureChecker} implements a checker of abstract sequences (templates) for memory
  * access instructions.
  * 
  * <p>It checks consistency of test situations and dependencies specified in a template.</p>
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class AbstractSequenceChecker {
+public final class MemoryAccessStructureChecker {
   private final Set<IntegerVariable> formulaVariables = new LinkedHashSet<>();
   private final IntegerFormula formula = new IntegerFormula();
 
@@ -96,8 +96,8 @@ public final class AbstractSequenceChecker {
   private final Map<IntegerVariable, Set<IntegerField>> intersectingRanges = new LinkedHashMap<>();
 
   /** Template to be checked. */
-  private final AbstractSequence template;
-  private final Predicate<AbstractSequence> filter;
+  private final MemoryAccessStructure template;
+  private final Predicate<MemoryAccessStructure> filter;
 
   /**
    * Constructs a checker for the given pair of executions.
@@ -109,23 +109,23 @@ public final class AbstractSequenceChecker {
    * @param filter the template filter.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public AbstractSequenceChecker(final MmuSubsystem memory, final ExecutionPath execution1,
-      final ExecutionPath execution2, final Dependency dependency, final Predicate<AbstractSequence> filter) {
+  public MemoryAccessStructureChecker(final MmuSubsystem memory, final MemoryAccess execution1,
+      final MemoryAccess execution2, final MemoryDependency dependency, final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(execution1);
     InvariantChecks.checkNotNull(execution2);
     InvariantChecks.checkNotNull(filter);
 
-    final List<ExecutionPath> executions = new ArrayList<>();
+    final List<MemoryAccess> executions = new ArrayList<>();
     executions.add(execution1);
     executions.add(execution2);
 
-    final Dependency[][] dependencies = new Dependency[2][2];
+    final MemoryDependency[][] dependencies = new MemoryDependency[2][2];
     dependencies[0][0] = null;
     dependencies[1][0] = dependency;
     dependencies[0][1] = null;
     dependencies[1][1] = null;
 
-    this.template = new AbstractSequence(memory, executions, dependencies);
+    this.template = new MemoryAccessStructure(memory, executions, dependencies);
     this.filter = filter;
   }
 
@@ -136,7 +136,7 @@ public final class AbstractSequenceChecker {
    * @param filter the template filter.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public AbstractSequenceChecker(final AbstractSequence template, final Predicate<AbstractSequence> filter) {
+  public MemoryAccessStructureChecker(final MemoryAccessStructure template, final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(template);
     InvariantChecks.checkNotNull(filter);
 
@@ -156,12 +156,12 @@ public final class AbstractSequenceChecker {
       return false;
     }
 
-    final Dependency[][] templateDependency = template.getDependencies();
+    final MemoryDependency[][] templateDependency = template.getDependencies();
     final Map<IntegerVariable, Set<IntegerRange>> variableRange = new LinkedHashMap<>();
 
     // Step 1. Add Ranges for constants from dependency.
-    for (final Dependency[] arrayDependency : templateDependency) {
-      for (final Dependency dependency : arrayDependency) {
+    for (final MemoryDependency[] arrayDependency : templateDependency) {
+      for (final MemoryDependency dependency : arrayDependency) {
         if (dependency != null) {
           // Initialize ranges: X = [1 .. a][a+1 .. b][b+1 .. n]
           initVariableRange(dependency, variableRange);
@@ -169,10 +169,10 @@ public final class AbstractSequenceChecker {
       }
     }
 
-    final List<ExecutionPath> templateExecutions = template.getExecutions();
+    final List<MemoryAccess> templateExecutions = template.getExecutions();
 
     // Step 2. Add Ranges for constants from execution.
-    for (final ExecutionPath execution : templateExecutions) {
+    for (final MemoryAccess execution : templateExecutions) {
       // Initialize ranges: X = [1 .. a][a+1 .. b][b+1 .. n]
       initVariableRange(execution, variableRange);
     }
@@ -192,7 +192,7 @@ public final class AbstractSequenceChecker {
     }
 
     // Step 3.
-    for (ExecutionPath execution : templateExecutions) {
+    for (MemoryAccess execution : templateExecutions) {
       // Add ranges: X[1 .. n] = Y[1 .. a][a+1 .. b][b+1 .. n]
       addVariableRange(execution, variableRange);
     }
@@ -264,7 +264,7 @@ public final class AbstractSequenceChecker {
     for (int i = 0; i < templateExecutionsSize - 1; i++) {
       for (int j = i + 1; j < templateExecutionsSize; j++) {
 
-        final Dependency dependency = template.getDependency(i, j);
+        final MemoryDependency dependency = template.getDependency(i, j);
         if (dependency != null) {
           // Get equations from dependency of i & j execution.
           if (!process(i, j, templateExecutions.get(i), templateExecutions.get(j),
@@ -341,11 +341,11 @@ public final class AbstractSequenceChecker {
    * @param dependency the dependency of executions.
    * @param variableRange the list of variable ranges.
    */
-  private void initVariableRange(final Dependency dependency,
+  private void initVariableRange(final MemoryDependency dependency,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
 
-    final List<Hazard> hazards = dependency.getHazards();
-    for (final Hazard hazard : hazards) {
+    final List<MemoryHazard> hazards = dependency.getHazards();
+    for (final MemoryHazard hazard : hazards) {
       final MmuCondition condition = hazard.getCondition();
       if (condition != null) {
         initVariableRange(condition, variableRange);
@@ -359,7 +359,7 @@ public final class AbstractSequenceChecker {
    * @param execution the execution of template.
    * @param variableRange the list of variable ranges.
    */
-  private void addVariableRange(final ExecutionPath execution,
+  private void addVariableRange(final MemoryAccess execution,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
 
     for (final MmuTransition transition : execution.getTransitions()) {
@@ -385,7 +385,7 @@ public final class AbstractSequenceChecker {
    * @param execution the execution of template.
    * @param variableRange the list of variable ranges.
    */
-  private static void initVariableRange(final ExecutionPath execution,
+  private static void initVariableRange(final MemoryAccess execution,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
     for (final MmuTransition transition : execution.getTransitions()) {
 
@@ -1072,8 +1072,8 @@ public final class AbstractSequenceChecker {
    * @param dependency the dependency of executions.
    * @return {@code true} if the dependency is solved; {@code false} otherwise.
    */
-  private boolean process(final int i, final int j, final ExecutionPath execution1,
-      final ExecutionPath execution2, final Dependency dependency) {
+  private boolean process(final int i, final int j, final MemoryAccess execution1,
+      final MemoryAccess execution2, final MemoryDependency dependency) {
     InvariantChecks.checkNotNull(execution1);
     InvariantChecks.checkNotNull(execution2);
     InvariantChecks.checkNotNull(dependency);
@@ -1082,8 +1082,8 @@ public final class AbstractSequenceChecker {
       return true;
     }
 
-    for (final Hazard hazard : dependency.getHazards()) {
-      if (hazard.getType() == Hazard.Type.TAG_EQUAL) {
+    for (final MemoryHazard hazard : dependency.getHazards()) {
+      if (hazard.getType() == MemoryHazard.Type.TAG_EQUAL) {
         final MmuDevice device = hazard.getDevice();
         InvariantChecks.checkNotNull(device);
 

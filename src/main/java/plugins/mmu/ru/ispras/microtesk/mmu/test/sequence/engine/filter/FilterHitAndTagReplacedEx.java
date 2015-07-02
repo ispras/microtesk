@@ -16,10 +16,10 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.BiPredicate;
@@ -35,16 +35,16 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterHitAndTagReplacedEx implements BiPredicate<ExecutionPath, UnitedDependency> {
+public final class FilterHitAndTagReplacedEx implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
-  public boolean test(final ExecutionPath execution, UnitedDependency dependency) {
-    final Map<MmuDevice, UnitedHazard> hazards = dependency.getDeviceHazards();
+  public boolean test(final MemoryAccess execution, MemoryUnitedDependency dependency) {
+    final Map<MmuDevice, MemoryUnitedHazard> hazards = dependency.getDeviceHazards();
 
-    for (final Map.Entry<MmuDevice, UnitedHazard> entry : hazards.entrySet()) {
+    for (final Map.Entry<MmuDevice, MemoryUnitedHazard> entry : hazards.entrySet()) {
       final MmuDevice device = entry.getKey();
-      final UnitedHazard hazard = entry.getValue();
+      final MemoryUnitedHazard hazard = entry.getValue();
 
-      if (!hazard.getRelation(Hazard.Type.TAG_REPLACED).isEmpty()) {
+      if (!hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty()) {
         for (final MmuDevice otherDevice : execution.getDevices()) {
           if (otherDevice.isReplaceable() && otherDevice.getAddress() == device.getAddress() &&
               execution.getEvent(otherDevice) == BufferAccessEvent.HIT)

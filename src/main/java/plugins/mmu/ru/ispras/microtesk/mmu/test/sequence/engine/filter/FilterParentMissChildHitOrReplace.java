@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.BiPredicate;
@@ -29,16 +29,16 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterParentMissChildHitOrReplace implements BiPredicate<ExecutionPath, UnitedHazard> {
+public final class FilterParentMissChildHitOrReplace implements BiPredicate<MemoryAccess, MemoryUnitedHazard> {
   @Override
-  public boolean test(final ExecutionPath execution, final UnitedHazard hazard) {
+  public boolean test(final MemoryAccess execution, final MemoryUnitedHazard hazard) {
     final MmuDevice view = hazard.getDevice();
 
     if (view != null && view.isView()) {
       final MmuDevice parent = view.getParent();
 
       final boolean viewAccess = execution.getEvent(view) == BufferAccessEvent.HIT ||
-          !hazard.getRelation(Hazard.Type.TAG_REPLACED).isEmpty();
+          !hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty();
 
       if (execution.getEvent(parent) == BufferAccessEvent.MISS && viewAccess) {
         // Filter off.

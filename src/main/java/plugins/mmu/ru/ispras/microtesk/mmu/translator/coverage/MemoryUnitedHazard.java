@@ -29,14 +29,14 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class UnitedHazard {
+public final class MemoryUnitedHazard {
   /** The address space touched upon the hazard. */
   private MmuAddress address;
   /** The device touched upon the hazard. */
   private MmuDevice device;
 
   /** Maps a hazard type into a set of execution indices. */
-  private EnumMap<Hazard.Type, Set<Integer>> relation = new EnumMap<>(Hazard.Type.class);
+  private EnumMap<MemoryHazard.Type, Set<Integer>> relation = new EnumMap<>(MemoryHazard.Type.class);
 
   /**
    * Constructs a united hazard.
@@ -44,17 +44,17 @@ public final class UnitedHazard {
    * @param hazards the non-empty set of hazards to be united, which is represented as a map
    *        with hazards as keys and execution indices as values.
    */
-  public UnitedHazard(final Map<Hazard, Set<Integer>> hazards) {
+  public MemoryUnitedHazard(final Map<MemoryHazard, Set<Integer>> hazards) {
     InvariantChecks.checkNotNull(hazards);
     InvariantChecks.checkNotEmpty(hazards.keySet());
 
     // Initialize the relation map with empty sets of indices.
-    for (final Hazard.Type hazardType : Hazard.Type.values()) {
+    for (final MemoryHazard.Type hazardType : MemoryHazard.Type.values()) {
       relation.put(hazardType, new LinkedHashSet<Integer>());
     }
 
-    for (final Map.Entry<Hazard, Set<Integer>> entry : hazards.entrySet()) {
-      final Hazard hazard = entry.getKey();
+    for (final Map.Entry<MemoryHazard, Set<Integer>> entry : hazards.entrySet()) {
+      final MemoryHazard hazard = entry.getKey();
       final Set<Integer> dependsOn = entry.getValue();
 
       // Check the consistency of the hazards.
@@ -102,7 +102,7 @@ public final class UnitedHazard {
    * @param hazardType the hazard type.
    * @return the set of execution indices.
    */
-  public Set<Integer> getRelation(final Hazard.Type hazardType) {
+  public Set<Integer> getRelation(final MemoryHazard.Type hazardType) {
     return relation.get(hazardType);
   }
 
@@ -115,7 +115,7 @@ public final class UnitedHazard {
 
     boolean comma = false;
 
-    for (final Hazard.Type hazardType : Hazard.Type.values()) {
+    for (final MemoryHazard.Type hazardType : MemoryHazard.Type.values()) {
       builder.append(comma ? separator : "");
       String.format("%s.%s=%s", resource, hazardType, relation.get(hazardType));
       comma = true;

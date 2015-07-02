@@ -19,7 +19,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -46,7 +46,7 @@ public final class MmuTestData {
   private final MmuSubsystem memory;
 
   /** Refers to the instruction call (execution). */
-  private final ExecutionPath execution;
+  private final MemoryAccess execution;
 
   /** Contains addresses (virtual, physical and intermediate addresses). */
   private final Map<MmuAddress, Long> addresses = new LinkedHashMap<>();
@@ -69,7 +69,7 @@ public final class MmuTestData {
    * @param execution the execution under processing.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public MmuTestData(final MmuSubsystem memory, final ExecutionPath execution) {
+  public MmuTestData(final MmuSubsystem memory, final MemoryAccess execution) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(execution);
 

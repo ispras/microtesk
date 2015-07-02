@@ -26,10 +26,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterAccessThenMiss;
-import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
-import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -51,7 +51,7 @@ import ru.ispras.microtesk.utils.function.UnaryOperator;
  * {@link MmuEngine} implements a solver of memory-related constraints (hit, miss, etc.)
  * specified in a test template.
  * 
- * <p>The input is a test template (an object of {@link AbstractSequence}); the output is a solution
+ * <p>The input is a test template (an object of {@link MemoryAccessStructure}); the output is a solution
  * (an object of {@link MmuSolution}).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -61,9 +61,9 @@ public final class MmuEngine implements Engine<MmuSolution> {
    * Refers to the test data constructor.
    * 
    * <p>A test data constructor is a user-defined function that maps an execution path (an object
-   * of {@link ExecutionPath}) to the test data (an object of {@link MmuTestData}).</p>
+   * of {@link MemoryAccess}) to the test data (an object of {@link MmuTestData}).</p>
    */
-  private final Function<ExecutionPath, MmuTestData> testDataConstructor;
+  private final Function<MemoryAccess, MmuTestData> testDataConstructor;
 
   /**
    * Refers to the test data corrector.
@@ -71,15 +71,15 @@ public final class MmuEngine implements Engine<MmuSolution> {
    * <p>A test data corrector is a user-defined function that corrects inconsistencies in test data
    * (an object of {@link MmuTestData}) after solving the constraints.</p>
    */
-  private final BiConsumer<ExecutionPath, MmuTestData> testDataCorrector;
+  private final BiConsumer<MemoryAccess, MmuTestData> testDataCorrector;
 
   /**
    * Given a device, contains the guard condition.
    * 
    * <p>A guard condition is a user-defined predicate over execution paths (objects of {@link
-   * ExecutionPath}) that defines whether the execution affects the device state or not.</p>
+   * MemoryAccess}) that defines whether the execution affects the device state or not.</p>
    */
-  private final Map<MmuDevice, Predicate<ExecutionPath>> deviceGuards;
+  private final Map<MmuDevice, Predicate<MemoryAccess>> deviceGuards;
 
   /**
    * Given a replaceable device (e.g. a cache unit), contains the tag allocator.
@@ -111,10 +111,10 @@ public final class MmuEngine implements Engine<MmuSolution> {
    * <p>An entry provider is a user-defined function that fills a given entry with appropriate data
    * (the data are produced on the basis the execution path and the test data).</p>
    */
-  private final Map<MmuDevice, TriConsumer<ExecutionPath, MmuTestData, Object>> entryProviders;
+  private final Map<MmuDevice, TriConsumer<MemoryAccess, MmuTestData, Object>> entryProviders;
 
   /** Iterator of test template to be solved. */
-  private final Iterator<AbstractSequence> iterator;
+  private final Iterator<MemoryAccessStructure> iterator;
 
   /** Given a device, maps indices to sets of tags to be explicitly loaded into the device. */
   private final Map<MmuDevice, Map<Long, Set<Long>>> deviceHitTags = new LinkedHashMap<>();
@@ -127,7 +127,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
 
   private MmuSubsystem memory;
   // TODO: to be parameters.
-  private AbstractSequence template;
+  private MemoryAccessStructure template;
   private MmuSolution solution;
   
   public MmuSolution getCurrentSolution() {
@@ -149,14 +149,14 @@ public final class MmuEngine implements Engine<MmuSolution> {
    */
   public MmuEngine(
       final MmuSubsystem memory,
-      final Iterator<AbstractSequence> iterator,
-      final Function<ExecutionPath, MmuTestData> testDataConstructor,
-      final BiConsumer<ExecutionPath, MmuTestData> testDataCorrector,
-      final Map<MmuDevice, Predicate<ExecutionPath>> deviceGuards,
+      final Iterator<MemoryAccessStructure> iterator,
+      final Function<MemoryAccess, MmuTestData> testDataConstructor,
+      final BiConsumer<MemoryAccess, MmuTestData> testDataCorrector,
+      final Map<MmuDevice, Predicate<MemoryAccess>> deviceGuards,
       final Map<MmuDevice, UnaryOperator<Long>> tagAllocators,
       final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
-      final Map<MmuDevice, TriConsumer<ExecutionPath, MmuTestData, Object>> entryProviders) {
+      final Map<MmuDevice, TriConsumer<MemoryAccess, MmuTestData, Object>> entryProviders) {
 
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(testDataConstructor);
@@ -191,15 +191,15 @@ public final class MmuEngine implements Engine<MmuSolution> {
   private SolverResult<MmuSolution> solveAlignConstraint(
       final int j, final MmuAddress addrType) {
 
-    final ExecutionPath execution = template.getExecution(j);
+    final MemoryAccess execution = template.getExecution(j);
     final MmuTestData testData = solution.getTestData(j);
 
     DataType maxType = execution.getType();
 
     // Get the maximal data type among the dependent instructions.
     for (int k = j + 1; k < solution.size(); k++) {
-      final ExecutionPath nextExecution = template.getExecution(k);
-      final UnitedDependency nextDependency = template.getUnitedDependency(k);
+      final MemoryAccess nextExecution = template.getExecution(k);
+      final MemoryUnitedDependency nextDependency = template.getUnitedDependency(k);
       final Set<Integer> addrEqualRelation = nextDependency.getAddrEqualRelation(addrType);
 
       if (addrEqualRelation.contains(j)) {
@@ -242,7 +242,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
       return new SolverResult<>(solution);
     }
 
-    final UnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
     final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(device);
 
     // Check whether the previous instructions load the data into the buffer.
@@ -277,7 +277,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
     solution.getLoader().addLoads(device, BufferAccessEvent.HIT, address, sequence);
 
     // Loading data into the buffer may load them into the previous buffers.
-    final ExecutionPath execution = template.getExecution(j);
+    final MemoryAccess execution = template.getExecution(j);
     final List<MmuDevice> devices = execution.getDevices();
 
     // Scan the devices of the same address type in reverse order.
@@ -314,7 +314,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
    * @return the partial solution.
    */
   private SolverResult<MmuSolution> solveMissConstraint(final int j, final MmuDevice device) {
-    final UnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
 
     if (!FilterAccessThenMiss.test(device, dependency)) {
       return new SolverResult<>(String.format("Miss constraint violation for device %s", device));
@@ -377,8 +377,8 @@ public final class MmuEngine implements Engine<MmuSolution> {
    */
   private SolverResult<MmuSolution> solveEntryConstraint(final int j, final MmuDevice device) {
     final MmuTestData testData = solution.getTestData(j);
-    final ExecutionPath execution = template.getExecution(j);
-    final UnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryAccess execution = template.getExecution(j);
+    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
     final MmuAddress addrType = device.getAddress();
 
     final long address = testData.getAddress(addrType);
@@ -405,7 +405,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
           entryIdAllocators.get(device);
       final Supplier<Object> entryConstructor =
           entryConstructors.get(device);
-      final TriConsumer<ExecutionPath, MmuTestData, Object> entryProvider =
+      final TriConsumer<MemoryAccess, MmuTestData, Object> entryProvider =
           entryProviders.get(device);
 
       final Long deviceEntryId = entryIdAllocator.apply(address);
@@ -436,7 +436,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
       final int j, final MmuAddress addrType) {
     final MmuTestData testData = solution.getTestData(j);
 
-    final UnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
     final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
 
     // The instruction uses the same address as one of the previous instructions.
@@ -465,7 +465,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
     final MmuTestData testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
-    final UnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
     final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(device);
 
     if (!indexEqualRelation.isEmpty()) {
@@ -503,7 +503,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
     final MmuTestData testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
-    final UnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
     final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(device);
 
     // Instruction uses the same tag and the same index as one of the previous instructions.
@@ -533,7 +533,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
   private SolverResult<MmuSolution> solveTagReplacedConstraints(
       final int j, final MmuDevice device) {
     final MmuAddress addrType = device.getAddress();
-    final Predicate<ExecutionPath> guard = deviceGuards.get(device);
+    final Predicate<MemoryAccess> guard = deviceGuards.get(device);
 
     // TODO: int -> long
     final BufferStateTracker<Long> stateTracker = new BufferStateTracker<>(
@@ -545,8 +545,8 @@ public final class MmuEngine implements Engine<MmuSolution> {
     final Map<Integer, Long> replacedTags = new LinkedHashMap<>();
 
     for (int i = 0; i <= j; i++) {
-      final ExecutionPath execution = template.getExecution(i);
-      final UnitedDependency dependency = template.getUnitedDependency(i);
+      final MemoryAccess execution = template.getExecution(i);
+      final MemoryUnitedDependency dependency = template.getUnitedDependency(i);
       final MmuTestData testData = solution.getTestData(i);
 
       final long address = testData.getAddress(addrType);
@@ -602,8 +602,8 @@ public final class MmuEngine implements Engine<MmuSolution> {
 
     handledDevicesForExecution.add(device);
 
-    final ExecutionPath execution = template.getExecution(j);
-    final Predicate<ExecutionPath> deviceGuard = deviceGuards.get(device);
+    final MemoryAccess execution = template.getExecution(j);
+    final Predicate<MemoryAccess> deviceGuard = deviceGuards.get(device);
 
     // If the buffer access event is null, the situation is considered to be a hit.
     // The event is null, if the device is a parent of some view and is not in the execution. 
@@ -661,8 +661,8 @@ public final class MmuEngine implements Engine<MmuSolution> {
    * @return the partial solution.
    */
   private SolverResult<MmuSolution> solve(final int j) {
-    final ExecutionPath execution = template.getExecution(j);
-    final UnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryAccess execution = template.getExecution(j);
+    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
 
     // Construct initial test data for the execution.
     final MmuTestData testData = testDataConstructor.apply(execution);
@@ -674,9 +674,9 @@ public final class MmuEngine implements Engine<MmuSolution> {
     }
 
     // Assign the tag, index and offset according to the dependencies.
-    final Map<MmuAddress, UnitedHazard> addrHazards = dependency.getAddrHazards();
+    final Map<MmuAddress, MemoryUnitedHazard> addrHazards = dependency.getAddrHazards();
 
-    for (final Map.Entry<MmuAddress, UnitedHazard> addrEntry : addrHazards.entrySet()) {
+    for (final Map.Entry<MmuAddress, MemoryUnitedHazard> addrEntry : addrHazards.entrySet()) {
       final MmuAddress addrType = addrEntry.getKey();
       final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
 
@@ -691,9 +691,9 @@ public final class MmuEngine implements Engine<MmuSolution> {
               String.format("Unaligned address after solving AddrEqual constraints: %x", addr));
         }
       } else {
-        final Map<MmuDevice, UnitedHazard> deviceHazards = dependency.getDeviceHazards(addrType);
+        final Map<MmuDevice, MemoryUnitedHazard> deviceHazards = dependency.getDeviceHazards(addrType);
 
-        for (Map.Entry<MmuDevice, UnitedHazard> deviceEntry : deviceHazards.entrySet()) {
+        for (Map.Entry<MmuDevice, MemoryUnitedHazard> deviceEntry : deviceHazards.entrySet()) {
           final MmuDevice deviceType = deviceEntry.getKey();
           final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(deviceType);
           final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(deviceType);
@@ -838,7 +838,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
     final MmuAddress addrType = device.getAddress();
 
     // TODO: This check can be optimized.
-    final ExecutionPath execution = template.getExecution(j);
+    final MemoryAccess execution = template.getExecution(j);
     final List<MmuAddress> addresses = execution.getAddresses();
 
     // TODO: This is not accurate if addrType = VA, prevAddrType = PA. 

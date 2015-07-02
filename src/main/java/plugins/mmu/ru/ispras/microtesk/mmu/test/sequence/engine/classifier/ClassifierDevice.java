@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
+package ru.ispras.microtesk.mmu.test.sequence.engine.classifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +24,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.Classifier;
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -37,26 +37,26 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
-public final class ExecutionPathClassifierDevice implements Classifier<ExecutionPath> {
+public final class ClassifierDevice implements Classifier<MemoryAccess> {
   @Override
-  public List<Set<ExecutionPath>> classify(final Collection<ExecutionPath> executions) {
-    final List<Set<ExecutionPath>> executionsOfOperation = new ArrayList<>();
+  public List<Set<MemoryAccess>> classify(final Collection<MemoryAccess> executions) {
+    final List<Set<MemoryAccess>> executionsOfOperation = new ArrayList<>();
 
     for (MemoryOperation operation : MemoryOperation.values()) {
       // For Store and Load
-      final Map<Map<MmuDevice, BufferAccessEvent>, Set<ExecutionPath>> mapExecution =
+      final Map<Map<MmuDevice, BufferAccessEvent>, Set<MemoryAccess>> mapExecution =
           new LinkedHashMap<>();
 
-      for (final ExecutionPath execution : executions) {
+      for (final MemoryAccess execution : executions) {
         if (execution.getOperation() == operation) {
           final Map<MmuDevice, BufferAccessEvent> mapDevices =
               getDevicesAndEvents(execution.getTransitions());
 
           if (mapExecution.containsKey(mapDevices)) {
-            final Set<ExecutionPath> mmuExecutionClass = mapExecution.get(mapDevices);
+            final Set<MemoryAccess> mmuExecutionClass = mapExecution.get(mapDevices);
             mmuExecutionClass.add(execution);
           } else {
-            final Set<ExecutionPath> mmuExecutionClass = new HashSet<>();
+            final Set<MemoryAccess> mmuExecutionClass = new HashSet<>();
             mmuExecutionClass.add(execution);
             mapExecution.put(mapDevices, mmuExecutionClass);
           }

@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
-import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.utils.function.Predicate;
@@ -44,14 +44,14 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class FilterUnclosedEqualRelations implements Predicate<AbstractSequence> {
+public final class FilterUnclosedEqualRelations implements Predicate<MemoryAccessStructure> {
   @Override
-  public boolean test(final AbstractSequence template) {
+  public boolean test(final MemoryAccessStructure template) {
     final Map<String, Map<Integer, Set<Integer>>> relations = new LinkedHashMap<>();
 
     for (int i = 0; i < template.size() - 1; i++) {
       for (int j = i + 1; j < template.size(); j++) {
-        final Dependency dependency = template.getDependency(i, j);
+        final MemoryDependency dependency = template.getDependency(i, j);
 
         if (dependency != null) {
           update(template.getMemory(), relations, i, j, dependency);
@@ -68,10 +68,10 @@ public final class FilterUnclosedEqualRelations implements Predicate<AbstractSeq
 
   private static void update(
       final MmuSubsystem memory,final Map<String, Map<Integer, Set<Integer>>> relations,
-      final int i, final int j, final Dependency dependency) {
+      final int i, final int j, final MemoryDependency dependency) {
     InvariantChecks.checkTrue(i < j);
 
-    for (final Hazard hazard : dependency.getHazards()) {
+    for (final MemoryHazard hazard : dependency.getHazards()) {
       final List<String> hazardNames = new ArrayList<>();
 
       switch (hazard.getType()) {
@@ -108,7 +108,7 @@ public final class FilterUnclosedEqualRelations implements Predicate<AbstractSeq
         update(relations, hazardName, i, j);
       }
 
-      if (hazard.getType() == Hazard.Type.TAG_REPLACED) {
+      if (hazard.getType() == MemoryHazard.Type.TAG_REPLACED) {
         update(relations, String.format("%s.%s", hazard.getDevice(), "TAG_EQUAL"), -i, j);
       }
     }

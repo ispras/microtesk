@@ -33,8 +33,8 @@ final class BufferCoverageExtractor {
     this.buffer = buffer;
   }
 
-  public List<Hazard> getHazards() {
-    final List<Hazard> hazards = new ArrayList<>();
+  public List<MemoryHazard> getHazards() {
+    final List<MemoryHazard> hazards = new ArrayList<>();
 
     if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
       final MmuCondition conditionIndexNoEqual = new MmuCondition();
@@ -44,8 +44,8 @@ final class BufferCoverageExtractor {
       conditionIndexNoEqual.addEquality(equalityIndexNoEqual);
 
       // Index1 != Index2.
-      final Hazard hazardIndexNoEqual =
-          new Hazard(Hazard.Type.INDEX_NOT_EQUAL, buffer, conditionIndexNoEqual);
+      final MemoryHazard hazardIndexNoEqual =
+          new MemoryHazard(MemoryHazard.Type.INDEX_NOT_EQUAL, buffer, conditionIndexNoEqual);
       hazards.add(hazardIndexNoEqual);
     }
 
@@ -64,8 +64,8 @@ final class BufferCoverageExtractor {
 
       if (!buffer.isReplaceable()) {
         // Index1 == Index2 && Tag1 != Tag2.
-        final Hazard hazardTagNoEqual =
-            new Hazard(Hazard.Type.TAG_NOT_EQUAL, buffer, conditionTagNoEqual);
+        final MemoryHazard hazardTagNoEqual =
+            new MemoryHazard(MemoryHazard.Type.TAG_NOT_EQUAL, buffer, conditionTagNoEqual);
         hazards.add(hazardTagNoEqual);
       } else {
         final MmuCondition conditionTagNoReplaced = new MmuCondition(conditionTagNoEqual);
@@ -76,8 +76,8 @@ final class BufferCoverageExtractor {
         conditionTagNoReplaced.addEquality(equalityTagNoReplaced);
 
         // Index1 == Index2 && Tag1 != Tag2 && Tag1 != Replaced2.
-        final Hazard hazardTagNoReplaced =
-            new Hazard(Hazard.Type.TAG_NOT_REPLACED, buffer, conditionTagNoReplaced);
+        final MemoryHazard hazardTagNoReplaced =
+            new MemoryHazard(MemoryHazard.Type.TAG_NOT_REPLACED, buffer, conditionTagNoReplaced);
         hazards.add(hazardTagNoReplaced);
 
         final MmuCondition conditionTagReplaced = new MmuCondition(conditionTagNoEqual);
@@ -88,8 +88,8 @@ final class BufferCoverageExtractor {
         conditionTagReplaced.addEquality(equalityTagReplaced);
 
         // Index1 == Index2 && Tag1 != Tag2 && Tag1 == Replaced2.
-        final Hazard hazardTagReplaced =
-            new Hazard(Hazard.Type.TAG_REPLACED, buffer, conditionTagReplaced);
+        final MemoryHazard hazardTagReplaced =
+            new MemoryHazard(MemoryHazard.Type.TAG_REPLACED, buffer, conditionTagReplaced);
         hazards.add(hazardTagReplaced);
       }
 
@@ -106,8 +106,8 @@ final class BufferCoverageExtractor {
       conditionTagEqual.addEquality(equalityTagEqual);
 
       // Index1 == Index2 && Tag1 == Tag2.
-      final Hazard hazardTagEqual =
-          new Hazard(Hazard.Type.TAG_EQUAL, buffer, conditionTagEqual);
+      final MemoryHazard hazardTagEqual =
+          new MemoryHazard(MemoryHazard.Type.TAG_EQUAL, buffer, conditionTagEqual);
       hazards.add(hazardTagEqual);
     }
 

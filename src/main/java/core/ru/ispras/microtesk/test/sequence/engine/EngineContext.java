@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.common.EngineUtils.newTestBase;
+import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.newTestBase;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.DelaySlotSettings;

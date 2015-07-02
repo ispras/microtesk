@@ -17,8 +17,8 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
-import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
@@ -30,12 +30,12 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterNonReplaceableTagEqual implements TriPredicate<ExecutionPath, ExecutionPath, Hazard> {
+public final class FilterNonReplaceableTagEqual implements TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> {
   @Override
-  public boolean test(final ExecutionPath execution1, final ExecutionPath execution2,
-      final Hazard hazard) {
+  public boolean test(final MemoryAccess execution1, final MemoryAccess execution2,
+      final MemoryHazard hazard) {
 
-    if (hazard.getType() == Hazard.Type.TAG_EQUAL) {
+    if (hazard.getType() == MemoryHazard.Type.TAG_EQUAL) {
       final MmuDevice hazardDevice = hazard.getDevice();
       final List<MmuDevice> devices = new ArrayList<>();
 
