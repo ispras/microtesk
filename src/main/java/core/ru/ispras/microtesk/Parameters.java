@@ -111,6 +111,9 @@ public final class Parameters {
   public static final Option DATA_PRE = 
       newOption("data-file-prefix", true, "The data file prefix", GENERATE);
 
+  public static final Option EXCEPT_PRE =
+      newOption("exception-file-prefix", true, "The exception handler file prefix", GENERATE);
+
   public static final Option CODE_LIMIT = 
       newOption("program-length-limit", true,
           "The maximum number of instructions in output programs", GENERATE);
@@ -265,6 +268,7 @@ public final class Parameters {
     result.addOption(CODE_PRE);
     result.addOption(DATA_EXT);
     result.addOption(DATA_PRE);
+    result.addOption(EXCEPT_PRE);
     result.addOption(CODE_LIMIT);
     result.addOption(TRACE_LIMIT);
 
