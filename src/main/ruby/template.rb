@@ -521,6 +521,16 @@ class Template
   end
 
   # -------------------------------------------------------------------------- #
+  # Exception Handling                                                         #
+  # -------------------------------------------------------------------------- #
+
+  def exception_handler(attrs, &contents)
+    @template.beginExceptionHandler
+    self.instance_eval &contents
+    @template.endExceptionHandler
+  end
+
+  # -------------------------------------------------------------------------- #
   # Data Definition Facilities                                                 #
   # -------------------------------------------------------------------------- #
 

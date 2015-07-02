@@ -56,6 +56,7 @@ public final class Template {
 
   private PreparatorBuilder preparatorBuilder;
   private StreamPreparatorBuilder streamPreparatorBuilder;
+  private ExceptionHandlerBuilder exceptionHandlerBuilder;
 
   private Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
@@ -86,6 +87,7 @@ public final class Template {
 
     this.preparatorBuilder = null;
     this.streamPreparatorBuilder = null;
+    this.exceptionHandlerBuilder = null;
 
     this.blockBuilders = null;
     this.callBuilder = null;
@@ -271,6 +273,8 @@ public final class Template {
         preparatorBuilder.addCall(call);
       } else if (null != streamPreparatorBuilder) {
         streamPreparatorBuilder.addCall(call);
+      } else if (null != exceptionHandlerBuilder) {
+        exceptionHandlerBuilder.addCall(call);
       } else {
         blockBuilders.peek().addCall(call);
       }
@@ -328,6 +332,7 @@ public final class Template {
 
     checkTrue(null == preparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
+    checkTrue(null == exceptionHandlerBuilder);
 
     final MetaAddressingMode targetMode = metaModel.getAddressingMode(targetName);
     if (null == targetMode) {
@@ -387,6 +392,7 @@ public final class Template {
 
     checkTrue(null == preparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
+    checkTrue(null == exceptionHandlerBuilder);
 
     final MetaAddressingMode dataMode = metaModel.getAddressingMode(dataModeName);
     if (null == dataMode) {
@@ -563,5 +569,24 @@ public final class Template {
     }
 
     groupVariates.put(name, variate);
+  }
+
+  public void beginExceptionHandler() {
+    endBuildingCall();
+    Logger.debug("Begin exception handler");
+
+    checkTrue(null == preparatorBuilder);
+    checkTrue(null == streamPreparatorBuilder);
+    checkTrue(null == exceptionHandlerBuilder);
+
+    exceptionHandlerBuilder = new ExceptionHandlerBuilder();
+  }
+
+  public void endExceptionHandler() {
+    endBuildingCall();
+    Logger.debug("End exception handler");
+
+    exceptionHandlerBuilder.build();
+    exceptionHandlerBuilder = null;
   }
 }
