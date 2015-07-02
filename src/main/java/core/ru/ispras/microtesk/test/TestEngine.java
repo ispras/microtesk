@@ -675,7 +675,10 @@ public final class TestEngine {
 
     @Override
     public void defineExceptionHandler(final ExceptionHandler handler) {
-      Logger.debugHeader("Processing Exception Handler");
+      final String exceptionFileName = String.format(
+          "%s.%s", TestEngine.exceptionFilePrefix, TestEngine.codeFileExtension);
+
+      Logger.debugHeader("Generating Exception Handler File " + exceptionFileName);
       checkNotNull(handler);
 
       final Engine<?> engine = config.getEngine("default");
@@ -688,44 +691,41 @@ public final class TestEngine {
         throw new IllegalStateException("Mismatched solver/adapter pair");
       }
 
-      final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
-      final List<Call> abstractSequence = handler.getCalls();
-
-      final Iterator<AdapterResult> iterator =
-          testSequenceEngine.process(engineContext, abstractSequence);
-
-      final String exceptionFileName = String.format(
-          "%s.%s", TestEngine.exceptionFilePrefix, TestEngine.codeFileExtension);
-
       final PrintWriter fileWriter;
       try {
         fileWriter = printer.newFileWriter(exceptionFileName);
       } catch (final IOException e) {
         throw new GenerationAbortedException(String.format(
             "Failed to create the %s file. Reason: %s", exceptionFileName, e.getMessage()));
-      } 
+      }
 
-      for (iterator.init(); iterator.hasValue(); iterator.next()) {
-        final AdapterResult adapterResult = iterator.value();
-        checkNotNull(adapterResult);
+      final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
+      for (final ExceptionHandler.Section section : handler.getSections()) {
+        final Iterator<AdapterResult> iterator = 
+            testSequenceEngine.process(engineContext, section.getCalls());
 
-        if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-          Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
-          continue;
+        for (iterator.init(); iterator.hasValue(); iterator.next()) {
+          final AdapterResult adapterResult = iterator.value();
+          checkNotNull(adapterResult);
+
+          if (adapterResult.getStatus() != AdapterResult.Status.OK) {
+            Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
+            continue;
+          }
+
+          final TestSequence concreteSequence = adapterResult.getResult();
+          checkNotNull(concreteSequence);
+
+          try {
+            fileWriter.println();
+            printer.printToFile(fileWriter, String.format(".org 0x%x", section.getAddress()));
+            printer.printSequence(fileWriter, concreteSequence);
+          } catch (ConfigurationException e) {
+            e.printStackTrace();
+          }
+
+          STATISTICS.instructionCount += concreteSequence.getInstructionCount();
         }
-
-        final TestSequence concreteSequence = adapterResult.getResult();
-        checkNotNull(concreteSequence);
-
-        Logger.debugHeader("Printing to %s", exceptionFileName);
-        try {
-          fileWriter.println();
-          printer.printSequence(fileWriter, concreteSequence);
-        } catch (ConfigurationException e) {
-          e.printStackTrace();
-        }
-
-        STATISTICS.instructionCount += concreteSequence.getInstructionCount();
       }
 
       fileWriter.close();

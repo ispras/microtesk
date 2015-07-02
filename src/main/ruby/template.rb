@@ -525,8 +525,11 @@ class Template
   # -------------------------------------------------------------------------- #
 
   def exception_handler(attrs = {}, &contents)
-    @template.beginExceptionHandler
-    self.instance_eval &contents
+    builder = @template.beginExceptionHandler
+
+    exception_handler_object = ExceptionHandler.new self, builder
+    exception_handler_object.instance_eval &contents
+
     @template.endExceptionHandler
   end
 
@@ -716,3 +719,19 @@ class StreamPreparator
   end
 
 end # StreamPreparator
+
+class ExceptionHandler
+
+  def initialize context, builder
+    @context = context
+    @builder = builder
+  end
+
+  def org(attrs = {}, &contents)
+    addr = get_attribute attrs, :address
+    @builder.beginSection addr
+    @context.instance_eval &contents
+    @builder.endSection
+  end
+
+end # ExceptionHandler

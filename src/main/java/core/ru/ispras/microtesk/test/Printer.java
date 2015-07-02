@@ -363,7 +363,7 @@ public final class Printer {
     }
   }
 
-  private void printToFile(PrintWriter writer, String text) {
+  public void printToFile(PrintWriter writer, String text) {
     if (null != writer) {
       writer.println(String.format("%s%s", indentToken, text));
     }

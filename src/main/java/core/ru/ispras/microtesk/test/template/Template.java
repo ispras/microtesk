@@ -574,7 +574,7 @@ public final class Template {
     groupVariates.put(name, variate);
   }
 
-  public void beginExceptionHandler() {
+  public ExceptionHandlerBuilder beginExceptionHandler() {
     endBuildingCall();
     Logger.debug("Begin exception handler");
 
@@ -587,6 +587,7 @@ public final class Template {
     checkTrue(null == exceptionHandlerBuilder);
 
     exceptionHandlerBuilder = new ExceptionHandlerBuilder();
+    return exceptionHandlerBuilder;
   }
 
   public void endExceptionHandler() {

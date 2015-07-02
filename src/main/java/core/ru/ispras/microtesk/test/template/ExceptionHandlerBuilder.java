@@ -15,23 +15,54 @@
 package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ExceptionHandlerBuilder {
-  private final List<Call> calls;
+  private final List<ExceptionHandler.Section> sections;
+
+  private BigInteger address;
+  private List<Call> calls;
 
   public ExceptionHandlerBuilder() {
+    this.sections = new ArrayList<>();
+    this.address = null;
+    this.calls = null;
+  }
+
+  public void beginSection(final BigInteger address) {
+    checkNotNull(address);
+    checkGreaterThan(address, BigInteger.ZERO);
+
+    checkTrue(this.address == null);
+    checkTrue(this.calls == null);
+
+    this.address = address;
     this.calls = new ArrayList<>();
+  }
+
+  public void endSection() {
+    checkNotNull(address);
+    checkNotNull(calls);
+
+    this.sections.add(new ExceptionHandler.Section(address, calls));
+    this.address = null;
+    this.calls = null;
   }
 
   public void addCall(final Call call) {
     checkNotNull(call);
-    calls.add(call);
+    this.calls.add(call);
   }
 
   public ExceptionHandler build() {
-    return new ExceptionHandler(calls);
+    checkTrue(this.address == null);
+    checkTrue(this.calls == null);
+
+    return new ExceptionHandler(sections);
   }
 }

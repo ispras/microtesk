@@ -14,20 +14,48 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 
-public final class ExceptionHandler {
-  private final List<Call> calls;
+import ru.ispras.fortress.util.InvariantChecks;
 
-  public ExceptionHandler(final List<Call> calls) {
-    checkNotNull(calls);
-    this.calls = Collections.unmodifiableList(calls);
+public final class ExceptionHandler {
+
+  public static final class Section {
+    private final BigInteger address;
+    private final List<Call> calls;
+
+    protected Section(final BigInteger address, final List<Call> calls) {
+      InvariantChecks.checkNotNull(address);
+      InvariantChecks.checkGreaterThan(address, BigInteger.ZERO);
+      InvariantChecks.checkNotNull(calls);
+
+      this.address = address;
+      this.calls = Collections.unmodifiableList(calls);
+    }
+
+    public List<Call> getCalls() {
+      return calls;
+    }
+
+    public BigInteger getAddress() {
+      return address;
+    }
   }
 
-  public List<Call> getCalls() {
-    return calls;
+  private final List<Section> sections;
+
+  protected ExceptionHandler(final List<Section> sections) {
+    InvariantChecks.checkNotNull(sections);
+    this.sections = Collections.unmodifiableList(sections);
+  }
+
+  public List<Section> getSections() {
+    return sections;
+  }
+
+  public int getSectionCount() {
+    return sections.size();
   }
 }
