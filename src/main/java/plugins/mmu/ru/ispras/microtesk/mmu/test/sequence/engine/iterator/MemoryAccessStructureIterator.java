@@ -153,7 +153,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     this.accessClasses = classifier.classify(accesses);
 
     for (int i = 0; i < size; i++) {
-      accessIterator.registerIterator(new IntRangeIterator(0, size - 1));
+      accessIterator.registerIterator(new IntRangeIterator(0, accessClasses.size() - 1));
     }
 
     init();
