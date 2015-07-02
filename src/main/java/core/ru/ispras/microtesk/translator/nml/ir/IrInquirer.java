@@ -14,14 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.ir;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
-
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 public final class IrInquirer {
   private static final String PC_LABEL = "PC";

@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.translator;
 
 import org.junit.Test;
 
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.translator.TranslatorTest;
 

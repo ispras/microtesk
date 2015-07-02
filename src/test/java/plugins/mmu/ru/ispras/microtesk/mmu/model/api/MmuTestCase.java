@@ -27,9 +27,6 @@ package ru.ispras.microtesk.mmu.model.api;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ru.ispras.microtesk.mmu.model.api.Policy;
-import ru.ispras.microtesk.mmu.model.api.PolicyId;
-
 public class MmuTestCase {
   public static final int ASSOCIATIVITY = 10;
 

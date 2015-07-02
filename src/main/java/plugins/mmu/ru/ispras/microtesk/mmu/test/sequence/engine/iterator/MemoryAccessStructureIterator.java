@@ -47,9 +47,11 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
+import ru.ispras.testbase.knowledge.iterator.ArrayIterator;
 import ru.ispras.testbase.knowledge.iterator.IntRangeIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
+import ru.ispras.testbase.knowledge.iterator.RandomValueIterator;
 
 /**
  * {@link MemoryAccessStructureIterator} implements an iterator of memory access structures, i.e.
@@ -88,16 +90,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /** Memory access equivalence classes. */
   private final List<Set<MemoryAccess>> accessClasses;
 
-  /** Supported data types, i.e. sizes of data blocks accessed by load/store instructions. */
-  private final DataType[] dataTypes;
-  /** Data type randomization option. */
-  private final boolean randomDataType;
-
   /** Number of memory accesses in a structure. */
   private final int size;
 
-  /** Array of indices in the data types array. */
-  private final int[] dataTypeIndices;
   /** Array of indices in the dependencies array. */
   private final int[][] dependencyIndices;
 
@@ -108,8 +103,10 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /** Nested lists of dependencies. */
   private List<List<List<MemoryDependency>>> dependencyMatrix = new ArrayList<>();
 
+  /** Iterator of data types. */
+  private final Iterator<List<DataType>> dataTypeIterator;
   /** Iterator of memory access classes. */
-  private final ProductIterator<Integer> accessIterator = new ProductIterator<>();
+  private final Iterator<List<Integer>> accessIterator;
 
   /** {@code true} if the iteration has more elements; {@code false} otherwise. */
   private boolean hasValue;
@@ -140,21 +137,26 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     InvariantChecks.checkTrue(size > 0);
  
     this.memory = memory;
-    this.dataTypes = dataTypes;
-    this.randomDataType = randomDataType;
     this.size = size;
 
-    this.dataTypeIndices = new int[size];
     this.dependencyIndices = new int[size][size];
-
     this.dependencies = new MemoryDependency[size][size];
 
     final List<MemoryAccess> accesses = CoverageExtractor.get().getCoverage(memory);
     this.accessClasses = classifier.classify(accesses);
 
+    final ProductIterator<DataType> dataTypeIterator = new ProductIterator<>();
+    for (int i = 0; i < size; i++) {
+      dataTypeIterator.registerIterator(randomDataType ?
+          new RandomValueIterator<DataType>(dataTypes) : new ArrayIterator<DataType>(dataTypes));
+    }
+    this.dataTypeIterator = dataTypeIterator;
+
+    final ProductIterator<Integer> accessIterator = new ProductIterator<>();
     for (int i = 0; i < size; i++) {
       accessIterator.registerIterator(new IntRangeIterator(0, accessClasses.size() - 1));
     }
+    this.accessIterator = accessIterator;
 
     init();
   }
@@ -275,8 +277,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     structureFilterBuilder.addFilterBuilder(ADVANCED_FILTERS);
     this.structureFilter = structureFilterBuilder.build();
 
-    Arrays.fill(dataTypeIndices, 0);
-
+    dataTypeIterator.init();
     accessIterator.init();
 
     hasValue = true;
@@ -302,20 +303,16 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   @Override
   public void next() {
-    // TODO:
-    for (int i = dataTypeIndices.length - 1; i >= 0 ; i--) {
-      if (!randomDataType) {
-        if (dataTypeIndices[i] < dataTypes.length - 1) {
-          dataTypeIndices[i]++;
-          setDataTypes();
-          return;
-        }
+    if (dataTypeIterator.hasValue()) {
+      dataTypeIterator.next();
 
-        dataTypeIndices[i] = 0;
-      } else {
-        dataTypeIndices[i] = Randomizer.get().nextIntRange(0, dataTypes.length - 1);
+      if (dataTypeIterator.hasValue()) {
+        setDataTypes();
+        return;
       }
     }
+
+    dataTypeIterator.init();
 
     step();
   }
@@ -332,9 +329,11 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   
   // TODO:
   private void setDataTypes() {
+    final List<DataType> dataTypes = dataTypeIterator.value();
+
     for (int i = 0; i < accesses.size(); i++) {
       final MemoryAccess execution = accesses.get(i);
-      execution.setType(dataTypes[dataTypeIndices[i]]);
+      execution.setType(dataTypes.get(i));
     }
   }
 

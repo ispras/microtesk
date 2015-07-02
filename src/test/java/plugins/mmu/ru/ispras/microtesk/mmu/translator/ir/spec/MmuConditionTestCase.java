@@ -20,7 +20,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 
 /**
  * Test for {@link MmuCondition}.

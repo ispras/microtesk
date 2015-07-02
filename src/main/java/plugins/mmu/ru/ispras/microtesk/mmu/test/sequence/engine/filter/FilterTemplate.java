@@ -18,8 +18,8 @@ import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryUnitedDependency;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;

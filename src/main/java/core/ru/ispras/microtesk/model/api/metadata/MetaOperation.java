@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.util.Map;
