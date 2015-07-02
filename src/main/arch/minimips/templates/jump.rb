@@ -40,10 +40,9 @@ class JumpTemplate < MiniMipsBaseTemplate
     add t3, zero, t1
     add t4, zero, t1
 
-    trace "$t1 = %x", gpr_observer(8)
-    trace "$t2 = %x", gpr_observer(9)
-    trace "$t3 = %x", gpr_observer(10)
-    trace "$t4 = %x", gpr_observer(11)
+    (9..12).each { |i|
+      trace "$#{i} = %x", gpr_observer(i)
+    }
 
     nop
   end
