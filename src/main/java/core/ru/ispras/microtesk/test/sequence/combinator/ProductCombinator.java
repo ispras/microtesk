@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2008-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,19 +14,19 @@
 
 package ru.ispras.microtesk.test.sequence.combinator;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * This class implements the product combinator of iterators.
+ * {@link ProductCombinator} implements the product combinator of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class ProductCombinator<T> extends Combinator<T> {
+public final class ProductCombinator<T> extends Combinator<T> {
   @Override
   public void onInit() {}
 
   @Override
-  public T getValue(int i) {
+  public T getValue(final int i) {
     final Iterator<T> iterator = iterators.get(i);
     return iterator.hasValue() ? iterator.value() : null;
   }

@@ -20,7 +20,7 @@ import java.util.HashSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ru.ispras.microtesk.basis.iterator.CollectionIterator;
+import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

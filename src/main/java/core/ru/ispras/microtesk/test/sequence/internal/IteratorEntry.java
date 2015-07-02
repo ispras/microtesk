@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.test.sequence.internal;
 
-import ru.ispras.microtesk.basis.iterator.BoundedIterator;
-import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.BoundedIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * This class represents an iterator entry that is used in some compositors.

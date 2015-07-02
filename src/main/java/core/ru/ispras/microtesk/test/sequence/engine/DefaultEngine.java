@@ -30,7 +30,6 @@ import java.util.Set;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.basis.iterator.SingleValueIterator;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.TestSequence;
@@ -43,6 +42,7 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestData;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
  * The job of the {@link DefaultEngine} class is to processes an abstract instruction call

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,15 +16,15 @@ package ru.ispras.microtesk.test.sequence.compositor;
 
 import java.util.Stack;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * This class implements the nesting composition of iterators.
+ * {@link NestingCompositor} implements the nesting composition of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class NestingCompositor<T> extends Compositor<T> {
+public final class NestingCompositor<T> extends Compositor<T> {
   /** The stack of iterators. */
   private Stack<IteratorEntry<T>> stack = new Stack<IteratorEntry<T>>();
 

@@ -23,7 +23,6 @@ import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.MemoryAccessStructure;
@@ -46,6 +45,7 @@ import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.Supplier;
 import ru.ispras.microtesk.utils.function.TriConsumer;
 import ru.ispras.microtesk.utils.function.UnaryOperator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link MmuEngine} implements a solver of memory-related constraints (hit, miss, etc.)
@@ -783,6 +783,16 @@ public final class MmuEngine implements Engine<MmuSolution> {
       public void next() {
         iterator.next();
         solution = getSolution();
+      }
+
+      @Override
+      public void stop() {
+        solution = null;
+      }
+
+      @Override
+      public Iterator<MmuSolution> clone() {
+        throw new UnsupportedOperationException();
       }
     };
 

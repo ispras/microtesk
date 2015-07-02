@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.IntRangeIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
@@ -618,7 +618,6 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
     return false;
   }
 
-  /** Makes iteration iteration. */
   @Override
   public void next() {
     if (!hasValue()) {
@@ -649,6 +648,7 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
     stop();
   }
 
+  @Override
   public void stop() {
     hasValue = false;
   }

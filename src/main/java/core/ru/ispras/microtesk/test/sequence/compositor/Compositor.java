@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,13 +16,13 @@ package ru.ispras.microtesk.test.sequence.compositor;
 
 import java.util.List;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * This class is a basic compositor of iterators. It takes several iterators and merges them into a
- * single iterator. The main restriction is that a a compositor should not change the order of items
- * returned by an iterator.
+ * {@link Compositor} is a basic compositor of iterators. It takes several iterators and merges them
+ * into a single iterator. The main restriction is that a a compositor should not change the order
+ * of items returned by an iterator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -46,9 +46,9 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements Iter
     addIterators(iterators);
   }
 
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Callbacks that should be overloaded in subclasses
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   /**
    * The callback method called in the <code>init</code> method.
@@ -61,15 +61,15 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements Iter
   protected abstract void onNext();
 
   /**
-   * Selects an iterator whoose value will be used at the current step.
+   * Selects an iterator whose value will be used at the current step.
    * 
    * @return one of the iterators from the compositor's list.
    */
   protected abstract Iterator<T> choose();
 
-  ///////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Callback-based implementation of the iterator method
-  ///////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   @Override
   public void init() {
@@ -107,5 +107,15 @@ public abstract class Compositor<T> extends CompositeIterator<T> implements Iter
     onNext();
 
     chosen = choose();
+  }
+
+  @Override
+  public void stop() {
+    chosen = null;
+  }
+
+  @Override
+  public Compositor<T> clone() {
+    throw new UnsupportedOperationException();
   }
 }

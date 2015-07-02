@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,18 +19,18 @@ import java.util.List;
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 
 /**
- * This class implements the test sequence generator.
+ * {@link GeneratorBuilder} implements the test sequence generator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
+public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   /** The default combinator. */
   public static final String DEFAULT_COMBINATOR = "random";
   /** The default compositor. */
   public static final String DEFAULT_COMPOSITOR = "random";
 
   /** The configuration of the test sequence generator. */
-  private Configuration<T> config = new Configuration<T>();
+  private final Configuration<T> config = new Configuration<T>();
 
   /** The combinator used in the generator. */
   private String combinator = null;

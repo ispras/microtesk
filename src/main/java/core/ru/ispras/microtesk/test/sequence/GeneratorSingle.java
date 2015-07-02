@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class GeneratorSingle<T> implements Generator<T> {
   private final List<T> sequence;
@@ -73,5 +73,15 @@ public final class GeneratorSingle<T> implements Generator<T> {
   @Override
   public void next() {
     hasValue = false;
+  }
+
+  @Override
+  public void stop() {
+    hasValue = false;
+  }
+
+  @Override
+  public GeneratorSingle<T> clone() {
+    throw new UnsupportedOperationException();
   }
 }

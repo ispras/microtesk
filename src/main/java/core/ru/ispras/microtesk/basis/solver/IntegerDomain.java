@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * This class represents a finite integer domain (a finite set of integer values). The domain is
@@ -32,7 +32,7 @@ public final class IntegerDomain {
   /**
    * This class implements an iterator over the domain's values.
    */
-  private final class MmuIterator implements Iterator<BigInteger> {
+  private final class DomainIterator implements Iterator<BigInteger> {
     /** The range index. */
     private int index = 0;
     /** The current value. */
@@ -68,6 +68,16 @@ public final class IntegerDomain {
         index++;
         value = ranges.size() <= index ? null : ranges.get(index).getMin();
       }
+    }
+
+    @Override
+    public void stop() {
+      value = null;
+    }
+
+    @Override
+    public DomainIterator clone() {
+      throw new UnsupportedOperationException();
     }
   }
 
@@ -434,6 +444,6 @@ public final class IntegerDomain {
    * @return the domain iterator.
    */
   public Iterator<BigInteger> iterator() {
-    return new MmuIterator();
+    return new DomainIterator();
   }
 }

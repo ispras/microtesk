@@ -16,8 +16,8 @@ package ru.ispras.microtesk.test.sequence.engine.branch;
 
 import org.junit.Test;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
-import ru.ispras.microtesk.basis.iterator.SingleValueIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

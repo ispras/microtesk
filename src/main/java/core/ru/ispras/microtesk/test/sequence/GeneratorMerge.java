@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,27 +17,27 @@ package ru.ispras.microtesk.test.sequence;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.basis.iterator.CollectionIterator;
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
+import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * This class implements the test sequence generator.
+ * {@link GeneratorMerge} implements the test sequence generator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class GeneratorMerge<T> implements Generator<T> {
+public final class GeneratorMerge<T> implements Generator<T> {
   /**
    * The combinator used by the generator (it produces different combinations of the sequences).
    */
-  private Combinator<List<T>> combinator;
+  private final Combinator<List<T>> combinator;
 
   /** The compositor used by the generator (it merges several sequences into one). */
-  private Compositor<T> compositor;
+  private final Compositor<T> compositor;
 
   /** The list of iterators. */
-  private List<Iterator<List<T>>> iterators;
+  private final List<Iterator<List<T>>> iterators;
 
   /**
    * Constructs a test sequence generator.
@@ -86,5 +86,15 @@ public class GeneratorMerge<T> implements Generator<T> {
   @Override
   public void next() {
     combinator.next();
+  }
+
+  @Override
+  public void stop() {
+    combinator.stop();
+  }
+
+  @Override
+  public Iterator<List<T>> clone() {
+    throw new UnsupportedOperationException();
   }
 }

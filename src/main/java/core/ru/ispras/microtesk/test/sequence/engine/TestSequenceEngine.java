@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
@@ -100,15 +100,18 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
       final List<Call> abstractSequence,
       final Iterator<?> solutionIterator) {
     final Iterator<AdapterResult> resultIterator = new Iterator<AdapterResult>() {
-      @Override public void init() {
+      @Override
+      public void init() {
         solutionIterator.init();
       }
 
-      @Override public boolean hasValue() {
+      @Override
+      public boolean hasValue() {
         return solutionIterator.hasValue();
       }
 
-      @Override public AdapterResult value() {
+      @Override
+      public AdapterResult value() {
         final Object solution = solutionIterator.value(); 
         final Class<T> solutionClass = adapter.getSolutionClass();
 
@@ -122,8 +125,19 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
         return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
       }
 
-      @Override public void next() {
+      @Override
+      public void next() {
         solutionIterator.next();
+      }
+
+      @Override
+      public void stop() {
+        solutionIterator.stop();
+      }
+
+      @Override
+      public Iterator<AdapterResult> clone() {
+        throw new UnsupportedOperationException();
       }
     };
 

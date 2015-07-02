@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.GeneratorSingle;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class Block {
   private final BlockId blockId;

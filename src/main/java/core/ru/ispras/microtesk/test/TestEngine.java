@@ -30,7 +30,6 @@ import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -55,6 +54,7 @@ import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class TestEngine {
   public static final class Statistics {

@@ -23,7 +23,6 @@ import java.util.Set;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.Classifier;
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterHitAndTagReplaced;
@@ -49,6 +48,7 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 import ru.ispras.testbase.knowledge.iterator.IntRangeIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
@@ -300,14 +300,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     return new MemoryAccessStructure(memory, accesses, dependencies);
   }
 
-  // TODO:
-  private void setDataTypes() {
-    for (int i = 0; i < accesses.size(); i++) {
-      final MemoryAccess execution = accesses.get(i);
-      execution.setType(dataTypes[dataTypeIndices[i]]);
-    }
-  }
-
   @Override
   public void next() {
     // TODO:
@@ -326,6 +318,24 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     }
 
     step();
+  }
+
+  @Override
+  public void stop() {
+    hasValue = false;
+  }
+
+  @Override
+  public MemoryAccessStructureIterator clone() {
+    throw new UnsupportedOperationException();
+  }
+  
+  // TODO:
+  private void setDataTypes() {
+    for (int i = 0; i < accesses.size(); i++) {
+      final MemoryAccess execution = accesses.get(i);
+      execution.setType(dataTypes[dataTypeIndices[i]]);
+    }
   }
 
   private void step() {

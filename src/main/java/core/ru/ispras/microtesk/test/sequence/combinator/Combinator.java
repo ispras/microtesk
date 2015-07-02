@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,12 +17,12 @@ package ru.ispras.microtesk.test.sequence.combinator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * This class is a basic combinator of iterators. It takes several iterators and produces different
- * combinations of their results.
+ * {@link Combinator} is a basic combinator of iterators. It takes several iterators and produces
+ * different combinations of their results.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -44,34 +44,34 @@ public abstract class Combinator<T> extends CompositeIterator<T> implements Iter
     addIterators(iterators);
   }
 
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Callbacks that should be overloaded in subclasses
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   /**
-   * The callback method called in the <code>init</code> method.
+   * The callback method called in the {@code init} method.
    */
   protected abstract void onInit();
 
   /**
-   * The callback method called in the <code>value</code> method.
+   * The callback method called in the {@code value} method.
    * 
    * @param i the iterator index.
-   * @return the value of the i-th iterator (<code>null</code> if the iterator has been exhausted,
+   * @return the value of the i-th iterator ({@code null} if the iterator has been exhausted,
    *         i.e., no value is available).
    */
   protected abstract T getValue(int i);
 
   /**
-   * The callback method called in the <code>next</code> method.
+   * The callback method called in the {@code next} method.
    * 
-   * @return false iff it the combinator has been exhausted.
+   * @return {@code false} iff it the combinator has been exhausted.
    */
   protected abstract boolean doNext();
 
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Callback-based implementation of the iterator method
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
   @Override
   public void init() {
@@ -113,5 +113,15 @@ public abstract class Combinator<T> extends CompositeIterator<T> implements Iter
   @Override
   public void next() {
     hasValue = doNext();
+  }
+
+  @Override
+  public void stop() {
+    hasValue = false;
+  }
+
+  @Override
+  public Combinator<T> clone() {
+    throw new UnsupportedOperationException();
   }
 }

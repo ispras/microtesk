@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
-import ru.ispras.microtesk.basis.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 public final class BlockBuilder {
   private final BlockId blockId;

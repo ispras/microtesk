@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.sequence.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * This class is a basic class for composite iterators (e.g., combinators or compositors).

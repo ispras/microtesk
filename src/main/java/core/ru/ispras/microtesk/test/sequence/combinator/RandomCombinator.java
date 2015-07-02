@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,21 +21,21 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * This class implements the random combinator of iterators.
+ * {@link RandomCombinator} implements the random combinator of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class RandomCombinator<T> extends Combinator<T> {
+public final class RandomCombinator<T> extends Combinator<T> {
   /** Maps an iterator to the list of previous values. */
-  private Map<Integer, ArrayList<T>> caches = new HashMap<Integer, ArrayList<T>>();
+  private final Map<Integer, ArrayList<T>> caches = new HashMap<Integer, ArrayList<T>>();
   /** Maps an iterator to the current value. */
-  private Map<Integer, T> values = new HashMap<Integer, T>();
+  private final Map<Integer, T> values = new HashMap<Integer, T>();
 
   /** Contains exhausted iterators. */
-  private Set<Integer> exhausted = new HashSet<Integer>();
+  private final Set<Integer> exhausted = new HashSet<Integer>();
 
   @Override
   public void onInit() {
@@ -59,7 +59,7 @@ public class RandomCombinator<T> extends Combinator<T> {
   }
 
   @Override
-  public T getValue(int i) {
+  public T getValue(final int i) {
     return values.get(i);
   }
 
@@ -95,7 +95,7 @@ public class RandomCombinator<T> extends Combinator<T> {
    * @param i the iterator index.
    * @param value the value to be added into the cache.
    */
-  private void addValue(int i, final T value) {
+  private void addValue(final int i, final T value) {
     final ArrayList<T> trace = caches.containsKey(i) ? caches.get(i) : new ArrayList<T>();
     trace.add(value);
 

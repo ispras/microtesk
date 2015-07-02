@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.test.sequence.engine.branch;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link BranchExecutionIterator} implements a composite iterator of branch structures and
@@ -128,7 +128,13 @@ public final class BranchExecutionIterator implements Iterator<BranchStructure> 
     stop();
   }
 
+  @Override
   public void stop() {
     hasValue = false;
+  }
+
+  @Override
+  public BranchExecutionIterator clone() {
+    throw new UnsupportedOperationException();
   }
 }

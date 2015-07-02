@@ -23,13 +23,13 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.basis.iterator.Iterator;
-import ru.ispras.microtesk.basis.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecutionIterator;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -169,6 +169,16 @@ public final class BranchEngine implements Engine<BranchSolution> {
       @Override
       public void next() {
         branchStructureExecutionIterator.next();
+      }
+
+      @Override
+      public void stop() {
+        branchStructureExecutionIterator.stop();
+      }
+
+      @Override
+      public Iterator<BranchSolution> clone() {
+        throw new UnsupportedOperationException();
       }
     };
 
