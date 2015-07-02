@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
@@ -674,8 +675,61 @@ public final class TestEngine {
 
     @Override
     public void defineExceptionHandler(final ExceptionHandler handler) {
-      // TODO Auto-generated method stub
-      
+      Logger.debugHeader("Processing Exception Handler");
+      checkNotNull(handler);
+
+      final Engine<?> engine = config.getEngine("default");
+      checkNotNull(engine);
+
+      final Adapter<?> adapter = config.getAdapter("default");
+      checkNotNull(adapter);
+
+      if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
+        throw new IllegalStateException("Mismatched solver/adapter pair");
+      }
+
+      final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
+      final List<Call> abstractSequence = handler.getCalls();
+
+      final Iterator<AdapterResult> iterator =
+          testSequenceEngine.process(engineContext, abstractSequence);
+
+      final String exceptionFileName = String.format(
+          "%s.%s", TestEngine.exceptionFilePrefix, TestEngine.codeFileExtension);
+
+      final PrintWriter fileWriter;
+      try {
+        fileWriter = printer.newFileWriter(exceptionFileName);
+      } catch (final IOException e) {
+        throw new GenerationAbortedException(String.format(
+            "Failed to create the %s file. Reason: %s", exceptionFileName, e.getMessage()));
+      } 
+
+      for (iterator.init(); iterator.hasValue(); iterator.next()) {
+        final AdapterResult adapterResult = iterator.value();
+        checkNotNull(adapterResult);
+
+        if (adapterResult.getStatus() != AdapterResult.Status.OK) {
+          Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
+          continue;
+        }
+
+        final TestSequence concreteSequence = adapterResult.getResult();
+        checkNotNull(concreteSequence);
+
+        Logger.debugHeader("Printing to %s", exceptionFileName);
+        try {
+          fileWriter.println();
+          printer.printSequence(fileWriter, concreteSequence);
+        } catch (ConfigurationException e) {
+          e.printStackTrace();
+        }
+
+        STATISTICS.instructionCount += concreteSequence.getInstructionCount();
+      }
+
+      fileWriter.close();
+      Logger.debugBar();
     }
   }
 }
