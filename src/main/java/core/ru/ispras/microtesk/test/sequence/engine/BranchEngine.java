@@ -44,21 +44,27 @@ public final class BranchEngine implements Engine<BranchSolution> {
   public static boolean isIfThen(final Call abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
-    // TODO:
-    // return abstractCall.isBranch() && abstractCall.isConditionalBranch();
-
+    // Self check.
     final String situationName = getSituationName(abstractCall);
-    return situationName != null && situationName.endsWith(IF_THEN_SITUATION_SUFFIX);
+    final boolean flag = situationName != null && situationName.endsWith(IF_THEN_SITUATION_SUFFIX);
+
+    final boolean result = abstractCall.isBranch() && abstractCall.isConditionalBranch();
+    InvariantChecks.checkTrue(result == flag);
+
+    return result;
   }
 
   public static boolean isGoto(final Call abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
-    // TODO:
-    // return abstractCall.isBranch() && !abstractCall.isConditionalBranch();
-
+    // Self check.
     final String situationName = getSituationName(abstractCall);
-    return situationName != null && situationName.endsWith(GOTO_SITUATION_SUFFIX);
+    final boolean flag = situationName != null && situationName.endsWith(GOTO_SITUATION_SUFFIX);
+
+    final boolean result = abstractCall.isBranch() && !abstractCall.isConditionalBranch();
+    InvariantChecks.checkTrue(result == flag);
+
+    return result;
   }
 
   /** Branch execution limit: default value is 1. */
