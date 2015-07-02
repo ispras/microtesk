@@ -678,7 +678,7 @@ public final class TestEngine {
       final String exceptionFileName = String.format(
           "%s.%s", TestEngine.exceptionFilePrefix, TestEngine.codeFileExtension);
 
-      Logger.debugHeader("Generating Exception Handler File " + exceptionFileName);
+      Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
       checkNotNull(handler);
 
       final Engine<?> engine = config.getEngine("default");
@@ -716,9 +716,15 @@ public final class TestEngine {
           final TestSequence concreteSequence = adapterResult.getResult();
           checkNotNull(concreteSequence);
 
+          final long address = section.getAddress().longValue();
+          concreteSequence.setAddress(address);
           try {
             fileWriter.println();
-            printer.printToFile(fileWriter, String.format(".org 0x%x", section.getAddress()));
+            Logger.debug("");
+
+            final String org = String.format(".org 0x%x", address);
+            Logger.debug(org);
+            printer.printToFile(fileWriter, org);
             printer.printSequence(fileWriter, concreteSequence);
           } catch (ConfigurationException e) {
             e.printStackTrace();
