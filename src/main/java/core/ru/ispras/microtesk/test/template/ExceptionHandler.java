@@ -16,7 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class ExceptionHandler {
@@ -24,7 +24,7 @@ public final class ExceptionHandler {
 
   public ExceptionHandler(final List<Call> calls) {
     checkNotNull(calls);
-    this.calls = new ArrayList<>();
+    this.calls = Collections.unmodifiableList(calls);
   }
 
   public List<Call> getCalls() {
