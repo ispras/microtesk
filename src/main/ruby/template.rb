@@ -524,7 +524,7 @@ class Template
   # Exception Handling                                                         #
   # -------------------------------------------------------------------------- #
 
-  def exception_handler(attrs, &contents)
+  def exception_handler(attrs = {}, &contents)
     @template.beginExceptionHandler
     self.instance_eval &contents
     @template.endExceptionHandler
