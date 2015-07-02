@@ -20,7 +20,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 
@@ -28,9 +28,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 final class MemoryCoverageExtractor {
-  private final MmuSpecification memory;
+  private final MmuSubsystem memory;
 
-  public MemoryCoverageExtractor(final MmuSpecification memory) {
+  public MemoryCoverageExtractor(final MmuSubsystem memory) {
     InvariantChecks.checkNotNull(memory);
     this.memory = memory;
   }

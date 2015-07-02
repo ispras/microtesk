@@ -16,8 +16,8 @@ package ru.ispras.microtesk.test.sequence.compositor;
 
 import java.util.Stack;
 
+import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the nesting composition of iterators.

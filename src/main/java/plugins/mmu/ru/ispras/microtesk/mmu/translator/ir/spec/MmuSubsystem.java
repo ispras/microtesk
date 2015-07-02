@@ -25,7 +25,7 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link MmuSpecification} describes a memory management unit (MMU).
+ * {@link MmuSubsystem} describes a memory management unit (MMU).
  * 
  * <p>The description includes a set of devices and a network (directed acyclic graph with one
  * source and multiple sink nodes) of actions.</p>
@@ -34,7 +34,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public class MmuSpecification {
+public class MmuSubsystem {
   /**
    * Stores available address types.
    * <p>Typically, includes two types: Virtual Address and Physical Address.</p>

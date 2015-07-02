@@ -23,11 +23,11 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecutionIterator;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
-import ru.ispras.microtesk.test.sequence.iterator.SingleValueIterator;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Label;
 

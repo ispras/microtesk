@@ -23,9 +23,9 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.microtesk.basis.solver.IntegerField;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
-import ru.ispras.microtesk.test.sequence.solver.IntegerField;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 final class AddressFormatExtractor {

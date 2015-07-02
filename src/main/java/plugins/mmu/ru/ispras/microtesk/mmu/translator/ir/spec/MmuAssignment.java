@@ -17,8 +17,8 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.solver.IntegerField;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.IntegerField;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
  * {@link MmuAssignment} describes an assignment, i.e. a pair {@code lhs = rhs}, where {@code lhs}

@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.Classifier;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
@@ -35,9 +37,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
-public class ExecutionPathClassifierDevice extends ExecutionPathClassifier {
+public final class ExecutionPathClassifierDevice implements Classifier<ExecutionPath> {
   @Override
-  public List<Set<ExecutionPath>> unifyExecutions(final List<ExecutionPath> executions) {
+  public List<Set<ExecutionPath>> classify(final Collection<ExecutionPath> executions) {
     final List<Set<ExecutionPath>> executionsOfOperation = new ArrayList<>();
 
     for (MemoryOperation operation : MemoryOperation.values()) {

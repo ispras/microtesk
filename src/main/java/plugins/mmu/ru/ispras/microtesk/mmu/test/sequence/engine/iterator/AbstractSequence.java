@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
  * This class describes a test template. The description includes a set of MMU execution paths and a
@@ -33,7 +33,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
  */
 public final class AbstractSequence {
   /** The memory specification. */
-  private MmuSpecification memory;
+  private MmuSubsystem memory;
   /** The list of executions. */
   private List<ExecutionPath> executions = new ArrayList<>();
   /** The dependencies between the executions. */
@@ -46,7 +46,7 @@ public final class AbstractSequence {
    * @param dependencies the dependencies.
    * @throws IllegalArgumentException if {@code executions} or {@code dependencies} is null.
    */
-  public AbstractSequence(final MmuSpecification memory, final List<ExecutionPath> executions,
+  public AbstractSequence(final MmuSubsystem memory, final List<ExecutionPath> executions,
       final Dependency[][] dependencies) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(executions);
@@ -62,7 +62,7 @@ public final class AbstractSequence {
    * 
    * @return the memory specification.
    */
-  public MmuSpecification getMemory() {
+  public MmuSubsystem getMemory() {
     return memory;
   }
 

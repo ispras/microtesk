@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.solver.IntegerField;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.IntegerField;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
  * {@link MmuExpression} class represents an expression, which is a sequence of terms.

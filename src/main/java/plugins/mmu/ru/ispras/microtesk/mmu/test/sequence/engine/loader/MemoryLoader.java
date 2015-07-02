@@ -21,17 +21,17 @@ import java.util.Map;
 
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryLoader implements Loader {
-  private final MmuSpecification memory;
+  private final MmuSubsystem memory;
   private final Map<MmuDevice, BufferLoader> loaders = new LinkedHashMap<>();
 
-  public MemoryLoader(final MmuSpecification memory) {
+  public MemoryLoader(final MmuSubsystem memory) {
     this.memory = memory;
   }
 

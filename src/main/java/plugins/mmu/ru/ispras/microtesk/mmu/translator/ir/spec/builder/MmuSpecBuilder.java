@@ -21,6 +21,7 @@ import java.util.Map;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
@@ -40,10 +41,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 
 /**
@@ -56,7 +56,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   /** Action node where the control flow graph terminates if no exceptions are raised. */
   public static final MmuAction STOP = new MmuAction("STOP");
 
-  private MmuSpecification spec = null;
+  private MmuSubsystem spec = null;
   private IntegerVariableTracker variables = null;
   private AtomExtractor atomExtractor = null;
 
@@ -66,7 +66,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   /** Index used in automatically generated action names to ensure their uniqueness. */
   private int actionIndex = 0;
 
-  public MmuSpecification getSpecification() {
+  public MmuSubsystem getSpecification() {
     return spec;
   }
 
@@ -74,7 +74,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   public void processIr(final Ir ir) {
     System.out.println(ir);
 
-    this.spec = new MmuSpecification();
+    this.spec = new MmuSubsystem();
     this.variables = new IntegerVariableTracker();
     this.atomExtractor = new AtomExtractor(variables);
     this.actionIndex = 0;

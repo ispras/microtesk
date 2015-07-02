@@ -15,11 +15,13 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.Classifier;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 
 /**
@@ -27,16 +29,9 @@ import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class ExecutionPathClassifier {
-
-  /**
-   * Unifies all possible execution paths.
-   * 
-   * @param executions the execution list
-   * @return the list of execution classes paths.
-   * @throws IllegalArgumentException if {@code conflicts} is null.
-   */
-  public List<Set<ExecutionPath>> unifyExecutions(List<ExecutionPath> executions) {
+public final class ExecutionPathClassifierTrivial implements Classifier<ExecutionPath> {
+  @Override
+  public List<Set<ExecutionPath>> classify(final Collection<ExecutionPath> executions) {
     InvariantChecks.checkNotNull(executions);
 
     final List<Set<ExecutionPath>> executionList = new ArrayList<>();
@@ -49,5 +44,4 @@ public class ExecutionPathClassifier {
 
     return executionList;
   }
-
 }

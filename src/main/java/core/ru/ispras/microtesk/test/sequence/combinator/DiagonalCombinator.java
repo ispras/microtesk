@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.sequence.combinator;
 import java.util.HashSet;
 import java.util.Set;
 
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 
 /**
  * This class implements the diagonal combinator of iterators.

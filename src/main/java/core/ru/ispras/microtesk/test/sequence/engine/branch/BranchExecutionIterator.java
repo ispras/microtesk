@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.test.sequence.engine.branch;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 
 /**
  * {@link BranchExecutionIterator} implements a composite iterator of branch structures and

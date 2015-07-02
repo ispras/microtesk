@@ -16,8 +16,8 @@ package ru.ispras.microtesk.test.sequence.compositor;
 
 import java.util.ArrayList;
 
+import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the overlapping (shift) composition of iterators.

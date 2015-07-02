@@ -20,7 +20,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -34,7 +34,7 @@ public final class CoverageExtractor {
 
   private Map<MmuAddress, List<Hazard>> addressCoverage = new HashMap<>();
   private Map<MmuDevice, List<Hazard>> deviceCoverage = new HashMap<>();
-  private Map<MmuSpecification, List<ExecutionPath>> memoryCoverage = new HashMap<>();
+  private Map<MmuSubsystem, List<ExecutionPath>> memoryCoverage = new HashMap<>();
 
   private CoverageExtractor() {}
 
@@ -64,7 +64,7 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  public List<ExecutionPath> getCoverage(final MmuSpecification memory) {
+  public List<ExecutionPath> getCoverage(final MmuSubsystem memory) {
     List<ExecutionPath> coverage = memoryCoverage.get(memory);
 
     if (coverage != null) {

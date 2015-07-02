@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.solver;
+package ru.ispras.microtesk.basis.solver;
 
 import java.util.Collection;
 import java.util.List;

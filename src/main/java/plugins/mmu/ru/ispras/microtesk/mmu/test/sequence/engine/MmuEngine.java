@@ -23,6 +23,8 @@ import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.iterator.Iterator;
+import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
@@ -30,15 +32,13 @@ import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
-import ru.ispras.microtesk.test.sequence.solver.SolverResult;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
@@ -125,7 +125,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
   /** Given an execution index, contains the devices having been processed. */
   private final Map<Integer, Set<MmuDevice>> handledDevices = new LinkedHashMap<>();
 
-  private MmuSpecification memory;
+  private MmuSubsystem memory;
   // TODO: to be parameters.
   private AbstractSequence template;
   private MmuSolution solution;
@@ -148,7 +148,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
    * @throws IllegalArgumentException if some parameters are null.
    */
   public MmuEngine(
-      final MmuSpecification memory,
+      final MmuSubsystem memory,
       final Iterator<AbstractSequence> iterator,
       final Function<ExecutionPath, MmuTestData> testDataConstructor,
       final BiConsumer<ExecutionPath, MmuTestData> testDataCorrector,

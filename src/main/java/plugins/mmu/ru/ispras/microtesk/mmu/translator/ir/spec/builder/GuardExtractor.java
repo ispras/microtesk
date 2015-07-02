@@ -22,6 +22,8 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.microtesk.basis.solver.IntegerField;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
@@ -32,20 +34,18 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEquality;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
-import ru.ispras.microtesk.test.sequence.solver.IntegerField;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 
 final class GuardExtractor {
-  private final MmuSpecification specification;
+  private final MmuSubsystem specification;
   private final AtomExtractor atomExtractor;
 
   private final MmuGuard guard;
   private final MmuGuard negatedGuard;
 
   public GuardExtractor(
-      final MmuSpecification specification,
+      final MmuSubsystem specification,
       final AtomExtractor atomExtractor,
       final Node condition) {
     checkNotNull(specification);

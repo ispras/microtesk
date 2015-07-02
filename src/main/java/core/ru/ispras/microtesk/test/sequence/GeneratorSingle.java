@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 
 public final class GeneratorSingle<T> implements Generator<T> {
   private final List<T> sequence;

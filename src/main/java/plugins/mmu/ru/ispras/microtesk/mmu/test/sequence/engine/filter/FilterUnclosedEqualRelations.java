@@ -26,7 +26,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
 import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
@@ -67,7 +67,7 @@ public final class FilterUnclosedEqualRelations implements Predicate<AbstractSeq
   }
 
   private static void update(
-      final MmuSpecification memory,final Map<String, Map<Integer, Set<Integer>>> relations,
+      final MmuSubsystem memory,final Map<String, Map<Integer, Set<Integer>>> relations,
       final int i, final int j, final Dependency dependency) {
     InvariantChecks.checkTrue(i < j);
 

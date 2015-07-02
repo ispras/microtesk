@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.IntRangeIterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 

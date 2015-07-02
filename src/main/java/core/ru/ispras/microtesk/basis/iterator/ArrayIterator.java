@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2008-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,42 +12,38 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.iterator;
+package ru.ispras.microtesk.basis.iterator;
 
-import java.util.Collection;
-import java.util.Iterator;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * This class implements a collection iterator.
+ * {@link ArrayIterator} class implements an array iterator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class CollectionIterator<T> implements BoundedIterator<T> {
-  /** The collection being iterator. */
-  private Collection<T> collection;
-  /** The collection iterator. */
-  private Iterator<T> iterator;
+public final class ArrayIterator<T> implements BoundedIterator<T> {
+  /** The iterated array. */
+  private final T[] array;
+
+  /** The current index. */
+  private int index;
   /** The flag that refrects availability of the value. */
   private boolean hasValue;
-  /** The current value. */
-  private T value;
 
   /**
-   * Constructs a collection iterator.
+   * Constructs an array iterator.
    * 
-   * @param collection the collection to be iterated.
+   * @param array the array to be iterated.
    */
-  public CollectionIterator(final Collection<T> collection) {
-    this.collection = collection;
+  public ArrayIterator(final T[] array) {
+    InvariantChecks.checkNotNull(array);
+    this.array = array;
   }
 
   @Override
   public void init() {
-    iterator = collection.iterator();
-
-    if (hasValue = iterator.hasNext()) {
-      value = iterator.next();
-    }
+    index = 0;
+    hasValue = (array != null && array.length > 0);
   }
 
   @Override
@@ -57,18 +53,20 @@ public class CollectionIterator<T> implements BoundedIterator<T> {
 
   @Override
   public T value() {
-    return value;
+    return array[index];
   }
 
   @Override
   public void next() {
-    if (hasValue = iterator.hasNext()) {
-      value = iterator.next();
+    if (index == array.length - 1) {
+      hasValue = false;
+    } else {
+      index++;
     }
   }
 
   @Override
   public int size() {
-    return collection.size();
+    return array.length;
   }
 }

@@ -24,7 +24,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.AbstractSequence;
 import ru.ispras.microtesk.mmu.test.sequence.engine.loader.MemoryLoader;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
  * {@link MmuSolution} represents a solution (test data) for a number of dependent instruction
@@ -60,7 +60,7 @@ public final class MmuSolution {
    * @param memory the MMU specification.
    * @param template the test template.
    */
-  public MmuSolution(final MmuSpecification memory, final AbstractSequence template) {
+  public MmuSolution(final MmuSubsystem memory, final AbstractSequence template) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(template);
 

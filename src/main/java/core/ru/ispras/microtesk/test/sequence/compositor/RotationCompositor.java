@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.compositor;
 
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 
 /**
  * This class implements the rotation (interleaving) composition of iterators.

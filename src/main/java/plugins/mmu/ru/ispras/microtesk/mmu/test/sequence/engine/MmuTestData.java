@@ -18,13 +18,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 
 /**
  * {@link MmuTestData} represents test data for an individual instruction call (execution).
@@ -43,7 +43,7 @@ public final class MmuTestData {
    * <p>It is used to initialize the auxiliary data structures and to build a string representation
    * of the test data (to print tags and indices for all relevant devices).</p>
    */
-  private final MmuSpecification memory;
+  private final MmuSubsystem memory;
 
   /** Refers to the instruction call (execution). */
   private final ExecutionPath execution;
@@ -69,7 +69,7 @@ public final class MmuTestData {
    * @param execution the execution under processing.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public MmuTestData(final MmuSpecification memory, final ExecutionPath execution) {
+  public MmuTestData(final MmuSubsystem memory, final ExecutionPath execution) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(execution);
 

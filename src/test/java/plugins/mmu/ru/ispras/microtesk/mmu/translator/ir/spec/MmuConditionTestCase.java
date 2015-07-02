@@ -19,8 +19,8 @@ import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 
 /**
  * Test for {@link MmuCondition}.

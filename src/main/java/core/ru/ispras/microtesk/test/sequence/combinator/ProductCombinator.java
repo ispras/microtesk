@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.combinator;
 
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 
 /**
  * This class implements the product combinator of iterators.

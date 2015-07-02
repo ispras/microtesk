@@ -22,6 +22,8 @@ import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.Classifier;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterHitAndTagReplaced;
@@ -41,9 +43,8 @@ import ru.ispras.microtesk.mmu.translator.coverage.UnitedDependency;
 import ru.ispras.microtesk.mmu.translator.coverage.UnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -59,7 +60,7 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
-  /** Checks the consistency of execution path pairs (template parts) and templates. */
+  /** Checks the consistency of execution path pairs (template parts) and whole templates. */
   private static final FilterBuilder BASIC_FILTERS = new FilterBuilder();
   static {
     BASIC_FILTERS.addHazardFilter(new FilterNonReplaceableTagEqual());
@@ -73,7 +74,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     BASIC_FILTERS.addTemplateFilter(new FilterUnclosedEqualRelations());
   }
 
-  /** Checks the consistency of templates (such filters cannot be applied to template parts). */
+  /** Checks the consistency of whole templates (not applicable to template parts). */
   private static final FilterBuilder ADVANCED_FILTERS = new FilterBuilder();
   static {
     ADVANCED_FILTERS.addUnitedDependencyFilter(new FilterAccessThenMiss());
@@ -83,7 +84,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
   private final FilterBuilder filterBuilder = new FilterBuilder(BASIC_FILTERS);
 
   /** Memory subsystem specification. */
-  private final MmuSpecification memory;
+  private final MmuSubsystem memory;
   /** Supported data types, i.e. sizes of data blocks accessed by load/store instructions. */
   private final DataType[] dataTypes;
   /** Data type randomization option. */
@@ -91,8 +92,6 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
   /** Number of execution paths in a template. */
   private final int numberOfExecutions;
-  /** Execution path classifier. */
-  private final ExecutionPathClassifier executionPathClassifier;
 
   /** Array of indices in the data types array. */
   private final int[] dataTypeIndices;
@@ -103,8 +102,6 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
   /** The executions paths. */
   private final List<Set<ExecutionPath>> allExecutionClasses = new ArrayList<>();
-  /** The current test template. */
-  private AbstractSequence template;
 
   /** The list of executions. */
   private List<ExecutionPath> templateExecutions = new ArrayList<>();
@@ -132,24 +129,30 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
    * @throws IllegalArgumentException if some parameters are null.
    */
   public AbstractSequenceIterator(
-      final MmuSpecification memory,
+      final MmuSubsystem memory,
       final DataType[] dataTypes,
       final boolean randomDataType,
       final int numberOfExecutions,
-      final ExecutionPathClassifier executionPathClassifier) {
+      final Classifier<ExecutionPath> classifier) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(dataTypes);
-    InvariantChecks.checkNotNull(executionPathClassifier);
+    InvariantChecks.checkNotNull(classifier);
  
     this.memory = memory;
     this.dataTypes = dataTypes;
     this.randomDataType = randomDataType;
     this.numberOfExecutions = numberOfExecutions;
-    this.executionPathClassifier = executionPathClassifier;
 
     this.dataTypeIndices = new int[numberOfExecutions];
     this.executionPathIndices = new int[numberOfExecutions];
     this.dependencyIndices = new int[numberOfExecutions][numberOfExecutions];
+
+    final List<ExecutionPath> executionPaths = CoverageExtractor.get().getCoverage(memory);
+    final List<Set<ExecutionPath>> executionClasses = classifier.classify(executionPaths);
+
+    for (final Set<ExecutionPath> executionClass : executionClasses) {
+      this.allExecutionClasses.add(executionClass);
+    }
 
     init();
   }
@@ -299,16 +302,6 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
     wholeTemplateFilterBuilder.addFilterBuilder(ADVANCED_FILTERS);
     this.wholeTemplateFilter = wholeTemplateFilterBuilder.build();
 
-    allExecutionClasses.clear();
-
-    final List<ExecutionPath> executionPaths = CoverageExtractor.get().getCoverage(memory);
-    final List<Set<ExecutionPath>> executionPathClasses =
-        executionPathClassifier.unifyExecutions(executionPaths);
-
-    for (final Set<ExecutionPath> unifyExecution : executionPathClasses) {
-      this.allExecutionClasses.add(unifyExecution);
-    }
-
     Arrays.fill(dataTypeIndices, 0);
     Arrays.fill(executionPathIndices, 0);
 
@@ -318,12 +311,8 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
     // TODO:
     setDataTypes();
-    this.template = new AbstractSequence(memory, templateExecutions, templateDependencies);
 
-    // Check template.
-    final AbstractSequenceChecker checker = new AbstractSequenceChecker(template, wholeTemplateFilter);
-
-    if (!checker.check()) {
+    if (!checkAbstractSequence()) {
       step();
     }
   }
@@ -335,7 +324,7 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
   @Override
   public AbstractSequence value() {
-    return template;
+    return new AbstractSequence(memory, templateExecutions, templateDependencies);
   }
 
   // TODO:
@@ -354,8 +343,6 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
         if (dataTypeIndices[i] < dataTypes.length - 1) {
           dataTypeIndices[i]++;
           setDataTypes();
-          this.template = new AbstractSequence(memory, templateExecutions, templateDependencies);
-
           return;
         }
 
@@ -379,11 +366,8 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
     // TODO:
     setDataTypes();
-    this.template = new AbstractSequence(memory, templateExecutions, templateDependencies);
 
-    AbstractSequenceChecker checker = new AbstractSequenceChecker(template, wholeTemplateFilter);
-
-    while (!checker.check() && hasNext) {
+    while (!checkAbstractSequence() && hasNext) {
       if (!nextDependencies()) {
         nextExecution();
       } else {
@@ -392,8 +376,6 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
       // TODO:
       setDataTypes();
-      this.template = new AbstractSequence(memory, templateExecutions, templateDependencies);
-      checker = new AbstractSequenceChecker(template, wholeTemplateFilter);
     }
   }
 
@@ -423,7 +405,6 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
       if (!assignDependency()) {
         return false;
       }
-      this.template = new AbstractSequence(memory, templateExecutions, templateDependencies);
     }
     return true;
   }
@@ -537,6 +518,15 @@ public final class AbstractSequenceIterator implements Iterator<AbstractSequence
 
     assignRecentDependencies();
     return true;
+  }
+
+  private boolean checkAbstractSequence() {
+    final AbstractSequence abstractSequence =
+        new AbstractSequence(memory, templateExecutions, templateDependencies);
+    final AbstractSequenceChecker abstractSequenceChecker =
+        new AbstractSequenceChecker(abstractSequence, wholeTemplateFilter);
+
+    return abstractSequenceChecker.check();
   }
 
   // -----------------------------------------------------------------------------------------------

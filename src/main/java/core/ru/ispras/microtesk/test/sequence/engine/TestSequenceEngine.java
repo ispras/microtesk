@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 import ru.ispras.microtesk.test.template.Call;
 
 /**

@@ -23,6 +23,13 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.IntegerClause;
+import ru.ispras.microtesk.basis.solver.IntegerField;
+import ru.ispras.microtesk.basis.solver.IntegerFormula;
+import ru.ispras.microtesk.basis.solver.IntegerFormulaSolver;
+import ru.ispras.microtesk.basis.solver.IntegerRange;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.translator.coverage.Dependency;
 import ru.ispras.microtesk.mmu.translator.coverage.ExecutionPath;
 import ru.ispras.microtesk.mmu.translator.coverage.Hazard;
@@ -33,16 +40,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEquality;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSpecification;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
-import ru.ispras.microtesk.test.sequence.solver.IntegerClause;
-import ru.ispras.microtesk.test.sequence.solver.IntegerField;
-import ru.ispras.microtesk.test.sequence.solver.IntegerFormula;
-import ru.ispras.microtesk.test.sequence.solver.IntegerFormulaSolver;
-import ru.ispras.microtesk.test.sequence.solver.IntegerRange;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
-import ru.ispras.microtesk.test.sequence.solver.SolverResult;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
@@ -109,7 +109,7 @@ public final class AbstractSequenceChecker {
    * @param filter the template filter.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public AbstractSequenceChecker(final MmuSpecification memory, final ExecutionPath execution1,
+  public AbstractSequenceChecker(final MmuSubsystem memory, final ExecutionPath execution1,
       final ExecutionPath execution2, final Dependency dependency, final Predicate<AbstractSequence> filter) {
     InvariantChecks.checkNotNull(execution1);
     InvariantChecks.checkNotNull(execution2);

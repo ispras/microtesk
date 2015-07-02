@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.solver.IntegerField;
+import ru.ispras.microtesk.basis.solver.IntegerField;
 
 /**
  * {@link MmuAction} describes an action, which is a named set of assignments.

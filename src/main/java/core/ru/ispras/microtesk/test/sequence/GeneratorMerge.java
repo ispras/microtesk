@@ -17,10 +17,10 @@ package ru.ispras.microtesk.test.sequence;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.microtesk.basis.iterator.CollectionIterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
-import ru.ispras.microtesk.test.sequence.iterator.CollectionIterator;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
 
 /**
  * This class implements the test sequence generator.

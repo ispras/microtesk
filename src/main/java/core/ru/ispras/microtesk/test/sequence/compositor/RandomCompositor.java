@@ -19,8 +19,8 @@ import java.util.List;
 
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBiased;
-import ru.ispras.microtesk.test.sequence.iterator.BoundedIterator;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.BoundedIterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 
 /**
  * This class implements the random composition (merging) of iterators.

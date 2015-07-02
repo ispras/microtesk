@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.solver;
+package ru.ispras.microtesk.basis.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -21,63 +21,73 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link IntegerFormula} represents a formula, which is a set of clauses
- * (objects of {@link IntegerClause}).
+ * {@link IntegerClause} represents a clause, which is a set of OR- or AND-connected
+ * equations (objects of {@link IntegerEquation}).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerFormula {
-  /** AND-connected clauses of the OR type. */
-  private final List<IntegerClause> clauses = new ArrayList<>();
+public final class IntegerClause {
 
   /**
-   * Constructs the equation formula.
+   * This enumeration contains equation clause types.
    */
-  public IntegerFormula() {
-    // Do nothing.
+  public static enum Type {
+    /** Conjunction. */
+    AND,
+    /** Disjunction. */
+    OR
+  };
+
+  /** The equation clause type: {@code AND} or {@code OR}. */
+  private final Type type;
+  /** The equations. */
+  private final List<IntegerEquation> equations = new ArrayList<>();
+
+  /**
+   * Constructs an equation clause of the given type
+   * 
+   * @param type the equation clause type.
+   * @throws IllegalArgumentException if {@code type} is null.
+   */
+  public IntegerClause(final Type type) {
+    InvariantChecks.checkNotNull(type);
+
+    this.type = type;
   }
 
   /**
-   * Constructs a copy of the equation formula.
+   * Constructs a copy of the equation clause.
    * 
-   * @param rhs the equation formula to be copied.
+   * @param rhs the equation clause to be copied.
    * @throws IllegalArgumentException if {@code rhs} is null.
    */
-  public IntegerFormula(final IntegerFormula rhs) {
+  public IntegerClause(final IntegerClause rhs) {
     InvariantChecks.checkNotNull(rhs);
 
-    this.clauses.addAll(rhs.clauses);
+    this.type = rhs.type;
+    this.equations.addAll(rhs.equations);
   }
 
   /**
-   * Returns the number of clauses in the equation formula.
+   * Returns the type of the equation clause.
    * 
-   * @return the size of the equation formula.
+   * @return the equation clause type.
+   */
+  public Type getType() {
+    return type;
+  }
+
+  /**
+   * Returns the number of equations in the equation clause.
+   * 
+   * @return the size of the equation clause.
    */
   public int size() {
-    return clauses.size();
+    return equations.size();
   }
 
   /**
-   * Adds the equation clause to the equation formula.
-   * 
-   * @param clause the equation clause to be added.
-   * @throws IllegalArgumentException if {@code clause} is null.
-   */
-  public void addEquationClause(final IntegerClause clause) {
-    InvariantChecks.checkNotNull(clause);
-
-    if (clause.getType() == IntegerClause.Type.OR) {
-      clauses.add(clause);
-    } else {
-      for (final IntegerEquation equation : clause.getEquations()) {
-        addEquation(equation);
-      }
-    }
-  }
-
-  /**
-   * Adds the equation to the equation formula.
+   * Adds the equation to the equation clause.
    * 
    * @param equation the equation to be added.
    * @throws IllegalArgumentException if {@code equation} is null.
@@ -85,14 +95,11 @@ public final class IntegerFormula {
   public void addEquation(final IntegerEquation equation) {
     InvariantChecks.checkNotNull(equation);
 
-    final IntegerClause clause = new IntegerClause(IntegerClause.Type.AND);
-    clause.addEquation(equation);
-
-    clauses.add(clause);
+    equations.add(equation);
   }
 
   /**
-   * Adds the equality {@code lhs == rhs} or inequality {@code lhs != rhs} to the equation formula.
+   * Adds the equality {@code lhs == rhs} or inequality {@code lhs != rhs} to the equation clause.
    * 
    * @param lhs the left-hand-side variable.
    * @param rhs the right-hand-side variable.
@@ -105,7 +112,7 @@ public final class IntegerFormula {
   }
 
   /**
-   * Adds the equality {@code var == val} or inequality {@code var != val} to the equation formula.
+   * Adds the equality {@code var == val} or inequality {@code var != val} to the equation clause.
    * 
    * @param var the left-hand-side variable.
    * @param val the right-hand-side value.
@@ -117,12 +124,24 @@ public final class IntegerFormula {
   }
 
   /**
-   * Returns the equation clauses of the set.
+   * Adds the equations of the given equation clause to this clause.
    * 
-   * @return the equation clauses.
+   * @param clause the clause whose equations to be added.
+   * @throws IllegalArgumentException if {@code clause} is null.
    */
-  public List<IntegerClause> getEquationClauses() {
-    return clauses;
+  public void addEquationClause(final IntegerClause clause) {
+    InvariantChecks.checkNotNull(clause);
+
+    equations.addAll(clause.getEquations());
+  }
+
+  /**
+   * Returns the equations of the set.
+   * 
+   * @return the equations.
+   */
+  public List<IntegerEquation> getEquations() {
+    return equations;
   }
 
   @Override
@@ -131,22 +150,22 @@ public final class IntegerFormula {
       return true;
     }
 
-    if (o == null || !(o instanceof IntegerFormula)) {
+    if (o == null || !(o instanceof IntegerClause)) {
       return false;
     }
 
-    final IntegerFormula r = (IntegerFormula) o;
+    final IntegerClause r = (IntegerClause) o;
 
-    return clauses.equals(r.clauses);
+    return equations.equals(r.equations);
   }
 
   @Override
   public int hashCode() {
-    return clauses.hashCode();
+    return equations.hashCode();
   }
 
   @Override
   public String toString() {
-    return clauses.toString();
+    return equations.toString();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2008-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,34 +12,32 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.iterator;
+package ru.ispras.microtesk.basis.iterator;
 
 /**
- * This class implements an array iterator.
+ * {@link SingleValueIterator} implements a single-value iterator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class ArrayIterator<T> implements BoundedIterator<T> {
-  /** The iterated array. */
-  private T[] array;
-  /** The current index. */
-  private int index;
+public class SingleValueIterator<T> implements BoundedIterator<T> {
+  /** The value itself. */
+  private final T value;
+
   /** The flag that refrects availability of the value. */
   private boolean hasValue;
 
   /**
-   * Constructs an array iterator.
+   * Constructs a single-value iterator.
    * 
-   * @param array the array to be iterated.
+   * @param value the value to be returned by the iterator.
    */
-  public ArrayIterator(final T[] array) {
-    this.array = array;
+  public SingleValueIterator(T value) {
+    this.value = value;
   }
 
   @Override
   public void init() {
-    index = 0;
-    hasValue = (array != null && array.length > 0);
+    hasValue = true;
   }
 
   @Override
@@ -49,20 +47,16 @@ public class ArrayIterator<T> implements BoundedIterator<T> {
 
   @Override
   public T value() {
-    return array[index];
+    return value;
   }
 
   @Override
   public void next() {
-    if (index == array.length - 1) {
-      hasValue = false;
-    } else {
-      index++;
-    }
+    hasValue = false;
   }
 
   @Override
   public int size() {
-    return array.length;
+    return 1;
   }
 }

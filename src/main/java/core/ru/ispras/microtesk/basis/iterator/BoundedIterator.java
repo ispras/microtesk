@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,10 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.iterator;
+package ru.ispras.microtesk.basis.iterator;
 
 /**
- * This is a generic bounded iterator interface.
+ * {@link BoundedIterator} a generic bounded iterator interface.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -25,5 +25,5 @@ public interface BoundedIterator<T> extends Iterator<T> {
    * 
    * @return the number of items being iterated.
    */
-  public int size();
+  int size();
 }

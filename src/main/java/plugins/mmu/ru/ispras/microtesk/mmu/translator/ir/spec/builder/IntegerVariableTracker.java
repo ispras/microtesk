@@ -19,9 +19,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 
 final class IntegerVariableTracker {
   public static enum Status {

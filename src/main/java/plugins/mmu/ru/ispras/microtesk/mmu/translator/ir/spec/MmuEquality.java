@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
  * {@link MmuEquality} class describes an equality/inequality.

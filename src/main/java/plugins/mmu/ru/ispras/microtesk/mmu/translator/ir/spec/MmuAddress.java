@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
  * {@link MmuAddress} describes an address, i.e. a parameter used to access a buffer.

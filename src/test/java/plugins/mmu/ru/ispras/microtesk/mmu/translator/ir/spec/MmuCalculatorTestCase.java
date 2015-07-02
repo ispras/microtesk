@@ -20,10 +20,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.microtesk.basis.solver.IntegerField;
+import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
-import ru.ispras.microtesk.test.sequence.solver.IntegerField;
-import ru.ispras.microtesk.test.sequence.solver.IntegerVariable;
 
 /**
  * Test for {@link MmuCalculator}.

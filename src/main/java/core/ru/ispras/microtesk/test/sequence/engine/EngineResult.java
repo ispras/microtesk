@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.Result;
-import ru.ispras.microtesk.test.sequence.iterator.Iterator;
+import ru.ispras.microtesk.basis.iterator.Iterator;
 
 /**
  * {@link EngineResult} defines result of a {@link Engine}.

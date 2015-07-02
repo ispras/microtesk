@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,12 +12,17 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence;
+package ru.ispras.microtesk.basis;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
-import ru.ispras.microtesk.basis.iterator.Iterator;
-
-public interface Generator<T> extends Iterator<List<T>> {
-
+/**
+ * {@link Classifier} is an interface for object classification policies.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ */
+public interface Classifier<T> {
+  List<Set<T>> classify(Collection<T> executionPaths);
 }

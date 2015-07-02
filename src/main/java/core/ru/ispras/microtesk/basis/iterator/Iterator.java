@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2008-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,31 +12,31 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.iterator;
+package ru.ispras.microtesk.basis.iterator;
 
 /**
- * This is a generic iterator interface.
+ * {@link Iterator} a generic iterator interface.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Iterator<T> {
   /** Initializes the iterator. */
-  public void init();
+  void init();
 
   /**
    * Checks whether the iterator is not exhausted (value is available).
    * 
-   * @return <code>true</code> if the iterator is not exhausted; <code>false</code> otherwise.
+   * @return {@code true} if the iterator is not exhausted; {@code false} otherwise.
    */
-  public boolean hasValue();
+  boolean hasValue();
 
   /**
    * Returns the current value of the iterator.
    * 
-   * @return the current value of the iterator.
+   * @return the current value.
    */
-  public T value();
+  T value();
 
-  /** Makes the iteration. */
-  public void next();
+  /** Makes an iteration. */
+  void next();
 }
