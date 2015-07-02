@@ -57,6 +57,7 @@ public final class Template {
   private PreparatorBuilder preparatorBuilder;
   private StreamPreparatorBuilder streamPreparatorBuilder;
   private ExceptionHandlerBuilder exceptionHandlerBuilder;
+  private boolean isExceptionHandlerDefined;
 
   private Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
@@ -88,6 +89,7 @@ public final class Template {
     this.preparatorBuilder = null;
     this.streamPreparatorBuilder = null;
     this.exceptionHandlerBuilder = null;
+    this.isExceptionHandlerDefined = false;
 
     this.blockBuilders = null;
     this.callBuilder = null;
@@ -575,6 +577,10 @@ public final class Template {
     endBuildingCall();
     Logger.debug("Begin exception handler");
 
+    if (isExceptionHandlerDefined) {
+      throw new IllegalStateException("Exception handler is already defined.");
+    }
+
     checkTrue(null == preparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
@@ -588,5 +594,7 @@ public final class Template {
 
     exceptionHandlerBuilder.build();
     exceptionHandlerBuilder = null;
+
+    isExceptionHandlerDefined = true;
   }
 }
