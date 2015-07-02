@@ -402,11 +402,10 @@ public final class DataManager {
     try {
       writer = printer.newFileWriter(fileName);
       writer.println();
-      printer.printCommentToFile(writer,
-          String.format("0x%s", bvAddress.toHexString()));
+      writer.println(".globl " + label);
+      printer.printCommentToFile(writer, String.format("0x%s", bvAddress.toHexString()));
       writer.println(label + ":");
 
-      
       try {
         for (int index = 0; index < length; index++) {
           final BitVector data = dataGenerator.nextData();
