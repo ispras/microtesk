@@ -16,7 +16,9 @@ package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -96,11 +98,15 @@ final class Executor {
       final List<ConcreteCall> sequence, final int sequenceIndex) throws ConfigurationException {
     checkNotNull(sequence);
 
-    // Remembers all labels defined by the sequence and its positions.
+    // Remembers all labels defined by the sequence and their positions.
     final LabelManager labelManager = new LabelManager();
+    // Call address is mapped to its index in the sequence.
+    final Map<Long, Integer> addressMap = new HashMap<>(sequence.size());
+
     for (int index = 0; index < sequence.size(); ++index) {
       final ConcreteCall call = sequence.get(index);
       labelManager.addAllLabels(call.getLabels(), index, sequenceIndex);
+      addressMap.put(call.getAddress(), index);
     }
 
     // Resolves all label references and patches the instruction call text accordingly.
@@ -151,7 +157,7 @@ final class Executor {
             call.getText(), branchExecutionLimit));
       }
 
-      currentPos = executeCall(call, currentPos);
+      currentPos = executeCall(call, currentPos, addressMap);
     }
   }
 
@@ -164,14 +170,19 @@ final class Executor {
    * 
    * @param call Instruction call to be executed.
    * @param currentPos Position of the current call.
+   * @param addressMap Map of addresses that stores correspondences
+   *        between addresses and instruction indexes in the sequence.
    * @return Position of the next instruction call to be executed.
    * 
    * @throws ConfigurationException if failed to evaluate an Output object associated with the
    *         instruction call.
    */
 
-  private int executeCall(final ConcreteCall call, final int currentPos)
-      throws ConfigurationException {
+  private int executeCall(
+      final ConcreteCall call,
+      final int currentPos,
+      final Map<Long, Integer> addressMap) throws ConfigurationException {
+
     logOutputs(call.getOutputs());
     logLabels(call.getLabels());
 
@@ -188,6 +199,8 @@ final class Executor {
     if (logPrinter != null) {
       logPrinter.addRecord(Record.newInstruction(call));
     }
+
+    // TODO: Use the address map to determine the jump target.
 
     // Saves labels to jump in case there is a branch delay slot.
     if (!call.getLabelReferences().isEmpty()) {
