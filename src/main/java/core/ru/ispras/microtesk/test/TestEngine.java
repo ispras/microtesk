@@ -115,6 +115,7 @@ public final class TestEngine {
   private static String codeFilePrefix = "test";
   private static String dataFileExtension = ".dat";
   private static String dataFilePrefix = codeFilePrefix;
+  private static String exceptionFilePrefix = codeFilePrefix + "_except"; 
   private static int programLengthLimit = 1000;
   private static int traceLengthLimit = 1000;
   private static boolean commentsDebug = false;
@@ -164,6 +165,10 @@ public final class TestEngine {
 
   public static void setDataFilePrefix(final String value) {
     dataFilePrefix = value;
+  }
+
+  public static void setExceptionFilePrefix(final String value) {
+    exceptionFilePrefix = value;
   }
 
   public static void setProgramLengthLimit(final int value) {

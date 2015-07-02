@@ -197,6 +197,12 @@ public final class MicroTESK {
       reportUndefinedOption(Parameters.DATA_PRE);
     }
 
+    if (params.hasOption(Parameters.EXCEPT_PRE)) {
+      TestEngine.setExceptionFilePrefix(params.getOptionValue(Parameters.EXCEPT_PRE));
+    } else {
+      reportUndefinedOption(Parameters.EXCEPT_PRE);
+    }
+
     if (params.hasOption(Parameters.CODE_LIMIT)) {
       final int programLengthLimit = params.getOptionValueAsInt(Parameters.CODE_LIMIT);
       TestEngine.setProgramLengthLimit(programLengthLimit);
