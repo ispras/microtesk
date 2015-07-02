@@ -162,6 +162,18 @@ public final class Printer {
     printCalls(sequence.getBody());
   }
 
+  public void printSequence(
+      final PrintWriter writer, final TestSequence sequence) throws ConfigurationException {
+    final PrintWriter tempWriter = fileWritter;
+    fileWritter = writer;
+
+    try {
+      printSequence(sequence);
+    } finally {
+      fileWritter = tempWriter;
+    }
+  }
+
   /**
    * Prints the specified list of calls (all attributes applicable at generation time).
    * 
