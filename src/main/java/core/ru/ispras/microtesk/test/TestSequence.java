@@ -115,6 +115,15 @@ public final class TestSequence {
     return body;
   }
 
+  public List<ConcreteCall> getAll() {
+    final List<ConcreteCall> result = new ArrayList<>(prologue.size() + body.size());
+
+    result.addAll(prologue);
+    result.addAll(body);
+
+    return Collections.unmodifiableList(result);
+  }
+
   public int getByteSize() {
     return byteSize;
   }
