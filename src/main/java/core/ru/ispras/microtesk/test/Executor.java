@@ -209,6 +209,11 @@ final class Executor {
     }
 
     if (null != exception) {
+      if (exceptionHandlers == null) {
+        Logger.error("No exception handlers are defined. " + MSG_HAVE_TO_CONTINUE);
+        return currentPos + 1;
+      }
+
       final List<ConcreteCall> handlerSequence = exceptionHandlers.get(exception);
       if (handlerSequence == null) {
         Logger.error("Exception handler for %s is not found. " + 
