@@ -692,7 +692,8 @@ public final class TestEngine {
 
       final PrintWriter fileWriter;
       try {
-        fileWriter = printer.newFileWriter(exceptionFileName);
+        final String exceptionFileNameAbsolute = new File(exceptionFileName).getAbsolutePath();
+        fileWriter = printer.newFileWriter(exceptionFileNameAbsolute);
       } catch (final IOException e) {
         throw new GenerationAbortedException(String.format(
             "Failed to create the %s file. Reason: %s", exceptionFileName, e.getMessage()));
