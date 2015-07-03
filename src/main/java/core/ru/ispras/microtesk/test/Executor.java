@@ -201,11 +201,22 @@ final class Executor {
     }
 
     logText(call.getText());
-    call.execute();
-    TestEngine.STATISTICS.instructionExecutedCount++;
+    final String exception = call.execute();
 
+    TestEngine.STATISTICS.instructionExecutedCount++;
     if (logPrinter != null) {
       logPrinter.addRecord(Record.newInstruction(call));
+    }
+
+    if (null != exception) {
+      final List<ConcreteCall> handlerSequence = exceptionHandlers.get(exception);
+      if (handlerSequence == null) {
+        Logger.error("Exception handler for %s is not found. " + 
+            MSG_HAVE_TO_CONTINUE, exception);
+        return currentPos + 1;
+      }
+
+      Logger.debug("Run exception handler for %s.", exception);
     }
 
     // TODO: Use the address map to determine the jump target.

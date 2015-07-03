@@ -19,6 +19,7 @@ import ru.ispras.microtesk.Logger;
 public abstract class StandardFunctions {
   public static void exception(final String text) {
     Logger.debug("Exception was raised: " + text);
+    throw new IsaException(text);
   }
 
   public static void trace(final String format, Object ... args) {

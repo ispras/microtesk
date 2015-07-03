@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.instruction.IsaException;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public final class ConcreteCall {
@@ -78,11 +79,24 @@ public final class ConcreteCall {
     return null != executable;
   }
 
-  public void execute() {
-    if (isExecutable()) {
-      executable.execute();
-      ++executionCount;
+  /**
+   * Returns exception name if was interrupted.
+   * @return exception name if was interrupted.
+   */
+
+  public String execute() {
+    if (!isExecutable()) {
+      return null;
     }
+
+    try {
+      executable.execute();
+    } catch (final IsaException e) {
+      return e.getMessage();
+    }
+
+    ++executionCount;
+    return null;
   }
 
   public int getExecutionCount() {
