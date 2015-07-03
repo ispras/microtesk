@@ -37,6 +37,12 @@ public final class LabelValue {
   private Label label;
   private BigInteger address;
 
+  public LabelValue(final LabelValue other) {
+    InvariantChecks.checkNotNull(other);
+    this.label = other.label;
+    this.address = other.address;
+  }
+
   private LabelValue(final Label label, final BigInteger address) {
     this.label = label;
     this.address = address;
