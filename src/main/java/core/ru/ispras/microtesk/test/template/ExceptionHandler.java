@@ -15,44 +15,61 @@
 package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class ExceptionHandler {
 
   public static final class Section {
+    private final String exceptionType;
     private final BigInteger address;
     private final List<Call> calls;
 
-    protected Section(final BigInteger address, final List<Call> calls) {
+    protected Section(
+        final String exceptionType,
+        final BigInteger address,
+        final List<Call> calls) {
+      InvariantChecks.checkNotNull(exceptionType);
       InvariantChecks.checkNotNull(address);
       InvariantChecks.checkGreaterThan(address, BigInteger.ZERO);
       InvariantChecks.checkNotNull(calls);
 
+      this.exceptionType = exceptionType;
       this.address = address;
       this.calls = Collections.unmodifiableList(calls);
     }
 
-    public List<Call> getCalls() {
-      return calls;
+    public String getExceptionType() {
+      return exceptionType;
     }
 
     public BigInteger getAddress() {
       return address;
     }
+
+    public List<Call> getCalls() {
+      return calls;
+    }
   }
 
-  private final List<Section> sections;
+  private final Map<String, Section> sections;
 
-  protected ExceptionHandler(final List<Section> sections) {
+  protected ExceptionHandler(final Map<String, Section> sections) {
     InvariantChecks.checkNotNull(sections);
-    this.sections = Collections.unmodifiableList(sections);
+    this.sections = Collections.unmodifiableMap(sections);
   }
 
-  public List<Section> getSections() {
-    return sections;
+  public Section getSection(final String exceptionType) {
+    InvariantChecks.checkNotNull(exceptionType);
+    return sections.get(0);
+  }
+
+  public Collection<Section> getSections() {
+    return sections.values();
   }
 
   public int getSectionCount() {

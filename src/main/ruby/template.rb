@@ -728,8 +728,10 @@ class ExceptionHandler
   end
 
   def org(attrs = {}, &contents)
+    exctype = get_attribute attrs, :exception_type
     addr = get_attribute attrs, :address
-    @builder.beginSection addr
+
+    @builder.beginSection exctype, addr
     @context.instance_eval &contents
     @builder.endSection
   end

@@ -20,18 +20,22 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
 
 public final class ExceptionHandlerBuilder {
-  private final List<ExceptionHandler.Section> sections;
+  private final Map<String, ExceptionHandler.Section> sections;
 
+  private String exceptionType; 
   private BigInteger address;
   private List<Call> calls;
 
   public ExceptionHandlerBuilder() {
-    this.sections = new ArrayList<>();
+    this.sections = new LinkedHashMap<>();
+    this.exceptionType = null;
     this.address = null;
     this.calls = null;
   }
@@ -43,18 +47,24 @@ public final class ExceptionHandlerBuilder {
 
     Logger.debug("Exception handler: %s at 0x%x", exceptionType, address);
 
+    checkTrue(this.exceptionType == null);
     checkTrue(this.address == null);
     checkTrue(this.calls == null);
 
+    this.exceptionType = exceptionType;
     this.address = address;
     this.calls = new ArrayList<>();
   }
 
   public void endSection() {
-    checkNotNull(address);
-    checkNotNull(calls);
+    final ExceptionHandler.Section section =
+        new ExceptionHandler.Section(exceptionType, address, calls);
 
-    this.sections.add(new ExceptionHandler.Section(address, calls));
+    if (null != this.sections.put(section.getExceptionType(), section)) {
+      Logger.error("Handler for exception type %s is redefined.", exceptionType);
+    }
+
+    this.exceptionType = null;
     this.address = null;
     this.calls = null;
   }
@@ -65,6 +75,7 @@ public final class ExceptionHandlerBuilder {
   }
 
   public ExceptionHandler build() {
+    checkTrue(this.exceptionType == null);
     checkTrue(this.address == null);
     checkTrue(this.calls == null);
 
