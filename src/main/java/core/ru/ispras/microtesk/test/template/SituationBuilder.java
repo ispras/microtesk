@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.template;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Variate;
@@ -23,27 +24,32 @@ public final class SituationBuilder {
   private final String name;
   private Map<String, Object> attributes;
 
-  SituationBuilder(String name) {
+  SituationBuilder(final String name) {
     this.name = name;
     this.attributes = null;
   }
 
-  public SituationBuilder setAttribute(String attrName, int value) {
+  public SituationBuilder setAttribute(final String attrName, final int value) {
     setAttributeCommon(attrName, value);
     return this;
   }
 
-  public SituationBuilder setAttribute(String attrName, String value) {
+  public SituationBuilder setAttribute(final String attrName, final String value) {
     setAttributeCommon(attrName, value);
     return this;
   }
 
-  public SituationBuilder setAttribute(String attrName, Variate<?> value) {
+  public SituationBuilder setAttribute(final String attrName, final List<String> value) {
     setAttributeCommon(attrName, value);
     return this;
   }
 
-  private void setAttributeCommon(String attrName, Object value) {
+  public SituationBuilder setAttribute(final String attrName, final Variate<?> value) {
+    setAttributeCommon(attrName, value);
+    return this;
+  }
+
+  private void setAttributeCommon(final String attrName, final Object value) {
     if (null == attributes) {
       attributes = new LinkedHashMap<String, Object>();
     }
