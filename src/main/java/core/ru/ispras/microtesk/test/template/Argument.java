@@ -24,12 +24,6 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Argument {
   public static enum Kind {
-    /*
-    LABEL (LabelValue.class, true) {
-      @Override protected Object copy(Object value) {
-        return new LabelValue((LabelValue) value);
-      }
-    },*/
 
     IMM (BigInteger.class, true) {
       @Override protected Object copy(Object value) {
@@ -52,6 +46,12 @@ public final class Argument {
     IMM_LAZY (LazyValue.class, true) {
       @Override protected Object copy(final Object value) {
         return new LazyValue((LazyValue) value);
+      }
+    },
+
+    LABEL (LabelValue.class, true) {
+      @Override protected Object copy(Object value) {
+        return new LabelValue((LabelValue) value);
       }
     },
 

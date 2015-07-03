@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.template;
 import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class LabelValue {
+public final class LabelValue implements Value {
 
   protected static LabelValue newLazy() {
     return new LabelValue(null, null);
@@ -80,5 +80,10 @@ public final class LabelValue {
 
   public boolean hasAddress() {
     return address != null;
+  }
+
+  @Override
+  public BigInteger getValue() {
+    return getAddress();
   }
 }
