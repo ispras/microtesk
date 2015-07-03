@@ -29,42 +29,42 @@ import ru.ispras.microtesk.Logger;
 public final class ExceptionHandlerBuilder {
   private final Map<String, ExceptionHandler.Section> sections;
 
-  private String exceptionType; 
+  private String exception; 
   private BigInteger address;
   private List<Call> calls;
 
   public ExceptionHandlerBuilder() {
     this.sections = new LinkedHashMap<>();
-    this.exceptionType = null;
+    this.exception = null;
     this.address = null;
     this.calls = null;
   }
 
-  public void beginSection(final String exceptionType, final BigInteger address) {
-    checkNotNull(exceptionType);
+  public void beginSection(final String exception, final BigInteger address) {
+    checkNotNull(exception);
     checkNotNull(address);
     checkGreaterThan(address, BigInteger.ZERO);
 
-    Logger.debug("Exception handler: %s at 0x%x", exceptionType, address);
+    Logger.debug("Exception handler: %s at 0x%x", exception, address);
 
-    checkTrue(this.exceptionType == null);
+    checkTrue(this.exception == null);
     checkTrue(this.address == null);
     checkTrue(this.calls == null);
 
-    this.exceptionType = exceptionType;
+    this.exception = exception;
     this.address = address;
     this.calls = new ArrayList<>();
   }
 
   public void endSection() {
     final ExceptionHandler.Section section =
-        new ExceptionHandler.Section(exceptionType, address, calls);
+        new ExceptionHandler.Section(exception, address, calls);
 
-    if (null != this.sections.put(section.getExceptionType(), section)) {
-      Logger.error("Handler for exception type %s is redefined.", exceptionType);
+    if (null != this.sections.put(section.getException(), section)) {
+      Logger.error("Handler for exception %s is redefined.", exception);
     }
 
-    this.exceptionType = null;
+    this.exception = null;
     this.address = null;
     this.calls = null;
   }
@@ -75,7 +75,7 @@ public final class ExceptionHandlerBuilder {
   }
 
   public ExceptionHandler build() {
-    checkTrue(this.exceptionType == null);
+    checkTrue(this.exception == null);
     checkTrue(this.address == null);
     checkTrue(this.calls == null);
 

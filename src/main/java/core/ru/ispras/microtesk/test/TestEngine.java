@@ -728,7 +728,7 @@ public final class TestEngine {
 
           final long address = section.getAddress().longValue();
           concreteSequence.setAddress(address);
-          handlers.put(section.getExceptionType(), concreteSequence.getAll());
+          handlers.put(section.getException(), concreteSequence.getAll());
 
           try {
             fileWriter.println();

@@ -25,26 +25,26 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class ExceptionHandler {
 
   public static final class Section {
-    private final String exceptionType;
+    private final String exception;
     private final BigInteger address;
     private final List<Call> calls;
 
     protected Section(
-        final String exceptionType,
+        final String exception,
         final BigInteger address,
         final List<Call> calls) {
-      InvariantChecks.checkNotNull(exceptionType);
+      InvariantChecks.checkNotNull(exception);
       InvariantChecks.checkNotNull(address);
       InvariantChecks.checkGreaterThan(address, BigInteger.ZERO);
       InvariantChecks.checkNotNull(calls);
 
-      this.exceptionType = exceptionType;
+      this.exception = exception;
       this.address = address;
       this.calls = Collections.unmodifiableList(calls);
     }
 
-    public String getExceptionType() {
-      return exceptionType;
+    public String getException() {
+      return exception;
     }
 
     public BigInteger getAddress() {
@@ -63,8 +63,8 @@ public final class ExceptionHandler {
     this.sections = Collections.unmodifiableMap(sections);
   }
 
-  public Section getSection(final String exceptionType) {
-    InvariantChecks.checkNotNull(exceptionType);
+  public Section getSection(final String exception) {
+    InvariantChecks.checkNotNull(exception);
     return sections.get(0);
   }
 
