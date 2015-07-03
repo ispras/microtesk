@@ -25,6 +25,24 @@ require_relative 'minimips_base'
 #
 class IntExceptionTemplate < MiniMipsBaseTemplate
 
+  def pre
+    super
+
+    exception_handler {
+      section(:org => 0xBEEF, :exception => "IntegerOverflow") {
+        addi zero, zero, 0xDEAD
+        add zero, zero, zero
+        nop
+      }
+
+      section(:org => 0xDEAD, :exception => "SystemCall") {
+        add zero, zero, zero
+        nop
+        addi zero, zero, 0xBEEF
+      }
+    }
+  end
+
   def run
     block(:combinator => 'product', :compositor => 'random') {
       block {

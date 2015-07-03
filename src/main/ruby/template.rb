@@ -727,11 +727,11 @@ class ExceptionHandler
     @builder = builder
   end
 
-  def org(attrs = {}, &contents)
-    exctype = get_attribute attrs, :exception_type
-    addr = get_attribute attrs, :address
+  def section(attrs = {}, &contents)
+    org = get_attribute attrs, :org
+    exception = get_attribute attrs, :exception
 
-    @builder.beginSection exctype, addr
+    @builder.beginSection exception, org
     @context.instance_eval &contents
     @builder.endSection
   end
