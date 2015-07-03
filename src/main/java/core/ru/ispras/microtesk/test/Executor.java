@@ -216,7 +216,8 @@ final class Executor {
         return currentPos + 1;
       }
 
-      Logger.debug("Run exception handler for %s.", exception);
+      executeSequence(handlerSequence, Label.NO_SEQUENCE_INDEX);
+      return currentPos + 1;
     }
 
     // TODO: Use the address map to determine the jump target.

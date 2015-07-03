@@ -29,13 +29,15 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
     super
 
     exception_handler {
-      section(:org => 0xBEEF, :exception => "IntegerOverflow") {
+      section(:org => 0xBEEF, :exception => 'IntegerOverflow') {
+        trace 'Exception handler for [IntegerOverflow]'
         addi zero, zero, 0xDEAD
         add zero, zero, zero
         nop
       }
 
-      section(:org => 0xDEAD, :exception => ["SystemCall", "Breakpoint"]) {
+      section(:org => 0xDEAD, :exception => ['SystemCall', 'Breakpoint']) {
+        trace 'Exception handler for [SystemCall, Breakpoint]'
         add zero, zero, zero
         nop
         addi zero, zero, 0xBEEF
