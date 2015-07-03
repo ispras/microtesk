@@ -22,6 +22,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.microtesk.Logger;
+
 public final class ExceptionHandlerBuilder {
   private final List<ExceptionHandler.Section> sections;
 
@@ -34,9 +36,12 @@ public final class ExceptionHandlerBuilder {
     this.calls = null;
   }
 
-  public void beginSection(final BigInteger address) {
+  public void beginSection(final String exceptionType, final BigInteger address) {
+    checkNotNull(exceptionType);
     checkNotNull(address);
     checkGreaterThan(address, BigInteger.ZERO);
+
+    Logger.debug("Exception handler: %s at 0x%x", exceptionType, address);
 
     checkTrue(this.address == null);
     checkTrue(this.calls == null);
