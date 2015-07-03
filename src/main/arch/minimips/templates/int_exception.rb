@@ -46,13 +46,13 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
   def run
     block(:combinator => 'product', :compositor => 'random') {
       block {
-        add t0, t1, t2 do situation('add', :case =>   'normal', :size => 32) end
-        add t0, t1, t2 do situation('add', :case => 'overflow', :size => 32) end
+        add t0, t1, t2 do situation('normal') end
+        add t0, t1, t2 do situation('IntegerOverflow') end
       }
 
       block {
-        sub t3, t4, t5 do situation('sub', :case =>   'normal', :size => 32) end
-        sub t3, t4, t5 do situation('sub', :case => 'overflow', :size => 32) end
+        sub t3, t4, t5 do situation('normal') end
+        sub t3, t4, t5 do situation('IntegerOverflow') end
       }
     }
   end
