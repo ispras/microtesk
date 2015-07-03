@@ -728,11 +728,20 @@ public final class TestEngine {
 
           final long address = section.getAddress().longValue();
           concreteSequence.setAddress(address);
-          handlers.put(section.getException(), concreteSequence.getAll());
+
+          final List<ConcreteCall> handlerSequence = concreteSequence.getAll();
+          for (final String exception : section.getExceptions()) {
+            if (null != handlers.put(exception, handlerSequence)) {
+              Logger.warning("Exception handler for %s is redefined.", exception);
+            }
+          }
 
           try {
             fileWriter.println();
             Logger.debug("");
+
+            printer.printCommentToFile(fileWriter,
+                String.format("Exceptions: %s", section.getExceptions()));
 
             final String org = String.format(".org 0x%x", address);
             Logger.debug(org);

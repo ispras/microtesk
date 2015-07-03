@@ -15,40 +15,39 @@
 package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class ExceptionHandler {
 
   public static final class Section {
-    private final String exception;
     private final BigInteger address;
+    private final Set<String> exceptions;
     private final List<Call> calls;
 
     protected Section(
-        final String exception,
         final BigInteger address,
+        final Set<String> exceptions,
         final List<Call> calls) {
-      InvariantChecks.checkNotNull(exception);
+      InvariantChecks.checkNotNull(exceptions);
       InvariantChecks.checkNotNull(address);
       InvariantChecks.checkGreaterThan(address, BigInteger.ZERO);
       InvariantChecks.checkNotNull(calls);
 
-      this.exception = exception;
       this.address = address;
+      this.exceptions = Collections.unmodifiableSet(exceptions);
       this.calls = Collections.unmodifiableList(calls);
-    }
-
-    public String getException() {
-      return exception;
     }
 
     public BigInteger getAddress() {
       return address;
+    }
+
+    public Set<String> getExceptions() {
+      return exceptions;
     }
 
     public List<Call> getCalls() {
@@ -56,23 +55,14 @@ public final class ExceptionHandler {
     }
   }
 
-  private final Map<String, Section> sections;
+  private final List<Section> sections;
 
-  protected ExceptionHandler(final Map<String, Section> sections) {
+  protected ExceptionHandler(final List<Section> sections) {
     InvariantChecks.checkNotNull(sections);
-    this.sections = Collections.unmodifiableMap(sections);
+    this.sections = Collections.unmodifiableList(sections);
   }
 
-  public Section getSection(final String exception) {
-    InvariantChecks.checkNotNull(exception);
-    return sections.get(0);
-  }
-
-  public Collection<Section> getSections() {
-    return sections.values();
-  }
-
-  public int getSectionCount() {
-    return sections.size();
+  public List<Section> getSections() {
+    return sections;
   }
 }

@@ -35,7 +35,7 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
         nop
       }
 
-      section(:org => 0xDEAD, :exception => "SystemCall") {
+      section(:org => 0xDEAD, :exception => ["SystemCall", "Breakpoint"]) {
         add zero, zero, zero
         nop
         addi zero, zero, 0xBEEF

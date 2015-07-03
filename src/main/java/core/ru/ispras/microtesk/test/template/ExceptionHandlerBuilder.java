@@ -14,70 +14,72 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 
 public final class ExceptionHandlerBuilder {
-  private final Map<String, ExceptionHandler.Section> sections;
+  private final List<ExceptionHandler.Section> sections;
 
-  private String exception; 
   private BigInteger address;
+  private Set<String> exceptions; 
   private List<Call> calls;
 
   public ExceptionHandlerBuilder() {
-    this.sections = new LinkedHashMap<>();
-    this.exception = null;
+    this.sections = new ArrayList<>();
+    this.exceptions = null;
     this.address = null;
     this.calls = null;
   }
 
-  public void beginSection(final String exception, final BigInteger address) {
-    checkNotNull(exception);
-    checkNotNull(address);
-    checkGreaterThan(address, BigInteger.ZERO);
+  public void beginSection(final BigInteger address, final String exception) {
+    InvariantChecks.checkNotNull(exception);
+    beginSection(address, Collections.singletonList(exception));
+  }
 
-    Logger.debug("Exception handler: %s at 0x%x", exception, address);
+  public void beginSection(final BigInteger address, final Collection<String> exceptions) {
+    InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkGreaterThan(address, BigInteger.ZERO);
+    InvariantChecks.checkNotEmpty(exceptions);
 
-    checkTrue(this.exception == null);
-    checkTrue(this.address == null);
-    checkTrue(this.calls == null);
+    Logger.debug("Exception handler: .org 0x%x for %s", address, exceptions);
 
-    this.exception = exception;
+    InvariantChecks.checkTrue(this.address == null);
+    InvariantChecks.checkTrue(this.exceptions == null);
+    InvariantChecks.checkTrue(this.calls == null);
+
     this.address = address;
+    this.exceptions = new LinkedHashSet<>(exceptions);
     this.calls = new ArrayList<>();
   }
 
   public void endSection() {
     final ExceptionHandler.Section section =
-        new ExceptionHandler.Section(exception, address, calls);
+        new ExceptionHandler.Section(address, exceptions, calls);
 
-    if (null != this.sections.put(section.getException(), section)) {
-      Logger.error("Handler for exception %s is redefined.", exception);
-    }
+    this.sections.add(section);
 
-    this.exception = null;
     this.address = null;
+    this.exceptions = null;
     this.calls = null;
   }
 
   public void addCall(final Call call) {
-    checkNotNull(call);
+    InvariantChecks.checkNotNull(call);
     this.calls.add(call);
   }
 
   public ExceptionHandler build() {
-    checkTrue(this.exception == null);
-    checkTrue(this.address == null);
-    checkTrue(this.calls == null);
+    InvariantChecks.checkTrue(this.address == null);
+    InvariantChecks.checkTrue(this.exceptions == null);
+    InvariantChecks.checkTrue(this.calls == null);
 
     return new ExceptionHandler(sections);
   }
