@@ -799,7 +799,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     checkValidArgument(arg);
     putArgument(arg);
 
-    callBuilder.addLabelReference(value, lazyPrimitive, name);
+    callBuilder.addLabelReference(value);
   }
 
   private String getName() {

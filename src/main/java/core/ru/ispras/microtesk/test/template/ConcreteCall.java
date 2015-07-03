@@ -44,6 +44,20 @@ public final class ConcreteCall {
     this.executable = executable;
   }
 
+  public ConcreteCall(
+      final Call abstractCall,
+      final InstructionCall executable,
+      final List<LabelReference> labelRefs) {
+    InvariantChecks.checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(executable);
+    InvariantChecks.checkNotNull(labelRefs);
+
+    this.labels = copyLabels(abstractCall.getLabels());
+    this.labelRefs = labelRefs;
+    this.outputs = abstractCall.getOutputs();
+    this.executable = executable;
+  }
+
   public ConcreteCall(final Call abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 

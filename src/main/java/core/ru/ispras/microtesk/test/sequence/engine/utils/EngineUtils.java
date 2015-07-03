@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Preparator;
@@ -252,6 +254,8 @@ public final class EngineUtils {
     }
   }
 
+  private static List<LabelReference> labelRefs = null; 
+
   public static ConcreteCall makeConcreteCall(
       final EngineContext engineContext, final Call abstractCall)
           throws ConfigurationException {
@@ -261,15 +265,21 @@ public final class EngineUtils {
     if (!abstractCall.isExecutable()) {
       return new ConcreteCall(abstractCall);
     }
+    
+    try {
+      labelRefs = new ArrayList<>();
 
-    final Primitive rootOp = abstractCall.getRootOperation();
-    checkRootOp(rootOp);
+      final Primitive rootOp = abstractCall.getRootOperation();
+      checkRootOp(rootOp);
 
-    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
-    final IOperation op = makeOp(engineContext, rootOp);
-    final InstructionCall executable = callFactory.newCall(op);
+      final ICallFactory callFactory = engineContext.getModel().getCallFactory();
+      final IOperation op = makeOp(engineContext, rootOp);
+      final InstructionCall executable = callFactory.newCall(op);
 
-    return new ConcreteCall(abstractCall, executable);
+      return new ConcreteCall(abstractCall, executable, labelRefs);
+    } finally {
+      labelRefs = null;
+    }
   }
 
   public static BigInteger makeImm(final Argument argument) {
@@ -379,7 +389,11 @@ public final class EngineUtils {
           break;
 
         case LABEL:
-          builder.setArgument(argName, makeLabel(arg));
+          //builder.setArgument(argName, makeLabel(arg));
+          labelRefs.add(new LabelReference(
+              (LabelValue) arg.getValue(),
+              builder.setArgument(argName, makeLabel(arg))
+              ));
           break;
 
         case MODE:

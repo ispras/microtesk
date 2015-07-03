@@ -56,17 +56,10 @@ public final class CallBuilder {
     labels.add(label);
   }
 
-  public void addLabelReference(
-      final LabelValue label,
-      final Primitive primitive,
-      final String argumentName) {
+  public void addLabelReference(final LabelValue label) {
     checkNotNull(label);
-    checkNotNull(primitive);
-    checkNotNull(argumentName);
 
-    final LabelReference labelRef = new LabelReference(
-        label, primitive, argumentName);
-
+    final LabelReference labelRef = new LabelReference(label);
     labelRefs.add(labelRef);
   }
 

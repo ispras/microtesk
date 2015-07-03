@@ -19,6 +19,8 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
+
 /**
  * The LabelReference class describes a reference to a label. This means a label specified as an
  * argument of a control-transfer instruction. The important point is that a reference is not linked
@@ -32,8 +34,7 @@ import java.math.BigInteger;
 
 public final class LabelReference {
   private final LabelValue reference;
-  private final Primitive primitive;
-  private final String argumentName;
+  private final LocationAccessor patcher;
   private Target target;
 
   public static final class Target {
@@ -54,43 +55,31 @@ public final class LabelReference {
     }
   }
 
-  /**
-   * Constructs a label reference object.
-   * 
-   * @param labelName Name of the referred label.
-   * @param blockId Identifier of the block from which the reference is made.
-   * @param primitive Primitive (OP or MODE) the label reference was passed to as an
-   *        argument.
-   * @param argumentName Name of the primitive (OP or MODE) argument the label reference is
-   *        associated with.
-   * @param argumentValue Value assigned (instead of a real address or offset) to the primitive
-   *        argument (OP or MODE )the label reference is associated with.
-   * 
-   * @throws NullPointerException if any of the following arguments is {@code null}: labelName,
-   *         blockId or argumentName.
-   */
-
-  protected LabelReference(
-      final LabelValue lazyLabel,
-      final Primitive primitive,
-      final String argumentName) {
+  protected LabelReference(final LabelValue lazyLabel) {
     checkNotNull(lazyLabel);
-    checkNotNull(primitive);
-    checkNotNull(argumentName);
 
     this.reference = lazyLabel;
-    this.primitive = primitive;
-    this.argumentName = argumentName;
     this.target = null;
+    this.patcher = null;
+  }
+
+  public LabelReference(
+      final LabelValue lazyLabel,
+      final LocationAccessor patcher) {
+    checkNotNull(lazyLabel);
+    checkNotNull(patcher);
+
+    this.reference = lazyLabel;
+    this.target = null;
+    this.patcher = patcher;
   }
 
   protected LabelReference(final LabelReference other) {
     checkNotNull(other);
 
     this.reference = new LabelValue(other.reference);
-    this.primitive = other.primitive.newCopy();
-    this.argumentName = other.argumentName;
     this.target = other.target;
+    this.patcher = other.patcher;
   }
 
   /**
@@ -104,27 +93,6 @@ public final class LabelReference {
 
   public Label getReference() {
     return reference.getLabel();
-  }
-
-  /**
-   * The primitive (OP or MODE) the label reference was passed to as an
-   * argument.
-   * 
-   * @return Primitive the label reference was passed to.
-   */
-
-  public Primitive getPrimitive() {
-    return primitive;
-  }
-
-  /**
-   * Returns the name of the primitive (OP or MODE) argument the label reference is associated with.
-   * 
-   * @return Name of the associated primitive argument.
-   */
-
-  public String getArgumentName() {
-    return argumentName;
   }
 
   /**
@@ -152,14 +120,16 @@ public final class LabelReference {
     target = null;
   }
 
+  public LocationAccessor getPatcher() {
+    return patcher;
+  }
+
   @Override
   public String toString() {
     return String.format(
-        "Reference: %s (passed to %s via the %s paramever with value %d)",
+        "Reference: Label %s (address %x)",
         reference.getName(),
-        primitive.getName(),
-        argumentName,
-        getArgumentValue()
+        reference.getAddress()
         );
   }
 }
