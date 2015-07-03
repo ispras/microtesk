@@ -31,19 +31,16 @@ import java.math.BigInteger;
  */
 
 public final class LabelReference {
-  private final Label reference;
-  private final LazyLabel lazyReference;
-  private final BlockId blockId;
+  private final LabelValue reference;
   private final Primitive primitive;
   private final String argumentName;
-  private final BigInteger argumentValue;
+  private Target target;
 
-  public static final class Target
-  {
+  public static final class Target {
     private final Label label;
     private final int position;
 
-    private Target(Label label, int position) {
+    private Target(final Label label, final int position) {
       this.label = label;
       this.position = position;
     }
@@ -56,8 +53,6 @@ public final class LabelReference {
       return position;
     }
   }
-
-  private Target target;
 
   /**
    * Constructs a label reference object.
@@ -76,53 +71,25 @@ public final class LabelReference {
    */
 
   protected LabelReference(
-      final String labelName,
-      final BlockId blockId,
-      final Primitive primitive,
-      final String argumentName,
-      final BigInteger argumentValue) {
-    checkNotNull(labelName);
-    checkNotNull(blockId);
-    checkNotNull(primitive);
-    checkNotNull(argumentName);
-
-    this.reference = new Label(labelName, blockId);
-    this.lazyReference = null;
-    this.blockId = blockId;
-    this.primitive = primitive;
-    this.argumentName = argumentName;
-    this.argumentValue = argumentValue;
-    this.target = null;
-  }
-
-  protected LabelReference(
-      final LazyLabel lazyLabel,
-      final BlockId blockId,
+      final LabelValue lazyLabel,
       final Primitive primitive,
       final String argumentName) {
     checkNotNull(lazyLabel);
-    checkNotNull(blockId);
     checkNotNull(primitive);
     checkNotNull(argumentName);
 
-    this.reference = null;
-    this.lazyReference = lazyLabel;
-    this.blockId = blockId;
+    this.reference = lazyLabel;
     this.primitive = primitive;
     this.argumentName = argumentName;
-    this.argumentValue = BigInteger.ZERO;
     this.target = null;
   }
 
   protected LabelReference(final LabelReference other) {
     checkNotNull(other);
 
-    this.reference = other.reference;
-    this.lazyReference = other.lazyReference != null ? new LazyLabel(other.lazyReference) : null;
-    this.blockId = other.blockId;
+    this.reference = new LabelValue(other.reference);
     this.primitive = other.primitive.newCopy();
     this.argumentName = other.argumentName;
-    this.argumentValue = other.argumentValue;
     this.target = other.target;
   }
 
@@ -136,16 +103,7 @@ public final class LabelReference {
    */
 
   public Label getReference() {
-    if (null != reference) {
-      return reference;
-    }
-
-    final String labelName = lazyReference.getName();
-    if (null == labelName || labelName.isEmpty()) {
-      throw new IllegalStateException("LazyLabel: Label name is initialized.");
-    }
-
-    return new Label(labelName, blockId);
+    return reference.getLabel();
   }
 
   /**
@@ -177,21 +135,14 @@ public final class LabelReference {
    */
 
   public BigInteger getArgumentValue() {
-    if (null != reference) {
-      return argumentValue;
-    }
-
-    final LazyValue lazyValue = lazyReference.getValue();
-    final BigInteger value = lazyValue.getValue();
-
-    return value;
+    return reference.getAddress();
   }
 
   public Target getTarget() {
     return target;
   }
 
-  public void setTarget(Label label, int position) {
+  public void setTarget(final Label label, final int position) {
     checkNotNull(label);
     checkGreaterOrEqZero(position);
     target = new Target(label, position);
@@ -203,7 +154,12 @@ public final class LabelReference {
 
   @Override
   public String toString() {
-    return String.format("Reference: %s (passed to %s via the %s paramever with value %d)",
-        reference, primitive.getName(), argumentName, argumentValue);
+    return String.format(
+        "Reference: %s (passed to %s via the %s paramever with value %d)",
+        reference.getName(),
+        primitive.getName(),
+        argumentName,
+        getArgumentValue()
+        );
   }
 }

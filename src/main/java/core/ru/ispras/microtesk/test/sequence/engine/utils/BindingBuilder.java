@@ -34,6 +34,7 @@ import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Argument;
+import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
@@ -97,6 +98,14 @@ public final class BindingBuilder {
               argName, 
               new NodeValue(Data.newBitVector(BitVector.valueOf(
                   ((LazyValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
+              );
+          break;
+
+        case LABEL:
+          queryBuilder.setBinding(
+              argName, 
+              new NodeValue(Data.newBitVector(BitVector.valueOf(
+                  ((LabelValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
               );
           break;
 

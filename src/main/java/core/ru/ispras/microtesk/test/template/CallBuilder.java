@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public final class CallBuilder {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
-  CallBuilder(final BlockId blockId) {
+  protected CallBuilder(final BlockId blockId) {
     checkNotNull(blockId);
 
     this.blockId = blockId;
@@ -36,6 +35,10 @@ public final class CallBuilder {
     this.labels = new ArrayList<>();
     this.labelRefs = new ArrayList<>();
     this.outputs = new ArrayList<>();
+  }
+
+  public BlockId getBlockId() {
+    return blockId;
   }
 
   public void setRootOperation(final Primitive rootOperation) {
@@ -54,32 +57,15 @@ public final class CallBuilder {
   }
 
   public void addLabelReference(
-      final String labelName,
+      final LabelValue label,
       final Primitive primitive,
-      final String argumentName,
-      final BigInteger argumentValue) {
-
-    checkNotNull(labelName);
-    checkNotNull(primitive);
-    checkNotNull(argumentName);
-
-    final LabelReference labelRef = new LabelReference(
-        labelName, blockId, primitive, argumentName, argumentValue);
-
-    labelRefs.add(labelRef);
-  }
-
-  public void addLabelReference(
-      final LazyLabel label,
-      final Primitive primitive,
-      final String argumentName
-      ) {
+      final String argumentName) {
     checkNotNull(label);
     checkNotNull(primitive);
     checkNotNull(argumentName);
 
     final LabelReference labelRef = new LabelReference(
-        label, blockId, primitive, argumentName);
+        label, primitive, argumentName);
 
     labelRefs.add(labelRef);
   }

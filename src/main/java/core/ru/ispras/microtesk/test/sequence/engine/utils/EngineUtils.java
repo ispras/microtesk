@@ -51,6 +51,7 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;
@@ -291,6 +292,11 @@ public final class EngineUtils {
     return ((LazyValue) argument.getValue()).getValue();
   }
 
+  public static BigInteger makeLabel(final Argument argument) {
+    checkArgKind(argument, Argument.Kind.LABEL);
+    return ((LabelValue) argument.getValue()).getValue();
+  }
+
   public static IAddressingMode makeMode(final EngineContext engineContext, final Argument argument)
       throws ConfigurationException {
     checkNotNull(engineContext);
@@ -317,6 +323,10 @@ public final class EngineUtils {
 
         case IMM_LAZY:
           builder.setArgumentValue(argName, makeImmLazy(arg));
+          break;
+
+        case LABEL:
+          builder.setArgumentValue(argName, makeLabel(arg));
           break;
 
         default:
@@ -366,6 +376,10 @@ public final class EngineUtils {
 
         case IMM_LAZY:
           builder.setArgument(argName, makeImmLazy(arg));
+          break;
+
+        case LABEL:
+          builder.setArgument(argName, makeLabel(arg));
           break;
 
         case MODE:

@@ -14,27 +14,33 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class StreamPreparator {
+  private final MemoryMap memoryMap;
+
   private final List<Call> init;
   private final List<Call> read;
   private final List<Call> write;
 
   private final LazyPrimitive data;
   private final LazyPrimitive index;
-  private final LazyLabel startLabel;
+  private final LabelValue startLabel;
 
   protected StreamPreparator(
+      final MemoryMap memoryMap,
       final List<Call> init,
       final List<Call> read,
       final List<Call> write,
       final LazyPrimitive data,
       final LazyPrimitive index,
-      final LazyLabel startLabel) {
+      final LabelValue startLabel) {
+    InvariantChecks.checkNotNull(memoryMap);
+
     InvariantChecks.checkNotNull(init);
     InvariantChecks.checkNotNull(read);
     InvariantChecks.checkNotNull(write);
@@ -42,6 +48,8 @@ public final class StreamPreparator {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkNotNull(index);
     InvariantChecks.checkNotNull(startLabel);
+
+    this.memoryMap = memoryMap;
 
     this.init = Collections.unmodifiableList(init);
     this.read = Collections.unmodifiableList(read);
@@ -53,21 +61,25 @@ public final class StreamPreparator {
   }
 
   public Stream newStream(
-      final String startLabelName,
+      final Label label,
       final Primitive dataSource,
       final Primitive indexSource,
       final int length) {
-    InvariantChecks.checkNotNull(startLabelName);
+    InvariantChecks.checkNotNull(label);
     InvariantChecks.checkNotNull(dataSource);
     InvariantChecks.checkNotNull(indexSource);
     InvariantChecks.checkGreaterThanZero(length);
 
-    startLabel.setSource(startLabelName);
+    final BigInteger address = memoryMap.resolve(label.getName());
+
+    startLabel.setLabel(label);
+    startLabel.setAddress(address);
+
     data.setSource(dataSource);
     index.setSource(indexSource);
 
     return new Stream(
-        startLabelName,
+        label.getName(),
         Call.newCopy(init),
         Call.newCopy(read),
         Call.newCopy(write),
@@ -81,9 +93,7 @@ public final class StreamPreparator {
         data.getName(), index.getName());
   }
 
-  public static String getId(
-      final Primitive data, final Primitive index) {
-
+  public static String getId(final Primitive data, final Primitive index) {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkNotNull(index);
 

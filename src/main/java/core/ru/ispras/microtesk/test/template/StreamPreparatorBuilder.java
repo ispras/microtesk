@@ -23,9 +23,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 
 public final class StreamPreparatorBuilder {
+  private final MemoryMap memoryMap;
   private final LazyPrimitive data;
   private final LazyPrimitive index;
-  private final LazyLabel startLabel;
+  private final LabelValue startLabel;
 
   private final List<Call> init;
   private final List<Call> read;
@@ -41,13 +42,15 @@ public final class StreamPreparatorBuilder {
     InvariantChecks.checkNotNull(metaData);
     InvariantChecks.checkNotNull(metaIndex);
 
+    this.memoryMap = memoryMap;
+
     this.data = new LazyPrimitive(
         Primitive.Kind.MODE, metaData.getName(), metaData.getName());
 
     this.index = new LazyPrimitive(
         Primitive.Kind.MODE, metaIndex.getName(), metaIndex.getName());
 
-    this.startLabel = new LazyLabel(memoryMap);
+    this.startLabel = LabelValue.newLazy();
 
     this.init = new ArrayList<>();
     this.read = new ArrayList<>();
@@ -63,7 +66,7 @@ public final class StreamPreparatorBuilder {
     return index;
   }
 
-  public LazyLabel getStartLabel() {
+  public LabelValue getStartLabel() {
     return startLabel;
   }
 
@@ -96,6 +99,7 @@ public final class StreamPreparatorBuilder {
 
   public StreamPreparator build() {
     return new StreamPreparator(
+        memoryMap,
         init,
         read,
         write,

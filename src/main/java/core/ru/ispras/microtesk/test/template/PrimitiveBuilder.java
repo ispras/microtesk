@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -46,7 +46,7 @@ public interface PrimitiveBuilder {
   void addArgument(PrimitiveBuilder value);
   void addArgument(UnknownImmediateValue value);
   void addArgument(LazyValue value);
-  void addArgument(LazyLabel value);
+  void addArgument(LabelValue value);
   void setArgument(String name, BigInteger value);
   void setArgument(String name, String value);
   void setArgument(String name, RandomValue value);
@@ -54,7 +54,7 @@ public interface PrimitiveBuilder {
   void setArgument(String name, PrimitiveBuilder value);
   void setArgument(String name, UnknownImmediateValue value);
   void setArgument(String name, LazyValue value);
-  void setArgument(String name, LazyLabel value);
+  void setArgument(String name, LabelValue value);
 }
 
 final class PrimitiveBuilderOperation implements PrimitiveBuilder {
@@ -189,9 +189,9 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   }
 
   @Override
-  public void addArgument(LazyLabel value) {
+  public void addArgument(LabelValue value) {
     checkNotNull(value);
-    registerArgument(new ArgumentLazyLabel(value));
+    registerArgument(new ArgumentLabel(value));
   }
 
   // /////////////////////////////////////////////////////////////////////////
@@ -242,10 +242,10 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   }
   
   @Override
-  public void setArgument(String name, LazyLabel value) {
+  public void setArgument(String name, LabelValue value) {
     checkNotNull(name);
     checkNotNull(value);
-    registerArgument(new ArgumentLazyLabel(name, value));
+    registerArgument(new ArgumentLabel(name, value));
   }
 
   private interface Argument {
@@ -422,12 +422,12 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     }
   }
 
-  private static class ArgumentLazyLabel extends AbstractArgument<LazyLabel> {
-    public ArgumentLazyLabel(String name, LazyLabel value) {
+  private static class ArgumentLabel extends AbstractArgument<LabelValue> {
+    public ArgumentLabel(String name, LabelValue value) {
       super(name, value);
     }
 
-    public ArgumentLazyLabel(LazyLabel value) {
+    public ArgumentLabel(LabelValue value) {
       super(value);
     }
 
@@ -672,7 +672,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   @Override
-  public void addArgument(final LazyLabel value) {
+  public void addArgument(final LabelValue value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
@@ -699,14 +699,21 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     checkNotNull(name);
     checkNotNull(value);
 
-    // TODO: Current limitation: 0 is instead of
-    // the actual label address/offset.
-    final BigInteger fakeValue = BigInteger.ZERO;
-    final BigInteger address = memoryMap.resolveWithDefault(value, fakeValue);
+    final Label label = new Label(value, callBuilder.getBlockId()); 
+    final LabelValue labelValue;
 
-    // TODO
-    setArgument(name, address);
-    callBuilder.addLabelReference(value, lazyPrimitive, name, address);
+    // Address of labels in the data section are known when an abstract sequence is being created.
+    // Addresses of labels in code are unknown will be resolved later (in concrete sequences,
+    // immediately before simulation).
+
+    if (memoryMap.isDefined(label.getName())) {
+      final BigInteger address = memoryMap.resolve(label.getName());
+      labelValue = LabelValue.newKnown(label, address);
+    } else {
+      labelValue = LabelValue.newUnknown(label);
+    }
+
+    setArgument(name, labelValue);
   }
 
   @Override
@@ -780,11 +787,18 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   // For lazy labels (used in data_stream blocks) 
   @Override
-  public void setArgument(final String name, final LazyLabel value) {
+  public void setArgument(final String name, final LabelValue value) {
     checkNotNull(name);
     checkNotNull(value);
 
-    setArgument(name, value.getValue());
+    final MetaArgument metaArg = getMetaArgument(name);
+
+    final Argument arg = new Argument(
+        name, Argument.Kind.LABEL, value, metaArg.getMode(), metaArg.getDataType());
+
+    checkValidArgument(arg);
+    putArgument(arg);
+
     callBuilder.addLabelReference(value, lazyPrimitive, name);
   }
 

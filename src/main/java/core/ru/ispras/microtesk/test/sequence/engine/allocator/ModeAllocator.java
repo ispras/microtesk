@@ -26,6 +26,7 @@ import ru.ispras.microtesk.settings.RangeSettings;
 import ru.ispras.microtesk.settings.StrategySettings;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
@@ -125,6 +126,14 @@ public final class ModeAllocator {
             use(primitive.getName(), lazyValue.getValue());
           }
           break;
+
+        case LABEL:
+          final LabelValue labelValue = (LabelValue) arg.getValue();
+          if (primitive.getKind() == Primitive.Kind.MODE) {
+            use(primitive.getName(), labelValue.getValue());
+          }
+          break;
+          
         default:
           useInitializedModes((Primitive) arg.getValue());
           break;
@@ -138,6 +147,7 @@ public final class ModeAllocator {
         case IMM:
         case IMM_RANDOM:
         case IMM_LAZY:
+        case LABEL:
           break;
         case IMM_UNKNOWN:
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();

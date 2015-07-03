@@ -436,7 +436,7 @@ public final class Template {
     return streamPreparatorBuilder.getIndexSource();
   }
 
-  public LazyLabel getStartLabel() {
+  public LabelValue getStartLabel() {
     checkStreamPreparatorBlock("start_label");
     return streamPreparatorBuilder.getStartLabel();
   }
@@ -478,7 +478,12 @@ public final class Template {
     Logger.debug("Stream: label=%s, data=%s, source=%s, length=%s",
         startLabelName, dataSource.getName(), indexSource.getName(), length);
 
-    streams.addStream(startLabelName, dataSource, indexSource, length);
+    streams.addStream(
+        new Label(startLabelName, getCurrentBlockId()),
+        dataSource,
+        indexSource,
+        length
+        );
 
     /*
     // THIS IS CODE TO TEST DATA STREAMS. IT ADDS CALLS FROM DATA STREAMS
