@@ -699,7 +699,7 @@ public final class TestEngine {
       }
 
       try {
-        final Map<Long, List<ConcreteCall>> handlers = new LinkedHashMap<>();
+        final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>();
 
         final TestSequenceEngine testSequenceEngine = 
             new TestSequenceEngine(engine, adapter);
@@ -728,7 +728,7 @@ public final class TestEngine {
 
           final long address = section.getAddress().longValue();
           concreteSequence.setAddress(address);
-          handlers.put(address, concreteSequence.getAll());
+          handlers.put(section.getExceptionType(), concreteSequence.getAll());
 
           try {
             fileWriter.println();

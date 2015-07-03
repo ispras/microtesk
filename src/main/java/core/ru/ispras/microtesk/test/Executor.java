@@ -44,7 +44,7 @@ final class Executor {
   private final int branchExecutionLimit;
   private final LogPrinter logPrinter;
 
-  private Map<Long, List<ConcreteCall>> exceptionHandlers;
+  private Map<String, List<ConcreteCall>> exceptionHandlers;
   private List<LabelReference> labelRefs;
 
   /**
@@ -70,7 +70,7 @@ final class Executor {
     this.labelRefs = null;
   }
 
-  public void setExceptionHandlers(final Map<Long, List<ConcreteCall>> handlers) {
+  public void setExceptionHandlers(final Map<String, List<ConcreteCall>> handlers) {
     checkNotNull(handlers);
     this.exceptionHandlers = handlers;
   }
