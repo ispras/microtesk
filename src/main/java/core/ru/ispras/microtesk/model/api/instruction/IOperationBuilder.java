@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,16 +17,14 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.math.BigInteger;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
 public interface IOperationBuilder {
-  IOperationBuilder setArgument(String name, String value) throws ConfigurationException;
-  IOperationBuilder setArgument(String name, BigInteger value) throws ConfigurationException;
+  LocationAccessor setArgument(String name, String value) throws ConfigurationException;
+  LocationAccessor setArgument(String name, BigInteger value) throws ConfigurationException;
 
-  IOperationBuilder setArgument(String name, IAddressingMode value)
-      throws ConfigurationException;
-
-  IOperationBuilder setArgument(String name, IOperation value)
-      throws ConfigurationException;
+  IOperationBuilder setArgument(String name, IAddressingMode value) throws ConfigurationException;
+  IOperationBuilder setArgument(String name, IOperation value) throws ConfigurationException;
 
   IOperation build() throws ConfigurationException;
 }

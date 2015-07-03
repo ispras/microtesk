@@ -25,6 +25,7 @@ import ru.ispras.microtesk.model.api.exception.ReassignmentException;
 import ru.ispras.microtesk.model.api.exception.UndeclaredException;
 import ru.ispras.microtesk.model.api.exception.UninitializedException;
 import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
 public final class OperationBuilder implements IOperationBuilder {
   private final String opName;
@@ -40,7 +41,7 @@ public final class OperationBuilder implements IOperationBuilder {
   }
 
   @Override
-  public IOperationBuilder setArgument(String name, String value) throws ConfigurationException {
+  public LocationAccessor setArgument(String name, String value) throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
@@ -54,11 +55,11 @@ public final class OperationBuilder implements IOperationBuilder {
     final Location arg = Location.newLocationForConst(DataEngine.valueOf(decl.getType(), value));
     args.put(name, arg);
 
-    return this;
+    return arg;
   }
 
   @Override
-  public IOperationBuilder setArgument(String name, BigInteger value) throws ConfigurationException {
+  public LocationAccessor setArgument(String name, BigInteger value) throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
@@ -78,7 +79,7 @@ public final class OperationBuilder implements IOperationBuilder {
     final Location arg = Location.newLocationForConst(data);
     args.put(name, arg);
 
-    return this;
+    return arg;
   }
 
   @Override
