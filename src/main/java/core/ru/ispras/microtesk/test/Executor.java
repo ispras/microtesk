@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,20 +129,27 @@ final class Executor {
         final LabelManager.Target target = labelManager.resolve(source);
 
         final String uniqueName;
+        final String searchPattern;
 
         if (null != target) {
           uniqueName = target.getLabel().getUniqueName();
           labelRef.setTarget(target.getLabel(), target.getPosition());
+
+          final long addr = sequence.get(target.getPosition()).getAddress();
+          //System.out.println("!!!!!!!!! " + labelRef.getReference().getName() + " - " +  addr);
+
+          labelRef.getPatcher().setValue(BigInteger.valueOf(addr));
+
+          //searchPattern = String.format("<label>%d", addr);
         } else {
           // For data labels 
           uniqueName = source.getName();
+          //searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
         }
 
-        // TODO: TEMPORARY IMPLEMENTATION
-        final String searchPattern = 
-            String.format("<label>%d", labelRef.getArgumentValue());
-        final String patchedText = 
-            call.getText().replace(searchPattern, uniqueName);
+        // TODO: PATCHING TEXT: TEMPORARY IMPLEMENTATION
+        searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
+        final String patchedText =  call.getText().replace(searchPattern, uniqueName);
 
         call.setText(patchedText);
       }

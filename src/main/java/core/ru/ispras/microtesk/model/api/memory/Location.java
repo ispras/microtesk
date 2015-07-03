@@ -98,7 +98,7 @@ public final class Location implements LocationAccessor {
         new MemoryStorage(BigInteger.ONE, bitSize).setId(storageId);
 
     storage.write(zeroAddress, data.getRawData());
-    storage.setReadOnly(true);
+    storage.setReadOnly(false);
 
     final Source source = new Source(storage, zeroAddress, bitSize, 0);
     return new Location(type, source);
@@ -298,8 +298,15 @@ public final class Location implements LocationAccessor {
   @Override
   public void setValue(final BigInteger value) {
     checkNotNull(value);
+
+    // System.out.println("############## " + toBinString()); 
+    // System.out.println("############## Before Assigning 0x" + value);
+
     final BitVector rawData = BitVector.valueOf(value, getBitSize());
     writeDataDirecty(rawData, sources);
+
+    // System.out.println("############## " + toBinString()); 
+    // System.out.println("############## After Assigning 0x" + value);
   }
 
   private static BitVector readDataDirecty(List<Source> sources) {
