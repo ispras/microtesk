@@ -17,6 +17,12 @@ package ru.ispras.microtesk;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.BranchAdapter;
+import ru.ispras.microtesk.test.sequence.engine.BranchEngine;
+import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
+import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
+import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.nml.NmlTranslator;
@@ -34,10 +40,29 @@ final class Core implements Plugin {
   }
 
   @Override
+  public Map<String, Engine<?>> getEngines() {
+    final Map<String, Engine<?>> engines = new LinkedHashMap<>();
+
+    engines.put("default", new DefaultEngine());
+    engines.put("branch", new BranchEngine());
+
+    return engines;
+  }
+
+  @Override
+  public Map<String, Adapter<?>> getAdapters() {
+    final Map<String, Adapter<?>> adapters = new LinkedHashMap<>();
+
+    adapters.put("default", new DefaultAdapter());
+    adapters.put("branch", new BranchAdapter());
+
+    return adapters;
+  }
+
+  @Override
   public Map<String, DataGenerator> getDataGenerators() {
     final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
 
-    // Predefined test data generators.
     dataGenerators.put("address", new AddressDataGenerator());
 
     return dataGenerators;

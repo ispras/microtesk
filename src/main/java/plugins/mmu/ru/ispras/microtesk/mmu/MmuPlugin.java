@@ -18,14 +18,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.Plugin;
+import ru.ispras.microtesk.mmu.test.sequence.engine.MmuAdapter;
+import ru.ispras.microtesk.mmu.test.sequence.engine.MmuEngine;
 import ru.ispras.microtesk.mmu.test.testbase.MmuDataGenerator;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
+import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * {@code MmuPlugin} is a MicroTESK plugin responsible for specifying and testing memory management
- * units (MMU) of microprocessors (address translation, caching, etc.).
+ * units (MMU) (address translation, caching, etc.).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -36,11 +40,28 @@ public final class MmuPlugin implements Plugin {
   }
 
   @Override
+  public Map<String, Engine<?>> getEngines() {
+    final Map<String, Engine<?>> engines = new LinkedHashMap<>();
+
+    engines.put("memory", new MmuEngine());
+
+    return engines;
+  }
+
+  @Override
+  public Map<String, Adapter<?>> getAdapters() {
+    final Map<String, Adapter<?>> adapters = new LinkedHashMap<>();
+
+    adapters.put("memory", new MmuAdapter());
+
+    return adapters;
+  }
+
+  @Override
   public Map<String, DataGenerator> getDataGenerators() {
     final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
 
-    // Predefined test data generators.
-    dataGenerators.put("mmu", new MmuDataGenerator());
+    dataGenerators.put("access", new MmuDataGenerator());
 
     return dataGenerators;
   }

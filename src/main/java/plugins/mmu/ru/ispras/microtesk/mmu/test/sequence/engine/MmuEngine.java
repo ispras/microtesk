@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.test.sequence.engine.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.iterator.MemoryAccessStructure;
@@ -158,6 +157,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
       final Map<MmuDevice, TriConsumer<MemoryAccess, MmuTestData, Object>> entryProviders) {
 
+    /* TODO:
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(testDataConstructor);
     InvariantChecks.checkNotNull(deviceGuards);
@@ -165,6 +165,7 @@ public final class MmuEngine implements Engine<MmuSolution> {
     InvariantChecks.checkNotNull(entryIdAllocators);
     InvariantChecks.checkNotNull(entryConstructors);
     InvariantChecks.checkNotNull(entryProviders);
+    */
 
     this.memory = memory;
 
@@ -177,6 +178,11 @@ public final class MmuEngine implements Engine<MmuSolution> {
     this.entryIdAllocators = entryIdAllocators;
     this.entryConstructors = entryConstructors;
     this.entryProviders = entryProviders;
+  }
+
+  // TODO:
+  public MmuEngine() {
+    this(null, null, null, null, null, null, null, null, null);
   }
 
   /**

@@ -29,6 +29,9 @@ import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.TestEngine;
+import ru.ispras.microtesk.test.sequence.GeneratorConfig;
+import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -86,6 +89,21 @@ public final class MicroTESK {
 
       if (translator != null) {
         translators.add(translator);
+      }
+
+      // Register the engines.
+      final GeneratorConfig<?> generatorConfig = GeneratorConfig.get();
+      final Map<String, Engine<?>> engines = plugin.getEngines();
+
+      for (final Map.Entry<String, Engine<?>> entry : engines.entrySet()) {
+        generatorConfig.registerEngine(entry.getKey(), entry.getValue());
+      }
+
+      // Register the adapters.
+      final Map<String, Adapter<?>> adapters = plugin.getAdapters();
+
+      for (final Map.Entry<String, Adapter<?>> entry : adapters.entrySet()) {
+        generatorConfig.registerAdapter(entry.getKey(), entry.getValue());
       }
 
       // Register the data generators.

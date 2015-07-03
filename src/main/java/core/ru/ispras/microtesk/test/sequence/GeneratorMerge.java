@@ -46,7 +46,9 @@ public final class GeneratorMerge<T> implements Generator<T> {
    * @param compositor the compositor.
    */
 
-  public GeneratorMerge(final Combinator<List<T>> combinator, final Compositor<T> compositor,
+  public GeneratorMerge(
+      final Combinator<List<T>> combinator,
+      final Compositor<T> compositor,
       final List<Iterator<List<T>>> iterators) {
     this.combinator = combinator;
     this.compositor = compositor;

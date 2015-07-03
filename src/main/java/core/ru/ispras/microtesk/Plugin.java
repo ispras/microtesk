@@ -16,6 +16,8 @@ package ru.ispras.microtesk;
 
 import java.util.Map;
 
+import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.testbase.generator.DataGenerator;
 
@@ -30,12 +32,26 @@ public interface Plugin {
    * 
    * @return the translator.
    */
-  public Translator<?> getTranslator();
+  Translator<?> getTranslator();
 
   /**
-   * Returns the plugin's data generators with their names (or {@code null}).
+   * Returns the plugin's engines with their names.
+   * 
+   * @return the engines.
+   */
+  Map<String, Engine<?>> getEngines();
+
+  /**
+   * Returns the plugin's adapters with their names.
+   * 
+   * @return the adapters.
+   */
+  Map<String, Adapter<?>> getAdapters();
+
+  /**
+   * Returns the plugin's data generators with their names.
    * 
    * @return the data generators.
    */
-  public Map<String, DataGenerator> getDataGenerators();
+  Map<String, DataGenerator> getDataGenerators();
 }

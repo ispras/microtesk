@@ -29,9 +29,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   /** The default compositor. */
   public static final String DEFAULT_COMPOSITOR = "random";
 
-  /** The configuration of the test sequence generator. */
-  private final Configuration<T> config = new Configuration<T>();
-
   /** The combinator used in the generator. */
   private String combinator = null;
   /** The compositor used in the generator. */
@@ -85,7 +82,7 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    */
 
   public Generator<T> getGenerator() {
-    // If the isSingle flag is set we the single sequence generator.
+    // If the isSingle flag is set, the single sequence generator is returned.
     if (isSingle) {
       return new GeneratorSingle<T>(getIterators());
     }
@@ -102,7 +99,10 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
       compositor = DEFAULT_COMPOSITOR;
     }
 
-    return new GeneratorMerge<T>(config.getCombinator(combinator),
-      config.getCompositor(compositor), getIterators());
+    final GeneratorConfig<T> config = GeneratorConfig.get();
+
+    return new GeneratorMerge<T>(
+        config.getCombinator(combinator),
+        config.getCompositor(compositor), getIterators());
   }
 }

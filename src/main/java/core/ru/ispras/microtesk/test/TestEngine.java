@@ -40,7 +40,7 @@ import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.test.sequence.Configuration;
+import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -324,7 +324,6 @@ public final class TestEngine {
     final PreparatorStore preparators = new PreparatorStore();
     final StreamStore streams = new StreamStore();
 
-    final Configuration<Call> config = new Configuration<>();
     final EngineContext context = new EngineContext(
         model, preparators, streams, settings);
 
@@ -334,7 +333,6 @@ public final class TestEngine {
         printer, 
         logPrinter,
         dataManager,
-        config,
         programLengthLimit,
         traceLengthLimit
         );
@@ -358,7 +356,7 @@ public final class TestEngine {
     private final Printer printer;
     private final LogPrinter logPrinter;
     private final DataManager dataManager;
-    private final Configuration<Call> config;
+    private final GeneratorConfig<Call> config;
 
     private final int programLengthLimit;
     private final int traceLengthLimit;
@@ -374,7 +372,6 @@ public final class TestEngine {
         final Printer printer,
         final LogPrinter logPrinter,
         final DataManager dataManager,
-        final Configuration<Call> config,
         final int programLengthLimit,
         final int traceLengthLimit) {
 
@@ -383,7 +380,7 @@ public final class TestEngine {
       this.printer = printer;
       this.logPrinter = logPrinter;
       this.dataManager = dataManager;
-      this.config = config;
+      this.config = GeneratorConfig.<Call>get();
 
       this.programLengthLimit = programLengthLimit;
       this.traceLengthLimit = traceLengthLimit;

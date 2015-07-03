@@ -30,28 +30,28 @@ import ru.ispras.microtesk.test.sequence.compositor.OverlappingCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RandomCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RotationCompositor;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
-import ru.ispras.microtesk.test.sequence.engine.BranchAdapter;
-import ru.ispras.microtesk.test.sequence.engine.BranchEngine;
-import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
-import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 
 /**
- * {@link Configuration} implements a test generator configuration.
+ * {@link GeneratorConfig} implements a test generator configuration.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class Configuration<T> {
+public final class GeneratorConfig<T> {
   private final Map<String, Class<?>> combinators = new HashMap<String, Class<?>>();
   private final Map<String, Class<?>> compositors = new HashMap<String, Class<?>>();
 
   private final Map<String, Engine<?>> engines = new HashMap<>();
   private final Map<String, Adapter<?>> adapters = new HashMap<>();
 
-  /**
-   * Constructs a configuration object.
-   */
-  public Configuration() {
+  private static final GeneratorConfig<?> instance = new GeneratorConfig<>();
+
+  @SuppressWarnings("unchecked")
+  public static <T> GeneratorConfig<T> get() {
+    return (GeneratorConfig<T>) instance;
+  }
+
+  private GeneratorConfig() {
     combinators.put("product", ProductCombinator.class);
     combinators.put("diagonal", DiagonalCombinator.class);
     combinators.put("random", RandomCombinator.class);
@@ -61,12 +61,6 @@ public final class Configuration<T> {
     compositors.put("overlap", OverlappingCompositor.class);
     compositors.put("nesting", NestingCompositor.class);
     compositors.put("random", RandomCompositor.class);
-
-    registerEngine("default", new DefaultEngine());
-    registerAdapter("default", new DefaultAdapter());
-
-    registerEngine("branch", new BranchEngine());
-    registerAdapter("branch", new BranchAdapter());
   }
 
   /**
