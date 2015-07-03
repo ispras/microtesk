@@ -46,10 +46,8 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
- * {@link MemoryAccessStructureChecker} implements a checker of abstract sequences (templates) for memory
- * access instructions.
- * 
- * <p>It checks consistency of test situations and dependencies specified in a template.</p>
+ * {@link MemoryAccessStructureChecker} checks consistency of situations and dependencies specified
+ * in a memory access structure.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
@@ -110,7 +108,8 @@ public final class MemoryAccessStructureChecker {
    * @throws IllegalArgumentException if some parameters are null.
    */
   public MemoryAccessStructureChecker(final MmuSubsystem memory, final MemoryAccess execution1,
-      final MemoryAccess execution2, final MemoryDependency dependency, final Predicate<MemoryAccessStructure> filter) {
+      final MemoryAccess execution2, final MemoryDependency dependency,
+      final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(execution1);
     InvariantChecks.checkNotNull(execution2);
     InvariantChecks.checkNotNull(filter);
@@ -136,7 +135,8 @@ public final class MemoryAccessStructureChecker {
    * @param filter the template filter.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public MemoryAccessStructureChecker(final MemoryAccessStructure template, final Predicate<MemoryAccessStructure> filter) {
+  public MemoryAccessStructureChecker(final MemoryAccessStructure template,
+      final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(template);
     InvariantChecks.checkNotNull(filter);
 
@@ -267,16 +267,14 @@ public final class MemoryAccessStructureChecker {
         final MemoryDependency dependency = template.getDependency(i, j);
         if (dependency != null) {
           // Get equations from dependency of i & j execution.
-          if (!process(i, j, templateExecutions.get(i), templateExecutions.get(j),
-              dependency)) {
+          if (!process(i, j, templateExecutions.get(i), templateExecutions.get(j), dependency)) {
             return false;
           }
         }
       }
     }
 
-    final IntegerFormulaSolver solver =
-        new IntegerFormulaSolver(formulaVariables, formula);
+    final IntegerFormulaSolver solver = new IntegerFormulaSolver(formulaVariables, formula);
 
     return solver.solve().getStatus() == SolverResult.Status.SAT;
   }
@@ -484,8 +482,8 @@ public final class MemoryAccessStructureChecker {
       variableShift = variableWidth - termsSize;
       // [[Min .. ] ... [Max - variableShift .. Max]]
       // [Max - variableShift .. Max] = Const = 0
-      range.add(new IntegerRange(zeroShift + variableWidth - variableShift,
-          zeroShift + variableWidth - 1));
+      range.add(new IntegerRange(zeroShift + variableWidth - variableShift, zeroShift
+          + variableWidth - 1));
     } else if (termsSize > variableWidth) {
       throw new IllegalStateException(String.format("The length of the variable is too small: %s",
           field));
@@ -494,8 +492,8 @@ public final class MemoryAccessStructureChecker {
     if (variablesRangesTemp.size() == 1) {
       // V1 [] = V2 []
       final IntegerField baseTerm =
-          new IntegerField(field.getVariable(), zeroShift,
-              zeroShift + variableWidth - 1 - variableShift);
+          new IntegerField(field.getVariable(), zeroShift, zeroShift + variableWidth - 1
+              - variableShift);
 
       final Map.Entry<IntegerVariable, Set<IntegerRange>> variableTemp =
           variablesRangesTemp.entrySet().iterator().next();
@@ -877,8 +875,8 @@ public final class MemoryAccessStructureChecker {
     }
 
     // Add variables to the solver.
-    final IntegerClause clause = new IntegerClause(equalityType ? IntegerClause.Type.AND
-                                                                : IntegerClause.Type.OR);
+    final IntegerClause clause =
+        new IntegerClause(equalityType ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
     final MmuExpression expression = equality.getExpression();
     InvariantChecks.checkNotNull(expression);
@@ -945,8 +943,8 @@ public final class MemoryAccessStructureChecker {
         variableShift = variableWidth - termsSize;
 
         final IntegerRange seachRange =
-            new IntegerRange(zeroShift + variableWidth - variableShift, 
-                zeroShift + variableWidth - 1);
+            new IntegerRange(zeroShift + variableWidth - variableShift, zeroShift + variableWidth
+                - 1);
 
         final String baseVarName = gatherVariableName(field.getVariable(), i);
 
@@ -993,7 +991,8 @@ public final class MemoryAccessStructureChecker {
                 + var2Range + ". Variable:" + field.getVariable());
           }
 
-          final IntegerVariable var = mmuVariables.get(gatherVariableName(field.getVariable(), i, varRange));
+          final IntegerVariable var =
+              mmuVariables.get(gatherVariableName(field.getVariable(), i, varRange));
           formula.addEquation(var, termVariable, true);
 
           index++;
@@ -1087,8 +1086,8 @@ public final class MemoryAccessStructureChecker {
         final MmuDevice device = hazard.getDevice();
         InvariantChecks.checkNotNull(device);
 
-        if (BufferAccessEvent.HIT == execution1.getEvent(device) &&
-            BufferAccessEvent.HIT == execution2.getEvent(device)) {
+        if (BufferAccessEvent.HIT == execution1.getEvent(device)
+            && BufferAccessEvent.HIT == execution2.getEvent(device)) {
           final List<IntegerVariable> fields = device.getFields();
 
           for (final IntegerVariable field : fields) {
@@ -1153,8 +1152,7 @@ public final class MemoryAccessStructureChecker {
             }
 
             final IntegerClause clause =
-                new IntegerClause(equalityType ? IntegerClause.Type.AND
-                                               : IntegerClause.Type.OR);
+                new IntegerClause(equalityType ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
             for (final IntegerField term : terms) {
               // Get variables of the ranges.
