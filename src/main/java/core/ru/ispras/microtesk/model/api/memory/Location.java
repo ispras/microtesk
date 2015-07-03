@@ -176,7 +176,7 @@ public final class Location implements LocationAccessor {
 
     final MemoryAccessHandler handler = MemoryAccessHandlerEngine.getGlobalHandler();
     if (null == handler) {
-      writeDataDirecty(rawData, sources);
+        writeDataDirecty(rawData, sources);
     } else {
       writeDataViaHandler(handler, rawData, sources);
     }
@@ -293,6 +293,13 @@ public final class Location implements LocationAccessor {
   public BigInteger getValue() {
     final BitVector rawData = readDataDirecty(sources);
     return rawData.bigIntegerValue(false);
+  }
+
+  @Override
+  public void setValue(final BigInteger value) {
+    checkNotNull(value);
+    final BitVector rawData = BitVector.valueOf(value, getBitSize());
+    writeDataDirecty(rawData, sources);
   }
 
   private static BitVector readDataDirecty(List<Source> sources) {

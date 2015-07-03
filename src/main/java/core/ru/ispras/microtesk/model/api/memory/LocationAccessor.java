@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,7 +20,7 @@ import java.math.BigInteger;
  * The LocationAccessor interfaces is used by the simulator to access data stored 
  * in the specified location. This should not cause any memory-related event in the model.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public interface LocationAccessor {
@@ -55,5 +55,5 @@ public interface LocationAccessor {
    * @param value Binary data packed in a BigInteger object.
    */
 
-   // void setValue(BigInteger value); // TODO: NOT IMPLEMENTED YET.
+   void setValue(BigInteger value);
 }
