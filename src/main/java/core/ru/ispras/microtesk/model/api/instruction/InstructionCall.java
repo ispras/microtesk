@@ -27,7 +27,6 @@ import ru.ispras.microtesk.model.api.state.IStateResetter;
 public final class InstructionCall {
   private final IStateResetter resetter;
   private final IOperation instruction;
-  private final String text;
   private final String image;
   private final int byteSize;
 
@@ -49,7 +48,6 @@ public final class InstructionCall {
 
     this.resetter = resetter;
     this.instruction = instruction;
-    this.text = instruction.syntax();
     this.image = instruction.image();
 
     final int bitSize = image.length();
@@ -73,7 +71,7 @@ public final class InstructionCall {
    */
 
   public String getText() {
-    return text;
+    return instruction.syntax();
   }
 
   /**
@@ -99,6 +97,6 @@ public final class InstructionCall {
   @Override
   public String toString() {
     return String.format(
-        "%s : %s : %d bytes", text, image, byteSize);
+        "%s : %s : %d bytes", getText(), image, byteSize);
   }
 }
