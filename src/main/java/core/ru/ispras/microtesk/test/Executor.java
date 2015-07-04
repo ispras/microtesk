@@ -122,7 +122,7 @@ final class Executor {
     for (int index = 0; index < sequence.size(); ++index) {
       final ConcreteCall call = sequence.get(index);
 
-      for (LabelReference labelRef : call.getLabelReferences()) {
+      for (final LabelReference labelRef : call.getLabelReferences()) {
         labelRef.resetTarget();
 
         final Label source = labelRef.getReference();
@@ -134,9 +134,12 @@ final class Executor {
         if (null != target) {
           // For code labels
           uniqueName = target.getLabel().getUniqueName();
-          labelRef.setTarget(target.getLabel(), target.getPosition());
 
-          final long addr = sequence.get(target.getPosition()).getAddress();
+          // Temporary implementation. Currently, address means position. but it will be changed soon.
+          final int position = (int) target.getAddress();
+          labelRef.setTarget(target.getLabel(), position);
+
+          final long addr = sequence.get(position).getAddress();
           labelRef.getPatcher().setValue(BigInteger.valueOf(addr));
 
           searchPattern = String.format("<label>%d", addr);
@@ -206,6 +209,9 @@ final class Executor {
 
     logText(call.getText());
     final String exception = call.execute();
+
+    // final BigInteger address = observer.accessLocation("PC").getValue();
+    // Logger.debug("# Current address: %d, position: %d", address, addressMap.get(address.longValue()));
 
     TestEngine.STATISTICS.instructionExecutedCount++;
     if (logPrinter != null) {

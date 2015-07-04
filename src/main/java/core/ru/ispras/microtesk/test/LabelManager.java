@@ -50,29 +50,28 @@ import ru.ispras.microtesk.test.template.Label;
 final class LabelManager {
   /**
    * The Target class stores information about the target the specified label points to. It
-   * associates a label with a position in an instruction call sequence.
+   * associates a label with an address where an instruction is located.
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   public static final class Target {
     private final Label label;
-    private final int position;
+    private final long address;
 
-    Target(final Label label, final int position) {
+    Target(final Label label, final long address) {
       InvariantChecks.checkNotNull(label);
-      InvariantChecks.checkGreaterOrEqZero(position);
 
       this.label = label;
-      this.position = position;
+      this.address = address;
     }
 
     public Label getLabel() {
       return label;
     }
 
-    public int getPosition() {
-      return position;
+    public long getAddress() {
+      return address;
     }
 
     @Override
@@ -81,7 +80,8 @@ final class LabelManager {
       int result = 1;
 
       result = prime * result + label.hashCode();
-      result = prime * result + position;
+      result = prime * result + (int) (address >> 32);
+      result = prime * result + (int) address;
 
       return result;
     }
@@ -98,12 +98,12 @@ final class LabelManager {
         return false;
       }
       final Target other = (Target) obj;
-      return (position == other.position) && label.equals(other.label);
+      return (address == other.address) && label.equals(other.label);
     }
 
     @Override
     public String toString() {
-      return String.format("%s at %d", label, position);
+      return String.format("%s at %d", label, address);
     }
   }
 
@@ -214,15 +214,15 @@ final class LabelManager {
    * Adds information about a label to the table of label targets.
    * 
    * @param label Label to be registered.
-   * @param position Position in the sequence of the instruction the label points to.
+   * @param position Address associated with the label.
    * 
    * @throws IllegalArgumentException if the parameter is <code>null</code>.
    */
 
-  public void addLabel(final Label label, final int position) {
+  protected void addLabel(final Label label, final long address) {
     InvariantChecks.checkNotNull(label);
 
-    final Target target = new Target(label, position);
+    final Target target = new Target(label, address);
 
     final List<Target> targets;
     if (table.containsKey(label.getName())) {
@@ -237,19 +237,19 @@ final class LabelManager {
 
   /**
    * Adds information about label in the specified collection to the table of label targets. It is
-   * supposed that all labels in the collection point to the same address (position).
+   * supposed that all labels in the collection point to the same address.
    * 
    * @param labels Collection of labels to be registered.
    * @param position Position in the sequence of the instruction the labels in the collection point
    *        to.
    * 
-   * @throws IllegalArgumentException if the <code>label</code> parameter is <code>null</code>.
-   * @throws IllegalArgumentException if an object in the <code>labels</code> collection is not a
+   * @throws IllegalArgumentException if the {@code label} parameter is {@code null}.
+   * @throws IllegalArgumentException if an object in the {@code labels} collection is not a
    *         Label object.
    */
 
   public void addAllLabels(
-      final Collection<?> labels, final int position, final int sequenceIndex) {
+      final Collection<?> labels, final long address, final int sequenceIndex) {
 
     InvariantChecks.checkNotNull(labels);
 
@@ -263,7 +263,7 @@ final class LabelManager {
         label.setSequenceIndex(sequenceIndex);
       }
 
-      addLabel(label, position);
+      addLabel(label, address);
     }
   }
 
