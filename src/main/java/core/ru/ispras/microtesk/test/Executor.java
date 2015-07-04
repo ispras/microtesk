@@ -132,25 +132,21 @@ final class Executor {
         final String searchPattern;
 
         if (null != target) {
+          // For code labels
           uniqueName = target.getLabel().getUniqueName();
           labelRef.setTarget(target.getLabel(), target.getPosition());
 
           final long addr = sequence.get(target.getPosition()).getAddress();
-          //System.out.println("!!!!!!!!! " + labelRef.getReference().getName() + " - " +  addr);
-
           labelRef.getPatcher().setValue(BigInteger.valueOf(addr));
 
-          //searchPattern = String.format("<label>%d", addr);
+          searchPattern = String.format("<label>%d", addr);
         } else {
           // For data labels 
           uniqueName = source.getName();
-          //searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
+          searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
         }
 
-        // TODO: PATCHING TEXT: TEMPORARY IMPLEMENTATION
-        searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
         final String patchedText =  call.getText().replace(searchPattern, uniqueName);
-
         call.setText(patchedText);
       }
 
