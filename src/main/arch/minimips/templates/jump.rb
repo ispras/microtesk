@@ -28,7 +28,7 @@ class JumpTemplate < MiniMipsBaseTemplate
     addi t1, zero, 1
 
     la t2, :end
-    addi t2, zero, 8
+    addi t2, t2, 8
 
     # Jump to the last nop is expected
     jr t2
@@ -41,7 +41,7 @@ class JumpTemplate < MiniMipsBaseTemplate
     add t4, zero, t1
 
     (9..12).each { |i|
-      trace "$#{i} = %x", gpr_observer(i)
+      trace "$#{i} = %d", gpr_observer(i)
     }
 
     nop
