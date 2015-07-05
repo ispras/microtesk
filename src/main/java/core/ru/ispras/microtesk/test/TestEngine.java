@@ -299,6 +299,10 @@ public final class TestEngine {
   }
 
   public Template newTemplate() {
+    final PreparatorStore preparators = new PreparatorStore();
+    final StreamStore streams = new StreamStore();
+    final EngineContext context = new EngineContext(model, preparators, streams, settings);
+
     final IModelStateObserver observer = model.getStateObserver();
 
     final LogPrinter logPrinter = tarmacLog ?
@@ -320,12 +324,6 @@ public final class TestEngine {
 
     final DataManager dataManager = new DataManager(
         indentToken, printer, dataFilePrefix, dataFileExtension);
-
-    final PreparatorStore preparators = new PreparatorStore();
-    final StreamStore streams = new StreamStore();
-
-    final EngineContext context = new EngineContext(
-        model, preparators, streams, settings);
 
     final TemplateProcessor processor = new TemplateProcessor(
         context,
