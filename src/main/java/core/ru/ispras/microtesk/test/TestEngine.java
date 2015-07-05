@@ -309,7 +309,7 @@ public final class TestEngine {
         new LogPrinter(codeFilePrefix) : null;
 
     final Executor executor = new Executor(
-        observer, branchExecutionLimit, logPrinter);
+        context, observer, branchExecutionLimit, logPrinter);
 
     final Printer printer = new Printer(
         codeFilePrefix,

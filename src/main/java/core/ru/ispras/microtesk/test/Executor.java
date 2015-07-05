@@ -17,16 +17,21 @@ package ru.ispras.microtesk.test;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.model.api.tarmac.Record;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
@@ -41,6 +46,7 @@ import ru.ispras.microtesk.test.template.Output;
  */
 
 final class Executor {
+  private final EngineContext context; 
   private final IModelStateObserver observer;
   private final int branchExecutionLimit;
   private final LogPrinter logPrinter;
@@ -58,11 +64,14 @@ final class Executor {
    */
 
   public Executor(
+      final EngineContext context,
       final IModelStateObserver observer,
       final int branchExecutionLimit,
       final LogPrinter logPrinter) {
+    checkNotNull(context);
     checkNotNull(observer);
 
+    this.context = context;
     this.observer = observer;
     this.branchExecutionLimit = branchExecutionLimit;
     this.logPrinter = logPrinter;
@@ -93,6 +102,114 @@ final class Executor {
       final TestSequence sequence, final int sequenceIndex) throws ConfigurationException {
     Memory.setUseTempCopies(false);
 
+    final List<ConcreteCall> calls = new ArrayList<>();
+    final Map<Long, Integer> addressMap = new LinkedHashMap<>();
+    final LabelManager labelManager = new LabelManager();
+
+    registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), Label.NO_SEQUENCE_INDEX);
+    registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
+
+    final int startIndex = 0;
+    final int endIndex = calls.size();
+
+    final Map<String, Long> exceptionHandlerAddresses = new HashMap<>();
+    registerExceptionHandlers(calls, labelManager, addressMap, exceptionHandlers, exceptionHandlerAddresses);
+
+    patchLabels(calls, labelManager, addressMap);
+    
+    List<LabelReference> labelRefs = null;
+    int labelRefsIndex = 0;
+
+    int index = startIndex;
+    while (index >= 0 && index < calls.size()) {
+      final ConcreteCall call = calls.get(index);
+
+      logOutputs(call.getOutputs());
+      logLabels(call.getLabels());
+
+      if (!call.isExecutable()) {
+        if (index == endIndex) break;
+        index++;
+        continue;
+      }
+
+      if (labelRefs != null) {
+        final int delta = index - labelRefsIndex;
+        if ((delta < 0) || (delta > context.getDelaySlotSize())) {
+          labelRefs = null;
+          labelRefsIndex = 0;
+        }
+      }
+
+      if (!call.getLabelReferences().isEmpty()) {
+        labelRefs = call.getLabelReferences();
+        labelRefsIndex = index;
+      }
+
+      logText(String.format("0x%016x %s", call.getAddress(), call.getText()));
+      final String exception = call.execute();
+
+      logCall(call);
+
+      if (null == exception) {
+        // NORMAL EXECUTION
+        if (index == endIndex) break;
+
+        final int transferStatus = observer.getControlTransferStatus();
+        if (0 == transferStatus) {
+          // If there are no transfers, continue to the next instruction.
+          index++;
+          continue;
+        }
+
+        if (null != labelRefs && !labelRefs.isEmpty()) {
+          final LabelReference reference = labelRefs.get(0);
+          final LabelReference.Target target = reference.getTarget();
+
+          // Resets labels to jump (they are no longer needed after being used).
+          labelRefs = null;
+
+          if (null != target) {
+            logText("Jump to label: " + target.getLabel().getUniqueName());
+            index = target.getPosition();
+
+            final long nextAddress = calls.get(index).getAddress();
+            observer.accessLocation("PC").setValue(BigInteger.valueOf(nextAddress));
+            continue;
+          }
+        }
+
+        // If no label references are found within the delay slot we try to use PC to jump
+        final long nextAddress = observer.accessLocation("PC").getValue().longValue();
+        if (!addressMap.containsKey(nextAddress)) {
+          throw new GenerationAbortedException(String.format(
+              "Simulation error. There is no executable code at 0x%x", nextAddress));
+        }
+
+        logText(String.format("Jump to address: 0x%x", nextAddress));
+
+        final int nextIndex = addressMap.get(nextAddress);
+        index = nextIndex;
+      } else {
+        // EXCEPTION IS DETECTED
+
+        // Resets labels to jump (they are no longer needed after being used).
+        labelRefs = null;
+
+        if (exceptionHandlerAddresses.containsKey(exception)) {
+          final long handlerAddress = exceptionHandlerAddresses.get(exception);
+          final int handlerIndex = addressMap.get(handlerAddress);
+          index = handlerIndex;
+        } else {
+          Logger.error("Exception handler for %s is not found. " + MSG_HAVE_TO_CONTINUE, exception);
+          if (index == endIndex) break;
+          index++;
+        }
+      }
+    }
+
+
+/*
     final List<ConcreteCall> prologue = sequence.getPrologue();
     if (!prologue.isEmpty()) {
       logText("Initialization:\r\n");
@@ -100,7 +217,102 @@ final class Executor {
       logText("\r\nMain Code:\r\n");
     }
 
-    executeSequence(sequence.getBody(), sequenceIndex);
+    executeSequence(sequence.getBody(), sequenceIndex);*/
+  }
+
+  private void logCall(final ConcreteCall call) {
+    if (!call.isExecutable()) {
+      return;
+    }
+
+    TestEngine.STATISTICS.instructionExecutedCount++;
+    if (logPrinter != null) {
+      logPrinter.addRecord(Record.newInstruction(call));
+    }
+  }
+
+  private static void registerCalls(
+      final List<ConcreteCall> calls,
+      final Map<Long, Integer> addressMap,
+      final LabelManager labelManager,
+      final List<ConcreteCall> sequence,
+      final int sequenceIndex) {
+    for (final ConcreteCall call : sequence) {
+      calls.add(call);
+      final long address = call.getAddress();
+      final int index = calls.size() - 1;
+
+      if (addressMap.containsKey(address)) {
+        Logger.warning("The %d address is already used.", address);
+      }
+
+      addressMap.put(address, index);
+      labelManager.addAllLabels(call.getLabels(), address, sequenceIndex);
+    }
+  }
+  
+  private static void registerExceptionHandlers(
+      final List<ConcreteCall> calls,
+      final LabelManager labelManager,
+      final Map<Long, Integer> addressMap,
+      final Map<String, List<ConcreteCall>> exceptionHandlers,
+      final Map<String, Long> exceptionHandlerAddresses) {
+    if (exceptionHandlers != null) {
+      for (final Map.Entry<String, List<ConcreteCall>> e : exceptionHandlers.entrySet()) {
+        final String handlerName = e.getKey();
+        final List<ConcreteCall> handlerCalls = e.getValue();
+
+        if (handlerCalls.isEmpty()) {
+          Logger.warning("Empty exception handler: %s", handlerName);
+          continue;
+        }
+
+        exceptionHandlerAddresses.put(handlerName, handlerCalls.get(0).getAddress());
+        registerCalls(calls, addressMap, labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
+      }
+    }
+  }
+  
+  private static void patchLabels(
+      final List<ConcreteCall> calls,
+      final LabelManager labelManager,
+      final Map<Long, Integer> addressMap) {
+    // Resolves all label references and patches the instruction call text accordingly.
+    for (final ConcreteCall call : calls) {
+      for (final LabelReference labelRef : call.getLabelReferences()) {
+        labelRef.resetTarget();
+
+        final Label source = labelRef.getReference();
+        final LabelManager.Target target = labelManager.resolve(source);
+
+        final String uniqueName;
+        final String searchPattern;
+
+        if (null != target) {
+          // For code labels
+          uniqueName = target.getLabel().getUniqueName();
+          final long address = target.getAddress();
+
+          final int index = addressMap.get(address);
+          labelRef.setTarget(target.getLabel(), index);
+
+          labelRef.getPatcher().setValue(BigInteger.valueOf(address));
+          searchPattern = String.format("<label>%d", address);
+        } else {
+          // For data labels 
+          uniqueName = source.getName();
+          searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
+        }
+
+        final String patchedText =  call.getText().replace(searchPattern, uniqueName);
+        call.setText(patchedText);
+      }
+
+      // Kill all unused "<label>" markers.
+      if (null != call.getText()) {
+        call.setText(call.getText().replace("<label>", ""));
+      }
+    }
   }
 
   private void executeSequence(
@@ -319,3 +531,25 @@ final class Executor {
   private static final String MSG_NO_LABEL_DEFINED =
     "Warning: No label called %s is defined in the current sequence. " + MSG_HAVE_TO_CONTINUE;
 }
+
+/*
+final class ExecutorContext {
+  private final Map<Long, ConcreteCall> memoryMap;
+  private final LabelManager labelManager;
+  private final Map<String, Long> exceptionHandlerAddresses;
+
+  public ExecutorContext(
+      final TestSequence sequence,
+      final int sequenceIndex,
+      final Map<String, List<ConcreteCall>> exceptionHandlers) {
+    InvariantChecks.checkNotNull(sequence);
+    InvariantChecks.checkNotNull(exceptionHandlers);
+
+    this.memoryMap = new LinkedHashMap<>();
+    this.labelManager = new LabelManager();
+    this.exceptionHandlerAddresses = new HashMap<>();
+
+    
+  }
+}
+*/
