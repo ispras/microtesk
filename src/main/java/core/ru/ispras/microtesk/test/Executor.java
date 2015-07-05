@@ -112,13 +112,13 @@ final class Executor {
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
 
     final int startIndex = 0;
-    final int endIndex = calls.size();
+    final int endIndex = calls.size() - 1;
 
     final Map<String, Long> exceptionHandlerAddresses = new HashMap<>();
     registerExceptionHandlers(calls, labelManager, addressMap, exceptionHandlers, exceptionHandlerAddresses);
 
     patchLabels(calls, labelManager, addressMap);
-    
+
     List<LabelReference> labelRefs = null;
     int labelRefsIndex = 0;
 
@@ -201,6 +201,8 @@ final class Executor {
         if (exceptionHandlerAddresses.containsKey(exception)) {
           final long handlerAddress = exceptionHandlerAddresses.get(exception);
           final int handlerIndex = addressMap.get(handlerAddress);
+
+          logText(String.format("Jump to exception handler for %s: 0x%x", exception, handlerAddress));
           index = handlerIndex;
         } else {
           Logger.error("Exception handler for %s is not found. " + MSG_HAVE_TO_CONTINUE, exception);
@@ -209,7 +211,6 @@ final class Executor {
         }
       }
     }
-
 
 /*
     final List<ConcreteCall> prologue = sequence.getPrologue();
