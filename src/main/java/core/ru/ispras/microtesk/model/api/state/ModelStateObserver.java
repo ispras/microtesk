@@ -90,7 +90,7 @@ public final class ModelStateObserver implements IModelStateObserver {
 
   @Override
   public LocationAccessor accessLocation(String name) throws ConfigurationException {
-    return accessLocation(name, null);
+    return accessLocation(name, BigInteger.ZERO);
   }
 
   @Override
