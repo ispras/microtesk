@@ -20,9 +20,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -243,7 +245,9 @@ final class Executor {
       final int index = calls.size() - 1;
 
       if (addressMap.containsKey(address)) {
-        Logger.warning("The %d address is already used.", address);
+        final int conflictIndex = addressMap.get(address);
+        Logger.warning("Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
+            call.getText(), index, address, calls.get(conflictIndex).getText(), conflictIndex);
       }
 
       addressMap.put(address, index);
@@ -258,17 +262,24 @@ final class Executor {
       final Map<String, List<ConcreteCall>> exceptionHandlers,
       final Map<String, Long> exceptionHandlerAddresses) {
     if (exceptionHandlers != null) {
+      final Set<Object> handlerSet = new HashSet<>();
       for (final Map.Entry<String, List<ConcreteCall>> e : exceptionHandlers.entrySet()) {
         final String handlerName = e.getKey();
         final List<ConcreteCall> handlerCalls = e.getValue();
-
+ 
         if (handlerCalls.isEmpty()) {
           Logger.warning("Empty exception handler: %s", handlerName);
           continue;
         }
 
+        if (handlerSet.contains(handlerCalls)) {
+          continue;
+        }
+
         exceptionHandlerAddresses.put(handlerName, handlerCalls.get(0).getAddress());
         registerCalls(calls, addressMap, labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
+
+        handlerSet.add(handlerCalls);
       }
     }
   }
