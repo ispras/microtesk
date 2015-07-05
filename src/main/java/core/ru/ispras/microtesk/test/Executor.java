@@ -172,10 +172,9 @@ final class Executor {
           labelRefs = null;
 
           if (null != target) {
-            logText("Jump to label: " + target.getLabel().getUniqueName());
             index = target.getPosition();
-
             final long nextAddress = calls.get(index).getAddress();
+            logText(String.format("Jump to label %s: 0x%x", target.getLabel().getUniqueName(), nextAddress));
             observer.accessLocation("PC").setValue(BigInteger.valueOf(nextAddress));
             continue;
           }
