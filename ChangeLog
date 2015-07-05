@@ -6,6 +6,15 @@
  2015/03/24 MicroTESK 2.2 beta
 --------------------------------------------------------------------------------
 
+ 2015/07/06 MicroTESK 2.2.8 beta
+ 
+ The new build contains the following changes:
+ 
+ - Support for preprocessor directives
+ - Support for exception handling
+ - Support for tracking instruction addresses during simulation (including
+   tracking addresses in indirect branches)
+
  2015/06/26 MicroTESK 2.2.7 beta
  
  The new build contains the following changes:
