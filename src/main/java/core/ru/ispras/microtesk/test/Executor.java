@@ -121,6 +121,10 @@ final class Executor {
     int labelRefsIndex = 0;
 
     int index = startIndex;
+
+    final long startAdress = calls.get(startIndex).getAddress();
+    observer.accessLocation("PC").setValue(BigInteger.valueOf(startAdress));
+
     while (index >= 0 && index < calls.size()) {
       final ConcreteCall call = calls.get(index);
 
