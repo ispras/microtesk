@@ -31,7 +31,6 @@ import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEquality;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -167,8 +166,8 @@ final class GuardExtractor {
 
       case CONCAT: {
         final MmuExpression mmuExpr = (MmuExpression) variableAtom.getObject();
-        eq = new MmuGuard(new MmuCondition(new MmuEquality(MmuEquality.Type.EQUAL, mmuExpr)));
-        noteq = new MmuGuard(new MmuCondition(new MmuEquality(MmuEquality.Type.NOT_EQUAL,mmuExpr)));
+        eq = new MmuGuard(MmuCondition.EQ(mmuExpr));
+        noteq = new MmuGuard(MmuCondition.NEQ(mmuExpr));
         break;
       }
 

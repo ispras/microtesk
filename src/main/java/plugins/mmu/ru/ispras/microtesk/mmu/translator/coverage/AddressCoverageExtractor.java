@@ -20,8 +20,6 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEquality;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
@@ -40,24 +38,20 @@ final class AddressCoverageExtractor {
    * @return the hazards list.
    */
   public List<MemoryHazard> getHazards() {
-    final List<MemoryHazard> hazardList = new ArrayList<>();
+    final List<MemoryHazard> hazards = new ArrayList<>();
 
     // Address1 != Address2.
-    final MmuEquality equalityNoEqual =
-        new MmuEquality(MmuEquality.Type.NOT_EQUAL, MmuExpression.VAR(address.getAddress()));
-    final MmuCondition conditionNoEqual = new MmuCondition(equalityNoEqual);
+    final MemoryHazard hazardNoEqual = new MemoryHazard(MemoryHazard.Type.ADDR_NOT_EQUAL, address,
+        MmuCondition.EQ(address.getAddress()));
 
-    final MemoryHazard hazardNoEqual = new MemoryHazard(MemoryHazard.Type.ADDR_NOT_EQUAL, address, conditionNoEqual);
-    hazardList.add(hazardNoEqual);
+    hazards.add(hazardNoEqual);
 
     // Address1 == Address2.
-    final MmuEquality equalityEqual =
-        new MmuEquality(MmuEquality.Type.EQUAL, MmuExpression.VAR(address.getAddress()));
-    final MmuCondition conditionEqual = new MmuCondition(equalityEqual);
+    final MemoryHazard hazardEqual = new MemoryHazard(MemoryHazard.Type.ADDR_EQUAL, address,
+        MmuCondition.NEQ(address.getAddress()));
 
-    final MemoryHazard hazardEqual = new MemoryHazard(MemoryHazard.Type.ADDR_EQUAL, address, conditionEqual);
-    hazardList.add(hazardEqual);
+    hazards.add(hazardEqual);
 
-    return hazardList;
+    return hazards;
   }
 }

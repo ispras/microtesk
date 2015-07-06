@@ -44,6 +44,22 @@ public final class MmuCondition {
     return new MmuCondition(MmuEquality.EQ(expression));
   }
 
+  public static MmuCondition EQ(final IntegerField field) {
+    return new MmuCondition(MmuEquality.EQ(field));
+  }
+
+  public static MmuCondition NEQ(final IntegerField field) {
+    return new MmuCondition(MmuEquality.NEQ(field));
+  }
+
+  public static MmuCondition EQ(final IntegerVariable variable) {
+    return new MmuCondition(MmuEquality.EQ(variable));
+  }
+
+  public static MmuCondition NEQ(final IntegerVariable variable) {
+    return new MmuCondition(MmuEquality.NEQ(variable));
+  }
+
   public static MmuCondition EQ(final MmuExpression expression, final BigInteger value) {
     return new MmuCondition(MmuEquality.EQ(expression, value));
   }
@@ -205,18 +221,6 @@ public final class MmuCondition {
 
   @Override
   public String toString() {
-    final String newLine = System.getProperty("line.separator");
-
-    final StringBuilder string = new StringBuilder("Condition: {");
-    string.append(newLine);
-    for (final MmuEquality equality : equalities) {
-      string.append(equality.toString());
-      string.append(",");
-      string.append(newLine);
-    }
-    string.append("}");
-    string.append(newLine);
-
-    return string.toString();
+    return String.format("%s %s", type, equalities);
   }
 }

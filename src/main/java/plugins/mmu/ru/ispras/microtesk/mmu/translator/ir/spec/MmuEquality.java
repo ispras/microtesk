@@ -26,39 +26,37 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuEquality {
-
   /**
    * This enumeration contains equality/inequality types.
    */
   public static enum Type {
     /** Expression1 == Expression2. */
     EQUAL,
-    /** Expression1 != Expression2. */
-    NOT_EQUAL,
     /** Expression1 == Constant2. */
     EQUAL_CONST,
-    /** Expression1 != Constant2. */
-    NOT_EQUAL_CONST,
     /** Expression1 == ReplacedTag2. */
     EQUAL_REPLACED,
-    /** Expression1 != ReplacedTag2. */
-    NOT_EQUAL_REPLACED
+  }
+
+  public static MmuEquality NOT(final MmuEquality equality) {
+    return new MmuEquality(equality.getType(), !equality.isNegated(),
+        equality.getExpression(), equality.getConstant());
   }
 
   public static MmuEquality EQ(final MmuExpression expression) {
-    return new MmuEquality(Type.EQUAL, expression);
+    return new MmuEquality(Type.EQUAL, false, expression);
   }
 
   public static MmuEquality NEQ(final MmuExpression expression) {
-    return new MmuEquality(Type.NOT_EQUAL, expression);
+    return new MmuEquality(Type.EQUAL, true, expression);
   }
 
   public static MmuEquality EQ(final MmuExpression expression, final BigInteger value) {
-    return new MmuEquality(Type.EQUAL_CONST, expression, value);
+    return new MmuEquality(Type.EQUAL_CONST, false, expression, value);
   }
 
   public static MmuEquality NEQ(final MmuExpression expression, final BigInteger value) {
-    return new MmuEquality(Type.NOT_EQUAL_CONST, expression, value);
+    return new MmuEquality(Type.EQUAL_CONST, true, expression, value);
   }
 
   public static MmuEquality EQ(final IntegerField field) {
@@ -67,6 +65,14 @@ public final class MmuEquality {
 
   public static MmuEquality NEQ(final IntegerField field) {
     return NEQ(MmuExpression.FIELD(field));
+  }
+
+  public static MmuEquality EQ(final IntegerVariable variable) {
+    return EQ(MmuExpression.VAR(variable));
+  }
+
+  public static MmuEquality NEQ(final IntegerVariable variable) {
+    return NEQ(MmuExpression.VAR(variable));
   }
 
   public static MmuEquality EQ(final IntegerField field, final BigInteger value) {
@@ -85,84 +91,63 @@ public final class MmuEquality {
     return NEQ(MmuExpression.VAR(variable), value);
   }
 
-  /** The equality type. */
+  /** Equality type. */
   private final Type type;
 
-  /** The expression. */
+  /** Negation flag. */
+  private final boolean negation;
+
+  /** Expression. */
   private final MmuExpression expression;
-  /** The constant. */
+  /** Constant. */
   private final BigInteger constant;
 
-  /**
-   * Constructs an equality/inequality.
-   * 
-   * @param type the equality type.
-   * @param expression the expression.
-   * @param constant the constant.
-   * @throws NullPointerException if some parameters are null.
-   */
-  public MmuEquality(final Type type, final MmuExpression expression, final BigInteger constant) {
+  public MmuEquality(
+      final Type type,
+      final boolean negation,
+      final MmuExpression expression,
+      final BigInteger constant) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(expression);
     InvariantChecks.checkNotNull(constant);
 
     this.type = type;
+    this.negation = negation;
     this.expression = expression;
     this.constant = constant;
   }
 
-  /**
-   * Constructs an equality/inequality.
-   * 
-   * @param type the equality type.
-   * @param expression the lhs/rhs expression.
-   */
-  public MmuEquality(final Type type, final MmuExpression expression) {
-    this(type, expression, BigInteger.ZERO);
+  public MmuEquality(final Type type, final boolean negation, final MmuExpression expression) {
+    this(type, negation, expression, BigInteger.ZERO);
   }
 
-  /**
-   * Returns the equality type.
-   * 
-   * @return the equality type.
-   */
   public Type getType() {
     return type;
   }
 
-  /**
-   * Returns the expression of the equality/inequality.
-   * 
-   * @return the expression.
-   */
+  public boolean isNegated() {
+    return negation;
+  }
+
   public MmuExpression getExpression() {
     return expression;
   }
 
-  /**
-   * Returns the constant of the equality/inequality.
-   * 
-   * @return the constant.
-   */
   public BigInteger getConstant() {
     return constant;
   }
 
   @Override
   public String toString() {
+    final String sign = (negation ? "!=" : "=");
+
     switch (type) {
       case EQUAL:
-        return String.format("%s=%s", expression, expression);
-      case NOT_EQUAL:
-        return String.format("%s!=%s", expression, expression);
+        return String.format("%s%s%s", expression, sign, expression);
       case EQUAL_CONST:
-        return String.format("%s=%s", expression, constant.toString(16));
-      case NOT_EQUAL_CONST:
-        return String.format("%s!=%s", expression, constant.toString(16));
-      case EQUAL_REPLACED:
-        return String.format("%s=REPLACED", expression);
+        return String.format("%s%s%s", expression, sign, constant.toString(16));
       default:
-        return String.format("%s!=REPLACED", expression);
+        return String.format("%s%sREPLACED", expression, sign);
     }
   }
 }

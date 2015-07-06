@@ -860,19 +860,7 @@ public final class MemoryAccessStructureChecker {
     InvariantChecks.checkNotNull(equality);
 
     final BigInteger equalityConstant = equality.getConstant();
-
-    boolean equalityType;
-    switch (equality.getType()) {
-      case EQUAL_CONST:
-        equalityType = true;
-        break;
-      case NOT_EQUAL_CONST:
-        equalityType = false;
-        break;
-      default:
-        throw new IllegalStateException(String.format("The equality type is not constant: %s",
-            equality));
-    }
+    boolean equalityType = !equality.isNegated();
 
     // Add variables to the solver.
     final IntegerClause clause =
@@ -1124,23 +1112,10 @@ public final class MemoryAccessStructureChecker {
         for (final MmuEquality equality : equalities) {
           final MmuExpression expression = equality.getExpression();
 
-          boolean skipEquality = false;
           if (expression != null) {
-            boolean equalityType = false;;
+            boolean equalityType = !equality.isNegated();
 
-            switch (equality.getType()) {
-              case EQUAL:
-                equalityType = true;
-                break;
-              case NOT_EQUAL:
-                equalityType = false;
-                break;
-              default:
-                skipEquality = true;
-                break;
-            }
-
-            if (skipEquality) {
+            if (equality.getType() != MmuEquality.Type.EQUAL) {
               continue;
             }
 

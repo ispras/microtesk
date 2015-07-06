@@ -63,7 +63,7 @@ final class BufferCoverageExtractor {
         final List<MmuEquality> tagNoReplacedEqualities = new ArrayList<>(tagNoEqualEqualities);
 
         final MmuEquality equalityTagNoReplaced =
-            new MmuEquality(MmuEquality.Type.NOT_EQUAL_REPLACED, buffer.getTagExpression());
+            new MmuEquality(MmuEquality.Type.EQUAL_REPLACED, true, buffer.getTagExpression());
 
         tagNoReplacedEqualities.add(equalityTagNoReplaced);
 
@@ -77,7 +77,7 @@ final class BufferCoverageExtractor {
         final List<MmuEquality> tagReplacedEqualities = new ArrayList<>(tagNoEqualEqualities);
 
         final MmuEquality equalityTagReplaced = new MmuEquality(MmuEquality.Type.EQUAL_REPLACED,
-            buffer.getTagExpression());
+            false, buffer.getTagExpression());
 
         tagReplacedEqualities.add(equalityTagReplaced);
 
