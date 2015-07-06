@@ -56,14 +56,14 @@ public final class Parameters {
   public static final Option GENERATE = 
       newOption("generate", false, "Generates test programs");
 
+  public static final Option OUTDIR =
+      newOption("output-dir", true, "Sets where to place generated files");
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Translator Options
 
   public static final Option INCLUDE =
       newOption("include", true, "Sets include files directories", TRANSLATE);
-
-  public static final Option OUTDIR =
-      newOption("output-dir", true, "Sets where to place generated files", TRANSLATE);
 
   public static final Option EXTDIR =
       newOption("extension-dir", true,

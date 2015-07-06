@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -40,6 +41,7 @@ public final class Printer {
   private final static int LINE_WIDTH = 80;
 
   private final IModelStateObserver observer;
+  private final String outDir;
   private final String indentToken;
   private final String commentToken;
   private final String separatorToken; 
@@ -69,6 +71,7 @@ public final class Printer {
    */
 
   public Printer(
+      final String outDir,
       final String codeFilePrefix,
       final String codeFileExtension,
       final IModelStateObserver observer,
@@ -78,12 +81,14 @@ public final class Printer {
       final boolean commentsEnabled,
       final boolean commentsDebug) {
 
+    checkNotNull(outDir);
     checkNotNull(codeFilePrefix);
     checkNotNull(codeFileExtension);
     checkNotNull(observer);
     checkNotNull(indentToken);
     checkNotNull(commentToken);
 
+    this.outDir = outDir;
     this.observer = observer;
     this.indentToken = indentToken;
     this.commentToken = commentToken;
@@ -111,7 +116,14 @@ public final class Printer {
   public PrintWriter newFileWriter(final String fileName) throws IOException {
     checkNotNull(fileName);
 
-    final PrintWriter writer = new PrintWriter(new FileWriter(fileName));
+    final File file = new File(outDir, fileName);
+    final File fileParent = file.getParentFile();
+    if (null != fileParent) {
+      fileParent.mkdirs();
+    }
+
+    final String fullFileName = file.getAbsolutePath();
+    final PrintWriter writer = new PrintWriter(new FileWriter(fullFileName));
     if (commentsEnabled) {
       // Prints MicroTESK information to the file (as the top file header). 
       printToFile(writer, separator);

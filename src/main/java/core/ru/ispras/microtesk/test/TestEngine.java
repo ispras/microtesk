@@ -114,6 +114,7 @@ public final class TestEngine {
   private String separatorToken = "=";
 
   // Settings from command line and configuration file
+  private static String outDir = SysUtils.getHomeDir();
   private static int branchExecutionLimit = 100;
   private static String codeFileExtension = ".asm";
   private static String codeFilePrefix = "test";
@@ -137,6 +138,10 @@ public final class TestEngine {
     return model.getMetaData();
   }
 
+  public static void setOutDir(final String value) {
+    outDir = value;
+  }
+  
   public static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
   }
@@ -312,6 +317,7 @@ public final class TestEngine {
         context, observer, branchExecutionLimit, logPrinter);
 
     final Printer printer = new Printer(
+        outDir,
         codeFilePrefix,
         codeFileExtension,
         observer,
@@ -690,8 +696,7 @@ public final class TestEngine {
 
       final PrintWriter fileWriter;
       try {
-        final String exceptionFileNameAbsolute = new File(exceptionFileName).getAbsolutePath();
-        fileWriter = printer.newFileWriter(exceptionFileNameAbsolute);
+        fileWriter = printer.newFileWriter(exceptionFileName);
       } catch (final IOException e) {
         throw new GenerationAbortedException(String.format(
             "Failed to create the %s file. Reason: %s", exceptionFileName, e.getMessage()));

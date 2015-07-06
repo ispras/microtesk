@@ -173,6 +173,10 @@ public final class MicroTESK {
     final String modelName = args[0];
     final String templateFile = args[1];
 
+    if (params.hasOption(Parameters.OUTDIR)) {
+      TestEngine.setOutDir(params.getOptionValue(Parameters.OUTDIR));
+    }
+
     if (params.hasOption(Parameters.RANDOM)) {
       final int randomSeed = params.getOptionValueAsInt(Parameters.RANDOM);
       TestEngine.setRandomSeed(randomSeed);
