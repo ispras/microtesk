@@ -164,9 +164,8 @@ public final class ModeAllocator {
 
   private void use(final String mode, final BigInteger value) {
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
-    InvariantChecks.checkNotNull(allocationTable);
 
-    if (allocationTable.exists(value.intValue())) {
+    if (allocationTable != null && allocationTable.exists(value.intValue())) {
       allocationTable.use(value.intValue());
     }
   }
