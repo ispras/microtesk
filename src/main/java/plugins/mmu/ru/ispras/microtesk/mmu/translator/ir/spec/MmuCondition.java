@@ -16,113 +16,72 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
- * {@link MmuCondition} represents a set of equalities/inequalities.
+ * {@link MmuCondition} represents a set of {@code AND}- or {@code OR}-connected equalities or
+ * inequalities ({@link MmuEquality}).
  * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MmuCondition {
-  /** The list of equalities/inequalities. */
-  private final List<MmuEquality> equalities = new ArrayList<>();
-
-  /**
-   * Creates a condition with equality relation between the variable and its value.
-   * 
-   * @param variable the variable.
-   * @param lo the lower bit index.
-   * @param hi the upper bit index.
-   * @param value the constant.
-   * @return the condition.
-   */
-  public static MmuCondition EQ(final IntegerVariable variable, final int lo, final int hi,
-      final BigInteger value) {
-    final MmuCondition condition = new MmuCondition(MmuEquality.EQ(variable, lo, hi, value));
-    return condition;
+  public static enum Type {
+    AND,
+    OR
   }
 
-  /**
-   * Creates a condition with inequality relation between the variable and its value.
-   * 
-   * @param variable the variable.
-   * @param lo the lower bit index.
-   * @param hi the upper bit index.
-   * @param value the constant.
-   * @return the condition.
-   */
-  public static MmuCondition NEQ(final IntegerVariable variable, final int lo, final int hi,
-      final BigInteger value) {
-    final MmuCondition condition = new MmuCondition(MmuEquality.NEQ(variable, lo, hi, value));
-    return condition;
+  public static MmuCondition EQ(final MmuExpression expression) {
+    return new MmuCondition(MmuEquality.EQ(expression));
   }
 
-  /**
-   * Creates a condition with equality relation between the variable and its value.
-   * 
-   * @param variable the variable.
-   * @param bit the bit index.
-   * @param value the constant.
-   * @return the condition.
-   */
-  public static MmuCondition EQ(final IntegerVariable variable, final int bit,
-      final BigInteger value) {
-    return EQ(variable, bit, bit, value);
+  public static MmuCondition NEQ(final MmuExpression expression) {
+    return new MmuCondition(MmuEquality.EQ(expression));
   }
 
-  /**
-   * Creates a condition with inequality relation between the variable and its value.
-   * 
-   * @param variable the variable.
-   * @param bit the bit index.
-   * @param value the constant.
-   * @return the condition.
-   */
-  public static MmuCondition NEQ(final IntegerVariable variable, final int bit,
-      final BigInteger value) {
-    return NEQ(variable, bit, bit, value);
+  public static MmuCondition EQ(final MmuExpression expression, final BigInteger value) {
+    return new MmuCondition(MmuEquality.EQ(expression, value));
   }
 
-  /**
-   * Creates a condition with equality relation between the variable and its value.
-   * 
-   * @param variable the variable.
-   * @param value the constant.
-   * @return the condition.
-   */
+  public static MmuCondition NEQ(final MmuExpression expression, final BigInteger value) {
+    return new MmuCondition(MmuEquality.EQ(expression, value));
+  }
+
+  public static MmuCondition EQ(final IntegerField field, final BigInteger value) {
+    return new MmuCondition(MmuEquality.EQ(field, value));
+  }
+
+  public static MmuCondition NEQ(final IntegerField field, final BigInteger value) {
+    return new MmuCondition(MmuEquality.NEQ(field, value));
+  }
+
   public static MmuCondition EQ(final IntegerVariable variable, final BigInteger value) {
-    return EQ(variable, 0, variable.getWidth() - 1, value);
+    return new MmuCondition(MmuEquality.EQ(variable, value));
   }
 
-  /**
-   * Creates a condition with inequality relation between the variable and its value.
-   * 
-   * @param variable the variable.
-   * @param value the constant.
-   * @return the condition.
-   */
   public static MmuCondition NEQ(final IntegerVariable variable, final BigInteger value) {
-    return NEQ(variable, 0, variable.getWidth() - 1, value);
+    return new MmuCondition(MmuEquality.NEQ(variable, value));
   }
 
-  /**
-   * Creates a condition consisting of a given equalities/inequalities.
-   * 
-   * @param equalities the equalities.
-   * @return the condition.
-   */
+  public static MmuCondition AND(final List<MmuEquality> equalities) {
+    return new MmuCondition(Type.AND, equalities);
+  }
+
+  public static MmuCondition OR(final List<MmuEquality> equalities) {
+    return new MmuCondition(Type.OR, equalities);
+  }
+
   public static MmuCondition AND(final MmuEquality... equalities) {
-    final MmuCondition condition = new MmuCondition();
+    return AND(Arrays.asList(equalities));
+  }
 
-    for (final MmuEquality equality : equalities) {
-      condition.addEquality(equality);
-    }
-
-    return condition;
+  public static MmuCondition OR(final MmuEquality... equalities) {
+    return OR(Arrays.asList(equalities));
   }
 
   /**
@@ -133,8 +92,8 @@ public final class MmuCondition {
    * @param max the upper bound of the range.
    * @return the condition or {@code null}.
    */
-  public static MmuCondition RANGE(final IntegerVariable var,
-      final BigInteger min, final BigInteger max) {
+  public static MmuCondition RANGE(
+      final IntegerVariable var, final BigInteger min, final BigInteger max) {
 
     if (min.compareTo(max) == 0) {
       return EQ(var, min);
@@ -154,7 +113,8 @@ public final class MmuCondition {
 
     if (hi + 1 != var.getWidth()) {
       // Equality: VAR[HI:32] = DEAD BEEF
-      equalities.add(MmuEquality.EQ(var, hi + 1, var.getWidth() - 1, min.shiftRight(hi)));
+      equalities.add(
+          MmuEquality.EQ(new IntegerField(var, hi + 1, var.getWidth() - 1), min.shiftRight(hi)));
     }
 
     // MIN = DEAD BEEF XXXX 0000
@@ -183,40 +143,55 @@ public final class MmuCondition {
 
       for (int i = 0; i < min1.longValue(); i++) {
         // Inequality: XXXX != i
-        equalities.add(MmuEquality.NEQ(var, lo, hi, BigInteger.valueOf(i)));
+        equalities.add(MmuEquality.NEQ(new IntegerField(var, lo, hi), BigInteger.valueOf(i)));
       }
     }
 
     return AND(equalities.toArray(new MmuEquality[] {}));
   }
 
+  /** Condition connective. */
+  private final Type type;
+
+  /** Set of equalities and inequalities. */
+  private final List<MmuEquality> equalities = new ArrayList<>();
+
   /**
    * Constructs a condition.
+   * 
+   * @param type the connective.
+   * @param equalities the equalities/inequalities.
    */
-  public MmuCondition() {}
+  public MmuCondition(final Type type, final List<MmuEquality> equalities) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(equalities);
+
+    this.type = type;
+    this.equalities.addAll(equalities);
+  }
 
   /**
    * Constructs a copy of the condition.
    * 
    * @param condition the condition to be copied.
-   * @throws NullPointerException if {@code condition} is null.
    */
   public MmuCondition(final MmuCondition condition) {
     InvariantChecks.checkNotNull(condition);
 
-    addEqualities(condition.getEqualities());
+    this.type = condition.type;
+    this.equalities.addAll(condition.getEqualities());
   }
 
   /**
-   * Constructs a new MmuCondition with a given MmuEquality.
+   * Constructs a condition consisting of a given equality/inequality.
    * 
    * @param equality the equality/inequality.
-   * @throws NullPointerException if {@code equality} is null.
    */
   public MmuCondition(final MmuEquality equality) {
     InvariantChecks.checkNotNull(equality);
 
-    equalities.add(equality);
+    this.type = Type.AND;
+    this.equalities.add(equality);
   }
 
   /**
@@ -226,30 +201,6 @@ public final class MmuCondition {
    */
   public List<MmuEquality> getEqualities() {
     return equalities;
-  }
-
-  /**
-   * Adds the equality/inequality to the condition.
-   * 
-   * @param equality the equality/inequality.
-   * @throws NullPointerException if {@code equality} is null.
-   */
-  public void addEquality(final MmuEquality equality) {
-    InvariantChecks.checkNotNull(equality);
-
-    equalities.add(equality);
-  }
-
-  /**
-   * Adds the equalities/inequalities to the condition.
-   * 
-   * @param equalities the equalities/inequalities.
-   * @throws NullPointerException if {@code equalities} is null.
-   */
-  public void addEqualities(final Collection<MmuEquality> equalities) {
-    InvariantChecks.checkNotNull(equalities);
-
-    this.equalities.addAll(equalities);
   }
 
   @Override

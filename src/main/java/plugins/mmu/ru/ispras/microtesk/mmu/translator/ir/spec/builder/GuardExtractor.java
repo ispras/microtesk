@@ -160,8 +160,8 @@ final class GuardExtractor {
         final IntegerVariable intVar = intField.getVariable();
         final int lo = intField.getLoIndex();
         final int hi = intField.getHiIndex();
-        eq = new MmuGuard(MmuCondition.EQ(intVar, lo, hi, value));
-        noteq = new MmuGuard(MmuCondition.NEQ(intVar, lo, hi, value));
+        eq = new MmuGuard(MmuCondition.EQ(new IntegerField(intVar, lo, hi), value));
+        noteq = new MmuGuard(MmuCondition.NEQ(new IntegerField(intVar, lo, hi), value));
         break;
       }
 

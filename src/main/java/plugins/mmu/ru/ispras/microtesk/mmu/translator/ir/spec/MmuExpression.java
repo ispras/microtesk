@@ -41,18 +41,18 @@ public final class MmuExpression {
     return new MmuExpression();
   }
 
-  /**
-   * Creates a single-variable expression.
-   * 
-   * @param variable the variable.
-   * @return the expression.
-   */
+  public static MmuExpression FIELD(final IntegerField field) {
+    final MmuExpression expression = new MmuExpression();
+    expression.addLoTerm(field);
+    return expression;
+  }
+
   public static MmuExpression VAR(final IntegerVariable variable) {
     final MmuExpression expression = new MmuExpression();
     expression.addLoTerm(new IntegerField(variable));
-
     return expression;
   }
+
 
   /**
    * Creates a bits-selection expression.

@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
@@ -44,78 +45,44 @@ public final class MmuEquality {
     NOT_EQUAL_REPLACED
   }
 
-  /**
-   * Creates a {@code x[lo..hi] == const} equality.
-   * 
-   * @param var the variable.
-   * @param lo the lower bit index.
-   * @param hi the upper bit index.
-   * @param val the constant.
-   * @return the equality.
-   */
-  public static MmuEquality EQ(final IntegerVariable var, final int lo, final int hi,
-      final BigInteger val) {
-    return new MmuEquality(Type.EQUAL_CONST, MmuExpression.VAR(var, lo, hi), val);
+  public static MmuEquality EQ(final MmuExpression expression) {
+    return new MmuEquality(Type.EQUAL, expression);
   }
 
-  /**
-   * Creates a {@code x != const} inequality.
-   * 
-   * @param var the variable.
-   * @param lo the lower bit index.
-   * @param hi the upper bit index.
-   * @param val the constant.
-   * @return the inequality.
-   */
-  public static MmuEquality NEQ(final IntegerVariable var, final int lo, final int hi,
-      final BigInteger val) {
-    return new MmuEquality(Type.NOT_EQUAL_CONST, MmuExpression.VAR(var, lo, hi), val);
+  public static MmuEquality NEQ(final MmuExpression expression) {
+    return new MmuEquality(Type.NOT_EQUAL, expression);
   }
 
-  /**
-   * Creates a {@code x[bit] == const} equality.
-   * 
-   * @param var the variable.
-   * @param bit the bit index.
-   * @param val the constant.
-   * @return the equality.
-   */
-  public static MmuEquality EQ(final IntegerVariable var, final int bit, final BigInteger val) {
-    return EQ(var, bit, bit, val);
+  public static MmuEquality EQ(final MmuExpression expression, final BigInteger value) {
+    return new MmuEquality(Type.EQUAL_CONST, expression, value);
   }
 
-  /**
-   * Creates a {@code x[bit] != const} inequality.
-   * 
-   * @param var the variable.
-   * @param bit the bit index.
-   * @param val the constant.
-   * @return the inequality.
-   */
-  public static MmuEquality NEQ(final IntegerVariable var, final int bit, final BigInteger val) {
-    return NEQ(var, bit, bit, val);
+  public static MmuEquality NEQ(final MmuExpression expression, final BigInteger value) {
+    return new MmuEquality(Type.NOT_EQUAL_CONST, expression, value);
   }
 
-  /**
-   * Creates a {@code x == const} equality.
-   * 
-   * @param var the variable.
-   * @param val the constant.
-   * @return the equality.
-   */
-  public static MmuEquality EQ(final IntegerVariable var, final BigInteger val) {
-    return EQ(var, 0, (var.getWidth() - 1), val);
+  public static MmuEquality EQ(final IntegerField field) {
+    return EQ(MmuExpression.FIELD(field));
   }
 
-  /**
-   * Creates a {@code x != const} inequality.
-   * 
-   * @param var the variable.
-   * @param val the constant.
-   * @return the inequality.
-   */
-  public static MmuEquality NEQ(final IntegerVariable var, final BigInteger val) {
-    return NEQ(var, 0, var.getWidth() - 1, val);
+  public static MmuEquality NEQ(final IntegerField field) {
+    return NEQ(MmuExpression.FIELD(field));
+  }
+
+  public static MmuEquality EQ(final IntegerField field, final BigInteger value) {
+    return EQ(MmuExpression.FIELD(field), value);
+  }
+
+  public static MmuEquality NEQ(final IntegerField field, final BigInteger value) {
+    return NEQ(MmuExpression.FIELD(field), value);
+  }
+
+  public static MmuEquality EQ(final IntegerVariable variable, final BigInteger value) {
+    return EQ(MmuExpression.VAR(variable), value);
+  }
+
+  public static MmuEquality NEQ(final IntegerVariable variable, final BigInteger value) {
+    return NEQ(MmuExpression.VAR(variable), value);
   }
 
   /** The equality type. */

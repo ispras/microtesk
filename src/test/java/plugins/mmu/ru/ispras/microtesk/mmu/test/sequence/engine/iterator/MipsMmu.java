@@ -309,9 +309,9 @@ public final class MipsMmu {
       new MmuGuard(jtlb, BufferAccessEvent.HIT));
   public final MmuTransition afterJtlb = new MmuTransition(hitJtlb, selectVpn);
   public final MmuTransition ifVpn0 = new MmuTransition(selectVpn, getLo0,
-      new MmuGuard(MmuCondition.EQ(va, 12, BigInteger.ZERO)));
+      new MmuGuard(MmuCondition.EQ(new IntegerField(va, 12), BigInteger.ZERO)));
   public final MmuTransition ifVpn1 = new MmuTransition(selectVpn, getLo1,
-      new MmuGuard(MmuCondition.EQ(va, 12, BigInteger.ONE)));
+      new MmuGuard(MmuCondition.EQ(new IntegerField(va, 12), BigInteger.ONE)));
   public final MmuTransition afterLo0 = new MmuTransition(getLo0, checkG);
   public final MmuTransition afterLo1 = new MmuTransition(getLo1, checkG);
   public final MmuTransition ifLocal = new MmuTransition(checkG, local,
@@ -337,10 +337,10 @@ public final class MipsMmu {
       new MmuGuard(MmuCondition.EQ(isHiMem, BigInteger.ZERO)));
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
       new MmuGuard(
-          MmuCondition.EQ(c, 0, 1, BigInteger.valueOf(0x2))));
+          MmuCondition.EQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
   public final MmuTransition ifCached = new MmuTransition(startCache, startL1,
       new MmuGuard(
-          MmuCondition.NEQ(c, 0, 1, BigInteger.valueOf(0x2))));
+          MmuCondition.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
   public final MmuTransition ifL1Miss = new MmuTransition(startL1, checkL2,
       new MmuGuard(l1, BufferAccessEvent.MISS));
   public final MmuTransition ifL1Hit = new MmuTransition(startL1, hitL1,
@@ -349,13 +349,13 @@ public final class MipsMmu {
   public final MmuTransition ifL2Bypass = new MmuTransition(checkL2, startMem,
       new MmuGuard(
           MmuCondition.AND(
-              MmuEquality.NEQ(c, 0, 1, BigInteger.valueOf(0x2)),
-              MmuEquality.NEQ(c, 0, 1, BigInteger.valueOf(0x3)))));
+              MmuEquality.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2)),
+              MmuEquality.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x3)))));
   public final MmuTransition ifL2Used = new MmuTransition(checkL2, startL2,
       new MmuGuard(
           MmuCondition.AND(
-              MmuEquality.NEQ(c, 0, 1, BigInteger.valueOf(0x0)),
-              MmuEquality.NEQ(c, 0, 1, BigInteger.valueOf(0x1)))));
+              MmuEquality.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x0)),
+              MmuEquality.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x1)))));
   public final MmuTransition ifL2Miss = new MmuTransition(startL2, startMem,
       new MmuGuard(l2, BufferAccessEvent.MISS));
   public final MmuTransition ifL2Hit = new MmuTransition(startL2, hitL2,

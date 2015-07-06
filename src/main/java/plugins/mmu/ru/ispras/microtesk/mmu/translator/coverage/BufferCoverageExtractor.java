@@ -37,77 +37,69 @@ final class BufferCoverageExtractor {
     final List<MemoryHazard> hazards = new ArrayList<>();
 
     if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-      final MmuCondition conditionIndexNoEqual = new MmuCondition();
-
-      final MmuEquality equalityIndexNoEqual =
-          new MmuEquality(MmuEquality.Type.NOT_EQUAL, buffer.getIndexExpression());
-      conditionIndexNoEqual.addEquality(equalityIndexNoEqual);
-
       // Index1 != Index2.
-      final MemoryHazard hazardIndexNoEqual =
-          new MemoryHazard(MemoryHazard.Type.INDEX_NOT_EQUAL, buffer, conditionIndexNoEqual);
+      final MemoryHazard hazardIndexNoEqual = new MemoryHazard(MemoryHazard.Type.INDEX_NOT_EQUAL,
+          buffer, MmuCondition.NEQ(buffer.getIndexExpression()));
+
       hazards.add(hazardIndexNoEqual);
     }
 
     if (buffer.getTagExpression() != null) {
-      final MmuCondition conditionTagNoEqual = new MmuCondition();
+      final List<MmuEquality> tagNoEqualEqualities = new ArrayList<>();
 
       if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-        final MmuEquality equalityIndexEqual =
-            new MmuEquality(MmuEquality.Type.EQUAL, buffer.getIndexExpression());
-        conditionTagNoEqual.addEquality(equalityIndexEqual);
+        tagNoEqualEqualities.add(MmuEquality.EQ(buffer.getIndexExpression()));
       }
 
-      final MmuEquality equalityTagNoEqual =
-          new MmuEquality(MmuEquality.Type.NOT_EQUAL, buffer.getTagExpression());
-      conditionTagNoEqual.addEquality(equalityTagNoEqual);
+      tagNoEqualEqualities.add(MmuEquality.NEQ(buffer.getTagExpression()));
 
       if (!buffer.isReplaceable()) {
         // Index1 == Index2 && Tag1 != Tag2.
-        final MemoryHazard hazardTagNoEqual =
-            new MemoryHazard(MemoryHazard.Type.TAG_NOT_EQUAL, buffer, conditionTagNoEqual);
+        final MemoryHazard hazardTagNoEqual = new MemoryHazard(MemoryHazard.Type.TAG_NOT_EQUAL,
+            buffer, MmuCondition.AND(tagNoEqualEqualities));
+
         hazards.add(hazardTagNoEqual);
       } else {
-        final MmuCondition conditionTagNoReplaced = new MmuCondition(conditionTagNoEqual);
+        final List<MmuEquality> tagNoReplacedEqualities = new ArrayList<>(tagNoEqualEqualities);
 
         final MmuEquality equalityTagNoReplaced =
             new MmuEquality(MmuEquality.Type.NOT_EQUAL_REPLACED, buffer.getTagExpression());
 
-        conditionTagNoReplaced.addEquality(equalityTagNoReplaced);
+        tagNoReplacedEqualities.add(equalityTagNoReplaced);
 
         // Index1 == Index2 && Tag1 != Tag2 && Tag1 != Replaced2.
         final MemoryHazard hazardTagNoReplaced =
-            new MemoryHazard(MemoryHazard.Type.TAG_NOT_REPLACED, buffer, conditionTagNoReplaced);
+            new MemoryHazard(MemoryHazard.Type.TAG_NOT_REPLACED, buffer,
+                MmuCondition.AND(tagNoReplacedEqualities));
+
         hazards.add(hazardTagNoReplaced);
 
-        final MmuCondition conditionTagReplaced = new MmuCondition(conditionTagNoEqual);
+        final List<MmuEquality> tagReplacedEqualities = new ArrayList<>(tagNoEqualEqualities);
 
-        final MmuEquality equalityTagReplaced =
-            new MmuEquality(MmuEquality.Type.EQUAL_REPLACED, buffer.getTagExpression());
+        final MmuEquality equalityTagReplaced = new MmuEquality(MmuEquality.Type.EQUAL_REPLACED,
+            buffer.getTagExpression());
 
-        conditionTagReplaced.addEquality(equalityTagReplaced);
+        tagReplacedEqualities.add(equalityTagReplaced);
 
         // Index1 == Index2 && Tag1 != Tag2 && Tag1 == Replaced2.
-        final MemoryHazard hazardTagReplaced =
-            new MemoryHazard(MemoryHazard.Type.TAG_REPLACED, buffer, conditionTagReplaced);
+        final MemoryHazard hazardTagReplaced = new MemoryHazard(MemoryHazard.Type.TAG_REPLACED,
+            buffer, MmuCondition.AND(tagReplacedEqualities));
+
         hazards.add(hazardTagReplaced);
       }
 
-      final MmuCondition conditionTagEqual = new MmuCondition();
+      final List<MmuEquality> tagEqualEqualities = new ArrayList<>();
 
       if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-        final MmuEquality equalityIndexEqual =
-            new MmuEquality(MmuEquality.Type.EQUAL, buffer.getIndexExpression());
-        conditionTagEqual.addEquality(equalityIndexEqual);
+        tagEqualEqualities.add(MmuEquality.EQ(buffer.getIndexExpression()));
       }
 
-      final MmuEquality equalityTagEqual =
-          new MmuEquality(MmuEquality.Type.EQUAL,buffer.getTagExpression());
-      conditionTagEqual.addEquality(equalityTagEqual);
+      tagEqualEqualities.add(MmuEquality.EQ(buffer.getTagExpression()));
 
       // Index1 == Index2 && Tag1 == Tag2.
-      final MemoryHazard hazardTagEqual =
-          new MemoryHazard(MemoryHazard.Type.TAG_EQUAL, buffer, conditionTagEqual);
+      final MemoryHazard hazardTagEqual = new MemoryHazard(MemoryHazard.Type.TAG_EQUAL, buffer,
+          MmuCondition.AND(tagEqualEqualities));
+
       hazards.add(hazardTagEqual);
     }
 
