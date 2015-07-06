@@ -34,23 +34,63 @@ public final class RegionSettings extends AbstractSettings {
     DATA
   }
 
+  public static class Mode {
+    public final boolean r;
+    public final boolean w;
+    public final boolean x;
+
+    public Mode(final boolean r, final boolean w, final boolean x) {
+      this.r = r;
+      this.w = w;
+      this.x = x;
+    }
+
+    public Mode(final String rwx) {
+      InvariantChecks.checkNotNull(rwx);
+      InvariantChecks.checkTrue(rwx.length() == 3);
+
+      final String mode = rwx.toLowerCase();
+
+      this.r = mode.charAt(0) == 'r';
+      this.w = mode.charAt(0) == 'w';
+      this.x = mode.charAt(0) == 'x';
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s%s%s", (r ? "r" : "-"), (w ? "w" : "-"), (x ? "x" : "-"));
+    }
+  }
+
   private final String name;
   private final Type type;
   private final long startAddress;
   private final long endAddress;
-  private final boolean isEnabled;
+  private final Mode mode;
+  private final Mode others;
 
   private final Collection<AccessSettings> accesses = new ArrayList<>();
 
-  public RegionSettings(final String name, final Type type,
-      final long startAddress, final long endAddress, final boolean isEnabled) {
+  public RegionSettings(
+      final String name,
+      final Type type,
+      final long startAddress,
+      final long endAddress,
+      final Mode mode,
+      final Mode others) {
     super(TAG);
+
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkNotNull(others);
 
     this.name = name;
     this.type = type;
     this.startAddress = startAddress;
     this.endAddress = endAddress;
-    this.isEnabled = isEnabled;
+    this.mode = mode;
+    this.others = others;
   }
 
   public String getName() {
@@ -69,8 +109,24 @@ public final class RegionSettings extends AbstractSettings {
     return endAddress;
   }
 
+  public boolean canRead() {
+    return mode.r;
+  }
+
+  public boolean canWrite() {
+    return mode.w;
+  }
+
+  public boolean canExecute() {
+    return mode.x;
+  }
+
   public boolean isEnabled() {
-    return isEnabled;
+    return mode.r || mode.w || mode.x;
+  }
+
+  public boolean isVolatile() {
+    return others.w;
   }
 
   public boolean checkAddress(final long address) {
@@ -104,7 +160,7 @@ public final class RegionSettings extends AbstractSettings {
 
   @Override
   public String toString() {
-    return String.format("%s={name=%s, type=%s, start=%x, end=%x, enabled=%b}",
-        TAG, name, type.name(), startAddress, endAddress, isEnabled);
+    return String.format("%s={name=%s, type=%s, start=%x, end=%x, mode=%s%s}",
+        TAG, name, type.name(), startAddress, endAddress, mode, others);
   }
 }

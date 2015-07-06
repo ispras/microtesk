@@ -16,6 +16,8 @@ package ru.ispras.microtesk.settings;
 
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * {@link RegionSettingsParser} implements a parser of {@link RegionSettings}.
  * 
@@ -26,7 +28,7 @@ public final class RegionSettingsParser extends AbstractSettingsParser<RegionSet
   public static final String ATTR_TYPE = "type";
   public static final String ATTR_START = "start";
   public static final String ATTR_END = "end";
-  public static final String ATTR_ENABLED = "enabled";
+  public static final String ATTR_MODE = "mode";
 
   public RegionSettingsParser() {
     super(RegionSettings.TAG);
@@ -41,8 +43,13 @@ public final class RegionSettingsParser extends AbstractSettingsParser<RegionSet
         AbstractSettingsParser.getEnum(RegionSettings.Type.class, attributes.get(ATTR_TYPE));
     final long startAddress = AbstractSettingsParser.getHexLong(attributes.get(ATTR_START));
     final long endAddress = AbstractSettingsParser.getHexLong(attributes.get(ATTR_END));
-    final boolean isEnabled = AbstractSettingsParser.getBoolean(attributes.get(ATTR_ENABLED));
+    final String mode = AbstractSettingsParser.getString(attributes.get(ATTR_MODE));
 
-    return new RegionSettings(name, type, startAddress, endAddress, isEnabled);
+    InvariantChecks.checkTrue(mode != null && mode.length() == 6);
+
+    final RegionSettings.Mode rwx1 = new RegionSettings.Mode(mode.substring(0, 3));
+    final RegionSettings.Mode rwx2 = new RegionSettings.Mode(mode.substring(3, 6));
+
+    return new RegionSettings(name, type, startAddress, endAddress, rwx1, rwx2);
   }
 }

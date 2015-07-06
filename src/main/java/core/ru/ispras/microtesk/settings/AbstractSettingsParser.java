@@ -29,24 +29,28 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class AbstractSettingsParser<T extends AbstractSettings> {
+  private static String clearString(final String value) {
+    return value.replace("_", "");
+  }
+
   public static String getString(final String value) {
     return value;
   }
 
   public static int getHexInteger(final String value) {
-    return Integer.parseInt(value, 16);
+    return Integer.parseInt(clearString(value), 16);
   }
 
   public static int getDecInteger(final String value) {
-    return Integer.parseInt(value);
+    return Integer.parseInt(clearString(value));
   }
 
   public static long getHexLong(final String value) {
-    return Long.parseLong(value, 16);
+    return Long.parseLong(clearString(value), 16);
   }
 
   public static long getDecLong(final String value) {
-    return Long.parseLong(value);
+    return Long.parseLong(clearString(value));
   }
 
   public static boolean getBoolean(final String value) {
