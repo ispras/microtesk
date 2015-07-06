@@ -42,7 +42,7 @@ public final class Type {
 
     int totalBitSize = 0;
     for (final Field field : fields.values()) {
-      totalBitSize = field.getBitSize();
+      totalBitSize += field.getBitSize();
     }
 
     checkGreaterThanZero(totalBitSize);
