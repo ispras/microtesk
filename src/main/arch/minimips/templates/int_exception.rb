@@ -29,18 +29,12 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
     super
 
     exception_handler {
-      section(:org => 0xBEEF, :exception => 'IntegerOverflow') {
-        trace 'Exception handler for [IntegerOverflow]'
-        addi zero, zero, 0xDEAD
-        add zero, zero, zero
+      section(:org => 0x380, :exception => ['IntegerOverflow', 'SystemCall', 'Breakpoint']) {
+        trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
+        mfc0 ra, cop0(14)
+        addi ra, ra, 4
+        jr ra 
         nop
-      }
-
-      section(:org => 0xDEAD, :exception => ['SystemCall', 'Breakpoint']) {
-        trace 'Exception handler for [SystemCall, Breakpoint]'
-        add zero, zero, zero
-        nop
-        addi zero, zero, 0xBEEF
       }
     }
   end
@@ -49,12 +43,18 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
     block(:combinator => 'product', :compositor => 'random') {
       block {
         add t0, t1, t2 do situation('normal') end
-        add t0, t1, t2 do situation('IntegerOverflow') end
+        atomic {
+          add t0, t1, t2 do situation('IntegerOverflow') end
+          nop
+        }
       }
 
       block {
         sub t3, t4, t5 do situation('normal') end
-        sub t3, t4, t5 do situation('IntegerOverflow') end
+        atomic {
+          sub t3, t4, t5 do situation('IntegerOverflow') end
+          nop
+        }
       }
     }
   end
