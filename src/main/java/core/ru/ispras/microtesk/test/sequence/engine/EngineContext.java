@@ -37,6 +37,10 @@ public final class EngineContext {
   private final int delaySlotSize;
   private long codeAddress;
 
+  // For some code sequence like exception handler no test data generation
+  // (including randomization is not needed). This is to disable test data generation.
+  private boolean generateData;
+
   public EngineContext(
       final IModel model,
       final PreparatorStore preparators,
@@ -59,6 +63,7 @@ public final class EngineContext {
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
     this.codeAddress = 0;
+    this.generateData = true;
   }
 
   public IModel getModel() {
@@ -89,7 +94,15 @@ public final class EngineContext {
     return codeAddress;
   }
 
-  public void setCodeAddress(final long codeAddress) {
-    this.codeAddress = codeAddress;
+  public void setCodeAddress(final long value) {
+    this.codeAddress = value;
+  }
+
+  public boolean isGenerateData() {
+    return generateData;
+  }
+
+  public void setGenerateData(final boolean value) {
+    this.generateData = value;
   }
 }

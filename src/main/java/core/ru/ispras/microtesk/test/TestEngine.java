@@ -704,8 +704,14 @@ public final class TestEngine {
             new TestSequenceEngine(engine, adapter);
 
         for (final ExceptionHandler.Section section : handler.getSections()) {
-          final Iterator<AdapterResult> iterator = 
-              testSequenceEngine.process(engineContext, section.getCalls());
+          final Iterator<AdapterResult> iterator;
+          final boolean tempIsGenerateData = engineContext.isGenerateData();
+          try {
+            engineContext.setGenerateData(false);
+            iterator = testSequenceEngine.process(engineContext, section.getCalls());
+          } finally {
+            engineContext.setGenerateData(tempIsGenerateData);
+          }
 
           // At least one sequence is expected 
           iterator.init(); 

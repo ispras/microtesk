@@ -139,7 +139,9 @@ public final class DefaultEngine implements Engine<TestSequence> {
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);
 
-      processSituations(engineContext, rootOp);
+      if (engineContext.isGenerateData()) {
+        processSituations(engineContext, rootOp);
+      }
     }
 
     final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
