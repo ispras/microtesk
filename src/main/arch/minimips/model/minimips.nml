@@ -96,6 +96,7 @@ op add (rd: REG, rs: REG, rt: REG)
     temp = rs<31>::rs + rt<31>::rt;
     if temp<32> != temp<31> then
       mark("overflow");
+      COP0_R[14] = CIA;
       exception("IntegerOverflow");
     else
       mark("normal");
@@ -110,6 +111,7 @@ op addi (rt: REG, rs: REG, imm: SHORT)
     temp = rs<31>::rs + coerce(int(33), imm);
     if temp<32> != temp<31> then
       mark("overflow");
+      COP0_R[14] = CIA;
       exception("IntegerOverflow");
     else
       mark("normal");
@@ -137,6 +139,7 @@ op sub (rd: REG, rs: REG, rt: REG)
   action = {
     temp = rs<31>::rs - rt<31>::rt;
     if temp<32> != temp<31> then
+      COP0_R[14] = CIA;
       exception("IntegerOverflow");
     else
       rd = temp<31..0>;
@@ -522,6 +525,7 @@ op syscall ()
   syntax = format("syscall")
   image = format("0000000000000000000000000001100")
   action = {
+    COP0_R[14] = CIA;
     exception("SystemCall");
   }
 
@@ -536,6 +540,7 @@ op mips_break ()
   syntax = format("break")
   image = format("00000000000000000000000000001101")
   action = {
+    COP0_R[14] = CIA;
     exception("Breakpoint");
   }
 
