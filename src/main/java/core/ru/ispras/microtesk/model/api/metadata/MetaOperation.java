@@ -215,11 +215,15 @@ public final class MetaOperation implements MetaData {
   }
 
   /**
-   * Checks whether the operation performs a memory load action (directly in its
-   * attributes). When a memory access is done via an addressing mode,
-   * meta data of the addressing mode must be checked additionally. 
+   * Checks whether the operation performs a memory load action.
    * 
-   * @return {@code true} if the operation performs memory load
+   * <p>NOTE: This covers only situations when a load can be unambiguously defected
+   * by exploring operation attributes. For situations when a memory access
+   * is performed via parameters (other operation or addressing modes) which
+   * can be dynamically chosen (OR rules), these parameters (their meta data) 
+   * must be examined additionally to make a conclusion.
+   * 
+   * @return {@code true} if the operation performs a memory load action
    * or {@code false} otherwise.
    */
 
@@ -228,9 +232,13 @@ public final class MetaOperation implements MetaData {
   }
 
   /**
-   * Checks whether the operation performs a memory store action (directly in its
-   * attributes). When a memory access is done via an addressing mode,
-   * meta data of the addressing mode must be checked additionally.
+   * Checks whether the operation performs a memory store action.
+   * 
+   * <p>NOTE: This covers only situations when a load can be unambiguously defected
+   * by exploring operation attributes. For situations when a memory access
+   * is performed via parameters (other operation or addressing modes) which
+   * can be dynamically chosen (OR rules), these parameters (their meta data)
+   * must be examined additionally to make a conclusion.
    * 
    * @return {@code true} if the operation performs a memory store action
    * or {@code false} otherwise.
