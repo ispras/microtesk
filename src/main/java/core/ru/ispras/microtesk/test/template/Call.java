@@ -136,9 +136,9 @@ public final class Call {
     return String.format(
         "instruction call (root: %s, branch: %b, cond: %b, exception: %b)",
         isExecutable() ? rootOperation.getName() : "null",
-        isExecutable() ? rootOperation.isBranch() : false,
-        isExecutable() ? rootOperation.isConditionalBranch() : false,
-        isExecutable() ? rootOperation.canThrowException() : false
+        isBranch(),
+        isConditionalBranch(),
+        canThrowException()
         );
   }
 
