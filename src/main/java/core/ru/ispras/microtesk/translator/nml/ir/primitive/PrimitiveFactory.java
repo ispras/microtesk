@@ -59,7 +59,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       }
     }
 
-    //final Attribute action = attrs.get(Attribute.ACTION_NAME);
+    final Attribute action = attrs.get(Attribute.ACTION_NAME);
+    final MemoryAccessStatus memoryAccessStatus = getMemoryAccessStatus(action);
+
     return new PrimitiveAND(
         name,
         Primitive.Kind.MODE,
@@ -68,9 +70,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         attrs,
         canThrowException(attrs),
         isMemoryReference(retExpr),
-        false, // TODO
-        false, // TODO
-        0      // TODO
+        memoryAccessStatus.isLoad(),
+        memoryAccessStatus.isStore(),
+        memoryAccessStatus.getBlockSize()
         );
   }
 
@@ -80,7 +82,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
 
-    //final Attribute action = attrs.get(Attribute.ACTION_NAME);
+    final Attribute action = attrs.get(Attribute.ACTION_NAME);
+    final MemoryAccessStatus memoryAccessStatus = getMemoryAccessStatus(action);
+
     return new PrimitiveAND(
         name,
         Primitive.Kind.OP,
@@ -89,9 +93,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         attrs,
         canThrowException(attrs),
         false,
-        false, // TODO
-        false, // TODO
-        0      // TODO
+        memoryAccessStatus.isLoad(),
+        memoryAccessStatus.isStore(),
+        memoryAccessStatus.getBlockSize()
         );
   }
 
@@ -271,6 +275,33 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       }
     }
     return false;
+  }
+
+  private static final class MemoryAccessStatus {
+    public static final MemoryAccessStatus NO =
+        new MemoryAccessStatus(false, false, 0);
+
+    private boolean load;
+    private boolean store;
+    private int blockSize;
+
+    private MemoryAccessStatus(
+        final boolean load,
+        final boolean store,
+        final int blockSize) {
+      this.load = load;
+      this.store = store;
+      this.blockSize = blockSize;
+    }
+
+    public boolean isLoad() { return load; }
+    public boolean isStore() { return store; }
+    public int getBlockSize() { return blockSize; }
+  }
+  
+  private static MemoryAccessStatus getMemoryAccessStatus(final Attribute attr) {
+    // TODO
+    return MemoryAccessStatus.NO;
   }
 }
 
