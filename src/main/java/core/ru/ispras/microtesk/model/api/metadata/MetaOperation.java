@@ -30,12 +30,18 @@ public final class MetaOperation implements MetaData {
   private final String name;
   private final String typeName;
   private final boolean isRoot;
+
   private final Map<String, MetaArgument> args;
   private final Map<String, MetaShortcut> shortcuts;
   private final boolean hasRootShortcuts;
+
   private final boolean branch;
   private final boolean conditionalBranch;
   private final boolean exception;
+
+  private final boolean load;
+  private final boolean store;
+  private final int blockSize;
 
   public MetaOperation(
       final String name,
@@ -45,7 +51,10 @@ public final class MetaOperation implements MetaData {
       final Map<String, MetaShortcut> shortcuts,
       final boolean branch,
       final boolean conditionalBranch,
-      final boolean exception) {
+      final boolean exception,
+      final boolean load,
+      final boolean store,
+      final int blockSize) {
     checkNotNull(name);
     checkNotNull(typeName);
     checkNotNull(args);
@@ -77,6 +86,10 @@ public final class MetaOperation implements MetaData {
     this.branch = branch;
     this.conditionalBranch = conditionalBranch;
     this.exception = exception;
+
+    this.load = load;
+    this.store = store;
+    this.blockSize = blockSize;
   }
 
   /**
@@ -192,12 +205,49 @@ public final class MetaOperation implements MetaData {
 
   /**
    * Checks whether the current operation can throw an exception.
-   *  
+   * 
    * @return {@code true} if the operation can throw an exception
    * or {@code false} otherwise.
    */
 
   public boolean canThrowException() {
     return exception;
+  }
+
+  /**
+   * Checks whether the operation performs a memory load action (directly in its
+   * attributes). When a memory access is done via an addressing mode,
+   * meta data of the addressing mode must be checked additionally. 
+   * 
+   * @return {@code true} if the operation performs memory load
+   * or {@code false} otherwise.
+   */
+
+  public boolean isLoad() {
+    return load;
+  }
+
+  /**
+   * Checks whether the operation performs a memory store action (directly in its
+   * attributes). When a memory access is done via an addressing mode,
+   * meta data of the addressing mode must be checked additionally.
+   * 
+   * @return {@code true} if the operation performs a memory store action
+   * or {@code false} otherwise.
+   */
+
+  public boolean isStore() {
+    return store;
+  }
+
+  /**
+   * Returns the size of block read or written to memory. Applicable
+   * for load or store operations.
+   * 
+   * @return Size of memory block in bits.
+   */
+
+  public int getBlockSize() {
+    return blockSize;
   }
 }

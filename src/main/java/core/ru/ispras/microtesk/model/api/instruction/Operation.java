@@ -60,7 +60,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     private final String name;
     private final Type type;
 
-    private ParamIMM(String name, Type type) {
+    private ParamIMM(final String name, final Type type) {
       this.name = name;
       this.type = type;
     }
@@ -122,7 +122,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public boolean isSupported(IPrimitive o) {
+    public boolean isSupported(final IPrimitive o) {
       return (o instanceof IAddressingMode) && info.isSupported((IAddressingMode) o);
     }
 
@@ -153,7 +153,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     private final String name;
     private final IOperation.IInfo info;
 
-    private ParamOp(String name, IOperation.IInfo info) {
+    private ParamOp(final String name, final IOperation.IInfo info) {
       this.name = name;
       this.info = info;
     }
@@ -169,7 +169,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public boolean isSupported(IPrimitive o) {
+    public boolean isSupported(final IPrimitive o) {
       return (o instanceof IOperation) && info.isSupported((IOperation) o);
     }
 
@@ -180,7 +180,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
     @Override
     public MetaArgument getMetaData() {
-      final Set<String> opNames = new LinkedHashSet<String>(info.getMetaData().size());
+      final Set<String> opNames = new LinkedHashSet<>(info.getMetaData().size());
 
       for (final MetaOperation op : info.getMetaData()) {
         opNames.add(op.getName());
@@ -199,36 +199,41 @@ public abstract class Operation extends StandardFunctions implements IOperation 
   /**
    * The ParamDecl class is aimed to specify declarations operation parameters.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   public final static class ParamDecls {
     private final Map<String, Param> decls;
 
     public ParamDecls() {
-      this.decls = new LinkedHashMap<String, Param>();
+      this.decls = new LinkedHashMap<>();
     }
 
-    public ParamDecls declareParam(String name, Type type) {
+    public ParamDecls declareParam(
+        final String name,
+        final Type type) {
       decls.put(name, new ParamIMM(name, type));
       return this;
     }
 
-    public ParamDecls declareParam(String name, ArgumentMode mode, AddressingMode.IInfo info) {
+    public ParamDecls declareParam(
+        final String name,
+        final ArgumentMode mode,
+        final AddressingMode.IInfo info) {
       decls.put(name, new ParamMode(name, mode, info));
       return this;
     }
 
-    public ParamDecls declareParam(String name, IOperation.IInfo info) {
+    public ParamDecls declareParam(
+        final String name,
+        final IOperation.IInfo info) {
       decls.put(name, new ParamOp(name, info));
       return this;
     }
 
     public Map<String, MetaArgument> getMetaData() {
-      final Map<String, MetaArgument> metaData =
-        new LinkedHashMap<String, MetaArgument>(decls.size());
-
-      for (Param p : decls.values()) {
+      final Map<String, MetaArgument> metaData = new LinkedHashMap<>(decls.size());
+      for (final Param p : decls.values()) {
         metaData.put(p.getName(), p.getMetaData());
       }
 
@@ -240,7 +245,11 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
   }
 
-  protected static Object getArgument(String name, ParamDecls decls, Map<String, Object> args) {
+  protected static Object getArgument(
+      final String name,
+      final ParamDecls decls,
+      final Map<String, Object> args) {
+
     final Object arg = args.get(name);
     // TODO Check argument
     return arg;
@@ -250,11 +259,11 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     private final Map<String, InfoAndRule> shortcuts;
 
     public Shortcuts() {
-      this.shortcuts = new LinkedHashMap<String, InfoAndRule>();
+      this.shortcuts = new LinkedHashMap<>();
     }
 
-    public Shortcuts addShortcut(InfoAndRule operation, String... contexts) {
-      for (String context : contexts) {
+    public Shortcuts addShortcut(final InfoAndRule operation, final String... contexts) {
+      for (final String context : contexts) {
         assert !shortcuts.containsKey(context);
         shortcuts.put(context, operation);
       }
@@ -267,10 +276,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         return Collections.emptyMap();
       }
 
-      final Map<String, MetaShortcut> result =
-        new LinkedHashMap<String, MetaShortcut>(shortcuts.size());
-
-      for (Map.Entry<String, InfoAndRule> e : shortcuts.entrySet()) {
+      final Map<String, MetaShortcut> result = new LinkedHashMap<>(shortcuts.size());
+      for (final Map.Entry<String, InfoAndRule> e : shortcuts.entrySet()) {
         final String contextName = e.getKey();
         final MetaOperation metaOperation = e.getValue().metaData;
 
@@ -281,7 +288,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
       return result;
     }
 
-    public IInfo getShortcut(String contextName) {
+    public IInfo getShortcut(final String contextName) {
       return shortcuts.get(contextName);
     }
   }
@@ -325,7 +332,10 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         shortcuts.getMetaData(),
         isBranch,
         isConditionalBranch,
-        canThrowException
+        canThrowException,
+        false, // TODO
+        false, // TODO
+        0      // TODO
         );
     }
 
@@ -360,7 +370,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public final boolean isSupported(IOperation op) {
+    public final boolean isSupported(final IOperation op) {
       return opClass.equals(op.getClass());
     }
 
@@ -379,13 +389,15 @@ public abstract class Operation extends StandardFunctions implements IOperation 
       return Collections.singletonMap(name, builder);
     }
 
-    protected final Object getArgument(String name, Map<String, Object> args) {
+    protected final Object getArgument(final String name, final Map<String, Object> args) {
       final Object arg = args.get(name);
       // TODO Check argument
       return arg;
     }
 
-    public final Map<String, IOperationBuilder> createBuildersForShortcut(String contextName) {
+    public final Map<String, IOperationBuilder> createBuildersForShortcut(
+        final String contextName) {
+
       final IInfo shortcut = shortcuts.getShortcut(contextName);
       if (null == shortcut) {
         return null;
@@ -408,16 +420,18 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     private final IInfo[] childs;
     private final Collection<MetaOperation> metaData;
 
-    public InfoOrRule(String name, IInfo... childs) {
+    public InfoOrRule(final String name, final IInfo... childs) {
       this.name = name;
       this.childs = childs;
       this.metaData = createMetaData(name, childs);
     }
 
-    private static Collection<MetaOperation> createMetaData(String name, IInfo[] childs) {
-      final List<MetaOperation> result = new ArrayList<>();
+    private static Collection<MetaOperation> createMetaData(
+        final String name,
+        final IInfo[] childs) {
 
-      for (IInfo i : childs) {
+      final List<MetaOperation> result = new ArrayList<>();
+      for (final IInfo i : childs) {
         result.addAll(i.getMetaData());
       }
 
@@ -431,7 +445,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
     @Override
     public boolean isRoot() {
-      for (IInfo child : childs) {
+      for (final IInfo child : childs) {
         if (!child.isRoot()) {
           return false;
         }
@@ -441,8 +455,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public boolean isSupported(IOperation op) {
-      for (IInfo i : childs) {
+    public boolean isSupported(final IOperation op) {
+      for (final IInfo i : childs) {
         if (i.isSupported(op)) {
           return true;
         }
@@ -459,7 +473,6 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     @Override
     public Map<String, IOperationBuilder> createBuilders() {
       final Map<String, IOperationBuilder> result = new HashMap<>();
-
       for (IInfo i : childs) {
         result.putAll(i.createBuilders());
       }

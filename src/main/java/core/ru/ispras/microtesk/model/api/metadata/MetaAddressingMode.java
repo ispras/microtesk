@@ -17,7 +17,6 @@ package ru.ispras.microtesk.model.api.metadata;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Map;
-
 import ru.ispras.microtesk.model.api.type.Type;
 
 /**
@@ -32,6 +31,7 @@ public final class MetaAddressingMode implements MetaData {
   private final Type dataType;
   private final Map<String, MetaArgument> args;
   private final boolean exception;
+  private final boolean memoryAccess;
 
   /**
    * Constructs a metadata object for an addressing mode.
@@ -49,7 +49,8 @@ public final class MetaAddressingMode implements MetaData {
       final String name,
       final Type dataType,
       final Map<String, MetaArgument> args,
-      final boolean exception) {
+      final boolean exception,
+      final boolean memoryAccess) {
     checkNotNull(name);
     checkNotNull(args);
 
@@ -57,6 +58,7 @@ public final class MetaAddressingMode implements MetaData {
     this.dataType = dataType;
     this.args = args;
     this.exception = exception;
+    this.memoryAccess = memoryAccess;
   }
 
   /**
@@ -132,6 +134,17 @@ public final class MetaAddressingMode implements MetaData {
 
   public boolean canThrowException() {
     return exception;
+  }
+
+  /**
+   * Checks whether the addressing mode provides an access to memory.
+   * 
+   * @return {@code true} if the addressing mode provides an access to memory
+   * or {@code false} otherwise.
+   */
+
+  public boolean isMemoryAccess() {
+    return memoryAccess;
   }
 
   @Override

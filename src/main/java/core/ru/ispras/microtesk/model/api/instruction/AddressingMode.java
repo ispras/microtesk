@@ -52,10 +52,10 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     private final Map<String, Type> decls;
 
     public ParamDecls() {
-      this.decls = new LinkedHashMap<String, Type>();
+      this.decls = new LinkedHashMap<>();
     }
 
-    public ParamDecls declareParam(String name, Type type) {
+    public ParamDecls declareParam(final String name, final Type type) {
       decls.put(name, type);
       return this;
     }
@@ -87,8 +87,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         final String name,
         final Type type,
         final ParamDecls decls,
-        final boolean exception
-        ) {
+        final boolean exception) {
       this.modeClass = modeClass;
       this.name = name;
       this.type = type; 
@@ -147,11 +146,17 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         args.put(argName, arg);
       }
 
-      return new MetaAddressingMode(name, dataType, args, exception);
+      return new MetaAddressingMode(
+          name,
+          dataType,
+          args,
+          exception,
+          false // TODO
+          );
     }
 
     @Override
-    public final boolean isSupported(IAddressingMode mode) {
+    public final boolean isSupported(final IAddressingMode mode) {
       return modeClass.equals(mode.getClass());
     }
 
@@ -164,7 +169,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
      * @return The location that stores the specified addressing mode argument.
      */
 
-    protected final Location getArgument(String name, Map<String, Data> args) {
+    protected final Location getArgument(final String name, final Map<String, Data> args) {
       final Data data = args.get(name);
 
       assert decls.get(name).equals(data.getType()) : String.format(
@@ -186,7 +191,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     private final String name;
     private final IInfo[] childs;
 
-    public InfoOrRule(String name, IInfo... childs) {
+    public InfoOrRule(final String name, final IInfo... childs) {
       this.name = name;
       this.childs = childs;
     }
@@ -203,10 +208,9 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
     @Override
     public Map<String, IAddressingModeBuilder> createBuilders() {
-      final Map<String, IAddressingModeBuilder> result =
-        new HashMap<String, IAddressingModeBuilder>();
+      final Map<String, IAddressingModeBuilder> result = new HashMap<>();
 
-      for (IInfo i : childs) {
+      for (final IInfo i : childs) {
         result.putAll(i.createBuilders());
       }
 
@@ -215,9 +219,9 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
     @Override
     public Collection<MetaAddressingMode> getMetaData() {
-      final List<MetaAddressingMode> result = new ArrayList<MetaAddressingMode>();
+      final List<MetaAddressingMode> result = new ArrayList<>();
 
-      for (IInfo i : childs) {
+      for (final IInfo i : childs) {
         result.addAll(i.getMetaData());
       }
 
@@ -225,8 +229,8 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     }
 
     @Override
-    public boolean isSupported(IAddressingMode mode) {
-      for (IInfo i : childs) {
+    public boolean isSupported(final IAddressingMode mode) {
+      for (final IInfo i : childs) {
         if (i.isSupported(mode)) {
           return true;
         }
