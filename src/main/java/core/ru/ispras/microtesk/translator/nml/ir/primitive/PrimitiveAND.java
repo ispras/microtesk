@@ -46,8 +46,8 @@ public final class PrimitiveAND extends Primitive {
       final Expr retExpr,
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs,
-      final boolean exception) {
-
+      final boolean exception,
+      final boolean memoryReference) {
     super(
         name,
         kind,
@@ -69,7 +69,7 @@ public final class PrimitiveAND extends Primitive {
     }
 
     this.exception = exception;
-    this.memoryReference = false; // TODO
+    this.memoryReference = memoryReference;
     this.load = false; // TODO
     this.store = false; // TODO
     this.blockSize = 0; // TODO

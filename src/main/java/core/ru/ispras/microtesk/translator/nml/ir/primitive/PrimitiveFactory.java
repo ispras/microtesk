@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
@@ -33,6 +34,10 @@ import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.nml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.location.Location;
+import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.location.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class PrimitiveFactory extends WalkerFactoryBase {
@@ -60,7 +65,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         retExpr,
         args,
         attrs,
-        canThrowException(attrs)
+        canThrowException(attrs),
+        isMemoryReference(retExpr)
         );
   }
 
@@ -75,7 +81,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         null,
         args,
         attrs,
-        canThrowException(attrs)
+        canThrowException(attrs),
+        false
         );
   }
 
@@ -207,6 +214,50 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   private boolean canThrowException(final Map<String, Attribute> attrs) {
     for (final Attribute attr : attrs.values()) {
       if (attr.canThrowException()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isMemoryReference(final Expr expr) {
+    if (null == expr) {
+      return false;
+    }
+
+    final NodeInfo nodeInfo = expr.getNodeInfo();
+    if (nodeInfo.getKind() != NodeInfo.Kind.LOCATION) {
+      return false;
+    }
+
+    return isMemoryReference((Location) nodeInfo.getSource()); 
+  }
+
+  private static boolean isMemoryReference(final Location location) {
+    if (location instanceof LocationAtom) {
+      return isMemoryReference((LocationAtom) location);
+    } else {
+      return isMemoryReference((LocationConcat) location);
+    }
+  }
+
+  private static boolean isMemoryReference(final LocationAtom locationAtom) {
+    if (!(locationAtom.getSource() instanceof LocationAtom.MemorySource)) {
+      return false;
+    }
+
+    final LocationAtom.MemorySource source =
+        (LocationAtom.MemorySource) locationAtom.getSource();
+
+    // MEMs of length 1 are often used as global variables.
+    // For this reason, there such MEMs are excluded.
+    return source.getMemory().getKind() == Memory.Kind.MEM &&
+           source.getMemory().getSize() > 1;
+  }
+
+  private static boolean isMemoryReference(final LocationConcat locationConcat) { 
+    for (final LocationAtom locationAtom : locationConcat.getLocations()) {
+      if (isMemoryReference(locationAtom)) {
         return true;
       }
     }
