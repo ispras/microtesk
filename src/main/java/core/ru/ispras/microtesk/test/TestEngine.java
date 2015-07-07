@@ -249,8 +249,8 @@ public final class TestEngine {
 
       if (null != Printer.getLastFileName()) {
         new File(Printer.getLastFileName()).delete();
+        STATISTICS.testProgramNumber--;
       }
-      STATISTICS.testProgramNumber--;
     }
 
     return TemplateProcessor.start;

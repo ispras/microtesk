@@ -15,8 +15,10 @@
 package ru.ispras.microtesk.model.api.instruction;
 
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 
 public abstract class StandardFunctions {
+
   public static void exception(final String text) {
     Logger.debug("Exception was raised: " + text);
     throw new IsaException(text);
@@ -27,11 +29,13 @@ public abstract class StandardFunctions {
   }
 
   public static void unpredicted() {
-    Logger.debug("Unpredicted state was reached");
+    throw new GenerationAbortedException(
+        "Unpredicted state was reached during instruction call simulation");
   }
 
   public static void undefined() {
-    Logger.debug("Undefined state was reached");
+    throw new GenerationAbortedException(
+        "Undefined state was reached during instruction call simulation");
   }
 
   public static void mark(String name) {
