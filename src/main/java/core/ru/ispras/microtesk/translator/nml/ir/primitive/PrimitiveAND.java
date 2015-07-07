@@ -47,7 +47,10 @@ public final class PrimitiveAND extends Primitive {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs,
       final boolean exception,
-      final boolean memoryReference) {
+      final boolean memoryReference,
+      final boolean load,
+      final boolean store,
+      final int blockSize) {
     super(
         name,
         kind,
