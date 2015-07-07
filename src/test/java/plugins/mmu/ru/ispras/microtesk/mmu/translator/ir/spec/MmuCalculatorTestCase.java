@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,16 +30,18 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuCalculatorTestCase {
+public final class MmuCalculatorTestCase {
   private static final IntegerVariable VAR = new IntegerVariable("VAR", 64);
 
   private void runTest(int width, int count) {
-    final MmuExpression expression = new MmuExpression();
+    final List<IntegerField> fields = new ArrayList<>();
 
     for (int i = 0; i < count; i++) {
       final IntegerField field = new IntegerField(VAR, i, (i + width) - 1);
-      expression.addHiTerm(field);
+      fields.add(field);
     }
+
+    final MmuExpression expression = MmuExpression.catf(fields);
 
     System.out.format("Test: width=%d, count=%d\n", width, count);
     System.out.format("Expr: %s\n", expression);

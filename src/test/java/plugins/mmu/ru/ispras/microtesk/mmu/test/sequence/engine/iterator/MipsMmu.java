@@ -143,9 +143,9 @@ public final class MipsMmu {
   // ===============================================================================================
 
   public final MmuDevice jtlb = new MmuDevice("JTLB", JTLB_SIZE, 1, vaAddr,
-      MmuExpression.VAR(va, 13, 39), // Tag
-      MmuExpression.ZERO(),          // Index
-      MmuExpression.VAR(va, 0, 12),  // Offset
+      MmuExpression.var(va, 13, 39), // Tag
+      MmuExpression.empty(),         // Index
+      MmuExpression.var(va, 0, 12),  // Offset
       false, null);
 
   {
@@ -167,9 +167,9 @@ public final class MipsMmu {
   // -----------------------------------------------------------------------------------------------
 
   public final MmuDevice dtlb = new MmuDevice("DTLB", MTLB_SIZE, 1, vaAddr,
-      MmuExpression.VAR(va, 13, 39), // Tag
-      MmuExpression.ZERO(),          // Index
-      MmuExpression.VAR(va, 0, 12),  // Offset
+      MmuExpression.var(va, 13, 39), // Tag
+      MmuExpression.empty(),         // Index
+      MmuExpression.var(va, 0, 12),  // Offset
       true, jtlb);
 
   {
@@ -190,9 +190,9 @@ public final class MipsMmu {
 
   // -----------------------------------------------------------------------------------------------
   public final MmuDevice l1 = new MmuDevice("L1", L1_WAYS, L1_SETS, paAddr,
-      MmuExpression.VAR(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1),  // Tag
-      MmuExpression.VAR(pa, POS_BITS, POS_BITS + L1_ROW_BITS - 1), // Index
-      MmuExpression.VAR(pa, 0, POS_BITS - 1),                      // Offset
+      MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1),  // Tag
+      MmuExpression.var(pa, POS_BITS, POS_BITS + L1_ROW_BITS - 1), // Index
+      MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
       true, null);
 
   {
@@ -202,9 +202,9 @@ public final class MipsMmu {
 
   // -----------------------------------------------------------------------------------------------
   public final MmuDevice l2 = new MmuDevice("L2", L1_WAYS, L1_SETS, paAddr,
-      MmuExpression.VAR(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1),  // Tag
-      MmuExpression.VAR(pa, POS_BITS, POS_BITS + L2_ROW_BITS - 1), // Index
-      MmuExpression.VAR(pa, 0, POS_BITS - 1),                      // Offset
+      MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1),  // Tag
+      MmuExpression.var(pa, POS_BITS, POS_BITS + L2_ROW_BITS - 1), // Index
+      MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
       true, null);
 
   {
@@ -214,9 +214,9 @@ public final class MipsMmu {
 
   // -----------------------------------------------------------------------------------------------
   public final MmuDevice mem = new MmuDevice("MEM", 1, (1L << PA_BITS) / 32, paAddr,
-      MmuExpression.ZERO(),                         // Tag
-      MmuExpression.VAR(pa, POS_BITS, PA_BITS - 1), // Index
-      MmuExpression.VAR(pa, 0, POS_BITS - 1),       // Offset
+      MmuExpression.empty(),                        // Tag
+      MmuExpression.var(pa, POS_BITS, PA_BITS - 1), // Index
+      MmuExpression.var(pa, 0, POS_BITS - 1),       // Offset
       false, null);
 
   {
@@ -231,7 +231,7 @@ public final class MipsMmu {
       new MmuAssignment(va));
   public final MmuAction start = new MmuAction("START");
   public final MmuAction getUpa = new MmuAction("GET_UPA",
-      new MmuAssignment(pa, MmuExpression.VAR(va, 0, 28)));
+      new MmuAssignment(pa, MmuExpression.var(va, 0, 28)));
   public final MmuAction startDtlb = new MmuAction("START_DTLB", dtlb);
   public final MmuAction hitDtlb = new MmuAction("HIT_DTLB", dtlb,
       new MmuAssignment(v0),
@@ -254,22 +254,22 @@ public final class MipsMmu {
       new MmuAssignment(pfn1));
   public final MmuAction selectVpn = new MmuAction("SELECT_VPN");
   public final MmuAction getLo0 = new MmuAction("GET_LO0",
-      new MmuAssignment(v, MmuExpression.VAR(v0)),
-      new MmuAssignment(d, MmuExpression.VAR(d0)),
-      new MmuAssignment(c, MmuExpression.VAR(c0)),
-      new MmuAssignment(pfn, MmuExpression.VAR(pfn0)));
+      new MmuAssignment(v, MmuExpression.var(v0)),
+      new MmuAssignment(d, MmuExpression.var(d0)),
+      new MmuAssignment(c, MmuExpression.var(c0)),
+      new MmuAssignment(pfn, MmuExpression.var(pfn0)));
   public final MmuAction getLo1 = new MmuAction("GET_LO1",
-      new MmuAssignment(v, MmuExpression.VAR(v1)),
-      new MmuAssignment(d, MmuExpression.VAR(d1)),
-      new MmuAssignment(c, MmuExpression.VAR(c1)),
-      new MmuAssignment(pfn, MmuExpression.VAR(pfn1)));
+      new MmuAssignment(v, MmuExpression.var(v1)),
+      new MmuAssignment(d, MmuExpression.var(d1)),
+      new MmuAssignment(c, MmuExpression.var(c1)),
+      new MmuAssignment(pfn, MmuExpression.var(pfn1)));
   public final MmuAction checkV = new MmuAction("CHECK_V");
   public final MmuAction checkD = new MmuAction("CHECK_D");
   public final MmuAction checkG = new MmuAction("CHECK_G");
   public final MmuAction local = new MmuAction("LOCAL");
   public final MmuAction global = new MmuAction("GLOBAL");
   public final MmuAction getMpa = new MmuAction("GET_MPA",
-      new MmuAssignment(pa, MmuExpression.RCAT(new IntegerField(pfn), new IntegerField(va, 0, 11))));
+      new MmuAssignment(pa, MmuExpression.rcatf(new IntegerField(pfn), new IntegerField(va, 0, 11))));
   public final MmuAction startCache = new MmuAction("START_CACHE");
   public final MmuAction startL1 = new MmuAction("START_L1", l1);
   public final MmuAction hitL1 = new MmuAction("HIT_L1", l1,

@@ -76,11 +76,11 @@ public final class MmuCondition {
   }
 
   public static MmuCondition eq(final IntegerField field) {
-    return eq(MmuExpression.FIELD(field));
+    return eq(MmuExpression.field(field));
   }
 
   public static MmuCondition eq(final IntegerVariable variable) {
-    return eq(MmuExpression.VAR(variable));
+    return eq(MmuExpression.var(variable));
   }
 
   public static MmuCondition eq(final MmuExpression expression, final BigInteger value) {
@@ -88,11 +88,11 @@ public final class MmuCondition {
   }
 
   public static MmuCondition eq(final IntegerField field, final BigInteger value) {
-    return eq(MmuExpression.FIELD(field), value);
+    return eq(MmuExpression.field(field), value);
   }
 
   public static MmuCondition eq(final IntegerVariable variable, final BigInteger value) {
-    return eq(MmuExpression.VAR(variable), value);
+    return eq(MmuExpression.var(variable), value);
   }
 
   public static MmuCondition range(
@@ -107,12 +107,12 @@ public final class MmuCondition {
 
   public static MmuCondition range(
       final IntegerField field, final BigInteger min, final BigInteger max) {
-    return range(MmuExpression.FIELD(field), min, max);
+    return range(MmuExpression.field(field), min, max);
   }
 
   public static MmuCondition range(
       final IntegerVariable variable, final BigInteger min, final BigInteger max) {
-    return range(MmuExpression.VAR(variable), min, max);
+    return range(MmuExpression.var(variable), min, max);
   }
 
   public static MmuCondition eqReplaced(final MmuExpression expression) {
@@ -120,11 +120,11 @@ public final class MmuCondition {
   }
 
   public static MmuCondition eqReplaced(final IntegerField field) {
-    return eqReplaced(MmuExpression.FIELD(field));
+    return eqReplaced(MmuExpression.field(field));
   }
 
   public static MmuCondition eqReplaced(final IntegerVariable variable) {
-    return eqReplaced(MmuExpression.VAR(variable));
+    return eqReplaced(MmuExpression.var(variable));
   }
 
   //------------------------------------------------------------------------------------------------
@@ -136,11 +136,11 @@ public final class MmuCondition {
   }
 
   public static MmuCondition neq(final IntegerField field) {
-    return neq(MmuExpression.FIELD(field));
+    return neq(MmuExpression.field(field));
   }
 
   public static MmuCondition neq(final IntegerVariable variable) {
-    return neq(MmuExpression.VAR(variable));
+    return neq(MmuExpression.var(variable));
   }
 
   public static MmuCondition neq(final MmuExpression expression, final BigInteger value) {
@@ -148,11 +148,11 @@ public final class MmuCondition {
   }
 
   public static MmuCondition neq(final IntegerField field, final BigInteger value) {
-    return neq(MmuExpression.FIELD(field), value);
+    return neq(MmuExpression.field(field), value);
   }
 
   public static MmuCondition neq(final IntegerVariable variable, final BigInteger value) {
-    return neq(MmuExpression.VAR(variable), value);
+    return neq(MmuExpression.var(variable), value);
   }
 
   public static MmuCondition nrange(
@@ -167,12 +167,12 @@ public final class MmuCondition {
 
   public static MmuCondition nrange(
       final IntegerField field, final BigInteger min, final BigInteger max) {
-    return nrange(MmuExpression.FIELD(field), min, max);
+    return nrange(MmuExpression.field(field), min, max);
   }
 
   public static MmuCondition nrange(
       final IntegerVariable variable, final BigInteger min, final BigInteger max) {
-    return nrange(MmuExpression.VAR(variable), min, max);
+    return nrange(MmuExpression.var(variable), min, max);
   }
 
   public static MmuCondition neqReplaced(final MmuExpression expression) {
@@ -180,11 +180,11 @@ public final class MmuCondition {
   }
 
   public static MmuCondition neqReplaced(final IntegerField field) {
-    return neqReplaced(MmuExpression.FIELD(field));
+    return neqReplaced(MmuExpression.field(field));
   }
 
   public static MmuCondition neqReplaced(final IntegerVariable variable) {
-    return neqReplaced(MmuExpression.VAR(variable));
+    return neqReplaced(MmuExpression.var(variable));
   }
 
   //------------------------------------------------------------------------------------------------

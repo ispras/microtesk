@@ -46,7 +46,7 @@ public final class MmuCalculator {
     BigInteger result = BigInteger.ZERO;
     int offset = 0;
 
-    for (final IntegerField field : expression.getTerms()) {
+    for (final IntegerField field : expression.getAtoms()) {
       final IntegerVariable variable = field.getVariable();
       final BigInteger value = variable.isDefined() ? variable.getValue() : values.get(variable);
       InvariantChecks.checkNotNull(value);

@@ -249,12 +249,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     Atom rhs = atomExtractor.extract(right);
     if (Atom.Kind.VALUE == rhs.getKind()) {
-      if (BigInteger.ZERO.equals((BigInteger) rhs.getObject())) {
-        rhs = Atom.newConcat(MmuExpression.ZERO());
-      } else {
-        // Non-zero constant assignments are ignored.
-        return source;
-      }
+      final BigInteger value = (BigInteger) rhs.getObject();
+      rhs = Atom.newConcat(MmuExpression.val(value, lhs.getWidth()));
     }
 
     final String name = String.format("Assignment (%s = %s)", left, right);

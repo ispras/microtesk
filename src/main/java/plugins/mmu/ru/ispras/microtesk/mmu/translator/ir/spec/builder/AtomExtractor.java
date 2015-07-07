@@ -17,6 +17,8 @@ package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -141,20 +143,20 @@ final class AtomExtractor {
   }
 
   private Atom extractFromBitConcat(NodeOperation expr) {
-    final MmuExpression concat = new MmuExpression();
+    final List<IntegerField> concat = new ArrayList<>();
 
     for (Node operand : expr.getOperands()) {
       final Atom atom = extract(operand);
       switch (atom.getKind()) {
         case VARIABLE: {
           final IntegerVariable intVar = (IntegerVariable) atom.getObject();
-          concat.addLoTerm(new IntegerField(intVar));
+          concat.add(new IntegerField(intVar));
           break;
         }
 
         case FIELD: {
           final IntegerField intField = (IntegerField) atom.getObject();
-          concat.addLoTerm(intField);
+          concat.add(intField);
           break;
         }
 
@@ -164,6 +166,6 @@ final class AtomExtractor {
       }
     }
 
-    return Atom.newConcat(concat);
+    return Atom.newConcat(MmuExpression.rcatf(concat));
   }
 }

@@ -56,9 +56,9 @@ public class MmuDeviceTestCase {
   public static final MmuAddress PA_ADDR = new MmuAddress(PA);
 
   public static final MmuDevice JTLB = new MmuDevice("JTLB", 64, 1, VA_ADDR,
-      MmuExpression.VAR(VA, 13, 39), // Tag
-      MmuExpression.ZERO(), // Index
-      MmuExpression.VAR(VA, 0, 12), // Offset
+      MmuExpression.var(VA, 13, 39), // Tag
+      MmuExpression.empty(),         // Index
+      MmuExpression.var(VA, 0, 12),  // Offset
       false, null);
 
   static {
@@ -78,9 +78,9 @@ public class MmuDeviceTestCase {
   }
 
   public static final MmuDevice DTLB = new MmuDevice("DTLB", 4, 1, VA_ADDR,
-      MmuExpression.VAR(VA, 13, 39), // Tag
-      MmuExpression.ZERO(), // Index
-      MmuExpression.VAR(VA, 0, 12), // Offset
+      MmuExpression.var(VA, 13, 39), // Tag
+      MmuExpression.empty(),         // Index
+      MmuExpression.var(VA, 0, 12),  // Offset
       true, JTLB);
 
   static {
@@ -123,9 +123,9 @@ public class MmuDeviceTestCase {
       });
 
   public static final MmuDevice L1 = new MmuDevice("L1", 4, 128, PA_ADDR,
-      MmuExpression.VAR(PA, 12, 35), // Tag
-      MmuExpression.VAR(PA, 5, 11), // Index
-      MmuExpression.VAR(PA, 0, 4), // Offset
+      MmuExpression.var(PA, 12, 35), // Tag
+      MmuExpression.var(PA, 5, 11), // Index
+      MmuExpression.var(PA, 0, 4), // Offset
       true, null);
 
   static {
@@ -156,9 +156,9 @@ public class MmuDeviceTestCase {
 
   // -----------------------------------------------------------------------------------------------
   public static final MmuDevice L2 = new MmuDevice("L2", 4, 4096, PA_ADDR,
-      MmuExpression.VAR(PA, 17, 35), // Tag
-      MmuExpression.VAR(PA, 5, 16), // Index
-      MmuExpression.VAR(PA, 0, 4), // Offset
+      MmuExpression.var(PA, 17, 35), // Tag
+      MmuExpression.var(PA, 5, 16), // Index
+      MmuExpression.var(PA, 0, 4), // Offset
       true, null);
 
   static {
@@ -188,9 +188,9 @@ public class MmuDeviceTestCase {
       });
 
   public static final MmuDevice MEM = new MmuDevice("MMU", 1, (1L << 36) / 32, PA_ADDR,
-      MmuExpression.ZERO(), // Tag
-      MmuExpression.VAR(PA, 5, 35), // Index
-      MmuExpression.VAR(PA, 0, 4), // Offset
+      MmuExpression.empty(),        // Tag
+      MmuExpression.var(PA, 5, 35), // Index
+      MmuExpression.var(PA, 0, 4),  // Offset
       false, null);
 
   static {

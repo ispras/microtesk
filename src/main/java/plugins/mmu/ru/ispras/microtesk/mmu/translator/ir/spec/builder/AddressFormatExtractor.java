@@ -99,11 +99,11 @@ final class AddressFormatExtractor {
     this.addressFieldTracker = new IntegerFieldTracker(address);
 
     // TODO: check the format of the "index" expression. Throw exception if needed.
-    this.indexExpr = MmuExpression.RCAT(extractFields(index));
+    this.indexExpr = MmuExpression.rcatf(extractFields(index));
     // TODO: check the format of the "match" expression. Throw exception if needed.
-    this.tagExpr = MmuExpression.RCAT(extractFields(match));
+    this.tagExpr = MmuExpression.rcatf(extractFields(match));
 
-    this.offsetExpr = MmuExpression.RCAT(addressFieldTracker.getFields());
+    this.offsetExpr = MmuExpression.rcatf(addressFieldTracker.getFields());
   }
 
   private List<IntegerField> extractFields(final Node expr) {

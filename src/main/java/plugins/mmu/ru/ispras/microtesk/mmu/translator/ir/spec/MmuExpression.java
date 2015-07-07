@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,108 +25,118 @@ import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
- * {@link MmuExpression} class represents an expression, which is a sequence of terms.
+ * {@link MmuExpression} represents an expression, which is a sequence of atoms.
  * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MmuExpression {
-  /** The terms. */
-  private final List<IntegerField> terms = new ArrayList<>();
+  //------------------------------------------------------------------------------------------------
+  // Composed Expressions
+  //------------------------------------------------------------------------------------------------
 
   /**
-   * Creates the zero expression (which consists of the empty list of fields).
+   * Creates a concatenation of the fields.
    * 
+   * @param atoms the fields to be concatenated.
    * @return the expression.
    */
-  public static MmuExpression ZERO() {
-    return new MmuExpression();
+  public static MmuExpression catf(final List<IntegerField> fields) {
+    return new MmuExpression(fields);
   }
 
-  public static MmuExpression FIELD(final IntegerField field) {
-    final MmuExpression expression = new MmuExpression();
-    expression.addLoTerm(field);
-    return expression;
+  public static MmuExpression catf(final IntegerField... fields) {
+    return rcatf(Arrays.<IntegerField>asList(fields));
   }
 
-  public static MmuExpression VAR(final IntegerVariable variable) {
-    final MmuExpression expression = new MmuExpression();
-    expression.addLoTerm(new IntegerField(variable));
-    return expression;
-  }
-
-
-  /**
-   * Creates a bits-selection expression.
-   * 
-   * @param variable the variable.
-   * @param lo the lower bit index.
-   * @param hi the upper bit index.
-   * @return the expression.
-   */
-  public static MmuExpression VAR(final IntegerVariable variable, final int lo, final int hi) {
-    final MmuExpression expression = new MmuExpression();
-    expression.addLoTerm(new IntegerField(variable, lo, hi));
-
-    return expression;
-  }
-
-  /**
-   * Creates an expression from the variables (UPPER bits come first).
-   * RCAT stands for Reversed Concatenation.
-   * 
-   * @param variables the expression variables
-   * @return the expression.
-   */
-  public static MmuExpression RCAT(final IntegerVariable... variables) {
-    return RCATX(Arrays.<IntegerVariable>asList(variables));
-  }
-
-  /**
-   * Makes Reversed Concatenation of variables the specified collection
-   * (higher bits come first).
-   * 
-   * @param terms the collection of variables.
-   * @return the concatenated expression.
-   */
-
-  public static MmuExpression RCATX(final Collection<IntegerVariable> variables) {
+  public static MmuExpression catv(final List<IntegerVariable> variables) {
     final List<IntegerField> fields = new ArrayList<>(variables.size());
+
     for (final IntegerVariable variable : variables) {
       fields.add(new IntegerField(variable));
     }
-    return RCAT(fields);
+
+    return new MmuExpression(fields);
+  }
+
+  public static MmuExpression catv(final IntegerVariable... variables) {
+    return catv(Arrays.<IntegerVariable>asList(variables));
   }
 
   /**
-   * Creates an expression from the terms (UPPER bits come first). RCAT stands for Reversed
-   * Concatenation.
+   * Creates a reversed concatenation of the fields.
    * 
-   * @param terms the expression terms
+   * @param atoms the fields to be concatenated.
    * @return the expression.
    */
-  public static MmuExpression RCAT(final IntegerField... terms) {
-    return RCAT(Arrays.<IntegerField>asList(terms));
-  }
+  public static MmuExpression rcatf(final List<IntegerField> fields) {
+    final List<IntegerField> reversedAtoms = new ArrayList<>(fields.size());
 
-  /**
-  * Creates an expression from the specified collections terms (UPPER bits come first).
-  * RCAT stands for Reversed Concatenation.
-  * 
-  * @param terms the collection of expression terms
-  * @return the concatenated expression.
-  */
-  public static MmuExpression RCAT(final Collection<IntegerField> terms) {
-    final MmuExpression expression = new MmuExpression();
-
-    for (final IntegerField term : terms) {
-      expression.addLoTerm(term);
+    for (final IntegerField atom : fields) {
+      reversedAtoms.add(0, atom);
     }
 
-    return expression;
+    return new MmuExpression(reversedAtoms);
+  }
+
+  public static MmuExpression rcatf(final IntegerField... fields) {
+    return rcatf(Arrays.<IntegerField>asList(fields));
+  }
+
+  public static MmuExpression rcatv(final Collection<IntegerVariable> variables) {
+    final List<IntegerField> reversedAtoms = new ArrayList<>(variables.size());
+
+    for (final IntegerVariable variable : variables) {
+      reversedAtoms.add(0, new IntegerField(variable));
+    }
+
+    return new MmuExpression(reversedAtoms);
+  }
+
+  public static MmuExpression rcatv(final IntegerVariable... variables) {
+    return rcatv(Arrays.<IntegerVariable>asList(variables));
+  }
+
+  //------------------------------------------------------------------------------------------------
+  // Atomic Expressions
+  //------------------------------------------------------------------------------------------------
+  public static MmuExpression empty() {
+    return new MmuExpression();
+  }
+
+  public static MmuExpression field(final IntegerField field) {
+    return new MmuExpression(field);
+  }
+
+  public static MmuExpression var(final IntegerVariable variable) {
+    return field(new IntegerField(variable));
+  }
+
+  public static MmuExpression var(final IntegerVariable variable, final int lo, final int hi) {
+    return field(new IntegerField(variable, lo, hi));
+  }
+
+  public static MmuExpression val(final BigInteger value, int width) {
+    return var(new IntegerVariable(String.format("%s:%d", value, width), width, value));
+  }
+
+
+  private final List<IntegerField> atoms = new ArrayList<>();
+
+  private MmuExpression() {}
+
+  private MmuExpression(final List<IntegerField> atoms) {
+    InvariantChecks.checkNotNull(atoms);
+    this.atoms.addAll(atoms);
+  }
+
+  private MmuExpression(final IntegerField atom) {
+    InvariantChecks.checkNotNull(atom);
+    this.atoms.add(atom);
   }
 
   public int size() {
-    return terms.size();
+    return atoms.size();
   }
   
   /**
@@ -133,56 +144,8 @@ public final class MmuExpression {
    * 
    * @return the terms.
    */
-  public List<IntegerField> getTerms() {
-    return terms;
-  }
-
-  /**
-   * Adds the term to the expression (LOWER bits).
-   * 
-   * @param term the term to be added.
-   * @throws NullPointerException if {@code term} is null.
-   */
-  public void addLoTerm(final IntegerField term) {
-    InvariantChecks.checkNotNull(term);
-
-    terms.add(0, term);
-  }
-
-  /**
-   * Adds the terms to the expression (LOWER bits).
-   * 
-   * @param terms the terms to be added.
-   * @throws NullPointerException if {@code terms} is null.
-   */
-  public void addLoTerms(final List<IntegerField> terms) {
-    InvariantChecks.checkNotNull(terms);
-
-    this.terms.addAll(0, terms);
-  }
-
-  /**
-   * Adds the term to the expression (UPPER bits).
-   * 
-   * @param term the term to be added.
-   * @throws NullPointerException if {@code term} is null.
-   */
-  public void addHiTerm(final IntegerField term) {
-    InvariantChecks.checkNotNull(term);
-
-    terms.add(term);
-  }
-
-  /**
-   * Adds the terms to the expression (UPPER bits).
-   * 
-   * @param terms the terms to be added.
-   * @throws NullPointerException if {@code terms} is null.
-   */
-  public void addHiTerms(final List<IntegerField> terms) {
-    InvariantChecks.checkNotNull(terms);
-
-    this.terms.addAll(terms);
+  public List<IntegerField> getAtoms() {
+    return atoms;
   }
 
   /**
@@ -193,7 +156,7 @@ public final class MmuExpression {
   public int getWidth() {
     int width = 0;
 
-    for (final IntegerField field : terms) {
+    for (final IntegerField field : atoms) {
       width += field.getWidth();
     }
 
@@ -202,12 +165,12 @@ public final class MmuExpression {
 
   @Override
   public String toString() {
-    if (terms.isEmpty()) {
+    if (atoms.isEmpty()) {
       return "0";
     }
 
-    if (terms.size() == 1) {
-      return terms.get(0).toString();
+    if (atoms.size() == 1) {
+      return atoms.get(0).toString();
     }
 
     final String separator = ", ";
@@ -216,7 +179,7 @@ public final class MmuExpression {
     boolean comma = false;
 
     builder.append("{");
-    for (final IntegerField field : terms) {
+    for (final IntegerField field : atoms) {
       builder.append(comma ? separator : "");
       builder.append(field);
       comma = true;

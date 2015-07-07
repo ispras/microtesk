@@ -82,6 +82,16 @@ final class IntegerVariableGroup {
     return variables.size();
   }
 
+  public int getWidth() {
+    int width = 0;
+
+    for (final IntegerVariable variable : variables.values()) {
+      width += variable.getWidth();
+    }
+
+    return width;
+  }
+
   @Override
   public String toString() {
     return String.format("%s[%s]", name, variables);

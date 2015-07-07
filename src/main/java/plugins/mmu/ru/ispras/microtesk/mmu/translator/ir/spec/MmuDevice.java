@@ -210,7 +210,7 @@ public final class MmuDevice {
     reverseAssignment(fields, indexVariable, indexExpression);
     reverseAssignment(fields, offsetVariable, offsetExpression);
 
-    final MmuExpression expression = new MmuExpression();
+    final List<IntegerField> concatenation = new ArrayList<>(fields.size());
 
     int expectedIndex = 0;
     for (final Map.Entry<Integer, IntegerField> entry : fields.entrySet()) {
@@ -223,11 +223,11 @@ public final class MmuDevice {
             index, expectedIndex, fields));
       }
 
-      expression.addHiTerm(field);
+      concatenation.add(field);
       expectedIndex += field.getWidth();
     }
 
-    return expression;
+    return MmuExpression.catf(concatenation);
   }
 
   /**
@@ -244,7 +244,7 @@ public final class MmuDevice {
 
     int offset = 0;
 
-    for (final IntegerField addressField : expression.getTerms()) {
+    for (final IntegerField addressField : expression.getAtoms()) {
       final IntegerField field =
           new IntegerField(variable, offset, (offset + addressField.getWidth()) - 1);
 

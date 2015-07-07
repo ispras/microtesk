@@ -124,7 +124,7 @@ public class AssignmentBuilder {
   private static Iterator<MmuExpression> newExpressionIterator(final Atom atom) {
     switch (atom.getKind()) {
       case VARIABLE:
-        return Collections.singletonList(MmuExpression.VAR(
+        return Collections.singletonList(MmuExpression.var(
             (IntegerVariable) atom.getObject())).iterator();
 
       case GROUP:
@@ -133,7 +133,7 @@ public class AssignmentBuilder {
 
       case FIELD: {
         final IntegerField intField = (IntegerField) atom.getObject();
-        final MmuExpression mmuExpr = MmuExpression.VAR(
+        final MmuExpression mmuExpr = MmuExpression.var(
             intField.getVariable(), intField.getLoIndex(), intField.getHiIndex());
         return Collections.singletonList(mmuExpr).iterator();
       }
@@ -161,7 +161,7 @@ public class AssignmentBuilder {
 
     @Override
     public MmuExpression next() {
-      return MmuExpression.VAR(iterator.next());
+      return MmuExpression.var(iterator.next());
     }
 
     @Override

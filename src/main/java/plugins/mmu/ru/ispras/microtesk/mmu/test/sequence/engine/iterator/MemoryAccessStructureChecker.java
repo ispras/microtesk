@@ -451,7 +451,7 @@ public final class MemoryAccessStructureChecker {
     }
 
     // Get all terms for this variable
-    final List<IntegerField> terms = expression.getTerms();
+    final List<IntegerField> terms = expression.getAtoms();
 
     final Map<IntegerVariable, Set<IntegerRange>> variablesRangesTemp = new LinkedHashMap<>();
 
@@ -790,7 +790,7 @@ public final class MemoryAccessStructureChecker {
   private static void initVariableRange(final MmuExpression expression,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
 
-    final List<IntegerField> terms = expression.getTerms();
+    final List<IntegerField> terms = expression.getAtoms();
 
     for (final IntegerField term : terms) {
       final IntegerVariable variable = term.getVariable();
@@ -869,7 +869,7 @@ public final class MemoryAccessStructureChecker {
     final MmuExpression expression = equality.getExpression();
     InvariantChecks.checkNotNull(expression);
 
-    final List<IntegerField> terms = expression.getTerms();
+    final List<IntegerField> terms = expression.getAtoms();
 
     for (final IntegerField term : terms) {
       // Get variables of the ranges
@@ -914,7 +914,7 @@ public final class MemoryAccessStructureChecker {
         continue;
       }
 
-      final List<IntegerField> termList = expression.getTerms();
+      final List<IntegerField> termList = expression.getAtoms();
 
       int termsSize = 0;
       // Get the shift value
@@ -1119,7 +1119,7 @@ public final class MemoryAccessStructureChecker {
               continue;
             }
 
-            final List<IntegerField> terms = expression.getTerms();
+            final List<IntegerField> terms = expression.getAtoms();
 
             // Empty terms =/= Empty terms => false
             if (terms.isEmpty() && !equalityType) {

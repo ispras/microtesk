@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -82,6 +83,22 @@ final class Atom {
 
   public Object getObject() {
     return object;
+  }
+
+  public int getWidth() {
+    switch (kind) {
+      case VARIABLE:
+        return ((IntegerVariable) object).getWidth();
+      case GROUP:
+        return ((IntegerVariableGroup) object).getWidth();
+      case FIELD:
+        return ((IntegerField) object).getWidth();
+      case CONCAT:
+        return ((MmuExpression) object).getWidth();
+      default:
+        InvariantChecks.checkTrue(false);
+        return -1;
+    }
   }
 
   @Override
