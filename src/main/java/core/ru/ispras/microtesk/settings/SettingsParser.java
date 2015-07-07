@@ -56,7 +56,7 @@ public final class SettingsParser extends DefaultHandler {
 
       saxParser.parse(fileName, this);
     } catch (final Exception exception) {
-      throw new IllegalStateException(exception.getMessage());
+      throw new IllegalStateException(exception);
     }
 
     return (GeneratorSettings) parser.getSettings();
