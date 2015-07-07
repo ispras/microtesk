@@ -100,6 +100,7 @@ public final class MmuExpression {
   //------------------------------------------------------------------------------------------------
   // Atomic Expressions
   //------------------------------------------------------------------------------------------------
+
   public static MmuExpression empty() {
     return new MmuExpression();
   }
@@ -120,6 +121,9 @@ public final class MmuExpression {
     return var(new IntegerVariable(String.format("%s:%d", value, width), width, value));
   }
 
+  //------------------------------------------------------------------------------------------------
+  // Internals
+  //------------------------------------------------------------------------------------------------
 
   private final List<IntegerField> atoms = new ArrayList<>();
 
@@ -139,20 +143,10 @@ public final class MmuExpression {
     return atoms.size();
   }
   
-  /**
-   * Returns the expression terms (LOWER bits come first).
-   * 
-   * @return the terms.
-   */
   public List<IntegerField> getAtoms() {
     return atoms;
   }
 
-  /**
-   * Returns the size (bit width) of the expression.
-   * 
-   * @return the size of the expression.
-   */
   public int getWidth() {
     int width = 0;
 
@@ -166,7 +160,7 @@ public final class MmuExpression {
   @Override
   public String toString() {
     if (atoms.isEmpty()) {
-      return "0";
+      return "empty";
     }
 
     if (atoms.size() == 1) {
