@@ -22,33 +22,44 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 
 /**
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 final class AddressCoverageExtractor {
+  private static enum Hazard {
+    ADDR_NOT_EQUAL {
+      @Override
+      public MemoryHazard getHazard(final MmuAddress address) {
+        // Address1 != Address2.
+        return new MemoryHazard(MemoryHazard.Type.ADDR_NOT_EQUAL, address,
+            MmuCondition.neq(address.getVariable()));
+      }
+    },
+
+    ADDR_EQUAL {
+      @Override
+      public MemoryHazard getHazard(final MmuAddress address) {
+        // Address1 == Address2.
+        return new MemoryHazard(MemoryHazard.Type.ADDR_EQUAL, address,
+            MmuCondition.eq(address.getVariable()));
+      }
+    };
+
+    public abstract MemoryHazard getHazard(MmuAddress address);
+  }
+
   private final List<MemoryHazard> hazards = new ArrayList<>();
 
   public AddressCoverageExtractor(final MmuAddress address) {
     InvariantChecks.checkNotNull(address);
 
     // Address1 != Address2.
-    hazards.add(getAddrNotEqualHazard(address));
+    hazards.add(Hazard.ADDR_NOT_EQUAL.getHazard(address));
     // Address1 == Address2.
-    hazards.add(getAddrEqualHazard(address));
+    hazards.add(Hazard.ADDR_EQUAL.getHazard(address));
   }
 
   public List<MemoryHazard> getHazards() {
     return hazards;
-  }
-
-  private MemoryHazard getAddrNotEqualHazard(final MmuAddress address) {
-    // Address1 != Address2.
-    return new MemoryHazard(MemoryHazard.Type.ADDR_NOT_EQUAL, address,
-        MmuCondition.neq(address.getVariable()));
-  }
-
-  private MemoryHazard getAddrEqualHazard(final MmuAddress address) {
-    // Address1 == Address2.
-    return new MemoryHazard(MemoryHazard.Type.ADDR_EQUAL, address,
-        MmuCondition.eq(address.getVariable()));
   }
 }
