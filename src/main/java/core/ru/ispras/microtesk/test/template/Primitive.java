@@ -51,6 +51,10 @@ public interface Primitive {
   boolean canThrowException();
   boolean isBranch();
   boolean isConditionalBranch();
+
+  boolean isLoad();
+  boolean isStore();
+  int getBlockSize();
 }
 
 final class ConcretePrimitive implements Primitive {
@@ -61,9 +65,14 @@ final class ConcretePrimitive implements Primitive {
   private final Map<String, Argument> args;
   private final String contextName;
   private final Situation situation;
+
   private final boolean branch;
   private final boolean conditionalBranch;
   private final boolean exception;
+
+  private final boolean load;
+  private final boolean store;
+  private final int blockSize;
 
   protected ConcretePrimitive(
       final Kind kind,
@@ -75,7 +84,10 @@ final class ConcretePrimitive implements Primitive {
       final Situation situation,
       final boolean branch,
       final boolean conditionalBranch,
-      final boolean exception) {
+      final boolean exception,
+      final boolean load,
+      final boolean store,
+      final int blockSize) {
     checkNotNull(kind);
     checkNotNull(name);
     checkNotNull(typeName);
@@ -88,9 +100,14 @@ final class ConcretePrimitive implements Primitive {
     this.args = args;
     this.contextName = contextName;
     this.situation = situation;
+
     this.branch = branch;
     this.conditionalBranch = conditionalBranch;
     this.exception = exception;
+
+    this.load = load;
+    this.store = store;
+    this.blockSize = blockSize;
   }
 
   private ConcretePrimitive(final ConcretePrimitive other) {
@@ -101,9 +118,14 @@ final class ConcretePrimitive implements Primitive {
     this.args = copyArguments(other.args);
     this.contextName = other.contextName;
     this.situation = other.situation;
+
     this.branch = other.branch;
     this.conditionalBranch = other.conditionalBranch;
     this.exception = other.exception;
+
+    this.load = other.load;
+    this.store = other.store;
+    this.blockSize = other.blockSize;
   }
 
   public static Map<String, Argument> copyArguments(
@@ -191,6 +213,18 @@ final class ConcretePrimitive implements Primitive {
   @Override
   public boolean isConditionalBranch() {
     return conditionalBranch;
+  }
+
+  public boolean isLoad() {
+    return load;
+  }
+
+  public boolean isStore() {
+    return store;
+  }
+
+  public int getBlockSize() {
+    return blockSize;
   }
 
   @Override
@@ -329,6 +363,24 @@ final class LazyPrimitive implements Primitive {
   public boolean isConditionalBranch() {
     checkSourceAssigned();
     return source.isConditionalBranch();
+  }
+
+  @Override
+  public boolean isLoad() {
+    checkSourceAssigned();
+    return source.isLoad();
+  }
+
+  @Override
+  public boolean isStore() {
+    checkSourceAssigned();
+    return source.isStore();
+  }
+
+  @Override
+  public int getBlockSize() {
+    checkSourceAssigned();
+    return source.getBlockSize();
   }
 
   @Override

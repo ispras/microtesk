@@ -540,7 +540,10 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         situation,
         branchInfo.first,
         branchInfo.second,
-        canThrowException()
+        canThrowException(),
+        false, // TODO
+        false, // TODO
+        0      // TODO
         );
 
     lazyPrimitive.setSource(primitive);

@@ -22,12 +22,15 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Call {
   private final Primitive rootOperation;
+
   private final List<Label> labels;
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
+
   private final boolean exception;
   private final boolean branch;
   private final boolean conditionalBranch;
+
   private final boolean load;
   private final boolean store;
   private final int blockSize;
