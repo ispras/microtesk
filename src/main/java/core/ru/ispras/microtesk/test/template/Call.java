@@ -28,6 +28,9 @@ public final class Call {
   private final boolean exception;
   private final boolean branch;
   private final boolean conditionalBranch;
+  private final boolean load;
+  private final boolean store;
+  private final int blockSize;
 
   public Call(
       final Primitive rootOperation,
@@ -52,6 +55,10 @@ public final class Call {
       this.branch = false;
       this.conditionalBranch = false;
     }
+
+    this.load = false;
+    this.store = false;
+    this.blockSize = 0;
   }
 
   public Call(final Call other) {
@@ -63,9 +70,14 @@ public final class Call {
     this.labels = other.labels;
     this.labelRefs = copyLabelReferences(other.labelRefs);
     this.outputs = other.outputs;
+
     this.exception = other.exception;
     this.branch = other.branch;
     this.conditionalBranch = other.conditionalBranch;
+
+    this.load = other.load;
+    this.store = other.store;
+    this.blockSize = other.blockSize;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
@@ -140,6 +152,18 @@ public final class Call {
 
   public boolean canThrowException() {
     return exception;
+  }
+
+  public boolean isLoad() {
+    return load;
+  }
+
+  public boolean isStore() {
+    return store;
+  }
+
+  public int getBlockSize() {
+    return blockSize;
   }
 
   public Label getTargetLabel() {
