@@ -31,16 +31,18 @@ public final class MetaAddressingMode implements MetaData {
   private final Type dataType;
   private final Map<String, MetaArgument> args;
   private final boolean exception;
-  private final boolean memoryAccess;
+  private final boolean memoryReference;
 
   /**
    * Constructs a metadata object for an addressing mode.
    * 
    * @param name Addressing mode name.
    * @param dataType the type of data accessed via the addressing mode.
-   * @param argumentNames Argument names.
-   * @param exception {@code true} if the addressing mode can throw an
-   *        exception or {@code false} otherwise.
+   * @param args Table of addressing mode arguments.
+   * @param exception {@code true} if the addressing mode can throw
+   *        an exception or {@code false} otherwise.
+   * @param memoryReference {@code true} if the addressing mode
+   *        provides access to memory or {@code false} otherwise.
    * 
    * @throws IllegalArgumentException if any of the parameters is {@code null}.
    */
@@ -50,7 +52,7 @@ public final class MetaAddressingMode implements MetaData {
       final Type dataType,
       final Map<String, MetaArgument> args,
       final boolean exception,
-      final boolean memoryAccess) {
+      final boolean memoryReference) {
     checkNotNull(name);
     checkNotNull(args);
 
@@ -58,7 +60,7 @@ public final class MetaAddressingMode implements MetaData {
     this.dataType = dataType;
     this.args = args;
     this.exception = exception;
-    this.memoryAccess = memoryAccess;
+    this.memoryReference = memoryReference;
   }
 
   /**
@@ -137,14 +139,15 @@ public final class MetaAddressingMode implements MetaData {
   }
 
   /**
-   * Checks whether the addressing mode provides an access to memory.
+   * Checks whether the addressing mode provides refers to memory 
+   * (provides an access to memory via its return expression).
    * 
-   * @return {@code true} if the addressing mode provides an access to memory
+   * @return {@code true} if the addressing mode provides an reference to memory
    * or {@code false} otherwise.
    */
 
-  public boolean isMemoryAccess() {
-    return memoryAccess;
+  public boolean isMemoryReference() {
+    return memoryReference;
   }
 
   @Override
