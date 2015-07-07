@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.ir.spec.basis;
+package ru.ispras.microtesk.basis.solver;
 
 import java.util.HashSet;
 import java.util.List;

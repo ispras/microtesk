@@ -32,7 +32,7 @@ public class MmuConditionTestCase {
   public void runTest(final BigInteger min, final BigInteger max) {
     System.out.format("Range: min=%x, max=%x\n", min, max);
 
-    final MmuCondition condition = MmuCondition.RANGE(VAR, min, max);
+    final MmuCondition condition = MmuCondition.range(VAR, min, max);
 
     System.out.println(condition);
     Assert.assertNotNull(condition);

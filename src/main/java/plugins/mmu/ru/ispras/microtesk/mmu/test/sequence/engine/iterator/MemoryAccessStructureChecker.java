@@ -37,7 +37,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEquality;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -368,10 +368,10 @@ public final class MemoryAccessStructureChecker {
       for (final Map.Entry<IntegerField, MmuAssignment> action : actions.entrySet()) {
         final MmuAssignment assignment = action.getValue();
 
-        final MmuExpression expression = assignment.getExpression();
+        final MmuExpression expression = assignment.getRhs();
         if (expression != null) {
           // Adds the left part of expression to the variableRange.
-          addVariableRange(expression, variableRange, assignment.getField());
+          addVariableRange(expression, variableRange, assignment.getLhs());
         }
       }
     }
@@ -394,7 +394,7 @@ public final class MemoryAccessStructureChecker {
       for (final Map.Entry<IntegerField, MmuAssignment> action : actions.entrySet()) {
         final MmuAssignment assignment = action.getValue();
 
-        final MmuExpression expression = assignment.getExpression();
+        final MmuExpression expression = assignment.getRhs();
         if (expression != null) {
           initVariableRange(expression, variableRange);
         }
@@ -420,8 +420,8 @@ public final class MemoryAccessStructureChecker {
    */
   private static void initVariableRange(final MmuCondition condition,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
-    final List<MmuEquality> equalities = condition.getEqualities();
-    for (final MmuEquality equality : equalities) {
+    final List<MmuConditionAtom> equalities = condition.getAtoms();
+    for (final MmuConditionAtom equality : equalities) {
       final MmuExpression expression = equality.getExpression();
 
       if (expression != null) {
@@ -856,7 +856,7 @@ public final class MemoryAccessStructureChecker {
    * @return {@code true} if the equality is consistent; {@code false} otherwise.
    * @throws IllegalStateException if equalityType not EQUAL_CONST || NOT_EQUAL_CONST.
    */
-  private boolean process(final int i, final MmuEquality equality) {
+  private boolean process(final int i, final MmuConditionAtom equality) {
     InvariantChecks.checkNotNull(equality);
 
     final BigInteger equalityConstant = equality.getConstant();
@@ -908,7 +908,7 @@ public final class MemoryAccessStructureChecker {
       final MmuAssignment assignment = assignmentSet.getValue();
       final String name = gatherVariableName(field.getVariable(), i);
 
-      final MmuExpression expression = assignment != null ? assignment.getExpression() : null;
+      final MmuExpression expression = assignment != null ? assignment.getRhs() : null;
 
       if (expression == null) {
         continue;
@@ -1001,8 +1001,8 @@ public final class MemoryAccessStructureChecker {
   private boolean process(final int i, final MmuCondition condition) {
     InvariantChecks.checkNotNull(condition);
 
-    final List<MmuEquality> equalities = condition.getEqualities();
-    for (final MmuEquality equality : equalities) {
+    final List<MmuConditionAtom> equalities = condition.getAtoms();
+    for (final MmuConditionAtom equality : equalities) {
       final MmuExpression expression = equality.getExpression();
 
       if (expression != null) {
@@ -1107,15 +1107,15 @@ public final class MemoryAccessStructureChecker {
       final MmuCondition condition = hazard.getCondition();
 
       if (condition != null) {
-        final List<MmuEquality> equalities = condition.getEqualities();
+        final List<MmuConditionAtom> equalities = condition.getAtoms();
 
-        for (final MmuEquality equality : equalities) {
+        for (final MmuConditionAtom equality : equalities) {
           final MmuExpression expression = equality.getExpression();
 
           if (expression != null) {
             boolean equalityType = !equality.isNegated();
 
-            if (equality.getType() != MmuEquality.Type.EQUAL) {
+            if (equality.getType() != MmuConditionAtom.Type.EQUAL) {
               continue;
             }
 

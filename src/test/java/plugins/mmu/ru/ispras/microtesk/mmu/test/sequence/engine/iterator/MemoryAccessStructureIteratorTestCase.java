@@ -202,10 +202,10 @@ public final class MemoryAccessStructureIteratorTestCase {
               final int numberOfConflicts = conflicts.get(conflict.getType());
               conflicts.put(conflict.getType(), numberOfConflicts + 1);
               addressConflict = true;
-              if (MipsMmu.get().pa.equals(conflict.getAddress().getAddress())) {
+              if (MipsMmu.get().pa.equals(conflict.getAddress().getVariable())) {
                 addressConflict = true;
               }
-              if (MipsMmu.get().va.equals(conflict.getAddress().getAddress())) {
+              if (MipsMmu.get().va.equals(conflict.getAddress().getVariable())) {
                 addressConflict = true;
               }
             }
@@ -217,13 +217,13 @@ public final class MemoryAccessStructureIteratorTestCase {
             conflictsType.put(conflict.getType(), conflictsType.get(conflict.getType()) + 1);
 
             if (conflict.getAddress() != null
-                && MipsMmu.get().pa.equals(conflict.getAddress().getAddress())
+                && MipsMmu.get().pa.equals(conflict.getAddress().getVariable())
                 && MemoryHazard.Type.ADDR_EQUAL.equals(conflict.getType())) {
               paEqual = true;
             }
 
             if (conflict.getAddress() != null
-                && MipsMmu.get().va.equals(conflict.getAddress().getAddress())
+                && MipsMmu.get().va.equals(conflict.getAddress().getVariable())
                 && MemoryHazard.Type.ADDR_EQUAL.equals(conflict.getType())) {
               vaEqual = true;
             }

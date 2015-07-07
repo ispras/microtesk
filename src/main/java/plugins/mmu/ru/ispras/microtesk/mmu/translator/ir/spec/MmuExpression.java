@@ -124,6 +124,10 @@ public final class MmuExpression {
     return expression;
   }
 
+  public int size() {
+    return terms.size();
+  }
+  
   /**
    * Returns the expression terms (LOWER bits come first).
    * 

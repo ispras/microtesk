@@ -21,70 +21,42 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerField;
 
 /**
- * {@link MmuAction} describes an action, which is a named set of assignments.
+ * {@link MmuAction} describes an action, i.e. a named set of assignments.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public class MmuAction {
-  /** The action name. */
+  /** Unique name. */
   private final String name;
-  /** The action device. */
+  /** Device used in the action or {@code null}. */
   private final MmuDevice device;
-  /** The action. */
+  /** Assignments performed by the action. */
   private final Map<IntegerField, MmuAssignment> action = new HashMap<>();
 
-  /**
-   * Constructs an action.
-   * 
-   * @param name the action name.
-   * @param device the device.
-   * @param assignments the action assignments.
-   * @throws NullPointerException if {@code name} is null.
-   */
   public MmuAction(final String name, final MmuDevice device, final MmuAssignment... assignments) {
     InvariantChecks.checkNotNull(name);
+    // The device is allowed to be null.
 
     this.name = name;
     this.device = device;
 
     for (final MmuAssignment assignment : assignments) {
-      action.put(assignment.getField(), assignment);
+      action.put(assignment.getLhs(), assignment);
     }
   }
 
-  /**
-   * Constructs an action.
-   * 
-   * @param name the name.
-   * @param assignments the action assignments.
-   */
   public MmuAction(final String name, final MmuAssignment... assignments) {
     this(name, null, assignments);
   }
 
-  /**
-   * Returns the name of the action.
-   * 
-   * @return the action name.
-   */
   public String getName() {
     return name;
   }
 
-  /**
-   * Returns the device.
-   * 
-   * @return the device.
-   */
   public MmuDevice getDevice() {
     return device;
   }
 
-  /**
-   * Returns the set of assignments.
-   * 
-   * @return the set of assignments.
-   */
   public Map<IntegerField, MmuAssignment> getAction() {
     return action;
   }

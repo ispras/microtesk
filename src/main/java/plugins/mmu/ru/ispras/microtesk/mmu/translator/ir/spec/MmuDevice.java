@@ -124,7 +124,7 @@ public final class MmuDevice {
       parent.children.add(this);
     }
 
-    final int addressWidth = address.getAddress().getWidth();
+    final int addressWidth = address.getVariable().getWidth();
 
     // Create the auxiliary variables to represent the address calculation function.
     this.tagVariable = new IntegerVariable(String.format("%s$TAG", name), addressWidth);
@@ -133,7 +133,7 @@ public final class MmuDevice {
 
     // Derive the address reconstruction expression.
     addressExpression = createAddressExpression(
-        address.getAddress(),
+        address.getVariable(),
         tagVariable,
         tagExpression,
         indexVariable,
@@ -150,11 +150,11 @@ public final class MmuDevice {
         final BigInteger addrValue = BigInteger.valueOf(addr);
 
         final BigInteger tagValue =
-            MmuCalculator.eval(tagExpression, address.getAddress(), addrValue);
+            MmuCalculator.eval(tagExpression, address.getVariable(), addrValue);
         final BigInteger indexValue =
-            MmuCalculator.eval(indexExpression, address.getAddress(), addrValue);
+            MmuCalculator.eval(indexExpression, address.getVariable(), addrValue);
         final BigInteger offsetValue =
-            MmuCalculator.eval(offsetExpression, address.getAddress(), addrValue);
+            MmuCalculator.eval(offsetExpression, address.getVariable(), addrValue);
 
         final List<Long> fields = new ArrayList<Long>();
 

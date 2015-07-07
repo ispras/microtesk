@@ -96,7 +96,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     final MmuAddress address = spec.getAddress(memory.getAddress().getId());
     spec.setStartAddress(address);
-    variables.defineVariableAs(address.getAddress(), memory.getAddressArg().getId());
+    variables.defineVariableAs(address.getVariable(), memory.getAddressArg().getId());
 
     data = new IntegerVariable(memory.getDataArg().getId(), memory.getDataArg().getBitSize());
     variables.defineVariable(data);
@@ -132,11 +132,11 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final boolean isReplaceable = PolicyId.NONE != buffer.getPolicy();
 
     final String addressArgName = buffer.getAddressArg().getId();
-    variables.defineVariableAs(address.getAddress(), addressArgName);
+    variables.defineVariableAs(address.getVariable(), addressArgName);
 
     try {
       final AddressFormatExtractor addressFormat = new AddressFormatExtractor(
-          variables, address.getAddress(), buffer.getIndex(), buffer.getMatch());
+          variables, address.getVariable(), buffer.getIndex(), buffer.getMatch());
 
       final MmuDevice parentDevice = (null != buffer.getParent()) ?
           spec.getDevice(buffer.getParent().getId()) : null;
@@ -168,7 +168,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   private void registerControlFlowForMemory(Memory memory) {
     final MmuAddress address = spec.getAddress(memory.getAddress().getId());
 
-    final MmuAction root = new MmuAction("ROOT", new MmuAssignment(address.getAddress()));
+    final MmuAction root = new MmuAction("ROOT", new MmuAssignment(address.getVariable()));
     spec.registerAction(root);
     spec.setStartAction(root);
 

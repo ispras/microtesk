@@ -14,110 +14,65 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
- * {@link MmuAssignment} describes an assignment, i.e. a pair {@code lhs = rhs}, where {@code lhs}
- * is an integer field and {@code rhs} is an expression.
+ * {@link MmuAssignment} describes an assignment, i.e. a pair of the kind {@code lhs = rhs},
+ * where {@code lhs} is an {@link IntegerField} and {@code rhs} is an {@link MmuExpression}.
+ * 
+ * <p>The right-hand side of the assignment is allowed to be {@code null}. It means that the
+ * expression can be derived from the context.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuAssignment {
-  /** The field. */
-  private final IntegerField field;
-  /** The expression. */
-  private final MmuExpression expression;
+  /** Left-hand side. */
+  private final IntegerField lhs;
+  /** Right-hand side or {@code null}. */
+  private final MmuExpression rhs;
 
-  /**
-   * Constructs an assignment.
-   * 
-   * @param field the field.
-   * @param expression the expression or {@code null}.
-   * @throws IllegalArgumentException if {@code field} is null.
-   */
-  public MmuAssignment(final IntegerField field, final MmuExpression expression) {
-    InvariantChecks.checkNotNull(field);
+  public MmuAssignment(final IntegerField lhs, final MmuExpression rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
 
-    this.field = field;
-    this.expression = expression;
+    this.lhs = lhs;
+    this.rhs = rhs;
   }
 
-  /**
-   * Constructs an assignment.
-   * 
-   * @param variable the left-hand side (LHS).
-   * @param expression the right-hand side (RHS).
-   * @throws IllegalArgumentException if {@code variable} is null.
-   */
-  public MmuAssignment(final IntegerVariable variable, final MmuExpression expression) {
-    this(new IntegerField(variable), expression);
+  public MmuAssignment(final IntegerVariable lhs, final MmuExpression rhs) {
+    this(new IntegerField(lhs), rhs);
   }
 
-  /**
-   * Constructs an assignment with no right-hand side (RHS).
-   * 
-   * <p>It is assumed that RHS can be derived from the context.</p>
-   * 
-   * @param field the left-hand side (LHS).
-   */
-  public MmuAssignment(final IntegerField field) {
-    this(field, null);
+  public MmuAssignment(final IntegerField lhs) {
+    InvariantChecks.checkNotNull(lhs);
+
+    this.lhs = lhs;
+    this.rhs = null;
   }
 
-  /**
-   * Constructs an assignment with no right-hand side (RHS).
-   * 
-   * It is assumed that RHS can be derived from the context.
-   * 
-   * @param variable the variable the right-hand side (RHS).
-   */
-  public MmuAssignment(final IntegerVariable variable) {
-    this(new IntegerField(variable), null);
+  public MmuAssignment(final IntegerVariable lhs) {
+    this(new IntegerField(lhs));
   }
 
-  /**
-   * Returns the left-hand side (LHS) of the assignment.
-   * 
-   * @return LHS.
-   */
-  public IntegerField getField() {
-    return field;
+  public IntegerField getLhs() {
+    return lhs;
   }
 
-  /**
-   * Returns the right-hand side (RHS) of the assignment.
-   * 
-   * @return RHS.
-   */
-  public MmuExpression getExpression() {
-    return expression;
+  public MmuExpression getRhs() {
+    return rhs;
   }
 
   @Override
   public String toString() {
-    final StringBuilder string = new StringBuilder(field.getVariable().getName());
+    final StringBuilder builder = new StringBuilder(lhs.toString());
 
-    string.append("[");
-    string.append(field.getLoIndex());
-    string.append(":");
-    string.append(field.getHiIndex());
-    string.append("]: ");
-
-    if (expression == null) {
-      string.append("{null}");
-    } else {
-      final List<IntegerField> terms = expression.getTerms();
-      for (final IntegerField term : terms) {
-        string.append("{");
-        string.append(term);
-        string.append("}");
-      }
+    if (rhs != null) {
+      builder.append("=");
+      builder.append(rhs);
     }
 
-    return string.toString();
+    return builder.toString();
   }
 }

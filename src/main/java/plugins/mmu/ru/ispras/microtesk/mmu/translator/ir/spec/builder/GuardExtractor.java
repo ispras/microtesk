@@ -108,9 +108,9 @@ final class GuardExtractor {
     if (target instanceof Segment) {
       final Segment segment = (Segment) target;
       final MmuAddress address = specification.getAddress(segment.getAddress().getId());
-      final IntegerVariable addressVar = address.getAddress(); 
+      final IntegerVariable addressVar = address.getVariable(); 
 
-      hit = new MmuGuard(MmuCondition.RANGE(addressVar, segment.getMin(), segment.getMax()));
+      hit = new MmuGuard(MmuCondition.range(addressVar, segment.getMin(), segment.getMax()));
       miss = null; // TODO
     } else {
       final MmuDevice device = specification.getDevice(attrRef.getTarget().getId());
@@ -149,8 +149,8 @@ final class GuardExtractor {
     switch (variableAtom.getKind()) {
       case VARIABLE: {
         final IntegerVariable intVar = (IntegerVariable) variableAtom.getObject();
-        eq = new MmuGuard(MmuCondition.EQ(intVar, value));
-        noteq = new MmuGuard(MmuCondition.NEQ(intVar, value));
+        eq = new MmuGuard(MmuCondition.eq(intVar, value));
+        noteq = new MmuGuard(MmuCondition.neq(intVar, value));
         break;
       }
 
@@ -159,15 +159,15 @@ final class GuardExtractor {
         final IntegerVariable intVar = intField.getVariable();
         final int lo = intField.getLoIndex();
         final int hi = intField.getHiIndex();
-        eq = new MmuGuard(MmuCondition.EQ(new IntegerField(intVar, lo, hi), value));
-        noteq = new MmuGuard(MmuCondition.NEQ(new IntegerField(intVar, lo, hi), value));
+        eq = new MmuGuard(MmuCondition.eq(new IntegerField(intVar, lo, hi), value));
+        noteq = new MmuGuard(MmuCondition.neq(new IntegerField(intVar, lo, hi), value));
         break;
       }
 
       case CONCAT: {
         final MmuExpression mmuExpr = (MmuExpression) variableAtom.getObject();
-        eq = new MmuGuard(MmuCondition.EQ(mmuExpr));
-        noteq = new MmuGuard(MmuCondition.NEQ(mmuExpr));
+        eq = new MmuGuard(MmuCondition.eq(mmuExpr));
+        noteq = new MmuGuard(MmuCondition.neq(mmuExpr));
         break;
       }
 

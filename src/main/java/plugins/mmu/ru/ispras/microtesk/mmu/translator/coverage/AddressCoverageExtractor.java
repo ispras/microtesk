@@ -42,13 +42,13 @@ final class AddressCoverageExtractor {
 
     // Address1 != Address2.
     final MemoryHazard hazardNoEqual = new MemoryHazard(MemoryHazard.Type.ADDR_NOT_EQUAL, address,
-        MmuCondition.EQ(address.getAddress()));
+        MmuCondition.eq(address.getVariable()));
 
     hazards.add(hazardNoEqual);
 
     // Address1 == Address2.
     final MemoryHazard hazardEqual = new MemoryHazard(MemoryHazard.Type.ADDR_EQUAL, address,
-        MmuCondition.NEQ(address.getAddress()));
+        MmuCondition.neq(address.getVariable()));
 
     hazards.add(hazardEqual);
 

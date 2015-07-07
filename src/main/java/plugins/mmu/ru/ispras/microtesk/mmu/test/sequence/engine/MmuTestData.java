@@ -213,7 +213,7 @@ public final class MmuTestData {
       final long addrValue = addrEntry.getValue();
 
       builder.append(comma ? separator : "");
-      builder.append(String.format("%s=%x", addrType.getAddress().getName(), addrValue));
+      builder.append(String.format("%s=%x", addrType.getVariable().getName(), addrValue));
       comma = true;
 
       for (final MmuDevice device : memory.getDevices()) {

@@ -28,6 +28,7 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuCalculator {
+  private MmuCalculator() {}
 
   /**
    * Evaluates the expression. The empty expression is evaluated to zero.
@@ -35,9 +36,9 @@ public final class MmuCalculator {
    * @param expression the expression to be calculated.
    * @param values the values of the variables.
    * @return the expression value.
-   * @throws IllegalArgumentException if {@code expression} or {@code values} is null.
    */
-  public static BigInteger eval(final MmuExpression expression,
+  public static BigInteger eval(
+      final MmuExpression expression,
       final Map<IntegerVariable, BigInteger> values) {
     InvariantChecks.checkNotNull(expression);
     InvariantChecks.checkNotNull(values);
@@ -46,7 +47,8 @@ public final class MmuCalculator {
     int offset = 0;
 
     for (final IntegerField field : expression.getTerms()) {
-      final BigInteger value = values.get(field.getVariable());
+      final IntegerVariable variable = field.getVariable();
+      final BigInteger value = variable.isDefined() ? variable.getValue() : values.get(variable);
       InvariantChecks.checkNotNull(value);
 
       final int fieldWidth = field.getWidth();
@@ -67,9 +69,10 @@ public final class MmuCalculator {
    * @param variable the variable.
    * @param value the value of the variable.
    * @return the expression value.
-   * @throws IllegalArgumentException if some parameters are null.
    */
-  public static BigInteger eval(final MmuExpression expression, final IntegerVariable variable,
+  public static BigInteger eval(
+      final MmuExpression expression,
+      final IntegerVariable variable,
       final BigInteger value) {
     InvariantChecks.checkNotNull(expression);
     InvariantChecks.checkNotNull(variable);

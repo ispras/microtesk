@@ -154,7 +154,7 @@ public final class MmuGuard {
     }
 
     if (condition != null) {
-      for (final MmuEquality equality : condition.getEqualities()) {
+      for (final MmuConditionAtom equality : condition.getAtoms()) {
         builder.append(builder.length() > 0 ? separator : "");
         builder.append(equality);
       }

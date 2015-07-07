@@ -23,47 +23,25 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MmuAddress {
-  /** The variable that describes the address. */
-  private final IntegerVariable address;
+  /** Address description (the variable contains the name and the bit length). */
+  private final IntegerVariable addrVariable;
 
-  /**
-   * Constructs an address.
-   * 
-   * @param address variable describing the address.
-   * @throws NullPointerException if {@code address} is {@code null}.
-   */
   public MmuAddress(final IntegerVariable address) {
     InvariantChecks.checkNotNull(address);
-    this.address = address;
+    this.addrVariable = address;
   }
 
-  /**
-   * Returns the variable that describes the address.
-   * 
-   * @return variable that describes the address.
-   */
-  public IntegerVariable getAddress() {
-    return address;
+  public IntegerVariable getVariable() {
+    return addrVariable;
   }
 
-  /**
-   * Returns the address name.
-   * 
-   * @return address name.
-   */
   public String getName() {
-    return address.getName();
+    return addrVariable.getName();
   }
 
-  /**
-   * Returns the address width (in bits).
-   * 
-   * @return address width (in bits).
-   */
   public int getWidth() {
-    return address.getWidth();
+    return addrVariable.getWidth();
   }
 
   @Override

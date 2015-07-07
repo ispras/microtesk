@@ -25,202 +25,208 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
  * {@link MmuCondition} represents a set of {@code AND}- or {@code OR}-connected equalities or
- * inequalities ({@link MmuEquality}).
+ * inequalities ({@link MmuConditionAtom}).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
- * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MmuCondition {
+
   public static enum Type {
     AND,
     OR
   }
 
-  public static MmuCondition EQ(final MmuExpression expression) {
-    return new MmuCondition(MmuEquality.EQ(expression));
+  //------------------------------------------------------------------------------------------------
+  // Composed Conditions
+  //------------------------------------------------------------------------------------------------
+
+  public static MmuCondition not(final MmuCondition condition) {
+    final Type negatedType = (condition.getType() == Type.AND ? Type.OR : Type.AND);
+    final List<MmuConditionAtom> negatedAtoms = condition.getAtoms();
+
+    for (final MmuConditionAtom atom : condition.getAtoms()) {
+      negatedAtoms.add(MmuConditionAtom.not(atom));
+    }
+
+    return new MmuCondition(negatedType, negatedAtoms);
   }
 
-  public static MmuCondition NEQ(final MmuExpression expression) {
-    return new MmuCondition(MmuEquality.EQ(expression));
-  }
-
-  public static MmuCondition EQ(final IntegerField field) {
-    return new MmuCondition(MmuEquality.EQ(field));
-  }
-
-  public static MmuCondition NEQ(final IntegerField field) {
-    return new MmuCondition(MmuEquality.NEQ(field));
-  }
-
-  public static MmuCondition EQ(final IntegerVariable variable) {
-    return new MmuCondition(MmuEquality.EQ(variable));
-  }
-
-  public static MmuCondition NEQ(final IntegerVariable variable) {
-    return new MmuCondition(MmuEquality.NEQ(variable));
-  }
-
-  public static MmuCondition EQ(final MmuExpression expression, final BigInteger value) {
-    return new MmuCondition(MmuEquality.EQ(expression, value));
-  }
-
-  public static MmuCondition NEQ(final MmuExpression expression, final BigInteger value) {
-    return new MmuCondition(MmuEquality.EQ(expression, value));
-  }
-
-  public static MmuCondition EQ(final IntegerField field, final BigInteger value) {
-    return new MmuCondition(MmuEquality.EQ(field, value));
-  }
-
-  public static MmuCondition NEQ(final IntegerField field, final BigInteger value) {
-    return new MmuCondition(MmuEquality.NEQ(field, value));
-  }
-
-  public static MmuCondition EQ(final IntegerVariable variable, final BigInteger value) {
-    return new MmuCondition(MmuEquality.EQ(variable, value));
-  }
-
-  public static MmuCondition NEQ(final IntegerVariable variable, final BigInteger value) {
-    return new MmuCondition(MmuEquality.NEQ(variable, value));
-  }
-
-  public static MmuCondition AND(final List<MmuEquality> equalities) {
+  public static MmuCondition and(final List<MmuConditionAtom> equalities) {
     return new MmuCondition(Type.AND, equalities);
   }
 
-  public static MmuCondition OR(final List<MmuEquality> equalities) {
+  public static MmuCondition or(final List<MmuConditionAtom> equalities) {
     return new MmuCondition(Type.OR, equalities);
   }
 
-  public static MmuCondition AND(final MmuEquality... equalities) {
-    return AND(Arrays.asList(equalities));
+  public static MmuCondition and(final MmuConditionAtom... equalities) {
+    return and(Arrays.asList(equalities));
   }
 
-  public static MmuCondition OR(final MmuEquality... equalities) {
-    return OR(Arrays.asList(equalities));
+  public static MmuCondition or(final MmuConditionAtom... equalities) {
+    return or(Arrays.asList(equalities));
   }
 
-  /**
-   * Tries to create a condition expressing the constraint {@code var is in [min, max]}.
-   * 
-   * @param var the variable.
-   * @param min the lower bound of the range.
-   * @param max the upper bound of the range.
-   * @return the condition or {@code null}.
-   */
-  public static MmuCondition RANGE(
-      final IntegerVariable var, final BigInteger min, final BigInteger max) {
+  //------------------------------------------------------------------------------------------------
+  // Atomic Conditions
+  //------------------------------------------------------------------------------------------------
+
+  public static MmuCondition eq(final MmuExpression expression) {
+    return new MmuCondition(MmuConditionAtom.eq(expression));
+  }
+
+  public static MmuCondition eq(final IntegerField field) {
+    return eq(MmuExpression.FIELD(field));
+  }
+
+  public static MmuCondition eq(final IntegerVariable variable) {
+    return eq(MmuExpression.VAR(variable));
+  }
+
+  public static MmuCondition eq(final MmuExpression expression, final BigInteger value) {
+    return new MmuCondition(MmuConditionAtom.eq(expression, value));
+  }
+
+  public static MmuCondition eq(final IntegerField field, final BigInteger value) {
+    return eq(MmuExpression.FIELD(field), value);
+  }
+
+  public static MmuCondition eq(final IntegerVariable variable, final BigInteger value) {
+    return eq(MmuExpression.VAR(variable), value);
+  }
+
+  public static MmuCondition range(
+      final MmuExpression expression, final BigInteger min, final BigInteger max) {
 
     if (min.compareTo(max) == 0) {
-      return EQ(var, min);
+      return eq(expression, min);
     }
 
-    int lo, hi;
-
-    // MIN = DEAD BEEF XXXX XXXX
-    // MAX = DEAD BEEF YYYY YYYY
-    for (hi = var.getWidth() - 1; hi >= 0; hi--) {
-      if (min.testBit(hi) != max.testBit(hi)) {
-        break;
-      }
-    }
-
-    final List<MmuEquality> equalities = new ArrayList<>();
-
-    if (hi + 1 != var.getWidth()) {
-      // Equality: VAR[HI:32] = DEAD BEEF
-      equalities.add(
-          MmuEquality.EQ(new IntegerField(var, hi + 1, var.getWidth() - 1), min.shiftRight(hi)));
-    }
-
-    // MIN = DEAD BEEF XXXX 0000
-    // MAX = DEAD BEEF YYYY FFFF
-    for (lo = 0; lo < var.getWidth(); lo++) {
-      if (min.testBit(lo) || !max.testBit(lo)) {
-        break;
-      }
-    }
-
-    if (lo <= hi && lo < var.getWidth()) {
-      // XXXX
-      final BigInteger min1 = min.mod(BigInteger.ONE.shiftLeft(hi + 1)).shiftRight(lo);
-      // YYYY
-      final BigInteger max1 = max.mod(BigInteger.ONE.shiftLeft(hi + 1)).shiftRight(lo);
-
-      // YYYY != FFFF
-      if (max1.compareTo(BigInteger.ONE.shiftLeft((hi - lo) + 1).subtract(BigInteger.ONE)) != 0) {
-        return null;
-      }
-
-      // XXXX > 10 (rather big)
-      if (min1.compareTo(BigInteger.TEN) > 0) {
-        return null;
-      }
-
-      for (int i = 0; i < min1.longValue(); i++) {
-        // Inequality: XXXX != i
-        equalities.add(MmuEquality.NEQ(new IntegerField(var, lo, hi), BigInteger.valueOf(i)));
-      }
-    }
-
-    return AND(equalities.toArray(new MmuEquality[] {}));
+    return new MmuCondition(MmuConditionAtom.range(expression, min, max));
   }
 
-  /** Condition connective. */
+  public static MmuCondition range(
+      final IntegerField field, final BigInteger min, final BigInteger max) {
+    return range(MmuExpression.FIELD(field), min, max);
+  }
+
+  public static MmuCondition range(
+      final IntegerVariable variable, final BigInteger min, final BigInteger max) {
+    return range(MmuExpression.VAR(variable), min, max);
+  }
+
+  public static MmuCondition eqReplaced(final MmuExpression expression) {
+    return new MmuCondition(MmuConditionAtom.eqReplaced(expression));
+  }
+
+  public static MmuCondition eqReplaced(final IntegerField field) {
+    return eqReplaced(MmuExpression.FIELD(field));
+  }
+
+  public static MmuCondition eqReplaced(final IntegerVariable variable) {
+    return eqReplaced(MmuExpression.VAR(variable));
+  }
+
+  //------------------------------------------------------------------------------------------------
+  // Negated Atomic Conditions
+  //------------------------------------------------------------------------------------------------
+
+  public static MmuCondition neq(final MmuExpression expression) {
+    return new MmuCondition(MmuConditionAtom.eq(expression));
+  }
+
+  public static MmuCondition neq(final IntegerField field) {
+    return neq(MmuExpression.FIELD(field));
+  }
+
+  public static MmuCondition neq(final IntegerVariable variable) {
+    return neq(MmuExpression.VAR(variable));
+  }
+
+  public static MmuCondition neq(final MmuExpression expression, final BigInteger value) {
+    return new MmuCondition(MmuConditionAtom.neq(expression, value));
+  }
+
+  public static MmuCondition neq(final IntegerField field, final BigInteger value) {
+    return neq(MmuExpression.FIELD(field), value);
+  }
+
+  public static MmuCondition neq(final IntegerVariable variable, final BigInteger value) {
+    return neq(MmuExpression.VAR(variable), value);
+  }
+
+  public static MmuCondition nrange(
+      final MmuExpression expression, final BigInteger min, final BigInteger max) {
+
+    if (min.compareTo(max) == 0) {
+      return neq(expression, min);
+    }
+
+    return new MmuCondition(MmuConditionAtom.nrange(expression, min, max));
+  }
+
+  public static MmuCondition nrange(
+      final IntegerField field, final BigInteger min, final BigInteger max) {
+    return nrange(MmuExpression.FIELD(field), min, max);
+  }
+
+  public static MmuCondition nrange(
+      final IntegerVariable variable, final BigInteger min, final BigInteger max) {
+    return nrange(MmuExpression.VAR(variable), min, max);
+  }
+
+  public static MmuCondition neqReplaced(final MmuExpression expression) {
+    return new MmuCondition(MmuConditionAtom.neqReplaced(expression));
+  }
+
+  public static MmuCondition neqReplaced(final IntegerField field) {
+    return neqReplaced(MmuExpression.FIELD(field));
+  }
+
+  public static MmuCondition neqReplaced(final IntegerVariable variable) {
+    return neqReplaced(MmuExpression.VAR(variable));
+  }
+
+  //------------------------------------------------------------------------------------------------
+  // Internals
+  //------------------------------------------------------------------------------------------------
+
   private final Type type;
 
-  /** Set of equalities and inequalities. */
-  private final List<MmuEquality> equalities = new ArrayList<>();
+  private final List<MmuConditionAtom> atoms = new ArrayList<>();
 
-  /**
-   * Constructs a condition.
-   * 
-   * @param type the connective.
-   * @param equalities the equalities/inequalities.
-   */
-  public MmuCondition(final Type type, final List<MmuEquality> equalities) {
+  private MmuCondition(final Type type, final List<MmuConditionAtom> atoms) {
     InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(equalities);
+    InvariantChecks.checkNotNull(atoms);
 
     this.type = type;
-    this.equalities.addAll(equalities);
+    this.atoms.addAll(atoms);
   }
 
-  /**
-   * Constructs a copy of the condition.
-   * 
-   * @param condition the condition to be copied.
-   */
-  public MmuCondition(final MmuCondition condition) {
+  private MmuCondition(final MmuCondition condition) {
     InvariantChecks.checkNotNull(condition);
 
     this.type = condition.type;
-    this.equalities.addAll(condition.getEqualities());
+    this.atoms.addAll(condition.getAtoms());
   }
 
-  /**
-   * Constructs a condition consisting of a given equality/inequality.
-   * 
-   * @param equality the equality/inequality.
-   */
-  public MmuCondition(final MmuEquality equality) {
-    InvariantChecks.checkNotNull(equality);
+  private MmuCondition(final MmuConditionAtom atom) {
+    InvariantChecks.checkNotNull(atom);
 
     this.type = Type.AND;
-    this.equalities.add(equality);
+    this.atoms.add(atom);
   }
 
-  /**
-   * Returns the equalities/inequalities of the condition.
-   * 
-   * @return the list of equalities/inequalities.
-   */
-  public List<MmuEquality> getEqualities() {
-    return equalities;
+  public Type getType() {
+    return type;
+  }
+
+  public List<MmuConditionAtom> getAtoms() {
+    return atoms;
   }
 
   @Override
   public String toString() {
-    return String.format("%s %s", type, equalities);
+    return String.format("%s %s", type, atoms);
   }
 }

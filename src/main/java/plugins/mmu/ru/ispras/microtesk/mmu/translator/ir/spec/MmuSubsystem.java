@@ -34,7 +34,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public class MmuSubsystem {
+public final class MmuSubsystem {
   /**
    * Stores available address types.
    * <p>Typically, includes two types: Virtual Address and Physical Address.</p>

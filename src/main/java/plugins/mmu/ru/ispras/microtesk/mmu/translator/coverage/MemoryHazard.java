@@ -158,7 +158,7 @@ public final class MemoryHazard {
     }
 
     if (address != null) {
-      return address.getAddress().getName() + type.getName();
+      return address.getVariable().getName() + type.getName();
     }
 
     return getName();

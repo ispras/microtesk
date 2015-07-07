@@ -23,7 +23,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEquality;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -294,9 +294,9 @@ public final class MipsMmu {
   public final MmuTransition ifWrite = new MmuTransition(root, start,
       new MmuGuard(MemoryOperation.STORE));
   public final MmuTransition ifUnmapped = new MmuTransition(start, getUpa,
-      new MmuGuard(MmuCondition.EQ(isMapped, BigInteger.ZERO)));
+      new MmuGuard(MmuCondition.eq(isMapped, BigInteger.ZERO)));
   public final MmuTransition ifMapped = new MmuTransition(start, startDtlb,
-      new MmuGuard(MmuCondition.EQ(isMapped, BigInteger.ONE)));
+      new MmuGuard(MmuCondition.eq(isMapped, BigInteger.ONE)));
   public final MmuTransition afterUpa = new MmuTransition(getUpa, startCache);
   public final MmuTransition ifDtlbMiss = new MmuTransition(startDtlb, startJtlb,
       new MmuGuard(dtlb, BufferAccessEvent.MISS));
@@ -309,38 +309,38 @@ public final class MipsMmu {
       new MmuGuard(jtlb, BufferAccessEvent.HIT));
   public final MmuTransition afterJtlb = new MmuTransition(hitJtlb, selectVpn);
   public final MmuTransition ifVpn0 = new MmuTransition(selectVpn, getLo0,
-      new MmuGuard(MmuCondition.EQ(new IntegerField(va, 12), BigInteger.ZERO)));
+      new MmuGuard(MmuCondition.eq(new IntegerField(va, 12), BigInteger.ZERO)));
   public final MmuTransition ifVpn1 = new MmuTransition(selectVpn, getLo1,
-      new MmuGuard(MmuCondition.EQ(new IntegerField(va, 12), BigInteger.ONE)));
+      new MmuGuard(MmuCondition.eq(new IntegerField(va, 12), BigInteger.ONE)));
   public final MmuTransition afterLo0 = new MmuTransition(getLo0, checkG);
   public final MmuTransition afterLo1 = new MmuTransition(getLo1, checkG);
   public final MmuTransition ifLocal = new MmuTransition(checkG, local,
-      new MmuGuard(MmuCondition.EQ(g, BigInteger.ZERO)));
+      new MmuGuard(MmuCondition.eq(g, BigInteger.ZERO)));
   public final MmuTransition ifGlobal = new MmuTransition(checkG, global,
-      new MmuGuard(MmuCondition.EQ(g, BigInteger.ONE)));
+      new MmuGuard(MmuCondition.eq(g, BigInteger.ONE)));
   public final MmuTransition afterLocal = new MmuTransition(local, checkV);
   public final MmuTransition afterGlobal = new MmuTransition(global, checkV);
   public final MmuTransition ifInvalid = new MmuTransition(checkV, tlbInvalid,
       new MmuGuard(
-          MmuCondition.EQ(v, BigInteger.ZERO)));
+          MmuCondition.eq(v, BigInteger.ZERO)));
   public final MmuTransition ifValid = new MmuTransition(checkV, checkD,
       new MmuGuard(
-          MmuCondition.EQ(v, BigInteger.ONE)));
+          MmuCondition.eq(v, BigInteger.ONE)));
   public final MmuTransition ifDirty = new MmuTransition(checkD, tlbModified,
-      new MmuGuard(MemoryOperation.STORE, MmuCondition.EQ(d, BigInteger.ZERO)));
+      new MmuGuard(MemoryOperation.STORE, MmuCondition.eq(d, BigInteger.ZERO)));
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
-          MmuCondition.EQ(d, BigInteger.ONE)));
+          MmuCondition.eq(d, BigInteger.ONE)));
   public final MmuTransition ifHiMemory = new MmuTransition(getMpa, startCache,
-      new MmuGuard(MmuCondition.EQ(isHiMem, BigInteger.ONE)));
+      new MmuGuard(MmuCondition.eq(isHiMem, BigInteger.ONE)));
   public final MmuTransition ifLoMemory = new MmuTransition(getMpa, startCache,
-      new MmuGuard(MmuCondition.EQ(isHiMem, BigInteger.ZERO)));
+      new MmuGuard(MmuCondition.eq(isHiMem, BigInteger.ZERO)));
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
       new MmuGuard(
-          MmuCondition.EQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
+          MmuCondition.eq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
   public final MmuTransition ifCached = new MmuTransition(startCache, startL1,
       new MmuGuard(
-          MmuCondition.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
+          MmuCondition.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
   public final MmuTransition ifL1Miss = new MmuTransition(startL1, checkL2,
       new MmuGuard(l1, BufferAccessEvent.MISS));
   public final MmuTransition ifL1Hit = new MmuTransition(startL1, hitL1,
@@ -348,14 +348,14 @@ public final class MipsMmu {
   public final MmuTransition afterL1 = new MmuTransition(hitL1, stop);
   public final MmuTransition ifL2Bypass = new MmuTransition(checkL2, startMem,
       new MmuGuard(
-          MmuCondition.AND(
-              MmuEquality.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2)),
-              MmuEquality.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x3)))));
+          MmuCondition.and(
+              MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2)),
+              MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x3)))));
   public final MmuTransition ifL2Used = new MmuTransition(checkL2, startL2,
       new MmuGuard(
-          MmuCondition.AND(
-              MmuEquality.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x0)),
-              MmuEquality.NEQ(new IntegerField(c, 0, 1), BigInteger.valueOf(0x1)))));
+          MmuCondition.and(
+              MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x0)),
+              MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x1)))));
   public final MmuTransition ifL2Miss = new MmuTransition(startL2, startMem,
       new MmuGuard(l2, BufferAccessEvent.MISS));
   public final MmuTransition ifL2Hit = new MmuTransition(startL2, hitL2,
