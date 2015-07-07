@@ -227,7 +227,7 @@ public final class MmuDevice {
       expectedIndex += field.getWidth();
     }
 
-    return MmuExpression.catf(concatenation);
+    return MmuExpression.cat(concatenation);
   }
 
   /**

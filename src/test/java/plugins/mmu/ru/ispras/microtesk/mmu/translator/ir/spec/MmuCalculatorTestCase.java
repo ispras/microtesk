@@ -41,7 +41,7 @@ public final class MmuCalculatorTestCase {
       fields.add(field);
     }
 
-    final MmuExpression expression = MmuExpression.catf(fields);
+    final MmuExpression expression = MmuExpression.cat(fields);
 
     System.out.format("Test: width=%d, count=%d\n", width, count);
     System.out.format("Expr: %s\n", expression);

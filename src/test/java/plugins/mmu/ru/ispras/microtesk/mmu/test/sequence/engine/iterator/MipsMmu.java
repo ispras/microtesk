@@ -269,7 +269,7 @@ public final class MipsMmu {
   public final MmuAction local = new MmuAction("LOCAL");
   public final MmuAction global = new MmuAction("GLOBAL");
   public final MmuAction getMpa = new MmuAction("GET_MPA",
-      new MmuAssignment(pa, MmuExpression.rcatf(new IntegerField(pfn), new IntegerField(va, 0, 11))));
+      new MmuAssignment(pa, MmuExpression.rcat(new IntegerField(pfn), new IntegerField(va, 0, 11))));
   public final MmuAction startCache = new MmuAction("START_CACHE");
   public final MmuAction startL1 = new MmuAction("START_L1", l1);
   public final MmuAction hitL1 = new MmuAction("HIT_L1", l1,

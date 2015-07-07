@@ -41,15 +41,15 @@ public final class MmuExpression {
    * @param atoms the fields to be concatenated.
    * @return the expression.
    */
-  public static MmuExpression catf(final List<IntegerField> fields) {
+  public static MmuExpression cat(final List<IntegerField> fields) {
     return new MmuExpression(fields);
   }
 
-  public static MmuExpression catf(final IntegerField... fields) {
-    return rcatf(Arrays.<IntegerField>asList(fields));
+  public static MmuExpression cat(final IntegerField... fields) {
+    return rcat(Arrays.<IntegerField>asList(fields));
   }
 
-  public static MmuExpression catv(final List<IntegerVariable> variables) {
+  public static MmuExpression catVars(final List<IntegerVariable> variables) {
     final List<IntegerField> fields = new ArrayList<>(variables.size());
 
     for (final IntegerVariable variable : variables) {
@@ -59,8 +59,8 @@ public final class MmuExpression {
     return new MmuExpression(fields);
   }
 
-  public static MmuExpression catv(final IntegerVariable... variables) {
-    return catv(Arrays.<IntegerVariable>asList(variables));
+  public static MmuExpression catVars(final IntegerVariable... variables) {
+    return catVars(Arrays.<IntegerVariable>asList(variables));
   }
 
   /**
@@ -69,7 +69,7 @@ public final class MmuExpression {
    * @param atoms the fields to be concatenated.
    * @return the expression.
    */
-  public static MmuExpression rcatf(final List<IntegerField> fields) {
+  public static MmuExpression rcat(final List<IntegerField> fields) {
     final List<IntegerField> reversedAtoms = new ArrayList<>(fields.size());
 
     for (final IntegerField atom : fields) {
@@ -79,11 +79,11 @@ public final class MmuExpression {
     return new MmuExpression(reversedAtoms);
   }
 
-  public static MmuExpression rcatf(final IntegerField... fields) {
-    return rcatf(Arrays.<IntegerField>asList(fields));
+  public static MmuExpression rcat(final IntegerField... fields) {
+    return rcat(Arrays.<IntegerField>asList(fields));
   }
 
-  public static MmuExpression rcatv(final Collection<IntegerVariable> variables) {
+  public static MmuExpression rcatVars(final Collection<IntegerVariable> variables) {
     final List<IntegerField> reversedAtoms = new ArrayList<>(variables.size());
 
     for (final IntegerVariable variable : variables) {
@@ -93,8 +93,8 @@ public final class MmuExpression {
     return new MmuExpression(reversedAtoms);
   }
 
-  public static MmuExpression rcatv(final IntegerVariable... variables) {
-    return rcatv(Arrays.<IntegerVariable>asList(variables));
+  public static MmuExpression rcatVars(final IntegerVariable... variables) {
+    return rcatVars(Arrays.<IntegerVariable>asList(variables));
   }
 
   //------------------------------------------------------------------------------------------------

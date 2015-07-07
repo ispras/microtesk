@@ -166,6 +166,6 @@ final class AtomExtractor {
       }
     }
 
-    return Atom.newConcat(MmuExpression.rcatf(concat));
+    return Atom.newConcat(MmuExpression.rcat(concat));
   }
 }

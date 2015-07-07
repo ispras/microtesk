@@ -105,7 +105,6 @@ public final class MemoryAccessStructureChecker {
    * @param execution2 the second execution.
    * @param dependency the dependency between the first and second executions.
    * @param filter the template filter.
-   * @throws IllegalArgumentException if some parameters are null.
    */
   public MemoryAccessStructureChecker(final MmuSubsystem memory, final MemoryAccess execution1,
       final MemoryAccess execution2, final MemoryDependency dependency,
@@ -133,7 +132,6 @@ public final class MemoryAccessStructureChecker {
    * 
    * @param template the template to be checked.
    * @param filter the template filter.
-   * @throws IllegalArgumentException if some parameters are null.
    */
   public MemoryAccessStructureChecker(final MemoryAccessStructure template,
       final Predicate<MemoryAccessStructure> filter) {
@@ -148,7 +146,6 @@ public final class MemoryAccessStructureChecker {
    * Check consistency of the template.
    *
    * @return {@code true} if the condition is consistent; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code template} is null.
    */
   public boolean check() {
     // Step 0. Check the dependency combination.
@@ -436,7 +433,6 @@ public final class MemoryAccessStructureChecker {
    * @param expression the expression.
    * @param variableRange the list of variable ranges.
    * @param variable the variable.
-   * @throws IllegalArgumentException if sum of the sizes of variable terms > variable size.
    */
   private void addVariableRange(final MmuExpression expression,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange, final IntegerField field) {
@@ -854,7 +850,6 @@ public final class MemoryAccessStructureChecker {
    * @param i the index of execution.
    * @param equality the equality.
    * @return {@code true} if the equality is consistent; {@code false} otherwise.
-   * @throws IllegalStateException if equalityType not EQUAL_CONST || NOT_EQUAL_CONST.
    */
   private boolean process(final int i, final MmuConditionAtom equality) {
     InvariantChecks.checkNotNull(equality);
@@ -897,8 +892,6 @@ public final class MemoryAccessStructureChecker {
    * @param i the index of execution.
    * @param assignments the assignments.
    * @return {@code true} if the assignments is consistent; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code var} is null.
-   * @throws IllegalStateException if ranges size not equal.
    */
   private boolean process(final int i, final Map<IntegerField, MmuAssignment> assignments) {
     InvariantChecks.checkNotNull(assignments);
