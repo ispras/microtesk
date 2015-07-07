@@ -46,6 +46,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs,
       final Expr retExpr) throws SemanticException {
+
     for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       if (Primitive.Kind.IMM != e.getValue().getKind()) {
         raiseError(where, new UnsupportedParameterType(e.getKey(), e.getValue().getKind().name(),
@@ -53,7 +54,14 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       }
     }
 
-    return new PrimitiveAND(name, Primitive.Kind.MODE, retExpr, args, attrs);
+    return new PrimitiveAND(
+        name,
+        Primitive.Kind.MODE,
+        retExpr,
+        args,
+        attrs,
+        canThrowException(attrs)
+        );
   }
 
   public Primitive createOp(
@@ -61,7 +69,14 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final String name,
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
-    return new PrimitiveAND(name, Primitive.Kind.OP, null, args, attrs);
+    return new PrimitiveAND(
+        name,
+        Primitive.Kind.OP,
+        null,
+        args,
+        attrs,
+        canThrowException(attrs)
+        );
   }
 
   public Primitive createModeOR(
@@ -77,8 +92,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
       final Primitive mode = getIR().getModes().get(orName);
 
-      if (!orModes.isEmpty())
+      if (!orModes.isEmpty()) {
         new CompatibilityChecker(this, where, name, mode, orModes.get(0)).check();
+      }
 
       orModes.add(mode);
     }
@@ -187,21 +203,29 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
     return result;
   }
+  
+  private boolean canThrowException(final Map<String, Attribute> attrs) {
+    for (final Attribute attr : attrs.values()) {
+      if (attr.canThrowException()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
-
 
 final class CompatibilityChecker extends WalkerFactoryBase {
   private static final String COMMON_ERROR =
-    "The %s primitive cannot be a part of the %s OR-rule.";
+      "The %s primitive cannot be a part of the %s OR-rule.";
 
   private static final String TYPE_MISMATCH_ERROR =
-    COMMON_ERROR + " Reason: return type mismatch.";
+      COMMON_ERROR + " Reason: return type mismatch.";
 
   private static final String SIZE_MISMATCH_ERROR =
-    COMMON_ERROR + " Reason: return type size mismatch.";
+      COMMON_ERROR + " Reason: return type size mismatch.";
 
   private static final String ATTRIBUTE_MISMATCH_ERROR =
-    COMMON_ERROR + " Reason: sets of attributes do not match (expected: %s, current: %s).";
+      COMMON_ERROR + " Reason: sets of attributes do not match (expected: %s, current: %s).";
 
   private final Where where;
   private final String name;
@@ -282,6 +306,6 @@ final class CompatibilityChecker extends WalkerFactoryBase {
     }
 
     raiseError(where, String.format(
-      ATTRIBUTE_MISMATCH_ERROR, current.getName(), name, expectedAttrs, currentAttrs));
+        ATTRIBUTE_MISMATCH_ERROR, current.getName(), name, expectedAttrs, currentAttrs));
   }
 }

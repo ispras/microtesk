@@ -30,17 +30,30 @@ public final class PrimitiveAND extends Primitive {
   private Map<String, ArgumentMode> argsUsage;
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
+
   private final boolean exception;
   private boolean branch;
   private boolean conditionalBranch;
 
-  PrimitiveAND(
+  private final boolean memoryReference;
+  private final boolean load;
+  private final boolean store;
+  private final int blockSize;
+
+  protected PrimitiveAND(
       final String name,
       final Kind kind,
       final Expr retExpr,
       final Map<String, Primitive> args,
-      final Map<String, Attribute> attrs) {
-    super(name, kind, false, getReturnType(retExpr), null == attrs ? null : attrs.keySet());
+      final Map<String, Attribute> attrs,
+      final boolean exception) {
+
+    super(
+        name,
+        kind,
+        false,
+        getReturnType(retExpr), null == attrs ? null : attrs.keySet()
+    );
 
     this.retExpr = retExpr;
     this.args = args;
@@ -55,15 +68,11 @@ public final class PrimitiveAND extends Primitive {
       target.addParentReference(this, referenceName);
     }
 
-    boolean exception = false;
-    for (final Attribute attr : attrs.values()) {
-      if (attr.canThrowException()) {
-        exception = true;
-        break;
-      }
-    }
-
     this.exception = exception;
+    this.memoryReference = false; // TODO
+    this.load = false; // TODO
+    this.store = false; // TODO
+    this.blockSize = 0; // TODO
   }
 
   private PrimitiveAND(final PrimitiveAND other) {
@@ -74,9 +83,15 @@ public final class PrimitiveAND extends Primitive {
     this.argsUsage = other.argsUsage;
     this.attrs = other.attrs;
     this.shortcuts = other.shortcuts;
+
     this.exception = other.exception;
     this.branch = other.branch;
     this.conditionalBranch = other.conditionalBranch;
+
+    this.memoryReference = other.memoryReference;
+    this.load = other.load;
+    this.store = other.store;
+    this.blockSize = other.blockSize;
   }
 
   void addShortcut(final Shortcut shortcut) {
@@ -140,5 +155,21 @@ public final class PrimitiveAND extends Primitive {
     if (value) {
       branch = true;
     }
+  }
+
+  public boolean isMemoryReference() {
+    return memoryReference;
+  }
+
+  public boolean isLoad() {
+    return load;
+  }
+
+  public boolean isStore() {
+    return store;
+  }
+
+  public int getBlockSize() {
+    return blockSize;
   }
 }
