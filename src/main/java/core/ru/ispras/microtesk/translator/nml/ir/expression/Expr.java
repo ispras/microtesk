@@ -170,6 +170,16 @@ public final class Expr {
     throw new IllegalStateException("Not a constant integer expression.");
   }
 
+  public BigInteger bigIntegerValue() {
+    final ValueInfo vi = getValueInfo();
+
+    if (vi.isConstant() && vi.isNativeOf(BigInteger.class)) {
+      return (BigInteger) vi.getNativeValue();
+    }
+
+    throw new IllegalStateException("Not a constant integer expression.");
+  }
+
   /**
    * Transforms the expression to the format: polynomial + constant, where polynomial is some
    * expression that could not be further simplified and constant is an integer constant value.
