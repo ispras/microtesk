@@ -110,9 +110,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
    * Constructs an iterator of memory access structures.
    * 
    * @param memory the memory subsystem specification.
-   * @param size the number of memory accesses in a structure.
    * @param memoryAccessTypes the list of memory access types.
-   * @param randomDataType the data type randomization option.
    * @param classifier the memory access classification policy.
    */
   public MemoryAccessStructureIterator(
