@@ -73,9 +73,9 @@ public final class PrimitiveAND extends Primitive {
 
     this.exception = exception;
     this.memoryReference = memoryReference;
-    this.load = false; // TODO
-    this.store = false; // TODO
-    this.blockSize = 0; // TODO
+    this.load = load;
+    this.store = store;
+    this.blockSize = blockSize;
   }
 
   private PrimitiveAND(final PrimitiveAND other) {
