@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,8 +83,12 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
 
-    final MemoryAccessStatus memoryAccessStatus =
+    final MemoryAccessStatus memoryAccessStatus = 
         new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
+
+    //if (memoryAccessStatus.isLoad() || memoryAccessStatus.isStore()) {
+    //  System.out.printf("%-25s : %s%n", name, memoryAccessStatus);
+    //}
 
     return new PrimitiveAND(
         name,
@@ -257,14 +262,19 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     private static boolean isMemoryReference(final LocationAtom locationAtom) {
+      
+
       if ((locationAtom.getSource() instanceof LocationAtom.MemorySource)) {
         final LocationAtom.MemorySource source =
             (LocationAtom.MemorySource) locationAtom.getSource();
 
+        final BigInteger memorySize = 
+            source.getMemory().getSizeExpr().bigIntegerValue();
+
         // MEMs of length 1 are often used as global variables.
         // For this reason, there such MEMs are excluded.
         return source.getMemory().getKind() == Memory.Kind.MEM &&
-            source.getMemory().getSize() > 1;
+            memorySize.compareTo(BigInteger.ONE) > 0;
       }
 
       if ((locationAtom.getSource() instanceof LocationAtom.PrimitiveSource)) {
