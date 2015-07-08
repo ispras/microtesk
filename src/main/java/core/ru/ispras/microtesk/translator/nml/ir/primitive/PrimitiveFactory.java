@@ -86,9 +86,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     final MemoryAccessStatus memoryAccessStatus = 
         new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
 
-    //if (memoryAccessStatus.isLoad() || memoryAccessStatus.isStore()) {
-    //  System.out.printf("%-25s : %s%n", name, memoryAccessStatus);
-    //}
+    // if (memoryAccessStatus.isLoad() && memoryAccessStatus.isStore()) {
+    //   System.out.printf("%-25s : %s%n", name, memoryAccessStatus);
+    // }
 
     return new PrimitiveAND(
         name,
@@ -262,8 +262,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     private static boolean isMemoryReference(final LocationAtom locationAtom) {
-      
-
       if ((locationAtom.getSource() instanceof LocationAtom.MemorySource)) {
         final LocationAtom.MemorySource source =
             (LocationAtom.MemorySource) locationAtom.getSource();
@@ -300,12 +298,34 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
     private final Map<String, Primitive> args;
     private final Map<String, Attribute> attrs;
+    private final List<Location> loadTargets;
 
     public MemoryAccessDetector(
         final Map<String, Primitive> args,
         final Map<String, Attribute> attrs) {
       this.args = args;
       this.attrs = attrs;
+      this.loadTargets = new ArrayList<>();
+    }
+
+    private void addLoadTarget(final Location location) {
+      loadTargets.add(location);
+    }
+
+    private boolean isLoadTarget(final Expr expr) {
+      final NodeInfo nodeInfo = expr.getNodeInfo();
+      if (nodeInfo.getKind() != NodeInfo.Kind.LOCATION) {
+        return false;
+      }
+
+      final Location location = (Location) nodeInfo.getSource();
+      for (final Location loadLocation : loadTargets) {
+        if (location.equals(loadLocation)) {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     private MemoryAccessStatus getMemoryAccessStatus(final String attributeName) {
@@ -323,7 +343,19 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       for (final Statement stmt : stmts) {
         switch(stmt.getKind()) {
           case ASSIGN:
-            result = result.merge(getMemoryAccessStatus((StatementAssignment) stmt));
+            final StatementAssignment stmtAssign = (StatementAssignment) stmt;
+            final MemoryAccessStatus assignResult = getMemoryAccessStatus(stmtAssign);
+
+            // If the same a variable was used by a load and a store action,
+            // we assume that this is store action and the load was performed just
+            // make it possible to to write a small portion of data (smaller than the storage unit).
+
+            if (assignResult.isStore() && isLoadTarget(stmtAssign.getRight())) {
+              result = assignResult;
+            } else {
+              result = result.merge(getMemoryAccessStatus((StatementAssignment) stmt));
+            }
+
             break;
 
           case CALL:
@@ -351,13 +383,17 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       MemoryAccessStatus result = MemoryAccessStatus.NO;
 
       final Expr right = stmt.getRight();
+      final Location left = stmt.getLeft();
+
       if (isMemoryReference(right)) {
+        // Load action is detected
         final int bitSize = right.getValueInfo().getModelType().getBitSize();
         result = new MemoryAccessStatus(true, false, bitSize);
+        addLoadTarget(left);
       }
 
-      final Location left = stmt.getLeft();
       if (isMemoryReference(left)) {
+        // Store action is detected
         final int bitSize = left.getType().getBitSize();
         result = result.merge(new MemoryAccessStatus(false, true, bitSize));
       }
