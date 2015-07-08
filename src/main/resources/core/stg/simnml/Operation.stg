@@ -19,7 +19,7 @@ op(
   arg_names, arg_types, arg_checks, arg_tnames,
   attrs,
   shortcuts, shortcut_defs,
-  branch, cond_branch, except
+  branch, cond_branch, except, load, store, blocksize
 ) ::= <<
 <header(file)>
 <package(pack)>
@@ -30,7 +30,8 @@ op(
        base,
        false,
        body(name, is_root, arg_names, arg_types, 
-         arg_checks, arg_tnames, attrs, shortcuts, shortcut_defs, branch, cond_branch, except))>
+         arg_checks, arg_tnames, attrs, shortcuts, shortcut_defs,
+         branch, cond_branch, except, load, store, blocksize))>
 >>
 
 body(
@@ -45,8 +46,13 @@ body(
   shortcut_defs,
   branch,
   cond_branch,
-  except) ::= <<
-<info(name, is_root, arg_names, arg_types, arg_tnames, shortcut_defs, branch, cond_branch, except)>
+  except,
+  load,
+  store,
+  blocksize
+) ::= <<
+<info(name, is_root, arg_names, arg_types, arg_tnames, shortcut_defs,
+      branch, cond_branch, except, load, store, blocksize)>
 <shortcuts>
 <class_const("IInfo", "INFO", "new Info()")><\n>
 <op_constructor(name, arg_names, arg_types, arg_checks)><\n>
@@ -64,16 +70,22 @@ info(
   shortcut_defs,
   branch,
   cond_branch,
-  except) ::= <<
+  except,
+  load,
+  store,
+  blocksize
+) ::= <<
 <class(["private", "static", "final"],
        "Info",
        "InfoAndRule",
        false,
-       info_body(name, is_root, arg_names, arg_types, arg_tnames, branch, cond_branch, except))
+       info_body(name, is_root, arg_names, arg_types, arg_tnames,
+                 branch, cond_branch, except, load, store, blocksize))
 >
 >>
 
-info_body(name, is_root, arg_names, arg_types, arg_tnames, branch, cond_branch, except) ::= <<
+info_body(name, is_root, arg_names, arg_types, arg_tnames,
+          branch, cond_branch, except, load, store, blocksize) ::= <<
 Info() {
   super(
      <name>.class,
@@ -83,9 +95,9 @@ Info() {
      <branch>,
      <cond_branch>,
      <except>,
-     false,
-     false,
-     0<if(shortcut_defs)>,
+     <load>,
+     <store>,
+     <blocksize><if(shortcut_defs)>,
      new Shortcuts()
          <shortcut_defs; separator="\n">
      <endif>
@@ -144,7 +156,7 @@ shortcut_body(name, is_root, entry, arg_names, arg_tnames, arg_types, op_tree, b
     <is_root>,
     <new_op_decls(arg_names, arg_tnames)>,
     <branch>,
-    <cond_branch>, 
+    <cond_branch>,
     <except>,
     false,
     false,

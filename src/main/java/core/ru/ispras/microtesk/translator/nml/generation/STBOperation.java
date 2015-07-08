@@ -49,7 +49,7 @@ final class STBOperation extends STBPrimitiveBase {
   private boolean opsImported = false;
   private boolean immsImported = false;
 
-  private void importModeDependencies(ST t) {
+  private void importModeDependencies(final ST t) {
     if (!modesImported) {
       t.add("imps", IAddressingMode.class.getName());
       t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
@@ -57,14 +57,14 @@ final class STBOperation extends STBPrimitiveBase {
     }
   }
 
-  private void importOpDependencies(ST t) {
+  private void importOpDependencies(final ST t) {
     if (!opsImported) {
       t.add("imps", IOperation.class.getName());
       opsImported = true;
     }
   }
 
-  private void importImmDependencies(ST t) {
+  private void importImmDependencies(final ST t) {
     if (!immsImported) {
       t.add("imps", Location.class.getName());
       // t.add("imps", String.format("%s.*", Type.class.getPackage().getName()));
@@ -72,7 +72,10 @@ final class STBOperation extends STBPrimitiveBase {
     }
   }
 
-  public STBOperation(String specFileName, String modelName, PrimitiveAND op) {
+  public STBOperation(
+      final String specFileName,
+      final String modelName,
+      final PrimitiveAND op) {
     assert op.getKind() == Primitive.Kind.OP;
 
     this.specFileName = specFileName;
@@ -80,7 +83,7 @@ final class STBOperation extends STBPrimitiveBase {
     this.op = op;
   }
 
-  private void buildHeader(ST t) {
+  private void buildHeader(final ST t) {
     t.add("name", op.getName());
     t.add("file", specFileName);
     t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
@@ -101,10 +104,13 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("branch", op.isBranch());
     t.add("cond_branch", op.isConditionalBranch());
     t.add("except", op.canThrowException());
+    t.add("load", op.isLoad());
+    t.add("store", op.isStore());
+    t.add("blocksize", op.getBlockSize());
   }
 
-  private void buildArguments(STGroup group, ST t) {
-    for (Map.Entry<String, Primitive> e : op.getArguments().entrySet()) {
+  private void buildArguments(final STGroup group, final ST t) {
+    for (final Map.Entry<String, Primitive> e : op.getArguments().entrySet()) {
       final String argName = e.getKey();
       final Primitive argType = e.getValue();
 
@@ -157,7 +163,7 @@ final class STBOperation extends STBPrimitiveBase {
     }
   }
 
-  private void buildAttributes(STGroup group, ST t) {
+  private void buildAttributes(final STGroup group, final ST t) {
     final boolean isInitNeeded = 
         op.getAttributes().containsKey(Attribute.INIT_NAME);
 
@@ -190,8 +196,8 @@ final class STBOperation extends STBPrimitiveBase {
     }
   }
 
-  private void buildShortcuts(STGroup group, ST t) {
-    for (Shortcut shortcut : op.getShortcuts()) {
+  private void buildShortcuts(final STGroup group, final ST t) {
+    for (final Shortcut shortcut : op.getShortcuts()) {
       //ContextBuilder.process(shortcut);
  
       final ST shortcutST = group.getInstanceOf("shortcut");
@@ -204,7 +210,7 @@ final class STBOperation extends STBPrimitiveBase {
       shortcutST.add("cond_branch", shortcut.isConditionalBranch());
       shortcutST.add("except", shortcut.canThrowException());
 
-      for (Shortcut.Argument arg : shortcut.getArguments()) {
+      for (final Shortcut.Argument arg : shortcut.getArguments()) {
         final Primitive argType = arg.getType();
 
         shortcutST.add("arg_names", arg.getUniqueName());
@@ -251,7 +257,7 @@ final class STBOperation extends STBPrimitiveBase {
       final ST shortcutDefST = group.getInstanceOf("shortcut_def");
       shortcutDefST.add("entry", shortcut.getEntry().getName());
 
-      for (String context : shortcut.getContextName())
+      for (final String context : shortcut.getContextName())
         shortcutDefST.add("contexts", context);
 
       t.add("shortcut_defs", shortcutDefST);
@@ -261,11 +267,11 @@ final class STBOperation extends STBPrimitiveBase {
   static final class ContextBuilder {
     private final Shortcut shortcut;
 
-    public static void process(Shortcut shortcut) {
+    public static void process(final Shortcut shortcut) {
       new ContextBuilder(shortcut).dump();
     }
 
-    private ContextBuilder(Shortcut shortcut) {
+    private ContextBuilder(final Shortcut shortcut) {
       this.shortcut = shortcut;
     }
 
@@ -274,8 +280,8 @@ final class STBOperation extends STBPrimitiveBase {
       dump(shortcut.getEntry().getName(), shortcut.getEntry());
     }
 
-    private void dump(String prefix, PrimitiveAND primitive) {
-      for (Map.Entry<String, Primitive> e : primitive.getArguments().entrySet()) {
+    private void dump(final String prefix, final PrimitiveAND primitive) {
+      for (final Map.Entry<String, Primitive> e : primitive.getArguments().entrySet()) {
         final String argName = e.getKey();
         final Primitive argValue = e.getValue();
 
@@ -293,8 +299,8 @@ final class STBOperation extends STBPrimitiveBase {
       }
     }
 
-    private Shortcut.Argument findShortcutArgument(String name, PrimitiveAND source) {
-      for(Shortcut.Argument sa : shortcut.getArguments()) {
+    private Shortcut.Argument findShortcutArgument(final String name, final PrimitiveAND source) {
+      for(final Shortcut.Argument sa : shortcut.getArguments()) {
         if (name.equals(sa.getName()) && source.getName().equals(sa.getSource().getName())) {
           return sa;
         }
@@ -304,11 +310,14 @@ final class STBOperation extends STBPrimitiveBase {
     }
   }
 
-  private ST createOperationTreeST(STGroup group, PrimitiveAND root, Collection<Argument> args) {
+  private ST createOperationTreeST(
+      final STGroup group,
+      final PrimitiveAND root,
+      final Collection<Argument> args) {
     final ST t = group.getInstanceOf("op_tree_node");
     t.add("name", root.getName());
 
-    for (Map.Entry<String, Primitive> e : root.getArguments().entrySet()) {
+    for (final Map.Entry<String, Primitive> e : root.getArguments().entrySet()) {
       if (e.getValue().getKind() == Primitive.Kind.MODE) {
         t.add("params", getUniqueArgumentName(e, args));
       } else if (e.getValue().getKind() == Primitive.Kind.OP) {
@@ -323,9 +332,10 @@ final class STBOperation extends STBPrimitiveBase {
     return t;
   }
 
-  private String getUniqueArgumentName(Map.Entry<String, Primitive> arg,
-      Collection<Argument> arg_defs) {
-    for (Argument a : arg_defs) {
+  private String getUniqueArgumentName(
+      final Map.Entry<String, Primitive> arg,
+      final Collection<Argument> arg_defs) {
+    for (final Argument a : arg_defs) {
       if (a.getName().equals(arg.getKey())
           || a.getSource().getName().equals(arg.getValue().getName()))
         return a.getUniqueName();
@@ -336,7 +346,7 @@ final class STBOperation extends STBPrimitiveBase {
   }
 
   @Override
-  public ST build(STGroup group) {
+  public ST build(final STGroup group) {
     final ST t = group.getInstanceOf("op");
 
     buildHeader(t);
