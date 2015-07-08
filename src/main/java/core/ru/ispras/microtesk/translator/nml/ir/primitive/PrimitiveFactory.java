@@ -233,46 +233,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return false;
   }
 
-  private static final class MemoryAccessStatus {
-    public static final MemoryAccessStatus NO =
-        new MemoryAccessStatus(false, false, 0);
-
-    private boolean load;
-    private boolean store;
-    private int blockSize;
-
-    private MemoryAccessStatus(
-        final boolean load,
-        final boolean store,
-        final int blockSize) {
-      this.load = load;
-      this.store = store;
-      this.blockSize = blockSize;
-    }
-
-    public boolean isLoad() { return load; }
-    public boolean isStore() { return store; }
-    public int getBlockSize() { return blockSize; }
-
-    public MemoryAccessStatus merge(final MemoryAccessStatus other) {
-      return new MemoryAccessStatus(
-          this.load  || other.load,
-          this.store || other.store,
-          Math.max(this.blockSize, other.blockSize)
-          );
-    }
-
-    @Override
-    public String toString() {
-      return String.format(
-          "MemoryAccessStatus [isLoad=%s, isStore=%s, blockSize=%s]",
-          load,
-          store,
-          blockSize
-          );
-    }
-  }
-
   private static final class MemoryAccessDetector {
 
     private static boolean isMemoryReference(final Expr expr) {
@@ -527,5 +487,45 @@ final class CompatibilityChecker extends WalkerFactoryBase {
 
     raiseError(where, String.format(
         ATTRIBUTE_MISMATCH_ERROR, current.getName(), name, expectedAttrs, currentAttrs));
+  }
+}
+
+final class MemoryAccessStatus {
+  public static final MemoryAccessStatus NO =
+      new MemoryAccessStatus(false, false, 0);
+
+  private boolean load;
+  private boolean store;
+  private int blockSize;
+
+  public MemoryAccessStatus(
+      final boolean load,
+      final boolean store,
+      final int blockSize) {
+    this.load = load;
+    this.store = store;
+    this.blockSize = blockSize;
+  }
+
+  public boolean isLoad() { return load; }
+  public boolean isStore() { return store; }
+  public int getBlockSize() { return blockSize; }
+
+  public MemoryAccessStatus merge(final MemoryAccessStatus other) {
+    return new MemoryAccessStatus(
+        this.load  || other.load,
+        this.store || other.store,
+        Math.max(this.blockSize, other.blockSize)
+        );
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "MemoryAccessStatus [isLoad=%s, isStore=%s, blockSize=%s]",
+        load,
+        store,
+        blockSize
+        );
   }
 }

@@ -33,7 +33,7 @@ import ru.ispras.fortress.util.Pair;
  * (the point there the path ends, the most important operation that distinguishes a specific path
  * from other similar paths).
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class Shortcut {
@@ -116,6 +116,10 @@ public final class Shortcut {
   private final boolean conditionalBranch;
   private final boolean exception;
 
+  private final boolean load;
+  private final boolean store;
+  private final int blockSize;
+
   /**
    * Constructs a shortcut object. The shortcut object describes how to create the target operation
    * and all other operations it requires from the starting point called entry. The context is the
@@ -155,6 +159,11 @@ public final class Shortcut {
     this.conditionalBranch = branchInfo.second;
 
     this.exception = canThrowException(entry, false);
+    final MemoryAccessStatus memAccessStatus = getMemoryAccessStatus(entry, false);
+
+    this.load = memAccessStatus.isLoad();
+    this.store = memAccessStatus.isStore();
+    this.blockSize = memAccessStatus.getBlockSize();
   }
 
   /**
@@ -229,6 +238,24 @@ public final class Shortcut {
     }
 
     return new Pair<>(false, false);
+  }
+
+  private MemoryAccessStatus getMemoryAccessStatus(
+      final PrimitiveAND root, final boolean reachedTarget) {
+
+    MemoryAccessStatus result = MemoryAccessStatus.NO;
+    for (final Primitive arg : root.getArguments().values()) {
+      if ((arg.getKind() == Primitive.Kind.OP) && !reachedTarget) {
+        notOrRuleCheck(arg);
+        final PrimitiveAND primitive = (PrimitiveAND) arg;
+        result = result.merge(new MemoryAccessStatus(
+            primitive.isLoad(), primitive.isStore(), primitive.getBlockSize()));
+        result = result.merge(
+            getMemoryAccessStatus(primitive, primitive == target));
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -316,18 +343,15 @@ public final class Shortcut {
   }
 
   public boolean isLoad() {
-    // TODO
-    return false;
+    return load;
   }
 
   public boolean isStore() {
-    // TODO
-    return false;
+    return store;
   }
 
   public int getBlockSize() {
-    // TODO
-    return 0;
+    return blockSize;
   }
 
   @Override
