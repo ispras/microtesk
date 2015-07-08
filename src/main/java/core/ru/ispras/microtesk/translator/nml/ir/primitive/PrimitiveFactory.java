@@ -54,13 +54,13 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
     for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       if (Primitive.Kind.IMM != e.getValue().getKind()) {
-        raiseError(where, new UnsupportedParameterType(e.getKey(), e.getValue().getKind().name(),
-            Primitive.Kind.IMM.name()));
+        raiseError(where, new UnsupportedParameterType(
+            e.getKey(), e.getValue().getKind().name(), Primitive.Kind.IMM.name()));
       }
     }
 
-    final Attribute action = attrs.get(Attribute.ACTION_NAME);
-    final MemoryAccessStatus memoryAccessStatus = getMemoryAccessStatus(action);
+    final MemoryAccessStatus memoryAccessStatus =
+        new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
 
     return new PrimitiveAND(
         name,
@@ -69,7 +69,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         args,
         attrs,
         canThrowException(attrs),
-        isMemoryReference(retExpr),
+        MemoryAccessDetector.isMemoryReference(retExpr),
         memoryAccessStatus.isLoad(),
         memoryAccessStatus.isStore(),
         memoryAccessStatus.getBlockSize()
@@ -82,8 +82,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
 
-    final Attribute action = attrs.get(Attribute.ACTION_NAME);
-    final MemoryAccessStatus memoryAccessStatus = getMemoryAccessStatus(action);
+    final MemoryAccessStatus memoryAccessStatus =
+        new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
 
     return new PrimitiveAND(
         name,
@@ -233,50 +233,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return false;
   }
 
-  private static boolean isMemoryReference(final Expr expr) {
-    if (null == expr) {
-      return false;
-    }
-
-    final NodeInfo nodeInfo = expr.getNodeInfo();
-    if (nodeInfo.getKind() != NodeInfo.Kind.LOCATION) {
-      return false;
-    }
-
-    return isMemoryReference((Location) nodeInfo.getSource()); 
-  }
-
-  private static boolean isMemoryReference(final Location location) {
-    if (location instanceof LocationAtom) {
-      return isMemoryReference((LocationAtom) location);
-    } else {
-      return isMemoryReference((LocationConcat) location);
-    }
-  }
-
-  private static boolean isMemoryReference(final LocationAtom locationAtom) {
-    if (!(locationAtom.getSource() instanceof LocationAtom.MemorySource)) {
-      return false;
-    }
-
-    final LocationAtom.MemorySource source =
-        (LocationAtom.MemorySource) locationAtom.getSource();
-
-    // MEMs of length 1 are often used as global variables.
-    // For this reason, there such MEMs are excluded.
-    return source.getMemory().getKind() == Memory.Kind.MEM &&
-           source.getMemory().getSize() > 1;
-  }
-
-  private static boolean isMemoryReference(final LocationConcat locationConcat) { 
-    for (final LocationAtom locationAtom : locationConcat.getLocations()) {
-      if (isMemoryReference(locationAtom)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private static final class MemoryAccessStatus {
     public static final MemoryAccessStatus NO =
         new MemoryAccessStatus(false, false, 0);
@@ -297,11 +253,174 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     public boolean isLoad() { return load; }
     public boolean isStore() { return store; }
     public int getBlockSize() { return blockSize; }
+
+    public MemoryAccessStatus merge(final MemoryAccessStatus other) {
+      return new MemoryAccessStatus(
+          this.load  || other.load,
+          this.store || other.store,
+          Math.max(this.blockSize, other.blockSize)
+          );
+    }
   }
-  
-  private static MemoryAccessStatus getMemoryAccessStatus(final Attribute attr) {
-    // TODO
-    return MemoryAccessStatus.NO;
+
+  private static final class MemoryAccessDetector {
+
+    private static boolean isMemoryReference(final Expr expr) {
+      if (null == expr) {
+        return false;
+      }
+
+      final NodeInfo nodeInfo = expr.getNodeInfo();
+      if (nodeInfo.getKind() != NodeInfo.Kind.LOCATION) {
+        return false;
+      }
+
+      return isMemoryReference((Location) nodeInfo.getSource()); 
+    }
+
+    private static boolean isMemoryReference(final Location location) {
+      if (location instanceof LocationAtom) {
+        return isMemoryReference((LocationAtom) location);
+      } else {
+        return isMemoryReference((LocationConcat) location);
+      }
+    }
+
+    private static boolean isMemoryReference(final LocationAtom locationAtom) {
+      if ((locationAtom.getSource() instanceof LocationAtom.MemorySource)) {
+        final LocationAtom.MemorySource source =
+            (LocationAtom.MemorySource) locationAtom.getSource();
+
+        // MEMs of length 1 are often used as global variables.
+        // For this reason, there such MEMs are excluded.
+        return source.getMemory().getKind() == Memory.Kind.MEM &&
+            source.getMemory().getSize() > 1;
+      }
+
+      if ((locationAtom.getSource() instanceof LocationAtom.PrimitiveSource)) {
+        final LocationAtom.PrimitiveSource source =
+            (LocationAtom.PrimitiveSource) locationAtom.getSource();
+
+        if (source.getPrimitive() instanceof PrimitiveAND) {
+          return ((PrimitiveAND) source.getPrimitive()).isMemoryReference();
+        }
+      }
+
+      return false;
+    }
+
+    private static boolean isMemoryReference(final LocationConcat locationConcat) { 
+      for (final LocationAtom locationAtom : locationConcat.getLocations()) {
+        if (isMemoryReference(locationAtom)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private final Map<String, Primitive> args;
+    private final Map<String, Attribute> attrs;
+
+    public MemoryAccessDetector(
+        final Map<String, Primitive> args,
+        final Map<String, Attribute> attrs) {
+      this.args = args;
+      this.attrs = attrs;
+    }
+
+    private MemoryAccessStatus getMemoryAccessStatus(final String attributeName) {
+      final Attribute attribute = attrs.get(attributeName);
+      if (null == attribute) {
+        return MemoryAccessStatus.NO;
+      }
+
+      return getMemoryAccessStatus(attribute.getStatements());
+    }
+
+    private MemoryAccessStatus getMemoryAccessStatus(final List<Statement> stmts) {
+      MemoryAccessStatus result = MemoryAccessStatus.NO;
+
+      for (final Statement stmt : stmts) {
+        switch(stmt.getKind()) {
+          case ASSIGN:
+            result.merge(getMemoryAccessStatus((StatementAssignment) stmt));
+            break;
+
+          case CALL:
+            result.merge(getMemoryAccessStatus((StatementAttributeCall) stmt));
+            break;
+
+          case COND:
+            result.merge(getMemoryAccessStatus((StatementCondition) stmt));
+            break;
+
+          case FORMAT:  // Ignored
+          case STATUS:  // Ignored
+          case FUNCALL: // Ignored
+            break;
+
+          default:
+            throw new IllegalArgumentException("Unknown statement kind: " + stmt.getKind());
+        }
+      }
+
+      return result;
+    }
+
+    private MemoryAccessStatus getMemoryAccessStatus(final StatementAssignment stmt) {
+      MemoryAccessStatus result = MemoryAccessStatus.NO;
+
+      final Expr right = stmt.getRight();
+      if (isMemoryReference(right)) {
+        final int bitSize = right.getValueInfo().getModelType().getBitSize();
+        result = new MemoryAccessStatus(true, false, bitSize);
+      }
+
+      final Location left = stmt.getLeft();
+      if (isMemoryReference(left)) {
+        final int bitSize = left.getType().getBitSize();
+        result = result.merge(new MemoryAccessStatus(false, true, bitSize));
+      }
+
+      return result;
+    }
+
+    private MemoryAccessStatus getMemoryAccessStatus(final StatementAttributeCall stmt) {
+      // Instance Attribute Call
+      if (stmt.getCalleeInstance() != null) {
+        final PrimitiveAND primitive = stmt.getCalleeInstance().getPrimitive();
+        return new MemoryAccessStatus(
+            primitive.isLoad(), primitive.isStore(), primitive.getBlockSize());
+      }
+
+      // Argument Attribute Call
+      if (stmt.getCalleeName() != null) {
+        final Primitive callee = args.get(stmt.getCalleeName());
+
+        if (callee.isOrRule()) {
+          return MemoryAccessStatus.NO;
+        }
+
+        final PrimitiveAND primitive = (PrimitiveAND) callee;
+        return new MemoryAccessStatus(
+            primitive.isLoad(), primitive.isStore(), primitive.getBlockSize());
+      }
+
+      // This Object Attribute Call
+      final Attribute attribute = attrs.get(stmt.getAttributeName());
+      return getMemoryAccessStatus(attribute.getStatements());
+    }
+
+    private MemoryAccessStatus getMemoryAccessStatus(final StatementCondition stmt) {
+      MemoryAccessStatus result = MemoryAccessStatus.NO;
+
+      for (int index = 0; index < stmt.getBlockCount(); ++index) {
+        final StatementCondition.Block block = stmt.getBlock(index);
+        result.merge(getMemoryAccessStatus(block.getStatements()));
+      }
+
+      return result;
+    }
   }
 }
 
