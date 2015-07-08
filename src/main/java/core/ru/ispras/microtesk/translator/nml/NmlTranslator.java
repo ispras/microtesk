@@ -15,12 +15,9 @@
 package ru.ispras.microtesk.translator.nml;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.Stack;
 
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -32,10 +29,8 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
