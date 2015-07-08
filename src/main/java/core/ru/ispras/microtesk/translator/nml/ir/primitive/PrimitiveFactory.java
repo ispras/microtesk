@@ -261,6 +261,16 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
           Math.max(this.blockSize, other.blockSize)
           );
     }
+
+    @Override
+    public String toString() {
+      return String.format(
+          "MemoryAccessStatus [isLoad=%s, isStore=%s, blockSize=%s]",
+          load,
+          store,
+          blockSize
+          );
+    }
   }
 
   private static final class MemoryAccessDetector {
@@ -343,15 +353,15 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       for (final Statement stmt : stmts) {
         switch(stmt.getKind()) {
           case ASSIGN:
-            result.merge(getMemoryAccessStatus((StatementAssignment) stmt));
+            result = result.merge(getMemoryAccessStatus((StatementAssignment) stmt));
             break;
 
           case CALL:
-            result.merge(getMemoryAccessStatus((StatementAttributeCall) stmt));
+            result = result.merge(getMemoryAccessStatus((StatementAttributeCall) stmt));
             break;
 
           case COND:
-            result.merge(getMemoryAccessStatus((StatementCondition) stmt));
+            result = result.merge(getMemoryAccessStatus((StatementCondition) stmt));
             break;
 
           case FORMAT:  // Ignored
@@ -416,7 +426,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
       for (int index = 0; index < stmt.getBlockCount(); ++index) {
         final StatementCondition.Block block = stmt.getBlock(index);
-        result.merge(getMemoryAccessStatus(block.getStatements()));
+        result = result.merge(getMemoryAccessStatus(block.getStatements()));
       }
 
       return result;
