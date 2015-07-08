@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
+import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
  * {@link IntegerFormulaSolver} implements a simple constraint solver.
@@ -61,53 +63,47 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
     final IntegerClause kernel = new IntegerClause(IntegerClause.Type.AND);
     final IntegerFormula simplifiedFormula = new IntegerFormula();
 
-    int numberOfVariants = 1;
-
     for (final IntegerClause clause : formula.getEquationClauses()) {
       if (clause.size() == 0) {
-        return new SolverResult<>("UNSAT");
-      }
-
-      if (clause.size() == 1) {
+        if (clause.getType() == IntegerClause.Type.OR) {
+          return new SolverResult<>("Empty OR clause");
+        }
+      } else if (clause.getType() == IntegerClause.Type.AND || clause.size() == 1) {
         kernel.addEquationClause(clause);
       } else {
         simplifiedFormula.addEquationClause(clause);
-        numberOfVariants *= clause.size();
       }
     }
 
-    final IntegerClauseSolver kernelSolver =
-        new IntegerClauseSolver(variables, kernel);
-
+    final IntegerClauseSolver kernelSolver = new IntegerClauseSolver(variables, kernel);
     final SolverResult<Boolean> kernelResult = kernelSolver.solve();
 
-    if (numberOfVariants == 1 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
+    if (simplifiedFormula.size() == 0 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
       return kernelResult;
     }
 
     final List<IntegerClause> clauses = simplifiedFormula.getEquationClauses();
 
-    int equationChooser = numberOfVariants;
+    // Initialize the product iterator over variants.
+    final ProductIterator<IntegerEquation> variantIterator = new ProductIterator<>();
+    for (int i = 0; i < clauses.size(); i++) {
+      variantIterator.registerIterator(new CollectionIterator<>(clauses.get(i).getEquations()));
+    }
 
-    for (int variantId = 0; variantId < numberOfVariants; variantId++) {
+    for (variantIterator.init(); variantIterator.hasValue(); variantIterator.next()) {
       final IntegerClause variant = new IntegerClause(kernel);
 
-      for (int clauseIndex = 0; clauseIndex < clauses.size(); clauseIndex++) {
-        final List<IntegerEquation> equations = clauses.get(clauseIndex).getEquations();
-        final IntegerEquation equation = equations.get(equationChooser % equations.size());
-
-        variant.addEquation(equation);
-        equationChooser /= equations.size();
+      for (int i = 0; i < clauses.size(); i++) {
+        variant.addEquation(variantIterator.value(i));
       }
 
-      final IntegerClauseSolver variantSolver =
-          new IntegerClauseSolver(variables, variant);
+      final IntegerClauseSolver variantSolver = new IntegerClauseSolver(variables, variant);
 
       if (variantSolver.solve().getStatus() == SolverResult.Status.SAT) {
         return new SolverResult<>(true);
       }
     }
 
-    return new SolverResult<>("UNSAT");
+    return new SolverResult<>("SAT variant not found");
   }
 }

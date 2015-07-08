@@ -271,8 +271,9 @@ public final class MemoryAccessStructureChecker {
     }
 
     final IntegerFormulaSolver solver = new IntegerFormulaSolver(formulaVariables, formula);
+    final SolverResult<Boolean> result = solver.solve();
 
-    return solver.solve().getStatus() == SolverResult.Status.SAT;
+    return result.getStatus() == SolverResult.Status.SAT;
   }
 
   /**

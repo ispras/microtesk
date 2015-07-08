@@ -232,7 +232,7 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
 
     // Returns false if there is a variable whose domain is empty (updates the set of variables).
     if (!checkDomains()) {
-      return new SolverResult<>("UNSAT");
+      return new SolverResult<>("Empty domain");
     }
 
     final Set<IntegerVariable> variables = new LinkedHashSet<>(notEqualTo.keySet());
@@ -247,7 +247,7 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
 
         for (final IntegerVariable rhs : rhsVars) {
           if (!handleInequality(lhs, rhs)) {
-            return new SolverResult<>("UNSAT");
+            return new SolverResult<>("Contradiction found");
           }
         }
       }
