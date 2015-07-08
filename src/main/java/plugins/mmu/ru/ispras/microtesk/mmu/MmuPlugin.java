@@ -18,8 +18,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.Plugin;
-import ru.ispras.microtesk.mmu.test.sequence.engine.MmuAdapter;
-import ru.ispras.microtesk.mmu.test.sequence.engine.MmuEngine;
+import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryAdapter;
+import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngine;
 import ru.ispras.microtesk.mmu.test.testbase.MmuDataGenerator;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
@@ -43,7 +43,7 @@ public final class MmuPlugin implements Plugin {
   public Map<String, Engine<?>> getEngines() {
     final Map<String, Engine<?>> engines = new LinkedHashMap<>();
 
-    engines.put("memory", new MmuEngine());
+    engines.put("memory", new MemoryEngine());
 
     return engines;
   }
@@ -52,7 +52,7 @@ public final class MmuPlugin implements Plugin {
   public Map<String, Adapter<?>> getAdapters() {
     final Map<String, Adapter<?>> adapters = new LinkedHashMap<>();
 
-    adapters.put("memory", new MmuAdapter());
+    adapters.put("memory", new MemoryAdapter());
 
     return adapters;
   }

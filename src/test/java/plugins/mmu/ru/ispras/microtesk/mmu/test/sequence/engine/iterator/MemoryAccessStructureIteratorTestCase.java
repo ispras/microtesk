@@ -14,23 +14,29 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.classifier.ClassifierTrivial;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.coverage.MemoryDependency;
-import ru.ispras.microtesk.mmu.translator.coverage.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 
 /**
  * Test for {@link MemoryAccessStructureMmuIterator}.
@@ -57,12 +63,15 @@ public final class MemoryAccessStructureIteratorTestCase {
     devices = mipsMmu.getDevices();
     addresses = mipsMmu.getAddresses();
 
+    final List<MemoryAccessType> accessTypes = new ArrayList<>();
+    for (int i = 0; i < N; i++) {
+      accessTypes.add(new MemoryAccessType(MemoryOperation.LOAD, DataType.BYTE));
+    }
+
     final MemoryAccessStructureIterator mmuIterator =
         new MemoryAccessStructureIterator(
             mipsMmu,
-            new DataType[] {DataType.BYTE},
-            true,
-            N,
+            accessTypes,
             new ClassifierTrivial());
 
     final Map<MemoryHazard.Type, Integer> conflictsType = new HashMap<>();
