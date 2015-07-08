@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -41,7 +41,11 @@ final class STBAddressingMode extends STBPrimitiveBase {
   private final String modelName;
   private final PrimitiveAND mode;
 
-  public STBAddressingMode(String specFileName, String modelName, PrimitiveAND mode) {
+  public STBAddressingMode(
+      final String specFileName,
+      final String modelName,
+      final PrimitiveAND mode) {
+
     assert mode.getKind() == Primitive.Kind.MODE;
 
     this.specFileName = specFileName;
@@ -49,7 +53,7 @@ final class STBAddressingMode extends STBPrimitiveBase {
     this.mode = mode;
   }
 
-  private void buildHeader(STGroup group, ST t) {
+  private void buildHeader(final STGroup group, final ST t) {
     t.add("name", mode.getName());
     t.add("type", null != mode.getReturnType() ? mode.getReturnType().getJavaText() : "null");
     t.add("file", specFileName);
@@ -65,17 +69,17 @@ final class STBAddressingMode extends STBPrimitiveBase {
     t.add("imps", AddressingMode.class.getName());
 
     t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
-    t.add("base", AddressingMode.class.getSimpleName());
+    t.add("base",  AddressingMode.class.getSimpleName());
 
     t.add("except", mode.canThrowException());
     t.add("memref", mode.isMemoryReference());
-    t.add("load", mode.isLoad());
-    t.add("store", mode.isStore());
+    t.add("load",   mode.isLoad());
+    t.add("store",  mode.isStore());
     t.add("blocksize", mode.getBlockSize()); 
   }
 
-  private void buildArguments(STGroup group, ST t) {
-    for (Map.Entry<String, Primitive> e : mode.getArguments().entrySet()) {
+  private void buildArguments(final STGroup group, final ST t) {
+    for (final Map.Entry<String, Primitive> e : mode.getArguments().entrySet()) {
       final String argName = e.getKey();
       final Primitive argType = e.getValue();
 
@@ -84,11 +88,11 @@ final class STBAddressingMode extends STBPrimitiveBase {
     }
   }
 
-  private void buildAttributes(STGroup group, ST t) {
+  private void buildAttributes(final STGroup group, final ST t) {
     final boolean isInitNeeded = 
         mode.getAttributes().containsKey(Attribute.INIT_NAME);
 
-    for (Attribute attr : mode.getAttributes().values()) {
+    for (final Attribute attr : mode.getAttributes().values()) {
       final ST attrST = group.getInstanceOf("mode_attribute");
 
       attrST.add("name", attr.getName());
@@ -117,7 +121,7 @@ final class STBAddressingMode extends STBPrimitiveBase {
     }
   }
 
-  private void buildReturnExpession(ST t) {
+  private void buildReturnExpession(final ST t) {
     final Expr returnExpr = mode.getReturnExpr();
 
     if (null == returnExpr) {
@@ -135,7 +139,7 @@ final class STBAddressingMode extends STBPrimitiveBase {
   }
 
   @Override
-  public ST build(STGroup group) {
+  public ST build(final STGroup group) {
     final ST t = group.getInstanceOf("mode");
 
     buildHeader(group, t);
