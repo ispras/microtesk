@@ -51,7 +51,11 @@ public final class IMM extends AddressingMode
                 byte_t,
                 new ParamDecls()
                     .declareParam("i", byte_t),
-                false
+                false,
+                false,
+                false,
+                false,
+                0
             );
         }
         

@@ -68,6 +68,10 @@ final class STBAddressingMode extends STBPrimitiveBase {
     t.add("base", AddressingMode.class.getSimpleName());
 
     t.add("except", mode.canThrowException());
+    t.add("memref", mode.isMemoryReference());
+    t.add("load", mode.isLoad());
+    t.add("store", mode.isStore());
+    t.add("blocksize", mode.getBlockSize()); 
   }
 
   private void buildArguments(STGroup group, ST t) {

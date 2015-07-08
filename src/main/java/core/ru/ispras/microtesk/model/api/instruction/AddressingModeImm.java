@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import ru.ispras.microtesk.model.api.type.Type;
  * Basically, a constant value parameter is represented by a built-in immediate addressing mode that
  * provides access to the read-only location that sores the data.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class AddressingModeImm extends AddressingMode {
@@ -34,30 +34,34 @@ public final class AddressingModeImm extends AddressingMode {
   public static final String PARAM_NAME = "value";
 
   private static final class Info extends InfoAndRule {
-    Info(Type type) {
+    Info(final Type type) {
       super(
           AddressingModeImm.class,
           NAME,
           type,
           new ParamDecls().declareParam(PARAM_NAME, type),
-          false
+          false,
+          false,
+          false,
+          false,
+          0
           );
     }
 
     @Override
-    public IAddressingMode create(Map<String, Data> args) {
+    public IAddressingMode create(final Map<String, Data> args) {
       final Location value = getArgument(PARAM_NAME, args);
       return new AddressingModeImm(value);
     }
   }
 
-  public static IInfo INFO(Type type) {
+  public static IInfo INFO(final Type type) {
     return new Info(type);
   }
 
   private final Location value;
 
-  public AddressingModeImm(Location value) {
+  public AddressingModeImm(final Location value) {
     this.value = value;
   }
 

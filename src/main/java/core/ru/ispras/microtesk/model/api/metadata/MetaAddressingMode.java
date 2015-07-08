@@ -31,7 +31,11 @@ public final class MetaAddressingMode implements MetaData {
   private final Type dataType;
   private final Map<String, MetaArgument> args;
   private final boolean exception;
+
   private final boolean memoryReference;
+  private final boolean load;
+  private final boolean store;
+  private final int blockSize;
 
   /**
    * Constructs a metadata object for an addressing mode.
@@ -43,6 +47,9 @@ public final class MetaAddressingMode implements MetaData {
    *        an exception or {@code false} otherwise.
    * @param memoryReference {@code true} if the addressing mode
    *        provides access to memory or {@code false} otherwise.
+   * @param load
+   * @param store
+   * @param blockSize
    * 
    * @throws IllegalArgumentException if any of the parameters is {@code null}.
    */
@@ -52,7 +59,10 @@ public final class MetaAddressingMode implements MetaData {
       final Type dataType,
       final Map<String, MetaArgument> args,
       final boolean exception,
-      final boolean memoryReference) {
+      final boolean memoryReference,
+      final boolean load,
+      final boolean store,
+      final int blockSize) {
     checkNotNull(name);
     checkNotNull(args);
 
@@ -61,6 +71,9 @@ public final class MetaAddressingMode implements MetaData {
     this.args = args;
     this.exception = exception;
     this.memoryReference = memoryReference;
+    this.load = load;
+    this.store = store;
+    this.blockSize = blockSize;
   }
 
   /**
@@ -148,6 +161,43 @@ public final class MetaAddressingMode implements MetaData {
 
   public boolean isMemoryReference() {
     return memoryReference;
+  }
+
+  /**
+   * Checks whether the addressing performs a memory load action in its attributes.
+   * This does not apply to the return expression, for which the {@code isMemoryReference}
+   * must be used. 
+   * 
+   * @return {@code true} if the addressing mode performs a memory load action
+   * or {@code false} otherwise.
+   */
+
+  public boolean isLoad() {
+    return load;
+  }
+
+  /**
+   * Checks whether the addressing mode performs a memory store action.
+   * This does not apply to the return expression, for which the {@code isMemoryReference}
+   * must be used.
+   * 
+   * @return {@code true} if the addressing mode performs a memory store action
+   * or {@code false} otherwise.
+   */
+
+  public boolean isStore() {
+    return store;
+  }
+
+  /**
+   * Returns the size of block read or written to memory. Applicable
+   * for load or store operations.
+   * 
+   * @return Size of memory block in bits.
+   */
+
+  public int getBlockSize() {
+    return blockSize;
   }
 
   @Override

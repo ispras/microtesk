@@ -24,7 +24,11 @@ mode(
   param_types,
   attrs,
   ret,
-  except) ::= <<
+  except,
+  memref,
+  load,
+  store,
+  blocksize) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -33,16 +37,19 @@ mode(
        name,
        base,
        false,
-       body(name, type, param_names, param_types, attrs, ret, except))> 
+       body(name, type, param_names, param_types, attrs, ret,
+            except, memref, load, store, blocksize))> 
 >>
 
-body(name, type, param_names, param_types, attrs, ret, except) ::= <<
+body(name, type, param_names, param_types, attrs, ret,
+     except, memref, load, store, blocksize) ::= <<
 <class_string_const("String", "NAME", name)><\n>
 <class(["private", "static", "final"],
        "Info",
        "InfoAndRule",
        false,
-       info_body(name, type, param_names, param_types, except))
+       info_body(name, type, param_names, param_types,
+                 except, memref, load, store, blocksize))
 >
 <class_const("IInfo", "INFO", "new Info()")><\n>
 <mode_constructor(name, param_names)><\n>
@@ -50,22 +57,25 @@ body(name, type, param_names, param_types, attrs, ret, except) ::= <<
 <if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>;}, true)><endif>
 >>
 
-info_body(name, type, param_names, param_types, except) ::= <<
-Info()
-{
-    super(
-       <name>.class,
-       "<name>",
-       <type>,
-       <param_decls(param_names, param_types)>,
-       <except>
-    );
+info_body(name, type, param_names, param_types,
+          except, memref, load, store, blocksize) ::= <<
+Info() {
+  super(
+      <name>.class,
+      "<name>",
+      <type>,
+      <param_decls(param_names, param_types)>,
+      <except>,
+      <memref>,
+      <load>,
+      <store>,
+      <blocksize>
+  );
 }<\n>
 @Override
-public IAddressingMode create(<data_map_type()> args)
-{
-    <param_names:{n | final Location <n> = getArgument("<n>", args);}; separator="\n">
-    return new <name>(<param_names :{n | <n>}; separator=", ">);
+public IAddressingMode create(<data_map_type()> args) {
+  <param_names:{n | final Location <n> = getArgument("<n>", args);}; separator="\n">
+  return new <name>(<param_names :{n | <n>}; separator=", ">);
 }
 >>
 
@@ -77,9 +87,8 @@ new ParamDecls()<param_names, param_types:{n, t | <\n>    .declareParam("<n>", <
 
 mode_constructor(name, param_names) ::= <<
 <if(param_names)><param_names:mode_param_def(); separator="\n"><\n><endif>
-public <name>(<param_names:{n | Location <n>}; separator=", ">)
-{
-    <param_names:{n | this.<n> = <n>;}; separator="\n">
+public <name>(<param_names:{n | Location <n>}; separator=", ">) {
+  <param_names:{n | this.<n> = <n>;}; separator="\n">
 }
 >>
 
@@ -89,8 +98,7 @@ private final Location <param_name>;
 
 mode_attribute(name, rettype, stmts, override) ::= <<
 <if(override)>@Override
-<endif>public <rettype> <name>()
-{
-    <stmts; separator="\n">
+<endif>public <rettype> <name>() {
+  <stmts; separator="\n">
 }
 >>

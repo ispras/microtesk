@@ -54,10 +54,14 @@ public class IREG extends AddressingMode
                "IREG",
                byte_t,
                new ParamDecls().declareParam("i", nibble),
-               false
+               false,
+               true,
+               false,
+               false,
+               0
             );
         }
-        
+
         @Override
         public IAddressingMode create(Map<String, Data> args)
         {

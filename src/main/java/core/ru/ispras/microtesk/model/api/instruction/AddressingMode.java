@@ -79,6 +79,10 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     private final Type type;
     private final Map<String, Type> decls;
     private final boolean exception;
+    private final boolean memoryReference;
+    private final boolean load;
+    private final boolean store;
+    private final int blockSize;
 
     private MetaAddressingMode metaData;
 
@@ -87,13 +91,22 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         final String name,
         final Type type,
         final ParamDecls decls,
-        final boolean exception) {
+        final boolean exception,
+        final boolean memoryReference,
+        final boolean load,
+        final boolean store,
+        final int blockSize) {
       this.modeClass = modeClass;
       this.name = name;
       this.type = type; 
       this.decls = decls.getDecls();
       this.metaData = null;
       this.exception = exception;
+
+      this.memoryReference = memoryReference;
+      this.load = load;
+      this.store = store;
+      this.blockSize = blockSize;
     }
 
     @Override
@@ -119,16 +132,12 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
     public MetaAddressingMode getMetaDataItem() {
       if (null == metaData) {
-        metaData = createMetaData(name, type, decls, exception);
+        metaData = createMetaData();
       }
       return metaData;
     }
 
-    private static MetaAddressingMode createMetaData(
-        final String name,
-        final Type dataType,
-        final Map<String, Type> decls,
-        final boolean exception) {
+    private MetaAddressingMode createMetaData() {
       final Map<String, MetaArgument> args = new LinkedHashMap<>(decls.size());
 
       for (Map.Entry<String, Type> e : decls.entrySet()) {
@@ -148,10 +157,13 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
       return new MetaAddressingMode(
           name,
-          dataType,
+          type,
           args,
           exception,
-          false // TODO
+          memoryReference,
+          load,
+          store,
+          blockSize
           );
     }
 

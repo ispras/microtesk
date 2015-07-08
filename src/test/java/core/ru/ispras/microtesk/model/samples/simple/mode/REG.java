@@ -54,7 +54,11 @@ public final class REG extends AddressingMode
                 byte_t,
                 new ParamDecls()
                     .declareParam("i", nibble),
-                false
+                false,
+                false,
+                false,
+                false,
+                0
             );
         }
 
