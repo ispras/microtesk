@@ -14,18 +14,112 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-public interface Preprocessor {
-  boolean isDefined(String key);
-  boolean underIfElse();
-  boolean isHidden();
-  void onDefine(String key, String val);
-  void onUndef(String key);
-  void onIfdef(String key);
-  void onIfndef(String key);
-  void onElse();
-  void onEndif();
-  String expand(String key);
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CharStream;
 
-  void includeTokensFromFile(String fileName);
-  void includeTokensFromString(String substitution);
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
+
+public abstract class Preprocessor {
+  private static enum IfDefScope {
+    IF_TRUE,
+    IF_FALSE,
+    ELSE_TRUE,
+    ELSE_FALSE
+  }
+
+  private final IncludeFileFinder finder = new IncludeFileFinder();
+  private final Map<String, String> defines = new LinkedHashMap<>();
+  private final Deque<IfDefScope> ifdefs = new ArrayDeque<>();
+
+  public abstract void includeTokensFromFile(String filename);
+  public abstract void includeTokensFromString(String s);
+
+  protected CharStream tokenStreamFromFile(final String filename) {
+    return finder.openFile(filename);
+  }
+
+  protected CharStream tokenStreamFromString(final String s) {
+    if (s != null && !s.isEmpty()) {
+      return new ANTLRStringStream(s);
+    }
+    return null;
+  }
+
+  public void addPath(final String path) {
+    checkNotNull(path);
+
+    finder.addPaths(path);
+  }
+
+  public boolean isDefined(final String key) {
+    return defines.containsKey(key.trim());
+  }
+
+  public boolean underIfElse() {
+    return !ifdefs.isEmpty();
+  }
+
+  public boolean isHidden() {
+    if (underIfElse()) {
+      final IfDefScope scope = ifdefs.peek();
+      return scope == IfDefScope.IF_FALSE || scope == IfDefScope.ELSE_FALSE;
+    }
+
+    return false;
+  }
+
+  public void onDefine(final String key, final String val) {
+    final int index = val.indexOf("//");
+    final String value = index == -1 ? val : val.substring(0, index);
+
+    defines.put(key.trim(), value.trim());
+  }
+
+  public void onUndef(final String key) {
+    defines.remove(key.trim());
+  }
+
+  public void onIfdef(final String key) {
+    if (isHidden() || !isDefined(key)) {
+      ifdefs.push(IfDefScope.IF_FALSE);
+    } else {
+      ifdefs.push(IfDefScope.IF_TRUE);
+    }
+  }
+
+  public void onIfndef(final String key) {
+    if (isHidden() || isDefined(key)) {
+      ifdefs.push(IfDefScope.IF_FALSE);
+    } else {
+      ifdefs.push(IfDefScope.IF_TRUE);
+    }
+  }
+
+  public void onElse() {
+    checkTrue(underIfElse());
+
+    final IfDefScope scope = ifdefs.pop();
+    checkTrue(scope == IfDefScope.IF_TRUE || scope == IfDefScope.IF_FALSE);
+
+    if (isHidden() || scope == IfDefScope.IF_TRUE) {
+      ifdefs.push(IfDefScope.ELSE_FALSE);
+    } else {
+      ifdefs.push(IfDefScope.ELSE_TRUE);
+    }
+  }
+
+  public void onEndif() {
+    checkTrue(underIfElse());
+    ifdefs.pop();
+  }
+
+  public String expand(final String key) {
+    return defines.get(key.trim());
+  }
 }

@@ -22,8 +22,7 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.Stack;
 
-import org.antlr.runtime.ANTLRFileStream;
-import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RuleReturnScope;
@@ -52,7 +51,7 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
-public final class NmlTranslator extends Translator<Ir> implements Preprocessor {
+public final class NmlTranslator extends Translator<Ir> {
   private static final Set<String> FILTER = Collections.singleton(".nml");
 
   public NmlTranslator() {
@@ -63,97 +62,33 @@ public final class NmlTranslator extends Translator<Ir> implements Preprocessor 
   // Lexer and Preprocessor
   //------------------------------------------------------------------------------------------------
 
-  private static enum IfDefScope {
-    IF_TRUE,
-    IF_FALSE,
-    ELSE_TRUE,
-    ELSE_FALSE
-  }
-
   private TokenSourceStack source;
 
-  private final IncludeFileFinder finder = new IncludeFileFinder();
-  private final HashMap<String, String> defines = new LinkedHashMap<>();
-  private final Stack<IfDefScope> ifdefs = new Stack<>();
+  private final Preprocessor pp = new Preprocessor() {
+    @Override
+    public void includeTokensFromFile(final String filename) {
+      final CharStream stream = this.tokenStreamFromFile(filename);
+      if (null == stream) {
+        Logger.error("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND.");
+        return;
+      }
+  
+      Logger.message("Included: " + filename);
+      source.push(new NmlLexer(stream, pp));
+    }
 
+    @Override
+    public void includeTokensFromString(final String substitution) {
+      final CharStream stream = this.tokenStreamFromString(substitution);
+      if (stream != null) {
+        source.push(new NmlLexer(stream, this));
+      }
+    }
+  };
+
+  @Override
   public void addPath(final String path) {
-    finder.addPaths(path);
-  }
-
-  @Override
-  public boolean isDefined(final String key) {
-    return defines.containsKey(key.trim());
-  }
-
-  @Override
-  public boolean underIfElse() {
-    return !ifdefs.empty();
-  }
-
-  @Override
-  public boolean isHidden() {
-    if (underIfElse()) {
-      final IfDefScope scope = ifdefs.peek();
-      return scope == IfDefScope.IF_FALSE || scope == IfDefScope.ELSE_FALSE;
-    }
-
-    return false;
-  }
-
-  @Override
-  public void onDefine(final String key, final String val) {
-    final int index = val.indexOf("//");
-    final String value = index == -1 ? val : val.substring(0, index);
-
-    defines.put(key.trim(), value.trim());
-  }
-
-  @Override
-  public void onUndef(final String key) {
-    defines.remove(key.trim());
-  }
-
-  @Override
-  public void onIfdef(final String key) {
-    if (isHidden() || !isDefined(key)) {
-      ifdefs.push(IfDefScope.IF_FALSE);
-    } else {
-      ifdefs.push(IfDefScope.IF_TRUE);
-    }
-  }
-
-  @Override
-  public void onIfndef(final String key) {
-    if (isHidden() || isDefined(key)) {
-      ifdefs.push(IfDefScope.IF_FALSE);
-    } else {
-      ifdefs.push(IfDefScope.IF_TRUE);
-    }
-  }
-
-  @Override
-  public void onElse() {
-    InvariantChecks.checkTrue(underIfElse());
-
-    final IfDefScope scope = ifdefs.pop();
-    InvariantChecks.checkTrue(scope == IfDefScope.IF_TRUE || scope == IfDefScope.IF_FALSE);
-
-    if (isHidden() || scope == IfDefScope.IF_TRUE) {
-      ifdefs.push(IfDefScope.ELSE_FALSE);
-    } else {
-      ifdefs.push(IfDefScope.ELSE_TRUE);
-    }
-  }
-
-  @Override
-  public void onEndif() {
-    InvariantChecks.checkTrue(underIfElse());
-    ifdefs.pop();
-  }
-
-  @Override
-  public String expand(final String key) {
-    return defines.get(key.trim());
+    pp.addPath(path);
   }
 
   private TokenSource startLexer(final List<String> filenames) {
@@ -164,32 +99,10 @@ public final class NmlTranslator extends Translator<Ir> implements Preprocessor 
 
     // Process the files in reverse order (emulate inclusion).
     while (iterator.hasPrevious()) {
-      includeTokensFromFile(iterator.previous());
+      pp.includeTokensFromFile(iterator.previous());
     }
 
     return source;
-  }
-
-  @Override
-  public void includeTokensFromFile(final String filename) {
-    final ANTLRFileStream stream = finder.openFile(filename);
-
-    Logger.message("Included: " + filename);
-
-    if (null == stream) {
-      Logger.error("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND.");
-      return;
-    }
-
-    source.push(new NmlLexer(stream, this));
-  }
-
-  @Override
-  public void includeTokensFromString(final String substitution) {
-    if (substitution != null && !substitution.isEmpty()) {
-      final ANTLRStringStream stream = new ANTLRStringStream(substitution);
-      source.push(new NmlLexer(stream, this));
-    }
   }
 
   //------------------------------------------------------------------------------------------------
