@@ -47,7 +47,7 @@ import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker.Direction;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 
-public final class DocgenNmlAnalyzer implements Preprocessor {
+public final class DocgenNmlAnalyzer extends Preprocessor {
 
   private final LogStore LOG = new LogStore() {
     @Override
