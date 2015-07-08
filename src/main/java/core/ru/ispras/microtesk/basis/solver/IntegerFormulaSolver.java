@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.Solver;
+import ru.ispras.microtesk.basis.SolverResult;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 

@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec.basis;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * This enumeration contains basic data types.
  * 
@@ -28,6 +30,23 @@ public enum DataType {
   WORD(4),
   /** The double-word data type. */
   DWORD(8);
+
+  public static DataType type(final int sizeInBytes) {
+    switch(sizeInBytes) {
+      case 1:
+        return BYTE;
+      case 2:
+        return HWORD;
+      case 4:
+        return WORD;
+      case 8:
+        return DWORD;
+      default:
+        InvariantChecks.checkTrue(false);
+        return null;
+    }
+  }
+  
 
   /** The size in bytes. */
   private final int size;

@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.Solver;
+import ru.ispras.microtesk.basis.SolverResult;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
