@@ -454,10 +454,12 @@ public final class MipsMmu {
     // Disable some of the transitions to reduce testing time.
     ifWrite.setEnabled(false);
     ifUnmapped.setEnabled(false);
+    ifVpn1.setEnabled(false);
     ifInvalid.setEnabled(false);
     ifDirty.setEnabled(false);
     ifLocal.setEnabled(false);
     ifHiMemory.setEnabled(false);
+    ifL2Used.setEnabled(false);
   }
 
   private MipsMmu() {}
