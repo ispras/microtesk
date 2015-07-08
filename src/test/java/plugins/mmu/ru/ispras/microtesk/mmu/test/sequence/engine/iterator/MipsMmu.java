@@ -95,10 +95,6 @@ public final class MipsMmu {
   public static final int L2_ROW_BITS = Integer.bitCount(L2_SETS - 1);
   public static final int L2_TAG_BITS = PA_BITS - (POS_BITS + L2_ROW_BITS);
 
-  public static final String TEXT_REGION = "code";
-  public static final String DATA_LO_REGION = "lo";
-  public static final String DATA_HI_REGION = "hi";
-
   // The instance should be created in get().
   private static MipsMmu instance = null;
 
@@ -454,6 +450,15 @@ public final class MipsMmu {
 
     mmu.setStartAddress(vaAddr);
     mmu.setStartAction(root);
+
+    // Disable some of the transitions to reduce testing time.
+    ifWrite.setEnabled(false);
+    ifUnmapped.setEnabled(false);
+    ifInvalid.setEnabled(false);
+    ifDirty.setEnabled(false);
+    ifLocal.setEnabled(false);
+    ifHiMemory.setEnabled(false);
+    ifL2Used.setEnabled(false);
   }
 
   private MipsMmu() {}
