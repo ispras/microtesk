@@ -458,7 +458,6 @@ public final class MipsMmu {
     ifDirty.setEnabled(false);
     ifLocal.setEnabled(false);
     ifHiMemory.setEnabled(false);
-    ifL2Used.setEnabled(false);
   }
 
   private MipsMmu() {}

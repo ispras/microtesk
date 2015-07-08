@@ -25,7 +25,7 @@ import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
- * {@link MmuExpression} represents an expression, which is a sequence of atoms.
+ * {@link MmuExpression} represents an expression, which is a sequence of {@link IntegerField}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
@@ -38,7 +38,7 @@ public final class MmuExpression {
   /**
    * Creates a concatenation of the fields.
    * 
-   * @param atoms the fields to be concatenated.
+   * @param terms the fields to be concatenated.
    * @return the expression.
    */
   public static MmuExpression cat(final List<IntegerField> fields) {
@@ -66,14 +66,14 @@ public final class MmuExpression {
   /**
    * Creates a reversed concatenation of the fields.
    * 
-   * @param atoms the fields to be concatenated.
+   * @param terms the fields to be concatenated.
    * @return the expression.
    */
   public static MmuExpression rcat(final List<IntegerField> fields) {
     final List<IntegerField> reversedAtoms = new ArrayList<>(fields.size());
 
-    for (final IntegerField atom : fields) {
-      reversedAtoms.add(0, atom);
+    for (final IntegerField field : fields) {
+      reversedAtoms.add(0, field);
     }
 
     return new MmuExpression(reversedAtoms);
@@ -125,32 +125,32 @@ public final class MmuExpression {
   // Internals
   //------------------------------------------------------------------------------------------------
 
-  private final List<IntegerField> atoms = new ArrayList<>();
+  private final List<IntegerField> terms = new ArrayList<>();
 
   private MmuExpression() {}
 
-  private MmuExpression(final List<IntegerField> atoms) {
-    InvariantChecks.checkNotNull(atoms);
-    this.atoms.addAll(atoms);
+  private MmuExpression(final List<IntegerField> terms) {
+    InvariantChecks.checkNotNull(terms);
+    this.terms.addAll(terms);
   }
 
-  private MmuExpression(final IntegerField atom) {
-    InvariantChecks.checkNotNull(atom);
-    this.atoms.add(atom);
+  private MmuExpression(final IntegerField term) {
+    InvariantChecks.checkNotNull(term);
+    this.terms.add(term);
   }
 
   public int size() {
-    return atoms.size();
+    return terms.size();
   }
   
-  public List<IntegerField> getAtoms() {
-    return atoms;
+  public List<IntegerField> getTerms() {
+    return terms;
   }
 
   public int getWidth() {
     int width = 0;
 
-    for (final IntegerField field : atoms) {
+    for (final IntegerField field : terms) {
       width += field.getWidth();
     }
 
@@ -159,12 +159,12 @@ public final class MmuExpression {
 
   @Override
   public String toString() {
-    if (atoms.isEmpty()) {
+    if (terms.isEmpty()) {
       return "empty";
     }
 
-    if (atoms.size() == 1) {
-      return atoms.get(0).toString();
+    if (terms.size() == 1) {
+      return terms.get(0).toString();
     }
 
     final String separator = ", ";
@@ -173,7 +173,7 @@ public final class MmuExpression {
     boolean comma = false;
 
     builder.append("{");
-    for (final IntegerField field : atoms) {
+    for (final IntegerField field : terms) {
       builder.append(comma ? separator : "");
       builder.append(field);
       comma = true;

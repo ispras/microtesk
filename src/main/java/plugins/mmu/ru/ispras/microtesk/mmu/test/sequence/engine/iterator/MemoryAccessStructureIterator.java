@@ -215,12 +215,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   }
 
   private boolean checkStructure() {
-    final MemoryAccessStructure abstractSequence =
+    final MemoryAccessStructure structure =
         new MemoryAccessStructure(memory, accesses, dependencies);
-    final MemoryAccessStructureChecker abstractSequenceChecker =
-        new MemoryAccessStructureChecker(abstractSequence, structureFilter);
+    final MemoryAccessStructureChecker checker =
+        new MemoryAccessStructureChecker(structure, structureFilter);
 
-    return abstractSequenceChecker.check();
+    return checker.check();
   }
 
   private boolean nextStructure() {
@@ -375,7 +375,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
           final List<MemoryDependency> dependencies =
               getDependencies(accesses.get(i), accesses.get(j));
 
-          if (dependencies == null) {
+          if (dependencies.isEmpty()) {
             return false;
           }
 
@@ -402,8 +402,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
 
-    boolean unsat = true;
-
     final List<MmuDevice> devices1 = access1.getDevices();
     final List<MmuDevice> devices2 = access2.getDevices();
 
@@ -421,10 +419,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     for (final MmuAddress address : addresses) {
       final List<MemoryHazard> hazards = CoverageExtractor.get().getCoverage(address);
       addHazardsToDependencies(addrDependencies, access1, access2, hazards);
-
-      if (!hazards.isEmpty()) {
-        unsat = false;
-      }
     }
 
     List<MemoryDependency> allDependencies = new ArrayList<>();
@@ -436,10 +430,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
         final List<MemoryHazard> hazards = CoverageExtractor.get().getCoverage(device);
         addHazardsToDependencies(dependencies, access1, access2, hazards);
 
-        if (!hazards.isEmpty()) {
-          unsat = false;
-        }
-
         if (dependencies.isEmpty()) {
           break;
         }
@@ -448,7 +438,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       allDependencies.addAll(dependencies);
     }
 
-    return allDependencies.isEmpty() && !unsat ? null : allDependencies;
+    return allDependencies;
   }
 
   /**

@@ -122,6 +122,6 @@ public final class IntegerVariable {
 
   @Override
   public String toString() {
-    return String.format("%s=%s", name, value);
+    return value != null ? String.format("%s=%s", name, value) : name;
   }
 }

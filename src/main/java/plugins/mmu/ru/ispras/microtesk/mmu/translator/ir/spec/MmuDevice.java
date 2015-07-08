@@ -244,7 +244,7 @@ public final class MmuDevice {
 
     int offset = 0;
 
-    for (final IntegerField addressField : expression.getAtoms()) {
+    for (final IntegerField addressField : expression.getTerms()) {
       final IntegerField field =
           new IntegerField(variable, offset, (offset + addressField.getWidth()) - 1);
 

@@ -166,6 +166,6 @@ public final class IntegerClause {
 
   @Override
   public String toString() {
-    return equations.toString();
+    return String.format("%s %s", type, equations.toString());
   }
 }

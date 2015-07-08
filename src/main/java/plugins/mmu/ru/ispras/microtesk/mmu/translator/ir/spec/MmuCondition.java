@@ -132,7 +132,7 @@ public final class MmuCondition {
   //------------------------------------------------------------------------------------------------
 
   public static MmuCondition neq(final MmuExpression expression) {
-    return new MmuCondition(MmuConditionAtom.eq(expression));
+    return new MmuCondition(MmuConditionAtom.neq(expression));
   }
 
   public static MmuCondition neq(final IntegerField field) {

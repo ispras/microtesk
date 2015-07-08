@@ -42,7 +42,7 @@ public final class IntegerEquation {
    * @param lhs the left-hand-side variable.
    * @param rhs the right-hand-side variable.
    * @param equal the equality/inequality flag.
-   * @throws NullPointerException if {@code lhs} or {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code lhs} or {@code rhs} is null.
    */
   public IntegerEquation(final IntegerVariable lhs, final IntegerVariable rhs, boolean equal) {
     InvariantChecks.checkNotNull(lhs);
@@ -60,7 +60,7 @@ public final class IntegerEquation {
    * @param lhs the left-hand-side variable.
    * @param rhs the right-hand-side value.
    * @param equal the equality/inequality flag.
-   * @throws NullPointerException if {@code lhs} or {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code lhs} or {@code rhs} is null.
    */
   public IntegerEquation(final IntegerVariable lhs, final BigInteger rhs, boolean equal) {
     InvariantChecks.checkNotNull(lhs);
@@ -96,7 +96,7 @@ public final class IntegerEquation {
 
   @Override
   public String toString() {
-    return String.format("%s %s %s", lhs, equal ? "==" : "!=",
+    return String.format("%s %s %s", lhs, (equal ? "==" : "!="),
         (value ? val.toString() : rhs.toString()));
   }
 }

@@ -46,8 +46,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
- * {@link MemoryAccessStructureChecker} checks consistency of situations and dependencies specified
- * in a memory access structure.
+ * {@link MemoryAccessStructureChecker} checks consistency of a {@link MemoryAccessStructure}.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
@@ -101,21 +100,21 @@ public final class MemoryAccessStructureChecker {
    * Constructs a checker for the given pair of executions.
    *
    * @param memory the memory specification.
-   * @param execution1 the first execution.
-   * @param execution2 the second execution.
+   * @param access1 the first execution.
+   * @param access2 the second execution.
    * @param dependency the dependency between the first and second executions.
    * @param filter the template filter.
    */
-  public MemoryAccessStructureChecker(final MmuSubsystem memory, final MemoryAccess execution1,
-      final MemoryAccess execution2, final MemoryDependency dependency,
+  public MemoryAccessStructureChecker(final MmuSubsystem memory, final MemoryAccess access1,
+      final MemoryAccess access2, final MemoryDependency dependency,
       final Predicate<MemoryAccessStructure> filter) {
-    InvariantChecks.checkNotNull(execution1);
-    InvariantChecks.checkNotNull(execution2);
+    InvariantChecks.checkNotNull(access1);
+    InvariantChecks.checkNotNull(access2);
     InvariantChecks.checkNotNull(filter);
 
     final List<MemoryAccess> executions = new ArrayList<>();
-    executions.add(execution1);
-    executions.add(execution2);
+    executions.add(access1);
+    executions.add(access2);
 
     final MemoryDependency[][] dependencies = new MemoryDependency[2][2];
     dependencies[0][0] = null;
@@ -148,16 +147,17 @@ public final class MemoryAccessStructureChecker {
    * @return {@code true} if the condition is consistent; {@code false} otherwise.
    */
   public boolean check() {
-    // Step 0. Check the dependency combination.
+    // Step 0. Check the memory access structure by using filters.
     if (!filter.test(template)) {
       return false;
     }
 
-    final MemoryDependency[][] templateDependency = template.getDependencies();
     final Map<IntegerVariable, Set<IntegerRange>> variableRange = new LinkedHashMap<>();
 
-    // Step 1. Add Ranges for constants from dependency.
-    for (final MemoryDependency[] arrayDependency : templateDependency) {
+    // Step 1. Add ranges for memory dependencies.
+    final MemoryDependency[][] dependencies = template.getDependencies();
+
+    for (final MemoryDependency[] arrayDependency : dependencies) {
       for (final MemoryDependency dependency : arrayDependency) {
         if (dependency != null) {
           // Initialize ranges: X = [1 .. a][a+1 .. b][b+1 .. n]
@@ -166,15 +166,15 @@ public final class MemoryAccessStructureChecker {
       }
     }
 
-    final List<MemoryAccess> templateExecutions = template.getAccesses();
+    // Step 2. Add ranges for memory accesses.
+    final List<MemoryAccess> accesses = template.getAccesses();
 
-    // Step 2. Add Ranges for constants from execution.
-    for (final MemoryAccess execution : templateExecutions) {
+    for (final MemoryAccess execution : accesses) {
       // Initialize ranges: X = [1 .. a][a+1 .. b][b+1 .. n]
       initVariableRange(execution, variableRange);
     }
 
-    // Get list of unique ranges.
+    // Get list of the unique ranges.
     final Map<IntegerVariable, List<IntegerRange>> rangedVariable =
         transformToUniqueRange(variableRange);
 
@@ -189,9 +189,9 @@ public final class MemoryAccessStructureChecker {
     }
 
     // Step 3.
-    for (MemoryAccess execution : templateExecutions) {
+    for (final MemoryAccess access : accesses) {
       // Add ranges: X[1 .. n] = Y[1 .. a][a+1 .. b][b+1 .. n]
-      addVariableRange(execution, variableRange);
+      addVariableRange(access, variableRange);
     }
 
     // Get list of all unique ranges.
@@ -204,40 +204,39 @@ public final class MemoryAccessStructureChecker {
       linkedUniqueRange(variables);
     }
 
-    int templateExecutionsSize = templateExecutions.size();
-
     // Step 5.
     for (final Map.Entry<IntegerVariable, List<IntegerRange>> variable : variables.entrySet()) {
       final List<String> nameI = new ArrayList<>();
 
-      for (int i = 0; i < templateExecutionsSize; i++) {
+      for (int i = 0; i < accesses.size(); i++) {
         nameI.add(gatherVariableName(variable.getKey(), i));
         variableRanges.put(nameI.get(i), variable.getValue());
       }
 
       final List<List<String>> variableLinkI = new ArrayList<>();
-      for (int i = 0; i < templateExecutionsSize; i++) {
+
+      for (int i = 0; i < accesses.size(); i++) {
         variableLinkI.add(new ArrayList<String>());
       }
-      for (final IntegerRange range : variable.getValue()) {
 
+      for (final IntegerRange range : variable.getValue()) {
         final List<String> variableIRange = new ArrayList<>();
 
-        for (int i = 0; i < templateExecutionsSize; i++) {
+        for (int i = 0; i < accesses.size(); i++) {
           variableIRange.add(gatherVariableName(variable.getKey(), i, range));
           variableLinkI.get(i).add(variableIRange.get(i));
         }
 
         final List<IntegerVariable> variableI = new ArrayList<>();
 
-        for (int i = 0; i < templateExecutionsSize; i++) {
+        for (int i = 0; i < accesses.size(); i++) {
           variableI.add(new IntegerVariable(variableIRange.get(i), range.size().intValue()));
           mmuVariables.put(variableIRange.get(i), variableI.get(i));
           mmuRanges.put(variableIRange.get(i), range);
         }
       }
 
-      for (int i = 0; i < templateExecutionsSize; i++) {
+      for (int i = 0; i < accesses.size(); i++) {
         variableLink.put(nameI.get(i), variableLinkI.get(i));
       }
     }
@@ -248,9 +247,9 @@ public final class MemoryAccessStructureChecker {
       formulaVariables.add(variable.getValue());
     }
 
-    for (int i = 0; i < templateExecutionsSize; i++) {
+    for (int i = 0; i < accesses.size(); i++) {
       // Get equations from execution.
-      for (final MmuTransition transition : templateExecutions.get(i).getTransitions()) {
+      for (final MmuTransition transition : accesses.get(i).getTransitions()) {
         if (!process(i, transition)) {
           return false;
         }
@@ -258,13 +257,13 @@ public final class MemoryAccessStructureChecker {
     }
 
     // Step 7.
-    for (int i = 0; i < templateExecutionsSize - 1; i++) {
-      for (int j = i + 1; j < templateExecutionsSize; j++) {
+    for (int i = 0; i < accesses.size() - 1; i++) {
+      for (int j = i + 1; j < accesses.size(); j++) {
 
         final MemoryDependency dependency = template.getDependency(i, j);
         if (dependency != null) {
           // Get equations from dependency of i & j execution.
-          if (!process(i, j, templateExecutions.get(i), templateExecutions.get(j), dependency)) {
+          if (!process(i, j, accesses.get(i), accesses.get(j), dependency)) {
             return false;
           }
         }
@@ -336,7 +335,8 @@ public final class MemoryAccessStructureChecker {
    * @param dependency the dependency of executions.
    * @param variableRange the list of variable ranges.
    */
-  private void initVariableRange(final MemoryDependency dependency,
+  private void initVariableRange(
+      final MemoryDependency dependency,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
 
     final List<MemoryHazard> hazards = dependency.getHazards();
@@ -415,11 +415,12 @@ public final class MemoryAccessStructureChecker {
    * @param condition the condition.
    * @param variableRange the list of variable ranges.
    */
-  private static void initVariableRange(final MmuCondition condition,
+  private static void initVariableRange(
+      final MmuCondition condition,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
-    final List<MmuConditionAtom> equalities = condition.getAtoms();
-    for (final MmuConditionAtom equality : equalities) {
-      final MmuExpression expression = equality.getExpression();
+    final List<MmuConditionAtom> atoms = condition.getAtoms();
+    for (final MmuConditionAtom atom : atoms) {
+      final MmuExpression expression = atom.getExpression();
 
       if (expression != null) {
         initVariableRange(expression, variableRange);
@@ -447,7 +448,7 @@ public final class MemoryAccessStructureChecker {
     }
 
     // Get all terms for this variable
-    final List<IntegerField> terms = expression.getAtoms();
+    final List<IntegerField> terms = expression.getTerms();
 
     final Map<IntegerVariable, Set<IntegerRange>> variablesRangesTemp = new LinkedHashMap<>();
 
@@ -783,10 +784,11 @@ public final class MemoryAccessStructureChecker {
    * @param expression the expression.
    * @param variableRange the list of variable ranges.
    */
-  private static void initVariableRange(final MmuExpression expression,
+  private static void initVariableRange(
+      final MmuExpression expression,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
 
-    final List<IntegerField> terms = expression.getAtoms();
+    final List<IntegerField> terms = expression.getTerms();
 
     for (final IntegerField term : terms) {
       final IntegerVariable variable = term.getVariable();
@@ -796,7 +798,6 @@ public final class MemoryAccessStructureChecker {
         range = variableRange.get(variable);
       } else {
         range = new LinkedHashSet<>();
-        // Init range / Add to range: [0, this width - 1]
         range.add(new IntegerRange(0, variable.getWidth() - 1));
       }
       final IntegerRange varRange = new IntegerRange(term.getLoIndex(), term.getHiIndex());
@@ -832,7 +833,8 @@ public final class MemoryAccessStructureChecker {
    * @param hi the hi index.
    * @return range of BigInteger.
    */
-  private static BigInteger getRangeConstant(final BigInteger constant, final int lo, final int hi) {
+  private static BigInteger getRangeConstant(
+      final BigInteger constant, final int lo, final int hi) {
     // Base for the mask
     final BigInteger mask = BigInteger.valueOf(2);
     // Create mask: 2^(term size) - 1
@@ -851,36 +853,38 @@ public final class MemoryAccessStructureChecker {
    * @param equality the equality.
    * @return {@code true} if the equality is consistent; {@code false} otherwise.
    */
-  private boolean process(final int i, final MmuConditionAtom equality) {
-    InvariantChecks.checkNotNull(equality);
+  private boolean process(final int i, final MmuConditionAtom atom) {
+    InvariantChecks.checkNotNull(atom);
+    // The code is not applicable to non-constant constraints.
+    InvariantChecks.checkTrue(atom.getType() == MmuConditionAtom.Type.EQUAL_CONST);
 
-    final BigInteger equalityConstant = equality.getConstant();
-    boolean equalityType = !equality.isNegated();
+    final MmuExpression expression = atom.getExpression();
 
-    // Add variables to the solver.
+    if (expression == null) {
+      return true;
+    }
+
     final IntegerClause clause =
-        new IntegerClause(equalityType ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+        new IntegerClause(!atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
-    final MmuExpression expression = equality.getExpression();
-    InvariantChecks.checkNotNull(expression);
-
-    final List<IntegerField> terms = expression.getAtoms();
+    final BigInteger constant = atom.getConstant();
+    final List<IntegerField> terms = expression.getTerms();
 
     for (final IntegerField term : terms) {
-      // Get variables of the ranges
-      final List<IntegerVariable> variableList = getVariable(i, term);
+      final List<IntegerVariable> variables = getVariable(i, term);
 
-      // Add variables to the solver
-      for (final IntegerVariable var : variableList) {
-        final IntegerRange range = mmuRanges.get(var.getName());
+      for (final IntegerVariable variable : variables) {
+        final IntegerRange range = mmuRanges.get(variable.getName());
+
         final int lo = range.getMin().intValue();
         final int hi = range.getMax().intValue();
-        // Create constant for solver
-        final BigInteger val = getRangeConstant(equalityConstant, lo, hi);
-        // solver.addEquation(var, val, equalityType);
-        clause.addEquation(var, val, equalityType);
+
+        final BigInteger value = getRangeConstant(constant, lo, hi);
+
+        clause.addEquation(variable, value, !atom.isNegated());
       }
     }
+
     formula.addEquationClause(clause);
 
     return true;
@@ -907,7 +911,7 @@ public final class MemoryAccessStructureChecker {
         continue;
       }
 
-      final List<IntegerField> termList = expression.getAtoms();
+      final List<IntegerField> termList = expression.getTerms();
 
       int termsSize = 0;
       // Get the shift value
@@ -993,15 +997,14 @@ public final class MemoryAccessStructureChecker {
    */
   private boolean process(final int i, final MmuCondition condition) {
     InvariantChecks.checkNotNull(condition);
+    // The code is not applicable to OR-connected constraints.
+    InvariantChecks.checkTrue(condition.getType() == MmuCondition.Type.AND);
 
-    final List<MmuConditionAtom> equalities = condition.getAtoms();
-    for (final MmuConditionAtom equality : equalities) {
-      final MmuExpression expression = equality.getExpression();
+    final List<MmuConditionAtom> atoms = condition.getAtoms();
 
-      if (expression != null) {
-        if (!process(i, equality)) {
-          return false;
-        }
+    for (final MmuConditionAtom atom : atoms) {
+      if (!process(i, atom)) {
+        return false;
       }
     }
 
@@ -1043,19 +1046,23 @@ public final class MemoryAccessStructureChecker {
   }
 
   /**
-   * Adds equalities of the dependency of executions.
+   * Adds the constraints for the given dependency between two memory accesses.
    * 
-   * @param i the index of the first execution.
-   * @param j the index of the second execution.
-   * @param execution1 the i execution.
-   * @param execution2 the j execution.
-   * @param dependency the dependency of executions.
-   * @return {@code true} if the dependency is solved; {@code false} otherwise.
+   * @param i the index of the primary memory access.
+   * @param j the index of the secondary memory access.
+   * @param access1 the primary memory access.
+   * @param access2 the secondary memory access.
+   * @param dependency the dependency between the memory accesses.
+   * @return {@code true} if the constraints may be SAT; {@code false} otherwise.
    */
-  private boolean process(final int i, final int j, final MemoryAccess execution1,
-      final MemoryAccess execution2, final MemoryDependency dependency) {
-    InvariantChecks.checkNotNull(execution1);
-    InvariantChecks.checkNotNull(execution2);
+  private boolean process(
+      final int i,
+      final int j,
+      final MemoryAccess access1,
+      final MemoryAccess access2,
+      final MemoryDependency dependency) {
+    InvariantChecks.checkNotNull(access1);
+    InvariantChecks.checkNotNull(access2);
     InvariantChecks.checkNotNull(dependency);
 
     if (dependency == null) {
@@ -1067,8 +1074,8 @@ public final class MemoryAccessStructureChecker {
         final MmuDevice device = hazard.getDevice();
         InvariantChecks.checkNotNull(device);
 
-        if (BufferAccessEvent.HIT == execution1.getEvent(device)
-            && BufferAccessEvent.HIT == execution2.getEvent(device)) {
+        if (BufferAccessEvent.HIT == access1.getEvent(device)
+            && BufferAccessEvent.HIT == access2.getEvent(device)) {
           final List<IntegerVariable> fields = device.getFields();
 
           for (final IntegerVariable field : fields) {
@@ -1099,43 +1106,38 @@ public final class MemoryAccessStructureChecker {
 
       final MmuCondition condition = hazard.getCondition();
 
-      if (condition != null) {
-        final List<MmuConditionAtom> equalities = condition.getAtoms();
+      if (condition == null) {
+        continue;
+      }
 
-        for (final MmuConditionAtom equality : equalities) {
-          final MmuExpression expression = equality.getExpression();
+      final List<MmuConditionAtom> atoms = condition.getAtoms();
 
-          if (expression != null) {
-            boolean equalityType = !equality.isNegated();
+      for (final MmuConditionAtom atom : atoms) {
+        final MmuExpression expression = atom.getExpression();
 
-            if (equality.getType() != MmuConditionAtom.Type.EQUAL) {
-              continue;
-            }
+        if (expression == null || atom.getType() != MmuConditionAtom.Type.EQUAL) {
+            continue;
+        }
 
-            final List<IntegerField> terms = expression.getAtoms();
+        final List<IntegerField> terms = expression.getTerms();
 
-            // Empty terms =/= Empty terms => false
-            if (terms.isEmpty() && !equalityType) {
-              return false;
-            }
+        if (terms.isEmpty() && atom.isNegated()) {
+          return false;
+        }
 
-            final IntegerClause clause =
-                new IntegerClause(equalityType ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+        final IntegerClause clause =
+            new IntegerClause(!atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
-            for (final IntegerField term : terms) {
-              // Get variables of the ranges.
-              final List<IntegerVariable> variableListI = getVariable(i, term);
-              final List<IntegerVariable> variableListJ = getVariable(j, term);
+        for (final IntegerField term : terms) {
+          final List<IntegerVariable> variableListI = getVariable(i, term);
+          final List<IntegerVariable> variableListJ = getVariable(j, term);
 
-              // Add variables to the solver.
-              for (int k = 0; k < variableListI.size(); k++) {
-                clause.addEquation(variableListI.get(k), variableListJ.get(k), equalityType);
-              }
-            }
-
-            formula.addEquationClause(clause);
+          for (int k = 0; k < variableListI.size(); k++) {
+            clause.addEquation(variableListI.get(k), variableListJ.get(k), !atom.isNegated());
           }
         }
+
+        formula.addEquationClause(clause);
       }
     }
 
