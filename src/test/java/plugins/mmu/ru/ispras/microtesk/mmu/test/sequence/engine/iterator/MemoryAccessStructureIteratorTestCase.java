@@ -144,14 +144,17 @@ public final class MemoryAccessStructureIteratorTestCase {
 
     for (final Map.Entry<MmuDevice, Map<MemoryHazard.Type, Integer>> deviceConflicts :
       devicesConflicts.entrySet()) {
+      final MmuDevice device = deviceConflicts.getKey();
+
+      if (device == MipsMmu.get().jtlb || device == MipsMmu.get().l2 || device == MipsMmu.get().mem) {
+        continue;
+      }
+
       for (final Map.Entry<MemoryHazard.Type, Integer> conflicts :
         deviceConflicts.getValue().entrySet()) {
         if (conflicts.getValue() == 0) {
-          if (!(deviceConflicts.getKey().equals(MipsMmu.get().mem) && conflicts.getKey().equals(
-              MemoryHazard.Type.TAG_NOT_EQUAL))) {
-            Assert.fail(
-                "Not found: " + conflicts.getKey() + " of device " + deviceConflicts.getKey());
-          }
+          Assert.fail(
+              "Not found: " + conflicts.getKey() + " of device " + deviceConflicts.getKey());
         }
       }
     }
@@ -189,23 +192,25 @@ public final class MemoryAccessStructureIteratorTestCase {
           boolean memTagNotEqual = false;
 
           for (final MemoryHazard conflict : dependency.getHazards()) {
+            final MmuAddress address = conflict.getAddress();
             final MmuDevice device = conflict.getDevice();
+            final MemoryHazard.Type type = conflict.getType();
+
             if (device != null) {
               final Map<MemoryHazard.Type, Integer> conflicts = devicesConflicts.get(device);
-              final int numberOfConflicts = conflicts.get(conflict.getType());
-              conflicts.put(conflict.getType(), numberOfConflicts + 1);
+              final int numberOfConflicts = conflicts.get(type);
+              conflicts.put(type, numberOfConflicts + 1);
             }
 
-            final MmuAddress address = conflict.getAddress();
             if (address != null) {
               final Map<MemoryHazard.Type, Integer> conflicts = addressesConflicts.get(address);
-              final int numberOfConflicts = conflicts.get(conflict.getType());
-              conflicts.put(conflict.getType(), numberOfConflicts + 1);
+              final int numberOfConflicts = conflicts.get(type);
+              conflicts.put(type, numberOfConflicts + 1);
               addressConflict = true;
-              if (MipsMmu.get().pa.equals(conflict.getAddress().getVariable())) {
+              if (MipsMmu.get().pa.equals(address.getVariable())) {
                 addressConflict = true;
               }
-              if (MipsMmu.get().va.equals(conflict.getAddress().getVariable())) {
+              if (MipsMmu.get().va.equals(address.getVariable())) {
                 addressConflict = true;
               }
             }
@@ -214,27 +219,27 @@ public final class MemoryAccessStructureIteratorTestCase {
               System.out.println("conflict name: " + conflict.getFullName());
             }
 
-            conflictsType.put(conflict.getType(), conflictsType.get(conflict.getType()) + 1);
+            conflictsType.put(type, conflictsType.get(type) + 1);
 
-            if (conflict.getAddress() != null
-                && MipsMmu.get().pa.equals(conflict.getAddress().getVariable())
-                && MemoryHazard.Type.ADDR_EQUAL.equals(conflict.getType())) {
+            if (address != null
+                && MipsMmu.get().pa.equals(address.getVariable())
+                && MemoryHazard.Type.ADDR_EQUAL.equals(type)) {
               paEqual = true;
             }
 
-            if (conflict.getAddress() != null
-                && MipsMmu.get().va.equals(conflict.getAddress().getVariable())
-                && MemoryHazard.Type.ADDR_EQUAL.equals(conflict.getType())) {
+            if (address != null
+                && MipsMmu.get().va.equals(address.getVariable())
+                && MemoryHazard.Type.ADDR_EQUAL.equals(type)) {
               vaEqual = true;
             }
 
-            if (conflict.getDevice() != null && MipsMmu.get().l1.equals(conflict.getDevice())
-                && MemoryHazard.Type.TAG_EQUAL.equals(conflict.getType())) {
+            if (device != null && MipsMmu.get().l1.equals(device)
+                && MemoryHazard.Type.TAG_EQUAL.equals(type)) {
               l1TagEqual = true;
             }
 
-            if (conflict.getDevice() != null && MipsMmu.get().mem.equals(conflict.getDevice())
-                && MemoryHazard.Type.TAG_NOT_EQUAL.equals(conflict.getType())) {
+            if (device != null && MipsMmu.get().mem.equals(device)
+                && MemoryHazard.Type.TAG_NOT_EQUAL.equals(type)) {
               memTagNotEqual = true;
             }
 
