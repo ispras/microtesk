@@ -30,6 +30,7 @@ import ru.ispras.microtesk.mmu.translator.grammar.MmuParser;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.MmuSpecBuilder;
+import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
@@ -43,10 +44,21 @@ public final class MmuTranslator extends Translator<Ir> {
     addHandler(new MmuSpecBuilder());
   }
 
+  private final Preprocessor pp = new Preprocessor() {
+    @Override
+    public void includeTokensFromFile(final String filename) {
+      return;
+    }
+
+    @Override
+    public void includeTokensFromString(final String s) {
+      return;
+    }
+  };
+
   @Override
-  public void addPath(String path) {
-    // TODO Auto-generated method stub
-    
+  public void addPath(final String path) {
+    pp.addPath(path);
   }
 
   @Override
@@ -66,7 +78,7 @@ public final class MmuTranslator extends Translator<Ir> {
       final ANTLRReaderStream input = new ANTLRReaderStream(new FileReader(fileName));
       input.name = fileName;
 
-      final MmuLexer lexer = new MmuLexer(input);
+      final MmuLexer lexer = new MmuLexer(input, pp);
       final CommonTokenStream tokens = new CommonTokenStream(lexer);
 
       final MmuParser parser = new MmuParser(tokens);

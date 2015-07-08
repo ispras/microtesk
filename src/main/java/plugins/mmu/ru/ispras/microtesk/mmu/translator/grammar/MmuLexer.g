@@ -14,7 +14,7 @@
 
 lexer grammar MmuLexer;
 
-import CommonLexer;
+import commonLexer=CommonLexer;
 
 //==================================================================================================
 // Header for the generated Java class file.
@@ -38,6 +38,25 @@ import CommonLexer;
  */
 
 package ru.ispras.microtesk.mmu.translator.grammar;
+
+import ru.ispras.microtesk.translator.antlrex.Preprocessor;
+}
+
+@members {
+  private Preprocessor pp = null;
+
+  public MmuLexer(final CharStream chars, final Preprocessor pp) {
+    this(chars);
+
+    commonLexer.setPreprocessor(pp);
+    this.pp = pp;
+  }
+
+  private void pp() {
+    if(pp.isHidden()) {
+      skip();
+    }
+  }
 }
 
 //==================================================================================================
