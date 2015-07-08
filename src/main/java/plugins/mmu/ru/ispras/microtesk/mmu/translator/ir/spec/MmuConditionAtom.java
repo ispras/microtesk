@@ -38,57 +38,32 @@ public final class MmuConditionAtom {
     EQUAL_REPLACED,
   }
 
-  public static MmuConditionAtom not(final MmuConditionAtom equality) {
-    return new MmuConditionAtom(
-        equality.type, !equality.negation, equality.expression, equality.range);
-  }
+  //------------------------------------------------------------------------------------------------
+  // Positive Atomic Conditions
+  //------------------------------------------------------------------------------------------------
 
   public static MmuConditionAtom eq(final MmuExpression expression) {
     return new MmuConditionAtom(Type.EQUAL, false, expression);
-  }
-
-  public static MmuConditionAtom neq(final MmuExpression expression) {
-    return new MmuConditionAtom(Type.EQUAL, true, expression);
   }
 
   public static MmuConditionAtom eq(final MmuExpression expression, final BigInteger value) {
     return new MmuConditionAtom(Type.EQUAL_CONST, false, expression, value);
   }
 
-  public static MmuConditionAtom neq(final MmuExpression expression, final BigInteger value) {
-    return new MmuConditionAtom(Type.EQUAL_CONST, true, expression, value);
-  }
-
   public static MmuConditionAtom eq(final IntegerField field) {
     return eq(MmuExpression.field(field));
-  }
-
-  public static MmuConditionAtom neq(final IntegerField field) {
-    return neq(MmuExpression.field(field));
   }
 
   public static MmuConditionAtom eq(final IntegerVariable variable) {
     return eq(MmuExpression.var(variable));
   }
 
-  public static MmuConditionAtom neq(final IntegerVariable variable) {
-    return neq(MmuExpression.var(variable));
-  }
-
   public static MmuConditionAtom eq(final IntegerField field, final BigInteger value) {
     return eq(MmuExpression.field(field), value);
   }
 
-  public static MmuConditionAtom neq(final IntegerField field, final BigInteger value) {
-    return neq(MmuExpression.field(field), value);
-  }
-
   public static MmuConditionAtom eq(final IntegerVariable variable, final BigInteger value) {
     return eq(MmuExpression.var(variable), value);
-  }
-
-  public static MmuConditionAtom neq(final IntegerVariable variable, final BigInteger value) {
-    return neq(MmuExpression.var(variable), value);
   }
 
   public static MmuConditionAtom range(
@@ -96,19 +71,9 @@ public final class MmuConditionAtom {
     return new MmuConditionAtom(Type.RANGE, false, expression, new IntegerRange(min, max));
   }
 
-  public static MmuConditionAtom nrange(
-      final MmuExpression expression, final BigInteger min, final BigInteger max) {
-    return new MmuConditionAtom(Type.RANGE, true, expression, new IntegerRange(min, max));
-  }
-
   public static MmuConditionAtom range(
       final IntegerField field, final BigInteger min, final BigInteger max) {
     return range(MmuExpression.field(field), min, max);
-  }
-
-  public static MmuConditionAtom nrange(
-      final IntegerField field, final BigInteger min, final BigInteger max) {
-    return nrange(MmuExpression.field(field), min, max);
   }
 
   public static MmuConditionAtom range(
@@ -116,34 +81,81 @@ public final class MmuConditionAtom {
     return range(MmuExpression.var(variable), min, max);
   }
 
-  public static MmuConditionAtom nrange(
-      final IntegerVariable variable, final BigInteger min, final BigInteger max) {
-    return nrange(MmuExpression.var(variable), min, max);
-  }
-
   public static MmuConditionAtom eqReplaced(final MmuExpression expression) {
     return new MmuConditionAtom(Type.EQUAL_REPLACED, false, expression);
-  }
-
-  public static MmuConditionAtom neqReplaced(final MmuExpression expression) {
-    return new MmuConditionAtom(Type.EQUAL_REPLACED, true, expression);
   }
 
   public static MmuConditionAtom eqReplaced(final IntegerField field) {
     return eqReplaced(MmuExpression.field(field));
   }
 
-  public static MmuConditionAtom neqReplaced(final IntegerField field) {
-    return neqReplaced(MmuExpression.field(field));
-  }
-
   public static MmuConditionAtom eqReplaced(final IntegerVariable variable) {
     return eqReplaced(MmuExpression.var(variable));
+  }
+
+  //------------------------------------------------------------------------------------------------
+  // Negative Atomic Conditions
+  //------------------------------------------------------------------------------------------------
+
+  public static MmuConditionAtom not(final MmuConditionAtom equality) {
+    return new MmuConditionAtom(
+        equality.type, !equality.negation, equality.expression, equality.range);
+  }
+
+  public static MmuConditionAtom neq(final MmuExpression expression) {
+    return new MmuConditionAtom(Type.EQUAL, true, expression);
+  }
+
+  public static MmuConditionAtom neq(final MmuExpression expression, final BigInteger value) {
+    return new MmuConditionAtom(Type.EQUAL_CONST, true, expression, value);
+  }
+
+  public static MmuConditionAtom neq(final IntegerField field) {
+    return neq(MmuExpression.field(field));
+  }
+
+  public static MmuConditionAtom neq(final IntegerVariable variable) {
+    return neq(MmuExpression.var(variable));
+  }
+
+  public static MmuConditionAtom neq(final IntegerField field, final BigInteger value) {
+    return neq(MmuExpression.field(field), value);
+  }
+
+  public static MmuConditionAtom neq(final IntegerVariable variable, final BigInteger value) {
+    return neq(MmuExpression.var(variable), value);
+  }
+
+  public static MmuConditionAtom nrange(
+      final MmuExpression expression, final BigInteger min, final BigInteger max) {
+    return new MmuConditionAtom(Type.RANGE, true, expression, new IntegerRange(min, max));
+  }
+
+  public static MmuConditionAtom nrange(
+      final IntegerField field, final BigInteger min, final BigInteger max) {
+    return nrange(MmuExpression.field(field), min, max);
+  }
+
+  public static MmuConditionAtom nrange(
+      final IntegerVariable variable, final BigInteger min, final BigInteger max) {
+    return nrange(MmuExpression.var(variable), min, max);
+  }
+
+  public static MmuConditionAtom neqReplaced(final MmuExpression expression) {
+    return new MmuConditionAtom(Type.EQUAL_REPLACED, true, expression);
+  }
+
+  public static MmuConditionAtom neqReplaced(final IntegerField field) {
+    return neqReplaced(MmuExpression.field(field));
   }
 
   public static MmuConditionAtom neqReplaced(final IntegerVariable variable) {
     return neqReplaced(MmuExpression.var(variable));
   }
+
+  //------------------------------------------------------------------------------------------------
+  // Internals
+  //------------------------------------------------------------------------------------------------
 
   /** Equality type. */
   private final Type type;

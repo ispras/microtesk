@@ -25,7 +25,7 @@ import ru.ispras.microtesk.basis.solver.IntegerField;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class MmuAction {
+public final class MmuAction {
   /** Unique name. */
   private final String name;
   /** Device used in the action or {@code null}. */

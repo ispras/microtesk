@@ -18,28 +18,20 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 
 /**
- * {@link MmuGuard} describes a guard (transition activation condition).
+ * {@link MmuGuard} represents a guard, i.e. a transition activation condition.
  * 
- * @author <a href="mailto:protsenko@ispras.ru">Alexander Kamkin</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuGuard {
-  /** The operation: {@code LOAD}, {@code STORE} or {@code null} (any operation). */
+  /** Operation: {@code LOAD}, {@code STORE} or {@code null} (any operation). */
   private final MemoryOperation operation;
-  /** The device (buffer). */
+  /** Device (buffer). */
   private final MmuDevice device;
-  /** The event: {@code HIT} or {@code MISS}. */
+  /** Event: {@code HIT} or {@code MISS}. */
   private final BufferAccessEvent event;
-  /** The condition (set of equalities). */
+  /** Logical condition. */
   private final MmuCondition condition;
 
-  /**
-   * Constructs a guard.
-   * 
-   * @param operation the operation.
-   * @param device the device.
-   * @param event the event.
-   * @param condition the condition.
-   */
   public MmuGuard(
       final MemoryOperation operation,
       final MmuDevice device,
@@ -51,13 +43,6 @@ public final class MmuGuard {
     this.condition = condition;
   }
 
-  /**
-   * Constructs a guard.
-   * 
-   * @param device the device.
-   * @param event the event.
-   * @param condition the condition.
-   */
   public MmuGuard(
       final MmuDevice device,
       final BufferAccessEvent event,
@@ -65,76 +50,34 @@ public final class MmuGuard {
     this(null, device, event, condition);
   }
 
-  /**
-   * Constructs a guard.
-   * 
-   * @param device the device.
-   * @param event the event.
-   */
   public MmuGuard(final MmuDevice device, final BufferAccessEvent event) {
     this(null, device, event, null);
   }
 
-  /**
-   * Constructs a guard.
-   * 
-   * @param condition the condition.
-   */
   public MmuGuard(final MmuCondition condition) {
     this(null, null, null, condition);
   }
 
-  /**
-   * Constructs a guard.
-   * 
-   * @param operation the operation.
-   * @param condition the condition.
-   */
   public MmuGuard(final MemoryOperation operation, final MmuCondition condition) {
     this(operation, null, null, condition);
   }
 
-  /**
-   * Constructs a guard.
-   * 
-   * @param operation the operation.
-   */
   public MmuGuard(final MemoryOperation operation) {
     this(operation, null, null, null);
   }
 
-  /**
-   * Returns the device.
-   * 
-   * @return the device.
-   */
   public MmuDevice getDevice() {
     return device;
   }
 
-  /**
-   * Returns the operation.
-   * 
-   * @return the operation.
-   */
   public MemoryOperation getOperation() {
     return operation;
   }
 
-  /**
-   * Returns the event (does not make sense if {@code device == null}).
-   * 
-   * @return the event.
-   */
   public BufferAccessEvent getEvent() {
     return event;
   }
 
-  /**
-   * Returns the condition.
-   * 
-   * @return the condition.
-   */
   public MmuCondition getCondition() {
     return condition;
   }

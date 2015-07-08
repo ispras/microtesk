@@ -38,7 +38,7 @@ public final class MmuExpression {
   /**
    * Creates a concatenation of the fields.
    * 
-   * @param terms the fields to be concatenated.
+   * @param fields the fields to be concatenated.
    * @return the expression.
    */
   public static MmuExpression cat(final List<IntegerField> fields) {
@@ -66,7 +66,7 @@ public final class MmuExpression {
   /**
    * Creates a reversed concatenation of the fields.
    * 
-   * @param terms the fields to be concatenated.
+   * @param fields the fields to be concatenated.
    * @return the expression.
    */
   public static MmuExpression rcat(final List<IntegerField> fields) {
@@ -174,7 +174,9 @@ public final class MmuExpression {
 
     builder.append("{");
     for (final IntegerField field : terms) {
-      builder.append(comma ? separator : "");
+      if (comma) {
+        builder.append(separator);
+      }
       builder.append(field);
       comma = true;
     }

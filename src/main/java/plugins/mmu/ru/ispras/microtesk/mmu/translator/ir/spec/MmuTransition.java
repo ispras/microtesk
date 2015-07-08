@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link MmuTransition} describes a transition, which is a link between two actions.
+ * {@link MmuTransition} represents a transition, which is a link between two {@link MmuAction}.
  * 
  * <p>The description includes the source and the target actions as well as the guard condition that
  * activates the transition.</p>
@@ -35,13 +35,6 @@ public final class MmuTransition {
   /** Guard condition or {@code null} if the transition is interpreted as {@code goto}. */
   private final MmuGuard guard;
 
-  /**
-   * Constructs a guarded transition.
-   * 
-   * @param source the source action.
-   * @param target the target action.
-   * @param guard the guard condition or {@code null}.
-   */
   public MmuTransition(final MmuAction source, final MmuAction target, final MmuGuard guard) {
     InvariantChecks.checkNotNull(source);
     InvariantChecks.checkNotNull(target);
@@ -51,77 +44,47 @@ public final class MmuTransition {
     this.guard = guard;
   }
 
-  /**
-   * Constructs a transition with no guard.
-   * 
-   * @param source the source action.
-   * @param target the target action.
-   */
   public MmuTransition(final MmuAction source, final MmuAction target) {
     this(source, target, null);
   }
 
-  /**
-   * Checks whether the transition is enabled.
-   * 
-   * @return {@code true} if the transition is enabled; {@code false} otherwise.
-   */
   public boolean isEnabled() {
     return enabled;
   }
 
-  /**
-   * Sets the enabling flag.
-   * 
-   * @param enabled the flag indicating whether the transition is enabled.
-   */
   public void setEnabled(final boolean enabled) {
     this.enabled = enabled;
   }
 
-  /**
-   * Returns the source action of the transition.
-   * 
-   * @return the source action.
-   */
   public MmuAction getSource() {
     return source;
   }
 
-  /**
-   * Returns the target action of the transition.
-   * 
-   * @return the target action.
-   */
   public MmuAction getTarget() {
     return target;
   }
 
-  /**
-   * Returns the guard condition of the transition.
-   * 
-   * @return the guard condition.
-   */
   public MmuGuard getGuard() {
     return guard;
   }
 
   @Override
   public String toString() {
-    final StringBuilder string = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
 
-    string.append("Transition: {source: ");
-    string.append(source);
-    string.append(" -> guard:[");
-    if (this.guard != null) {
-      string.append(this.guard.toString());
-    } else {
-      string.append("null");
+    builder.append("[");
+    builder.append(source);
+    builder.append("]");
+    builder.append(" -> ");
+    if (guard != null) {
+      builder.append("]");
+      builder.append(guard);
+      builder.append("] -> ");
     }
-    string.append("] -> target: ");
-    string.append(target);
-    string.append("}");
+    builder.append("[");
+    builder.append(target);
+    builder.append("]");
 
-    return string.toString();
+    return builder.toString();
   }
 }
