@@ -126,13 +126,17 @@ shortcut(
   op_tree,
   branch,
   cond_branch,
-  except) ::= <<
+  except,
+  load,
+  store,
+  blocksize
+) ::= <<
 <class(["private", "static", "final"],
        shortcut_class(entry),
        "InfoAndRule",
        false,
        shortcut_body(name, is_root, entry, arg_names, arg_tnames, arg_types, op_tree,
-          branch, cond_branch, except))
+          branch, cond_branch, except, load, store, blocksize))
 >
 >>
 
@@ -148,19 +152,20 @@ shortcut_name(entry) ::= <<
 INFO_<entry>
 >>
 
-shortcut_body(name, is_root, entry, arg_names, arg_tnames, arg_types, op_tree, branch, cond_branch, except) ::= <<
+shortcut_body(name, is_root, entry, arg_names, arg_tnames, arg_types, op_tree, 
+              branch, cond_branch, except, load, store, blocksize) ::= <<
 <shortcut_class(entry)>() {
   super(
-    <entry>.class,
-    "<name>",
-    <is_root>,
-    <new_op_decls(arg_names, arg_tnames)>,
-    <branch>,
-    <cond_branch>,
-    <except>,
-    false,
-    false,
-    0
+      <entry>.class,
+      "<name>",
+      <is_root>,
+      <new_op_decls(arg_names, arg_tnames)>,
+      <branch>,
+      <cond_branch>,
+      <except>,
+      <load>,
+      <store>,
+      <blocksize>
   );
 }<\n>
 @Override

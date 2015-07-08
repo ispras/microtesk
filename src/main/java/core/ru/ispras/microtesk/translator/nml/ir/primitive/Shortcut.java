@@ -315,6 +315,21 @@ public final class Shortcut {
     return exception;
   }
 
+  public boolean isLoad() {
+    // TODO
+    return false;
+  }
+
+  public boolean isStore() {
+    // TODO
+    return false;
+  }
+
+  public int getBlockSize() {
+    // TODO
+    return 0;
+  }
+
   @Override
   public String toString() {
     final StringBuilder cnsb = new StringBuilder();

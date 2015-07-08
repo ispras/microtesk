@@ -209,6 +209,9 @@ final class STBOperation extends STBPrimitiveBase {
       shortcutST.add("branch", shortcut.isBranch());
       shortcutST.add("cond_branch", shortcut.isConditionalBranch());
       shortcutST.add("except", shortcut.canThrowException());
+      shortcutST.add("load", shortcut.isLoad());
+      shortcutST.add("store", shortcut.isStore());
+      shortcutST.add("blocksize", shortcut.getBlockSize()); 
 
       for (final Shortcut.Argument arg : shortcut.getArguments()) {
         final Primitive argType = arg.getType();
