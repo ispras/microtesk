@@ -1,15 +1,17 @@
 /*
- * Copyright (c) 2012 ISPRAS
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
- * Institute for System Programming of Russian Academy of Sciences
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
- * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * All rights reserved.
- * 
- * Operation.stg, Dec 7, 2012 3:27:59 PM Andrei Tatarnikov
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
- 
+
 group Operation;
 
 op(
@@ -72,26 +74,27 @@ info(
 >>
 
 info_body(name, is_root, arg_names, arg_types, arg_tnames, branch, cond_branch, except) ::= <<
-Info()
-{
-    super(
-       <name>.class,
-       "<name>",
-       <is_root>,
-       <new_op_decls(arg_names, arg_tnames)>,
-       <branch>,
-       <cond_branch>,
-       <except><if(shortcut_defs)>,
-       new Shortcuts()
-           <shortcut_defs; separator="\n">
-       <endif>
-    );
+Info() {
+  super(
+     <name>.class,
+     "<name>",
+     <is_root>,
+     <new_op_decls(arg_names, arg_tnames)>,
+     <branch>,
+     <cond_branch>,
+     <except>,
+     false,
+     false,
+     0<if(shortcut_defs)>,
+     new Shortcuts()
+         <shortcut_defs; separator="\n">
+     <endif>
+  );
 }<\n>
 @Override
-public IOperation create(Map\<String, Object\> args)
-{
-    <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
-    return new <name>(<arg_names :{n | <n>}; separator=", ">);
+public IOperation create(Map\<String, Object\> args) {
+  <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
+  return new <name>(<arg_names :{n | <n>}; separator=", ">);
 }
 >>
 
@@ -142,7 +145,10 @@ shortcut_body(name, is_root, entry, arg_names, arg_tnames, arg_types, op_tree, b
     <new_op_decls(arg_names, arg_tnames)>,
     <branch>,
     <cond_branch>, 
-    <except>
+    <except>,
+    false,
+    false,
+    0
   );
 }<\n>
 @Override
@@ -157,15 +163,14 @@ new <name>(<if(params)><\n><params:op_param(); separator=",\n"><\n><endif>)
 >>
 
 op_param(p) ::= <<
-    <p>
+  <p>
 >>
 
 ///////////////////////////////////////////////////////////////////////////////
 
 op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
 <if(arg_names)><arg_names, arg_types:{n, t | <op_arg_def(n, t)>}; separator="\n"><\n><endif>
-public <name>(<arg_names, arg_types:{n, t | <t> <n>}; separator=", ">)
-{
+public <name>(<arg_names, arg_types:{n, t | <t> <n>}; separator=", ">) {
 <if(arg_checks)><arg_checks; separator="\n"><\n><endif>
 <arg_names:op_arg_init(); separator="\n">
 }
@@ -176,23 +181,22 @@ private final <type> <name>;
 >>
 
 op_arg_check_opmode(arg_type, arg_name) ::= <<
-    assert <arg_type>.INFO.isSupported(<arg_name>);
+  assert <arg_type>.INFO.isSupported(<arg_name>);
 >>
 
 op_arg_check_imm(arg_type, arg_name) ::= <<
-    assert <arg_type>.equals(<arg_name>.getType());
+  assert <arg_type>.equals(<arg_name>.getType());
 >>
 
 op_arg_init(name) ::= <<
-    this.<name> = <name>;
+  this.<name> = <name>;
 >>
 
 ///////////////////////////////////////////////////////////////////////////////
 
 op_attribute(name, rettype, stmts, override) ::= <<
 <if(override)>@Override
-<endif>public <rettype> <name>()
-{
-    <stmts; separator="\n">
+<endif>public <rettype> <name>() {
+  <stmts; separator="\n">
 }
 >>

@@ -317,6 +317,9 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         final boolean isBranch,
         final boolean isConditionalBranch,
         final boolean canThrowException,
+        final boolean load,
+        final boolean store,
+        final int blockSize,
         final Shortcuts shortcuts) {
       this.opClass = opClass;
       this.name = name;
@@ -325,18 +328,18 @@ public abstract class Operation extends StandardFunctions implements IOperation 
       this.shortcuts = shortcuts;
 
       this.metaData = new MetaOperation(
-        name,
-        opClass.getSimpleName(),
-        isRoot(),
-        decls.getMetaData(),
-        shortcuts.getMetaData(),
-        isBranch,
-        isConditionalBranch,
-        canThrowException,
-        false, // TODO
-        false, // TODO
-        0      // TODO
-        );
+          name,
+          opClass.getSimpleName(),
+          isRoot(),
+          decls.getMetaData(),
+          shortcuts.getMetaData(),
+          isBranch,
+          isConditionalBranch,
+          canThrowException,
+          load,
+          store,
+          blockSize
+          );
     }
 
     public InfoAndRule(
@@ -346,7 +349,10 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         final ParamDecls decls,
         final boolean isBranch,
         final boolean isConditionalBranch,
-        final boolean canThrowException) {
+        final boolean canThrowException,
+        final boolean load,
+        final boolean store,
+        final int blockSize) {
       this(
           opClass,
           name,
@@ -355,6 +361,9 @@ public abstract class Operation extends StandardFunctions implements IOperation 
           isBranch,
           isConditionalBranch,
           canThrowException,
+          load,
+          store,
+          blockSize,
           new Shortcuts()
           );
     }
