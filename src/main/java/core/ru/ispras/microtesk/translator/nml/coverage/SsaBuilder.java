@@ -689,16 +689,23 @@ final class SsaBuilder {
     final DataType sourceType = Converter.getDataTypeForModel(atom.getSource().getType());
     final DataType targetType = Converter.getDataTypeForModel(atom.getType());
 
-    Node index;
-    DataType baseType;
+    Node index = null;
+    DataType baseType = sourceType;
 
     if (atom.getIndex() != null) {
-      // Array type with Integer indices represented with BitVector 32
-      index = convertExpression(atom.getIndex().getNode());
-      baseType = DataType.MAP(DataType.BIT_VECTOR(32), sourceType);
-    } else {
-      index = null;
-      baseType = sourceType;
+      // only ESymbolKind.MEMORY can be indexed
+      final MemoryExpr memory =
+          ((LocationAtom.MemorySource) atom.getSource()).getMemory();
+
+      // get required bitsize of index
+      final int size =
+          memory.getSizeExpr().bigIntegerValue().subtract(BigInteger.ONE).bitLength();
+
+      // 'var x[type]' is considered as array of length 1 allowing x[0], skip
+      if (size > 0) {
+        index = convertExpression(atom.getIndex().getNode());
+        baseType = DataType.MAP(DataType.BIT_VECTOR(size), sourceType);
+      }
     }
 
     final Variable base = new Variable(name, baseType);
