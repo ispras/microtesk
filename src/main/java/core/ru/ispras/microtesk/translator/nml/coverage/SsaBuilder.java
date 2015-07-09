@@ -26,6 +26,7 @@ import static ru.ispras.microtesk.translator.nml.coverage.Expression.SELECT;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.STORE;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.TRUE;
 
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
