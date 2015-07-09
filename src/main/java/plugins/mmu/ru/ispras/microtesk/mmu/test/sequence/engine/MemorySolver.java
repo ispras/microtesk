@@ -45,10 +45,10 @@ import ru.ispras.microtesk.utils.function.UnaryOperator;
 
 /**
  * {@link MemorySolver} implements a solver of memory-related constraints (hit, miss, etc.)
- * specified in a test template.
+ * specified in a memory access structure.
  * 
- * <p>The input is a test template (an object of {@link MemoryAccessStructure}); the output is a solution
- * (an object of {@link MemorySolution}).</p>
+ * <p>The input is a memory access structure (an object of {@link MemoryAccessStructure});
+ * the output is a solution (an object of {@link MemorySolution}).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -119,7 +119,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final Map<Integer, Set<MmuDevice>> handledDevices = new LinkedHashMap<>();
 
   private final MmuSubsystem memory;
-  private final MemoryAccessStructure template;
+  private final MemoryAccessStructure structure;
 
   private MemorySolution solution;
 
@@ -128,10 +128,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   /**
-   * Constructs a solver for the given test template.
+   * Constructs a solver for the given memory access structure.
    * 
    * @param memory the memory subsystem specification.
-   * @param template the memory access structure.
+   * @param structure the memory access structure.
    * @param testDataConstructor the test data constructor.
    * @param testDataCorrector the test data corrector.
    * @param tagAllocators the tag allocators.
@@ -142,7 +142,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   public MemorySolver(
       final MmuSubsystem memory,
-      final MemoryAccessStructure template,
+      final MemoryAccessStructure structure,
       final Function<MemoryAccess, MemoryTestData> testDataConstructor,
       final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector,
       final Map<MmuDevice, Predicate<MemoryAccess>> deviceGuards,
@@ -160,7 +160,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(entryProviders);
 
     this.memory = memory;
-    this.template = template;
+    this.structure = structure;
 
     this.testDataConstructor = testDataConstructor;
     this.testDataCorrector = testDataCorrector;
@@ -173,10 +173,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   @Override
   public SolverResult<MemorySolution> solve() {
-    solution = new MemorySolution(memory, template);
+    solution = new MemorySolution(memory, structure);
 
     SolverResult<MemorySolution> result = null;
-    for (int j = 0; j < template.size(); j++) {
+    for (int j = 0; j < structure.size(); j++) {
       result = solve(j);
 
       if (result.getStatus() == SolverResult.Status.UNSAT) {
@@ -199,15 +199,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private SolverResult<MemorySolution> solveAlignConstraint(
       final int j, final MmuAddress addrType) {
 
-    final MemoryAccess execution = template.getAccess(j);
+    final MemoryAccess execution = structure.getAccess(j);
     final MemoryTestData testData = solution.getTestData(j);
 
     DataType maxType = execution.getDataType();
 
     // Get the maximal data type among the dependent instructions.
     for (int k = j + 1; k < solution.size(); k++) {
-      final MemoryAccess nextExecution = template.getAccess(k);
-      final MemoryUnitedDependency nextDependency = template.getUnitedDependency(k);
+      final MemoryAccess nextExecution = structure.getAccess(k);
+      final MemoryUnitedDependency nextDependency = structure.getUnitedDependency(k);
       final Set<Integer> addrEqualRelation = nextDependency.getAddrEqualRelation(addrType);
 
       if (addrEqualRelation.contains(j)) {
@@ -250,7 +250,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return new SolverResult<>(solution);
     }
 
-    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(device);
 
     // Check whether the previous instructions load the data into the buffer.
@@ -285,7 +285,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     solution.getLoader().addLoads(device, BufferAccessEvent.HIT, address, sequence);
 
     // Loading data into the buffer may load them into the previous buffers.
-    final MemoryAccess execution = template.getAccess(j);
+    final MemoryAccess execution = structure.getAccess(j);
     final List<MmuDevice> devices = execution.getDevices();
 
     // Scan the devices of the same address type in reverse order.
@@ -322,7 +322,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveMissConstraint(final int j, final MmuDevice device) {
-    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     if (!FilterAccessThenMiss.test(device, dependency)) {
       return new SolverResult<>(String.format("Miss constraint violation for device %s", device));
@@ -385,8 +385,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solveEntryConstraint(final int j, final MmuDevice device) {
     final MemoryTestData testData = solution.getTestData(j);
-    final MemoryAccess execution = template.getAccess(j);
-    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryAccess execution = structure.getAccess(j);
+    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final MmuAddress addrType = device.getAddress();
 
     final long address = testData.getAddress(addrType);
@@ -444,7 +444,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final int j, final MmuAddress addrType) {
     final MemoryTestData testData = solution.getTestData(j);
 
-    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
 
     // The instruction uses the same address as one of the previous instructions.
@@ -473,7 +473,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryTestData testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
-    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(device);
 
     if (!indexEqualRelation.isEmpty()) {
@@ -511,7 +511,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryTestData testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
-    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(device);
 
     // Instruction uses the same tag and the same index as one of the previous instructions.
@@ -553,8 +553,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Map<Integer, Long> replacedTags = new LinkedHashMap<>();
 
     for (int i = 0; i <= j; i++) {
-      final MemoryAccess execution = template.getAccess(i);
-      final MemoryUnitedDependency dependency = template.getUnitedDependency(i);
+      final MemoryAccess execution = structure.getAccess(i);
+      final MemoryUnitedDependency dependency = structure.getUnitedDependency(i);
       final MemoryTestData testData = solution.getTestData(i);
 
       final long address = testData.getAddress(addrType);
@@ -610,7 +610,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     handledDevicesForExecution.add(device);
 
-    final MemoryAccess execution = template.getAccess(j);
+    final MemoryAccess execution = structure.getAccess(j);
     final Predicate<MemoryAccess> deviceGuard = deviceGuards.get(device);
 
     // If the buffer access event is null, the situation is considered to be a hit.
@@ -663,14 +663,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   /**
-   * Handles the given instruction call (execution) of the test template.
+   * Handles the given instruction call (execution) of the memory access structure.
    * 
    * @param j the execution index.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solve(final int j) {
-    final MemoryAccess execution = template.getAccess(j);
-    final MemoryUnitedDependency dependency = template.getUnitedDependency(j);
+    final MemoryAccess execution = structure.getAccess(j);
+    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct initial test data for the execution.
     final MemoryTestData testData = testDataConstructor.apply(execution);
@@ -694,7 +694,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         // Paranoid check.
         final long addr = testData.getAddress(addrType);
 
-        if (!testData.getType().isAligned(addr)) {
+        if (!testData.getDataType().isAligned(addr)) {
           throw new IllegalStateException(
               String.format("Unaligned address after solving AddrEqual constraints: %x", addr));
         }
@@ -781,7 +781,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MmuAddress addrType = device.getAddress();
 
     // TODO: This check can be optimized.
-    final MemoryAccess execution = template.getAccess(j);
+    final MemoryAccess execution = structure.getAccess(j);
     final List<MmuAddress> addresses = execution.getAddresses();
 
     // TODO: This is not accurate if addrType = VA, prevAddrType = PA. 

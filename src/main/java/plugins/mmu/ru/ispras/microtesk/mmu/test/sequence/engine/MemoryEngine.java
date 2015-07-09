@@ -56,7 +56,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private final Map<MmuDevice, TriConsumer<MemoryAccess, MemoryTestData, Object>> entryProviders;
 
   // TODO: to be parameters.
-  private MemoryAccessStructure template;
+  private MemoryAccessStructure structure;
   private MemorySolution solution;
 
   public MemoryEngine(
@@ -102,8 +102,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   @Override
   public EngineResult<MemorySolution> solve(
       final EngineContext engineContext, final List<Call> abstractSequence) {
-    InvariantChecks.checkNotNull(engineContext);
-
     final Iterator<MemoryAccessStructure> structureIterator =
         getStructureIterator(abstractSequence);
     final Iterator<MemorySolution> solutionIterator =
@@ -114,11 +112,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   private Iterator<MemoryAccessStructure> getStructureIterator(
       final List<Call> abstractSequence) {
-    InvariantChecks.checkNotNull(abstractSequence);
-
     // TODO: Compatibility with MMU TestGen.
     if (iterator != null) {
-      return null;
+      return iterator;
     }
 
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
@@ -145,12 +141,11 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return new Iterator<MemorySolution>() {
       private MemorySolution getSolution() {
         while (structureIterator.hasValue()) {
-          template = structureIterator.value();
-          solution = new MemorySolution(memory, template);
+          structure = structureIterator.value();
 
           final MemorySolver solver = new MemorySolver(
               memory,
-              template,
+              structure,
               testDataConstructor,
               testDataCorrector,
               deviceGuards,
@@ -162,6 +157,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           SolverResult<MemorySolution> result = solver.solve();
 
           if (result != null && result.getStatus() == SolverResult.Status.SAT) {
+            solution = result.getResult();
             break;
           }
 

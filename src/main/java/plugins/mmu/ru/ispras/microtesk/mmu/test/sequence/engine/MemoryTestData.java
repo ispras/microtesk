@@ -92,7 +92,7 @@ public final class MemoryTestData {
    * @return {@link DataType#BYTE}, {@link DataType#HWORD}, {@link DataType#WORD}, or
    *         {@link DataType#DWORD}.
    */
-  public DataType getType() {
+  public DataType getDataType() {
     return execution.getDataType();
   }
 
