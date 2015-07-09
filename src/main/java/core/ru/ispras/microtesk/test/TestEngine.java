@@ -602,16 +602,7 @@ public final class TestEngine {
     private void processPreOrPostBlock(final Block block) throws ConfigurationException {
       Logger.debugHeader("Generating Data");
       final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
-
-      for (final TestSequence concreteSequence : concreteSequences) {
-        Logger.debugHeader("Executing");
-        executor.executeSequence(concreteSequence, Label.NO_SEQUENCE_INDEX);
-
-        Logger.debugHeader("Printing to %s", fileName);
-        printer.printSequence(concreteSequence);
-
-        STATISTICS.instructionCount += concreteSequence.getInstructionCount();
-      }
+      executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences);
     }
 
     /**
@@ -681,6 +672,19 @@ public final class TestEngine {
       testSequenceEngine.configure(block.getAttributes());
 
       return testSequenceEngine;
+    }
+
+    private void executeAndPrintTestSequencesOfPreOrPostBlock(
+        final List<TestSequence> concreteSequences) throws ConfigurationException {
+      for (final TestSequence concreteSequence : concreteSequences) {
+        Logger.debugHeader("Executing");
+        executor.executeSequence(concreteSequence, Label.NO_SEQUENCE_INDEX);
+
+        Logger.debugHeader("Printing to %s", fileName);
+        printer.printSequence(concreteSequence);
+
+        STATISTICS.instructionCount += concreteSequence.getInstructionCount();
+      }
     }
 
     private static String blockAttribute(final Block block,
