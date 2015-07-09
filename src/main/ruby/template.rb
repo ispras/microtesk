@@ -553,13 +553,13 @@ class Template
   end
 
   def data(&contents)
-    puts "Defining data..."
-
     if nil == @data_manager
       raise MTRubyError, "Data configuration is not defined"
     end
 
+    @template.beginData
     @data_manager.instance_eval &contents
+    @template.endData
   end
 
   # -------------------------------------------------------------------------- #

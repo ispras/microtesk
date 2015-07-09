@@ -605,4 +605,12 @@ public final class Template {
     processor.defineExceptionHandler(handler);
     isExceptionHandlerDefined = true;
   }
+
+  public void beginData() {
+    Logger.debug("Begin Data");
+  }
+
+  public void endData() {
+    Logger.debug("End Data");
+  }
 }
