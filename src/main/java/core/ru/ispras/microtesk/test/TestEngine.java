@@ -392,7 +392,7 @@ public final class TestEngine {
       this.needCreateNewFile = true;
     }
 
-    private Block preBlock = null;
+    private List<TestSequence> preBlockTestSequences = null;
     private Block postBlock = null;
     private Statistics before;
     private String fileName;
@@ -408,7 +408,11 @@ public final class TestEngine {
       InvariantChecks.checkNotNull(block);
 
       if (section == Section.PRE) {
-        preBlock = block;
+        try {
+          preBlockTestSequences = buildTestSequencesForPreOrPost(block);
+        } catch (ConfigurationException e) {
+          Logger.error(e.getMessage());
+        }
         return;
       }
 
@@ -496,9 +500,9 @@ public final class TestEngine {
             printer.printHeaderToFile("Prologue");
             printer.printToFile("");
 
-            if (!preBlock.isEmpty()) {
+            if (!preBlockTestSequences.isEmpty()) {
               try {
-                processPreOrPostBlock(preBlock);
+                executeAndPrintTestSequencesOfPreOrPostBlock(preBlockTestSequences);
               } catch (ConfigurationException e) {
                 Logger.error(e.getMessage());
               }
@@ -600,7 +604,6 @@ public final class TestEngine {
     }
 
     private void processPreOrPostBlock(final Block block) throws ConfigurationException {
-      Logger.debugHeader("Generating Data");
       final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
       executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences);
     }
