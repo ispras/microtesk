@@ -101,10 +101,9 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
       final TestSequence sequence = sequenceBuilder.build();
 
-      long codeAddress = engineContext.getAddress();
-      sequence.setAddress(codeAddress);
-      codeAddress += sequence.getByteSize();
-      engineContext.setAddress(codeAddress);
+      final long baseAddress = engineContext.getAddress();
+      final long newAddress = sequence.setAddress(baseAddress);
+      engineContext.setAddress(newAddress);
 
       return sequence;
     } finally {

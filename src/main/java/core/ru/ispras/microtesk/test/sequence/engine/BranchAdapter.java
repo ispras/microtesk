@@ -197,10 +197,9 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
     final TestSequence testSequence = testSequenceBuilder.build();
 
-    long codeAddress = engineContext.getAddress();
-    testSequence.setAddress(codeAddress);
-    codeAddress += testSequence.getByteSize();
-    engineContext.setAddress(codeAddress);
+    final long baseAddress = engineContext.getAddress();
+    final long newAddress = testSequence.setAddress(baseAddress);
+    engineContext.setAddress(newAddress);
 
     return new AdapterResult(testSequence);
   }
