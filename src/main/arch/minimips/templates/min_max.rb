@@ -45,6 +45,8 @@ class MinMaxTemplate < MiniMipsBaseTemplate
 
     trace_data :data, :end
 
+    org 0x00020000
+
     la t0, :data
     la t1, :end
 

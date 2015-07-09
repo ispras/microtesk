@@ -131,6 +131,10 @@ final class Executor {
       logOutputs(call.getOutputs());
       logLabels(call.getLabels());
 
+      if (call.getOrigin() != null) {
+        logText(String.format(".org 0x%x", call.getOrigin()));
+      }
+
       if (!call.isExecutable()) {
         if (index == endIndex) break;
         index++;

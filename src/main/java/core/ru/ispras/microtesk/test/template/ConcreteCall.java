@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ public final class ConcreteCall {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
   private final InstructionCall executable;
+  private final BigInteger origin;
 
   private long address = 0;
   private String text = null;
@@ -42,6 +44,7 @@ public final class ConcreteCall {
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
+    this.origin = abstractCall.getOrigin();
   }
 
   public ConcreteCall(
@@ -56,6 +59,7 @@ public final class ConcreteCall {
     this.labelRefs = labelRefs;
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
+    this.origin = abstractCall.getOrigin();
   }
 
   public ConcreteCall(final Call abstractCall) {
@@ -65,6 +69,7 @@ public final class ConcreteCall {
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = null;
+    this.origin = abstractCall.getOrigin();
   }
 
   public ConcreteCall(final InstructionCall executable) {
@@ -74,6 +79,7 @@ public final class ConcreteCall {
     this.labelRefs = Collections.<LabelReference>emptyList();
     this.outputs = Collections.<Output>emptyList();
     this.executable = executable;
+    this.origin = null;
   }
 
   private static List<Label> copyLabels(final List<Label> labels) {
@@ -160,5 +166,9 @@ public final class ConcreteCall {
 
   public void setAddress(final long address) {
     this.address = address;
+  }
+
+  public BigInteger getOrigin() {
+    return origin;
   }
 }
