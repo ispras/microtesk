@@ -25,8 +25,10 @@ import java.util.TreeMap;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.AddressView;
 import ru.ispras.microtesk.utils.function.Function;
+import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
  * {@link MmuDevice} describes an MMU device (buffer).
@@ -54,6 +56,11 @@ public final class MmuDevice {
   private final MmuExpression indexExpression;
   /** The offset calculation function. */
   private final MmuExpression offsetExpression;
+
+  /** Guard condition (only for views). */
+  private final MmuCondition guardCondition;
+  // TODO: Temporal solution.
+  private final Predicate<MemoryAccess> guard;
 
   /** The flag indicating whether the device supports data replacement. */
   private final boolean replaceable;
@@ -88,9 +95,6 @@ public final class MmuDevice {
    * @param offsetExpression the offset calculation function.
    * @param replaceable the flag indicating that data stored in the device are replaceable.
    * @param parent TODO
-   * 
-   * @throws NullPointerException if some parameters are null.
-   * @throws IllegalArgumentException of the address calculation function cannot be reconstructed.
    */
   public MmuDevice(
       final String name,
@@ -100,6 +104,8 @@ public final class MmuDevice {
       final MmuExpression tagExpression,
       final MmuExpression indexExpression,
       final MmuExpression offsetExpression,
+      final MmuCondition guardCondition,
+      final Predicate<MemoryAccess> guard,
       final boolean replaceable,
       final MmuDevice parent) {
 
@@ -112,10 +118,16 @@ public final class MmuDevice {
     this.name = name;
     this.ways = ways;
     this.sets = sets;
+
     this.address = address;
+
     this.tagExpression = tagExpression;
     this.indexExpression = indexExpression;
     this.offsetExpression = offsetExpression;
+
+    this.guardCondition = guardCondition;
+    this.guard = guard;
+
     this.replaceable = replaceable;
 
     // TODO:
@@ -139,8 +151,7 @@ public final class MmuDevice {
         indexVariable,
         indexExpression,
         offsetVariable,
-        offsetExpression
-        );
+        offsetExpression);
 
     addressView = new AddressView<Long>(new Function<Long, List<Long>>() {
       @Override
@@ -384,6 +395,14 @@ public final class MmuDevice {
    */
   public long getAddress(long tag, long index, long offset) {
     return addressView.getAddress(tag, index, offset);
+  }
+
+  // TODO:
+  public boolean checkGuard(final MemoryAccess access) {
+    InvariantChecks.checkNotNull(access);
+    InvariantChecks.checkTrue((guardCondition == null) == (guard == null));
+
+    return guard != null ? guard.test(access) : true;
   }
 
   /**

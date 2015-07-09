@@ -38,7 +38,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
-import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.Supplier;
 import ru.ispras.microtesk.utils.function.TriConsumer;
 import ru.ispras.microtesk.utils.function.UnaryOperator;
@@ -56,7 +55,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Refers to the test data constructor.
    * 
-   * <p>A test data constructor is a user-defined function that maps an execution path (an object
+   * <p>A test data constructor is a user-defined function that maps a memory access (an object
    * of {@link MemoryAccess}) to the test data (an object of {@link MemoryTestData}).</p>
    */
   private final Function<MemoryAccess, MemoryTestData> testDataConstructor;
@@ -68,14 +67,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * (an object of {@link MemoryTestData}) after solving the constraints.</p>
    */
   private final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector;
-
-  /**
-   * Given a device, contains the guard condition.
-   * 
-   * <p>A guard condition is a user-defined predicate over execution paths (objects of {@link
-   * MemoryAccess}) that defines whether the execution affects the device state or not.</p>
-   */
-  private final Map<MmuDevice, Predicate<MemoryAccess>> deviceGuards;
 
   /**
    * Given a replaceable device (e.g. a cache unit), contains the tag allocator.
@@ -105,7 +96,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Given a non-replaceable device, contains the entry provider.
    * 
    * <p>An entry provider is a user-defined function that fills a given entry with appropriate data
-   * (the data are produced on the basis the execution path and the test data).</p>
+   * (the data are produced on the basis the memory access and the test data).</p>
    */
   private final Map<MmuDevice, TriConsumer<MemoryAccess, MemoryTestData, Object>> entryProviders;
 
@@ -115,7 +106,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Given a device, contains indices for which replacing sequences have been constructed. */
   private final Map<MmuDevice, Set<Long>> deviceReplacedIndices = new LinkedHashMap<>();
 
-  /** Given an execution index, contains the devices having been processed. */
+  /** Given an access index, contains the devices having been processed. */
   private final Map<Integer, Set<MmuDevice>> handledDevices = new LinkedHashMap<>();
 
   private final MmuSubsystem memory;
@@ -145,7 +136,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MemoryAccessStructure structure,
       final Function<MemoryAccess, MemoryTestData> testDataConstructor,
       final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector,
-      final Map<MmuDevice, Predicate<MemoryAccess>> deviceGuards,
       final Map<MmuDevice, UnaryOperator<Long>> tagAllocators,
       final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
@@ -153,7 +143,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(testDataConstructor);
-    InvariantChecks.checkNotNull(deviceGuards);
     InvariantChecks.checkNotNull(tagAllocators);
     InvariantChecks.checkNotNull(entryIdAllocators);
     InvariantChecks.checkNotNull(entryConstructors);
@@ -164,7 +153,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     this.testDataConstructor = testDataConstructor;
     this.testDataCorrector = testDataCorrector;
-    this.deviceGuards = deviceGuards;
     this.tagAllocators = tagAllocators;
     this.entryIdAllocators = entryIdAllocators;
     this.entryConstructors = entryConstructors;
@@ -192,17 +180,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * 
    * <p>The approach works only if the address equality relation is transitively closed.</p>
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param addrType the address type to be aligned.
    * @return the solution.
    */
   private SolverResult<MemorySolution> solveAlignConstraint(
       final int j, final MmuAddress addrType) {
 
-    final MemoryAccess execution = structure.getAccess(j);
+    final MemoryAccess access = structure.getAccess(j);
     final MemoryTestData testData = solution.getTestData(j);
 
-    DataType maxType = execution.getDataType();
+    DataType maxType = access.getDataType();
 
     // Get the maximal data type among the dependent instructions.
     for (int k = j + 1; k < solution.size(); k++) {
@@ -231,7 +219,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the HIT constraint.
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
@@ -285,8 +273,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     solution.getLoader().addLoads(device, BufferAccessEvent.HIT, address, sequence);
 
     // Loading data into the buffer may load them into the previous buffers.
-    final MemoryAccess execution = structure.getAccess(j);
-    final List<MmuDevice> devices = execution.getDevices();
+    final MemoryAccess access = structure.getAccess(j);
+    final List<MmuDevice> devices = access.getDevices();
 
     // Scan the devices of the same address type in reverse order.
     boolean found = false;
@@ -302,7 +290,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         continue;
       }
 
-      if (execution.getEvent(prevDevice) == BufferAccessEvent.MISS) {
+      if (access.getEvent(prevDevice) == BufferAccessEvent.MISS) {
         final SolverResult<MemorySolution> result = solveMissConstraint(j, prevDevice);
 
         if (result.getStatus() == SolverResult.Status.UNSAT) {
@@ -317,7 +305,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the MISS constraint.
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
@@ -379,13 +367,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the HIT constraint for the given non-replaceable device.
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveEntryConstraint(final int j, final MmuDevice device) {
     final MemoryTestData testData = solution.getTestData(j);
-    final MemoryAccess execution = structure.getAccess(j);
+    final MemoryAccess access = structure.getAccess(j);
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final MmuAddress addrType = device.getAddress();
 
@@ -402,7 +390,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       // Update the entry (the map contains one entry).
       for (final Object entry : entries.values()) {
-        entryProviders.get(device).accept(execution, testData, entry);
+        entryProviders.get(device).accept(access, testData, entry);
       }
 
       testData.setEntries(device, entries);
@@ -424,7 +412,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
 
       // Filling the entry with appropriate data.
-      entryProvider.accept(execution, testData, deviceEntry);
+      entryProvider.accept(access, testData, deviceEntry);
 
       testData.addEntry(device, deviceEntryId, deviceEntry);
       solution.addEntry(device, deviceEntryId, deviceEntry);
@@ -436,7 +424,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the ADDR-EQUAL constraint ({@code ADDR[j] == ADDR[i]}).
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param addrType the address type.
    * @return the partial solution.
    */
@@ -464,7 +452,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the INDEX-EQUAL constraint ({@code INDEX[j] == INDEX[i]}).
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
@@ -502,7 +490,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the TAG-EQUAL constraint ({@code INDEX[j] == INDEX[i] && TAG[j] == TAG[i]}).
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
@@ -531,17 +519,16 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   /**
-   * Predicts replacements in the device (buffer) up to the {@code j} execution and solve the
+   * Predicts replacements in the device (buffer) up to the {@code j} access and solve the
    * corresponding constraints.
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveTagReplacedConstraints(
       final int j, final MmuDevice device) {
     final MmuAddress addrType = device.getAddress();
-    final Predicate<MemoryAccess> guard = deviceGuards.get(device);
 
     // TODO: int -> long
     final BufferStateTracker<Long> stateTracker = new BufferStateTracker<>(
@@ -549,11 +536,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     stateTracker.access(solution.getLoader().prepareLoads(addrType));
 
-    // Maps execution indices to the replaced tags.
+    // Maps access indices to the replaced tags.
     final Map<Integer, Long> replacedTags = new LinkedHashMap<>();
 
     for (int i = 0; i <= j; i++) {
-      final MemoryAccess execution = structure.getAccess(i);
+      final MemoryAccess access = structure.getAccess(i);
       final MemoryUnitedDependency dependency = structure.getUnitedDependency(i);
       final MemoryTestData testData = solution.getTestData(i);
 
@@ -562,7 +549,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final long offset = device.getOffset(address);
 
       // Check the device access condition.
-      if (execution.contains(device) && guard.test(execution)) {
+      if (access.contains(device) && device.checkGuard(access)) {
         final Long replacedTag = stateTracker.access(address);
 
         if (replacedTag != null) {
@@ -593,7 +580,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solve hit/miss constraints specified for the given device.
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param device the device under scrutiny.
    * @return the partial solution.
    */
@@ -610,12 +597,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     handledDevicesForExecution.add(device);
 
-    final MemoryAccess execution = structure.getAccess(j);
-    final Predicate<MemoryAccess> deviceGuard = deviceGuards.get(device);
+    final MemoryAccess access = structure.getAccess(j);
 
     // If the buffer access event is null, the situation is considered to be a hit.
-    // The event is null, if the device is a parent of some view and is not in the execution. 
-    final BufferAccessEvent realEvent = execution.getEvent(device);
+    // The event is null, if the device is a parent of some view and is not in the access. 
+    final BufferAccessEvent realEvent = access.getEvent(device);
     final BufferAccessEvent usedEvent = realEvent == null ? BufferAccessEvent.HIT : realEvent;
 
     // The device is a view of another device (e.g., DTLB is a view of JTLB).
@@ -625,9 +611,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final boolean canBeAccessed =
         // The parent access event is a hit or null, but not a miss.
-        !device.isView() || execution.getEvent(device.getParent()) != BufferAccessEvent.MISS;
+        !device.isView() || access.getEvent(device.getParent()) != BufferAccessEvent.MISS;
 
-    if (canBeAccessed && deviceGuard.test(execution)) {
+    if (canBeAccessed && device.checkGuard(access)) {
       SolverResult<MemorySolution> result = null;
 
       if (device.isReplaceable()) {
@@ -654,7 +640,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         return result;
       }
     } else {
-      if (execution.getEvent(device) == BufferAccessEvent.HIT) {
+      if (access.getEvent(device) == BufferAccessEvent.HIT) {
         return new SolverResult<>(String.format("Constraint violation for device %s", device));
       }
     }
@@ -663,17 +649,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   /**
-   * Handles the given instruction call (execution) of the memory access structure.
+   * Handles the given instruction call (access) of the memory access structure.
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solve(final int j) {
-    final MemoryAccess execution = structure.getAccess(j);
+    final MemoryAccess access = structure.getAccess(j);
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
-    // Construct initial test data for the execution.
-    final MemoryTestData testData = testDataConstructor.apply(execution);
+    // Construct initial test data for the access.
+    final MemoryTestData testData = testDataConstructor.apply(access);
     solution.setTestData(j, testData);
 
     // Align the addresses.
@@ -716,7 +702,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Solve the hit and miss constraints for the devices.
-    final List<MmuDevice> devices = execution.getDevices();
+    final List<MmuDevice> devices = access.getDevices();
 
     for (final MmuDevice device : devices) {
       final SolverResult<MemorySolution> result = solveDeviceConstraint(j, device);
@@ -727,7 +713,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Correct the solution.
-    testDataCorrector.accept(execution, testData);
+    testDataCorrector.accept(access, testData);
 
     return new SolverResult<MemorySolution>(solution);
   }
@@ -771,9 +757,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   /**
-   * Checks whether a hit into the given device is possible for the given execution.
+   * Checks whether a hit into the given device is possible for the given access.
    * 
-   * @param j the execution index.
+   * @param j the access index.
    * @param device the MMU device (buffer).
    * @return {@code false} if a hit is infeasible; {@code true} if a hit is possible.
    */
@@ -781,8 +767,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MmuAddress addrType = device.getAddress();
 
     // TODO: This check can be optimized.
-    final MemoryAccess execution = structure.getAccess(j);
-    final List<MmuAddress> addresses = execution.getAddresses();
+    final MemoryAccess access = structure.getAccess(j);
+    final List<MmuAddress> addresses = access.getAddresses();
 
     // TODO: This is not accurate if addrType = VA, prevAddrType = PA. 
     for (final MmuAddress prevAddrType : addresses) {

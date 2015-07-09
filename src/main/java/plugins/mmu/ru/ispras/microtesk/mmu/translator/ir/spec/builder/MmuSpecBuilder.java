@@ -149,6 +149,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           addressFormat.getTagExpr(),
           addressFormat.getIndexExpr(),
           addressFormat.getOffsetExpr(),
+          null, null, // TODO: Guard
           isReplaceable,
           parentDevice
           );

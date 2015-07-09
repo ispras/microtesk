@@ -59,7 +59,7 @@ public class MmuDeviceTestCase {
       MmuExpression.var(VA, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
-      false, null);
+      null, null, false, null);
 
   static {
     JTLB.addField(new IntegerVariable("VPN2", 27));
@@ -81,7 +81,7 @@ public class MmuDeviceTestCase {
       MmuExpression.var(VA, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
-      true, JTLB);
+      null, null, true, JTLB);
 
   static {
     DTLB.addField(new IntegerVariable("VPN2", 27));
@@ -126,7 +126,7 @@ public class MmuDeviceTestCase {
       MmuExpression.var(PA, 12, 35), // Tag
       MmuExpression.var(PA, 5, 11), // Index
       MmuExpression.var(PA, 0, 4), // Offset
-      true, null);
+      null, null, true, null);
 
   static {
     L1.addField(new IntegerVariable("TAG", 24));
@@ -159,7 +159,7 @@ public class MmuDeviceTestCase {
       MmuExpression.var(PA, 17, 35), // Tag
       MmuExpression.var(PA, 5, 16), // Index
       MmuExpression.var(PA, 0, 4), // Offset
-      true, null);
+      null, null, true, null);
 
   static {
     L1.addField(new IntegerVariable("TAG", 19));
@@ -191,7 +191,7 @@ public class MmuDeviceTestCase {
       MmuExpression.empty(),        // Tag
       MmuExpression.var(PA, 5, 35), // Index
       MmuExpression.var(PA, 0, 4),  // Offset
-      false, null);
+      null, null, false, null);
 
   static {
     MEM.addField(new IntegerVariable("DATA", 8 * 32));

@@ -18,18 +18,20 @@ import java.math.BigInteger;
 
 import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
+import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
  * {@link MipsMmu} represents a simplified MMU of a MIPS-compatible microprocessor.
@@ -142,6 +144,7 @@ public final class MipsMmu {
       MmuExpression.var(va, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(va, 0, 12),  // Offset
+      null, null,                    // Guard
       false, null);
 
   {
@@ -161,11 +164,21 @@ public final class MipsMmu {
   }
 
   // -----------------------------------------------------------------------------------------------
+  public final Predicate<MemoryAccess> dtlbGuard = new Predicate<MemoryAccess>() {
+    @Override public boolean test(final MemoryAccess access) {
+      final boolean dtlbHit = access.getEvent(MipsMmu.get().dtlb) == BufferAccessEvent.HIT; // TODO: remove
+      final boolean jtlbHit = access.getEvent(MipsMmu.get().jtlb) == BufferAccessEvent.HIT; // TODO: remove
+      final boolean v = access.contains(MipsMmu.get().ifValid);
+
+      return (dtlbHit || jtlbHit) && v;
+    }
+  };
 
   public final MmuDevice dtlb = new MmuDevice("DTLB", MTLB_SIZE, 1, vaAddr,
-      MmuExpression.var(va, 13, 39), // Tag
-      MmuExpression.empty(),         // Index
-      MmuExpression.var(va, 0, 12),  // Offset
+      MmuExpression.var(va, 13, 39),                 // Tag
+      MmuExpression.empty(),                         // Index
+      MmuExpression.var(va, 0, 12),                  // Offset
+      MmuCondition.eq(v, BigInteger.ONE), dtlbGuard, // Guard
       true, jtlb);
 
   {
@@ -189,6 +202,7 @@ public final class MipsMmu {
       MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1),  // Tag
       MmuExpression.var(pa, POS_BITS, POS_BITS + L1_ROW_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
+      null, null,                                                  // Guard
       true, null);
 
   {
@@ -201,6 +215,7 @@ public final class MipsMmu {
       MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1),  // Tag
       MmuExpression.var(pa, POS_BITS, POS_BITS + L2_ROW_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
+      null, null,                                                  // Guard
       true, null);
 
   {
@@ -213,6 +228,7 @@ public final class MipsMmu {
       MmuExpression.empty(),                        // Tag
       MmuExpression.var(pa, POS_BITS, PA_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),       // Offset
+      null, null,                                   // Guard
       false, null);
 
   {

@@ -35,7 +35,6 @@ import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
-import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.Supplier;
 import ru.ispras.microtesk.utils.function.TriConsumer;
 import ru.ispras.microtesk.utils.function.UnaryOperator;
@@ -49,7 +48,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private final Iterator<MemoryAccessStructure> iterator;
   private final Function<MemoryAccess, MemoryTestData> testDataConstructor;
   private final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector;
-  private final Map<MmuDevice, Predicate<MemoryAccess>> deviceGuards;
   private final Map<MmuDevice, UnaryOperator<Long>> tagAllocators;
   private final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators;
   private final Map<MmuDevice, Supplier<Object>> entryConstructors;
@@ -64,7 +62,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       final Iterator<MemoryAccessStructure> iterator,
       final Function<MemoryAccess, MemoryTestData> testDataConstructor,
       final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector,
-      final Map<MmuDevice, Predicate<MemoryAccess>> deviceGuards,
       final Map<MmuDevice, UnaryOperator<Long>> tagAllocators,
       final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
@@ -73,7 +70,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     this.iterator = iterator;
     this.testDataConstructor = testDataConstructor;
     this.testDataCorrector = testDataCorrector;
-    this.deviceGuards = deviceGuards;
     this.tagAllocators = tagAllocators;
     this.entryIdAllocators = entryIdAllocators;
     this.entryConstructors = entryConstructors;
@@ -82,7 +78,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   // TODO:
   public MemoryEngine() {
-    this(null, null, null, null, null, null, null, null, null);
+    this(null, null, null, null, null, null, null, null);
   }
 
   public MemorySolution getCurrentSolution() {
@@ -148,7 +144,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
               structure,
               testDataConstructor,
               testDataCorrector,
-              deviceGuards,
               tagAllocators,
               entryIdAllocators,
               entryConstructors,
