@@ -25,7 +25,7 @@ require_relative 'minimips_base'
 #
 
 class MinMaxTemplate < MiniMipsBaseTemplate
- 
+
   def pre
     super
 

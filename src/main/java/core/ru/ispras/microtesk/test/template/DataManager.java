@@ -266,16 +266,6 @@ public final class DataManager {
   }
 
   /**
-   * Internal method to set allocation address. Does not insert any directives into
-   * the test program. Used to synchronize allocation address for data and for calls.
-   */
-
-  public void initAddress(final BigInteger value) {
-    checkNotNull(value);
-    allocator.setCurrentAddress(value);
-  }
-
-  /**
    * Sets allocation address. Inserts the ".org" directive in the test program.
    */
 
