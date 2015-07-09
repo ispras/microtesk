@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -257,7 +257,7 @@ public final class TestEngine {
   }
 
   private TestEngine(IModel model) {
-    checkNotNull(model);
+    InvariantChecks.checkNotNull(model);
     this.model = model;
 
     final String home = SysUtils.getHomeDir();
@@ -404,8 +404,8 @@ public final class TestEngine {
         start = new Date();
       }
 
-      checkNotNull(section);
-      checkNotNull(block);
+      InvariantChecks.checkNotNull(section);
+      InvariantChecks.checkNotNull(block);
 
       if (section == Section.PRE) {
         preBlock = block;
@@ -466,10 +466,10 @@ public final class TestEngine {
 
       while (sequenceIt.hasValue()) {
         final List<Call> abstractSequence = sequenceIt.value();
-        checkNotNull(abstractSequence);
+        InvariantChecks.checkNotNull(abstractSequence);
 
         final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
-        checkNotNull(iterator);
+        InvariantChecks.checkNotNull(iterator);
 
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           if (needCreateNewFile) {
@@ -515,7 +515,7 @@ public final class TestEngine {
           }
 
           final AdapterResult adapterResult = iterator.value();
-          checkNotNull(adapterResult);
+          InvariantChecks.checkNotNull(adapterResult);
 
           if (adapterResult.getStatus() != AdapterResult.Status.OK) {
             Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
@@ -523,7 +523,7 @@ public final class TestEngine {
           }
 
           final TestSequence concreteSequence = adapterResult.getResult();
-          checkNotNull(concreteSequence);
+          InvariantChecks.checkNotNull(concreteSequence);
 
           Logger.debugHeader("Initialization");
           for (final ConcreteCall concreteCall : concreteSequence.getPrologue()) {
@@ -600,58 +600,78 @@ public final class TestEngine {
     }
 
     private void processPreOrPostBlock(final Block block) throws ConfigurationException {
-      // PRE and POST blocks can produce only one _SINGLE_ abstract sequence.
-      // Otherwise, this is an incorrect test template. Using the 'block' construct
-      // should be forbidden in 'pre' and 'post'.
+      Logger.debugHeader("Generating Data");
+      final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
 
-      InvariantChecks.checkTrue(block.isSingle());
+      for (final TestSequence concreteSequence : concreteSequences) {
+        Logger.debugHeader("Executing");
+        executor.executeSequence(concreteSequence, Label.NO_SEQUENCE_INDEX);
 
-      final Iterator<List<Call>> sequenceIt = block.getIterator();
-      final TestSequenceEngine engine = getEngine(block);
+        Logger.debugHeader("Printing to %s", fileName);
+        printer.printSequence(concreteSequence);
 
-      sequenceIt.init();
-      while (sequenceIt.hasValue()) {
-        final List<Call> abstractSequence = sequenceIt.value();
-
-        final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
-
-        for (iterator.init(); iterator.hasValue(); iterator.next()) {
-          final AdapterResult adapterResult = iterator.value();
-          checkNotNull(adapterResult);
-
-          if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-            Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
-            continue;
-          }
-
-          Logger.debugHeader("Generating Data");
-          final TestSequence concreteSequence = adapterResult.getResult();
-          checkNotNull(concreteSequence);
-
-          Logger.debugHeader("Executing");
-          executor.executeSequence(concreteSequence, Label.NO_SEQUENCE_INDEX);
-
-          Logger.debugHeader("Printing to %s", fileName);
-          printer.printSequence(concreteSequence);
-
-          STATISTICS.instructionCount += concreteSequence.getInstructionCount();
-        }
-
-        sequenceIt.next();
+        STATISTICS.instructionCount += concreteSequence.getInstructionCount();
       }
     }
 
+    /**
+     * This method creates a list of test sequences (sequences of concrete calls)
+     * for a PRE or a POST block.
+     * 
+     * <p>NOTE: It is assumed that PRE and POST blocks can return only one <b>SINGLE</b>
+     * sequence of abstract calls. Otherwise, this is an incorrect test template. Using 
+     * constructs like 'block' that produce multiple sequence is forbidden in
+     * 'pre' and 'post'.
+     * 
+     * @param block PRE or POST block to be processed. 
+     * @return List of test sequences.
+     */
+
+    public List<TestSequence> buildTestSequencesForPreOrPost(final Block block) throws ConfigurationException {
+      InvariantChecks.checkNotNull(block);
+      InvariantChecks.checkTrue(block.isSingle());
+
+      final TestSequenceEngine engine = getEngine(block);
+      final Iterator<List<Call>> sequenceIt = block.getIterator();
+
+      sequenceIt.init();
+      if (!sequenceIt.hasValue()) {
+        return Collections.emptyList();
+      }
+
+      final List<Call> abstractSequence = sequenceIt.value();
+      final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
+
+      final List<TestSequence> result = new ArrayList<>();
+      for (iterator.init(); iterator.hasValue(); iterator.next()) {
+        final AdapterResult adapterResult = iterator.value();
+        InvariantChecks.checkNotNull(adapterResult);
+
+        if (adapterResult.getStatus() != AdapterResult.Status.OK) {
+          Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
+          continue;
+        }
+
+        final TestSequence concreteSequence = adapterResult.getResult();
+        InvariantChecks.checkNotNull(concreteSequence);
+
+        result.add(concreteSequence);
+      }
+
+      return result;
+    }
+
     private TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
-      checkNotNull(block);
+      InvariantChecks.checkNotNull(block);
 
       final String engineName = blockAttribute(block, "engine", "default");
       final String adapterName = blockAttribute(block, "adapter", engineName);
 
       final Engine<?> engine = config.getEngine(engineName);
-      checkNotNull(engine);
+      InvariantChecks.checkNotNull(engine);
 
       final Adapter<?> adapter = config.getAdapter(adapterName);
-      checkNotNull(adapter);
+      InvariantChecks.checkNotNull(adapter);
 
       if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
         throw new IllegalStateException("Mismatched solver/adapter pair");
@@ -684,13 +704,13 @@ public final class TestEngine {
           "%s.%s", TestEngine.exceptionFilePrefix, TestEngine.codeFileExtension);
 
       Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
-      checkNotNull(handler);
+      InvariantChecks.checkNotNull(handler);
 
       final Engine<?> engine = config.getEngine("default");
-      checkNotNull(engine);
+      InvariantChecks.checkNotNull(engine);
 
       final Adapter<?> adapter = config.getAdapter("default");
-      checkNotNull(adapter);
+      InvariantChecks.checkNotNull(adapter);
 
       if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
         throw new IllegalStateException("Mismatched solver/adapter pair");
@@ -736,7 +756,7 @@ public final class TestEngine {
           }
 
           final TestSequence concreteSequence = adapterResult.getResult();
-          checkNotNull(concreteSequence);
+          InvariantChecks.checkNotNull(concreteSequence);
 
           final long address = section.getAddress().longValue();
           concreteSequence.setAddress(address);
