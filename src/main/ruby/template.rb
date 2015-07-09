@@ -631,6 +631,10 @@ class DataManager
     @manager.init text, target, addressableSize
   end
 
+  def org(address)
+    @manager.setAddress address
+  end
+
   def type(*args)
     Type.new *args
   end

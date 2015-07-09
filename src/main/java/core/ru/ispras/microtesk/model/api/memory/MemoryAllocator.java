@@ -98,6 +98,10 @@ public final class MemoryAllocator {
     return currentAddress;
   }
 
+  public void setCurrentAddress(final BigInteger value) {
+    currentAddress = value;
+  }
+
   /**
    * Returns the size of an addressable unit.
    * 

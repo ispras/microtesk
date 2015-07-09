@@ -256,7 +256,7 @@ public final class DataManager {
     checkInitialized();
 
     Logger.debug("Defining %snull-terminated ASCII string as %s ('%s')...", zeroTerm ? "" : "not ", id, text);
-    
+
     if (zeroTerm) {
       ztermStrText = text;
     } else {
@@ -264,7 +264,15 @@ public final class DataManager {
     }
   }
 
-  public void addLabel(String id) {
+  public void setAddress(final BigInteger value) {
+    checkNotNull(value);
+    Logger.debug("Setting allocation address: .org 0x%x", value);
+
+    allocator.setCurrentAddress(value);
+    dataDecls.add(new DetaDeclText(String.format(".org 0x%x", value)));
+  }
+
+  public void addLabel(final String id) {
     checkNotNull(id);
     checkInitialized();
 

@@ -69,7 +69,7 @@ public final class OutputBuilder {
    * @return This builder object to continue operations.
    */
 
-  public OutputBuilder addArgument(final int value) {
+  public OutputBuilder addArgument(final BigInteger value) {
     addArgument(new ArgumentValue(value));
     return this;
   }
