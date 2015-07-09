@@ -257,13 +257,17 @@ class MiniMipsBaseTemplate < Template
     end_addr = address(end_label)
 
     count = (end_addr - begin_addr) / 4
+    begin_index = begin_addr / 4 
 
-    trace "\nData starts: %d", begin_addr
-    trace "Data ends:   %d", end_addr
+    trace "\nData starts: 0x%x", begin_addr
+    trace "Data ends:   0x%x", end_addr
     trace "Data count:  %d", count
 
     trace "\nData values:"
-    (0..(count-1)).each { |i| trace "M[%d]: %d", i, mem_observer(i) }
+    (0..(count-1)).each { |i| 
+      word_index = begin_index + i 
+      trace "M[0x%x]: %d", word_index, mem_observer(word_index)
+    }
     trace ""
   end
 end
