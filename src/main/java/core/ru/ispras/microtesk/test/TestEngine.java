@@ -366,7 +366,6 @@ public final class TestEngine {
     private final int programLengthLimit;
     private final int traceLengthLimit;
 
-    private boolean isDataPrinted = false;
     private int testIndex = 0; 
 
     private boolean needCreateNewFile;
@@ -486,13 +485,11 @@ public final class TestEngine {
               Logger.error(e.getMessage());
             }
 
-            if (!isDataPrinted && dataManager.containsDecls()) {
+            if (dataManager.containsDecls()) {
               printer.printToFile("");
               printSectionHeader("Data Declaration");
               printer.printToFile("");
-
               printer.printText(dataManager.getDeclText());
-              isDataPrinted = true;
             }
 
             printer.printToFile("");
