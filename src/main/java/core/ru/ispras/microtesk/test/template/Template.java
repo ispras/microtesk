@@ -621,4 +621,12 @@ public final class Template {
     Logger.debug("End Data");
     context.setAddress(dataManager.getAddress().longValue());
   }
+
+  public void setOrigin(final BigInteger address) {
+    Logger.debug("Set Origin to 0x%x", address);
+    endBuildingCall();
+
+    callBuilder.setOrigin(address);
+    endBuildingCall();
+  }
 }

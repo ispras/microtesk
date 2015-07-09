@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,8 @@ public final class CallBuilder {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
+  private BigInteger origin; 
+
   protected CallBuilder(final BlockId blockId) {
     checkNotNull(blockId);
 
@@ -35,6 +38,7 @@ public final class CallBuilder {
     this.labels = new ArrayList<>();
     this.labelRefs = new ArrayList<>();
     this.outputs = new ArrayList<>();
+    this.origin = null;
   }
 
   public BlockId getBlockId() {
@@ -68,7 +72,12 @@ public final class CallBuilder {
     outputs.add(output);
   }
 
+  public void setOrigin(final BigInteger address) {
+    checkNotNull(address);
+    origin = address;
+  }
+
   public Call build() {
-    return new Call(rootOperation, labels, labelRefs, outputs);
+    return new Call(rootOperation, labels, labelRefs, outputs, origin);
   }
 }

@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,11 +36,14 @@ public final class Call {
   private final boolean store;
   private final int blockSize;
 
+  private final BigInteger origin;
+
   public Call(
       final Primitive rootOperation,
       final List<Label> labels,
       final List<LabelReference> labelRefs,
-      final List<Output> outputs) {
+      final List<Output> outputs,
+      final BigInteger origin) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
@@ -64,6 +68,8 @@ public final class Call {
       this.store = false;
       this.blockSize = 0;
     }
+
+    this.origin = origin;
   }
 
   public Call(final Call other) {
@@ -83,6 +89,8 @@ public final class Call {
     this.load = other.load;
     this.store = other.store;
     this.blockSize = other.blockSize;
+
+    this.origin = other.origin;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
@@ -118,7 +126,7 @@ public final class Call {
   }
 
   public boolean isEmpty() {
-    return !isExecutable() && labels.isEmpty() && outputs.isEmpty();
+    return !isExecutable() && labels.isEmpty() && outputs.isEmpty() && null == origin;
   }
 
   public Primitive getRootOperation() {
@@ -182,5 +190,9 @@ public final class Call {
     }
 
     return reference.getReference();
+  }
+
+  public BigInteger getOrigin() {
+    return origin;
   }
 }
