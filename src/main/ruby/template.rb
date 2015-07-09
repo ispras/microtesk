@@ -580,7 +580,7 @@ class Template
 
     TemplateBuilder.define_runtime_methods engine.getMetaModel
 
-    engine.setCommentToken  sl_comment_starts_with
+    engine.setCommentToken sl_comment_starts_with
     engine.setIndentToken indent_token
     engine.setSeparatorToken separator_token
 
@@ -637,6 +637,10 @@ class DataManager
   def initialize(manager, text, target, addressableSize)
     @manager = manager
     @manager.init text, target, addressableSize
+  end
+
+  def align(value)
+    @manager.align value
   end
 
   def org(address)

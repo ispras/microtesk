@@ -102,6 +102,10 @@ public final class MemoryAllocator {
     currentAddress = value;
   }
 
+  public void align(final BigInteger value) {
+    currentAddress = alignAddress(currentAddress, value.intValue());
+  }
+
   /**
    * Returns the size of an addressable unit.
    * 

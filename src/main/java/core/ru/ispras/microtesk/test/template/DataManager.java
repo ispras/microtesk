@@ -281,6 +281,18 @@ public final class DataManager {
     return allocator.getCurrentAddress();
   }
 
+  /**
+   * @param value Alignment amount in addressable units.
+   */
+
+  public void align(final BigInteger value) {
+    checkNotNull(value);
+    Logger.debug("Setting allignment: .align %d", value);
+
+    dataDecls.add(new DetaDeclText(String.format(".align %d", value)));
+    allocator.align(value);
+  }
+
   public void addLabel(final String id) {
     checkNotNull(id);
     checkInitialized();
