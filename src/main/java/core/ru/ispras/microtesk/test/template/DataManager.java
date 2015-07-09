@@ -273,8 +273,8 @@ public final class DataManager {
     checkNotNull(value);
     Logger.debug("Setting allocation address: .org 0x%x", value);
 
-    initAddress(value);
     dataDecls.add(new DetaDeclText(String.format(".org 0x%x", value)));
+    allocator.setCurrentAddress(value);
   }
 
   public BigInteger getAddress() {
