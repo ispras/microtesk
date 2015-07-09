@@ -16,12 +16,12 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter;
 
 import java.util.Map;
 
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**

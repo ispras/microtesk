@@ -15,8 +15,8 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
+import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 
 /**
  * {@link MemoryAccessType} describes a memory access type, which is an operation (load or store) in

@@ -19,10 +19,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**

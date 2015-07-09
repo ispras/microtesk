@@ -22,6 +22,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
@@ -43,7 +44,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 
 /**

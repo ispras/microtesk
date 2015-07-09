@@ -25,6 +25,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
@@ -35,8 +37,6 @@ import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 
 /**
  * Test for {@link MemoryAccessStructureMmuIterator}.

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.ir.spec.basis;
+package ru.ispras.microtesk.mmu.basis;
 
 /**
  * This enumeration contains types of memory operations.

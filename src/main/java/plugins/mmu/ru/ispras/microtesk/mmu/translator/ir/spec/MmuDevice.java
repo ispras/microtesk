@@ -25,8 +25,8 @@ import java.util.TreeMap;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.AddressView;
 import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.microtesk.utils.function.Predicate;
 

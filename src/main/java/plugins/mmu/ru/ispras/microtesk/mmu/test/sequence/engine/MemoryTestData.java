@@ -19,12 +19,12 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 
 /**
  * {@link MemoryTestData} represents test data for an individual instruction call (execution).

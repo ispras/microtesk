@@ -20,6 +20,8 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.SolverResult;
+import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
@@ -27,8 +29,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;

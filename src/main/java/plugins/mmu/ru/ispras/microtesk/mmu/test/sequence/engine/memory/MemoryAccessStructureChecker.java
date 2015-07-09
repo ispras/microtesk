@@ -30,6 +30,7 @@ import ru.ispras.microtesk.basis.solver.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.IntegerFormulaSolver;
 import ru.ispras.microtesk.basis.solver.IntegerRange;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
@@ -39,7 +40,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**

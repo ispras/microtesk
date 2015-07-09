@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 
 /**
  * {@link MmuGuard} represents a guard, i.e. a transition activation condition.

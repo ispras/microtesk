@@ -21,8 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

@@ -24,6 +24,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
@@ -34,7 +35,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 
 final class GuardExtractor {
   private final MmuSubsystem specification;

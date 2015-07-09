@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.AddressView;
+import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**

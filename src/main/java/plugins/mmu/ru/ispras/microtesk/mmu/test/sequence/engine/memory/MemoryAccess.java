@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.DataType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.MemoryOperation;
 
 /**
  * This class describes an execution path, which is a sequence of transitions.

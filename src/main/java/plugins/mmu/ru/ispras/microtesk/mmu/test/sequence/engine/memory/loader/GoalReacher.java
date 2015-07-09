@@ -17,8 +17,8 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.basis.BufferAccessEvent;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
