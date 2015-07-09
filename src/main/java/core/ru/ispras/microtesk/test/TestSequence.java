@@ -136,7 +136,7 @@ public final class TestSequence {
     return address;
   }
 
-  public void setAddress(final long address) {
+  public long setAddress(final long address) {
     this.address = address;
     this.isAddressSet = true;
 
@@ -150,6 +150,8 @@ public final class TestSequence {
       call.setAddress(currentCallAddress);
       currentCallAddress += call.getByteSize();
     }
+
+    return currentCallAddress;
   }
 
   public int getInstructionCount() {
