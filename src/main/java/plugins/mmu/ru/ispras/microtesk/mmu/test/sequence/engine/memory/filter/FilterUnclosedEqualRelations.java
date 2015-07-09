@@ -30,7 +30,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
- * Filters off test templates with unclosed equality relations (e.g. {@code ADDR_EQUAL},
+ * Filters off memory access structures with unclosed equality relations (e.g. {@code ADDR_EQUAL},
  * {@code TAG_EQUAL}, {@code INDEX_EQUAL}, etc.).
  * 
  * <p>EXAMPLE: Relation {@code TAG_EQUAL(0, 1) && TAG_EQUAL(1, 2)} is unclosed.
@@ -46,15 +46,15 @@ import ru.ispras.microtesk.utils.function.Predicate;
  */
 public final class FilterUnclosedEqualRelations implements Predicate<MemoryAccessStructure> {
   @Override
-  public boolean test(final MemoryAccessStructure template) {
+  public boolean test(final MemoryAccessStructure structure) {
     final Map<String, Map<Integer, Set<Integer>>> relations = new LinkedHashMap<>();
 
-    for (int i = 0; i < template.size() - 1; i++) {
-      for (int j = i + 1; j < template.size(); j++) {
-        final MemoryDependency dependency = template.getDependency(i, j);
+    for (int i = 0; i < structure.size() - 1; i++) {
+      for (int j = i + 1; j < structure.size(); j++) {
+        final MemoryDependency dependency = structure.getDependency(i, j);
 
         if (dependency != null) {
-          update(template.getSubsystem(), relations, i, j, dependency);
+          update(structure.getSubsystem(), relations, i, j, dependency);
         }
       }
     }

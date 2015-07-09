@@ -31,10 +31,10 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  */
 public final class FilterHitAndTagReplaced implements BiPredicate<MemoryAccess, MemoryUnitedHazard> {
   @Override
-  public boolean test(final MemoryAccess execution, final MemoryUnitedHazard hazard) {
+  public boolean test(final MemoryAccess access, final MemoryUnitedHazard hazard) {
     final MmuDevice device = hazard.getDevice();
 
-    if (device != null && execution.getEvent(device) == BufferAccessEvent.HIT) {
+    if (device != null && access.getEvent(device) == BufferAccessEvent.HIT) {
       if (!hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty()) {
         // Filter off.
         return false;

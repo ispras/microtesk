@@ -36,7 +36,7 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
 public final class FilterBuilder {
 
   private final Collection<Predicate<MemoryAccess>>
-    executionFilters = new ArrayList<>();
+    accessFilters = new ArrayList<>();
 
   private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>>
     hazardFilters = new ArrayList<>();
@@ -61,14 +61,14 @@ public final class FilterBuilder {
     addFilterBuilder(r);
   }
 
-  public void addExecutionFilter(final Predicate<MemoryAccess> filter) {
+  public void addAccessFilter(final Predicate<MemoryAccess> filter) {
     InvariantChecks.checkNotNull(filter);
-    executionFilters.add(filter);
+    accessFilters.add(filter);
   }
 
-  public void addExecutionFilters(final Collection<Predicate<MemoryAccess>> filters) {
+  public void addAccessFilters(final Collection<Predicate<MemoryAccess>> filters) {
     InvariantChecks.checkNotNull(filters);
-    executionFilters.addAll(filters);
+    accessFilters.addAll(filters);
   }
 
   public void addHazardFilter(final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
@@ -116,12 +116,12 @@ public final class FilterBuilder {
     unitedDependencyFilters.addAll(filters);
   }
 
-  public void addTemplateFilter(final Predicate<MemoryAccessStructure> filter) {
+  public void addStructureFilter(final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(filter);
     templateFilters.add(filter);
   }
 
-  public void addTemplateFilters(final Collection<Predicate<MemoryAccessStructure>> filters) {
+  public void addStructureFilters(final Collection<Predicate<MemoryAccessStructure>> filters) {
     InvariantChecks.checkNotNull(filters);
     templateFilters.addAll(filters);
   }
@@ -129,7 +129,7 @@ public final class FilterBuilder {
   public void addFilterBuilder(final FilterBuilder builder) {
     InvariantChecks.checkNotNull(builder);
 
-    executionFilters.addAll(builder.executionFilters);
+    accessFilters.addAll(builder.accessFilters);
     hazardFilters.addAll(builder.hazardFilters);
     dependencyFilters.addAll(builder.dependencyFilters);
     unitedHazardFilters.addAll(builder.unitedHazardFilters);
@@ -148,8 +148,8 @@ public final class FilterBuilder {
 
     final Collection<Predicate<MemoryAccessStructure>>
       newTemplateFilters = new ArrayList<>(templateFilters);
-    newTemplateFilters.add(new FilterTemplate(
-        executionFilters, newDependencyFilters, newUnitedDependencyFilters));
+    newTemplateFilters.add(new FilterStructure(
+        accessFilters, newDependencyFilters, newUnitedDependencyFilters));
 
     return new FilterComposite(newTemplateFilters);
   }

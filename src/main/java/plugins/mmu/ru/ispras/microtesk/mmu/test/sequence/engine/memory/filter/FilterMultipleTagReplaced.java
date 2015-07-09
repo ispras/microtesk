@@ -29,7 +29,7 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  */
 public final class FilterMultipleTagReplaced implements BiPredicate<MemoryAccess, MemoryUnitedHazard> {
   @Override
-  public boolean test(final MemoryAccess execution, final MemoryUnitedHazard hazard) {
+  public boolean test(final MemoryAccess access, final MemoryUnitedHazard hazard) {
     if (hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).size() > 1) {
       // Filter off.
       return false;

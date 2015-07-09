@@ -32,8 +32,8 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  */
 public final class FilterNonReplaceableTagEqual implements TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> {
   @Override
-  public boolean test(final MemoryAccess execution1, final MemoryAccess execution2,
-      final MemoryHazard hazard) {
+  public boolean test(
+      final MemoryAccess access1, final MemoryAccess access2, final MemoryHazard hazard) {
 
     if (hazard.getType() == MemoryHazard.Type.TAG_EQUAL) {
       final MmuDevice hazardDevice = hazard.getDevice();
@@ -48,7 +48,7 @@ public final class FilterNonReplaceableTagEqual implements TriPredicate<MemoryAc
 
       for (final MmuDevice device : devices) {
         if (!device.isReplaceable()) {
-          if (execution1.getEvent(device) != execution2.getEvent(device)) {
+          if (access1.getEvent(device) != access2.getEvent(device)) {
             // Filter off.
             return false;
           }

@@ -26,33 +26,33 @@ import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
 /**
- * {@link FilterTemplate} composes execution- and dependency-level filters into a template-level
+ * {@link FilterStructure} composes execution- and dependency-level filters into a template-level
  * filter.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterTemplate implements Predicate<MemoryAccessStructure> {
-  private final Collection<Predicate<MemoryAccess>> executionFilters;
+public final class FilterStructure implements Predicate<MemoryAccessStructure> {
+  private final Collection<Predicate<MemoryAccess>> accessFilters;
   private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> dependencyFilters;
   private final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> unitedDependencyFilters;
 
   /**
    * Constructs a template-level filter from execution- and dependency-level filters.
    * 
-   * @param executionFilters the collection of execution-level filters.
+   * @param accessFilters the collection of execution-level filters.
    * @param dependencyFilters the collection of dependency-level filters.
    * @param unitedDependencyFilters the collection of united-dependency-level filters.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public FilterTemplate(
-      final Collection<Predicate<MemoryAccess>> executionFilters,
+  public FilterStructure(
+      final Collection<Predicate<MemoryAccess>> accessFilters,
       final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> dependencyFilters,
       final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> unitedDependencyFilters) {
-    InvariantChecks.checkNotNull(executionFilters);
+    InvariantChecks.checkNotNull(accessFilters);
     InvariantChecks.checkNotNull(dependencyFilters);
     InvariantChecks.checkNotNull(unitedDependencyFilters);
 
-    this.executionFilters = executionFilters;
+    this.accessFilters = accessFilters;
     this.dependencyFilters = dependencyFilters;
     this.unitedDependencyFilters = unitedDependencyFilters;
   }
@@ -63,7 +63,7 @@ public final class FilterTemplate implements Predicate<MemoryAccessStructure> {
       final MemoryAccess execution1 = template.getAccess(i);
 
       // Apply the execution-level filters.
-      for (final Predicate<MemoryAccess> filter : executionFilters) {
+      for (final Predicate<MemoryAccess> filter : accessFilters) {
         if (!filter.test(execution1)) {
           // Filter off.
           return false;

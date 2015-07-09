@@ -19,7 +19,11 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.Classifier;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.utils.function.BiPredicate;
+import ru.ispras.microtesk.utils.function.Predicate;
+import ru.ispras.microtesk.utils.function.TriPredicate;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
@@ -34,8 +38,11 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
   private final MmuSubsystem memory;
   private final Classifier<MemoryAccess> classifier;
 
+  /** Contains user-defined filters. */
+  private final FilterBuilder filterBuilder = new FilterBuilder();
+
   private Iterator<List<MemoryAccessType>> typesIterator;
-  private Iterator<MemoryAccessStructure> structureIterator;
+  private MemoryAccessStructureIterator structureIterator;
 
   private boolean hasValue;
 
@@ -127,6 +134,7 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
   private void initStructure() {
     structureIterator =
         new MemoryAccessStructureIterator(memory, typesIterator.value(), classifier);
+    structureIterator.addFilterBuilder(filterBuilder);
     structureIterator.init();
   }
 
@@ -135,5 +143,50 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
       structureIterator.next();
     }
     return structureIterator.hasValue();
+  }
+
+  //------------------------------------------------------------------------------------------------
+  // Filter Registration
+  //------------------------------------------------------------------------------------------------
+
+  public void addAccessFilter(
+      final Predicate<MemoryAccess> filter) {
+    InvariantChecks.checkNotNull(filter);
+    filterBuilder.addAccessFilter(filter);
+  }
+
+  public void addHazardFilter(
+      final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
+    InvariantChecks.checkNotNull(filter);
+    filterBuilder.addHazardFilter(filter);
+  }
+
+  public void addDependencyFilter(
+      final TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> filter) {
+    InvariantChecks.checkNotNull(filter);
+    filterBuilder.addDependencyFilter(filter);
+  }
+
+  public void addUnitedHazardFilter(
+      final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter) {
+    InvariantChecks.checkNotNull(filter);
+    filterBuilder.addUnitedHazardFilter(filter);
+  }
+
+  public void addUnitedDependencyFilter(
+      final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter) {
+    InvariantChecks.checkNotNull(filter);
+    filterBuilder.addUnitedDependencyFilter(filter);
+  }
+
+  public void addStructureFilter(
+      final Predicate<MemoryAccessStructure> filter) {
+    InvariantChecks.checkNotNull(filter);
+    filterBuilder.addStructureFilter(filter);
+  }
+
+  public void addFilterBuilder(final FilterBuilder filter) {
+    InvariantChecks.checkNotNull(filter);
+    filterBuilder.addFilterBuilder(filter);
   }
 }

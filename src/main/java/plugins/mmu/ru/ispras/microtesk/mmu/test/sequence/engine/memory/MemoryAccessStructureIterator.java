@@ -64,7 +64,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     BASIC_FILTERS.addUnitedDependencyFilter(new FilterHitAndTagReplacedEx());
     BASIC_FILTERS.addUnitedDependencyFilter(new FilterMultipleTagReplacedEx());
     BASIC_FILTERS.addUnitedDependencyFilter(new FilterVaEqualPaNotEqual());
-    BASIC_FILTERS.addTemplateFilter(new FilterUnclosedEqualRelations());
+    BASIC_FILTERS.addStructureFilter(new FilterUnclosedEqualRelations());
   }
 
   /** Checks the consistency of whole templates (not applicable to template parts). */
@@ -434,10 +434,10 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   // Filter Registration
   //------------------------------------------------------------------------------------------------
 
-  public void addExecutionFilter(
+  public void addAccessFilter(
       final Predicate<MemoryAccess> filter) {
     InvariantChecks.checkNotNull(filter);
-    filterBuilder.addExecutionFilter(filter);
+    filterBuilder.addAccessFilter(filter);
   }
 
   public void addHazardFilter(
@@ -464,9 +464,14 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     filterBuilder.addUnitedDependencyFilter(filter);
   }
 
-  public void addTemplateFilter(
+  public void addStructureFilter(
       final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(filter);
-    filterBuilder.addTemplateFilter(filter);
+    filterBuilder.addStructureFilter(filter);
+  }
+
+  public void addFilterBuilder(final FilterBuilder filter) {
+    InvariantChecks.checkNotNull(filter);
+    filterBuilder.addFilterBuilder(filter);
   }
 }

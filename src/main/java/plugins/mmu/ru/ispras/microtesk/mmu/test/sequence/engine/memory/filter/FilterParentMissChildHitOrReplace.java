@@ -31,16 +31,16 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  */
 public final class FilterParentMissChildHitOrReplace implements BiPredicate<MemoryAccess, MemoryUnitedHazard> {
   @Override
-  public boolean test(final MemoryAccess execution, final MemoryUnitedHazard hazard) {
+  public boolean test(final MemoryAccess access, final MemoryUnitedHazard hazard) {
     final MmuDevice view = hazard.getDevice();
 
     if (view != null && view.isView()) {
       final MmuDevice parent = view.getParent();
 
-      final boolean viewAccess = execution.getEvent(view) == BufferAccessEvent.HIT ||
+      final boolean viewAccess = access.getEvent(view) == BufferAccessEvent.HIT ||
           !hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty();
 
-      if (execution.getEvent(parent) == BufferAccessEvent.MISS && viewAccess) {
+      if (access.getEvent(parent) == BufferAccessEvent.MISS && viewAccess) {
         // Filter off.
         return false;
       }

@@ -34,8 +34,8 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  */
 public final class FilterVaEqualPaNotEqual implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
-  public boolean test(final MemoryAccess execution, MemoryUnitedDependency dependency) {
-    final MmuAddress va = execution.getStartAddress();
+  public boolean test(final MemoryAccess access, MemoryUnitedDependency dependency) {
+    final MmuAddress va = access.getStartAddress();
     final MemoryUnitedHazard vaHazard = dependency.getHazard(va);
 
     final Set<Integer> vaEqualRelation =

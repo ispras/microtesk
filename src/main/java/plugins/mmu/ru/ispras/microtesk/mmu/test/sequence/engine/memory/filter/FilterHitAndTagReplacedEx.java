@@ -37,7 +37,7 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  */
 public final class FilterHitAndTagReplacedEx implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
-  public boolean test(final MemoryAccess execution, MemoryUnitedDependency dependency) {
+  public boolean test(final MemoryAccess access, MemoryUnitedDependency dependency) {
     final Map<MmuDevice, MemoryUnitedHazard> hazards = dependency.getDeviceHazards();
 
     for (final Map.Entry<MmuDevice, MemoryUnitedHazard> entry : hazards.entrySet()) {
@@ -45,9 +45,9 @@ public final class FilterHitAndTagReplacedEx implements BiPredicate<MemoryAccess
       final MemoryUnitedHazard hazard = entry.getValue();
 
       if (!hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty()) {
-        for (final MmuDevice otherDevice : execution.getDevices()) {
+        for (final MmuDevice otherDevice : access.getDevices()) {
           if (otherDevice.isReplaceable() && otherDevice.getAddress() == device.getAddress() &&
-              execution.getEvent(otherDevice) == BufferAccessEvent.HIT)
+              access.getEvent(otherDevice) == BufferAccessEvent.HIT)
           // Filter off.
           return false;
         }

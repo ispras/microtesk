@@ -37,14 +37,15 @@ public final class FilterDependency implements TriPredicate<MemoryAccess, Memory
    * @param filters the collection of hazard-level filters to be composed.
    * @throws IllegalArgumentException if {@code filters} is {@code null}.
    */
-  public FilterDependency(final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> filters) {
+  public FilterDependency(
+      final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> filters) {
     InvariantChecks.checkNotNull(filters);
     this.filters = filters;
   }
   
   @Override
-  public boolean test(final MemoryAccess execution1, final MemoryAccess execution2,
-      final MemoryDependency dependency) {
+  public boolean test(
+      final MemoryAccess access1, final MemoryAccess access2, final MemoryDependency dependency) {
 
     if (dependency == null) {
       return true;
@@ -52,7 +53,7 @@ public final class FilterDependency implements TriPredicate<MemoryAccess, Memory
 
     for (final MemoryHazard hazard : dependency.getHazards()) {
       for (final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter : filters) {
-        if (!filter.test(execution1, execution2, hazard)) {
+        if (!filter.test(access1, access2, hazard)) {
           // Filter off.
           return false;
         }

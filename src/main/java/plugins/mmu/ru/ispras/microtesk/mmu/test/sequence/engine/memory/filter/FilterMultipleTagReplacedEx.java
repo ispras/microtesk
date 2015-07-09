@@ -36,7 +36,7 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  */
 public final class FilterMultipleTagReplacedEx implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
-  public boolean test(final MemoryAccess execution, final MemoryUnitedDependency dependency) {
+  public boolean test(final MemoryAccess access, final MemoryUnitedDependency dependency) {
     final Set<MmuAddress> addresses = new HashSet<>();
     final Map<MmuDevice, MemoryUnitedHazard> hazards = dependency.getDeviceHazards();
 

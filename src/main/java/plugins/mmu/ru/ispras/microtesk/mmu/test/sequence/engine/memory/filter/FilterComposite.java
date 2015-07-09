@@ -40,9 +40,9 @@ public final class FilterComposite implements Predicate<MemoryAccessStructure> {
   }
   
   @Override
-  public boolean test(final MemoryAccessStructure template) {
+  public boolean test(final MemoryAccessStructure structure) {
     for (final Predicate<MemoryAccessStructure> filter : filters) {
-      if (!filter.test(template)) {
+      if (!filter.test(structure)) {
         // Filter off.
         return false;
       }

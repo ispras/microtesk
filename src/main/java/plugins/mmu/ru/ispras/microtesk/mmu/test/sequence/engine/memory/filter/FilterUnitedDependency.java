@@ -28,7 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
- * {@link FilterUnitedDependency} composes device-level filters into an execution-level filter.
+ * {@link FilterUnitedDependency} composes device-level filters into an access-level filter.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -48,7 +48,7 @@ public final class FilterUnitedDependency implements BiPredicate<MemoryAccess, M
   }
 
   @Override
-  public boolean test(final MemoryAccess execution, final MemoryUnitedDependency dependency) {
+  public boolean test(final MemoryAccess access, final MemoryUnitedDependency dependency) {
     final Set<MemoryUnitedHazard> hazards = new LinkedHashSet<>();
 
     final Map<MmuAddress, MemoryUnitedHazard> addrHazards = dependency.getAddrHazards();
@@ -59,7 +59,7 @@ public final class FilterUnitedDependency implements BiPredicate<MemoryAccess, M
 
     for (final MemoryUnitedHazard hazard : hazards) {
       for (final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter : filters) {
-        if (!filter.test(execution, hazard)) {
+        if (!filter.test(access, hazard)) {
           return false;
         }
       }

@@ -65,9 +65,9 @@ public final class FilterAccessThenMiss implements BiPredicate<MemoryAccess, Mem
   }
 
   @Override
-  public boolean test(final MemoryAccess execution, MemoryUnitedDependency dependency) {
+  public boolean test(final MemoryAccess access, MemoryUnitedDependency dependency) {
     for (final MmuDevice device : dependency.getDeviceHazards().keySet()) {
-      if (device.isReplaceable() && execution.getEvent(device) == BufferAccessEvent.MISS) {
+      if (device.isReplaceable() && access.getEvent(device) == BufferAccessEvent.MISS) {
         if (!test(device, dependency)) {
           return false;
         }
