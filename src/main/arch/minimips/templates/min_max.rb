@@ -30,7 +30,8 @@ class MinMaxTemplate < MiniMipsBaseTemplate
     super
 
     data {
-      org 0x0000FFFF
+      org 0x00010001
+      align 8
       label :data
       word rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9)
       label :end
