@@ -593,7 +593,7 @@ public final class TestEngine {
 
             printer.close();
 
-            engineContext.setCodeAddress(0);
+            engineContext.setAddress(0);
           }
         } // Concrete sequence iterator
 

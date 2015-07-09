@@ -35,7 +35,9 @@ public final class EngineContext {
   private final GeneratorSettings settings;
   private final TestBase testBase;
   private final int delaySlotSize;
-  private long codeAddress;
+
+  // Address to be used for allocations
+  private long address; 
 
   // For some code sequence like exception handler no test data generation
   // (including randomization is not needed). This is to disable test data generation.
@@ -62,7 +64,7 @@ public final class EngineContext {
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
-    this.codeAddress = 0;
+    this.address = 0;
     this.generateData = true;
   }
 
@@ -90,12 +92,12 @@ public final class EngineContext {
     return delaySlotSize;
   }
 
-  public long getCodeAddress() {
-    return codeAddress;
+  public long getAddress() {
+    return address;
   }
 
-  public void setCodeAddress(final long value) {
-    this.codeAddress = value;
+  public void setAddress(final long value) {
+    this.address = value;
   }
 
   public boolean isGenerateData() {
