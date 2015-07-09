@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -161,6 +161,7 @@ public final class DataManager {
       final Printer printer,
       final String dataFilePrefix,
       final String dataFileExtension) {
+
     this.indentToken = indentToken;
     this.printer = printer;
     this.dataFilePrefix = dataFilePrefix;
@@ -264,12 +265,30 @@ public final class DataManager {
     }
   }
 
+  /**
+   * Internal method to set allocation address. Does not insert any directives into
+   * the test program. Used to synchronize allocation address for data and for calls.
+   */
+
+  public void initAddress(final BigInteger value) {
+    checkNotNull(value);
+    allocator.setCurrentAddress(value);
+  }
+
+  /**
+   * Sets allocation address. Inserts the ".org" directive in the test program.
+   */
+
   public void setAddress(final BigInteger value) {
     checkNotNull(value);
     Logger.debug("Setting allocation address: .org 0x%x", value);
 
-    allocator.setCurrentAddress(value);
+    initAddress(value);
     dataDecls.add(new DetaDeclText(String.format(".org 0x%x", value)));
+  }
+
+  public BigInteger getAddress() {
+    return allocator.getCurrentAddress();
   }
 
   public void addLabel(final String id) {
