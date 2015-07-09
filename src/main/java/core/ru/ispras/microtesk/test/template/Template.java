@@ -31,6 +31,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 
 public final class Template {
 
@@ -45,6 +46,8 @@ public final class Template {
     void process(Section section, Block block);
     void finish();
   }
+
+  private final EngineContext context;
 
   private final MetaModel metaModel;
   private final DataManager dataManager;
@@ -67,6 +70,7 @@ public final class Template {
   private int openBlockCount;
 
   public Template(
+      final EngineContext context,
       final MetaModel metaModel,
       final DataManager dataManager,
       final PreparatorStore preparators,
@@ -75,11 +79,14 @@ public final class Template {
 
     Logger.debugHeader("Started Processing Template");
 
+    checkNotNull(context);
     checkNotNull(metaModel);
     checkNotNull(dataManager);
     checkNotNull(preparators);
     checkNotNull(streams);
     checkNotNull(processor);
+
+    this.context = context;
 
     this.metaModel = metaModel;
     this.dataManager = dataManager;
@@ -612,5 +619,6 @@ public final class Template {
 
   public void endData() {
     Logger.debug("End Data");
+    context.setAddress(dataManager.getAddress().longValue());
   }
 }

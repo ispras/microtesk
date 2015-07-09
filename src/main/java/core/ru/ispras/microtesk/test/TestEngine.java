@@ -342,6 +342,7 @@ public final class TestEngine {
         );
 
     return new Template(
+        context,
         model.getMetaData(),
         dataManager,
         preparators,
