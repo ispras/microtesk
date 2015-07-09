@@ -53,15 +53,17 @@ public final class Call {
       this.exception = rootOperation.canThrowException();
       this.branch = rootOperation.isBranch();
       this.conditionalBranch = rootOperation.isConditionalBranch();
+      this.load = rootOperation.isLoad();
+      this.store = rootOperation.isStore();
+      this.blockSize = rootOperation.getBlockSize();
     } else {
       this.exception = false;
       this.branch = false;
       this.conditionalBranch = false;
+      this.load = false;
+      this.store = false;
+      this.blockSize = 0;
     }
-
-    this.load = false;
-    this.store = false;
-    this.blockSize = 0;
   }
 
   public Call(final Call other) {

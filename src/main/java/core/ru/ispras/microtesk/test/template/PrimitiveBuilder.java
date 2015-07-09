@@ -114,11 +114,11 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     builder.setSituation(situation);
 
     if (!argumentList.isEmpty()) {
-      for (Argument argument : argumentList) {
+      for (final Argument argument : argumentList) {
         argument.addToBuilder(builder);
       }
     } else if (!argumentMap.isEmpty()) {
-      for (Argument argument : argumentMap.values()) {
+      for (final Argument argument : argumentMap.values()) {
         argument.addToBuilder(builder);
       }
     }
@@ -530,6 +530,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     checkAllArgumentsSet(Collections.unmodifiableSet(args.keySet()));
 
     final Pair<Boolean, Boolean> branchInfo = getBranchInfo();
+    final MemoryAccessStatus memAccessStatus = getMemoryAccessStatus();
+
     final Primitive primitive = new ConcretePrimitive(
         kind,
         getName(),
@@ -541,9 +543,9 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         branchInfo.first,
         branchInfo.second,
         canThrowException(),
-        false, // TODO
-        false, // TODO
-        0      // TODO
+        memAccessStatus.isLoad(),
+        memAccessStatus.isStore(),
+        memAccessStatus.getBlockSize()
         );
 
     lazyPrimitive.setSource(primitive);
@@ -617,6 +619,36 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     return new Pair<>(false, false);
+  }
+
+  private MemoryAccessStatus getMemoryAccessStatus() {
+    if (kind == Kind.MODE) {
+      return MemoryAccessStatus.NO;
+    }
+
+    MemoryAccessStatus result = MemoryAccessStatus.NO; 
+
+    final MetaOperation metaOperation = getMetaOperation();
+    result = result.merge(new MemoryAccessStatus(
+        metaOperation.isLoad(),
+        metaOperation.isStore(),
+        metaOperation.getBlockSize())
+        );
+
+    for (final Argument arg : args.values()) {
+      if (arg.getKind() != Argument.Kind.OP) {
+        continue;
+      }
+
+      final Primitive primitive = (Primitive) arg.getValue();
+      result = result.merge(new MemoryAccessStatus(
+          primitive.isLoad(),
+          primitive.isStore(),
+          primitive.getBlockSize())
+          );
+    }
+
+    return result;
   }
 
   @Override
@@ -1010,3 +1042,44 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
   }
 }
+
+final class MemoryAccessStatus {
+  public static final MemoryAccessStatus NO =
+      new MemoryAccessStatus(false, false, 0);
+
+  private boolean load;
+  private boolean store;
+  private int blockSize;
+
+  public MemoryAccessStatus(
+      final boolean load,
+      final boolean store,
+      final int blockSize) {
+    this.load = load;
+    this.store = store;
+    this.blockSize = blockSize;
+  }
+
+  public boolean isLoad() { return load; }
+  public boolean isStore() { return store; }
+  public int getBlockSize() { return blockSize; }
+
+  public MemoryAccessStatus merge(final MemoryAccessStatus other) {
+    return new MemoryAccessStatus(
+        this.load  || other.load,
+        this.store || other.store,
+        Math.max(this.blockSize, other.blockSize)
+        );
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "MemoryAccessStatus [isLoad=%s, isStore=%s, blockSize=%s]",
+        load,
+        store,
+        blockSize
+        );
+  }
+}
+
