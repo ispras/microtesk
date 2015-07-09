@@ -82,7 +82,7 @@ public final class MemoryAccessStructureIteratorTestCase {
     final Map<MmuDevice, Map<MemoryHazard.Type, Integer>> devicesConflicts = new HashMap<>();
     for (final MmuDevice device : devices) {
       final Map<MemoryHazard.Type, Integer> conflicts = new HashMap<>();
-      for (final MemoryHazard conflict : CoverageExtractor.get().getCoverage(device)) {
+      for (final MemoryHazard conflict : CoverageExtractor.get().getHazards(device)) {
         conflicts.put(conflict.getType(), 0);
       }
 
@@ -93,7 +93,7 @@ public final class MemoryAccessStructureIteratorTestCase {
     for (final MmuAddress address : addresses) {
       final Map<MemoryHazard.Type, Integer> conflicts = new HashMap<>();
 
-      for (final MemoryHazard conflict : CoverageExtractor.get().getCoverage(address)) {
+      for (final MemoryHazard conflict : CoverageExtractor.get().getHazards(address)) {
         conflicts.put(conflict.getType(), 0);
       }
 

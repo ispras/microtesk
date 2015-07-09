@@ -41,7 +41,7 @@ final class MemoryCoverageExtractor {
    * 
    * @return the list of execution paths.
    */
-  public List<MemoryAccess> getExecutionPaths() {
+  public List<MemoryAccess> getAccesses() {
     final List<MemoryAccess> executions = new ArrayList<>();
     final List<MmuTransition> transitions = memory.getTransitions(memory.getStartAction());
 
@@ -58,7 +58,7 @@ final class MemoryCoverageExtractor {
 
       int i = 0;
       while (i < executions.size()) {
-        final List<MemoryAccess> executionPrefixList = elongateExecutionPaths(executions.get(i));
+        final List<MemoryAccess> executionPrefixList = elongateAccesses(executions.get(i));
 
         if (executionPrefixList != null) {
           executions.remove(i);
@@ -78,7 +78,7 @@ final class MemoryCoverageExtractor {
    * @param execution the execution path to be elongated.
    * @return the list of possible elongations of the execution path.
    */
-  private List<MemoryAccess> elongateExecutionPaths(final MemoryAccess execution) {
+  private List<MemoryAccess> elongateAccesses(final MemoryAccess execution) {
     // Get the last transition of the execution path.
     final List<MmuTransition> transitions = execution.getTransitions();
     final MmuTransition lastTransition = transitions.get(transitions.size() - 1);

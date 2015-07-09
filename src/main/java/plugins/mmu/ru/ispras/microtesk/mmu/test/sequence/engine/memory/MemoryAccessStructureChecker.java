@@ -34,11 +34,10 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.function.Predicate;
 
@@ -90,69 +89,40 @@ public final class MemoryAccessStructureChecker {
   private final Map<IntegerVariable, Set<IntegerField>> intersectingRanges = new LinkedHashMap<>();
 
   /** Template to be checked. */
-  private final MemoryAccessStructure template;
+  private final MemoryAccessStructure structure;
   private final Predicate<MemoryAccessStructure> filter;
 
   /**
-   * Constructs a checker for the given pair of executions.
-   *
-   * @param memory the memory specification.
-   * @param access1 the first execution.
-   * @param access2 the second execution.
-   * @param dependency the dependency between the first and second executions.
-   * @param filter the template filter.
-   */
-  public MemoryAccessStructureChecker(final MmuSubsystem memory, final MemoryAccess access1,
-      final MemoryAccess access2, final MemoryDependency dependency,
-      final Predicate<MemoryAccessStructure> filter) {
-    InvariantChecks.checkNotNull(access1);
-    InvariantChecks.checkNotNull(access2);
-    InvariantChecks.checkNotNull(filter);
-
-    final List<MemoryAccess> executions = new ArrayList<>();
-    executions.add(access1);
-    executions.add(access2);
-
-    final MemoryDependency[][] dependencies = new MemoryDependency[2][2];
-    dependencies[0][0] = null;
-    dependencies[1][0] = dependency;
-    dependencies[0][1] = null;
-    dependencies[1][1] = null;
-
-    this.template = new MemoryAccessStructure(memory, executions, dependencies);
-    this.filter = filter;
-  }
-
-  /**
-   * Constructs a template checker.
+   * Constructs a checker for the given memory access structure.
    * 
-   * @param template the template to be checked.
-   * @param filter the template filter.
+   * @param structure the memory accesses structure to be checked.
+   * @param filter the memory access filter.
    */
-  public MemoryAccessStructureChecker(final MemoryAccessStructure template,
+  public MemoryAccessStructureChecker(
+      final MemoryAccessStructure structure,
       final Predicate<MemoryAccessStructure> filter) {
-    InvariantChecks.checkNotNull(template);
+    InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkNotNull(filter);
 
-    this.template = template;
+    this.structure = structure;
     this.filter = filter;
   }
 
   /**
-   * Check consistency of the template.
+   * Check consistency of the structure.
    *
    * @return {@code true} if the condition is consistent; {@code false} otherwise.
    */
   public boolean check() {
     // Step 0. Check the memory access structure by using filters.
-    if (!filter.test(template)) {
+    if (!filter.test(structure)) {
       return false;
     }
 
     final Map<IntegerVariable, Set<IntegerRange>> variableRange = new LinkedHashMap<>();
 
     // Step 1. Add ranges for memory dependencies.
-    final MemoryDependency[][] dependencies = template.getDependencies();
+    final MemoryDependency[][] dependencies = structure.getDependencies();
 
     for (final MemoryDependency[] arrayDependency : dependencies) {
       for (final MemoryDependency dependency : arrayDependency) {
@@ -164,7 +134,7 @@ public final class MemoryAccessStructureChecker {
     }
 
     // Step 2. Add ranges for memory accesses.
-    final List<MemoryAccess> accesses = template.getAccesses();
+    final List<MemoryAccess> accesses = structure.getAccesses();
 
     for (final MemoryAccess execution : accesses) {
       // Initialize ranges: X = [1 .. a][a+1 .. b][b+1 .. n]
@@ -179,9 +149,8 @@ public final class MemoryAccessStructureChecker {
     for (final Map.Entry<IntegerVariable, List<IntegerRange>> variable : rangedVariable.entrySet()) {
       final Set<IntegerRange> rangeSet = new LinkedHashSet<>();
       final List<IntegerRange> rangeList = variable.getValue();
-      for (IntegerRange range : rangeList) {
-        rangeSet.add(range);
-      }
+
+      rangeSet.addAll(rangeList);
       variableRange.put(variable.getKey(), rangeSet);
     }
 
@@ -257,7 +226,7 @@ public final class MemoryAccessStructureChecker {
     for (int i = 0; i < accesses.size() - 1; i++) {
       for (int j = i + 1; j < accesses.size(); j++) {
 
-        final MemoryDependency dependency = template.getDependency(i, j);
+        final MemoryDependency dependency = structure.getDependency(i, j);
         if (dependency != null) {
           // Get equations from dependency of i & j execution.
           if (!process(i, j, accesses.get(i), accesses.get(j), dependency)) {
@@ -349,7 +318,7 @@ public final class MemoryAccessStructureChecker {
   /**
    * Adds the ranges of the variable from execution to the list.
    * 
-   * @param execution the execution of template.
+   * @param execution the execution of structure.
    * @param variableRange the list of variable ranges.
    */
   private void addVariableRange(final MemoryAccess execution,
@@ -375,10 +344,11 @@ public final class MemoryAccessStructureChecker {
   /**
    * Adds the ranges of the variable from execution to the list.
    * 
-   * @param execution the execution of template.
+   * @param execution the execution of structure.
    * @param variableRange the list of variable ranges.
    */
-  private static void initVariableRange(final MemoryAccess execution,
+  private static void initVariableRange(
+      final MemoryAccess execution,
       final Map<IntegerVariable, Set<IntegerRange>> variableRange) {
     for (final MmuTransition transition : execution.getTransitions()) {
 

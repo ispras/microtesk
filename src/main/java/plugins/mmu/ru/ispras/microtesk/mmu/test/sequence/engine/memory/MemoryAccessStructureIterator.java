@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -129,7 +130,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     this.dependencies = new MemoryDependency[accessTypes.size()][accessTypes.size()];
 
     // TODO: Take into account the memory access types.
-    final List<MemoryAccess> accesses = CoverageExtractor.get().getCoverage(memory);
+    final Collection<MemoryAccess> accesses = CoverageExtractor.get().getAccesses(memory);
     this.accessClasses = classifier.classify(accesses);
 
     // Initialize the memory access iterator.
@@ -363,7 +364,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     List<MemoryDependency> addrDependencies = new ArrayList<>();
     for (final MmuAddress address : addresses) {
-      final List<MemoryHazard> hazards = CoverageExtractor.get().getCoverage(address);
+      final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(address);
       addHazardsToDependencies(addrDependencies, access1, access2, hazards);
     }
 
@@ -373,7 +374,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
       dependencies.add(addrDependency);
       for (final MmuDevice device : devices) {
-        final List<MemoryHazard> hazards = CoverageExtractor.get().getCoverage(device);
+        final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(device);
         addHazardsToDependencies(dependencies, access1, access2, hazards);
 
         if (dependencies.isEmpty()) {
@@ -395,10 +396,10 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
    * @return the list of dependencies.
    */
   private void addHazardsToDependencies(
-      final List<MemoryDependency> dependencies,
+      final Collection<MemoryDependency> dependencies,
       final MemoryAccess access1,
       final MemoryAccess access2,
-      final List<MemoryHazard> hazards) {
+      final Collection<MemoryHazard> hazards) {
     InvariantChecks.checkNotNull(dependencies);
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
@@ -412,7 +413,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       dependencies.add(new MemoryDependency());
     }
 
-    final List<MemoryDependency> tempDependencies = new ArrayList<>(dependencies);
+    final Collection<MemoryDependency> tempDependencies = new ArrayList<>(dependencies);
 
     dependencies.clear();
     for (final MemoryDependency tempDependency : tempDependencies) {
@@ -421,7 +422,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
         dependency.addHazard(hazard);
 
         final MemoryAccessStructureChecker checker = new MemoryAccessStructureChecker(
-            memory, access1, access2, dependency, accessPairFilter);
+            new MemoryAccessStructure(memory, access1, access2, dependency), accessPairFilter);
 
         if (checker.check()) {
           dependencies.add(dependency);

@@ -14,10 +14,12 @@
 
 package ru.ispras.microtesk.mmu.translator.coverage;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
@@ -34,47 +36,60 @@ public final class CoverageExtractor {
     return instance;
   }
 
-  private Map<MmuAddress, List<MemoryHazard>> addressCoverage = new HashMap<>();
-  private Map<MmuDevice, List<MemoryHazard>> deviceCoverage = new HashMap<>();
-  private Map<MmuSubsystem, List<MemoryAccess>> memoryCoverage = new HashMap<>();
+  private final Map<MmuAddress,   Collection<MemoryHazard>> addressHazards = new HashMap<>();
+  private final Map<MmuDevice,    Collection<MemoryHazard>> deviceHazards  = new HashMap<>();
+  private final Map<MmuSubsystem, Collection<MemoryAccess>> memoryAccesses = new HashMap<>();
+  private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards  = new HashMap<>();
 
   private CoverageExtractor() {}
 
-  public List<MemoryHazard> getCoverage(final MmuAddress address) {
-    List<MemoryHazard> coverage = addressCoverage.get(address);
+  public Collection<MemoryHazard> getHazards(final MmuAddress address) {
+    InvariantChecks.checkNotNull(address);
 
-    if (coverage != null) {
-      return coverage;
+    Collection<MemoryHazard> coverage = addressHazards.get(address);
+    if (coverage == null) {
+      final AddressCoverageExtractor extractor = new AddressCoverageExtractor(address);
+      addressHazards.put(address, coverage = extractor.getHazards());
     }
-
-    final AddressCoverageExtractor extractor = new AddressCoverageExtractor(address);
-    addressCoverage.put(address, coverage = extractor.getHazards());
 
     return coverage;
   }
 
-  public List<MemoryHazard> getCoverage(final MmuDevice device) {
-    List<MemoryHazard> coverage = deviceCoverage.get(device);
+  public Collection<MemoryHazard> getHazards(final MmuDevice device) {
+    InvariantChecks.checkNotNull(device);
 
-    if (coverage != null) {
-      return coverage;
+    Collection<MemoryHazard> coverage = deviceHazards.get(device);
+    if (coverage == null) {
+      final BufferCoverageExtractor extractor = new BufferCoverageExtractor(device);
+      deviceHazards.put(device, coverage = extractor.getHazards());
     }
-
-    final BufferCoverageExtractor extractor = new BufferCoverageExtractor(device);
-    deviceCoverage.put(device, coverage = extractor.getHazards());
 
     return coverage;
   }
 
-  public List<MemoryAccess> getCoverage(final MmuSubsystem memory) {
-    List<MemoryAccess> coverage = memoryCoverage.get(memory);
+  public Collection<MemoryAccess> getAccesses(final MmuSubsystem memory) {
+    InvariantChecks.checkNotNull(memory);
 
-    if (coverage != null) {
-      return coverage;
+    Collection<MemoryAccess> coverage = memoryAccesses.get(memory);
+    if (coverage == null) {
+      final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
+      memoryAccesses.put(memory, coverage = extractor.getAccesses());
     }
 
-    final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
-    memoryCoverage.put(memory, coverage = extractor.getExecutionPaths());
+    return coverage;
+  }
+
+  public Collection<MemoryHazard> getHazards(final MmuSubsystem memory) {
+    InvariantChecks.checkNotNull(memory);
+
+    Collection<MemoryHazard> coverage = memoryHazards.get(memory);
+    if (coverage == null) {
+      coverage = new ArrayList<>();
+      for (final MmuDevice device : memory.getDevices()) {
+        coverage.addAll(getHazards(device));
+      }
+      memoryHazards.put(memory, coverage);
+    }
 
     return coverage;
   }

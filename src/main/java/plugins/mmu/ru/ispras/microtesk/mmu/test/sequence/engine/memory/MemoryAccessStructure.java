@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +37,6 @@ public final class MemoryAccessStructure {
   /** Dependencies between the memory accesses. */
   private final MemoryDependency[][] dependencies;
 
-  /**
-   * Constructs a memory access structure.
-   * 
-   * @param accesses the sequence of memory accesses (accesses).
-   * @param dependencies the dependencies.
-   */
   public MemoryAccessStructure(
       final MmuSubsystem memory,
       final List<MemoryAccess> accesses,
@@ -54,6 +49,28 @@ public final class MemoryAccessStructure {
     this.memory = memory;
     this.accesses = accesses;
     this.dependencies = dependencies;
+  }
+
+  public MemoryAccessStructure(
+      final MmuSubsystem memory,
+      final MemoryAccess access1,
+      final MemoryAccess access2,
+      final MemoryDependency dependency) {
+    InvariantChecks.checkNotNull(access1);
+    InvariantChecks.checkNotNull(access2);
+    InvariantChecks.checkNotNull(dependency);
+
+    this.memory = memory;
+
+    this.accesses = new ArrayList<>();
+    this.accesses.add(access1);
+    this.accesses.add(access2);
+
+    this.dependencies = new MemoryDependency[2][2];
+    this.dependencies[0][0] = null;
+    this.dependencies[1][0] = dependency;
+    this.dependencies[0][1] = null;
+    this.dependencies[1][1] = null;
   }
 
   /**
