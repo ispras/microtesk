@@ -137,11 +137,15 @@ public final class Call {
 
   public String getText() {
     return String.format(
-        "instruction call (root: %s, branch: %b, cond: %b, exception: %b)",
+        "instruction call " + 
+        "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d)",
         isExecutable() ? rootOperation.getName() : "null",
         isBranch(),
         isConditionalBranch(),
-        canThrowException()
+        canThrowException(),
+        isLoad(),
+        isStore(),
+        getBlockSize()
         );
   }
 
