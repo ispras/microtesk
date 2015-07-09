@@ -600,6 +600,10 @@ public final class TestEngine {
     }
 
     private void processPreOrPostBlock(final Block block) throws ConfigurationException {
+      // PRE and POST blocks can produce only one abstract sequence.
+      // Otherwise, this is an incorrect test template. Using the 'block' construct
+      // should be forbidden in 'pre' and 'post'.
+
       InvariantChecks.checkTrue(block.isSingle());
 
       final Iterator<List<Call>> sequenceIt = block.getIterator();
