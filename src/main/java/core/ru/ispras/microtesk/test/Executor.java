@@ -425,6 +425,7 @@ final class Executor {
 
     logOutputs(call.getOutputs());
     logLabels(call.getLabels());
+    logText(call.getText());
 
     // If the call is not executable (contains only attributes like
     // labels or outputs, but no "body"), continue to the next instruction.
@@ -432,7 +433,6 @@ final class Executor {
       return currentPos + 1;
     }
 
-    logText(call.getText());
     final String exception = call.execute();
 
     // final BigInteger address = observer.accessLocation("PC").getValue();
