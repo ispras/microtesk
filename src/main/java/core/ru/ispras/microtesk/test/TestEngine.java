@@ -595,7 +595,13 @@ public final class TestEngine {
 
             printer.close();
 
-            engineContext.setAddress(0);
+            if (!preBlockTestSequences.isEmpty()) {
+              final TestSequence sequences =
+                  preBlockTestSequences.get(preBlockTestSequences.size() - 1);
+              engineContext.setAddress(sequences.getEndAddress());
+            } else {
+              engineContext.setAddress(0);
+            }
           }
         } // Concrete sequence iterator
 

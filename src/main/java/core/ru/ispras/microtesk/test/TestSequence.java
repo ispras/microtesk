@@ -90,8 +90,8 @@ public final class TestSequence {
   private final int byteSize;
   private final int instructionCount;
 
-  private long address = 0;
-  private boolean isAddressSet = false;
+  private long endAddress = 0;
+  private boolean isEndAddressSet = false;
 
   private TestSequence(
       final int byteSize,
@@ -128,38 +128,38 @@ public final class TestSequence {
     return byteSize;
   }
 
-  public long getAddress() {
-    if (!isAddressSet) {
+  public long getEndAddress() {
+    if (!isEndAddressSet) {
       throw new IllegalStateException("Address is not assigned");
     }
 
-    return address;
+    return endAddress;
   }
 
   public long setAddress(final long address) {
-    this.address = address;
-    this.isAddressSet = true;
-
-    long currentCallAddress = address;
+    long currentAddress = address;
     for (final ConcreteCall call : prologue) {
       if (call.getOrigin() != null) {
-        currentCallAddress = call.getOrigin().longValue();
+        currentAddress = call.getOrigin().longValue();
       }
 
-      call.setAddress(currentCallAddress);
-      currentCallAddress += call.getByteSize();
+      call.setAddress(currentAddress);
+      currentAddress += call.getByteSize();
     }
 
     for (final ConcreteCall call : body) {
       if (call.getOrigin() != null) {
-        currentCallAddress = call.getOrigin().longValue();
+        currentAddress = call.getOrigin().longValue();
       }
 
-      call.setAddress(currentCallAddress);
-      currentCallAddress += call.getByteSize();
+      call.setAddress(currentAddress);
+      currentAddress += call.getByteSize();
     }
 
-    return currentCallAddress;
+    this.endAddress = currentAddress;
+    this.isEndAddressSet = true;
+
+    return currentAddress;
   }
 
   public int getInstructionCount() {
