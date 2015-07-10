@@ -103,7 +103,7 @@ public final class LabelReference {
    */
 
   public BigInteger getArgumentValue() {
-    return reference.getAddress();
+    return reference.hasAddress() ? reference.getAddress() : null;
   }
 
   public Target getTarget() {
