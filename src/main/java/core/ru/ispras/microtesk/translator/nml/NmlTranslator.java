@@ -48,9 +48,13 @@ import ru.ispras.microtesk.utils.FileUtils;
 
 public final class NmlTranslator extends Translator<Ir> {
   private static final Set<String> FILTER = Collections.singleton(".nml");
+  private final SymbolTable symbols = new SymbolTable();
 
   public NmlTranslator() {
     super(FILTER);
+
+    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
+    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -69,14 +73,14 @@ public final class NmlTranslator extends Translator<Ir> {
       }
   
       Logger.message("Included: " + filename);
-      source.push(new NmlLexer(stream, pp));
+      source.push(new NmlLexer(stream, pp, symbols));
     }
 
     @Override
     public void includeTokensFromString(final String substitution) {
       final CharStream stream = this.tokenStreamFromString(substitution);
       if (stream != null) {
-        source.push(new NmlLexer(stream, this));
+        source.push(new NmlLexer(stream, this, symbols));
       }
     }
   };
@@ -106,10 +110,6 @@ public final class NmlTranslator extends Translator<Ir> {
 
   private Ir startParserAndWalker(final TokenSource source) {// throws RecognitionException {
     final LogStore log = getLog();
-    final SymbolTable symbols = new SymbolTable();
-
-    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
-    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
     final CommonTokenStream tokens = new TokenRewriteStream();
     tokens.setTokenSource(source);

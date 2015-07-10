@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,7 @@ lexer grammar CommonLexer;
 
 @members {
 private ru.ispras.microtesk.translator.antlrex.Preprocessor pp;
+private ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable symbols;
 
 public final ru.ispras.microtesk.translator.antlrex.Preprocessor getPreprocessor() {
   return pp;
@@ -36,6 +37,11 @@ private void pp(final String text) {
   } else {
     setText(text);
   }
+}
+
+public final void setSymbols(
+    final ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable symbols) {
+  this.symbols = symbols;
 }}
 
 //==================================================================================================
@@ -199,7 +205,13 @@ UNDEFINED     : 'undefined'   { pp(); };
 // Identifier
 //==================================================================================================
 
-ID : LETTER (LETTER | DIGIT | '_')* { pp(); };
+ID : LETTER (LETTER | DIGIT | '_')* {
+if (null != symbols && symbols.isReserved($text)) {
+  setText($text + "__");
+}
+
+pp();
+};
 
 //==================================================================================================
 // Literals

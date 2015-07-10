@@ -40,17 +40,20 @@ import commonLexer=CommonLexer;
 package ru.ispras.microtesk.translator.nml.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
+import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.fortress.util.InvariantChecks;
 }
 
 @members {
 private Preprocessor pp = null;
 
-public NmlLexer(final CharStream chars, final Preprocessor pp) {
+public NmlLexer(final CharStream chars, final Preprocessor pp, final SymbolTable symbols) {
   this(chars);
 
   commonLexer.setPreprocessor(pp);
   this.pp = pp;
+
+  commonLexer.setSymbols(symbols);
 }
 
 private void pp() {

@@ -164,7 +164,7 @@ public final class DocgenNmlAnalyzer extends Preprocessor {
       return;
     }
 
-    source.push(new NmlLexer(stream, this));
+    source.push(new NmlLexer(stream, this, null));
   }
 
   @Override
