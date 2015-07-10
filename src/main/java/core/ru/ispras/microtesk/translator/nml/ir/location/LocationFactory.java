@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.location;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -112,8 +113,8 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     final LocationCreator creator = (NmlSymbolKind.MEMORY == kind) ?
-      new MemoryBasedLocationCreator(this, where, name, null) :
-      new ArgumentBasedLocationCreator(this, where, name);
+        new MemoryBasedLocationCreator(this, where, name, null) :
+        new ArgumentBasedLocationCreator(this, where, name);
 
     final LocationAtom result = creator.create();
     addToLog(result);
@@ -291,6 +292,17 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
   @Override
   public LocationAtom create() throws SemanticException {
     final MemoryExpr memory = findMemory();
+
+    // Checking bounds for constant values.
+    if (index != null && index.getValueInfo().isConstant()) {
+      final BigInteger indexValue = index.bigIntegerValue();
+      if (indexValue.compareTo(BigInteger.ZERO) < 0 || 
+          indexValue.compareTo(memory.getSizeExpr().bigIntegerValue()) >= 0) {
+        raiseError(where, String.format("Index is out of bounds: %d. It must be in [0..%d)",
+            indexValue, memory.getSizeExpr().bigIntegerValue()));
+      }
+    }
+
     return LocationAtom.createMemoryBased(name, memory, index);
   }
 
