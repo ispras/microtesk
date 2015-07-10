@@ -196,12 +196,12 @@ public final class Printer {
 
   private void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
     for (final ConcreteCall call : calls) {
-      printOutputs(call.getOutputs());
-      printLabels(call.getLabels());
-
       if (call.getOrigin() != null) {
         printText(String.format(".org 0x%x", call.getOrigin()));
       }
+
+      printOutputs(call.getOutputs());
+      printLabels(call.getLabels());
 
       printText(call.getText());
     }

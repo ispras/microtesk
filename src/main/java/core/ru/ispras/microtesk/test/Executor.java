@@ -128,12 +128,12 @@ final class Executor {
     while (index >= 0 && index < calls.size()) {
       final ConcreteCall call = calls.get(index);
 
-      logOutputs(call.getOutputs());
-      logLabels(call.getLabels());
-
       if (call.getOrigin() != null) {
         logText(String.format(".org 0x%x", call.getOrigin()));
       }
+
+      logOutputs(call.getOutputs());
+      logLabels(call.getLabels());
 
       if (!call.isExecutable()) {
         if (index == endIndex) break;
