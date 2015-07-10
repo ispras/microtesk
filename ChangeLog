@@ -10,9 +10,9 @@
  
  The new build contains the following changes:
  
- - Support for 'org' and 'align' directives in test templates
+ - Support for '.org' and '.align' directives in test templates
  - Better handling of the 'undefined' and 'unpredicted' situations
- - Several bug fixes and general improvements were made
+ - Several bug fixes and general improvements
 
  2015/07/06 MicroTESK 2.2.8 beta
  
