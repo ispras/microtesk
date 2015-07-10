@@ -26,6 +26,7 @@ import java.util.Map;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
@@ -615,6 +616,7 @@ public final class Template {
 
   public void beginData() {
     Logger.debug("Begin Data");
+    Memory.setUseTempCopies(false);
   }
 
   public void endData() {

@@ -402,6 +402,7 @@ public final class DataManager {
     checkNotNull(method);
 
     checkInitialized();
+    Memory.setUseTempCopies(false);
 
     final String fileName = String.format(
         "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
