@@ -14,9 +14,10 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,8 +27,8 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 
 public final class Buffer extends AbstractStorage implements TypeProvider {
-  private final int ways;
-  private final int sets;
+  private final BigInteger ways;
+  private final BigInteger sets;
   private final Node index;
   private final Node match;
   private final PolicyId policy;
@@ -38,8 +39,8 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
       Address address,
       Variable addressArg,
       Variable dataArg,
-      int ways,
-      int sets,
+      BigInteger ways,
+      BigInteger sets,
       Node index,
       Node match,
       PolicyId policy,
@@ -47,8 +48,8 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
 
     super(id, address, addressArg, dataArg, createAttributes(addressArg, dataArg));
 
-    checkGreaterThanZero(ways);
-    checkGreaterThanZero(sets);
+    checkTrue(ways.compareTo(BigInteger.ZERO) > 0);
+    checkTrue(sets.compareTo(BigInteger.ZERO) > 0);
     checkNotNull(index);
     checkNotNull(match);
     checkNotNull(policy);
@@ -89,11 +90,11 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
     return String.format("%s.%s", getId(), "entry");
   }
 
-  public int getWays() {
+  public BigInteger getWays() {
     return ways;
   }
 
-  public int getSets() {
+  public BigInteger getSets() {
     return sets;
   }
 

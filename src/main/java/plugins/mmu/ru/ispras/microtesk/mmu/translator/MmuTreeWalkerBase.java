@@ -230,8 +230,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final Buffer parent;
 
     private Variable dataArg; // stores entries
-    private int ways;
-    private int sets;
+    private BigInteger ways;
+    private BigInteger sets;
     private Node index;
     private Node match;
     private PolicyId policy;
@@ -256,8 +256,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.parent = null != parentBufferId ? getBuffer(parentBufferId) : null;
 
       this.dataArg = null;
-      this.ways = 0;
-      this.sets = 0;
+      this.ways = BigInteger.ZERO;
+      this.sets = BigInteger.ZERO;
       this.index = null;
       this.match = null;
       this.policy = null;
@@ -283,14 +283,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     public void setWays(final CommonTree attrId, final Node attr) throws SemanticException {
       checkNotNull(attrId, attr);
-      checkRedefined(attrId, ways != 0);
-      ways = extractPositiveInt(where(attrId), attr, attrId.getText());
+      checkRedefined(attrId, !ways.equals(BigInteger.ZERO));
+      ways = extractPositiveBigInteger(where(attrId), attr, attrId.getText());
     }
 
     public void setSets(final CommonTree attrId, final Node attr) throws SemanticException {
       checkNotNull(attrId, attr);
-      checkRedefined(attrId, sets != 0);
-      sets = extractPositiveInt(where(attrId), attr, attrId.getText());
+      checkRedefined(attrId, !sets.equals(BigInteger.ZERO));
+      sets = extractPositiveBigInteger(where(attrId), attr, attrId.getText());
     }
 
     public void setEntry(final CommonTree attrId, final Type attr) throws SemanticException {
@@ -328,8 +328,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public Buffer build() throws SemanticException {
-      checkUndefined("ways", ways == 0);
-      checkUndefined("sets", sets == 0);
+      checkUndefined("ways", ways.equals(BigInteger.ZERO));
+      checkUndefined("sets", sets.equals(BigInteger.ZERO));
       checkUndefined("entry", dataArg == null); 
       checkUndefined("index", index == null);
       checkUndefined("match", match == null);
@@ -783,6 +783,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final int value = extractInt(w, expr, nodeName);
     if (value <= 0) {
       raiseError(w, String.format("%s (%d) must be > 0.", nodeName, value));
+    }
+
+    return value;
+  }
+
+  private BigInteger extractPositiveBigInteger(
+      final Where w, final Node expr, final String nodeName) throws SemanticException {
+
+    final BigInteger value = extractBigInteger(w, expr, nodeName);
+    if (value.compareTo(BigInteger.ZERO) <= 0) {
+      raiseError(w, String.format("%s (%s) must be > 0.", nodeName, value));
     }
 
     return value;

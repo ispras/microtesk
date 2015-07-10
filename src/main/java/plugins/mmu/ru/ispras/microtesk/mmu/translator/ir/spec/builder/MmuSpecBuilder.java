@@ -143,8 +143,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
       final MmuDevice device = new MmuDevice(
           buffer.getId(),
-          buffer.getWays(),
-          buffer.getSets(),
+          buffer.getWays().longValue(),
+          buffer.getSets().longValue(),
           address,
           addressFormat.getTagExpr(),
           addressFormat.getIndexExpr(),
