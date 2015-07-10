@@ -45,6 +45,8 @@ public final class AddressDataGenerator implements DataGenerator {
   private static final String PARAM_ADDRESS_OFFSET = "offset";
   /** Memory region to choose an address from. */
   private static final String PARAM_MEMORY_REGION = "region";
+  /** Size of a data block being accessed (in bytes). */
+  private static final String PARAM_BLOCK_SIZE = "size";
 
   @Override
   public boolean isSuitable(final TestBaseQuery query) {
@@ -78,6 +80,7 @@ public final class AddressDataGenerator implements DataGenerator {
     final Object addressBase = Utils.getParameter(query, PARAM_ADDRESS_BASE);
     final Object addressOffset = Utils.getParameter(query, PARAM_ADDRESS_OFFSET);
     final Object memoryRegion = Utils.getParameter(query, PARAM_MEMORY_REGION);
+    final long blockSize = Utils.getParameterAsInt(query, PARAM_BLOCK_SIZE);
 
     final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
     final MemorySettings memorySettings = generatorSettings.getMemory();
@@ -93,6 +96,7 @@ public final class AddressDataGenerator implements DataGenerator {
       BigInteger.valueOf(max).add(BigInteger.ONE.shiftLeft(Long.SIZE));
 
     final BigInteger address = Randomizer.get().nextBigIntegerRange(startAddress, endAddress);
+    final BigInteger alignedAddress = BigInteger.valueOf(address.longValue() & ~(blockSize - 1));
 
     final Map<String, Node> unknowns = Utils.extractUnknown(query);
     final Map<String, Node> bindings = new LinkedHashMap<>();
@@ -102,7 +106,7 @@ public final class AddressDataGenerator implements DataGenerator {
       final DataType type = entry.getValue().getDataType();
 
       if (name.equals(addressBase)) {
-        final BitVector data = BitVector.valueOf(address, type.getSize());
+        final BitVector data = BitVector.valueOf(alignedAddress, type.getSize());
         bindings.put(name, NodeValue.newBitVector(data));
       } else if (addressOffset != null && name.equals(addressOffset)) {
         final BitVector data = BitVector.valueOf(0, type.getSize());

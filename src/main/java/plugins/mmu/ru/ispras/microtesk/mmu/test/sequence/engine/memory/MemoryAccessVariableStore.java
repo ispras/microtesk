@@ -200,7 +200,9 @@ final class MemoryAccessVariableStore {
     final Map<IntegerVariable, List<IntegerRange>> disjointRanges2 = getDisjointRanges(ranges);
 
     if (!fieldAssignments.isEmpty()) {
-      linkedUniqueRange(disjointRanges2);
+      for (final IntegerField field : fieldAssignments.keySet()) {
+        linkedUniqueRange(disjointRanges2, field);
+      }
     }
 
     disjointRanges.putAll(disjointRanges2);
@@ -531,23 +533,14 @@ final class MemoryAccessVariableStore {
     variableFields.put(baseTerm.getVariable(), tempSet);
 
   }
-  
-  private void linkedUniqueRange(final Map<IntegerVariable, List<IntegerRange>> variables) {
-    for (final Map.Entry<IntegerField, Set<IntegerField>> variable : fieldAssignments.entrySet()) {
-      linkedUniqueRange(variables, variable.getKey());
-    }
-  }
 
-  /**
-   * Link the a unique range of.
-   * 
-   * @param variables the variables.
-   * @param baseTerm the term.
-   */
-  private void linkedUniqueRange(final Map<IntegerVariable, List<IntegerRange>> variables,
-      final IntegerField baseTerm) {
+  private void linkedUniqueRange(
+      final Map<IntegerVariable, List<IntegerRange>> disjointRanges, final IntegerField baseTerm) {
+    InvariantChecks.checkNotNull(disjointRanges);
+    InvariantChecks.checkNotNull(baseTerm);
+
     final IntegerRange baseRange = new IntegerRange(baseTerm.getLoIndex(), baseTerm.getHiIndex());
-    List<IntegerRange> variableRanges = variables.get(baseTerm.getVariable());
+    List<IntegerRange> variableRanges = disjointRanges.get(baseTerm.getVariable());
 
     if (variableRanges != null) {
       final Set<IntegerRange> baseRanges = getRangesIncludedIntoAnotherOne(variableRanges, baseRange);
@@ -555,7 +548,7 @@ final class MemoryAccessVariableStore {
 
       for (final IntegerField term : fieldAssignments.get(baseTerm)) {
         int shift = term.getLoIndex() - baseTerm.getLoIndex();
-        List<IntegerRange> termVariableRanges = variables.get(term.getVariable());
+        List<IntegerRange> termVariableRanges = disjointRanges.get(term.getVariable());
         final IntegerRange termRange = new IntegerRange(term.getLoIndex(), term.getHiIndex());
         final Set<IntegerRange> termRanges = getRangesIncludedIntoAnotherOne(termVariableRanges, termRange);
         final List<IntegerRange> termRangesList = IntegerRange.divide(termRanges);
@@ -587,19 +580,22 @@ final class MemoryAccessVariableStore {
           termVariableRanges.clear();
           termVariableRanges = IntegerRange.divide(rangeSet2);
 
-          variables.put(baseTerm.getVariable(), variableRanges);
-          variables.put(term.getVariable(), termVariableRanges);
+          disjointRanges.put(baseTerm.getVariable(), variableRanges);
+          disjointRanges.put(term.getVariable(), termVariableRanges);
 
-          updateUniqueRange(variables, baseTerm);
-          updateUniqueRange(variables, term);
+          updateUniqueRange(disjointRanges, baseTerm);
+          updateUniqueRange(disjointRanges, term);
         }
       }
     }
   }
 
-  private void updateUniqueRange(final Map<IntegerVariable, List<IntegerRange>> variables,
-      final IntegerField term) {
-    linkedUniqueRange(variables, term);
+  private void updateUniqueRange(
+      final Map<IntegerVariable, List<IntegerRange>> disjointRanges, final IntegerField term) {
+    InvariantChecks.checkNotNull(disjointRanges);
+    InvariantChecks.checkNotNull(term);
+
+    linkedUniqueRange(disjointRanges, term);
     final Set<IntegerField> intersecting = variableFields.get(term.getVariable());
     if ((intersecting != null) && (intersecting.size() > 1)) {
       for (IntegerField intersectingItem : intersecting) {
@@ -607,7 +603,7 @@ final class MemoryAccessVariableStore {
             new IntegerRange(intersectingItem.getLoIndex(), intersectingItem.getHiIndex());
         final IntegerRange tempRange2 = new IntegerRange(term.getLoIndex(), term.getHiIndex());
         if (tempRange1.intersect(tempRange2) != null) {
-          linkedUniqueRange(variables, intersectingItem);
+          linkedUniqueRange(disjointRanges, intersectingItem);
         }
       }
     }
