@@ -22,10 +22,14 @@ public final class SymbolTable implements IScope {
     this.scope = globalScope;
   }
 
-  public void defineReserved(Enum<?> kind, String[] names) {
-    for (String s : names) {
+  public void defineReserved(final Enum<?> kind, final String[] names) {
+    for (final String s : names) {
       globalScope.define(new BuiltInSymbol(s, kind, globalScope));
     }
+  }
+
+  public boolean isReserved(final String name) {
+    return resolve(name) instanceof BuiltInSymbol;
   }
 
   public void push() {
