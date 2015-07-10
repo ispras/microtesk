@@ -570,19 +570,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     // Trying to reduce all operands
-    final Node[] reducedOperands = new Node[operands.length];
+    final Node[] substituted = new Node[operands.length];
     for (int i = 0; i < operands.length; i++) {
-      final Node operand = context.getAssignedValue(operands[i]);
-      final Node reducedOperand = Transformer.reduce(ReduceOptions.NEW_INSTANCE, operand);
-      reducedOperands[i] = reducedOperand;
+      substituted[i] = context.getAssignedValue(operands[i]);
     }
 
     // Calculating the type all argument are to be cast to
-    final DataType firstOpType = reducedOperands[0].getDataType();
+    final DataType firstOpType = substituted[0].getDataType();
     DataType type = firstOpType;
 
-    for (int i = 1; i < reducedOperands.length; i++) {
-      final Node operand = reducedOperands[i];
+    for (int i = 1; i < substituted.length; i++) {
+      final Node operand = substituted[i];
       final DataType currentType = operand.getDataType(); 
 
       // Size is always greater for bit vectors.
@@ -592,11 +590,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     if (type != firstOpType && type.getTypeId() == DataTypeId.BIT_VECTOR) {
-      for (int i = 0; i < reducedOperands.length; i++) {
-        final Node operand = reducedOperands[i];
+      for (int i = 0; i < substituted.length; i++) {
+        final Node operand = substituted[i];
         if ((operand instanceof NodeValue) && !type.equals(operand.getDataType())) {
           final BigInteger value = ((NodeValue) operand).getInteger();
-          reducedOperands[i] = new NodeValue(Data.newBitVector(value, type.getSize()));
+          substituted[i] = new NodeValue(Data.newBitVector(value, type.getSize()));
         }
       }
     }
@@ -606,7 +604,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(w, String.format(ERR_NO_OPERATOR_FOR_TYPE, operatorId.getText(), type));
     }
 
-    return new NodeOperation(fortressOp, reducedOperands);
+    return Transformer.reduce(ReduceOptions.NEW_INSTANCE,
+                              new NodeOperation(fortressOp, substituted));
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
