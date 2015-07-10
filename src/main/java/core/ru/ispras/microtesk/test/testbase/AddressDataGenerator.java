@@ -52,8 +52,9 @@ public final class AddressDataGenerator implements DataGenerator {
   public boolean isSuitable(final TestBaseQuery query) {
     final String addressBase = Utils.getParameter(query, PARAM_ADDRESS_BASE).toString();
     final String memoryRegion = Utils.getParameter(query, PARAM_MEMORY_REGION).toString();
+    final String blockSize = Utils.getParameter(query, PARAM_BLOCK_SIZE).toString();
 
-    if (addressBase == null || memoryRegion == null) {
+    if (addressBase == null || memoryRegion == null || blockSize == null) {
       return false;
     }
 
