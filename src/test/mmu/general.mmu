@@ -20,59 +20,12 @@
 
 address VA(64)
 
-//--------------------------------------------------------------------------------------------------
-// User Mode Segments
-//--------------------------------------------------------------------------------------------------
-
-segment USEG (va: VA)
-  range = (0x0000000000000000, 0x000000007fffffff)
-
-segment XUSEG(va: VA)
-  range = (0x0000000080000000, 0x000000ffffffffff)
-
-//--------------------------------------------------------------------------------------------------
-// Supervisor Mode Segments
-//--------------------------------------------------------------------------------------------------
-
-segment SUSEG(va: VA)
-  range = (0x0000000000000000, 0x000000007fffffff)
-
-segment XSUSEG(va: VA)
-  range = (0x0000000080000000, 0x000000ffffffffff)
-
-segment XSSEG(va: VA)
-  range = (0x4000000000000000, 0x400000ffffffffff)
-  
-segment CSSEG(va: VA)
-  range = (0xffffffffc0000000, 0xffffffffdfffffff)
-
-//--------------------------------------------------------------------------------------------------
-// Kernel Mode Segments
-//--------------------------------------------------------------------------------------------------
-
-segment KUSEG (va: VA)
-  range = (0x0000000000000000, 0x000000007fffffff)
-
-segment XKUSEG (va: VA)
-  range = (0x0000000080000000, 0x000000ffffffffff)
-
-segment XKSSEG (va: VA)
-  range = (0x4000000000000000, 0x400000ffffffffff)
-
-segment XKSEG (va: VA)
-  range = (0xc000000000000000, 0xc00000ff7fffffff)
-
-segment CKSSEG (va: VA)
-  range = (0xffffffffc0000000, 0xffffffffdfffffff)
-
-segment CKSEG3(va: VA)
-  range = (0xffffffffe0000000, 0xffffffffffffffff)
-
 //==================================================================================================
 // Physical Address (PA)
 //==================================================================================================
 
 address PA(36)
+
 
 //==================================================================================================
 // Translation Lookaside Buffer (TLB)
@@ -97,6 +50,105 @@ buffer DTLB (va: VA) viewof JTLB
   index  = 0
   match  = VPN2 == va<39..13> // ASID, G and non-4KB pages are unsupported
   policy = PLRU
+
+//--------------------------------------------------------------------------------------------------
+// User Mode Segments
+//--------------------------------------------------------------------------------------------------
+
+segment USEG (va: VA) = (pa : PA)
+  range = (0x0000000000000000, 0x000000007fffffff)
+
+  var tlbEntry: JTLB.entry;
+
+  var evenOddBit: 5;
+
+  var g: 1;
+  var v: 1;
+  var d: 1;
+  var c: 3;
+  var pfn: 24;
+
+  read = {
+    // The address hits the DTLB.
+    if DTLB(va).hit then
+      tlbEntry = DTLB(va);
+    // The address hits the JTLB.
+    elif JTLB(va).hit then
+      tlbEntry = JTLB(va);
+    // The address does not hit the TLB.
+    else
+      exception("TLBMiss");
+    endif; // If the address hits the DTLB.
+
+    // Only 4KB pages are supported.
+    evenOddBit = 12;
+
+    // The VPN is even.
+    if va<evenOddBit> == 0 then
+      g   = tlbEntry.G0;
+      v   = tlbEntry.V0;
+      d   = tlbEntry.D0;
+      c   = tlbEntry.C0;
+      pfn = tlbEntry.PFN0;
+    // The VPN is odd.
+    else
+      g   = tlbEntry.G1;
+      v   = tlbEntry.V1;
+      d   = tlbEntry.D1;
+      c   = tlbEntry.C1;
+      pfn = tlbEntry.PFN1;
+    endif; // If the VPN is even.
+
+    // The EntryLo is valid.
+    if v == 1 then
+      pa = pfn<24..(evenOddBit - 12)>::va<(evenOddBit - 1)..0>;
+    // The EntryLo is invalid.
+    else
+      exception("TLBInvalid");
+    endif; // If the EntryLo is valid.
+  }
+
+segment XUSEG(va: VA) = (pa : PA)
+  range = (0x0000000080000000, 0x000000ffffffffff)
+
+//--------------------------------------------------------------------------------------------------
+// Supervisor Mode Segments
+//--------------------------------------------------------------------------------------------------
+
+segment SUSEG(va: VA) = (pa : PA)
+  range = (0x0000000000000000, 0x000000007fffffff)
+
+segment XSUSEG(va: VA) = (pa : PA)
+  range = (0x0000000080000000, 0x000000ffffffffff)
+
+segment XSSEG(va: VA) = (pa : PA)
+  range = (0x4000000000000000, 0x400000ffffffffff)
+  
+segment CSSEG(va: VA) = (pa : PA)
+  range = (0xffffffffc0000000, 0xffffffffdfffffff)
+
+//--------------------------------------------------------------------------------------------------
+// Kernel Mode Segments
+//--------------------------------------------------------------------------------------------------
+
+segment KUSEG (va: VA) = (pa : PA)
+  range = (0x0000000000000000, 0x000000007fffffff)
+
+segment XKUSEG (va: VA) = (pa : PA)
+  range = (0x0000000080000000, 0x000000ffffffffff)
+
+segment XKSSEG (va: VA) = (pa : PA)
+  range = (0x4000000000000000, 0x400000ffffffffff)
+
+segment XKSEG (va: VA) = (pa : PA)
+  range = (0xc000000000000000, 0xc00000ff7fffffff)
+
+segment CKSSEG (va: VA) = (pa : PA)
+  range = (0xffffffffc0000000, 0xffffffffdfffffff)
+
+segment CKSEG3(va: VA) = (pa : PA)
+  range = (0xffffffffe0000000, 0xffffffffffffffff)
+
 
 //==================================================================================================
 // Cache Memory (L1 and L2)
@@ -156,43 +208,7 @@ mmu pmem (va: VA) = (data: 64)
 
     // The address is from the USEG segment (only USEG and KSEG segments are supported).
     if USEG(va).hit then
-      // The address hits the DTLB.
-      if DTLB(va).hit then
-        tlbEntry = DTLB(va);
-      // The address hits the JTLB.
-      elif JTLB(va).hit then
-        tlbEntry = JTLB(va);
-      // The address does not hit the TLB.
-      else
-        exception("TLBMiss");
-      endif; // If the address hits the DTLB.
-
-      // Only 4KB pages are supported.
-      evenOddBit = 12;
-
-      // The VPN is even.
-      if va<evenOddBit> == 0 then
-        g   = tlbEntry.G0;
-        v   = tlbEntry.V0;
-        d   = tlbEntry.D0;
-        c   = tlbEntry.C0;
-        pfn = tlbEntry.PFN0;
-      // The VPN is odd.
-      else
-        g   = tlbEntry.G1;
-        v   = tlbEntry.V1;
-        d   = tlbEntry.D1;
-        c   = tlbEntry.C1;
-        pfn = tlbEntry.PFN1;
-      endif; // If the VPN is even.
-
-      // The EntryLo is valid.
-      if v == 1 then
-        pa = pfn<24..(evenOddBit - 12)>::va<(evenOddBit - 1)..0>;
-      // The EntryLo is invalid.
-      else
-        exception("TLBInvalid");
-      endif; // If the EntryLo is valid.
+      pa = USEG(va);
     // The address is from the KSEG0 or KSEG1 segment.
     else
       pa = va<28..0>;
@@ -266,49 +282,7 @@ mmu pmem (va: VA) = (data: 64)
 
     // The address is from the USEG segment (only USEG and KSEG segments are supported).
     if USEG(va).hit then
-      // The address hits the DTLB.
-      if DTLB(va).hit then
-        tlbEntry = DTLB(va);
-      // The address hits the JTLB.
-      elif JTLB(va).hit then
-        tlbEntry = JTLB(va);
-      // The address does not hit the TLB.
-      else
-        exception("TLBMiss");
-      endif; // If the address hits the DTLB.
-
-      // Only 4KB pages are supported.
-      evenOddBit = 12;
-
-      // The VPN is even.
-      if va<evenOddBit> == 0 then
-        g   = tlbEntry.G0;
-        v   = tlbEntry.V0;
-        d   = tlbEntry.D0;
-        c   = tlbEntry.C0;
-        pfn = tlbEntry.PFN0;
-      // The VPN is odd.
-      else
-        g   = tlbEntry.G1;
-        v   = tlbEntry.V1;
-        d   = tlbEntry.D1;
-        c   = tlbEntry.C1;
-        pfn = tlbEntry.PFN1;
-      endif; // If the VPN is even.
-
-      // The EntryLo is valid.
-      if v == 1 then
-        // The EntryLo is clean.
-        if d == 1 then
-          pa = pfn<24..(evenOddBit - 12)>::va<(evenOddBit - 1)..0>;
-        // The EntryLo is dirty.
-        else
-          exception("TLBModified");
-        endif; // If the EntryLo is clean.
-      // The EntryLo is invalid.
-      else
-        exception("TLBInvalid");
-      endif; // If the EntryLo is valid.
+      pa = USEG(va);
     // The address is from the KSEG0 or KSEG1 segment.
     else
       pa = va<28..0>;
