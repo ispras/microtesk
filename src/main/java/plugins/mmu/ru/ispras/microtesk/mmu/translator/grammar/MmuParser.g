@@ -83,8 +83,14 @@ address
 //==================================================================================================
 
 segment
-    : MMU_SEGMENT^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
+    : MMU_SEGMENT^ ID nameType ASSIGN! nameType
         range
+        (mmuVariable)*
+        (mmuFunction)?
+    ;
+
+nameType
+    : LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
     ;
 
 //--------------------------------------------------------------------------------------------------

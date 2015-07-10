@@ -34,10 +34,14 @@ import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
 final class AtomExtractor {
+  private final String prefix;
   private final IntegerVariableTracker variables;
 
-  AtomExtractor(IntegerVariableTracker variables) {
+  AtomExtractor(String prefix, IntegerVariableTracker variables) {
+    checkNotNull(prefix);
     checkNotNull(variables);
+
+    this.prefix = prefix;
     this.variables = variables;
   }
 
@@ -84,16 +88,16 @@ final class AtomExtractor {
 
   private Atom extractFromVariable(Variable var) {
     if (0 == var.getType().getFieldCount()) {
-      final IntegerVariable intVar = variables.getVariable(var.getId());
+      final IntegerVariable intVar = variables.getVariable(prefix + var.getId());
       return Atom.newVariable(intVar);
     }
 
-    final IntegerVariableGroup intVarGroup = variables.getGroup(var.getId());
+    final IntegerVariableGroup intVarGroup = variables.getGroup(prefix + var.getId());
     return Atom.newGroup(intVarGroup);
   }
 
   private Atom extractFromFieldRef(FieldRef fieldRef) {
-    final String groupName = fieldRef.getVariable().getId();
+    final String groupName = prefix + fieldRef.getVariable().getId();
     final String fieldName = fieldRef.getField().getId();
 
     final IntegerVariable intVar = variables.getVariable(groupName, fieldName);
@@ -107,7 +111,8 @@ final class AtomExtractor {
     final IntegerVariableGroup intVarGroup = variables.getGroup(groupName);
     if (attrName.equals(AbstractStorage.READ_ATTR_NAME) || 
         attrName.equals(AbstractStorage.WRITE_ATTR_NAME)) {
-      return Atom.newGroup(intVarGroup);
+      final String name = prefix + intVarGroup.getName();
+      return Atom.newGroup(intVarGroup.rename(name));
     }
 
     // TODO: Handle hit

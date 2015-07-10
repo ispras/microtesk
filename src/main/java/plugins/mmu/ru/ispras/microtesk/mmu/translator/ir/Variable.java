@@ -101,6 +101,10 @@ public final class Variable {
     return fieldVariables.get(fieldId);
   }
 
+  public Variable rename(final String name) {
+    return new Variable(name, type, typeProvider);
+  }
+
   @Override
   public String toString() {
     final String typeId = getTypeId();

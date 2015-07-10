@@ -31,8 +31,11 @@ public final class Segment extends AbstractStorage {
       final Address address,
       final Variable addressArg,
       final BigInteger min,
-      final BigInteger max) {
-    super(id, address, addressArg, null, createAttributes());
+      final BigInteger max,
+      final Variable retVar,
+      final Map<String, Variable> variables,
+      final Map<String, Attribute> attrs) {
+    super(id, address, addressArg, retVar, variables, createAttributes(attrs));
 
     checkNotNull(min);
     checkNotNull(max);
@@ -41,9 +44,14 @@ public final class Segment extends AbstractStorage {
     this.max = max;
   }
 
-  private static Map<String, Attribute> createAttributes() {
+  private static Map<String, Attribute> createAttributes(final Map<String, Attribute> map) {
     final Attribute hitAttr = new Attribute(HIT_ATTR_NAME, DataType.BOOLEAN);
-    return Collections.singletonMap(hitAttr.getId(), hitAttr);
+    if (map.isEmpty()) {
+      return Collections.singletonMap(hitAttr.getId(), hitAttr);
+    }
+    map.put(hitAttr.getId(), hitAttr);
+
+    return map;
   }
 
   public BigInteger getMin() {

@@ -30,6 +30,7 @@ public abstract class AbstractStorage {
   private final Address address;
   private final Variable addressArg;
   private final Variable dataArg;
+  private final Map<String, Variable> variables;
   private final Map<String, Attribute> attributes;
 
   protected AbstractStorage(
@@ -37,17 +38,20 @@ public abstract class AbstractStorage {
       final Address address,
       final Variable addressArg,
       final Variable dataArg,
+      final Map<String, Variable> variables,
       final Map<String, Attribute> attributes) {
 
     checkNotNull(id);
     checkNotNull(address);
     checkNotNull(addressArg);
+    checkNotNull(variables);
     checkNotNull(attributes);
 
     this.id = id;
     this.address = address;
     this.addressArg = addressArg;
     this.dataArg = dataArg;
+    this.variables = Collections.unmodifiableMap(variables);
     this.attributes = Collections.unmodifiableMap(attributes);
   }
 
@@ -73,5 +77,13 @@ public abstract class AbstractStorage {
 
   public final Attribute getAttribute(final String attrId) {
     return attributes.get(attrId);
+  }
+
+  public final Collection<Variable> getVariables() {
+    return variables.values();
+  }
+
+  public final Variable getVariable(final String varId) {
+    return variables.get(varId);
   }
 }

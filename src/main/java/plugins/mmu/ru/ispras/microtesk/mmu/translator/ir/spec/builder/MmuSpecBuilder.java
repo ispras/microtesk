@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 
 import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,10 +30,12 @@ import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
+import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
@@ -66,6 +71,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   /** Index used in automatically generated action names to ensure their uniqueness. */
   private int actionIndex = 0;
 
+  private Deque<String> prefixStack = null;
+  private Map<String, Integer> prefixVersion = null;
+
   public MmuSubsystem getSpecification() {
     return spec;
   }
@@ -76,8 +84,12 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     this.spec = new MmuSubsystem();
     this.variables = new IntegerVariableTracker();
-    this.atomExtractor = new AtomExtractor(variables);
+    this.atomExtractor = new AtomExtractor("", variables);
     this.actionIndex = 0;
+    this.prefixStack = new ArrayDeque<>();
+    this.prefixVersion = new HashMap<>();
+
+    prefixStack.push("");
 
     for (final Address address : ir.getAddresses().values()) {
       registerAddress(address);
@@ -241,6 +253,10 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       return source;
     }
 
+    if (isAddressTranslation(right)) {
+      return registerCall(source, left, (AttributeRef) right.getUserData());
+    }
+
     final Atom lhs = atomExtractor.extract(left);
     if (Atom.Kind.VARIABLE != lhs.getKind() && 
         Atom.Kind.GROUP != lhs.getKind() &&
@@ -266,6 +282,59 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     return target;
   }
 
+  private MmuAction registerCall(final MmuAction source, final Node lhs, final AttributeRef rhs) {
+    final AbstractStorage storage = rhs.getTarget();
+
+    final String prefix = getPrefix(storage.getId());
+    for (final Variable var : storage.getVariables()) {
+      defineNestedVar(prefix, var);
+    }
+    final Variable input = defineNestedVar(prefix, storage.getAddressArg());
+    final Variable output = defineNestedVar(prefix, storage.getDataArg());
+
+    final MmuAction preAction =
+        registerAssignment(source, input.getVariable(), rhs.getAddressArgValue());
+
+    pushPrefix(prefix);
+    final MmuAction midAction =
+        registerControlFlow(preAction, rhs.getAttribute().getStmts());
+    popPrefix();
+
+    return registerAssignment(midAction, lhs, output.getVariable());
+  }
+
+  private MmuAction registerAssignment(final MmuAction source, final Node lhs, final Node rhs) {
+    return registerAssignment(source, new StmtAssign(lhs, rhs));
+  }
+
+  private Variable defineNestedVar(final String prefix, final Variable var) {
+    final Variable nested = var.rename(prefix + var.getId());
+    variables.defineVariable(nested);
+    return nested;
+  }
+
+  private String getPrefix(final String suffix) {
+    final String source = prefixStack.peek() + suffix;
+
+    Integer version = prefixVersion.get(source);
+    if (version == null) {
+      version = 0;
+    }
+    prefixVersion.put(source, version + 1);
+
+    return String.format("%s_%d.", source, version);
+  }
+
+  private void pushPrefix(final String prefix) {
+    prefixStack.push(prefix);
+    atomExtractor = new AtomExtractor(prefix, variables);
+  }
+
+  private void popPrefix() {
+    prefixStack.pop();
+    atomExtractor = new AtomExtractor(prefixStack.peek(), variables);
+  }
+
   private boolean isDataVariable(Node expr) {
     if (expr.getKind() != Node.Kind.VARIABLE) {
       return false;
@@ -275,6 +344,14 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final IntegerVariable variable = variables.getVariable(name);
 
     return data.equals(variable);
+  }
+
+  private boolean isAddressTranslation(final Node e) {
+    if (e.getUserData() instanceof AttributeRef) {
+      final AttributeRef ref = (AttributeRef) e.getUserData();
+      return ref.getTarget() instanceof Segment;
+    }
+    return false;
   }
 
   private MmuAction registerIf(final MmuAction source, final StmtIf stmt) {

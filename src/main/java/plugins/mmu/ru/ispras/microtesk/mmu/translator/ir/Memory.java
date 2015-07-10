@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.Map;
 
 public final class Memory extends AbstractStorage {
-  private final Map<String, Variable> variables;
-
   public Memory(
       final String id,
       final Address address,
@@ -30,23 +28,12 @@ public final class Memory extends AbstractStorage {
       final Variable dataArg,
       final Map<String, Variable> variables,
       final Map<String, Attribute> attributes) {
-    super(id, address, addressArg, dataArg, attributes);
-
-    checkNotNull(variables);
-    this.variables = Collections.unmodifiableMap(variables);
-  }
-
-  public Collection<Variable> getVariables() {
-    return variables.values();
-  }
-
-  public Variable getVariable(String id) {
-    return variables.get(id);
+    super(id, address, addressArg, dataArg, variables, attributes);
   }
 
   @Override
   public String toString() {
     return String.format("mmu %s(%s)=(%s) [vars=%s, attributes=%s]",
-        getId(), getAddressArg(), getDataArg(), variables, getAttributes());
+        getId(), getAddressArg(), getDataArg(), getVariables(), getAttributes());
   }
 }

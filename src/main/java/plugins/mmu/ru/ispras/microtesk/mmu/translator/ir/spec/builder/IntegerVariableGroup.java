@@ -62,8 +62,20 @@ final class IntegerVariableGroup {
     }
   }
 
+  private IntegerVariableGroup(final String name,
+                               final Map<String, IntegerVariable> variables,
+                               final MmuDevice device) {
+    this.name = name;
+    this.variables = variables;
+    this.device = device;
+  }
+
   public String getName() {
     return name;
+  }
+
+  public IntegerVariableGroup rename(final String newName) {
+    return new IntegerVariableGroup(newName, this.variables, this.device);
   }
 
   public Collection<IntegerVariable> getVariables() {

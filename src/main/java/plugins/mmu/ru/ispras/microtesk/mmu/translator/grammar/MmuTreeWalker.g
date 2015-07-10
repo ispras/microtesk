@@ -97,10 +97,18 @@ address
 segment
     : ^(MMU_SEGMENT segmentId=ID {declareAndPushSymbolScope($segmentId, MmuSymbolKind.SEGMENT);} 
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
+        outputVarId=ID {declare($outputVarId, MmuSymbolKind.DATA, false);} outputVarType=ID
         ^(MMU_RANGE from=expr[0] to=expr[0])
-      ) {newSegment($segmentId, $addressArgId, $addressArgType, $from.res, $to.res);}
-    ; finally {popSymbolScope();}
-
+        {final CommonBuilder builder = newSegmentBuilder($segmentId, $addressArgId, $addressArgType, $outputVarId, $outputVarType);}
+        (^(MMU_VAR varId=ID  {declare($varId, MmuSymbolKind.VAR, false);}(
+             bufferId=ID     {builder.addVariable($varId, $bufferId);}
+           | varSize=expr[0] {builder.addVariable($varId, $varSize.res);})
+        ))*
+        (attrId=ID {declare($attrId, MmuSymbolKind.ATTRIBUTE, false);}
+         stmts=sequence {builder.addAttribute($attrId, $stmts.res);})*
+        {builder.buildSegment($from.res, $to.res);}
+      )
+    ; finally {popSymbolScope(); resetContext();}
 //==================================================================================================
 // Buffer
 //==================================================================================================
@@ -138,14 +146,14 @@ mmu
     : ^(MMU memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
         addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
         dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);} dataArgSize=expr[0]
-        {final MemoryBuilder builder = newMemoryBuilder($memoryId, $addressArgId, $addressArgType, $dataArgId, $dataArgSize.res);}
+        {final CommonBuilder builder = newMemoryBuilder($memoryId, $addressArgId, $addressArgType, $dataArgId, $dataArgSize.res);}
         (^(MMU_VAR varId=ID  {declare($varId, MmuSymbolKind.VAR, false);}(
              bufferId=ID     {builder.addVariable($varId, $bufferId);}
            | varSize=expr[0] {builder.addVariable($varId, $varSize.res);})
         ))*
         (attrId=ID {declare($attrId, MmuSymbolKind.ATTRIBUTE, false);}
          stmts=sequence {builder.addAttribute($attrId, $stmts.res);})*
-        {builder.build();}
+        {builder.buildMemory();}
       )
     ; finally {popSymbolScope(); resetContext();}
 

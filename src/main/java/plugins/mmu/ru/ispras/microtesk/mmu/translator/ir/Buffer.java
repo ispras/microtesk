@@ -46,7 +46,12 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
       PolicyId policy,
       Buffer parent) {
 
-    super(id, address, addressArg, dataArg, createAttributes(addressArg, dataArg));
+    super(id,
+          address,
+          addressArg,
+          dataArg,
+          Collections.<String, Variable>emptyMap(),
+          createAttributes(addressArg, dataArg));
 
     checkTrue(ways.compareTo(BigInteger.ZERO) > 0);
     checkTrue(sets.compareTo(BigInteger.ZERO) > 0);

@@ -110,53 +110,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   /**
-   * Creates a segment IR object and adds it to the MMU IR.
-   * 
-   * @param segmentId Segment identifier.
-   * @param addressArgId Address argument identifier. 
-   * @param addressArgType Address argument type (identifier).
-   * @param rangeStartExpr Range start expression.
-   * @param rangeEndExpr Range and expression.
-   * @return New Segment IR object.
-   * @throws SemanticException (1) if the specified address type is not defined;
-   * (2) if the range expressions equal to {@code null}, (3) if the range expressions
-   * cannot be reduced to constant integer values; (4) if the range start
-   * value is greater than the range end value.
-   */
-
-  protected final Segment newSegment(
-      final CommonTree segmentId,
-      final CommonTree addressArgId,
-      final CommonTree addressArgType,
-      final Node rangeStartExpr,
-      final Node rangeEndExpr) throws SemanticException {
-    checkNotNull(segmentId, rangeStartExpr);
-    checkNotNull(segmentId, rangeEndExpr);
-
-    final Address address = getAddress(addressArgType);
-    final Where w = where(segmentId);
-
-    final BigInteger rangeStart = extractBigInteger(w, rangeStartExpr, "Range start");
-    final BigInteger rangeEnd = extractBigInteger(w, rangeEndExpr, "Range end");
-
-    if (rangeStart.compareTo(rangeEnd) > 0) {
-      raiseError(w, String.format(
-          "Range start (%d) is greater than range end (%d).", rangeStart, rangeEnd));
-    }
-
-    final Segment segment = new Segment(
-        segmentId.getText(),
-        address,
-        new Variable(addressArgId.getText(), address),
-        rangeStart,
-        rangeEnd
-        );
-
-    ir.addSegment(segment);
-    return segment;
-  }
-
-  /**
    * Builder for a Type. Helps create a complex type from a sequence of fields.
    */
 
@@ -346,7 +299,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
   }
 
-  protected final MemoryBuilder newMemoryBuilder(
+  protected final CommonBuilder newMemoryBuilder(
       final CommonTree memoryId,
       final CommonTree addressArgId,
       final CommonTree addressArgType,
@@ -358,42 +311,88 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final int dataSize = extractPositiveInt(
         where(dataArgId), dataArgSizeExpr, "Data argument size");
 
-    return new MemoryBuilder(where(memoryId), 
-        memoryId.getText(), addressArgId.getText(), address, dataArgId.getText(), dataSize);
+    return new CommonBuilder(where(memoryId), 
+                             memoryId.getText(),
+                             addressArgId.getText(),
+                             address,
+                             dataArgId.getText(),
+                             new Type(dataSize));
   }
 
-  protected final class MemoryBuilder {
+  protected final CommonBuilder newSegmentBuilder(
+      final CommonTree id,
+      final CommonTree addressArgId,
+      final CommonTree addressArgType,
+      final CommonTree outputVarId,
+      final CommonTree outputVarType) throws SemanticException {
+
+    final Address address = getAddress(addressArgType);
+    if (outputVarId == null || outputVarType == null) {
+      return new CommonBuilder(where(id), id.getText(), addressArgId.getText(), address);
+    }
+    final Address outputAddr = getAddress(outputVarType);
+    return new CommonBuilder(where(id),
+                             id.getText(),
+                             addressArgId.getText(),
+                             address,
+                             outputVarId.getText(),
+                             outputAddr.getType());
+  }
+
+  protected final class CommonBuilder {
     private final Where where;
 
     private final String id;
     private final Address address;
     private final Variable addressArg;
-    private final Variable dataArg;
+    private final Variable outputVar;
 
     private final Map<String, Variable> variables;
     private final Map<String, Attribute> attributes;
 
-    private MemoryBuilder(
+    private CommonBuilder(
+        final Where where,
+        final String id,
+        final String addressArgId,
+        final Address addressArgType) {
+      this(where, id, addressArgType, new Variable(addressArgId, addressArgType), null);
+    }
+
+    private CommonBuilder(
         final Where where,
         final String id,
         final String addressArgId,
         final Address addressArgType,
-        final String dataArgId,
-        final int dataArgBitSize) {
+        final String outputVarId,
+        final Type outputVarType) {
+      this(where,
+           id,
+           addressArgType,
+           new Variable(addressArgId, addressArgType),
+           new Variable(outputVarId, outputVarType));
+    }
+
+    private CommonBuilder(
+        final Where where,
+        final String id,
+        final Address address,
+        final Variable addressVar,
+        final Variable outputVar) {
       this.where = where;
       this.id = id;
-      this.address = addressArgType;
-      this.addressArg = new Variable(addressArgId, addressArgType);
-      this.dataArg = new Variable(dataArgId, dataArgBitSize);
+      this.address = address;
+      this.addressArg = addressVar;
+      this.outputVar = outputVar;
+
       this.variables = new LinkedHashMap<>();
       this.attributes = new LinkedHashMap<>();
 
       context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
       context.defineVariable(addressArg);
-      context.defineVariable(dataArg);
+      context.defineVariable(outputVar);
 
       final NodeVariable memoryVar = new NodeVariable(id,
-          DataType.MAP(DataType.UNKNOWN, dataArg.getDataType()));
+          DataType.MAP(DataType.UNKNOWN, outputVar.getDataType()));
 
       context.defineVariable(memoryVar);
 
@@ -434,11 +433,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public void addAttribute(final CommonTree attrId, final List<Stmt> stmts) {
-      final Attribute attr = new Attribute(attrId.getText(), dataArg.getDataType(), stmts);
+      final Attribute attr = new Attribute(attrId.getText(), outputVar.getDataType(), stmts);
       attributes.put(attr.getId(), attr);
     }
 
-    public Memory build() throws SemanticException {
+    public Memory buildMemory() throws SemanticException {
       if (!attributes.containsKey("read")) {
         raiseError(where, "The 'read' action is not defined.");
       }
@@ -448,10 +447,50 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Memory memory = new Memory(
-          id, address, addressArg, dataArg, variables, attributes);
+          id, address, addressArg, outputVar, variables, attributes);
 
       ir.addMemory(memory);
       return memory;
+    }
+
+    /**
+     * Creates a segment IR object and adds it to the MMU IR.
+     * 
+     * @param segmentId Segment identifier.
+     * @param addressArgId Address argument identifier. 
+     * @param addressArgType Address argument type (identifier).
+     * @param rangeStartExpr Range start expression.
+     * @param rangeEndExpr Range and expression.
+     * @return New Segment IR object.
+     * @throws SemanticException (1) if the specified address type is not defined;
+     * (2) if the range expressions equal to {@code null}, (3) if the range expressions
+     * cannot be reduced to constant integer values; (4) if the range start
+     * value is greater than the range end value.
+     */
+
+    public Segment buildSegment(final Node rangeStartExpr,
+                                final Node rangeEndExpr) throws SemanticException {
+      final BigInteger rangeStart = extractBigInteger(where, rangeStartExpr, "Range start");
+      final BigInteger rangeEnd = extractBigInteger(where, rangeEndExpr, "Range end");
+
+      if (rangeStart.compareTo(rangeEnd) > 0) {
+        raiseError(where, String.format(
+            "Range start (%d) is greater than range end (%d).", rangeStart, rangeEnd));
+      }
+
+      final Segment segment = new Segment(
+          id,
+          address,
+          addressArg,
+          rangeStart,
+          rangeEnd,
+          outputVar,
+          variables,
+          attributes
+          );
+
+      ir.addSegment(segment);
+      return segment;
     }
   }
 
