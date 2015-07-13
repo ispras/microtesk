@@ -17,12 +17,14 @@ package ru.ispras.microtesk.test.template;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
+import ru.ispras.microtesk.test.sequence.GeneratorPrologueEpilogue;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
@@ -36,6 +38,9 @@ public final class BlockBuilder {
   private String combinatorName;
 
   private boolean isAtomic;
+
+  private List<Call> prologue;
+  private List<Call> epilogue;
 
   protected BlockBuilder() {
     this(new BlockId());
@@ -55,6 +60,9 @@ public final class BlockBuilder {
     this.combinatorName = null;
 
     this.isAtomic = false;
+
+    this.prologue = Collections.emptyList();
+    this.epilogue = Collections.emptyList();
   }
 
   public BlockId getBlockId() {
@@ -112,6 +120,16 @@ public final class BlockBuilder {
     nestedBlocks.add(new Block(blockId, iterator));
   }
 
+  public void setPrologue(final List<Call> value) {
+    checkNotNull(value);
+    this.prologue = value;
+  }
+
+  public void setEpilogue(final List<Call> value) {
+    checkNotNull(value);
+    this.epilogue = value;
+  }
+
   public Block build() {
     final GeneratorBuilder<Call> generatorBuilder = new GeneratorBuilder<>();
     generatorBuilder.setSingle(isAtomic);
@@ -124,11 +142,19 @@ public final class BlockBuilder {
       generatorBuilder.setCompositor(compositorName);
     }
 
-    for (Block block : nestedBlocks) {
+    for (final Block block : nestedBlocks) {
       generatorBuilder.addIterator(block.getIterator());
     }
 
     final Generator<Call> generator = generatorBuilder.getGenerator();
-    return new Block(blockId, generator, attributes);
+
+    if (prologue.isEmpty() && epilogue.isEmpty()) {
+      return new Block(blockId, generator, attributes);
+    }
+
+    final Generator<Call> generatorPrologueEpilogue =
+        new GeneratorPrologueEpilogue<>(generator, prologue, epilogue);
+
+    return new Block(blockId, generatorPrologueEpilogue, attributes);
   }
 }

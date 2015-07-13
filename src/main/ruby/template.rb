@@ -573,6 +573,22 @@ class Template
   end
 
   # -------------------------------------------------------------------------- #
+  # Test Case Level Prologue and Epilogue                                      #
+  # -------------------------------------------------------------------------- #
+
+  def prologue(&contents)
+    @template.beginPrologue
+    self.instance_eval &contents
+    @template.endPrologue
+  end
+
+  def epilogue(&contents)
+    @template.beginEpilogue
+    self.instance_eval &contents
+    @template.endEpilogue
+  end
+
+  # -------------------------------------------------------------------------- #
   # Generation (Execution and Printing)                                        #
   # -------------------------------------------------------------------------- #
 

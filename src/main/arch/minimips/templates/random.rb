@@ -23,6 +23,26 @@ require_relative 'minimips_base'
 # by using biased values, intervals, arrays and distributions. 
 #
 class RandomTemplate < MiniMipsBaseTemplate
+  
+  def pre
+    super
+
+    #
+    # Test case level prologue
+    #
+    prologue {
+      # TODO: align 4
+      add zero, zero, zero
+    }
+
+    #
+    # Test case level epilogue
+    #
+    epilogue {
+      nop
+      nop
+    }
+  end
 
   def run
     # Predefined probability distribution.

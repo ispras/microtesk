@@ -15,12 +15,15 @@
 package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Variate;
@@ -70,6 +73,13 @@ public final class Template {
   private boolean isMainSection;
   private int openBlockCount;
 
+  // Test case level prologue and epilogue
+  private List<Call> prologue;
+  private boolean isBuildingPrologue;
+
+  private List<Call> epilogue;
+  private boolean isBuildingEpilogue;
+
   public Template(
       final EngineContext context,
       final MetaModel metaModel,
@@ -107,6 +117,12 @@ public final class Template {
     this.openBlockCount = 0;
 
     this.groupVariates = newVariatesForGroups(metaModel);
+
+    this.prologue = new ArrayList<>();
+    this.isBuildingPrologue = false;
+
+    this.epilogue = new ArrayList<>();
+    this.isBuildingEpilogue = false;
   }
 
   private void processBlock(final Section section, final Block block) {
@@ -159,6 +175,10 @@ public final class Template {
 
     isMainSection = true;
     openBlockCount = 0;
+
+    final BlockBuilder rootBlockBuilder = blockBuilders.getLast();
+    rootBlockBuilder.setPrologue(prologue);
+    rootBlockBuilder.setEpilogue(epilogue);
   }
 
   public void endMainSection() {
@@ -222,6 +242,9 @@ public final class Template {
         current = new BlockBuilder();
         blockBuilders.push(current);
       }
+
+      current.setPrologue(prologue);
+      current.setEpilogue(epilogue);
     } else {
       current = new BlockBuilder(parent);
       blockBuilders.push(current);
@@ -286,6 +309,10 @@ public final class Template {
         streamPreparatorBuilder.addCall(call);
       } else if (null != exceptionHandlerBuilder) {
         exceptionHandlerBuilder.addCall(call);
+      } else if (isBuildingPrologue) {
+        prologue.add(call);
+      } else if (isBuildingEpilogue) {
+        epilogue.add(call);
       } else {
         blockBuilders.peek().addCall(call);
       }
@@ -627,5 +654,49 @@ public final class Template {
   public void setOrigin(final BigInteger address) {
     Logger.debug("Set Origin to 0x%x", address);
     callBuilder.setOrigin(address);
+  }
+
+  public void beginPrologue() {
+    endBuildingCall();
+    Logger.debug("Begin Test Case Level Prologue");
+
+    checkTrue(null == preparatorBuilder);
+    checkTrue(null == streamPreparatorBuilder);
+    checkTrue(null == exceptionHandlerBuilder);
+
+    checkFalse(isBuildingPrologue);
+    checkFalse(isBuildingEpilogue);
+    checkTrue(epilogue.isEmpty());
+
+    isBuildingPrologue = true;
+  }
+
+  public void endPrologue() {
+    endBuildingCall();
+    Logger.debug("End Test Case Level Prologue");
+
+    isBuildingPrologue = false;
+  }
+
+  public void beginEpilogue() {
+    endBuildingCall();
+    Logger.debug("Begin Test Case Level Epilogue");
+
+    checkTrue(null == preparatorBuilder);
+    checkTrue(null == streamPreparatorBuilder);
+    checkTrue(null == exceptionHandlerBuilder);
+
+    checkFalse(isBuildingPrologue);
+    checkFalse(isBuildingEpilogue);
+    checkTrue(epilogue.isEmpty());
+
+    isBuildingEpilogue = true;
+  }
+
+  public void endEpilogue() {
+    endBuildingCall();
+    Logger.debug("End Test Case Level Epilogue");
+
+    isBuildingEpilogue = false;
   }
 }
