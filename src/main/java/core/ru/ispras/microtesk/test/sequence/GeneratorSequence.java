@@ -17,29 +17,27 @@ package ru.ispras.microtesk.test.sequence;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class GeneratorSequence<T> implements Generator<T> {
-
   private final CollectionIterator<List<T>> collectionIterator; 
 
-  public GeneratorSequence(List<Iterator<List<T>>> iterators) {
-    if (null == iterators) {
-      throw new NullPointerException(); 
-    }
+  public GeneratorSequence(final List<Iterator<List<T>>> iterators) {
+    InvariantChecks.checkNotNull(iterators);
 
-    final List<List<T>> sequences = new ArrayList<List<T>>();
-    for (Iterator<List<T>> sequenceIterator : iterators) {
+    final List<List<T>> sequences = new ArrayList<>();
+    for (final Iterator<List<T>> sequenceIterator : iterators) {
       final List<T> sequence = createSingleSequence(sequenceIterator);
       sequences.add(sequence);
     }
 
-    this.collectionIterator = new CollectionIterator<List<T>>(sequences);
+    this.collectionIterator = new CollectionIterator<>(sequences);
   }
 
-  private static <T> List<T> createSingleSequence(Iterator<List<T>> sequenceIterator) {
-    final List<T> result = new ArrayList<T>();
+  private static <T> List<T> createSingleSequence(final Iterator<List<T>> sequenceIterator) {
+    final List<T> result = new ArrayList<>();
 
     sequenceIterator.init();
     while (sequenceIterator.hasValue()) {
