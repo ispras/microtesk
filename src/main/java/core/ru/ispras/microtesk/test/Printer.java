@@ -207,6 +207,10 @@ public final class Printer {
         printText(String.format(originFormat, call.getOrigin()));
       }
 
+      if (call.getAlignment() != null) {
+        printText(String.format(alignFormat, call.getAlignment()));
+      }
+
       printOutputs(call.getOutputs());
       printLabels(call.getLabels());
 

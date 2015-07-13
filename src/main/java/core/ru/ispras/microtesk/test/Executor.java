@@ -150,6 +150,10 @@ final class Executor {
         logText(String.format(originFormat, call.getOrigin()));
       }
 
+      if (call.getAlignment() != null) {
+        logText(String.format(alignFormat, call.getAlignment()));
+      }
+
       logOutputs(call.getOutputs());
       logLabels(call.getLabels());
 
