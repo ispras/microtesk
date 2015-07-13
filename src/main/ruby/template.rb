@@ -693,7 +693,7 @@ class DataManager
   def define_ascii_string(attrs)
     id       = get_attribute attrs, :id
     text     = get_attribute attrs, :text
-    zeroTerm = get_attribute attrs, :zeroTerm
+    zeroTerm = get_attribute attrs, :zero_term
 
     @manager.defineAsciiString id, text, zeroTerm
 
