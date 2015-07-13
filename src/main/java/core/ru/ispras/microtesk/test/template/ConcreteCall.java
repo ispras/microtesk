@@ -169,8 +169,15 @@ public final class ConcreteCall {
     return address;
   }
 
-  public void setAddress(final long address) {
-    this.address = address;
+  public long setAddress(final long value) {
+    long thisAddress = value;
+
+    if (origin != null) {
+      thisAddress = origin.longValue();
+    }
+
+    this.address = thisAddress;
+    return thisAddress + getByteSize();
   }
 
   public BigInteger getOrigin() {

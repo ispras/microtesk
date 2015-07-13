@@ -139,21 +139,11 @@ public final class TestSequence {
   public long setAddress(final long address) {
     long currentAddress = address;
     for (final ConcreteCall call : prologue) {
-      if (call.getOrigin() != null) {
-        currentAddress = call.getOrigin().longValue();
-      }
-
-      call.setAddress(currentAddress);
-      currentAddress += call.getByteSize();
+      currentAddress = call.setAddress(currentAddress);
     }
 
     for (final ConcreteCall call : body) {
-      if (call.getOrigin() != null) {
-        currentAddress = call.getOrigin().longValue();
-      }
-
-      call.setAddress(currentAddress);
-      currentAddress += call.getByteSize();
+      currentAddress = call.setAddress(currentAddress);
     }
 
     this.endAddress = currentAddress;
