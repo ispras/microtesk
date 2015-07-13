@@ -679,7 +679,7 @@ class DataManager
   def define_space(attrs)
     id       = get_attribute attrs, :id
     text     = get_attribute attrs, :text
-    fillWith = get_attribute attrs, :fillWith
+    fillWith = get_attribute attrs, :fill_with
 
     @manager.defineSpace id, text, fillWith
 

@@ -35,7 +35,7 @@ class MiniMipsBaseTemplate < Template
       define_type :id => :half, :text => '.half', :type => type('card', 16)
       define_type :id => :word, :text => '.word', :type => type('card', 32)
 
-      define_space :id => :space, :text => '.space', :fillWith => 0
+      define_space :id => :space, :text => '.space', :fill_with => 0
       define_ascii_string :id => :ascii, :text => '.ascii', :zeroTerm => false
       define_ascii_string :id => :asciiz, :text => '.asciiz', :zeroTerm => true
     }
