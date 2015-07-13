@@ -546,7 +546,7 @@ class Template
 
     text            = get_attribute attrs, :text
     target          = get_attribute attrs, :target
-    addressableSize = get_attribute attrs, :unit_size
+    addressableSize = get_attribute attrs, :item_size
 
     @data_manager = DataManager.new @template.getDataManager, text, target, addressableSize
     @data_manager.instance_eval &contents
