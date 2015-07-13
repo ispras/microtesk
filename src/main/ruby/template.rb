@@ -546,7 +546,9 @@ class Template
 
     text            = get_attribute attrs, :text
     target          = get_attribute attrs, :target
-    addressableSize = get_attribute attrs, :item_size
+
+    # Default value is 8 bits if not explicitly specified
+    addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
 
     @data_manager = DataManager.new @template.getDataManager, text, target, addressableSize
     @data_manager.instance_eval &contents
