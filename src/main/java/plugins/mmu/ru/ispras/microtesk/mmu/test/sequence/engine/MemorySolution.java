@@ -30,7 +30,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * {@link MemorySolution} represents a solution (test data) for a number of dependent instruction
  * calls (test template).
  * 
- * <p>Solution includes test data for individual executions (see {@link MemoryTestData}) and
+ * <p>Solution includes test data for individual executions (see {@link AddressObject}) and
  * a set of entries to be written into the devices (buffers).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -41,7 +41,7 @@ public final class MemorySolution {
   private final MemoryAccessStructure template;
   
   /** Contains test data for individual executions. */
-  private final List<MemoryTestData> solution;
+  private final List<AddressObject> solution;
 
   /** Contains addresses to be accessed to prepare hit/miss situations. */
   private final MemoryLoader loader;
@@ -70,7 +70,7 @@ public final class MemorySolution {
     for (int i = 0; i < template.size(); i++) {
       final MemoryAccess execution = template.getAccess(i);
 
-      this.solution.add(new MemoryTestData(memory, execution));
+      this.solution.add(new AddressObject(memory, execution));
     }
 
     for (final MmuDevice device : memory.getDevices()) {
@@ -100,7 +100,7 @@ public final class MemorySolution {
    * @return the test data.
    * @throws IndexOutOfBoundsException if {@code i} is out of bounds.
    */
-  public MemoryTestData getTestData(final int i) {
+  public AddressObject getTestData(final int i) {
     InvariantChecks.checkBounds(i, solution.size());
 
     return solution.get(i);
@@ -111,7 +111,7 @@ public final class MemorySolution {
    * 
    * @return the list of test data.
    */
-  public List<MemoryTestData> getTestData() {
+  public List<AddressObject> getTestData() {
     return solution;
   }
 
@@ -122,7 +122,7 @@ public final class MemorySolution {
    * @param testData the test data to be set.
    * @throws IndexOutOfBoundsException if {@code i} is out of bounds.
    */
-  public void setTestData(final int i, final MemoryTestData testData) {
+  public void setTestData(final int i, final AddressObject testData) {
     InvariantChecks.checkBounds(i, solution.size());
     InvariantChecks.checkNotNull(testData);
 

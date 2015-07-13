@@ -56,17 +56,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Refers to the test data constructor.
    * 
    * <p>A test data constructor is a user-defined function that maps a memory access (an object
-   * of {@link MemoryAccess}) to the test data (an object of {@link MemoryTestData}).</p>
+   * of {@link MemoryAccess}) to the test data (an object of {@link AddressObject}).</p>
    */
-  private final Function<MemoryAccess, MemoryTestData> testDataConstructor;
+  private final Function<MemoryAccess, AddressObject> testDataConstructor;
 
   /**
    * Refers to the test data corrector.
    * 
    * <p>A test data corrector is a user-defined function that corrects inconsistencies in test data
-   * (an object of {@link MemoryTestData}) after solving the constraints.</p>
+   * (an object of {@link AddressObject}) after solving the constraints.</p>
    */
-  private final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector;
+  private final BiConsumer<MemoryAccess, AddressObject> testDataCorrector;
 
   /**
    * Given a replaceable device (e.g. a cache unit), contains the tag allocator.
@@ -98,7 +98,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * <p>An entry provider is a user-defined function that fills a given entry with appropriate data
    * (the data are produced on the basis the memory access and the test data).</p>
    */
-  private final Map<MmuDevice, TriConsumer<MemoryAccess, MemoryTestData, Object>> entryProviders;
+  private final Map<MmuDevice, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
 
   /** Given a device, maps indices to sets of tags to be explicitly loaded into the device. */
   private final Map<MmuDevice, Map<Long, Set<Long>>> deviceHitTags = new LinkedHashMap<>();
@@ -134,12 +134,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
   public MemorySolver(
       final MmuSubsystem memory,
       final MemoryAccessStructure structure,
-      final Function<MemoryAccess, MemoryTestData> testDataConstructor,
-      final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector,
+      final Function<MemoryAccess, AddressObject> testDataConstructor,
+      final BiConsumer<MemoryAccess, AddressObject> testDataCorrector,
       final Map<MmuDevice, UnaryOperator<Long>> tagAllocators,
       final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
-      final Map<MmuDevice, TriConsumer<MemoryAccess, MemoryTestData, Object>> entryProviders) {
+      final Map<MmuDevice, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
 
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(testDataConstructor);
@@ -188,7 +188,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final int j, final MmuAddress addrType) {
 
     final MemoryAccess access = structure.getAccess(j);
-    final MemoryTestData testData = solution.getTestData(j);
+    final AddressObject testData = solution.getTestData(j);
 
     DataType maxType = access.getDataType();
 
@@ -224,7 +224,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveHitConstraint(final int j, final MmuDevice device) {
-    final MemoryTestData testData = solution.getTestData(j);
+    final AddressObject testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
     final long address = testData.getAddress(addrType);
@@ -316,7 +316,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return new SolverResult<>(String.format("Miss constraint violation for device %s", device));
     }
 
-    final MemoryTestData testData = solution.getTestData(j);
+    final AddressObject testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
     final UnaryOperator<Long> tagAllocator = tagAllocators.get(device);
 
@@ -372,7 +372,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveEntryConstraint(final int j, final MmuDevice device) {
-    final MemoryTestData testData = solution.getTestData(j);
+    final AddressObject testData = solution.getTestData(j);
     final MemoryAccess access = structure.getAccess(j);
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final MmuAddress addrType = device.getAddress();
@@ -383,7 +383,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next();
-      final MemoryTestData prevTestData = solution.getTestData(i);
+      final AddressObject prevTestData = solution.getTestData(i);
 
       // Instruction uses the same entry of the device.
       final Map<Long, Object> entries = prevTestData.getEntries(device);
@@ -401,7 +401,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
           entryIdAllocators.get(device);
       final Supplier<Object> entryConstructor =
           entryConstructors.get(device);
-      final TriConsumer<MemoryAccess, MemoryTestData, Object> entryProvider =
+      final TriConsumer<MemoryAccess, AddressObject, Object> entryProvider =
           entryProviders.get(device);
 
       final Long deviceEntryId = entryIdAllocator.apply(address);
@@ -430,7 +430,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solveAddrEqualConstraint(
       final int j, final MmuAddress addrType) {
-    final MemoryTestData testData = solution.getTestData(j);
+    final AddressObject testData = solution.getTestData(j);
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
@@ -438,7 +438,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // The instruction uses the same address as one of the previous instructions.
     if (!addrEqualRelation.isEmpty()) {
       final int i = addrEqualRelation.iterator().next();
-      final MemoryTestData prevTestData = solution.getTestData(i);
+      final AddressObject prevTestData = solution.getTestData(i);
 
       final long newAddress = prevTestData.getAddress(addrType);
 
@@ -458,7 +458,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solveIndexEqualConstraint(
       final int j, final MmuDevice device) {
-    final MemoryTestData testData = solution.getTestData(j);
+    final AddressObject testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
@@ -466,7 +466,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     if (!indexEqualRelation.isEmpty()) {
       final int i = indexEqualRelation.iterator().next();
-      final MemoryTestData prevTestData = solution.getTestData(i);
+      final AddressObject prevTestData = solution.getTestData(i);
 
       final UnaryOperator<Long> tagAllocator = tagAllocators.get(device);
   
@@ -496,7 +496,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solveTagEqualConstraint(
       final int j, final MmuDevice device) {
-    final MemoryTestData testData = solution.getTestData(j);
+    final AddressObject testData = solution.getTestData(j);
     final MmuAddress addrType = device.getAddress();
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
@@ -505,7 +505,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Instruction uses the same tag and the same index as one of the previous instructions.
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next();
-      final MemoryTestData prevTestData = solution.getTestData(i);
+      final AddressObject prevTestData = solution.getTestData(i);
 
       // Copy the tag and the index from the previous instruction.
       final long newTag = device.getTag(prevTestData.getAddress(addrType));
@@ -542,7 +542,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     for (int i = 0; i <= j; i++) {
       final MemoryAccess access = structure.getAccess(i);
       final MemoryUnitedDependency dependency = structure.getUnitedDependency(i);
-      final MemoryTestData testData = solution.getTestData(i);
+      final AddressObject testData = solution.getTestData(i);
 
       final long address = testData.getAddress(addrType);
       final long index = device.getIndex(address);
@@ -659,7 +659,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct initial test data for the access.
-    final MemoryTestData testData = testDataConstructor.apply(access);
+    final AddressObject testData = testDataConstructor.apply(access);
     solution.setTestData(j, testData);
 
     // Align the addresses.
@@ -780,7 +780,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
     }
 
-    final MemoryTestData testData = solution.getTestData(j);
+    final AddressObject testData = solution.getTestData(j);
 
     final long address = testData.getAddress(addrType);
     final long tag = device.getTag(address);

@@ -46,12 +46,12 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 public final class MemoryEngine implements Engine<MemorySolution> {
   private final MmuSubsystem memory;
   private final Iterator<MemoryAccessStructure> iterator;
-  private final Function<MemoryAccess, MemoryTestData> testDataConstructor;
-  private final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector;
+  private final Function<MemoryAccess, AddressObject> testDataConstructor;
+  private final BiConsumer<MemoryAccess, AddressObject> testDataCorrector;
   private final Map<MmuDevice, UnaryOperator<Long>> tagAllocators;
   private final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators;
   private final Map<MmuDevice, Supplier<Object>> entryConstructors;
-  private final Map<MmuDevice, TriConsumer<MemoryAccess, MemoryTestData, Object>> entryProviders;
+  private final Map<MmuDevice, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
 
   // TODO: to be parameters.
   private MemoryAccessStructure structure;
@@ -60,12 +60,12 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public MemoryEngine(
       final MmuSubsystem memory,
       final Iterator<MemoryAccessStructure> iterator,
-      final Function<MemoryAccess, MemoryTestData> testDataConstructor,
-      final BiConsumer<MemoryAccess, MemoryTestData> testDataCorrector,
+      final Function<MemoryAccess, AddressObject> testDataConstructor,
+      final BiConsumer<MemoryAccess, AddressObject> testDataCorrector,
       final Map<MmuDevice, UnaryOperator<Long>> tagAllocators,
       final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
-      final Map<MmuDevice, TriConsumer<MemoryAccess, MemoryTestData, Object>> entryProviders) {
+      final Map<MmuDevice, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
     this.memory = memory;
     this.iterator = iterator;
     this.testDataConstructor = testDataConstructor;

@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
- * {@link MemoryTestData} represents test data for an individual instruction call (execution).
+ * {@link AddressObject} represents test data for an individual {@link MemoryAccess}.
  * 
  * <p>Test data include addresses (virtual and physical ones), auxiliary attributes (cache policy,
  * control bits, etc.), sequences of addresses to be accessed to prepare hit/miss situations and
@@ -35,7 +35,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryTestData {
+public final class AddressObject {
 
   /**
    * Refers to the MMU specification.
@@ -69,7 +69,7 @@ public final class MemoryTestData {
    * @param execution the execution under processing.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public MemoryTestData(final MmuSubsystem memory, final MemoryAccess execution) {
+  public AddressObject(final MmuSubsystem memory, final MemoryAccess execution) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(execution);
 

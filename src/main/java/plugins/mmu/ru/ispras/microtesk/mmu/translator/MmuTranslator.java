@@ -24,14 +24,16 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuLexer;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuParser;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.MmuSpecBuilder;
-import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -39,9 +41,25 @@ import ru.ispras.microtesk.utils.FileUtils;
 public final class MmuTranslator extends Translator<Ir> {
   private static final Set<String> FILTER = Collections.singleton(".mmu");
 
+  private static MmuSubsystem spec = null;
+
+  public static MmuSubsystem getSpecification() {
+    return spec;
+  }
+
+  public static void setSpecification(final MmuSubsystem mmu) {
+    InvariantChecks.checkNotNull(spec);
+    spec = mmu;
+  }
+
+  private final MmuSpecBuilder specBuilder;
+
   public MmuTranslator() {
     super(FILTER);
-    addHandler(new MmuSpecBuilder());
+
+    specBuilder = new MmuSpecBuilder();
+
+    addHandler(specBuilder);
   }
 
   private final Preprocessor pp = new Preprocessor() {
@@ -113,6 +131,8 @@ public final class MmuTranslator extends Translator<Ir> {
       }
 
       processIr(ir);
+
+      setSpecification(specBuilder.getSpecification());
     } catch (Exception e) {
       e.printStackTrace();
     }
