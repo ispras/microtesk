@@ -30,7 +30,10 @@ public final class Block {
   private final boolean isEmpty;
   private final boolean isSingle;
 
-  Block(BlockId blockId, Iterator<List<Call>> iterator, Map<String, Object> attributes) {
+  protected Block(
+      final BlockId blockId,
+      final Iterator<List<Call>> iterator,
+      final Map<String, Object> attributes) {
     checkNotNull(blockId);
     checkNotNull(iterator);
     checkNotNull(attributes);
@@ -50,7 +53,7 @@ public final class Block {
     this.isSingle = iterator instanceof GeneratorSingle;
   }
 
-  Block(BlockId blockId, Iterator<List<Call>> iterator) {
+  protected Block(final BlockId blockId, final Iterator<List<Call>> iterator) {
     this(blockId, iterator, Collections.<String, Object>emptyMap());
   }
 
@@ -62,7 +65,7 @@ public final class Block {
     return iterator;
   }
 
-  public Object getAttribute(String name) {
+  public Object getAttribute(final String name) {
     return attributes.get(name);
   }
 
