@@ -176,6 +176,14 @@ public final class ConcreteCall {
       thisAddress = origin.longValue();
     }
 
+    if (alignment != null) {
+      final long alignmentLength = alignment.longValue();
+      final long unalignedLength = thisAddress % alignmentLength;
+      if (0 != unalignedLength) {
+        thisAddress = thisAddress + (alignmentLength - unalignedLength);
+      }
+    }
+
     this.address = thisAddress;
     return thisAddress + getByteSize();
   }
