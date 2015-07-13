@@ -17,11 +17,14 @@ package ru.ispras.microtesk.mmu.translator;
 import java.io.FileReader;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.TokenRewriteStream;
+import org.antlr.runtime.TokenSource;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
@@ -50,7 +53,7 @@ public final class MmuTranslator extends Translator<Ir> {
   }
 
   public static void setSpecification(final MmuSubsystem mmu) {
-    InvariantChecks.checkNotNull(spec);
+    InvariantChecks.checkNotNull(mmu);
     spec = mmu;
   }
 
@@ -70,16 +73,34 @@ public final class MmuTranslator extends Translator<Ir> {
 
   @Override
   public void addPath(final String path) {
+    InvariantChecks.checkNotNull(path);
     pp.addPath(path);
   }
 
   @Override
   public void startLexer(final CharStream stream) {
+    InvariantChecks.checkNotNull(stream);
     source.push(new MmuLexer(stream, pp));
+  }
+
+  private TokenSource startLexer(final List<String> filenames) {
+    ListIterator<String> iterator = filenames.listIterator(filenames.size());
+
+    // Create a stack of lexers.
+    source = new TokenSourceStack();
+
+    // Process the files in reverse order (emulate inclusion).
+    while (iterator.hasPrevious()) {
+      pp.includeTokensFromFile(iterator.previous());
+    }
+
+    return source;
   }
 
   @Override
   public void start(final List<String> fileNames) {
+    InvariantChecks.checkNotNull(fileNames);
+
     final String fileName = fileNames.get(0);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
 
@@ -95,8 +116,10 @@ public final class MmuTranslator extends Translator<Ir> {
       final ANTLRReaderStream input = new ANTLRReaderStream(new FileReader(fileName));
       input.name = fileName;
 
-      final MmuLexer lexer = new MmuLexer(input, pp);
-      final CommonTokenStream tokens = new CommonTokenStream(lexer);
+      final TokenSource source = startLexer(fileNames);
+
+      final CommonTokenStream tokens = new TokenRewriteStream();
+      tokens.setTokenSource(source);
 
       final MmuParser parser = new MmuParser(tokens);
       parser.assignLog(LOG);
@@ -131,6 +154,7 @@ public final class MmuTranslator extends Translator<Ir> {
 
       processIr(ir);
 
+      System.out.println(specBuilder.getSpecification());
       setSpecification(specBuilder.getSpecification());
     } catch (Exception e) {
       e.printStackTrace();

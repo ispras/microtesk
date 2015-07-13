@@ -285,6 +285,6 @@ public final class Parameters {
 
   public static void help() {
     final HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(80, "[options] Files to be processed", "", options, "");
+    formatter.printHelp(100, "[options] Files to be processed", "", options, "");
   }
 }
