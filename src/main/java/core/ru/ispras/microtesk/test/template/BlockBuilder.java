@@ -37,23 +37,23 @@ public final class BlockBuilder {
 
   private boolean isAtomic;
 
-  BlockBuilder() {
+  protected BlockBuilder() {
     this(new BlockId());
   }
 
-  BlockBuilder(BlockBuilder parent) {
+  protected BlockBuilder(final BlockBuilder parent) {
     this(parent.getBlockId().nextChildId());
   }
 
-  private BlockBuilder(BlockId blockId) {
+  private BlockBuilder(final BlockId blockId) {
     this.blockId = blockId;
 
-    this.nestedBlocks = new ArrayList<Block>();
-    this.attributes = new HashMap<String, Object>();
+    this.nestedBlocks = new ArrayList<>();
+    this.attributes = new HashMap<>();
 
     this.compositorName = null;
     this.combinatorName = null;
-    
+
     this.isAtomic = false;
   }
 
@@ -66,29 +66,29 @@ public final class BlockBuilder {
     // (that is it does not produce any instruction sequences). Attributes 
     // affect only the block itself and are not useful outside the block.
 
-    return nestedBlocks.isEmpty();  
+    return nestedBlocks.isEmpty();
   }
 
-  public void setCompositor(String name) {
+  public void setCompositor(final String name) {
     assert null == compositorName;
     compositorName = name;
   }
 
-  public void setCombinator(String name) {
+  public void setCombinator(final String name) {
     assert null == combinatorName;
     combinatorName = name;
   }
-  
-  public void setAtomic(boolean value) {
+
+  public void setAtomic(final boolean value) {
     this.isAtomic = value;
   }
 
-  public void setAttribute(String name, Object value) {
+  public void setAttribute(final String name, final Object value) {
     assert !attributes.containsKey(name);
     attributes.put(name, value);
   }
 
-  public void addBlock(Block block) {
+  public void addBlock(final Block block) {
     checkNotNull(block);
 
     if (block.isEmpty()) {
@@ -98,22 +98,22 @@ public final class BlockBuilder {
     nestedBlocks.add(block);
   }
 
-  public void addCall(Call call) {
+  public void addCall(final Call call) {
     checkNotNull(call);
 
     if (call.isEmpty()) {
       return;
     }
 
-    final List<Call> sequence = new ArrayList<Call>();
+    final List<Call> sequence = new ArrayList<>();
     sequence.add(call);
 
-    final Iterator<List<Call>> iterator = new SingleValueIterator<List<Call>>(sequence);
+    final Iterator<List<Call>> iterator = new SingleValueIterator<>(sequence);
     nestedBlocks.add(new Block(blockId, iterator));
   }
 
   public Block build() {
-    final GeneratorBuilder<Call> generatorBuilder = new GeneratorBuilder<Call>();
+    final GeneratorBuilder<Call> generatorBuilder = new GeneratorBuilder<>();
     generatorBuilder.setSingle(isAtomic);
 
     if (null != combinatorName) {
