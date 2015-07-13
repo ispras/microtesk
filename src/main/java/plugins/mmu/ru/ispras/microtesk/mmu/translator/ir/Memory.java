@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 public final class Memory extends AbstractStorage {
