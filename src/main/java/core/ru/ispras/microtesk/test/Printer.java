@@ -46,6 +46,9 @@ public final class Printer {
   private final String commentToken;
   private final String separatorToken; 
   private final String separator;
+  private final String originFormat;
+  private final String alignFormat;
+
   private final boolean commentsEnabled;
   private final boolean commentsDebug;
 
@@ -78,6 +81,8 @@ public final class Printer {
       final String indentToken,
       final String commentToken,
       final String separatorToken,
+      final String originFormat,
+      final String alignFormat,
       final boolean commentsEnabled,
       final boolean commentsDebug) {
 
@@ -93,6 +98,8 @@ public final class Printer {
     this.indentToken = indentToken;
     this.commentToken = commentToken;
     this.separatorToken = separatorToken;
+    this.originFormat = originFormat;
+    this.alignFormat = alignFormat;
     this.separator = commentToken + newSeparator(LINE_WIDTH - commentToken.length(), separatorToken);
     this.commentsEnabled = commentsEnabled;
     this.commentsDebug = commentsDebug;
@@ -197,7 +204,7 @@ public final class Printer {
   private void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
     for (final ConcreteCall call : calls) {
       if (call.getOrigin() != null) {
-        printText(String.format(".org 0x%x", call.getOrigin()));
+        printText(String.format(originFormat, call.getOrigin()));
       }
 
       printOutputs(call.getOutputs());

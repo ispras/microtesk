@@ -141,6 +141,8 @@ public final class DataManager {
   private String nztermStrText;
 
   private final String indentToken;
+  private final String originFormat;
+  private final String alignFormat;
   private final String dataFilePrefix;
   private final String dataFileExtension;
   private int dataFileIndex;
@@ -158,11 +160,16 @@ public final class DataManager {
 
   public DataManager(
       final String indentToken,
+      final String originFormat,
+      final String alignFormat, 
       final Printer printer,
       final String dataFilePrefix,
       final String dataFileExtension) {
 
     this.indentToken = indentToken;
+    this.originFormat = originFormat;
+    this.alignFormat = alignFormat;
+
     this.printer = printer;
     this.dataFilePrefix = dataFilePrefix;
     this.dataFileExtension = dataFileExtension;
@@ -271,9 +278,11 @@ public final class DataManager {
 
   public void setAddress(final BigInteger value) {
     checkNotNull(value);
-    Logger.debug("Setting allocation address: .org 0x%x", value);
 
-    dataDecls.add(new DetaDeclText(String.format(".org 0x%x", value)));
+    final String text = String.format(originFormat, value);
+    Logger.debug("Setting allocation address: %s", text);
+
+    dataDecls.add(new DetaDeclText(text));
     allocator.setCurrentAddress(value);
   }
 
@@ -287,9 +296,11 @@ public final class DataManager {
 
   public void align(final BigInteger value) {
     checkNotNull(value);
-    Logger.debug("Setting allignment: .align %d", value);
 
-    dataDecls.add(new DetaDeclText(String.format(".align %d", value)));
+    final String text = String.format(alignFormat, value);
+    Logger.debug("Setting alignment: %s", text);
+
+    dataDecls.add(new DetaDeclText(text));
     allocator.align(value);
   }
 

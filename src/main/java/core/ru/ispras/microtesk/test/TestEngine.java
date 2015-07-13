@@ -112,6 +112,8 @@ public final class TestEngine {
   private String indentToken = "\t";
   private String commentToken = "//";
   private String separatorToken = "=";
+  private String originFormat = ".org 0x%x";
+  private String alignFormat = ".align %d";
 
   // Settings from command line and configuration file
   private static String outDir = SysUtils.getHomeDir();
@@ -291,16 +293,24 @@ public final class TestEngine {
     }
   }
 
-  public void setIndentToken(String indentToken) {
+  public void setIndentToken(final String indentToken) {
     this.indentToken = indentToken;
   }
 
-  public void setCommentToken(String commentToken) {
+  public void setCommentToken(final String commentToken) {
     this.commentToken = commentToken;
   }
 
-  public void setSeparatorToken(String separatorToken) {
+  public void setSeparatorToken(final String separatorToken) {
     this.separatorToken = separatorToken;
+  }
+
+  public void setOriginFormat(final String originFormat) {
+    this.originFormat = originFormat;
+  }
+
+  public void setAlignFormat(final String alignFormat) {
+    this.alignFormat = alignFormat; 
   }
 
   public Template newTemplate() {
@@ -314,7 +324,7 @@ public final class TestEngine {
         new LogPrinter(codeFilePrefix) : null;
 
     final Executor executor = new Executor(
-        context, observer, branchExecutionLimit, logPrinter);
+        context, observer, branchExecutionLimit, logPrinter, originFormat, alignFormat);
 
     final Printer printer = new Printer(
         outDir,
@@ -324,12 +334,14 @@ public final class TestEngine {
         indentToken,
         commentToken,
         separatorToken,
+        originFormat,
+        alignFormat,
         commentsEnabled,
         commentsDebug
         );
 
     final DataManager dataManager = new DataManager(
-        indentToken, printer, dataFilePrefix, dataFileExtension);
+        indentToken, originFormat, alignFormat, printer, dataFilePrefix, dataFileExtension);
 
     final TemplateProcessor processor = new TemplateProcessor(
         context,
@@ -351,7 +363,7 @@ public final class TestEngine {
         );
   }
 
-  public void process(Template template) throws ConfigurationException, IOException {
+  public void process(final Template template) throws ConfigurationException, IOException {
     template.getProcessor().finish();
   }
 

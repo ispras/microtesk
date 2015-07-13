@@ -46,10 +46,14 @@ import ru.ispras.microtesk.test.template.Output;
  */
 
 final class Executor {
-  private final EngineContext context; 
+  private final EngineContext context;
+
   private final IModelStateObserver observer;
   private final int branchExecutionLimit;
   private final LogPrinter logPrinter;
+
+  private final String originFormat;
+  private final String alignFormat;
 
   private Map<String, List<ConcreteCall>> exceptionHandlers;
   private List<LabelReference> labelRefs;
@@ -67,14 +71,21 @@ final class Executor {
       final EngineContext context,
       final IModelStateObserver observer,
       final int branchExecutionLimit,
-      final LogPrinter logPrinter) {
+      final LogPrinter logPrinter,
+      final String originFormat,
+      final String alignFormat) {
     checkNotNull(context);
     checkNotNull(observer);
+    checkNotNull(originFormat);
+    checkNotNull(alignFormat);
 
     this.context = context;
     this.observer = observer;
     this.branchExecutionLimit = branchExecutionLimit;
     this.logPrinter = logPrinter;
+
+    this.originFormat = originFormat;
+    this.alignFormat = alignFormat;
 
     this.exceptionHandlers = null;
     this.labelRefs = null;
@@ -128,8 +139,15 @@ final class Executor {
     while (index >= 0 && index < calls.size()) {
       final ConcreteCall call = calls.get(index);
 
+      if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
+        throw new GenerationAbortedException(String.format(
+            "Instruction %s reached its limit on execution count (%d). " +
+            "Probably, the program entered an endless loop. Generation was aborted.",
+            call.getText(), branchExecutionLimit));
+      }
+
       if (call.getOrigin() != null) {
-        logText(String.format(".org 0x%x", call.getOrigin()));
+        logText(String.format(originFormat, call.getOrigin()));
       }
 
       logOutputs(call.getOutputs());

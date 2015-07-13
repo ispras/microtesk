@@ -45,6 +45,12 @@ module Settings
   # Token used in separator lines.
   attr_reader :separator_token
 
+  # Format of the directive responsible for setting origin
+  attr_reader :org_format
+
+  # Format of the directive responsible for memory alignment
+  attr_reader :align_format
+
   #
   # Assigns default values to the attributes.
   # 
@@ -55,6 +61,9 @@ module Settings
 
     @indent_token    = "\t"
     @separator_token = "="
+
+    @org_format = ".org 0x%x"
+    @align_format = ".align %d"
   end
 
 end # Settings
@@ -605,6 +614,9 @@ class Template
     engine.setCommentToken sl_comment_starts_with
     engine.setIndentToken indent_token
     engine.setSeparatorToken separator_token
+
+    engine.setOriginFormat org_format
+    engine.setAlignFormat align_format
 
     @template = engine.newTemplate
 
