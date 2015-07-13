@@ -19,7 +19,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -28,11 +30,11 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryLoader implements Loader {
-  private final MmuSubsystem memory;
+  private final MmuSubsystem memory = MmuTranslator.getSpecification();
   private final Map<MmuDevice, BufferLoader> loaders = new LinkedHashMap<>();
 
-  public MemoryLoader(final MmuSubsystem memory) {
-    this.memory = memory;
+  public MemoryLoader() {
+    InvariantChecks.checkNotNull(memory);
   }
 
   private BufferLoader getLoader(final MmuDevice device) {

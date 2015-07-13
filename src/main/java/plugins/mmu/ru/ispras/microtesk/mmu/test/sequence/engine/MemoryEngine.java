@@ -27,6 +27,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierTrivial;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -44,7 +45,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryEngine implements Engine<MemorySolution> {
-  private final MmuSubsystem memory;
+  private final MmuSubsystem memory = MmuTranslator.getSpecification();
   private final Iterator<MemoryAccessStructure> iterator;
   private final Function<MemoryAccess, AddressObject> testDataConstructor;
   private final BiConsumer<MemoryAccess, AddressObject> testDataCorrector;
@@ -58,7 +59,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private MemorySolution solution;
 
   public MemoryEngine(
-      final MmuSubsystem memory,
       final Iterator<MemoryAccessStructure> iterator,
       final Function<MemoryAccess, AddressObject> testDataConstructor,
       final BiConsumer<MemoryAccess, AddressObject> testDataCorrector,
@@ -66,7 +66,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
       final Map<MmuDevice, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
-    this.memory = memory;
+    InvariantChecks.checkNotNull(memory);
+
     this.iterator = iterator;
     this.testDataConstructor = testDataConstructor;
     this.testDataCorrector = testDataCorrector;
@@ -78,7 +79,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   // TODO:
   public MemoryEngine() {
-    this(null, null, null, null, null, null, null, null);
+    this(null, null, null, null, null, null, null);
   }
 
   public MemorySolution getCurrentSolution() {
@@ -127,7 +128,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBits / 8)));
     }
 
-    return new MemoryAccessStructureIterator(memory, accessTypes, new ClassifierTrivial());
+    return new MemoryAccessStructureIterator(accessTypes, new ClassifierTrivial());
   }
 
   private Iterator<MemorySolution> getSolutionIterator(
@@ -140,7 +141,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           structure = structureIterator.value();
 
           final MemorySolver solver = new MemorySolver(
-              memory,
               structure,
               testDataConstructor,
               testDataCorrector,

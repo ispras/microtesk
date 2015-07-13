@@ -22,6 +22,7 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -43,10 +44,10 @@ public final class AddressObject {
    * <p>It is used to initialize the auxiliary data structures and to build a string representation
    * of the test data (to print tags and indices for all relevant devices).</p>
    */
-  private final MmuSubsystem memory;
+  private final MmuSubsystem memory = MmuTranslator.getSpecification();
 
-  /** Refers to the instruction call (execution). */
-  private final MemoryAccess execution;
+  /** Refers to the memory access. */
+  private final MemoryAccess access;
 
   /** Contains addresses (virtual, physical and intermediate addresses). */
   private final Map<MmuAddress, Long> addresses = new LinkedHashMap<>();
@@ -57,24 +58,23 @@ public final class AddressObject {
   /**
    * Contains entries to be written into the devices (buffers).
    * 
-   * <p>Typically, one instruction call (execution) affects one entry of one device. It is assumed
-   * that each map contains exactly one entry.</p>
+   * <p>Typically, one memory access affects one entry of one device. It is assumed that each map
+   * contains exactly one entry.</p>
    */
   private final Map<MmuDevice, Map<Long, Object>> entries = new LinkedHashMap<>();
 
   /**
-   * Constructs uninitialized test data for the given execution of the given memory subsystem.
+   * Constructs uninitialized test data for the given access of the given memory subsystem.
    * 
    * @param memory the MMU specification.
-   * @param execution the execution under processing.
+   * @param access the memory access.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public AddressObject(final MmuSubsystem memory, final MemoryAccess execution) {
+  public AddressObject(final MemoryAccess access) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(execution);
+    InvariantChecks.checkNotNull(access);
 
-    this.memory = memory;
-    this.execution = execution;
+    this.access = access;
   }
 
   /**
@@ -83,7 +83,7 @@ public final class AddressObject {
    * @return {@code MemoryOperation#LOAD} or {@code MemoryOperation#STORE}.
    */
   public MemoryOperation getOperation() {
-    return execution.getOperation();
+    return access.getOperation();
   }
 
   /**
@@ -93,7 +93,7 @@ public final class AddressObject {
    *         {@link DataType#DWORD}.
    */
   public DataType getDataType() {
-    return execution.getDataType();
+    return access.getDataType();
   }
 
   /**

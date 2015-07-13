@@ -35,10 +35,10 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterParentMi
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterTagEqualTagReplaced;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterUnclosedEqualRelations;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterVaEqualPaNotEqual;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -77,9 +77,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /** Contains the basic filters as well as user-defined ones. */
   private final FilterBuilder filterBuilder = new FilterBuilder(BASIC_FILTERS);
 
-  /** Memory subsystem specification. */
-  private final MmuSubsystem memory;
-
   /** Memory access types (descriptors). */
   private final List<MemoryAccessType> accessTypes;;
 
@@ -110,27 +107,24 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /**
    * Constructs an iterator of memory access structures.
    * 
-   * @param memory the memory subsystem specification.
    * @param memoryAccessTypes the list of memory access types.
    * @param classifier the memory access classification policy.
    */
   public MemoryAccessStructureIterator(
-      final MmuSubsystem memory,
       final List<MemoryAccessType> accessTypes,
       final Classifier<MemoryAccess> classifier) {
-    InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
  
-    this.memory = memory;
     this.accessTypes = accessTypes;
 
     this.dependencyIndices = new int[accessTypes.size()][accessTypes.size()];
     this.dependencies = new MemoryDependency[accessTypes.size()][accessTypes.size()];
 
     // TODO: Take into account the memory access types.
-    final Collection<MemoryAccess> accesses = CoverageExtractor.get().getAccesses(memory);
+    final Collection<MemoryAccess> accesses =
+        CoverageExtractor.get().getAccesses(MmuTranslator.getSpecification());
     this.accessClasses = classifier.classify(accesses);
 
     // Initialize the memory access iterator.
@@ -171,7 +165,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   @Override
   public MemoryAccessStructure value() {
-    return new MemoryAccessStructure(memory, accesses, dependencies);
+    return new MemoryAccessStructure(accesses, dependencies);
   }
 
   @Override
@@ -195,7 +189,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   private boolean checkStructure() {
     final MemoryAccessStructure structure =
-        new MemoryAccessStructure(memory, accesses, dependencies);
+        new MemoryAccessStructure(accesses, dependencies);
     final MemoryAccessStructureChecker checker =
         new MemoryAccessStructureChecker(structure, structureFilter);
 
@@ -422,7 +416,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
         dependency.addHazard(hazard);
 
         final MemoryAccessStructureChecker checker = new MemoryAccessStructureChecker(
-            new MemoryAccessStructure(memory, access1, access2, dependency), accessPairFilter);
+            new MemoryAccessStructure(access1, access2, dependency), accessPairFilter);
 
         if (checker.check()) {
           dependencies.add(dependency);

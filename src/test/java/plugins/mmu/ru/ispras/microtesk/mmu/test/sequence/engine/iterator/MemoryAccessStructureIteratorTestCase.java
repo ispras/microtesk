@@ -33,6 +33,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierTrivial;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
@@ -59,6 +60,7 @@ public final class MemoryAccessStructureIteratorTestCase {
   @Test
   public void runTest() {
     final MmuSubsystem mipsMmu = MipsMmu.get().mmu;
+    MmuTranslator.setSpecification(mipsMmu);
 
     devices = mipsMmu.getDevices();
     addresses = mipsMmu.getAddresses();
@@ -70,7 +72,6 @@ public final class MemoryAccessStructureIteratorTestCase {
 
     final MemoryAccessStructureIterator mmuIterator =
         new MemoryAccessStructureIterator(
-            mipsMmu,
             accessTypes,
             new ClassifierTrivial());
 

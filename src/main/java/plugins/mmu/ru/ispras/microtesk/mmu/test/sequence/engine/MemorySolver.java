@@ -33,6 +33,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -109,7 +110,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Given an access index, contains the devices having been processed. */
   private final Map<Integer, Set<MmuDevice>> handledDevices = new LinkedHashMap<>();
 
-  private final MmuSubsystem memory;
+  private final MmuSubsystem memory = MmuTranslator.getSpecification();
   private final MemoryAccessStructure structure;
 
   private MemorySolution solution;
@@ -121,7 +122,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Constructs a solver for the given memory access structure.
    * 
-   * @param memory the memory subsystem specification.
    * @param structure the memory access structure.
    * @param testDataConstructor the test data constructor.
    * @param testDataCorrector the test data corrector.
@@ -132,7 +132,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @throws IllegalArgumentException if some parameters are null.
    */
   public MemorySolver(
-      final MmuSubsystem memory,
       final MemoryAccessStructure structure,
       final Function<MemoryAccess, AddressObject> testDataConstructor,
       final BiConsumer<MemoryAccess, AddressObject> testDataCorrector,
@@ -148,7 +147,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(entryConstructors);
     InvariantChecks.checkNotNull(entryProviders);
 
-    this.memory = memory;
     this.structure = structure;
 
     this.testDataConstructor = testDataConstructor;
@@ -161,7 +159,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   @Override
   public SolverResult<MemorySolution> solve() {
-    solution = new MemorySolution(memory, structure);
+    solution = new MemorySolution(structure);
 
     SolverResult<MemorySolution> result = null;
     for (int j = 0; j < structure.size(); j++) {

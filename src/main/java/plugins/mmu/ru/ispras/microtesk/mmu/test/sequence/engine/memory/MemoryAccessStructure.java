@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -31,14 +32,14 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  */
 public final class MemoryAccessStructure {
   /** Memory subsystem specification. */
-  private final MmuSubsystem memory;
+  private final MmuSubsystem memory = MmuTranslator.getSpecification();
+
   /** Memory accesses (accesses). */
   private final List<MemoryAccess> accesses;
   /** Dependencies between the memory accesses. */
   private final MemoryDependency[][] dependencies;
 
   public MemoryAccessStructure(
-      final MmuSubsystem memory,
       final List<MemoryAccess> accesses,
       final MemoryDependency[][] dependencies) {
     InvariantChecks.checkNotNull(memory);
@@ -46,21 +47,17 @@ public final class MemoryAccessStructure {
     InvariantChecks.checkNotNull(dependencies);
     InvariantChecks.checkTrue(dependencies.length == accesses.size());
 
-    this.memory = memory;
     this.accesses = accesses;
     this.dependencies = dependencies;
   }
 
   public MemoryAccessStructure(
-      final MmuSubsystem memory,
       final MemoryAccess access1,
       final MemoryAccess access2,
       final MemoryDependency dependency) {
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
     InvariantChecks.checkNotNull(dependency);
-
-    this.memory = memory;
 
     this.accesses = new ArrayList<>();
     this.accesses.add(access1);

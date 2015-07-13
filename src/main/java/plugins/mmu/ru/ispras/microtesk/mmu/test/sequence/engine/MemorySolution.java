@@ -23,22 +23,22 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.MemoryLoader;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
  * {@link MemorySolution} represents a solution (test data) for a number of dependent instruction
- * calls (test template).
+ * calls (memory access structure).
  * 
- * <p>Solution includes test data for individual executions (see {@link AddressObject}) and
+ * <p>Solution includes test data for individual memory accesses (see {@link AddressObject}) and
  * a set of entries to be written into the devices (buffers).</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemorySolution {
 
-  /** Contains the test template. */
-  private final MemoryAccessStructure template;
+  /** Contains the memory access structure. */
+  private final MemoryAccessStructure structure;
   
   /** Contains test data for individual executions. */
   private final List<AddressObject> solution;
@@ -55,42 +55,40 @@ public final class MemorySolution {
   private final Map<MmuDevice, Map<Long, /* Entry */ Object>> entries = new LinkedHashMap<>();
 
   /**
-   * Constructs an uninitialized solution for the given test template.
+   * Constructs an uninitialized solution for the given memory access structure.
    * 
-   * @param memory the MMU specification.
-   * @param template the test template.
+   * @param structure the memory access structure.
    */
-  public MemorySolution(final MmuSubsystem memory, final MemoryAccessStructure template) {
-    InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(template);
+  public MemorySolution(final MemoryAccessStructure structure) {
+    InvariantChecks.checkNotNull(structure);
 
-    this.template = template;
+    this.structure = structure;
 
-    this.solution = new ArrayList<>(template.size());
-    for (int i = 0; i < template.size(); i++) {
-      final MemoryAccess execution = template.getAccess(i);
+    this.solution = new ArrayList<>(structure.size());
+    for (int i = 0; i < structure.size(); i++) {
+      final MemoryAccess execution = structure.getAccess(i);
 
-      this.solution.add(new AddressObject(memory, execution));
+      this.solution.add(new AddressObject(execution));
     }
 
-    for (final MmuDevice device : memory.getDevices()) {
+    for (final MmuDevice device : MmuTranslator.getSpecification().getDevices()) {
       this.entries.put(device, new LinkedHashMap<Long, Object>());
     }
 
-    loader = new MemoryLoader(memory);
+    loader = new MemoryLoader();
   }
 
   /**
-   * Returns the number of executions in the test template.
+   * Returns the number of executions in the memory access structure.
    * 
-   * @return the test template size.
+   * @return the memory access structure size.
    */
   public int size() {
     return solution.size();
   }
 
-  public MemoryAccessStructure getTemplate() {
-    return template;
+  public MemoryAccessStructure getStructure() {
+    return structure;
   }
 
   /**

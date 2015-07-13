@@ -20,7 +20,6 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.Classifier;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -35,7 +34,6 @@ import ru.ispras.testbase.knowledge.iterator.RandomValueIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAccessStructure> {
-  private final MmuSubsystem memory;
   private final Classifier<MemoryAccess> classifier;
 
   /** Contains user-defined filters. */
@@ -49,23 +47,19 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
   /**
    * Constructs an iterator of memory access structures.
    * 
-   * @param memory the memory subsystem specification.
    * @param size the number of memory accesses in a structure.
    * @param memoryAccessTypes the list of memory access types.
    * @param randomDataType the data type randomization option.
    * @param classifier the memory access classification policy.
    */
   public MemoryAccessStructureIteratorEx(
-      final MmuSubsystem memory,
       final List<Collection<MemoryAccessType>> accessTypes,
       final boolean randomDataType,
       final Classifier<MemoryAccess> classifier) {
-    InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
 
-    this.memory = memory;
     this.classifier = classifier;
 
     ProductIterator<MemoryAccessType> typesIterator = new ProductIterator<>();
@@ -133,7 +127,7 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
 
   private void initStructure() {
     structureIterator =
-        new MemoryAccessStructureIterator(memory, typesIterator.value(), classifier);
+        new MemoryAccessStructureIterator(typesIterator.value(), classifier);
     structureIterator.addFilterBuilder(filterBuilder);
     structureIterator.init();
   }
