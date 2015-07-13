@@ -18,10 +18,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
-import org.antlr.runtime.ANTLRFileStream;
+import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RuleReturnScope;
@@ -31,7 +33,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
-import ru.ispras.microtesk.translator.antlrex.IncludeFileFinder;
+import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
@@ -47,7 +49,9 @@ import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker.Direction;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveSyntesizer;
 
-public final class DocgenNmlAnalyzer extends Preprocessor {
+public final class DocgenNmlAnalyzer extends Translator<Ir> {
+  private static final Set<String> FILTER = Collections.singleton(".nml");
+  private final SymbolTable symbols = new SymbolTable();
 
   private final LogStore LOG = new LogStore() {
     @Override
@@ -56,7 +60,12 @@ public final class DocgenNmlAnalyzer extends Preprocessor {
     }
   };
 
-  public DocgenNmlAnalyzer() {}
+  public DocgenNmlAnalyzer() {
+    super(FILTER);
+
+    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
+    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
+  }
 
   private String getModelName(String fileName) {
     final String shortFileName = getShortFileName(fileName);
@@ -73,23 +82,25 @@ public final class DocgenNmlAnalyzer extends Preprocessor {
     return new File(fileName).getName();
   }
 
-  // /////////////////////////////////////////////////////////////////////////
-  // Include file finder
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
+  // Lexer and Preprocessor
+  //------------------------------------------------------------------------------------------------
 
-  private IncludeFileFinder finder = new IncludeFileFinder();
-
-  public void addPath(final String path) {
-    finder.addPaths(path);
-  }
-
-  // /////////////////////////////////////////////////////////////////////////
-  // Lexer
-  // /////////////////////////////////////////////////////////////////////////
+  private final Preprocessor pp = new Preprocessor(this);
 
   private TokenSourceStack source;
 
-  public TokenSource startLexer(final List<String> filenames) {
+  @Override
+  public void addPath(final String path) {
+    pp.addPath(path);
+  }
+
+  @Override
+  public void startLexer(final CharStream stream) {
+    source.push(new NmlLexer(stream, pp, symbols));
+  }
+
+  private TokenSource startLexer(final List<String> filenames) {
     ListIterator<String> iterator = filenames.listIterator(filenames.size());
 
     // Create a stack of lexers.
@@ -97,126 +108,57 @@ public final class DocgenNmlAnalyzer extends Preprocessor {
 
     // Process the files in reverse order (emulate inclusion).
     while (iterator.hasPrevious()) {
-      includeTokensFromFile(iterator.previous());
+      pp.includeTokensFromFile(iterator.previous());
     }
 
     return source;
   }
 
-  @Override
-  public boolean isDefined(final String key) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean underIfElse() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean isHidden() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void onDefine(final String key, final String val) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void onUndef(final String key) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void onIfdef(final String key) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void onIfndef(final String key) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void onElse() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void onEndif() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public String expand(final String key) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void includeTokensFromFile(final String filename) {
-    final ANTLRFileStream stream = finder.openFile(filename);
-
-    System.out.println("Included: " + filename);
-
-    if (null == stream) {
-      System.err.println("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND.");
-      return;
-    }
-
-    source.push(new NmlLexer(stream, this, null));
-  }
-
-  @Override
-  public void includeTokensFromString(final String substitution) {
-    throw new UnsupportedOperationException();
-  }
-
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
   // Parser
-  // /////////////////////////////////////////////////////////////////////////
+  //------------------------------------------------------------------------------------------------
 
-  public Ir startParserAndWalker(TokenSource source) throws RecognitionException {
-    final SymbolTable symbols = new SymbolTable();
+  public Ir startParserAndWalker(TokenSource source) {
+    try {
+      final CommonTokenStream tokens = new TokenRewriteStream();
+      tokens.setTokenSource(source);
 
-    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
-    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
+      final NmlParser parser = new NmlParser(tokens);
+      parser.assignLog(LOG);
+      parser.assignSymbols(symbols);
+      parser.commonParser.assignLog(LOG);
+      parser.commonParser.assignSymbols(symbols);
+      parser.setTreeAdaptor(new CommonTreeAdaptor());
 
-    final CommonTokenStream tokens = new TokenRewriteStream();
-    tokens.setTokenSource(source);
+      final RuleReturnScope result = parser.startRule();
+      final CommonTree tree = (CommonTree) result.getTree();
 
-    final NmlParser parser = new NmlParser(tokens);
-    parser.assignLog(LOG);
-    parser.assignSymbols(symbols);
-    parser.commonParser.assignLog(LOG);
-    parser.commonParser.assignSymbols(symbols);
-    parser.setTreeAdaptor(new CommonTreeAdaptor());
+      // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs.
+      // print(tree);
 
-    final RuleReturnScope result = parser.startRule();
-    final CommonTree tree = (CommonTree) result.getTree();
+      final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+      nodes.setTokenStream(tokens);
 
-    // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs.
-    // print(tree);
+      final Ir ir = new Ir();
+      final NmlTreeWalker walker = new NmlTreeWalker(nodes);
 
-    final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
-    nodes.setTokenStream(tokens);
+      walker.assignLog(LOG);
+      walker.assignSymbols(symbols);
+      walker.assignIR(ir);
 
-    final Ir ir = new Ir();
-    final NmlTreeWalker walker = new NmlTreeWalker(nodes);
-
-    walker.assignLog(LOG);
-    walker.assignSymbols(symbols);
-    walker.assignIR(ir);
-
-    walker.startRule();
-    return ir;
+      walker.startRule();
+      return ir;
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   // /////////////////////////////////////////////////////////////////////////
   // Translator
   // /////////////////////////////////////////////////////////////////////////
 
-  public void start(final List<String> filenames) throws RecognitionException {
+  @Override
+  public void start(final List<String> filenames) {
     if (filenames.isEmpty()) {
       System.err.println("FILES ARE NOT SPECIFIED.");
       return;
@@ -252,7 +194,7 @@ public final class DocgenNmlAnalyzer extends Preprocessor {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
+
     walker.traverse(visitor);
     visitor.finalize();
   }
