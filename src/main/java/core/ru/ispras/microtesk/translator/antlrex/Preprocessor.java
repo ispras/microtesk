@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,18 +14,21 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CharStream;
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CharStream;
 
-public abstract class Preprocessor {
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.translator.Translator;
+
+public class Preprocessor {
   private static enum IfDefScope {
     IF_TRUE,
     IF_FALSE,
@@ -33,12 +36,34 @@ public abstract class Preprocessor {
     ELSE_FALSE
   }
 
+  private final Translator<?> translator; 
+
   private final IncludeFileFinder finder = new IncludeFileFinder();
   private final Map<String, String> defines = new LinkedHashMap<>();
   private final Deque<IfDefScope> ifdefs = new ArrayDeque<>();
 
-  public abstract void includeTokensFromFile(String filename);
-  public abstract void includeTokensFromString(String s);
+  public Preprocessor(final Translator<?> translator) {
+    checkNotNull(translator);
+    this.translator = translator;
+  }
+
+  public void includeTokensFromFile(final String filename) {
+    final CharStream stream = this.tokenStreamFromFile(filename);
+    if (null == stream) {
+      Logger.error("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND.");
+      return;
+    }
+
+    Logger.message("Included: " + filename);
+    translator.startLexer(stream);
+  }
+
+  public void includeTokensFromString(final String substitution) {
+    final CharStream stream = this.tokenStreamFromString(substitution);
+    if (stream != null) {
+      translator.startLexer(stream);
+    }
+  }
 
   protected CharStream tokenStreamFromFile(final String filename) {
     return finder.openFile(filename);

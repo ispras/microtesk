@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.antlr.runtime.CharStream;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
@@ -64,6 +66,8 @@ public abstract class Translator<Ir> {
   }
 
   public abstract void addPath(String path);
+ 
+  public abstract void startLexer(final CharStream stream);
 
   public final LogStore getLog() {
     return log;

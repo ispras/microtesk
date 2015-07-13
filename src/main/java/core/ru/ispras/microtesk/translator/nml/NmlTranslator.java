@@ -61,33 +61,18 @@ public final class NmlTranslator extends Translator<Ir> {
   // Lexer and Preprocessor
   //------------------------------------------------------------------------------------------------
 
+  private final Preprocessor pp = new Preprocessor(this);
+
   private TokenSourceStack source;
-
-  private final Preprocessor pp = new Preprocessor() {
-    @Override
-    public void includeTokensFromFile(final String filename) {
-      final CharStream stream = this.tokenStreamFromFile(filename);
-      if (null == stream) {
-        Logger.error("INCLUDE FILE '" + filename + "' HAS NOT BEEN FOUND.");
-        return;
-      }
-  
-      Logger.message("Included: " + filename);
-      source.push(new NmlLexer(stream, pp, symbols));
-    }
-
-    @Override
-    public void includeTokensFromString(final String substitution) {
-      final CharStream stream = this.tokenStreamFromString(substitution);
-      if (stream != null) {
-        source.push(new NmlLexer(stream, this, symbols));
-      }
-    }
-  };
 
   @Override
   public void addPath(final String path) {
     pp.addPath(path);
+  }
+
+  @Override
+  public void startLexer(final CharStream stream) {
+    source.push(new NmlLexer(stream, pp, symbols));
   }
 
   private TokenSource startLexer(final List<String> filenames) {

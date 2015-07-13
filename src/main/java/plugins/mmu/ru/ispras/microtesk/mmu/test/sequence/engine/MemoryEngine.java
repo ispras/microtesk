@@ -27,9 +27,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierTrivial;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
@@ -45,7 +43,6 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryEngine implements Engine<MemorySolution> {
-  private final MmuSubsystem memory = MmuTranslator.getSpecification();
   private final Iterator<MemoryAccessStructure> iterator;
   private final Function<MemoryAccess, AddressObject> testDataConstructor;
   private final BiConsumer<MemoryAccess, AddressObject> testDataCorrector;
@@ -66,8 +63,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuDevice, Supplier<Object>> entryConstructors,
       final Map<MmuDevice, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
-    InvariantChecks.checkNotNull(memory);
-
     this.iterator = iterator;
     this.testDataConstructor = testDataConstructor;
     this.testDataCorrector = testDataCorrector;

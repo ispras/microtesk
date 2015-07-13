@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.antlr.runtime.ANTLRReaderStream;
+import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
@@ -34,6 +35,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.MmuSpecBuilder;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
+import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -62,21 +64,18 @@ public final class MmuTranslator extends Translator<Ir> {
     addHandler(specBuilder);
   }
 
-  private final Preprocessor pp = new Preprocessor() {
-    @Override
-    public void includeTokensFromFile(final String filename) {
-      return;
-    }
+  private final Preprocessor pp = new Preprocessor(this);
 
-    @Override
-    public void includeTokensFromString(final String s) {
-      return;
-    }
-  };
+  private TokenSourceStack source;
 
   @Override
   public void addPath(final String path) {
     pp.addPath(path);
+  }
+
+  @Override
+  public void startLexer(final CharStream stream) {
+    source.push(new MmuLexer(stream, pp));
   }
 
   @Override
