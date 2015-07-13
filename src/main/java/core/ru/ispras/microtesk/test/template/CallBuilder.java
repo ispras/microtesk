@@ -28,7 +28,8 @@ public final class CallBuilder {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
-  private BigInteger origin; 
+  private BigInteger origin;
+  private BigInteger alignment;
 
   protected CallBuilder(final BlockId blockId) {
     checkNotNull(blockId);
@@ -77,7 +78,13 @@ public final class CallBuilder {
     origin = address;
   }
 
+  public void setAlignment(final BigInteger value) {
+    checkNotNull(value);
+    alignment = value;
+  }
+
   public Call build() {
-    return new Call(rootOperation, labels, labelRefs, outputs, origin);
+    return new Call(
+        rootOperation, labels, labelRefs, outputs, origin, alignment);
   }
 }

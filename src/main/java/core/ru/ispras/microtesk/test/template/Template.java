@@ -656,6 +656,11 @@ public final class Template {
     callBuilder.setOrigin(address);
   }
 
+  public void setAlignment(final BigInteger alignment) {
+    Logger.debug("Align 0x%x", alignment);
+    callBuilder.setAlignment(alignment);
+  }
+
   public void beginPrologue() {
     endBuildingCall();
     Logger.debug("Begin Test Case Level Prologue");

@@ -37,13 +37,15 @@ public final class Call {
   private final int blockSize;
 
   private final BigInteger origin;
+  private final BigInteger alignment;
 
   public Call(
       final Primitive rootOperation,
       final List<Label> labels,
       final List<LabelReference> labelRefs,
       final List<Output> outputs,
-      final BigInteger origin) {
+      final BigInteger origin,
+      final BigInteger alignment) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
@@ -70,6 +72,7 @@ public final class Call {
     }
 
     this.origin = origin;
+    this.alignment = alignment;
   }
 
   public Call(final Call other) {
@@ -91,6 +94,7 @@ public final class Call {
     this.blockSize = other.blockSize;
 
     this.origin = other.origin;
+    this.alignment = other.alignment;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
@@ -126,7 +130,11 @@ public final class Call {
   }
 
   public boolean isEmpty() {
-    return !isExecutable() && labels.isEmpty() && outputs.isEmpty() && null == origin;
+    return !isExecutable()   && 
+           labels.isEmpty()  && 
+           outputs.isEmpty() &&
+           null == origin    &&
+           null == alignment;
   }
 
   public Primitive getRootOperation() {
@@ -194,5 +202,9 @@ public final class Call {
 
   public BigInteger getOrigin() {
     return origin;
+  }
+
+  public BigInteger getAlignment() {
+    return alignment;
   }
 }

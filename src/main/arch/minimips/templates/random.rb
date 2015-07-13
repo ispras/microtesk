@@ -31,8 +31,7 @@ class RandomTemplate < MiniMipsBaseTemplate
     # Test case level prologue
     #
     prologue {
-      # TODO: align 4
-      add zero, zero, zero
+      align 4
     }
 
     #

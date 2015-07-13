@@ -29,6 +29,7 @@ public final class ConcreteCall {
   private final List<Output> outputs;
   private final InstructionCall executable;
   private final BigInteger origin;
+  private final BigInteger alignment;
 
   private long address = 0;
   private String text = null;
@@ -45,6 +46,7 @@ public final class ConcreteCall {
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
     this.origin = abstractCall.getOrigin();
+    this.alignment = abstractCall.getAlignment();
   }
 
   public ConcreteCall(
@@ -60,6 +62,7 @@ public final class ConcreteCall {
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
     this.origin = abstractCall.getOrigin();
+    this.alignment = abstractCall.getAlignment();
   }
 
   public ConcreteCall(final Call abstractCall) {
@@ -70,6 +73,7 @@ public final class ConcreteCall {
     this.outputs = abstractCall.getOutputs();
     this.executable = null;
     this.origin = abstractCall.getOrigin();
+    this.alignment = abstractCall.getAlignment();
   }
 
   public ConcreteCall(final InstructionCall executable) {
@@ -80,6 +84,7 @@ public final class ConcreteCall {
     this.outputs = Collections.<Output>emptyList();
     this.executable = executable;
     this.origin = null;
+    this.alignment = null;
   }
 
   private static List<Label> copyLabels(final List<Label> labels) {
@@ -170,5 +175,9 @@ public final class ConcreteCall {
 
   public BigInteger getOrigin() {
     return origin;
+  }
+
+  public BigInteger getAlignment() {
+    return alignment;
   }
 }

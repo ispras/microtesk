@@ -572,6 +572,10 @@ class Template
     @template.setOrigin address
   end
 
+  def align(alignment)
+    @template.setAlignment alignment
+  end
+
   # -------------------------------------------------------------------------- #
   # Test Case Level Prologue and Epilogue                                      #
   # -------------------------------------------------------------------------- #
