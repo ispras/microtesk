@@ -51,9 +51,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private final Map<MmuBuffer, Supplier<Object>> entryConstructors;
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
 
-  // TODO: to be parameters.
-  private MemoryAccessStructure structure;
-  private MemorySolution solution;
+  // TODO: To provide access to the current solution.
+  private MemorySolver solver;
 
   public MemoryEngine(
       final Iterator<MemoryAccessStructure> iterator,
@@ -78,7 +77,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   }
 
   public MemorySolution getCurrentSolution() {
-    return solution;
+    return solver != null ? solver.getCurrentSolution() : null;
   }
 
   @Override
@@ -131,11 +130,13 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     InvariantChecks.checkNotNull(structureIterator);
 
     return new Iterator<MemorySolution>() {
+      private MemorySolution solution = null;
+
       private MemorySolution getSolution() {
         while (structureIterator.hasValue()) {
-          structure = structureIterator.value();
+          final MemoryAccessStructure structure = structureIterator.value();
 
-          final MemorySolver solver = new MemorySolver(
+          solver = new MemorySolver(
               structure,
               testDataConstructor,
               testDataCorrector,
