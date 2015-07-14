@@ -14,9 +14,11 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class BufferPreparator {
@@ -37,11 +39,35 @@ public final class BufferPreparator {
 
     this.bufferId = bufferId;
     this.address = address;
-    this.entry = entry;
-    this.calls = calls;
+    this.entry = Collections.unmodifiableMap(entry);
+    this.calls = Collections.unmodifiableList(calls);
   }
 
   public String getBufferId() {
     return bufferId;
+  }
+
+  public List<Call> makeInitializer(
+      final BitVector addressValue,
+      final Map<String, BitVector> entryFieldValues) {
+    InvariantChecks.checkNotNull(addressValue);
+    InvariantChecks.checkNotNull(entryFieldValues);
+
+    address.setValue(addressValue);
+
+    for (final Map.Entry<String, LazyData> e : entry.entrySet()) {
+      final String fieldId = e.getKey();
+      final LazyData field = e.getValue();
+
+      final BitVector fieldValue = entryFieldValues.get(fieldId);
+      if (null == fieldValue) {
+        throw new IllegalArgumentException(String.format(
+            "No value for the %s entry field is provided.", fieldId));
+      }
+
+      field.setValue(fieldValue);
+    }
+
+    return calls;
   }
 }
