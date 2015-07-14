@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +29,7 @@ import ru.ispras.microtesk.basis.solver.IntegerRange;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
 
 /**
@@ -162,6 +165,32 @@ final class SingleAddressTypeAllocator {
  */
 final class AddressAllocator {
   private final Map<MmuAddressType, SingleAddressTypeAllocator> allocators = new HashMap<>();
+
+  public AddressAllocator(final MmuSubsystem memory) {
+    InvariantChecks.checkNotNull(memory);
+
+    final Map<MmuAddressType, Collection<MmuExpression>> expressions = new LinkedHashMap<>();
+
+    for (final MmuAddressType addressType : memory.getAddresses()) {
+      expressions.put(addressType, new LinkedHashSet<MmuExpression>());
+    }
+
+    for (final MmuBuffer buffer : memory.getDevices()) {
+      final Collection<MmuExpression> addressExpressions = expressions.get(buffer.getAddress());
+
+      addressExpressions.add(buffer.getTagExpression());
+      addressExpressions.add(buffer.getIndexExpression());
+      addressExpressions.add(buffer.getOffsetExpression());
+    }
+
+    for (final Map.Entry<MmuAddressType, Collection<MmuExpression>> entry : expressions.entrySet()) {
+      final MmuAddressType addressType = entry.getKey();
+      final SingleAddressTypeAllocator allocator =
+          new SingleAddressTypeAllocator(addressType, entry.getValue(), -1L /* TODO */);
+
+      allocators.put(addressType, allocator);
+    }
+  }
 
   public long allocateTag(final MmuBuffer buffer, final long partialAddress) {
     InvariantChecks.checkNotNull(buffer);
