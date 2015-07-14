@@ -269,6 +269,7 @@ final class Executor {
       final int sequenceIndex) {
     for (final ConcreteCall call : sequence) {
       calls.add(call);
+
       final long address = call.getAddress();
       final int index = calls.size() - 1;
 
@@ -276,12 +277,23 @@ final class Executor {
         final int conflictIndex = addressMap.get(address);
         final ConcreteCall conflictCall = calls.get(conflictIndex);
 
-        Logger.warning(
-            "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
-            call.getText(), index, address, conflictCall.getText(), conflictIndex);
+        // Situation when an unexecutable call (with label, compiler directive,
+        // text output etc.) precedes an executable call can occur in merged sequences.
+        // This is considered normal. Address mapping is not changed in order to allow
+        // jumping on the beginning of calls located at the same address.
+        final boolean isConflictLegal = 
+            (!call.isExecutable() || !conflictCall.isExecutable()) &&
+            (conflictIndex == index - 1);
+
+        if (!isConflictLegal) {
+          Logger.warning(
+              "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
+              call.getText(), index, address, conflictCall.getText(), conflictIndex);
+        }
+      } else {
+        addressMap.put(address, index);
       }
 
-      addressMap.put(address, index);
       labelManager.addAllLabels(call.getLabels(), address, sequenceIndex);
     }
   }
