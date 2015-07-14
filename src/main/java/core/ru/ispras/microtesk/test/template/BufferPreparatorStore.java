@@ -22,7 +22,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class BufferPreparatorStore {
   private final Map<String, BufferPreparator> preparators;
 
-  protected BufferPreparatorStore() {
+  public BufferPreparatorStore() {
     this.preparators = new HashMap<>();
   }
 

@@ -56,6 +56,7 @@ public final class Template {
   private final MetaModel metaModel;
   private final DataManager dataManager;
   private final PreparatorStore preparators;
+  private final BufferPreparatorStore bufferPreparators;
   private final StreamStore streams;
   private final Processor processor;
 
@@ -63,6 +64,7 @@ public final class Template {
   private final Map<String, Variate<String>> groupVariates;
 
   private PreparatorBuilder preparatorBuilder;
+  private BufferPreparatorBuilder bufferPreparatorBuilder;
   private StreamPreparatorBuilder streamPreparatorBuilder;
   private ExceptionHandlerBuilder exceptionHandlerBuilder;
   private boolean isExceptionHandlerDefined;
@@ -85,6 +87,7 @@ public final class Template {
       final MetaModel metaModel,
       final DataManager dataManager,
       final PreparatorStore preparators,
+      final BufferPreparatorStore bufferPreparators,
       final StreamStore streams,
       final Processor processor) {
 
@@ -94,6 +97,7 @@ public final class Template {
     checkNotNull(metaModel);
     checkNotNull(dataManager);
     checkNotNull(preparators);
+    checkNotNull(bufferPreparators);
     checkNotNull(streams);
     checkNotNull(processor);
 
@@ -102,10 +106,12 @@ public final class Template {
     this.metaModel = metaModel;
     this.dataManager = dataManager;
     this.preparators = preparators;
+    this.bufferPreparators = bufferPreparators;
     this.streams = streams;
     this.processor = processor;
 
     this.preparatorBuilder = null;
+    this.bufferPreparatorBuilder = null;
     this.streamPreparatorBuilder = null;
     this.exceptionHandlerBuilder = null;
     this.isExceptionHandlerDefined = false;
@@ -305,6 +311,8 @@ public final class Template {
     if (!call.isEmpty()) {
       if (null != preparatorBuilder) {
         preparatorBuilder.addCall(call);
+      } else if (null != bufferPreparatorBuilder) {
+        bufferPreparatorBuilder.addCall(call);
       } else if (null != streamPreparatorBuilder) {
         streamPreparatorBuilder.addCall(call);
       } else if (null != exceptionHandlerBuilder) {
@@ -368,7 +376,14 @@ public final class Template {
     Logger.debug("Begin preparator: %s", targetName);
     checkNotNull(targetName);
 
+    if (null != preparatorBuilder) {
+      throw new IllegalStateException(String.format(
+          "Nesting is not allowed: The %s preparator cannot be nested into the %s preparator.",
+          targetName, preparatorBuilder.getTargetName()));
+    }
+
     checkTrue(null == preparatorBuilder);
+    checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
 
@@ -376,12 +391,6 @@ public final class Template {
     if (null == targetMode) {
       throw new IllegalArgumentException(String.format(
           "%s is not an addressing mode and cannot be a target for a preparator.", targetName));
-    }
-
-    if (null != preparatorBuilder) {
-      throw new IllegalStateException(String.format(
-          "Nesting is not allowed: The %s preparator cannot be nested into the %s preparator.",
-          targetName, preparatorBuilder.getTargetName()));
     }
 
     preparatorBuilder = new PreparatorBuilder(targetMode);
@@ -429,6 +438,7 @@ public final class Template {
         dataModeName, indexModeName);
 
     checkTrue(null == preparatorBuilder);
+    checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
 
@@ -545,12 +555,29 @@ public final class Template {
     */
   }
 
-  public void beginBufferPreparator(final String bufferName) {
-    // TODO
+  public BufferPreparatorBuilder beginBufferPreparator(final String bufferId) {
+    endBuildingCall();
+
+    Logger.debug("Begin buffer preparator: %s", bufferId);
+    checkNotNull(bufferId);
+
+    checkTrue(null == preparatorBuilder);
+    checkTrue(null == bufferPreparatorBuilder);
+    checkTrue(null == streamPreparatorBuilder);
+    checkTrue(null == exceptionHandlerBuilder);
+
+    bufferPreparatorBuilder = new BufferPreparatorBuilder(bufferId);
+    return bufferPreparatorBuilder;
   }
 
   public void endBufferPreparator() {
-    // TODO
+    endBuildingCall();
+    Logger.debug("End buffer preparator: %s", bufferPreparatorBuilder.getBufferId());
+
+    final BufferPreparator bufferPreparator = bufferPreparatorBuilder.build();
+    bufferPreparators.addPreparator(bufferPreparator);
+
+    bufferPreparatorBuilder = null;
   }
 
   public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {
@@ -631,6 +658,7 @@ public final class Template {
     }
 
     checkTrue(null == preparatorBuilder);
+    checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
 
@@ -674,6 +702,7 @@ public final class Template {
     Logger.debug("Begin Test Case Level Prologue");
 
     checkTrue(null == preparatorBuilder);
+    checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
 
@@ -696,6 +725,7 @@ public final class Template {
     Logger.debug("Begin Test Case Level Epilogue");
 
     checkTrue(null == preparatorBuilder);
+    checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
 

@@ -48,6 +48,7 @@ import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Block;
+import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataManager;
@@ -315,8 +316,11 @@ public final class TestEngine {
 
   public Template newTemplate() {
     final PreparatorStore preparators = new PreparatorStore();
+    final BufferPreparatorStore bufferPreparators = new BufferPreparatorStore();
     final StreamStore streams = new StreamStore();
-    final EngineContext context = new EngineContext(model, preparators, streams, settings);
+ 
+    final EngineContext context = new EngineContext(
+        model, preparators, bufferPreparators, streams, settings);
 
     final IModelStateObserver observer = model.getStateObserver();
 
@@ -358,6 +362,7 @@ public final class TestEngine {
         model.getMetaData(),
         dataManager,
         preparators,
+        bufferPreparators,
         streams,
         processor
         );
