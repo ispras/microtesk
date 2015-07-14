@@ -23,7 +23,7 @@ require_relative 'minimips_base'
 # by using biased values, intervals, arrays and distributions. 
 #
 class RandomTemplate < MiniMipsBaseTemplate
-  
+
   def pre
     super
 
