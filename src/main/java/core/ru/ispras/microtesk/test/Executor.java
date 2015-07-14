@@ -117,7 +117,7 @@ final class Executor {
     final Map<Long, Integer> addressMap = new LinkedHashMap<>();
     final LabelManager labelManager = new LabelManager();
 
-    registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), Label.NO_SEQUENCE_INDEX);
+    registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), sequenceIndex);
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
 
     final int startIndex = 0;
