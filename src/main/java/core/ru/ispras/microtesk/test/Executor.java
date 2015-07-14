@@ -274,8 +274,11 @@ final class Executor {
 
       if (addressMap.containsKey(address)) {
         final int conflictIndex = addressMap.get(address);
-        Logger.warning("Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
-            call.getText(), index, address, calls.get(conflictIndex).getText(), conflictIndex);
+        final ConcreteCall conflictCall = calls.get(conflictIndex);
+
+        Logger.warning(
+            "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
+            call.getText(), index, address, conflictCall.getText(), conflictIndex);
       }
 
       addressMap.put(address, index);
