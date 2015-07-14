@@ -545,6 +545,14 @@ public final class Template {
     */
   }
 
+  public void beginBufferPreparator() {
+    // TODO
+  }
+
+  public void endBufferPreparator() {
+    // TODO
+  }
+
   public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {
     final Variate<String> variate = getGroupVariate(name);
     return newAddressingModeBuilder(variate.value());

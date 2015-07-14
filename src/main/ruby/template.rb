@@ -519,7 +519,23 @@ class Template
   def stream(label, data, index, length)
     @template.addStream label.to_s, data, index, length
   end
-  
+
+  # -------------------------------------------------------------------------- #
+  # Creating Buffer Preparators                                                #
+  # -------------------------------------------------------------------------- #
+
+  def buffer_preparator(attrs, &contents)
+    buffer  = get_attribute attrs, :buffer
+    address = get_attribute attrs, :address
+    entry   = get_attribute attrs, :entry
+
+    @template.beginBufferPreparator
+
+    # TODO
+
+    @template.endBufferPreparator
+  end
+
   # -------------------------------------------------------------------------- #
   # Generating Data Files                                                      #
   # -------------------------------------------------------------------------- #
