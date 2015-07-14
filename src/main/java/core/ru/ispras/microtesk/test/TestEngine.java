@@ -550,11 +550,12 @@ public final class TestEngine {
             Logger.debug(concreteCall.getText());
           }
 
-          final String sequenceId = String.format("Test Case %d", sequenceIndex);
+          final int testCaseIndex = STATISTICS.testCaseNumber;
+          final String sequenceId = String.format("Test Case %d", testCaseIndex);
           Logger.debugHeader("Generating Data for %s", sequenceId);
 
           Logger.debugHeader("Executing %s", sequenceId);
-          executor.executeSequence(concreteSequence, sequenceIndex);
+          executor.executeSequence(concreteSequence, testCaseIndex);
 
           Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
 
