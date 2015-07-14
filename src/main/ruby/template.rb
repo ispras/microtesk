@@ -525,11 +525,8 @@ class Template
   # -------------------------------------------------------------------------- #
 
   def buffer_preparator(attrs, &contents)
-    buffer  = get_attribute attrs, :buffer
-    address = get_attribute attrs, :address
-    entry   = get_attribute attrs, :entry
-
-    @template.beginBufferPreparator
+    buffer_name  = get_attribute attrs, :buffer
+    @template.beginBufferPreparator buffer_name
 
     # TODO
 

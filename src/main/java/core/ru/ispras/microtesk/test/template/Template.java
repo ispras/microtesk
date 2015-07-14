@@ -545,7 +545,7 @@ public final class Template {
     */
   }
 
-  public void beginBufferPreparator() {
+  public void beginBufferPreparator(final String bufferName) {
     // TODO
   }
 
