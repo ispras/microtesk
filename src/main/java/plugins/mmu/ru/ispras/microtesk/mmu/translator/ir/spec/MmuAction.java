@@ -29,11 +29,11 @@ public final class MmuAction {
   /** Unique name. */
   private final String name;
   /** Device used in the action or {@code null}. */
-  private final MmuDevice device;
+  private final MmuBuffer device;
   /** Assignments performed by the action. */
   private final Map<IntegerField, MmuAssignment> action = new HashMap<>();
 
-  public MmuAction(final String name, final MmuDevice device, final MmuAssignment... assignments) {
+  public MmuAction(final String name, final MmuBuffer device, final MmuAssignment... assignments) {
     InvariantChecks.checkNotNull(name);
     // The device is allowed to be null.
 
@@ -53,7 +53,7 @@ public final class MmuAction {
     return name;
   }
 
-  public MmuDevice getDevice() {
+  public MmuBuffer getDevice() {
     return device;
   }
 

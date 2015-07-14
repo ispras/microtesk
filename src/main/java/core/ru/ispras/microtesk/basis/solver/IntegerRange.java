@@ -16,10 +16,10 @@ package ru.ispras.microtesk.basis.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -54,9 +54,9 @@ public final class IntegerRange {
    * 
    * @param ranges the set of ranges.
    * @return the list of disjoint ranges.
-   * @throws NullPointerException if {@code ranges} is null.
+   * @throws IllegalArgumentException if {@code ranges} is null.
    */
-  public static List<IntegerRange> divide(final Set<IntegerRange> ranges) {
+  public static List<IntegerRange> divide(final Collection<IntegerRange> ranges) {
     InvariantChecks.checkNotNull(ranges);
 
     if (ranges.isEmpty()) {
@@ -127,7 +127,7 @@ public final class IntegerRange {
    * 
    * @param min the lower bound of the range.
    * @param max the upper bound of the range.
-   * @throws NullPointerException if {@code min} or {@code max} is null.
+   * @throws IllegalArgumentException if {@code min} or {@code max} is null.
    * @throws IllegalArgumentException if ({@code min > max}).
    */
   public IntegerRange(final BigInteger min, final BigInteger max) {
@@ -180,8 +180,7 @@ public final class IntegerRange {
    * Sets the lower bound of the range.
    * 
    * @param min the lower bound to be set.
-   * @throws NullPointerException if {@code min} is null.
-   * @throws IllegalArgumentException if ({@code min > max}).
+   * @throws IllegalArgumentException if {@code max} is null or ({@code min > max}).
    */
   public void setMin(final BigInteger min) {
     InvariantChecks.checkNotNull(min);
@@ -203,8 +202,7 @@ public final class IntegerRange {
    * Sets the upper bound of the range.
    * 
    * @param max the upper bound to be set.
-   * @throws NullPointerException if {@code max} is null.
-   * @throws IllegalArgumentException if ({@code min > max}).
+   * @throws IllegalArgumentException if {@code max} is null or ({@code min > max}).
    */
   public void setMax(final BigInteger max) {
     InvariantChecks.checkNotNull(max);
@@ -236,7 +234,7 @@ public final class IntegerRange {
    * 
    * @param rhs the range to be compared with this one.
    * @return {@code true} if this range overlaps with the given one; {@code false} otherwise.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public boolean overlaps(final IntegerRange rhs) {
     InvariantChecks.checkNotNull(rhs);
@@ -249,7 +247,7 @@ public final class IntegerRange {
    * 
    * @param rhs the range to be compared with this one.
    * @return {@code true} if this range contains the given one; {@code false} otherwise.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public boolean contains(final IntegerRange rhs) {
     InvariantChecks.checkNotNull(rhs);
@@ -263,7 +261,7 @@ public final class IntegerRange {
    * 
    * @param rhs the range to be intersected with this one.
    * @return the range representing the intersection or {@code null} if the ranges are disjoint.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public IntegerRange intersect(final IntegerRange rhs) {
     InvariantChecks.checkNotNull(rhs);
@@ -281,7 +279,7 @@ public final class IntegerRange {
    * 
    * @param rhs the range to be merged with this one.
    * @return the range representing the union or {@code null} if the ranges are disjoint.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public IntegerRange merge(final IntegerRange rhs) {
     InvariantChecks.checkNotNull(rhs);
@@ -300,7 +298,7 @@ public final class IntegerRange {
    * 
    * @param rhs the range to be united with this one.
    * @return the list of ranges representing the union.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public List<IntegerRange> union(final IntegerRange rhs) {
     InvariantChecks.checkNotNull(rhs);
@@ -324,7 +322,7 @@ public final class IntegerRange {
    * 
    * @param rhs the range to be subtracted from this one.
    * @return the difference.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public List<IntegerRange> minus(final IntegerRange rhs) {
     InvariantChecks.checkNotNull(rhs);

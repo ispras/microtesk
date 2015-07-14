@@ -18,16 +18,16 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 
 /**
- * {@link MmuAddress} describes an address, i.e. a parameter used to access a buffer.
+ * {@link MmuAddressType} describes an address, i.e. a parameter used to access a buffer.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MmuAddress {
+public final class MmuAddressType {
   /** Address description (the variable contains the name and the bit length). */
   private final IntegerVariable addrVariable;
 
-  public MmuAddress(final IntegerVariable address) {
+  public MmuAddressType(final IntegerVariable address) {
     InvariantChecks.checkNotNull(address);
     this.addrVariable = address;
   }
@@ -60,11 +60,11 @@ public final class MmuAddress {
       return true;
     }
 
-    if ((obj == null) || !(obj instanceof MmuAddress)) {
+    if ((obj == null) || !(obj instanceof MmuAddressType)) {
       return false;
     }
 
-    final MmuAddress other = (MmuAddress) obj;
+    final MmuAddressType other = (MmuAddressType) obj;
     return getName().equals(other.getName());
   }
 }

@@ -25,8 +25,8 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
@@ -47,7 +47,7 @@ public final class MemoryAccess {
   private DataType dataType;
 
   /** The virtual address. */
-  private final MmuAddress startAddress;
+  private final MmuAddressType startAddress;
 
   /** The list of transitions. */
   private final List<MmuTransition> transitions = new ArrayList<>();
@@ -59,7 +59,7 @@ public final class MemoryAccess {
    * @param type the operation type.
    */
   public MemoryAccess(final MemoryOperation operation, final DataType type,
-      final MmuAddress startAddress) {
+      final MmuAddressType startAddress) {
     InvariantChecks.checkNotNull(operation);
     InvariantChecks.checkNotNull(startAddress);
 
@@ -73,7 +73,7 @@ public final class MemoryAccess {
    * 
    * @param operation the operation being executed.
    */
-  public MemoryAccess(final MemoryOperation operation, final MmuAddress startAddress) {
+  public MemoryAccess(final MemoryOperation operation, final MmuAddressType startAddress) {
     this(operation, null, startAddress);
   }
 
@@ -107,7 +107,7 @@ public final class MemoryAccess {
   /**
    * TODO:
    */
-  public MmuAddress getStartAddress() {
+  public MmuAddressType getStartAddress() {
     return startAddress;
   }
 
@@ -118,15 +118,15 @@ public final class MemoryAccess {
    * @return the list of devices.
    */
   // TODO: Optimization is needed!
-  public List<MmuDevice> getDevices() {
-    final List<MmuDevice> result = new ArrayList<>();
+  public List<MmuBuffer> getDevices() {
+    final List<MmuBuffer> result = new ArrayList<>();
     final List<MmuTransition> transitions = getTransitions();
 
-    final Set<MmuDevice> handledDevices = new HashSet<>();
+    final Set<MmuBuffer> handledDevices = new HashSet<>();
 
     for (final MmuTransition transition : transitions) {
       final MmuGuard guard = transition.getGuard();
-      final MmuDevice guardDevice = guard != null ? guard.getDevice() : null;
+      final MmuBuffer guardDevice = guard != null ? guard.getDevice() : null;
 
       if (guardDevice != null && !handledDevices.contains(guardDevice)) {
         handledDevices.add(guardDevice);
@@ -134,7 +134,7 @@ public final class MemoryAccess {
       }
 
       final MmuAction source = transition.getSource();
-      final MmuDevice sourceDevice = source.getDevice();
+      final MmuBuffer sourceDevice = source.getDevice();
 
       if (sourceDevice != null && !handledDevices.contains(sourceDevice)) {
         handledDevices.add(sourceDevice);
@@ -142,7 +142,7 @@ public final class MemoryAccess {
       }
 
       final MmuAction target = transition.getTarget();
-      final MmuDevice targetDevice = target.getDevice();
+      final MmuBuffer targetDevice = target.getDevice();
 
       if (targetDevice != null && !handledDevices.contains(targetDevice)) {
         handledDevices.add(targetDevice);
@@ -158,17 +158,17 @@ public final class MemoryAccess {
    * 
    * @return the address list.
    */
-  public List<MmuAddress> getAddresses() {
-    final List<MmuAddress> result = new ArrayList<>();
-    final Set<MmuAddress> addresses = new HashSet<>();
+  public List<MmuAddressType> getAddresses() {
+    final List<MmuAddressType> result = new ArrayList<>();
+    final Set<MmuAddressType> addresses = new HashSet<>();
     final List<MmuTransition> transitions = getTransitions();
 
     for (final MmuTransition transition : transitions) {
       final MmuAction action = transition.getSource();
-      final MmuDevice device = action.getDevice();
+      final MmuBuffer device = action.getDevice();
       
       if (device != null) {
-        final MmuAddress address = device.getAddress();
+        final MmuAddressType address = device.getAddress();
 
         if (!addresses.contains(address)) {
           addresses.add(address);
@@ -236,7 +236,7 @@ public final class MemoryAccess {
    * @return the event.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public BufferAccessEvent getEvent(final MmuDevice device) {
+  public BufferAccessEvent getEvent(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
 
     for (final MmuTransition transition : transitions) {
@@ -284,10 +284,10 @@ public final class MemoryAccess {
    * @return {@code true} if the execution contains the address; {@code false} otherwise.
    * @throws IllegalArgumentException if {@code address} is null.
    */
-  public boolean contains(final MmuAddress address) {
+  public boolean contains(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
 
-    final Collection<MmuAddress> addresses = getAddresses();
+    final Collection<MmuAddressType> addresses = getAddresses();
     return addresses.contains(address);
   }
 
@@ -298,10 +298,10 @@ public final class MemoryAccess {
    * @return {@code true} if the execution contains the device; {@code false} otherwise.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public boolean contains(final MmuDevice device) {
+  public boolean contains(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
 
-    final Collection<MmuDevice> devices = getDevices();
+    final Collection<MmuBuffer> devices = getDevices();
     return devices.contains(device);
   }
 

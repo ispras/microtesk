@@ -28,7 +28,7 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
@@ -44,12 +44,12 @@ public final class ClassifierDevice implements Classifier<MemoryAccess> {
 
     for (MemoryOperation operation : MemoryOperation.values()) {
       // For Store and Load
-      final Map<Map<MmuDevice, BufferAccessEvent>, Set<MemoryAccess>> mapExecution =
+      final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccess>> mapExecution =
           new LinkedHashMap<>();
 
       for (final MemoryAccess execution : executions) {
         if (execution.getOperation() == operation) {
-          final Map<MmuDevice, BufferAccessEvent> mapDevices =
+          final Map<MmuBuffer, BufferAccessEvent> mapDevices =
               getDevicesAndEvents(execution.getTransitions());
 
           if (mapExecution.containsKey(mapDevices)) {
@@ -75,11 +75,11 @@ public final class ClassifierDevice implements Classifier<MemoryAccess> {
    * @return the map of devices and events.
    * @throws NullPointerException if {@code conflicts} is null.
    */
-  private Map<MmuDevice, BufferAccessEvent> getDevicesAndEvents(
+  private Map<MmuBuffer, BufferAccessEvent> getDevicesAndEvents(
       final List<MmuTransition> transitions) {
     InvariantChecks.checkNotNull(transitions);
 
-    Map<MmuDevice, BufferAccessEvent> result = new LinkedHashMap<>();
+    Map<MmuBuffer, BufferAccessEvent> result = new LinkedHashMap<>();
 
     for (final MmuTransition transition : transitions) {
       final MmuAction action = transition.getSource();
@@ -103,13 +103,13 @@ public final class ClassifierDevice implements Classifier<MemoryAccess> {
    * @throws NullPointerException if some parameters are null.
    * @throws IllegalArgumentException if using the same device for different events.
    */
-  private Map<MmuDevice, BufferAccessEvent> addDeviceAndEvent(final MmuAction action,
-      final MmuTransition transition, final Map<MmuDevice, BufferAccessEvent> result) {
+  private Map<MmuBuffer, BufferAccessEvent> addDeviceAndEvent(final MmuAction action,
+      final MmuTransition transition, final Map<MmuBuffer, BufferAccessEvent> result) {
     InvariantChecks.checkNotNull(action);
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(result);
 
-    final MmuDevice device = action.getDevice();
+    final MmuBuffer device = action.getDevice();
     BufferAccessEvent event;
     if (transition.getGuard() != null) {
       event = transition.getGuard().getEvent();

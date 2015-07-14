@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * This class describes a dependency, which is a number of device usage conflicts.
@@ -75,7 +75,7 @@ public class MemoryDependency {
    * @return the conflict of the device.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public MemoryHazard getHazard(final MmuDevice device) {
+  public MemoryHazard getHazard(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
 
     for (final MemoryHazard hazard : hazards) {
@@ -96,7 +96,7 @@ public class MemoryDependency {
    *         otherwise.
    * @throws IllegalArgumentException if {@code device} or {@code hazardType} is null.
    */
-  public boolean contains(final MmuDevice device, final MemoryHazard.Type hazardType) {
+  public boolean contains(final MmuBuffer device, final MemoryHazard.Type hazardType) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(hazardType);
 
@@ -117,7 +117,7 @@ public class MemoryDependency {
    *         otherwise.
    * @throws IllegalArgumentException if {@code address} or {@code hazardType} is null.
    */
-  public boolean contains(final MmuAddress address, final MemoryHazard.Type hazardType) {
+  public boolean contains(final MmuAddressType address, final MemoryHazard.Type hazardType) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(hazardType);
 

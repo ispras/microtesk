@@ -21,7 +21,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
@@ -38,14 +38,14 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
 public final class FilterHitAndTagReplacedEx implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
   public boolean test(final MemoryAccess access, MemoryUnitedDependency dependency) {
-    final Map<MmuDevice, MemoryUnitedHazard> hazards = dependency.getDeviceHazards();
+    final Map<MmuBuffer, MemoryUnitedHazard> hazards = dependency.getDeviceHazards();
 
-    for (final Map.Entry<MmuDevice, MemoryUnitedHazard> entry : hazards.entrySet()) {
-      final MmuDevice device = entry.getKey();
+    for (final Map.Entry<MmuBuffer, MemoryUnitedHazard> entry : hazards.entrySet()) {
+      final MmuBuffer device = entry.getKey();
       final MemoryUnitedHazard hazard = entry.getValue();
 
       if (!hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty()) {
-        for (final MmuDevice otherDevice : access.getDevices()) {
+        for (final MmuBuffer otherDevice : access.getDevices()) {
           if (otherDevice.isReplaceable() && otherDevice.getAddress() == device.getAddress() &&
               access.getEvent(otherDevice) == BufferAccessEvent.HIT)
           // Filter off.

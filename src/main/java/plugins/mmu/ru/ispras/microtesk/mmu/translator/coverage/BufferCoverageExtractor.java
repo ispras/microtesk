@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -31,7 +31,7 @@ final class BufferCoverageExtractor {
   private static enum Hazard {
     INDEX_NOT_EQUAL {
       @Override
-      public MemoryHazard getHazard(final MmuDevice buffer) {
+      public MemoryHazard getHazard(final MmuBuffer buffer) {
         // Index1 != Index2.
         return new MemoryHazard(MemoryHazard.Type.INDEX_NOT_EQUAL, buffer,
             MmuCondition.neq(buffer.getIndexExpression()));
@@ -40,7 +40,7 @@ final class BufferCoverageExtractor {
 
     TAG_NOT_EQUAL {
       @Override
-      public MemoryHazard getHazard(final MmuDevice buffer) {
+      public MemoryHazard getHazard(final MmuBuffer buffer) {
         final List<MmuConditionAtom> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
@@ -55,7 +55,7 @@ final class BufferCoverageExtractor {
 
     TAG_NOT_REPLACED {
       @Override
-      public MemoryHazard getHazard(final MmuDevice buffer) {
+      public MemoryHazard getHazard(final MmuBuffer buffer) {
         final List<MmuConditionAtom> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
@@ -71,7 +71,7 @@ final class BufferCoverageExtractor {
 
     TAG_REPLACED {
       @Override
-      public MemoryHazard getHazard(final MmuDevice buffer) {
+      public MemoryHazard getHazard(final MmuBuffer buffer) {
         final List<MmuConditionAtom> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
@@ -87,7 +87,7 @@ final class BufferCoverageExtractor {
 
     TAG_EQUAL {
       @Override
-      public MemoryHazard getHazard(final MmuDevice buffer) {
+      public MemoryHazard getHazard(final MmuBuffer buffer) {
         final List<MmuConditionAtom> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
@@ -100,12 +100,12 @@ final class BufferCoverageExtractor {
       }
     };
 
-    public abstract MemoryHazard getHazard(MmuDevice buffer);
+    public abstract MemoryHazard getHazard(MmuBuffer buffer);
   }
 
   private final List<MemoryHazard> hazards = new ArrayList<>();
 
-  public BufferCoverageExtractor(final MmuDevice buffer) {
+  public BufferCoverageExtractor(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
 
     if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {

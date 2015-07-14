@@ -26,7 +26,7 @@ public final class MmuGuard {
   /** Operation: {@code LOAD}, {@code STORE} or {@code null} (any operation). */
   private final MemoryOperation operation;
   /** Device (buffer). */
-  private final MmuDevice device;
+  private final MmuBuffer device;
   /** Event: {@code HIT} or {@code MISS}. */
   private final BufferAccessEvent event;
   /** Logical condition. */
@@ -34,7 +34,7 @@ public final class MmuGuard {
 
   public MmuGuard(
       final MemoryOperation operation,
-      final MmuDevice device,
+      final MmuBuffer device,
       final BufferAccessEvent event,
       final MmuCondition condition) {
     this.operation = operation;
@@ -44,13 +44,13 @@ public final class MmuGuard {
   }
 
   public MmuGuard(
-      final MmuDevice device,
+      final MmuBuffer device,
       final BufferAccessEvent event,
       final MmuCondition condition) {
     this(null, device, event, condition);
   }
 
-  public MmuGuard(final MmuDevice device, final BufferAccessEvent event) {
+  public MmuGuard(final MmuBuffer device, final BufferAccessEvent event) {
     this(null, device, event, null);
   }
 
@@ -66,7 +66,7 @@ public final class MmuGuard {
     this(operation, null, null, null);
   }
 
-  public MmuDevice getDevice() {
+  public MmuBuffer getDevice() {
     return device;
   }
 

@@ -22,7 +22,7 @@ import java.util.Set;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
@@ -34,7 +34,7 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class FilterAccessThenMiss implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
-  public static boolean test(final MmuDevice device, final MemoryUnitedDependency dependency) {
+  public static boolean test(final MmuBuffer device, final MemoryUnitedDependency dependency) {
     final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(device);
     final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(device);
 
@@ -66,7 +66,7 @@ public final class FilterAccessThenMiss implements BiPredicate<MemoryAccess, Mem
 
   @Override
   public boolean test(final MemoryAccess access, MemoryUnitedDependency dependency) {
-    for (final MmuDevice device : dependency.getDeviceHazards().keySet()) {
+    for (final MmuBuffer device : dependency.getDeviceHazards().keySet()) {
       if (device.isReplaceable() && access.getEvent(device) == BufferAccessEvent.MISS) {
         if (!test(device, dependency)) {
           return false;

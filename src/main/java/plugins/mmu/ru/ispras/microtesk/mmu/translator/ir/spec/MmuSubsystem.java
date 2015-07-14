@@ -39,22 +39,22 @@ public final class MmuSubsystem {
    * Stores available address types.
    * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
    */
-  private Map<String, MmuAddress> addresses = new LinkedHashMap<>();
+  private Map<String, MmuAddressType> addresses = new LinkedHashMap<>();
 
   // TODO:
-  private List<MmuAddress> sortedAddresses = new ArrayList<>();
+  private List<MmuAddressType> sortedAddresses = new ArrayList<>();
 
   /**
    * Refers to the primary address type of the MMU.
    * <p>Address type used to access the memory (typically, Virtual Address).</p>
    */
-  private MmuAddress startAddress;
+  private MmuAddressType startAddress;
 
   /** Stores devices (buffers) of the MMU. */
-  private Map<String, MmuDevice> devices = new LinkedHashMap<>();
+  private Map<String, MmuBuffer> devices = new LinkedHashMap<>();
 
   // TODO:
-  private List<MmuDevice> sortedDevices = new ArrayList<>();
+  private List<MmuBuffer> sortedDevices = new ArrayList<>();
 
   /** Maps actions to out-going transitions. */
   private Map<MmuAction, List<MmuTransition>> actions = new LinkedHashMap<>();
@@ -69,7 +69,7 @@ public final class MmuSubsystem {
    * @param address the address to be registered.
    * @throws NullPointerException if {@code address} is {@code null}.
    */
-  public void registerAddress(final MmuAddress address) {
+  public void registerAddress(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
     addresses.put(address.getName(), address);
     sortedAddresses.add(address);
@@ -80,12 +80,12 @@ public final class MmuSubsystem {
    * 
    * @return the collection of addresses.
    */
-  public Collection<MmuAddress> getAddresses() {
+  public Collection<MmuAddressType> getAddresses() {
     return Collections.unmodifiableCollection(addresses.values());
   }
 
   // TODO:
-  public List<MmuAddress> getSortedListOfAddresses() {
+  public List<MmuAddressType> getSortedListOfAddresses() {
     return sortedAddresses;
   }
 
@@ -95,7 +95,7 @@ public final class MmuSubsystem {
    * @param name the name of the address.
    * @return address or {@code null} it is undefined.
    */
-  public MmuAddress getAddress(String name) {
+  public MmuAddressType getAddress(String name) {
     return addresses.get(name);
   }
 
@@ -105,7 +105,7 @@ public final class MmuSubsystem {
    * @param address the address type to be set.
    * @throws NullPointerException if {@code address} is {@code null}.
    */
-  public void setStartAddress(final MmuAddress address) {
+  public void setStartAddress(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
     startAddress = address;
   }
@@ -115,7 +115,7 @@ public final class MmuSubsystem {
    * 
    * @return the start address.
    */
-  public MmuAddress getStartAddress() {
+  public MmuAddressType getStartAddress() {
     return startAddress;
   }
 
@@ -126,7 +126,7 @@ public final class MmuSubsystem {
    * @param device the device to be registered.
    * @throws NullPointerException if {@code device} is {@code null}.
    */
-  public void registerDevice(MmuDevice device) {
+  public void registerDevice(MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
     devices.put(device.getName(), device);
     sortedDevices.add(device);
@@ -137,12 +137,12 @@ public final class MmuSubsystem {
    * 
    * @return the collection of devices.
    */
-  public Collection<MmuDevice> getDevices() {
+  public Collection<MmuBuffer> getDevices() {
     return devices.values();
   }
 
   // TODO:
-  public List<MmuDevice> getSortedListOfDevices() {
+  public List<MmuBuffer> getSortedListOfDevices() {
     return sortedDevices;
   }
 
@@ -152,7 +152,7 @@ public final class MmuSubsystem {
    * @param name the name of the device.
    * @return device or {@code null} it is undefined.
    */
-  public MmuDevice getDevice(String name) {
+  public MmuBuffer getDevice(String name) {
     return devices.get(name);
   }
 
@@ -235,7 +235,7 @@ public final class MmuSubsystem {
     final StringBuilder builder = new StringBuilder("MMU:");
 
     builder.append(String.format("%nAddresses: %d", addresses.size()));
-    for (final MmuAddress address : getAddresses()) {
+    for (final MmuAddressType address : getAddresses()) {
       builder.append(newline);
       builder.append(address);
     }
@@ -243,7 +243,7 @@ public final class MmuSubsystem {
     builder.append(String.format("%nStart address: %s%n", startAddress));
 
     builder.append(String.format("%nDevices: %d", devices.size()));
-    for (final MmuDevice device : getDevices()) {
+    for (final MmuBuffer device : getDevices()) {
       builder.append(newline);
       builder.append("    ");
       builder.append(device);

@@ -35,7 +35,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -479,7 +479,7 @@ public final class MemoryAccessStructureChecker {
 
     for (final MemoryHazard hazard : dependency.getHazards()) {
       if (hazard.getType() == MemoryHazard.Type.TAG_EQUAL) {
-        final MmuDevice device = hazard.getDevice();
+        final MmuBuffer device = hazard.getDevice();
         InvariantChecks.checkNotNull(device);
 
         if (BufferAccessEvent.HIT == access1.getEvent(device)

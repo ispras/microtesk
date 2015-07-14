@@ -37,8 +37,8 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterUnclosed
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterVaEqualPaNotEqual;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -343,21 +343,21 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
 
-    final List<MmuDevice> devices1 = access1.getDevices();
-    final List<MmuDevice> devices2 = access2.getDevices();
+    final List<MmuBuffer> devices1 = access1.getDevices();
+    final List<MmuBuffer> devices2 = access2.getDevices();
 
     // Intersect the sets of devices used in the memory accesses.
-    final List<MmuDevice> devices = new ArrayList<>(devices1);
+    final List<MmuBuffer> devices = new ArrayList<>(devices1);
     devices.retainAll(devices2);
 
-    final Set<MmuAddress> addresses = new LinkedHashSet<>();
+    final Set<MmuAddressType> addresses = new LinkedHashSet<>();
 
-    for (final MmuDevice device : devices) {
+    for (final MmuBuffer device : devices) {
       addresses.add(device.getAddress());
     }
 
     List<MemoryDependency> addrDependencies = new ArrayList<>();
-    for (final MmuAddress address : addresses) {
+    for (final MmuAddressType address : addresses) {
       final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(address);
       addHazardsToDependencies(addrDependencies, access1, access2, hazards);
     }
@@ -367,7 +367,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final List<MemoryDependency> dependencies = new ArrayList<>();
 
       dependencies.add(addrDependency);
-      for (final MmuDevice device : devices) {
+      for (final MmuBuffer device : devices) {
         final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(device);
         addHazardsToDependencies(dependencies, access1, access2, hazards);
 

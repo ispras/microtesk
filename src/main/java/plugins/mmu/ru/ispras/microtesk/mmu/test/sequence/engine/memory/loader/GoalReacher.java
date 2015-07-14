@@ -18,24 +18,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class GoalReacher implements Loader {
-  private final MmuDevice device;
+  private final MmuBuffer device;
   private final BufferAccessEvent event;
   private final long address;
   private final List<Long> loads = new ArrayList<>();
 
-  public GoalReacher(final MmuDevice device, final BufferAccessEvent event, final long address) {
+  public GoalReacher(final MmuBuffer device, final BufferAccessEvent event, final long address) {
     this.device = device;
     this.event = event;
     this.address = address;
   }
 
-  public MmuDevice getDevice() {
+  public MmuBuffer getDevice() {
     return device;
   }
   

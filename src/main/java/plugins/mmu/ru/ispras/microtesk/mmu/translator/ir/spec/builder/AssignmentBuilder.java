@@ -25,7 +25,7 @@ import ru.ispras.microtesk.basis.solver.IntegerField;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
 public class AssignmentBuilder {
@@ -44,7 +44,7 @@ public class AssignmentBuilder {
   }
 
   public MmuAction build() {
-    final MmuDevice device = getDevice(lhs, rhs);
+    final MmuBuffer device = getDevice(lhs, rhs);
 
     final Iterator<?> leftIt = newVariableIterator(lhs);
     final Iterator<MmuExpression> rightIt = newExpressionIterator(rhs);
@@ -76,9 +76,9 @@ public class AssignmentBuilder {
     return new MmuAction(name, device, array);
   }
 
-  private static MmuDevice getDevice(Atom lhs, Atom rhs) {
-    final MmuDevice left = extractDevice(lhs);
-    final MmuDevice right = extractDevice(rhs);
+  private static MmuBuffer getDevice(Atom lhs, Atom rhs) {
+    final MmuBuffer left = extractDevice(lhs);
+    final MmuBuffer right = extractDevice(rhs);
 
     if (left == right) {
       return left;
@@ -97,7 +97,7 @@ public class AssignmentBuilder {
         left.getName(), right.getName()));
   }
 
-  private static MmuDevice extractDevice(Atom atom) {
+  private static MmuBuffer extractDevice(Atom atom) {
     if (atom.getKind() == Atom.Kind.GROUP) {
       return ((IntegerVariableGroup) atom.getObject()).getDevice();
     }

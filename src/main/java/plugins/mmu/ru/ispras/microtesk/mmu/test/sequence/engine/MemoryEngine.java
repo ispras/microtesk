@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierTrivial;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
@@ -46,10 +46,10 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private final Iterator<MemoryAccessStructure> iterator;
   private final Function<MemoryAccess, AddressObject> testDataConstructor;
   private final BiConsumer<MemoryAccess, AddressObject> testDataCorrector;
-  private final Map<MmuDevice, UnaryOperator<Long>> tagAllocators;
-  private final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators;
-  private final Map<MmuDevice, Supplier<Object>> entryConstructors;
-  private final Map<MmuDevice, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
+  private final Map<MmuBuffer, UnaryOperator<Long>> tagAllocators;
+  private final Map<MmuBuffer, UnaryOperator<Long>> entryIdAllocators;
+  private final Map<MmuBuffer, Supplier<Object>> entryConstructors;
+  private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
 
   // TODO: to be parameters.
   private MemoryAccessStructure structure;
@@ -59,10 +59,10 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       final Iterator<MemoryAccessStructure> iterator,
       final Function<MemoryAccess, AddressObject> testDataConstructor,
       final BiConsumer<MemoryAccess, AddressObject> testDataCorrector,
-      final Map<MmuDevice, UnaryOperator<Long>> tagAllocators,
-      final Map<MmuDevice, UnaryOperator<Long>> entryIdAllocators,
-      final Map<MmuDevice, Supplier<Object>> entryConstructors,
-      final Map<MmuDevice, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
+      final Map<MmuBuffer, UnaryOperator<Long>> tagAllocators,
+      final Map<MmuBuffer, UnaryOperator<Long>> entryIdAllocators,
+      final Map<MmuBuffer, Supplier<Object>> entryConstructors,
+      final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
     this.iterator = iterator;
     this.testDataConstructor = testDataConstructor;
     this.testDataCorrector = testDataCorrector;

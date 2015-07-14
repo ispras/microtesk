@@ -159,6 +159,25 @@ public final class RegionSettings extends AbstractSettings {
   }
 
   @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+
+    if (o == null || !(o instanceof RegionSettings)) {
+      return false;
+    }
+
+    final RegionSettings r = (RegionSettings) o;
+    return name.equals(r.name);
+  }
+
+  @Override
   public String toString() {
     return String.format("%s={name=%s, type=%s, start=%x, end=%x, mode=%s%s}",
         TAG, name, type.name(), startAddress, endAddress, mode, others);

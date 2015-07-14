@@ -20,16 +20,16 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BufferLoader implements Loader {
-  private final MmuDevice device;
+  private final MmuBuffer device;
   private final Map<Long, SetLoader> loaders = new LinkedHashMap<>();
 
-  public BufferLoader(final MmuDevice device) {
+  public BufferLoader(final MmuBuffer device) {
     this.device = device;
   }
 

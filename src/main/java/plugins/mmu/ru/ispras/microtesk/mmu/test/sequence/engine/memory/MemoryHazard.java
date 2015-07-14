@@ -15,9 +15,9 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * This class describes a device usage conflict, which is a simple dependency between two
@@ -85,9 +85,9 @@ public final class MemoryHazard {
   /** The conflict type. */
   private final Type type;
   /** The address. */
-  private final MmuAddress address;
+  private final MmuAddressType address;
   /** The device being used. */
-  private final MmuDevice device;
+  private final MmuBuffer device;
   /** The list of address condition. */
   private final MmuCondition condition;
 
@@ -99,7 +99,7 @@ public final class MemoryHazard {
    * @param condition the condition.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public MemoryHazard(final Type type, final MmuDevice device, final MmuCondition condition) {
+  public MemoryHazard(final Type type, final MmuBuffer device, final MmuCondition condition) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(condition);
@@ -118,7 +118,7 @@ public final class MemoryHazard {
    * @param condition the condition.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public MemoryHazard(final Type type, final MmuAddress address, final MmuCondition condition) {
+  public MemoryHazard(final Type type, final MmuAddressType address, final MmuCondition condition) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(condition);
@@ -169,7 +169,7 @@ public final class MemoryHazard {
    * 
    * @return the device.
    */
-  public MmuDevice getDevice() {
+  public MmuBuffer getDevice() {
     return device;
   }
 
@@ -178,7 +178,7 @@ public final class MemoryHazard {
    * 
    * @return the address.
    */
-  public MmuAddress getAddress() {
+  public MmuAddressType getAddress() {
     return address;
   }
 

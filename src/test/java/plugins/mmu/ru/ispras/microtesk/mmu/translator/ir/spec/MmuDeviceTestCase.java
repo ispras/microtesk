@@ -26,7 +26,7 @@ import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
- * Test for {@link MmuDevice}.
+ * Test for {@link MmuBuffer}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -52,10 +52,10 @@ public class MmuDeviceTestCase {
   public static final IntegerVariable PFN = new IntegerVariable("PFN", 24);
   public static final IntegerVariable DATA = new IntegerVariable("DATA", 8 * 32);
 
-  public static final MmuAddress VA_ADDR = new MmuAddress(VA);
-  public static final MmuAddress PA_ADDR = new MmuAddress(PA);
+  public static final MmuAddressType VA_ADDR = new MmuAddressType(VA);
+  public static final MmuAddressType PA_ADDR = new MmuAddressType(PA);
 
-  public static final MmuDevice JTLB = new MmuDevice("JTLB", 64, 1, VA_ADDR,
+  public static final MmuBuffer JTLB = new MmuBuffer("JTLB", 64, 1, VA_ADDR,
       MmuExpression.var(VA, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
@@ -77,7 +77,7 @@ public class MmuDeviceTestCase {
     JTLB.addField(new IntegerVariable("PFN1", 24));
   }
 
-  public static final MmuDevice DTLB = new MmuDevice("DTLB", 4, 1, VA_ADDR,
+  public static final MmuBuffer DTLB = new MmuBuffer("DTLB", 4, 1, VA_ADDR,
       MmuExpression.var(VA, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
@@ -122,7 +122,7 @@ public class MmuDeviceTestCase {
         }
       });
 
-  public static final MmuDevice L1 = new MmuDevice("L1", 4, 128, PA_ADDR,
+  public static final MmuBuffer L1 = new MmuBuffer("L1", 4, 128, PA_ADDR,
       MmuExpression.var(PA, 12, 35), // Tag
       MmuExpression.var(PA, 5, 11), // Index
       MmuExpression.var(PA, 0, 4), // Offset
@@ -155,7 +155,7 @@ public class MmuDeviceTestCase {
       });
 
   // -----------------------------------------------------------------------------------------------
-  public static final MmuDevice L2 = new MmuDevice("L2", 4, 4096, PA_ADDR,
+  public static final MmuBuffer L2 = new MmuBuffer("L2", 4, 4096, PA_ADDR,
       MmuExpression.var(PA, 17, 35), // Tag
       MmuExpression.var(PA, 5, 16), // Index
       MmuExpression.var(PA, 0, 4), // Offset
@@ -187,7 +187,7 @@ public class MmuDeviceTestCase {
         }
       });
 
-  public static final MmuDevice MEM = new MmuDevice("MMU", 1, (1L << 36) / 32, PA_ADDR,
+  public static final MmuBuffer MEM = new MmuBuffer("MMU", 1, (1L << 36) / 32, PA_ADDR,
       MmuExpression.empty(),        // Tag
       MmuExpression.var(PA, 5, 35), // Index
       MmuExpression.var(PA, 0, 4),  // Offset
@@ -197,7 +197,7 @@ public class MmuDeviceTestCase {
     MEM.addField(new IntegerVariable("DATA", 8 * 32));
   }
 
-  private void runTest(final MmuDevice device, final AddressView<Long> addressView,
+  private void runTest(final MmuBuffer device, final AddressView<Long> addressView,
       final long address) {
 
     System.out.format("Test: %s, %x\n", device.getName(), address);

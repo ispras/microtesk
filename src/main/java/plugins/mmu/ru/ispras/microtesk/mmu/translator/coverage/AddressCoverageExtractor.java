@@ -19,7 +19,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 
 /**
@@ -30,7 +30,7 @@ final class AddressCoverageExtractor {
   private static enum Hazard {
     ADDR_NOT_EQUAL {
       @Override
-      public MemoryHazard getHazard(final MmuAddress address) {
+      public MemoryHazard getHazard(final MmuAddressType address) {
         // Address1 != Address2.
         return new MemoryHazard(MemoryHazard.Type.ADDR_NOT_EQUAL, address,
             MmuCondition.neq(address.getVariable()));
@@ -39,19 +39,19 @@ final class AddressCoverageExtractor {
 
     ADDR_EQUAL {
       @Override
-      public MemoryHazard getHazard(final MmuAddress address) {
+      public MemoryHazard getHazard(final MmuAddressType address) {
         // Address1 == Address2.
         return new MemoryHazard(MemoryHazard.Type.ADDR_EQUAL, address,
             MmuCondition.eq(address.getVariable()));
       }
     };
 
-    public abstract MemoryHazard getHazard(MmuAddress address);
+    public abstract MemoryHazard getHazard(MmuAddressType address);
   }
 
   private final List<MemoryHazard> hazards = new ArrayList<>();
 
-  public AddressCoverageExtractor(final MmuAddress address) {
+  public AddressCoverageExtractor(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
 
     // Address1 != Address2.

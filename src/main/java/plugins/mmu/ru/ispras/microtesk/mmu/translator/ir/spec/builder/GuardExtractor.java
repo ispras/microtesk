@@ -29,9 +29,9 @@ import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -107,13 +107,13 @@ final class GuardExtractor {
     final AbstractStorage target = attrRef.getTarget();
     if (target instanceof Segment) {
       final Segment segment = (Segment) target;
-      final MmuAddress address = specification.getAddress(segment.getAddress().getId());
+      final MmuAddressType address = specification.getAddress(segment.getAddress().getId());
       final IntegerVariable addressVar = address.getVariable(); 
 
       hit = new MmuGuard(MmuCondition.range(addressVar, segment.getMin(), segment.getMax()));
       miss = null; // TODO
     } else {
-      final MmuDevice device = specification.getDevice(attrRef.getTarget().getId());
+      final MmuBuffer device = specification.getDevice(attrRef.getTarget().getId());
       hit = new MmuGuard(device, BufferAccessEvent.HIT);
       miss = new MmuGuard(device, BufferAccessEvent.MISS);
     }

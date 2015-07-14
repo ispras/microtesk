@@ -25,7 +25,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.utils.function.Predicate;
 
@@ -80,7 +80,7 @@ public final class FilterUnclosedEqualRelations implements Predicate<MemoryAcces
 
           hazardNames.add(String.format("%s.%s", hazard.getAddress(), "ADDR_EQUAL"));
 
-          for (final MmuDevice device : memory.getDevices()) {
+          for (final MmuBuffer device : memory.getDevices()) {
             if (device.getAddress() == hazard.getAddress()) {
               hazardNames.add(String.format("%s.%s", hazard.getDevice(), "TAG_EQUAL"));
               hazardNames.add(String.format("%s.%s", hazard.getDevice(), "INDEX_EQUAL"));

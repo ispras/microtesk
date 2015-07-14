@@ -24,7 +24,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.MemoryLoader;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * {@link MemorySolution} represents a solution (test data) for a number of dependent instruction
@@ -52,7 +52,7 @@ public final class MemorySolution {
    * <p>This map unites the analogous maps of the test data of the executions stored in
    * {@link MemorySolution#solution}.</p>
    */
-  private final Map<MmuDevice, Map<Long, /* Entry */ Object>> entries = new LinkedHashMap<>();
+  private final Map<MmuBuffer, Map<Long, /* Entry */ Object>> entries = new LinkedHashMap<>();
 
   /**
    * Constructs an uninitialized solution for the given memory access structure.
@@ -71,7 +71,7 @@ public final class MemorySolution {
       this.solution.add(new AddressObject(execution));
     }
 
-    for (final MmuDevice device : MmuTranslator.getSpecification().getDevices()) {
+    for (final MmuBuffer device : MmuTranslator.getSpecification().getDevices()) {
       this.entries.put(device, new LinkedHashMap<Long, Object>());
     }
 
@@ -143,7 +143,7 @@ public final class MemorySolution {
    * @return the index-to-entry map.
    * @throws NullPointerException if {@code device} is null.
    */
-  public Map<Long, Object> getEntries(final MmuDevice device) {
+  public Map<Long, Object> getEntries(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
 
     return entries.get(device);
@@ -156,7 +156,7 @@ public final class MemorySolution {
    * @param entries the entries to be written.
    * @throws NullPointerException if some parameters are null.
    */
-  public void setEntries(final MmuDevice device, final Map<Long, Object> entries) {
+  public void setEntries(final MmuBuffer device, final Map<Long, Object> entries) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(entries);
 
@@ -171,7 +171,7 @@ public final class MemorySolution {
    * @param entry the entry to be added.
    * @throws NullPointerException if some parameters are null.
    */
-  public void addEntry(final MmuDevice device, final long internalAddress, final Object entry) {
+  public void addEntry(final MmuBuffer device, final long internalAddress, final Object entry) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(internalAddress);
     InvariantChecks.checkNotNull(entry);

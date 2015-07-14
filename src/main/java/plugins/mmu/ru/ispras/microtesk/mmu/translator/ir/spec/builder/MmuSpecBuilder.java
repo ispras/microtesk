@@ -42,9 +42,9 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -106,7 +106,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     final Memory memory = memories.values().iterator().next();
 
-    final MmuAddress address = spec.getAddress(memory.getAddress().getId());
+    final MmuAddressType address = spec.getAddress(memory.getAddress().getId());
     spec.setStartAddress(address);
     variables.defineVariableAs(address.getVariable(), memory.getAddressArg().getId());
 
@@ -136,11 +136,11 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
         new IntegerVariable(address.getId(), address.getBitSize());
 
     variables.defineVariable(addressVariable);
-    spec.registerAddress(new MmuAddress(addressVariable));
+    spec.registerAddress(new MmuAddressType(addressVariable));
   }
 
   private void registerDevice(final Buffer buffer) {
-    final MmuAddress address = spec.getAddress(buffer.getAddress().getId());
+    final MmuAddressType address = spec.getAddress(buffer.getAddress().getId());
     final boolean isReplaceable = PolicyId.NONE != buffer.getPolicy();
 
     final String addressArgName = buffer.getAddressArg().getId();
@@ -150,10 +150,10 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       final AddressFormatExtractor addressFormat = new AddressFormatExtractor(
           variables, address.getVariable(), buffer.getIndex(), buffer.getMatch());
 
-      final MmuDevice parentDevice = (null != buffer.getParent()) ?
+      final MmuBuffer parentDevice = (null != buffer.getParent()) ?
           spec.getDevice(buffer.getParent().getId()) : null;
 
-      final MmuDevice device = new MmuDevice(
+      final MmuBuffer device = new MmuBuffer(
           buffer.getId(),
           buffer.getWays().longValue(),
           buffer.getSets().longValue(),
@@ -179,7 +179,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private void registerControlFlowForMemory(Memory memory) {
-    final MmuAddress address = spec.getAddress(memory.getAddress().getId());
+    final MmuAddressType address = spec.getAddress(memory.getAddress().getId());
 
     final MmuAction root = new MmuAction("ROOT", new MmuAssignment(address.getVariable()));
     spec.registerAction(root);

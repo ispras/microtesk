@@ -23,8 +23,8 @@ import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -50,7 +50,7 @@ public final class AddressObject {
   private final MemoryAccess access;
 
   /** Contains addresses (virtual, physical and intermediate addresses). */
-  private final Map<MmuAddress, Long> addresses = new LinkedHashMap<>();
+  private final Map<MmuAddressType, Long> addresses = new LinkedHashMap<>();
 
   /** Contains attributes associated with the instruction call (cache policy, etc.). */
   private final Map<IntegerVariable, Long> attributes = new LinkedHashMap<>();
@@ -61,7 +61,7 @@ public final class AddressObject {
    * <p>Typically, one memory access affects one entry of one device. It is assumed that each map
    * contains exactly one entry.</p>
    */
-  private final Map<MmuDevice, Map<Long, Object>> entries = new LinkedHashMap<>();
+  private final Map<MmuBuffer, Map<Long, Object>> entries = new LinkedHashMap<>();
 
   /**
    * Constructs uninitialized test data for the given access of the given memory subsystem.
@@ -127,7 +127,7 @@ public final class AddressObject {
    * @return the address value.
    * @throws IllegalArgumentException if {@code addressType} is null.
    */
-  public long getAddress(final MmuAddress addressType) {
+  public long getAddress(final MmuAddressType addressType) {
     InvariantChecks.checkNotNull(addressType);
     return addresses.get(addressType); 
   }
@@ -137,7 +137,7 @@ public final class AddressObject {
    * 
    * @return the address map.
    */
-  public Map<MmuAddress, Long> getAddresses() {
+  public Map<MmuAddressType, Long> getAddresses() {
     return addresses; 
   }
 
@@ -148,7 +148,7 @@ public final class AddressObject {
    * @param value the address value.
    * @throws IllegalArgumentException if {@code addressType} is null.
    */
-  public void setAddress(final MmuAddress addressType, final long value) {
+  public void setAddress(final MmuAddressType addressType, final long value) {
     InvariantChecks.checkNotNull(addressType);
     addresses.put(addressType, value);
   }
@@ -160,7 +160,7 @@ public final class AddressObject {
    * @return the entries to written.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public Map<Long, Object> getEntries(final MmuDevice device) {
+  public Map<Long, Object> getEntries(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
     return entries.get(device);
   }
@@ -172,7 +172,7 @@ public final class AddressObject {
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuDevice device, final Map<Long, Object> entries) {
+  public void setEntries(final MmuBuffer device, final Map<Long, Object> entries) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(entries);
     InvariantChecks.checkTrue(entries.size() == 1);
@@ -188,7 +188,7 @@ public final class AddressObject {
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void addEntry(final MmuDevice device, final long entryId, final Object entry) {
+  public void addEntry(final MmuBuffer device, final long entryId, final Object entry) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(entry);
 
@@ -208,15 +208,15 @@ public final class AddressObject {
 
     boolean comma = false;
 
-    for (final Map.Entry<MmuAddress, Long> addrEntry : addresses.entrySet()) {
-      final MmuAddress addrType = addrEntry.getKey();
+    for (final Map.Entry<MmuAddressType, Long> addrEntry : addresses.entrySet()) {
+      final MmuAddressType addrType = addrEntry.getKey();
       final long addrValue = addrEntry.getValue();
 
       builder.append(comma ? separator : "");
       builder.append(String.format("%s=%x", addrType.getVariable().getName(), addrValue));
       comma = true;
 
-      for (final MmuDevice device : memory.getDevices()) {
+      for (final MmuBuffer device : memory.getDevices()) {
         if (device.getAddress() == addrType) {
           if (device.isReplaceable()) {
             builder.append(comma ? separator : "");

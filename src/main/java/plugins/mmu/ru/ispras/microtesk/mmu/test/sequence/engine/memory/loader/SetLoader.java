@@ -22,24 +22,24 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class SetLoader implements Loader {
-  private final MmuDevice device;
+  private final MmuBuffer device;
   private final long index;
 
   private final EnumMap<BufferAccessEvent, Map<Long, GoalReacher>> eventGoals =
       new EnumMap<>(BufferAccessEvent.class);
 
-  public SetLoader(final MmuDevice device, final long index) {
+  public SetLoader(final MmuBuffer device, final long index) {
     this.device = device;
     this.index = index;
   }
 
-  public MmuDevice getDevice() {
+  public MmuBuffer getDevice() {
     return device;
   }
   

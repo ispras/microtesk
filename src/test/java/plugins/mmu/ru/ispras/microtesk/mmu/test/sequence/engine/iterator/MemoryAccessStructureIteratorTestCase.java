@@ -35,8 +35,8 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -46,10 +46,10 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  */
 public final class MemoryAccessStructureIteratorTestCase {
   /** Contains of devices (buffers) of the memory management unit. */
-  private static Collection<MmuDevice> devices = new LinkedHashSet<>();
+  private static Collection<MmuBuffer> devices = new LinkedHashSet<>();
 
   /** Contains of addresses (buffers) of the memory management unit. */
-  private static Collection<MmuAddress> addresses = new LinkedHashSet<>();
+  private static Collection<MmuAddressType> addresses = new LinkedHashSet<>();
 
   private static final boolean PRINT_LOGS = false;
   private final static int N = 2;
@@ -80,8 +80,8 @@ public final class MemoryAccessStructureIteratorTestCase {
       conflictsType.put(type, 0);
     }
 
-    final Map<MmuDevice, Map<MemoryHazard.Type, Integer>> devicesConflicts = new HashMap<>();
-    for (final MmuDevice device : devices) {
+    final Map<MmuBuffer, Map<MemoryHazard.Type, Integer>> devicesConflicts = new HashMap<>();
+    for (final MmuBuffer device : devices) {
       final Map<MemoryHazard.Type, Integer> conflicts = new HashMap<>();
       for (final MemoryHazard conflict : CoverageExtractor.get().getHazards(device)) {
         conflicts.put(conflict.getType(), 0);
@@ -90,8 +90,8 @@ public final class MemoryAccessStructureIteratorTestCase {
       devicesConflicts.put(device, conflicts);
     }
 
-    final Map<MmuAddress, Map<MemoryHazard.Type, Integer>> addressesConflicts = new HashMap<>();
-    for (final MmuAddress address : addresses) {
+    final Map<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressesConflicts = new HashMap<>();
+    for (final MmuAddressType address : addresses) {
       final Map<MemoryHazard.Type, Integer> conflicts = new HashMap<>();
 
       for (final MemoryHazard conflict : CoverageExtractor.get().getHazards(address)) {
@@ -152,9 +152,9 @@ public final class MemoryAccessStructureIteratorTestCase {
       }
     }
 
-    for (final Map.Entry<MmuDevice, Map<MemoryHazard.Type, Integer>> deviceConflicts :
+    for (final Map.Entry<MmuBuffer, Map<MemoryHazard.Type, Integer>> deviceConflicts :
       devicesConflicts.entrySet()) {
-      final MmuDevice device = deviceConflicts.getKey();
+      final MmuBuffer device = deviceConflicts.getKey();
 
       if (device == MipsMmu.get().jtlb || device == MipsMmu.get().l2 || device == MipsMmu.get().mem) {
         continue;
@@ -169,7 +169,7 @@ public final class MemoryAccessStructureIteratorTestCase {
       }
     }
 
-    for (final Map.Entry<MmuAddress, Map<MemoryHazard.Type, Integer>> addressConflicts :
+    for (final Map.Entry<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressConflicts :
       addressesConflicts.entrySet()) {
       for (final Map.Entry<MemoryHazard.Type, Integer> conflicts :
         addressConflicts.getValue().entrySet()) {
@@ -184,8 +184,8 @@ public final class MemoryAccessStructureIteratorTestCase {
 
   private static void checkSituationsDependency(final MemoryAccessStructure template,
       final Map<MemoryHazard.Type, Integer> conflictsType,
-      final Map<MmuDevice, Map<MemoryHazard.Type, Integer>> devicesConflicts,
-      final Map<MmuAddress, Map<MemoryHazard.Type, Integer>> addressesConflicts) {
+      final Map<MmuBuffer, Map<MemoryHazard.Type, Integer>> devicesConflicts,
+      final Map<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressesConflicts) {
     InvariantChecks.checkNotNull(template);
     InvariantChecks.checkNotNull(conflictsType);
     InvariantChecks.checkNotNull(devicesConflicts);
@@ -202,8 +202,8 @@ public final class MemoryAccessStructureIteratorTestCase {
           boolean memTagNotEqual = false;
 
           for (final MemoryHazard conflict : dependency.getHazards()) {
-            final MmuAddress address = conflict.getAddress();
-            final MmuDevice device = conflict.getDevice();
+            final MmuAddressType address = conflict.getAddress();
+            final MmuBuffer device = conflict.getDevice();
             final MemoryHazard.Type type = conflict.getType();
 
             if (device != null) {

@@ -18,7 +18,7 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
@@ -32,10 +32,10 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
 public final class FilterParentMissChildHitOrReplace implements BiPredicate<MemoryAccess, MemoryUnitedHazard> {
   @Override
   public boolean test(final MemoryAccess access, final MemoryUnitedHazard hazard) {
-    final MmuDevice view = hazard.getDevice();
+    final MmuBuffer view = hazard.getDevice();
 
     if (view != null && view.isView()) {
-      final MmuDevice parent = view.getParent();
+      final MmuBuffer parent = view.getParent();
 
       final boolean viewAccess = access.getEvent(view) == BufferAccessEvent.HIT ||
           !hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty();

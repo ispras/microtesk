@@ -21,7 +21,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
@@ -35,7 +35,7 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
 public final class FilterVaEqualPaNotEqual implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
   public boolean test(final MemoryAccess access, MemoryUnitedDependency dependency) {
-    final MmuAddress va = access.getStartAddress();
+    final MmuAddressType va = access.getStartAddress();
     final MemoryUnitedHazard vaHazard = dependency.getHazard(va);
 
     final Set<Integer> vaEqualRelation =
@@ -45,8 +45,8 @@ public final class FilterVaEqualPaNotEqual implements BiPredicate<MemoryAccess, 
       return true;
     }
 
-    for (final Map.Entry<MmuAddress, MemoryUnitedHazard> addrEntry : dependency.getAddrHazards().entrySet()) {
-      final MmuAddress pa = addrEntry.getKey();
+    for (final Map.Entry<MmuAddressType, MemoryUnitedHazard> addrEntry : dependency.getAddrHazards().entrySet()) {
+      final MmuAddressType pa = addrEntry.getKey();
       final MemoryUnitedHazard paHazard = addrEntry.getValue();
 
       if (pa != va) {

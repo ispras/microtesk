@@ -22,8 +22,8 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -36,14 +36,14 @@ public final class CoverageExtractor {
     return instance;
   }
 
-  private final Map<MmuAddress,   Collection<MemoryHazard>> addressHazards = new HashMap<>();
-  private final Map<MmuDevice,    Collection<MemoryHazard>> deviceHazards  = new HashMap<>();
+  private final Map<MmuAddressType,   Collection<MemoryHazard>> addressHazards = new HashMap<>();
+  private final Map<MmuBuffer,    Collection<MemoryHazard>> deviceHazards  = new HashMap<>();
   private final Map<MmuSubsystem, Collection<MemoryAccess>> memoryAccesses = new HashMap<>();
   private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards  = new HashMap<>();
 
   private CoverageExtractor() {}
 
-  public Collection<MemoryHazard> getHazards(final MmuAddress address) {
+  public Collection<MemoryHazard> getHazards(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
 
     Collection<MemoryHazard> coverage = addressHazards.get(address);
@@ -55,7 +55,7 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  public Collection<MemoryHazard> getHazards(final MmuDevice device) {
+  public Collection<MemoryHazard> getHazards(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
 
     Collection<MemoryHazard> coverage = deviceHazards.get(device);
@@ -85,7 +85,7 @@ public final class CoverageExtractor {
     Collection<MemoryHazard> coverage = memoryHazards.get(memory);
     if (coverage == null) {
       coverage = new ArrayList<>();
-      for (final MmuDevice device : memory.getDevices()) {
+      for (final MmuBuffer device : memory.getDevices()) {
         coverage.addAll(getHazards(device));
       }
       memoryHazards.put(memory, coverage);

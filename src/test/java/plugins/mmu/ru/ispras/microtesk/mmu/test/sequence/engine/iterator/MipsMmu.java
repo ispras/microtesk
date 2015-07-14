@@ -22,11 +22,11 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -133,14 +133,14 @@ public final class MipsMmu {
   public final IntegerVariable pfn = new IntegerVariable("PFN", 24);
   public final IntegerVariable data = new IntegerVariable("DATA", 8 * 32);
 
-  public final MmuAddress vaAddr = new MmuAddress(va);
-  public final MmuAddress paAddr = new MmuAddress(pa);
+  public final MmuAddressType vaAddr = new MmuAddressType(va);
+  public final MmuAddressType paAddr = new MmuAddressType(pa);
 
   // ===============================================================================================
   // Devices
   // ===============================================================================================
 
-  public final MmuDevice jtlb = new MmuDevice("JTLB", JTLB_SIZE, 1, vaAddr,
+  public final MmuBuffer jtlb = new MmuBuffer("JTLB", JTLB_SIZE, 1, vaAddr,
       MmuExpression.var(va, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(va, 0, 12),  // Offset
@@ -174,7 +174,7 @@ public final class MipsMmu {
     }
   };
 
-  public final MmuDevice dtlb = new MmuDevice("DTLB", MTLB_SIZE, 1, vaAddr,
+  public final MmuBuffer dtlb = new MmuBuffer("DTLB", MTLB_SIZE, 1, vaAddr,
       MmuExpression.var(va, 13, 39),                 // Tag
       MmuExpression.empty(),                         // Index
       MmuExpression.var(va, 0, 12),                  // Offset
@@ -198,7 +198,7 @@ public final class MipsMmu {
   }
 
   // -----------------------------------------------------------------------------------------------
-  public final MmuDevice l1 = new MmuDevice("L1", L1_WAYS, L1_SETS, paAddr,
+  public final MmuBuffer l1 = new MmuBuffer("L1", L1_WAYS, L1_SETS, paAddr,
       MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1),  // Tag
       MmuExpression.var(pa, POS_BITS, POS_BITS + L1_ROW_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
@@ -211,7 +211,7 @@ public final class MipsMmu {
   }
 
   // -----------------------------------------------------------------------------------------------
-  public final MmuDevice l2 = new MmuDevice("L2", L1_WAYS, L1_SETS, paAddr,
+  public final MmuBuffer l2 = new MmuBuffer("L2", L1_WAYS, L1_SETS, paAddr,
       MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1),  // Tag
       MmuExpression.var(pa, POS_BITS, POS_BITS + L2_ROW_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
@@ -224,7 +224,7 @@ public final class MipsMmu {
   }
 
   // -----------------------------------------------------------------------------------------------
-  public final MmuDevice mem = new MmuDevice("MEM", 1, (1L << PA_BITS) / 32, paAddr,
+  public final MmuBuffer mem = new MmuBuffer("MEM", 1, (1L << PA_BITS) / 32, paAddr,
       MmuExpression.empty(),                        // Tag
       MmuExpression.var(pa, POS_BITS, PA_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),       // Offset

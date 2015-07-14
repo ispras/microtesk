@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * This class represents a united hazard, which combines information on hazards on a single
@@ -31,9 +31,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
  */
 public final class MemoryUnitedHazard {
   /** The address space touched upon the hazard. */
-  private MmuAddress address;
+  private MmuAddressType address;
   /** The device touched upon the hazard. */
-  private MmuDevice device;
+  private MmuBuffer device;
 
   /** Maps a hazard type into a set of execution indices. */
   private EnumMap<MemoryHazard.Type, Set<Integer>> relation = new EnumMap<>(MemoryHazard.Type.class);
@@ -87,12 +87,12 @@ public final class MemoryUnitedHazard {
   }
 
   // TODO:
-  public MmuAddress getAddress() {
+  public MmuAddressType getAddress() {
     return address;
   }
 
   // TODO:
-  public MmuDevice getDevice() {
+  public MmuBuffer getDevice() {
     return device;
   }
 

@@ -19,7 +19,7 @@ import java.util.List;
 
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
 /**
@@ -36,8 +36,8 @@ public final class FilterNonReplaceableTagEqual implements TriPredicate<MemoryAc
       final MemoryAccess access1, final MemoryAccess access2, final MemoryHazard hazard) {
 
     if (hazard.getType() == MemoryHazard.Type.TAG_EQUAL) {
-      final MmuDevice hazardDevice = hazard.getDevice();
-      final List<MmuDevice> devices = new ArrayList<>();
+      final MmuBuffer hazardDevice = hazard.getDevice();
+      final List<MmuBuffer> devices = new ArrayList<>();
 
       if (hazardDevice != null) {
         devices.add(hazardDevice);
@@ -46,7 +46,7 @@ public final class FilterNonReplaceableTagEqual implements TriPredicate<MemoryAc
         }
       }
 
-      for (final MmuDevice device : devices) {
+      for (final MmuBuffer device : devices) {
         if (!device.isReplaceable()) {
           if (access1.getEvent(device) != access2.getEvent(device)) {
             // Filter off.

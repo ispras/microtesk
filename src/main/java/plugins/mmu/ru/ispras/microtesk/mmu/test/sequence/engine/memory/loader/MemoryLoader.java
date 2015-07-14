@@ -22,8 +22,8 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -31,13 +31,13 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  */
 public final class MemoryLoader implements Loader {
   private final MmuSubsystem memory = MmuTranslator.getSpecification();
-  private final Map<MmuDevice, BufferLoader> loaders = new LinkedHashMap<>();
+  private final Map<MmuBuffer, BufferLoader> loaders = new LinkedHashMap<>();
 
   public MemoryLoader() {
     InvariantChecks.checkNotNull(memory);
   }
 
-  private BufferLoader getLoader(final MmuDevice device) {
+  private BufferLoader getLoader(final MmuBuffer device) {
     BufferLoader loader = loaders.get(device);
     if (loader == null) {
       loaders.put(device, loader = new BufferLoader(device));
@@ -46,27 +46,27 @@ public final class MemoryLoader implements Loader {
     return loader;
   }
 
-  public boolean contains(final MmuDevice device, final BufferAccessEvent event,
+  public boolean contains(final MmuBuffer device, final BufferAccessEvent event,
       final long address) {
     final BufferLoader loader = getLoader(device);
 
     return loader.contains(event, address);
   }
 
-  public void addLoads(final MmuDevice device, final BufferAccessEvent event,
+  public void addLoads(final MmuBuffer device, final BufferAccessEvent event,
       final long address, final List<Long> loads) {
     final BufferLoader loader = getLoader(device);
 
     loader.addLoads(event, address, loads);
   }
 
-  public List<Long> prepareLoads(final MmuAddress addressType) {
+  public List<Long> prepareLoads(final MmuAddressType addressType) {
     final List<Long> sequence = new ArrayList<>();
-    final List<MmuDevice> devices = memory.getSortedListOfDevices();
+    final List<MmuBuffer> devices = memory.getSortedListOfDevices();
 
     // Reverse order: large buffers come first.
     for (int i = devices.size() - 1; i >= 0; i--) {
-      final MmuDevice device = devices.get(i);
+      final MmuBuffer device = devices.get(i);
 
       if (device.getAddress() == addressType && device.isReplaceable()) {
         final BufferLoader loader = getLoader(device);
@@ -80,9 +80,9 @@ public final class MemoryLoader implements Loader {
   @Override
   public List<Long> prepareLoads() {
     final List<Long> sequence = new ArrayList<>();
-    final List<MmuAddress> addresses = memory.getSortedListOfAddresses();
+    final List<MmuAddressType> addresses = memory.getSortedListOfAddresses();
 
-    for (final MmuAddress address : addresses) {
+    for (final MmuAddressType address : addresses) {
       sequence.addAll(prepareLoads(address));
     }
 

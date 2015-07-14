@@ -31,11 +31,11 @@ import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
- * {@link MmuDevice} describes an MMU device (buffer).
+ * {@link MmuBuffer} describes an MMU device (buffer).
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class MmuDevice {
+public final class MmuBuffer {
   /** The device name. */
   private final String name;
 
@@ -45,7 +45,7 @@ public final class MmuDevice {
   private final long sets;
 
   /** The MMU address. */
-  private final MmuAddress address;
+  private final MmuAddressType address;
 
   /** The entry fields. */
   private final List<IntegerVariable> fields = new ArrayList<>();
@@ -66,9 +66,9 @@ public final class MmuDevice {
   private final boolean replaceable;
 
   // TODO: E.g., JTLB for DTLB.
-  private final MmuDevice parent;
+  private final MmuBuffer parent;
   // TODO: E.g., DTLB for JTLB.
-  private final List<MmuDevice> children = new ArrayList<>();
+  private final List<MmuBuffer> children = new ArrayList<>();
 
   /** The auxiliary tag variable (used in the address calculation function). */
   private final IntegerVariable tagVariable;
@@ -96,18 +96,18 @@ public final class MmuDevice {
    * @param replaceable the flag indicating that data stored in the device are replaceable.
    * @param parent TODO
    */
-  public MmuDevice(
+  public MmuBuffer(
       final String name,
       final long ways,
       final long sets,
-      final MmuAddress address,
+      final MmuAddressType address,
       final MmuExpression tagExpression,
       final MmuExpression indexExpression,
       final MmuExpression offsetExpression,
       final MmuCondition guardCondition,
       final Predicate<MemoryAccess> guard,
       final boolean replaceable,
-      final MmuDevice parent) {
+      final MmuBuffer parent) {
 
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(address);
@@ -296,7 +296,7 @@ public final class MmuDevice {
    * 
    * @return the input parameter.
    */
-  public MmuAddress getAddress() {
+  public MmuAddressType getAddress() {
     return address;
   }
 
@@ -420,7 +420,7 @@ public final class MmuDevice {
   }
 
   // TODO:
-  public MmuDevice getParent() {
+  public MmuBuffer getParent() {
     return parent;
   }
 
@@ -430,7 +430,7 @@ public final class MmuDevice {
   }
 
   // TODO:
-  public List<MmuDevice> getChildren() {
+  public List<MmuBuffer> getChildren() {
     return children;
   }
 

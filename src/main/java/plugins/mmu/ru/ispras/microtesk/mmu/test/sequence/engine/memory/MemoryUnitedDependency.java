@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddress;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * This class represents a united dependency, which combines information on dependencies of a single
@@ -31,9 +31,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
  */
 public final class MemoryUnitedDependency {
   /** The address hazards. */
-  private Map<MmuAddress, MemoryUnitedHazard> addrUnitedHazards = new LinkedHashMap<>();
+  private Map<MmuAddressType, MemoryUnitedHazard> addrUnitedHazards = new LinkedHashMap<>();
   /** The device hazards. */
-  private Map<MmuDevice, MemoryUnitedHazard> deviceUnitedHazards = new LinkedHashMap<>();
+  private Map<MmuBuffer, MemoryUnitedHazard> deviceUnitedHazards = new LinkedHashMap<>();
 
   /**
    * Constructs a united dependency.
@@ -44,8 +44,8 @@ public final class MemoryUnitedDependency {
   public MemoryUnitedDependency(final Map<MemoryDependency, Integer> dependencies) {
     InvariantChecks.checkNotNull(dependencies);
 
-    final Map<MmuAddress, Map<MemoryHazard, Set<Integer>>> addressHazards = new LinkedHashMap<>();
-    final Map<MmuDevice, Map<MemoryHazard, Set<Integer>>> deviceHazards = new LinkedHashMap<>();
+    final Map<MmuAddressType, Map<MemoryHazard, Set<Integer>>> addressHazards = new LinkedHashMap<>();
+    final Map<MmuBuffer, Map<MemoryHazard, Set<Integer>>> deviceHazards = new LinkedHashMap<>();
 
     // Gather information on hazards.
     for (final Map.Entry<MemoryDependency, Integer> entry : dependencies.entrySet()) {
@@ -53,8 +53,8 @@ public final class MemoryUnitedDependency {
       final int dependsOn = entry.getValue();
 
       for (final MemoryHazard hazard : dependency.getHazards()) {
-        final MmuAddress address = hazard.getAddress();
-        final MmuDevice device = hazard.getDevice();
+        final MmuAddressType address = hazard.getAddress();
+        final MmuBuffer device = hazard.getDevice();
 
         Map<MemoryHazard, Set<Integer>> hazards;
 
@@ -80,8 +80,8 @@ public final class MemoryUnitedDependency {
     }
 
     // Extend device hazards with the address hazards.
-    for (final Map.Entry<MmuDevice, Map<MemoryHazard, Set<Integer>>> entry : deviceHazards.entrySet()) {
-      final MmuDevice device = entry.getKey();
+    for (final Map.Entry<MmuBuffer, Map<MemoryHazard, Set<Integer>>> entry : deviceHazards.entrySet()) {
+      final MmuBuffer device = entry.getKey();
       final Map<MemoryHazard, Set<Integer>> hazards = entry.getValue();
       final Map<MemoryHazard, Set<Integer>> moreHazards = addressHazards.get(device.getAddress());
 
@@ -91,16 +91,16 @@ public final class MemoryUnitedDependency {
     }
 
     // Construct the united hazards for address spaces.
-    for (final Map.Entry<MmuAddress, Map<MemoryHazard, Set<Integer>>> entry : addressHazards.entrySet()) {
-      final MmuAddress address = entry.getKey();
+    for (final Map.Entry<MmuAddressType, Map<MemoryHazard, Set<Integer>>> entry : addressHazards.entrySet()) {
+      final MmuAddressType address = entry.getKey();
       final Map<MemoryHazard, Set<Integer>> hazards = entry.getValue();
 
       addrUnitedHazards.put(address, new MemoryUnitedHazard(hazards));
     }
 
     // Construct the united hazards for devices.
-    for (final Map.Entry<MmuDevice, Map<MemoryHazard, Set<Integer>>> entry : deviceHazards.entrySet()) {
-      final MmuDevice device = entry.getKey();
+    for (final Map.Entry<MmuBuffer, Map<MemoryHazard, Set<Integer>>> entry : deviceHazards.entrySet()) {
+      final MmuBuffer device = entry.getKey();
       final Map<MemoryHazard, Set<Integer>> hazards = entry.getValue();
 
       deviceUnitedHazards.put(device, new MemoryUnitedHazard(hazards));
@@ -113,7 +113,7 @@ public final class MemoryUnitedDependency {
    * @param address the address.
    * @return the united hazard.
    */
-  public MemoryUnitedHazard getHazard(final MmuAddress address) {
+  public MemoryUnitedHazard getHazard(final MmuAddressType address) {
     return addrUnitedHazards.get(address);
   }
 
@@ -122,7 +122,7 @@ public final class MemoryUnitedDependency {
    * 
    * @return the collection of the united hazards.
    */
-  public Map<MmuAddress, MemoryUnitedHazard> getAddrHazards() {
+  public Map<MmuAddressType, MemoryUnitedHazard> getAddrHazards() {
     return addrUnitedHazards;
   }
 
@@ -132,7 +132,7 @@ public final class MemoryUnitedDependency {
    * @param device the device.
    * @return the united hazard.
    */
-  public MemoryUnitedHazard getHazard(final MmuDevice device) {
+  public MemoryUnitedHazard getHazard(final MmuBuffer device) {
     return deviceUnitedHazards.get(device);
   }
 
@@ -141,7 +141,7 @@ public final class MemoryUnitedDependency {
    * 
    * @return the collection of the united hazards.
    */
-  public Map<MmuDevice, MemoryUnitedHazard> getDeviceHazards() {
+  public Map<MmuBuffer, MemoryUnitedHazard> getDeviceHazards() {
     return deviceUnitedHazards;
   }
 
@@ -150,12 +150,12 @@ public final class MemoryUnitedDependency {
    * 
    * @return the collection of the united hazards.
    */
-  public Map<MmuDevice, MemoryUnitedHazard> getDeviceHazards(final MmuAddress address) {
+  public Map<MmuBuffer, MemoryUnitedHazard> getDeviceHazards(final MmuAddressType address) {
     // TODO: Optimization is required.
-    final Map<MmuDevice, MemoryUnitedHazard> result = new LinkedHashMap<>();
+    final Map<MmuBuffer, MemoryUnitedHazard> result = new LinkedHashMap<>();
 
-    for (final Map.Entry<MmuDevice, MemoryUnitedHazard> entry : deviceUnitedHazards.entrySet()) {
-      final MmuDevice device = entry.getKey();
+    for (final Map.Entry<MmuBuffer, MemoryUnitedHazard> entry : deviceUnitedHazards.entrySet()) {
+      final MmuBuffer device = entry.getKey();
       final MemoryUnitedHazard hazard = entry.getValue();
 
       if (device.getAddress() == address) {
@@ -172,7 +172,7 @@ public final class MemoryUnitedDependency {
    * @param hazardType the hazard type.
    * @return the set of execution indices.
    */
-  public Set<Integer> getRelation(final MmuAddress address, final MemoryHazard.Type hazardType) {
+  public Set<Integer> getRelation(final MmuAddressType address, final MemoryHazard.Type hazardType) {
     final MemoryUnitedHazard hazard = getHazard(address);
 
     return hazard != null ? hazard.getRelation(hazardType) : new LinkedHashSet<Integer>();
@@ -184,7 +184,7 @@ public final class MemoryUnitedDependency {
    * @param hazardType the hazard type.
    * @return the set of execution indices.
    */
-  public Set<Integer> getRelation(final MmuDevice device, final MemoryHazard.Type hazardType) {
+  public Set<Integer> getRelation(final MmuBuffer device, final MemoryHazard.Type hazardType) {
     final MemoryUnitedHazard hazard = getHazard(device);
 
     return hazard != null ? hazard.getRelation(hazardType) : new LinkedHashSet<Integer>();
@@ -197,8 +197,8 @@ public final class MemoryUnitedDependency {
 
     boolean comma = false;
 
-    for (final Map.Entry<MmuAddress, MemoryUnitedHazard> addrEntry : addrUnitedHazards.entrySet()) {
-      final MmuAddress addrType = addrEntry.getKey();
+    for (final Map.Entry<MmuAddressType, MemoryUnitedHazard> addrEntry : addrUnitedHazards.entrySet()) {
+      final MmuAddressType addrType = addrEntry.getKey();
       final MemoryUnitedHazard addrHazard = addrEntry.getValue();
 
       final MemoryHazard.Type addrHazardType = MemoryHazard.Type.ADDR_EQUAL;
@@ -211,8 +211,8 @@ public final class MemoryUnitedDependency {
       }
     }
 
-    for (final Map.Entry<MmuDevice, MemoryUnitedHazard> deviceEntry : deviceUnitedHazards.entrySet()) {
-      final MmuDevice deviceType = deviceEntry.getKey();
+    for (final Map.Entry<MmuBuffer, MemoryUnitedHazard> deviceEntry : deviceUnitedHazards.entrySet()) {
+      final MmuBuffer deviceType = deviceEntry.getKey();
       final MemoryUnitedHazard deviceHazard = deviceEntry.getValue();
 
       final MemoryHazard.Type[] deviceHazardTypes = new MemoryHazard.Type[] {
@@ -251,7 +251,7 @@ public final class MemoryUnitedDependency {
    * @param address the address type being used.
    * @return the set of execution indices.
    */
-  public Set<Integer> getAddrEqualRelation(final MmuAddress address) {
+  public Set<Integer> getAddrEqualRelation(final MmuAddressType address) {
     return getRelation(address, MemoryHazard.Type.ADDR_EQUAL);
   }
 
@@ -265,7 +265,7 @@ public final class MemoryUnitedDependency {
    * @param device the device being accessed.
    * @return the set of execution indices.
    */
-  public Set<Integer> getIndexEqualRelation(final MmuDevice device) {
+  public Set<Integer> getIndexEqualRelation(final MmuBuffer device) {
     final Set<Integer> relation = new LinkedHashSet<>();
 
     relation.addAll(getRelation(device, MemoryHazard.Type.TAG_EQUAL));
@@ -289,12 +289,12 @@ public final class MemoryUnitedDependency {
    * @param device the device being accessed.
    * @return the set of execution indices.
    */
-  public Set<Integer> getTagEqualRelation(final MmuDevice device) {
+  public Set<Integer> getTagEqualRelation(final MmuBuffer device) {
     final Set<Integer> relation = new LinkedHashSet<>();
 
     relation.addAll(getRelation(device, MemoryHazard.Type.TAG_EQUAL));
 
-    for (final MmuDevice child : device.getChildren()) {
+    for (final MmuBuffer child : device.getChildren()) {
       relation.addAll(getRelation(child, MemoryHazard.Type.TAG_EQUAL));
     }
 
@@ -311,7 +311,7 @@ public final class MemoryUnitedDependency {
    * @param device the device being accessed.
    * @return the set of execution indices.
    */
-  public Set<Integer> getTagReplacedRelation(final MmuDevice device) {
+  public Set<Integer> getTagReplacedRelation(final MmuBuffer device) {
     return getRelation(device, MemoryHazard.Type.TAG_REPLACED);
   }
 }

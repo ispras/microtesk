@@ -25,14 +25,14 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuDevice;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 final class IntegerVariableGroup {
   private final String name;
   private final Map<String, IntegerVariable> variables;
-  private final MmuDevice device;
+  private final MmuBuffer device;
 
-  public IntegerVariableGroup(final MmuDevice device) {
+  public IntegerVariableGroup(final MmuBuffer device) {
     checkNotNull(device);
 
     this.name = device.getName();
@@ -64,7 +64,7 @@ final class IntegerVariableGroup {
 
   private IntegerVariableGroup(final String name,
                                final Map<String, IntegerVariable> variables,
-                               final MmuDevice device) {
+                               final MmuBuffer device) {
     this.name = name;
     this.variables = variables;
     this.device = device;
@@ -86,7 +86,7 @@ final class IntegerVariableGroup {
     return variables.get(variableName);
   }
 
-  public MmuDevice getDevice() {
+  public MmuBuffer getDevice() {
     return device;
   }
 
