@@ -38,6 +38,7 @@ public final class Call {
 
   private final BigInteger origin;
   private final BigInteger alignment;
+  private final BigInteger alignmentInBytes;
 
   public Call(
       final Primitive rootOperation,
@@ -45,10 +46,14 @@ public final class Call {
       final List<LabelReference> labelRefs,
       final List<Output> outputs,
       final BigInteger origin,
-      final BigInteger alignment) {
+      final BigInteger alignment,
+      final BigInteger alignmentInBytes) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
+
+    // Both either null or not null
+    InvariantChecks.checkTrue((null == alignment) == (null == alignmentInBytes));
 
     this.rootOperation = rootOperation;
     this.labels = Collections.unmodifiableList(labels);
@@ -73,6 +78,7 @@ public final class Call {
 
     this.origin = origin;
     this.alignment = alignment;
+    this.alignmentInBytes = alignmentInBytes;
   }
 
   public Call(final Call other) {
@@ -95,6 +101,7 @@ public final class Call {
 
     this.origin = other.origin;
     this.alignment = other.alignment;
+    this.alignmentInBytes = other.alignmentInBytes;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
@@ -206,5 +213,9 @@ public final class Call {
 
   public BigInteger getAlignment() {
     return alignment;
+  }
+
+  public BigInteger getAlignmentInBytes() {
+    return alignmentInBytes;
   }
 }

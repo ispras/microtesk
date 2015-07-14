@@ -553,13 +553,15 @@ class Template
       raise MTRubyError, "Data configuration is already defined"
     end
 
-    text            = get_attribute attrs, :text
-    target          = get_attribute attrs, :target
+    text   = get_attribute attrs, :text
+    target = get_attribute attrs, :target
 
     # Default value is 8 bits if other value is not explicitly specified
     addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
 
-    @data_manager = DataManager.new @template.getDataManager, text, target, addressableSize
+    @data_manager = DataManager.new(
+      self, @template.getDataManager, text, target, addressableSize)
+
     @data_manager.instance_eval &contents
   end
 
@@ -581,8 +583,17 @@ class Template
     @template.setOrigin address
   end
 
-  def align(alignment)
-    @template.setAlignment alignment
+  def align(value)
+    value_in_bytes = alignment_in_bytes(value)
+    @template.setAlignment value, value_in_bytes
+  end
+
+  #
+  # By default, align n is interpreted as alignment on 2**n byte border.
+  # This behavior can be overridden.
+  #
+  def alignment_in_bytes(n)
+    2 ** n
   end
 
   # -------------------------------------------------------------------------- #
@@ -668,13 +679,15 @@ class DataManager
     end
   end
 
-  def initialize(manager, text, target, addressableSize)
+  def initialize(template, manager, text, target, addressableSize)
+    @template = template
     @manager = manager
     @manager.init text, target, addressableSize
   end
 
   def align(value)
-    @manager.align value
+    value_in_bytes = @template.alignment_in_bytes(value)
+    @manager.align value, value_in_bytes
   end
 
   def org(address)

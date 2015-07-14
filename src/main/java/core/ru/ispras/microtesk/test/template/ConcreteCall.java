@@ -30,6 +30,7 @@ public final class ConcreteCall {
   private final InstructionCall executable;
   private final BigInteger origin;
   private final BigInteger alignment;
+  private final BigInteger alignmentInBytes;
 
   private long address = 0;
   private String text = null;
@@ -47,6 +48,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.origin = abstractCall.getOrigin();
     this.alignment = abstractCall.getAlignment();
+    this.alignmentInBytes = abstractCall.getAlignmentInBytes();
   }
 
   public ConcreteCall(
@@ -63,6 +65,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.origin = abstractCall.getOrigin();
     this.alignment = abstractCall.getAlignment();
+    this.alignmentInBytes = abstractCall.getAlignmentInBytes();
   }
 
   public ConcreteCall(final Call abstractCall) {
@@ -74,6 +77,7 @@ public final class ConcreteCall {
     this.executable = null;
     this.origin = abstractCall.getOrigin();
     this.alignment = abstractCall.getAlignment();
+    this.alignmentInBytes = abstractCall.getAlignmentInBytes();
   }
 
   public ConcreteCall(final InstructionCall executable) {
@@ -85,6 +89,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.origin = null;
     this.alignment = null;
+    this.alignmentInBytes = null;
   }
 
   private static List<Label> copyLabels(final List<Label> labels) {
@@ -176,8 +181,8 @@ public final class ConcreteCall {
       thisAddress = origin.longValue();
     }
 
-    if (alignment != null) {
-      final long alignmentLength = alignment.longValue();
+    if (alignmentInBytes != null) {
+      final long alignmentLength = alignmentInBytes.longValue();
       final long unalignedLength = thisAddress % alignmentLength;
       if (0 != unalignedLength) {
         thisAddress = thisAddress + (alignmentLength - unalignedLength);

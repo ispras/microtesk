@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -30,6 +30,7 @@ public final class CallBuilder {
 
   private BigInteger origin;
   private BigInteger alignment;
+  private BigInteger alignmentInBytes;
 
   protected CallBuilder(final BlockId blockId) {
     checkNotNull(blockId);
@@ -40,6 +41,8 @@ public final class CallBuilder {
     this.labelRefs = new ArrayList<>();
     this.outputs = new ArrayList<>();
     this.origin = null;
+    this.alignment = null;
+    this.alignmentInBytes = null;
   }
 
   public BlockId getBlockId() {
@@ -78,13 +81,23 @@ public final class CallBuilder {
     origin = address;
   }
 
-  public void setAlignment(final BigInteger value) {
+  public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {
     checkNotNull(value);
+    checkNotNull(valueInBytes);
+
     alignment = value;
+    alignmentInBytes = valueInBytes;
   }
 
   public Call build() {
     return new Call(
-        rootOperation, labels, labelRefs, outputs, origin, alignment);
+        rootOperation,
+        labels,
+        labelRefs,
+        outputs,
+        origin,
+        alignment,
+        alignmentInBytes
+        );
   }
 }

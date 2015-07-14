@@ -294,14 +294,14 @@ public final class DataManager {
    * @param value Alignment amount in addressable units.
    */
 
-  public void align(final BigInteger value) {
+  public void align(final BigInteger value, final BigInteger valueInBytes) {
     checkNotNull(value);
 
     final String text = String.format(alignFormat, value);
-    Logger.debug("Setting alignment: %s", text);
+    Logger.debug("Setting alignment: %s (%d bytes)", text, valueInBytes);
 
     dataDecls.add(new DetaDeclText(text));
-    allocator.align(value);
+    allocator.align(valueInBytes);
   }
 
   public void addLabel(final String id) {
