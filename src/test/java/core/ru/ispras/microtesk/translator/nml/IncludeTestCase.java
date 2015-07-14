@@ -24,8 +24,6 @@ public class IncludeTestCase extends TranslatorTest<Ir> {
   @Test
   public void test() {
     final NmlTranslator translator = new NmlTranslator();
-    translator.addPath("./src/test/nml");
-
     translate(translator, "./src/test/nml/include_main.nml");
   }
 }

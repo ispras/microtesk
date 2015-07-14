@@ -18,6 +18,7 @@ import static org.junit.Assert.fail;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreListener;
+import ru.ispras.microtesk.utils.FileUtils;
 
 /**
  * The {@code TranslatorTest} class is a base class to be implemented by units test for translators.
@@ -60,6 +61,14 @@ public abstract class TranslatorTest<Ir> {
   protected void translate(
       final Translator<Ir> translator,
       final String... fileNames) {
+
+    for (final String fileName : fileNames) {
+      final String fileDir = FileUtils.getFileDir(fileName);
+      if (null != fileDir) {
+        translator.addPath(fileDir);
+      }
+    }
+
     translator.setLog(new LogChecker(translator.getLog()));
     translator.addHandler(irChecker);
     translator.start(fileNames);
