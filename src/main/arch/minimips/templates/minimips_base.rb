@@ -30,6 +30,9 @@ class MiniMipsBaseTemplate < Template
   end
 
   def pre
+    #
+    # Information on data types to be used in data sections.
+    #
     data_config(:text => '.data', :target => 'M') {
       define_type :id => :byte, :text => '.byte', :type => type('card', 8)
       define_type :id => :half, :text => '.half', :type => type('card', 16)
@@ -38,6 +41,19 @@ class MiniMipsBaseTemplate < Template
       define_space :id => :space, :text => '.space', :fill_with => 0
       define_ascii_string :id => :ascii,  :text => '.ascii',  :zero_term => false
       define_ascii_string :id => :asciiz, :text => '.asciiz', :zero_term => true
+    }
+
+    #
+    # Simple exception handler. Continues execution from the next instruction.
+    #
+    exception_handler {
+      section(:org => 0x380, :exception => ['IntegerOverflow', 'SystemCall', 'Breakpoint']) {
+        trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
+        mfc0 ra, cop0(14)
+        addi ra, ra, 4
+        jr ra 
+        nop
+      }
     }
 
     #

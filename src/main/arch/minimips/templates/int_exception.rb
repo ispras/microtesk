@@ -25,20 +25,6 @@ require_relative 'minimips_base'
 #
 class IntExceptionTemplate < MiniMipsBaseTemplate
 
-  def pre
-    super
-
-    exception_handler {
-      section(:org => 0x380, :exception => ['IntegerOverflow', 'SystemCall', 'Breakpoint']) {
-        trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
-        mfc0 ra, cop0(14)
-        addi ra, ra, 4
-        jr ra 
-        nop
-      }
-    }
-  end
-
   def run
     block(:combinator => 'product', :compositor => 'random') {
       block {

@@ -24,6 +24,13 @@ require_relative 'minimips_base'
 #
 class RandomSituationTemplate < MiniMipsBaseTemplate
 
+  def pre
+    super
+
+    # Start address
+    org 0x00020000
+  end
+
   def run
     int32_dist = dist(
       range(:value => 0,                      :bias => 25),
@@ -39,6 +46,7 @@ class RandomSituationTemplate < MiniMipsBaseTemplate
     10.times {
       atomic {
         add t1, t2, t3 do random_situation(sit_dist) end
+        nop # Place holder to return from exception 
       }
     }
   end

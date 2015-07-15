@@ -23,6 +23,13 @@ require_relative 'minimips_base'
 #
 class GroupsTemplate < MiniMipsBaseTemplate
 
+  def pre
+    super
+
+    # Start address
+    org 0x00020000
+  end
+
   def run
     # Using groups defined in the specification
 
@@ -36,6 +43,9 @@ class GroupsTemplate < MiniMipsBaseTemplate
 
         # Selects from {{add, addu, sub, subu}, {and, or, nor, xor}, {sllv, srav, srlv}}
         alu t6, t7, t8
+
+        # Placeholder to return from an exception 
+        nop
       }
     }
 
@@ -53,6 +63,9 @@ class GroupsTemplate < MiniMipsBaseTemplate
         xxx t0, t1, t2
         xxx t3, t4, t5
         xxx t6, t7, t8
+
+        # Placeholder to return from an exception
+        nop
       }
     }
   end

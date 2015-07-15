@@ -41,6 +41,11 @@ class RandomTemplate < MiniMipsBaseTemplate
       nop
       nop
     }
+
+    #
+    # Start address
+    #
+    org 0x00020000
   end
 
   def run
