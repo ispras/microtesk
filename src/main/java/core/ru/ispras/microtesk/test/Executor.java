@@ -280,18 +280,32 @@ final class Executor {
         final int conflictIndex = addressMap.get(address);
         final ConcreteCall conflictCall = calls.get(conflictIndex);
 
-        // Several calls can be mapped to the same address when a pseudo call with zero size
-        // (label, compiler directive, text output etc.) precedes an executable (non-zero size)
-        // call. This is considered normal. When such a situation is detected, address
-        // mapping is not changed in order to allow jumping on the beginning of calls mapped
-        // to the same address.
+        // Several calls can be mapped to the same address when a pseudo call with
+        // zero size (label, compiler directive, text output etc.) precedes
+        // an executable (non-zero size) call. This is considered normal. When such
+        // a situation is detected, address mapping is not changed in order to allow
+        // jumping on the beginning of calls mapped to the same address.
 
-        final boolean isConflictLegal = 
-            (!call.isExecutable() || !conflictCall.isExecutable()) &&
-            (conflictIndex == index - 1);
+        boolean isConflictLegal = false;
+
+        // Tests whether all calls mapped to the given address and preceding the current
+        // call (ending with the conflict call) are zero-size. If the condition holds,
+        // this is considered legal.
+        for (int testIndex = index - 1; testIndex >= 0; --testIndex) {
+          final ConcreteCall testCall = calls.get(testIndex);
+
+          if (testCall.getByteSize() > 0 || testCall.getAddress() != address) {
+            break;
+          }
+
+          if (testIndex == conflictIndex) {
+            isConflictLegal = true;
+            break;
+          }
+        }
 
         if (!isConflictLegal) {
-          Logger.warning(
+          Logger.error(
               "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
               call.getText(), index, address, conflictCall.getText(), conflictIndex);
         }
