@@ -85,11 +85,11 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
 
   def trace_labels
     trace_header 'Labels:'
-    trace "data1 address: %x", address(:data1)
-    trace "data2 address: %x", address(:data2)
-    trace "data3 address: %x", address(:data3)
-    trace "hello address: %x", address(:hello)
-    trace "world address: %x", address(:world)
+    trace "data1 address: %x", get_address_of(:data1)
+    trace "data2 address: %x", get_address_of(:data2)
+    trace "data3 address: %x", get_address_of(:data3)
+    trace "hello address: %x", get_address_of(:hello)
+    trace "world address: %x", get_address_of(:world)
   end
 
   def trace_header(header_text)

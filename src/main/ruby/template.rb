@@ -169,7 +169,7 @@ class Template
     @template.addLabel name
   end
 
-  def address(label)
+  def get_address_of(label)
     @template.getAddressForLabel label.to_s
   end
 

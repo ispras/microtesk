@@ -253,8 +253,8 @@ class MiniMipsBaseTemplate < Template
   # Utility method for printing data stored in memory using labels.
   #
   def trace_data(begin_label, end_label)
-    begin_addr = address(begin_label)
-    end_addr = address(end_label)
+    begin_addr = get_address_of(begin_label)
+    end_addr = get_address_of(end_label)
 
     count = (end_addr - begin_addr) / 4
     begin_index = begin_addr / 4 
