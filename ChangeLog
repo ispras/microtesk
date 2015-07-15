@@ -14,6 +14,8 @@
    test templates was implemented
  - Possibility to specify calls of pseudo instructions in
    test templates was implemented
+ - The functionality of 'align' and 'org' methods (test templates)
+   was improved
  - Couple of bug fixes and general improvements were made
 
  2015/07/10 MicroTESK 2.2.9 beta
