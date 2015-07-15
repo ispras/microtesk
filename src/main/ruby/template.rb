@@ -409,7 +409,7 @@ class Template
   #
   def print_format(is_runtime, is_comment, format, *args)
     java_import Java::Ru.ispras.microtesk.test.template.Value
-    
+
     builder = @template.newOutput is_runtime, is_comment, format
 
     args.each do |arg|
@@ -424,6 +424,14 @@ class Template
     end
 
     @template.addOutput builder.build
+  end
+
+  #
+  # Creates a pseudo instruction call that prints user-specified text.
+  #
+  def pseudo(text)
+    @template.setCallText text
+    @template.endBuildingCall
   end
 
   # -------------------------------------------------------------------------- #

@@ -157,6 +157,10 @@ final class Executor {
       logOutputs(call.getOutputs());
       logLabels(call.getLabels());
 
+      if (null != call.getText()) {
+        logText(String.format("0x%016x %s", call.getAddress(), call.getText()));
+      }
+
       if (!call.isExecutable()) {
         if (index == endIndex) break;
         index++;
@@ -176,7 +180,6 @@ final class Executor {
         labelRefsIndex = index;
       }
 
-      logText(String.format("0x%016x %s", call.getAddress(), call.getText()));
       final String exception = call.execute();
 
       logCall(call);

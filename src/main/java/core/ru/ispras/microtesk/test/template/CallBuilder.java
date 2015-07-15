@@ -23,7 +23,9 @@ import java.util.List;
 public final class CallBuilder {
   private final BlockId blockId;
 
+  private String text;
   private Primitive rootOperation;
+
   private final List<Label> labels;
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
@@ -36,6 +38,7 @@ public final class CallBuilder {
     checkNotNull(blockId);
 
     this.blockId = blockId;
+    this.text = null;
     this.rootOperation = null;
     this.labels = new ArrayList<>();
     this.labelRefs = new ArrayList<>();
@@ -47,6 +50,11 @@ public final class CallBuilder {
 
   public BlockId getBlockId() {
     return blockId;
+  }
+
+  public void setText(final String text) {
+    checkNotNull(text);
+    this.text = text;
   }
 
   public void setRootOperation(final Primitive rootOperation) {
@@ -91,6 +99,7 @@ public final class CallBuilder {
 
   public Call build() {
     return new Call(
+        text,
         rootOperation,
         labels,
         labelRefs,

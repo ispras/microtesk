@@ -42,6 +42,7 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(executable);
 
+    this.text = abstractCall.getText();
     this.labels = copyLabels(abstractCall.getLabels());
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
@@ -59,6 +60,7 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(executable);
     InvariantChecks.checkNotNull(labelRefs);
 
+    this.text = abstractCall.getText();
     this.labels = copyLabels(abstractCall.getLabels());
     this.labelRefs = labelRefs;
     this.outputs = abstractCall.getOutputs();
@@ -71,6 +73,7 @@ public final class ConcreteCall {
   public ConcreteCall(final Call abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
+    this.text = abstractCall.getText();
     this.labels = copyLabels(abstractCall.getLabels());
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
@@ -83,6 +86,7 @@ public final class ConcreteCall {
   public ConcreteCall(final InstructionCall executable) {
     InvariantChecks.checkNotNull(executable);
 
+    this.text = null;
     this.labels = Collections.<Label>emptyList();
     this.labelRefs = Collections.<LabelReference>emptyList();
     this.outputs = Collections.<Output>emptyList();

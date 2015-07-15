@@ -299,6 +299,10 @@ public final class Template {
     callBuilder.addOutput(output);
   }
 
+  public void setCallText(final String text) {
+    callBuilder.setText(text);
+  }
+
   public void setRootOperation(final Primitive rootOperation) {
     callBuilder.setRootOperation(rootOperation);
   }

@@ -133,7 +133,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
     // Only executable calls are worth printing.
     if (abstractCall.isExecutable()) {
-      Logger.debug("%nProcessing %s...", abstractCall.getText());
+      Logger.debug("%nProcessing %s...", abstractCall);
 
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);

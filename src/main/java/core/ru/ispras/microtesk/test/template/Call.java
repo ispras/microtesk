@@ -22,6 +22,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Call {
+  private final String text;
   private final Primitive rootOperation;
 
   private final List<Label> labels;
@@ -41,6 +42,7 @@ public final class Call {
   private final BigInteger alignmentInBytes;
 
   public Call(
+      final String text,
       final Primitive rootOperation,
       final List<Label> labels,
       final List<LabelReference> labelRefs,
@@ -55,6 +57,7 @@ public final class Call {
     // Both either null or not null
     InvariantChecks.checkTrue((null == alignment) == (null == alignmentInBytes));
 
+    this.text = text;
     this.rootOperation = rootOperation;
     this.labels = Collections.unmodifiableList(labels);
     this.labelRefs = Collections.unmodifiableList(labelRefs);
@@ -84,6 +87,7 @@ public final class Call {
   public Call(final Call other) {
     InvariantChecks.checkNotNull(other);
 
+    this.text = other.text;
     this.rootOperation = null != other.rootOperation ? 
         other.rootOperation.newCopy() : null;
 
@@ -137,11 +141,16 @@ public final class Call {
   }
 
   public boolean isEmpty() {
-    return !isExecutable()   && 
+    return null == text      &&
+           !isExecutable()   && 
            labels.isEmpty()  && 
            outputs.isEmpty() &&
            null == origin    &&
            null == alignment;
+  }
+
+  public String getText() {
+    return text;
   }
 
   public Primitive getRootOperation() {
@@ -158,20 +167,6 @@ public final class Call {
 
   public List<Output> getOutputs() {
     return outputs;
-  }
-
-  public String getText() {
-    return String.format(
-        "instruction call " + 
-        "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d)",
-        isExecutable() ? rootOperation.getName() : "null",
-        isBranch(),
-        isConditionalBranch(),
-        canThrowException(),
-        isLoad(),
-        isStore(),
-        getBlockSize()
-        );
   }
 
   public boolean isBranch() {
@@ -217,5 +212,21 @@ public final class Call {
 
   public BigInteger getAlignmentInBytes() {
     return alignmentInBytes;
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "instruction call %s" + 
+        "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d)",
+        null != text ? text : "", 
+        isExecutable() ? rootOperation.getName() : "null",
+        isBranch(),
+        isConditionalBranch(),
+        canThrowException(),
+        isLoad(),
+        isStore(),
+        getBlockSize()
+        );
   }
 }
