@@ -528,8 +528,20 @@ class Template
     buffer_name  = get_attribute attrs, :buffer
     @template.beginBufferPreparator buffer_name
 
-    # self.instance_eval &contents
+    self.instance_eval &contents
     @template.endBufferPreparator
+  end
+
+  def address(*args)
+    if args.count != 0 and args.count != 2
+      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
+    end
+
+    if args.count == 2
+      @template.newAddressReference args.at(0), args.at(1)
+    else
+      @template.newAddressReference
+    end
   end
 
   # -------------------------------------------------------------------------- #

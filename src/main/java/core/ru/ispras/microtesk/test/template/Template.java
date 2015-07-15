@@ -580,6 +580,23 @@ public final class Template {
     bufferPreparatorBuilder = null;
   }
 
+  public LazyValue newAddressReference() {
+    checkBufferPreparatorBlock();
+    return bufferPreparatorBuilder.newAddressReference();
+  }
+
+  public LazyValue newAddressReference(final int start, final int end) {
+    checkBufferPreparatorBlock();
+    return bufferPreparatorBuilder.newAddressReference(start, end);
+  }
+
+  private void checkBufferPreparatorBlock() {
+    if (null == bufferPreparatorBuilder) {
+      throw new IllegalStateException(
+          "The construct cannot be used outside a buffer_preparator block.");
+    }
+  }
+
   public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {
     final Variate<String> variate = getGroupVariate(name);
     return newAddressingModeBuilder(variate.value());
