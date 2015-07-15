@@ -6,34 +6,44 @@
  2015/03/24 MicroTESK 2.2 beta
 --------------------------------------------------------------------------------
 
- 2015/07/10 MicroTESK 2.2.9 beta
- 
+ 2015/07/15 MicroTESK 2.2.10 beta
+
  The new build contains the following changes:
- 
+
+ - Possibility to specify test case level prologue and epilogue in
+   test templates was implemented
+ - Possibility to specify calls of pseudo instructions in
+   test templates was implemented
+ - Couple of bug fixes and general improvements were made
+
+ 2015/07/10 MicroTESK 2.2.9 beta
+
+ The new build contains the following changes:
+
  - Support for '.org' and '.align' directives in test templates
  - Better handling of the 'undefined' and 'unpredicted' situations
  - Several bug fixes and general improvements
 
  2015/07/06 MicroTESK 2.2.8 beta
- 
+
  The new build contains the following changes:
- 
+
  - Support for preprocessor directives
  - Support for exception handling
  - Support for tracking instruction addresses during simulation (including
    tracking addresses in indirect branches)
 
  2015/06/26 MicroTESK 2.2.7 beta
- 
+
  The new build contains the following changes:
- 
+
  - Data file generation feature was implemented
  - Several bug fixes and general improvements were made
 
  2015/06/19 MicroTESK 2.2.6 beta
- 
+
  The new build contains the following changes:
- 
+
  - Support for large memory addresses (e.g 48 and 64 bits) was improved
  - Support for overloaded preparators was implemented
  - Support for operation and addressing mode groups in test templates was
@@ -45,7 +55,7 @@
  2015/06/11 MicroTESK 2.2.5 beta
 
  The new build contains the following changes:
- 
+
  - Basic support for Tarmac was implemented (logging is enabled with
    the '--tarmac-log' option)
  - Support for large memory addresses (e.g 48 and 64 bits) was implemented
@@ -120,7 +130,7 @@
  - The "trace" method (test templates) now accepts objects created
    by the "rand" method
  - Several bug fixes and general improvements were made
- 
+
 --------------------------------------------------------------------------------
  2014/10/18 MicroTESK 2.1 beta
 --------------------------------------------------------------------------------
