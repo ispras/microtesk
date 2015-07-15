@@ -97,9 +97,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private final Iterator<List<Integer>> accessIterator;
 
   /** Checks the consistency of execution path pairs. */
-  private Predicate<MemoryAccessStructure> accessPairFilter;
+  private Predicate<MemoryAccessStructure> accessPairChecker;
   /** Checks the consistency of whole test templates. */
-  private Predicate<MemoryAccessStructure> structureFilter;
+  private Predicate<MemoryAccessStructure> structureChecker;
 
   /** Availability of the value. */
   private boolean hasValue;
@@ -133,20 +133,20 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       accessIterator.registerIterator(new IntRangeIterator(0, accessClasses.size() - 1));
     }
     this.accessIterator = accessIterator;
-
-    init();
   }
-
 
   @Override
   public void init() {
     // Initialize the filter for checking memory access pairs.
-    this.accessPairFilter = filterBuilder.build();
+    final Predicate<MemoryAccessStructure> accessPairFilter = filterBuilder.build();
+    this.accessPairChecker = new MemoryAccessStructureChecker(accessPairFilter);
+
     // Initialize the filter for checking whole memory access structures.
     final FilterBuilder structureFilterBuilder = new FilterBuilder(filterBuilder);
-
     structureFilterBuilder.addFilterBuilder(ADVANCED_FILTERS);
-    this.structureFilter = structureFilterBuilder.build();
+
+    final Predicate<MemoryAccessStructure> structureFilter = structureFilterBuilder.build();
+    this.structureChecker = new MemoryAccessStructureChecker(structureFilter);
 
     hasValue = true;
 
@@ -188,12 +188,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   }
 
   private boolean checkStructure() {
-    final MemoryAccessStructure structure =
-        new MemoryAccessStructure(accesses, dependencies);
-    final MemoryAccessStructureChecker checker =
-        new MemoryAccessStructureChecker(structure, structureFilter);
-
-    return checker.check();
+    final MemoryAccessStructure structure = new MemoryAccessStructure(accesses, dependencies);
+    return structureChecker.test(structure);
   }
 
   private boolean nextStructure() {
@@ -265,12 +261,33 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   // Initialize/Iterate Memory Accesses
   //------------------------------------------------------------------------------------------------
 
+  private boolean checkAccesses() {
+    if (!accessIterator.hasValue()) {
+      return false;
+    }
+
+    for (final MemoryAccess access : accesses) {
+      for (final Predicate<MemoryAccess> filter : filterBuilder.getAccessFilters()) {
+        if (!filter.test(access)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+  
   private void initAccesses() {
     accessIterator.init();
 
     assignAccesses();
-    recalculatePossibleDependencies();
-    assignDependencies();
+
+    if (checkAccesses()) {
+      recalculatePossibleDependencies();
+      assignDependencies();
+    } else {
+      nextAccesses();
+    }
   }
 
   private boolean nextAccesses() {
@@ -278,9 +295,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     while (accessIterator.hasValue()) {
       assignAccesses();
-      if (recalculatePossibleDependencies()) {
-        assignDependencies();
-        return true;
+
+      if (checkAccesses()) {
+        if (recalculatePossibleDependencies()) {
+          assignDependencies();
+          return true;
+        }
       }
 
       accessIterator.next();
@@ -335,7 +355,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
    * 
    * @param access1 the primary memory access.
    * @param access2 the secondary memory access.
-   * @return the dependencies between the memory accesses or {@code null}.
+   * @return the dependencies between the memory accesses.
    */
   private List<MemoryDependency> getDependencies(
       final MemoryAccess access1,
@@ -343,17 +363,17 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
 
-    final List<MmuBuffer> devices1 = access1.getDevices();
-    final List<MmuBuffer> devices2 = access2.getDevices();
+    final Collection<MmuBuffer> buffers1 = access1.getDevices();
+    final Collection<MmuBuffer> buffers2 = access2.getDevices();
 
-    // Intersect the sets of devices used in the memory accesses.
-    final List<MmuBuffer> devices = new ArrayList<>(devices1);
-    devices.retainAll(devices2);
+    // Intersect the sets of buffers used in the memory accesses.
+    final Collection<MmuBuffer> buffers = new ArrayList<>(buffers1);
+    buffers.retainAll(buffers2);
 
     final Set<MmuAddressType> addresses = new LinkedHashSet<>();
 
-    for (final MmuBuffer device : devices) {
-      addresses.add(device.getAddress());
+    for (final MmuBuffer buffer : buffers) {
+      addresses.add(buffer.getAddress());
     }
 
     List<MemoryDependency> addrDependencies = new ArrayList<>();
@@ -367,8 +387,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final List<MemoryDependency> dependencies = new ArrayList<>();
 
       dependencies.add(addrDependency);
-      for (final MmuBuffer device : devices) {
-        final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(device);
+      for (final MmuBuffer buffer : buffers) {
+        final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(buffer);
         addHazardsToDependencies(dependencies, access1, access2, hazards);
 
         if (dependencies.isEmpty()) {
@@ -385,9 +405,11 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /**
    * Extends the dependencies with the hazards.
    * 
+   * @param dependencies the dependencies to be extended.
+   * @param access1 the primary memory access.
+   * @param access2 the secondary memory access.
    * @param hazards the hazards
-   * @param dependencies the list of dependencies
-   * @return the list of dependencies.
+   * @return the extended list of dependencies.
    */
   private void addHazardsToDependencies(
       final Collection<MemoryDependency> dependencies,
@@ -412,14 +434,14 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     dependencies.clear();
     for (final MemoryDependency tempDependency : tempDependencies) {
       for (final MemoryHazard hazard : hazards) {
-        final MemoryDependency dependency = new MemoryDependency(tempDependency);
-        dependency.addHazard(hazard);
+        final MemoryDependency newDependency = new MemoryDependency(tempDependency);
+        newDependency.addHazard(hazard);
 
-        final MemoryAccessStructureChecker checker = new MemoryAccessStructureChecker(
-            new MemoryAccessStructure(access1, access2, dependency), accessPairFilter);
+        final MemoryAccessStructure structure =
+            new MemoryAccessStructure(access1, access2, newDependency);
 
-        if (checker.check()) {
-          dependencies.add(dependency);
+        if (accessPairChecker.test(structure)) {
+          dependencies.add(newDependency);
         }
       }
     }
