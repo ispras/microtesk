@@ -33,9 +33,9 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -46,10 +46,7 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class MemoryAccessStructureChecker {
-  private final Set<IntegerVariable> formulaVariables = new LinkedHashSet<>();
-  private final IntegerFormula formula = new IntegerFormula();
-
+public final class MemoryAccessStructureChecker implements Predicate<MemoryAccessStructure> {
   /**
    * MapKey: Variable$ExecutionIndex (%s$%d). MapValue: [Variable$ExecutionIndex$Range[0 .. A], ..,
    * Variable$ExecutionIndex$Range[B .. N]].
@@ -71,33 +68,36 @@ public final class MemoryAccessStructureChecker {
    */
   private final Map<String, IntegerVariable> mmuVariables = new LinkedHashMap<>();
 
-  /** Template to be checked. */
-  private final MemoryAccessStructure structure;
+  /** Custom filter. */
   private final Predicate<MemoryAccessStructure> filter;
 
   /**
-   * Constructs a checker for the given memory access structure.
+   * Constructs a checker.
    * 
-   * @param structure the memory accesses structure to be checked.
    * @param filter the memory access filter.
    */
   public MemoryAccessStructureChecker(
-      final MemoryAccessStructure structure,
       final Predicate<MemoryAccessStructure> filter) {
-    InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkNotNull(filter);
 
-    this.structure = structure;
     this.filter = filter;
   }
 
   /**
-   * Check consistency of the structure.
+   * Check consistency of the memory access structure.
    *
-   * @return {@code true} if the condition is consistent; {@code false} otherwise.
+   * @return {@code true} if the memory access structure is consistent; {@code false} otherwise.
    */
-  public boolean check() {
-    // Step 0. Check the memory access structure by using filters.
+  @Override
+  public boolean test(final MemoryAccessStructure structure) {
+    InvariantChecks.checkNotNull(structure);
+
+    // TODO:
+    variableLink.clear();
+    variableRanges.clear();
+    mmuRanges.clear();
+    mmuVariables.clear();
+
     if (!filter.test(structure)) {
       return false;
     }
@@ -107,7 +107,6 @@ public final class MemoryAccessStructureChecker {
 
     final List<MemoryAccess> accesses = structure.getAccesses();
 
-    // Step 5.
     for (final Map.Entry<IntegerVariable, List<IntegerRange>> variable : variables.entrySet()) {
       final List<String> nameI = new ArrayList<>();
 
@@ -144,29 +143,32 @@ public final class MemoryAccessStructureChecker {
       }
     }
 
-    // Step 6.
-    // Add variables to the solver
+    final IntegerFormula formula = new IntegerFormula();
+    final Set<IntegerVariable> formulaVariables = new LinkedHashSet<>();
+
     for (final Map.Entry<String, IntegerVariable> variable : mmuVariables.entrySet()) {
       formulaVariables.add(variable.getValue());
     }
 
     for (int i = 0; i < accesses.size(); i++) {
-      // Get equations from execution.
-      for (final MmuTransition transition : accesses.get(i).getTransitions()) {
-        if (!process(i, transition)) {
+      final MemoryAccess access = accesses.get(i);
+
+      for (final MmuTransition transition : access.getTransitions()) {
+        if (!process(formula, i, transition)) {
           return false;
         }
       }
     }
 
-    // Step 7.
     for (int i = 0; i < accesses.size() - 1; i++) {
-      for (int j = i + 1; j < accesses.size(); j++) {
+      final MemoryAccess access1 = accesses.get(i);
 
+      for (int j = i + 1; j < accesses.size(); j++) {
+        final MemoryAccess access2 = accesses.get(j);
         final MemoryDependency dependency = structure.getDependency(i, j);
+
         if (dependency != null) {
-          // Get equations from dependency of i & j execution.
-          if (!process(i, j, accesses.get(i), accesses.get(j), dependency)) {
+          if (!process(formula, formulaVariables, i, j, access1, access2, dependency)) {
             return false;
           }
         }
@@ -254,15 +256,10 @@ public final class MemoryAccessStructureChecker {
     return val;
   }
 
-  /**
-   * Adds to the solver equalities.
-   * 
-   * @param i the index of execution.
-   * @param equality the equality.
-   * @return {@code true} if the equality is consistent; {@code false} otherwise.
-   */
-  private boolean process(final int i, final MmuConditionAtom atom) {
+  private boolean process(final IntegerFormula formula, final int i, final MmuConditionAtom atom) {
+    InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(atom);
+
     // The code is not applicable to non-constant constraints.
     InvariantChecks.checkTrue(atom.getType() == MmuConditionAtom.Type.EQUAL_CONST);
 
@@ -298,14 +295,11 @@ public final class MemoryAccessStructureChecker {
     return true;
   }
 
-  /**
-   * Adds assignments equalities to the solver.
-   * 
-   * @param i the index of execution.
-   * @param assignments the assignments.
-   * @return {@code true} if the assignments is consistent; {@code false} otherwise.
-   */
-  private boolean process(final int i, final Map<IntegerField, MmuAssignment> assignments) {
+  private boolean process(
+      final IntegerFormula formula,
+      final int i,
+      final Map<IntegerField, MmuAssignment> assignments) {
+    InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(assignments);
 
     for (final Map.Entry<IntegerField, MmuAssignment> assignmentSet : assignments.entrySet()) {
@@ -396,22 +390,17 @@ public final class MemoryAccessStructureChecker {
     return true;
   }
 
-  /**
-   * Adds condition equalities.
-   * 
-   * @param i the index of execution.
-   * @param condition the condition.
-   * @return {@code true} if the condition is consistent; {@code false} otherwise.
-   */
-  private boolean process(final int i, final MmuCondition condition) {
+  private boolean process(final IntegerFormula formula, final int i, final MmuCondition condition) {
+    InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(condition);
+
     // The code is not applicable to OR-connected constraints.
     InvariantChecks.checkTrue(condition.getType() == MmuCondition.Type.AND);
 
     final List<MmuConditionAtom> atoms = condition.getAtoms();
 
     for (final MmuConditionAtom atom : atoms) {
-      if (!process(i, atom)) {
+      if (!process(formula, i, atom)) {
         return false;
       }
     }
@@ -419,14 +408,9 @@ public final class MemoryAccessStructureChecker {
     return true;
   }
 
-  /**
-   * Adds transition equalities.
-   * 
-   * @param i the index of execution.
-   * @param transition the transition.
-   * @return {@code true} if the transition is solved; {@code false} otherwise.
-   */
-  private boolean process(final int i, final MmuTransition transition) {
+  private boolean process(
+      final IntegerFormula formula, final int i, final MmuTransition transition) {
+    InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(transition);
 
     final MmuGuard guard = transition.getGuard();
@@ -435,7 +419,7 @@ public final class MemoryAccessStructureChecker {
       final MmuCondition condition = guard.getCondition();
 
       if (condition != null) {
-        if (!process(i, condition)) {
+        if (!process(formula, i, condition)) {
           return false;
         }
       }
@@ -445,7 +429,7 @@ public final class MemoryAccessStructureChecker {
     final Map<IntegerField, MmuAssignment> assignments = source.getAction();
 
     if (assignments != null) {
-      if (!process(i, assignments)) {
+      if (!process(formula, i, assignments)) {
         return false;
       }
     }
@@ -456,6 +440,7 @@ public final class MemoryAccessStructureChecker {
   /**
    * Adds the constraints for the given dependency between two memory accesses.
    * 
+   * @param formula the formula to be constructed.
    * @param i the index of the primary memory access.
    * @param j the index of the secondary memory access.
    * @param access1 the primary memory access.
@@ -464,11 +449,15 @@ public final class MemoryAccessStructureChecker {
    * @return {@code true} if the constraints may be SAT; {@code false} otherwise.
    */
   private boolean process(
+      final IntegerFormula formula,
+      final Set<IntegerVariable> formulaVariables,
       final int i,
       final int j,
       final MemoryAccess access1,
       final MemoryAccess access2,
       final MemoryDependency dependency) {
+    InvariantChecks.checkNotNull(formula);
+    InvariantChecks.checkNotNull(formulaVariables);
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
     InvariantChecks.checkNotNull(dependency);
@@ -492,13 +481,13 @@ public final class MemoryAccessStructureChecker {
 
             List<String> values1 = variableLink.get(value1);
             if (values1 == null) {
-              addVariable(field, i);
+              addVariable(formulaVariables, field, i);
               values1 = variableLink.get(value1);
             }
 
             List<String> values2 = variableLink.get(value2);
             if (values2 == null) {
-              addVariable(field, j);
+              addVariable(formulaVariables, field, j);
               values2 = variableLink.get(value2);
             }
 
@@ -552,7 +541,8 @@ public final class MemoryAccessStructureChecker {
     return true;
   }
 
-  private void addVariable(final IntegerVariable variable, final int i) {
+  private void addVariable(
+      final Set<IntegerVariable> formulaVariables, final IntegerVariable variable, final int i) {
     final String baseValue = gatherVariableName(variable, i);
 
     final IntegerRange range = new IntegerRange(0, variable.getWidth() - 1);

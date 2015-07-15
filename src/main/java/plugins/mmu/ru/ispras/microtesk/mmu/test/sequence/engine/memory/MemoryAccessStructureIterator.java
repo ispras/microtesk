@@ -261,32 +261,16 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   // Initialize/Iterate Memory Accesses
   //------------------------------------------------------------------------------------------------
 
-  private boolean checkAccesses() {
-    if (!accessIterator.hasValue()) {
-      return false;
-    }
-
-    for (final MemoryAccess access : accesses) {
-      for (final Predicate<MemoryAccess> filter : filterBuilder.getAccessFilters()) {
-        if (!filter.test(access)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  }
-  
   private void initAccesses() {
     accessIterator.init();
 
-    assignAccesses();
-
-    if (checkAccesses()) {
-      recalculatePossibleDependencies();
-      assignDependencies();
-    } else {
-      nextAccesses();
+    if (accessIterator.hasValue()) {
+      if (assignAccesses()) {
+        recalculatePossibleDependencies();
+        assignDependencies();
+      } else {
+        nextAccesses();
+      }
     }
   }
 
@@ -294,9 +278,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     accessIterator.next();
 
     while (accessIterator.hasValue()) {
-      assignAccesses();
-
-      if (checkAccesses()) {
+      if (assignAccesses()) {
         if (recalculatePossibleDependencies()) {
           assignDependencies();
           return true;
@@ -309,7 +291,11 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     return false;
   }
 
-  private void assignAccesses() {
+  private boolean assignAccesses() {
+    if (!accessIterator.hasValue()) {
+      return false;
+    }
+
     final List<Integer> accessIndices = accessIterator.value();
 
     accesses.clear();
@@ -321,6 +307,16 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       access.setDataType(accessType.getDataType());
       accesses.add(access);
     }
+
+    for (final MemoryAccess access : accesses) {
+      for (final Predicate<MemoryAccess> filter : filterBuilder.getAccessFilters()) {
+        if (!filter.test(access)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   private boolean recalculatePossibleDependencies() {

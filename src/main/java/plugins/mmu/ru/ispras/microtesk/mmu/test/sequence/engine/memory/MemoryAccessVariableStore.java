@@ -154,12 +154,15 @@ final class MemoryAccessVariableStore {
   public MemoryAccessVariableStore(final MemoryAccessStructure structure) {
     InvariantChecks.checkNotNull(structure);
 
-    Collection<MemoryHazard> hazards = new ArrayList<>();
+    final Collection<MemoryHazard> hazards = new ArrayList<>();
 
     for (int i = 0; i < structure.size() - 1; i++) {
       for (int j = i + 1; j < structure.size(); j++) {
         final MemoryDependency dependency = structure.getDependency(i, j);
-        hazards.addAll(dependency.getHazards());
+
+        if (dependency != null) {
+          hazards.addAll(dependency.getHazards());
+        }
       }
     }
 

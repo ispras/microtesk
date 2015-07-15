@@ -24,5 +24,5 @@ import java.util.Set;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Classifier<T> {
-  List<Set<T>> classify(Collection<T> executionPaths);
+  List<Set<T>> classify(Collection<T> objects);
 }

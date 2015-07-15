@@ -145,9 +145,10 @@ public final class MemoryEngine implements Engine<MemorySolution> {
               entryConstructors,
               entryProviders);
 
-          SolverResult<MemorySolution> result = solver.solve();
+          final SolverResult<MemorySolution> result = solver.solve();
+          InvariantChecks.checkNotNull(result);
 
-          if (result != null && result.getStatus() == SolverResult.Status.SAT) {
+          if (result.getStatus() == SolverResult.Status.SAT) {
             solution = result.getResult();
             break;
           }

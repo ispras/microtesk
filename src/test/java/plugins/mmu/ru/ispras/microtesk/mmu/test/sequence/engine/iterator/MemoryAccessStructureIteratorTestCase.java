@@ -45,8 +45,8 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MemoryAccessStructureIteratorTestCase {
-  /** Contains of devices (buffers) of the memory management unit. */
-  private static Collection<MmuBuffer> devices = new LinkedHashSet<>();
+  /** Contains of buffers (buffers) of the memory management unit. */
+  private static Collection<MmuBuffer> buffers = new LinkedHashSet<>();
 
   /** Contains of addresses (buffers) of the memory management unit. */
   private static Collection<MmuAddressType> addresses = new LinkedHashSet<>();
@@ -62,7 +62,7 @@ public final class MemoryAccessStructureIteratorTestCase {
     final MmuSubsystem mipsMmu = MipsMmu.get().mmu;
     MmuTranslator.setSpecification(mipsMmu);
 
-    devices = mipsMmu.getDevices();
+    buffers = mipsMmu.getDevices();
     addresses = mipsMmu.getAddresses();
 
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
@@ -71,34 +71,32 @@ public final class MemoryAccessStructureIteratorTestCase {
     }
 
     final MemoryAccessStructureIterator mmuIterator =
-        new MemoryAccessStructureIterator(
-            accessTypes,
-            new ClassifierTrivial());
+        new MemoryAccessStructureIterator(accessTypes, new ClassifierTrivial());
 
-    final Map<MemoryHazard.Type, Integer> conflictsType = new HashMap<>();
+    final Map<MemoryHazard.Type, Integer> hazardsType = new HashMap<>();
     for (final MemoryHazard.Type type : MemoryHazard.Type.values()) {
-      conflictsType.put(type, 0);
+      hazardsType.put(type, 0);
     }
 
-    final Map<MmuBuffer, Map<MemoryHazard.Type, Integer>> devicesConflicts = new HashMap<>();
-    for (final MmuBuffer device : devices) {
-      final Map<MemoryHazard.Type, Integer> conflicts = new HashMap<>();
-      for (final MemoryHazard conflict : CoverageExtractor.get().getHazards(device)) {
-        conflicts.put(conflict.getType(), 0);
+    final Map<MmuBuffer, Map<MemoryHazard.Type, Integer>> bufferHazards = new HashMap<>();
+    for (final MmuBuffer buffer : buffers) {
+      final Map<MemoryHazard.Type, Integer> hazards = new HashMap<>();
+      for (final MemoryHazard hazard : CoverageExtractor.get().getHazards(buffer)) {
+        hazards.put(hazard.getType(), 0);
       }
 
-      devicesConflicts.put(device, conflicts);
+      bufferHazards.put(buffer, hazards);
     }
 
     final Map<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressesConflicts = new HashMap<>();
     for (final MmuAddressType address : addresses) {
-      final Map<MemoryHazard.Type, Integer> conflicts = new HashMap<>();
+      final Map<MemoryHazard.Type, Integer> hazards = new HashMap<>();
 
-      for (final MemoryHazard conflict : CoverageExtractor.get().getHazards(address)) {
-        conflicts.put(conflict.getType(), 0);
+      for (final MemoryHazard hazard : CoverageExtractor.get().getHazards(address)) {
+        hazards.put(hazard.getType(), 0);
       }
 
-      addressesConflicts.put(address, conflicts);
+      addressesConflicts.put(address, hazards);
     }
 
     int k = 0;
@@ -109,14 +107,14 @@ public final class MemoryAccessStructureIteratorTestCase {
       if (PRINT_LOGS)
         System.out.println("Template: " + k);
 
-      checkSituationsDependency((MemoryAccessStructure) mmuIterator.value(), conflictsType,
-          devicesConflicts, addressesConflicts);
+      checkSituationsDependency((MemoryAccessStructure) mmuIterator.value(), hazardsType,
+          bufferHazards, addressesConflicts);
 
       if (PRINT_LOGS)
         System.out.println("");
       boolean testEnd = true;
-      for (final Map.Entry<MemoryHazard.Type, Integer> conflicts : conflictsType.entrySet()) {
-        if (conflicts.getValue().equals(0)) {
+      for (final Map.Entry<MemoryHazard.Type, Integer> hazards : hazardsType.entrySet()) {
+        if (hazards.getValue().equals(0)) {
           testEnd = false;
           break;
         }
@@ -127,16 +125,16 @@ public final class MemoryAccessStructureIteratorTestCase {
     }
 
     System.out.println("All: " + k);
-    System.out.println(conflictsType);
+    System.out.println(hazardsType);
 
-    System.out.println(devicesConflicts);
+    System.out.println(bufferHazards);
     System.out.println(addressesConflicts);
 
     if (countPaVaL1Equal == 0) {
       Assert.fail("Not found: PAEqual, VAEqual, L1TagEqual");
     } else {
       if (PRINT_LOGS)
-        System.out.println("Found conflict: PAEqual, VAEqual, L1TagEqual: " + countPaVaL1Equal);
+        System.out.println("Found hazard: PAEqual, VAEqual, L1TagEqual: " + countPaVaL1Equal);
     }
 
     if (countPaVaEqual == 0) {
@@ -146,36 +144,36 @@ public final class MemoryAccessStructureIteratorTestCase {
         System.out.println("Found: PAEqual, VAEqual: " + countPaVaEqual);
     }
 
-    for (final Map.Entry<MemoryHazard.Type, Integer> conflicts : conflictsType.entrySet()) {
-      if (conflicts.getValue() == 0) {
-        Assert.fail("Not found: " + conflicts.getKey());
+    for (final Map.Entry<MemoryHazard.Type, Integer> hazards : hazardsType.entrySet()) {
+      if (hazards.getValue() == 0) {
+        Assert.fail("Not found: " + hazards.getKey());
       }
     }
 
-    for (final Map.Entry<MmuBuffer, Map<MemoryHazard.Type, Integer>> deviceConflicts :
-      devicesConflicts.entrySet()) {
-      final MmuBuffer device = deviceConflicts.getKey();
+    for (final Map.Entry<MmuBuffer, Map<MemoryHazard.Type, Integer>> bufferConflicts :
+      bufferHazards.entrySet()) {
+      final MmuBuffer buffer = bufferConflicts.getKey();
 
-      if (device == MipsMmu.get().jtlb || device == MipsMmu.get().l2 || device == MipsMmu.get().mem) {
+      if (buffer == MipsMmu.get().jtlb || buffer == MipsMmu.get().l2 || buffer == MipsMmu.get().mem) {
         continue;
       }
 
-      for (final Map.Entry<MemoryHazard.Type, Integer> conflicts :
-        deviceConflicts.getValue().entrySet()) {
-        if (conflicts.getValue() == 0) {
+      for (final Map.Entry<MemoryHazard.Type, Integer> hazards :
+        bufferConflicts.getValue().entrySet()) {
+        if (hazards.getValue() == 0) {
           Assert.fail(
-              "Not found: " + conflicts.getKey() + " of device " + deviceConflicts.getKey());
+              "Not found: " + hazards.getKey() + " of buffer " + bufferConflicts.getKey());
         }
       }
     }
 
     for (final Map.Entry<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressConflicts :
       addressesConflicts.entrySet()) {
-      for (final Map.Entry<MemoryHazard.Type, Integer> conflicts :
+      for (final Map.Entry<MemoryHazard.Type, Integer> hazards :
         addressConflicts.getValue().entrySet()) {
-        if (conflicts.getValue() == 0) {
+        if (hazards.getValue() == 0) {
           Assert.fail(
-              "Not found: " + conflicts.getKey() + " of address " + addressConflicts.getKey());
+              "Not found: " + hazards.getKey() + " of address " + addressConflicts.getKey());
         }
       }
     }
@@ -183,12 +181,12 @@ public final class MemoryAccessStructureIteratorTestCase {
   }
 
   private static void checkSituationsDependency(final MemoryAccessStructure template,
-      final Map<MemoryHazard.Type, Integer> conflictsType,
-      final Map<MmuBuffer, Map<MemoryHazard.Type, Integer>> devicesConflicts,
+      final Map<MemoryHazard.Type, Integer> hazardsType,
+      final Map<MmuBuffer, Map<MemoryHazard.Type, Integer>> bufferHazards,
       final Map<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressesConflicts) {
     InvariantChecks.checkNotNull(template);
-    InvariantChecks.checkNotNull(conflictsType);
-    InvariantChecks.checkNotNull(devicesConflicts);
+    InvariantChecks.checkNotNull(hazardsType);
+    InvariantChecks.checkNotNull(bufferHazards);
 
     for (int i = 0; i < N; i++) {
       for (int j = i + 1; j < N; j++) {
@@ -201,21 +199,21 @@ public final class MemoryAccessStructureIteratorTestCase {
           boolean l1TagEqual = false;
           boolean memTagNotEqual = false;
 
-          for (final MemoryHazard conflict : dependency.getHazards()) {
-            final MmuAddressType address = conflict.getAddress();
-            final MmuBuffer device = conflict.getDevice();
-            final MemoryHazard.Type type = conflict.getType();
+          for (final MemoryHazard hazard : dependency.getHazards()) {
+            final MmuAddressType address = hazard.getAddress();
+            final MmuBuffer buffer = hazard.getDevice();
+            final MemoryHazard.Type type = hazard.getType();
 
-            if (device != null) {
-              final Map<MemoryHazard.Type, Integer> conflicts = devicesConflicts.get(device);
-              final int numberOfConflicts = conflicts.get(type);
-              conflicts.put(type, numberOfConflicts + 1);
+            if (buffer != null) {
+              final Map<MemoryHazard.Type, Integer> hazards = bufferHazards.get(buffer);
+              final int numberOfConflicts = hazards.get(type);
+              hazards.put(type, numberOfConflicts + 1);
             }
 
             if (address != null) {
-              final Map<MemoryHazard.Type, Integer> conflicts = addressesConflicts.get(address);
-              final int numberOfConflicts = conflicts.get(type);
-              conflicts.put(type, numberOfConflicts + 1);
+              final Map<MemoryHazard.Type, Integer> hazards = addressesConflicts.get(address);
+              final int numberOfConflicts = hazards.get(type);
+              hazards.put(type, numberOfConflicts + 1);
               addressConflict = true;
               if (MipsMmu.get().pa.equals(address.getVariable())) {
                 addressConflict = true;
@@ -226,10 +224,10 @@ public final class MemoryAccessStructureIteratorTestCase {
             }
 
             if (PRINT_LOGS) {
-              System.out.println("conflict name: " + conflict.getFullName());
+              System.out.println("hazard name: " + hazard.getFullName());
             }
 
-            conflictsType.put(type, conflictsType.get(type) + 1);
+            hazardsType.put(type, hazardsType.get(type) + 1);
 
             if (address != null
                 && MipsMmu.get().pa.equals(address.getVariable())
@@ -243,12 +241,12 @@ public final class MemoryAccessStructureIteratorTestCase {
               vaEqual = true;
             }
 
-            if (device != null && MipsMmu.get().l1.equals(device)
+            if (buffer != null && MipsMmu.get().l1.equals(buffer)
                 && MemoryHazard.Type.TAG_EQUAL.equals(type)) {
               l1TagEqual = true;
             }
 
-            if (device != null && MipsMmu.get().mem.equals(device)
+            if (buffer != null && MipsMmu.get().mem.equals(buffer)
                 && MemoryHazard.Type.TAG_NOT_EQUAL.equals(type)) {
               memTagNotEqual = true;
             }

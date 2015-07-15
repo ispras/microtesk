@@ -164,7 +164,7 @@ public final class MemoryAccessStructure {
     builder.append(accesses.toString());
 
     builder.append(", ");
-    builder.append("Dependencies:");
+    builder.append("Dependencies: ");
 
     boolean comma = false;
     for (int i = 0; i < dependencies.length; i++) {

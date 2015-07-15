@@ -51,14 +51,37 @@ public final class FilterBuilder {
     unitedDependencyFilters = new ArrayList<>();
 
   private final Collection<Predicate<MemoryAccessStructure>>
-    templateFilters = new ArrayList<>();
+    structureFilters = new ArrayList<>();
 
-  public FilterBuilder() {
-  }
+  public FilterBuilder() {}
 
   public FilterBuilder(final FilterBuilder r) {
     InvariantChecks.checkNotNull(r);
     addFilterBuilder(r);
+  }
+
+  public Collection<Predicate<MemoryAccess>> getAccessFilters() {
+    return accessFilters;
+  }
+
+  public Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> getHazardFilters() {
+    return hazardFilters;
+  }
+
+  public Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> getDependencyFilters() {
+    return dependencyFilters;
+  }
+
+  public Collection<BiPredicate<MemoryAccess, MemoryUnitedHazard>> getUnitedHazardFilters() {
+    return unitedHazardFilters;
+  }
+
+  public Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> getUnitedDependencyFilters() {
+    return unitedDependencyFilters;
+  }
+
+  public Collection<Predicate<MemoryAccessStructure>> getStructureFilters() {
+    return structureFilters;
   }
 
   public void addAccessFilter(final Predicate<MemoryAccess> filter) {
@@ -118,12 +141,12 @@ public final class FilterBuilder {
 
   public void addStructureFilter(final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(filter);
-    templateFilters.add(filter);
+    structureFilters.add(filter);
   }
 
   public void addStructureFilters(final Collection<Predicate<MemoryAccessStructure>> filters) {
     InvariantChecks.checkNotNull(filters);
-    templateFilters.addAll(filters);
+    structureFilters.addAll(filters);
   }
 
   public void addFilterBuilder(final FilterBuilder builder) {
@@ -134,7 +157,7 @@ public final class FilterBuilder {
     dependencyFilters.addAll(builder.dependencyFilters);
     unitedHazardFilters.addAll(builder.unitedHazardFilters);
     unitedDependencyFilters.addAll(builder.unitedDependencyFilters);
-    templateFilters.addAll(builder.templateFilters);
+    structureFilters.addAll(builder.structureFilters);
   }
 
   public Predicate<MemoryAccessStructure> build() {
@@ -147,7 +170,7 @@ public final class FilterBuilder {
     newUnitedDependencyFilters.add(new FilterUnitedDependency(unitedHazardFilters));
 
     final Collection<Predicate<MemoryAccessStructure>>
-      newTemplateFilters = new ArrayList<>(templateFilters);
+      newTemplateFilters = new ArrayList<>(structureFilters);
     newTemplateFilters.add(new FilterStructure(
         accessFilters, newDependencyFilters, newUnitedDependencyFilters));
 

@@ -47,8 +47,7 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
   /**
    * Constructs an iterator of memory access structures.
    * 
-   * @param size the number of memory accesses in a structure.
-   * @param memoryAccessTypes the list of memory access types.
+   * @param accessTypes the list of memory access types.
    * @param randomDataType the data type randomization option.
    * @param classifier the memory access classification policy.
    */
@@ -62,15 +61,13 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
 
     this.classifier = classifier;
 
-    ProductIterator<MemoryAccessType> typesIterator = new ProductIterator<>();
+    final ProductIterator<MemoryAccessType> typesIterator = new ProductIterator<>();
     for (final Collection<MemoryAccessType> accessTypeCollection : accessTypes) {
       typesIterator.registerIterator(randomDataType ?
           new RandomValueIterator<MemoryAccessType>(accessTypeCollection) :
           new CollectionIterator<>(accessTypeCollection));
     }
     this.typesIterator = typesIterator;
-
-    init();
   }
 
   @Override
