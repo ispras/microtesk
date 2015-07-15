@@ -16,6 +16,9 @@
    test templates was implemented
  - The functionality of 'align' and 'org' methods (test templates)
    was improved
+ - CVC4 is now used as the default SMT solver
+ - Z3_PATH and CVC4_PATH environment variables can now be used to specify
+   path to corresponding SMT solver executable
  - Couple of bug fixes and general improvements were made
 
  2015/07/10 MicroTESK 2.2.9 beta
