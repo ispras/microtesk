@@ -528,8 +528,7 @@ class Template
     buffer_name  = get_attribute attrs, :buffer
     @template.beginBufferPreparator buffer_name
 
-    # TODO
-
+    self.instance_eval &contents
     @template.endBufferPreparator
   end
 
