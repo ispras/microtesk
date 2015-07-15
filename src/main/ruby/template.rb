@@ -545,7 +545,11 @@ class Template
   end
 
   def entry()
-    BufferEntryReference.new @template
+    unless defined? @entry_reference
+      @entry_reference = BufferEntryReference.new @template
+    end
+
+    @entry_reference
   end
 
   # -------------------------------------------------------------------------- #
