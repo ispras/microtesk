@@ -27,7 +27,7 @@ buffer JTLB (va: VA)
             G0: 1, V0: 1, D0: 1, C0: 3, PFN0: 24,  // EntryLo0
             G1: 1, V1: 1, D1: 1, C1: 3, PFN1: 24)  // EntryLo1
   index  = 0
-  match  = VPN2 == va<39..13> // ASID, G and non-4KB pages are unsupported
+  match  = VPN2 == va.value<39..13> // ASID, G and non-4KB pages are unsupported
   policy = NONE
 
 buffer DTLB (va: VA) viewof JTLB
@@ -37,7 +37,7 @@ buffer DTLB (va: VA) viewof JTLB
             G0: 1, V0: 1, D0: 1, C0: 3, PFN0: 24,  // EntryLo0
             G1: 1, V1: 1, D1: 1, C1: 3, PFN1: 24)  // EntryLo1
   index  = 0
-  match  = VPN2 == va<39..13> // ASID, G and non-4KB pages are unsupported
+  match  = VPN2 == va.value<39..13> // ASID, G and non-4KB pages are unsupported
   policy = PLRU
 
 //--------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ segment USEG (va: VA) = (pa : PA)
     evenOddBit = 12;
 
     // The VPN is even.
-    if va<evenOddBit> == 0 then
+    if va.value<evenOddBit> == 0 then
       g   = tlbEntry.G0;
       v   = tlbEntry.V0;
       d   = tlbEntry.D0;
@@ -90,7 +90,7 @@ segment USEG (va: VA) = (pa : PA)
 
     // The EntryLo is valid.
     if v == 1 then
-      pa = pfn<24..(evenOddBit - 12)>::va<(evenOddBit - 1)..0>;
+      pa.value = pfn<24..(evenOddBit - 12)>::va.value<(evenOddBit - 1)..0>;
     // The EntryLo is invalid.
     else
       exception("TLBInvalid");
@@ -147,23 +147,23 @@ buffer L1 (pa: PA)
   ways   = 4
   sets   = 128
   entry  = (V: 1 = 0, TAG: 24, DATA: 256)
-  index  = pa<11..5>
-  match  = V == 1 && TAG == pa<35..12>
+  index  = pa.value<11..5>
+  match  = V == 1 && TAG == pa.value<35..12>
   policy = PLRU
 
 buffer L2 (pa: PA)
   ways   = 4
   sets   = 4096
   entry  = (V: 1 = 0, TAG: 19, DATA: 256)
-  index  = pa<16..5>
-  match  = V == 1 && TAG == pa<35..17>
+  index  = pa.value<16..5>
+  match  = V == 1 && TAG == pa.value<35..17>
   policy = PLRU
 
 buffer Memory (pa: PA)
   ways   = 1
   sets   = 1 /*1 << (64 - 5)*/
   entry  = (DATA: 256)
-  index  = pa<63..5>
+  index  = pa.value<63..5>
   match  = 0
 
 //==================================================================================================
@@ -171,7 +171,6 @@ buffer Memory (pa: PA)
 //==================================================================================================
 
 mmu pmem (va: VA) = (data: 64)
-  var tlbEntry: JTLB.entry;
   var l1Entry: L1.entry;
   var l2Entry: L2.entry;
 
@@ -188,7 +187,7 @@ mmu pmem (va: VA) = (data: 64)
 
   read = {
     // The address is unaligned.
-    if va<0..2> != 0 then
+    if va.value<0..2> != 0 then
       exception("AddressError");
     endif; // If the address is unaligned.
 
@@ -197,10 +196,10 @@ mmu pmem (va: VA) = (data: 64)
 
     // The address is from the USEG segment (only USEG and KSEG segments are supported).
     if USEG(va).hit then
-      pa = USEG(va);
+      pa.value = USEG(va);
     // The address is from the KSEG0 or KSEG1 segment.
     else
-      pa = va<28..0>;
+      pa.value = va.value<28..0>;
     endif; // If the address is from the USEG segment.
 
     // The address is cacheable.
@@ -209,7 +208,7 @@ mmu pmem (va: VA) = (data: 64)
       if L1(pa).hit then
         l1Entry = L1(pa);
         cacheData = l1Entry.DATA;
-        data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+        data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
       // The address does not hit the L1.
       else
         // The L2 cache is used.
@@ -218,37 +217,37 @@ mmu pmem (va: VA) = (data: 64)
           if L2(pa).hit then
             l2Entry = L2(pa);
             cacheData = l2Entry.DATA;
-            data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+            data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
 
             // Fill the L1.
             l1Entry.V = 1;
-            l1Entry.TAG = pa<35..12>;
+            l1Entry.TAG = pa.value<35..12>;
             l1Entry.DATA = cacheData;
             L1(pa) = l1Entry;
           // The address does not hit the L2.
           else
             cacheData = Memory(pa);
-            data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+            data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
 
             // Fill L2.
             l2Entry.V = 1;
-            l2Entry.TAG = pa<35..17>;
+            l2Entry.TAG = pa.value<35..17>;
             l2Entry.DATA = cacheData;
             L2(pa) = l2Entry;
 
             // Fill L1.
             l1Entry.V = 1;
-            l1Entry.TAG = pa<35..12>;
+            l1Entry.TAG = pa.value<35..12>;
             l1Entry.DATA = cacheData;
             L1(pa) = l1Entry;
           endif; // If the address hits the L2.
         // The L2 cache is bypassed.
         else
           cacheData = Memory(pa);
-          data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+          data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
 
           l1Entry.V = 1;
-          l1Entry.TAG = pa<35..12>;
+          l1Entry.TAG = pa.value<35..12>;
           l1Entry.DATA = cacheData;
           L1(pa) = l1Entry;
         endif; // If the L2 cache is used.
@@ -256,13 +255,13 @@ mmu pmem (va: VA) = (data: 64)
     // The address is uncacheable.
     else
       cacheData = Memory(pa);
-      data = cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)>;
+      data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
     endif; // If the address is cacheable.
   }
 
   write = {
     // The address is unaligned.
-    if va<0..2> != 0 then
+    if va.value<0..2> != 0 then
       exception("AddressError");
     endif; // If the address is unaligned.
 
@@ -271,10 +270,10 @@ mmu pmem (va: VA) = (data: 64)
 
     // The address is from the USEG segment (only USEG and KSEG segments are supported).
     if USEG(va).hit then
-      pa = USEG(va);
+      pa.value = USEG(va);
     // The address is from the KSEG0 or KSEG1 segment.
     else
-      pa = va<28..0>;
+      pa.value = va.value<28..0>;
     endif; // If the address is from the USEG segment.
 
     // The address is cacheable.
@@ -283,7 +282,7 @@ mmu pmem (va: VA) = (data: 64)
       if L1(pa).hit then
         // Update the L1.
         l1Entry = L1(pa);
-        l1Entry.DATA<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+        l1Entry.DATA<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
         L1(pa) = l1Entry;
 
         // Only the write-through policy is supported.
@@ -296,12 +295,12 @@ mmu pmem (va: VA) = (data: 64)
           if L2(pa).hit then
             // Update the L2.
             l2Entry = L2(pa);
-            l2Entry.DATA<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+            l2Entry.DATA<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
             L2(pa) = l2Entry;
 
             // Fill the L1.
             l1Entry.V = 1;
-            l1Entry.TAG = pa<35..12>;
+            l1Entry.TAG = pa.value<35..12>;
             l1Entry.DATA = l2Entry.DATA;
             L1(pa) = l1Entry;
 
@@ -310,30 +309,30 @@ mmu pmem (va: VA) = (data: 64)
           // The address does not hit the L2.
           else
             cacheData = Memory(pa);
-            cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+            cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
             Memory(pa) = cacheData;
 
             // Fill the L2.
             l2Entry.V = 1;
-            l2Entry.TAG = pa<35..17>;
+            l2Entry.TAG = pa.value<35..17>;
             l2Entry.DATA = cacheData;
             L2(pa) = l2Entry;
 
             // Fill the L1.
             l1Entry.V = 1;
-            l1Entry.TAG = pa<35..12>;
+            l1Entry.TAG = pa.value<35..12>;
             l1Entry.DATA = cacheData;
             L1(pa) = l1Entry;
           endif; // If the address hits the L2.
         // The L2 cache is bypassed.
         else
           cacheData = Memory(pa);
-          cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+          cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
           Memory(pa) = cacheData;
 
           // Fill the L2
           l1Entry.V = 1;
-          l1Entry.TAG = pa<35..12>;
+          l1Entry.TAG = pa.value<35..12>;
           l1Entry.DATA = cacheData;
           L1(pa) = l1Entry;
         endif; // If the L2 cache is used.
@@ -341,7 +340,7 @@ mmu pmem (va: VA) = (data: 64)
     // The address is uncacheable.
     else
       cacheData = Memory(pa);
-      cacheData<(8 * pa<4..0> + 63)..(8 * pa<4..0>)> = data;
+      cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
       Memory(pa) = cacheData;
     endif; // If the address is cacheable.
   }
