@@ -280,10 +280,12 @@ final class Executor {
         final int conflictIndex = addressMap.get(address);
         final ConcreteCall conflictCall = calls.get(conflictIndex);
 
-        // Situation when an unexecutable call (with label, compiler directive,
-        // text output etc.) precedes an executable call can occur in merged sequences.
-        // This is considered normal. Address mapping is not changed in order to allow
-        // jumping on the beginning of calls located at the same address.
+        // Several calls can be mapped to the same address when a pseudo call with zero size
+        // (label, compiler directive, text output etc.) precedes an executable (non-zero size)
+        // call. This is considered normal. When such a situation is detected, address
+        // mapping is not changed in order to allow jumping on the beginning of calls mapped
+        // to the same address.
+
         final boolean isConflictLegal = 
             (!call.isExecutable() || !conflictCall.isExecutable()) &&
             (conflictIndex == index - 1);
