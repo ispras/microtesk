@@ -525,8 +525,8 @@ class Template
   # -------------------------------------------------------------------------- #
 
   def buffer_preparator(attrs, &contents)
-    buffer_name  = get_attribute attrs, :buffer
-    @template.beginBufferPreparator buffer_name
+    buffer_id = get_attribute attrs, :target
+    @template.beginBufferPreparator buffer_id
 
     self.instance_eval &contents
     @template.endBufferPreparator
@@ -542,6 +542,10 @@ class Template
     else
       @template.newAddressReference
     end
+  end
+
+  def entry()
+    BufferEntryReference.new @template
   end
 
   # -------------------------------------------------------------------------- #
@@ -824,3 +828,23 @@ class ExceptionHandler
   end
 
 end # ExceptionHandler
+
+class BufferEntryReference
+
+  def initialize template
+    @template = template
+  end
+
+  def method_missing(meth, *args)
+    if args.count != 0 and args.count != 2
+      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
+    end
+
+    if args.count == 2
+      @template.newEntryFieldReference meth.to_s, args.at(0), args.at(1)
+    else
+      @template.newEntryFieldReference meth.to_s
+    end
+  end
+end # BufferEntry
+

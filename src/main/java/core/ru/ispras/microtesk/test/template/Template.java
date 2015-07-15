@@ -590,6 +590,17 @@ public final class Template {
     return bufferPreparatorBuilder.newAddressReference(start, end);
   }
 
+  public LazyValue newEntryFieldReference(final String fieldId) {
+    checkBufferPreparatorBlock();
+    return bufferPreparatorBuilder.newEntryFieldReference(fieldId);
+  }
+
+  public LazyValue newEntryFieldReference(
+      final String fieldId, final int start, final int end) {
+    checkBufferPreparatorBlock();
+    return bufferPreparatorBuilder.newEntryFieldReference(fieldId, start, end);
+  }
+
   private void checkBufferPreparatorBlock() {
     if (null == bufferPreparatorBuilder) {
       throw new IllegalStateException(

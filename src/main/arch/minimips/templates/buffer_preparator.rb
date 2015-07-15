@@ -26,7 +26,7 @@ class BufferPreparatorTemplate < MiniMipsBaseTemplate
   def pre
     super
 
-    buffer_preparator(:buffer => 'L1') {
+    buffer_preparator(:target => 'L1') {
       la t0, address
       lw t1, 0, t0
     }
