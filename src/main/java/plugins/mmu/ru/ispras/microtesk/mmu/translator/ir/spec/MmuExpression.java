@@ -157,6 +157,38 @@ public final class MmuExpression {
     return width;
   }
 
+  public int getLoIndex(final IntegerVariable variable) {
+    InvariantChecks.checkNotNull(variable);
+
+    int lo = -1;
+    for (final IntegerField term : terms) {
+      if (term.getVariable() == variable) {
+        if (term.getLoIndex() < lo || lo == -1) {
+          lo = term.getLoIndex();
+        }
+      }
+    }
+
+    InvariantChecks.checkTrue(lo >= 0);
+    return lo;
+  }
+
+  public int getHiIndex(final IntegerVariable variable) {
+    InvariantChecks.checkNotNull(variable);
+
+    int hi = -1;
+    for (final IntegerField term : terms) {
+      if (term.getVariable() == variable) {
+        if (term.getHiIndex() > hi) {
+          hi = term.getHiIndex();
+        }
+      }
+    }
+
+    InvariantChecks.checkTrue(hi >= 0);
+    return hi;
+  }
+
   @Override
   public String toString() {
     if (terms.isEmpty()) {

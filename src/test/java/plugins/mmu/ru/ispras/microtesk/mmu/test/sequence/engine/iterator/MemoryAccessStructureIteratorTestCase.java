@@ -27,6 +27,7 @@ import org.junit.Test;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
+import ru.ispras.microtesk.mmu.test.sequence.engine.MmuUnderTest;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
@@ -59,7 +60,7 @@ public final class MemoryAccessStructureIteratorTestCase {
 
   @Test
   public void runTest() {
-    final MmuSubsystem mipsMmu = MipsMmu.get().mmu;
+    final MmuSubsystem mipsMmu = MmuUnderTest.get().mmu;
     MmuTranslator.setSpecification(mipsMmu);
 
     buffers = mipsMmu.getDevices();
@@ -154,7 +155,7 @@ public final class MemoryAccessStructureIteratorTestCase {
       bufferHazards.entrySet()) {
       final MmuBuffer buffer = bufferConflicts.getKey();
 
-      if (buffer == MipsMmu.get().jtlb || buffer == MipsMmu.get().l2 || buffer == MipsMmu.get().mem) {
+      if (buffer == MmuUnderTest.get().jtlb || buffer == MmuUnderTest.get().l2 || buffer == MmuUnderTest.get().mem) {
         continue;
       }
 
@@ -215,10 +216,10 @@ public final class MemoryAccessStructureIteratorTestCase {
               final int numberOfConflicts = hazards.get(type);
               hazards.put(type, numberOfConflicts + 1);
               addressConflict = true;
-              if (MipsMmu.get().pa.equals(address.getVariable())) {
+              if (MmuUnderTest.get().pa.equals(address.getVariable())) {
                 addressConflict = true;
               }
-              if (MipsMmu.get().va.equals(address.getVariable())) {
+              if (MmuUnderTest.get().va.equals(address.getVariable())) {
                 addressConflict = true;
               }
             }
@@ -230,23 +231,23 @@ public final class MemoryAccessStructureIteratorTestCase {
             hazardsType.put(type, hazardsType.get(type) + 1);
 
             if (address != null
-                && MipsMmu.get().pa.equals(address.getVariable())
+                && MmuUnderTest.get().pa.equals(address.getVariable())
                 && MemoryHazard.Type.ADDR_EQUAL.equals(type)) {
               paEqual = true;
             }
 
             if (address != null
-                && MipsMmu.get().va.equals(address.getVariable())
+                && MmuUnderTest.get().va.equals(address.getVariable())
                 && MemoryHazard.Type.ADDR_EQUAL.equals(type)) {
               vaEqual = true;
             }
 
-            if (buffer != null && MipsMmu.get().l1.equals(buffer)
+            if (buffer != null && MmuUnderTest.get().l1.equals(buffer)
                 && MemoryHazard.Type.TAG_EQUAL.equals(type)) {
               l1TagEqual = true;
             }
 
-            if (buffer != null && MipsMmu.get().mem.equals(buffer)
+            if (buffer != null && MmuUnderTest.get().mem.equals(buffer)
                 && MemoryHazard.Type.TAG_NOT_EQUAL.equals(type)) {
               memTagNotEqual = true;
             }

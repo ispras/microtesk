@@ -397,6 +397,18 @@ public final class MmuBuffer {
     return addressView.getAddress(tag, index, offset);
   }
 
+  public long getTagMask() {
+    return getTag(-1L);
+  }
+
+  public long getIndexMask() {
+    return getIndex(-1L);
+  }
+
+  public long getOffsetMask() {
+    return getOffset(-1L);
+  }
+
   // TODO:
   public boolean checkGuard(final MemoryAccess access) {
     InvariantChecks.checkNotNull(access);

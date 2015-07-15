@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerField;
@@ -49,6 +50,26 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class SingleAddressTypeAllocator {
+  private static final int ALLOC_TABLE_SIZE = 16;
+
+  /**
+   * Returns a set of values for a field of the given bit width.
+   * 
+   * @param width the bit width.
+   * @return the set of values.
+   */
+  private static Set<Long> getFieldValues(final int width) {
+    final int size = (1 << width) < ALLOC_TABLE_SIZE ? (1 << width) : ALLOC_TABLE_SIZE;
+
+    final Set<Long> values = new LinkedHashSet<>();
+    for (int i = 0; i < size; i++) {
+      final long value = i;
+      values.add(value);
+    }
+
+    return values;
+  }
+
   /**
    * Maps a known part of the address to the allocation table for the next unknown element.
    * 
@@ -124,6 +145,7 @@ final class SingleAddressTypeAllocator {
     for (final IntegerRange range : ranges) {
       final int lower = range.getMin().intValue();
       final int upper = range.getMax().intValue();
+      final int width = (upper - lower) + 1;
 
       Map<Long, AllocationTable<Long, ?>> fieldAllocator = allocators.get(lower);
       if (fieldAllocator == null) {
@@ -135,13 +157,13 @@ final class SingleAddressTypeAllocator {
 
       AllocationTable<Long, ?> allocationTable = fieldAllocator.get(prevFieldsValue);
       if (allocationTable == null) {
-        // TODO:
-        fieldAllocator.put(prevFieldsValue, allocationTable = new AllocationTable<>(null));
+        final Set<Long> values = getFieldValues(width);
+        fieldAllocator.put(prevFieldsValue, allocationTable = new AllocationTable<>(values));
       }
 
       final long fieldValue = allocationTable.allocate();
 
-      address &= ~((1L << ((upper - lower) + 1)) - 1);
+      address &= ~(((1L << width) - 1) << lower);
       address |= (fieldValue << lower);
     }
 
@@ -170,23 +192,32 @@ final class AddressAllocator {
     InvariantChecks.checkNotNull(memory);
 
     final Map<MmuAddressType, Collection<MmuExpression>> expressions = new LinkedHashMap<>();
+    final Map<MmuAddressType, Long> mask = new LinkedHashMap<>();
 
     for (final MmuAddressType addressType : memory.getAddresses()) {
       expressions.put(addressType, new LinkedHashSet<MmuExpression>());
+      mask.put(addressType, 0L);
     }
 
     for (final MmuBuffer buffer : memory.getDevices()) {
-      final Collection<MmuExpression> addressExpressions = expressions.get(buffer.getAddress());
+      final MmuAddressType addressType = buffer.getAddress();
+      final Collection<MmuExpression> addressExpressions = expressions.get(addressType);
 
       addressExpressions.add(buffer.getTagExpression());
       addressExpressions.add(buffer.getIndexExpression());
       addressExpressions.add(buffer.getOffsetExpression());
+
+      long addressMask = mask.get(addressType);
+
+      addressMask |= buffer.getTagMask();
+      addressMask |= buffer.getIndexMask();
+      mask.put(addressType, addressMask);
     }
 
     for (final Map.Entry<MmuAddressType, Collection<MmuExpression>> entry : expressions.entrySet()) {
       final MmuAddressType addressType = entry.getKey();
       final SingleAddressTypeAllocator allocator =
-          new SingleAddressTypeAllocator(addressType, entry.getValue(), -1L /* TODO */);
+          new SingleAddressTypeAllocator(addressType, entry.getValue(), mask.get(addressType));
 
       allocators.put(addressType, allocator);
     }

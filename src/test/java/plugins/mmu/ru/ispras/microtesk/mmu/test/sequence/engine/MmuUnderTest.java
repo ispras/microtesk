@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine.iterator;
+package ru.ispras.microtesk.mmu.test.sequence.engine;
 
 import java.math.BigInteger;
 
@@ -34,7 +34,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
- * {@link MipsMmu} represents a simplified MMU of a MIPS-compatible microprocessor.
+ * {@link MmuUnderTest} represents a simplified MMU of a MIPS-compatible microprocessor.
  * 
  * <p>The logic is as follows.</p>
  * 
@@ -80,7 +80,7 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MipsMmu {
+public final class MmuUnderTest {
   public static final int VA_BITS = 64;
   public static final int PA_BITS = 36;
   public static final int JTLB_SIZE = 64;
@@ -98,11 +98,11 @@ public final class MipsMmu {
   public static final int L2_TAG_BITS = PA_BITS - (POS_BITS + L2_ROW_BITS);
 
   // The instance should be created in get().
-  private static MipsMmu instance = null;
+  private static MmuUnderTest instance = null;
 
-  public static MipsMmu get() {
+  public static MmuUnderTest get() {
     if (instance == null) {
-      instance = new MipsMmu();
+      instance = new MmuUnderTest();
     }
     return instance;
   }
@@ -166,9 +166,9 @@ public final class MipsMmu {
   // -----------------------------------------------------------------------------------------------
   public final Predicate<MemoryAccess> dtlbGuard = new Predicate<MemoryAccess>() {
     @Override public boolean test(final MemoryAccess access) {
-      final boolean dtlbHit = access.getEvent(MipsMmu.get().dtlb) == BufferAccessEvent.HIT; // TODO: remove
-      final boolean jtlbHit = access.getEvent(MipsMmu.get().jtlb) == BufferAccessEvent.HIT; // TODO: remove
-      final boolean v = access.contains(MipsMmu.get().ifValid);
+      final boolean dtlbHit = access.getEvent(MmuUnderTest.get().dtlb) == BufferAccessEvent.HIT; // TODO: remove
+      final boolean jtlbHit = access.getEvent(MmuUnderTest.get().jtlb) == BufferAccessEvent.HIT; // TODO: remove
+      final boolean v = access.contains(MmuUnderTest.get().ifValid);
 
       return (dtlbHit || jtlbHit) && v;
     }
@@ -478,5 +478,5 @@ public final class MipsMmu {
     ifL2Used.setEnabled(false);
   }
 
-  private MipsMmu() {}
+  private MmuUnderTest() {}
 }
