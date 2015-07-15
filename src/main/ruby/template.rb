@@ -375,7 +375,7 @@ class Template
   def text(format, *args)
     print_format false, @is_multiline_comment, format, *args
   end
-  
+
   # 
   # Adds a comment into the test program (uses sl_comment_starts_with).
   #
