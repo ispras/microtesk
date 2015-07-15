@@ -166,7 +166,7 @@ class Template
   end
 
   def label(name)
-    @template.addLabel name 
+    @template.addLabel name
   end
 
   def address(label)
