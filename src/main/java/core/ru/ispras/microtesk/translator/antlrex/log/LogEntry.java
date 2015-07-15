@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.antlrex.log;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.microtesk.utils.FileUtils;
 
 /**
  * The LogEntry class stores information about a translation issue registered in the log.
@@ -51,7 +52,7 @@ public final class LogEntry {
      */
     MESSAGE
   }
-  
+
   private final Kind kind;
   private final SenderKind sender;
 
@@ -74,7 +75,12 @@ public final class LogEntry {
    */
 
   public LogEntry(
-      Kind kind, SenderKind sender, String source, int line, int position, String message) {
+      final Kind kind,
+      final SenderKind sender,
+      final String source,
+      final int line,
+      final int position,
+      final String message) {
 
     checkNotNull(kind);
     checkNotNull(sender);
@@ -95,8 +101,15 @@ public final class LogEntry {
 
   @Override
   public String toString() {
-    return String.format(FORMAT, getSource(), getLine(), getPosition(), getKind().toString(),
-        getSender().toString(), getMessage());
+    return String.format(
+        FORMAT,
+        FileUtils.getShortFileName(getSource()),
+        getLine(),
+        getPosition(),
+        getKind().toString(),
+        getSender().toString(),
+        getMessage()
+        );
   }
 
   /**
