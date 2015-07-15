@@ -433,36 +433,46 @@
   <target name="unpack.z3.windows" depends="init" if="platform.windows">
     <mkdir dir="${tools.dir}/z3"/>
     <unzip src="${tools.dir}/z3-windows.zip" dest="${tools.dir}/z3-tmp"/>
-    <mkdir dir="${dist}/tools/z3/windows"/>
-    <move todir="${dist}/tools/z3/windows/z3">
+    <move todir="${tools.dir}/z3">
       <fileset dir="${tools.dir}/z3-tmp"/>
       <cutdirsmapper dirs="1"/> 
     </move>
     <delete dir="${tools.dir}/z3-tmp"/>
+    <property name="z3.path" location="${tools.dir}/z3/bin/z3.exe"/>
   </target>
 
   <target name="unpack.z3.unix" depends="init" if="platform.unix">
-    <mkdir dir="${dist}/tools/z3/unix"/>
-    <untar src="${tools.dir}/z3-unix.tar.gz" dest="${dist}/tools/z3/unix" compression="gzip"/>
-    <chmod file="${dist}/tools/z3/unix/z3/bin/z3" perm="+x"/>
+    <untar src="${tools.dir}/z3-unix.tar.gz" dest="${tools.dir}" compression="gzip"/>
+    <chmod file="${tools.dir}/z3/bin/z3" perm="+x"/>
+    <property name="z3.path" location="${tools.dir}/z3/bin/z3"/>
   </target>
 
   <target name="unpack.z3.mac" depends="init" if="platform.mac">
     <mkdir dir="${tools.dir}/z3"/>
     <unzip src="${tools.dir}/z3-mac.zip" dest="${tools.dir}/z3-tmp"/>
-    <mkdir dir="${dist}/tools/z3/osx"/>
-    <move todir="${dist}/tools/z3/osx/z3">
+    <move todir="${tools.dir}/z3">
       <fileset dir="${tools.dir}/z3-tmp"/>
       <cutdirsmapper dirs="1"/> 
     </move>
     <delete dir="${tools.dir}/z3-tmp"/>
-    <chmod file="${dist}/tools/z3/osx/z3/bin/z3" perm="+x"/>
+    <property name="z3.path" location="${tools.dir}/z3/bin/z3"/>
   </target>
 
   <target name="unpack.z3" depends="init.properties,unpack.z3.windows,unpack.z3.unix,unpack.z3.mac"/>
 
+  <target name="setup.cvc4" depends="setup.cvc4.windows, setup.cvc4.unix" />
+
+  <target name="setup.cvc4.windows" depends="init" if="platform.windows">
+    <property name="cvc4.path" location="${tools.dir}/cvc4-windows.exe"/>
+  </target>
+
+  <target name="setup.cvc4.unix" depends="init" if="platform.unix">
+    <chmod file="${tools.dir}/cvc4-unix.bin" perm="+x"/>
+    <property name="cvc4.path" location="${tools.dir}/cvc4-unix.bin"/>
+  </target>
+
   <!-- Test target -->
-  <target name="test" depends="javac.test,unpack.z3">
+  <target name="test" depends="javac.test,unpack.z3, setup.cvc4">
     <!-- Compile and run JUnit tests -->
     <path id="classpath.test">
       <pathelement location="${tools.dir}/junit.jar"/>
@@ -473,6 +483,8 @@
 
     <mkdir dir="target/tests/reports"/>
     <junit fork="no" printsummary="yes" showoutput="yes">
+      <env key="Z3_PATH" value="${z3.path}"/>
+      <env key="CVC4_PATH" value="${cvc4.path}"/> 
       <classpath refid="classpath.test"/>
       <formatter type="plain" usefile="false"/>
       <formatter type="xml" usefile="true"/>

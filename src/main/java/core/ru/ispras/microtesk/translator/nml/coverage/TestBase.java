@@ -62,7 +62,7 @@ public final class TestBase {
 
   private static TestBase instance = new TestBase();
 
-  private static SolverId solverId = SolverId.Z3_TEXT;
+  private static SolverId solverId = SolverId.CVC4_TEXT;
 
   public static TestBase get() {
     return instance;
