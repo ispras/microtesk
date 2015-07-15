@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import java.io.File;
-
 import org.antlr.runtime.Parser;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
@@ -39,13 +37,10 @@ import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 public class ParserEx extends Parser implements ErrorReporter {
   private LogStore log = null;
   private int errorCount = 0;
-
-  private final String sourceName;
   private String tempErrorMessage = "";
 
-  public ParserEx(TokenStream input, RecognizerSharedState state) {
+  public ParserEx(final TokenStream input, final RecognizerSharedState state) {
     super(input, state);
-    sourceName = new File(getSourceName()).getName();
   }
 
   public void assignLog(LogStore log) {
@@ -67,7 +62,7 @@ public class ParserEx extends Parser implements ErrorReporter {
     final LogEntry logEntry = new LogEntry(
       LogEntry.Kind.ERROR,
       SenderKind.PARSER,
-      sourceName,
+      getSourceName(),
       re.line,
       re.charPositionInLine,
       tempErrorMessage
@@ -83,7 +78,7 @@ public class ParserEx extends Parser implements ErrorReporter {
     final LogEntry logEntry = new LogEntry(
       LogEntry.Kind.ERROR,
       SenderKind.SYNTACTIC,
-      sourceName,
+      getSourceName(),
       se.line,
       se.charPositionInLine,
       se.getMessage()
@@ -121,7 +116,7 @@ public class ParserEx extends Parser implements ErrorReporter {
   }
 
   protected final Where where(Token node) {
-    return new Where(sourceName, node.getLine(), node.getCharPositionInLine());
+    return new Where(getSourceName(), node.getLine(), node.getCharPositionInLine());
   }
 
   protected final void checkNotNull(Token t, Object obj) throws SemanticException {
