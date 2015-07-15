@@ -97,14 +97,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final Address newAddress(
-      final CommonTree addressId, final Node widthExpr) throws SemanticException {
+      final CommonTree addressId, final Type type) throws SemanticException {
 
-    checkNotNull(addressId, widthExpr);
+    checkNotNull(addressId, type);
 
-    final Where w = where(addressId);
-    final int addressSize = extractPositiveInt(w, widthExpr, "Address width");
-    final Address address = new Address(addressId.getText(), addressSize);
-
+    final Address address = new Address(addressId.getText(), type);
     ir.addAddress(address);
     return address;
   }

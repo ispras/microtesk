@@ -75,7 +75,7 @@ declaration
 //==================================================================================================
 
 address
-    : MMU_ADDRESS^ ID LEFT_PARENTH! width=expr RIGHT_PARENTH!
+    : MMU_ADDRESS^ ID LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
     ;
     
 //==================================================================================================

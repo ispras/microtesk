@@ -108,7 +108,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     final MmuAddressType address = spec.getAddress(memory.getAddress().getId());
     spec.setStartAddress(address);
-    variables.defineVariableAs(address.getVariable(), memory.getAddressArg().getId());
+    variables.defineGroupAs(address.getStruct(), memory.getAddressArg().getId());
 
     data = new IntegerVariable(memory.getDataArg().getId(), memory.getDataArg().getBitSize());
     variables.defineVariable(data);
@@ -132,11 +132,11 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private void registerAddress(final Address address) {
-    final IntegerVariable addressVariable = 
-        new IntegerVariable(address.getId(), address.getBitSize());
+    final Variable var = new Variable(address.getId(), address.getType());
+    final IntegerVariableGroup addressVar = new IntegerVariableGroup(var);
 
-    variables.defineVariable(addressVariable);
-    spec.registerAddress(new MmuAddressType(addressVariable));
+    variables.defineGroup(addressVar);
+    spec.registerAddress(new MmuAddressType(addressVar));
   }
 
   private void registerDevice(final Buffer buffer) {

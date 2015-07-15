@@ -78,6 +78,12 @@ final class IntegerVariableTracker {
     variableGroups.put(group.getName(), group);
   }
 
+  public void defineGroupAs(final IntegerVariableGroup group, final String name) {
+    checkNotNull(group);
+    checkNotNull(name);
+    variableGroups.put(name, group);
+  }
+
   public void defineVariableAs(final IntegerVariable variable, final String name) {
     checkNotNull(variable);
     checkNotNull(name);

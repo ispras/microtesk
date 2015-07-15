@@ -86,9 +86,11 @@ declaration
 //==================================================================================================
 
 address
-    : ^(MMU_ADDRESS addressId=ID {declare($addressId, MmuSymbolKind.ADDRESS, false);} width=expr[0])
-      {newAddress($addressId, $width.res);}
-    ;
+    : ^(MMU_ADDRESS addressId=ID {
+        declareAndPushSymbolScope($addressId, MmuSymbolKind.ADDRESS);
+      } e=entry)
+      {newAddress($addressId, $e.res);}
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Segment

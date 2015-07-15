@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerVariableGroup;
 
 /**
  * {@link MmuAddressType} describes an address, i.e. a parameter used to access a buffer.
@@ -25,23 +26,27 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
  */
 public final class MmuAddressType {
   /** Address description (the variable contains the name and the bit length). */
-  private final IntegerVariable addrVariable;
+  private final IntegerVariableGroup addrStruct;
 
-  public MmuAddressType(final IntegerVariable address) {
+  public MmuAddressType(final IntegerVariableGroup address) {
     InvariantChecks.checkNotNull(address);
-    this.addrVariable = address;
+    this.addrStruct = address;
   }
 
   public IntegerVariable getVariable() {
-    return addrVariable;
+    return addrStruct.getVariable("value");
   }
 
   public String getName() {
-    return addrVariable.getName();
+    return addrStruct.getName();
   }
 
   public int getWidth() {
-    return addrVariable.getWidth();
+    return getVariable().getWidth();
+  }
+
+  public IntegerVariableGroup getStruct() {
+    return addrStruct;
   }
 
   @Override

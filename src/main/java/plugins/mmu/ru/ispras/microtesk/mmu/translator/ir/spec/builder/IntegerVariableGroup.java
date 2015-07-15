@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
-final class IntegerVariableGroup {
+public final class IntegerVariableGroup {
   private final String name;
   private final Map<String, IntegerVariable> variables;
   private final MmuBuffer device;
