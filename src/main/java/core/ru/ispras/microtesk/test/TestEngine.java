@@ -265,32 +265,38 @@ public final class TestEngine {
 
     final String home = SysUtils.getHomeDir();
 
-    final String z3Path = (home != null ? home : ".") + "/tools/z3/";
     final ru.ispras.fortress.solver.Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
-
-    if (Environment.isUnix()) {
-      z3Solver.setSolverPath(z3Path + "unix/z3/bin/z3");
-    } else if (Environment.isWindows()) {
-      z3Solver.setSolverPath(z3Path + "windows/z3/bin/z3.exe");
-    } else if (Environment.isOSX()) {
-      z3Solver.setSolverPath(z3Path + "osx/z3/bin/z3");
-    } else {
-      throw new UnsupportedOperationException(String.format(
-        "Unsupported platform: %s.", Environment.getOSName()));
+    if (null == z3Solver.getSolverPath()) {
+      // If the Z3_PATH environment variable is not set, we set up default solver path
+      // in hope to find the the tool there.
+      final String z3Path = (home != null ? home : ".") + "/tools/z3/";
+      if (Environment.isUnix()) {
+        z3Solver.setSolverPath(z3Path + "unix/z3/bin/z3");
+      } else if (Environment.isWindows()) {
+        z3Solver.setSolverPath(z3Path + "windows/z3/bin/z3.exe");
+      } else if (Environment.isOSX()) {
+        z3Solver.setSolverPath(z3Path + "osx/z3/bin/z3");
+      } else {
+        throw new UnsupportedOperationException(String.format(
+          "Unsupported platform: %s.", Environment.getOSName()));
+      }
     }
 
-    final String cvc4Path = (home != null ? home : ".") + "/tools/cvc4/";
     final ru.ispras.fortress.solver.Solver cvc4Solver = SolverId.CVC4_TEXT.getSolver();
-
-    if (Environment.isUnix()) {
-      cvc4Solver.setSolverPath(cvc4Path + "unix/cvc4");
-    } else if (Environment.isWindows()) {
-      cvc4Solver.setSolverPath(cvc4Path + "windows/cvc4.exe");
-    } else if (Environment.isOSX()) {
-      cvc4Solver.setSolverPath(cvc4Path + "osx/cvc4");
-    } else {
-      throw new UnsupportedOperationException(String.format(
-        "Unsupported platform: %s.", Environment.getOSName()));
+    if (null == cvc4Solver.getSolverPath()) {
+      // If the CVC4_PATH environment variable is not set, we set up default solver path
+      // in hope to find the the tool there.
+      final String cvc4Path = (home != null ? home : ".") + "/tools/cvc4/";
+      if (Environment.isUnix()) {
+        cvc4Solver.setSolverPath(cvc4Path + "unix/cvc4");
+      } else if (Environment.isWindows()) {
+        cvc4Solver.setSolverPath(cvc4Path + "windows/cvc4.exe");
+      } else if (Environment.isOSX()) {
+        cvc4Solver.setSolverPath(cvc4Path + "osx/cvc4");
+      } else {
+        throw new UnsupportedOperationException(String.format(
+          "Unsupported platform: %s.", Environment.getOSName()));
+      }
     }
   }
 
