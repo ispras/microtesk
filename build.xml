@@ -117,6 +117,8 @@
     <sequential>
       <echo message="templates for @{arch.name} from @{src.path}"/>
       <apply executable="java" failonerror="true">
+        <env key="Z3_PATH" value="${z3.path}"/>
+        <env key="CVC4_PATH" value="${cvc4.path}"/>
         <env key="MICROTESK_HOME" value="${dist}"/>
         <arg value="-ea"/>
         <arg value="-jar"/>
@@ -484,7 +486,7 @@
     <mkdir dir="target/tests/reports"/>
     <junit fork="no" printsummary="yes" showoutput="yes">
       <env key="Z3_PATH" value="${z3.path}"/>
-      <env key="CVC4_PATH" value="${cvc4.path}"/> 
+      <env key="CVC4_PATH" value="${cvc4.path}"/>
       <classpath refid="classpath.test"/>
       <formatter type="plain" usefile="false"/>
       <formatter type="xml" usefile="true"/>
