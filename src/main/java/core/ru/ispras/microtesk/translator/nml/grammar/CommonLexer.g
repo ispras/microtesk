@@ -207,7 +207,16 @@ UNDEFINED     : 'undefined'   { pp(); };
 
 ID : LETTER (LETTER | DIGIT | '_')* {
 if (null != symbols && symbols.isReserved($text)) {
-  setText($text + "__");
+  final String newText = $text + "__";
+  ru.ispras.microtesk.Logger.warning(
+      "\%s \%d:\%d: Reserved keyword '\%s' was replaced with '\%s'.",
+      ru.ispras.microtesk.utils.FileUtils.getShortFileName(getSourceName()),
+      getLine(),
+      getCharPositionInLine(),
+      $text,
+      newText
+      );
+  setText(newText);
 }
 
 pp();
