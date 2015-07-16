@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,7 +24,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * Test for {@link AddressAllocator}.
@@ -31,7 +34,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressAllocatorTestCase {
-  private final AddressAllocator addressAllocator = new AddressAllocator(MmuUnderTest.get().mmu);
+  private final AddressAllocator addressAllocator = new AddressAllocator(
+      MmuUnderTest.get().mmu, new HashMap<MmuAddressType, Collection<RegionSettings>>());
+
   private final Map<String, Set<Long>> allocatedIndices = new HashMap<>();
 
   private void update(final MmuBuffer buffer, final long address) {
@@ -55,8 +60,8 @@ public final class AddressAllocatorTestCase {
     InvariantChecks.checkNotNull(buffer);
 
     for (int i = 0; i < 10; i++) {
-      final long address1 = addressAllocator.allocateIndex(buffer, 0);
-      final long address2 = addressAllocator.allocateTag(buffer, address1);
+      final long address1 = addressAllocator.allocateIndex(buffer, 0, null);
+      final long address2 = addressAllocator.allocateTag(buffer, address1, null);
 
       final long index1 = buffer.getIndex(address1);
       final long index2 = buffer.getIndex(address2);

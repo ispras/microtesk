@@ -31,7 +31,112 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
+
+/**
+ * {@link AddressAllocationTable} implements a region-sensitive allocation table. 
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ */
+final class AddressAllocationTable {
+  private static final int ALLOC_TABLE_SIZE = 64;
+
+  /**
+   * Returns values to be allocated for the given address field.
+   * 
+   * @param lo the lower bound of the field.
+   * @param hi the upper bound of the field.
+   * @param mask the OR-mask to generate correct values.
+   * @return the set of values.
+   */
+  private static Set<Long> getAddressFieldValues(final int lo, final int hi, final long mask) {
+    InvariantChecks.checkGreaterOrEq(hi, lo);
+
+    // TODO: Check that mask has enough number of zero bits.
+
+    final int width = (hi - lo) + 1;
+    final int count = (1 << width) < ALLOC_TABLE_SIZE ? (1 << width) : ALLOC_TABLE_SIZE;
+
+    final Set<Long> values = new LinkedHashSet<>();
+    for (int i = 0; i < count; i++) {
+      final long value = i | mask;
+      values.add(value);
+    }
+
+    return values;
+  }
+
+  /** Joint allocation table for all memory regions. */
+  private final AllocationTable<Long, ?> globalAllocTable;
+  /** Disjoint allocation tables for individual memory regions. */
+  private final Map<String, AllocationTable<Long, ?>> regionAllocTables = new HashMap<>();
+
+  /**
+   * Creates an allocation table for the given address field.
+   * 
+   * @param lo the lower bound of the field.
+   * @param hi the upper bound of the field.
+   * @param partialAddress the value of the previous fields ({@code address[lo-1:0]}).
+   * @param regions the memory regions or {@code null}.
+   */
+  public AddressAllocationTable(
+      final int lo,
+      final int hi,
+      final long partialAddress,
+      final Collection<RegionSettings> regions) {
+
+    final Set<Long> globalValues = new HashSet<>();
+
+    if (regions == null || regions.isEmpty()) {
+      globalValues.addAll(getAddressFieldValues(lo, hi, 0));
+    } else {
+      final int width = (hi - lo) + 1;
+      final long mask = (1L << width) - 1;
+
+      final Set<Long> regionFields = new HashSet<>();
+      for (final RegionSettings region : regions) {
+        final long regionField = (region.getStartAddress() >> lo) & mask;
+        regionFields.add(regionField);
+      }
+
+      // TODO:
+      InvariantChecks.checkTrue(regionFields.size() == 1 || regionFields.size() == regions.size());
+
+      for (final RegionSettings region : regions) {
+        final long regionField = (region.getStartAddress() >> lo) & mask;
+        final Set<Long> regionValues = getAddressFieldValues(lo, hi, regionField);
+
+        globalValues.addAll(regionValues);
+        if (regionFields.size() == regions.size()) {
+          final AllocationTable<Long, ?> regionAllocTable = new AllocationTable<>(regionValues);
+          regionAllocTables.put(region.getName(), regionAllocTable);
+        }
+      }
+    }
+
+    this.globalAllocTable = new AllocationTable<>(globalValues);
+  }
+
+  /**
+   * Allocates an address field value for the given region.
+   * 
+   * @param region the region or {@code null}.
+   * @return an allocated address field.
+   */
+  public long allocate(final RegionSettings region) {
+    if (region != null) {
+      final AllocationTable<Long, ?> allocationTable = regionAllocTables.get(region.getName());
+
+      if (allocationTable != null) {
+        final long address = allocationTable.allocate();
+        globalAllocTable.use(address);
+      }
+    }
+
+    return globalAllocTable.allocate();
+  }
+}
 
 /**
  * {@link SingleAddressTypeAllocator} allocates a part (tag, index, etc.) of an address of a given
@@ -50,33 +155,13 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class SingleAddressTypeAllocator {
-  private static final int ALLOC_TABLE_SIZE = 64;
-
-  /**
-   * Returns a set of values for a field of the given bit width.
-   * 
-   * @param width the bit width.
-   * @return the set of values.
-   */
-  private static Set<Long> getFieldValues(final int width) {
-    final int size = (1 << width) < ALLOC_TABLE_SIZE ? (1 << width) : ALLOC_TABLE_SIZE;
-
-    final Set<Long> values = new LinkedHashSet<>();
-    for (int i = 0; i < size; i++) {
-      final long value = i;
-      values.add(value);
-    }
-
-    return values;
-  }
-
   /**
    * Maps a known part of the address to the allocation table for the next unknown element.
    * 
    * <p>Provided that {@code address[bit-1:0] == value}, {@code allocators.get(bit).get(value)} is
    * the allocation table for {@code address[next(bit):bit]}.</p>
    */
-  private final Map<Integer, Map<Long, AllocationTable<Long, ?>>> allocators = new HashMap<>();
+  private final Map<Integer, Map<Long, AddressAllocationTable>> allocators = new HashMap<>();
 
   /** Maps an address field into the list of the elements. */
   private final Map<IntegerField, List<IntegerRange>> fieldRanges = new HashMap<>();
@@ -84,17 +169,22 @@ final class SingleAddressTypeAllocator {
   /** Masks insignificant address bits (e.g., offset). */
   private final long mask;
 
+  /** Memory regions. */
+  private final Collection<RegionSettings> regions;
+
   /**
    * Constructs an address allocator.
    * 
    * @param addressType the address type.
    * @param expressions the set of all expressions over addresses used in memory buffers.
    * @param mask the mask to reset insignificant address bits (e.g., offset).
+   * @param regions the memory regions or {@code null}.
    */
   public SingleAddressTypeAllocator(
       final MmuAddressType addressType,
       final Collection<MmuExpression> expressions,
-      final long mask) {
+      final long mask,
+      final Collection<RegionSettings> regions) {
     InvariantChecks.checkNotNull(expressions);
 
     final Collection<IntegerRange> expressionRanges = new HashSet<>();
@@ -133,9 +223,11 @@ final class SingleAddressTypeAllocator {
     }
 
     this.mask = mask;
+    this.regions = regions;
   }
 
-  public long allocate(final MmuExpression expression, final long partialAddress) {
+  public long allocate(
+      final MmuExpression expression, final long partialAddress, final RegionSettings region) {
     InvariantChecks.checkNotNull(expression);
 
     final List<IntegerRange> ranges = getRanges(expression);
@@ -147,7 +239,7 @@ final class SingleAddressTypeAllocator {
       final int upper = range.getMax().intValue();
       final int width = (upper - lower) + 1;
 
-      Map<Long, AllocationTable<Long, ?>> fieldAllocator = allocators.get(lower);
+      Map<Long, AddressAllocationTable> fieldAllocator = allocators.get(lower);
       if (fieldAllocator == null) {
         allocators.put(lower, fieldAllocator = new HashMap<>());
       }
@@ -155,13 +247,13 @@ final class SingleAddressTypeAllocator {
       final long maskedAddress = (address & mask);
       final long prevFieldsValue = lower == 0 ? 0 : (maskedAddress & ((1L << (lower - 1)) - 1));
 
-      AllocationTable<Long, ?> allocationTable = fieldAllocator.get(prevFieldsValue);
+      AddressAllocationTable allocationTable = fieldAllocator.get(prevFieldsValue);
       if (allocationTable == null) {
-        final Set<Long> values = getFieldValues(width);
-        fieldAllocator.put(prevFieldsValue, allocationTable = new AllocationTable<>(values));
+        fieldAllocator.put(prevFieldsValue,
+            allocationTable = new AddressAllocationTable(lower, upper, maskedAddress, regions));
       }
 
-      final long fieldValue = allocationTable.allocate();
+      final long fieldValue = allocationTable.allocate(region);
 
       address &= ~(((1L << width) - 1) << lower);
       address |= (fieldValue << lower);
@@ -188,8 +280,10 @@ final class SingleAddressTypeAllocator {
 final class AddressAllocator {
   private final Map<MmuAddressType, SingleAddressTypeAllocator> allocators = new HashMap<>();
 
-  public AddressAllocator(final MmuSubsystem memory) {
+  public AddressAllocator(
+      final MmuSubsystem memory, final Map<MmuAddressType, Collection<RegionSettings>> regions) {
     InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(regions);
 
     final Map<MmuAddressType, Collection<MmuExpression>> expressions = new LinkedHashMap<>();
     final Map<MmuAddressType, Long> mask = new LinkedHashMap<>();
@@ -218,29 +312,35 @@ final class AddressAllocator {
       final MmuAddressType addressType = entry.getKey();
       final Collection<MmuExpression> addressExpressions = entry.getValue();
       final long addressMask = mask.get(addressType);
+      final Collection<RegionSettings> addressRegions = regions.get(addressType);
 
-      final SingleAddressTypeAllocator allocator =
-          new SingleAddressTypeAllocator(addressType, addressExpressions, addressMask);
+      final SingleAddressTypeAllocator allocator = new SingleAddressTypeAllocator(
+          addressType, addressExpressions, addressMask, addressRegions);
 
       allocators.put(addressType, allocator);
     }
   }
 
-  public long allocateTag(final MmuBuffer buffer, final long partialAddress) {
+  public long allocateTag(
+      final MmuBuffer buffer, final long partialAddress, final RegionSettings region) {
     InvariantChecks.checkNotNull(buffer);
-    return allocate(buffer.getAddress(), buffer.getTagExpression(), partialAddress);
+    return allocate(buffer.getAddress(), buffer.getTagExpression(), partialAddress, region);
   }
 
-  public long allocateIndex(final MmuBuffer buffer, final long partialAddress) {
+  public long allocateIndex(
+      final MmuBuffer buffer, final long partialAddress, final RegionSettings region) {
     InvariantChecks.checkNotNull(buffer);
-    return allocate(buffer.getAddress(), buffer.getIndexExpression(), partialAddress);
+    return allocate(buffer.getAddress(), buffer.getIndexExpression(), partialAddress, region);
   }
 
   public long allocate(
-      final MmuAddressType address, final MmuExpression expression, final long partialAddress) {
+      final MmuAddressType address,
+      final MmuExpression expression,
+      final long partialAddress,
+      final RegionSettings region) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(expression);
 
-    return allocators.get(address).allocate(expression, partialAddress);
+    return allocators.get(address).allocate(expression, partialAddress, region);
   }
 }
