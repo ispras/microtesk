@@ -37,14 +37,15 @@ public final class IntegerEquation {
   public BigInteger val;
 
   /**
-   * Constructs an equal/inequality.
+   * Constructs an equality/inequality.
    * 
    * @param lhs the left-hand-side variable.
    * @param rhs the right-hand-side variable.
    * @param equal the equality/inequality flag.
    * @throws IllegalArgumentException if {@code lhs} or {@code rhs} is null.
    */
-  public IntegerEquation(final IntegerVariable lhs, final IntegerVariable rhs, boolean equal) {
+  public IntegerEquation(
+      final IntegerVariable lhs, final IntegerVariable rhs, final boolean equal) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
@@ -55,14 +56,15 @@ public final class IntegerEquation {
   }
 
   /**
-   * Constructs an equal/inequality.
+   * Constructs an equality/inequality.
    * 
    * @param lhs the left-hand-side variable.
    * @param rhs the right-hand-side value.
    * @param equal the equality/inequality flag.
    * @throws IllegalArgumentException if {@code lhs} or {@code rhs} is null.
    */
-  public IntegerEquation(final IntegerVariable lhs, final BigInteger rhs, boolean equal) {
+  public IntegerEquation(
+      final IntegerVariable lhs, final BigInteger rhs, final boolean equal) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
@@ -70,6 +72,31 @@ public final class IntegerEquation {
     this.val = rhs;
     this.equal = equal;
     this.value = true;
+  }
+
+  /**
+   * Checks whether the equation contradicts to this one.
+   * 
+   * @param equation the equation to be matched with this one.
+   * @return {@code true} if the equation definitely contradicts with this one;
+   *         {@code false} if the equation seems to be consistent with this one. 
+   */
+  public boolean contradicts(final IntegerEquation equation) {
+    InvariantChecks.checkNotNull(equation);
+
+    if (!lhs.equals(equation.lhs)) {
+      return false;
+    }
+
+    if (value && equation.value) {
+      return ((val.compareTo(equation.val) == 0) != (equal == equation.equal));
+    }
+
+    if (!value && !equation.value) {
+      return rhs.equals(equation.rhs) && equal != equation.equal;
+    }
+
+    return false;
   }
 
   @Override

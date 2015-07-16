@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.basis.solver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,8 +64,9 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
    */
   public SolverResult<Boolean> solve() {
     final IntegerClause kernel = new IntegerClause(IntegerClause.Type.AND);
-    final IntegerFormula simplifiedFormula = new IntegerFormula();
+    final List<IntegerClause> clauses = new ArrayList<>();
 
+    // Construct the formula kernel (the common AND clause).
     for (final IntegerClause clause : formula.getEquationClauses()) {
       if (clause.size() == 0) {
         if (clause.getType() == IntegerClause.Type.OR) {
@@ -73,29 +75,50 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
       } else if (clause.getType() == IntegerClause.Type.AND || clause.size() == 1) {
         kernel.addEquationClause(clause);
       } else {
-        simplifiedFormula.addEquationClause(clause);
+        clauses.add(clause);
       }
     }
 
     final IntegerClauseSolver kernelSolver = new IntegerClauseSolver(variables, kernel);
     final SolverResult<Boolean> kernelResult = kernelSolver.solve();
 
-    if (simplifiedFormula.size() == 0 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
+    if (clauses.size() == 0 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
       return kernelResult;
     }
 
-    final List<IntegerClause> clauses = simplifiedFormula.getEquationClauses();
+    // Reduce the rest OR clauses (if possible).
+    final List<IntegerClause> simplifiedClauses = new ArrayList<>();
+
+    for (final IntegerClause clause : clauses) {
+      final List<IntegerEquation> equations = new ArrayList<>();
+
+      for (final IntegerEquation equation : clause.getEquations()) {
+        if (!kernel.contradicts(equation)) {
+          equations.add(equation);
+        }
+      }
+
+      if (!equations.isEmpty()) {
+        simplifiedClauses.add(new IntegerClause(IntegerClause.Type.OR, equations));
+      }
+    }
+
+    if (simplifiedClauses.isEmpty()) {
+      return kernelResult;
+    }
 
     // Initialize the product iterator over variants.
     final ProductIterator<IntegerEquation> variantIterator = new ProductIterator<>();
-    for (int i = 0; i < clauses.size(); i++) {
-      variantIterator.registerIterator(new CollectionIterator<>(clauses.get(i).getEquations()));
+
+    for (int i = 0; i < simplifiedClauses.size(); i++) {
+      final List<IntegerEquation> equations = simplifiedClauses.get(i).getEquations();
+      variantIterator.registerIterator(new CollectionIterator<>(equations));
     }
 
     for (variantIterator.init(); variantIterator.hasValue(); variantIterator.next()) {
       final IntegerClause variant = new IntegerClause(kernel);
 
-      for (int i = 0; i < clauses.size(); i++) {
+      for (int i = 0; i < simplifiedClauses.size(); i++) {
         variant.addEquation(variantIterator.value(i));
       }
 

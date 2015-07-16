@@ -45,7 +45,6 @@ public final class IntegerFormula {
    */
   public IntegerFormula(final IntegerFormula rhs) {
     InvariantChecks.checkNotNull(rhs);
-
     this.clauses.addAll(rhs.clauses);
   }
 

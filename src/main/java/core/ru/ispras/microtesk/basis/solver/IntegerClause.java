@@ -16,6 +16,7 @@ package ru.ispras.microtesk.basis.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -29,7 +30,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class IntegerClause {
 
   /**
-   * This enumeration contains equation clause types.
+   * {@link Type} contains equation clause types.
    */
   public static enum Type {
     /** Conjunction. */
@@ -53,6 +54,21 @@ public final class IntegerClause {
     InvariantChecks.checkNotNull(type);
 
     this.type = type;
+  }
+
+  /**
+   * Constructs an equation clause of the given type with the given set of equations.
+   * 
+   * @param type the equation clause type.
+   * @param equations the equations.
+   * @throws IllegalArgumentException if {@code type} or {@code equations} is null.
+   */
+  public IntegerClause(final Type type, final Collection<IntegerEquation> equations) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(equations);
+
+    this.type = type;
+    this.equations.addAll(equations);
   }
 
   /**
@@ -94,7 +110,6 @@ public final class IntegerClause {
    */
   public void addEquation(final IntegerEquation equation) {
     InvariantChecks.checkNotNull(equation);
-
     equations.add(equation);
   }
 
@@ -119,8 +134,20 @@ public final class IntegerClause {
    * @param equal the equality/inequality flag.
    * @throws IllegalArgumentException if {@code var} or {@code val} is null.
    */
-  public void addEquation(final IntegerVariable var, final BigInteger val, final boolean equal) {
+  public void addEquation(
+      final IntegerVariable var, final BigInteger val, final boolean equal) {
     addEquation(new IntegerEquation(var, val, equal));
+  }
+
+  /**
+   * Adds the equations to this clause.
+   * 
+   * @param equations the equations to be added.
+   * @throws IllegalArgumentException if {@code equations} is null.
+   */
+  public void addEquations(final Collection<IntegerEquation> equations) {
+    InvariantChecks.checkNotNull(equations);
+    equations.addAll(equations);
   }
 
   /**
@@ -131,7 +158,6 @@ public final class IntegerClause {
    */
   public void addEquationClause(final IntegerClause clause) {
     InvariantChecks.checkNotNull(clause);
-
     equations.addAll(clause.getEquations());
   }
 
@@ -144,6 +170,32 @@ public final class IntegerClause {
     return equations;
   }
 
+  /**
+   * Checks whether the equation contradicts to the clause.
+   * 
+   * @param equation the equation to be matched with the clause .
+   * @return {@code true} if the equation definitely contradicts with this clause;
+   *         {@code false} if the equation seems to be consistent with this clause. 
+   */
+  public boolean contradicts(final IntegerEquation equation) {
+    InvariantChecks.checkNotNull(equation);
+
+    for (final IntegerEquation clauseEquation : equations) {
+      if (clauseEquation.contradicts(equation)) {
+        if (type == Type.AND) {
+          return true;
+        }
+      } else {
+        if (type == Type.OR) {
+          return false;
+        }
+      }
+    }
+
+    return type == Type.AND ? false : true;
+  }
+
+  
   @Override
   public boolean equals(final Object o) {
     if (o == this) {
