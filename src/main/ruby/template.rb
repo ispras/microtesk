@@ -653,6 +653,22 @@ class Template
   end
 
   # -------------------------------------------------------------------------- #
+  # Memory Objects                                                             #
+  # -------------------------------------------------------------------------- #
+
+  def memory_object(attrs)
+    # Compulsory attributes
+    pa = get_attribute attrs, :pa
+    va = get_attribute attrs, :va
+    size = get_attribute attrs, :size
+
+    # Optional attribute
+    data = attrs[:data]
+
+    @template.newMemoryObject pa, va, size, data
+  end
+
+  # -------------------------------------------------------------------------- #
   # Generation (Execution and Printing)                                        #
   # -------------------------------------------------------------------------- #
 

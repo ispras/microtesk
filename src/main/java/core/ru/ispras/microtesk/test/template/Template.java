@@ -774,4 +774,19 @@ public final class Template {
 
     isBuildingEpilogue = false;
   }
+
+  public MemoryObject newMemoryObject(
+      final BigInteger va,
+      final BigInteger pa,
+      final int size,
+      final BigInteger data) {
+    final MemoryObject memoryObject = new MemoryObject(va, pa, size);
+
+    if (null != data) {
+      memoryObject.setData(data);
+    }
+
+    Logger.debug(memoryObject.toString());
+    return memoryObject;
+  }
 }
