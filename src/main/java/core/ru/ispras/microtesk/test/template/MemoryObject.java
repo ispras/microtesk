@@ -30,7 +30,6 @@ public final class MemoryObject {
       final BigInteger pa,
       final int size) {
     InvariantChecks.checkNotNull(va);
-    InvariantChecks.checkNotNull(pa);
     InvariantChecks.checkGreaterThanZero(size);
 
     this.name = name;

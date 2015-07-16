@@ -776,6 +776,6 @@ public final class Template {
   }
 
   public MemoryObjectBuilder newMemoryObjectBuilder() {
-    return new MemoryObjectBuilder();
+    return new MemoryObjectBuilder(dataManager.getMemoryMap());
   }
 }

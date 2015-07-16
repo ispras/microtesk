@@ -19,13 +19,17 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 
 public final class MemoryObjectBuilder {
+  private final MemoryMap memoryMap;
+
   private String name = null;
   private BigInteger va = null;
   private BigInteger pa = null;
   private int size = 0;
   private BigInteger data = null;
 
-  protected MemoryObjectBuilder() {
+  protected MemoryObjectBuilder(final MemoryMap memoryMap) {
+    InvariantChecks.checkNotNull(memoryMap);
+    this.memoryMap = memoryMap;
   }
 
   public void setName(final String name) {
@@ -33,29 +37,37 @@ public final class MemoryObjectBuilder {
     this.name = name;
   }
 
-  public void setVA(final BigInteger address) {
+  public void setVa(final BigInteger address) {
     InvariantChecks.checkNotNull(address);
     this.va = address;
   }
 
-  public void setVA(final BigInteger rangeFrom, final BigInteger rangeTo) {
+  public void setVa(final BigInteger addressFrom, final BigInteger addressTo) {
+    InvariantChecks.checkNotNull(addressFrom);
+    InvariantChecks.checkNotNull(addressTo);
+
     // TODO
   }
 
-  public void setVA(final String labelName) {
-    // TODO
+  public void setVa(final String labelName) {
+    InvariantChecks.checkNotNull(labelName);
+    this.va = memoryMap.resolve(labelName);
   }
 
-  public void setPA(final BigInteger address) {
+  public void setPa(final BigInteger address) {
     InvariantChecks.checkNotNull(address);
     this.pa = address;
   }
 
-  public void setPA(final BigInteger rangeFrom, final BigInteger rangeTo) {
+  public void setPa(final BigInteger addressFrom, final BigInteger addressTo) {
+    InvariantChecks.checkNotNull(addressFrom);
+    InvariantChecks.checkNotNull(addressTo);
+
     // TODO
   }
 
-  public void setPA(final String regionName) {
+  public void setPa(final String regionName) {
+    InvariantChecks.checkNotNull(regionName);
     // TODO
   }
 
@@ -73,8 +85,7 @@ public final class MemoryObjectBuilder {
     checkInitialized("va", va != null);
     checkInitialized("size", size > 0);
 
-    final MemoryObject result =
-        new MemoryObject(name, va, pa, size);
+    final MemoryObject result = new MemoryObject(name, va, pa, size);
 
     if (null != data) {
       result.setData(data);

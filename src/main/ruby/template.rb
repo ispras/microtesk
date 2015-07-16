@@ -663,10 +663,31 @@ class Template
     builder.setSize size
 
     va = get_attribute attrs, :va
-    builder.setVA va
+    is_va_label = false
 
-    pa = get_attribute attrs, :pa
-    builder.setPA pa
+    if va.is_a?(Integer)
+      builder.setVa va
+    elsif va.is_a?(Range)
+      builder.setVa va.min, va.max
+    elsif va.is_a?(String) or va.is_a?(Symbol) 
+      builder.setVa va.to_s
+      is_va_label = true
+    else
+      raise MTRubyError, "The 'va' attribute has unsupported type #{va.class}."
+    end
+
+    if !is_va_label
+      pa = get_attribute attrs, :pa
+      if pa.is_a?(Integer)
+        builder.setPa va
+      elsif pa.is_a?(Range)
+        builder.setPa pa.min, pa.max
+      elsif pa.is_a?(String) or pa.is_a?(Symbol) 
+        builder.setPa pa.to_s
+      else
+        raise MTRubyError, "The 'pa' attribute has unsupported type #{pa.class}."
+      end
+    end
 
     if attrs.has_key?(:name) 
       builder.setName attrs[:name]
