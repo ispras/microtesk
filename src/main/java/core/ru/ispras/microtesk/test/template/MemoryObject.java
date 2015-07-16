@@ -18,12 +18,14 @@ import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class MemoryObject {
+  private final String name;
   private final BigInteger va;
   private final BigInteger pa;
   private final int size;
   private BigInteger data;
 
   protected MemoryObject(
+      final String name,
       final BigInteger va,
       final BigInteger pa,
       final int size) {
@@ -31,10 +33,15 @@ public final class MemoryObject {
     InvariantChecks.checkNotNull(pa);
     InvariantChecks.checkGreaterThanZero(size);
 
+    this.name = name;
     this.va = va;
     this.pa = pa;
     this.size = size;
     this.data = null;
+  }
+
+  public String getName() {
+    return name;
   }
 
   public BigInteger getVA() {
@@ -60,7 +67,13 @@ public final class MemoryObject {
 
   @Override
   public String toString() {
-    return String.format("MemoryObject [va=0x%x, pa=0x%x, size=%d, data=%s]",
-        va, pa, size, data != null ? String.format("0x%x", data) : "null");
+    return String.format(
+        "MemoryObject %s[va=0x%x, pa=0x%x, size=%d, data=%s]",
+        name != null ? name : "",
+        va,
+        pa,
+        size,
+        data != null ? String.format("0x%x", data) : "null"
+        );
   }
 }

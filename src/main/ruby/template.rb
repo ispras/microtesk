@@ -657,15 +657,26 @@ class Template
   # -------------------------------------------------------------------------- #
 
   def memory_object(attrs)
-    # Compulsory attributes
-    pa = get_attribute attrs, :pa
-    va = get_attribute attrs, :va
+    builder = @template.newMemoryObjectBuilder
+
     size = get_attribute attrs, :size
+    builder.setSize size
 
-    # Optional attribute
-    data = attrs[:data]
+    va = get_attribute attrs, :va
+    builder.setVA va
 
-    @template.newMemoryObject pa, va, size, data
+    pa = get_attribute attrs, :pa
+    builder.setPA pa
+
+    if attrs.has_key?(:name) 
+      builder.setName attrs[:name]
+    end
+
+    if attrs.has_key?(:data) 
+      builder.setData attrs[:data]
+    end
+
+    builder.build
   end
 
   # -------------------------------------------------------------------------- #
