@@ -50,7 +50,7 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class SingleAddressTypeAllocator {
-  private static final int ALLOC_TABLE_SIZE = 16;
+  private static final int ALLOC_TABLE_SIZE = 64;
 
   /**
    * Returns a set of values for a field of the given bit width.
@@ -216,8 +216,11 @@ final class AddressAllocator {
 
     for (final Map.Entry<MmuAddressType, Collection<MmuExpression>> entry : expressions.entrySet()) {
       final MmuAddressType addressType = entry.getKey();
+      final Collection<MmuExpression> addressExpressions = entry.getValue();
+      final long addressMask = mask.get(addressType);
+
       final SingleAddressTypeAllocator allocator =
-          new SingleAddressTypeAllocator(addressType, entry.getValue(), mask.get(addressType));
+          new SingleAddressTypeAllocator(addressType, addressExpressions, addressMask);
 
       allocators.put(addressType, allocator);
     }

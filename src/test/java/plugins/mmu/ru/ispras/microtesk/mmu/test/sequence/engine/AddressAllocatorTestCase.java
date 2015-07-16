@@ -14,8 +14,15 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
@@ -25,20 +32,37 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
  */
 public final class AddressAllocatorTestCase {
   private final AddressAllocator addressAllocator = new AddressAllocator(MmuUnderTest.get().mmu);
+  private final Map<String, Set<Long>> allocatedIndices = new HashMap<>();
+
+  private void update(final MmuBuffer buffer, final long address) {
+    final long index = buffer.getIndex(address);
+
+    Set<Long> indices = allocatedIndices.get(buffer.getName());
+    if (indices == null) {
+      allocatedIndices.put(buffer.getName(), indices = new HashSet<>());
+    }
+
+    Assert.assertFalse(indices.contains(index));
+    indices.add(index);
+  }
+
+  private void update(final long address) {
+    update(MmuUnderTest.get().l1, address);
+    update(MmuUnderTest.get().l2, address);
+  }
 
   private void runTest(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+
     for (int i = 0; i < 10; i++) {
       final long address1 = addressAllocator.allocateIndex(buffer, 0);
       final long address2 = addressAllocator.allocateTag(buffer, address1);
 
-      System.out.format("%s.address1=%016x%n",
-          buffer.getName(), address1);
-      System.out.format("%s.tag.idx1=%x.%x%n",
-          buffer.getName(), buffer.getTag(address1), buffer.getIndex(address1));
-      System.out.format("%s.address2=%016x%n",
-          buffer.getName(), address2);
-      System.out.format("%s.tag.idx2=%x.%x%n",
-          buffer.getName(), buffer.getTag(address2), buffer.getIndex(address2));
+      final long index1 = buffer.getIndex(address1);
+      final long index2 = buffer.getIndex(address2);
+      Assert.assertEquals(index1, index2);
+
+      update(address2);
     }
   }
 

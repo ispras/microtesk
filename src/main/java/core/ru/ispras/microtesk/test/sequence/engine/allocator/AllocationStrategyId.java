@@ -35,7 +35,6 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override 
     public <T> T next(final Set<T> free, final Set<T> used, final Map<String, String> attributes) {
       InvariantChecks.checkNotEmpty(free);
-
       return Randomizer.get().choose(free);
     }
   },
@@ -45,7 +44,6 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override 
     public <T> T next(final Set<T> free, final Set<T> used, final Map<String, String> attributes) {
       InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty());
-
       return !free.isEmpty() ? Randomizer.get().choose(free) : Randomizer.get().choose(used);
     }
   },
