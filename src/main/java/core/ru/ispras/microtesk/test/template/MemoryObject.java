@@ -44,11 +44,11 @@ public final class MemoryObject {
     return name;
   }
 
-  public BigInteger getVA() {
+  public BigInteger getVa() {
     return va;
   }
 
-  public BigInteger getPA() {
+  public BigInteger getPa() {
     return pa;
   }
 
