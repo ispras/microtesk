@@ -86,6 +86,8 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuUnderTest {
+  public static final boolean REDUCE = true;
+
   public static final int VA_BITS = 64;
   public static final int PA_BITS = 36;
   public static final int JTLB_SIZE = 64;
@@ -485,14 +487,16 @@ public final class MmuUnderTest {
     mmu.setStartAction(root);
 
     // Disable some of the transitions to reduce testing time.
-    ifWrite.setEnabled(false);
-    ifUnmapped.setEnabled(false);
-    ifVpn1.setEnabled(false);
-    ifInvalid.setEnabled(false);
-    ifDirty.setEnabled(false);
-    ifLocal.setEnabled(false);
-    ifHiMemory.setEnabled(false);
-    ifL2Used.setEnabled(false);
+    if (REDUCE) {
+      ifWrite.setEnabled(false);
+      ifUnmapped.setEnabled(false);
+      ifVpn1.setEnabled(false);
+      ifInvalid.setEnabled(false);
+      ifDirty.setEnabled(false);
+      ifLocal.setEnabled(false);
+      ifHiMemory.setEnabled(false);
+      ifL2Used.setEnabled(false);
+    }
   }
 
   private MmuUnderTest() {}

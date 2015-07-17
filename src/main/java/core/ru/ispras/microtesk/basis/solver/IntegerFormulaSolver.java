@@ -86,21 +86,23 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
       return kernelResult;
     }
 
-    // Reduce the rest OR clauses (if possible).
+    // Reduce the remaining OR clauses (if possible).
     final List<IntegerClause> simplifiedClauses = new ArrayList<>();
 
     for (final IntegerClause clause : clauses) {
       final List<IntegerEquation> equations = new ArrayList<>();
 
       for (final IntegerEquation equation : clause.getEquations()) {
-        if (!kernel.contradicts(equation)) {
+        if (!kernel.contradictsTo(equation)) {
           equations.add(equation);
         }
       }
 
-      if (!equations.isEmpty()) {
-        simplifiedClauses.add(new IntegerClause(IntegerClause.Type.OR, equations));
+      if (equations.isEmpty()) {
+        return new SolverResult<>("OR clause reduced to nothing");
       }
+
+      simplifiedClauses.add(new IntegerClause(IntegerClause.Type.OR, equations));
     }
 
     if (simplifiedClauses.isEmpty()) {

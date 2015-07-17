@@ -177,11 +177,11 @@ public final class IntegerClause {
    * @return {@code true} if the equation definitely contradicts with this clause;
    *         {@code false} if the equation seems to be consistent with this clause. 
    */
-  public boolean contradicts(final IntegerEquation equation) {
+  public boolean contradictsTo(final IntegerEquation equation) {
     InvariantChecks.checkNotNull(equation);
 
     for (final IntegerEquation clauseEquation : equations) {
-      if (clauseEquation.contradicts(equation)) {
+      if (clauseEquation.contradictsTo(equation)) {
         if (type == Type.AND) {
           return true;
         }

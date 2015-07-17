@@ -81,19 +81,28 @@ public final class IntegerEquation {
    * @return {@code true} if the equation definitely contradicts with this one;
    *         {@code false} if the equation seems to be consistent with this one. 
    */
-  public boolean contradicts(final IntegerEquation equation) {
+  public boolean contradictsTo(final IntegerEquation equation) {
     InvariantChecks.checkNotNull(equation);
 
-    if (!lhs.equals(equation.lhs)) {
+    if (!lhs.equals(equation.lhs) && !lhs.equals(equation.rhs)) {
       return false;
     }
 
     if (value && equation.value) {
-      return ((val.compareTo(equation.val) == 0) != (equal == equation.equal));
+      if ((val.compareTo(equation.val) == 0) && (equal != equation.equal)) {
+        return true;
+      }
+      if ((val.compareTo(equation.val) != 0) && equal && equation.equal) {
+        return true;
+      }
     }
 
     if (!value && !equation.value) {
-      return rhs.equals(equation.rhs) && equal != equation.equal;
+      final IntegerVariable equationRhs = lhs.equals(equation.lhs) ? equation.rhs : equation.lhs;
+
+      if (rhs.equals(equationRhs) && equal != equation.equal) {
+        return true;
+      }
     }
 
     return false;
