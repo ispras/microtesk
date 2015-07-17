@@ -59,6 +59,9 @@ class MemoryObjectTemplate < MiniMipsBaseTemplate
 
     mo5 = memory_object(
       :va => 0x0002000, :pa => "data", :size => 8)
+
+    # Place holder
+    nop
   end
 
 end
