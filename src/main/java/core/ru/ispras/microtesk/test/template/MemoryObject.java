@@ -16,31 +16,45 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
 
 public final class MemoryObject {
   private final String name;
+  private final int size;
+  private final MemoryAccessMode mode;
   private final BigInteger va;
   private final BigInteger pa;
-  private final int size;
   private BigInteger data;
 
   protected MemoryObject(
       final String name,
+      final int size,
+      final MemoryAccessMode mode,
       final BigInteger va,
-      final BigInteger pa,
-      final int size) {
-    InvariantChecks.checkNotNull(va);
+      final BigInteger pa) {
     InvariantChecks.checkGreaterThanZero(size);
+    InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkNotNull(va);
 
     this.name = name;
+    this.size = size;
+    this.mode = mode;
     this.va = va;
     this.pa = pa;
-    this.size = size;
     this.data = null;
   }
 
   public String getName() {
     return name;
+  }
+
+  // Data size in bytes
+  public int getSize() {
+    return size;
+  }
+
+  public MemoryAccessMode getMode() {
+    return mode;
   }
 
   public BigInteger getVa() {
@@ -49,11 +63,6 @@ public final class MemoryObject {
 
   public BigInteger getPa() {
     return pa;
-  }
-
-  // Data size in Bytes
-  public int getSize() {
-    return size;
   }
 
   public BigInteger getData() {
@@ -67,11 +76,12 @@ public final class MemoryObject {
   @Override
   public String toString() {
     return String.format(
-        "MemoryObject %s[va=%s, pa=%s, size=%d, data=%s]",
+        "MemoryObject %s[size=%d, mode=%s, va=%s, pa=%s, data=%s]",
         name != null ? name : "",
+        size,
+        mode,
         toHexString(va),
         toHexString(pa),
-        size,
         toHexString(data)
         );
   }

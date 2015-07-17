@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.settings.RegionSettings;
@@ -26,9 +27,10 @@ import ru.ispras.microtesk.settings.RegionSettings;
 public final class MemoryObjectBuilder {
   private final MemoryMap memoryMap;
   private final GeneratorSettings settings;
-
   private final int size;
+
   private String name;
+  private MemoryAccessMode mode;
 
   private BigInteger va = null;
   private boolean isVaLabel = false;
@@ -48,9 +50,12 @@ public final class MemoryObjectBuilder {
           "Size (%d) must be a power of two!", size));
     }
 
-    this.size = size;
     this.memoryMap = memoryMap;
     this.settings = settings;
+    this.size = size;
+
+    this.name = null;
+    this.mode = new MemoryAccessMode(true, false, false);
   }
 
   private boolean isPowOf2(final int value) {
@@ -60,6 +65,11 @@ public final class MemoryObjectBuilder {
   public void setName(final String name) {
     InvariantChecks.checkNotNull(name);
     this.name = name;
+  }
+
+  public void setMode(final String rwx) {
+    InvariantChecks.checkNotNull(rwx);
+    this.mode = new MemoryAccessMode(rwx);
   }
 
   public void setVa(final BigInteger address) {
@@ -131,7 +141,8 @@ public final class MemoryObjectBuilder {
     checkInitialized("va", va != null);
     checkInitialized("pa", isVaLabel || (!isVaLabel && pa != null));
 
-    final MemoryObject result = new MemoryObject(name, va, pa, size);
+    final MemoryObject result =
+        new MemoryObject(name, size, mode, va, pa);
 
     if (null != data) {
       result.setData(data);

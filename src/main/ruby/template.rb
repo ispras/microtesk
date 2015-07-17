@@ -691,6 +691,10 @@ class Template
       builder.setName attrs[:name].to_s
     end
 
+    if attrs.has_key?(:mode) 
+      builder.setMode attrs[:mode].to_s
+    end
+
     if attrs.has_key?(:data) 
       builder.setData attrs[:data]
     end
