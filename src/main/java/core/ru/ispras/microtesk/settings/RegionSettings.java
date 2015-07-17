@@ -52,8 +52,8 @@ public final class RegionSettings extends AbstractSettings {
       final String mode = rwx.toLowerCase();
 
       this.r = mode.charAt(0) == 'r';
-      this.w = mode.charAt(0) == 'w';
-      this.x = mode.charAt(0) == 'x';
+      this.w = mode.charAt(1) == 'w';
+      this.x = mode.charAt(2) == 'x';
     }
 
     @Override
