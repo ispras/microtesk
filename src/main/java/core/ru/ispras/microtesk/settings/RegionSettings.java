@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 /**
@@ -34,40 +35,12 @@ public final class RegionSettings extends AbstractSettings {
     DATA
   }
 
-  public static class Mode {
-    public final boolean r;
-    public final boolean w;
-    public final boolean x;
-
-    public Mode(final boolean r, final boolean w, final boolean x) {
-      this.r = r;
-      this.w = w;
-      this.x = x;
-    }
-
-    public Mode(final String rwx) {
-      InvariantChecks.checkNotNull(rwx);
-      InvariantChecks.checkTrue(rwx.length() == 3);
-
-      final String mode = rwx.toLowerCase();
-
-      this.r = mode.charAt(0) == 'r';
-      this.w = mode.charAt(1) == 'w';
-      this.x = mode.charAt(2) == 'x';
-    }
-
-    @Override
-    public String toString() {
-      return String.format("%s%s%s", (r ? "r" : "-"), (w ? "w" : "-"), (x ? "x" : "-"));
-    }
-  }
-
   private final String name;
   private final Type type;
   private final long startAddress;
   private final long endAddress;
-  private final Mode mode;
-  private final Mode others;
+  private final MemoryAccessMode mode;
+  private final MemoryAccessMode others;
 
   private final Collection<AccessSettings> accesses = new ArrayList<>();
 
@@ -76,8 +49,8 @@ public final class RegionSettings extends AbstractSettings {
       final Type type,
       final long startAddress,
       final long endAddress,
-      final Mode mode,
-      final Mode others) {
+      final MemoryAccessMode mode,
+      final MemoryAccessMode others) {
     super(TAG);
 
     InvariantChecks.checkNotNull(name);

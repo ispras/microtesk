@@ -17,6 +17,7 @@ package ru.ispras.microtesk.settings;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
 
 /**
  * {@link RegionSettingsParser} implements a parser of {@link RegionSettings}.
@@ -47,8 +48,8 @@ public final class RegionSettingsParser extends AbstractSettingsParser<RegionSet
 
     InvariantChecks.checkTrue(mode != null && mode.length() == 6);
 
-    final RegionSettings.Mode rwx1 = new RegionSettings.Mode(mode.substring(0, 3));
-    final RegionSettings.Mode rwx2 = new RegionSettings.Mode(mode.substring(3, 6));
+    final MemoryAccessMode rwx1 = new MemoryAccessMode(mode.substring(0, 3));
+    final MemoryAccessMode rwx2 = new MemoryAccessMode(mode.substring(3, 6));
 
     return new RegionSettings(name, type, startAddress, endAddress, rwx1, rwx2);
   }
