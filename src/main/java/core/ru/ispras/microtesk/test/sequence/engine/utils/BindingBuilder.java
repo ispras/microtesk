@@ -140,7 +140,6 @@ public final class BindingBuilder {
             Node bindingValue = null;
 
             try {
-              if (arg.getMode() != ArgumentMode.NA) {
                 final IAddressingMode mode = makeMode(engineContext, arg);
                 final Location location = mode.access();
 
@@ -150,10 +149,7 @@ public final class BindingBuilder {
                 } else {
                   bindingValue = new NodeVariable(argName, dataType);
                 }
-              } else {
-                bindingValue = new NodeVariable(argName, dataType);
-              }
-            } catch (ConfigurationException e) {
+            } catch (final ConfigurationException e) {
               Logger.error("Failed to read data from %s. Reason: %s",
                   arg.getTypeName(), e.getMessage());
 
