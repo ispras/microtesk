@@ -100,11 +100,14 @@ public final class MemoryObjectBuilder {
     InvariantChecks.checkNotNull(regionName);
 
     final MemorySettings memory = settings.getMemory();
-    final RegionSettings region = memory.getRegion(regionName);
+    if (null == memory) {
+      throw new IllegalStateException("Memory settings are not defined.");
+    }
 
+    final RegionSettings region = memory.getRegion(regionName);
     if (null == region) {
       throw new IllegalArgumentException(String.format(
-          "Memory region '%s' is undefined.", regionName));
+          "Settings for memory region '%s' are not defined.", regionName));
     }
 
     final BigInteger startAddress = BigInteger.valueOf(region.getStartAddress());
