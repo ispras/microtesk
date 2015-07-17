@@ -60,6 +60,8 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
   /**
    * Checks whether the equation formula is satisfiable.
    * 
+   * TODO: This is a naive preliminary implementation that needs to be improved.
+   * 
    * @return {@code true} if the equation formula is satisfiable; {@code false} otherwise.
    */
   public SolverResult<Boolean> solve() {
@@ -86,20 +88,27 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
       return kernelResult;
     }
 
-    // Reduce the remaining OR clauses (if possible).
+    // Simplify  the remaining OR clauses (if possible).
     final List<IntegerClause> simplifiedClauses = new ArrayList<>();
 
     for (final IntegerClause clause : clauses) {
       final List<IntegerEquation> equations = new ArrayList<>();
 
+      boolean isFalse = true;
       for (final IntegerEquation equation : clause.getEquations()) {
-        if (!kernel.contradictsTo(equation)) {
-          equations.add(equation);
+        final boolean collision = kernel.contradictsTo(equation);
+        final boolean reduction = kernel.strongerThan(equation);
+
+        if (!collision) {
+          if (!reduction) {
+            equations.add(equation);
+          }
+          isFalse = false;
         }
       }
 
-      if (equations.isEmpty()) {
-        return new SolverResult<>("OR clause reduced to nothing");
+      if (isFalse) {
+        return new SolverResult<>("OR clause contradicts to the kernel");
       }
 
       simplifiedClauses.add(new IntegerClause(IntegerClause.Type.OR, equations));
@@ -108,6 +117,25 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
     if (simplifiedClauses.isEmpty()) {
       return kernelResult;
     }
+
+    // Get rid of the redundant OR clauses.
+    final List<IntegerClause> redundantClauses = new ArrayList<>();
+
+    for (int i = 0; i < simplifiedClauses.size() - 1; i++) {
+      final IntegerClause clause1 = simplifiedClauses.get(i);
+
+      for (int j = i + 1; j < simplifiedClauses.size(); j++) {
+        final IntegerClause clause2 = simplifiedClauses.get(j);
+
+        if (clause1.strongerThan(clause2)) {
+          redundantClauses.add(clause2);
+        } else if (clause2.strongerThan(clause1)) {
+          redundantClauses.add(clause1);
+        }
+      }
+    }
+
+    simplifiedClauses.removeAll(redundantClauses);
 
     // Initialize the product iterator over variants.
     final ProductIterator<IntegerEquation> variantIterator = new ProductIterator<>();

@@ -17,7 +17,9 @@ package ru.ispras.microtesk.basis.solver;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -171,11 +173,11 @@ public final class IntegerClause {
   }
 
   /**
-   * Checks whether the equation contradicts to the clause.
+   * Checks whether this clause contradicts to the given equation.
    * 
-   * @param equation the equation to be matched with the clause .
-   * @return {@code true} if the equation definitely contradicts with this clause;
-   *         {@code false} if the equation seems to be consistent with this clause. 
+   * @param equation the equation to be matched with this one.
+   * @return {@code true} if this clause definitely contradicts to the given equation;
+   *         {@code false} if this clause seems to be consistent to the given equation. 
    */
   public boolean contradictsTo(final IntegerEquation equation) {
     InvariantChecks.checkNotNull(equation);
@@ -195,7 +197,50 @@ public final class IntegerClause {
     return type == Type.AND ? false : true;
   }
 
-  
+  /**
+   * Checks whether this clause ({@code A}) is stronger than the given equation ({@code B}), i.e.
+   * the property {@code A => B} holds.
+   * 
+   * @param equation the equation to be matched with this one.
+   * @return {@code true} if this clause is definitely stronger than the given equation;
+   *         {@code false} if this clause does not seem to be stronger than the given equation. 
+   */
+  public boolean strongerThan(final IntegerEquation equation) {
+    InvariantChecks.checkNotNull(equation);
+
+    for (final IntegerEquation clauseEquation : equations) {
+      if (clauseEquation.strongerThan(equation)) {
+        if (type == Type.AND) {
+          return true;
+        }
+      } else {
+        if (type == Type.OR) {
+          return false;
+        }
+      }
+    }
+
+    return type == Type.AND ? false : true;
+  }
+
+  /**
+   * Checks whether this clause ({@code A}) is stronger than the given one ({@code B}), i.e.
+   * the property {@code A => B} holds.
+   * 
+   * @param clause the clause to be matched with this one.
+   * @return {@code true} if this clause is definitely stronger than the given one;
+   *         {@code false} if this clause does not seem to be stronger than the given one. 
+   */
+  public boolean strongerThan(final IntegerClause clause) {
+    InvariantChecks.checkNotNull(clause);
+    InvariantChecks.checkTrue(type == clause.type);
+
+    final Set<IntegerEquation> lhs = new HashSet<>(type == Type.AND ? equations : clause.equations);
+    final List<IntegerEquation> rhs = (type == Type.AND ? clause.equations : equations);
+
+    return lhs.containsAll(rhs);
+  }
+
   @Override
   public boolean equals(final Object o) {
     if (o == this) {

@@ -187,7 +187,7 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
     InvariantChecks.checkNotNull(equation);
 
     if (equation.value) {
-      // Constraint X == CONST or X != CONST.
+      // Constraint X == C or X != C.
       final IntegerDomain lhsDomain = domains.get(equation.lhs);
 
       if (lhsDomain == null) {
@@ -195,10 +195,10 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
       }
 
       if (equation.equal) {
-        // Equality (var == val): restricts the domain to the single value.
+        // Equality (X == C): restricts the domain to the single value.
         lhsDomain.intersect(new IntegerRange(equation.val));
       } else {
-        // Inequality (var != val): exclude the value from the domain.
+        // Inequality (X != C): exclude the value from the domain.
         lhsDomain.exclude(new IntegerRange(equation.val));
       }
     } else {

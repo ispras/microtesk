@@ -75,11 +75,11 @@ public final class IntegerEquation {
   }
 
   /**
-   * Checks whether the equation contradicts to this one.
+   * Checks whether this equation contradicts to the given one.
    * 
    * @param equation the equation to be matched with this one.
-   * @return {@code true} if the equation definitely contradicts with this one;
-   *         {@code false} if the equation seems to be consistent with this one. 
+   * @return {@code true} if this equation definitely contradicts to the given one;
+   *         {@code false} if this equation seems to be consistent to the given one. 
    */
   public boolean contradictsTo(final IntegerEquation equation) {
     InvariantChecks.checkNotNull(equation);
@@ -108,6 +108,44 @@ public final class IntegerEquation {
     return false;
   }
 
+  /**
+   * Checks whether this equation ({@code A}) is stronger than the given one ({@code B}), i.e.
+   * the property {@code A => B} holds.
+   * 
+   * @param equation the equation to be matched with this one.
+   * @return {@code true} if this equation is definitely stronger than the given one;
+   *         {@code false} if this equation does not seem to be stronger than the given one. 
+   */
+  public boolean strongerThan(final IntegerEquation equation) {
+    InvariantChecks.checkNotNull(equation);
+
+    if (!lhs.equals(equation.lhs) && !lhs.equals(equation.rhs)) {
+      return false;
+    }
+
+    if (value && equation.value) {
+      // (X == C) => (X == C) and (X != C) => (X != C).
+      if ((val.compareTo(equation.val) == 0) && (equal == equation.equal)) {
+        return true;
+      }
+      // (X == C1) => (X != C2), where C1 != C2.
+      if ((val.compareTo(equation.val) != 0) && equal && !equation.equal) {
+        return true;
+      }
+    }
+
+    if (!value && !equation.value) {
+      final IntegerVariable equationRhs = lhs.equals(equation.lhs) ? equation.rhs : equation.lhs;
+
+      // (X == Y) => (X == Y) and (X != Y) => (X != Y).
+      if (rhs.equals(equationRhs) && (equal == equation.equal)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   @Override
   public boolean equals(final Object o) {
     if (o == this) {
@@ -121,13 +159,13 @@ public final class IntegerEquation {
     final IntegerEquation r = (IntegerEquation) o;
 
     return equal == r.equal && value == r.value && lhs.equals(r.lhs) &&
-        (value && rhs.equals(r.rhs) || !value && val.equals(r.val));
+        (!value && rhs.equals(r.rhs) || value && val.equals(r.val));
   }
 
   @Override
   public int hashCode() {
-    return ((31 * lhs.hashCode() + (value ? val.hashCode() : rhs.hashCode()) << 1)) +
-        (equal ? 0 : 1);
+    return (31 * lhs.hashCode() + (value ? val.hashCode() : rhs.hashCode()) << 1) ^
+        (equal ? 0 : -1);
   }
 
   @Override
