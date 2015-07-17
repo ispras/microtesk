@@ -688,7 +688,7 @@ class Template
     end
 
     if attrs.has_key?(:name) 
-      builder.setName attrs[:name]
+      builder.setName attrs[:name].to_s
     end
 
     if attrs.has_key?(:data) 
