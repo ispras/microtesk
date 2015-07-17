@@ -51,7 +51,7 @@ public final class MemoryObject {
     return pa;
   }
 
-  // In Bytes
+  // Data size in Bytes
   public int getSize() {
     return size;
   }
@@ -67,12 +67,16 @@ public final class MemoryObject {
   @Override
   public String toString() {
     return String.format(
-        "MemoryObject %s[va=0x%x, pa=0x%x, size=%d, data=%s]",
+        "MemoryObject %s[va=%s, pa=%s, size=%d, data=%s]",
         name != null ? name : "",
-        va,
-        pa,
+        toHexString(va),
+        toHexString(pa),
         size,
-        data != null ? String.format("0x%x", data) : "null"
+        toHexString(data)
         );
+  }
+
+  private static String toHexString(final BigInteger value) {
+    return value != null ? String.format("0x%x", value) : "null";
   }
 }

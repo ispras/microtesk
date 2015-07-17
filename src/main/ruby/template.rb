@@ -657,10 +657,8 @@ class Template
   # -------------------------------------------------------------------------- #
 
   def memory_object(attrs)
-    builder = @template.newMemoryObjectBuilder
-
     size = get_attribute attrs, :size
-    builder.setSize size
+    builder = @template.newMemoryObjectBuilder size
 
     va = get_attribute attrs, :va
     is_va_label = false
@@ -679,7 +677,7 @@ class Template
     if !is_va_label
       pa = get_attribute attrs, :pa
       if pa.is_a?(Integer)
-        builder.setPa va
+        builder.setPa pa
       elsif pa.is_a?(Range)
         builder.setPa pa.min, pa.max
       elsif pa.is_a?(String) or pa.is_a?(Symbol) 

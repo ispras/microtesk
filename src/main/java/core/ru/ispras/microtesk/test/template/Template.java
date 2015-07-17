@@ -775,7 +775,11 @@ public final class Template {
     isBuildingEpilogue = false;
   }
 
-  public MemoryObjectBuilder newMemoryObjectBuilder() {
-    return new MemoryObjectBuilder(dataManager.getMemoryMap());
+  public MemoryObjectBuilder newMemoryObjectBuilder(final int size) {
+    return new MemoryObjectBuilder(
+        size,
+        dataManager.getMemoryMap(),
+        context.getSettings()
+        );
   }
 }
