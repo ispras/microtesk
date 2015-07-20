@@ -132,6 +132,10 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     this.accessPathIterator = accessPathIterator;
   }
 
+  public List<MemoryAccessType> getAccessTypes() {
+    return accessTypes;
+  }
+
   @Override
   public void init() {
     // Initialize the filter for checking memory access pairs.

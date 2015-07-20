@@ -14,11 +14,17 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.Classifier;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
@@ -26,7 +32,6 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
-import ru.ispras.testbase.knowledge.iterator.RandomValueIterator;
 
 /**
  * {@link MemoryAccessStructureIteratorEx} implements an iterator of memory access structures.
@@ -34,6 +39,7 @@ import ru.ispras.testbase.knowledge.iterator.RandomValueIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAccessStructure> {
+  private List<Map<MemoryOperation, Collection<MemoryAccessType>>> accessTypeGroups;
   private final Classifier<MemoryAccessPath> classifier;
 
   /** Contains user-defined filters. */
@@ -52,15 +58,51 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
 
+    this.accessTypeGroups = randomDataType ? getAccessTypeGroups(accessTypes) : null;
     this.classifier = classifier;
 
     final ProductIterator<MemoryAccessType> typesIterator = new ProductIterator<>();
-    for (final Collection<MemoryAccessType> accessTypeCollection : accessTypes) {
-      typesIterator.registerIterator(randomDataType ?
-          new RandomValueIterator<MemoryAccessType>(accessTypeCollection) :
-          new CollectionIterator<>(accessTypeCollection));
+
+    if (randomDataType) {
+      for (final Map<MemoryOperation, Collection<MemoryAccessType>> group : accessTypeGroups) {
+        final Collection<MemoryAccessType> cases = new ArrayList<>();
+
+        for (final Collection<MemoryAccessType> types : group.values()) {
+          cases.add(types.iterator().next());
+        }
+
+        typesIterator.registerIterator(new CollectionIterator<>(cases));
+      }
+    } else {
+      for (final Collection<MemoryAccessType> cases : accessTypes) {
+        typesIterator.registerIterator(new CollectionIterator<>(cases));
+      }
     }
+
     this.typesIterator = typesIterator;
+  }
+
+  private List<Map<MemoryOperation, Collection<MemoryAccessType>>> getAccessTypeGroups(
+      final List<Collection<MemoryAccessType>> accessTypes) {
+    final List<Map<MemoryOperation, Collection<MemoryAccessType>>> result = new ArrayList<>();
+
+    for (final Collection<MemoryAccessType> cases : accessTypes) {
+      final Map<MemoryOperation, Collection<MemoryAccessType>> groups = new HashMap<>();
+
+      for (final MemoryAccessType type : cases) {
+        Collection<MemoryAccessType> group = groups.get(type.getOperation());
+
+        if (group == null) {
+          groups.put(type.getOperation(), group = new HashSet<>());
+        }
+
+        group.add(type);
+      }
+
+      result.add(groups);
+    }
+
+    return result;
   }
 
   @Override
@@ -124,6 +166,19 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
 
   private boolean nextStructure() {
     if (structureIterator.hasValue()) {
+      // Randomize data types if it is required.
+      if (accessTypeGroups != null) {
+        final List<MemoryAccessType> types = structureIterator.getAccessTypes();
+
+        for (int i = 0; i < types.size(); i++) {
+          final MemoryAccessType type = types.get(i);
+          final MemoryOperation op = type.getOperation();
+          final Map<MemoryOperation, Collection<MemoryAccessType>> groups = accessTypeGroups.get(i);
+          final Collection<MemoryAccessType> cases = groups.get(op);
+
+          types.set(i, Randomizer.get().choose(cases));
+        }
+      }
       structureIterator.next();
     }
     return structureIterator.hasValue();
