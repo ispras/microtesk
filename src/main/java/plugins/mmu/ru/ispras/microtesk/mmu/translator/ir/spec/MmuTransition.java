@@ -77,7 +77,7 @@ public final class MmuTransition {
     builder.append("]");
     builder.append(" -> ");
     if (guard != null) {
-      builder.append("]");
+      builder.append("[");
       builder.append(guard);
       builder.append("] -> ");
     }
