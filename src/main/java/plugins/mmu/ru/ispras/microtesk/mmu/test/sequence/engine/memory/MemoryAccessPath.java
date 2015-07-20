@@ -241,8 +241,10 @@ public final class MemoryAccessPath {
     for (final MmuTransition transition : transitions) {
       final MmuGuard guard = transition.getGuard();
 
-      builder.append(guard);
-      builder.append(separator);
+      if (guard.getOperation() == null) {
+        builder.append(guard);
+        builder.append(separator);
+      }
     }
 
     final MmuTransition transition = transitions.get(transitions.size() - 1);
