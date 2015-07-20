@@ -702,6 +702,10 @@ class Template
     builder.build
   end
 
+  def page_table(&contents)
+    # TODO
+  end
+
   # -------------------------------------------------------------------------- #
   # Generation (Execution and Printing)                                        #
   # -------------------------------------------------------------------------- #
