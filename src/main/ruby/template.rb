@@ -703,7 +703,8 @@ class Template
   end
 
   def page_table(&contents)
-    # TODO
+    page_table = PageTable.new
+    page_table.instance_eval &contents
   end
 
   # -------------------------------------------------------------------------- #
@@ -914,3 +915,26 @@ class BufferEntryReference
   end
 end # BufferEntry
 
+class PageTable
+
+  def page_table_preparator(attrs, &contents)
+    # TODO
+  end
+
+  def page_table_adapter(&contents)
+    # TODO
+  end
+
+  def org(address)
+    # TODO
+  end
+
+  def memory_object(attrs)
+    # TODO
+  end
+
+  def page_table_entry(attrs)
+    # TODO
+  end
+
+end # PageTable
