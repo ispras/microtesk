@@ -241,7 +241,7 @@ public final class MemoryAccessPath {
     for (final MmuTransition transition : transitions) {
       final MmuGuard guard = transition.getGuard();
 
-      if (guard.getOperation() == null) {
+      if (guard != null && guard.getOperation() == null) {
         builder.append(guard);
         builder.append(separator);
       }
