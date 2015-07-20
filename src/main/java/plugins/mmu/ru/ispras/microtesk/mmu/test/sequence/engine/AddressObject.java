@@ -19,9 +19,8 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.IntegerVariable;
-import ru.ispras.microtesk.mmu.basis.DataType;
-import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -78,22 +77,12 @@ public final class AddressObject {
   }
 
   /**
-   * Returns the operation type.
+   * Returns the memory access type.
    * 
-   * @return {@code MemoryOperation#LOAD} or {@code MemoryOperation#STORE}.
+   * @return the memory access type.
    */
-  public MemoryOperation getOperation() {
-    return access.getOperation();
-  }
-
-  /**
-   * Returns the data type (size of a data block being loaded or stored).
-   * 
-   * @return {@link DataType#BYTE}, {@link DataType#HWORD}, {@link DataType#WORD}, or
-   *         {@link DataType#DWORD}.
-   */
-  public DataType getDataType() {
-    return access.getDataType();
+  public MemoryAccessType getType() {
+    return access.getType();
   }
 
   /**

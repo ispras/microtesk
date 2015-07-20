@@ -143,7 +143,8 @@ final class MemoryAccessVariableStore {
    */
   public MemoryAccessVariableStore(final MmuSubsystem memory) {
     InvariantChecks.checkNotNull(memory);
-    initRanges(CoverageExtractor.get().getAccesses(memory), CoverageExtractor.get().getHazards(memory));
+    initRanges(
+        CoverageExtractor.get().getAccesses(memory, null), CoverageExtractor.get().getHazards(memory));
   }
 
   /**
@@ -166,7 +167,13 @@ final class MemoryAccessVariableStore {
       }
     }
 
-    initRanges(structure.getAccesses(), hazards);
+    final Collection<MemoryAccessPath> paths = new ArrayList<>();
+
+    for (final MemoryAccess access : structure.getAccesses()) {
+      paths.add(access.getPath());
+    }
+
+    initRanges(paths, hazards);
   }
 
   public Map<IntegerVariable, List<IntegerRange>> getDisjointRanges() {
@@ -174,8 +181,8 @@ final class MemoryAccessVariableStore {
   }
 
   private void initRanges(
-      final Collection<MemoryAccess> accesses, final Collection<MemoryHazard> hazards) {
-    InvariantChecks.checkNotNull(accesses);
+      final Collection<MemoryAccessPath> paths, final Collection<MemoryHazard> hazards) {
+    InvariantChecks.checkNotNull(paths);
     InvariantChecks.checkNotNull(hazards);
 
     final Map<IntegerVariable, Set<IntegerRange>> ranges = new LinkedHashMap<>();
@@ -184,8 +191,8 @@ final class MemoryAccessVariableStore {
       initRanges(hazard, ranges);
     }
 
-    for (final MemoryAccess access : accesses) {
-      initRanges(access, ranges);
+    for (final MemoryAccessPath path : paths) {
+      initRanges(path, ranges);
     }
 
     final Map<IntegerVariable, List<IntegerRange>> disjointRanges1 = getDisjointRanges(ranges);
@@ -196,8 +203,8 @@ final class MemoryAccessVariableStore {
       ranges.put(entry.getKey(), new LinkedHashSet<>(entry.getValue()));
     }
 
-    for (final MemoryAccess access : accesses) {
-      addRanges(access, ranges);
+    for (final MemoryAccessPath path : paths) {
+      addRanges(path, ranges);
     }
 
     final Map<IntegerVariable, List<IntegerRange>> disjointRanges2 = getDisjointRanges(ranges);
@@ -212,12 +219,12 @@ final class MemoryAccessVariableStore {
   }
 
   private void initRanges(
-      final MemoryAccess access,
+      final MemoryAccessPath path,
       final Map<IntegerVariable, Set<IntegerRange>> ranges) {
-    InvariantChecks.checkNotNull(access);
+    InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(ranges);
 
-    for (final MmuTransition transition : access.getTransitions()) {
+    for (final MmuTransition transition : path.getTransitions()) {
       initRanges(transition, ranges);
     }
   }
@@ -318,12 +325,12 @@ final class MemoryAccessVariableStore {
   }
 
   private void addRanges(
-      final MemoryAccess access,
+      final MemoryAccessPath path,
       final Map<IntegerVariable, Set<IntegerRange>> ranges) {
-    InvariantChecks.checkNotNull(access);
+    InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(ranges);
 
-    for (final MmuTransition transition : access.getTransitions()) {
+    for (final MmuTransition transition : path.getTransitions()) {
       add(transition, ranges);
     }
   }

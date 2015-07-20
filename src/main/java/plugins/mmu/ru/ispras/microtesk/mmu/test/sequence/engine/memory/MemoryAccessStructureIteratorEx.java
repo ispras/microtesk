@@ -34,7 +34,7 @@ import ru.ispras.testbase.knowledge.iterator.RandomValueIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAccessStructure> {
-  private final Classifier<MemoryAccess> classifier;
+  private final Classifier<MemoryAccessPath> classifier;
 
   /** Contains user-defined filters. */
   private final FilterBuilder filterBuilder = new FilterBuilder();
@@ -44,17 +44,10 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
 
   private boolean hasValue;
 
-  /**
-   * Constructs an iterator of memory access structures.
-   * 
-   * @param accessTypes the list of memory access types.
-   * @param randomDataType the data type randomization option.
-   * @param classifier the memory access classification policy.
-   */
   public MemoryAccessStructureIteratorEx(
       final List<Collection<MemoryAccessType>> accessTypes,
       final boolean randomDataType,
-      final Classifier<MemoryAccess> classifier) {
+      final Classifier<MemoryAccessPath> classifier) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);

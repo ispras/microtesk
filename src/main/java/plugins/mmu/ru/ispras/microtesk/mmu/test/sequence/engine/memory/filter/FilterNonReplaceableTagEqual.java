@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -46,9 +47,12 @@ public final class FilterNonReplaceableTagEqual implements TriPredicate<MemoryAc
         }
       }
 
+      final MemoryAccessPath path1 = access1.getPath();
+      final MemoryAccessPath path2 = access2.getPath();
+
       for (final MmuBuffer device : devices) {
         if (!device.isReplaceable()) {
-          if (access1.getEvent(device) != access2.getEvent(device)) {
+          if (path1.getEvent(device) != path2.getEvent(device)) {
             // Filter off.
             return false;
           }

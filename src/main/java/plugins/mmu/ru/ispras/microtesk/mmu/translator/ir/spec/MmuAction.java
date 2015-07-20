@@ -29,7 +29,7 @@ public final class MmuAction {
   /** Unique name. */
   private final String name;
   /** Device used in the action or {@code null}. */
-  private final MmuBuffer device;
+  private final MmuBuffer buffer;
   /** Assignments performed by the action. */
   private final Map<IntegerField, MmuAssignment> action = new HashMap<>();
 
@@ -38,7 +38,7 @@ public final class MmuAction {
     // The device is allowed to be null.
 
     this.name = name;
-    this.device = device;
+    this.buffer = device;
 
     for (final MmuAssignment assignment : assignments) {
       action.put(assignment.getLhs(), assignment);
@@ -53,8 +53,8 @@ public final class MmuAction {
     return name;
   }
 
-  public MmuBuffer getDevice() {
-    return device;
+  public MmuBuffer getBuffer() {
+    return buffer;
   }
 
   public Map<IntegerField, MmuAssignment> getAction() {

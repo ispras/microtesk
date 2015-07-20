@@ -29,6 +29,7 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
@@ -188,17 +189,18 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccess access = structure.getAccess(j);
     final AddressObject testData = solution.getTestData(j);
 
-    DataType maxType = access.getDataType();
+    DataType maxDataType = access.getType().getDataType();
 
     // Get the maximal data type among the dependent instructions.
     for (int k = j + 1; k < solution.size(); k++) {
-      final MemoryAccess nextExecution = structure.getAccess(k);
+      final MemoryAccess nextAccess = structure.getAccess(k);
       final MemoryUnitedDependency nextDependency = structure.getUnitedDependency(k);
       final Set<Integer> addrEqualRelation = nextDependency.getAddrEqualRelation(addrType);
 
       if (addrEqualRelation.contains(j)) {
-        if (maxType.size() < nextExecution.getDataType().size()) {
-          maxType = nextExecution.getDataType();
+        final DataType dataType = nextAccess.getType().getDataType();
+        if (maxDataType.size() < dataType.size()) {
+          maxDataType = dataType;
         }
       }
     }
@@ -206,8 +208,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Checks whether the address is unaligned.
     final long oldAddress = testData.getAddress(addrType);
 
-    if (!maxType.isAligned(oldAddress)) {
-      final long newAddress = maxType.align(oldAddress);
+    if (!maxDataType.isAligned(oldAddress)) {
+      final long newAddress = maxDataType.align(oldAddress);
       testData.setAddress(addrType, newAddress);
     }
 
@@ -272,7 +274,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Loading data into the buffer may load them into the previous buffers.
     final MemoryAccess access = structure.getAccess(j);
-    final List<MmuBuffer> devices = access.getDevices();
+    final MemoryAccessPath path = access.getPath();
+    final List<MmuBuffer> devices = path.getBuffers();
 
     // Scan the devices of the same address type in reverse order.
     boolean found = false;
@@ -288,7 +291,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         continue;
       }
 
-      if (access.getEvent(prevDevice) == BufferAccessEvent.MISS) {
+      if (path.getEvent(prevDevice) == BufferAccessEvent.MISS) {
         final SolverResult<MemorySolution> result = solveMissConstraint(j, prevDevice);
 
         if (result.getStatus() == SolverResult.Status.UNSAT) {
@@ -539,6 +542,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     for (int i = 0; i <= j; i++) {
       final MemoryAccess access = structure.getAccess(i);
+      final MemoryAccessPath path = access.getPath();
       final MemoryUnitedDependency dependency = structure.getUnitedDependency(i);
       final AddressObject testData = solution.getTestData(i);
 
@@ -547,7 +551,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final long offset = device.getOffset(address);
 
       // Check the device access condition.
-      if (access.contains(device) && device.checkGuard(access)) {
+      if (path.contains(device) && device.checkGuard(access)) {
         final Long replacedTag = stateTracker.access(address);
 
         if (replacedTag != null) {
@@ -596,10 +600,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     handledDevicesForExecution.add(device);
 
     final MemoryAccess access = structure.getAccess(j);
+    final MemoryAccessPath path = access.getPath();
 
     // If the buffer access event is null, the situation is considered to be a hit.
     // The event is null, if the device is a parent of some view and is not in the access. 
-    final BufferAccessEvent realEvent = access.getEvent(device);
+    final BufferAccessEvent realEvent = path.getEvent(device);
     final BufferAccessEvent usedEvent = realEvent == null ? BufferAccessEvent.HIT : realEvent;
 
     // The device is a view of another device (e.g., DTLB is a view of JTLB).
@@ -609,7 +614,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final boolean canBeAccessed =
         // The parent access event is a hit or null, but not a miss.
-        !device.isView() || access.getEvent(device.getParent()) != BufferAccessEvent.MISS;
+        !device.isView() || path.getEvent(device.getParent()) != BufferAccessEvent.MISS;
 
     if (canBeAccessed && device.checkGuard(access)) {
       SolverResult<MemorySolution> result = null;
@@ -638,7 +643,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         return result;
       }
     } else {
-      if (access.getEvent(device) == BufferAccessEvent.HIT) {
+      if (path.getEvent(device) == BufferAccessEvent.HIT) {
         return new SolverResult<>(String.format("Constraint violation for device %s", device));
       }
     }
@@ -654,6 +659,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solve(final int j) {
     final MemoryAccess access = structure.getAccess(j);
+    final MemoryAccessPath path = access.getPath();
+
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct initial test data for the access.
@@ -678,7 +685,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         // Paranoid check.
         final long addr = testData.getAddress(addrType);
 
-        if (!testData.getDataType().isAligned(addr)) {
+        if (!testData.getType().getDataType().isAligned(addr)) {
           throw new IllegalStateException(
               String.format("Unaligned address after solving AddrEqual constraints: %x", addr));
         }
@@ -700,7 +707,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Solve the hit and miss constraints for the devices.
-    final List<MmuBuffer> devices = access.getDevices();
+    final List<MmuBuffer> devices = path.getBuffers();
 
     for (final MmuBuffer device : devices) {
       final SolverResult<MemorySolution> result = solveDeviceConstraint(j, device);
@@ -766,7 +773,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // TODO: This check can be optimized.
     final MemoryAccess access = structure.getAccess(j);
-    final List<MmuAddressType> addresses = access.getAddresses();
+    final MemoryAccessPath path = access.getPath();
+    final List<MmuAddressType> addresses = path.getAddresses();
 
     // TODO: This is not accurate if addrType = VA, prevAddrType = PA. 
     for (final MmuAddressType prevAddrType : addresses) {

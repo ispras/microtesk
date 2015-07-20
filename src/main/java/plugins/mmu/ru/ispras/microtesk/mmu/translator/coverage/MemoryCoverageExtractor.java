@@ -19,7 +19,8 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -37,90 +38,85 @@ final class MemoryCoverageExtractor {
   }
 
   /**
-   * Returns all possible execution paths.
+   * Returns all memory access paths for the given memory access type.
    * 
-   * @return the list of execution paths.
+   * @param accessType the memory access type or {@code null}.
+   * @return all memory access paths
    */
-  public List<MemoryAccess> getAccesses() {
-    final List<MemoryAccess> executions = new ArrayList<>();
-    final List<MmuTransition> transitions = memory.getTransitions(memory.getStartAction());
+  public List<MemoryAccessPath> getAccesses(final MemoryAccessType accessType) {
+    final List<MemoryAccessPath> paths = new ArrayList<>();
+    final List<MmuTransition> out = memory.getTransitions(memory.getStartAction());
 
-    if (transitions != null && !transitions.isEmpty()) {
-      for (final MmuTransition transition : transitions) {
-        if (transition.isEnabled()) {
-          final MemoryAccess execution =
-              new MemoryAccess(transition.getGuard().getOperation(), memory.getStartAddress());
+    if (out != null && !out.isEmpty()) {
+      for (final MmuTransition next : out) {
+        final MmuGuard guard = next.getGuard();
 
-          execution.addTransition(transition);
-          executions.add(execution);
+        if (!next.isEnabled()) {
+          continue;
+        }
+
+        if (accessType == null || guard.getOperation() == accessType.getOperation()) {
+          final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
+
+          builder.add(next);
+          paths.add(builder.build());
         }
       }
 
       int i = 0;
-      while (i < executions.size()) {
-        final List<MemoryAccess> executionPrefixList = elongateAccesses(executions.get(i));
+      while (i < paths.size()) {
+        final List<MemoryAccessPath> pathPrefixes = elongatePath(accessType, paths.get(i));
 
-        if (executionPrefixList != null) {
-          executions.remove(i);
-          executions.addAll(executionPrefixList);
+        if (pathPrefixes != null) {
+          paths.remove(i);
+          paths.addAll(pathPrefixes);
         } else {
           i++;
         }
       }
     }
 
-    return executions;
+    return paths;
   }
 
   /**
-   * Elongates the execution path.
+   * Elongates the memory access path.
    * 
-   * @param execution the execution path to be elongated.
-   * @return the list of possible elongations of the execution path.
+   * @param accessType the memory access type.
+   * @param accessPath the memory access path to be elongated.
+   * @return the list of all possible elongations of the given memory access path.
    */
-  private List<MemoryAccess> elongateAccesses(final MemoryAccess execution) {
-    // Get the last transition of the execution path.
-    final List<MmuTransition> transitions = execution.getTransitions();
-    final MmuTransition lastTransition = transitions.get(transitions.size() - 1);
-    final MmuAction target = lastTransition.getTarget();
+  private List<MemoryAccessPath> elongatePath(
+      final MemoryAccessType accessType, final MemoryAccessPath accessPath) {
+    InvariantChecks.checkNotNull(accessType);
+    InvariantChecks.checkNotNull(accessPath);
 
-    // Get the outgoing transitions of this action.
-    final List<MmuTransition> targetTransitions = memory.getTransitions(target);
+    final MmuTransition last = accessPath.getLastTransition();
+    final MmuAction target = last.getTarget();
+    final List<MmuTransition> out = memory.getTransitions(target);
 
-    // Elongate the execution path.
-    if (targetTransitions != null && !targetTransitions.isEmpty()) {
-      final List<MemoryAccess> elongatedExecutionList = new ArrayList<>();
+    if (out != null && !out.isEmpty()) {
+      final List<MemoryAccessPath> elongatedPaths = new ArrayList<>();
 
-      for (final MmuTransition transition : targetTransitions) {
-        if (!transition.isEnabled()) {
+      for (final MmuTransition next : out) {
+        if (!next.isEnabled()) {
           continue;
         }
 
-        final MemoryOperation executionOperation = execution.getOperation();
+        final MmuGuard guard = next.getGuard();
+        final MemoryOperation operation = guard != null ? guard.getOperation() : null;
 
-        final MmuGuard mmuGuard = transition.getGuard();
-        final MemoryOperation transitionOperation =
-            mmuGuard != null ? mmuGuard.getOperation() : null;
+        if (operation == null || accessType == null || operation == accessType.getOperation()) {
+          final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
-        MemoryOperation operation;
+          builder.addAll(accessPath.getTransitions());
+          builder.add(next);
 
-        if (executionOperation == null || transitionOperation == null) {
-          operation = executionOperation == null ? transitionOperation : executionOperation;
-        } else if (executionOperation.equals(transitionOperation)) {
-          operation = executionOperation;
-        } else {
-          continue;
+          elongatedPaths.add(builder.build());
         }
-
-        final MemoryAccess elongatedExecution =
-            new MemoryAccess(operation, memory.getStartAddress());
-
-        elongatedExecution.addTransitions(execution.getTransitions());
-        elongatedExecution.addTransition(transition);
-        elongatedExecutionList.add(elongatedExecution);
       }
 
-      return elongatedExecutionList;
+      return elongatedPaths;
     }
 
     return null;

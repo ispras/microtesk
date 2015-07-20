@@ -22,26 +22,27 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.Classifier;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 
 /**
- * This class describes the policy of unification by execution paths.
+ * {@link ClassifierTrivial} implements the trivial policy for memory access path classification.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class ClassifierTrivial implements Classifier<MemoryAccess> {
+public final class ClassifierTrivial implements Classifier<MemoryAccessPath> {
   @Override
-  public List<Set<MemoryAccess>> classify(final Collection<MemoryAccess> executions) {
-    InvariantChecks.checkNotNull(executions);
+  public List<Set<MemoryAccessPath>> classify(final Collection<MemoryAccessPath> paths) {
+    InvariantChecks.checkNotNull(paths);
 
-    final List<Set<MemoryAccess>> executionList = new ArrayList<>();
+    final List<Set<MemoryAccessPath>> pathClasses = new ArrayList<>();
 
-    for (final MemoryAccess execution : executions) {
-      final Set<MemoryAccess> mmuExecutionClass = new HashSet<>();
-      mmuExecutionClass.add(execution);
-      executionList.add(mmuExecutionClass);
+    for (final MemoryAccessPath path : paths) {
+      final Set<MemoryAccessPath> pathClass = new HashSet<>();
+
+      pathClass.add(path);
+      pathClasses.add(pathClass);
     }
 
-    return executionList;
+    return pathClasses;
   }
 }

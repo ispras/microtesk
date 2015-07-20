@@ -66,7 +66,7 @@ public final class MmuGuard {
     this(operation, null, null, null);
   }
 
-  public MmuBuffer getDevice() {
+  public MmuBuffer getBuffer() {
     return device;
   }
 

@@ -152,8 +152,9 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
 
     for (int i = 0; i < accesses.size(); i++) {
       final MemoryAccess access = accesses.get(i);
+      final MemoryAccessPath path = access.getPath();
 
-      for (final MmuTransition transition : access.getTransitions()) {
+      for (final MmuTransition transition : path.getTransitions()) {
         if (!process(formula, i, transition)) {
           return false;
         }
@@ -466,13 +467,16 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
       return true;
     }
 
+    final MemoryAccessPath accessPath1 = access1.getPath();
+    final MemoryAccessPath accessPath2 = access2.getPath();
+
     for (final MemoryHazard hazard : dependency.getHazards()) {
       if (hazard.getType() == MemoryHazard.Type.TAG_EQUAL) {
         final MmuBuffer device = hazard.getDevice();
         InvariantChecks.checkNotNull(device);
 
-        if (BufferAccessEvent.HIT == access1.getEvent(device)
-            && BufferAccessEvent.HIT == access2.getEvent(device)) {
+        if (BufferAccessEvent.HIT == accessPath1.getEvent(device)
+            && BufferAccessEvent.HIT == accessPath2.getEvent(device)) {
           final List<IntegerVariable> fields = device.getFields();
 
           for (final IntegerVariable field : fields) {

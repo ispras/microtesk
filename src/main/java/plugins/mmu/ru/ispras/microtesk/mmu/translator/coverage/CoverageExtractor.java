@@ -20,7 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -36,9 +37,9 @@ public final class CoverageExtractor {
     return instance;
   }
 
-  private final Map<MmuAddressType,   Collection<MemoryHazard>> addressHazards = new HashMap<>();
-  private final Map<MmuBuffer,    Collection<MemoryHazard>> deviceHazards  = new HashMap<>();
-  private final Map<MmuSubsystem, Collection<MemoryAccess>> memoryAccesses = new HashMap<>();
+  private final Map<MmuAddressType, Collection<MemoryHazard>> addressHazards = new HashMap<>();
+  private final Map<MmuBuffer, Collection<MemoryHazard>> deviceHazards  = new HashMap<>();
+  private final Map<MmuSubsystem, Collection<MemoryAccessPath>> memoryAccesses = new HashMap<>();
   private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards  = new HashMap<>();
 
   private CoverageExtractor() {}
@@ -67,13 +68,15 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  public Collection<MemoryAccess> getAccesses(final MmuSubsystem memory) {
+  public Collection<MemoryAccessPath> getAccesses(
+      final MmuSubsystem memory, final MemoryAccessType accessType) {
     InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(accessType);
 
-    Collection<MemoryAccess> coverage = memoryAccesses.get(memory);
+    Collection<MemoryAccessPath> coverage = memoryAccesses.get(memory);
     if (coverage == null) {
       final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
-      memoryAccesses.put(memory, coverage = extractor.getAccesses());
+      memoryAccesses.put(memory, coverage = extractor.getAccesses(accessType));
     }
 
     return coverage;

@@ -25,47 +25,42 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.Classifier;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * This class describes the policy of unification by devices and events.
+ * {@link ClassifierDevice} classifies memory accesses using devices and events. Memory accesses
+ * are considered to be equivalent if they use the same devices and causes the same events.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-
-public final class ClassifierDevice implements Classifier<MemoryAccess> {
+public final class ClassifierDevice implements Classifier<MemoryAccessPath> {
   @Override
-  public List<Set<MemoryAccess>> classify(final Collection<MemoryAccess> executions) {
-    final List<Set<MemoryAccess>> executionsOfOperation = new ArrayList<>();
+  public List<Set<MemoryAccessPath>> classify(final Collection<MemoryAccessPath> paths) {
+    InvariantChecks.checkNotNull(paths);
 
-    for (MemoryOperation operation : MemoryOperation.values()) {
-      // For Store and Load
-      final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccess>> mapExecution =
-          new LinkedHashMap<>();
+    final List<Set<MemoryAccessPath>> pathClasses = new ArrayList<>();
 
-      for (final MemoryAccess execution : executions) {
-        if (execution.getOperation() == operation) {
-          final Map<MmuBuffer, BufferAccessEvent> mapDevices =
-              getDevicesAndEvents(execution.getTransitions());
+    final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>> buffersEventsAndPaths =
+        new LinkedHashMap<>();
 
-          if (mapExecution.containsKey(mapDevices)) {
-            final Set<MemoryAccess> mmuExecutionClass = mapExecution.get(mapDevices);
-            mmuExecutionClass.add(execution);
-          } else {
-            final Set<MemoryAccess> mmuExecutionClass = new HashSet<>();
-            mmuExecutionClass.add(execution);
-            mapExecution.put(mapDevices, mmuExecutionClass);
-          }
-        }
+    for (final MemoryAccessPath path : paths) {
+      final Map<MmuBuffer, BufferAccessEvent> buffersAndEvents =
+          getBuffersAndEvents(path.getTransitions());
+
+      Set<MemoryAccessPath> pathClass = buffersEventsAndPaths.get(buffersAndEvents);
+      if (pathClass == null) {
+        buffersEventsAndPaths.put(buffersAndEvents, pathClass = new HashSet<>());
       }
 
-      executionsOfOperation.addAll(new ArrayList<>(mapExecution.values()));
+      pathClass.add(path);
     }
-    return executionsOfOperation;
+
+    pathClasses.addAll(new ArrayList<>(buffersEventsAndPaths.values()));
+
+    return pathClasses;
   }
 
   /**
@@ -73,9 +68,8 @@ public final class ClassifierDevice implements Classifier<MemoryAccess> {
    * 
    * @param transitions list of transition
    * @return the map of devices and events.
-   * @throws NullPointerException if {@code conflicts} is null.
    */
-  private Map<MmuBuffer, BufferAccessEvent> getDevicesAndEvents(
+  private Map<MmuBuffer, BufferAccessEvent> getBuffersAndEvents(
       final List<MmuTransition> transitions) {
     InvariantChecks.checkNotNull(transitions);
 
@@ -100,8 +94,6 @@ public final class ClassifierDevice implements Classifier<MemoryAccess> {
    * @param transition contains an event
    * @param result the map of devices and events
    * @return the map of devices and events.
-   * @throws NullPointerException if some parameters are null.
-   * @throws IllegalArgumentException if using the same device for different events.
    */
   private Map<MmuBuffer, BufferAccessEvent> addDeviceAndEvent(final MmuAction action,
       final MmuTransition transition, final Map<MmuBuffer, BufferAccessEvent> result) {
@@ -109,7 +101,7 @@ public final class ClassifierDevice implements Classifier<MemoryAccess> {
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(result);
 
-    final MmuBuffer device = action.getDevice();
+    final MmuBuffer device = action.getBuffer();
     BufferAccessEvent event;
     if (transition.getGuard() != null) {
       event = transition.getGuard().getEvent();

@@ -22,15 +22,16 @@ import ru.ispras.microtesk.basis.solver.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -185,9 +186,11 @@ public final class MmuUnderTest {
   // -----------------------------------------------------------------------------------------------
   public final Predicate<MemoryAccess> dtlbGuard = new Predicate<MemoryAccess>() {
     @Override public boolean test(final MemoryAccess access) {
-      final boolean dtlbHit = access.getEvent(MmuUnderTest.get().dtlb) == BufferAccessEvent.HIT; // TODO: remove
-      final boolean jtlbHit = access.getEvent(MmuUnderTest.get().jtlb) == BufferAccessEvent.HIT; // TODO: remove
-      final boolean v = access.contains(MmuUnderTest.get().ifValid);
+      final MemoryAccessPath path = access.getPath();
+
+      final boolean dtlbHit = path.getEvent(MmuUnderTest.get().dtlb) == BufferAccessEvent.HIT; // TODO: remove
+      final boolean jtlbHit = path.getEvent(MmuUnderTest.get().jtlb) == BufferAccessEvent.HIT; // TODO: remove
+      final boolean v = path.contains(MmuUnderTest.get().ifValid);
 
       return (dtlbHit || jtlbHit) && v;
     }

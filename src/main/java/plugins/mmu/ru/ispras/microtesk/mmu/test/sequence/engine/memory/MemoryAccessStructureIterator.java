@@ -78,10 +78,10 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private final FilterBuilder filterBuilder = new FilterBuilder(BASIC_FILTERS);
 
   /** Memory access types (descriptors). */
-  private final List<MemoryAccessType> accessTypes;;
+  private final List<MemoryAccessType> accessTypes;
 
   /** Memory access equivalence classes. */
-  private final List<Set<MemoryAccess>> accessClasses;
+  private final List<List<Set<MemoryAccessPath>>> accessPathClasses = new ArrayList<>();
 
   /** Array of indices in the dependencies array. */
   private final int[][] dependencyIndices;
@@ -94,7 +94,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private final List<List<List<MemoryDependency>>> possibleDependencies = new ArrayList<>();
 
   /** Iterator of memory access classes. */
-  private final Iterator<List<Integer>> accessIterator;
+  private final Iterator<List<Integer>> accessPathIterator;
 
   /** Checks the consistency of execution path pairs. */
   private Predicate<MemoryAccessStructure> accessPairChecker;
@@ -104,15 +104,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /** Availability of the value. */
   private boolean hasValue;
 
-  /**
-   * Constructs an iterator of memory access structures.
-   * 
-   * @param memoryAccessTypes the list of memory access types.
-   * @param classifier the memory access classification policy.
-   */
   public MemoryAccessStructureIterator(
       final List<MemoryAccessType> accessTypes,
-      final Classifier<MemoryAccess> classifier) {
+      final Classifier<MemoryAccessPath> classifier) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
@@ -122,17 +116,20 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     this.dependencyIndices = new int[accessTypes.size()][accessTypes.size()];
     this.dependencies = new MemoryDependency[accessTypes.size()][accessTypes.size()];
 
-    // TODO: Take into account the memory access types.
-    final Collection<MemoryAccess> accesses =
-        CoverageExtractor.get().getAccesses(MmuTranslator.getSpecification());
-    this.accessClasses = classifier.classify(accesses);
+    // Classify the memory access paths and initialize the path iterator.
+    final ProductIterator<Integer> accessPathIterator = new ProductIterator<>();
 
-    // Initialize the memory access iterator.
-    final ProductIterator<Integer> accessIterator = new ProductIterator<>();
-    for (int i = 0; i < accessTypes.size(); i++) {
-      accessIterator.registerIterator(new IntRangeIterator(0, accessClasses.size() - 1));
+    for (final MemoryAccessType accessType : accessTypes) {
+      final Collection<MemoryAccessPath> accessPaths = 
+          CoverageExtractor.get().getAccesses(MmuTranslator.getSpecification(), accessType);
+
+      final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(accessPaths);
+
+      this.accessPathClasses.add(accessPathClasses);
+      accessPathIterator.registerIterator(new IntRangeIterator(0, accessPathClasses.size() - 1));
     }
-    this.accessIterator = accessIterator;
+
+    this.accessPathIterator = accessPathIterator;
   }
 
   @Override
@@ -262,9 +259,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   //------------------------------------------------------------------------------------------------
 
   private void initAccesses() {
-    accessIterator.init();
+    accessPathIterator.init();
 
-    if (accessIterator.hasValue()) {
+    if (accessPathIterator.hasValue()) {
       if (assignAccesses()) {
         recalculatePossibleDependencies();
         assignDependencies();
@@ -275,9 +272,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   }
 
   private boolean nextAccesses() {
-    accessIterator.next();
+    accessPathIterator.next();
 
-    while (accessIterator.hasValue()) {
+    while (accessPathIterator.hasValue()) {
       if (assignAccesses()) {
         if (recalculatePossibleDependencies()) {
           assignDependencies();
@@ -285,27 +282,27 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
         }
       }
 
-      accessIterator.next();
+      accessPathIterator.next();
     }
 
     return false;
   }
 
   private boolean assignAccesses() {
-    if (!accessIterator.hasValue()) {
+    if (!accessPathIterator.hasValue()) {
       return false;
     }
 
-    final List<Integer> accessIndices = accessIterator.value();
+    final List<Integer> accessIndices = accessPathIterator.value();
 
     accesses.clear();
     for (int i = 0; i < accessTypes.size(); i++) {
-      final Set<MemoryAccess> accessClass = accessClasses.get(accessIndices.get(i));
+      final List<Set<MemoryAccessPath>> classes = accessPathClasses.get(i);
+      final Set<MemoryAccessPath> accessPathClass = classes.get(accessIndices.get(i));
       final MemoryAccessType accessType = accessTypes.get(i);
-      final MemoryAccess access = Randomizer.get().choose(accessClass);
+      final MemoryAccessPath accessPath = Randomizer.get().choose(accessPathClass);
 
-      access.setDataType(accessType.getDataType());
-      accesses.add(access);
+      accesses.add(new MemoryAccess(accessType, accessPath));
     }
 
     for (final MemoryAccess access : accesses) {
@@ -359,8 +356,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
 
-    final Collection<MmuBuffer> buffers1 = access1.getDevices();
-    final Collection<MmuBuffer> buffers2 = access2.getDevices();
+    final Collection<MmuBuffer> buffers1 = access1.getPath().getBuffers();
+    final Collection<MmuBuffer> buffers2 = access2.getPath().getBuffers();
 
     // Intersect the sets of buffers used in the memory accesses.
     final Collection<MmuBuffer> buffers = new ArrayList<>(buffers1);
