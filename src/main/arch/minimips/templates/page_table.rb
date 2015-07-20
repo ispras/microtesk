@@ -35,11 +35,24 @@ class PageTableTemplate < MiniMipsBaseTemplate
         word pte.v, pte.va, pte.pa
       }
 
+      page_table_adapter { |memory_object|
+        page_table_entry(
+          :v  => 1,
+          :va => memory_object.va,
+          :pa => memory_object.pa
+        )
+      }
+
       org 0x000F0000
 
       page_table_entry(:v => 1, :va => 0x0000000, :pa => 0x0001000)
       page_table_entry(:v => 1, :va => 0x0001000, :pa => 0x0002000)
       page_table_entry(:v => 1, :va => 0x0002000, :pa => 0x0003000)
+
+      page_table_entry(
+        memory_object(
+          :va => 0x000A000..0x000F000, :pa => 0x000F000, :size => 64)
+      )
     }
 
   end
