@@ -31,12 +31,12 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link ClassifierDevice} classifies memory accesses using devices and events. Memory accesses
+ * {@link ClassifierBuffer} classifies memory accesses using devices and events. Memory accesses
  * are considered to be equivalent if they use the same devices and causes the same events.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class ClassifierDevice implements Classifier<MemoryAccessPath> {
+public final class ClassifierBuffer implements Classifier<MemoryAccessPath> {
   @Override
   public List<Set<MemoryAccessPath>> classify(final Collection<MemoryAccessPath> paths) {
     InvariantChecks.checkNotNull(paths);
