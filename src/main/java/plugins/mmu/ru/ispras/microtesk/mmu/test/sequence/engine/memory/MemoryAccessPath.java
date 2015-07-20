@@ -194,12 +194,6 @@ public final class MemoryAccessPath {
     return transitions.contains(transition);
   }
 
-  /**
-   * Tells whether or not this execution contains the given action.
-   * 
-   * @param action the action
-   * @return {@code true} if the execution contains the action; {@code false} otherwise.
-   */
   public boolean contains(final MmuAction action) {
     InvariantChecks.checkNotNull(action);
 
@@ -207,12 +201,6 @@ public final class MemoryAccessPath {
     return actions.contains(action);
   }
 
-  /**
-   * Tells whether or not this execution contains the given address.
-   * 
-   * @param address the address to be checked.
-   * @return {@code true} if the execution contains the address; {@code false} otherwise.
-   */
   public boolean contains(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
 
@@ -220,12 +208,6 @@ public final class MemoryAccessPath {
     return addresses.contains(address);
   }
 
-  /**
-   * Tells whether or not this execution contains the given device.
-   * 
-   * @param device the device to be checked.
-   * @return {@code true} if the execution contains the device; {@code false} otherwise.
-   */
   public boolean contains(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
 
