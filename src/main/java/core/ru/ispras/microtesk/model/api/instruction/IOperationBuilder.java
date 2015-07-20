@@ -17,7 +17,7 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.math.BigInteger;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.memory.LocationAccessor;
+import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 public interface IOperationBuilder {
   LocationAccessor setArgument(String name, String value) throws ConfigurationException;

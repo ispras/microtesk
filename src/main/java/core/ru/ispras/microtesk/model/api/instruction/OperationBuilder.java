@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.api.exception.ReassignmentException;
 import ru.ispras.microtesk.model.api.exception.UndeclaredException;
 import ru.ispras.microtesk.model.api.exception.UninitializedException;
 import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.model.api.memory.LocationAccessor;
+import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 public final class OperationBuilder implements IOperationBuilder {
   private final String opName;

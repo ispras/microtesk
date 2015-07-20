@@ -19,7 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 
-import ru.ispras.microtesk.model.api.memory.LocationAccessor;
+import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 /**
  * The LabelReference class describes a reference to a label. This means a label specified as an

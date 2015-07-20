@@ -18,9 +18,9 @@ import java.math.BigInteger;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 public final class ModelStatePrinter {
   private final IModel model;
