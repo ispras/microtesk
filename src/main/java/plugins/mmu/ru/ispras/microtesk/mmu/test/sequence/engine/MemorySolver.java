@@ -111,9 +111,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Given an access index, contains the devices having been processed. */
   private final Map<Integer, Set<MmuBuffer>> handledDevices = new LinkedHashMap<>();
 
+  /** Contains a reference to the memory subsystem specification. */
   private final MmuSubsystem memory = MmuTranslator.getSpecification();
-  private final MemoryAccessStructure structure;
 
+  /** Memory access structures being processed. */
+  private final MemoryAccessStructure structure;
+  /** Current solution. */
   private MemorySolution solution;
 
   public MemorySolution getCurrentSolution() {

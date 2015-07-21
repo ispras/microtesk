@@ -43,28 +43,103 @@ final class AddressAllocationTable {
   private static final int ALLOC_TABLE_SIZE = 64;
 
   /**
+   * Returns the ranges specifying the zero fields of the mask.
+   * 
+   * @param mask the mask to be analyzed.
+   * @return the list of ranges.
+   */
+  private static List<IntegerRange> getZeroFields(final long mask) {
+    final List<IntegerRange> result = new ArrayList<>();
+
+    int j = -1;
+    for (int i = 0; i <= Long.SIZE; i++) {
+      if (i < Long.SIZE && (mask & (1L << i)) == 0) {
+        if (j == -1) {
+          j = i;
+        }
+      } else {
+        if (j != -1) {
+          result.add(new IntegerRange(j, i - 1));
+          j = -1;
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Transforms the given value so as to assign the zero bits of the mask and applies the mask.
+   * 
+   * @param value the value to be transformed.
+   * @param fieldMask the OR-mask to be applied.
+   * @param placeMask the mask whose zero bits indicate places where to put a value.
+   * @return the masked value.
+   */
+  private static long getMaskedValue(final long value, final long fieldMask, final long placeMask) {
+    final List<IntegerRange> zeroFields = getZeroFields(placeMask);
+
+    long result = 0;
+    long remain = value;
+
+    for (final IntegerRange range : zeroFields) {
+      result |= remain << range.getMin().intValue();
+      remain >>>= range.getMax().intValue() + 1;
+
+      if (remain == 0) {
+        break;
+      }
+    }
+
+    InvariantChecks.checkTrue(remain == 0);
+    return (result & ~placeMask) | fieldMask;
+  }
+
+  /**
    * Returns values to be allocated for the given address field.
    * 
-   * @param lo the lower bound of the field.
-   * @param hi the upper bound of the field.
-   * @param mask the OR-mask to generate correct values.
+   * @param width the width of the field.
+   * @param fieldMask the OR-mask to generate correct values.
+   * @param placeMask the mask whose zero bits indicate places where to put a value.
    * @return the set of values.
    */
-  private static Set<Long> getAddressFieldValues(final int lo, final int hi, final long mask) {
-    InvariantChecks.checkGreaterOrEq(hi, lo);
+  private static Set<Long> getAddressFieldValues(
+      final int width, final long fieldMask, final long placeMask) {
+    InvariantChecks.checkTrue(width > 0);
 
-    // TODO: Check that mask has enough number of zero bits.
-
-    final int width = (hi - lo) + 1;
     final int count = (1 << width) < ALLOC_TABLE_SIZE ? (1 << width) : ALLOC_TABLE_SIZE;
 
     final Set<Long> values = new LinkedHashSet<>();
     for (int i = 0; i < count; i++) {
-      final long value = i | mask;
+      final long value = getMaskedValue(i, fieldMask, placeMask);
       values.add(value);
     }
 
     return values;
+  }
+
+  /**
+   * Returns the mask whose zero bits indicates the fields' bits that can be modified.
+   * 
+   * @param width the width of the field.
+   * @param fields the set of field values.
+   * 
+   * @return the place mask.
+   */
+  private static long getPlaceMask(final int width, final Set<Long> fields) {
+    InvariantChecks.checkTrue(width > 0);
+    InvariantChecks.checkNotNull(fields);
+
+    int i = 0;
+    for (; i < width; i++) {
+      for (final long field : fields) {
+        if ((field & (1L << i)) != 0) {
+          break;
+        }
+      }
+    }
+
+    return i == Long.SIZE ? -1L : ~((1L << i) - 1);
   }
 
   /** Joint allocation table for all memory regions. */
@@ -75,8 +150,8 @@ final class AddressAllocationTable {
   /**
    * Creates an allocation table for the given address field.
    * 
-   * @param lo the lower bound of the field.
-   * @param hi the upper bound of the field.
+   * @param lo the lower bit of the field.
+   * @param hi the upper bit of the field.
    * @param partialAddress the value of the previous fields ({@code address[lo-1:0]}).
    * @param regions the memory regions or {@code null}.
    */
@@ -88,24 +163,27 @@ final class AddressAllocationTable {
 
     final Set<Long> globalValues = new HashSet<>();
 
-    if (regions == null || regions.isEmpty()) {
-      globalValues.addAll(getAddressFieldValues(lo, hi, 0));
-    } else {
-      final int width = (hi - lo) + 1;
-      final long mask = (1L << width) - 1;
+    final int width = (hi - lo) + 1;
+    final long mask = width == Long.SIZE ? -1L : (1L << width) - 1;
 
+    if (regions == null || regions.isEmpty()) {
+      globalValues.addAll(getAddressFieldValues(width, 0, ~mask));
+    } else {
       final Set<Long> regionFields = new HashSet<>();
+
       for (final RegionSettings region : regions) {
         final long regionField = (region.getStartAddress() >> lo) & mask;
         regionFields.add(regionField);
       }
 
-      // TODO:
+      // Two possibilities: all regions have the same field (region-insensitive field allocation);
+      // each region has a unique field (region-sensitive field allocation).
       InvariantChecks.checkTrue(regionFields.size() == 1 || regionFields.size() == regions.size());
 
       for (final RegionSettings region : regions) {
         final long regionField = (region.getStartAddress() >> lo) & mask;
-        final Set<Long> regionValues = getAddressFieldValues(lo, hi, regionField);
+        final Set<Long> regionValues =
+            getAddressFieldValues(width, regionField, getPlaceMask(width, regionFields));
 
         globalValues.addAll(regionValues);
         if (regionFields.size() == regions.size()) {
