@@ -142,6 +142,11 @@ final class AddressAllocationTable {
     return i == Long.SIZE ? -1L : ~((1L << i) - 1);
   }
 
+  private static long allocate(final AllocationTable<Long, ?> allocTable, final Set<Long> exclude) {
+    InvariantChecks.checkNotNull(allocTable);
+    return exclude != null ? allocTable.allocate(exclude) : allocTable.allocate();
+  }
+
   /** Joint allocation table for all memory regions. */
   private final AllocationTable<Long, ?> globalAllocTable;
   /** Disjoint allocation tables for individual memory regions. */
@@ -200,19 +205,20 @@ final class AddressAllocationTable {
    * Allocates an address field value for the given region.
    * 
    * @param region the region or {@code null}.
+   * @param exclude the values to be excluded or {@code null}.
    * @return an allocated address field.
    */
-  public long allocate(final RegionSettings region) {
+  public long allocate(final RegionSettings region, final Set<Long> exclude) {
     if (region != null) {
       final AllocationTable<Long, ?> allocationTable = regionAllocTables.get(region.getName());
 
       if (allocationTable != null) {
-        final long address = allocationTable.allocate();
+        final long address = allocate(allocationTable, exclude);
         globalAllocTable.use(address);
       }
     }
 
-    return globalAllocTable.allocate();
+    return allocate(globalAllocTable, exclude);
   }
 }
 
@@ -304,8 +310,20 @@ final class SingleAddressTypeAllocator {
     this.regions = regions;
   }
 
+  /**
+   * Allocates an address field for the given partial address and the region.
+   * 
+   * @param expression the expression defining the field to be allocated.
+   * @param partialAddress the partial address.
+   * @param region the memory region.
+   * @param exclude the set of addresses whose fields to be excluded.
+   * @return an allocated field.
+   */
   public long allocate(
-      final MmuExpression expression, final long partialAddress, final RegionSettings region) {
+      final MmuExpression expression,
+      final long partialAddress,
+      final RegionSettings region,
+      final Set<Long> exclude) {
     InvariantChecks.checkNotNull(expression);
 
     final List<IntegerRange> ranges = getRanges(expression);
@@ -331,9 +349,18 @@ final class SingleAddressTypeAllocator {
             allocationTable = new AddressAllocationTable(lower, upper, maskedAddress, regions));
       }
 
-      final long fieldValue = allocationTable.allocate(region);
+      final long fieldMask = width == Long.SIZE ? -1L : (1L << width) - 1;
+      final Set<Long> excludeFields = exclude != null ? new HashSet<Long>() : null;
 
-      address &= ~(((1L << width) - 1) << lower);
+      if (exclude != null) {
+        for (final long excludedAddress : exclude) {
+          excludeFields.add((excludedAddress >> lower) & fieldMask);
+        }
+      }
+
+      final long fieldValue = allocationTable.allocate(region, excludeFields);
+
+      address &= ~(fieldMask << lower);
       address |= (fieldValue << lower);
     }
 
@@ -353,9 +380,11 @@ final class SingleAddressTypeAllocator {
 }
 
 /**
+ * {@link AddressAllocator} implements an address (tag, index, etc.) allocator for memory buffers. 
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class AddressAllocator {
+public final class AddressAllocator {
   private final Map<MmuAddressType, SingleAddressTypeAllocator> allocators = new HashMap<>();
 
   public AddressAllocator(
@@ -400,25 +429,34 @@ final class AddressAllocator {
   }
 
   public long allocateTag(
-      final MmuBuffer buffer, final long partialAddress, final RegionSettings region) {
+      final MmuBuffer buffer,
+      final long partialAddress,
+      final RegionSettings region,
+      final Set<Long> exclude) {
     InvariantChecks.checkNotNull(buffer);
-    return allocate(buffer.getAddress(), buffer.getTagExpression(), partialAddress, region);
+    return allocate(
+        buffer.getAddress(), buffer.getTagExpression(), partialAddress, region, exclude);
   }
 
   public long allocateIndex(
-      final MmuBuffer buffer, final long partialAddress, final RegionSettings region) {
+      final MmuBuffer buffer,
+      final long partialAddress,
+      final RegionSettings region,
+      final Set<Long> exclude) {
     InvariantChecks.checkNotNull(buffer);
-    return allocate(buffer.getAddress(), buffer.getIndexExpression(), partialAddress, region);
+    return allocate(
+        buffer.getAddress(), buffer.getIndexExpression(), partialAddress, region, exclude);
   }
 
   public long allocate(
       final MmuAddressType address,
       final MmuExpression expression,
       final long partialAddress,
-      final RegionSettings region) {
+      final RegionSettings region,
+      final Set<Long> exclude) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(expression);
 
-    return allocators.get(address).allocate(expression, partialAddress, region);
+    return allocators.get(address).allocate(expression, partialAddress, region, exclude);
   }
 }

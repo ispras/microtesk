@@ -60,8 +60,8 @@ public final class AddressAllocatorTestCase {
     InvariantChecks.checkNotNull(buffer);
 
     for (int i = 0; i < 10; i++) {
-      final long address1 = addressAllocator.allocateIndex(buffer, 0, null);
-      final long address2 = addressAllocator.allocateTag(buffer, address1, null);
+      final long address1 = addressAllocator.allocateIndex(buffer, 0, null, null);
+      final long address2 = addressAllocator.allocateTag(buffer, address1, null, null);
 
       final long index1 = buffer.getIndex(address1);
       final long index2 = buffer.getIndex(address2);
