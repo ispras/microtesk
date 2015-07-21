@@ -62,13 +62,11 @@ public final class DataManager {
 
     @Override
     public String getText() {
-      return super.text + ":";
+      return getName() + ":";
     }
-  }
 
-  private static final class DataDeclDirective extends DataDeclText {
-    DataDeclDirective(final String text) {
-      super(text);
+    public String getName() {
+      return super.text;
     }
   }
 
@@ -271,18 +269,21 @@ public final class DataManager {
       return null;
     }
 
-    return getDeclText(true);
+    return getDeclText(false);
   }
 
-  private String getDeclText(final boolean addSectionText) {
+  private String getDeclText(final boolean isSeparateFile) {
     final StringBuilder sb = new StringBuilder();
 
-    if (addSectionText) {
+    if (!isSeparateFile) {
       sb.append(sectionText);
     }
 
     for (final DataDeclItem item : getDataDecls()) {
-      if (item instanceof DataDeclLabel || item instanceof DataDeclDirective) {
+      if (item instanceof DataDeclLabel) {
+        if (isSeparateFile) {
+          sb.append(String.format("%n.globl %s", ((DataDeclLabel) item).getName()));
+        }
         sb.append(String.format("%n%s", item.getText()));
       } else if (item instanceof DataDeclComment) {
         sb.append(String.format("%n%s%s%s", indentToken, commentToken, item.getText()));
@@ -388,12 +389,6 @@ public final class DataManager {
 
     labels.add(id);
     getDataDecls().add(new DataDeclLabel(id));
-  }
-
-  public void addDirective(final String text) {
-    checkNotNull(text);
-    checkInitialized();
-    getDataDecls().add(new DataDeclDirective(text));
   }
 
   public void addText(final String text) {
@@ -535,11 +530,9 @@ public final class DataManager {
         pushScope();
       }
 
-      addDirective(".globl " + label);
-      addComment(String.format(" 0x%s", bvAddress.toHexString()));
-
       memoryMap.addLabel(label, address);
       addLabel(label);
+      addComment(String.format(" 0x%s", bvAddress.toHexString()));
 
       List<BitVector> dataList = new ArrayList<>(4);
       for (int index = 0; index < length; index++) {
@@ -577,7 +570,7 @@ public final class DataManager {
     try {
       try {
         writer = printer.newFileWriter(fileName);
-        writer.println(getDeclText(false));
+        writer.println(getDeclText(true));
       } finally {
         writer.close();
       }
