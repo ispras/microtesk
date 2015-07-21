@@ -926,12 +926,12 @@ class PageTable
     @data_manager = data_manager
   end
 
-  def page_table_preparator(attrs, &contents)
-    # TODO
+  def page_table_preparator(&contents)
+    @preparator = contents
   end
 
   def page_table_adapter(&contents)
-    # TODO
+    @adapter = contents
   end
 
   def org(address)
@@ -947,7 +947,42 @@ class PageTable
   end
 
   def page_table_entry(attrs)
-    # TODO
+    java_import Java::Ru.ispras.microtesk.test.template::MemoryObject
+
+    if attrs.is_a?(Hash)
+      unless defined? @preparator
+        raise MTRubyError, "page_table_preparator is not defined."
+      end
+
+      prep = @preparator
+      @data_manager.instance_exec(Entry.new(attrs), &prep)
+    elsif attrs.is_a?(MemoryObject)
+      unless defined? @adapter
+        raise MTRubyError, "page_table_adapter is not defined."
+      end
+      @adapter.call attrs
+    else
+      raise MTRubyError,
+        "Unsupported class of page_table_entry argument: #{attrs.class}"
+    end
   end
+
+  class Entry
+    def initialize(attrs)
+      if !attrs.is_a?(Hash)
+        raise MTRubyError, "attrs (#{attrs}) must be a Hash."
+      end
+
+      puts attrs
+      @attrs = attrs
+    end
+
+    def method_missing(name, *args)
+      if args.count != 0
+        raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0."
+      end
+      @attrs[name.to_sym]
+    end
+  end # PageTable::Entry
 
 end # PageTable

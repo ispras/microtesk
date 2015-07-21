@@ -27,20 +27,12 @@ class PageTableTemplate < MiniMipsBaseTemplate
     super
 
     page_table {
-      page_table_preparator(
-        :v  => {:start_bit => 0,  :end_bit => 1},
-        :va => {:start_bit => 1,  :end_bit => 32},
-        :pa => {:start_bit => 33, :end_bit => 65}) {
-
+      page_table_preparator { |pte|
         word pte.v, pte.va, pte.pa
       }
 
-      page_table_adapter { |memory_object|
-        page_table_entry(
-          :v  => 1,
-          :va => memory_object.va,
-          :pa => memory_object.pa
-        )
+      page_table_adapter { |mo|
+        page_table_entry(:v  => 1, :va => mo.va, :pa => mo.pa)
       }
 
       org 0x000F0000
