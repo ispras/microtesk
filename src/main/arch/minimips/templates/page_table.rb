@@ -32,7 +32,7 @@ class PageTableTemplate < MiniMipsBaseTemplate
       }
 
       page_table_adapter { |mo|
-        page_table_entry(:v  => 1, :va => mo.va, :pa => mo.pa)
+        page_table_entry(:v => 1, :va => mo.va, :pa => mo.pa)
       }
 
       org 0x000F0000
@@ -47,7 +47,6 @@ class PageTableTemplate < MiniMipsBaseTemplate
           :va => 0x000A000..0x000F000, :pa => 0x000F000, :size => 64)
       )
     }
-
   end
 
   def run

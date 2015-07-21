@@ -709,8 +709,12 @@ class Template
       raise MTRubyError, "Data configuration is not defined"
     end
 
+    @template.beginData
+
     page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
+
+    @template.endData
   end
 
   # -------------------------------------------------------------------------- #
@@ -978,8 +982,6 @@ class PageTable
       if !attrs.is_a?(Hash)
         raise MTRubyError, "attrs (#{attrs}) must be a Hash."
       end
-
-      puts attrs
       @attrs = attrs
     end
 
