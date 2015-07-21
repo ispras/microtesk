@@ -703,7 +703,11 @@ class Template
   end
 
   def page_table(&contents)
-    page_table = PageTable.new
+    if nil == @data_manager
+      raise MTRubyError, "Data configuration is not defined"
+    end
+
+    page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
   end
 
@@ -917,6 +921,11 @@ end # BufferEntry
 
 class PageTable
 
+  def initialize(template, data_manager)
+    @template = template
+    @data_manager = data_manager
+  end
+
   def page_table_preparator(attrs, &contents)
     # TODO
   end
@@ -926,11 +935,15 @@ class PageTable
   end
 
   def org(address)
-    # TODO
+    @data_manager.org address
+  end
+
+  def align(value)
+    @data_manager.align value
   end
 
   def memory_object(attrs)
-    # TODO
+    @template.memory_object attrs
   end
 
   def page_table_entry(attrs)
