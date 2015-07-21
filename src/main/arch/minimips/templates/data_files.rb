@@ -24,8 +24,17 @@ require_relative 'minimips_base'
 class DataFilesTemplate < MiniMipsBaseTemplate
 
   def run
-    generate_data 0x00000000, :data1, 'word', 64, :random
+    # Generated data are included in the source file
+    generate_data 0x00001000, :data0, 'word', 64, :random, false
+
+    # Generated data are placed to separate files
+    generate_data 0x0000F000, :data1, 'word', 64, :random
     generate_data 0x0000FFFF, :data2, 'word', 64, :zero
+
+    org 0x00010000
+
+    trace_memory_data :data0, 64
+    la t0, :data0
 
     trace_memory_data :data1, 64
     la t1, :data1

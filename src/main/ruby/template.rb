@@ -564,9 +564,11 @@ class Template
   # Generating Data Files                                                      #
   # -------------------------------------------------------------------------- #
 
-  def generate_data(address, label, type, length, method)
+  def generate_data(address, label, type, length, method, *flags)
     # puts "Generating data file"
-    @template.getDataManager.generateData address, label, type, length, method
+    separate_file = if flags.empty? then true else flags[0] end
+    @template.getDataManager.generateData(
+      address, label, type, length, method, separate_file)
   end
 
   # -------------------------------------------------------------------------- #

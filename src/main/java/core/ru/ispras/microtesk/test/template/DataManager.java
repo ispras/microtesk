@@ -501,7 +501,8 @@ public final class DataManager {
       final String label,
       final String typeId,
       final int length,
-      final String method) {
+      final String method,
+      final boolean isSeparateFile) {
     checkNotNull(address);
     checkNotNull(label);
     checkNotNull(typeId);
@@ -511,13 +512,8 @@ public final class DataManager {
     checkInitialized();
     Memory.setUseTempCopies(false);
 
-    final String fileName = String.format(
-        "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
-
-    Logger.debug("Generating data file: %s", fileName);
-
     if (memoryMap.isDefined(label)) {
-      Logger.warning("Label %s is redefined", label);
+      throw new IllegalStateException(String.format("Label %s is redefined", label));
     }
 
     final TypeInfo typeInfo = typeMap.get(typeId);
@@ -535,7 +531,9 @@ public final class DataManager {
       final BitVector bvAddress =
           BitVector.valueOf(address, allocator.getAddressBitSize());
 
-      pushScope();
+      if (isSeparateFile) {
+        pushScope();
+      }
 
       addDirective(".globl " + label);
       addComment(String.format(" 0x%s", bvAddress.toHexString()));
@@ -559,23 +557,30 @@ public final class DataManager {
         }
       }
 
-      PrintWriter writer = null;
-      try {
-        try {
-          writer = printer.newFileWriter(fileName);
-          writer.println(getDeclText(false));
-        } finally {
-          writer.close();
-        }
-      } catch (final IOException e) {
-        new File(fileName).delete();
-        throw new GenerationAbortedException(String.format(
-            "Failed to generate data file %s. Reason: %s", e.getMessage()));
-      }
+      if (isSeparateFile) {
+        final String fileName = String.format(
+          "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
+        Logger.debug("Generating data file: %s", fileName);
 
-      ++dataFileIndex;
+        PrintWriter writer = null;
+        try {
+          try {
+            writer = printer.newFileWriter(fileName);
+            writer.println(getDeclText(false));
+          } finally {
+            writer.close();
+          }
+          ++dataFileIndex;
+        } catch (final IOException e) {
+          new File(fileName).delete();
+          throw new GenerationAbortedException(String.format(
+              "Failed to generate data file %s. Reason: %s", e.getMessage()));
+        }
+      }
     } finally {
-      popScope();
+      if (isSeparateFile) {
+        popScope();
+      }
       allocator = oldAllocator;
     }
   }
