@@ -351,7 +351,14 @@ public final class TestEngine {
         );
 
     final DataManager dataManager = new DataManager(
-        indentToken, originFormat, alignFormat, printer, dataFilePrefix, dataFileExtension);
+        indentToken,
+        commentToken,
+        originFormat,
+        alignFormat,
+        printer,
+        dataFilePrefix,
+        dataFileExtension
+        );
 
     final TemplateProcessor processor = new TemplateProcessor(
         context,

@@ -18,6 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
@@ -41,10 +42,10 @@ public final class DataManager {
     String getText();
   }
 
-  private static class DetaDeclText implements DataDeclItem {
+  private static class DataDeclText implements DataDeclItem {
     private final String text;
 
-    DetaDeclText(final String text) {
+    DataDeclText(final String text) {
       this.text = text;
     }
 
@@ -54,8 +55,8 @@ public final class DataManager {
     }
   }
 
-  private static final class DetaDeclLabel extends DetaDeclText {
-    DetaDeclLabel(final String text) {
+  private static final class DataDeclLabel extends DataDeclText {
+    DataDeclLabel(final String text) {
       super(text);
     }
 
@@ -65,10 +66,22 @@ public final class DataManager {
     }
   }
 
-  private static final class DetaDeclSpace extends DetaDeclText {
+  private static final class DataDeclDirective extends DataDeclText {
+    DataDeclDirective(final String text) {
+      super(text);
+    }
+  }
+
+  private static final class DataDeclComment extends DataDeclText {
+    DataDeclComment(final String text) {
+      super(text);
+    }
+  }
+
+  private static final class DataDeclSpace extends DataDeclText {
     private final int count;
-    
-    DetaDeclSpace(final String text, final int count) {
+
+    DataDeclSpace(final String text, final int count) {
       super(text);
       this.count = count;
     }
@@ -79,10 +92,10 @@ public final class DataManager {
     }
   }
   
-  private static final class DetaDeclStrings extends DetaDeclText {
+  private static final class DataDeclStrings extends DataDeclText {
     final String[] strings;
 
-    DetaDeclStrings(final String text, final String[] strings) {
+    DataDeclStrings(final String text, final String[] strings) {
       super(text);
       this.strings = strings;
     }
@@ -104,10 +117,10 @@ public final class DataManager {
     }
   }
 
-  private static final class DetaDecl extends DetaDeclText {
-    final BigInteger[] values;
+  private static final class DataDecl extends DataDeclText {
+    private final List<BitVector> values;
 
-    DetaDecl(final String text, final BigInteger[] values) {
+    DataDecl(final String text, final List<BitVector> values) {
       super(text);
       this.values = values;
     }
@@ -117,12 +130,16 @@ public final class DataManager {
       final StringBuilder sb = new StringBuilder();
       sb.append(super.getText());
 
-      for (int i = 0; i < values.length; i++) {
-        if (i > 0) {
+      boolean isFirst = true;
+      for (final BitVector value : values) {
+        if (isFirst) { 
+          isFirst = false;
+        } else {
           sb.append(",");
         }
 
-        sb.append(String.format(" 0x%x", values[i]));
+        sb.append(" 0x");
+        sb.append(value.toHexString());
       }
 
       return sb.toString();
@@ -144,6 +161,7 @@ public final class DataManager {
   private String nztermStrText;
 
   private final String indentToken;
+  private final String commentToken;
   private final String originFormat;
   private final String alignFormat;
   private final String dataFilePrefix;
@@ -163,6 +181,7 @@ public final class DataManager {
 
   public DataManager(
       final String indentToken,
+      final String commentToken,
       final String originFormat,
       final String alignFormat, 
       final Printer printer,
@@ -170,6 +189,7 @@ public final class DataManager {
       final String dataFileExtension) {
 
     this.indentToken = indentToken;
+    this.commentToken = commentToken;
     this.originFormat = originFormat;
     this.alignFormat = alignFormat;
 
@@ -232,7 +252,7 @@ public final class DataManager {
   }
 
   public void popScope() {
-    if (dataDeclsStack.size() >= 1) {
+    if (dataDeclsStack.size() <= 1) {
       throw new IllegalStateException();
     }
     dataDeclsStack.pop();
@@ -251,10 +271,21 @@ public final class DataManager {
       return null;
     }
 
-    final StringBuilder sb = new StringBuilder(sectionText);
+    return getDeclText(true);
+  }
+
+  private String getDeclText(final boolean addSectionText) {
+    final StringBuilder sb = new StringBuilder();
+
+    if (addSectionText) {
+      sb.append(sectionText);
+    }
+
     for (final DataDeclItem item : getDataDecls()) {
-      if (item instanceof DetaDeclLabel) {
+      if (item instanceof DataDeclLabel || item instanceof DataDeclDirective) {
         sb.append(String.format("%n%s", item.getText()));
+      } else if (item instanceof DataDeclComment) {
+        sb.append(String.format("%n%s%s%s", indentToken, commentToken, item.getText()));
       } else {
         sb.append(String.format("%n%s%s", indentToken, item.getText()));
       }
@@ -323,7 +354,7 @@ public final class DataManager {
     final String text = String.format(originFormat, value);
     Logger.debug("Setting allocation address: %s", text);
 
-    getDataDecls().add(new DetaDeclText(text));
+    getDataDecls().add(new DataDeclText(text));
     allocator.setCurrentAddress(value);
   }
 
@@ -341,7 +372,7 @@ public final class DataManager {
     final String text = String.format(alignFormat, value);
     Logger.debug("Setting alignment: %s (%d bytes)", text, valueInBytes);
 
-    getDataDecls().add(new DetaDeclText(text));
+    getDataDecls().add(new DataDeclText(text));
     allocator.align(valueInBytes);
   }
 
@@ -356,7 +387,25 @@ public final class DataManager {
     }
 
     labels.add(id);
-    getDataDecls().add(new DetaDeclLabel(id));
+    getDataDecls().add(new DataDeclLabel(id));
+  }
+
+  public void addDirective(final String text) {
+    checkNotNull(text);
+    checkInitialized();
+    getDataDecls().add(new DataDeclDirective(text));
+  }
+
+  public void addText(final String text) {
+    checkNotNull(text);
+    checkInitialized();
+    getDataDecls().add(new DataDeclText(text));
+  }
+
+  public void addComment(final String text) {
+    checkNotNull(text);
+    checkInitialized();
+    getDataDecls().add(new DataDeclComment(text));
   }
 
   private void setAllLabelsToAddress(final BigInteger address) {
@@ -383,16 +432,21 @@ public final class DataManager {
           "The %s type is not defined.", id));
     }
 
-    final BigInteger address = allocator.allocate(
-        BitVector.valueOf(values[0], typeInfo.type.getBitSize()));
+    final List<BitVector> dataList = new ArrayList<>(values.length);
+    boolean isFirst = true;
 
-    for (int i = 1; i < values.length; i++) {
-      allocator.allocate(
-          BitVector.valueOf(values[i], typeInfo.type.getBitSize()));
+    for (final BigInteger value : values) {
+      final BitVector data = BitVector.valueOf(value, typeInfo.type.getBitSize());
+      dataList.add(data);
+
+      final BigInteger address = allocator.allocate(data);
+      if (isFirst) {
+        setAllLabelsToAddress(address);
+        isFirst = false;
+      }
     }
 
-    setAllLabelsToAddress(address);
-    getDataDecls().add(new DetaDecl(typeInfo.text, values));
+    getDataDecls().add(new DataDecl(typeInfo.text, dataList));
   }
 
   public void addSpace(final int length) {
@@ -406,7 +460,7 @@ public final class DataManager {
     final BigInteger address = allocator.allocate(spaceData, length);
 
     setAllLabelsToAddress(address);
-    getDataDecls().add(new DetaDeclSpace(spaceText, length));
+    getDataDecls().add(new DataDeclSpace(spaceText, length));
   }
 
   public void addAsciiStrings(final boolean zeroTerm, final String[] strings) {
@@ -428,7 +482,7 @@ public final class DataManager {
     }
 
     setAllLabelsToAddress(address);
-    getDataDecls().add(new DetaDeclStrings(
+    getDataDecls().add(new DataDeclStrings(
         (zeroTerm ? ztermStrText : nztermStrText), strings));
   }
 
@@ -462,59 +516,70 @@ public final class DataManager {
 
     Logger.debug("Generating data file: %s", fileName);
 
+    if (memoryMap.isDefined(label)) {
+      Logger.warning("Label %s is redefined", label);
+    }
+
     final TypeInfo typeInfo = typeMap.get(typeId);
     if (null == typeInfo) {
       throw new IllegalStateException(String.format(
           "The %s type is not defined.", typeId));
     }
 
-    final MemoryAllocator localAllocator = new MemoryAllocator(
-        allocator.getMemoryStorage(), allocator.getAddressableUnitBitSize(), address);
-
-    if (memoryMap.isDefined(label)) {
-      Logger.warning("Label %s is redefined", label);
-    }
-
-    memoryMap.addLabel(label, address);
-
-    final BitVector bvAddress = BitVector.valueOf(address, localAllocator.getAddressBitSize());
-    final String typeText = indentToken + typeInfo.text;
-
     final DataGenerator dataGenerator = newDataGenerator(method, typeInfo);
-    PrintWriter writer = null;
+
+    final MemoryAllocator oldAllocator = allocator;
     try {
-      writer = printer.newFileWriter(fileName);
-      writer.println();
-      writer.println(".globl " + label);
-      printer.printCommentToFile(writer, String.format("0x%s", bvAddress.toHexString()));
-      writer.println(label + ":");
+      allocator = new MemoryAllocator(
+          oldAllocator.getMemoryStorage(), oldAllocator.getAddressableUnitBitSize(), address);
+      final BitVector bvAddress =
+          BitVector.valueOf(address, allocator.getAddressBitSize());
 
-      try {
-        for (int index = 0; index < length; index++) {
-          final BitVector data = dataGenerator.nextData();
-          localAllocator.allocate(data);
+      pushScope();
 
-          final boolean nextLine = index % 4 == 0;
-          if (nextLine && index > 0) {
-            writer.println();
-          }
+      addDirective(".globl " + label);
+      addComment(String.format(" 0x%s", bvAddress.toHexString()));
 
-          writer.print(nextLine ? typeText : ",");
-          writer.print(" 0x" + data.toHexString());
+      memoryMap.addLabel(label, address);
+      addLabel(label);
+
+      List<BitVector> dataList = new ArrayList<>(4);
+      for (int index = 0; index < length; index++) {
+        final BitVector data = dataGenerator.nextData();
+
+        allocator.allocate(data);
+        dataList.add(data);
+
+        final boolean isNewDecl =
+            (index == length - 1) || (index + 1) % 4 == 0;
+
+        if (isNewDecl) {
+          getDataDecls().add(new DataDecl(typeInfo.text, dataList));
+          dataList = new ArrayList<>(4);
         }
-        writer.println();
-      } finally {
-        writer.close();
       }
-    } catch (final Exception e) {
-      new File(fileName).delete();
-      throw new GenerationAbortedException(String.format(
-          "Failed to generate data file %s. Reason: %s", e.getMessage()));
-    }
 
-    dataFileIndex++;
+      PrintWriter writer = null;
+      try {
+        try {
+          writer = printer.newFileWriter(fileName);
+          writer.println(getDeclText(false));
+        } finally {
+          writer.close();
+        }
+      } catch (final IOException e) {
+        new File(fileName).delete();
+        throw new GenerationAbortedException(String.format(
+            "Failed to generate data file %s. Reason: %s", e.getMessage()));
+      }
+
+      ++dataFileIndex;
+    } finally {
+      popScope();
+      allocator = oldAllocator;
+    }
   }
-  
+
   private static DataGenerator newDataGenerator(
       final String name, final TypeInfo typeInfo) {
 
