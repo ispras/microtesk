@@ -42,7 +42,7 @@ public final class DataManager {
   private static class DetaDeclText implements DataDeclItem {
     private final String text;
 
-    DetaDeclText(String text) {
+    DetaDeclText(final String text) {
       this.text = text;
     }
 
@@ -53,7 +53,7 @@ public final class DataManager {
   }
 
   private static final class DetaDeclLabel extends DetaDeclText {
-    DetaDeclLabel(String text) {
+    DetaDeclLabel(final String text) {
       super(text);
     }
 
@@ -66,7 +66,7 @@ public final class DataManager {
   private static final class DetaDeclSpace extends DetaDeclText {
     private final int count;
     
-    DetaDeclSpace(String text, int count) {
+    DetaDeclSpace(final String text, final int count) {
       super(text);
       this.count = count;
     }
@@ -80,7 +80,7 @@ public final class DataManager {
   private static final class DetaDeclStrings extends DetaDeclText {
     final String[] strings;
 
-    DetaDeclStrings(String text, String[] strings) {
+    DetaDeclStrings(final String text, final String[] strings) {
       super(text);
       this.strings = strings;
     }
@@ -105,7 +105,7 @@ public final class DataManager {
   private static final class DetaDecl extends DetaDeclText {
     final BigInteger[] values;
 
-    DetaDecl(String text, BigInteger[] values) {
+    DetaDecl(final String text, final BigInteger[] values) {
       super(text);
       this.values = values;
     }
@@ -152,7 +152,7 @@ public final class DataManager {
     final Type type;
     final String text;
 
-    public TypeInfo(Type type, String text) {
+    public TypeInfo(final Type type, final String text) {
       this.type = type;
       this.text = text;
     }
@@ -232,7 +232,11 @@ public final class DataManager {
     return sb.toString();
   }
 
-  public void defineType(String id, String text, String typeName, int[] typeArgs) {
+  public void defineType(
+      final String id,
+      final String text,
+      final String typeName,
+      final int[] typeArgs) {
     checkNotNull(id);
     checkNotNull(text);
     checkNotNull(typeName);
@@ -246,7 +250,10 @@ public final class DataManager {
     typeMap.put(id, new TypeInfo(type, text));
   }
 
-  public void defineSpace(String id, String text, BigInteger fillWith) {
+  public void defineSpace(
+      final String id,
+      final String text,
+      final BigInteger fillWith) {
     checkNotNull(id);
     checkNotNull(text);
     checkNotNull(fillWith);
@@ -258,7 +265,10 @@ public final class DataManager {
     spaceData = BitVector.valueOf(fillWith, allocator.getAddressableUnitBitSize());
   }
 
-  public void defineAsciiString(String id, String text, boolean zeroTerm) {
+  public void defineAsciiString(
+      final String id,
+      final String text,
+      final boolean zeroTerm) {
     checkNotNull(id);
     checkNotNull(text);
     checkInitialized();
@@ -329,7 +339,7 @@ public final class DataManager {
     }
   }
 
-  public void addData(String id, BigInteger[] values) {
+  public void addData(final String id, final BigInteger[] values) {
     checkNotNull(id);
     checkNotNull(values);
     checkGreaterThanZero(values.length);
@@ -354,7 +364,7 @@ public final class DataManager {
     dataDecls.add(new DetaDecl(typeInfo.text, values));
   }
 
-  public void addSpace(int length) {
+  public void addSpace(final int length) {
     checkGreaterThanZero(length);
     checkInitialized();
 
@@ -368,7 +378,7 @@ public final class DataManager {
     dataDecls.add(new DetaDeclSpace(spaceText, length));
   }
 
-  public void addAsciiStrings(boolean zeroTerm, String[] strings) {
+  public void addAsciiStrings(final boolean zeroTerm, final String[] strings) {
     checkNotNull(strings);
     checkGreaterThanZero(strings.length);
     checkInitialized();
@@ -390,7 +400,7 @@ public final class DataManager {
     dataDecls.add(new DetaDeclStrings((zeroTerm ? ztermStrText : nztermStrText), strings));
   }
 
-  public int newRandom(int min, int max) {
+  public int newRandom(final int min, final int max) {
     return Randomizer.get().nextIntRange(min, max);
   }
 
