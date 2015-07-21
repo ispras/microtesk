@@ -942,6 +942,10 @@ class PageTable
     @data_manager.align value
   end
 
+  def label(id)
+    @data_manager.label id
+  end
+
   def memory_object(attrs)
     @template.memory_object attrs
   end

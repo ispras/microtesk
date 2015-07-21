@@ -36,6 +36,7 @@ class PageTableTemplate < MiniMipsBaseTemplate
       }
 
       org 0x000F0000
+      label :page_table
 
       page_table_entry(:v => 1, :va => 0x0000000, :pa => 0x0001000)
       page_table_entry(:v => 1, :va => 0x0001000, :pa => 0x0002000)
