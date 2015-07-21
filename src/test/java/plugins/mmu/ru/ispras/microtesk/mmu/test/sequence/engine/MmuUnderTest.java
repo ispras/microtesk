@@ -17,8 +17,8 @@ package ru.ispras.microtesk.mmu.test.sequence.engine;
 import java.math.BigInteger;
 import java.util.Collections;
 
-import ru.ispras.microtesk.basis.solver.IntegerField;
-import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;

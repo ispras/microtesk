@@ -21,8 +21,8 @@ import java.util.Collections;
 
 import org.junit.Test;
 
-import ru.ispras.microtesk.basis.solver.IntegerField;
-import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 public class IntegerFieldTrackerTestCase {
   @Test

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver;
+package ru.ispras.microtesk.basis.solver.integer;
 
 import ru.ispras.fortress.util.InvariantChecks;
 

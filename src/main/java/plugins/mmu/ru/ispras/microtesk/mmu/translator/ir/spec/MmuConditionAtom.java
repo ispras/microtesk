@@ -17,9 +17,9 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.IntegerField;
-import ru.ispras.microtesk.basis.solver.IntegerRange;
-import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 /**
  * {@link MmuConditionAtom} represents an atomic condition.

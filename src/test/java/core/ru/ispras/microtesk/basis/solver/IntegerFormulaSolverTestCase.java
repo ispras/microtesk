@@ -21,11 +21,10 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ru.ispras.microtesk.basis.SolverResult;
-import ru.ispras.microtesk.basis.solver.IntegerClause;
-import ru.ispras.microtesk.basis.solver.IntegerFormula;
-import ru.ispras.microtesk.basis.solver.IntegerFormulaSolver;
-import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaSolver;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 /**
  * Test for {@link IntegerFormulaSolver}.

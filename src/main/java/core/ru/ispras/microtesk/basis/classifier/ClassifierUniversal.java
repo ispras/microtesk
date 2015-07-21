@@ -12,17 +12,35 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis;
+package ru.ispras.microtesk.basis.classifier;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
- * {@link Classifier} is an interface for object classification policies.
+ * {@link ClassifierUniversal} implements the trivial policy for object classification: all objects
+ * belong to one equivalence class.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Classifier<T> {
-  List<Set<T>> classify(Collection<T> objects);
+public final class ClassifierUniversal<T> implements Classifier<T> {
+  @Override
+  public List<Set<T>> classify(final Collection<T> objects) {
+    InvariantChecks.checkNotNull(objects);
+
+    final List<Set<T>> groups = new ArrayList<>();
+    final Set<T> group = new LinkedHashSet<>();
+
+    for (final T object : objects) {
+      group.add(object);
+    }
+
+    groups.add(group);
+    return groups;
+  }
 }

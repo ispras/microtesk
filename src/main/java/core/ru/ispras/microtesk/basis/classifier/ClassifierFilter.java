@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis;
+package ru.ispras.microtesk.basis.classifier;
 
 import java.util.ArrayList;
 import java.util.Collection;

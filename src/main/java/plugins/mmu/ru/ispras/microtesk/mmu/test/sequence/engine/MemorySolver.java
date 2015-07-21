@@ -23,8 +23,8 @@ import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.Solver;
-import ru.ispras.microtesk.basis.SolverResult;
+import ru.ispras.microtesk.basis.solver.Solver;
+import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;

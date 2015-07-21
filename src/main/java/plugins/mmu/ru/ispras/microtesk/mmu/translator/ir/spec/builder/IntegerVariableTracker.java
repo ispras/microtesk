@@ -19,7 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.basis.solver.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 

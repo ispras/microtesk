@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.Classifier;
+import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -31,12 +31,12 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link ClassifierBuffer} classifies memory accesses using devices and events. Memory accesses
+ * {@link ClassifierBufferEvents} classifies memory accesses using devices and events. Memory accesses
  * are considered to be equivalent if they use the same devices and causes the same events.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class ClassifierBuffer implements Classifier<MemoryAccessPath> {
+public final class ClassifierBufferEvents implements Classifier<MemoryAccessPath> {
   @Override
   public List<Set<MemoryAccessPath>> classify(final Collection<MemoryAccessPath> paths) {
     InvariantChecks.checkNotNull(paths);

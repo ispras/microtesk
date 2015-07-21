@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis;
+package ru.ispras.microtesk.basis.solver;
 
 /**
  * {@link Solver} defines an interface of solvers.

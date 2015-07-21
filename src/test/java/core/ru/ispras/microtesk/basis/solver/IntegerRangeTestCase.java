@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import ru.ispras.microtesk.basis.solver.IntegerRange;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 
 /**
  * Test for {@link IntegerRange}.

@@ -12,37 +12,36 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier;
+package ru.ispras.microtesk.basis.classifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.Classifier;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 
 /**
- * {@link ClassifierTrivial} implements the trivial policy for memory access path classification.
+ * {@link ClassifierTrivial} implements the trivial policy for object classification: there is a
+ * unique equivalence class for each object.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class ClassifierTrivial implements Classifier<MemoryAccessPath> {
+public final class ClassifierTrivial<T> implements Classifier<T> {
   @Override
-  public List<Set<MemoryAccessPath>> classify(final Collection<MemoryAccessPath> paths) {
-    InvariantChecks.checkNotNull(paths);
+  public List<Set<T>> classify(final Collection<T> objects) {
+    InvariantChecks.checkNotNull(objects);
 
-    final List<Set<MemoryAccessPath>> pathClasses = new ArrayList<>();
+    final List<Set<T>> groups = new ArrayList<>();
 
-    for (final MemoryAccessPath path : paths) {
-      final Set<MemoryAccessPath> pathClass = new HashSet<>();
+    for (final T object : objects) {
+      final Set<T> group = new LinkedHashSet<>();
 
-      pathClass.add(path);
-      pathClasses.add(pathClass);
+      group.add(object);
+      groups.add(group);
     }
 
-    return pathClasses;
+    return groups;
   }
 }

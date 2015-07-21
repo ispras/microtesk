@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver;
+package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

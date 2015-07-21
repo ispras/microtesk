@@ -19,14 +19,15 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.SolverResult;
+import ru.ispras.microtesk.basis.classifier.ClassifierTrivial;
+import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
@@ -122,7 +123,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBits / 8)));
     }
 
-    return new MemoryAccessStructureIterator(accessTypes, new ClassifierTrivial());
+    return new MemoryAccessStructureIterator(accessTypes, new ClassifierTrivial<MemoryAccessPath>());
   }
 
   private Iterator<MemorySolution> getSolutionIterator(
