@@ -20,7 +20,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.io.File;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +131,8 @@ public final class DataManager {
 
   private final Printer printer;
   private final MemoryMap memoryMap;
-  private final List<DataDeclItem> dataDecls;
+  private final List<DataDeclItem> globalDataDecls;
+  private final Deque<List<DataDeclItem>> dataDeclsStack;
 
   private String sectionText;
   private MemoryAllocator allocator;
@@ -176,7 +179,10 @@ public final class DataManager {
     this.dataFileIndex = 0;
 
     this.memoryMap = new MemoryMap();
-    this.dataDecls = new ArrayList<>();
+
+    this.globalDataDecls = new ArrayList<>();
+    this.dataDeclsStack = new ArrayDeque<>();
+    this.dataDeclsStack.push(this.globalDataDecls);
 
     this.sectionText = null;
     this.allocator = null;
@@ -188,6 +194,20 @@ public final class DataManager {
     this.nztermStrText = null;
 
     this.typeMap = new HashMap<>(); 
+  }
+
+  /**
+   * Returns a collection of data declaration in the current scope.
+   * There can be two scopes: (1) global that holds declarations
+   * to be placed to all generated source code files, or
+   * (2) local that contains declarations to be placed in a separate
+   * data file.
+   * 
+   * @return List of data declaration used in the current scope.
+   */
+
+  public List<DataDeclItem> getDataDecls() {
+    return dataDeclsStack.peek();
   }
 
   public void init(final String text, final String target, final int addressableSize) {
@@ -208,7 +228,7 @@ public final class DataManager {
   }
 
   public boolean containsDecls() {
-    return !dataDecls.isEmpty();
+    return !getDataDecls().isEmpty();
   }
 
   public MemoryMap getMemoryMap() {
@@ -221,7 +241,7 @@ public final class DataManager {
     }
 
     final StringBuilder sb = new StringBuilder(sectionText);
-    for (DataDeclItem item : dataDecls) {
+    for (final DataDeclItem item : getDataDecls()) {
       if (item instanceof DetaDeclLabel) {
         sb.append(String.format("%n%s", item.getText()));
       } else {
@@ -292,7 +312,7 @@ public final class DataManager {
     final String text = String.format(originFormat, value);
     Logger.debug("Setting allocation address: %s", text);
 
-    dataDecls.add(new DetaDeclText(text));
+    getDataDecls().add(new DetaDeclText(text));
     allocator.setCurrentAddress(value);
   }
 
@@ -310,7 +330,7 @@ public final class DataManager {
     final String text = String.format(alignFormat, value);
     Logger.debug("Setting alignment: %s (%d bytes)", text, valueInBytes);
 
-    dataDecls.add(new DetaDeclText(text));
+    getDataDecls().add(new DetaDeclText(text));
     allocator.align(valueInBytes);
   }
 
@@ -325,7 +345,7 @@ public final class DataManager {
     }
 
     labels.add(id);
-    dataDecls.add(new DetaDeclLabel(id));
+    getDataDecls().add(new DetaDeclLabel(id));
   }
 
   private void setAllLabelsToAddress(final BigInteger address) {
@@ -361,7 +381,7 @@ public final class DataManager {
     }
 
     setAllLabelsToAddress(address);
-    dataDecls.add(new DetaDecl(typeInfo.text, values));
+    getDataDecls().add(new DetaDecl(typeInfo.text, values));
   }
 
   public void addSpace(final int length) {
@@ -375,7 +395,7 @@ public final class DataManager {
     final BigInteger address = allocator.allocate(spaceData, length);
 
     setAllLabelsToAddress(address);
-    dataDecls.add(new DetaDeclSpace(spaceText, length));
+    getDataDecls().add(new DetaDeclSpace(spaceText, length));
   }
 
   public void addAsciiStrings(final boolean zeroTerm, final String[] strings) {
@@ -397,7 +417,8 @@ public final class DataManager {
     }
 
     setAllLabelsToAddress(address);
-    dataDecls.add(new DetaDeclStrings((zeroTerm ? ztermStrText : nztermStrText), strings));
+    getDataDecls().add(new DetaDeclStrings(
+        (zeroTerm ? ztermStrText : nztermStrText), strings));
   }
 
   public int newRandom(final int min, final int max) {
