@@ -607,14 +607,20 @@ class Template
     @data_manager.instance_eval &contents
   end
 
-  def data(&contents)
+  def data(attrs = {}, &contents)
     if nil == @data_manager
       raise MTRubyError, "Data configuration is not defined"
     end
 
-    @template.beginData
+    if attrs.has_key?(:separate_file)
+      separate_file = attrs[:separate_file]
+    else
+      separate_file = false
+    end
+
+    @template.beginData separate_file
     @data_manager.instance_eval &contents
-    @template.endData
+    @template.endData separate_file
   end
 
   # -------------------------------------------------------------------------- #
@@ -704,17 +710,23 @@ class Template
     builder.build
   end
 
-  def page_table(&contents)
+  def page_table(attrs = {}, &contents)
     if nil == @data_manager
       raise MTRubyError, "Data configuration is not defined"
     end
 
-    @template.beginData
+    if attrs.has_key?(:separate_file)
+      separate_file = attrs[:separate_file]
+    else
+      separate_file = false
+    end
+
+    @template.beginData separate_file
 
     page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
 
-    @template.endData
+    @template.endData separate_file
   end
 
   # -------------------------------------------------------------------------- #

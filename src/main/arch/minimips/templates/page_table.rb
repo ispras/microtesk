@@ -26,7 +26,7 @@ class PageTableTemplate < MiniMipsBaseTemplate
   def pre
     super
 
-    page_table {
+    page_table(:separate_file => true) {
       page_table_preparator { |pte|
         word pte.v, pte.va, pte.pa
       }

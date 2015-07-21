@@ -709,14 +709,23 @@ public final class Template {
     isExceptionHandlerDefined = true;
   }
 
-  public void beginData() {
-    Logger.debug("Begin Data");
+  public void beginData(final boolean isSeparateFile) {
+    Logger.debug("Begin Data (isSeparateFile=%b)", isSeparateFile);
     Memory.setUseTempCopies(false);
+
+    if (isSeparateFile) {
+      dataManager.pushScope();
+    }
   }
 
-  public void endData() {
-    Logger.debug("End Data");
+  public void endData(final boolean isSeparateFile) {
+    Logger.debug("End Data (isSeparateFile=%b)", isSeparateFile);
     context.setAddress(dataManager.getAddress().longValue());
+
+    if (isSeparateFile) {
+      dataManager.saveDeclsToFile();
+      dataManager.popScope();
+    }
   }
 
   public void setOrigin(final BigInteger address) {

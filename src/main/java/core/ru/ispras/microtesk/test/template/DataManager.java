@@ -558,30 +558,34 @@ public final class DataManager {
       }
 
       if (isSeparateFile) {
-        final String fileName = String.format(
-          "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
-        Logger.debug("Generating data file: %s", fileName);
-
-        PrintWriter writer = null;
-        try {
-          try {
-            writer = printer.newFileWriter(fileName);
-            writer.println(getDeclText(false));
-          } finally {
-            writer.close();
-          }
-          ++dataFileIndex;
-        } catch (final IOException e) {
-          new File(fileName).delete();
-          throw new GenerationAbortedException(String.format(
-              "Failed to generate data file %s. Reason: %s", e.getMessage()));
-        }
+        saveDeclsToFile();
       }
     } finally {
       if (isSeparateFile) {
         popScope();
       }
       allocator = oldAllocator;
+    }
+  }
+
+  public void saveDeclsToFile() {
+    final String fileName = String.format(
+        "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
+    Logger.debug("Generating data file: %s", fileName);
+
+    PrintWriter writer = null;
+    try {
+      try {
+        writer = printer.newFileWriter(fileName);
+        writer.println(getDeclText(false));
+      } finally {
+        writer.close();
+      }
+      ++dataFileIndex;
+    } catch (final IOException e) {
+      new File(fileName).delete();
+      throw new GenerationAbortedException(String.format(
+          "Failed to generate data file %s. Reason: %s", e.getMessage()));
     }
   }
 
