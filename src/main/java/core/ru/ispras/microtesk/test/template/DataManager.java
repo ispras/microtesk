@@ -196,20 +196,6 @@ public final class DataManager {
     this.typeMap = new HashMap<>(); 
   }
 
-  /**
-   * Returns a collection of data declaration in the current scope.
-   * There can be two scopes: (1) global that holds declarations
-   * to be placed to all generated source code files, or
-   * (2) local that contains declarations to be placed in a separate
-   * data file.
-   * 
-   * @return List of data declaration used in the current scope.
-   */
-
-  public List<DataDeclItem> getDataDecls() {
-    return dataDeclsStack.peek();
-  }
-
   public void init(final String text, final String target, final int addressableSize) {
     checkNotNull(text);
     checkNotNull(target);
@@ -225,6 +211,31 @@ public final class DataManager {
 
   public boolean isInitialized() {
     return allocator != null;
+  }
+
+  /**
+   * Returns a collection of data declaration in the current scope.
+   * There can be two scopes: (1) global that holds declarations
+   * to be placed to all generated source code files, or
+   * (2) local that contains declarations to be placed in a separate
+   * data file.
+   * 
+   * @return List of data declaration used in the current scope.
+   */
+
+  private List<DataDeclItem> getDataDecls() {
+    return dataDeclsStack.peek();
+  }
+
+  public void pushScope() {
+    dataDeclsStack.push(new ArrayList<DataDeclItem>());
+  }
+
+  public void popScope() {
+    if (dataDeclsStack.size() >= 1) {
+      throw new IllegalStateException();
+    }
+    dataDeclsStack.pop();
   }
 
   public boolean containsDecls() {
