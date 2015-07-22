@@ -29,7 +29,7 @@ import ru.ispras.microtesk.settings.RegionSettings;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressStorage {
-  /** Address alignment mask. */
+  /** Address alignment mask (11...100...0). */
   private final long addressMask;
 
   /** Contains region-separated aligned addresses. */
@@ -59,7 +59,17 @@ public final class AddressStorage {
   }
 
   public Collection<Long> getAll(final RegionSettings region) {
-    InvariantChecks.checkNotNull(region);
-    return storage.get(region);
+    // Parameter {@code region} can be null;
+    if (region != null) {
+      return storage.get(region);
+    }
+
+    final Set<Long> result = new HashSet<>();
+
+    for (final Set<Long> addresses : storage.values()) {
+      result.addAll(addresses);
+    }
+
+    return result;
   }
 }

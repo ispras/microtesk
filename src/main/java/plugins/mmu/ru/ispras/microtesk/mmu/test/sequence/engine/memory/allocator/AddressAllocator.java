@@ -30,14 +30,12 @@ import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * {@link AddressAllocator} implements a region-sensitive address (tag, index, etc.) allocator for
- * memory subsystem buffers. Stores allocated addresses. 
+ * memory subsystem buffers. 
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressAllocator {
   private final Map<MmuAddressType, AddressAllocationEngine> allocators = new HashMap<>();
-
-  private final Map<MmuAddressType, AddressStorage> storages = new HashMap<>();
 
   public AddressAllocator(
       final MmuSubsystem memory, final Map<MmuAddressType, Collection<RegionSettings>> regions) {
@@ -76,9 +74,6 @@ public final class AddressAllocator {
       final AddressAllocationEngine allocator = new AddressAllocationEngine(
           addressType, addressExpressions, addressMask, addressRegions);
       allocators.put(addressType, allocator);
-
-      final AddressStorage storage = new AddressStorage(addressRegions, addressMask);
-      storages.put(addressType, storage);
     }
   }
 
@@ -117,10 +112,5 @@ public final class AddressAllocator {
     // Parameters {@code region} and {@code exclude} can be null.
 
     return allocators.get(address).allocate(expression, partialAddress, region, exclude);
-  }
-
-  public AddressStorage getStorage(final MmuAddressType address) {
-    InvariantChecks.checkNotNull(address);
-    return storages.get(address);
   }
 }
