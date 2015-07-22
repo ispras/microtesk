@@ -565,7 +565,7 @@ public final class DataManager {
   }
 
   // TODO:
-  public void generateData(
+  public void generateDataX(
       final BigInteger startAddress,
       final Collection<BigInteger> addresses,
       final BigInteger addressMask,
