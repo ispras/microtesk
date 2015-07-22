@@ -612,8 +612,7 @@ public final class DataManager {
           final BigInteger printedAddress =
               printAbsoluteOrg ? address : address.subtract(startAddress);
 
-          getDataDecls().add(
-              new DataDeclText(String.format(originFormat, printedAddress)));
+          addText(String.format(originFormat, printedAddress));
         }
 
         List<BitVector> dataList = new ArrayList<>(4);
