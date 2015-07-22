@@ -607,7 +607,13 @@ public final class DataManager {
         checkTrue(address.compareTo(startAddress) >= 0);
 
         if (address.compareTo(nextAddress) != 0) {
-          setAddress(printAbsoluteOrg ? address : address.subtract(startAddress));
+          allocator.setCurrentAddress(address);
+
+          final BigInteger printedAddress =
+              printAbsoluteOrg ? address : address.subtract(startAddress);
+
+          getDataDecls().add(
+              new DataDeclText(String.format(originFormat, printedAddress)));
         }
 
         List<BitVector> dataList = new ArrayList<>(4);
