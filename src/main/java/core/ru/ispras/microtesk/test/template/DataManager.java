@@ -564,6 +564,84 @@ public final class DataManager {
     }
   }
 
+  public void generateDataX(
+      final BigInteger startAddress,
+      final Collection<BigInteger> addresses,
+      final BigInteger addressMask,
+      final boolean printAbsoluteOrg,
+      final String method,
+      final boolean isSeparateFile) {
+    checkNotNull(startAddress);
+    checkNotNull(addresses);
+    checkNotNull(method);
+
+    checkInitialized();
+    Memory.setUseTempCopies(false);
+
+    final List<BigInteger> sortedAddresses = new ArrayList<>(addresses);
+    Collections.sort(sortedAddresses);
+
+    final int blockSize = addressMask.not().intValue() + 1;
+    final int unitSize = blockSize > 8 ? 8 : blockSize;
+    final int unitsInRow = blockSize / unitSize;
+
+    final TypeInfo typeInfo = getTypeInfoForSize(unitSize);
+    final DataGenerator dataGenerator = newDataGenerator(method, typeInfo);
+
+    final MemoryAllocator oldAllocator = allocator;
+    try {
+      allocator = new MemoryAllocator(
+          oldAllocator.getMemoryStorage(),
+          oldAllocator.getAddressableUnitBitSize(),
+          startAddress
+          );
+
+      if (isSeparateFile) {
+        pushScope();
+      }
+
+      addComment(String.format(" 0x%x", startAddress));
+
+      BigInteger nextAddress = BigInteger.ZERO.not();
+      for (final BigInteger address : sortedAddresses) {
+        checkTrue(address.compareTo(startAddress) >= 0);
+
+        if (address.compareTo(nextAddress) != 0) {
+          setAddress(printAbsoluteOrg ? address : address.subtract(startAddress));
+        }
+
+        List<BitVector> dataList = new ArrayList<>(4);
+        for (int i = 0; i < unitsInRow; i++) {
+          final BitVector data = dataGenerator.nextData();
+
+          allocator.allocate(data);
+          dataList.add(data);
+
+          final boolean isNewDecl =
+              (i == unitsInRow - 1) || (i + 1) % 4 == 0;
+
+          if (isNewDecl) {
+            getDataDecls().add(new DataDecl(typeInfo.text, dataList));
+            dataList = new ArrayList<>(4);
+          }
+        }
+
+        nextAddress = allocator.getCurrentAddress();
+      }
+
+      if (isSeparateFile) {
+        saveDeclsToFile();
+      }
+    } finally {
+      if (isSeparateFile) {
+        popScope();
+      }
+      allocator = oldAllocator;
+    }
+  }
+
+  /*
+
   // TODO:
   public void generateDataX(
       final BigInteger startAddress,
@@ -603,6 +681,20 @@ public final class DataManager {
 
       nextAddress = address.add(BigInteger.valueOf(blockSize));
     }
+  }
+
+  */
+
+  private TypeInfo getTypeInfoForSize(final int typeSizeInBytes) {
+    final int bitSize = typeSizeInBytes * 8;
+    for (final TypeInfo typeInfo : typeMap.values()) {
+      if (bitSize == typeInfo.type.getBitSize()) {
+        return typeInfo;
+      }
+    }
+
+    throw new IllegalArgumentException(String.format(
+        "No %d-byte type is defined.", typeSizeInBytes));
   }
 
   public void saveDeclsToFile() {
