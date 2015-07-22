@@ -20,6 +20,7 @@ import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
+import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -31,6 +32,7 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
  */
 public final class EngineContext {
   private final IModel model;
+  private final DataManager dataManager;
   private final PreparatorStore preparators;
   private final BufferPreparatorStore bufferPreparators;
   private final StreamStore streams;
@@ -47,18 +49,21 @@ public final class EngineContext {
 
   public EngineContext(
       final IModel model,
+      final DataManager dataManager,
       final PreparatorStore preparators,
       final BufferPreparatorStore bufferPreparators,
       final StreamStore streams,
       final GeneratorSettings settings) {
 
     InvariantChecks.checkNotNull(model);
+    InvariantChecks.checkNotNull(dataManager);
     InvariantChecks.checkNotNull(preparators);
     InvariantChecks.checkNotNull(bufferPreparators);
     InvariantChecks.checkNotNull(streams);
     InvariantChecks.checkNotNull(settings);
 
     this.model = model;
+    this.dataManager = dataManager;
     this.preparators = preparators;
     this.bufferPreparators = bufferPreparators;
     this.streams = streams;
@@ -75,6 +80,10 @@ public final class EngineContext {
 
   public IModel getModel() {
     return model;
+  }
+
+  public DataManager getDataManager() {
+    return dataManager;
   }
 
   public PreparatorStore getPreparators() {

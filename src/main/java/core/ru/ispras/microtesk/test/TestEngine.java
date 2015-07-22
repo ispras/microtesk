@@ -324,17 +324,7 @@ public final class TestEngine {
     final PreparatorStore preparators = new PreparatorStore();
     final BufferPreparatorStore bufferPreparators = new BufferPreparatorStore();
     final StreamStore streams = new StreamStore();
- 
-    final EngineContext context = new EngineContext(
-        model, preparators, bufferPreparators, streams, settings);
-
     final IModelStateObserver observer = model.getStateObserver();
-
-    final LogPrinter logPrinter = tarmacLog ?
-        new LogPrinter(codeFilePrefix) : null;
-
-    final Executor executor = new Executor(
-        context, observer, branchExecutionLimit, logPrinter, originFormat, alignFormat);
 
     final Printer printer = new Printer(
         outDir,
@@ -359,6 +349,23 @@ public final class TestEngine {
         dataFilePrefix,
         dataFileExtension
         );
+ 
+    final EngineContext context = new EngineContext(
+        model,
+        dataManager,
+        preparators,
+        bufferPreparators,
+        streams,
+        settings
+        );
+
+    final LogPrinter logPrinter = tarmacLog ?
+        new LogPrinter(codeFilePrefix) : null;
+
+    final Executor executor = new Executor(
+        context, observer, branchExecutionLimit, logPrinter, originFormat, alignFormat);
+
+   
 
     final TemplateProcessor processor = new TemplateProcessor(
         context,
