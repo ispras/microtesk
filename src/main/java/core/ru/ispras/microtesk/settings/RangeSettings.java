@@ -45,13 +45,14 @@ public final class RangeSettings extends AbstractSettings {
     throw new UnsupportedOperationException();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void add(final AbstractSettings section) {
     if (section instanceof IncludeSettings) {
-      final IncludeSettings include = (IncludeSettings) section;
+      final IncludeSettings<Integer> include = (IncludeSettings<Integer>) section;
       values.add(include.getItem());
     } else if (section instanceof ExcludeSettings) {
-      final ExcludeSettings exclude = (ExcludeSettings) section;
+      final ExcludeSettings<Integer> exclude = (ExcludeSettings<Integer>) section;
       values.remove(exclude.getItem());
     } else {
       throw new IllegalArgumentException();

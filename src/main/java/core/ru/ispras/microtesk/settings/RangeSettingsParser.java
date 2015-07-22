@@ -28,8 +28,8 @@ public final class RangeSettingsParser extends AbstractSettingsParser<RangeSetti
   public RangeSettingsParser() {
     super(RangeSettings.TAG);
 
-    addParser(new IncludeSettingsParser());
-    addParser(new ExcludeSettingsParser());
+    addParser(new IncludeIntSettingsParser());
+    addParser(new ExcludeIntSettingsParser());
   }
 
   @Override

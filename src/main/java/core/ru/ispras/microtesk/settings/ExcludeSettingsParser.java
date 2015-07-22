@@ -21,17 +21,18 @@ import java.util.Map;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ExcludeSettingsParser extends AbstractSettingsParser<ExcludeSettings> {
+public abstract class ExcludeSettingsParser<T> extends AbstractSettingsParser<ExcludeSettings<T>> {
   public static final String ATTR_ITEM = "item";
 
   public ExcludeSettingsParser() {
     super(ExcludeSettings.TAG);
   }
 
-  @Override
-  protected ExcludeSettings createSettings(final Map<String, String> attributes) {
-    final int item = AbstractSettingsParser.getDecInteger(attributes.get(ATTR_ITEM));
+  protected abstract T getItem(final String value);
 
-    return new ExcludeSettings(item);
+  @Override
+  protected final ExcludeSettings<T> createSettings(final Map<String, String> attributes) {
+    final T item = getItem(attributes.get(ATTR_ITEM));
+    return new ExcludeSettings<T>(item);
   }
 }

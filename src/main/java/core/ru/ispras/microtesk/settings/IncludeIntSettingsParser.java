@@ -14,35 +14,14 @@
 
 package ru.ispras.microtesk.settings;
 
-import java.util.Collection;
-
 /**
- * {@link ExcludeSettings} specifies an item to be excluded from a range.
+ * {@link IncludeIntSettingsParser} implements a parser of {@link IncludeSettings}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ExcludeSettings<T> extends AbstractSettings {
-  public static final String TAG = "exclude";
-
-  private final T item;
-
-  public ExcludeSettings(final T item) {
-    super(TAG);
-
-    this.item = item;
-  }
-
-  public T getItem() {
-    return item;
-  }
-
+public final class IncludeIntSettingsParser extends IncludeSettingsParser<Integer> {
   @Override
-  public Collection<AbstractSettings> get(final String tag) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void add(final AbstractSettings section) {
-    throw new UnsupportedOperationException();
+  protected Integer getItem(final String value) {
+    return AbstractSettingsParser.getDecInteger(value);
   }
 }

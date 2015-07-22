@@ -17,22 +17,22 @@ package ru.ispras.microtesk.settings;
 import java.util.Collection;
 
 /**
- * {@link IncludeSettings} specifies an integer to be included into a range.
+ * {@link IncludeSettings} specifies an item to be included into a range.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IncludeSettings extends AbstractSettings {
+public final class IncludeSettings<T> extends AbstractSettings {
   public static final String TAG = "include";
 
-  private final int item;
+  private final T item;
 
-  public IncludeSettings(final int item) {
+  public IncludeSettings(final T item) {
     super(TAG);
 
     this.item = item;
   }
 
-  public int getItem() {
+  public T getItem() {
     return item;
   }
 
