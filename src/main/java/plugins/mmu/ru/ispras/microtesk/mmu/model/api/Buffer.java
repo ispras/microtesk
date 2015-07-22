@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,19 +29,19 @@ public interface Buffer<D, A> {
    * Checks whether the given address causes a hit.
    * 
    * @param address the data address.
-   * @return <code>true</code> if the address causes a hit; <code>false</code> otherwise.
+   * @return {@code true} if the address causes a hit; {@code false} otherwise.
    */
 
-  public boolean isHit(final A address);
+  boolean isHit(final A address);
 
   /**
    * Returns the data associated with the given address.
    * 
    * @param address the data address.
-   * @return the data object if the address causes a hit; <code>null</code> otherwise.
+   * @return the data object if the address causes a hit; {@code null} otherwise.
    */
 
-  public D getData(final A address);
+  D getData(final A address);
 
   /**
    * Updates the data associated with the given address.
@@ -49,8 +49,8 @@ public interface Buffer<D, A> {
    * @param address the data address.
    * @param data the new data.
    * 
-   * @return the old data if they exist; <code>null</code> otherwise.
+   * @return the old data if they exist; {@code null} otherwise.
    */
 
-  public D setData(final A address, final D data);
+  D setData(final A address, final D data);
 }
