@@ -640,51 +640,6 @@ public final class DataManager {
     }
   }
 
-  /*
-
-  // TODO:
-  public void generateDataX(
-      final BigInteger startAddress,
-      final Collection<BigInteger> addresses,
-      final BigInteger addressMask,
-      final boolean printAbsoluteOrg,
-      final String method,
-      final boolean isSeparateFile) {
-    checkNotNull(startAddress);
-    checkNotNull(addresses);
-    checkNotNull(method);
-
-    final List<BigInteger> sortedAddresses = new ArrayList<>(addresses);
-    Collections.sort(sortedAddresses);
-
-    final int blockSize = addressMask.not().intValue() + 1;
-    final int unitSize = blockSize > 8 ? 8 : blockSize;
-    final int unitsInRow = blockSize / unitSize;
-
-    // format("// Start address: 0x%x\n", startAddress);
-    // format("\n");
-    // format(".data");
-
-    BigInteger nextAddress = BigInteger.ZERO.not();
-    for (final BigInteger address : addresses) {
-      checkTrue(address.compareTo(startAddress) >= 0);
-      if (address.compareTo(nextAddress) != 0) {
-        // format("\n");
-        // format(".org 0x%x\n", printAbsoluteOrg ? address : address - startAddress);
-      }
-
-      // format(".dword|.word|.hword|.byte");
-      for (int i = 0; i < unitsInRow; i++) {
-         // format(" 0x%016|08|04|02x", Randomizer.get().nextLong());
-      }
-      // format("\n");
-
-      nextAddress = address.add(BigInteger.valueOf(blockSize));
-    }
-  }
-
-  */
-
   private TypeInfo getTypeInfoForSize(final int typeSizeInBytes) {
     final int bitSize = typeSizeInBytes * 8;
     for (final TypeInfo typeInfo : typeMap.values()) {
