@@ -354,7 +354,8 @@ final class SingleAddressTypeAllocator {
 
       if (exclude != null) {
         for (final long excludedAddress : exclude) {
-          excludeFields.add((excludedAddress >> lower) & fieldMask);
+          final long excludedField = (excludedAddress >> lower) & fieldMask;
+          excludeFields.add(excludedField);
         }
       }
 
