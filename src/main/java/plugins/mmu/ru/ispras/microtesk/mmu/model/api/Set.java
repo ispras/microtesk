@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.model.api;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class implements a cache set, which is a fully associative buffer consisting of cache lines.
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 
 public final class Set<D extends Data, A extends Address> implements Buffer<D, A> {
   /** The array of cache lines. */
-  private ArrayList<Line<D, A>> lines = new ArrayList<>();
+  private final List<Line<D, A>> lines = new ArrayList<>();
 
   /** The data replacement policy. */
   private Policy policy;
