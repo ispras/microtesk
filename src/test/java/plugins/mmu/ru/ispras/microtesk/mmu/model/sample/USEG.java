@@ -15,10 +15,12 @@
 package ru.ispras.microtesk.mmu.model.sample;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.solver.function.StandardFunction;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.model.api.Buffer;
 import ru.ispras.microtesk.mmu.model.api.Data;
+import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
 
 /**
  * <pre><code>
@@ -119,8 +121,10 @@ public final class USEG implements Buffer<PA, VA> {
     } else if (jtlb.isHit(va)) {
       tlbEntry = jtlb.getData(va);
     } else {
-      //exception("TLBMiss");
+      StandardFunctions.exception("TLBMiss");
     }
+
+    evenOddBit = BitVector.valueOf(12, 5);
 
     // TODO Auto-generated method stub
     return null;
