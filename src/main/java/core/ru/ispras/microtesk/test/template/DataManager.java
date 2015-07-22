@@ -597,7 +597,7 @@ public final class DataManager {
 
       // format(".dword|.word|.hword|.byte");
       for (int i = 0; i < unitsInRow; i++) {
-         // format(" 0x%016x", Randomizer.get().nextLong());
+         // format(" 0x%016|08|04|02x", Randomizer.get().nextLong());
       }
       // format("\n");
 
