@@ -35,9 +35,14 @@ import ru.ispras.microtesk.settings.RegionSettings;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressAllocatorTestCase {
+  public static final boolean PRINT_ADDRESSES = false;
+
   private final AddressAllocator addressAllocator = new AddressAllocator(
       MmuUnderTest.get().mmu, new HashMap<MmuAddressType, Collection<RegionSettings>>());
 
+  private final Collection<Long> allAddresses =
+      addressAllocator.getAllAddresses(MmuUnderTest.get().paAddr, null);
+  
   private final Map<String, Set<Long>> allocatedIndices = new HashMap<>();
 
   private void update(final MmuBuffer buffer, final long address) {
@@ -52,7 +57,7 @@ public final class AddressAllocatorTestCase {
     indices.add(index);
   }
 
-  private void update(final long address) {
+  private void updateIndices(final long address) {
     update(MmuUnderTest.get().l1, address);
     update(MmuUnderTest.get().l2, address);
   }
@@ -61,19 +66,32 @@ public final class AddressAllocatorTestCase {
     InvariantChecks.checkNotNull(buffer);
 
     for (int i = 0; i < 10; i++) {
-      final long address1 = addressAllocator.allocateIndex(buffer, 0, null, null);
-      final long address2 = addressAllocator.allocateTag(buffer, address1, null, null);
+      final long address1 = addressAllocator.allocateIndex(buffer, 0, null, false, null);
+      final long address2 = addressAllocator.allocateTag(buffer, address1, null, false, null);
+
+      Assert.assertTrue(
+          String.format("Unexpected address: 0x%016x", address2),
+          allAddresses.contains(address2));
 
       final long index1 = buffer.getIndex(address1);
       final long index2 = buffer.getIndex(address2);
+
       Assert.assertEquals(index1, index2);
 
-      update(address2);
+      updateIndices(address2);
     }
   }
 
   @Test
   public void runTest() {
+    System.out.println("All addresses: " + allAddresses.size());
+
+    if (PRINT_ADDRESSES) {
+      for (final long address : allAddresses) {
+        System.out.format("0x%016x%n", address);
+      }
+    }
+
     runTest(MmuUnderTest.get().l1);
     runTest(MmuUnderTest.get().l2);
     runTest(MmuUnderTest.get().l1);

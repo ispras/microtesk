@@ -398,15 +398,15 @@ public final class MmuBuffer {
   }
 
   public long getTagMask() {
-    return getTag(-1L);
+    return getAddress(getTag(-1L), 0, 0);
   }
 
   public long getIndexMask() {
-    return getIndex(-1L);
+    return getAddress(0, getIndex(-1L), 0);
   }
 
   public long getOffsetMask() {
-    return getOffset(-1L);
+    return getAddress(0, 0, getOffset(-1L));
   }
 
   // TODO:

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,9 @@ public final class AddressAllocationEngine {
    */
   private final Map<Integer, Map<Long, AddressAllocationTable>> allocators = new HashMap<>();
 
+  /** Contains all elements. */
+  private final List<IntegerRange> allRanges;
+
   /** Maps an address field into the list of the elements. */
   private final Map<IntegerField, List<IntegerRange>> fieldRanges = new HashMap<>();
 
@@ -88,17 +92,17 @@ public final class AddressAllocationEngine {
       }
     }
 
-    final List<IntegerRange> disjointRanges = IntegerRange.divide(expressionRanges);
+    this.allRanges = IntegerRange.divide(expressionRanges);
 
     for (final MmuExpression expression : expressions) {
       for (final IntegerField field : expression.getTerms()) {
-        if (fieldRanges.containsKey(field)) {
+        if (this.fieldRanges.containsKey(field)) {
           continue;
         }
 
         final List<IntegerRange> ranges = new ArrayList<>();
 
-        for (final IntegerRange range : disjointRanges) {
+        for (final IntegerRange range : allRanges) {
           if (range.getMax().intValue() < field.getLoIndex()) {
             continue;
           }
@@ -109,7 +113,7 @@ public final class AddressAllocationEngine {
           ranges.add(range);
         }
 
-        fieldRanges.put(field, ranges);
+        this.fieldRanges.put(field, ranges);
       }
     }
 
@@ -123,6 +127,7 @@ public final class AddressAllocationEngine {
    * @param expression the expression defining the field to be allocated.
    * @param partialAddress the partial address.
    * @param region the memory region.
+   * @param peek if {@code peek == true}, peek address without allocation.
    * @param exclude the set of addresses whose fields to be excluded.
    * @return an allocated field.
    */
@@ -130,10 +135,21 @@ public final class AddressAllocationEngine {
       final MmuExpression expression,
       final long partialAddress,
       final RegionSettings region,
+      final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(expression);
 
     final List<IntegerRange> ranges = getRanges(expression);
+    return allocate(ranges, partialAddress, region, peek, exclude);
+  }
+
+  private long allocate(
+      final List<IntegerRange> ranges,
+      final long partialAddress,
+      final RegionSettings region,
+      final boolean peek,
+      final Set<Long> exclude) {
+    InvariantChecks.checkNotNull(ranges);
 
     long address = partialAddress;
 
@@ -150,10 +166,10 @@ public final class AddressAllocationEngine {
       final long maskedAddress = (address & mask);
       final long prevFieldsValue = lower == 0 ? 0 : (maskedAddress & ((1L << (lower - 1)) - 1));
 
-      AddressAllocationTable allocationTable = fieldAllocator.get(prevFieldsValue);
-      if (allocationTable == null) {
+      AddressAllocationTable allocTable = fieldAllocator.get(prevFieldsValue);
+      if (allocTable == null) {
         fieldAllocator.put(prevFieldsValue,
-            allocationTable = new AddressAllocationTable(lower, upper, maskedAddress, regions));
+            allocTable = new AddressAllocationTable(lower, upper, mask, regions));
       }
 
       final long fieldMask = width == Long.SIZE ? -1L : (1L << width) - 1;
@@ -166,13 +182,45 @@ public final class AddressAllocationEngine {
         }
       }
 
-      final long fieldValue = allocationTable.allocate(region, excludeFields);
+      final long fieldValue = allocTable.allocate(region, peek, excludeFields);
 
       address &= ~(fieldMask << lower);
       address |= (fieldValue << lower);
     }
 
     return address;
+  }
+  
+  public Collection<Long> getAllAddresses(final RegionSettings region) {
+    // Peek an address to initialize allocation tables.
+    allocate(allRanges, 0, region, true, null);
+
+    final Map<Integer, Collection<Long>> partialAddresses = new LinkedHashMap<>();
+
+    for (final IntegerRange range : allRanges) {
+      final int lower = range.getMin().intValue();
+
+      final Map<Long, AddressAllocationTable> fieldAllocator = allocators.get(lower);
+      InvariantChecks.checkNotNull(fieldAllocator);
+
+      final AddressAllocationTable allocTable = fieldAllocator.values().iterator().next();
+      InvariantChecks.checkNotNull(allocTable);
+
+      partialAddresses.put(lower, allocTable.getAllAddresses(region));
+    }
+
+    // Produce the Cartesian product of the partial address sets.
+    Collection<Long> addresses = new ArrayList<>();
+    addresses.add(0L);
+
+    for (final Map.Entry<Integer, Collection<Long>> entry : partialAddresses.entrySet()) {
+      final int offset = entry.getKey();
+      final Collection<Long> fields = entry.getValue();
+
+      addresses = product(addresses, fields, offset);
+    }
+
+    return addresses;
   }
 
   private List<IntegerRange> getRanges(final MmuExpression expression) {
@@ -181,6 +229,22 @@ public final class AddressAllocationEngine {
     final List<IntegerRange> result = new ArrayList<>();
     for (final IntegerField field : expression.getTerms()) {
       result.addAll(fieldRanges.get(field));
+    }
+
+    return result;
+  }
+
+  private Collection<Long> product(
+      final Collection<Long> addresses, final Collection<Long> fields, final int offset) {
+    InvariantChecks.checkNotNull(addresses);
+    InvariantChecks.checkNotNull(fields);
+
+    final Collection<Long> result = new ArrayList<>(addresses.size() * fields.size());
+
+    for (final long address : addresses) {
+      for (final long field : fields) {
+        result.add(address | (field << offset));
+      }
     }
 
     return result;

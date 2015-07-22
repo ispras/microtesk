@@ -81,24 +81,26 @@ public final class AddressAllocator {
       final MmuBuffer buffer,
       final long partialAddress,
       final RegionSettings region,
+      final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(buffer);
     // Parameters {@code region} and {@code exclude} can be null.
 
     return allocate(
-        buffer.getAddress(), buffer.getTagExpression(), partialAddress, region, exclude);
+        buffer.getAddress(), buffer.getTagExpression(), partialAddress, region, peek, exclude);
   }
 
   public long allocateIndex(
       final MmuBuffer buffer,
       final long partialAddress,
       final RegionSettings region,
+      final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(buffer);
     // Parameters {@code region} and {@code exclude} can be null.
 
     return allocate(
-        buffer.getAddress(), buffer.getIndexExpression(), partialAddress, region, exclude);
+        buffer.getAddress(), buffer.getIndexExpression(), partialAddress, region, peek, exclude);
   }
 
   private long allocate(
@@ -106,11 +108,20 @@ public final class AddressAllocator {
       final MmuExpression expression,
       final long partialAddress,
       final RegionSettings region,
+      final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(expression);
     // Parameters {@code region} and {@code exclude} can be null.
 
-    return allocators.get(address).allocate(expression, partialAddress, region, exclude);
+    return allocators.get(address).allocate(expression, partialAddress, region, peek, exclude);
+  }
+
+  public Collection<Long> getAllAddresses(
+      final MmuAddressType address, final RegionSettings region) {
+    InvariantChecks.checkNotNull(address);
+    // Parameters {@code region} and {@code exclude} can be null.
+
+    return allocators.get(address).getAllAddresses(region);
   }
 }

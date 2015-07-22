@@ -369,6 +369,15 @@ public final class AllocationTable<T, V> {
     return used;
   }
 
+  /**
+   * Returns the set of all objects.
+   * 
+   * @return the set of all objects.
+   */
+  public Set<T> getAllObjects() {
+    return objects;
+  }
+
   private void checkObject(final T object) {
     InvariantChecks.checkNotNull(object);
 

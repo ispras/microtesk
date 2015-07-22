@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -136,9 +137,13 @@ public final class AddressAllocationTable {
     return i == Long.SIZE ? -1L : ~((1L << i) - 1);
   }
 
-  private static long allocate(final AllocationTable<Long, ?> allocTable, final Set<Long> exclude) {
+  private static long allocate(
+      final AllocationTable<Long, ?> allocTable, boolean peek, final Set<Long> exclude) {
     InvariantChecks.checkNotNull(allocTable);
-    return exclude != null ? allocTable.allocate(exclude) : allocTable.allocate();
+
+      return peek ?
+          (exclude != null ? allocTable.peek(exclude) : allocTable.peek()) :
+          (exclude != null ? allocTable.allocate(exclude) : allocTable.allocate());
   }
 
   /** Joint allocation table for all memory regions. */
@@ -151,21 +156,22 @@ public final class AddressAllocationTable {
    * 
    * @param lo the lower bit of the field.
    * @param hi the upper bit of the field.
-   * @param partialAddress the value of the previous fields ({@code address[lo-1:0]}).
+   * @param addressMask the mask indicating insignificant address bits.
    * @param regions the memory regions or {@code null}.
    */
   public AddressAllocationTable(
       final int lo,
       final int hi,
-      final long partialAddress,
+      final long addressMask,
       final Collection<RegionSettings> regions) {
-
     final Set<Long> globalValues = new HashSet<>();
 
     final int width = (hi - lo) + 1;
     final long mask = width == Long.SIZE ? -1L : (1L << width) - 1;
 
-    if (regions == null || regions.isEmpty()) {
+    if (((mask << lo) | addressMask) != addressMask) {
+      globalValues.addAll(Collections.singleton(0L));
+    } else if (regions == null || regions.isEmpty()) {
       globalValues.addAll(getAddressFieldValues(width, 0, ~mask));
     } else {
       final Set<Long> regionFields = new HashSet<>();
@@ -199,19 +205,43 @@ public final class AddressAllocationTable {
    * Allocates an address field value for the given region.
    * 
    * @param region the region or {@code null}.
+   * @param peek if {@code peek == true}, peek an address without allocation.
    * @param exclude the values to be excluded or {@code null}.
    * @return an allocated address field.
    */
-  public long allocate(final RegionSettings region, final Set<Long> exclude) {
-    if (region != null) {
-      final AllocationTable<Long, ?> allocationTable = regionAllocTables.get(region.getName());
+  public long allocate(final RegionSettings region, final boolean peek, final Set<Long> exclude) {
+    final AllocationTable<Long, ?> allocTable = getAllocTable(region);
 
-      if (allocationTable != null) {
-        final long address = allocate(allocationTable, exclude);
-        globalAllocTable.use(address);
+    final long address = allocate(allocTable, peek, exclude);
+    globalAllocTable.use(address);
+
+    return address;
+  }
+
+  public Collection<Long> getFreeAddresses(final RegionSettings region) {
+    final AllocationTable<Long, ?> allocTable = getAllocTable(region);
+    return allocTable.getFreeObjects();
+  }
+
+  public Collection<Long> getUsedAddresses(final RegionSettings region) {
+    final AllocationTable<Long, ?> allocTable = getAllocTable(region);
+    return allocTable.getUsedObjects();
+  }
+
+  public Collection<Long> getAllAddresses(final RegionSettings region) {
+    final AllocationTable<Long, ?> allocTable = getAllocTable(region);
+    return allocTable.getAllObjects();
+  }
+
+  private AllocationTable<Long, ?> getAllocTable(final RegionSettings region) {
+    if (region != null) {
+      final AllocationTable<Long, ?> allocTable = regionAllocTables.get(region.getName());
+
+      if (allocTable != null) {
+        return allocTable;
       }
     }
 
-    return allocate(globalAllocTable, exclude);
+    return globalAllocTable;
   }
 }
