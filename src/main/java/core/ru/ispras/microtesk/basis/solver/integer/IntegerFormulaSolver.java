@@ -88,7 +88,7 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
       return kernelResult;
     }
 
-    // Simplify  the remaining OR clauses (if possible).
+    // Simplify the remaining OR clauses (if possible).
     final List<IntegerClause> simplifiedClauses = new ArrayList<>();
 
     for (final IntegerClause clause : clauses) {
@@ -96,13 +96,15 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
 
       boolean isFalse = true;
       for (final IntegerEquation equation : clause.getEquations()) {
-        final boolean collision = kernel.contradictsTo(equation);
-        final boolean reduction = kernel.strongerThan(equation);
-
-        if (!collision) {
-          if (!reduction) {
-            equations.add(equation);
+        if (!kernel.contradictsTo(equation)) {
+          if (kernel.strongerThan(equation)) {
+            // The clause is redundant: the implication (kernel => clause) holds.
+            equations.clear();
+            isFalse = false;
+            break;
           }
+
+          equations.add(equation);
           isFalse = false;
         }
       }
@@ -111,7 +113,9 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
         return new SolverResult<>("OR clause contradicts to the kernel");
       }
 
-      simplifiedClauses.add(new IntegerClause(IntegerClause.Type.OR, equations));
+      if (!equations.isEmpty()) {
+        simplifiedClauses.add(new IntegerClause(IntegerClause.Type.OR, equations));
+      }
     }
 
     if (simplifiedClauses.isEmpty()) {
@@ -131,6 +135,7 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
           redundantClauses.add(clause2);
         } else if (clause2.strongerThan(clause1)) {
           redundantClauses.add(clause1);
+          break;
         }
       }
     }
