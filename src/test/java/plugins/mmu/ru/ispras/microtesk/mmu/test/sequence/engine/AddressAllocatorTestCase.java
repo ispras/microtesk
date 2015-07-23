@@ -42,7 +42,7 @@ public final class AddressAllocatorTestCase {
 
   private final Collection<Long> allAddresses =
       addressAllocator.getAllAddresses(MmuUnderTest.get().paAddr, null);
-  
+
   private final Map<String, Set<Long>> allocatedIndices = new HashMap<>();
 
   private void update(final MmuBuffer buffer, final long address) {

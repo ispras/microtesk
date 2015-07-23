@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,8 +17,10 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 import java.util.List;
 
 /**
+ * {@link Loader} is an interface of a memory buffer preparator.
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Loader {
-  List<Long> prepareLoads();
+  List<Load> prepareLoads();
 }

@@ -34,6 +34,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -534,14 +535,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final int j, final MmuBuffer device) {
     final MmuAddressType addrType = device.getAddress();
 
-    // TODO: int -> long
     final BufferStateTracker<Long> stateTracker = new BufferStateTracker<>(
-        (int) device.getSets(), (int) device.getWays(), device.getAddressView());
-
-    stateTracker.access(solution.getLoader().prepareLoads(addrType));
+        device.getSets(), device.getWays(), device.getAddressView());
 
     // Maps access indices to the replaced tags.
-    final Map<Integer, Long> replacedTags = new LinkedHashMap<>();
+    final Map<Integer, Long> replacedTags =
+        track(stateTracker, solution.getLoader().prepareLoads(addrType));
 
     for (int i = 0; i <= j; i++) {
       final MemoryAccess access = structure.getAccess(i);
@@ -555,7 +554,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       // Check the device access condition.
       if (path.contains(device) && device.checkGuard(access)) {
-        final Long replacedTag = stateTracker.access(address);
+        final Long replacedTag = stateTracker.track(address);
 
         if (replacedTag != null) {
           replacedTags.put(i, replacedTag);
@@ -795,7 +794,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final long tag = device.getTag(address);
     final long index = device.getIndex(address);
 
-    for (final long loadedAddress : solution.getLoader().prepareLoads(addrType)) {
+    for (final Load load : solution.getLoader().prepareLoads(addrType)) {
+      final long loadedAddress = load.getAddress();
       final long loadedTag = device.getTag(loadedAddress);
       final long loadedIndex = device.getIndex(loadedAddress);
 
@@ -807,5 +807,32 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Definitely MISS.
     return false;
+  }
+  
+
+  /**
+   * Imitates multiple accesses to the buffer (updates the buffer state).
+   * 
+   * @param stateTracker the buffer state tracker.
+   * @param loads the accesses to the buffer.
+   * @return the map of load indices to replaced tags.
+   */
+  private Map<Integer, Long> track(
+      final BufferStateTracker<Long> stateTracker, final List<Load> loads) {
+    InvariantChecks.checkNotNull(stateTracker);
+    InvariantChecks.checkNotNull(loads);
+
+    final Map<Integer, Long> replacedTags = new LinkedHashMap<>();
+
+    for (int i = 0; i < loads.size(); i++) {
+      final Load load = loads.get(i);
+      final Long replacedTag = stateTracker.track(load.getAddress());
+
+      if (replacedTag != null) {
+        replacedTags.put(i, replacedTag);
+      }
+    }
+
+    return replacedTags;
   }
 }

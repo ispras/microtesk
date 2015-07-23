@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,63 +27,77 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
+ * {@link MemoryLoader} implements a preparator for memory buffers.
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryLoader implements Loader {
   private final MmuSubsystem memory = MmuTranslator.getSpecification();
-  private final Map<MmuBuffer, BufferLoader> loaders = new LinkedHashMap<>();
+  private final Map<MmuBuffer, BufferLoader> bufferLoaders = new LinkedHashMap<>();
 
   public MemoryLoader() {
     InvariantChecks.checkNotNull(memory);
   }
 
-  private BufferLoader getLoader(final MmuBuffer device) {
-    BufferLoader loader = loaders.get(device);
-    if (loader == null) {
-      loaders.put(device, loader = new BufferLoader(device));
+  private BufferLoader getLoader(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+
+    BufferLoader bufferLoader = bufferLoaders.get(buffer);
+    if (bufferLoader == null) {
+      bufferLoaders.put(buffer, bufferLoader = new BufferLoader(buffer));
     }
 
-    return loader;
+    return bufferLoader;
   }
 
-  public boolean contains(final MmuBuffer device, final BufferAccessEvent event,
-      final long address) {
-    final BufferLoader loader = getLoader(device);
+  public boolean contains(
+      final MmuBuffer buffer, final BufferAccessEvent targetEvent, final long targetAddress) {
+    InvariantChecks.checkNotNull(buffer);
+    InvariantChecks.checkNotNull(targetEvent);
 
-    return loader.contains(event, address);
+    final BufferLoader bufferLoader = getLoader(buffer);
+    return bufferLoader.contains(targetEvent, targetAddress);
   }
 
-  public void addLoads(final MmuBuffer device, final BufferAccessEvent event,
-      final long address, final List<Long> loads) {
-    final BufferLoader loader = getLoader(device);
+  public void addLoads(
+      final MmuBuffer buffer,
+      final BufferAccessEvent targetEvent,
+      final long targetAddress,
+      final List<Long> addresses) {
+    InvariantChecks.checkNotNull(buffer);
+    InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(addresses);
 
-    loader.addLoads(event, address, loads);
+    final BufferLoader bufferLoader = getLoader(buffer);
+    bufferLoader.addLoads(targetEvent, targetAddress, addresses);
   }
 
-  public List<Long> prepareLoads(final MmuAddressType addressType) {
-    final List<Long> sequence = new ArrayList<>();
-    final List<MmuBuffer> devices = memory.getSortedListOfDevices();
+  public List<Load> prepareLoads(final MmuAddressType addressType) {
+    InvariantChecks.checkNotNull(addressType);
+
+    final List<Load> sequence = new ArrayList<>();
+    final List<MmuBuffer> buffers = memory.getSortedListOfDevices();
 
     // Reverse order: large buffers come first.
-    for (int i = devices.size() - 1; i >= 0; i--) {
-      final MmuBuffer device = devices.get(i);
+    for (int i = buffers.size() - 1; i >= 0; i--) {
+      final MmuBuffer buffer = buffers.get(i);
 
-      if (device.getAddress() == addressType && device.isReplaceable()) {
-        final BufferLoader loader = getLoader(device);
-        sequence.addAll(loader.prepareLoads());
+      if (buffer.getAddress() == addressType && buffer.isReplaceable()) {
+        final BufferLoader bufferLoader = getLoader(buffer);
+        sequence.addAll(bufferLoader.prepareLoads());
       }
     }
 
     return sequence;
   }
-  
-  @Override
-  public List<Long> prepareLoads() {
-    final List<Long> sequence = new ArrayList<>();
-    final List<MmuAddressType> addresses = memory.getSortedListOfAddresses();
 
-    for (final MmuAddressType address : addresses) {
-      sequence.addAll(prepareLoads(address));
+  @Override
+  public List<Load> prepareLoads() {
+    final List<Load> sequence = new ArrayList<>();
+    final List<MmuAddressType> addressTypes = memory.getSortedListOfAddresses();
+
+    for (final MmuAddressType addressType : addressTypes) {
+      sequence.addAll(prepareLoads(addressType));
     }
 
     return sequence;

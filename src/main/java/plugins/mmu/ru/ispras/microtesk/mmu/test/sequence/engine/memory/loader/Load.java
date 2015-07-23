@@ -12,16 +12,21 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.basis;
+package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
 /**
- * {@link MemoryOperation} contains types of memory operations.
+ * {@link Load} represents a load operation to be performed to prepare a memory buffer.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum MemoryOperation {
-  /** Load (read) operation. */
-  LOAD,
-  /** Store (write) operation. */
-  STORE
+public final class Load {
+  private final long address;
+
+  public Load(final long address) {
+    this.address = address;
+  }
+
+  public Long getAddress() {
+    return address;
+  }
 }

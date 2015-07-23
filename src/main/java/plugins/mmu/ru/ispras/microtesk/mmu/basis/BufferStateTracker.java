@@ -22,17 +22,17 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * This class implements a simplified buffer used to imitate data replacement logic.
+ * {@link BufferStateTracker} implements a simplified buffer used to imitate data replacement logic.
  * 
  * @param <A> address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BufferStateTracker<A extends Number> {
-  /** The number of sets in the buffer. */
-  private final int sets;
-  /** The number of ways in the buffer. */
-  private final int ways;
+  /** Number of sets in the buffer. */
+  private final long sets;
+  /** Number of ways in the buffer. */
+  private final long ways;
 
   /** The address view. */
   private final AddressView<A> addressView;
@@ -46,10 +46,8 @@ public final class BufferStateTracker<A extends Number> {
    * @param sets the number of sets (index range).
    * @param ways the number of ways (associativity).
    * @param addressView the address view.
-   * @throws NullPointerException if {@code addressView} is null.
-   * @throws IllegalArgumentException if {@code sets} or {@code ways} is non-positive.
    */
-  public BufferStateTracker(final int sets, final int ways, final AddressView<A> addressView) {
+  public BufferStateTracker(final long sets, final long ways, final AddressView<A> addressView) {
     InvariantChecks.checkNotNull(addressView);
 
     if (sets <= 0 || ways <= 0) {
@@ -68,7 +66,7 @@ public final class BufferStateTracker<A extends Number> {
    * 
    * @return the number of sets.
    */
-  public int getSets() {
+  public long getSets() {
     return sets;
   }
 
@@ -77,7 +75,7 @@ public final class BufferStateTracker<A extends Number> {
    * 
    * @return the number of ways.
    */
-  public int getWays() {
+  public long getWays() {
     return ways;
   }
 
@@ -118,13 +116,12 @@ public final class BufferStateTracker<A extends Number> {
   /**
    * Imitates access to the buffer (updates the buffer state).
    * 
-   * @param address the address.
+   * @param address the address being accessed.
    * @return the tag having being replaced or {@code null}.
-   * @throws NullPointerException if {@code address} is null.
-   * @throws IndexOutOfBoundsException if the calculated index is out of bounds.
    */
-  public A access(final A address) {
+  public A track(final A address) {
     InvariantChecks.checkNotNull(address);
+
     A replacedTag = null;
 
     final A setIndex = addressView.getIndex(address);
@@ -153,30 +150,5 @@ public final class BufferStateTracker<A extends Number> {
     }
 
     return replacedTag;
-  }
-
-  /**
-   * Imitates multiple accesses to the buffer (updates the buffer state).
-   * 
-   * @param addresses the sequence of addresses.
-   * @return the of address indices to replaced tags.
-   * @throws NullPointerException if {@code addresses} is null.
-   * @throws IndexOutOfBoundsException if some of the calculated indices is out of bounds.
-   */
-  public Map<Integer, A> access(final List<A> addresses) {
-    InvariantChecks.checkNotNull(addresses);
-
-    final Map<Integer, A> replacedTags = new LinkedHashMap<>();
-
-    for (int i = 0; i < addresses.size(); i++) {
-      final A address = addresses.get(i);
-      final A replacedTag = access(address);
-
-      if (replacedTag != null) {
-        replacedTags.put(i, replacedTag);
-      }
-    }
-
-    return replacedTags;
   }
 }

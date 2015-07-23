@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,49 +19,57 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
+ * {@link BufferLoader} implements a preparator for a memory buffer.
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BufferLoader implements Loader {
-  private final MmuBuffer device;
-  private final Map<Long, SetLoader> loaders = new LinkedHashMap<>();
+  private final MmuBuffer buffer;
+  private final Map<Long, SetLoader> setLoaders = new LinkedHashMap<>();
 
-  public BufferLoader(final MmuBuffer device) {
-    this.device = device;
+  public BufferLoader(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+    this.buffer = buffer;
   }
 
-  private SetLoader getLoader(final long address) {
-    final long index = device.getIndex(address);
+  private SetLoader getSetLoader(final long address) {
+    final long index = buffer.getIndex(address);
 
-    SetLoader loader = loaders.get(index);
-    if (loader == null) {
-      loaders.put(index, loader = new SetLoader(device, index));
+    SetLoader setLoader = setLoaders.get(index);
+    if (setLoader == null) {
+      setLoaders.put(index, setLoader = new SetLoader(buffer, index));
     }
 
-    return loader;
+    return setLoader;
   }
 
-  public boolean contains(final BufferAccessEvent event, final long address) {
-    final SetLoader loader = getLoader(address);
+  public boolean contains(final BufferAccessEvent targetEvent, final long targetAddress) {
+    InvariantChecks.checkNotNull(targetEvent);
 
-    return loader.contains(event, address);
+    final SetLoader setLoader = getSetLoader(targetAddress);
+    return setLoader.contains(targetEvent, targetAddress);
   }
 
-  public void addLoads(final BufferAccessEvent event, final long address, final List<Long> loads) {
-    final SetLoader loader = getLoader(address);
+  public void addLoads(
+      final BufferAccessEvent targetEvent, final long targetAddress, final List<Long> addresses) {
+    InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(addresses);
 
-    loader.addLoads(event, address, loads);
+    final SetLoader setLoader = getSetLoader(targetAddress);
+    setLoader.addLoads(targetEvent, targetAddress, addresses);
   }
 
   @Override
-  public List<Long> prepareLoads() {
-    final List<Long> sequence = new ArrayList<>();
+  public List<Load> prepareLoads() {
+    final List<Load> sequence = new ArrayList<>();
 
-    for (final SetLoader loader : loaders.values()) {
-      sequence.addAll(loader.prepareLoads());
+    for (final SetLoader setLoader : setLoaders.values()) {
+      sequence.addAll(setLoader.prepareLoads());
     }
 
     return sequence;
