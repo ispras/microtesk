@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.utils;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public final class BigIntegerUtils {
   private BigIntegerUtils() {}
@@ -27,5 +29,15 @@ public final class BigIntegerUtils {
     }
 
     return BigInteger.valueOf(value).add(TWO_POWER_64);
+  }
+
+  public static Collection<BigInteger> valuesOfUnsignedLongs(final Collection<Long> values) {
+    final Collection<BigInteger> result = new ArrayList<>(values.size());
+
+    for (final long value : values) {
+      result.add(BigIntegerUtils.valueOfUnsignedLong(value));
+    }
+
+    return result;
   }
 }
