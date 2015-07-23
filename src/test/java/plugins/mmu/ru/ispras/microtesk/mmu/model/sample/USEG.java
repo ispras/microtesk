@@ -19,7 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.model.api.Buffer;
 import ru.ispras.microtesk.mmu.model.api.Data;
-import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
+import ru.ispras.microtesk.mmu.model.api.MmuException;
 
 /**
  * <pre><code>
@@ -93,8 +93,8 @@ public final class USEG implements Buffer<PA, VA> {
     this.jtlb = jtlb;
 
     this.range = new Pair<>(
-      BitVector.valueOf("0000000000000000", 16, /*VA.size*/ 64),
-      BitVector.valueOf("000000007fffffff", 16, /*VA.size*/ 64));
+        BitVector.valueOf("0000000000000000", 16, /*VA.size*/ 64),
+        BitVector.valueOf("000000007fffffff", 16, /*VA.size*/ 64));
   }
 
   @Override
@@ -106,27 +106,53 @@ public final class USEG implements Buffer<PA, VA> {
 
   @Override
   public PA getData(final VA va) {
+    PA pa = new PA();
 
-    final Data tlbEntry;        // var tlbEntry: JTLB.entry;
-    final BitVector evenOddBit; // var evenOddBit: 5;
-    final BitVector g;          // var g: 1;
-    final BitVector v;          // var v: 1;
-    final BitVector d;          // var d: 1;
-    final BitVector c;          // var c: 3;
-    final BitVector pfn;        // var pfn: 24;
+    Data tlbEntry = new JTLB.Entry();
+    BitVector evenOddBit = BitVector.newEmpty(5);
+    BitVector g = BitVector.newEmpty(1);
+    BitVector v = BitVector.newEmpty(1);
+    BitVector d = BitVector.newEmpty(1);
+    BitVector c = BitVector.newEmpty(3);
+    BitVector pfn = BitVector.newEmpty(24);
 
     if (dtlb.isHit(va)) {
       tlbEntry = dtlb.getData(va);
     } else if (jtlb.isHit(va)) {
       tlbEntry = jtlb.getData(va);
     } else {
-      StandardFunctions.exception("TLBMiss");
+      throw new MmuException("TLBMiss");
     }
 
     evenOddBit = BitVector.valueOf(12, 5);
 
-    // TODO Auto-generated method stub
-    return null;
+    if (!va.getField("value").getBit(evenOddBit.intValue())) {
+      g   = tlbEntry.getField("G0");
+      v   = tlbEntry.getField("V0");
+      d   = tlbEntry.getField("D0");
+      c   = tlbEntry.getField("C0");
+      pfn = tlbEntry.getField("PFN0");
+    } else {
+      g   = tlbEntry.getField("G1");
+      v   = tlbEntry.getField("V1");
+      d   = tlbEntry.getField("D1");
+      c   = tlbEntry.getField("C1");
+      pfn = tlbEntry.getField("PFN1");
+    }
+
+    if (v.intValue() == 1) {
+      pa.setField(
+          "value",
+          BitVector.newMapping(
+              pfn.field(24, evenOddBit.intValue() - 12),
+              va.getField("value").field(evenOddBit.intValue() - 1, 0)
+          )
+      );
+    } else {
+      throw new MmuException("TLBInvalid");
+    }
+
+    return pa;
   }
 
   @Override
