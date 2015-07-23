@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test;
 import java.util.Date;
 
 /**
- * The {@code Statistics} class stores test generation statistics.
+ * The {@code TestStatistics} class stores test generation statistics.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -26,8 +26,8 @@ public final class TestStatistics {
   public final Date startTime;
   public long instructionCount;
   public long instructionExecutedCount;
-  public int testProgramNumber;
   public int testCaseNumber;
+  public int testProgramNumber;
 
   public TestStatistics() {
     this(new Date(), 0, 0, 0, 0);
@@ -38,8 +38,8 @@ public final class TestStatistics {
         other.startTime,
         other.instructionCount,
         other.instructionExecutedCount,
-        other.testProgramNumber,
-        other.testCaseNumber
+        other.testCaseNumber,
+        other.testProgramNumber
     );
   }
 
@@ -47,16 +47,29 @@ public final class TestStatistics {
       final Date startTime,
       final long instructionCount,
       final long instructionExecutedCount,
-      final int testProgramNumber,
-      final int testCaseNumber) {
+      final int testCaseNumber,
+      final int testProgramNumber) {
     this.startTime = startTime;
     this.instructionCount = instructionCount;
     this.instructionExecutedCount = instructionExecutedCount;
-    this.testProgramNumber = testProgramNumber;
     this.testCaseNumber = testCaseNumber;
+    this.testProgramNumber = testProgramNumber;
   }
 
   public TestStatistics copy() {
     return new TestStatistics(this);
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+       "%s [start=%d, instructions=%d, instructionExecuted=%d, testCases=%d, testPrograms=%d]",
+       getClass().getSimpleName(),
+       startTime.getTime(),
+       instructionCount,
+       instructionExecutedCount,
+       testCaseNumber,
+       testProgramNumber
+       );
   }
 }
