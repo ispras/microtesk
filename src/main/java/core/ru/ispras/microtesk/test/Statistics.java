@@ -14,46 +14,49 @@
 
 package ru.ispras.microtesk.test;
 
+import java.util.Date;
+
 /**
  * The {@code Statistics} class stores test generation statistics.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-final class Statistics {
+public final class Statistics {
+  public final Date startTime;
   public long instructionCount;
   public long instructionExecutedCount;
   public int testProgramNumber;
   public int testCaseNumber;
 
   public Statistics() {
-    this(0, 0, 0, 0);
+    this(new Date(), 0, 0, 0, 0);
+  }
+
+  private Statistics(final Statistics other) {
+    this(
+        other.startTime,
+        other.instructionCount,
+        other.instructionExecutedCount,
+        other.testProgramNumber,
+        other.testCaseNumber
+    );
   }
 
   private Statistics(
+      final Date startTime,
       final long instructionCount,
       final long instructionExecutedCount,
       final int testProgramNumber,
       final int testCaseNumber) {
+    this.startTime = startTime;
     this.instructionCount = instructionCount;
     this.instructionExecutedCount = instructionExecutedCount;
     this.testProgramNumber = testProgramNumber;
     this.testCaseNumber = testCaseNumber;
   }
 
-  public void reset() {
-    instructionCount = 0;
-    instructionExecutedCount = 0;
-    testProgramNumber = 0;
-    testCaseNumber = 0;
-  }
-
   public Statistics copy() {
-    return new Statistics(
-        instructionCount, 
-        instructionExecutedCount,
-        testProgramNumber,
-        testCaseNumber
-        );
+    return new Statistics(this);
   }
 }
