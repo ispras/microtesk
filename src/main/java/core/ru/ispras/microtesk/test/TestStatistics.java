@@ -22,18 +22,18 @@ import java.util.Date;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class Statistics {
+public final class TestStatistics {
   public final Date startTime;
   public long instructionCount;
   public long instructionExecutedCount;
   public int testProgramNumber;
   public int testCaseNumber;
 
-  public Statistics() {
+  public TestStatistics() {
     this(new Date(), 0, 0, 0, 0);
   }
 
-  private Statistics(final Statistics other) {
+  private TestStatistics(final TestStatistics other) {
     this(
         other.startTime,
         other.instructionCount,
@@ -43,7 +43,7 @@ public final class Statistics {
     );
   }
 
-  private Statistics(
+  private TestStatistics(
       final Date startTime,
       final long instructionCount,
       final long instructionExecutedCount,
@@ -56,7 +56,7 @@ public final class Statistics {
     this.testCaseNumber = testCaseNumber;
   }
 
-  public Statistics copy() {
-    return new Statistics(this);
+  public TestStatistics copy() {
+    return new TestStatistics(this);
   }
 }
