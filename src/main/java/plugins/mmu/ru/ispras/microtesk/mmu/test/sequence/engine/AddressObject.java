@@ -209,13 +209,13 @@ public final class AddressObject {
         if (device.getAddress() == addrType) {
           if (device.isReplaceable()) {
             builder.append(comma ? separator : "");
-            builder.append(String.format("%s.Tag=%x", device, device.getTag(addrValue)));
+            builder.append(String.format("%s.tag=%x", device, device.getTag(addrValue)));
             comma = true;
           }
 
           if (device.getSets() > 1) {
             builder.append(comma ? separator : "");
-            builder.append(String.format("%s.Index=%x", device, device.getIndex(addrValue)));
+            builder.append(String.format("%s.index=%x", device, device.getIndex(addrValue)));
             comma = true;
           }
         }
