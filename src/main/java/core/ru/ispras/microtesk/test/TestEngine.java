@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,11 +179,13 @@ public final class TestEngine {
     tarmacLog  = value;
   }
 
-  public static Date generate(final String modelName, final String templateFile) throws Throwable {
+  public static TestStatistics generate(final String modelName, final String templateFile) throws Throwable {
     Logger.debug("Home: " + SysUtils.getHomeDir());
     Logger.debug("Current directory: " + SysUtils.getCurrentDir());
     Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
+
+    STATISTICS = null;
 
     try {
       final IModel model = SysUtils.loadModel(modelName);
@@ -218,7 +219,7 @@ public final class TestEngine {
       }
     }
 
-    return TemplateProcessor.start;
+    return STATISTICS;
   }
 
   private TestEngine(IModel model) {
@@ -339,6 +340,8 @@ public final class TestEngine {
         traceLengthLimit
         );
 
+    STATISTICS = new TestStatistics();
+
     return new Template(
         context,
         model.getMetaData(),
@@ -395,14 +398,9 @@ public final class TestEngine {
     private Block postBlock = null;
     private TestStatistics before;
     private String fileName;
-    public static Date start = null;
 
     @Override
     public void process(final Section section, final Block block) {
-      if (null == start) {
-        start = new Date();
-      }
-
       InvariantChecks.checkNotNull(section);
       InvariantChecks.checkNotNull(block);
 

@@ -270,13 +270,12 @@ public final class MicroTESK {
       }
     }
 
-    final TestStatistics statistics = TestEngine.STATISTICS;
-
-    final Date startTime = TestEngine.generate(modelName, templateFile);
-    if (null == startTime) {
+    final TestStatistics statistics = TestEngine.generate(modelName, templateFile);
+    if (null == statistics) {
       return;
     }
-    
+
+    final Date startTime = statistics.startTime;
     final Date endTime = new Date();
 
     long time = endTime.getTime() - startTime.getTime();
