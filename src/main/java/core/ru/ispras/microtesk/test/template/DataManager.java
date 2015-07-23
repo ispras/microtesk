@@ -535,7 +535,7 @@ public final class DataManager {
 
       memoryMap.addLabel(label, address);
       addLabel(label);
-      addComment(String.format(" 0x%s", bvAddress.toHexString()));
+      addComment(String.format(" Address: 0x%s", bvAddress.toHexString()));
 
       List<BitVector> dataList = new ArrayList<>(4);
       for (int index = 0; index < length; index++) {
@@ -600,7 +600,7 @@ public final class DataManager {
         pushScope();
       }
 
-      addComment(String.format(" 0x%x", startAddress));
+      addComment(String.format(" Address: 0x%x", startAddress));
 
       BigInteger nextAddress = BigInteger.ZERO.not();
       for (final BigInteger address : sortedAddresses) {
