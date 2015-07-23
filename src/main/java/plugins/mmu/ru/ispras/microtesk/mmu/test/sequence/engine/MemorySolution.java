@@ -98,7 +98,7 @@ public final class MemorySolution {
    * @return the test data.
    * @throws IndexOutOfBoundsException if {@code i} is out of bounds.
    */
-  public AddressObject getTestData(final int i) {
+  public AddressObject getAddressObject(final int i) {
     InvariantChecks.checkBounds(i, solution.size());
 
     return solution.get(i);
@@ -109,7 +109,7 @@ public final class MemorySolution {
    * 
    * @return the list of test data.
    */
-  public List<AddressObject> getTestData() {
+  public List<AddressObject> getAddressObjects() {
     return solution;
   }
 
@@ -120,7 +120,7 @@ public final class MemorySolution {
    * @param testData the test data to be set.
    * @throws IndexOutOfBoundsException if {@code i} is out of bounds.
    */
-  public void setTestData(final int i, final AddressObject testData) {
+  public void setAddressObject(final int i, final AddressObject testData) {
     InvariantChecks.checkBounds(i, solution.size());
     InvariantChecks.checkNotNull(testData);
 

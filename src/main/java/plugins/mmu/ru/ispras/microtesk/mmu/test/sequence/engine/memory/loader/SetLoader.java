@@ -34,7 +34,7 @@ public final class SetLoader implements Loader {
   private final MmuBuffer buffer;
   private final long index;
 
-  private final EnumMap<BufferAccessEvent, Map<Long, LoadingGoal>> eventGoals =
+  private final EnumMap<BufferAccessEvent, Map<Long, EventLoader>> eventLoaders =
       new EnumMap<>(BufferAccessEvent.class);
 
   /**
@@ -59,13 +59,13 @@ public final class SetLoader implements Loader {
   }
 
   public boolean contains(final BufferAccessEvent targetEvent, final long targetAddress) {
-    final Map<Long, LoadingGoal> tagGoals = eventGoals.get(targetEvent);
-    if (tagGoals == null) {
+    final Map<Long, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
+    if (tagLoaders == null) {
       return false;
     }
 
     final long tag = buffer.getTag(targetAddress);
-    return tagGoals.containsKey(tag);
+    return tagLoaders.containsKey(tag);
   }
 
   public void addLoads(
@@ -73,29 +73,29 @@ public final class SetLoader implements Loader {
     InvariantChecks.checkNotNull(targetEvent);
     InvariantChecks.checkNotNull(addresses);
 
-    Map<Long, LoadingGoal> tagGoals = eventGoals.get(targetEvent);
-    if (tagGoals == null) {
-      eventGoals.put(targetEvent, tagGoals = new LinkedHashMap<>());
+    Map<Long, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
+    if (tagLoaders == null) {
+      eventLoaders.put(targetEvent, tagLoaders = new LinkedHashMap<>());
     }
 
     final long tag = buffer.getTag(targetAddress);
 
-    LoadingGoal goal = tagGoals.get(tag);
-    if (goal == null) {
-      tagGoals.put(tag, goal = new LoadingGoal(buffer, targetEvent, targetAddress));
+    EventLoader eventLoader = tagLoaders.get(tag);
+    if (eventLoader == null) {
+      tagLoaders.put(tag, eventLoader = new EventLoader(buffer, targetEvent, targetAddress));
     }
 
-    goal.addLoads(addresses);
+    eventLoader.addLoads(addresses);
   }
 
-  private List<Load> prepareLoads(final Collection<LoadingGoal> goals) {
-    InvariantChecks.checkNotNull(goals);
+  private List<Load> prepareLoads(final Collection<EventLoader> eventLoaders) {
+    InvariantChecks.checkNotNull(eventLoaders);
 
     final List<Load> sequence = new ArrayList<>();
 
     int length = 0;
-    for (final LoadingGoal goal : goals) {
-      final List<Load> loads = goal.prepareLoads();
+    for (final EventLoader eventLoader : eventLoaders) {
+      final List<Load> loads = eventLoader.prepareLoads();
 
       sequence.addAll(loads);
       length += loads.size();
@@ -114,15 +114,15 @@ public final class SetLoader implements Loader {
     final List<Load> sequence = new ArrayList<>();
 
     // Evict data.
-    final Map<Long, LoadingGoal> missGoals = eventGoals.get(BufferAccessEvent.MISS);
-    if (missGoals != null) {
-      sequence.addAll(prepareLoads(missGoals.values()));
+    final Map<Long, EventLoader> missLoaders = eventLoaders.get(BufferAccessEvent.MISS);
+    if (missLoaders != null) {
+      sequence.addAll(prepareLoads(missLoaders.values()));
     }
 
     // Load data.
-    final Map<Long, LoadingGoal> hitGoals = eventGoals.get(BufferAccessEvent.HIT);
-    if (hitGoals != null) {
-      sequence.addAll(prepareLoads(hitGoals.values()));
+    final Map<Long, EventLoader> hitLoaders = eventLoaders.get(BufferAccessEvent.HIT);
+    if (hitLoaders != null) {
+      sequence.addAll(prepareLoads(hitLoaders.values()));
     }
 
     return sequence;

@@ -56,32 +56,32 @@ import ru.ispras.microtesk.utils.function.UnaryOperator;
  */
 public final class MemorySolver implements Solver<MemorySolution> {
   /**
-   * Refers to the test data constructor.
+   * Refers to the address object constructor.
    * 
-   * <p>A test data constructor is a user-defined function that maps a memory access (an object
-   * of {@link MemoryAccess}) to the test data (an object of {@link AddressObject}).</p>
+   * <p>A address object constructor is a user-defined function that maps a memory access (an object
+   * of {@link MemoryAccess}) to the address object (an object of {@link AddressObject}).</p>
    */
-  private final Function<MemoryAccess, AddressObject> testDataConstructor;
+  private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
 
   /**
-   * Refers to the test data corrector.
+   * Refers to the address object corrector.
    * 
-   * <p>A test data corrector is a user-defined function that corrects inconsistencies in test data
-   * (an object of {@link AddressObject}) after solving the constraints.</p>
+   * <p>A address object corrector is a user-defined function that corrects inconsistencies in
+   * address object (an object of {@link AddressObject}) after solving the constraints.</p>
    */
-  private final BiConsumer<MemoryAccess, AddressObject> testDataCorrector;
+  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector;
 
   /**
-   * Given a replaceable device (e.g. a cache unit), contains the tag allocator.
+   * Given a replaceable buffer (e.g. a cache unit), contains the tag allocator.
    * 
    * <p>A tag allocator is a user-defined function (with a side effect) that takes an address and
-   * returns a tag such that is does not belong to the device set (the set is determined by the
+   * returns a tag such that is does not belong to the buffer set (the set is determined by the
    * address) and was not returned previously for that set.</p>
    */
   private final Map<MmuBuffer, UnaryOperator<Long>> tagAllocators;
 
   /**
-   * Given a non-replaceable device, contains the entry id allocator.
+   * Given a non-replaceable buffer, contains the entry id allocator.
    * 
    * <p>An entry id allocator is a user-defined function (with a side effect) that takes an
    * address and returns an id (internal address) that was not returned previously.</p>
@@ -89,28 +89,28 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final Map<MmuBuffer, UnaryOperator<Long>> entryIdAllocators;
 
   /**
-   * Given a non-replaceable device, contains the entry constructor.
+   * Given a non-replaceable buffer, contains the entry constructor.
    * 
-   * <p>An entry constructor is a user-defined function that creates a new device entry.</p>
+   * <p>An entry constructor is a user-defined function that creates a new buffer entry.</p>
    */
   private final Map<MmuBuffer, Supplier<Object>> entryConstructors;
 
   /**
-   * Given a non-replaceable device, contains the entry provider.
+   * Given a non-replaceable buffer, contains the entry provider.
    * 
    * <p>An entry provider is a user-defined function that fills a given entry with appropriate data
-   * (the data are produced on the basis the memory access and the test data).</p>
+   * (the data are produced on the basis the memory access and the address object).</p>
    */
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
 
-  /** Given a device, maps indices to sets of tags to be explicitly loaded into the device. */
-  private final Map<MmuBuffer, Map<Long, Set<Long>>> deviceHitTags = new LinkedHashMap<>();
+  /** Given a buffer, maps indices to sets of tags to be explicitly loaded into the buffer. */
+  private final Map<MmuBuffer, Map<Long, Set<Long>>> bufferHitTags = new LinkedHashMap<>();
 
-  /** Given a device, contains indices for which replacing sequences have been constructed. */
-  private final Map<MmuBuffer, Set<Long>> deviceReplacedIndices = new LinkedHashMap<>();
+  /** Given a buffer, contains indices for which replacing sequences have been constructed. */
+  private final Map<MmuBuffer, Set<Long>> bufferReplacedIndices = new LinkedHashMap<>();
 
-  /** Given an access index, contains the devices having been processed. */
-  private final Map<Integer, Set<MmuBuffer>> handledDevices = new LinkedHashMap<>();
+  /** Given an access index, contains the buffers having been processed. */
+  private final Map<Integer, Set<MmuBuffer>> handledBuffers = new LinkedHashMap<>();
 
   /** Contains a reference to the memory subsystem specification. */
   private final MmuSubsystem memory = MmuTranslator.getSpecification();
@@ -128,8 +128,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Constructs a solver for the given memory access structure.
    * 
    * @param structure the memory access structure.
-   * @param testDataConstructor the test data constructor.
-   * @param testDataCorrector the test data corrector.
+   * @param addrObjectConstructor the address object constructor.
+   * @param addrObjectCorrector the address object corrector.
    * @param tagAllocators the tag allocators.
    * @param entryIdAllocators the entry id allocators.
    * @param entryConstructors the entry constructors.
@@ -138,15 +138,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   public MemorySolver(
       final MemoryAccessStructure structure,
-      final Function<MemoryAccess, AddressObject> testDataConstructor,
-      final BiConsumer<MemoryAccess, AddressObject> testDataCorrector,
+      final Function<MemoryAccess, AddressObject> addrObjectConstructor,
+      final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector,
       final Map<MmuBuffer, UnaryOperator<Long>> tagAllocators,
       final Map<MmuBuffer, UnaryOperator<Long>> entryIdAllocators,
       final Map<MmuBuffer, Supplier<Object>> entryConstructors,
       final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
 
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(testDataConstructor);
+    InvariantChecks.checkNotNull(addrObjectConstructor);
     InvariantChecks.checkNotNull(tagAllocators);
     InvariantChecks.checkNotNull(entryIdAllocators);
     InvariantChecks.checkNotNull(entryConstructors);
@@ -154,8 +154,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     this.structure = structure;
 
-    this.testDataConstructor = testDataConstructor;
-    this.testDataCorrector = testDataCorrector;
+    this.addrObjectConstructor = addrObjectConstructor;
+    this.addrObjectCorrector = addrObjectCorrector;
     this.tagAllocators = tagAllocators;
     this.entryIdAllocators = entryIdAllocators;
     this.entryConstructors = entryConstructors;
@@ -191,7 +191,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final int j, final MmuAddressType addrType) {
 
     final MemoryAccess access = structure.getAccess(j);
-    final AddressObject testData = solution.getTestData(j);
+    final AddressObject addrObject = solution.getAddressObject(j);
 
     DataType maxDataType = access.getType().getDataType();
 
@@ -210,11 +210,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Checks whether the address is unaligned.
-    final long oldAddress = testData.getAddress(addrType);
+    final long oldAddress = addrObject.getAddress(addrType);
 
     if (!maxDataType.isAligned(oldAddress)) {
       final long newAddress = maxDataType.align(oldAddress);
-      testData.setAddress(addrType, newAddress);
+      addrObject.setAddress(addrType, newAddress);
     }
 
     return new SolverResult<>(solution);
@@ -224,17 +224,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the HIT constraint.
    * 
    * @param j the access index.
-   * @param device the device under scrutiny.
+   * @param buffer the buffer under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<MemorySolution> solveHitConstraint(final int j, final MmuBuffer device) {
-    final AddressObject testData = solution.getTestData(j);
-    final MmuAddressType addrType = device.getAddress();
+  private SolverResult<MemorySolution> solveHitConstraint(final int j, final MmuBuffer buffer) {
+    final AddressObject addrObject = solution.getAddressObject(j);
+    final MmuAddressType addrType = buffer.getAddress();
 
-    final long address = testData.getAddress(addrType);
-    final long tag = device.getTag(address);
+    final long address = addrObject.getAddress(addrType);
+    final long tag = buffer.getTag(address);
 
-    final Set<Long> hitTags = getHitTags(device, address);
+    final Set<Long> hitTags = getHitTags(buffer, address);
 
     // Check whether the preparation loading has been already scheduled.
     if (hitTags.contains(tag)) {
@@ -243,7 +243,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(device);
+    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
 
     // Check whether the previous instructions load the data into the buffer.
     if (!tagEqualRelation.isEmpty()) {
@@ -251,7 +251,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return new SolverResult<>(solution);
     }
 
-    final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(device);
+    final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(buffer);
 
     // Check whether there is a tag-replaced dependency.
     if (!tagReplacedRelation.isEmpty()) {
@@ -260,38 +260,38 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Check whether loading the data corrupts the preparation code.
-    if (hitTags.size() >= device.getWays()) {
+    if (hitTags.size() >= buffer.getWays()) {
       // Loading the data will cause other useful data to be replaced.
-      return new SolverResult<>(String.format("Hit constraint violation for device %s", device));
+      return new SolverResult<>(String.format("Hit constraint violation for buffer %s", buffer));
     }
 
     // Update the set of hit tags.
     hitTags.add(tag);
 
     // Add a memory access to cause a HIT.
-    // DO NOT CHANGE OFFSET: there are devices, in which offset bits have special meaning, e.g. 
+    // DO NOT CHANGE OFFSET: there are buffers, in which offset bits have special meaning, e.g. 
     // in the MIPS TLB, VA[12] chooses between EntryLo0 and EntryLo1.
     final List<Long> sequence = new ArrayList<>();
     sequence.add(address);
 
-    solution.getLoader().addLoads(device, BufferAccessEvent.HIT, address, sequence);
+    solution.getLoader().addLoads(buffer, BufferAccessEvent.HIT, address, sequence);
 
     // Loading data into the buffer may load them into the previous buffers.
     final MemoryAccess access = structure.getAccess(j);
     final MemoryAccessPath path = access.getPath();
-    final List<MmuBuffer> devices = path.getBuffers();
+    final List<MmuBuffer> buffers = path.getBuffers();
 
-    // Scan the devices of the same address type in reverse order.
+    // Scan the buffers of the same address type in reverse order.
     boolean found = false;
-    for (int i = devices.size() - 1; i >= 0; i--) {
-      final MmuBuffer prevDevice = devices.get(i);
+    for (int i = buffers.size() - 1; i >= 0; i--) {
+      final MmuBuffer prevDevice = buffers.get(i);
 
       if (!found) {
-        found = (prevDevice == device);
+        found = (prevDevice == buffer);
         continue;
       }
 
-      if (prevDevice.getAddress() != device.getAddress()) {
+      if (prevDevice.getAddress() != buffer.getAddress()) {
         continue;
       }
 
@@ -311,57 +311,57 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the MISS constraint.
    * 
    * @param j the access index.
-   * @param device the device under scrutiny.
+   * @param buffer the buffer under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<MemorySolution> solveMissConstraint(final int j, final MmuBuffer device) {
+  private SolverResult<MemorySolution> solveMissConstraint(final int j, final MmuBuffer buffer) {
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
-    if (!FilterAccessThenMiss.test(device, dependency)) {
-      return new SolverResult<>(String.format("Miss constraint violation for device %s", device));
+    if (!FilterAccessThenMiss.test(buffer, dependency)) {
+      return new SolverResult<>(String.format("Miss constraint violation for buffer %s", buffer));
     }
 
-    final AddressObject testData = solution.getTestData(j);
-    final MmuAddressType addrType = device.getAddress();
-    final UnaryOperator<Long> tagAllocator = tagAllocators.get(device);
+    final AddressObject addrObject = solution.getAddressObject(j);
+    final MmuAddressType addrType = buffer.getAddress();
+    final UnaryOperator<Long> tagAllocator = tagAllocators.get(buffer);
 
-    final long address = testData.getAddress(addrType);
-    final long tag = device.getTag(address);
-    final long index = device.getIndex(address);
+    final long address = addrObject.getAddress(addrType);
+    final long tag = buffer.getTag(address);
+    final long index = buffer.getIndex(address);
 
-    final Set<Long> hitTags = getHitTags(device, address);
+    final Set<Long> hitTags = getHitTags(buffer, address);
 
     if (hitTags.contains(tag)) {
       // Replacement does not make sense, because data will be loaded anyway.
       return new SolverResult<>(solution);
     }
 
-    final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(device);
-    final Set<Long> replacedIndices = getReplacedIndices(device);
+    final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(buffer);
+    final Set<Long> replacedIndices = getReplacedIndices(buffer);
 
     // It is enough to use one replacing sequence for all test case instructions.
     if (!replacedIndices.contains(index) &&
-        (mayBeHit(j, device) || !tagReplacedRelation.isEmpty())) {
+        (mayBeHit(j, buffer) || !tagReplacedRelation.isEmpty())) {
       final List<Long> sequence = new ArrayList<>();
 
-      for (int i = 0; i < device.getWays(); i++) {
+      for (int i = 0; i < buffer.getWays(); i++) {
         final Long evictingTag = tagAllocator.apply(/* Full address */ address);
 
         if (evictingTag == null) {
           return new SolverResult<>(
-              String.format("Cannot allocate a replacing tag for device %s", device));
+              String.format("Cannot allocate a replacing tag for buffer %s", buffer));
         }
 
         // Address offset is randomized.
         final long replacingOffset =
-            device.getOffset(Randomizer.get().nextLong());
+            buffer.getOffset(Randomizer.get().nextLong());
         final long replacingAddress =
-            device.getAddress(evictingTag, index, replacingOffset);
+            buffer.getAddress(evictingTag, index, replacingOffset);
 
         sequence.add(replacingAddress);
       }
 
-      solution.getLoader().addLoads(device, BufferAccessEvent.MISS, address, sequence);
+      solution.getLoader().addLoads(buffer, BufferAccessEvent.MISS, address, sequence);
 
       replacedIndices.add(index);
     }
@@ -370,57 +370,57 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   /**
-   * Solves the HIT constraint for the given non-replaceable device.
+   * Solves the HIT constraint for the given non-replaceable buffer.
    * 
    * @param j the access index.
-   * @param device the device under scrutiny.
+   * @param buffer the buffer under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<MemorySolution> solveEntryConstraint(final int j, final MmuBuffer device) {
-    final AddressObject testData = solution.getTestData(j);
+  private SolverResult<MemorySolution> solveEntryConstraint(final int j, final MmuBuffer buffer) {
+    final AddressObject addrObject = solution.getAddressObject(j);
     final MemoryAccess access = structure.getAccess(j);
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final MmuAddressType addrType = device.getAddress();
+    final MmuAddressType addrType = buffer.getAddress();
 
-    final long address = testData.getAddress(addrType);
+    final long address = addrObject.getAddress(addrType);
 
-    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(device);
+    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
 
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next();
-      final AddressObject prevTestData = solution.getTestData(i);
+      final AddressObject prevAddrObject = solution.getAddressObject(i);
 
-      // Instruction uses the same entry of the device.
-      final Map<Long, Object> entries = prevTestData.getEntries(device);
+      // Instruction uses the same entry of the buffer.
+      final Map<Long, Object> entries = prevAddrObject.getEntries(buffer);
 
       // Update the entry (the map contains one entry).
       for (final Object entry : entries.values()) {
-        entryProviders.get(device).accept(access, testData, entry);
+        entryProviders.get(buffer).accept(access, addrObject, entry);
       }
 
-      testData.setEntries(device, entries);
+      addrObject.setEntries(buffer, entries);
     }
 
-    if (testData.getEntries(device) == null || testData.getEntries(device).isEmpty()) {
+    if (addrObject.getEntries(buffer) == null || addrObject.getEntries(buffer).isEmpty()) {
       final UnaryOperator<Long> entryIdAllocator =
-          entryIdAllocators.get(device);
+          entryIdAllocators.get(buffer);
       final Supplier<Object> entryConstructor =
-          entryConstructors.get(device);
+          entryConstructors.get(buffer);
       final TriConsumer<MemoryAccess, AddressObject, Object> entryProvider =
-          entryProviders.get(device);
+          entryProviders.get(buffer);
 
-      final Long deviceEntryId = entryIdAllocator.apply(address);
-      final Object deviceEntry = entryConstructor.get();
+      final Long bufferEntryId = entryIdAllocator.apply(address);
+      final Object bufferEntry = entryConstructor.get();
 
-      if (deviceEntryId == null || deviceEntry == null) {
-        return new SolverResult<>(String.format("Cannot allocate an entry for device %s", device));
+      if (bufferEntryId == null || bufferEntry == null) {
+        return new SolverResult<>(String.format("Cannot allocate an entry for buffer %s", buffer));
       }
 
       // Filling the entry with appropriate data.
-      entryProvider.accept(access, testData, deviceEntry);
+      entryProvider.accept(access, addrObject, bufferEntry);
 
-      testData.addEntry(device, deviceEntryId, deviceEntry);
-      solution.addEntry(device, deviceEntryId, deviceEntry);
+      addrObject.addEntry(buffer, bufferEntryId, bufferEntry);
+      solution.addEntry(buffer, bufferEntryId, bufferEntry);
     }
 
     return new SolverResult<>(solution);
@@ -435,7 +435,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solveAddrEqualConstraint(
       final int j, final MmuAddressType addrType) {
-    final AddressObject testData = solution.getTestData(j);
+    final AddressObject addrObject = solution.getAddressObject(j);
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
@@ -443,12 +443,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // The instruction uses the same address as one of the previous instructions.
     if (!addrEqualRelation.isEmpty()) {
       final int i = addrEqualRelation.iterator().next();
-      final AddressObject prevTestData = solution.getTestData(i);
+      final AddressObject prevAddrObject = solution.getAddressObject(i);
 
-      final long newAddress = prevTestData.getAddress(addrType);
+      final long newAddress = prevAddrObject.getAddress(addrType);
 
       // Copy the address from the previous instruction.
-      testData.setAddress(addrType, newAddress);
+      addrObject.setAddress(addrType, newAddress);
     }
 
     return new SolverResult<>(solution);
@@ -458,35 +458,35 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the INDEX-EQUAL constraint ({@code INDEX[j] == INDEX[i]}).
    * 
    * @param j the access index.
-   * @param device the device under scrutiny.
+   * @param buffer the buffer under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveIndexEqualConstraint(
-      final int j, final MmuBuffer device) {
-    final AddressObject testData = solution.getTestData(j);
-    final MmuAddressType addrType = device.getAddress();
+      final int j, final MmuBuffer buffer) {
+    final AddressObject addrObject = solution.getAddressObject(j);
+    final MmuAddressType addrType = buffer.getAddress();
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(device);
+    final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(buffer);
 
     if (!indexEqualRelation.isEmpty()) {
       final int i = indexEqualRelation.iterator().next();
-      final AddressObject prevTestData = solution.getTestData(i);
+      final AddressObject prevAddrObject = solution.getAddressObject(i);
 
-      final UnaryOperator<Long> tagAllocator = tagAllocators.get(device);
+      final UnaryOperator<Long> tagAllocator = tagAllocators.get(buffer);
   
-      final long oldTag = device.getTag(testData.getAddress(addrType));
-      final long oldIndex = device.getIndex(testData.getAddress(addrType));
-      final long newIndex = device.getIndex(prevTestData.getAddress(addrType));
-      final long oldOffset = device.getOffset(testData.getAddress(addrType));
+      final long oldTag = buffer.getTag(addrObject.getAddress(addrType));
+      final long oldIndex = buffer.getIndex(addrObject.getAddress(addrType));
+      final long newIndex = buffer.getIndex(prevAddrObject.getAddress(addrType));
+      final long oldOffset = buffer.getOffset(addrObject.getAddress(addrType));
 
       // Copy the index from the previous instruction.
-      final long newAddress = device.getAddress(oldTag, newIndex, oldOffset);
+      final long newAddress = buffer.getAddress(oldTag, newIndex, oldOffset);
 
       // If the index has changed, allocate a new tag.
       final long newTag = newIndex != oldIndex ? tagAllocator.apply(newAddress) : oldTag;
 
-      testData.setAddress(addrType, device.getAddress(newTag, newIndex, oldOffset));
+      addrObject.setAddress(addrType, buffer.getAddress(newTag, newIndex, oldOffset));
     }
 
     return new SolverResult<>(solution);
@@ -496,47 +496,47 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the TAG-EQUAL constraint ({@code INDEX[j] == INDEX[i] && TAG[j] == TAG[i]}).
    * 
    * @param j the access index.
-   * @param device the device under scrutiny.
+   * @param buffer the buffer under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveTagEqualConstraint(
-      final int j, final MmuBuffer device) {
-    final AddressObject testData = solution.getTestData(j);
-    final MmuAddressType addrType = device.getAddress();
+      final int j, final MmuBuffer buffer) {
+    final AddressObject addrObject = solution.getAddressObject(j);
+    final MmuAddressType addrType = buffer.getAddress();
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(device);
+    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
 
     // Instruction uses the same tag and the same index as one of the previous instructions.
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next();
-      final AddressObject prevTestData = solution.getTestData(i);
+      final AddressObject prevAddrObject = solution.getAddressObject(i);
 
       // Copy the tag and the index from the previous instruction.
-      final long newTag = device.getTag(prevTestData.getAddress(addrType));
-      final long newIndex = device.getIndex(prevTestData.getAddress(addrType));
-      final long oldOffset = device.getOffset(testData.getAddress(addrType));
+      final long newTag = buffer.getTag(prevAddrObject.getAddress(addrType));
+      final long newIndex = buffer.getIndex(prevAddrObject.getAddress(addrType));
+      final long oldOffset = buffer.getOffset(addrObject.getAddress(addrType));
 
-      testData.setAddress(addrType, device.getAddress(newTag, newIndex, oldOffset));
+      addrObject.setAddress(addrType, buffer.getAddress(newTag, newIndex, oldOffset));
     }
 
     return new SolverResult<>(solution);
   }
 
   /**
-   * Predicts replacements in the device (buffer) up to the {@code j} access and solve the
+   * Predicts replacements in the buffer (buffer) up to the {@code j} access and solve the
    * corresponding constraints.
    * 
    * @param j the access index.
-   * @param device the device under scrutiny.
+   * @param buffer the buffer under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveTagReplacedConstraints(
-      final int j, final MmuBuffer device) {
-    final MmuAddressType addrType = device.getAddress();
+      final int j, final MmuBuffer buffer) {
+    final MmuAddressType addrType = buffer.getAddress();
 
     final BufferStateTracker<Long> stateTracker = new BufferStateTracker<>(
-        device.getSets(), device.getWays(), device.getAddressView());
+        buffer.getSets(), buffer.getWays(), buffer.getAddressView());
 
     // Maps access indices to the replaced tags.
     final Map<Integer, Long> replacedTags =
@@ -546,14 +546,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MemoryAccess access = structure.getAccess(i);
       final MemoryAccessPath path = access.getPath();
       final MemoryUnitedDependency dependency = structure.getUnitedDependency(i);
-      final AddressObject testData = solution.getTestData(i);
+      final AddressObject addrObject = solution.getAddressObject(i);
 
-      final long address = testData.getAddress(addrType);
-      final long index = device.getIndex(address);
-      final long offset = device.getOffset(address);
+      final long address = addrObject.getAddress(addrType);
+      final long index = buffer.getIndex(address);
+      final long offset = buffer.getOffset(address);
 
-      // Check the device access condition.
-      if (path.contains(device) && device.checkGuard(access)) {
+      // Check the buffer access condition.
+      if (path.contains(buffer) && buffer.checkGuard(access)) {
         final Long replacedTag = stateTracker.track(address);
 
         if (replacedTag != null) {
@@ -562,17 +562,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
 
       // Satisfy the TAG-REPLACED constraint.
-      final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(device);
+      final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(buffer);
 
       if (!tagReplacedRelation.isEmpty()) {
         final int dependsOn = tagReplacedRelation.iterator().next();
         final Long replacedTag = replacedTags.get(dependsOn);
 
         if (replacedTag == null) {
-          return new SolverResult<>(String.format("Replace constraint violation for %s", device));
+          return new SolverResult<>(String.format("Replace constraint violation for %s", buffer));
         }
 
-        testData.setAddress(addrType, device.getAddress(replacedTag, index, offset));
+        addrObject.setAddress(addrType, buffer.getAddress(replacedTag, index, offset));
       }
 
       // TAG-NOT-REPLACED constraints are satisfied AUTOMATICALLY.
@@ -582,60 +582,60 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   /**
-   * Solve hit/miss constraints specified for the given device.
+   * Solve hit/miss constraints specified for the given buffer.
    * 
    * @param j the access index.
-   * @param device the device under scrutiny.
+   * @param buffer the buffer under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveDeviceConstraint(
-      final int j, final MmuBuffer device) {
-    // Do nothing if the device has been already handled.
-    Set<MmuBuffer> handledDevicesForExecution = handledDevices.get(j);
+      final int j, final MmuBuffer buffer) {
+    // Do nothing if the buffer has been already handled.
+    Set<MmuBuffer> handledBuffersForExecution = handledBuffers.get(j);
 
-    if (handledDevicesForExecution == null) {
-      handledDevices.put(j, handledDevicesForExecution = new LinkedHashSet<>());
-    } else if (handledDevicesForExecution.contains(device)) {
+    if (handledBuffersForExecution == null) {
+      handledBuffers.put(j, handledBuffersForExecution = new LinkedHashSet<>());
+    } else if (handledBuffersForExecution.contains(buffer)) {
       return new SolverResult<MemorySolution>(solution);
     }
 
-    handledDevicesForExecution.add(device);
+    handledBuffersForExecution.add(buffer);
 
     final MemoryAccess access = structure.getAccess(j);
     final MemoryAccessPath path = access.getPath();
 
     // If the buffer access event is null, the situation is considered to be a hit.
-    // The event is null, if the device is a parent of some view and is not in the access. 
-    final BufferAccessEvent realEvent = path.getEvent(device);
+    // The event is null, if the buffer is a parent of some view and is not in the access. 
+    final BufferAccessEvent realEvent = path.getEvent(buffer);
     final BufferAccessEvent usedEvent = realEvent == null ? BufferAccessEvent.HIT : realEvent;
 
-    // The device is a view of another device (e.g., DTLB is a view of JTLB).
-    if (device.isView()) {
-      solveDeviceConstraint(j, device.getParent());
+    // The buffer is a view of another buffer (e.g., DTLB is a view of JTLB).
+    if (buffer.isView()) {
+      solveDeviceConstraint(j, buffer.getParent());
     }
 
     final boolean canBeAccessed =
         // The parent access event is a hit or null, but not a miss.
-        !device.isView() || path.getEvent(device.getParent()) != BufferAccessEvent.MISS;
+        !buffer.isView() || path.getEvent(buffer.getParent()) != BufferAccessEvent.MISS;
 
-    if (canBeAccessed && device.checkGuard(access)) {
+    if (canBeAccessed && buffer.checkGuard(access)) {
       SolverResult<MemorySolution> result = null;
 
-      if (device.isReplaceable()) {
+      if (buffer.isReplaceable()) {
         // Construct a sequence of addresses to be accessed.
         if (usedEvent == BufferAccessEvent.HIT) {
-          result = solveHitConstraint(j, device);
+          result = solveHitConstraint(j, buffer);
         } else {
-          result = solveMissConstraint(j, device);
+          result = solveMissConstraint(j, buffer);
         }
 
         if (result.getStatus() != SolverResult.Status.UNSAT) {
-          result = solveTagReplacedConstraints(j, device);
+          result = solveTagReplacedConstraints(j, buffer);
         }
       } else {
-        // Construct a set of entries to be written to the device.
+        // Construct a set of entries to be written to the buffer.
         if (usedEvent == BufferAccessEvent.HIT) {
-          result = solveEntryConstraint(j, device);
+          result = solveEntryConstraint(j, buffer);
         } else {
           // Do nothing: the constraint is satisfied by tag allocators.
         }
@@ -645,8 +645,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
         return result;
       }
     } else {
-      if (path.getEvent(device) == BufferAccessEvent.HIT) {
-        return new SolverResult<>(String.format("Constraint violation for device %s", device));
+      if (path.getEvent(buffer) == BufferAccessEvent.HIT) {
+        return new SolverResult<>(String.format("Constraint violation for buffer %s", buffer));
       }
     }
 
@@ -665,12 +665,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
-    // Construct initial test data for the access.
-    final AddressObject testData = testDataConstructor.apply(access);
-    solution.setTestData(j, testData);
+    // Construct the initial address object for the access.
+    final AddressObject addrObject = addrObjectConstructor.apply(access);
+    solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
-    for (final MmuAddressType addrType : testData.getAddresses().keySet()) {
+    for (final MmuAddressType addrType : addrObject.getAddresses().keySet()) {
       solveAlignConstraint(j, addrType);
     }
 
@@ -685,34 +685,35 @@ public final class MemorySolver implements Solver<MemorySolution> {
         solveAddrEqualConstraint(j, addrType);
 
         // Paranoid check.
-        final long addr = testData.getAddress(addrType);
+        final long addr = addrObject.getAddress(addrType);
 
-        if (!testData.getType().getDataType().isAligned(addr)) {
+        if (!addrObject.getType().getDataType().isAligned(addr)) {
           throw new IllegalStateException(
               String.format("Unaligned address after solving AddrEqual constraints: %x", addr));
         }
       } else {
-        final Map<MmuBuffer, MemoryUnitedHazard> deviceHazards = dependency.getDeviceHazards(addrType);
+        final Map<MmuBuffer, MemoryUnitedHazard> bufferHazards =
+            dependency.getDeviceHazards(addrType);
 
-        for (Map.Entry<MmuBuffer, MemoryUnitedHazard> deviceEntry : deviceHazards.entrySet()) {
-          final MmuBuffer deviceType = deviceEntry.getKey();
-          final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(deviceType);
-          final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(deviceType);
+        for (Map.Entry<MmuBuffer, MemoryUnitedHazard> bufferEntry : bufferHazards.entrySet()) {
+          final MmuBuffer bufferType = bufferEntry.getKey();
+          final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(bufferType);
+          final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(bufferType);
 
           if (!tagEqualRelation.isEmpty()) {
-            solveTagEqualConstraint(j, deviceType);
+            solveTagEqualConstraint(j, bufferType);
           } else if (!indexEqualRelation.isEmpty()) {
-            solveIndexEqualConstraint(j, deviceType);
+            solveIndexEqualConstraint(j, bufferType);
           }
         }
       }
     }
 
-    // Solve the hit and miss constraints for the devices.
-    final List<MmuBuffer> devices = path.getBuffers();
+    // Solve the hit and miss constraints for the buffers.
+    final List<MmuBuffer> buffers = path.getBuffers();
 
-    for (final MmuBuffer device : devices) {
-      final SolverResult<MemorySolution> result = solveDeviceConstraint(j, device);
+    for (final MmuBuffer buffer : buffers) {
+      final SolverResult<MemorySolution> result = solveDeviceConstraint(j, buffer);
 
       if (result.getStatus() == SolverResult.Status.UNSAT) {
         return result;
@@ -720,24 +721,24 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Correct the solution.
-    testDataCorrector.accept(access, testData);
+    addrObjectCorrector.accept(access, addrObject);
 
     return new SolverResult<MemorySolution>(solution);
   }
 
   /**
-   * Returns the set of tags to be explicitly loaded into the device to cause the hits.
+   * Returns the set of tags to be explicitly loaded into the buffer to cause the hits.
    * 
-   * @param device the MMU device (buffer).
+   * @param buffer the MMU buffer (buffer).
    * @param address the address.
    * @return the set of tags.
    */
-  private Set<Long> getHitTags(final MmuBuffer device, final long address) {
-    final long index = device.getIndex(address);
+  private Set<Long> getHitTags(final MmuBuffer buffer, final long address) {
+    final long index = buffer.getIndex(address);
 
-    Map<Long, Set<Long>> hitIndices = deviceHitTags.get(device);
+    Map<Long, Set<Long>> hitIndices = bufferHitTags.get(buffer);
     if (hitIndices == null) {
-      deviceHitTags.put(device, hitIndices = new LinkedHashMap<>());
+      bufferHitTags.put(buffer, hitIndices = new LinkedHashMap<>());
     }
 
     Set<Long> hitTags = hitIndices.get(index);
@@ -751,27 +752,27 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Returns the indices for which replacing sequences have been constructed.
    * 
-   * @param device the MMU device (buffer).
+   * @param buffer the MMU buffer (buffer).
    * @return the set of indices.
    */
-  private Set<Long> getReplacedIndices(final MmuBuffer device) {
-    Set<Long> replacedIndices = deviceReplacedIndices.get(device);
+  private Set<Long> getReplacedIndices(final MmuBuffer buffer) {
+    Set<Long> replacedIndices = bufferReplacedIndices.get(buffer);
     if (replacedIndices == null) {
-      deviceReplacedIndices.put(device, replacedIndices = new LinkedHashSet<>());
+      bufferReplacedIndices.put(buffer, replacedIndices = new LinkedHashSet<>());
     }
 
     return replacedIndices;
   }
 
   /**
-   * Checks whether a hit into the given device is possible for the given access.
+   * Checks whether a hit into the given buffer is possible for the given access.
    * 
    * @param j the access index.
-   * @param device the MMU device (buffer).
+   * @param buffer the MMU buffer (buffer).
    * @return {@code false} if a hit is infeasible; {@code true} if a hit is possible.
    */
-  private boolean mayBeHit(final int j, final MmuBuffer device) {
-    final MmuAddressType addrType = device.getAddress();
+  private boolean mayBeHit(final int j, final MmuBuffer buffer) {
+    final MmuAddressType addrType = buffer.getAddress();
 
     // TODO: This check can be optimized.
     final MemoryAccess access = structure.getAccess(j);
@@ -788,16 +789,16 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
     }
 
-    final AddressObject testData = solution.getTestData(j);
+    final AddressObject addrObject = solution.getAddressObject(j);
 
-    final long address = testData.getAddress(addrType);
-    final long tag = device.getTag(address);
-    final long index = device.getIndex(address);
+    final long address = addrObject.getAddress(addrType);
+    final long tag = buffer.getTag(address);
+    final long index = buffer.getIndex(address);
 
     for (final Load load : solution.getLoader().prepareLoads(addrType)) {
       final long loadedAddress = load.getAddress();
-      final long loadedTag = device.getTag(loadedAddress);
-      final long loadedIndex = device.getIndex(loadedAddress);
+      final long loadedTag = buffer.getTag(loadedAddress);
+      final long loadedIndex = buffer.getIndex(loadedAddress);
 
       if (loadedIndex == index && loadedTag == tag) {
         // Possibly HIT.

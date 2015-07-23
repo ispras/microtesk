@@ -22,11 +22,11 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
- * {@link LoadingGoal} represents a sequence of loads to reach a certain buffer access event.
+ * {@link EventLoader} represents a sequence of loads to reach a certain buffer access event.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class LoadingGoal implements Loader {
+public final class EventLoader implements Loader {
   private final MmuBuffer buffer;
 
   private final BufferAccessEvent targetEvent;
@@ -41,7 +41,7 @@ public final class LoadingGoal implements Loader {
    * @param targetEvent the event to be reached. 
    * @param targetAddress the target address.
    */
-  public LoadingGoal(
+  public EventLoader(
       final MmuBuffer buffer,
       final BufferAccessEvent targetEvent,
       final long targetAddress) {
@@ -76,7 +76,7 @@ public final class LoadingGoal implements Loader {
     InvariantChecks.checkNotNull(addresses);
 
     for (final long address : addresses) {
-      loads.add(new Load(address));
+      loads.add(new Load(buffer, targetEvent, targetAddress, address));
     }
   }
 

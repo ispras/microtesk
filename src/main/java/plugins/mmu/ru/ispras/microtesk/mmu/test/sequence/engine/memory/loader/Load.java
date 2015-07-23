@@ -14,16 +14,57 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+
 /**
  * {@link Load} represents a load operation to be performed to prepare a memory buffer.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class Load {
+  private final MmuBuffer buffer;
+
+  private final BufferAccessEvent targetEvent;
+  private final long targetAddress;
+
   private final long address;
 
-  public Load(final long address) {
+  /**
+   * Construct a load object.
+   * 
+   * @param buffer the memory buffer being prepared.
+   * @param targetEvent the event to be reached on the target address.
+   * @param targetAddress the target address.
+   * @param address the accessed address.
+   */
+  public Load(
+      final MmuBuffer buffer,
+      final BufferAccessEvent targetEvent,
+      final long targetAddress,
+      final long address) {
+    InvariantChecks.checkNotNull(buffer);
+    InvariantChecks.checkNotNull(targetEvent);
+
+    this.buffer = buffer;
+
+    this.targetEvent = targetEvent;
+    this.targetAddress = targetAddress;
+
     this.address = address;
+  }
+
+  public MmuBuffer getBuffer() {
+    return buffer;
+  }
+
+  public BufferAccessEvent getTargetEvent() {
+    return targetEvent;
+  }
+
+  public long getTargetAddress() {
+    return targetAddress;
   }
 
   public Long getAddress() {
