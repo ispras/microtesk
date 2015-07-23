@@ -70,27 +70,6 @@ public final class TestEngine {
 
   private final IModel model;
 
-  // Settings passed from a template
-  private String indentToken = "\t";
-  private String commentToken = "//";
-  private String separatorToken = "=";
-  private String originFormat = ".org 0x%x";
-  private String alignFormat = ".align %d";
-
-  // Settings from command line and configuration file
-  private static String outDir = SysUtils.getHomeDir();
-  private static int branchExecutionLimit = 100;
-  private static String codeFileExtension = ".asm";
-  private static String codeFilePrefix = "test";
-  private static String dataFileExtension = ".dat";
-  private static String dataFilePrefix = codeFilePrefix;
-  private static String exceptionFilePrefix = codeFilePrefix + "_except"; 
-  private static int programLengthLimit = 1000;
-  private static int traceLengthLimit = 1000;
-  private static boolean commentsDebug = false;
-  private static boolean commentsEnabled = false;
-  private static boolean tarmacLog = false;
-
   // Architecture-specific settings
   private static GeneratorSettings settings;
 
@@ -102,10 +81,6 @@ public final class TestEngine {
     return model.getMetaData();
   }
 
-  public static void setOutDir(final String value) {
-    outDir = value;
-  }
-  
   public static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
   }
@@ -118,38 +93,6 @@ public final class TestEngine {
     } else {
       Logger.warning("Unknown solver: %s. Default solver will be used.", solverName);
     }
-  }
-
-  public static void setBranchExecutionLimit(final int value) {
-    branchExecutionLimit = value;
-  }
-
-  public static void setCodeFileExtension(final String value) {
-    codeFileExtension = value;
-  }
-
-  public static void setCodeFilePrefix(final String value) {
-    codeFilePrefix = value;
-  }
-
-  public static void setDataFileExtension(final String value) {
-    dataFileExtension = value;
-  }
-
-  public static void setDataFilePrefix(final String value) {
-    dataFilePrefix = value;
-  }
-
-  public static void setExceptionFilePrefix(final String value) {
-    exceptionFilePrefix = value;
-  }
-
-  public static void setProgramLengthLimit(final int value) {
-    programLengthLimit = value;
-  }
-
-  public static void setTraceLengthLimit(final int value) {
-    traceLengthLimit = value;
   }
 
   public static GeneratorSettings getGeneratorSettings() {
@@ -165,18 +108,6 @@ public final class TestEngine {
     if (allocation != null) {
       ModeAllocator.init(allocation);
     }
-  }
-
-  public static void setCommentsDebug(boolean value) {
-    commentsDebug = value;
-  }
-
-  public static void setCommentsEnabled(boolean value) {
-    commentsEnabled = value;
-  }
-
-  public static void setTarmacLog(boolean value) {
-    tarmacLog  = value;
   }
 
   public static TestStatistics generate(final String modelName, final String templateFile) throws Throwable {
@@ -263,55 +194,15 @@ public final class TestEngine {
     }
   }
 
-  public void setIndentToken(final String indentToken) {
-    this.indentToken = indentToken;
-  }
-
-  public void setCommentToken(final String commentToken) {
-    this.commentToken = commentToken;
-  }
-
-  public void setSeparatorToken(final String separatorToken) {
-    this.separatorToken = separatorToken;
-  }
-
-  public void setOriginFormat(final String originFormat) {
-    this.originFormat = originFormat;
-  }
-
-  public void setAlignFormat(final String alignFormat) {
-    this.alignFormat = alignFormat; 
-  }
-
   public Template newTemplate() {
     final PreparatorStore preparators = new PreparatorStore();
     final BufferPreparatorStore bufferPreparators = new BufferPreparatorStore();
     final StreamStore streams = new StreamStore();
+
     final IModelStateObserver observer = model.getStateObserver();
+    final Printer printer = new Printer(observer);
 
-    final Printer printer = new Printer(
-        outDir,
-        codeFilePrefix,
-        codeFileExtension,
-        observer,
-        indentToken,
-        commentToken,
-        separatorToken,
-        originFormat,
-        alignFormat,
-        commentsEnabled,
-        commentsDebug
-        );
-
-    final DataManager dataManager = new DataManager(
-        indentToken,
-        commentToken,
-        originFormat,
-        alignFormat,
-        printer,
-        dataFilePrefix,
-        dataFileExtension
-        );
+    final DataManager dataManager = new DataManager(printer);
  
     final EngineContext context = new EngineContext(
         model,
@@ -322,22 +213,17 @@ public final class TestEngine {
         settings
         );
 
-    final LogPrinter logPrinter = tarmacLog ?
-        new LogPrinter(codeFilePrefix) : null;
+    final LogPrinter logPrinter = TestSettings.isTarmacLog() ?
+        new LogPrinter(TestSettings.getCodeFilePrefix()) : null;
 
-    final Executor executor = new Executor(
-        context, observer, branchExecutionLimit, logPrinter, originFormat, alignFormat);
-
-   
+    final Executor executor = new Executor(context, observer, logPrinter);
 
     final TemplateProcessor processor = new TemplateProcessor(
         context,
         executor,
         printer, 
         logPrinter,
-        dataManager,
-        programLengthLimit,
-        traceLengthLimit
+        dataManager
         );
 
     STATISTICS = new TestStatistics();
@@ -365,9 +251,6 @@ public final class TestEngine {
     private final DataManager dataManager;
     private final GeneratorConfig<Call> config;
 
-    private final int programLengthLimit;
-    private final int traceLengthLimit;
-
     private int testIndex = 0; 
 
     private boolean needCreateNewFile;
@@ -377,9 +260,7 @@ public final class TestEngine {
         final Executor executor,
         final Printer printer,
         final LogPrinter logPrinter,
-        final DataManager dataManager,
-        final int programLengthLimit,
-        final int traceLengthLimit) {
+        final DataManager dataManager) {
 
       this.engineContext = engineContext;
       this.executor = executor;
@@ -388,9 +269,6 @@ public final class TestEngine {
       this.dataManager = dataManager;
       this.config = GeneratorConfig.<Call>get();
 
-      this.programLengthLimit = programLengthLimit;
-      this.traceLengthLimit = traceLengthLimit;
-      
       this.needCreateNewFile = true;
     }
 
@@ -558,9 +436,10 @@ public final class TestEngine {
           final TestStatistics after = STATISTICS.copy();
 
           final boolean isProgramLengthLimitExceeded =
-              (after.instructionCount - before.instructionCount) >= programLengthLimit;
+              (after.instructionCount - before.instructionCount) >= TestSettings.getProgramLengthLimit();
+
           final boolean isTraceLengthLimitExceeded =
-              (after.instructionExecutedCount - before.instructionExecutedCount) >= traceLengthLimit;
+              (after.instructionExecutedCount - before.instructionExecutedCount) >= TestSettings.getTraceLengthLimit();
 
            /*
            System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
@@ -712,7 +591,7 @@ public final class TestEngine {
     @Override
     public void defineExceptionHandler(final ExceptionHandler handler) {
       final String exceptionFileName = String.format(
-          "%s.%s", TestEngine.exceptionFilePrefix, TestEngine.codeFileExtension);
+          "%s.%s", TestSettings.getExceptionFilePrefix(), TestSettings.getCodeFileExtension());
 
       Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
       InvariantChecks.checkNotNull(handler);

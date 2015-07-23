@@ -735,16 +735,18 @@ class Template
 
   def generate
     java_import Java::Ru.ispras.microtesk.test.TestEngine
+    java_import Java::Ru.ispras.microtesk.test.TestSettings
+
     engine = TestEngine.getInstance()
 
     TemplateBuilder.define_runtime_methods engine.getMetaModel
 
-    engine.setCommentToken sl_comment_starts_with
-    engine.setIndentToken indent_token
-    engine.setSeparatorToken separator_token
+    TestSettings.setCommentToken sl_comment_starts_with
+    TestSettings.setIndentToken indent_token
+    TestSettings.setSeparatorToken separator_token
 
-    engine.setOriginFormat org_format
-    engine.setAlignFormat align_format
+    TestSettings.setOriginFormat org_format
+    TestSettings.setAlignFormat align_format
 
     @template = engine.newTemplate
 

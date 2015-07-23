@@ -39,6 +39,7 @@ import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.Printer;
+import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataManager {
   private static interface DataDeclItem {
@@ -161,12 +162,6 @@ public final class DataManager {
   private String ztermStrText;
   private String nztermStrText;
 
-  private final String indentToken;
-  private final String commentToken;
-  private final String originFormat;
-  private final String alignFormat;
-  private final String dataFilePrefix;
-  private final String dataFileExtension;
   private int dataFileIndex;
 
   private final Map<String, TypeInfo> typeMap;
@@ -180,23 +175,8 @@ public final class DataManager {
     }
   }
 
-  public DataManager(
-      final String indentToken,
-      final String commentToken,
-      final String originFormat,
-      final String alignFormat, 
-      final Printer printer,
-      final String dataFilePrefix,
-      final String dataFileExtension) {
-
-    this.indentToken = indentToken;
-    this.commentToken = commentToken;
-    this.originFormat = originFormat;
-    this.alignFormat = alignFormat;
-
+  public DataManager(final Printer printer) {
     this.printer = printer;
-    this.dataFilePrefix = dataFilePrefix;
-    this.dataFileExtension = dataFileExtension;
     this.dataFileIndex = 0;
 
     this.memoryMap = new MemoryMap();
@@ -289,9 +269,11 @@ public final class DataManager {
         }
         sb.append(String.format("%n%s", item.getText()));
       } else if (item instanceof DataDeclComment) {
-        sb.append(String.format("%n%s%s%s", indentToken, commentToken, item.getText()));
+        sb.append(String.format("%n%s%s%s",
+            TestSettings.getIndentToken(), TestSettings.getCommentToken(), item.getText()));
       } else {
-        sb.append(String.format("%n%s%s", indentToken, item.getText()));
+        sb.append(String.format("%n%s%s",
+            TestSettings.getIndentToken(), item.getText()));
       }
     }
 
@@ -355,7 +337,7 @@ public final class DataManager {
   public void setAddress(final BigInteger value) {
     checkNotNull(value);
 
-    final String text = String.format(originFormat, value);
+    final String text = String.format(TestSettings.getOriginFormat(), value);
     Logger.debug("Setting allocation address: %s", text);
 
     getDataDecls().add(new DataDeclText(text));
@@ -373,7 +355,7 @@ public final class DataManager {
   public void align(final BigInteger value, final BigInteger valueInBytes) {
     checkNotNull(value);
 
-    final String text = String.format(alignFormat, value);
+    final String text = String.format(TestSettings.getAlignFormat(), value);
     Logger.debug("Setting alignment: %s (%d bytes)", text, valueInBytes);
 
     getDataDecls().add(new DataDeclText(text));
@@ -613,7 +595,7 @@ public final class DataManager {
               printAbsoluteOrg ? address : address.subtract(startAddress);
 
           addText("");
-          addText(String.format(originFormat, printedAddress));
+          addText(String.format(TestSettings.getOriginFormat(), printedAddress));
         }
 
         List<BitVector> dataList = new ArrayList<>(4);
@@ -659,8 +641,9 @@ public final class DataManager {
   }
 
   public void saveDeclsToFile() {
-    final String fileName = String.format(
-        "%s_%04d.%s", dataFilePrefix, dataFileIndex, dataFileExtension);
+    final String fileName = String.format("%s_%04d.%s",
+        TestSettings.getDataFilePrefix(), dataFileIndex, TestSettings.getDataFileExtension());
+
     Logger.debug("Generating data file: %s", fileName);
 
     PrintWriter writer = null;

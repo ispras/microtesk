@@ -42,18 +42,13 @@ import ru.ispras.microtesk.test.template.Output;
  * calls). It executes instruction by instruction, perform control transfers by labels (if needed)
  * and prints information about important events to the simulator log (currently, the console).
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 final class Executor {
   private final EngineContext context;
-
   private final IModelStateObserver observer;
-  private final int branchExecutionLimit;
   private final LogPrinter logPrinter;
-
-  private final String originFormat;
-  private final String alignFormat;
 
   private Map<String, List<ConcreteCall>> exceptionHandlers;
   private List<LabelReference> labelRefs;
@@ -70,22 +65,13 @@ final class Executor {
   public Executor(
       final EngineContext context,
       final IModelStateObserver observer,
-      final int branchExecutionLimit,
-      final LogPrinter logPrinter,
-      final String originFormat,
-      final String alignFormat) {
+      final LogPrinter logPrinter) {
     checkNotNull(context);
     checkNotNull(observer);
-    checkNotNull(originFormat);
-    checkNotNull(alignFormat);
 
     this.context = context;
     this.observer = observer;
-    this.branchExecutionLimit = branchExecutionLimit;
     this.logPrinter = logPrinter;
-
-    this.originFormat = originFormat;
-    this.alignFormat = alignFormat;
 
     this.exceptionHandlers = null;
     this.labelRefs = null;
@@ -136,6 +122,7 @@ final class Executor {
     final long startAdress = calls.get(startIndex).getAddress();
     observer.accessLocation("PC").setValue(BigInteger.valueOf(startAdress));
 
+    final int branchExecutionLimit = TestSettings.getBranchExecutionLimit();
     while (index >= 0 && index < calls.size()) {
       final ConcreteCall call = calls.get(index);
 
@@ -147,11 +134,11 @@ final class Executor {
       }
 
       if (call.getOrigin() != null) {
-        logText(String.format(originFormat, call.getOrigin()));
+        logText(String.format(TestSettings.getOriginFormat(), call.getOrigin()));
       }
 
       if (call.getAlignment() != null) {
-        logText(String.format(alignFormat, call.getAlignment()));
+        logText(String.format(TestSettings.getAlignFormat(), call.getAlignment()));
       }
 
       logOutputs(call.getOutputs());
@@ -455,6 +442,7 @@ final class Executor {
     int currentPos = 0;
     final int endPos = sequence.size();
 
+    final int branchExecutionLimit = TestSettings.getBranchExecutionLimit();
     while (currentPos < endPos) {
       final ConcreteCall call = sequence.get(currentPos);
 
@@ -604,33 +592,11 @@ final class Executor {
   }
 
   private static final String MSG_HAVE_TO_CONTINUE =
-    "Have to continue to the next instruction.";
+      "Have to continue to the next instruction.";
 
   private static final String MSG_NO_LABEL_LINKED =
-    "Warning: No label to jump is linked to the current instruction. " + MSG_HAVE_TO_CONTINUE;
+      "Warning: No label to jump is linked to the current instruction. " + MSG_HAVE_TO_CONTINUE;
 
   private static final String MSG_NO_LABEL_DEFINED =
-    "Warning: No label called %s is defined in the current sequence. " + MSG_HAVE_TO_CONTINUE;
+      "Warning: No label called %s is defined in the current sequence. " + MSG_HAVE_TO_CONTINUE;
 }
-
-/*
-final class ExecutorContext {
-  private final Map<Long, ConcreteCall> memoryMap;
-  private final LabelManager labelManager;
-  private final Map<String, Long> exceptionHandlerAddresses;
-
-  public ExecutorContext(
-      final TestSequence sequence,
-      final int sequenceIndex,
-      final Map<String, List<ConcreteCall>> exceptionHandlers) {
-    InvariantChecks.checkNotNull(sequence);
-    InvariantChecks.checkNotNull(exceptionHandlers);
-
-    this.memoryMap = new LinkedHashMap<>();
-    this.labelManager = new LabelManager();
-    this.exceptionHandlerAddresses = new HashMap<>();
-
-    
-  }
-}
-*/

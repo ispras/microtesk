@@ -29,6 +29,7 @@ import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.TestEngine;
+import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.test.TestStatistics;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
@@ -175,7 +176,7 @@ public final class MicroTESK {
     final String templateFile = args[1];
 
     if (params.hasOption(Parameters.OUTDIR)) {
-      TestEngine.setOutDir(params.getOptionValue(Parameters.OUTDIR));
+      TestSettings.setOutDir(params.getOptionValue(Parameters.OUTDIR));
     }
 
     if (params.hasOption(Parameters.RANDOM)) {
@@ -187,7 +188,7 @@ public final class MicroTESK {
  
     if (params.hasOption(Parameters.LIMIT)) {
       final int branchExecutionLimit = params.getOptionValueAsInt(Parameters.LIMIT);
-      TestEngine.setBranchExecutionLimit(branchExecutionLimit);
+      TestSettings.setBranchExecutionLimit(branchExecutionLimit);
     } else {
       reportUndefinedOption(Parameters.LIMIT);
     }
@@ -197,58 +198,58 @@ public final class MicroTESK {
     }
 
     if (params.hasOption(Parameters.CODE_EXT)) {
-      TestEngine.setCodeFileExtension(params.getOptionValue(Parameters.CODE_EXT));
+      TestSettings.setCodeFileExtension(params.getOptionValue(Parameters.CODE_EXT));
     } else {
       reportUndefinedOption(Parameters.CODE_EXT);
     }
  
     if (params.hasOption(Parameters.CODE_PRE)) {
-      TestEngine.setCodeFilePrefix(params.getOptionValue(Parameters.CODE_PRE));
+      TestSettings.setCodeFilePrefix(params.getOptionValue(Parameters.CODE_PRE));
     } else {
       reportUndefinedOption(Parameters.CODE_PRE);
     }
 
     if (params.hasOption(Parameters.DATA_EXT)) {
-      TestEngine.setDataFileExtension(params.getOptionValue(Parameters.DATA_EXT));
+      TestSettings.setDataFileExtension(params.getOptionValue(Parameters.DATA_EXT));
     } else {
       reportUndefinedOption(Parameters.DATA_EXT);
     }
  
     if (params.hasOption(Parameters.DATA_PRE)) {
-      TestEngine.setDataFilePrefix(params.getOptionValue(Parameters.DATA_PRE));
+      TestSettings.setDataFilePrefix(params.getOptionValue(Parameters.DATA_PRE));
     } else {
       reportUndefinedOption(Parameters.DATA_PRE);
     }
 
     if (params.hasOption(Parameters.EXCEPT_PRE)) {
-      TestEngine.setExceptionFilePrefix(params.getOptionValue(Parameters.EXCEPT_PRE));
+      TestSettings.setExceptionFilePrefix(params.getOptionValue(Parameters.EXCEPT_PRE));
     } else {
       reportUndefinedOption(Parameters.EXCEPT_PRE);
     }
 
     if (params.hasOption(Parameters.CODE_LIMIT)) {
       final int programLengthLimit = params.getOptionValueAsInt(Parameters.CODE_LIMIT);
-      TestEngine.setProgramLengthLimit(programLengthLimit);
+      TestSettings.setProgramLengthLimit(programLengthLimit);
     } else {
       reportUndefinedOption(Parameters.CODE_LIMIT);
     }
 
     if (params.hasOption(Parameters.TRACE_LIMIT)) {
       final int traceLengthLimit = params.getOptionValueAsInt(Parameters.TRACE_LIMIT);
-      TestEngine.setTraceLengthLimit(traceLengthLimit);
+      TestSettings.setTraceLengthLimit(traceLengthLimit);
     } else {
       reportUndefinedOption(Parameters.TRACE_LIMIT);
     }
 
-    TestEngine.setCommentsEnabled(params.hasOption(Parameters.COMMENTS_ENABLED));
-    TestEngine.setCommentsDebug(params.hasOption(Parameters.COMMENTS_DEBUG));
+    TestSettings.setCommentsEnabled(params.hasOption(Parameters.COMMENTS_ENABLED));
+    TestSettings.setCommentsDebug(params.hasOption(Parameters.COMMENTS_DEBUG));
 
     if (params.hasOption(Parameters.SOLVER_DEBUG)) {
       Environment.setDebugMode(true);
     }
 
     if (params.hasOption(Parameters.TARMAC_LOG)) {
-      TestEngine.setTarmacLog(true);
+      TestSettings.setTarmacLog(true);
     }
 
     if (params.hasOption(Parameters.ARCH_DIRS)) {
