@@ -35,10 +35,10 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The Operation abstract class is the base class for all classes that simulate behavior specified
- * by "op" Sim-nML statements. The class provides definitions of classes to be used by its
+ * by "op" nML statements. The class provides definitions of classes to be used by its
  * descendants (generated classes that are to implement the IOperation interface).
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public abstract class Operation extends StandardFunctions implements IOperation {

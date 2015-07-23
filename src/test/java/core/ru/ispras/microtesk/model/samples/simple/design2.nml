@@ -1,5 +1,5 @@
 /*
- * Example of Sim-nML description of a trivial microprocessor ISA.
+ * Example of nML description of a trivial microprocessor ISA.
  * 
  * Borrowed from a Master's thesis "Functional Simulation Using Sim-nML"
  * by Surendra Kumar Vishnoi, Indian Institute of Technology Kanpur
@@ -9,7 +9,7 @@
  * Includes some modifications made at ISPRAS for test purposes.
  */
 
-let COMMENT = "This is a test Sim-nML design specification."
+let COMMENT = "This is a test nML design specification."
 
 let MSIZE = 2 ** 6
 let REGS = 16

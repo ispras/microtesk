@@ -19,13 +19,14 @@ import java.util.Set;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IUnaryOperator;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
 public final class ArithmUnary implements IUnaryOperator {
-  // Sim-nML spec: these operators (unary +,-) are used only for
+  // nML spec: these operators (unary +,-) are used only for
   // INT, FLOAT and FIX data types.
 
   private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(
@@ -36,10 +37,8 @@ public final class ArithmUnary implements IUnaryOperator {
 
   private final BitVectorMath.Operations op;
 
-  public ArithmUnary(BitVectorMath.Operations op) {
-    if (null == op) {
-      throw new NullPointerException();
-    }
+  public ArithmUnary(final BitVectorMath.Operations op) {
+    InvariantChecks.checkNotNull(op);
 
     if (op.getOperands() != BitVectorMath.Operands.UNARY) {
       throw new IllegalArgumentException();
@@ -49,13 +48,13 @@ public final class ArithmUnary implements IUnaryOperator {
   }
 
   @Override
-  public Data execute(Data data) {
+  public Data execute(final Data data) {
     final BitVector result = op.execute(data.getRawData());
     return new Data(result, data.getType());
   }
 
   @Override
-  public boolean supports(Type argType) {
+  public boolean supports(final Type argType) {
     return SUPPORTED_TYPES.contains(argType.getTypeId());
   }
 }

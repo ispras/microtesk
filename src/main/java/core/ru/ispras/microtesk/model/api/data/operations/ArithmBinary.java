@@ -25,13 +25,13 @@ import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
 /*
- * TODO: This implementation should be reviewed and rewritten in accordance with the Sim-nML
+ * TODO: This implementation should be reviewed and rewritten in accordance with the nML
  * specification (see Kanpur theses).
  * 
  * The current implementation of ArithmPlus has the following restrictions:
  * 
  * 1. Operands are assumed to have the same type (and size). 2. In the case of overflow (when we are
- * working with two big values) data is truncated. According to Sim-nML specification, the resulting
+ * working with two big values) data is truncated. According to nML specification, the resulting
  * data might be extended with additional bits.
  */
 

@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.model.sample;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.solver.function.StandardFunction;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.model.api.Buffer;

@@ -96,7 +96,7 @@ startRule
 
 procSpec
 @init {
-// System.out.println("Sim-nML:   " + $procSpec.text);
+// System.out.println("nML:   " + $procSpec.text);
 }
     :  letDef
     |  typeDef

@@ -26,7 +26,7 @@ import java.util.Map;
  * The Type class stores information on a type defined in the design specification. This includes
  * type identifier and size of the data in bits.
  * 
- * <p>For example, the following definition in Sim-nML:
+ * <p>For example, the following definition in nML:
  * 
  * <pre>type index = card(6)</pre>
  * 
@@ -34,7 +34,7 @@ import java.util.Map;
  * 
  * <pre>Type index = Type.CARD(6);</pre>
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class Type {
@@ -42,13 +42,13 @@ public final class Type {
     private final String name;
     private final Type type;
 
-    TypeDefCreator(String name, Type type) {
+    TypeDefCreator(final String name, final Type type) {
       this.name = name;
       this.type = type;
     }
 
     @Override
-    public Type createWithParams(int ... params) {
+    public Type createWithParams(final int... params) {
       if (params.length > 0) {
         throw new IllegalArgumentException(String.format(
             "The %s type not have any parameters.", name));
@@ -57,15 +57,15 @@ public final class Type {
     }
   }
 
-  private static final Map<String, TypeCreator> typeCreators = new HashMap<String, TypeCreator>();
+  private static final Map<String, TypeCreator> typeCreators = new HashMap<>();
   static {
-    for (TypeId typeId : TypeId.values()) {
+    for (final TypeId typeId : TypeId.values()) {
       typeCreators.put(typeId.name(), typeId);
       typeCreators.put(typeId.name().toLowerCase(), typeId);
     }
   }
 
-  public static Type typeOf(String name, int ... params) {
+  public static Type typeOf(final String name, final int... params) {
     checkNotNull(name);
 
     final TypeCreator creator = typeCreators.get(name);
@@ -76,7 +76,7 @@ public final class Type {
     return creator.createWithParams(params);
   }
 
-  public static Type def(String name, Type type) {
+  public static Type def(final String name, final Type type) {
     checkNotNull(name);
     checkNotNull(type);
 
@@ -89,23 +89,23 @@ public final class Type {
     return type;
   }
 
-  public static Type INT(int bitSize) {
+  public static Type INT(final int bitSize) {
     return TypeId.INT.createWithParams(bitSize);
   }
 
-  public static Type CARD(int bitSize) {
+  public static Type CARD(final int bitSize) {
     return TypeId.CARD.createWithParams(bitSize);
   }
 
-  public static Type BOOL(int bitSize) {
+  public static Type BOOL(final int bitSize) {
     return TypeId.BOOL.createWithParams(bitSize);
   }
 
-  public static Type FLOAT(int fracBitSize, int expBitSize) {
+  public static Type FLOAT(final int fracBitSize, final int expBitSize) {
     return TypeId.FLOAT.createWithParams(fracBitSize, expBitSize);
   }
 
-  public static Type FIX(int beforeBinPtSize, int afterBinPtSize) {
+  public static Type FIX(final int beforeBinPtSize, final int afterBinPtSize) {
     return TypeId.FIX.createWithParams(beforeBinPtSize, afterBinPtSize);
   }
 
@@ -113,7 +113,7 @@ public final class Type {
   private final int[] fieldSizes;
   private final int bitSize;
 
-  Type(TypeId typeId, int bitSize, int ... fieldSizes) {
+  Type(final TypeId typeId, final int bitSize, final int... fieldSizes) {
     checkNotNull(typeId);
     checkGreaterThanZero(bitSize);
 
@@ -122,7 +122,7 @@ public final class Type {
     this.fieldSizes = fieldSizes;
   }
 
-  public Type resize(int newBitSize) {
+  public Type resize(final int newBitSize) {
     checkGreaterThanZero(bitSize);
 
     if (bitSize == newBitSize) {
@@ -132,7 +132,7 @@ public final class Type {
     return new Type(typeId, newBitSize);
   }
 
-  public Type castTo(TypeId newTypeId) {
+  public Type castTo(final TypeId newTypeId) {
     checkNotNull(typeId);
 
     if (typeId == newTypeId) {
@@ -154,7 +154,7 @@ public final class Type {
     return fieldSizes.length;
   }
 
-  public int getFieldSize(int index) {
+  public int getFieldSize(final int index) {
     checkBounds(index, getFieldCount());
     return fieldSizes[index];
   }
@@ -171,7 +171,7 @@ public final class Type {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -203,7 +203,7 @@ public final class Type {
     if (fieldSizes.length == 0) {
       sb.append(bitSize);
     } else {
-      for (int fieldSize : fieldSizes) {
+      for (final int fieldSize : fieldSizes) {
         if (sb.length() > 0) {
           sb.append(", ");
         }

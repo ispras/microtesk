@@ -20,10 +20,10 @@ import java.util.Map;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
 /**
- * The IOperation interface is the base interfaces for operations described by Op statements in the
- * Sim-nML language.
+ * The IOperation interface is the base interfaces for operations described 
+ * by Op statements in the nML language.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public interface IOperation extends IPrimitive {
@@ -36,7 +36,7 @@ public interface IOperation extends IPrimitive {
    * united by an OR rule. This information is needed for runtime checks to make sure that
    * instructions are configured with proper operation objects.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   public interface IInfo {

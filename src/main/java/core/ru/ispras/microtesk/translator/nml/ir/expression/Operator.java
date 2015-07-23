@@ -17,10 +17,12 @@ package ru.ispras.microtesk.translator.nml.ir.expression;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
- * Contains descriptions of Sim-nML operators.
+ * Contains descriptions of nML operators.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public enum Operator {
@@ -84,9 +86,9 @@ public enum Operator {
   private static final Map<String, Operator> operators;
   static {
     final Operator[] ops = Operator.values();
-    operators = new HashMap<String, Operator>(ops.length);
+    operators = new HashMap<>(ops.length);
 
-    for (Operator o : ops) {
+    for (final Operator o : ops) {
       operators.put(o.text(), o);
     }
   }
@@ -98,7 +100,7 @@ public enum Operator {
    * @return Operator.
    */
 
-  public static Operator forText(String text) {
+  public static Operator forText(final String text) {
     return operators.get(text);
   }
 
@@ -106,18 +108,10 @@ public enum Operator {
   private final int operands;
   private final int priority;
 
-  private Operator(String text, Operands operands, Priority priority) {
-    if (null == text) {
-      throw new NullPointerException();
-    }
-
-    if (null == operands) {
-      throw new NullPointerException();
-    }
-
-    if (null == priority) {
-      throw new NullPointerException();
-    }
+  private Operator(final String text, final Operands operands, final Priority priority) {
+    InvariantChecks.checkNotNull(text);
+    InvariantChecks.checkNotNull(operands);
+    InvariantChecks.checkNotNull(priority);
 
     this.text = text;
     this.operands = operands.count();

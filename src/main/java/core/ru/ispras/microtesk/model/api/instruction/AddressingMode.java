@@ -34,10 +34,10 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The AddressingMode abstract class is the base class for all classes that simulate behavior
- * specified by "mode" Sim-nML statements. The class provides definitions of classes and static
+ * specified by "mode" nML statements. The class provides definitions of classes and static
  * methods to be used by its descendants (ones that are to implement the IAddressingMode interface).
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public abstract class AddressingMode extends StandardFunctions implements IAddressingMode {
@@ -45,7 +45,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
    * The ParamDeclsr class provides facilities to build a table of addressing mode parameter
    * declarations.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   protected static class ParamDecls {
@@ -70,7 +70,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
    * for storing information about a single addressing mode. The class is to be used by generated
    * classes that implement behavior of particular addressing modes.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   protected static abstract class InfoAndRule implements IInfo, IFactory {
@@ -196,7 +196,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
    * storing information about a group of addressing modes united by an OR-rule. The class is to be
    * used by generated classes that specify a set of addressing modes described by OR rules.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   public static final class InfoOrRule implements IInfo {

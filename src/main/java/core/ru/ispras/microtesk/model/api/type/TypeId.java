@@ -20,25 +20,25 @@ package ru.ispras.microtesk.model.api.type;
  * This is needed when a type is created from some external data
  * (e.g. provided by user in a test template). 
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 interface TypeCreator {
-  Type createWithParams(int ... params);
+  Type createWithParams(int... params);
 }
 
 /**
  * The TypeId enumeration stores the list of data types (ways to interpret raw data) supported by
- * the model. The data types are taken from the Sim-nML language.
+ * the model. The data types are taken from the nML language.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public enum TypeId implements TypeCreator {
 
   INT (1) {
     @Override
-    public Type createWithParams(int ... params) {
+    public Type createWithParams(final int ... params) {
       checkParamCount(params.length);
       return new Type(this, params[0]);
     }
@@ -46,7 +46,7 @@ public enum TypeId implements TypeCreator {
 
   CARD (1) {
     @Override
-    public Type createWithParams(int ... params) {
+    public Type createWithParams(final int... params) {
       checkParamCount(params.length);
       return new Type(this, params[0]);
     }
@@ -54,7 +54,7 @@ public enum TypeId implements TypeCreator {
 
   FLOAT(2) {
     @Override
-    public Type createWithParams(int ... params) {
+    public Type createWithParams(final int... params) {
       checkParamCount(params.length);
       // 1 is added to make room for implicit sign bit
       final int bitSize = params[0] + params[1] + 1;
@@ -64,7 +64,7 @@ public enum TypeId implements TypeCreator {
 
   FIX (2) {
     @Override
-    public Type createWithParams(int ... params) {
+    public Type createWithParams(final int... params) {
       checkParamCount(params.length);
       final int bitSize = params[0] + params[1];
       return new Type(TypeId.FIX, bitSize, params[0], params[1]);
@@ -76,7 +76,7 @@ public enum TypeId implements TypeCreator {
 
   BOOL (1) {
     @Override
-    public Type createWithParams(int ... params) {
+    public Type createWithParams(final int... params) {
       checkParamCount(params.length);
       return new Type(this, params[0]);
     }
@@ -87,7 +87,7 @@ public enum TypeId implements TypeCreator {
     this.paramCount = paramCount;
   }
 
-  void checkParamCount(int paramCount) {
+  void checkParamCount(final int paramCount) {
     if (paramCount != this.paramCount) {
       throw new IllegalArgumentException(String.format(
           "Wrong parameter count %d for the %s type", paramCount, name()));

@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.nml.generation;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.COMMON_TEMPLATE_DIR;
-import static ru.ispras.microtesk.translator.generation.PackageInfo.SIMNML_TEMPLATE_DIR;
+import static ru.ispras.microtesk.translator.generation.PackageInfo.NML_TEMPLATE_DIR;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.getModeFileFormat;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.getModelFileFormat;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.getOpFileFormat;
@@ -43,7 +43,7 @@ final class GeneratorFactory {
 
     final String[] templateGroups = new String[] { 
       COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-      SIMNML_TEMPLATE_DIR + "Model.stg"
+      NML_TEMPLATE_DIR + "Model.stg"
     };
 
     final ITemplateBuilder modelBuilder = new STBModel(specFileName, modelName, ir);
@@ -55,7 +55,7 @@ final class GeneratorFactory {
 
     final String[] templateGroups = new String[] {
       COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-      SIMNML_TEMPLATE_DIR + "Shared.stg"
+      NML_TEMPLATE_DIR + "Shared.stg"
     };
 
     final ITemplateBuilder builder = new STBShared(ir, specFileName, modelName);
@@ -68,7 +68,7 @@ final class GeneratorFactory {
 
     final String[] templateGroups = new String[] {
       COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-      SIMNML_TEMPLATE_DIR + "AddressingModeOr.stg"
+      NML_TEMPLATE_DIR + "AddressingModeOr.stg"
     };
 
     final ITemplateBuilder builder = new STBAddressingModeOr(specFileName, modelName, mode);
@@ -81,7 +81,7 @@ final class GeneratorFactory {
 
     final String[] templateGroups = new String[] {
       COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-      SIMNML_TEMPLATE_DIR + "AddressingMode.stg"
+      NML_TEMPLATE_DIR + "AddressingMode.stg"
     };
 
     final ITemplateBuilder builder = new STBAddressingMode(specFileName, modelName, mode);
@@ -94,7 +94,7 @@ final class GeneratorFactory {
 
     final String[] templateGroups = new String[] {
       COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-      SIMNML_TEMPLATE_DIR + "OperationOr.stg"
+      NML_TEMPLATE_DIR + "OperationOr.stg"
     };
 
     final ITemplateBuilder builder = new STBOperationOr(specFileName, modelName, op);
@@ -106,7 +106,7 @@ final class GeneratorFactory {
 
     final String[] templateGroups = new String[] {
       COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-      SIMNML_TEMPLATE_DIR + "Operation.stg"
+      NML_TEMPLATE_DIR + "Operation.stg"
     };
 
     final ITemplateBuilder builder = new STBOperation(specFileName, modelName, op);

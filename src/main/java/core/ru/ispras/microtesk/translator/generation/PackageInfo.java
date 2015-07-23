@@ -35,11 +35,11 @@ public final class PackageInfo {
   public static final String COMMON_TEMPLATE_DIR = "stg/";
 
   /**
-   * Path to the folder that stores string templates (building blocks) for generating model classes
-   * based on Sim-nML specifications.
+   * Path to the folder that stores string templates (building blocks) for generating
+   * model classes based on nML specifications.
    */
 
-  public static final String SIMNML_TEMPLATE_DIR = "stg/simnml/";
+  public static final String NML_TEMPLATE_DIR = "stg/nml/";
 
   /**
    * The root folder for generated models.
@@ -109,7 +109,7 @@ public final class PackageInfo {
   }
 
   /**
-   * Format string for the name of the package that stores modes (Sim-nML).
+   * Format string for the name of the package that stores modes (nML).
    * 
    * Format parameters: model name.
    */
@@ -117,7 +117,7 @@ public final class PackageInfo {
   public static final String MODE_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.mode";
 
   /**
-   * Format string for the name of the class of a particular mode (Sim-nML).
+   * Format string for the name of the class of a particular mode (nML).
    * 
    * Format parameters: model name, mode name.
    */
@@ -125,7 +125,7 @@ public final class PackageInfo {
   public static final String MODE_CLASS_FORMAT = MODE_PACKAGE_FORMAT + ".%s";
 
   /**
-   * Format string for the file name of the class of a particular mode (Sim-nML).
+   * Format string for the file name of the class of a particular mode (nML).
    * 
    * Format parameters: model name, mode name.
    */
@@ -135,7 +135,7 @@ public final class PackageInfo {
   }
 
   /**
-   * Format string for the name of the package that stores ops (Sim-nML).
+   * Format string for the name of the package that stores ops (nML).
    * 
    * Format parameters: model name.
    */
@@ -143,7 +143,7 @@ public final class PackageInfo {
   public static final String OP_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.op";
 
   /**
-   * Format string for the name of the class of a particular op (Sim-nML).
+   * Format string for the name of the class of a particular op (nML).
    * 
    * Format parameters: model name, op name.
    */
@@ -151,7 +151,7 @@ public final class PackageInfo {
   public static final String OP_CLASS_FORMAT = OP_PACKAGE_FORMAT + ".%s";
 
   /**
-   * Format string for the file name of the class of a particular op (Sim-nML).
+   * Format string for the file name of the class of a particular op (nML).
    * 
    * Format parameters: model name, op name.
    */

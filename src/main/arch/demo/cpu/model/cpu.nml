@@ -18,7 +18,7 @@
  * Description:
  *
  * Example of a specification of a trivial microprocessor ISA.
- * Provided to demonstrate various features of Sim-nML.
+ * Provided to demonstrate various features of nML.
  */
 
 ////////////////////////////////////////////////////////////////////////////////

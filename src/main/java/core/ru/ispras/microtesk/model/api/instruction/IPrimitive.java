@@ -16,9 +16,9 @@ package ru.ispras.microtesk.model.api.instruction;
 
 /**
  * The IPrimitive interface is a base interface for Op (specifies an operation) and Mode (specifies
- * an addressing mode) Sim-nML primitives.
+ * an addressing mode) nML primitives.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public interface IPrimitive {

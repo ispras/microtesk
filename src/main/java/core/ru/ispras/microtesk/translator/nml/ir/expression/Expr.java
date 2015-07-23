@@ -21,14 +21,15 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.valueinfo.ValueInfo;
 
 /**
- * The role of the Expr class is to describe Sim-nML expressions. The class aggregates a Fortress
+ * The role of the Expr class is to describe nML expressions. The class aggregates a Fortress
  * expression and provides methods to obtain additional information.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class Expr {
@@ -63,16 +64,13 @@ public final class Expr {
    * 
    * @param node A Fortress expression.
    * 
-   * @throws NullPointerException if the parameter is null.
-   * @throws IllegalArgumentException is the user attribute of the node does not refer to a
-   *         {@link NodeInfo} object or the kind of the NodeInfo object is not compatible to the
-   *         node type.
+   * @throws IllegalArgumentException if the parameter is null; ifs the user attribute of the node
+   *         does not refer to a {@link NodeInfo} object or the kind of the NodeInfo object is not
+   *         compatible to the node type.
    */
 
   public Expr(Node node) {
-    if (null == node) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(node);
 
     if (!(node.getUserData() instanceof NodeInfo)) {
       throw new IllegalArgumentException();
@@ -133,9 +131,7 @@ public final class Expr {
    */
 
   public void setNodeInfo(NodeInfo nodeInfo) {
-    if (null == nodeInfo) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(nodeInfo);
 
     node.setUserData(nodeInfo);
   }
@@ -195,9 +191,7 @@ public final class Expr {
   }
 
   private static Reduced reduce(Expr expr) {
-    if (null == expr) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(expr);
 
     if (expr.getValueInfo().isConstant()) {
       return new Reduced(expr.integerValue(), null);
@@ -230,9 +224,7 @@ public final class Expr {
   }
 
   private static Reduced reduceOp(Expr expr) {
-    if (null == expr) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(expr);
 
     assert Node.Kind.OPERATION == expr.getNode().getKind();
 
