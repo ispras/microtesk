@@ -38,7 +38,7 @@ import ru.ispras.microtesk.test.template.Output;
  */
 
 public final class Printer {
-  private final static int LINE_WIDTH = 80;
+  private final static int LINE_WIDTH = 100;
 
   private final IModelStateObserver observer;
   private final String outDir;
