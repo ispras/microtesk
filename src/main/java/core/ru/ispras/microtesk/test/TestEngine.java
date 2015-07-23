@@ -62,45 +62,7 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class TestEngine {
-  public static final class Statistics {
-    public long instructionCount;
-    public long instructionExecutedCount;
-    public int testProgramNumber;
-    public int testCaseNumber;
-
-    private Statistics() {
-      reset();
-    }
-
-    private Statistics(
-        long instructionCount,
-        long instructionExecutedCount,
-        int testProgramNumber,
-        int testCaseNumber) {
-      this.instructionCount = instructionCount;
-      this.instructionExecutedCount = instructionExecutedCount;
-      this.testProgramNumber = testProgramNumber;
-      this.testCaseNumber = testCaseNumber;
-    }
-
-    public void reset() {
-      instructionCount = 0;
-      instructionExecutedCount = 0;
-      testProgramNumber = 0;
-      testCaseNumber = 0;
-    }
-
-    public Statistics copy() {
-      return new Statistics(
-          instructionCount, 
-          instructionExecutedCount,
-          testProgramNumber,
-          testCaseNumber
-          );
-    }
-  }
-
-  public static final Statistics STATISTICS = new Statistics();
+  public static TestStatistics STATISTICS = new TestStatistics();
 
   private static TestEngine instance = null;
   public static TestEngine getInstance() {
@@ -431,7 +393,7 @@ public final class TestEngine {
 
     private List<TestSequence> preBlockTestSequences = null;
     private Block postBlock = null;
-    private Statistics before;
+    private TestStatistics before;
     private String fileName;
     public static Date start = null;
 
@@ -595,7 +557,7 @@ public final class TestEngine {
 
           Logger.debugHeader("");
 
-          final Statistics after = STATISTICS.copy();
+          final TestStatistics after = STATISTICS.copy();
 
           final boolean isProgramLengthLimitExceeded =
               (after.instructionCount - before.instructionCount) >= programLengthLimit;

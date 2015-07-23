@@ -29,6 +29,7 @@ import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.TestEngine;
+import ru.ispras.microtesk.test.TestStatistics;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -269,8 +270,7 @@ public final class MicroTESK {
       }
     }
 
-    final TestEngine.Statistics statistics = TestEngine.STATISTICS;
-    statistics.reset();
+    final TestStatistics statistics = TestEngine.STATISTICS;
 
     final Date startTime = TestEngine.generate(modelName, templateFile);
     if (null == startTime) {
