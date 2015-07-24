@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.generation;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Stack;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STErrorListener;
@@ -25,36 +24,38 @@ import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.misc.STMessage;
 
+import ru.ispras.microtesk.Logger;
+
 /**
  * The ClassGenerator class implements logic that generates a source code file from string
  * templates.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class ClassGenerator implements IClassGenerator {
   private static final STErrorListener errorListener = new STErrorListener() {
-    private void trace(String s) {
-      System.err.println(s);
+    private void trace(final String s) {
+      Logger.error(s);
     }
 
     @Override
-    public void compileTimeError(STMessage msg) {
+    public void compileTimeError(final STMessage msg) {
       trace("Run-time error: " + msg);
     }
 
     @Override
-    public void runTimeError(STMessage msg) {
+    public void runTimeError(final STMessage msg) {
       trace("Internal error: " + msg);
     }
 
     @Override
-    public void IOError(STMessage msg) {
+    public void IOError(final STMessage msg) {
       trace("Compile-time error: " + msg);
     }
 
     @Override
-    public void internalError(STMessage msg) {
+    public void internalError(final STMessage msg) {
       trace("I/O error: " + msg);
     }
   };
@@ -103,21 +104,21 @@ public final class ClassGenerator implements IClassGenerator {
    */
 
   private STGroup loadTemplateGroups() {
-    final Stack<STGroup> groupStack = new Stack<STGroup>();
-    for (String groupFile : templateGroupFiles) {
-      final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-      final URL groupUrl = classLoader.getResource(groupFile);
+    final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
+    STGroup parentGroup = null;
+    for (final String groupFile : templateGroupFiles) {
+      final URL groupUrl = classLoader.getResource(groupFile);
       final STGroup group = new STGroupFile(groupUrl, "UTF-8", '<', '>');
-      if (!groupStack.empty()) {
-        final STGroup parentGroup = groupStack.peek();
+
+      if (null != parentGroup) {
         group.importTemplates(parentGroup);
       }
 
-      groupStack.push(group);
+      parentGroup = group;
     }
 
-    return groupStack.peek();
+    return parentGroup;
   }
 
   /**
@@ -127,7 +128,7 @@ public final class ClassGenerator implements IClassGenerator {
    * @throws IOException It is raised if the methods fails to create the target file.
    */
 
-  private void saveTemplate(ST template) throws IOException {
+  private void saveTemplate(final ST template) throws IOException {
     final File file = new File(outputFile);
 
     if (!file.exists()) {
