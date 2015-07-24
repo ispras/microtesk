@@ -104,6 +104,7 @@ public final class USEG implements Buffer<PA, VA> {
            range.second.compareTo(value) >= 0;
   }
 
+  @SuppressWarnings("unused")
   @Override
   public PA getData(final VA va) {
     PA pa = new PA();

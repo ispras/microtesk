@@ -66,7 +66,7 @@ public final class MmuTranslator extends Translator<Ir> {
     specBuilder = new MmuSpecBuilder();
 
     addHandler(specBuilder);
-    addHandler(new Generator());
+    addHandler(new Generator(this));
   }
 
   private final Preprocessor pp = new Preprocessor(this);

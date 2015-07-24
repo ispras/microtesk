@@ -14,14 +14,41 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.io.IOException;
+
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
+import ru.ispras.microtesk.translator.generation.FileGenerator;
 
 public final class Generator implements TranslatorHandler<Ir> {
+  private final Translator<Ir> translator;
+
+  public Generator(final Translator<Ir> translator) {
+    InvariantChecks.checkNotNull(translator);
+    this.translator = translator;
+  }
+
+  private String getOutDir() {
+    return translator.getOutDir() + "/src/java";
+  }
+
   @Override
   public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
-    // TODO
+
+    final GeneratorFactory factory =
+        new GeneratorFactory(getOutDir(), ir.getModelName());
+
+    try {
+      for (final Address address : ir.getAddresses().values()) {
+        final FileGenerator fileGenerator = factory.newAddressGenerator(address);
+        fileGenerator.generate();
+      }
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -18,9 +18,11 @@ import ru.ispras.microtesk.mmu.model.api.Buffer;
 import ru.ispras.microtesk.mmu.model.api.Data;
 
 public final class MmuPmem implements Buffer<Data, VA> {
+  /*
   private final DTLB dtlb = new DTLB();
   private final JTLB jtlb = new JTLB();
   private final USEG useg = new USEG(dtlb, jtlb);
+  */
 
   @Override
   public boolean isHit(VA address) {
