@@ -6,6 +6,14 @@
  2015/03/24 MicroTESK 2.2 beta
 --------------------------------------------------------------------------------
 
+ 2015/07/24 MicroTESK 2.2.12 beta
+
+ The new build contains the following changes:
+
+ - Data generated for test programs (defined in 'data' blocks) now can be
+   placed into a separate file
+ - Several bug fixes and general improvements were made
+
  2015/07/17 MicroTESK 2.2.11 beta
 
  The new build contains the following changes:
