@@ -20,7 +20,7 @@ import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 
-import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
+import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Format;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
@@ -32,7 +32,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementStatus;
 import ru.ispras.microtesk.utils.FormatMarker;
 
-abstract class STBPrimitiveBase implements ITemplateBuilder {
+abstract class STBPrimitiveBase implements STBuilder {
   private static final Map<Attribute.Kind, String> RET_TYPE_MAP =
     new EnumMap<Attribute.Kind, String>(Attribute.Kind.class);
 

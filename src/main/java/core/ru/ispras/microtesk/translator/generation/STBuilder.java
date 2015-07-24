@@ -18,13 +18,13 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * The ITemplateBuilder interface is a base interface for all objects that are responsible for
- * initialization of class file templates.
+ * The STBuilder interface is a base interface for all objects that
+ * are responsible for initialization of class file templates.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public interface ITemplateBuilder {
+public interface STBuilder {
   /**
    * Performs initialization of the template of the target class based on templates described in the
    * corresponding template group and information extracted from the intermediate representation of

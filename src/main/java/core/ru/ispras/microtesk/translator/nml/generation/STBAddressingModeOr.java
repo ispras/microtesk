@@ -23,11 +23,11 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
-import ru.ispras.microtesk.translator.generation.ITemplateBuilder;
+import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
-final class STBAddressingModeOr implements ITemplateBuilder {
+final class STBAddressingModeOr implements STBuilder {
   private final String specFileName;
   private final String modelName;
   private final PrimitiveOR mode;

@@ -61,7 +61,7 @@ public final class ClassGenerator implements IClassGenerator {
 
   private final String outputFile;
   private final String[] templateGroupFiles;
-  private final ITemplateBuilder templateBuilder;
+  private final STBuilder templateBuilder;
 
   /**
    * Creates a class code generator parameterized with a hierarchy template groups, with a builder
@@ -76,7 +76,7 @@ public final class ClassGenerator implements IClassGenerator {
   public ClassGenerator(
       final String outputFile,
       final String[] templateGroupFiles,
-      final ITemplateBuilder templateBuilder) {
+      final STBuilder templateBuilder) {
     this.outputFile = outputFile;
     this.templateGroupFiles = templateGroupFiles;
     this.templateBuilder = templateBuilder;
