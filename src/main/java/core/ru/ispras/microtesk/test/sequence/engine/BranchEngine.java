@@ -77,6 +77,8 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
   @Override
   public void configure(final Map<String, Object> attributes) {
+    InvariantChecks.checkNotNull(attributes);
+
     final Object branchExecLimit = attributes.get(PARAM_LIMIT);
 
     maxBranchExecution = branchExecLimit != null ?

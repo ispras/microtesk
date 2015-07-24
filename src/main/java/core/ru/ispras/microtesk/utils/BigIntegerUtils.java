@@ -18,6 +18,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class BigIntegerUtils {
   private BigIntegerUtils() {}
 
@@ -32,6 +34,8 @@ public final class BigIntegerUtils {
   }
 
   public static Collection<BigInteger> valuesOfUnsignedLongs(final Collection<Long> values) {
+    InvariantChecks.checkNotNull(values);
+
     final Collection<BigInteger> result = new ArrayList<>(values.size());
 
     for (final long value : values) {

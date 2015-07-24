@@ -72,21 +72,18 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector;
 
   /**
-   * Given a replaceable buffer (e.g. a cache unit), contains the tag allocator.
+   * Given a replaceable buffer (e.g., a cache unit), contains the tag allocator.
+   * Given a non-replaceable buffer (e.g., a translation table), contains the entry id allocator.
    * 
-   * <p>A tag allocator is a user-defined function (with a side effect) that takes an address and
-   * returns a tag such that is does not belong to the buffer set (the set is determined by the
-   * address) and was not returned previously for that set.</p>
-   */
-  private final Map<MmuBuffer, UnaryOperator<Long>> tagAllocators;
-
-  /**
-   * Given a non-replaceable buffer, contains the entry id allocator.
+   * <p>A tag allocator is a user-defined function (with a side effect) that takes an address
+   * (a partial address with initialized index) and returns a tag such that is does not belong to
+   * the buffer set (the set is determined by the index defined in the address) and was not
+   * returned previously for that set.</p>
    * 
    * <p>An entry id allocator is a user-defined function (with a side effect) that takes an
    * address and returns an id (internal address) that was not returned previously.</p>
    */
-  private final Map<MmuBuffer, UnaryOperator<Long>> entryIdAllocators;
+  private final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators;
 
   /**
    * Given a non-replaceable buffer, contains the entry constructor.
@@ -130,8 +127,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @param structure the memory access structure.
    * @param addrObjectConstructor the address object constructor.
    * @param addrObjectCorrector the address object corrector.
-   * @param tagAllocators the tag allocators.
-   * @param entryIdAllocators the entry id allocators.
+   * @param addrAllocators the tag and entry id allocators.
    * @param entryConstructors the entry constructors.
    * @param entryProviders the entry providers.
    * @throws IllegalArgumentException if some parameters are null.
@@ -140,15 +136,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MemoryAccessStructure structure,
       final Function<MemoryAccess, AddressObject> addrObjectConstructor,
       final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector,
-      final Map<MmuBuffer, UnaryOperator<Long>> tagAllocators,
-      final Map<MmuBuffer, UnaryOperator<Long>> entryIdAllocators,
+      final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators,
       final Map<MmuBuffer, Supplier<Object>> entryConstructors,
       final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
 
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(addrObjectConstructor);
-    InvariantChecks.checkNotNull(tagAllocators);
-    InvariantChecks.checkNotNull(entryIdAllocators);
+    InvariantChecks.checkNotNull(addrAllocators);
     InvariantChecks.checkNotNull(entryConstructors);
     InvariantChecks.checkNotNull(entryProviders);
 
@@ -156,8 +150,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     this.addrObjectConstructor = addrObjectConstructor;
     this.addrObjectCorrector = addrObjectCorrector;
-    this.tagAllocators = tagAllocators;
-    this.entryIdAllocators = entryIdAllocators;
+    this.addrAllocators = addrAllocators;
     this.entryConstructors = entryConstructors;
     this.entryProviders = entryProviders;
   }
@@ -323,7 +316,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final AddressObject addrObject = solution.getAddressObject(j);
     final MmuAddressType addrType = buffer.getAddress();
-    final UnaryOperator<Long> tagAllocator = tagAllocators.get(buffer);
+    final UnaryOperator<Long> tagAllocator = addrAllocators.get(buffer);
 
     final long address = addrObject.getAddress(addrType);
     final long tag = buffer.getTag(address);
@@ -403,7 +396,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     if (addrObject.getEntries(buffer) == null || addrObject.getEntries(buffer).isEmpty()) {
       final UnaryOperator<Long> entryIdAllocator =
-          entryIdAllocators.get(buffer);
+          addrAllocators.get(buffer);
       final Supplier<Object> entryConstructor =
           entryConstructors.get(buffer);
       final TriConsumer<MemoryAccess, AddressObject, Object> entryProvider =
@@ -473,7 +466,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final int i = indexEqualRelation.iterator().next();
       final AddressObject prevAddrObject = solution.getAddressObject(i);
 
-      final UnaryOperator<Long> tagAllocator = tagAllocators.get(buffer);
+      final UnaryOperator<Long> tagAllocator = addrAllocators.get(buffer);
   
       final long oldTag = buffer.getTag(addrObject.getAddress(addrType));
       final long oldIndex = buffer.getIndex(addrObject.getAddress(addrType));

@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.classifier.ClassifierTrivial;
+import ru.ispras.microtesk.basis.classifier.ClassifierUniversal;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
@@ -28,6 +30,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
@@ -44,38 +47,33 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryEngine implements Engine<MemorySolution> {
-  private final Iterator<MemoryAccessStructure> iterator;
-  private final Function<MemoryAccess, AddressObject> testDataConstructor;
-  private final BiConsumer<MemoryAccess, AddressObject> testDataCorrector;
-  private final Map<MmuBuffer, UnaryOperator<Long>> tagAllocators;
-  private final Map<MmuBuffer, UnaryOperator<Long>> entryIdAllocators;
-  private final Map<MmuBuffer, Supplier<Object>> entryConstructors;
-  private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
+  public static final String ID = "memory";
+
+  public static final String PARAM_CLASSIFIER = "classifier";
+  public static final String PARAM_CLASSIFIER_TRIVIAL = "trivial";
+  public static final String PARAM_CLASSIFIER_UNIVERSAL = "universal";
+  public static final String PARAM_CLASSIFIER_EVENT_BASED = "event-based";
+  public static final Classifier<MemoryAccessPath> PARAM_CLASSIFIER_DEFAULT =
+      new ClassifierTrivial<MemoryAccessPath>();
+
+  private static Classifier<MemoryAccessPath> getClassifier(final String id) {
+    if (PARAM_CLASSIFIER_TRIVIAL.equals(id)) {
+      return new ClassifierTrivial<MemoryAccessPath>();
+    }
+    if (PARAM_CLASSIFIER_UNIVERSAL.equals(id)) {
+      return new ClassifierUniversal<MemoryAccessPath>();
+    }
+    if (PARAM_CLASSIFIER_EVENT_BASED.equals(id)) {
+      return new ClassifierEventBased();
+    }
+
+    return PARAM_CLASSIFIER_DEFAULT;
+  }
+
+  private Classifier<MemoryAccessPath> classifier = PARAM_CLASSIFIER_DEFAULT; 
 
   // TODO: To provide access to the current solution.
   private MemorySolver solver;
-
-  public MemoryEngine(
-      final Iterator<MemoryAccessStructure> iterator,
-      final Function<MemoryAccess, AddressObject> testDataConstructor,
-      final BiConsumer<MemoryAccess, AddressObject> testDataCorrector,
-      final Map<MmuBuffer, UnaryOperator<Long>> tagAllocators,
-      final Map<MmuBuffer, UnaryOperator<Long>> entryIdAllocators,
-      final Map<MmuBuffer, Supplier<Object>> entryConstructors,
-      final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
-    this.iterator = iterator;
-    this.testDataConstructor = testDataConstructor;
-    this.testDataCorrector = testDataCorrector;
-    this.tagAllocators = tagAllocators;
-    this.entryIdAllocators = entryIdAllocators;
-    this.entryConstructors = entryConstructors;
-    this.entryProviders = entryProviders;
-  }
-
-  // TODO:
-  public MemoryEngine() {
-    this(null, null, null, null, null, null, null);
-  }
 
   public MemorySolution getCurrentSolution() {
     return solver != null ? solver.getCurrentSolution() : null;
@@ -88,25 +86,41 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   @Override
   public void configure(final Map<String, Object> attributes) {
-    // Do nothing.
+    InvariantChecks.checkNotNull(attributes);
+
+    final Object classifierId = attributes.get(PARAM_CLASSIFIER);
+    classifier = getClassifier(classifierId != null ? classifierId.toString() : null);
   }
 
   @Override
   public EngineResult<MemorySolution> solve(
       final EngineContext engineContext, final List<Call> abstractSequence) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractSequence);
+
     final Iterator<MemoryAccessStructure> structureIterator =
-        getStructureIterator(abstractSequence);
+        getStructureIterator(engineContext, abstractSequence);
     final Iterator<MemorySolution> solutionIterator =
-        getSolutionIterator(structureIterator);
+        getSolutionIterator(engineContext, structureIterator);
 
     return new EngineResult<MemorySolution>(solutionIterator);
   }
 
   private Iterator<MemoryAccessStructure> getStructureIterator(
+      final EngineContext engineContext,
       final List<Call> abstractSequence) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    final MemoryEngineContext customContext =
+        (MemoryEngineContext) engineContext.getCustomContext(ID);
+    InvariantChecks.checkNotNull(customContext);
+
     // TODO: Compatibility with MMU TestGen.
-    if (iterator != null) {
-      return iterator;
+    final Iterator<MemoryAccessStructure> structureIterator = customContext.getStructureIterator();
+
+    if (structureIterator != null) {
+      return structureIterator;
     }
 
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
@@ -120,15 +134,32 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       final int blockSizeInBits = abstractCall.getBlockSize();
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
 
-      accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBits / 8)));
+      accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBits >>> 3)));
     }
 
-    return new MemoryAccessStructureIterator(accessTypes, new ClassifierTrivial<MemoryAccessPath>());
+    return new MemoryAccessStructureIterator(accessTypes, classifier);
   }
 
   private Iterator<MemorySolution> getSolutionIterator(
+      final EngineContext engineContext,
       final Iterator<MemoryAccessStructure> structureIterator) {
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(structureIterator);
+
+    final MemoryEngineContext customContext =
+        (MemoryEngineContext) engineContext.getCustomContext(ID);
+    InvariantChecks.checkNotNull(customContext);
+
+    final Function<MemoryAccess, AddressObject> addrObjectConstructors =
+        customContext.getAddrObjectConstructors();
+    final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors =
+        customContext.getAddrObjectCorrectors();
+    final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators =
+        customContext.getAddrAllocators();
+    final Map<MmuBuffer, Supplier<Object>> entryConstructors =
+        customContext.getEntryConstructors();
+    final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders =
+        customContext.getEntryProviders();
 
     return new Iterator<MemorySolution>() {
       private MemorySolution solution = null;
@@ -139,10 +170,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
           solver = new MemorySolver(
               structure,
-              testDataConstructor,
-              testDataCorrector,
-              tagAllocators,
-              entryIdAllocators,
+              addrObjectConstructors,
+              addrObjectCorrectors,
+              addrAllocators,
               entryConstructors,
               entryProviders);
 

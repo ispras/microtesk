@@ -57,7 +57,9 @@ public final class AllocationTable<T, V> {
    * @param attributes the strategy parameters or {@code null}.
    * @param objects the collection of available objects.
    */
-  public AllocationTable(final AllocationStrategy strategy, final Map<String, String> attributes,
+  public AllocationTable(
+      final AllocationStrategy strategy,
+      final Map<String, String> attributes,
       final Collection<T> objects) {
     InvariantChecks.checkNotNull(strategy);
     InvariantChecks.checkNotNull(objects);

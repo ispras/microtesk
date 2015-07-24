@@ -15,6 +15,10 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.newTestBase;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
@@ -46,6 +50,9 @@ public final class EngineContext {
   // For some code sequence like exception handler no test data generation
   // (including randomization is not needed). This is to disable test data generation.
   private boolean generateData;
+
+  // TODO: temporal solution for extending the context for custom engines.
+  private final Map<String, Object> contextExtensions = new HashMap<>();
 
   public EngineContext(
       final IModel model,
@@ -124,5 +131,17 @@ public final class EngineContext {
 
   public void setGenerateData(final boolean value) {
     this.generateData = value;
+  }
+
+  public Object getCustomContext(final String id) {
+    InvariantChecks.checkNotNull(id);
+    return contextExtensions.get(id);
+  }
+
+  public void setCustomContext(final String id, final Object context) {
+    InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(context);
+
+    contextExtensions.put(id, context);
   }
 }
