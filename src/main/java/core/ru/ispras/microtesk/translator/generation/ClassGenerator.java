@@ -24,39 +24,40 @@ import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.misc.STMessage;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 
 /**
- * The ClassGenerator class implements logic that generates a source code file from string
- * templates.
+ * The ClassGenerator class implements logic that generates a source code file
+ * from string templates.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class ClassGenerator implements IClassGenerator {
-  private static final STErrorListener errorListener = new STErrorListener() {
-    private void trace(final String s) {
+  private static final STErrorListener ERROR_LISTENER = new STErrorListener() {
+    private void report(final String s) {
       Logger.error(s);
     }
 
     @Override
     public void compileTimeError(final STMessage msg) {
-      trace("Run-time error: " + msg);
+      report("Run-time error: " + msg);
     }
 
     @Override
     public void runTimeError(final STMessage msg) {
-      trace("Internal error: " + msg);
+      report("Internal error: " + msg);
     }
 
     @Override
     public void IOError(final STMessage msg) {
-      trace("Compile-time error: " + msg);
+      report("Compile-time error: " + msg);
     }
 
     @Override
     public void internalError(final STMessage msg) {
-      trace("I/O error: " + msg);
+      report("I/O error: " + msg);
     }
   };
 
@@ -78,6 +79,10 @@ public final class ClassGenerator implements IClassGenerator {
       final String outputFile,
       final String[] templateGroupFiles,
       final STBuilder templateBuilder) {
+    InvariantChecks.checkNotNull(outputFile);
+    InvariantChecks.checkNotEmpty(templateGroupFiles);
+    InvariantChecks.checkNotNull(templateBuilder);
+
     this.outputFile = outputFile;
     this.templateGroupFiles = templateGroupFiles;
     this.templateBuilder = templateBuilder;
@@ -139,6 +144,6 @@ public final class ClassGenerator implements IClassGenerator {
       file.createNewFile();
     }
 
-    template.write(file, errorListener);
+    template.write(file, ERROR_LISTENER);
   }
 }
