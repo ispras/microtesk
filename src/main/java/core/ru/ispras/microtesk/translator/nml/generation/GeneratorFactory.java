@@ -20,7 +20,7 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.getModeFileF
 import static ru.ispras.microtesk.translator.generation.PackageInfo.getModelFileFormat;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.getOpFileFormat;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.getSharedFileFormat;
-import ru.ispras.microtesk.translator.generation.ClassGenerator;
+import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.generation.IClassGenerator;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -47,7 +47,7 @@ final class GeneratorFactory {
     };
 
     final STBuilder modelBuilder = new STBModel(specFileName, modelName, ir);
-    return new ClassGenerator(outputFileName, templateGroups, modelBuilder);
+    return new STFileGenerator(outputFileName, templateGroups, modelBuilder);
   }
 
   public IClassGenerator createSharedGenerator(Ir ir) {
@@ -59,7 +59,7 @@ final class GeneratorFactory {
     };
 
     final STBuilder builder = new STBShared(ir, specFileName, modelName);
-    return new ClassGenerator(outputFileName, templateGroups, builder);
+    return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
   public IClassGenerator createAddressingModeOr(PrimitiveOR mode) {
@@ -72,7 +72,7 @@ final class GeneratorFactory {
     };
 
     final STBuilder builder = new STBAddressingModeOr(specFileName, modelName, mode);
-    return new ClassGenerator(outputFileName, templateGroups, builder);
+    return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
   public IClassGenerator createAddressingMode(PrimitiveAND mode) {
@@ -85,7 +85,7 @@ final class GeneratorFactory {
     };
 
     final STBuilder builder = new STBAddressingMode(specFileName, modelName, mode);
-    return new ClassGenerator(outputFileName, templateGroups, builder);
+    return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
   public IClassGenerator createOperationOr(PrimitiveOR op) {
@@ -98,7 +98,7 @@ final class GeneratorFactory {
     };
 
     final STBuilder builder = new STBOperationOr(specFileName, modelName, op);
-    return new ClassGenerator(outputFileName, templateGroups, builder);
+    return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
   public IClassGenerator createOperation(PrimitiveAND op) {
@@ -110,6 +110,6 @@ final class GeneratorFactory {
     };
 
     final STBuilder builder = new STBOperation(specFileName, modelName, op);
-    return new ClassGenerator(outputFileName, templateGroups, builder);
+    return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 }

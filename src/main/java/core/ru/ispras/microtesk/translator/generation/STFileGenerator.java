@@ -28,13 +28,13 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 
 /**
- * The ClassGenerator class implements logic that generates a source code file
+ * The STFileGenerator class implements logic that generates a source code file
  * from string templates.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class ClassGenerator implements IClassGenerator {
+public final class STFileGenerator implements IClassGenerator {
   private static final STErrorListener ERROR_LISTENER = new STErrorListener() {
     private void report(final String s) {
       Logger.error(s);
@@ -75,7 +75,7 @@ public final class ClassGenerator implements IClassGenerator {
    * @param templateBuilder Builder that is responsible for initialization of the template.
    */
 
-  public ClassGenerator(
+  public STFileGenerator(
       final String outputFile,
       final String[] templateGroupFiles,
       final STBuilder templateBuilder) {
