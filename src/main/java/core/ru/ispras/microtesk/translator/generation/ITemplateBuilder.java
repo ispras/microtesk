@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import org.stringtemplate.v4.STGroup;
  * The ITemplateBuilder interface is a base interface for all objects that are responsible for
  * initialization of class file templates.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public interface ITemplateBuilder {
@@ -35,5 +35,5 @@ public interface ITemplateBuilder {
    * @return Fully initialized template object.
    */
 
-  public ST build(STGroup group);
+  ST build(STGroup group);
 }
