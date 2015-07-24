@@ -14,10 +14,15 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+
 /**
  * This class represents an address.
  * 
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
 public class Address extends Data {
+  protected final void defineField(final String name, final int bitSize) {
+    setField(name, BitVector.newEmpty(0));
+  }
 }

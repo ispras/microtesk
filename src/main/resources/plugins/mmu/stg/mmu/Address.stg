@@ -14,7 +14,7 @@
 
 group Address;
 
-address(name, base, pack, imps) ::= <<
+address(pack, imps, name, base, fields) ::= <<
 <header(false)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -22,9 +22,15 @@ address(name, base, pack, imps) ::= <<
        name,
        base,
        false,
-       [constructor(name)])>
+       [constructor(name, fields)])>
 >>
 
-constructor(name) ::= <<
-public <name>() {}
+constructor(name, fields) ::= <<
+public <name>() {
+  <fields; separator="\n">
+}
+>>
+
+field(name, size) ::= <<
+defineField("<name>", <size>);
 >>

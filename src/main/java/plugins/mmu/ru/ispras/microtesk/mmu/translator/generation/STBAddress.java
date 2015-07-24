@@ -18,7 +18,9 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.mmu.translator.ir.Address;
+import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBAddress implements STBuilder {
@@ -36,6 +38,16 @@ final class STBAddress implements STBuilder {
     this.address = address;
   }
 
+  @Override
+  public ST build(final STGroup group) {
+    final ST st = group.getInstanceOf("address");
+
+    buildHeader(st);
+    buildFields(st, group);
+
+    return st;
+  }
+  
   private void buildHeader(final ST st) {
     st.add("name", address.getId()); 
     st.add("base", BASE_CLASS.getSimpleName());
@@ -43,10 +55,12 @@ final class STBAddress implements STBuilder {
     st.add("imps", BASE_CLASS.getName());
   }
 
-  @Override
-  public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("address");
-    buildHeader(st);
-    return st;
+  private void buildFields(final ST st, final STGroup group) {
+    for (final Field field : address.getType().getFields()) {
+      final ST stField = group.getInstanceOf("field");
+      stField.add("name", field.getId());
+      stField.add("size", field.getType().getBitSize());
+      st.add("fields", stField);
+    }
   }
 }

@@ -43,12 +43,17 @@ public final class Generator implements TranslatorHandler<Ir> {
         new GeneratorFactory(getOutDir(), ir.getModelName());
 
     try {
-      for (final Address address : ir.getAddresses().values()) {
-        final FileGenerator fileGenerator = factory.newAddressGenerator(address);
-        fileGenerator.generate();
-      }
+      processAddresses(ir, factory);
     } catch (final IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private void processAddresses(final Ir ir, final GeneratorFactory factory) throws IOException {
+    for (final Address address : ir.getAddresses().values()) {
+      final FileGenerator fileGenerator = 
+          factory.newAddressGenerator(address);
+      fileGenerator.generate();
     }
   }
 }
