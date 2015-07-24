@@ -21,16 +21,24 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class Ir {
+  private final String modelName;
   private final Map<String, Address> addresses;
   private final Map<String, Segment> segments;
   private final Map<String, Buffer> buffers;
   private final Map<String, Memory> memories;
 
-  public Ir() {
+  public Ir(final String modelName) {
+    checkNotNull(modelName);
+    this.modelName = modelName;
+
     this.addresses = new LinkedHashMap<>();
     this.segments = new LinkedHashMap<>();
     this.buffers = new LinkedHashMap<>();
     this.memories = new LinkedHashMap<>();
+  }
+
+  public String getModelName() {
+    return modelName;
   }
 
   public Map<String, Address> getAddresses() {

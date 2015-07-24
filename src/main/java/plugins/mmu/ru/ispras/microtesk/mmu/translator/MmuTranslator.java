@@ -112,7 +112,7 @@ public final class MmuTranslator extends Translator<Ir> {
 
     final LogStore LOG = getLog();
     final SymbolTable symbols = new SymbolTable();
-    final Ir ir = new Ir();
+    final Ir ir = new Ir(modelName);
 
     try {
       final ANTLRReaderStream input = new ANTLRReaderStream(new FileReader(fileName));
