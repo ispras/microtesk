@@ -21,7 +21,7 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.getModelFile
 import static ru.ispras.microtesk.translator.generation.PackageInfo.getOpFileFormat;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.getSharedFileFormat;
 import ru.ispras.microtesk.translator.generation.STFileGenerator;
-import ru.ispras.microtesk.translator.generation.IClassGenerator;
+import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -38,7 +38,7 @@ final class GeneratorFactory {
     this.modelName = modelName.toLowerCase();
   }
 
-  public IClassGenerator createModelGenerator(Ir ir) {
+  public FileGenerator createModelGenerator(Ir ir) {
     final String outputFileName = String.format(getModelFileFormat(outDir), modelName);
 
     final String[] templateGroups = new String[] { 
@@ -50,7 +50,7 @@ final class GeneratorFactory {
     return new STFileGenerator(outputFileName, templateGroups, modelBuilder);
   }
 
-  public IClassGenerator createSharedGenerator(Ir ir) {
+  public FileGenerator createSharedGenerator(Ir ir) {
     final String outputFileName = String.format(getSharedFileFormat(outDir), modelName);
 
     final String[] templateGroups = new String[] {
@@ -62,7 +62,7 @@ final class GeneratorFactory {
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
-  public IClassGenerator createAddressingModeOr(PrimitiveOR mode) {
+  public FileGenerator createAddressingModeOr(PrimitiveOR mode) {
     final String outputFileName =
       String.format(getModeFileFormat(outDir), modelName, mode.getName());
 
@@ -75,7 +75,7 @@ final class GeneratorFactory {
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
-  public IClassGenerator createAddressingMode(PrimitiveAND mode) {
+  public FileGenerator createAddressingMode(PrimitiveAND mode) {
     final String outputFileName =
       String.format(getModeFileFormat(outDir), modelName, mode.getName());
 
@@ -88,7 +88,7 @@ final class GeneratorFactory {
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
-  public IClassGenerator createOperationOr(PrimitiveOR op) {
+  public FileGenerator createOperationOr(PrimitiveOR op) {
     final String outputFileName = 
       String.format(getOpFileFormat(outDir), modelName, op.getName());
 
@@ -101,7 +101,7 @@ final class GeneratorFactory {
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
-  public IClassGenerator createOperation(PrimitiveAND op) {
+  public FileGenerator createOperation(PrimitiveAND op) {
     final String outputFileName = String.format(getOpFileFormat(outDir), modelName, op.getName());
 
     final String[] templateGroups = new String[] {

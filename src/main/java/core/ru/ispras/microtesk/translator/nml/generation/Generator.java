@@ -16,7 +16,7 @@ package ru.ispras.microtesk.translator.nml.generation;
 
 import java.io.IOException;
 
-import ru.ispras.microtesk.translator.generation.IClassGenerator;
+import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -43,18 +43,18 @@ public final class Generator {
   }
 
   private void generateModel() throws IOException {
-    final IClassGenerator model = factory.createModelGenerator(ir);
+    final FileGenerator model = factory.createModelGenerator(ir);
     model.generate();
   }
 
   private void generateShared() throws IOException {
-    final IClassGenerator shared = factory.createSharedGenerator(ir);
+    final FileGenerator shared = factory.createSharedGenerator(ir);
     shared.generate();
   }
 
   private void generateModes() throws IOException {
     for (Primitive m : ir.getModes().values()) {
-      final IClassGenerator mode = m.isOrRule() ? 
+      final FileGenerator mode = m.isOrRule() ? 
         factory.createAddressingModeOr((PrimitiveOR) m) :
         factory.createAddressingMode((PrimitiveAND) m);
 
@@ -64,7 +64,7 @@ public final class Generator {
 
   private void generateOps() throws IOException {
     for (Primitive o : ir.getOps().values()) {
-      final IClassGenerator op = o.isOrRule() ? 
+      final FileGenerator op = o.isOrRule() ? 
         factory.createOperationOr((PrimitiveOR) o) :
         factory.createOperation((PrimitiveAND) o);
 

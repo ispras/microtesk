@@ -17,17 +17,18 @@ package ru.ispras.microtesk.translator.generation;
 import java.io.IOException;
 
 /**
- * The IClassGenerator interface is a base interface to be implemented by all class file generators.
+ * The FileGenerator interface is a base interface to be implemented by
+ * all code file generators.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public interface IClassGenerator {
+public interface FileGenerator {
   /**
    * Runs generation of a class file.
    * 
-   * @throws IOException if the generator failed to generate the needed file due to
-   *         an I/O problem.
+   * @throws IOException if the generator failed to generate the needed
+   *         file due to an I/O problem.
    */
 
   void generate() throws IOException;

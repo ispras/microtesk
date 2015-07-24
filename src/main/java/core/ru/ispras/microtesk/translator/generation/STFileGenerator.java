@@ -34,7 +34,7 @@ import ru.ispras.microtesk.Logger;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class STFileGenerator implements IClassGenerator {
+public final class STFileGenerator implements FileGenerator {
   private static final STErrorListener ERROR_LISTENER = new STErrorListener() {
     private void report(final String s) {
       Logger.error(s);
