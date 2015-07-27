@@ -91,7 +91,7 @@ final class STBSegment implements STBuilder {
     final ST stMethod = group.getInstanceOf("is_hit");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getName());
+    stMethod.add("addr_name", segment.getAddressArg().getName().replace('.', '_'));
 
     st.add("members", "");
     st.add("members", stMethod);
@@ -101,7 +101,7 @@ final class STBSegment implements STBuilder {
     final ST stMethod = group.getInstanceOf("get_data_empty");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getName());
+    stMethod.add("addr_name", segment.getAddressArg().getName().replace('.', '_'));
     stMethod.add("data_type", segment.getDataArgAddress().getId());
 
     st.add("members", "");
@@ -112,9 +112,9 @@ final class STBSegment implements STBuilder {
     final ST stMethod = group.getInstanceOf("set_data_empty");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getName());
+    stMethod.add("addr_name", segment.getAddressArg().getName().replace('.', '_'));
     stMethod.add("data_type", segment.getDataArgAddress().getId());
-    stMethod.add("data_name", segment.getDataArg().getName());
+    stMethod.add("data_name", segment.getDataArg().getName().replace('.', '_'));
 
     st.add("members", "");
     st.add("members", stMethod);
