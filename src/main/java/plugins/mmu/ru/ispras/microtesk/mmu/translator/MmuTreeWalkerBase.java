@@ -343,6 +343,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final Address address;
     private final Variable addressArg;
     private final Variable outputVar;
+    private final Address outputVarAddress;
 
     private final Map<String, Variable> variables;
     private final Map<String, Attribute> attributes;
@@ -352,7 +353,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final String id,
         final String addressArgId,
         final Address addressArgType) {
-      this(where, id, addressArgType, new Variable(addressArgId, addressArgType), null);
+      this(
+          where,
+          id,
+          addressArgType,
+          new Variable(addressArgId, addressArgType),
+          null,
+          null
+          );
     }
 
     private CommonBuilder(
@@ -362,11 +370,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final Address addressArgType,
         final String outputVarId,
         final Type outputVarType) {
-      this(where,
-           id,
-           addressArgType,
-           new Variable(addressArgId, addressArgType),
-           new Variable(outputVarId, outputVarType));
+      this(
+          where,
+          id,
+          addressArgType,
+          new Variable(addressArgId, addressArgType),
+          null,
+          new Variable(outputVarId, outputVarType)
+          );
     }
 
     private CommonBuilder(
@@ -376,11 +387,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final Address addressArgType,
         final String outputVarId,
         final Address outputVarType) {
-      this(where,
-           id,
-           addressArgType,
-           new Variable(addressArgId, addressArgType),
-           new Variable(outputVarId, outputVarType));
+      this(
+          where,
+          id,
+          addressArgType,
+          new Variable(addressArgId, addressArgType),
+          outputVarType,
+          new Variable(outputVarId, outputVarType)
+          );
     }
 
     private CommonBuilder(
@@ -388,11 +402,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final String id,
         final Address address,
         final Variable addressVar,
+        final Address outputVarAddress,
         final Variable outputVar) {
       this.where = where;
       this.id = id;
       this.address = address;
       this.addressArg = addressVar;
+      this.outputVarAddress = outputVarAddress;
       this.outputVar = outputVar;
 
       this.variables = new LinkedHashMap<>();
@@ -495,6 +511,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           addressArg,
           rangeStart,
           rangeEnd,
+          outputVarAddress,
           outputVar,
           variables,
           attributes
