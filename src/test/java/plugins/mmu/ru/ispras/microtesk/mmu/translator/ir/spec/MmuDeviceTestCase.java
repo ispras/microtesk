@@ -24,7 +24,6 @@ import org.junit.Test;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.AddressView;
-import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerVariableGroup;
@@ -36,19 +35,17 @@ import ru.ispras.microtesk.utils.function.Function;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class MmuDeviceTestCase {
-    private static IntegerVariableGroup newAddress(final String name, int width) {
-    final Field field = new Field("value", 0, width, null);
-    final Type type = new Type(Collections.singletonMap(field.getId(), field));
-    final Variable var = new Variable(name, type);
-
-    return new IntegerVariableGroup(var);
+  private static MmuAddressType newAddress(final String name, int width) {
+    final Type type = new Type(Collections.singletonMap("value", new Type(width)));
+    return new MmuAddressType(new Variable(name, type),
+                              new IntegerVariable(name + ".value", width));
   }
 
-  public static final IntegerVariableGroup vaStruct = newAddress("VA", 64);
-  public static final IntegerVariableGroup paStruct = newAddress("PA", 36);
+  public static final MmuAddressType VA_ADDR = newAddress("VA", 64);
+  public static final MmuAddressType PA_ADDR = newAddress("PA", 36);
 
-  public static final IntegerVariable VA = vaStruct.getVariable("value");
-  public static final IntegerVariable PA = paStruct.getVariable("value");
+  public static final IntegerVariable VA = VA_ADDR.getVariable();
+  public static final IntegerVariable PA = PA_ADDR.getVariable();
 
   public static final IntegerVariable isMapped = new IntegerVariable("isMapped", 1);
   public static final IntegerVariable isCached = new IntegerVariable("isCached", 1);
@@ -68,9 +65,6 @@ public class MmuDeviceTestCase {
   public static final IntegerVariable C = new IntegerVariable("C", 3);
   public static final IntegerVariable PFN = new IntegerVariable("PFN", 24);
   public static final IntegerVariable DATA = new IntegerVariable("DATA", 8 * 32);
-
-  public static final MmuAddressType VA_ADDR = new MmuAddressType(vaStruct);
-  public static final MmuAddressType PA_ADDR = new MmuAddressType(paStruct);
 
   public static final MmuBuffer JTLB = new MmuBuffer("JTLB", 64, 1, VA_ADDR,
       MmuExpression.var(VA, 13, 39), // Tag

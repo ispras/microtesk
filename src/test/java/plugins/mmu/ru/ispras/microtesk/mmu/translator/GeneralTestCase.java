@@ -25,4 +25,10 @@ public class GeneralTestCase extends TranslatorTest<Ir> {
     final MmuTranslator translator = new MmuTranslator();
     translate(translator, "./src/test/mmu/general.mmu");
   }
+
+  public static void main(final String[] argv) {
+    final MmuTranslator translator = new MmuTranslator();
+    final GeneralTestCase test = new GeneralTestCase();
+    test.translate(translator, argv[0]);
+  }
 }

@@ -23,7 +23,6 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -116,23 +115,22 @@ public final class MmuUnderTest {
   }
 
 
-  private static IntegerVariableGroup newAddress(final String name, int width) {
-    final Field field = new Field("value", 0, width, null);
-    final Type type = new Type(Collections.singletonMap(field.getId(), field));
-    final Variable var = new Variable(name, type);
+  private static MmuAddressType newAddress(final String name, int width) {
+    final Type type = new Type(Collections.singletonMap("value", new Type(width)));
 
-    return new IntegerVariableGroup(var);
+    return new MmuAddressType(new Variable(name, type),
+                              new IntegerVariable(name + ".value", width));
   }
 
   // ===============================================================================================
   // Variables
   // ===============================================================================================
 
-  public final IntegerVariableGroup vaStruct = newAddress("VA", VA_BITS);
-  public final IntegerVariableGroup paStruct = newAddress("PA", PA_BITS);
+  public final MmuAddressType vaAddr = newAddress("VA", 64);
+  public final MmuAddressType paAddr = newAddress("PA", 36);
 
-  public final IntegerVariable va = vaStruct.getVariable("value");
-  public final IntegerVariable pa = paStruct.getVariable("value");
+  public final IntegerVariable va = vaAddr.getVariable();
+  public final IntegerVariable pa = paAddr.getVariable();
   public final IntegerVariable isMapped = new IntegerVariable("isMapped", 1);
   public final IntegerVariable isHiMem = new IntegerVariable("isHiMem", 1);
   public final IntegerVariable cachePolicy = new IntegerVariable("cachePolicy", 3); 
@@ -152,9 +150,6 @@ public final class MmuUnderTest {
   public final IntegerVariable c = new IntegerVariable("C", 3);
   public final IntegerVariable pfn = new IntegerVariable("PFN", 24);
   public final IntegerVariable data = new IntegerVariable("DATA", 8 * 32);
-
-  public final MmuAddressType vaAddr = new MmuAddressType(vaStruct);
-  public final MmuAddressType paAddr = new MmuAddressType(paStruct);
 
   // ===============================================================================================
   // Devices
