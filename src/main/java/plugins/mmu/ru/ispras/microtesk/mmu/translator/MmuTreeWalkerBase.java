@@ -333,7 +333,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
                              addressArgId.getText(),
                              address,
                              outputVarId.getText(),
-                             outputAddr.getType());
+                             outputAddr);
   }
 
   protected final class CommonBuilder {
@@ -362,6 +362,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final Address addressArgType,
         final String outputVarId,
         final Type outputVarType) {
+      this(where,
+           id,
+           addressArgType,
+           new Variable(addressArgId, addressArgType),
+           new Variable(outputVarId, outputVarType));
+    }
+
+    private CommonBuilder(
+        final Where where,
+        final String id,
+        final String addressArgId,
+        final Address addressArgType,
+        final String outputVarId,
+        final Address outputVarType) {
       this(where,
            id,
            addressArgType,
