@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.generation;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
+import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -29,6 +30,9 @@ final class GeneratorFactory {
 
   private static final String   ADDRESS_STG  = MMU_STG_DIR + "Address.stg";
   private static final String[] ADDRESS_STGS = new String[] {JAVA_COMMON_STG, ADDRESS_STG};
+
+  private static final String   SEGMENT_STG  = MMU_STG_DIR + "Segment.stg";
+  private static final String[] SEGMENT_STGS = new String[] {JAVA_COMMON_STG, SEGMENT_STG};
 
   private final String outDir;
   private final String packageName;
@@ -52,5 +56,14 @@ final class GeneratorFactory {
     final STBuilder builder = new STBAddress(packageName, address);
 
     return new STFileGenerator(outputFileName, ADDRESS_STGS, builder);
+  }
+
+  public FileGenerator newSegmentGenerator(final Segment segment) {
+    InvariantChecks.checkNotNull(segment);
+
+    final String outputFileName = getOutputFileName(segment.getId());
+    final STBuilder builder = new STBSegment(packageName, segment);
+
+    return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }
 }

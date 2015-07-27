@@ -47,7 +47,7 @@ final class STBAddress implements STBuilder {
 
     return st;
   }
-  
+
   private void buildHeader(final ST st) {
     st.add("name", address.getId()); 
     st.add("base", BASE_CLASS.getSimpleName());
