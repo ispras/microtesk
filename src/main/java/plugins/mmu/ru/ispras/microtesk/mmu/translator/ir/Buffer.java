@@ -31,6 +31,7 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
   private final BigInteger sets;
   private final Node index;
   private final Node match;
+  private final Node guard;
   private final PolicyId policy;
   private final Buffer parent;
 
@@ -43,6 +44,7 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
       BigInteger sets,
       Node index,
       Node match,
+      Node guard,
       PolicyId policy,
       Buffer parent) {
 
@@ -59,10 +61,13 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
     checkNotNull(match);
     checkNotNull(policy);
 
+    checkTrue((guard == null) == (parent == null));
+
     this.ways = ways;
     this.sets = sets;
     this.index = index;
     this.match = match;
+    this.guard = guard;
     this.policy = policy;
     this.parent = parent;
   }
@@ -113,6 +118,10 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
 
   public Node getMatch() {
     return match;
+  }
+
+  public Node getGuard() {
+    return guard;
   }
 
   public PolicyId getPolicy() {

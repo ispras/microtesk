@@ -12,35 +12,24 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator;
+package ru.ispras.microtesk.mmu.translator.ir;
 
-public enum MmuSymbolKind {
-  /** Address */
-  ADDRESS,
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-  /** Segment */
-  SEGMENT,
-  
-  /** Buffer */
-  BUFFER,
-  
-  /** Memory logic (MMU) */
-  MEMORY,
+import java.util.List;
 
-  /** Address argument (used by segment, buffer and memory entities) */
-  ARGUMENT,
+abstract class Nested<T extends Nested<T>> {
+  protected abstract T getNested(final String name);
 
-  /** Entry field (included in Buffer.Entry) */
-  FIELD,
+  @SuppressWarnings("unchecked")
+  public T accessNested(final List<String> accessChain) {
+    checkNotNull(accessChain);
 
-  /** Data argument (used by memory entities) */
-  DATA,
-
-  /** Local variable (used in attributes of memory entities) */
-  VAR,
-
-  /** Attribute (used in memory entities to describe actions) */
-  ATTRIBUTE,
-
-  TYPE
+    T container = (T) this;
+    for (final String name : accessChain) {
+      container = container.getNested(name);
+      checkNotNull(container);
+    }
+    return container;
+  }
 }

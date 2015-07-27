@@ -32,7 +32,6 @@ import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
-import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -40,16 +39,20 @@ import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.translator.TranslatorHandler;
+
+import static ru.ispras.microtesk.mmu.translator.ir.spec.builder.ScopeStorage.dotConc;
 
 /**
  *
@@ -62,17 +65,14 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   public static final MmuAction STOP = new MmuAction("STOP");
 
   private MmuSubsystem spec = null;
+  private MmuSpecContext context = null;
   private IntegerVariableTracker variables = null;
-  private AtomExtractor atomExtractor = null;
 
   // Data variable for MMU (assignments to it must be ignored when building the control flow)
   private IntegerVariable data = null;
 
   /** Index used in automatically generated action names to ensure their uniqueness. */
   private int actionIndex = 0;
-
-  private Deque<String> prefixStack = null;
-  private Map<String, Integer> prefixVersion = null;
 
   public MmuSubsystem getSpecification() {
     return spec;
@@ -83,13 +83,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     System.out.println(ir);
 
     this.spec = new MmuSubsystem();
-    this.variables = new IntegerVariableTracker();
-    this.atomExtractor = new AtomExtractor("", variables);
+    this.context = new MmuSpecContext();
+    this.variables = context.getVariableRegistry();
     this.actionIndex = 0;
-    this.prefixStack = new ArrayDeque<>();
-    this.prefixVersion = new HashMap<>();
-
-    prefixStack.push("");
 
     for (final Address address : ir.getAddresses().values()) {
       registerAddress(address);
@@ -108,13 +104,13 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
     final MmuAddressType address = spec.getAddress(memory.getAddress().getId());
     spec.setStartAddress(address);
-    variables.defineGroupAs(address.getStruct(), memory.getAddressArg().getId());
+    variables.createAlias(address.getStruct(), memory.getAddressArg().getName());
 
-    data = new IntegerVariable(memory.getDataArg().getId(), memory.getDataArg().getBitSize());
+    data = new IntegerVariable(memory.getDataArg().getName(), memory.getDataArg().getBitSize());
     variables.defineVariable(data);
 
-    for(final Variable variable : memory.getVariables()) {
-      variables.defineVariable(variable);
+    for (final Variable variable : memory.getVariables()) {
+      variables.declare(variable);
     }
 
     registerControlFlowForMemory(memory);
@@ -132,19 +128,29 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private void registerAddress(final Address address) {
-    final Variable var = new Variable(address.getId(), address.getType());
-    final IntegerVariableGroup addressVar = new IntegerVariableGroup(var);
+    final Variable struct = new Variable(address.getId(), address.getContentType());
+    variables.declare(struct);
 
-    variables.defineGroup(addressVar);
-    spec.registerAddress(new MmuAddressType(addressVar));
+    final IntegerVariable addressVar =
+        variables.get(struct.accessNested(address.getAccessChain()));
+
+    spec.registerAddress(new MmuAddressType(struct, addressVar));
   }
 
   private void registerDevice(final Buffer buffer) {
     final MmuAddressType address = spec.getAddress(buffer.getAddress().getId());
     final boolean isReplaceable = PolicyId.NONE != buffer.getPolicy();
 
-    final String addressArgName = buffer.getAddressArg().getId();
-    variables.defineVariableAs(address.getVariable(), addressArgName);
+    final String addressArgName = buffer.getAddressArg().getName();
+    final Variable addressVar = address.getStruct();
+
+    // variables.defineGroupAs(address.getStruct(), addressArgName);
+    final Variable bufferVar = new Variable(buffer.getId(), buffer.getEntry());
+    variables.declareGlobal(bufferVar);
+    variables.createAlias(addressVar, addressArgName);
+    for (final Map.Entry<String, Variable> entry : addressVar.getFields().entrySet()) {
+      variables.createAlias(entry.getValue(), entry.getKey());
+    }
 
     try {
       final AddressFormatExtractor addressFormat = new AddressFormatExtractor(
@@ -152,6 +158,15 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
       final MmuBuffer parentDevice = (null != buffer.getParent()) ?
           spec.getDevice(buffer.getParent().getId()) : null;
+
+      final MmuCondition guardCondition;
+      if (buffer.getGuard() != null) {
+        final GuardExtractor guardExtractor = 
+            new GuardExtractor(spec, new AtomExtractor("", variables), buffer.getGuard());
+        guardCondition = guardExtractor.getGuard().getCondition();
+      } else {
+        guardCondition = null;
+      }
 
       final MmuBuffer device = new MmuBuffer(
           buffer.getId(),
@@ -161,20 +176,26 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           addressFormat.getTagExpr(),
           addressFormat.getIndexExpr(),
           addressFormat.getOffsetExpr(),
-          null, null, // TODO: Guard
+          guardCondition,
+          null, // TODO: Guard
           isReplaceable,
           parentDevice
           );
 
-      for(final Field field : buffer.getEntry().getFields()) {
-        final IntegerVariable fieldVar = new IntegerVariable(field.getId(), field.getBitSize());
+      final Type entryType = buffer.getEntry();
+      for (final Map.Entry<String, Type> entry : entryType.getFields().entrySet()) {
+        final IntegerVariable fieldVar =
+            new IntegerVariable(entry.getKey(), entry.getValue().getBitSize());
         device.addField(fieldVar);
       }
 
+      context.registerBuffer(bufferVar, device);
       spec.registerDevice(device);
-      variables.defineGroup(new IntegerVariableGroup(device));
     } finally {
-      variables.undefine(addressArgName);
+      variables.removeAlias(addressArgName);
+      for (final String fieldAlias : addressVar.getFields().keySet()) {
+        variables.removeAlias(fieldAlias);
+      }
     }
   }
 
@@ -257,6 +278,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       return registerCall(source, left, (AttributeRef) right.getUserData());
     }
 
+    final AtomExtractor atomExtractor = context.newAtomExtractor();
+
     final Atom lhs = atomExtractor.extract(left);
     if (Atom.Kind.VARIABLE != lhs.getKind() && 
         Atom.Kind.GROUP != lhs.getKind() &&
@@ -271,7 +294,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
 
     final String name = String.format("Assignment (%s = %s)", left, right);
-    final AssignmentBuilder assignmentBuilder = new AssignmentBuilder(name, lhs, rhs);
+    final AssignmentBuilder assignmentBuilder =
+        new AssignmentBuilder(name, lhs, rhs, context);
 
     final MmuAction target = assignmentBuilder.build();
     spec.registerAction(target);
@@ -285,22 +309,23 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   private MmuAction registerCall(final MmuAction source, final Node lhs, final AttributeRef rhs) {
     final AbstractStorage storage = rhs.getTarget();
 
-    final String prefix = getPrefix(storage.getId());
+    final String prefix = context.getPrefix(storage.getId());
     for (final Variable var : storage.getVariables()) {
       defineNestedVar(prefix, var);
     }
+
     final Variable input = defineNestedVar(prefix, storage.getAddressArg());
     final Variable output = defineNestedVar(prefix, storage.getDataArg());
 
     final MmuAction preAction =
-        registerAssignment(source, input.getVariable(), rhs.getAddressArgValue());
+        registerAssignment(source, input.getNode(), rhs.getAddressArgValue());
 
-    pushPrefix(prefix);
+    context.pushPrefix(prefix);
     final MmuAction midAction =
         registerControlFlow(preAction, rhs.getAttribute().getStmts());
-    popPrefix();
+    context.popPrefix();
 
-    return registerAssignment(midAction, lhs, output.getVariable());
+    return registerAssignment(midAction, lhs, output.getNode());
   }
 
   private MmuAction registerAssignment(final MmuAction source, final Node lhs, final Node rhs) {
@@ -308,31 +333,9 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private Variable defineNestedVar(final String prefix, final Variable var) {
-    final Variable nested = var.rename(prefix + var.getId());
-    variables.defineVariable(nested);
+    final Variable nested = var.rename(dotConc(prefix, var.getName()));
+    variables.declare(nested);
     return nested;
-  }
-
-  private String getPrefix(final String suffix) {
-    final String source = prefixStack.peek() + suffix;
-
-    Integer version = prefixVersion.get(source);
-    if (version == null) {
-      version = 0;
-    }
-    prefixVersion.put(source, version + 1);
-
-    return String.format("%s_%d.", source, version);
-  }
-
-  private void pushPrefix(final String prefix) {
-    prefixStack.push(prefix);
-    atomExtractor = new AtomExtractor(prefix, variables);
-  }
-
-  private void popPrefix() {
-    prefixStack.pop();
-    atomExtractor = new AtomExtractor(prefixStack.peek(), variables);
   }
 
   private boolean isDataVariable(Node expr) {
@@ -346,10 +349,17 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     return data.equals(variable);
   }
 
-  private boolean isAddressTranslation(final Node e) {
+  private static boolean isAddressTranslation(final Node e) {
     if (e.getUserData() instanceof AttributeRef) {
       final AttributeRef ref = (AttributeRef) e.getUserData();
       return ref.getTarget() instanceof Segment;
+    }
+    return false;
+  }
+
+  private static boolean isStruct(final Node node) {
+    if (node.getUserData() instanceof Variable) {
+      return ((Variable) node.getUserData()).isStruct();
     }
     return false;
   }
@@ -365,7 +375,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       final List<Stmt> stmts = block.second;
 
       final GuardExtractor guardExtractor = 
-          new GuardExtractor(spec, atomExtractor, condition);
+          new GuardExtractor(spec, context.newAtomExtractor(), condition);
 
       final MmuAction ifTrueStart = newBranch(condition.toString());
       spec.registerAction(ifTrueStart);

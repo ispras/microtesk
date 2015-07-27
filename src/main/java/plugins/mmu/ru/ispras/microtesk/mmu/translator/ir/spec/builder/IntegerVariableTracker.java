@@ -15,7 +15,10 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.microtesk.mmu.translator.ir.Ir.mapToString;
+import static ru.ispras.microtesk.mmu.translator.ir.spec.builder.ScopeStorage.dotConc;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,6 +35,9 @@ final class IntegerVariableTracker {
 
   private final Map<String, IntegerVariable> variables;
   private final Map<String, IntegerVariableGroup> variableGroups;
+  private final Map<String, Variable> sources = new HashMap<>();
+  private final Map<String, Variable> aliased = new HashMap<>();
+  private final Map<String, Variable> globals = new HashMap<>();
 
   public IntegerVariableTracker() {
     this.variables = new LinkedHashMap<>();
@@ -75,6 +81,7 @@ final class IntegerVariableTracker {
 
   public void defineGroup(final IntegerVariableGroup group) {
     checkNotNull(group);
+
     variableGroups.put(group.getName(), group);
   }
 
@@ -94,11 +101,88 @@ final class IntegerVariableTracker {
     checkNotNull(variable);
 
     final Type type = variable.getType();
-    if (type.getFieldCount() == 0) {
-      defineVariable(new IntegerVariable(variable.getId(), variable.getBitSize()));
-    } else {
+    if (type.isStruct()) {
       defineGroup(new IntegerVariableGroup(variable));
+    } else {
+      defineVariable(new IntegerVariable(variable.getName(), variable.getBitSize()));
     }
+  }
+
+  public void declare(final Variable source) {
+    checkNotNull(source);
+    
+    if (source.isStruct()) {
+      for (final Variable field : source.getFields().values()) {
+        declare(field);
+      }
+    } else {
+      defineVariable(new IntegerVariable(source.getName(), source.getBitSize()));
+    }
+    sources.put(source.getName(), source);
+  }
+
+  public void declareGlobal(final Variable source) {
+    declare(source);
+    insertGlobal(source);
+  }
+
+  private void insertGlobal(final Variable source) {
+    globals.put(source.getName(), source);
+    for (final Variable field : source.getFields().values()) {
+      insertGlobal(field);
+    }
+  }
+
+  public boolean isGlobal(final Variable source) {
+    return globals.containsKey(source.getName());
+  }
+
+  public void createAlias(final Variable source, final String alias) {
+    checkNotNull(source);
+    checkNotNull(alias);
+
+    if (source.isStruct()) {
+      for (final Map.Entry<String, Variable> entry : source.getFields().entrySet()) {
+        createAlias(entry.getValue(), dotConc(alias, entry.getKey()));
+      }
+    } else {
+      defineVariableAs(variables.get(source.getName()), alias);
+    }
+    aliased.put(alias, source);
+  }
+
+  public IntegerVariable get(final Variable variable) {
+    final Variable alias = aliased.get(variable.getName());
+    if (alias != null) {
+      return get(alias);
+    }
+    return variables.get(variable.getName());
+  }
+
+  public void removeAlias(final String alias) {
+    removeAlias(aliased.get(alias), alias);
+  }
+
+  private void removeAlias(final Variable source, final String alias) {
+    if (source.isStruct()) {
+      for (final Map.Entry<String, Variable> entry : source.getFields().entrySet()) {
+        removeAlias(entry.getValue(), dotConc(alias, entry.getKey()));
+      }
+    } else {
+      variables.remove(alias);
+    }
+    aliased.remove(alias);
+  }
+
+  public Variable getOrCreate(final String name, final Variable image) {
+    final Variable stored = sources.get(name);
+    if (stored != null) {
+      return stored;
+    }
+    final Variable created =
+        image.getName().equals(name) ? image : image.rename(name);
+    sources.put(name, created);
+    return created;
   }
 
   @Override

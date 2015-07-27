@@ -39,9 +39,6 @@ final class MmuTreeWalkerContext {
   private final Kind kind;
   private final String id;
 
-  private final Map<String, NodeVariable> variables;
-  private final Map<String, AbstractStorage> globalObjects;
-
   private final Map<Node, Node> assignments;
 
   MmuTreeWalkerContext(Kind kind, String id) {
@@ -50,8 +47,6 @@ final class MmuTreeWalkerContext {
 
     this.kind = kind;
     this.id = id;
-    this.variables = new HashMap<>();
-    this.globalObjects = new HashMap<>();
     this.assignments = new HashMap<>(); 
   }
 
@@ -61,48 +56,6 @@ final class MmuTreeWalkerContext {
 
   public String getId() {
     return id;
-  }
-
-  public void defineVariable(Variable variable) {
-    checkNotNull(variable);
-    variables.put(variable.getId(), variable.getVariable());
-  }
-
-  public void defineVariable(NodeVariable variable) {
-    checkNotNull(variable);
-    variables.put(variable.getName(), variable);
-  }
-
-  public void defineVariableAs(String variableId, Variable variable) {
-    checkNotNull(variableId);
-    checkNotNull(variable);
-    variables.put(variableId, variable.getVariable());
-  }
-
-  public void defineVariableAs(String variableId, NodeVariable variable) {
-    checkNotNull(variableId);
-    checkNotNull(variable);
-    variables.put(variableId, variable);
-  }
-
-  public NodeVariable getVariable(String variableId) {
-    return variables.get(variableId);
-  }
-
-  public void defineGlobalObjects(Collection<? extends AbstractStorage> objects) {
-    checkNotNull(objects);
-    for (AbstractStorage object : objects) {
-      defineGlobalObject(object);
-    }
-  }
-
-  public void defineGlobalObject(AbstractStorage object) {
-    checkNotNull(object);
-    globalObjects.put(object.getId(), object);
-  }
-
-  public AbstractStorage getGlobalObject(String objectId) {
-    return globalObjects.get(objectId);
   }
 
   /**

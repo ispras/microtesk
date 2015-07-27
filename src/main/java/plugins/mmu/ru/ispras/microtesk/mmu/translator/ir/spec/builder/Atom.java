@@ -21,13 +21,14 @@ import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
 final class Atom {
   public static enum Kind {
     VALUE    (BigInteger.class),
     VARIABLE (IntegerVariable.class),
-    GROUP    (IntegerVariableGroup.class), 
+    GROUP    (Variable.class), 
     FIELD    (IntegerField.class),
     CONCAT   (MmuExpression.class);
 
@@ -49,7 +50,7 @@ final class Atom {
     return new Atom(Kind.VARIABLE, variable);
   }
 
-  public static Atom newGroup(final IntegerVariableGroup group) {
+  public static Atom newGroup(final Variable group) {
     return new Atom(Kind.GROUP, group);
   }
 
@@ -90,7 +91,7 @@ final class Atom {
       case VARIABLE:
         return ((IntegerVariable) object).getWidth();
       case GROUP:
-        return ((IntegerVariableGroup) object).getWidth();
+        return ((Variable) object).getBitSize();
       case FIELD:
         return ((IntegerField) object).getWidth();
       case CONCAT:

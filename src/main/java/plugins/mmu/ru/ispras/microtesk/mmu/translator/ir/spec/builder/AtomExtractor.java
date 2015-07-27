@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.microtesk.mmu.translator.ir.spec.builder.ScopeStorage.dotConc;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -29,7 +30,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
-import ru.ispras.microtesk.mmu.translator.ir.FieldRef;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
@@ -66,8 +66,6 @@ final class AtomExtractor {
     final Object userData = expr.getUserData();
     if (userData instanceof Variable) {
       return extractFromVariable((Variable) userData);
-    } else if (userData instanceof FieldRef) {
-      return extractFromFieldRef((FieldRef) userData);
     } else if (userData instanceof AttributeRef) {
       return extractFromAttributeRef((AttributeRef) userData);
     } else {
@@ -86,33 +84,33 @@ final class AtomExtractor {
     }
   }
 
-  private Atom extractFromVariable(Variable var) {
-    if (0 == var.getType().getFieldCount()) {
-      final IntegerVariable intVar = variables.getVariable(prefix + var.getId());
-      return Atom.newVariable(intVar);
+  private Atom extractFromVariable(final Variable var) {
+    final Variable source;
+    if (variables.isGlobal(var)) {
+      source = var;
+    } else {
+      source = variables.getOrCreate(dotConc(prefix, var.getName()), var);
     }
-
-    final IntegerVariableGroup intVarGroup = variables.getGroup(prefix + var.getId());
-    return Atom.newGroup(intVarGroup);
-  }
-
-  private Atom extractFromFieldRef(FieldRef fieldRef) {
-    final String groupName = prefix + fieldRef.getVariable().getId();
-    final String fieldName = fieldRef.getField().getId();
-
-    final IntegerVariable intVar = variables.getVariable(groupName, fieldName);
-    return Atom.newVariable(intVar);
+    if (source.isStruct()) {
+      return Atom.newGroup(source);
+    }
+    return Atom.newVariable(variables.get(source));
   }
 
   private Atom extractFromAttributeRef(AttributeRef attrRef) {
     final String groupName = attrRef.getTarget().getId();
     final String attrName = attrRef.getAttribute().getId();
 
-    final IntegerVariableGroup intVarGroup = variables.getGroup(groupName);
     if (attrName.equals(AbstractStorage.READ_ATTR_NAME) || 
         attrName.equals(AbstractStorage.WRITE_ATTR_NAME)) {
-      final String name = prefix + intVarGroup.getName();
-      return Atom.newGroup(intVarGroup.rename(name));
+      final Variable output = attrRef.getTarget().getDataArg();
+      if (variables.isGlobal(output)) {
+        return Atom.newGroup(output);
+      }
+      final Variable group =
+          variables.getOrCreate(dotConc(prefix, output.getName()), output);
+
+      return Atom.newGroup(group);
     }
 
     // TODO: Handle hit

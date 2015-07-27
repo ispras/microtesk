@@ -17,6 +17,8 @@ package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
@@ -31,6 +33,7 @@ import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
@@ -82,7 +85,7 @@ final class GuardExtractor {
       if (expr.getOperationId() == StandardOperation.NOT) {
         guards = getGuards(expr.getOperand(0), true);
       } else {
-        guards = getEqualityBasedGuards(expr);
+        guards = getConditionGuards(expr);
       }
     } else {
       throw new IllegalStateException("Unsupported condition expression format: " + cond);
@@ -119,6 +122,37 @@ final class GuardExtractor {
     }
 
     return new MmuGuard[] {hit, miss};
+  }
+
+  private MmuGuard[] getConditionGuards(final NodeOperation e) {
+    final Enum<?> opId = e.getOperationId();
+    if (opId == StandardOperation.AND || opId == StandardOperation.OR) {
+      final List<MmuConditionAtom> atoms = getConditionAtoms(e.getOperands());
+      final List<MmuConditionAtom> negated = new ArrayList<>(atoms.size());
+      for (final MmuConditionAtom atom : atoms) {
+        negated.add(MmuConditionAtom.not(atom));
+      }
+      final MmuGuard directGuard;
+      final MmuGuard negatedGuard;
+      if (opId == StandardOperation.AND) {
+        directGuard = new MmuGuard(MmuCondition.and(atoms));
+        negatedGuard = new MmuGuard(MmuCondition.or(negated));
+      } else {
+        directGuard = new MmuGuard(MmuCondition.or(atoms));
+        negatedGuard = new MmuGuard(MmuCondition.and(negated));
+      }
+      return new MmuGuard[] {directGuard, negatedGuard};
+    }
+    return getEqualityBasedGuards(e);
+  }
+
+  private List<MmuConditionAtom> getConditionAtoms(final List<? extends Node> nodes) {
+    final List<MmuConditionAtom> atoms = new ArrayList<>();
+    for (final Node node : nodes) {
+      final MmuGuard[] guards = getEqualityBasedGuards((NodeOperation) node);
+      atoms.addAll(guards[0].getCondition().getAtoms());
+    }
+    return atoms;
   }
 
   private MmuGuard[] getEqualityBasedGuards(final NodeOperation expr) {

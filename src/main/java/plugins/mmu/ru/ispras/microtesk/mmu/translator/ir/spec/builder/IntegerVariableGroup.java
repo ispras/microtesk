@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.ir.Field;
+// import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -48,18 +48,20 @@ public final class IntegerVariableGroup {
     checkNotNull(variable);
 
     final Type type = variable.getType();
-    if (type.getFieldCount() == 0) {
-      throw new IllegalArgumentException(variable.getId() + " does not have fields.");
+    if (type.getFields().size() == 0) {
+      throw new IllegalArgumentException(variable.getName() + " does not have fields.");
     }
 
-    this.name = variable.getId();
+    this.name = variable.getName();
     this.variables =  new LinkedHashMap<>();
     this.device = null;
 
+    /*
     for (final Field field : type.getFields()) {
       final String variableName = String.format("%s.%s", variable.getId(), field.getId());
       variables.put(field.getId(), new IntegerVariable(variableName, field.getBitSize()));
     }
+    */
   }
 
   private IntegerVariableGroup(final String name,

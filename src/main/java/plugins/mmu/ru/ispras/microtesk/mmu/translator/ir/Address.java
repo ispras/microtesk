@@ -15,48 +15,58 @@
 package ru.ispras.microtesk.mmu.translator.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
+
 import ru.ispras.fortress.data.DataType;
 
-public final class Address implements TypeProvider {
+import java.util.Collections;
+import java.util.List;
+
+public final class Address {
   private final String id;
-  private final Type type;
+  private final Type contentType;
+  private final Type addressType;
+  private final List<String> accessChain;
 
   public Address(final String id, final int bitSize) {
-    this(id, new Type(bitSize));
-  }
-
-  public Address(final String id, final Type type) {
     checkNotNull(id);
-    checkNotNull(type);
+    checkTrue(bitSize > 0);
 
     this.id = id;
-    this.type = type;
+    this.contentType = new Type(bitSize);
+    this.addressType = contentType;
+    this.accessChain = Collections.emptyList();
+  }
+
+  public Address(final String id, final Type type, final List<String> accessChain) {
+    checkNotNull(id);
+    checkNotNull(type);
+    checkNotNull(accessChain);
+
+    this.id = id;
+    this.contentType = type;
+    this.addressType = type.accessNested(accessChain);
+    this.accessChain = accessChain;
   }
 
   public String getId() {
     return id;
   }
 
-  @Override
-  public Type getType() {
-    return type;
+  public Type getContentType() {
+    return contentType;
   }
 
-  @Override
-  public String getTypeAlias() {
-    return getId();
+  public Type getAddressType() {
+    return addressType;
   }
 
-  public DataType getDataType() {
-    return type.getDataType();
-  }
-
-  public int getBitSize() {
-    return type.getBitSize();
+  public List<String> getAccessChain() {
+    return accessChain;
   }
 
   @Override
   public String toString() {
-    return String.format("address %s[%s]", id, type);
+    return String.format("address %s[%s]", id, contentType);
   }
 }

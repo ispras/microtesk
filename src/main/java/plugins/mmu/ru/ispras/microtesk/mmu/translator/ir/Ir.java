@@ -27,6 +27,8 @@ public final class Ir {
   private final Map<String, Buffer> buffers;
   private final Map<String, Memory> memories;
 
+  private final Map<String, Type> types = new LinkedHashMap<>();
+
   public Ir(final String modelName) {
     checkNotNull(modelName);
     this.modelName = modelName;
@@ -57,6 +59,10 @@ public final class Ir {
     return Collections.unmodifiableMap(memories);
   }
 
+  public Map<String, Type> getTypes() {
+    return Collections.unmodifiableMap(types);
+  }
+
   public void addAddress(final Address address) {
     checkNotNull(address);
     addresses.put(address.getId(), address);
@@ -77,14 +83,32 @@ public final class Ir {
     memories.put(memory.getId(), memory);
   }
 
+  public void addType(final String name, final Type type) {
+    checkNotNull(name);
+    checkNotNull(type);
+
+    types.put(name, type);
+  }
+
   @Override
   public String toString() {
     return String.format(
-        "Mmu Ir:%n addresses=%s%n segments=%s%n buffers=%s%n memories=%s", 
-        addresses,
-        segments,
-        buffers,
-        memories
+        "Mmu Ir:%n addresses=%s%n segments=%s%n buffers=%s%n memories=%s%n types=%s", 
+        mapToString(addresses),
+        mapToString(segments),
+        mapToString(buffers),
+        mapToString(memories),
+        mapToString(types)
         );
+  }
+
+  public static <U, V> String mapToString(final Map<U, V> map) {
+    final StringBuilder builder = new StringBuilder();
+    builder.append(String.format("{%n"));
+    for (final Map.Entry<U, V> entry : map.entrySet()) {
+      builder.append(String.format("%s = %s%n", entry.getKey(), entry.getValue()));
+    }
+    builder.append("}");
+    return builder.toString();
   }
 }

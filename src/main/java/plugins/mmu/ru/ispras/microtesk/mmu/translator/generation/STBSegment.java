@@ -69,7 +69,7 @@ final class STBSegment implements STBuilder {
 
   private void buildRange(final ST st, final STGroup group) {
     final ST stRange = group.getInstanceOf("range");
-    final int bitSize = segment.getAddress().getBitSize();
+    final int bitSize = segment.getAddress().getAddressType().getBitSize();
 
     stRange.add("start", BitVector.valueOf(segment.getMin(), bitSize).toHexString());
     stRange.add("end", BitVector.valueOf(segment.getMax(), bitSize).toHexString());
@@ -91,7 +91,7 @@ final class STBSegment implements STBuilder {
     final ST stMethod = group.getInstanceOf("is_hit");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getId());
+    stMethod.add("addr_name", segment.getAddressArg().getName());
 
     st.add("members", "");
     st.add("members", stMethod);
@@ -101,7 +101,7 @@ final class STBSegment implements STBuilder {
     final ST stMethod = group.getInstanceOf("get_data_empty");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getId());
+    stMethod.add("addr_name", segment.getAddressArg().getName());
     stMethod.add("data_type", segment.getDataArgAddress().getId());
 
     st.add("members", "");
@@ -112,9 +112,9 @@ final class STBSegment implements STBuilder {
     final ST stMethod = group.getInstanceOf("set_data_empty");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getId());
+    stMethod.add("addr_name", segment.getAddressArg().getName());
     stMethod.add("data_type", segment.getDataArgAddress().getId());
-    stMethod.add("data_name", segment.getDataArg().getId());
+    stMethod.add("data_name", segment.getDataArg().getName());
 
     st.add("members", "");
     st.add("members", stMethod);

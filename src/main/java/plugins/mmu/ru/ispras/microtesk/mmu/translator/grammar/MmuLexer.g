@@ -63,6 +63,7 @@ import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 // MMU Keywords
 //==================================================================================================
 
+MMU_STRUCT  : 'struct';
 MMU_ADDRESS : 'address';
 
 MMU_SEGMENT : 'segment';
@@ -76,6 +77,7 @@ MMU_ENTRY   : 'entry';
 MMU_INDEX   : 'index';
 MMU_MATCH   : 'match';
 MMU_POLICY  : 'policy';
+MMU_GUARD   : 'guard';
 
 MMU         : 'mmu';
 MMU_VAR     : 'var';

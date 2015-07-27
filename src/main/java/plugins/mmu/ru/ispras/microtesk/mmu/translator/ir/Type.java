@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,6 +23,79 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
 
+public final class Type extends Nested<Type> {
+  private final int bitSize;
+  private final Map<String, Type> fields;
+  private final DataType dataType;
+
+  public Type(final int bitSize) {
+    checkTrue(bitSize > 0);
+
+    this.bitSize = bitSize;
+    this.fields = Collections.emptyMap();
+    this.dataType = DataType.BIT_VECTOR(bitSize);
+  }
+
+  public Type(final Map<String, Type> fields) {
+    checkNotNull(fields);
+
+    int totalBitSize = 0;
+    for (final Type field : fields.values()) {
+      totalBitSize += field.getBitSize();
+    }
+
+    checkTrue(totalBitSize > 0);
+    this.bitSize = totalBitSize;
+    this.fields = Collections.unmodifiableMap(fields);
+    this.dataType = DataType.UNKNOWN;
+  }
+
+  public boolean isStruct() {
+    return !fields.isEmpty();
+  }
+
+  public int getBitSize() {
+    return bitSize;
+  }
+
+  public DataType getDataType() {
+    return dataType;
+  }
+
+  public Map<String, Type> getFields() {
+    return fields;
+  }
+
+  @Override
+  protected Type getNested(final String name) {
+    return getFields().get(name);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("type [size=%d, fields=%s]", bitSize, fields);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (o == null || !(o instanceof Type)) {
+      return false;
+    }
+    final Type type = (Type) o;
+    return bitSize == type.bitSize &&
+           fields.equals(type.fields);
+  }
+
+  @Override
+  public int hashCode() {
+    return bitSize * 31 + fields.hashCode();
+  }
+}
+
+/*
 public final class Type {
   public static final Type VOID = new Type();
 
@@ -83,3 +156,4 @@ public final class Type {
     return String.format("type [size=%d, fields=%s]", bitSize, fields);
   }
 }
+*/

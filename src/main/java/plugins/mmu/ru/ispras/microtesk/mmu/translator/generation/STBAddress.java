@@ -20,8 +20,10 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.mmu.translator.ir.Address;
-import ru.ispras.microtesk.mmu.translator.ir.Field;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+
+import java.util.Map;
 
 final class STBAddress implements STBuilder {
   private static final Class<?> BASE_CLASS =
@@ -56,10 +58,10 @@ final class STBAddress implements STBuilder {
   }
 
   private void buildFields(final ST st, final STGroup group) {
-    for (final Field field : address.getType().getFields()) {
+    for (final Map.Entry<String, Type> field : address.getContentType().getFields().entrySet()) {
       final ST stField = group.getInstanceOf("field");
-      stField.add("name", field.getId());
-      stField.add("size", field.getType().getBitSize());
+      stField.add("name", field.getKey());
+      stField.add("size", field.getValue().getBitSize());
       st.add("fields", stField);
     }
   }

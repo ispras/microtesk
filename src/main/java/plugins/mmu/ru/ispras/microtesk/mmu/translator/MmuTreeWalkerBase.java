@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,6 @@ import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
-import ru.ispras.microtesk.mmu.translator.ir.Field;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -56,6 +56,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.builder.VariableStorage;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
@@ -65,6 +66,8 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
+  private VariableStorage storage = new VariableStorage();
+  private Map<String, AbstractStorage> globals = new HashMap<>();
 
   public MmuTreeWalkerBase(final TreeNodeStream input, final RecognizerSharedState state) {
     super(input, state);
@@ -101,8 +104,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     checkNotNull(addressId, type);
 
-    final Address address = new Address(addressId.getText(), type);
+    final Address address =
+        new Address(addressId.getText(), type, Collections.singletonList("value"));
     ir.addAddress(address);
+    newType(addressId, type);
+
     return address;
   }
 
@@ -110,18 +116,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * Builder for a Type. Helps create a complex type from a sequence of fields.
    */
 
-  protected final class TypeBuilder {
-    private int currentPos;
-    private Map<String, Field> fields;
+  protected final class StructBuilder {
+    private final Map<String, Type> fields = new LinkedHashMap<>();
 
-    /**
-     * Constructs a new type builder.
-     */
-
-    public TypeBuilder() {
-      this.currentPos = 0;
-      this.fields = new LinkedHashMap<>();
-    }
+    public StructBuilder() {}
 
     /**
      * Adds a field to Type to be created.
@@ -141,19 +139,42 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       final Where w = where(fieldId);
       final String id = fieldId.getText();
+
+      if (fields.containsKey(id)) {
+        raiseError(w, String.format("Duplicate member '%s'.", id));
+      }
  
       final int bitSize = extractPositiveInt(w, sizeExpr, id + " field size");
 
-      BitVector defValue = null;
+      final BitVector defValue;
       if (null != valueExpr) {
         final BigInteger value = extractBigInteger(w, valueExpr, id + " field value");
         defValue = BitVector.valueOf(value, bitSize);
+      } else {
+        defValue = null;
       }
 
-      final Field field = new Field(id, currentPos, bitSize, defValue);
-      currentPos += bitSize;
+      final Type fieldType = new Type(bitSize);
+      fields.put(id, fieldType);
+    }
 
-      fields.put(field.getId(), field);
+    public void addField(
+        final CommonTree fieldId,
+        final CommonTree typeId) throws SemanticException {
+      checkNotNull(fieldId, typeId);
+
+      final Where w = where(fieldId);
+      final String id = fieldId.getText();
+
+      if (fields.containsKey(id)) {
+        raiseError(w, String.format("Duplicate member '%s'.", id));
+      }
+      final Type type = ir.getTypes().get(typeId.getText());
+      if (type == null) {
+        raiseError(w, String.format("Unkown type name '%s'.", typeId.getText()));
+      }
+
+      fields.put(id, type);
     }
 
     /**
@@ -165,7 +186,22 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       return new Type(fields);
     }
   }
-  
+
+  protected final Type newType(final CommonTree typeId,
+                                      final Type type) throws SemanticException {
+    checkNotNull(typeId, type);
+
+    final Where w = where(typeId);
+    final String id = typeId.getText();
+
+    if (ir.getTypes().containsKey(id)) {
+      raiseError(w, String.format("Redefinition of '%s'.", id));
+    }
+    ir.addType(typeId.getText(), type);
+
+    return type;
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   // TODO: Review + comments are needed
 
@@ -176,15 +212,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   protected final class BufferBuilder {
     private final CommonTree id;
     private final Address address;
+    private final String addressArgId;
     private final Variable addressArg;
     private final Buffer parent;
 
-    private Variable dataArg; // stores entries
-    private BigInteger ways;
-    private BigInteger sets;
-    private Node index;
-    private Node match;
-    private PolicyId policy;
+    private Variable dataArg = null; // stores entries
+    private BigInteger ways = BigInteger.ZERO;
+    private BigInteger sets = BigInteger.ZERO;
+    private Node index = null;
+    private Node match = null;
+    private Node guard = null;
+    private PolicyId policy = null;
 
     /**
      * Constructs a builder for a Buffer object.
@@ -200,20 +238,29 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final CommonTree addressArgId,
         final CommonTree addressArgType,
         final CommonTree parentBufferId) throws SemanticException {
+
       this.id = id;
       this.address = getAddress(addressArgType);
-      this.addressArg = new Variable(addressArgId.getText(), address);
-      this.parent = null != parentBufferId ? getBuffer(parentBufferId) : null;
 
-      this.dataArg = null;
-      this.ways = BigInteger.ZERO;
-      this.sets = BigInteger.ZERO;
-      this.index = null;
-      this.match = null;
-      this.policy = null;
+      storage.newScope(id.getText());
+      this.addressArgId = addressArgId.getText();
+      this.addressArg = storage.declare(addressArgId.getText(),
+                                        address.getContentType());
+      storage.popScope();
 
       context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id.getText());
-      context.defineVariable(addressArg);
+      // context.defineVariable(addressArg);
+
+
+      if (parentBufferId != null) {
+        this.parent = getBuffer(parentBufferId);
+
+        // setDataArg() depends on context, therefore the latter should be
+        // created prior to
+        setDataArg(id.getText(), this.parent.getEntry());
+      } else {
+        this.parent = null;
+      }
     }
 
     private void checkRedefined(
@@ -245,13 +292,19 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     public void setEntry(final CommonTree attrId, final Type attr) throws SemanticException {
       checkNotNull(attrId, attr);
-      checkRedefined(attrId, dataArg != null);
-      dataArg = new Variable(attrId.getText(), attr);
 
-      for (final Field field : attr.getFields()) {
-        final NodeVariable valiable = dataArg.getVariableForField(field.getId());
-        context.defineVariableAs(field.getId(), valiable);
+      if (parent != null) {
+        raiseError(where(attrId), "Buffer view forbids 'entry' attribute redefinition.");
       }
+      checkRedefined(attrId, dataArg != null);
+      setDataArg(id.getText(), attr);
+    }
+
+    private void setDataArg(final String name, final Type type) {
+      dataArg = storage.declare(name, type);
+      final Map<String, Variable> scope = new HashMap<>(dataArg.getFields());
+      scope.put(addressArgId, addressArg);
+      storage.newScope(scope);
     }
 
     public void setIndex(final CommonTree attrId, final Node attr) throws SemanticException {
@@ -264,6 +317,16 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, match != null);
       match = attr;
+    }
+
+    public void setGuard(final CommonTree attrId, final Node attr) throws SemanticException {
+      checkNotNull(attrId, attr);
+
+      if (parent == null) {
+        raiseError(where(attrId), "'guard' attribute is allowed only for buffer views.");
+      }
+      checkRedefined(attrId, guard != null);
+      guard = attr;
     }
 
     public void setPolicyId(
@@ -280,7 +343,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     public Buffer build() throws SemanticException {
       checkUndefined("ways", ways.equals(BigInteger.ZERO));
       checkUndefined("sets", sets.equals(BigInteger.ZERO));
-      checkUndefined("entry", dataArg == null); 
+      checkUndefined("entry", dataArg == null && parent == null); 
       checkUndefined("index", index == null);
       checkUndefined("match", match == null);
 
@@ -289,9 +352,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Buffer buffer = new Buffer(
-          id.getText(), address, addressArg, dataArg, ways, sets, index, match, policy, parent);
+          id.getText(), address, addressArg, dataArg, ways, sets, index, match, guard, policy, parent);
 
       ir.addBuffer(buffer);
+      globals.put(id.getText(), buffer);
+      storage.popScope();
+
       return buffer;
     }
   }
@@ -310,10 +376,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     return new CommonBuilder(where(memoryId), 
                              memoryId.getText(),
-                             addressArgId.getText(),
                              address,
-                             dataArgId.getText(),
-                             new Type(dataSize));
+                             addressArgId.getText(),
+                             null,
+                             new Type(dataSize),
+                             dataArgId.getText());
   }
 
   protected final CommonBuilder newSegmentBuilder(
@@ -325,15 +392,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     final Address address = getAddress(addressArgType);
     if (outputVarId == null || outputVarType == null) {
-      return new CommonBuilder(where(id), id.getText(), addressArgId.getText(), address);
+      return new CommonBuilder(where(id), id.getText(), address, addressArgId.getText());
     }
     final Address outputAddr = getAddress(outputVarType);
     return new CommonBuilder(where(id),
                              id.getText(),
-                             addressArgId.getText(),
                              address,
-                             outputVarId.getText(),
-                             outputAddr);
+                             addressArgId.getText(),
+                             outputAddr,
+                             outputVarId.getText());
   }
 
   protected final class CommonBuilder {
@@ -351,80 +418,52 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private CommonBuilder(
         final Where where,
         final String id,
-        final String addressArgId,
-        final Address addressArgType) {
-      this(
-          where,
-          id,
-          addressArgType,
-          new Variable(addressArgId, addressArgType),
-          null,
-          null
-          );
-    }
-
-    private CommonBuilder(
-        final Where where,
-        final String id,
-        final String addressArgId,
-        final Address addressArgType,
-        final String outputVarId,
-        final Type outputVarType) {
-      this(
-          where,
-          id,
-          addressArgType,
-          new Variable(addressArgId, addressArgType),
-          null,
-          new Variable(outputVarId, outputVarType)
-          );
-    }
-
-    private CommonBuilder(
-        final Where where,
-        final String id,
-        final String addressArgId,
-        final Address addressArgType,
-        final String outputVarId,
-        final Address outputVarType) {
-      this(
-          where,
-          id,
-          addressArgType,
-          new Variable(addressArgId, addressArgType),
-          outputVarType,
-          new Variable(outputVarId, outputVarType)
-          );
+        final Address address,
+        final String inputName) {
+      this(where, id, address, inputName, null, null);
     }
 
     private CommonBuilder(
         final Where where,
         final String id,
         final Address address,
-        final Variable addressVar,
-        final Address outputVarAddress,
-        final Variable outputVar) {
+        final String inputName,
+        final Address outputAddr,
+        final String outputName) {
+      this(where,
+           id,
+           address,
+           inputName,
+           outputAddr,
+           outputAddr.getContentType(),
+           outputName);
+    }
+
+    private CommonBuilder(
+        final Where where,
+        final String id,
+        final Address address,
+        final String inputName,
+        final Address outputAddr,
+        final Type outputType,
+        final String outputName) {
       this.where = where;
       this.id = id;
       this.address = address;
-      this.addressArg = addressVar;
-      this.outputVarAddress = outputVarAddress;
-      this.outputVar = outputVar;
+      this.outputVarAddress = outputAddr;
+
+      storage.newScope(id);
+      this.addressArg = storage.declare(inputName, address.getContentType());
+      if (outputName != null && outputType != null) {
+        this.outputVar = storage.declare(outputName, outputType);
+      } else {
+        this.outputVar = null;
+      }
 
       this.variables = new LinkedHashMap<>();
       this.attributes = new LinkedHashMap<>();
 
       context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
-      context.defineVariable(addressArg);
-      context.defineVariable(outputVar);
-
-      final NodeVariable memoryVar = new NodeVariable(id,
-          DataType.MAP(DataType.UNKNOWN, outputVar.getDataType()));
-
-      context.defineVariable(memoryVar);
-
-      context.defineGlobalObjects(ir.getSegments().values());
-      context.defineGlobalObjects(ir.getBuffers().values());
     }
 
     public void addVariable(final CommonTree varId, final Node sizeExpr) throws SemanticException {
@@ -433,30 +472,28 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final int bitSize = extractPositiveInt(
           where(varId), sizeExpr, String.format("Variable %s size", varId.getText()));
 
-      final Variable variable = new Variable(varId.getText(), bitSize);
-
-      variables.put(variable.getId(), variable);
-      context.defineVariable(variable);
+      final Variable variable = storage.declare(varId.getText(), new Type(bitSize));
+      variables.put(variable.getName(), variable);
     }
 
     public void addVariable(
         final CommonTree varId, final CommonTree typeId) throws SemanticException {
       final ISymbol symbol = getSymbol(typeId);
 
-      Variable variable = null;
+      final Type type;
       if (MmuSymbolKind.BUFFER == symbol.getKind()) {
-        final Buffer buffer = getBuffer(typeId);
-        variable = new Variable(varId.getText(), buffer);
+        type = getBuffer(typeId).getEntry();
       } else if (MmuSymbolKind.ADDRESS == symbol.getKind()) {
-        final Address address = getAddress(typeId);
-        variable = new Variable(varId.getText(), address);
+        type = getAddress(typeId).getContentType();
       } else {
+        type = null;
         raiseError(where(typeId), new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));
       }
 
-      variables.put(variable.getId(), variable);
-      context.defineVariable(variable);
+      final Variable v = storage.declare(varId.getText(), type);
+      variables.put(v.getName(), v);
+      // context.defineVariable(variable);
     }
 
     public void addAttribute(final CommonTree attrId, final List<Stmt> stmts) {
@@ -477,6 +514,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           id, address, addressArg, outputVar, variables, attributes);
 
       ir.addMemory(memory);
+      storage.popScope();
+
       return memory;
     }
 
@@ -518,6 +557,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           );
 
       ir.addSegment(segment);
+      globals.put(id, segment);
+      storage.popScope();
+
       return segment;
     }
   }
@@ -737,10 +779,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     final Node addressArg = args.get(0);
-    if (!addressArg.getDataType().equals(object.getAddressArg().getDataType())) {
+    final Variable addressVar = (Variable) addressArg.getUserData();
+
+    final Type expectedType = object.getAddressArg().getType();
+    if (!addressVar.getType().equals(expectedType)) {
       raiseError(where(id), String.format(
           "Wrong argument type. The %s object expects %s as an argument.",
-          id.getText(), object.getAddressArg().getType()));
+          id.getText(), expectedType));
     }
 
     final AttributeRef attrRef = new AttributeRef(object, attr, addressArg);
@@ -762,22 +807,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   protected final Node newAttributeCall(
-      final CommonTree id, final CommonTree attributeId) throws SemanticException {
+      final CommonTree id, final List<CommonTree> memberChain) throws SemanticException {
 
-    final NodeVariable variableNode = getVariable(id);
-    if (!(variableNode.getUserData() instanceof Variable)) {
-      raiseError(where(id), String.format(
-          "Cannot access fields of the %s variable. No type information.", id.getText()));
+    Variable variable = getVariableObject(id);
+    for (final CommonTree member : memberChain) {
+      final Variable field = variable.getFields().get(member.getText());
+      if (null == field) {
+        raiseError(where(member),
+                   String.format("The variable '%s' does not have the field '%s'.",
+                                 variable.getName(),
+                                 member.getText()));
+      }
+      variable = field;
     }
-
-    final Variable variable = (Variable) variableNode.getUserData();
-    final NodeVariable fieldNode = variable.getVariableForField(attributeId.getText());
-    if (null == fieldNode) {
-      raiseError(where(id), String.format(
-          "The %s variable does not include the %s field.", id.getText(), attributeId.getText()));
-    }
-
-    return fieldNode;
+    return variable.getNode();
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -785,7 +828,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   private AbstractStorage getGlobalObject(final CommonTree objectId) throws SemanticException {
-    final AbstractStorage object = context.getGlobalObject(objectId.getText());
+    final AbstractStorage object = globals.get(objectId.getText());
     if (null == object) {
       raiseError(where(objectId), String.format(
           "%s is not defined in the current scope or is not a global object.", objectId.getText()));
@@ -794,10 +837,19 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   private NodeVariable getVariable(final CommonTree variableId) throws SemanticException {
-    final NodeVariable variable = context.getVariable(variableId.getText());
+    final NodeVariable variable = getVariableObject(variableId).getNode(); // context.getVariable(variableId.getText());
     if (null == variable) {
       raiseError(where(variableId), String.format(
           "%s is undefined in the current scope or is not a variable.", variableId.getText()));
+    }
+    return variable;
+  }
+
+  private Variable getVariableObject(final CommonTree id) throws SemanticException {
+    final Variable variable = storage.get(id.getText());
+    if (null == variable) {
+      raiseError(where(id), String.format(
+          "%s is undefined in the current scope or is not a variable.", id.getText()));
     }
     return variable;
   }

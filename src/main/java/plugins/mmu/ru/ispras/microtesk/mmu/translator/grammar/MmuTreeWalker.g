@@ -62,8 +62,8 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 
 import ru.ispras.microtesk.mmu.translator.MmuTreeWalkerBase;
 import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
-import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 }
 
 //==================================================================================================
@@ -79,6 +79,7 @@ declaration
     | segment
     | buffer
     | mmu
+    | struct
     ;
 
 //==================================================================================================
@@ -88,7 +89,7 @@ declaration
 address
     : ^(MMU_ADDRESS addressId=ID {
         declareAndPushSymbolScope($addressId, MmuSymbolKind.ADDRESS);
-      } e=entry)
+      } e=structFields)
       {newAddress($addressId, $e.res);}
     ; finally {popSymbolScope();}
 
@@ -124,20 +125,30 @@ buffer
         (
             ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}
           | ^(w=MMU_SETS sets=expr[0])   {builder.setSets($w, $sets.res);}
-          | ^(w=MMU_ENTRY e=entry)       {builder.setEntry($w, $e.res);}
+          | ^(w=MMU_ENTRY e=structFields){builder.setEntry($w, $e.res);}
           | ^(w=MMU_INDEX index=expr[0]) {builder.setIndex($w, $index.res);}
           | ^(w=MMU_MATCH match=expr[0]) {builder.setMatch($w, $match.res);}
+          | ^(w=MMU_GUARD guard=expr[0]) {builder.setGuard($w, $guard.res);}
           | ^(w=MMU_POLICY policyId=ID)  {builder.setPolicyId($w, $policyId);}
         )*
         {builder.build();}
       )
     ; finally {popSymbolScope(); resetContext();}
 
-entry returns [Type res]
-@init {final TypeBuilder builder = new TypeBuilder();}
-@after {$res = builder.build();} 
-    : (fieldId=ID {declare($fieldId, MmuSymbolKind.FIELD, false);}
-      size=expr[0] value=expr[0]? {builder.addField($fieldId, $size.res, $value.res);})+
+struct
+    : ^(MMU_STRUCT structId=ID { declareAndPushSymbolScope($structId, MmuSymbolKind.TYPE); }
+                   type=structFields) { newType($structId, $type.res); }
+    ; finally { popSymbolScope(); }
+
+structFields returns [Type res]
+@init { final StructBuilder builder = new StructBuilder(); }
+@after { $res = builder.build(); }
+    : ( fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); }
+        typeId=ID { builder.addField($fieldId, $typeId); }
+
+      | fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); }
+        size=expr[0] value=expr[0]? { builder.addField($fieldId, $size.res, $value.res); }
+      )+
     ;
 
 //==================================================================================================
@@ -331,9 +342,15 @@ variableBitfield [boolean isLhs] returns [Node res]
 
 variableAtom [boolean isLhs] returns [Node res]
     : varId=ID {$res = newVariable($varId);}
-    | ^(DOT objId=ID attrId=ID) {$res=newAttributeCall($objId, $attrId);}
+    | ^(DOT objId=ID chain=memberChain) {$res=newAttributeCall($objId, $chain.res);}
     | ^(LOCATION_INDEX varId=ID index=expr[0]) {$res = newIndexedVariable($varId, $index.res);}
     | atr=attributeRef[isLhs] {$res = $atr.res;}
+    ;
+
+memberChain returns [List<CommonTree> res]
+@init { final List<CommonTree> chain = new ArrayList<>(); }
+@after { $res = chain; }
+    : (name=ID { chain.add($name); } )+
     ;
 
 //==================================================================================================

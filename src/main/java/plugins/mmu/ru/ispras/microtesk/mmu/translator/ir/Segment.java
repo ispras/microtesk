@@ -81,7 +81,7 @@ public final class Segment extends AbstractStorage {
 
   @Override
   public String toString() {
-    final int addressSize = getAddress().getBitSize();
+    final int addressSize = getAddress().getAddressType().getBitSize();
     final int width = addressSize / 4 + addressSize % 4 != 0 ? 1 : 0;
 
     return String.format(
