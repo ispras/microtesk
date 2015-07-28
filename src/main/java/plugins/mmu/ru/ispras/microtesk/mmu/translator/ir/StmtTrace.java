@@ -27,11 +27,14 @@ public final class StmtTrace extends Stmt {
   private final List<FormatMarker> markers;
   private final List<Node> args;
 
-  public StmtTrace(String format) {
+  public StmtTrace(final String format) {
     this(format, Collections.<FormatMarker>emptyList(), Collections.<Node>emptyList());
   }
 
-  public StmtTrace(String format, List<FormatMarker> markers, List<Node> args) {
+  public StmtTrace(
+      final String format,
+      final List<FormatMarker> markers,
+      final List<Node> args) {
     super(Kind.TRACE);
 
     checkNotNull(format);

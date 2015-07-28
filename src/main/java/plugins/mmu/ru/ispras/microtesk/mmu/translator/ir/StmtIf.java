@@ -27,7 +27,9 @@ public final class StmtIf extends Stmt {
   private final List<Pair<Node, List<Stmt>>> ifBlocks;
   private final List<Stmt> elseBlock;
 
-  public StmtIf(List<Pair<Node, List<Stmt>>> ifBlocks, List<Stmt> elseBlock) {
+  public StmtIf(
+      final List<Pair<Node, List<Stmt>>> ifBlocks,
+      final List<Stmt> elseBlock) {
     super(Kind.IF);
 
     checkNotEmpty(ifBlocks);

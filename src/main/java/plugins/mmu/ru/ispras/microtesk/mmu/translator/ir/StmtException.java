@@ -19,7 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 public final class StmtException extends Stmt {
   private final String message;
 
-  public StmtException(String message) {
+  public StmtException(final String message) {
     super(Kind.EXCEPT);
 
     checkNotNull(message);
