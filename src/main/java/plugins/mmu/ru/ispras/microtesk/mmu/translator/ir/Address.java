@@ -65,6 +65,6 @@ public final class Address {
 
   @Override
   public String toString() {
-    return String.format("address %s[%s]", id, contentType);
+    return String.format("address %s[%s], access=%s", id, contentType, accessChain);
   }
 }
