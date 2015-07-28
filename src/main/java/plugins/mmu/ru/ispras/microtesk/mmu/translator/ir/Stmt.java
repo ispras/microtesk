@@ -27,7 +27,7 @@ public abstract class Stmt {
 
   private final Kind kind;
 
-  Stmt(Kind kind) {
+  Stmt(final Kind kind) {
     checkNotNull(kind);
     this.kind = kind;
   }

@@ -21,7 +21,7 @@ public final class StmtAssign extends Stmt {
   private final Node left;
   private final Node right;
 
-  public StmtAssign(Node left, Node right) {
+  public StmtAssign(final Node left, final Node right) {
     super(Kind.ASSIGN);
 
     checkNotNull(left);
