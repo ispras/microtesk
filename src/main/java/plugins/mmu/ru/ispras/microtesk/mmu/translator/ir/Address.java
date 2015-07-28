@@ -26,7 +26,9 @@ public final class Address {
   private final Type addressType;
   private final List<String> accessChain;
 
-  public Address(final String id, final int bitSize) {
+  public Address(
+      final String id,
+      final int bitSize) {
     checkNotNull(id);
     checkGreaterThanZero(bitSize);
 
@@ -36,7 +38,10 @@ public final class Address {
     this.accessChain = Collections.emptyList();
   }
 
-  public Address(final String id, final Type type, final List<String> accessChain) {
+  public Address(
+      final String id,
+      final Type type,
+      final List<String> accessChain) {
     checkNotNull(id);
     checkNotNull(type);
     checkNotNull(accessChain);
@@ -65,6 +70,7 @@ public final class Address {
 
   @Override
   public String toString() {
-    return String.format("address %s[%s], access=%s", id, contentType, accessChain);
+    return String.format(
+        "address %s[%s], access=%s", id, contentType, accessChain);
   }
 }
