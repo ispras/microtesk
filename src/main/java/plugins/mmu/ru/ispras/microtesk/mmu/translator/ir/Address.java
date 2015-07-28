@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
+import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +28,7 @@ public final class Address {
 
   public Address(final String id, final int bitSize) {
     checkNotNull(id);
-    checkTrue(bitSize > 0);
+    checkGreaterThanZero(bitSize);
 
     this.id = id;
     this.contentType = new Type(bitSize);
