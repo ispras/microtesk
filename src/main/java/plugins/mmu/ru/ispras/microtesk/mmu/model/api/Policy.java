@@ -34,7 +34,7 @@ public abstract class Policy {
    * @param associativity the buffer associativity.
    */
 
-  protected Policy(int associativity) {
+  protected Policy(final int associativity) {
     if (associativity <= 0) {
       throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
     }
@@ -77,12 +77,12 @@ final class PolicyRandom extends Policy {
    * @param associativity the buffer associativity.
    */
 
-  PolicyRandom(int associativity) {
+  PolicyRandom(final int associativity) {
     super(associativity);
   }
 
   @Override
-  public void accessLine(int index) {
+  public void accessLine(final int index) {
     // Do nothing.
   }
 
@@ -112,7 +112,7 @@ final class PolicyFIFO extends Policy {
    * @param associativity the buffer associativity.
    */
 
-  PolicyFIFO(int associativity) {
+  PolicyFIFO(final int associativity) {
     super(associativity);
 
     for (int i = 0; i < associativity; i++) {
@@ -121,7 +121,7 @@ final class PolicyFIFO extends Policy {
   }
 
   @Override
-  public void accessLine(int index) {
+  public void accessLine(final int index) {
     for (int i = 0; i < fifo.size(); i++) {
       if (fifo.get(i) == index) {
         fifo.remove(i);
@@ -163,7 +163,7 @@ final class PolicyLRU extends Policy {
    * @param associativity the buffer associativity.
    */
 
-  PolicyLRU(int associativity) {
+  PolicyLRU(final int associativity) {
     super(associativity);
 
     times = new int[associativity];
@@ -173,7 +173,7 @@ final class PolicyLRU extends Policy {
   }
 
   @Override
-  public void accessLine(int index) {
+  public void accessLine(final int index) {
     times[index] = time++;
   }
 
@@ -216,7 +216,7 @@ final class PolicyPLRU extends Policy {
    * @param associativity the buffer associativity.
    */
 
-  PolicyPLRU(int associativity) {
+  PolicyPLRU(final int associativity) {
     super(associativity);
 
     if (associativity > 32) {
@@ -225,7 +225,7 @@ final class PolicyPLRU extends Policy {
   }
 
   @Override
-  public void accessLine(int index) {
+  public void accessLine(final int index) {
     setBit(index);
   }
 
@@ -242,7 +242,7 @@ final class PolicyPLRU extends Policy {
     throw new IllegalStateException("All bits are set to 1");
   }
 
-  private void setBit(int i) {
+  private void setBit(final int i) {
     final int mask = (1 << (last = i));
 
     bits |= mask;
