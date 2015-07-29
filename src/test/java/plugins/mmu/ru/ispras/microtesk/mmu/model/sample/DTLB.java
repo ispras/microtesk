@@ -104,7 +104,7 @@ public final class DTLB implements Buffer<DTLB.Entry, VA>,
   @Override
   public boolean areMatching(final Entry data, final VA address) {
     // match  = VPN2 == va.value<39..13>
-    final BitVector value = address.getField("value");
+    final BitVector value = address.getValue();
     final BitVector field = BitVector.newMapping(value, 13, 27);
 
     return data.getField("VPN2").equals(field);
