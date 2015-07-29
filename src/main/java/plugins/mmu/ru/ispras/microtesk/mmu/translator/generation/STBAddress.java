@@ -46,6 +46,7 @@ final class STBAddress implements STBuilder {
 
     buildHeader(st);
     buildFields(st, group);
+    buildGetValue(st, group);;
 
     return st;
   }
@@ -58,10 +59,15 @@ final class STBAddress implements STBuilder {
   }
 
   private void buildFields(final ST st, final STGroup group) {
+    final ST stConstructor = group.getInstanceOf("constructor");
+    stConstructor.add("name", address.getId());
+
     final Type type = address.getContentType();
     for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
-      buildField(field.getKey(), field.getValue(), st, group);
+      buildField(field.getKey(), field.getValue(), stConstructor, group);
     }
+
+    st.add("members", stConstructor);
   }
 
   private static void buildField(
@@ -80,5 +86,21 @@ final class STBAddress implements STBuilder {
       stField.add("size", type.getBitSize());
       st.add("fields", stField);
     }
+  }
+
+  private void buildGetValue(final ST st, final STGroup group) {
+    final StringBuilder sb = new StringBuilder();
+    for(final String name : address.getAccessChain()) {
+      if (sb.length() > 0) {
+        sb.append('.');
+      }
+      sb.append(name);
+    }
+
+    final ST stAddress = group.getInstanceOf("get_value");
+    stAddress.add("field_name",  sb.toString());
+
+    st.add("members", "");
+    st.add("members", stAddress);
   }
 }

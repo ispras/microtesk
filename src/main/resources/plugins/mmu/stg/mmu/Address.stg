@@ -14,7 +14,7 @@
 
 group Address;
 
-address(pack, imps, name, base, fields) ::= <<
+address(pack, imps, name, base, members) ::= <<
 <header(false)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
@@ -22,7 +22,7 @@ address(pack, imps, name, base, fields) ::= <<
        name,
        base,
        false,
-       [constructor(name, fields)])>
+       members)>
 >>
 
 constructor(name, fields) ::= <<
@@ -33,4 +33,11 @@ public <name>() {
 
 field(name, size) ::= <<
 defineField("<name>", <size>);
+>>
+
+get_value(field_name) ::= <<
+@Override
+public BitVector getValue() {
+  return getField("<field_name>");
+}
 >>

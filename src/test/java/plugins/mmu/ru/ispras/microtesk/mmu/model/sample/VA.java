@@ -14,10 +14,16 @@
 
 package ru.ispras.microtesk.mmu.model.sample;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.mmu.model.api.Address;
 
-public final class VA extends Address{
+public final class VA extends Address {
   public VA() {
     defineField("value", 64);
+  }
+
+  @Override
+  public BitVector getValue() {
+    return getField("value");
   }
 }
