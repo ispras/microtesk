@@ -25,7 +25,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment implements STBuilder {
   private static final Class<?> BASE_INTF =
-      ru.ispras.microtesk.mmu.model.api.Buffer.class; 
+      ru.ispras.microtesk.mmu.model.api.Buffer.class;
 
   private final String packageName;
   private final Segment segment;
@@ -91,7 +91,7 @@ final class STBSegment implements STBuilder {
     final ST stMethod = group.getInstanceOf("is_hit");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getName().replace('.', '_'));
+    stMethod.add("addr_name", "address");
 
     st.add("members", "");
     st.add("members", stMethod);

@@ -39,7 +39,7 @@ private final Pair\<BitVector, BitVector\> range = new Pair\<\>(
 is_hit(addr_type, addr_name) ::= <<
 @Override
 public boolean isHit(final <addr_type> <addr_name>) {
-  final BitVector value = <addr_name>.getField("value");
+  final BitVector value = <addr_name>.getValue();
   return range.first.compareTo(value) \<= 0 &&
          range.second.compareTo(value) \>= 0;
 }
