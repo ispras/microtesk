@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * This class represents cache data.
@@ -49,5 +50,17 @@ public class Data {
 
   public BitVector setField(final String name, final BitVector value) {
     return fields.put(name, value);
+  }
+
+  /**
+   * Defines a data field of the specified size.
+   * 
+   * @param name field name.
+   * @param bitSize field size in bits.
+   */
+
+  protected final void defineField(final String name, final int bitSize) {
+    InvariantChecks.checkFalse(fields.containsKey(name));
+    setField(name, BitVector.newEmpty(bitSize));
   }
 }

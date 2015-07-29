@@ -22,9 +22,5 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
 public abstract class Address extends Data {
-  protected final void defineField(final String name, final int bitSize) {
-    setField(name, BitVector.newEmpty(0));
-  }
-
   public abstract BitVector getValue();
 }
