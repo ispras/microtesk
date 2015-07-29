@@ -28,7 +28,7 @@ public enum PolicyId {
 
   RANDOM {
     @Override
-    public Policy newPolicy(int associativity) {
+    public Policy newPolicy(final int associativity) {
       return new PolicyRandom(associativity);
     }
   },
@@ -39,7 +39,7 @@ public enum PolicyId {
 
   FIFO {
     @Override
-    public Policy newPolicy(int associativity) {
+    public Policy newPolicy(final int associativity) {
       return new PolicyFIFO(associativity);
     }
   },
@@ -50,7 +50,7 @@ public enum PolicyId {
 
   LRU {
     @Override
-    public Policy newPolicy(int associativity) {
+    public Policy newPolicy(final int associativity) {
       return new PolicyLRU(associativity);
     }
   },
@@ -61,7 +61,7 @@ public enum PolicyId {
 
   PLRU {
     @Override
-    public Policy newPolicy(int associativity) {
+    public Policy newPolicy(final int associativity) {
       return new PolicyPLRU(associativity);
     }
   },
@@ -72,7 +72,7 @@ public enum PolicyId {
 
   NONE {
     @Override
-    public Policy newPolicy(int associativity) {
+    public Policy newPolicy(final int associativity) {
       return null;
     }
   };
