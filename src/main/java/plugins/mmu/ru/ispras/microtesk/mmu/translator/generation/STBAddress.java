@@ -58,10 +58,26 @@ final class STBAddress implements STBuilder {
   }
 
   private void buildFields(final ST st, final STGroup group) {
-    for (final Map.Entry<String, Type> field : address.getContentType().getFields().entrySet()) {
+    final Type type = address.getContentType();
+    for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+      buildField(field.getKey(), field.getValue(), st, group);
+    }
+  }
+
+  private static void buildField(
+      final String name,
+      final Type type,
+      final ST st,
+      final STGroup group) {
+    if (type.isStruct()) {
+      for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+        final String fieldName = String.format("%s.%s", name, field.getKey());
+        buildField(fieldName, field.getValue(), st, group);
+      }
+    } else {
       final ST stField = group.getInstanceOf("field");
-      stField.add("name", field.getKey());
-      stField.add("size", field.getValue().getBitSize());
+      stField.add("name", name);
+      stField.add("size", type.getBitSize());
       st.add("fields", stField);
     }
   }
