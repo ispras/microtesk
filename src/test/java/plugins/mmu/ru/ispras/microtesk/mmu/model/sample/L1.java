@@ -14,16 +14,14 @@
 
 package ru.ispras.microtesk.mmu.model.sample;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.microtesk.mmu.model.api.Buffer;
+import ru.ispras.microtesk.mmu.model.api.Cache;
 import ru.ispras.microtesk.mmu.model.api.Data;
 import ru.ispras.microtesk.mmu.model.api.Indexer;
 import ru.ispras.microtesk.mmu.model.api.Matcher;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
-import ru.ispras.microtesk.mmu.model.api.Set;
 
 /**
  * <pre><code>
@@ -39,9 +37,7 @@ import ru.ispras.microtesk.mmu.model.api.Set;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class L1 implements Buffer<L1.Entry, PA>,
-                                 Indexer<PA>, 
-                                 Matcher<L1.Entry, PA> {
+public final class L1 extends Cache<L1.Entry, PA> {
 
   public static final class Entry extends Data {
     public Entry() {
@@ -51,47 +47,31 @@ public final class L1 implements Buffer<L1.Entry, PA>,
     }
   }
 
-  private final List<Set<Entry, PA>> sets;
+  private static final Indexer<PA> INDEXER = new Indexer<PA>() {
+    @Override
+    public BitVector getIndex(final PA address) {
+      return address.getValue().field(11, 5);
+    }
+  };
+
+  private static final Matcher<Entry, PA> MATCHER = new Matcher<Entry, PA>() {
+    @Override
+    public boolean areMatching(final Entry data, final PA address) {
+      final BitVector value = address.getValue();
+      final BitVector field = BitVector.newMapping(value, 35, 12);
+
+      return data.getField("V").intValue() == 1 &&
+             data.getField("TAG").equals(field);
+    }
+  };
 
   public L1() {
-    this.sets = new ArrayList<>(128);
-    for (int index = 0; index > 128; index++) {
-      this.sets.add(new Set<Entry, PA>(4, PolicyId.PLRU, this));
-    }
-  }
-
-  @Override
-  public boolean isHit(final PA address) {
-    final int index = getIndex(address);
-    final Set<Entry, PA> set = sets.get(index);
-    return set.isHit(address);
-  }
-
-  @Override
-  public Entry getData(final PA address) {
-    final int index = getIndex(address);
-    final Set<Entry, PA> set = sets.get(index);
-    return set.getData(address);
-  }
-
-  @Override
-  public Entry setData(final PA address, final Entry data) {
-    final int index = getIndex(address);
-    final Set<Entry, PA> set = sets.get(index);
-    return set.setData(address, data);
-  }
-
-  @Override
-  public int getIndex(final PA address) {
-    return address.getValue().field(11, 5).intValue();
-  }
-
-  @Override
-  public boolean areMatching(final Entry data, final PA address) {
-    final BitVector value = address.getValue();
-    final BitVector field = BitVector.newMapping(value, 35, 12);
-
-    return data.getField("V").intValue() == 1 &&
-           data.getField("TAG").equals(field);
-  }
+    super(
+        BigInteger.valueOf(128),
+        4,
+        PolicyId.PLRU,
+        INDEXER,
+        MATCHER
+        );
+   }
 }

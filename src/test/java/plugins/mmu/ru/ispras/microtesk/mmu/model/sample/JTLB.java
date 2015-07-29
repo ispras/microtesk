@@ -14,16 +14,14 @@
 
 package ru.ispras.microtesk.mmu.model.sample;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.microtesk.mmu.model.api.Buffer;
+import ru.ispras.microtesk.mmu.model.api.Cache;
 import ru.ispras.microtesk.mmu.model.api.Data;
 import ru.ispras.microtesk.mmu.model.api.Indexer;
 import ru.ispras.microtesk.mmu.model.api.Matcher;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
-import ru.ispras.microtesk.mmu.model.api.Set;
 
 /**
  * <pre><code>
@@ -42,10 +40,7 @@ import ru.ispras.microtesk.mmu.model.api.Set;
  *
  */
 
-public final class JTLB implements Buffer<JTLB.Entry, VA>,
-                                   Indexer<VA>, 
-                                   Matcher<JTLB.Entry, VA> {
-
+public final class JTLB extends Cache<JTLB.Entry, VA> {
   public static final class Entry extends Data {
     public Entry() {
       // EntryHi
@@ -69,45 +64,31 @@ public final class JTLB implements Buffer<JTLB.Entry, VA>,
     }
   }
 
-  private final List<Set<Entry, VA>> sets;
+  private static final Indexer<VA> INDEXER = new Indexer<VA>() {
+    @Override
+    public BitVector getIndex(final VA address) {
+      return BitVector.valueOf(0, address.getValue().getBitSize());
+    }
+  };
+
+  private static final Matcher<Entry, VA> MATCHER = new Matcher<Entry, VA>() {
+    @Override
+    public boolean areMatching(final Entry data, final VA address) {
+      // match  = VPN2 == va.value<39..13>
+      final BitVector value = address.getValue();
+      final BitVector field = BitVector.newMapping(value, 13, 27);
+
+      return data.getField("VPN2").equals(field);
+    }
+  };
 
   public JTLB() {
-    this.sets = new ArrayList<>(1);
-    this.sets.add(new Set<Entry, VA>(64, PolicyId.NONE, this));
-  }
-
-  @Override
-  public boolean isHit(final VA address) {
-    final int index = getIndex(address);
-    final Set<Entry, VA> set = sets.get(index);
-    return set.isHit(address);
-  }
-
-  @Override
-  public Entry getData(final VA address) {
-    final int index = getIndex(address);
-    final Set<Entry, VA> set = sets.get(index);
-    return set.getData(address);
-  }
-
-  @Override
-  public Entry setData(final VA address, final Entry data) {
-    final int index = getIndex(address);
-    final Set<Entry, VA> set = sets.get(index);
-    return set.setData(address, data);
-  }
-
-  @Override
-  public int getIndex(final VA address) {
-    return 0;
-  }
-
-  @Override
-  public boolean areMatching(final Entry data, final VA address) {
-    // match  = VPN2 == va.value<39..13>
-    final BitVector value = address.getValue();
-    final BitVector field = BitVector.newMapping(value, 13, 27);
-
-    return data.getField("VPN2").equals(field);
+    super(
+        BigInteger.valueOf(1),
+        64,
+        PolicyId.NONE,
+        INDEXER,
+        MATCHER
+        );
   }
 }

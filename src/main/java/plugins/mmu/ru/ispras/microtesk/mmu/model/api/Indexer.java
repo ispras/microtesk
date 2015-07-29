@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.mmu.model.api;
+
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
  * This is a generic interface of a cache set indexer.
@@ -30,5 +32,5 @@ public interface Indexer<A extends Address> {
    * @return the cache set index.
    */
 
-  int getIndex(final A address);
+  BitVector getIndex(final A address);
 }
