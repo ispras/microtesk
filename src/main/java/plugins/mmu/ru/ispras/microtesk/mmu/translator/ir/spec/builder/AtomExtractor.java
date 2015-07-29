@@ -21,6 +21,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -49,7 +51,7 @@ final class AtomExtractor {
     checkNotNull(expr);
     switch(expr.getKind()) {
       case VALUE:
-        return Atom.newValue(((NodeValue) expr).getInteger());
+        return Atom.newValue(nodeInteger((NodeValue) expr));
 
       case VARIABLE:
         return extract((NodeVariable) expr);
@@ -60,6 +62,13 @@ final class AtomExtractor {
       default:
         throw new IllegalArgumentException("Unsupported node kind: " + expr.getKind());
     }
+  }
+
+  private static BigInteger nodeInteger(final NodeValue value) {
+    if (value.isType(DataType.INTEGER)) {
+      return value.getInteger();
+    }
+    return value.getBitVector().bigIntegerValue();
   }
 
   private Atom extract(NodeVariable expr) {

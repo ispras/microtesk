@@ -62,6 +62,7 @@ import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
+import ru.ispras.microtesk.translator.nml.coverage.IntegerCast;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
@@ -684,33 +685,18 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       substituted[i] = context.getAssignedValue(operands[i]);
     }
 
-    // Calculating the type all argument are to be cast to
-    final DataType firstOpType = substituted[0].getDataType();
-    DataType type = firstOpType;
-
-    for (int i = 1; i < substituted.length; i++) {
-      final Node operand = substituted[i];
-      final DataType currentType = operand.getDataType(); 
-
-      // Size is always greater for bit vectors.
-      if (currentType.getSize() > type.getSize()) { 
-        type = currentType;
-      }
+    DataType type =
+        IntegerCast.findCommonType(Arrays.asList(substituted));
+    if (op.toFortressFor(type.getTypeId()) == null) {
+      type = IntegerCast.findCommonType(Arrays.asList(operands));
     }
-
-    if (type != firstOpType && type.getTypeId() == DataTypeId.BIT_VECTOR) {
-      for (int i = 0; i < substituted.length; i++) {
-        final Node operand = substituted[i];
-        if ((operand instanceof NodeValue) && !type.equals(operand.getDataType())) {
-          final BigInteger value = ((NodeValue) operand).getInteger();
-          substituted[i] = new NodeValue(Data.newBitVector(value, type.getSize()));
-        }
-      }
-    }
-
     final StandardOperation fortressOp = op.toFortressFor(type.getTypeId());
     if (null == fortressOp) {
       raiseError(w, String.format(ERR_NO_OPERATOR_FOR_TYPE, operatorId.getText(), type));
+    }
+
+    for (int i = 0; i < substituted.length; ++i) {
+      substituted[i] = IntegerCast.cast(substituted[i], type);
     }
 
     return Transformer.reduce(ReduceOptions.NEW_INSTANCE,
