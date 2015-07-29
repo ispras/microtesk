@@ -56,6 +56,7 @@ final class STBAddress implements STBuilder {
     st.add("base", BASE_CLASS.getSimpleName());
     st.add("pack", packageName);
     st.add("imps", BASE_CLASS.getName());
+    st.add("imps", ru.ispras.fortress.data.types.bitvector.BitVector.class.getName());
   }
 
   private void buildFields(final ST st, final STGroup group) {
