@@ -23,7 +23,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public class SparseArray<T> {
   private final Map<BigInteger, T> indexMap;
-
   private final BigInteger arrayLength; 
 
   public SparseArray(final BigInteger length) {
