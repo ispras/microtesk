@@ -43,22 +43,20 @@ field(name, arg) ::= <<
 defineField("<name>", <arg>);
 >>
 
-indexer(addr_type, addr_name) ::= <<
+indexer(addr_type, addr_name, expr) ::= <<
 private static final Indexer\<<addr_type>\> INDEXER = new Indexer\<<addr_type>\>() {
   @Override
   public BitVector getIndex(final <addr_type> <addr_name>) {
-    // TODO 
-    return null;
+    return <expr>;
   }
 };
 >>
 
-matcher(addr_type, addr_name, data_name) ::= <<
+matcher(addr_type, addr_name, data_name, expr) ::= <<
 private static final Matcher\<Entry, <addr_type>\> MATCHER = new Matcher\<Entry, <addr_type>\>() {
   @Override
   public boolean areMatching(final Entry <data_name>, final <addr_type> <addr_name>) {
-    // TODO
-    return false;
+    return <expr>;
   }
 };
 >>

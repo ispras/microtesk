@@ -121,6 +121,7 @@ final class STBBuffer implements STBuilder {
 
     stIndexer.add("addr_type", buffer.getAddress().getId());
     stIndexer.add("addr_name", "address");
+    stIndexer.add("expr", "null");
 
     st.add("members", stIndexer);
   }
@@ -132,6 +133,7 @@ final class STBBuffer implements STBuilder {
     stMatcher.add("addr_type", buffer.getAddress().getId());
     stMatcher.add("addr_name", "address");
     stMatcher.add("data_name", "data");
+    stMatcher.add("expr", "false");
 
     st.add("members", stMatcher);
   }
