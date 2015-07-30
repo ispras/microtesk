@@ -53,7 +53,6 @@ final class STBSegment implements STBuilder {
     st.add("pack", packageName);
     st.add("imps", BASE_CLASS.getName());
     st.add("imps", BitVector.class.getName());
-    st.add("imps", ru.ispras.fortress.util.Pair.class.getName());
 
     final String baseName = String.format("%s<%s, %s>",
         BASE_CLASS.getSimpleName(),
