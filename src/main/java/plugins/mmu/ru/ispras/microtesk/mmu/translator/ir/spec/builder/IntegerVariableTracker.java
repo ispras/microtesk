@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.mmu.translator.ir.Ir.mapToString;
 import static ru.ispras.microtesk.mmu.translator.ir.spec.builder.ScopeStorage.dotConc;
 
 import java.util.HashMap;

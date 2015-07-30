@@ -35,7 +35,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerVariableGroup;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**

@@ -80,7 +80,6 @@ import ru.ispras.testbase.generator.DataGenerator;
 public final class EngineUtils {
   private EngineUtils() {}
 
-  @SuppressWarnings("resource")
   public static TestBase newTestBase(final GeneratorSettings settings) {
     final TestBase testBase = TestBase.get();
     final TestBaseRegistry registry = testBase.getRegistry();

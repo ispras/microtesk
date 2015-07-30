@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;

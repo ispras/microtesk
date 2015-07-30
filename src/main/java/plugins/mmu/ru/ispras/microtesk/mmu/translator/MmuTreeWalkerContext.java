@@ -16,14 +16,10 @@ package ru.ispras.microtesk.mmu.translator;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 final class MmuTreeWalkerContext {
 

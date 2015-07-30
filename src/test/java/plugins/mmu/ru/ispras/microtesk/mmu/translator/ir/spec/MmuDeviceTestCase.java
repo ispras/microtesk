@@ -26,7 +26,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerVariableGroup;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**

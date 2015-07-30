@@ -37,7 +37,6 @@ public final class SysUtils {
     return System.getProperty("user.dir");
   }
 
-  @SuppressWarnings("resource")
   public static IModel loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
 

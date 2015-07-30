@@ -15,9 +15,6 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 
 import java.math.BigInteger;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

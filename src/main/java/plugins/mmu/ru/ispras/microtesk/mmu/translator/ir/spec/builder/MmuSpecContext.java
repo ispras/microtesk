@@ -14,18 +14,11 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.mmu.translator.ir.Ir.mapToString;
-import static ru.ispras.microtesk.mmu.translator.ir.spec.builder.ScopeStorage.dotConc;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
