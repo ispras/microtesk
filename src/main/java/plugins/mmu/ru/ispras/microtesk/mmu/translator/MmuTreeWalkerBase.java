@@ -28,7 +28,6 @@ import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.TreeNodeStream;
 
-import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -155,7 +154,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         defValue = null;
       }
 
-      final Type fieldType = new Type(bitSize);
+      final Type fieldType = new Type(bitSize, defValue);
       fields.put(id, fieldType);
     }
 

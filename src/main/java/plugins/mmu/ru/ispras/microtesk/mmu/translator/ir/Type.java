@@ -21,18 +21,25 @@ import java.util.Collections;
 import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class Type extends Nested<Type> {
   private final int bitSize;
   private final Map<String, Type> fields;
   private final DataType dataType;
+  private final BitVector defaultValue;
 
   public Type(final int bitSize) {
+    this(bitSize, null);
+  }
+
+  public Type(final int bitSize, final BitVector defaultValue) {
     checkTrue(bitSize > 0);
 
     this.bitSize = bitSize;
     this.fields = Collections.emptyMap();
     this.dataType = DataType.BIT_VECTOR(bitSize);
+    this.defaultValue = defaultValue;
   }
 
   public Type(final Map<String, Type> fields) {
@@ -47,6 +54,7 @@ public final class Type extends Nested<Type> {
     this.bitSize = totalBitSize;
     this.fields = Collections.unmodifiableMap(fields);
     this.dataType = DataType.UNKNOWN;
+    this.defaultValue = null;
   }
 
   public boolean isStruct() {
@@ -59,6 +67,10 @@ public final class Type extends Nested<Type> {
 
   public DataType getDataType() {
     return dataType;
+  }
+
+  public BitVector getDefaultValue() {
+    return defaultValue;
   }
 
   public Map<String, Type> getFields() {
