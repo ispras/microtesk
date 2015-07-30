@@ -87,7 +87,7 @@ final class STBBuffer implements STBuilder {
 
     st.add("members", stEntry);
   }
-  
+
   private static void buildField(
       final String name,
       final Type type,

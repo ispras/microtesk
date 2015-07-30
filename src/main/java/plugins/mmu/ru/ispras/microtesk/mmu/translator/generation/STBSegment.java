@@ -24,8 +24,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment implements STBuilder {
-  private static final Class<?> BASE_INTF =
-      ru.ispras.microtesk.mmu.model.api.Buffer.class;
+  private static final Class<?> BASE_CLASS =
+      ru.ispras.microtesk.mmu.model.api.Segment.class;
 
   private final String packageName;
   private final Segment segment;
@@ -43,60 +43,42 @@ final class STBSegment implements STBuilder {
     final ST st = group.getInstanceOf("segment");
 
     buildHeader(st);
-    buildRange(st, group);
     buildConstructor(st, group);
-    buildIsHit(st, group);
-    buildGetData(st, group);
-    buildSetData(st, group);
+    //buildGetData(st, group);
 
     return st;
   }
 
   private void buildHeader(final ST st) {
     st.add("pack", packageName);
-    st.add("imps", BASE_INTF.getName());
+    st.add("imps", BASE_CLASS.getName());
     st.add("imps", BitVector.class.getName());
     st.add("imps", ru.ispras.fortress.util.Pair.class.getName());
 
-    final String intfName = String.format("%s<%s, %s>",
-        BASE_INTF.getSimpleName(),
+    final String baseName = String.format("%s<%s, %s>",
+        BASE_CLASS.getSimpleName(),
         segment.getDataArgAddress().getId(),
         segment.getAddress().getId());
 
     st.add("name", segment.getId()); 
-    st.add("intf", intfName);
-  }
-
-  private void buildRange(final ST st, final STGroup group) {
-    final ST stRange = group.getInstanceOf("range");
-    final int bitSize = segment.getAddress().getAddressType().getBitSize();
-
-    stRange.add("start", BitVector.valueOf(segment.getMin(), bitSize).toHexString());
-    stRange.add("end", BitVector.valueOf(segment.getMax(), bitSize).toHexString());
-    stRange.add("radix", 16);
-    stRange.add("size", bitSize);
-
-    st.add("members", stRange);
+    st.add("base", baseName);
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("constructor");
     stConstructor.add("name", segment.getId());
 
+    final int bitSize = segment.getAddress().getAddressType().getBitSize();
+    stConstructor.add("start", BitVector.valueOf(segment.getMin(), bitSize).toHexString());
+    stConstructor.add("end", BitVector.valueOf(segment.getMax(), bitSize).toHexString());
+    stConstructor.add("radix", 16);
+    stConstructor.add("size", bitSize);
+
     st.add("members", "");
     st.add("members", stConstructor);
   }
 
-  private void buildIsHit(final ST st, final STGroup group) {
-    final ST stMethod = group.getInstanceOf("is_hit");
-
-    stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", "address");
-
-    st.add("members", "");
-    st.add("members", stMethod);
-  }
-
+  /*
   private void buildGetData(final ST st, final STGroup group) {
     final ST stMethod = group.getInstanceOf("get_data_empty");
 
@@ -106,17 +88,5 @@ final class STBSegment implements STBuilder {
 
     st.add("members", "");
     st.add("members", stMethod);
-  }
-
-  private void buildSetData(final ST st, final STGroup group) {
-    final ST stMethod = group.getInstanceOf("set_data_empty");
-
-    stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getName().replace('.', '_'));
-    stMethod.add("data_type", segment.getDataArgAddress().getId());
-    stMethod.add("data_name", segment.getDataArg().getName().replace('.', '_'));
-
-    st.add("members", "");
-    st.add("members", stMethod);
-  }
+  }*/
 }

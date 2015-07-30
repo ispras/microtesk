@@ -14,48 +14,29 @@
 
 group Segment;
 
-segment(pack, imps, name, intf, members) ::= <<
+segment(pack, imps, name, base, members) ::= <<
 <header(false)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
 <class(["public", "final"],
        name,
+       base,
        false,
-       intf,
        members)>
 >>
 
-constructor(name) ::= <<
+constructor(name, start, end, radix, size) ::= <<
 public <name>() {
-}
->>
-
-range(start, end, radix, size) ::= <<
-private final Pair\<BitVector, BitVector\> range = new Pair\<\>(
-    BitVector.valueOf("<start>", <radix>, <size>),
-    BitVector.valueOf("<end>", <radix>, <size>));
->>
-
-is_hit(addr_type, addr_name) ::= <<
-@Override
-public boolean isHit(final <addr_type> <addr_name>) {
-  final BitVector value = <addr_name>.getValue();
-  return range.first.compareTo(value) \<= 0 &&
-         range.second.compareTo(value) \>= 0;
+  super(
+      BitVector.valueOf("<start>", <radix>, <size>),
+      BitVector.valueOf("<end>", <radix>, <size>)
+  );
 }
 >>
 
 get_data_empty(addr_type, addr_name, data_type) ::= <<
 @Override
 public <data_type> getData(final <addr_type> <addr_name>) {
-  // NOT SUPPORTED
-  throw new UnsupportedOperationException();
-}
->>
-
-set_data_empty(addr_type, addr_name, data_type, data_name) ::= <<
-@Override
-public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <data_name>) {
   // NOT SUPPORTED
   throw new UnsupportedOperationException();
 }
