@@ -18,6 +18,7 @@ import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperatio
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -150,14 +151,30 @@ public final class IntegerCast {
   }
 
   public static DataType findCommonType(final Collection<? extends Node> nodes) {
-    DataType common = DataType.BOOLEAN;
+    DataType common = DataType.UNKNOWN;
     for (final Node node : nodes) {
       final DataType current = node.getDataType();
-      if (!current.equals(common) && current.getSize() > common.getSize()) {
+      if (compare(current, common) > 0) {
         common = current;
       }
     }
     return common;
+  }
+
+  public static int compare(final DataType lhs, final DataType rhs) {
+    final List<DataType> priorities = Arrays.asList( 
+        DataType.UNKNOWN,
+        DataType.BOOLEAN,
+        DataType.INTEGER,
+        DataType.REAL
+    );
+    if (lhs.getSize() != rhs.getSize()) {
+      return lhs.getSize() - rhs.getSize();
+    }
+    if (lhs.equals(rhs)) {
+      return 0;
+    }
+    return priorities.indexOf(lhs) - priorities.indexOf(rhs);
   }
 
   public static boolean hasTypeMismatch(final Collection<? extends Node> nodes) {
