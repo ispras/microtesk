@@ -175,8 +175,8 @@ mmu
 //==================================================================================================
 
 sequence returns [List<Stmt> res]
-@init  {final List<Stmt> stmts = new ArrayList<>();}
-@after {$res = stmts;}
+@init  {final List<Stmt> stmts = new ArrayList<>(); propagator.newScope(); }
+@after {$res = stmts; propagator.popScope();}
     : ^(SEQUENCE (stmt=statement {
 checkNotNull($stmt.start, $stmt.res); 
 stmts.add($stmt.res);
@@ -208,12 +208,12 @@ conditionalStmt returns [Stmt res]
     ;
 
 ifStmt returns [Stmt res]
-    : ^(wif=IF cif=expr[0] sif=sequence 
+    : ^(wif=IF cif=expr[0] {propagator.newInvalidationChain();} sif=sequence 
        {final IfBuilder builder = new IfBuilder($wif, $cif.res, $sif.res);}
        (^(welif=ELSEIF celif=expr[0] selif=sequence)
        {builder.addElseIf($welif, $celif.res, $selif.res);})* 
        (^(welse=ELSE selse=sequence) {builder.setElse($welse, $selse.res);})? )
-       {$res=builder.build();}
+       { $res=builder.build(); propagator.invalidateAssigned(); }
     ;
 
 functionCallStmt returns [Stmt res]

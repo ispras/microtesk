@@ -68,6 +68,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
   private VariableStorage storage = new VariableStorage();
   private Map<String, AbstractStorage> globals = new HashMap<>();
+  protected ConstantPropagator propagator = new ConstantPropagator();
 
   public MmuTreeWalkerBase(final TreeNodeStream input, final RecognizerSharedState state) {
     super(input, state);
@@ -575,7 +576,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(where, leftExpr, "The left hand side expression is not recognized.");
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
 
-    context.setAssignedValue(leftExpr, rightExpr);
+    // context.setAssignedValue(leftExpr, rightExpr);
+    propagator.assign(leftExpr, rightExpr);
+
     return new StmtAssign(leftExpr, rightExpr);
   }
 
@@ -679,27 +682,28 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     // Trying to reduce all operands
-    final Node[] substituted = new Node[operands.length];
+    final Node[] folded = new Node[operands.length];
     for (int i = 0; i < operands.length; i++) {
-      substituted[i] = context.getAssignedValue(operands[i]);
+      folded[i] = propagator.get(operands[i]);
     }
 
     DataType type =
-        IntegerCast.findCommonType(Arrays.asList(substituted));
+        IntegerCast.findCommonType(Arrays.asList(folded));
     if (op.toFortressFor(type.getTypeId()) == null) {
       type = IntegerCast.findCommonType(Arrays.asList(operands));
     }
+
     final StandardOperation fortressOp = op.toFortressFor(type.getTypeId());
     if (null == fortressOp) {
       raiseError(w, String.format(ERR_NO_OPERATOR_FOR_TYPE, operatorId.getText(), type));
     }
 
-    for (int i = 0; i < substituted.length; ++i) {
-      substituted[i] = IntegerCast.cast(substituted[i], type);
+    for (int i = 0; i < folded.length; ++i) {
+      folded[i] = IntegerCast.cast(folded[i], type);
     }
 
     return Transformer.reduce(ReduceOptions.NEW_INSTANCE,
-                              new NodeOperation(fortressOp, substituted));
+                              new NodeOperation(fortressOp, folded));
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -723,13 +727,25 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(where, variable);
     checkNotNull(where, fromExpr);
 
-    final Node from = context.getAssignedValue(fromExpr);
-    final Node to = (null != toExpr) ? context.getAssignedValue(toExpr) : from;
+    final Node from = propagator.get(fromExpr);
+    final Node to = (null != toExpr) ? propagator.get(toExpr) : from;
+
+    final Where w = this.where(where);
 
     final Node reducedFrom = Transformer.reduce(ReduceOptions.NEW_INSTANCE, from);
+    assertNodeInteger(w, reducedFrom);
+
     final Node reducedTo = Transformer.reduce(ReduceOptions.NEW_INSTANCE, to);
+    assertNodeInteger(w, reducedTo);
 
     return new NodeOperation(StandardOperation.BVEXTRACT, reducedFrom, reducedTo, variable);
+  }
+
+  private void assertNodeInteger(final Where w, final Node node) throws SemanticException {
+    if (node.getKind() != Node.Kind.VALUE ||
+        !node.isType(DataType.INTEGER)) {
+      raiseError(w, "Expecting constant integer expression, found " + node);
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
