@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.util.Map;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -21,11 +23,12 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBBuffer implements STBuilder {
-  private static final Class<?> BASE_INTF =
-      ru.ispras.microtesk.mmu.model.api.Buffer.class; 
+  private static final Class<?> BASE_CLASS =
+      ru.ispras.microtesk.mmu.model.api.Cache.class; 
 
   private final String packageName;
   private final Buffer buffer;
@@ -43,66 +46,108 @@ final class STBBuffer implements STBuilder {
     final ST st = group.getInstanceOf("buffer");
 
     buildHeader(st);
+    buildEntry(st, group);
+    buildIndexer(st, group);
+    buildMatcher(st, group);
     buildConstructor(st, group);
-    buildIsHit(st, group);
-    buildGetData(st, group);
-    buildSetData(st, group);
 
     return st;
   }
 
   private void buildHeader(final ST st) {
     st.add("pack", packageName);
-    st.add("imps", BASE_INTF.getName());
+    st.add("imps", java.math.BigInteger.class.getName());
+    st.add("imps", BASE_CLASS.getName());
+    st.add("imps", ru.ispras.microtesk.mmu.model.api.Data.class.getName());
+    st.add("imps", ru.ispras.microtesk.mmu.model.api.Indexer.class.getName());
+    st.add("imps", ru.ispras.microtesk.mmu.model.api.Matcher.class.getName());
+    st.add("imps", ru.ispras.microtesk.mmu.model.api.PolicyId.class.getName());
     st.add("imps", BitVector.class.getName());
 
-    final String intfName = String.format("%s<%s, %s>",
-        BASE_INTF.getSimpleName(),
-        "Object",
+    final String baseName = String.format("%s<%s, %s>",
+        BASE_CLASS.getSimpleName(),
+        String.format("%s.Entry", buffer.getId()),
         buffer.getAddress().getId());
 
     st.add("name", buffer.getId()); 
-    st.add("intf", intfName);
+    st.add("base", baseName);
+  }
+
+  private void buildNewLine(final ST st) {
+    st.add("members", "");
+  }
+
+  private void buildEntry(final ST st, final STGroup group) {
+    final ST stEntry = group.getInstanceOf("entry");
+
+    final Type type = buffer.getEntry();
+    for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+      buildField(field.getKey(), field.getValue(), stEntry, group);
+    }
+
+    st.add("members", stEntry);
+  }
+  
+  private static void buildField(
+      final String name,
+      final Type type,
+      final ST st,
+      final STGroup group) {
+    if (type.isStruct()) {
+      for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+        final String fieldName = String.format("%s.%s", name, field.getKey());
+        buildField(fieldName, field.getValue(), st, group);
+      }
+    } else {
+      final ST stField = group.getInstanceOf("field");
+      stField.add("name", name);
+
+      if (type.getDefaultValue() != null) {
+        stField.add("arg", String.format("%s.valueOf(\"%s\", 16, %d)",
+            BitVector.class.getSimpleName(),
+            type.getDefaultValue().toHexString(),
+            type.getBitSize())
+            );
+      } else {
+        stField.add("arg", type.getBitSize());
+      }
+
+      st.add("fields", stField);
+    }
+  }
+
+  private void buildIndexer(final ST st, final STGroup group) {
+    final ST stIndexer = group.getInstanceOf("indexer");
+
+    stIndexer.add("addr_type", buffer.getAddress().getId());
+    stIndexer.add("addr_name", "address");
+
+    st.add("members", stIndexer);
+  }
+
+  private void buildMatcher(final ST st, final STGroup group) {
+    buildNewLine(st);
+    final ST stMatcher = group.getInstanceOf("matcher");
+
+    stMatcher.add("addr_type", buffer.getAddress().getId());
+    stMatcher.add("addr_name", "address");
+    stMatcher.add("data_name", "data");
+
+    st.add("members", stMatcher);
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
+    buildNewLine(st);
     final ST stConstructor = group.getInstanceOf("constructor");
+
     stConstructor.add("name", buffer.getId());
+    stConstructor.add("ways", buffer.getWays());
+    stConstructor.add("sets", buffer.getSets());
 
-    st.add("members", "");
+    stConstructor.add("policy", String.format("%s.%s",
+        ru.ispras.microtesk.mmu.model.api.PolicyId.class.getSimpleName(),
+        buffer.getPolicy().name()));
+
     st.add("members", stConstructor);
-  }
-
-  private void buildIsHit(final ST st, final STGroup group) {
-    final ST stMethod = group.getInstanceOf("is_hit");
-
-    stMethod.add("addr_type", buffer.getAddress().getId());
-    stMethod.add("addr_name", buffer.getAddressArg().getName().replace('.', '_'));
-
-    st.add("members", "");
-    st.add("members", stMethod);
-  }
-
-  private void buildGetData(final ST st, final STGroup group) {
-    final ST stMethod = group.getInstanceOf("get_data");
-
-    stMethod.add("addr_type", buffer.getAddress().getId());
-    stMethod.add("addr_name", buffer.getAddressArg().getName().replace('.', '_'));
-    stMethod.add("data_type", "Object");
-
-    st.add("members", "");
-    st.add("members", stMethod);
-  }
-
-  private void buildSetData(final ST st, final STGroup group) {
-    final ST stMethod = group.getInstanceOf("set_data");
-
-    stMethod.add("addr_type", buffer.getAddress().getId());
-    stMethod.add("addr_name", buffer.getAddressArg().getName().replace('.', '_'));
-    stMethod.add("data_type", "Object");
-    stMethod.add("data_name", buffer.getDataArg().getName().replace('.', '_'));
-
-    st.add("members", "");
-    st.add("members", stMethod);
   }
 }

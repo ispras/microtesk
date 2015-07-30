@@ -14,42 +14,63 @@
 
 group Buffer;
 
-buffer(pack, imps, name, intf, members) ::= <<
+buffer(pack, imps, name, base, members) ::= <<
 <header(false)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
 <class(["public", "final"],
        name,
+       base,
        false,
-       intf,
        members)>
 >>
 
-constructor(name) ::= <<
+entry(fields) ::= <<
+<class(["public", "static", "final"],
+       "Entry",
+       "Data",
+       false,
+       entry_constructor(fields))>
+>>
+
+entry_constructor(fields) ::= <<
+public Entry() {
+  <fields; separator="\n">
+}
+>>
+
+field(name, arg) ::= <<
+defineField("<name>", <arg>);
+>>
+
+indexer(addr_type, addr_name) ::= <<
+private static final Indexer\<<addr_type>\> INDEXER = new Indexer\<<addr_type>\>() {
+  @Override
+  public BitVector getIndex(final <addr_type> <addr_name>) {
+    // TODO 
+    return null;
+  }
+};
+>>
+
+matcher(addr_type, addr_name, data_name) ::= <<
+private static final Matcher\<Entry, <addr_type>\> MATCHER = new Matcher\<Entry, <addr_type>\>() {
+  @Override
+  public boolean areMatching(final Entry <data_name>, final <addr_type> <addr_name>) {
+    // TODO
+    return false;
+  }
+};
+>>
+
+constructor(name, ways, sets, policy) ::= <<
 public <name>() {
-}
->>
-
-is_hit(addr_type, addr_name) ::= <<
-@Override
-public boolean isHit(final <addr_type> <addr_name>) {
-  // TODO
-  return false;
-}
->>
-
-get_data(addr_type, addr_name, data_type) ::= <<
-@Override
-public <data_type> getData(final <addr_type> <addr_name>) {
-  // NOT SUPPORTED
-  throw new UnsupportedOperationException();
-}
->>
-
-set_data(addr_type, addr_name, data_type, data_name) ::= <<
-@Override
-public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <data_name>) {
-  // NOT SUPPORTED
-  throw new UnsupportedOperationException();
+  super(
+    new BigInteger("<sets>", 10),
+    <ways>,
+    <policy>,
+    INDEXER,
+    MATCHER
+    );
 }
 >>
