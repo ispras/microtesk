@@ -733,10 +733,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final Where w = this.where(where);
 
     final Node reducedFrom = Transformer.reduce(ReduceOptions.NEW_INSTANCE, from);
-    assertNodeInteger(w, reducedFrom);
+    // FIXME
+    //assertNodeInteger(w, reducedFrom);
 
     final Node reducedTo = Transformer.reduce(ReduceOptions.NEW_INSTANCE, to);
-    assertNodeInteger(w, reducedTo);
+    // FIXME
+    //assertNodeInteger(w, reducedTo);
 
     return new NodeOperation(StandardOperation.BVEXTRACT, reducedFrom, reducedTo, variable);
   }
