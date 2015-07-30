@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.model.sample;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.model.api.Data;
 import ru.ispras.microtesk.mmu.model.api.MmuException;
 import ru.ispras.microtesk.mmu.model.api.Segment;
@@ -80,20 +79,12 @@ import ru.ispras.microtesk.mmu.model.api.Segment;
  */
 
 public final class USEG extends Segment<PA, VA> {
-  private final DTLB dtlb;
-  private final JTLB jtlb;
 
-  public USEG(final DTLB dtlb, final JTLB jtlb) {
+  public USEG() {
     super(
         BitVector.valueOf("0000000000000000", 16, /*VA.size*/ 64),
         BitVector.valueOf("000000007fffffff", 16, /*VA.size*/ 64)
     );
-
-    InvariantChecks.checkNotNull(dtlb);
-    InvariantChecks.checkNotNull(jtlb);
-
-    this.dtlb = dtlb;
-    this.jtlb = jtlb;
   }
 
   @SuppressWarnings("unused")
@@ -109,17 +100,17 @@ public final class USEG extends Segment<PA, VA> {
     BitVector c = BitVector.newEmpty(3);
     BitVector pfn = BitVector.newEmpty(24);
 
-    if (dtlb.isHit(va)) {
-      tlbEntry = dtlb.getData(va);
-    } else if (jtlb.isHit(va)) {
-      tlbEntry = jtlb.getData(va);
+    if (DTLB.get().isHit(va)) {
+      tlbEntry = DTLB.get().getData(va);
+    } else if (JTLB.get().isHit(va)) {
+      tlbEntry = JTLB.get().getData(va);
     } else {
       throw new MmuException("TLBMiss");
     }
 
     evenOddBit = BitVector.valueOf(12, 5);
 
-    if (!va.getField("value").getBit(evenOddBit.intValue())) {
+    if (!va.getValue().getBit(evenOddBit.intValue())) {
       g   = tlbEntry.getField("G0");
       v   = tlbEntry.getField("V0");
       d   = tlbEntry.getField("D0");

@@ -40,6 +40,14 @@ import ru.ispras.microtesk.mmu.model.api.PolicyId;
  */
 
 public final class DTLB extends Cache<DTLB.Entry, VA>{
+  private static DTLB instance = null;
+
+  public static DTLB get() {
+    if (null == instance) {
+      instance = new DTLB();
+    }
+    return instance;
+  }
 
   public static final class Entry extends Data {
     public Entry() {

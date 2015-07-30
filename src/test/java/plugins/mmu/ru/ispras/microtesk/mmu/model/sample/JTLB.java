@@ -37,10 +37,18 @@ import ru.ispras.microtesk.mmu.model.api.PolicyId;
  * </code></pre>
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
- *
  */
 
 public final class JTLB extends Cache<JTLB.Entry, VA> {
+  private static JTLB instance = null;
+
+  public static JTLB get() {
+    if (null == instance) {
+      instance = new JTLB();
+    }
+    return instance;
+  }
+
   public static final class Entry extends Data {
     public Entry() {
       // EntryHi
