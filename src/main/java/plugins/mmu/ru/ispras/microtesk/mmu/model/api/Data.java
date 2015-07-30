@@ -24,7 +24,9 @@ import ru.ispras.fortress.util.InvariantChecks;
  * This class represents cache data.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
+
 public class Data {
 
   /** The data fields. */
@@ -57,10 +59,26 @@ public class Data {
    * 
    * @param name field name.
    * @param bitSize field size in bits.
+   * 
+   * @exception IllegalArgumentException if the specified field is already defined.
    */
 
   protected final void defineField(final String name, final int bitSize) {
     InvariantChecks.checkFalse(fields.containsKey(name));
     setField(name, BitVector.newEmpty(bitSize));
+  }
+
+  /**
+   * Defines a data field initialized with the specified default value.
+   * 
+   * @param name field name.
+   * @param value Default value for the field.
+   * 
+   * @exception IllegalArgumentException if the specified field is already defined.
+   */
+
+  protected final void defineField(final String name, final BitVector value) {
+    InvariantChecks.checkFalse(fields.containsKey(name));
+    setField(name, value);
   }
 }
