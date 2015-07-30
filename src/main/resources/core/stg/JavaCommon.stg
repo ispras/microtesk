@@ -100,3 +100,14 @@ base_class(ext) ::= <<
 intf_list(impls) ::= <<
 <if(impls)> implements <impls; separator=", "><endif>
 >>
+
+singleton(type, name) ::= <<
+private static <type> <name> = null;
+
+public static <type> get() {
+  if (null == <name>) {
+    <name> = new <type>();
+  }
+  return <name>;
+}<\n>
+>>

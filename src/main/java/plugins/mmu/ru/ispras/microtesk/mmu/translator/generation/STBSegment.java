@@ -73,7 +73,6 @@ final class STBSegment implements STBuilder {
     stConstructor.add("radix", 16);
     stConstructor.add("size", bitSize);
 
-    st.add("members", "");
     st.add("members", stConstructor);
   }
 

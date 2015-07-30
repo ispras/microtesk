@@ -22,11 +22,11 @@ segment(pack, imps, name, base, members) ::= <<
        name,
        base,
        false,
-       members)>
+       [singleton(name, "instance"), members])>
 >>
 
 constructor(name, start, end, radix, size) ::= <<
-public <name>() {
+private <name>() {
   super(
       BitVector.valueOf("<start>", <radix>, <size>),
       BitVector.valueOf("<end>", <radix>, <size>)

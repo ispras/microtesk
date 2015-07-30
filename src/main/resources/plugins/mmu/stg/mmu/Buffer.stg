@@ -22,7 +22,7 @@ buffer(pack, imps, name, base, members) ::= <<
        name,
        base,
        false,
-       members)>
+       [singleton(name, "instance"), members])>
 >>
 
 entry(fields) ::= <<
@@ -64,7 +64,7 @@ private static final Matcher\<Entry, <addr_type>\> MATCHER = new Matcher\<Entry,
 >>
 
 constructor(name, ways, sets, policy) ::= <<
-public <name>() {
+private <name>() {
   super(
     new BigInteger("<sets>", 10),
     <ways>,
