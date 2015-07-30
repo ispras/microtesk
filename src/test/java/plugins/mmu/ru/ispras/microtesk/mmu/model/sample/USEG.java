@@ -16,10 +16,9 @@ package ru.ispras.microtesk.mmu.model.sample;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.mmu.model.api.Buffer;
 import ru.ispras.microtesk.mmu.model.api.Data;
 import ru.ispras.microtesk.mmu.model.api.MmuException;
+import ru.ispras.microtesk.mmu.model.api.Segment;
 
 /**
  * <pre><code>
@@ -80,28 +79,21 @@ import ru.ispras.microtesk.mmu.model.api.MmuException;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class USEG implements Buffer<PA, VA> {
+public final class USEG extends Segment<PA, VA> {
   private final DTLB dtlb;
   private final JTLB jtlb;
-  private final Pair<BitVector, BitVector> range;
 
   public USEG(final DTLB dtlb, final JTLB jtlb) {
+    super(
+        BitVector.valueOf("0000000000000000", 16, /*VA.size*/ 64),
+        BitVector.valueOf("000000007fffffff", 16, /*VA.size*/ 64)
+    );
+
     InvariantChecks.checkNotNull(dtlb);
     InvariantChecks.checkNotNull(jtlb);
 
     this.dtlb = dtlb;
     this.jtlb = jtlb;
-
-    this.range = new Pair<>(
-        BitVector.valueOf("0000000000000000", 16, /*VA.size*/ 64),
-        BitVector.valueOf("000000007fffffff", 16, /*VA.size*/ 64));
-  }
-
-  @Override
-  public boolean isHit(final VA address) {
-    final BitVector value = address.getField("value");
-    return range.first.compareTo(value)  <= 0 &&
-           range.second.compareTo(value) >= 0;
   }
 
   @SuppressWarnings("unused")
@@ -154,11 +146,5 @@ public final class USEG implements Buffer<PA, VA> {
     }
 
     return pa;
-  }
-
-  @Override
-  public PA setData(final VA address, final PA data) {
-    // NOT SUPPORTED
-    throw new UnsupportedOperationException();
   }
 }
