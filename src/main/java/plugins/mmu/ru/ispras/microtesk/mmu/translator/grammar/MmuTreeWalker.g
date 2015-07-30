@@ -146,7 +146,7 @@ structFields returns [Type res]
     : ( fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); }
         typeId=ID { builder.addField($fieldId, $typeId); }
 
-      | fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); }
+      | fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); value = null;}
         size=expr[0] value=expr[0]? { builder.addField($fieldId, $size.res, $value.res); }
       )+
     ;
