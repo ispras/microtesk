@@ -31,17 +31,23 @@ final class GeneratorFactory {
   private static final String JAVA_COMMON_STG =
       PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg";
 
-  private static final String   ADDRESS_STG  = MMU_STG_DIR + "Address.stg";
-  private static final String[] ADDRESS_STGS = new String[] {JAVA_COMMON_STG, ADDRESS_STG};
+  private static final String MMU_COMMON_STG = MMU_STG_DIR + "MmuCommon.stg";
 
-  private static final String   BUFFER_STG  = MMU_STG_DIR + "Buffer.stg";
-  private static final String[] BUFFER_STGS = new String[] {JAVA_COMMON_STG, BUFFER_STG};
+  private static final String   ADDRESS_STG = MMU_STG_DIR + "Address.stg";
+  private static final String[] ADDRESS_STGS =
+      new String[] {JAVA_COMMON_STG, ADDRESS_STG};
 
-  private static final String   SEGMENT_STG  = MMU_STG_DIR + "Segment.stg";
-  private static final String[] SEGMENT_STGS = new String[] {JAVA_COMMON_STG, SEGMENT_STG};
+  private static final String   BUFFER_STG = MMU_STG_DIR + "Buffer.stg";
+  private static final String[] BUFFER_STGS =
+      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, BUFFER_STG};
 
-  private static final String   MEMORY_STG  = MMU_STG_DIR + "Memory.stg";
-  private static final String[] MEMORY_STGS = new String[] {JAVA_COMMON_STG, MEMORY_STG};
+  private static final String   SEGMENT_STG = MMU_STG_DIR + "Segment.stg";
+  private static final String[] SEGMENT_STGS =
+      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, SEGMENT_STG};
+
+  private static final String   MEMORY_STG = MMU_STG_DIR + "Memory.stg";
+  private static final String[] MEMORY_STGS =
+      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, MEMORY_STG};
 
   private final String outDir;
   private final String packageName;
