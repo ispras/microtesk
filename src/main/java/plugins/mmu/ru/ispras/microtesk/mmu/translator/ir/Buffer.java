@@ -135,7 +135,17 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
   @Override
   public String toString() {
     return String.format(
-        "buffer %s(%s) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s}",
-        getId(), getAddressArg(), ways, sets, getEntry(), index, match, policy);
+        "buffer %s(%s) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, guard=%s, parent=%s}",
+        getId(),
+        getAddressArg(),
+        ways,
+        sets,
+        getEntry(),
+        index,
+        match,
+        policy,
+        guard,
+        parent != null ? parent.getId() : null
+        );
   }
 }
