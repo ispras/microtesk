@@ -171,6 +171,7 @@ final class STBBuffer implements STBuilder {
           String.format("Illegal index expression: %s", value));
     }
 
+    //System.out.println("!!! " + ExprPrinter.get().toString(expr));
     return "null";
   }
 
@@ -190,6 +191,7 @@ final class STBBuffer implements STBuilder {
       }
     }
 
+    //System.out.println("!!! " + ExprPrinter.get().toString(expr));
     return Boolean.toString(false);
   }
 }
