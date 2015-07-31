@@ -85,11 +85,12 @@ public final class Segment extends AbstractStorage {
     final int width = addressSize / 4 + addressSize % 4 != 0 ? 1 : 0;
 
     return String.format(
-        "segment %s(%s) range = (0x%0" + width + "X, 0x%0" + width + "X)",
+        "segment %s(%s) range = (0x%0" + width + "X, 0x%0" + width + "X), attributes = %s",
         getId(),
         getAddressArg(),
         min,
-        max
+        max,
+        getAttributes()
         );
   }
 }
