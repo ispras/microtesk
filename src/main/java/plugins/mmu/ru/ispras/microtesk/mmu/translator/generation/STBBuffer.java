@@ -20,6 +20,9 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -121,7 +124,7 @@ final class STBBuffer implements STBuilder {
 
     stIndexer.add("addr_type", buffer.getAddress().getId());
     stIndexer.add("addr_name", "address");
-    stIndexer.add("expr", "null");
+    stIndexer.add("expr", indexToString(buffer.getIndex()));
 
     st.add("members", stIndexer);
   }
@@ -151,5 +154,17 @@ final class STBBuffer implements STBuilder {
         buffer.getPolicy().name()));
 
     st.add("members", stConstructor);
+  }
+
+  private String indexToString(final Node expr) {
+    InvariantChecks.checkNotNull(expr);
+
+    if (ExprUtils.isConstant(expr)) {
+      final NodeValue value = (NodeValue) expr;
+      return String.format("BitVector.valueOf(%dL, %d)",
+          value.getInteger(), buffer.getAddressArg().getBitSize());
+    }
+
+    return "null";
   }
 }
