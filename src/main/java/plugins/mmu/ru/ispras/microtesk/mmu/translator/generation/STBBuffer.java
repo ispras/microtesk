@@ -14,11 +14,13 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
@@ -31,7 +33,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBBuffer implements STBuilder {
   private static final Class<?> BASE_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Cache.class; 
+      ru.ispras.microtesk.mmu.model.api.Cache.class;
 
   private final String packageName;
   private final Buffer buffer;
@@ -136,7 +138,7 @@ final class STBBuffer implements STBuilder {
     stMatcher.add("addr_type", buffer.getAddress().getId());
     stMatcher.add("addr_name", "address");
     stMatcher.add("data_name", "data");
-    stMatcher.add("expr", "false");
+    stMatcher.add("expr", matchToString(buffer.getMatch()));
 
     st.add("members", stMatcher);
   }
@@ -161,10 +163,33 @@ final class STBBuffer implements STBuilder {
 
     if (ExprUtils.isConstant(expr)) {
       final NodeValue value = (NodeValue) expr;
-      return String.format("BitVector.valueOf(%dL, %d)",
-          value.getInteger(), buffer.getAddressArg().getBitSize());
+      if (value.isType(DataTypeId.LOGIC_INTEGER)) {
+        return String.format("BitVector.valueOf(%dL, %d)",
+            value.getInteger(), buffer.getAddressArg().getBitSize());
+      }
+      throw new IllegalArgumentException(
+          String.format("Illegal index expression: %s", value));
     }
 
     return "null";
+  }
+
+  private String matchToString(final Node expr) {
+    InvariantChecks.checkNotNull(expr);
+
+    if (ExprUtils.isConstant(expr)) {
+      final NodeValue value = (NodeValue) expr;
+      if (value.isType(DataTypeId.LOGIC_BOOLEAN)) {
+        return Boolean.toString(value.getBoolean());
+      } else if (value.isType(DataTypeId.LOGIC_INTEGER) && 
+                 value.getInteger().equals(BigInteger.ZERO)) {
+        return Boolean.toString(true);
+      } else {
+        throw new IllegalArgumentException(
+            String.format("Illegal match expression: %s", value));
+      }
+    }
+
+    return Boolean.toString(false);
   }
 }
