@@ -34,10 +34,9 @@ private <name>() {
 }
 >>
 
-get_data_empty(addr_type, addr_name, data_type) ::= <<
+get_data(addr_type, addr_name, data_type, stmts) ::= <<
 @Override
 public <data_type> getData(final <addr_type> <addr_name>) {
-  // NOT SUPPORTED
-  throw new UnsupportedOperationException();
+  <stmts; separator="\n">
 }
 >>

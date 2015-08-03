@@ -20,6 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
@@ -44,7 +45,7 @@ final class STBSegment implements STBuilder {
 
     buildHeader(st);
     buildConstructor(st, group);
-    //buildGetData(st, group);
+    buildGetData(st, group);
 
     return st;
   }
@@ -76,15 +77,20 @@ final class STBSegment implements STBuilder {
     st.add("members", stConstructor);
   }
 
-  /*
   private void buildGetData(final ST st, final STGroup group) {
-    final ST stMethod = group.getInstanceOf("get_data_empty");
+    final Attribute attr = segment.getAttribute("read");
+    if (null == attr) {
+      return;
+    }
+
+    final ST stMethod = group.getInstanceOf("get_data");
 
     stMethod.add("addr_type", segment.getAddress().getId());
     stMethod.add("addr_name", segment.getAddressArg().getName().replace('.', '_'));
     stMethod.add("data_type", segment.getDataArgAddress().getId());
+    stMethod.add("stmts",     "return null;"); 
 
     st.add("members", "");
     st.add("members", stMethod);
-  }*/
+  }
 }
