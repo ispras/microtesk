@@ -47,10 +47,13 @@ public final class AttributeRef {
   public Node getAddressArgValue() {
     return addressArgValue;
   }
-  
+
   public String getText() {
     return String.format("%s(%s).%s",
-        target.getId(), addressArgValue.toString(), attribute.getId());
+        target.getId(),
+        addressArgValue.toString(),
+        attribute.getId()
+        );
   }
 
   @Override
