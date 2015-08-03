@@ -52,7 +52,8 @@ final class STBBuffer implements STBuilder {
   @Override
   public ST build(final STGroup group) {
     ExprPrinter.get().pushVariableScope();
-    defineVariableMappings();
+    ExprPrinter.get().addVariableMappings(buffer.getAddressArg(), ADDRESS_NAME);
+    ExprPrinter.get().addVariableMappings(buffer.getDataArg(), DATA_NAME);
 
     final ST st = group.getInstanceOf("buffer");
 
@@ -64,41 +65,6 @@ final class STBBuffer implements STBuilder {
 
     ExprPrinter.get().popVariableScope();
     return st;
-  }
-
-  private void defineVariableMappings() {
-    final ExprPrinter printer = ExprPrinter.get();
-
-    printer.addVariableMapping(buffer.getAddressArg().getName(), ADDRESS_NAME);
-    defineMappingsForFields(
-        buffer.getAddressArg().getType(),
-        buffer.getAddressArg().getName(),
-        "",
-        ADDRESS_NAME
-        );
-
-    printer.addVariableMapping(buffer.getDataArg().getName(), DATA_NAME);
-    defineMappingsForFields(
-        buffer.getDataArg().getType(),
-        buffer.getDataArg().getName(),
-        "",
-        DATA_NAME
-        );
-  }
-
-  private void defineMappingsForFields(
-      final Type type,
-      final String name,
-      final String field,
-      final String mapping) {
-    for (final Map.Entry<String, Type> e : type.getFields().entrySet()) {
-      final String variableName = name + "." + e.getKey();
-      final String fieldName = field.isEmpty() ? e.getKey() : field + "." + e.getKey(); 
-      final String mappingName = String.format("%s.getField(\"%s\")", mapping, fieldName);
-
-      ExprPrinter.get().addVariableMapping(variableName, mappingName);
-      defineMappingsForFields(e.getValue(), variableName, fieldName, mapping);
-    }
   }
 
   private void buildHeader(final ST st) {
@@ -114,7 +80,8 @@ final class STBBuffer implements STBuilder {
     final String baseName = String.format("%s<%s, %s>",
         BASE_CLASS.getSimpleName(),
         String.format("%s.Entry", buffer.getId()),
-        buffer.getAddress().getId());
+        buffer.getAddress().getId()
+        );
 
     st.add("name", buffer.getId()); 
     st.add("base", baseName);
@@ -150,11 +117,7 @@ final class STBBuffer implements STBuilder {
       stField.add("name", name);
 
       if (type.getDefaultValue() != null) {
-        stField.add("arg", String.format("%s.valueOf(\"%s\", 16, %d)",
-            BitVector.class.getSimpleName(),
-            type.getDefaultValue().toHexString(),
-            type.getBitSize())
-            );
+        stField.add("arg", ExprPrinter.bitVectorToString(type.getDefaultValue()));
       } else {
         stField.add("arg", type.getBitSize());
       }

@@ -26,6 +26,9 @@ import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment implements STBuilder {
+  private static final String ADDRESS_NAME = "address";
+  private static final String DATA_NAME = "data";
+
   private static final Class<?> BASE_CLASS =
       ru.ispras.microtesk.mmu.model.api.Segment.class;
 
@@ -70,10 +73,11 @@ final class STBSegment implements STBuilder {
     stConstructor.add("name", segment.getId());
 
     final int bitSize = segment.getAddress().getAddressType().getBitSize();
-    stConstructor.add("start", BitVector.valueOf(segment.getMin(), bitSize).toHexString());
-    stConstructor.add("end", BitVector.valueOf(segment.getMax(), bitSize).toHexString());
-    stConstructor.add("radix", 16);
-    stConstructor.add("size", bitSize);
+
+    stConstructor.add(
+        "start", ExprPrinter.bitVectorToString(BitVector.valueOf(segment.getMin(), bitSize)));
+    stConstructor.add(
+        "end", ExprPrinter.bitVectorToString(BitVector.valueOf(segment.getMax(), bitSize)));
 
     st.add("members", stConstructor);
   }
@@ -84,14 +88,20 @@ final class STBSegment implements STBuilder {
       return;
     }
 
+    ExprPrinter.get().pushVariableScope();
+    ExprPrinter.get().addVariableMappings(segment.getAddressArg(), ADDRESS_NAME);
+    ExprPrinter.get().addVariableMappings(segment.getDataArg(), DATA_NAME);
+
     final ST stMethod = group.getInstanceOf("get_data");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", segment.getAddressArg().getName().replace('.', '_'));
+    stMethod.add("addr_name", ADDRESS_NAME);
     stMethod.add("data_type", segment.getDataArgAddress().getId());
     stMethod.add("stmts",     "return null;"); 
 
     st.add("members", "");
     st.add("members", stMethod);
+
+    ExprPrinter.get().popVariableScope();
   }
 }

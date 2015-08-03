@@ -19,7 +19,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeValue;
@@ -27,6 +26,8 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.expression.printer.MapBasedPrinter;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 final class ExprPrinter extends MapBasedPrinter {
   private static ExprPrinter instance = null;
@@ -78,25 +79,52 @@ final class ExprPrinter extends MapBasedPrinter {
     return variableName;
   }
 
+  public void addVariableMappings(final Variable variable, final String mapping) {
+    InvariantChecks.checkNotNull(variable);
+    InvariantChecks.checkNotNull(mapping);
+
+    addVariableMapping(variable.getName(), mapping);
+    addVariableFieldMappings(variable.getName(), variable.getType(), mapping, "");
+  }
+
+  private void addVariableFieldMappings(
+      final String name,
+      final Type type,
+      final String mapping,
+      final String field) {
+    for (final Map.Entry<String, Type> e : type.getFields().entrySet()) {
+      final String variableName = name + "." + e.getKey();
+      final String fieldName = field.isEmpty() ? e.getKey() : field + "." + e.getKey();
+      final String mappingName = String.format("%s.getField(\"%s\")", mapping, fieldName);
+
+      ExprPrinter.get().addVariableMapping(variableName, mappingName);
+      addVariableFieldMappings(variableName, e.getValue(), fieldName, mapping);
+    }
+  }
+
+  public static String bitVectorToString(final BitVector value) {
+    InvariantChecks.checkNotNull(value);
+
+    final int bitSize = value.getBitSize();
+    final String hexValue = value.toHexString();
+
+    final String text;
+    if (value.getBitSize() <= Integer.SIZE) {
+      text = String.format("BitVector.valueOf(0x%s, %d)", hexValue, bitSize);
+    } else if (bitSize <= Long.SIZE) {
+      text = String.format("BitVector.valueOf(0x%sL, %d)", hexValue, bitSize);
+    } else {
+      text = String.format("BitVector.valueOf(\"%s\", 16, %d)", hexValue, bitSize);
+    }
+
+    return text;
+  }
+
   private final class Visitor extends ExprTreeVisitor {
     @Override
     public void onValue(final NodeValue value) {
       if (value.isType(DataTypeId.BIT_VECTOR)) {
-        final DataType type = value.getDataType();
-        final BitVector data = value.getBitVector();
-
-        final String text;
-        if (type.getSize() <= Integer.SIZE) {
-          text = String.format(
-              "BitVector.valueOf(0x%s, %d)", data.toHexString(), type.getSize());
-        } else if (type.getSize() <= Long.SIZE) {
-          text = String.format(
-              "BitVector.valueOf(0x%sL, %d)", data.toHexString(), type.getSize());
-        } else {
-          text = String.format(
-              "BitVector.valueOf(\"%s\", 16, %d)", data.toHexString(), type.getSize());
-        }
-
+        final String text = bitVectorToString(value.getBitVector());
         appendText(text);
       } else {
         appendText(value.toString());
