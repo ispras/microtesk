@@ -20,6 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -78,7 +79,7 @@ final class STBSegment implements STBuilder {
   }
 
   private void buildGetData(final ST st, final STGroup group) {
-    final Attribute attr = segment.getAttribute("read");
+    final Attribute attr = segment.getAttribute(AbstractStorage.READ_ATTR_NAME);
     if (null == attr) {
       return;
     }
