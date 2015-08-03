@@ -84,12 +84,15 @@ public final class Segment extends AbstractStorage {
     final int addressSize = getAddress().getAddressType().getBitSize();
     final int width = addressSize / 4 + addressSize % 4 != 0 ? 1 : 0;
 
+    final String rangeFormat =
+        "(0x%0" + width + "X, 0x%0" + width + "X)";
+
     return String.format(
-        "segment %s(%s) range = (0x%0" + width + "X, 0x%0" + width + "X), attributes = %s",
+        "segment %s(%s) range=%s, variables=%s, attributes=%s",
         getId(),
         getAddressArg(),
-        min,
-        max,
+        String.format(rangeFormat, min, max),
+        getVariables(),
         getAttributes()
         );
   }
