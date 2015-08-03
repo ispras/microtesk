@@ -32,6 +32,9 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBBuffer implements STBuilder {
+  private static final String ADDRESS_NAME = "address";
+  private static final String DATA_NAME = "data";
+
   private static final Class<?> BASE_CLASS =
       ru.ispras.microtesk.mmu.model.api.Cache.class;
 
@@ -48,6 +51,9 @@ final class STBBuffer implements STBuilder {
 
   @Override
   public ST build(final STGroup group) {
+    ExprPrinter.get().pushVariableScope();
+    defineVariableMappings();
+
     final ST st = group.getInstanceOf("buffer");
 
     buildHeader(st);
@@ -56,7 +62,43 @@ final class STBBuffer implements STBuilder {
     buildMatcher(st, group);
     buildConstructor(st, group);
 
+    ExprPrinter.get().popVariableScope();
     return st;
+  }
+
+  private void defineVariableMappings() {
+    final ExprPrinter printer = ExprPrinter.get();
+
+    printer.addVariableMapping(buffer.getAddressArg().getName(), ADDRESS_NAME);
+    defineMappingsForFields(
+        buffer.getAddressArg().getType(),
+        buffer.getAddressArg().getName(),
+        "",
+        ADDRESS_NAME
+        );
+
+    printer.addVariableMapping(buffer.getDataArg().getName(), DATA_NAME);
+    defineMappingsForFields(
+        buffer.getDataArg().getType(),
+        buffer.getDataArg().getName(),
+        "",
+        DATA_NAME
+        );
+  }
+
+  private void defineMappingsForFields(
+      final Type type,
+      final String name,
+      final String field,
+      final String mapping) {
+    for (final Map.Entry<String, Type> e : type.getFields().entrySet()) {
+      final String variableName = name + "." + e.getKey();
+      final String fieldName = field.isEmpty() ? e.getKey() : field + "." + e.getKey(); 
+      final String mappingName = String.format("%s.getField(\"%s\")", mapping, fieldName);
+
+      ExprPrinter.get().addVariableMapping(variableName, mappingName);
+      defineMappingsForFields(e.getValue(), variableName, fieldName, mapping);
+    }
   }
 
   private void buildHeader(final ST st) {
@@ -125,7 +167,7 @@ final class STBBuffer implements STBuilder {
     final ST stIndexer = group.getInstanceOf("indexer");
 
     stIndexer.add("addr_type", buffer.getAddress().getId());
-    stIndexer.add("addr_name", "address");
+    stIndexer.add("addr_name", ADDRESS_NAME);
     stIndexer.add("expr", indexToString(buffer.getIndex()));
 
     st.add("members", stIndexer);
@@ -136,8 +178,8 @@ final class STBBuffer implements STBuilder {
     final ST stMatcher = group.getInstanceOf("matcher");
 
     stMatcher.add("addr_type", buffer.getAddress().getId());
-    stMatcher.add("addr_name", "address");
-    stMatcher.add("data_name", "data");
+    stMatcher.add("addr_name", ADDRESS_NAME);
+    stMatcher.add("data_name", DATA_NAME);
     stMatcher.add("expr", matchToString(buffer.getMatch()));
 
     st.add("members", stMatcher);
@@ -171,8 +213,7 @@ final class STBBuffer implements STBuilder {
           String.format("Illegal index expression: %s", value));
     }
 
-    //System.out.println("!!! " + ExprPrinter.get().toString(expr));
-    return "null";
+    return ExprPrinter.get().toString(expr);
   }
 
   private String matchToString(final Node expr) {
@@ -191,7 +232,6 @@ final class STBBuffer implements STBuilder {
       }
     }
 
-    //System.out.println("!!! " + ExprPrinter.get().toString(expr));
-    return Boolean.toString(false);
+    return ExprPrinter.get().toString(expr);
   }
 }
