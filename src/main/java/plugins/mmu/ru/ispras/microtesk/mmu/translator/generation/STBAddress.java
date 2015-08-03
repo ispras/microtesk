@@ -84,7 +84,7 @@ final class STBAddress implements STBuilder {
     } else {
       final ST stField = group.getInstanceOf("field");
       stField.add("name", name);
-      stField.add("size", type.getBitSize());
+      stField.add("arg",  type.getBitSize());
       st.add("fields", stField);
     }
   }

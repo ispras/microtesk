@@ -31,10 +31,6 @@ public <name>() {
 }
 >>
 
-field(name, size) ::= <<
-defineField("<name>", <size>);
->>
-
 get_value(field_name) ::= <<
 @Override
 public BitVector getValue() {

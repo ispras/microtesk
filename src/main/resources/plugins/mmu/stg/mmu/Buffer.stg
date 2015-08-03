@@ -39,10 +39,6 @@ public Entry() {
 }
 >>
 
-field(name, arg) ::= <<
-defineField("<name>", <arg>);
->>
-
 indexer(addr_type, addr_name, expr) ::= <<
 private static final Indexer\<<addr_type>\> INDEXER = new Indexer\<<addr_type>\>() {
   @Override

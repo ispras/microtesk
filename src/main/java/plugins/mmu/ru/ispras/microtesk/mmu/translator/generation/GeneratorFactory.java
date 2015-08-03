@@ -35,7 +35,7 @@ final class GeneratorFactory {
 
   private static final String   ADDRESS_STG = MMU_STG_DIR + "Address.stg";
   private static final String[] ADDRESS_STGS =
-      new String[] {JAVA_COMMON_STG, ADDRESS_STG};
+      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, ADDRESS_STG};
 
   private static final String   BUFFER_STG = MMU_STG_DIR + "Buffer.stg";
   private static final String[] BUFFER_STGS =

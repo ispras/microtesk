@@ -14,5 +14,7 @@
 
 group MmuCommon;
 
-todo() ::= <<
+field(name, arg) ::= <<
+defineField("<name>", <arg>);
 >>
+
