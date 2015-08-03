@@ -97,11 +97,17 @@ final class STBSegment implements STBuilder {
     stMethod.add("addr_type", segment.getAddress().getId());
     stMethod.add("addr_name", ADDRESS_NAME);
     stMethod.add("data_type", segment.getDataArgAddress().getId());
-    stMethod.add("stmts",     "return null;"); 
+
+    buildStmts(stMethod, group);
 
     st.add("members", "");
     st.add("members", stMethod);
 
     ExprPrinter.get().popVariableScope();
+  }
+
+  private void buildStmts(final ST st, final STGroup group) {
+    st.add("stmts", "return null;");
+    // TODO 
   }
 }
