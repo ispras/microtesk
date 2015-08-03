@@ -20,20 +20,20 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.mmu.model.api.Data;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment implements STBuilder {
-  private static final String ADDRESS_NAME = "address";
-  private static final String DATA_NAME = "data";
-
   private static final Class<?> BASE_CLASS =
       ru.ispras.microtesk.mmu.model.api.Segment.class;
 
   private final String packageName;
   private final Segment segment;
+  private final String variablePrefix; 
 
   public STBSegment(final String packageName, final Segment segment) {
     InvariantChecks.checkNotNull(packageName);
@@ -41,6 +41,7 @@ final class STBSegment implements STBuilder {
 
     this.packageName = packageName;
     this.segment = segment;
+    this.variablePrefix = segment.getId() + ".";
   }
 
   @Override
@@ -88,17 +89,30 @@ final class STBSegment implements STBuilder {
       return;
     }
 
+    st.add("imps", Data.class.getName());
+
     ExprPrinter.get().pushVariableScope();
-    ExprPrinter.get().addVariableMappings(segment.getAddressArg(), ADDRESS_NAME);
-    ExprPrinter.get().addVariableMappings(segment.getDataArg(), DATA_NAME);
+
+    final String addressName = segment.getAddressArg().getName().replaceFirst(variablePrefix, "");
+    ExprPrinter.get().addVariableMappings(segment.getAddressArg(), addressName);
+
+    final String dataName = segment.getDataArg().getName().replaceFirst(variablePrefix, "");
+    ExprPrinter.get().addVariableMappings(segment.getDataArg(), dataName);
 
     final ST stMethod = group.getInstanceOf("get_data");
 
     stMethod.add("addr_type", segment.getAddress().getId());
-    stMethod.add("addr_name", ADDRESS_NAME);
+    stMethod.add("addr_name", addressName);
     stMethod.add("data_type", segment.getDataArgAddress().getId());
 
+    stMethod.add("stmts", String.format("%s %s = null;",
+        segment.getDataArgAddress().getId(), dataName));
+    stMethod.add("stmts", "");
+
     buildStmts(stMethod, group);
+
+    stMethod.add("stmts", "");
+    stMethod.add("stmts", String.format("return %s;", dataName));
 
     st.add("members", "");
     st.add("members", stMethod);
@@ -107,7 +121,19 @@ final class STBSegment implements STBuilder {
   }
 
   private void buildStmts(final ST st, final STGroup group) {
-    st.add("stmts", "return null;");
-    // TODO 
+    for (final Variable variable : segment.getVariables()) {
+      buildVariableDef(st, variable);
+    }
+  }
+
+  private void buildVariableDef(final ST st, final Variable variable) {
+    final String mappingName =
+        variable.getName().replaceFirst(variablePrefix, "");
+
+    final String typeName = variable.isStruct() ?
+        Data.class.getSimpleName() : BitVector.class.getSimpleName();
+
+    ExprPrinter.get().addVariableMappings(variable, mappingName);
+    st.add("stmts", String.format("%s %s;", typeName,  mappingName));
   }
 }
