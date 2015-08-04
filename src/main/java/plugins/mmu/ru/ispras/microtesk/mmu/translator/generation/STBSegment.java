@@ -24,7 +24,6 @@ import ru.ispras.microtesk.mmu.model.api.Data;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment extends STBBuilderBase implements STBuilder {
@@ -124,8 +123,6 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
   }
 
   private void buildStmts(final ST st, final STGroup group) {
-    for (final Variable variable : segment.getVariables()) {
-      buildVariableDecl(st, variable);
-    }
+    buildVariableDecls(st, segment.getVariables());
   }
 }

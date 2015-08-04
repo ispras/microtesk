@@ -33,10 +33,3 @@ private <name>() {
   );
 }
 >>
-
-get_data(addr_type, addr_name, data_type, stmts) ::= <<
-@Override
-public <data_type> getData(final <addr_type> <addr_name>) {
-  <stmts; separator="\n">
-}
->>

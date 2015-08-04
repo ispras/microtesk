@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.util.Collection;
+
 import org.stringtemplate.v4.ST;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -25,6 +27,9 @@ public abstract class STBBuilderBase {
 
   public static final Class<?> DATA_CLASS =
       ru.ispras.microtesk.mmu.model.api.Data.class;
+
+  public static final Class<?> BUFFER_CLASS =
+      ru.ispras.microtesk.mmu.model.api.Buffer.class;
 
   public static final Class<?> CACHE_CLASS =
       ru.ispras.microtesk.mmu.model.api.Cache.class;
@@ -57,5 +62,11 @@ public abstract class STBBuilderBase {
 
     ExprPrinter.get().addVariableMappings(variable, mappingName);
     st.add("stmts", String.format("%s %s;", typeName,  mappingName));
+  }
+
+  protected final void buildVariableDecls(final ST st, final Collection<Variable> variables) {
+    for (final Variable variable : variables) {
+      buildVariableDecl(st, variable);
+    }
   }
 }

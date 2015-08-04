@@ -24,10 +24,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBMemory implements STBuilder {
-  private static final Class<?> BASE_INTF =
-      ru.ispras.microtesk.mmu.model.api.Buffer.class;
-
+final class STBMemory extends STBBuilderBase implements STBuilder {
   private final String packageName;
   private final Ir ir;
   private final Memory memory;
@@ -46,6 +43,11 @@ final class STBMemory implements STBuilder {
   }
 
   @Override
+  protected String getId() {
+    return memory.getId();
+  }
+
+  @Override
   public ST build(final STGroup group) {
     final ST st = group.getInstanceOf("memory");
 
@@ -60,12 +62,12 @@ final class STBMemory implements STBuilder {
 
   private void buildHeader(final ST st) {
     st.add("pack", packageName);
-    st.add("imps", BASE_INTF.getName());
+    st.add("imps", BUFFER_CLASS.getName());
     st.add("imps", ru.ispras.microtesk.mmu.model.api.Data.class.getName());
     st.add("imps", BitVector.class.getName());
 
     final String baseName = String.format("%s<%s, %s>",
-        BASE_INTF.getSimpleName(),
+        BUFFER_CLASS.getSimpleName(),
         "Data",
         memory.getAddress().getId());
 
@@ -93,8 +95,11 @@ final class STBMemory implements STBuilder {
     final ST stMethod = group.getInstanceOf("get_data");
 
     stMethod.add("addr_type", memory.getAddress().getId());
-    stMethod.add("addr_name", "address");
-    stMethod.add("data_type", "Data");
+    stMethod.add("addr_name", removePrefix(memory.getAddressArg().getName()));
+    stMethod.add("data_type", DATA_CLASS.getSimpleName());
+
+    buildVariableDecls(stMethod, memory.getVariables());
+    stMethod.add("stmts", "return null;");
 
     st.add("members", "");
     st.add("members", stMethod);
@@ -104,9 +109,12 @@ final class STBMemory implements STBuilder {
     final ST stMethod = group.getInstanceOf("set_data");
 
     stMethod.add("addr_type", memory.getAddress().getId());
-    stMethod.add("addr_name", "address");
-    stMethod.add("data_type", "Data");
-    stMethod.add("data_name", "data");
+    stMethod.add("addr_name", removePrefix(memory.getAddressArg().getName()));
+    stMethod.add("data_type", DATA_CLASS.getSimpleName());
+    stMethod.add("data_name", removePrefix(memory.getDataArg().getName()));
+
+    buildVariableDecls(stMethod, memory.getVariables());
+    stMethod.add("stmts", "return null;");
 
     st.add("members", "");
     st.add("members", stMethod);

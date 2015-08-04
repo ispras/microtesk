@@ -18,3 +18,17 @@ field(name, arg) ::= <<
 defineField("<name>", <arg>);
 >>
 
+get_data(addr_type, addr_name, data_type, stmts) ::= <<
+@Override
+public <data_type> getData(final <addr_type> <addr_name>) {
+  <stmts; separator="\n">
+}
+>>
+
+set_data(addr_type, addr_name, data_type, data_name, stmts) ::= <<
+@Override
+public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <data_name>) {
+  <stmts; separator="\n">
+}
+>>
+

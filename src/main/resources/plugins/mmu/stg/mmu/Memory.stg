@@ -36,19 +36,3 @@ public boolean isHit(final <addr_type> address) {
   return true;
 }
 >>
-
-get_data(addr_type, addr_name, data_type) ::= <<
-@Override
-public <data_type> getData(final <addr_type> <addr_name>) {
-  // TODO Auto-generated method stub
-  return null;
-}
->>
-
-set_data(addr_type, addr_name, data_type, data_name) ::= <<
-@Override
-public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <data_name>) {
-  // TODO Auto-generated method stub
-  return null;
-}
->>
