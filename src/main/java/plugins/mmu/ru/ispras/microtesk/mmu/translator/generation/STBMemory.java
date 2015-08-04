@@ -20,6 +20,8 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
+import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -92,6 +94,9 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
   }
 
   private void buildGetData(final ST st, final STGroup group) {
+    final Attribute attr = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
+    InvariantChecks.checkNotNull(attr, "Attribute is undefined: " + AbstractStorage.READ_ATTR_NAME);
+
     final ST stMethod = group.getInstanceOf("get_data");
 
     stMethod.add("addr_type", memory.getAddress().getId());
@@ -99,6 +104,7 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
     stMethod.add("data_type", DATA_CLASS.getSimpleName());
 
     buildVariableDecls(stMethod, memory.getVariables());
+    buildStmts(stMethod, group, attr.getStmts());
 
     stMethod.add("stmts", "");
     stMethod.add("stmts", "return null;");
@@ -108,6 +114,9 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
   }
 
   private void buildSetData(final ST st, final STGroup group) {
+    final Attribute attr = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
+    InvariantChecks.checkNotNull(attr, "Attribute is undefined: " + AbstractStorage.WRITE_ATTR_NAME);
+
     final ST stMethod = group.getInstanceOf("set_data");
 
     stMethod.add("addr_type", memory.getAddress().getId());
@@ -116,6 +125,7 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
     stMethod.add("data_name", removePrefix(memory.getDataArg().getName()));
 
     buildVariableDecls(stMethod, memory.getVariables());
+    buildStmts(stMethod, group, attr.getStmts());
 
     stMethod.add("stmts", "");
     stMethod.add("stmts", "return null;");

@@ -22,6 +22,8 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.StmtException;
+import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 public abstract class STBBuilderBase {
@@ -45,6 +47,9 @@ public abstract class STBBuilderBase {
 
   public static final Class<?> POLICY_ID_CLASS =
       ru.ispras.microtesk.mmu.model.api.PolicyId.class;
+
+  public static final Class<?> EXCEPTION_CLASS = 
+      ru.ispras.microtesk.mmu.model.api.MmuException.class;
 
   protected abstract String getId();
 
@@ -80,9 +85,11 @@ public abstract class STBBuilderBase {
         break;
 
       case EXCEPT:
+        buildStmtException(st, (StmtException) stmt);
         break;
 
       case TRACE:
+        buildStmtTrace(st, (StmtTrace) stmt);
         break;
 
       default:
@@ -95,5 +102,16 @@ public abstract class STBBuilderBase {
     for (final Stmt stmt : stmts) {
       buildStmt(st, group, stmt);
     }
+  }
+
+  private void buildStmtException(final ST st, final StmtException stmt) {
+    final String stmtText = String.format("throw new %s(\"%s\");",
+        EXCEPTION_CLASS.getSimpleName(), stmt.getMessage());
+
+    st.add("stmts", stmtText);
+  }
+
+  private void buildStmtTrace(final ST st, final StmtTrace stmt) {
+    // TODO
   }
 }
