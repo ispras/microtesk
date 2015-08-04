@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.model.sample;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.mmu.model.api.Data;
-import ru.ispras.microtesk.mmu.model.api.MmuException;
 import ru.ispras.microtesk.mmu.model.api.Segment;
 
 /**
@@ -105,7 +104,7 @@ public final class USEG extends Segment<PA, VA> {
     } else if (JTLB.get().isHit(va)) {
       tlbEntry = JTLB.get().getData(va);
     } else {
-      throw new MmuException("TLBMiss");
+      exception("TLBMiss");
     }
 
     evenOddBit = BitVector.valueOf(12, 5);
@@ -133,7 +132,7 @@ public final class USEG extends Segment<PA, VA> {
           )
       );
     } else {
-      throw new MmuException("TLBInvalid");
+      exception("TLBInvalid");
     }
 
     return pa;

@@ -14,17 +14,12 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-/**
- * The {@code MmuException} class describes exceptions that might
- * occur in a MMU model (simulator) in the process of simulation.
- * 
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
- */
+import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
 
-public class MmuException extends RuntimeException {
-  private static final long serialVersionUID = 4178403622372041498L;
-
-  public MmuException(final String message) {
-    super(message);
+public abstract class Memory <D extends Data, A extends Address>
+    extends StandardFunctions implements Buffer<D, A> {
+  @Override
+  public boolean isHit(final A address) {
+    return true;
   }
 }

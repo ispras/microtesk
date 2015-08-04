@@ -39,6 +39,9 @@ public abstract class STBBuilderBase {
   public static final Class<?> CACHE_CLASS =
       ru.ispras.microtesk.mmu.model.api.Cache.class;
 
+  public static final Class<?> MEMORY_CLASS =
+      ru.ispras.microtesk.mmu.model.api.Memory.class;
+
   public static final Class<?> INDEXER_CLASS =
       ru.ispras.microtesk.mmu.model.api.Indexer.class;
 
@@ -47,9 +50,6 @@ public abstract class STBBuilderBase {
 
   public static final Class<?> POLICY_ID_CLASS =
       ru.ispras.microtesk.mmu.model.api.PolicyId.class;
-
-  public static final Class<?> EXCEPTION_CLASS = 
-      ru.ispras.microtesk.mmu.model.api.MmuException.class;
 
   protected abstract String getId();
 
@@ -105,10 +105,7 @@ public abstract class STBBuilderBase {
   }
 
   private void buildStmtException(final ST st, final StmtException stmt) {
-    final String stmtText = String.format("throw new %s(\"%s\");",
-        EXCEPTION_CLASS.getSimpleName(), stmt.getMessage());
-
-    st.add("stmts", stmtText);
+    st.add("stmts", String.format("exception(\"%s\");", stmt.getMessage()));
   }
 
   private void buildStmtTrace(final ST st, final StmtTrace stmt) {

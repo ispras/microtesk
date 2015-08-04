@@ -16,8 +16,11 @@ package ru.ispras.microtesk.mmu.model.api;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
 
-public abstract class Segment<D extends Data, A extends Address> implements Buffer<D, A> {
+public abstract class Segment<D extends Data, A extends Address>
+    extends StandardFunctions implements Buffer<D, A> {
+
   private final BitVector start;
   private final BitVector end;
 

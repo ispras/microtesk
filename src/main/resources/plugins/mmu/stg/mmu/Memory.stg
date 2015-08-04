@@ -20,19 +20,12 @@ memory(pack, imps, name, base, members) ::= <<
 <if(imps)><imports(imps)><endif>
 <class(["public", "final"],
        name,
-       false,
        base,
+       false,
        members)>
 >>
 
 constructor(name) ::= <<
 public <name>() {
-}
->>
-
-is_hit(addr_type) ::= <<
-@Override
-public boolean isHit(final <addr_type> address) {
-  return true;
 }
 >>

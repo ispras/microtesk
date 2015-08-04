@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.translator.generation;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
@@ -55,7 +54,6 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
 
     buildHeader(st);
     buildConstructor(st, group);
-    buildIsHit(st, group);
     buildGetData(st, group);
     buildSetData(st, group);
 
@@ -64,13 +62,13 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
 
   private void buildHeader(final ST st) {
     st.add("pack", packageName);
-    st.add("imps", BUFFER_CLASS.getName());
-    st.add("imps", ru.ispras.microtesk.mmu.model.api.Data.class.getName());
-    st.add("imps", BitVector.class.getName());
+    st.add("imps", MEMORY_CLASS.getName());
+    st.add("imps", DATA_CLASS.getName());
+    st.add("imps", BIT_VECTOR_CLASS.getName());
 
     final String baseName = String.format("%s<%s, %s>",
-        BUFFER_CLASS.getSimpleName(),
-        "Data",
+        MEMORY_CLASS.getSimpleName(),
+        DATA_CLASS.getSimpleName(),
         memory.getAddress().getId());
 
     st.add("name", memory.getId()); 
@@ -83,14 +81,6 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
 
     st.add("members", "");
     st.add("members", stConstructor);
-  }
-
-  private void buildIsHit(final ST st, final STGroup group) {
-    final ST stMethod = group.getInstanceOf("is_hit");
-    stMethod.add("addr_type", memory.getAddress().getId());
-
-    st.add("members", "");
-    st.add("members", stMethod);
   }
 
   private void buildGetData(final ST st, final STGroup group) {
