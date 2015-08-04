@@ -99,6 +99,8 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
     stMethod.add("data_type", DATA_CLASS.getSimpleName());
 
     buildVariableDecls(stMethod, memory.getVariables());
+
+    stMethod.add("stmts", "");
     stMethod.add("stmts", "return null;");
 
     st.add("members", "");
@@ -114,6 +116,8 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
     stMethod.add("data_name", removePrefix(memory.getDataArg().getName()));
 
     buildVariableDecls(stMethod, memory.getVariables());
+
+    stMethod.add("stmts", "");
     stMethod.add("stmts", "return null;");
 
     st.add("members", "");
