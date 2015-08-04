@@ -184,8 +184,6 @@ mmu pmem (va: VA) = (data: 64)
   var cacheData: 256;
 
   read = {
-    exception("HI"); 
-  
     // The address is unaligned.
     if va.value<0..2> != 0 then
       exception("AddressError");
