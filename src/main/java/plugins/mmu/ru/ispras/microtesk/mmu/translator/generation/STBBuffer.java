@@ -31,12 +31,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBBuffer implements STBuilder {
-  private static final String ADDRESS_NAME = "address";
+final class STBBuffer extends STBBuilderBase implements STBuilder {
   private static final String DATA_NAME = "data";
-
-  private static final Class<?> BASE_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Cache.class;
 
   private final String packageName;
   private final Buffer buffer;
@@ -50,10 +46,18 @@ final class STBBuffer implements STBuilder {
   }
 
   @Override
+  protected String getId() {
+    return buffer.getId();
+  }
+
+  @Override
   public ST build(final STGroup group) {
     ExprPrinter.get().pushVariableScope();
-    ExprPrinter.get().addVariableMappings(buffer.getAddressArg(), ADDRESS_NAME);
-    ExprPrinter.get().addVariableMappings(buffer.getDataArg(), DATA_NAME);
+
+    ExprPrinter.get().addVariableMappings(
+        buffer.getAddressArg(), removePrefix(buffer.getAddressArg().getName()));
+    ExprPrinter.get().addVariableMappings(
+        buffer.getDataArg(), DATA_NAME);
 
     final ST st = group.getInstanceOf("buffer");
 
@@ -70,15 +74,15 @@ final class STBBuffer implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("pack", packageName);
     st.add("imps", java.math.BigInteger.class.getName());
-    st.add("imps", BASE_CLASS.getName());
-    st.add("imps", ru.ispras.microtesk.mmu.model.api.Data.class.getName());
-    st.add("imps", ru.ispras.microtesk.mmu.model.api.Indexer.class.getName());
-    st.add("imps", ru.ispras.microtesk.mmu.model.api.Matcher.class.getName());
-    st.add("imps", ru.ispras.microtesk.mmu.model.api.PolicyId.class.getName());
-    st.add("imps", BitVector.class.getName());
+    st.add("imps", CACHE_CLASS.getName());
+    st.add("imps", DATA_CLASS.getName());
+    st.add("imps", INDEXER_CLASS.getName());
+    st.add("imps", MATCHER_CLASS.getName());
+    st.add("imps", POLICY_ID_CLASS.getName());
+    st.add("imps", BIT_VECTOR_CLASS.getName());
 
     final String baseName = String.format("%s<%s, %s>",
-        BASE_CLASS.getSimpleName(),
+        CACHE_CLASS.getSimpleName(),
         String.format("%s.Entry", buffer.getId()),
         buffer.getAddress().getId()
         );
@@ -130,7 +134,7 @@ final class STBBuffer implements STBuilder {
     final ST stIndexer = group.getInstanceOf("indexer");
 
     stIndexer.add("addr_type", buffer.getAddress().getId());
-    stIndexer.add("addr_name", ADDRESS_NAME);
+    stIndexer.add("addr_name", removePrefix(buffer.getAddressArg().getName()));
     stIndexer.add("expr", indexToString(buffer.getIndex()));
 
     st.add("members", stIndexer);
@@ -141,7 +145,7 @@ final class STBBuffer implements STBuilder {
     final ST stMatcher = group.getInstanceOf("matcher");
 
     stMatcher.add("addr_type", buffer.getAddress().getId());
-    stMatcher.add("addr_name", ADDRESS_NAME);
+    stMatcher.add("addr_name", removePrefix(buffer.getAddressArg().getName()));
     stMatcher.add("data_name", DATA_NAME);
     stMatcher.add("expr", matchToString(buffer.getMatch()));
 
@@ -157,8 +161,7 @@ final class STBBuffer implements STBuilder {
     stConstructor.add("sets", buffer.getSets());
 
     stConstructor.add("policy", String.format("%s.%s",
-        ru.ispras.microtesk.mmu.model.api.PolicyId.class.getSimpleName(),
-        buffer.getPolicy().name()));
+        POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
 
     st.add("members", stConstructor);
   }
@@ -169,8 +172,8 @@ final class STBBuffer implements STBuilder {
     if (ExprUtils.isConstant(expr)) {
       final NodeValue value = (NodeValue) expr;
       if (value.isType(DataTypeId.LOGIC_INTEGER)) {
-        return String.format("BitVector.valueOf(%dL, %d)",
-            value.getInteger(), buffer.getAddressArg().getBitSize());
+        return ExprPrinter.bitVectorToString(BitVector.valueOf(
+            value.getInteger(), buffer.getAddressArg().getBitSize()));
       }
       throw new IllegalArgumentException(
           String.format("Illegal index expression: %s", value));

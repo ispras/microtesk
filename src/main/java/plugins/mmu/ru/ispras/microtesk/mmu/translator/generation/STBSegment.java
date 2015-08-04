@@ -27,13 +27,12 @@ import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBSegment implements STBuilder {
+final class STBSegment extends STBBuilderBase implements STBuilder {
   private static final Class<?> BASE_CLASS =
       ru.ispras.microtesk.mmu.model.api.Segment.class;
 
   private final String packageName;
   private final Segment segment;
-  private final String variablePrefix; 
 
   public STBSegment(final String packageName, final Segment segment) {
     InvariantChecks.checkNotNull(packageName);
@@ -41,7 +40,11 @@ final class STBSegment implements STBuilder {
 
     this.packageName = packageName;
     this.segment = segment;
-    this.variablePrefix = segment.getId() + ".";
+  }
+
+  @Override
+  protected String getId() {
+    return segment.getId();
   }
 
   @Override
@@ -93,10 +96,10 @@ final class STBSegment implements STBuilder {
 
     ExprPrinter.get().pushVariableScope();
 
-    final String addressName = segment.getAddressArg().getName().replaceFirst(variablePrefix, "");
+    final String addressName = removePrefix(segment.getAddressArg().getName());
     ExprPrinter.get().addVariableMappings(segment.getAddressArg(), addressName);
 
-    final String dataName = segment.getDataArg().getName().replaceFirst(variablePrefix, "");
+    final String dataName = removePrefix(segment.getDataArg().getName());
     ExprPrinter.get().addVariableMappings(segment.getDataArg(), dataName);
 
     final ST stMethod = group.getInstanceOf("get_data");
@@ -122,18 +125,7 @@ final class STBSegment implements STBuilder {
 
   private void buildStmts(final ST st, final STGroup group) {
     for (final Variable variable : segment.getVariables()) {
-      buildVariableDef(st, variable);
+      buildVariableDecl(st, variable);
     }
-  }
-
-  private void buildVariableDef(final ST st, final Variable variable) {
-    final String mappingName =
-        variable.getName().replaceFirst(variablePrefix, "");
-
-    final String typeName = variable.isStruct() ?
-        Data.class.getSimpleName() : BitVector.class.getSimpleName();
-
-    ExprPrinter.get().addVariableMappings(variable, mappingName);
-    st.add("stmts", String.format("%s %s;", typeName,  mappingName));
   }
 }
