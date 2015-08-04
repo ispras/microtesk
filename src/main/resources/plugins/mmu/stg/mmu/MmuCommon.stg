@@ -32,3 +32,18 @@ public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <dat
 }
 >>
 
+if_block(expr, stmts)::= <<
+if (<expr>) {
+  <stmts; separator="\n">
+>>
+
+elseif_block(expr, stmts)::= <<
+} else if (<expr>) {
+  <stmts; separator="\n">
+>>
+
+else_block(stmts)::= <<
+} else {
+  <stmts; separator="\n">
+}
+>>
