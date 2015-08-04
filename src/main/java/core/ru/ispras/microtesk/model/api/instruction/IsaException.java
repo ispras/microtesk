@@ -17,7 +17,7 @@ package ru.ispras.microtesk.model.api.instruction;
 public class IsaException extends RuntimeException {
   private static final long serialVersionUID = 3218257121771089034L;
 
-  public IsaException(String message) {
+  public IsaException(final String message) {
     super(message);
   }
 }
