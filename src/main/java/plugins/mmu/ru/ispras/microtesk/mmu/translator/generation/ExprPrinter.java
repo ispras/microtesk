@@ -98,7 +98,7 @@ final class ExprPrinter extends MapBasedPrinter {
       final String mappingName = String.format("%s.getField(\"%s\")", mapping, fieldName);
 
       ExprPrinter.get().addVariableMapping(variableName, mappingName);
-      addVariableFieldMappings(variableName, e.getValue(), fieldName, mapping);
+      addVariableFieldMappings(variableName, e.getValue(), mapping, fieldName);
     }
   }
 
