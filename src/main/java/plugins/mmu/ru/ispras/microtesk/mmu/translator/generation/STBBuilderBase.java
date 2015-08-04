@@ -15,10 +15,13 @@
 package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 public abstract class STBBuilderBase {
@@ -46,8 +49,6 @@ public abstract class STBBuilderBase {
   protected abstract String getId();
 
   protected final String removePrefix(final String name) {
-    InvariantChecks.checkNotNull(name);
-
     final String prefix = getId() + ".";
     InvariantChecks.checkTrue(name.startsWith(prefix), name + " prefix is expected: " + prefix);
 
@@ -67,6 +68,32 @@ public abstract class STBBuilderBase {
   protected final void buildVariableDecls(final ST st, final Collection<Variable> variables) {
     for (final Variable variable : variables) {
       buildVariableDecl(st, variable);
+    }
+  }
+
+  protected final void buildStmt(final ST st, final STGroup group, final Stmt stmt) {
+    switch(stmt.getKind()) {
+      case ASSIGN:
+        break;
+
+      case IF:
+        break;
+
+      case EXCEPT:
+        break;
+
+      case TRACE:
+        break;
+
+      default:
+        throw new IllegalArgumentException(
+            "Unsupported statement kind: " + stmt.getKind());
+    }
+  }
+
+  protected final void buildStmts(final ST st, final STGroup group, final List<Stmt> stmts) {
+    for (final Stmt stmt : stmts) {
+      buildStmt(st, group, stmt);
     }
   }
 }

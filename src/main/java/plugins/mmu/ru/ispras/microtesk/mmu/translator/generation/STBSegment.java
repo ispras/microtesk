@@ -111,7 +111,8 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
         segment.getDataArgAddress().getId(), dataName));
     stMethod.add("stmts", "");
 
-    buildStmts(stMethod, group);
+    buildVariableDecls(stMethod, segment.getVariables());
+    buildStmts(stMethod, group, attr.getStmts());
 
     stMethod.add("stmts", "");
     stMethod.add("stmts", String.format("return %s;", dataName));
@@ -120,9 +121,5 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
     st.add("members", stMethod);
 
     ExprPrinter.get().popVariableScope();
-  }
-
-  private void buildStmts(final ST st, final STGroup group) {
-    buildVariableDecls(st, segment.getVariables());
   }
 }
