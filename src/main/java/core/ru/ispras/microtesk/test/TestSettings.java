@@ -37,6 +37,7 @@ public final class TestSettings {
   private static boolean commentsDebug      = false;
   private static boolean commentsEnabled    = false;
   private static boolean tarmacLog          = false;
+  private static boolean selfChecks         = false;
 
   public static String getIndentToken() {
     return indentToken;
@@ -172,5 +173,13 @@ public final class TestSettings {
 
   public static void setTarmacLog(final boolean tarmacLog) {
     TestSettings.tarmacLog = tarmacLog;
+  }
+
+  public static boolean isSelfChecks() {
+    return selfChecks;
+  }
+
+  public static void setSelfChecks(final boolean selfChecks) {
+    TestSettings.selfChecks = selfChecks;
   }
 }

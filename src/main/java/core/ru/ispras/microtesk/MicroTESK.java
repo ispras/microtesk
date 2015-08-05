@@ -252,6 +252,10 @@ public final class MicroTESK {
       TestSettings.setTarmacLog(true);
     }
 
+    if (params.hasOption(Parameters.SELF_CHECKS)) {
+      TestSettings.setSelfChecks(true);
+    }
+
     if (params.hasOption(Parameters.ARCH_DIRS)) {
       final String archDirs = params.getOptionValue(Parameters.ARCH_DIRS);
       final String[] archDirsArray = archDirs.split(":");

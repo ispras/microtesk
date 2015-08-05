@@ -88,6 +88,9 @@ public final class Parameters {
   public static final Option TARMAC_LOG =
       newOption("tarmac-log", false, "Saves simulator log in Tarmac format", GENERATE);
 
+  public static final Option SELF_CHECKS =
+      newOption("self-checks", false, "Inserts self-checking code into test programs", GENERATE);
+
   public static final Option ARCH_DIRS =
       newOption("arch-dirs", true, "Home directories for tested architectures", GENERATE);
 
@@ -261,6 +264,7 @@ public final class Parameters {
 
     result.addOption(SOLVER_DEBUG);
     result.addOption(TARMAC_LOG);
+    result.addOption(SELF_CHECKS);
     result.addOption(ARCH_DIRS);
     result.addOption(RATE_LIMIT);
 
