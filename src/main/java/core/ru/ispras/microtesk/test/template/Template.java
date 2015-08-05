@@ -382,7 +382,7 @@ public final class Template {
 
     if (null != preparatorBuilder) {
       throw new IllegalStateException(String.format(
-          "Nesting is not allowed: The %s preparator cannot be nested into the %s preparator.",
+          "Nesting is not allowed: The %s block cannot be nested into the %s block.",
           targetName, preparatorBuilder.getTargetName()));
     }
 
