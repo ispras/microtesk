@@ -374,7 +374,8 @@ public final class Template {
     return new SituationBuilder(name);
   }
 
-  public PreparatorBuilder beginPreparator(final String targetName) {
+  public PreparatorBuilder beginPreparator(
+      final String targetName, final boolean isComparator) {
     endBuildingCall();
 
     Logger.debug("Begin preparator: %s", targetName);
@@ -397,7 +398,7 @@ public final class Template {
           "%s is not an addressing mode and cannot be a target for a preparator.", targetName));
     }
 
-    preparatorBuilder = new PreparatorBuilder(targetMode);
+    preparatorBuilder = new PreparatorBuilder(targetMode, isComparator);
     return preparatorBuilder; 
   }
 

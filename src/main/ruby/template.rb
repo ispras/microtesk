@@ -435,12 +435,20 @@ class Template
   end
 
   # -------------------------------------------------------------------------- #
-  # Creating Preparators                                                       #
+  # Creating Preparators and Comparators                                       #
   # -------------------------------------------------------------------------- #
 
   def preparator(attrs, &contents)
+    create_preparator(false, attrs, &contents)
+  end
+
+  def comparator(attrs, &contents)
+    create_preparator(true, attrs, &contents)
+  end
+
+  def create_preparator(is_comparator, attrs, &contents)
     target = get_attribute attrs, :target
-    builder = @template.beginPreparator target.to_s
+    builder = @template.beginPreparator target.to_s, is_comparator
 
     mask = attrs[:mask]
     if !mask.nil?
@@ -490,14 +498,6 @@ class Template
     else
       @template.newLazy
     end
-  end
-  
-  # -------------------------------------------------------------------------- #
-  # Creating Comparators                                                       #
-  # -------------------------------------------------------------------------- #
-
-  def comparator(attrs, &contents)
-    #TODO
   end
 
   # -------------------------------------------------------------------------- #

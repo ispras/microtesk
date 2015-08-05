@@ -35,10 +35,6 @@ public final class PreparatorBuilder {
   private Preparator.Mask mask;
   private final List<Preparator.Argument> arguments;
 
-  protected PreparatorBuilder(final MetaAddressingMode targetMetaData) {
-    this(targetMetaData, false);
-  }
-
   protected PreparatorBuilder(
       final MetaAddressingMode targetMetaData,
       final boolean isComparator) {
