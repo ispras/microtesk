@@ -50,12 +50,32 @@ public final class PreparatorStore {
   }
 
   private final Map<String, PreparatorGroup> preparatorGroups;
+  private final Map<String, PreparatorGroup> comparatorGroups;
 
   public PreparatorStore() {
     this.preparatorGroups = new HashMap<>();
+    this.comparatorGroups = new HashMap<>();
   }
 
   public void addPreparator(final Preparator preparator) {
+    addPrerator(preparatorGroups, preparator);
+  }
+
+  public Preparator getPreparator(final Primitive targetMode, final BitVector data) {
+    return getPreparator(preparatorGroups, targetMode, data);
+  }
+
+  public void addComparator(final Preparator preparator) {
+    addPrerator(comparatorGroups, preparator);
+  }
+
+  public Preparator getComparator(final Primitive targetMode, final BitVector data) {
+    return getPreparator(comparatorGroups, targetMode, data);
+  }
+
+  private static void addPrerator(
+      final Map<String, PreparatorGroup> preparatorGroups,
+      final Preparator preparator) {
     InvariantChecks.checkNotNull(preparator);
 
     final String name = preparator.getTargetName();
@@ -73,7 +93,10 @@ public final class PreparatorStore {
     }
   }
 
-  public Preparator getPreparator(final Primitive targetMode, final BitVector data) {
+  private static Preparator getPreparator(
+      final Map<String, PreparatorGroup> preparatorGroups,
+      final Primitive targetMode,
+      final BitVector data) {
     InvariantChecks.checkNotNull(targetMode);
     InvariantChecks.checkNotNull(data);
 
