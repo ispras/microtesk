@@ -58,15 +58,16 @@ public final class PreparatorStore {
   }
 
   public void addPreparator(final Preparator preparator) {
-    addPrerator(preparatorGroups, preparator);
+    InvariantChecks.checkNotNull(preparator);
+    if (preparator.isComparator()) {
+      addPrerator(comparatorGroups, preparator);
+    } else {
+      addPrerator(preparatorGroups, preparator);
+    }
   }
 
   public Preparator getPreparator(final Primitive targetMode, final BitVector data) {
     return getPreparator(preparatorGroups, targetMode, data);
-  }
-
-  public void addComparator(final Preparator preparator) {
-    addPrerator(comparatorGroups, preparator);
   }
 
   public Preparator getComparator(final Primitive targetMode, final BitVector data) {
@@ -76,8 +77,6 @@ public final class PreparatorStore {
   private static void addPrerator(
       final Map<String, PreparatorGroup> preparatorGroups,
       final Preparator preparator) {
-    InvariantChecks.checkNotNull(preparator);
-
     final String name = preparator.getTargetName();
     PreparatorGroup group = preparatorGroups.get(name);
 

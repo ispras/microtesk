@@ -26,6 +26,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 
 public final class PreparatorBuilder {
   private final MetaAddressingMode targetMetaData;
+  private final boolean isComparator;
 
   private final LazyPrimitive target;
   private final LazyData data;
@@ -34,10 +35,18 @@ public final class PreparatorBuilder {
   private Preparator.Mask mask;
   private final List<Preparator.Argument> arguments;
 
-  PreparatorBuilder(final MetaAddressingMode targetMetaData) {
+  protected PreparatorBuilder(final MetaAddressingMode targetMetaData) {
+    this(targetMetaData, false);
+  }
+
+  protected PreparatorBuilder(
+      final MetaAddressingMode targetMetaData,
+      final boolean isComparator) {
     checkNotNull(targetMetaData);
 
     this.targetMetaData = targetMetaData;
+    this.isComparator = isComparator;
+
     final String targetName = targetMetaData.getName();
 
     this.target = new LazyPrimitive(Primitive.Kind.MODE, targetName, targetName);
@@ -108,6 +117,6 @@ public final class PreparatorBuilder {
   }
 
   public Preparator build() {
-    return new Preparator(target, data, calls, mask, arguments);
+    return new Preparator(isComparator, target, data, calls, mask, arguments);
   }
 }

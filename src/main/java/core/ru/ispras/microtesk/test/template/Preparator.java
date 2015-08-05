@@ -25,6 +25,7 @@ import java.util.List;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 public final class Preparator {
+  private final boolean isComparator;
   private final LazyPrimitive targetHolder;
   private final LazyData dataHolder;
   private final List<Call> calls;
@@ -32,7 +33,8 @@ public final class Preparator {
   private final Mask mask;
   private final List<Argument> arguments;
 
-  Preparator(
+  protected Preparator(
+      final boolean isComparator,
       final LazyPrimitive targetHolder,
       final LazyData dataHolder,
       final List<Call> calls,
@@ -43,12 +45,17 @@ public final class Preparator {
     checkNotNull(calls);
     checkNotNull(arguments);
 
+    this.isComparator = isComparator;
     this.targetHolder = targetHolder;
     this.dataHolder = dataHolder;
     this.calls = Collections.unmodifiableList(calls);
 
     this.mask = mask;
     this.arguments = arguments;
+  }
+
+  public boolean isComparator() {
+    return isComparator;
   }
 
   public String getTargetName() {
