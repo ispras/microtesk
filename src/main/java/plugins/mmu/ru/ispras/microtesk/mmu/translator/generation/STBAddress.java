@@ -25,38 +25,30 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.util.Map;
 
-final class STBAddress implements STBuilder {
-  private static final Class<?> BASE_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Address.class; 
-
-  private final String packageName;
+final class STBAddress extends STBBuilderBase implements STBuilder {
   private final Address address;
 
   public STBAddress(final String packageName, final Address address) {
-    InvariantChecks.checkNotNull(packageName);
-    InvariantChecks.checkNotNull(address);
+    super(packageName);
 
-    this.packageName = packageName;
+    InvariantChecks.checkNotNull(address);
     this.address = address;
+  }
+
+  @Override
+  protected String getId() {
+    return address.getId();
   }
 
   @Override
   public ST build(final STGroup group) {
     final ST st = group.getInstanceOf("address");
 
-    buildHeader(st);
+    buildHeader(st, ADDRESS_CLASS.getSimpleName());
     buildFields(st, group);
-    buildGetValue(st, group);;
+    buildGetValue(st, group);
 
     return st;
-  }
-
-  private void buildHeader(final ST st) {
-    st.add("name", address.getId()); 
-    st.add("base", BASE_CLASS.getSimpleName());
-    st.add("pack", packageName);
-    st.add("imps", BASE_CLASS.getName());
-    st.add("imps", ru.ispras.fortress.data.types.bitvector.BitVector.class.getName());
   }
 
   private void buildFields(final ST st, final STGroup group) {

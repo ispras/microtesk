@@ -21,11 +21,14 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.expression.printer.MapBasedPrinter;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
+import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
@@ -42,12 +45,24 @@ final class ExprPrinter extends MapBasedPrinter {
   private final Deque<Map<String, Object>> variableMappings = new ArrayDeque<>();
 
   private ExprPrinter() {
-    addMapping(
-        StandardOperation.BVEXTRACT, "", new String[] {".field(", ", "}, ")", new int[] {2, 0, 1});
     addMapping(StandardOperation.EQ, "", ".equals(", ")");
+    addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
     addMapping(StandardOperation.AND, "", " && ", "");
-    
-    
+    addMapping(StandardOperation.OR, "", " || ", "");
+    addMapping(StandardOperation.NOT, "!", "" , "");
+
+    addMapping(StandardOperation.BVEXTRACT,
+        "", new String[] {".field(", ", "}, ")", new int[] {2, 0, 1});
+
+    addMapping(StandardOperation.BVZEROEXT,
+        "", new String[] {".resize("}, ", false)", new int[] {1, 0});
+
+    addMapping(StandardOperation.BVULT, "BitVectorMath.ult(", ", ", ").equals(BitVector.TRUE)");
+    addMapping(StandardOperation.BVULE, "BitVectorMath.ule(", ", ", ").equals(BitVector.TRUE)");
+    addMapping(StandardOperation.BVUGT, "BitVectorMath.ugt(", ", ", ").equals(BitVector.TRUE)");
+    addMapping(StandardOperation.BVUGE, "BitVectorMath.uge(", ", ", ").equals(BitVector.TRUE)");
+
+    addMapping(StandardOperation.BVADD, "BitVectorMath.add(", ", ", ")");
 
     setVisitor(new Visitor());
     pushVariableScope(); // Global scope
@@ -110,17 +125,29 @@ final class ExprPrinter extends MapBasedPrinter {
 
     final String text;
     if (value.getBitSize() <= Integer.SIZE) {
-      text = String.format("BitVector.valueOf(0x%s, %d)", hexValue, bitSize);
+      text = String.format("%s.valueOf(0x%s, %d)",
+          BitVector.class.getSimpleName(), hexValue, bitSize);
     } else if (bitSize <= Long.SIZE) {
-      text = String.format("BitVector.valueOf(0x%sL, %d)", hexValue, bitSize);
+      text = String.format("%s.valueOf(0x%sL, %d)",
+          BitVector.class.getSimpleName(), hexValue, bitSize);
     } else {
-      text = String.format("BitVector.valueOf(\"%s\", 16, %d)", hexValue, bitSize);
+      text = String.format("%s.valueOf(\"%s\", 16, %d)",
+          BitVector.class.getSimpleName(), hexValue, bitSize);
     }
 
     return text;
   }
 
   private final class Visitor extends ExprTreeVisitor {
+    private final Map<String, String> attrMap;
+
+    public Visitor() {
+      attrMap = new HashMap<>();
+      attrMap.put(AbstractStorage.HIT_ATTR_NAME,   "isHit");
+      attrMap.put(AbstractStorage.READ_ATTR_NAME,  "getData");
+      attrMap.put(AbstractStorage.WRITE_ATTR_NAME, "setData");
+    }
+
     @Override
     public void onValue(final NodeValue value) {
       if (value.isType(DataTypeId.BIT_VECTOR)) {
@@ -133,8 +160,23 @@ final class ExprPrinter extends MapBasedPrinter {
 
     @Override
     public void onVariable(final NodeVariable variable) {
-      final String text = getVariableMapping(variable.getName());
-      appendText(text);
+      if (variable.getUserData() instanceof AttributeRef) {
+        final AttributeRef attrRef = (AttributeRef) variable.getUserData();
+
+        appendText(attrRef.getTarget().getId());
+        appendText(".get().");
+
+        appendText(attrMap.get(attrRef.getAttribute().getId()));
+        appendText("(");
+
+        final ExprTreeWalker walker = new ExprTreeWalker(this);
+        walker.visit(attrRef.getAddressArgValue());
+
+        appendText(")");
+      } else {
+        final String text = getVariableMapping(variable.getName());
+        appendText(text);
+      }
     }
   }
 }

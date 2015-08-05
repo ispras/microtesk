@@ -34,14 +34,12 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 final class STBBuffer extends STBBuilderBase implements STBuilder {
   private static final String DATA_NAME = "data";
 
-  private final String packageName;
   private final Buffer buffer;
 
   public STBBuffer(final String packageName, final Buffer buffer) {
-    InvariantChecks.checkNotNull(packageName);
-    InvariantChecks.checkNotNull(buffer);
+    super(packageName);
 
-    this.packageName = packageName;
+    InvariantChecks.checkNotNull(buffer);
     this.buffer = buffer;
   }
 
@@ -72,14 +70,7 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
   }
 
   private void buildHeader(final ST st) {
-    st.add("pack", packageName);
     st.add("imps", java.math.BigInteger.class.getName());
-    st.add("imps", CACHE_CLASS.getName());
-    st.add("imps", DATA_CLASS.getName());
-    st.add("imps", INDEXER_CLASS.getName());
-    st.add("imps", MATCHER_CLASS.getName());
-    st.add("imps", POLICY_ID_CLASS.getName());
-    st.add("imps", BIT_VECTOR_CLASS.getName());
 
     final String baseName = String.format("%s<%s, %s>",
         CACHE_CLASS.getSimpleName(),
@@ -87,8 +78,7 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
         buffer.getAddress().getId()
         );
 
-    st.add("name", buffer.getId()); 
-    st.add("base", baseName);
+    buildHeader(st, baseName);
   }
 
   private void buildNewLine(final ST st) {

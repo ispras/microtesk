@@ -27,15 +27,21 @@ import ru.ispras.fortress.expression.NodeVariable;
 public final class Variable extends Nested<Variable> {
   private final String name;
   private final Type type;
+  private final Object typeSource;
   private final NodeVariable node;
   private final Map<String, Variable> fields;
 
   public Variable(final String name, final Type type) {
+    this(name, type, null);
+  }
+
+  public Variable(final String name, final Type type, final Object typeSource) {
     checkNotNull(name);
     checkNotNull(type);
 
     this.name = name;
     this.type = type;
+    this.typeSource = typeSource;
 
     if (type.isStruct()) {
       final Map<String, Variable> fields = new HashMap<>(type.getFields().size());
@@ -58,6 +64,10 @@ public final class Variable extends Nested<Variable> {
 
   public Type getType() {
     return type;
+  }
+
+  public Object getTypeSource() {
+    return typeSource;
   }
 
   public int getBitSize() {

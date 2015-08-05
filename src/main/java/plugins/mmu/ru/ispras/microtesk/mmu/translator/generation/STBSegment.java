@@ -20,24 +20,18 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.mmu.model.api.Data;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment extends STBBuilderBase implements STBuilder {
-  private static final Class<?> BASE_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Segment.class;
-
-  private final String packageName;
   private final Segment segment;
 
   public STBSegment(final String packageName, final Segment segment) {
-    InvariantChecks.checkNotNull(packageName);
-    InvariantChecks.checkNotNull(segment);
+    super(packageName);
 
-    this.packageName = packageName;
+    InvariantChecks.checkNotNull(segment);
     this.segment = segment;
   }
 
@@ -48,27 +42,24 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
 
   @Override
   public ST build(final STGroup group) {
+    ExprPrinter.get().pushVariableScope();
     final ST st = group.getInstanceOf("segment");
 
     buildHeader(st);
     buildConstructor(st, group);
     buildGetData(st, group);
 
+    ExprPrinter.get().popVariableScope();
     return st;
   }
 
   private void buildHeader(final ST st) {
-    st.add("pack", packageName);
-    st.add("imps", BASE_CLASS.getName());
-    st.add("imps", BitVector.class.getName());
-
     final String baseName = String.format("%s<%s, %s>",
-        BASE_CLASS.getSimpleName(),
+        SEGMENT_CLASS.getSimpleName(),
         segment.getDataArgAddress().getId(),
         segment.getAddress().getId());
 
-    st.add("name", segment.getId()); 
-    st.add("base", baseName);
+    buildHeader(st, baseName);
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
@@ -90,10 +81,6 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
     if (null == attr) {
       return;
     }
-
-    st.add("imps", Data.class.getName());
-
-    ExprPrinter.get().pushVariableScope();
 
     final String addressName = removePrefix(segment.getAddressArg().getName());
     ExprPrinter.get().addVariableMappings(segment.getAddressArg(), addressName);
@@ -119,7 +106,5 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
 
     st.add("members", "");
     st.add("members", stMethod);
-
-    ExprPrinter.get().popVariableScope();
   }
 }

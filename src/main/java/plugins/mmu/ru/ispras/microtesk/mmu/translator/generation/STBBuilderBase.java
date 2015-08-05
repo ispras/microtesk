@@ -20,15 +20,23 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.mmu.translator.ir.Address;
+import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
+import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 public abstract class STBBuilderBase {
   public static final Class<?> BIT_VECTOR_CLASS = 
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
+
+  public static final Class<?> ADDRESS_CLASS =
+      ru.ispras.microtesk.mmu.model.api.Address.class;
 
   public static final Class<?> DATA_CLASS =
       ru.ispras.microtesk.mmu.model.api.Data.class;
@@ -38,6 +46,9 @@ public abstract class STBBuilderBase {
 
   public static final Class<?> CACHE_CLASS =
       ru.ispras.microtesk.mmu.model.api.Cache.class;
+
+  public static final Class<?> SEGMENT_CLASS =
+      ru.ispras.microtesk.mmu.model.api.Segment.class;
 
   public static final Class<?> MEMORY_CLASS =
       ru.ispras.microtesk.mmu.model.api.Memory.class;
@@ -51,6 +62,13 @@ public abstract class STBBuilderBase {
   public static final Class<?> POLICY_ID_CLASS =
       ru.ispras.microtesk.mmu.model.api.PolicyId.class;
 
+  private final String packageName;
+
+  protected STBBuilderBase(final String packageName) {
+    InvariantChecks.checkNotNull(packageName);
+    this.packageName = packageName;
+  }
+
   protected abstract String getId();
 
   protected final String removePrefix(final String name) {
@@ -60,20 +78,38 @@ public abstract class STBBuilderBase {
     return name.substring(prefix.length());
   }
 
+  protected final void buildHeader(final ST st, final String base) {
+    st.add("name", getId()); 
+    st.add("base", base);
+    st.add("pack", packageName);
+
+    st.add("imps", String.format("%s.*", BUFFER_CLASS.getPackage().getName()));
+    st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
+  }
+
   protected final void buildVariableDecl(final ST st, final Variable variable) {
     final String mappingName = removePrefix(variable.getName());
 
-    final String typeName =
-        (variable.isStruct() ? DATA_CLASS : BIT_VECTOR_CLASS).getSimpleName();
+    final String typeName;
+    if (variable.getTypeSource() instanceof Address) {
+      typeName = ((Address) variable.getTypeSource()).getId();
+    } else if (variable.getTypeSource() instanceof Buffer) {
+      typeName = ((Buffer) variable.getTypeSource()).getId() + ".Entry";
+    } else if (variable.isStruct()) {
+      typeName = DATA_CLASS.getSimpleName();
+    } else {
+      typeName = BIT_VECTOR_CLASS.getSimpleName();
+    }
 
     ExprPrinter.get().addVariableMappings(variable, mappingName);
-    st.add("stmts", String.format("%s %s;", typeName,  mappingName));
+    st.add("stmts", String.format("%s %s = null;", typeName,  mappingName));
   }
 
   protected final void buildVariableDecls(final ST st, final Collection<Variable> variables) {
     for (final Variable variable : variables) {
       buildVariableDecl(st, variable);
     }
+    st.add("stmts", "");
   }
 
   protected final void buildStmt(final ST st, final STGroup group, final Stmt stmt) {
@@ -82,6 +118,7 @@ public abstract class STBBuilderBase {
         break;
 
       case IF:
+        buildStmtIf(st, group, (StmtIf) stmt);
         break;
 
       case EXCEPT:
@@ -101,6 +138,28 @@ public abstract class STBBuilderBase {
   protected final void buildStmts(final ST st, final STGroup group, final List<Stmt> stmts) {
     for (final Stmt stmt : stmts) {
       buildStmt(st, group, stmt);
+    }
+  }
+
+  private void buildStmtIf(final ST st, final STGroup group, final StmtIf stmt) {
+    boolean isFirst = true;
+    for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
+      final ST stIf = group.getInstanceOf(isFirst ? "if_block" : "elseif_block");
+      isFirst = false;
+
+      final String exprText = ExprPrinter.get().toString(block.first);
+      stIf.add("expr", exprText);
+
+      buildStmts(stIf, group, block.second);
+      st.add("stmts", stIf);
+    }
+
+    if (!stmt.getElseBlock().isEmpty()) {
+      final ST stElse = group.getInstanceOf("else_block");
+      buildStmts(stElse, group, stmt.getElseBlock());
+      st.add("stmts", stElse);
+    } else {
+      st.add("stmts", "}");
     }
   }
 

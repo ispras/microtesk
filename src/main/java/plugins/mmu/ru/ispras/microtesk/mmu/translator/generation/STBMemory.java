@@ -21,25 +21,16 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
-import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBMemory extends STBBuilderBase implements STBuilder {
-  private final String packageName;
-  private final Ir ir;
   private final Memory memory;
 
-  public STBMemory(
-      final String packageName,
-      final Ir ir,
-      final Memory memory) {
-    InvariantChecks.checkNotNull(packageName);
-    InvariantChecks.checkNotNull(ir);
-    InvariantChecks.checkNotNull(memory);
+  public STBMemory(final String packageName, final Memory memory) {
+    super(packageName);
 
-    this.packageName = packageName;
-    this.ir = ir;
+    InvariantChecks.checkNotNull(memory);
     this.memory = memory;
   }
 
@@ -50,29 +41,32 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
 
   @Override
   public ST build(final STGroup group) {
+    ExprPrinter.get().pushVariableScope();
+
+    final String addressName = removePrefix(memory.getAddressArg().getName());
+    ExprPrinter.get().addVariableMappings(memory.getAddressArg(), addressName);
+
+    final String dataName = removePrefix(memory.getDataArg().getName());
+    ExprPrinter.get().addVariableMappings(memory.getDataArg(), dataName);
+
     final ST st = group.getInstanceOf("memory");
 
     buildHeader(st);
     buildConstructor(st, group);
-    buildGetData(st, group);
-    buildSetData(st, group);
+    buildGetData(st, group, addressName, dataName);
+    buildSetData(st, group, addressName, dataName);
 
+    ExprPrinter.get().popVariableScope();
     return st;
   }
 
   private void buildHeader(final ST st) {
-    st.add("pack", packageName);
-    st.add("imps", MEMORY_CLASS.getName());
-    st.add("imps", DATA_CLASS.getName());
-    st.add("imps", BIT_VECTOR_CLASS.getName());
-
     final String baseName = String.format("%s<%s, %s>",
         MEMORY_CLASS.getSimpleName(),
         DATA_CLASS.getSimpleName(),
         memory.getAddress().getId());
 
-    st.add("name", memory.getId()); 
-    st.add("base", baseName);
+    buildHeader(st, baseName);
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
@@ -83,36 +77,47 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
     st.add("members", stConstructor);
   }
 
-  private void buildGetData(final ST st, final STGroup group) {
+  private void buildGetData(
+      final ST st,
+      final STGroup group,
+      final String addressName,
+      final String dataName) {
     final Attribute attr = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
     InvariantChecks.checkNotNull(attr, "Attribute is undefined: " + AbstractStorage.READ_ATTR_NAME);
 
     final ST stMethod = group.getInstanceOf("get_data");
 
     stMethod.add("addr_type", memory.getAddress().getId());
-    stMethod.add("addr_name", removePrefix(memory.getAddressArg().getName()));
+    stMethod.add("addr_name", addressName);
     stMethod.add("data_type", DATA_CLASS.getSimpleName());
+
+    stMethod.add("stmts", String.format("%s %s = null;", DATA_CLASS.getSimpleName(), dataName));
+    stMethod.add("stmts", "");
 
     buildVariableDecls(stMethod, memory.getVariables());
     buildStmts(stMethod, group, attr.getStmts());
 
     stMethod.add("stmts", "");
-    stMethod.add("stmts", "return null;");
+    stMethod.add("stmts", String.format("return %s;", dataName));
 
     st.add("members", "");
     st.add("members", stMethod);
   }
 
-  private void buildSetData(final ST st, final STGroup group) {
+  private void buildSetData(
+      final ST st,
+      final STGroup group,
+      final String addressName,
+      final String dataName) {
     final Attribute attr = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
     InvariantChecks.checkNotNull(attr, "Attribute is undefined: " + AbstractStorage.WRITE_ATTR_NAME);
 
     final ST stMethod = group.getInstanceOf("set_data");
 
     stMethod.add("addr_type", memory.getAddress().getId());
-    stMethod.add("addr_name", removePrefix(memory.getAddressArg().getName()));
+    stMethod.add("addr_name", addressName);
     stMethod.add("data_type", DATA_CLASS.getSimpleName());
-    stMethod.add("data_name", removePrefix(memory.getDataArg().getName()));
+    stMethod.add("data_name", dataName);
 
     buildVariableDecls(stMethod, memory.getVariables());
     buildStmts(stMethod, group, attr.getStmts());

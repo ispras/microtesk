@@ -482,17 +482,23 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final ISymbol symbol = getSymbol(typeId);
 
       final Type type;
+      final Object source;
       if (MmuSymbolKind.BUFFER == symbol.getKind()) {
-        type = getBuffer(typeId).getEntry();
+        final Buffer buffer = getBuffer(typeId);
+        type = buffer.getEntry();
+        source = buffer;
       } else if (MmuSymbolKind.ADDRESS == symbol.getKind()) {
-        type = getAddress(typeId).getContentType();
+        final Address address = getAddress(typeId);
+        type = address.getContentType();
+        source = address;
       } else {
         type = null;
+        source = null;
         raiseError(where(typeId), new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));
       }
 
-      final Variable v = storage.declare(varId.getText(), type);
+      final Variable v = storage.declare(varId.getText(), type, source);
       variables.put(v.getName(), v);
       // context.defineVariable(variable);
     }

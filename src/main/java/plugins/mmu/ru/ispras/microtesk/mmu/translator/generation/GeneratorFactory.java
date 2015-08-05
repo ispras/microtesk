@@ -96,7 +96,7 @@ final class GeneratorFactory {
     InvariantChecks.checkNotNull(memory);
 
     final String outputFileName = getOutputFileName(memory.getId());
-    final STBuilder builder = new STBMemory(packageName, ir, memory);
+    final STBuilder builder = new STBMemory(packageName, memory);
 
     return new STFileGenerator(outputFileName, MEMORY_STGS, builder);
   }
