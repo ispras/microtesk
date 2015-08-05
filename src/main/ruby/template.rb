@@ -531,7 +531,7 @@ class Template
   # -------------------------------------------------------------------------- #
   # Creating Streams                                                           #
   # -------------------------------------------------------------------------- #
-  
+
   def stream(label, data, index, length)
     @template.addStream label.to_s, data, index, length
   end
