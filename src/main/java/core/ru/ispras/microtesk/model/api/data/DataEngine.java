@@ -20,7 +20,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath.Operations;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
 import ru.ispras.microtesk.model.api.data.operations.ArithmBinary;
@@ -301,14 +300,16 @@ public final class DataEngine {
     return op.supports(left, right);
   }
 
-  public static Data coerce(Type type, Data value) {
-    // TODO: MAY NEED REVIEW (CODED IN A HURRY)
-    // assert false : "NOT IMPLEMENTED";
+  public static Data coerce(final Type type, final Data value) {
+    //TODO: MAY NEED REVIEW (CODED IN A HURRY)
 
-    final BitVector newRawData = BitVector.newEmpty(type.getBitSize());
-    final int copyBitSize = Math.min(value.getType().getBitSize(), type.getBitSize());
+    // Currently, sign extension applies only to INT.
+    final boolean signExt =
+        type.getTypeId() == TypeId.INT;
 
-    BitVectorAlgorithm.copy(value.getRawData(), 0, newRawData, 0, copyBitSize);
+    final BitVector newRawData =
+        value.getRawData().resize(type.getBitSize(), signExt);
+
     return new Data(newRawData, type);
   }
 
