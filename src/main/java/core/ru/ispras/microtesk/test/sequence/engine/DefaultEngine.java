@@ -161,8 +161,9 @@ public final class DefaultEngine implements Engine<TestSequence> {
     generateData(engineContext, primitive);
   }
 
-  private void generateData(final EngineContext engineContext, final Primitive primitive)
-      throws ConfigurationException {
+  private void generateData(
+      final EngineContext engineContext,
+      final Primitive primitive) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(primitive);
 
@@ -213,8 +214,9 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
   }
 
-  private void addCallsToPrologue(final EngineContext engineContext, final List<Call> abstractCalls)
-      throws ConfigurationException {
+  private void addCallsToPrologue(
+      final EngineContext engineContext,
+      final List<Call> abstractCalls) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(abstractCalls);
 
