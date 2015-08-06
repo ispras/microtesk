@@ -126,8 +126,9 @@ public final class DefaultEngine implements Engine<TestSequence> {
     sequenceBuilder.addToPrologue(call);
   }
 
-  private void processAbstractCall(final EngineContext engineContext, final Call abstractCall)
-      throws ConfigurationException {
+  private void processAbstractCall(
+      final EngineContext engineContext,
+      final Call abstractCall) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(abstractCall);
 
@@ -147,8 +148,9 @@ public final class DefaultEngine implements Engine<TestSequence> {
     registerCall(concreteCall);
   }
 
-  private void processSituations(final EngineContext engineContext, final Primitive primitive)
-      throws ConfigurationException {
+  private void processSituations(
+      final EngineContext engineContext,
+      final Primitive primitive) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(primitive);
 
