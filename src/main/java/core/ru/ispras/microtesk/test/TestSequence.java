@@ -15,12 +15,12 @@
 package ru.ispras.microtesk.test;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
@@ -37,6 +37,7 @@ public final class TestSequence {
   public static final class Builder {
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
+    private final List<ConcreteCall> checks;
 
     private int byteSize;
     private int instructionCount;
@@ -44,6 +45,8 @@ public final class TestSequence {
     public Builder() {
       this.prologue = new ArrayList<>();
       this.body = new ArrayList<>();
+      this.checks = new ArrayList<>();
+
       this.byteSize = 0;
       this.instructionCount = 0;
     }
@@ -83,13 +86,22 @@ public final class TestSequence {
       addTo(body, calls);
     }
 
+    public void addToChecks(final ConcreteCall call) {
+      addTo(checks, call);
+    }
+
+    public void addToChecks(final List<ConcreteCall> calls) {
+      addTo(checks, calls);
+    }
+
     public TestSequence build() {
-      return new TestSequence(prologue, body, byteSize, instructionCount);
+      return new TestSequence(prologue, body, checks, byteSize, instructionCount);
     }
   }
 
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
+  private final List<ConcreteCall> checks;
 
   private final int byteSize;
   private final int instructionCount;
@@ -100,13 +112,16 @@ public final class TestSequence {
   private TestSequence(
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body,
+      final List<ConcreteCall> checks,
       final int byteSize,
       final int instructionCount) {
     checkNotNull(prologue);
     checkNotNull(body);
+    checkNotNull(checks);
 
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
+    this.checks = Collections.unmodifiableList(checks);
 
     this.byteSize = byteSize;
     this.instructionCount = instructionCount;
@@ -120,11 +135,17 @@ public final class TestSequence {
     return body;
   }
 
+  public List<ConcreteCall> getChecks() {
+    return checks;
+  }
+
   public List<ConcreteCall> getAll() {
-    final List<ConcreteCall> result = new ArrayList<>(prologue.size() + body.size());
+    final List<ConcreteCall> result = new ArrayList<>(
+        prologue.size() + body.size() + checks.size());
 
     result.addAll(prologue);
     result.addAll(body);
+    result.addAll(checks);
 
     return Collections.unmodifiableList(result);
   }
@@ -134,22 +155,29 @@ public final class TestSequence {
   }
 
   public long getEndAddress() {
-    InvariantChecks.checkTrue(isEndAddressSet, "Address is not assigned");
+    checkTrue(isEndAddressSet, "Address is not assigned");
     return endAddress;
   }
 
   public long setAddress(final long address) {
     long currentAddress = address;
-    for (final ConcreteCall call : prologue) {
-      currentAddress = call.setAddress(currentAddress);
-    }
 
-    for (final ConcreteCall call : body) {
-      currentAddress = call.setAddress(currentAddress);
-    }
+    currentAddress = setAddress(prologue, currentAddress);
+    currentAddress = setAddress(body, currentAddress);
+    currentAddress = setAddress(checks, currentAddress);
 
     this.endAddress = currentAddress;
     this.isEndAddressSet = true;
+
+    return currentAddress;
+  }
+
+  private static long setAddress(final List<ConcreteCall> calls, final long address) {
+    long currentAddress = address;
+
+    for (final ConcreteCall call : calls) {
+      currentAddress = call.setAddress(currentAddress);
+    }
 
     return currentAddress;
   }
