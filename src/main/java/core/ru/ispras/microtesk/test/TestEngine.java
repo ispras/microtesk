@@ -430,7 +430,11 @@ public final class TestEngine {
           STATISTICS.testCaseNumber++;
 
           if (TestSettings.isSelfChecks()) {
+            printer.printToFile("");
+            printer.printCommentToFile("Self Checks");
+
             // TODO: code inserting self checks.
+            printer.printCommentToFile("Empty");
           }
 
           ++sequenceIndex;
